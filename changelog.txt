@@ -2,6 +2,53 @@
 
 //Alpha 17
 
+Added Sprite Scaling to all sprite types, in ZScript:
+	float lweapon->Scale;
+	float eweapon->Scale;
+	float npc->Scale;
+	float item->Scale;
+	float hero->Scale;
+	
+	Scale is a multiplier, so, a scale of 1.000 is normal scale.
+	Scale of 0 is also 'normal' scale, as this indicates that scaling is off. 
+	Negative scale values are undefined (and cause sprites not to draw).
+	A scale of 1.5000 draws a sprite 50% larger.
+	
+	Scaling only works at this time if extend == 0. 
+	
+	Scaling a sprite does not offset its coordinates. 
+	( ZoriaRPG, 5th April, 2019 )
+	
+
+Fixed the values for some Combo Types in the module format.
+	The module loader was offsetting the string used for combo types
+	CT_SLASHNEXT and above. This offset CT_SCRIPT1 to show as 'Script 2' in the editor.
+	( ZoriaRPG, 5th April, 2019 )
+	
+Added FFScript::updateIncludePaths(), calling in ZQ.
+	This is used to update the values stored in FFScript::includePathsStrings
+	when the user changes the string in the GUI. 
+	( ZoriaRPG, 4th April, 2019 )
+
+Add `#include`, add `Max Includes` display to compiler settings dialogue
+
+	`#include "path"` - will import the file at that path, relative to the first path in `include_path`, 
+	in `zquest.cfg` (or the compiler settings dialogue)
+	(This is searched at `ScriptParser::preprocess()`)
+
+	Added `ZQincludePaths[][]` as an array to copy `FFCore.includePaths` to, to extern into `ScriptParser.cpp`.
+		This is filled after `FFCore.init()` is called, and when `OK` was pressed in the 
+		compiler settings dialogue.
+
+	Added `Max Includes: %d` display to compiler settings dialogue, displaying the value of
+		`MAX_INCLUDE_PATHS`
+		It sucks not knowing why your 4th include in your test isn't working...
+
+	Increased MAX_INCLUDE_PATHS from 3 to 5, and moved it's definition from `zdefs.h` to `parser/parserDefs.h`.
+		`parser/parserDefs.h` has been added as an include to `zquest.h` and `ffscript.h`
+	( Venrob, 3rd April, 2019 )
+
+Added "Include Paths:" label to the dialogue. 
 Added a config string for include paths to zc.cfg and to zquest.cfg as:
 	[Compiler]
 	include_path

@@ -814,6 +814,8 @@ int LinkClass::getSpecialCave()
 
 void LinkClass::init()
 {
+	scale = 0;
+	rotation = 0;
 	do_animation = 1;
     setMonochrome(false);
     if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw link == 0

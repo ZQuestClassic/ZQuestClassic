@@ -1713,6 +1713,12 @@ string VarArgument::toString()
 	case ITEMROTATION: return "ITEMROTATION";
 	case LINKROTATION: return "LINKROTATION";
 	
+	case LWPNSCALE: return "LWPNSCALE";
+	case EWPNSCALE: return "EWPNSCALE";
+	case NPCSCALE: return "NPCSCALE";
+	case ITEMSCALE: return "ITEMSCALE";
+	case LINKSCALE: return "LINKSCALE";
+	
 	
     default:
     {

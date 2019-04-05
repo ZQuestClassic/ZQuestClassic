@@ -1408,6 +1408,13 @@ long get_register(const long arg)
         ret = (int)(Link.rotation)*10000;
         break;
     
+    case LINKSCALE:
+    {
+	//al_trace("Link's scale is: %d\n", Link.scale);
+        ret = (int)(Link.scale*100.0);
+        break;
+    }
+    
     case LINKHXOFS:
         ret = (int)(Link.hxofs)*10000;
         break;
@@ -1799,7 +1806,15 @@ long get_register(const long arg)
         
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
-    case ITEMX:
+    case ITEMSCALE:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((int)((item*)(s))->scale)*100.0;
+        }
+        
+        break;
+	
+	case ITEMX:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((int)((item*)(s))->x)*10000;
@@ -2621,6 +2636,15 @@ long get_register(const long arg)
             ret = (long(-GuyH::getNPC()->fall / fix(100.0)) * 10000);
             
         break;
+	
+	
+	case NPCSCALE:
+        if(GuyH::loadNPC(ri->guyref, "npc->Scale") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = (long(GuyH::getNPC()->scale) * 100.0);
+            
+        break;
         
     case NPCSTEP:
         if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
@@ -2930,7 +2954,13 @@ case NPCBEHAVIOUR: {
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
-    case LWPNX:
+    case LWPNSCALE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
+            ret=((int)((weapon*)(s))->scale)*100.0;
+            
+        break;
+	
+	case LWPNX:
         if(0!=(s=checkLWpn(ri->lwpn,"X")))
             ret=((int)((weapon*)(s))->x)*10000;
             
@@ -3233,7 +3263,13 @@ case NPCBEHAVIOUR: {
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
-    case EWPNX:
+    case EWPNSCALE:
+        if(0!=(s=checkEWpn(ri->ewpn, "Scale")))
+            ret=((int)((weapon*)(s))->scale)*100.0;
+            
+        break;
+
+	case EWPNX:
         if(0!=(s=checkEWpn(ri->ewpn, "X")))
             ret=((int)((weapon*)(s))->x)*10000;
             
@@ -6860,6 +6896,14 @@ void set_register(const long arg, const long value)
     case LINKROTATION:
         (Link.rotation)=(value/10000);
         break;
+    
+    case LINKSCALE:
+    {
+        (Link.scale)=(value/100.0);
+	//al_trace("Link.scale is: %d\n", Link.scale);
+	//al_trace("Trying to set Link.scale to: %d\n", value/100.0);
+        break;
+    }
         
     case LINKHYOFS:
         (Link.hyofs)=(fix)(value/10000);
@@ -7307,6 +7351,14 @@ void set_register(const long arg, const long value)
             // Move the Fairy enemy as well.
             if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
                 movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
+        }
+        
+        break;
+	
+	case ITEMSCALE:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (s->scale)=(fix)(value/100.0);
         }
         
         break;
@@ -8036,11 +8088,19 @@ void set_register(const long arg, const long value)
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
+    
+    case LWPNSCALE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
+            ((weapon*)s)->scale=(fix)(value/100.0);
+            
+        break;
+	
     case LWPNX:
         if(0!=(s=checkLWpn(ri->lwpn,"X")))
             ((weapon*)s)->x=(fix)(value/10000);
-            
-        break;
+		break;
+	
+	
         
     case LWPNY:
         if(0!=(s=checkLWpn(ri->lwpn,"Y")))
@@ -8334,7 +8394,13 @@ void set_register(const long arg, const long value)
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
-    case EWPNX:
+    case EWPNSCALE:
+        if(0!=(s=checkEWpn(ri->ewpn,"Scale")))
+            ((weapon*)s)->scale=(fix)(value/100.0);
+            
+        break;
+	
+	case EWPNX:
         if(0!=(s=checkEWpn(ri->ewpn,"X")))
             ((weapon*)s)->x=(fix)(value/10000);
             
@@ -8611,6 +8677,15 @@ void set_register(const long arg, const long value)
             
             if(GuyH::hasLink())
                 Link.setX(fix(value / 10000));
+        }
+    }
+    break;
+    
+    case NPCSCALE:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->Scale") == SH::_NoError)
+        {
+            GuyH::getNPC()->scale = (value / 100.0);
         }
     }
     break;

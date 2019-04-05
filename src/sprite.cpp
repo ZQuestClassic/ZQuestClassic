@@ -116,6 +116,7 @@ sprite::sprite()
     scriptflip = -1;
     do_animation = 1;
     rotation = 0;
+    scale = 0;
     for ( int q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
@@ -180,6 +181,7 @@ weaponscript(other.weaponscript),
 scripttile(other.scripttile),
 scriptflip(other.scriptflip),
 rotation(other.rotation),
+scale(other.scale),
 do_animation(other.do_animation)
 
 {
@@ -264,6 +266,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     scripttile = -1;
     scriptflip = -1;
     rotation = 0;
+    scale = 0;
     do_animation = 1;
     drawstyle=0;
     lasthitclk=0;
@@ -623,7 +626,7 @@ void sprite::draw(BITMAP* dest)
 		{
 			BITMAP* sprBMP = create_bitmap_ex(8,16,16);
 			clear_bitmap(sprBMP);
-			BITMAP* sprBMP2 = create_bitmap_ex(8,16,16);
+			BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
 			clear_bitmap(sprBMP2);
 			if ( rotation )
 			{
@@ -633,21 +636,48 @@ void sprite::draw(BITMAP* dest)
 					overtiletranslucent16(sprBMP,tile,0,0,cs,flip,128);
 				else if(drawstyle==2)
 					overtilecloaked16(sprBMP,tile,0,0,flip);
-				
-				rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+				if ( scale != 0 ) 
+				{
+					double new_scale = scale / 100.0;
+					
+					rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, 0,ftofix(new_scale));
+					//al_trace("Sprite scale is %f\n",new_scale);
+					rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
+					
+				}
+				else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
 				draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
 			}
+			
 			else
 			{
 			
-			
-			
-				if(drawstyle==0 || drawstyle==3)
-				    overtile16(dest,tile,sx,sy,cs,flip);
-				else if(drawstyle==1)
-				    overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
-				else if(drawstyle==2)
-				    overtilecloaked16(dest,tile,sx,sy,flip);
+				if ( scale != 0 )
+				{
+					if(drawstyle==0 || drawstyle==3)
+						overtile16(sprBMP,tile,0,0,cs,flip);
+					else if(drawstyle==1)
+						overtiletranslucent16(sprBMP,tile,0,0,cs,flip,128);
+					else if(drawstyle==2)
+						overtilecloaked16(sprBMP,tile,0,0,flip);
+				
+					double new_scale = scale / 100.0;
+					
+					rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, 0,ftofix(new_scale));
+					
+					draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+					
+					
+				}
+				else
+				{
+					if(drawstyle==0 || drawstyle==3)
+					    overtile16(dest,tile,sx,sy,cs,flip);
+					else if(drawstyle==1)
+					    overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
+					else if(drawstyle==2)
+					    overtilecloaked16(dest,tile,sx,sy,flip);
+				}
 			}
 			destroy_bitmap(sprBMP);
 			destroy_bitmap(sprBMP2);

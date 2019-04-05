@@ -1102,7 +1102,13 @@ using namespace std;
 #define ITEMROTATION 			1033
 #define LINKROTATION 			1034
 
-#define LAST_BYTECODE 		1035
+#define LWPNSCALE 			1035
+#define EWPNSCALE 			1036
+#define NPCSCALE 			1037
+#define ITEMSCALE 			1038
+#define LINKSCALE 			1039
+
+#define LAST_BYTECODE 		1040
 
 //END OF BYTECODE
 
