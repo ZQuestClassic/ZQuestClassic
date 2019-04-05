@@ -88,9 +88,20 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	if (isRun(function))
 	{
 		DataTypeId thisTypeId = script->getType().getThisTypeId();
-		DataType const& thisType = *scope->getTypeStore().getType(thisTypeId);
-		function.thisVar =
-			BuiltinVariable::create(functionScope, thisType, "this", this);
+		switch(thisTypeId)
+		{
+			case ZVARTYPEID_LINK:
+				function.thisVar =
+					BuiltinConstant::create(functionScope, DataType::LINK, "this", 0);
+				break;
+			case ZVARTYPEID_VOID:
+				break;
+			default:
+				DataType const& thisType = *scope->getTypeStore().getType(thisTypeId);
+				DataType const& constType = *thisType.getConstType();
+				function.thisVar =
+					BuiltinVariable::create(functionScope, constType != NULL ? constType : thisType, "this", this);
+		}
 	}
 
 	// Evaluate the function block under its scope and return type.
