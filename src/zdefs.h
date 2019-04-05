@@ -850,6 +850,7 @@ enum
 	qr_PARSER_SHORT_CIRCUIT, //Default off.
 	qr_PARSER_RELOP_DECIMAL, //Default off
 	qr_LINKXY_IS_FLOAT,
+	qr_PARSER_MAX_INT_ONE_LARGER, //Default on
     qr_MAX
 };
 
