@@ -2,6 +2,9 @@
 
 //Alpha 17
 
+Added error logging to sprite->Scale and sprite->Rotation.
+	If the QR below is enabled, these will log an error instructing
+	the user that the QR must be enabled to use them.
 Added a quest rule in Quest->Rules->Compatibility as 
 	'Old (Faster) Sprite Drawing' to use the old sprite::draw.
 	Quests made in versions < 2.55 b42 enable this by default.

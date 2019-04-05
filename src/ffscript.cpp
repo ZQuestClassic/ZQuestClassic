@@ -1405,11 +1405,23 @@ long get_register(const long arg)
         
         
     case LINKROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"Link->Rotation");
+		ret = -1; break;
+	}
         ret = (int)(Link.rotation)*10000;
         break;
     
     case LINKSCALE:
     {
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"Link->Scale");
+		ret = -1; break;
+	}
 	//al_trace("Link's scale is: %d\n", Link.scale);
         ret = (int)(Link.scale*100.0);
         break;
@@ -1807,6 +1819,12 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
     case ITEMSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"item->Scale");
+		ret = -1; break;
+	}
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((int)((item*)(s))->scale)*100.0;
@@ -2005,6 +2023,12 @@ long get_register(const long arg)
         break;
 	
 	case ITEMROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"item->Rotation");
+		ret = -1; break;
+	}
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->rotation)*10000;
@@ -2592,6 +2616,12 @@ long get_register(const long arg)
         GET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
     
     case NPCROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"npc->Rotation");
+		ret = -1; break;
+	}
         GET_NPC_VAR_INT(rotation, "npc->Rotation") break;
         
     case NPCTXSZ:
@@ -2639,6 +2669,12 @@ long get_register(const long arg)
 	
 	
 	case NPCSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"npc->Scale");
+		ret = -1; break;
+	}
         if(GuyH::loadNPC(ri->guyref, "npc->Scale") != SH::_NoError)
             ret = -10000;
         else
@@ -2738,7 +2774,7 @@ long get_register(const long arg)
 				ret = GuyH::getNPC()->hitby[indx]; // * 10000; //do not multiply by 10000! UIDs are not *10000!
 				break;
 			}
-			default: { al_trace("Invalid index used for npc->HitBy[%d]. /n", indx); ret = -10000; break; }
+			default: { Z_scripterrlog("Invalid index used for npc->HitBy[%d]. /n", indx); ret = -10000; break; }
 		}
 		break;
 	}
@@ -2955,6 +2991,12 @@ case NPCBEHAVIOUR: {
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
     case LWPNSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"lweapon->Scale");
+		ret = -1; break;
+	}
         if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
             ret=((int)((weapon*)(s))->scale)*100.0;
             
@@ -3254,6 +3296,12 @@ case NPCBEHAVIOUR: {
         break;
 	
 	case LWPNROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"lweapon->Rotation");
+		ret = -1; break;
+	}
         if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
             ret=((weapon*)(s))->rotation*10000;
             
@@ -3264,6 +3312,12 @@ case NPCBEHAVIOUR: {
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
     case EWPNSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"eweapon->Scale");
+		ret = -1; break;
+	}
         if(0!=(s=checkEWpn(ri->ewpn, "Scale")))
             ret=((int)((weapon*)(s))->scale)*100.0;
             
@@ -3408,6 +3462,12 @@ case NPCBEHAVIOUR: {
         break;
 	
 	case EWPNROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"eweapon->Rotation");
+		break;
+	}
         if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
             ret=((weapon*)(s))->rotation*10000;
             
@@ -6897,11 +6957,23 @@ void set_register(const long arg, const long value)
         break;
     
     case LINKROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"Link->Rotation");
+		break;
+	}
         (Link.rotation)=(value/10000);
         break;
     
     case LINKSCALE:
     {
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"Link->Scale");
+		break;
+	}
         (Link.scale)=(value/100.0);
 	//al_trace("Link.scale is: %d\n", Link.scale);
 	//al_trace("Trying to set Link.scale to: %d\n", value/100.0);
@@ -7359,6 +7431,12 @@ void set_register(const long arg, const long value)
         break;
 	
 	case ITEMSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"item->Scale");
+		break;
+	}
         if(0!=(s=checkItem(ri->itemref)))
         {
             (s->scale)=(fix)(value/100.0);
@@ -7544,6 +7622,12 @@ void set_register(const long arg, const long value)
         break;
         
 	case ITEMROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"item->Rotation");
+		break;
+	}
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->rotation=value/10000;
@@ -8093,6 +8177,12 @@ void set_register(const long arg, const long value)
 //LWeapon Variables
     
     case LWPNSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"lweapon->Scale");
+		break;
+	}
         if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
             ((weapon*)s)->scale=(fix)(value/100.0);
             
@@ -8243,6 +8333,12 @@ void set_register(const long arg, const long value)
         break;
 	
 	case LWPNROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"lweapon->Rotation");
+		break;
+	}
         if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
             ((weapon*)s)->rotation=(value/10000);
             
@@ -8398,6 +8494,12 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
     case EWPNSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"eweapon->Scale");
+		break;
+	}
         if(0!=(s=checkEWpn(ri->ewpn,"Scale")))
             ((weapon*)s)->scale=(fix)(value/100.0);
             
@@ -8542,6 +8644,12 @@ void set_register(const long arg, const long value)
         break;
         
 	case EWPNROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"eweapon->Rotation");
+		break;
+	}
         if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
             ((weapon*)s)->rotation=(value/10000);
             
@@ -8686,6 +8794,12 @@ void set_register(const long arg, const long value)
     
     case NPCSCALE:
     {
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"npc->Scale");
+		break;
+	}
         if(GuyH::loadNPC(ri->guyref, "npc->Scale") == SH::_NoError)
         {
             GuyH::getNPC()->scale = (value / 100.0);
@@ -8761,6 +8875,12 @@ void set_register(const long arg, const long value)
     
     case NPCROTATION:
     {
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n"
+			"npc->Rotation");
+		break;
+	}
         if(GuyH::loadNPC(ri->guyref, "npc->Rotation") == SH::_NoError)
             GuyH::getNPC()->rotation = (value / 10000);
     }
