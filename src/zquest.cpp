@@ -19967,8 +19967,6 @@ static ListData zcompiler_number_include_paths_list(zcompiler_num_include_paths,
 
 char tempincludepath[(MAX_INCLUDE_PATHS+1)*512];
 
-char max_include_string[100];
-
 static DIALOG zscript_parser_dlg[] =
 {
     /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
