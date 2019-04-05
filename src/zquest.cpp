@@ -19857,13 +19857,13 @@ int onZScriptSettings()
 
 static int compiler_tab_list_global[] =
 {
-	11,12,13,14,15,16,17, 
+	10,11,12,13,14,15,16,18,19,
 	-1
 };
 
 static int compiler_tab_list_quest[] =
 {
-    6,7,8,9, 10,18,
+    6,7,8,9,17,
 	-1
 };
 
@@ -19910,16 +19910,16 @@ const char *zcompiler_guardlist(int index, int *list_size)
 	switch(index)
         {
         case 0:
-            return "Off";
+            return "Disable";
             
         case 1:
-            return "On";
+            return "Enable";
 	
 	case 2:
-            return "Error";
+            return "Error, Enable";
 	
 	case 3:
-            return "Warn";
+            return "Warn, Enable";
         }
 	
     }
@@ -19931,7 +19931,43 @@ const char *zcompiler_guardlist(int index, int *list_size)
 static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
 
 
+const char *zcompiler_num_include_paths(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,MAX_INCLUDE_PATHS);
+        
+	switch(index)
+        {
+            
+	case 0:
+	    return "0";
+        case 1:
+            return "1";
+	case 2:
+            return "2";
+	case 3:
+            return "3";
+	case 4:
+            return "4";
+	case 5:
+            return "5";
+        }
+	
+    }
+    
+    *list_size = MAX_INCLUDE_PATHS+1;
+    return NULL;
+}
+
+static ListData zcompiler_number_include_paths_list(zcompiler_num_include_paths, &pfont);
+
+
+
+
 char tempincludepath[(MAX_INCLUDE_PATHS+1)*512];
+
+char max_include_string[100];
 
 static DIALOG zscript_parser_dlg[] =
 {
@@ -19950,33 +19986,37 @@ static DIALOG zscript_parser_dlg[] =
     { jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
     { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
     { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Relational Operators Give 0.0001 For True", NULL, NULL },
-    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow constant value 214748", NULL, NULL },
-    //11
+    //10
     { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
     { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
    
-    { jwin_text_proc,           10,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
-		(void *) "Halt On Error:",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     60,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+    { jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": On Error",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
 		(void *) &zcompiler_halt_list,						 NULL,   NULL 				   },
-    { jwin_text_proc,           10,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
-		(void *) "Header Guard:",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     60,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+    { jwin_text_proc,           86,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": Header Guard",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
 		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
     { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "Include Paths:",                  NULL,   NULL                  },
-    //18
-	{ jwin_text_proc,           17+162+(MAX_INCLUDE_PATHS < 10 ? 5 : 0),     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
-		NULL,                  NULL,   NULL                  },
+    //17
+    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Constant Value 214748", NULL, NULL },
+   
+    { jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": Max Include Paths",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_number_include_paths_list,						 NULL,   NULL 				   },
+    
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 
 static int zscripparsertrules[] =
 {
-    qr_PARSER_250DIVISION,
-    qr_PARSER_NO_LOGGING,
-    qr_PARSER_SHORT_CIRCUIT,
+	qr_PARSER_250DIVISION,
+	qr_PARSER_NO_LOGGING,
+	qr_PARSER_SHORT_CIRCUIT,
 	qr_PARSER_RELOP_DECIMAL,
 	NULL,
 	NULL,
@@ -19987,6 +20027,7 @@ static int zscripparsertrules[] =
 	NULL,
 	NULL,
 	qr_PARSER_MAX_INT_ONE_LARGER,
+    -1
 };
 
 int onZScriptCompilerSettings()
@@ -19996,15 +20037,14 @@ int onZScriptCompilerSettings()
         
     zscript_parser_dlg[0].dp2=lfont;
     
-    zscript_parser_dlg[14].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
-    zscript_parser_dlg[16].d1 = get_config_int("Compiler","HEADER_GUARD",3);
-	char max_include[17]; //This would need to be made larger if (MAX_INCLUDE_PATHS > 99) -V
-	sprintf(max_include, "Max Includes: %d", MAX_INCLUDE_PATHS);
-    zscript_parser_dlg[18].dp = max_include;
+    zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
+    zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
+    zscript_parser_dlg[19].d1 = get_config_int("Compiler","number_of_include_paths",5);
+    
     //memset(tempincludepath,0,sizeof(tempincludepath));
     strcpy(tempincludepath,FFCore.includePathString);
     //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
-    zscript_parser_dlg[11].dp = tempincludepath;
+    zscript_parser_dlg[10].dp = tempincludepath;
    
     for(int i=0; zscripparsertrules[i]!=-1; i++)
     {
@@ -20030,14 +20070,15 @@ int onZScriptCompilerSettings()
         {
             set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
         }
-        al_trace("Current include path string: %s\n", tempincludepath);
-        memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
-        strcpy(FFCore.includePathString,tempincludepath);
-        //set_config_string("Compiler","include_path",FFCore.includePathString);
-        set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
-        set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
-        save_config_file();
-        FFCore.updateIncludePaths();
+	al_trace("Current include path string: %s\n", tempincludepath);
+	memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
+	strcpy(FFCore.includePathString,tempincludepath);
+	//set_config_string("Compiler","include_path",FFCore.includePathString);
+	set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
+	set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+	set_config_int("Compiler","number_of_include_paths",zscript_parser_dlg[19].d1);
+	save_config_file();
+	FFCore.updateIncludePaths();
         memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
     }
     
