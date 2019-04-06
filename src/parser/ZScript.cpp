@@ -7,6 +7,8 @@
 #include "DataStructs.h"
 #include "Types.h"
 #include "Scope.h"
+#include "../ffscript.h"
+extern FFScript FFCore;
 
 using namespace std;
 using namespace ZScript;
@@ -446,9 +448,10 @@ bool Function::isTracing() const
 
 bool ZScript::isRun(Function const& function)
 {
+	//al_trace("Parser sees run string as: %s\n", FFCore.scriptRunString);
 	return function.internalScope->getParent()->isScript()
 		&& *function.returnType == DataType::ZVOID
-		&& function.name == "run";
+		&& (!( strcmp(function.name.c_str(), FFCore.scriptRunString )));
 }
 
 int ZScript::getStackSize(Function const& function)

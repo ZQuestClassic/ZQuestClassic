@@ -19584,6 +19584,7 @@ void FFScript::init()
 	kb_typing_mode = false;
 	memset(emulation,0,sizeof(emulation));
 	initIncludePaths();
+	initRunString();
 	//clearRunningItemScripts();
 }
 
@@ -21137,6 +21138,11 @@ void FFScript::updateIncludePaths()
 	}
 }
 
+void FFScript::initRunString()
+{
+	memset(scriptRunString,0,sizeof(scriptRunString));
+	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
+}
 
 void FFScript::initIncludePaths()
 {
