@@ -602,17 +602,17 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 		script.getScope().getLocalFunctions(FFCore.scriptRunString);
 	if (possibleRuns.size() == 0)
 	{
-		handleError(CompileError::ScriptNoRun(&host, name));
+		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
 		if (breakRecursion(host)) return;
 	}
 	if (possibleRuns.size() > 1)
 	{
-		handleError(CompileError::TooManyRun(&host, name));
+		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
 		if (breakRecursion(host)) return;
 	}
 	if (*possibleRuns[0]->returnType != DataType::ZVOID)
 	{
-		handleError(CompileError::ScriptRunNotVoid(&host, name));
+		handleError(CompileError::ScriptRunNotVoid(&host, name, FFCore.scriptRunString));
 		if (breakRecursion(host)) return;
 	}
 }
