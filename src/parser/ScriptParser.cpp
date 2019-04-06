@@ -432,6 +432,7 @@ void ScriptParser::assemble(IntermediateData *id)
 	{
 		Script& script = **it;
 		if (script.getName() == "~Init") continue;
+		if(script.getType() == ScriptType::untyped) continue;
 		Function& run = *getRunFunction(script);
 		int numparams = getRunFunction(script)->paramTypes.size();
 		script.code = assembleOne(program, run.getCode(), numparams);
