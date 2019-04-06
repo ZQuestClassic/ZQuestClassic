@@ -194,7 +194,8 @@ BuiltinScript* ZScript::createScript(
 
 Function* ZScript::getRunFunction(Script const& script)
 {
-	return getOnly<Function*>(script.getScope().getLocalFunctions("run"))
+	//ret//urn getOnly<Function*>(script.getScope().getLocalFunctions("run"))
+	return getOnly<Function*>(script.getScope().getLocalFunctions(FFCore.scriptRunString))
 		.value_or(NULL);
 }
 

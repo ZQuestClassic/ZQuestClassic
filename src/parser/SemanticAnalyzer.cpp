@@ -581,7 +581,8 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 
 	function->node = &host;
 }
-
+#include "../ffscript.h"
+extern FFScript FFCore;
 void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 {
 	Script& script = *program.addScript(host, *scope, this);
@@ -597,7 +598,8 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 
 	// Check for a valid run function.
 	vector<Function*> possibleRuns =
-		script.getScope().getLocalFunctions("run");
+		//script.getScope().getLocalFunctions("run");
+		script.getScope().getLocalFunctions(FFCore.scriptRunString);
 	if (possibleRuns.size() == 0)
 	{
 		handleError(CompileError::ScriptNoRun(&host, name));
