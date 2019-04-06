@@ -595,7 +595,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
-
+	//if(script.getType() == ScriptType::untyped) return;
 	// Check for a valid run function.
 	vector<Function*> possibleRuns =
 		//script.getScope().getLocalFunctions("run");
