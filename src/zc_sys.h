@@ -180,6 +180,7 @@ int item_tile_mod(bool);
 int dmap_tile_mod();
 
 bool try_zcmusic(char *filename, int track, int midi);
+bool try_zcmusic_ex(char *filename, int track, int midi);
 void jukebox(int index);
 void jukebox(int index,int loop);
 void play_DmapMusic();

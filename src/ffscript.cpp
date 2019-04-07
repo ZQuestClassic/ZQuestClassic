@@ -1404,10 +1404,6 @@ long get_register(const long arg)
         break;
         
         
-    case LINKROTATION:
-        ret = (int)(Link.rotation)*10000;
-        break;
-    
     case LINKHXOFS:
         ret = (int)(Link.hxofs)*10000;
         break;
@@ -1985,14 +1981,6 @@ long get_register(const long arg)
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->hxofs)*10000;
-        }
-        
-        break;
-	
-	case ITEMROTATION:
-        if(0!=(s=checkItem(ri->itemref)))
-        {
-            ret=(((item*)(s))->rotation)*10000;
         }
         
         break;
@@ -2575,9 +2563,6 @@ long get_register(const long arg)
         
     case NPCHZSZ:
         GET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
-    
-    case NPCROTATION:
-        GET_NPC_VAR_INT(rotation, "npc->Rotation") break;
         
     case NPCTXSZ:
         GET_NPC_VAR_INT(txsz, "npc->TileWidth") break;
@@ -3223,12 +3208,6 @@ case NPCBEHAVIOUR: {
             
         break;
 	
-	case LWPNROTATION:
-        if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
-            ret=((weapon*)(s))->rotation*10000;
-            
-        break;
-	
     
         
 ///----------------------------------------------------------------------------------------------------//
@@ -3368,12 +3347,6 @@ case NPCBEHAVIOUR: {
     case EWPNFLIP:
         if(0!=(s=checkEWpn(ri->ewpn,"Flip")))
             ret=((weapon*)(s))->flip*10000;
-            
-        break;
-	
-	case EWPNROTATION:
-        if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
-            ret=((weapon*)(s))->rotation*10000;
             
         break;
         
@@ -6856,10 +6829,6 @@ void set_register(const long arg, const long value)
     case LINKHXOFS:
         (Link.hxofs)=(fix)(value/10000);
         break;
-    
-    case LINKROTATION:
-        (Link.rotation)=(value/10000);
-        break;
         
     case LINKHYOFS:
         (Link.hyofs)=(fix)(value/10000);
@@ -7484,14 +7453,6 @@ void set_register(const long arg, const long value)
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->hxofs=value/10000;
-        }
-        
-        break;
-        
-	case ITEMROTATION:
-        if(0!=(s=checkItem(ri->itemref)))
-        {
-            ((item*)(s))->rotation=value/10000;
         }
         
         break;
@@ -8178,12 +8139,6 @@ void set_register(const long arg, const long value)
             ((weapon*)s)->flip=(value/10000);
             
         break;
-	
-	case LWPNROTATION:
-        if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
-            ((weapon*)s)->rotation=(value/10000);
-            
-        break;
         
     case LWPNEXTEND:
         if(0!=(s=checkLWpn(ri->lwpn,"Extend")))
@@ -8472,12 +8427,6 @@ void set_register(const long arg, const long value)
             
         break;
         
-	case EWPNROTATION:
-        if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
-            ((weapon*)s)->rotation=(value/10000);
-            
-        break;
-        
     case EWPNEXTEND:
         if(0!=(s=checkEWpn(ri->ewpn,"Extend")))
             ((weapon*)s)->extend=(value/10000);
@@ -8678,13 +8627,6 @@ void set_register(const long arg, const long value)
     {
         if(GuyH::loadNPC(ri->guyref, "npc->DrawYOffset") == SH::_NoError)
             GuyH::getNPC()->yofs = fix(value / 10000) + playing_field_offset;
-    }
-    break;
-    
-    case NPCROTATION:
-    {
-        if(GuyH::loadNPC(ri->guyref, "npc->Rotation") == SH::_NoError)
-            GuyH::getNPC()->rotation = (value / 10000);
     }
     break;
     
@@ -14869,6 +14811,26 @@ void do_enh_music(bool v)
     }
 }
 
+void do_enh_music_ex(bool v)
+{
+    long arrayptr = SH::get_arg(sarg1, v) / 10000;
+    long track = (SH::get_arg(sarg2, v) / 10000)-1;
+    
+    if(arrayptr == 0)
+        music_stop();
+    else // Pointer to a string..
+    {
+        string filename_str;
+        char filename_char[256];
+        bool ret;
+        ArrayH::getString(arrayptr, filename_str, 256);
+        strncpy(filename_char, filename_str.c_str(), 255);
+        filename_char[255]='\0';
+        ret=try_zcmusic_ex(filename_char, track, -1000);
+        set_register(sarg2, ret ? 10000 : 0);
+    }
+}
+
 void do_get_enh_music_filename(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -15200,21 +15162,6 @@ void do_getnpcname()
     
     if(ArrayH::setArray(arrayptr, guy_string[ID]) == SH::_Overflow)
         Z_scripterrlog("Array supplied to 'npc->GetName' not large enough\n");
-}
-
-//npcdata->GetName
-void FFScript::do_getnpcdata_getname()
-{
-    long arrayptr = get_register(sarg1) / 10000;
-    int npc_id = ri->npcdataref;
-    if((unsigned)npc_id > 511)
-    {
-	Z_scripterrlog("Invalid npc ID (%d) passed to npcdata->GetName().\n", npc_id);
-	return;
-    }
-        
-    if(ArrayH::setArray(arrayptr, guy_string[npc_id]) == SH::_Overflow)
-        Z_scripterrlog("Array supplied to 'npcdata->GetName()' not large enough\n");
 }
 
 void do_getffcscript()
@@ -16299,6 +16246,10 @@ int run_script(const byte type, const word script, const long i)
 		    do_enh_music(false);
 		    break;
 		    
+		case PLAYENHMUSICEX:
+		    do_enh_music_ex(false);
+		    break;
+		    
 		case GETMUSICFILE:
 		    do_get_enh_music_filename(false);
 		    break;
@@ -16437,10 +16388,6 @@ int run_script(const byte type, const word script, const long i)
 		    
 		case NPCNAME:
 		    do_getnpcname();
-		    break;
-		
-		case NPCDATAGETNAME:
-		    FFCore.do_getnpcdata_getname();
 		    break;
 		    
 		case GETSAVENAME:
