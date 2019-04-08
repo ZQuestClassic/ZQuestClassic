@@ -1107,8 +1107,9 @@ using namespace std;
 #define NPCSCALE 			1037
 #define ITEMSCALE 			1038
 #define LINKSCALE 			1039
+#define ITEMSPRITESCRIPT 		1040
 
-#define LAST_BYTECODE 		1040
+#define LAST_BYTECODE 		1041
 
 //END OF BYTECODE
 

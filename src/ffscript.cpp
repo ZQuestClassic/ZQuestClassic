@@ -1840,6 +1840,14 @@ long get_register(const long arg)
         
         break;
 	
+	case ITEMSPRITESCRIPT:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((int)((item*)(s))->script)*10000;
+        }
+        
+        break;
+	
 	case ITEMFAMILY:
         if(0!=(s=checkItem(ri->itemref)))
         {
@@ -7428,6 +7436,13 @@ void set_register(const long arg, const long value)
                 movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
         }
         
+        break;
+	
+	case ITEMSPRITESCRIPT:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (s->script)=(value/10000);
+        }
         break;
 	
 	case ITEMSCALE:
