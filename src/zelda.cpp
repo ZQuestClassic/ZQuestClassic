@@ -2863,6 +2863,7 @@ void game_loop()
 	#endif
         items.animate();
 	FFCore.itemSpriteScriptEngine();
+	    //Can't be called in items.animate(), as ZQuest also uses this function.
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
 	#endif

@@ -21033,7 +21033,7 @@ void FFScript::itemSpriteScriptEngine()
 	for ( int q = 0; q < items.Count(); q++ )
 	{
 		item *wp = (item*)items.spr(q);
-		if ( wp->Script == 0 ) continue;
+		if ( wp->script == 0 ) continue;
 		if ( wp->doscript ) ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, items.spr(q)->script, wp->getUID());		
 	}
 }
