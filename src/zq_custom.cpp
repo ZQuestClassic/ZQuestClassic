@@ -433,7 +433,7 @@ static int itemdata_action_list[] =
 static int itemdata_scriptargs_list[] =
 {
     // dialog control number
-    101, 102, 131, 132, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, -1
+    101, 102, 131, 132, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 315, 316, -1
 };
 
 static int itemdata_itemsize_list[] =
@@ -929,6 +929,21 @@ const char *itemscriptdroplist(int index, int *list_size)
 //droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData itemscript_list(itemscriptdroplist, &pfont);
 
+const char *itemspritescriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = biitemsprites_cnt;
+        return NULL;
+    }
+    
+    return biditemsprites[index].first.c_str();
+}
+
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData itemspritescript_list(itemspritescriptdroplist, &pfont);
+
 const char *lweaponscriptdroplist(int index, int *list_size)
 {
     if(index<0)
@@ -1413,7 +1428,10 @@ static DIALOG itemdata_dlg[] =
     //313
     { jwin_text_proc,           177,     170,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Other 2:",                              NULL,   NULL                  },
     { jwin_edit_proc,         276,     168,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-       
+    //315 item sprite script
+    { jwin_text_proc,          112+10+20+34+1-4,    10+39+32+3+8-5+20,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprite Script:",                            NULL,   NULL                  },
+    { jwin_droplist_proc,      112+10+20+34-4,    10+47+40-5+7-5+20,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemspritescript_list,                   NULL,   NULL 				   },
+    
     { NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
 
@@ -2340,7 +2358,8 @@ void edit_itemdata(int index)
     itemdata_dlg[198].dp = da[9];
     
     build_biitems_list();
-    int script = 0, pickupscript = 0;
+    build_biitemsprites_list();
+    int script = 0, pickupscript = 0, the_spritescript = 0;
     
     for(int j = 0; j < biitems_cnt; j++)
     {
@@ -2348,11 +2367,20 @@ void edit_itemdata(int index)
             script = j;
             
         if(biitems[j].second == itemsbuf[index].collect_script - 1)
-            pickupscript = j;
+            pickupscript = j; //sprite script goes after this
+	
+	
+    }
+    for ( int q = 0; q < biitemsprites_cnt; q++)
+    {
+	if(biditemsprites[j].second == itemsbuf[index].sprite_script - 1)
+            the_spritescript = j; //sprite script goes after this
+	    
     }
     
     itemdata_dlg[102].d1 = pickupscript;
     itemdata_dlg[132].d1 = script;
+    itemdata_dlg[315].d1 = the_spritescript;
     
     //These cannot be .dp. That crashes ZQuest; but they are not being retained when changed. -Z
      itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
@@ -2631,9 +2659,10 @@ void edit_itemdata(int index)
             sprintf(amt,"%d",test.amount&0x4000?-(test.amount&0x3FFF):test.amount&0x3FFF);
             sprintf(fmx,"%d",test.max);
             sprintf(max,"%d",test.setmax);
-            pickupscript = test.script;
+            script = test.script;
             sprintf(snd,"%d",test.playsound);
             pickupscript = test.collect_script;
+		the_spritescript = test.sprite_script;
             sprintf(ms1,"%ld",test.misc1);
             sprintf(ms2,"%ld",test.misc2);
             sprintf(ms3,"%ld",test.misc3);
@@ -2743,6 +2772,7 @@ void edit_itemdata(int index)
             itemdata_dlg[98].dp = fmx;
             itemdata_dlg[100].dp = max;
             itemdata_dlg[102].d1 = pickupscript;
+            itemdata_dlg[315].d1 = the_spritescript;
             itemdata_dlg[104].dp = snd;
             itemdata_dlg[106].dp = hrt;
             
