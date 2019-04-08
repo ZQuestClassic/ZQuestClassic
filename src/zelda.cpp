@@ -2862,7 +2862,7 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "items.animate()\n");
 	#endif
         items.animate();
-	
+	FFCore.itemSpriteScriptEngine();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
 	#endif

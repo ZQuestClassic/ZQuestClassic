@@ -163,6 +163,7 @@ void clearRunningItemScripts();
 bool itemScriptEngine();
 void lweaponScriptEngine();
 void eweaponScriptEngine();
+void itemSpriteScriptEngine();
 bool newScriptEngine();
 void initIncludePaths();
 void initRunString();
