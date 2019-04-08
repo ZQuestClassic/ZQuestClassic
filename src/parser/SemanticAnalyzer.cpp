@@ -88,9 +88,23 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	if (isRun(function))
 	{
 		DataTypeId thisTypeId = script->getType().getThisTypeId();
-		DataType const& thisType = *scope->getTypeStore().getType(thisTypeId);
-		function.thisVar =
-			BuiltinVariable::create(functionScope, thisType, "this", this);
+		switch(thisTypeId)
+		{
+			case ZVARTYPEID_LINK:
+				function.thisVar =
+					BuiltinConstant::create(functionScope, DataType::LINK, "this", 0);
+				break;
+			case ZVARTYPEID_SCREEN:
+				function.thisVar =
+					BuiltinConstant::create(functionScope, DataType::SCREEN, "this", 0);
+			case ZVARTYPEID_VOID:
+				break;
+			default:
+				DataType const& thisType = *scope->getTypeStore().getType(thisTypeId);
+				DataType const& constType = *thisType.getConstType();
+				function.thisVar =
+					BuiltinVariable::create(functionScope, constType != NULL ? constType : thisType, "this", this);
+		}
 	}
 
 	// Evaluate the function block under its scope and return type.
@@ -567,7 +581,8 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 
 	function->node = &host;
 }
-
+#include "../ffscript.h"
+extern FFScript FFCore;
 void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 {
 	Script& script = *program.addScript(host, *scope, this);
@@ -580,23 +595,24 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
-
+	if(script.getType() == ScriptType::untyped) return;
 	// Check for a valid run function.
 	vector<Function*> possibleRuns =
-		script.getScope().getLocalFunctions("run");
+		//script.getScope().getLocalFunctions("run");
+		script.getScope().getLocalFunctions(FFCore.scriptRunString);
 	if (possibleRuns.size() == 0)
 	{
-		handleError(CompileError::ScriptNoRun(&host, name));
+		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
 		if (breakRecursion(host)) return;
 	}
 	if (possibleRuns.size() > 1)
 	{
-		handleError(CompileError::TooManyRun(&host, name));
+		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
 		if (breakRecursion(host)) return;
 	}
 	if (*possibleRuns[0]->returnType != DataType::ZVOID)
 	{
-		handleError(CompileError::ScriptRunNotVoid(&host, name));
+		handleError(CompileError::ScriptRunNotVoid(&host, name, FFCore.scriptRunString));
 		if (breakRecursion(host)) return;
 	}
 }

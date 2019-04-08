@@ -3102,7 +3102,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
                 
                 if(displaysubscreenitem(itemtype, d))
                 {
-                    Sitems.spr(i)->draw(dest);
+                    Sitems.spr(i)->drawzcboss(dest);
                 }
                 
                 if(itemtype!=itype_bowandarrow)
@@ -3131,7 +3131,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
         Sitems.spr(overridecheck)->x = x;
         Sitems.spr(overridecheck)->y = y;
         Sitems.spr(overridecheck)->yofs=0;
-        Sitems.spr(overridecheck)->draw(dest);
+        Sitems.spr(overridecheck)->drawzcboss(dest);
     }
 }
 
@@ -3825,7 +3825,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                         
                         if(temptile)
                         {
-                            tempsel->draw(dest);
+                            tempsel->drawzcboss(dest);
                             tempsel->tile=temptile;
                         }
                         
@@ -3900,7 +3900,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
                 break;
             }
             
-            Aitem->draw(dest);
+            Aitem->drawzcboss(dest);
         }
         
         break;
@@ -3932,7 +3932,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
                 break;
             }
             
-            Bitem->draw(dest);
+            Bitem->drawzcboss(dest);
         }
         
         break;

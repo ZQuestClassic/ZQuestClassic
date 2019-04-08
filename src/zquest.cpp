@@ -19857,7 +19857,7 @@ int onZScriptSettings()
 
 static int compiler_tab_list_global[] =
 {
-	10,11,12,13,14,15,16,18,19,
+	10,11,12,13,14,15,16,18,19,20,21,
 	-1
 };
 
@@ -19966,6 +19966,7 @@ static ListData zcompiler_number_include_paths_list(zcompiler_num_include_paths,
 
 
 char tempincludepath[(MAX_INCLUDE_PATHS+1)*512];
+char temprunstring[21];
 
 static DIALOG zscript_parser_dlg[] =
 {
@@ -20006,6 +20007,11 @@ static DIALOG zscript_parser_dlg[] =
     { jwin_droplist_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
 		(void *) &zcompiler_number_include_paths_list,						 NULL,   NULL 				   },
     
+    //20 run function
+    { jwin_edit_proc,    16,  102-11,   50,  16,   vc(11),  vc(1),  0,       0,          64,            0,       temprunstring, NULL, NULL },
+    { jwin_text_proc,           68,     102-8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) "void run()' label:",                  NULL,   NULL                  },
+    
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -20045,6 +20051,11 @@ int onZScriptCompilerSettings()
     strcpy(tempincludepath,FFCore.includePathString);
     //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
     zscript_parser_dlg[10].dp = tempincludepath;
+    
+    //run label
+    strcpy(temprunstring,FFCore.scriptRunString);
+    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+    zscript_parser_dlg[20].dp = temprunstring;
    
     for(int i=0; zscripparsertrules[i]!=-1; i++)
     {
@@ -20077,9 +20088,14 @@ int onZScriptCompilerSettings()
 	set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
 	set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
 	set_config_int("Compiler","number_of_include_paths",zscript_parser_dlg[19].d1);
+	memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
+	strcpy(FFCore.scriptRunString,temprunstring);
+	al_trace("Run string set to: %s\n",FFCore.scriptRunString);
 	save_config_file();
 	FFCore.updateIncludePaths();
         memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
+	
+	
     }
     
     return D_O_K;
@@ -25976,6 +25992,7 @@ int save_config_file()
     
 	set_config_string("ZCMODULE","current_module",moduledata.module_name);
 	set_config_string("Compiler","include_path",FFCore.includePathString);
+	set_config_string("Compiler","run_string",FFCore.scriptRunString);
 	
     set_config_string("zquest",data_path_name,datapath2);
     set_config_string("zquest",midi_path_name,midipath2);
@@ -26713,6 +26730,7 @@ void FFScript::init()
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
 	initIncludePaths();
+	initRunString();
 	
 }
 
@@ -26731,6 +26749,13 @@ void FFScript::updateIncludePaths()
 		++pos;
 		dest = 0;
 	}
+}
+
+void FFScript::initRunString()
+{
+	memset(scriptRunString,0,sizeof(scriptRunString));
+	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
+	al_trace("Run is set to: %s \n",includePathString);
 }
 
 void FFScript::initIncludePaths()

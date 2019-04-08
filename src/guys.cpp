@@ -353,6 +353,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     
     
     frozentile = d->frozentile;
+    
     frozencset = d->frozencset;
     frozenclock = 0;
     for ( int q = 0; q < 10; q++ ) frozenmisc[q] = d->frozenmisc[q];
@@ -1277,6 +1278,98 @@ int enemy::defendNew(int wpnId, int *power, int edef)
     //switch(the_defence)
     switch(the_defence) //usedefence should be set as part of the edef input to this function
     {
+	
+	case edSPLIT:
+	{
+		//int ex = x; int ey = y;
+		//al_trace("edSplit dmisc3: %d\n", dmisc3);
+		//al_trace("edSplit dmisc4: %d\n", dmisc4);
+		/*
+		if ( txsx > 1 ) 
+		{
+			ex += ( txsz-1 ) * 8; //from its middle
+		}
+		if ( tysx > 1 ) 
+		{
+			ey += ( tysz-1 ) * 8; //from its middle
+		}
+		*/
+		for ( int q = 0; q < dmisc4; q++ )
+		{
+			
+			//addenemy((x+(txsz*16)/2),(y+(tysz*16)/2),dmisc3+0x1000,-15);
+			addenemy(
+				//ex,ey,
+				x,y,
+					dmisc3+0x1000,-15);
+			//addenemy(ex,ey,dmisc3,0);
+			
+		}
+		item_set = 0; //Do not make a drop. 
+		hp = -1000;
+		return -1;
+		
+	}
+	case edSUMMON:
+	{
+		
+		
+		//al_trace("edSplit dmisc3: %d\n", dmisc3);
+		//al_trace("edSplit dmisc4: %d\n", dmisc4);
+		int summon_count = (rand()%dmisc4)+1;
+		for ( int q = 0; q < summon_count; q++ )
+		{
+			int x2=16*((rand()%12)+2);
+			int y2=16*((rand()%7)+2);
+			addenemy(
+				//(x+(txsz*16)/2),(y+(tysz*16)/2)
+				x2,y2,
+					dmisc3+0x1000,-15);
+			//addenemy(ex,ey,dmisc3,0);
+			
+		}
+		sfx(get_bit(quest_rules,qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int(x)));
+		return -1;
+		
+	}
+	
+	case edEXPLODESMALL:
+	{
+		weapon *ew=new weapon(x,y,z, ewBomb, 0, dmisc4, dir,-1,getUID(),false);
+		Ewpns.add(ew);
+		item_set = 0; //Should we make a drop?
+		hp = -1000;
+		return -1;
+	}
+	
+	
+	case edEXPLODEHARMLESS:
+	{
+		weapon *ew=new weapon(x,y,z, ewSBomb, 0, dmisc4, dir,-1,getUID(),false);
+		Ewpns.add(ew);
+		ew->hyofs = -32768;
+		item_set = 0; //Should we make a drop?
+		hp = -1000;
+		return -1;
+	}
+	
+	
+	case edEXPLODELARGE:
+	{
+		weapon *ew=new weapon(x,y,z, ewSBomb, 0, dmisc4, dir,-1,getUID(),false);
+		Ewpns.add(ew);
+		
+		hp = -1000;
+		return -1;
+	}
+	
+	
+	case edTRIGGERSECRETS:
+	{
+	    hidden_entrance(0, true, false, -4);
+	    return -1;
+	}
+	
     case edSTUNORCHINK:
         if(*power <= 0)
         {
@@ -1332,10 +1425,6 @@ int enemy::defendNew(int wpnId, int *power, int edef)
     case ed1HKO:
         *power = hp;
         return -2;
-        
-    case edTRIGGERSECRETS:
-	    hidden_entrance(0, true, false, -4);
-	break;
         
     case ed2x:
     {
@@ -2689,7 +2778,7 @@ void enemy::drawblock(BITMAP *dest,int mask)
     switch(mask)
     {
     case 1:
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         break;
         
     case 3:
@@ -2697,10 +2786,10 @@ void enemy::drawblock(BITMAP *dest,int mask)
             zc_swap(t1,t2);
             
         tile=t1;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         tile=t2;
         yofs+=16;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         yofs-=16;
         break;
         
@@ -2711,10 +2800,10 @@ void enemy::drawblock(BITMAP *dest,int mask)
             zc_swap(t1,t2);
             
         tile=t1;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         tile=t2;
         xofs+=16;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         xofs-=16;
         break;
         
@@ -2732,17 +2821,17 @@ void enemy::drawblock(BITMAP *dest,int mask)
         }
         
         tile=t1;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         tile=t2;
         yofs+=16;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         yofs-=16;
         tile=t3;
         xofs+=16;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         tile=t4;
         yofs+=16;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         xofs-=16;
         yofs-=16;
         break;
@@ -9155,18 +9244,18 @@ void eDodongo::draw(BITMAP *dest)
     
     if(clk<0)
     {
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         return;
     }
     
     update_enemy_frame();
-    enemy::draw(dest);
+    enemy::drawzcboss(dest);
     
     if(dummy_int[1]!=0)  //additional tiles
     {
         tile+=dummy_int[1]; //second tile is previous tile
         xofs-=16;           //new xofs change
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         xofs+=16;
     }
     
@@ -9283,18 +9372,18 @@ void eDodongo2::draw(BITMAP *dest)
 {
     if(clk<0)
     {
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         return;
     }
     
     int tempx=xofs;
     int tempy=yofs;
     update_enemy_frame();
-    enemy::draw(dest);
+    enemy::drawzcboss(dest);
     tile+=dummy_int[1]; //second tile change
     xofs+=dummy_int[2]; //new xofs change
     yofs+=dummy_int[3]; //new yofs change
-    enemy::draw(dest);
+    enemy::drawzcboss(dest);
     xofs=tempx;
     yofs=tempy;
 }
@@ -9680,7 +9769,7 @@ void eGohma::draw(BITMAP *dest)
     
     if(clk<0 || dying)
     {
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         return;
     }
     
@@ -9694,14 +9783,14 @@ void eGohma::draw(BITMAP *dest)
         //      if(clk&16) tile=180;
         //      else { tile=182; flip=1; }
         tile+=(3*((clk&48)>>4));
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         
         // right side
         xofs=16;
         //      tile=(180+182)-tile;
         tile=o_tile;
         tile+=(3*((clk&48)>>4))+2;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         
         // body
         xofs=0;
@@ -9717,7 +9806,7 @@ void eGohma::draw(BITMAP *dest)
         else
             tile+=((clk3-132)&24)?4:1;
             
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         
     }
     else

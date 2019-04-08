@@ -852,6 +852,7 @@ enum
 	qr_PARSER_MAX_INT_ONE_LARGER, //Default on
 	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
 	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
+	qr_OLDSPRITEDRAWS, /* Not Implemented : This was in 2.50.2, but never used. */
     qr_MAX
 };
 

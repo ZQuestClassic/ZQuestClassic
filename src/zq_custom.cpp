@@ -864,6 +864,21 @@ const char *defenselist(int index, int *list_size)
 	case edTRIGGERSECRETS: //Triggers screen secrets. 
 		return "Trigger Screen Secrets";
 	
+	case edSPLIT: 
+		return "Split";
+	
+	case edSUMMON: 
+		return "Summon";
+	
+	case edEXPLODESMALL: 
+		return "Bomb Explosion";
+	
+	case edEXPLODELARGE: 
+		return "Superbomb Explosion";
+	
+	case edEXPLODEHARMLESS: 
+		return "Harmless Explosion";
+	
 	case edFREEZE: //Hit by ice.. 
 		return "Freeze Solid";
 	
