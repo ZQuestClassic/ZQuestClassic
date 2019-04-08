@@ -21658,23 +21658,23 @@ int onImportITEMSPRITEScript()
 {
     char name[20]="";
     
-    itemsprite_sel_dlg[0].dp2 = lfont;
-    itemsprite_sel_dlg[2].dp = name;
-    itemsprite_sel_dlg[5].d1 = 0;
+    itemspritescript_sel_dlg[0].dp2 = lfont;
+    itemspritescript_sel_dlg[2].dp = name;
+    itemspritescript_sel_dlg[5].d1 = 0;
     
     if(is_large)
-        large_dialog(itemsprite_sel_dlg);
+        large_dialog(itemspritescript_sel_dlg);
         
-    int ret=zc_popup_dialog(itemsprite_sel_dlg,0);
+    int ret=zc_popup_dialog(itemspritescript_sel_dlg,0);
     
     if(ret==3)
     {
-        if(parse_script(&itemspritescripts[itemsprite_sel_dlg[5].d1+1])==D_O_K)
+        if(parse_script(&itemspritescripts[itemspritescript_sel_dlg[5].d1+1])==D_O_K)
         {
-            if(strlen((char *)itemsprite_sel_dlg[2].dp)>0)
-                itemspritemap[itemsprite_sel_dlg[5].d1].second=(char *)itemsprite_sel_dlg[2].dp;
+            if(strlen((char *)itemspritescript_sel_dlg[2].dp)>0)
+                itemspritemap[itemspritescript_sel_dlg[5].d1].second=(char *)itemspritescript_sel_dlg[2].dp;
             else
-                itemspritemap[itemsprite_sel_dlg[5].d1].second="ASM script";
+                itemspritemap[itemspritescript_sel_dlg[5].d1].second="ASM script";
                 
             build_biitemsprites_list();
         }

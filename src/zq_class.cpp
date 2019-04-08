@@ -11019,13 +11019,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 }
             }
         }
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    //item sprite scripts
+        //item sprite scripts
 	word numitemspritebindings=0;
         
         for(std::map<int, pair<string, string> >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
@@ -11067,6 +11061,8 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             section_size=writesize;
         }
     }
+    
+        
     
     if(writesize!=int(section_size) && save_warn)
     {
