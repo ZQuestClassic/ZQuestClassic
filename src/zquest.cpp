@@ -894,6 +894,7 @@ static MENU zscript_menu[] =
     { (char *)"Import ASM &Hero Script",  onImportHEROScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &DMap Script",  onImportDMapScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &Screen Script",  onImportSCREENScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM Items&prite Script",  onImportITEMSPRITEScript,           NULL,                     0,            NULL   },
 	//divider
         { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
