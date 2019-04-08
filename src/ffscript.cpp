@@ -15828,7 +15828,7 @@ int run_script(const byte type, const word script, const long i)
 			stack = &(items.spr(ItemH::getItemIndex(i))->stack);
 			
 			item *wa = (item*)items.spr(ItemH::getItemIndex(i));
-			ri->ewpn = wa->getUID();
+			ri->itemref = wa->getUID();
 			
 			for ( int q = 0; q < 8; q++ ) 
 			{
