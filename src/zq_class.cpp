@@ -67,6 +67,7 @@ extern std::map<int, pair<string, string> > lwpnmap;
 extern std::map<int, pair<string, string> > linkmap;
 extern std::map<int, pair<string, string> > dmapmap;
 extern std::map<int, pair<string, string> > screenmap;
+extern std::map<int, pair<string, string> > itemspritemap;
 
 zmap Map;
 int prv_mode=0;
@@ -11003,6 +11004,48 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
                 {
                     new_return(2038);
+                }
+            }
+        }
+        
+        if(writecycle==0)
+        {
+            section_size=writesize;
+        }
+    }
+    //item sprite scripts
+	word numitemspritebindings=0;
+        
+        for(std::map<int, pair<string, string> >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                numitemspritebindings++;
+            }
+        }
+        
+        if(!p_iputw(numitemspritebindings, f))
+        {
+            new_return(2039);
+        }
+        
+        for(std::map<int, pair<string, string> >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2040);
+                }
+                
+                if(!p_iputl((long)it->second.second.size(), f))
+                {
+                    new_return(2041);
+                }
+                
+                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                {
+                    new_return(2042);
                 }
             }
         }

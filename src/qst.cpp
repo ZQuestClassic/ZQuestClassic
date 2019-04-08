@@ -86,6 +86,7 @@ std::map<int, pair<string, string> > lwpnmap;
 std::map<int, pair<string, string> > linkmap;
 std::map<int, pair<string, string> > dmapmap;
 std::map<int, pair<string, string> > screenmap;
+std::map<int, pair<string, string> > itemspritemap;
 void free_newtilebuf();
 bool combosread=false;
 bool mapsread=false;
@@ -9060,6 +9061,27 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 delete[] buf;
             }
         }
+	if(s_version > 11)
+        {
+            word numspritebindings;
+            p_igetw(&numspritebindings, f, true);
+            
+            for(int i=0; i<numspritebindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTSDMAP-1)
+                    itemspritemap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
     }
     
     return 0;
@@ -15747,6 +15769,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         linkmap.clear();
         dmapmap.clear();
         screenmap.clear();
+        itemspritemap.clear();
         
         for(int i=0; i<NUMSCRIPTFFC-1; i++)
         {
@@ -15791,6 +15814,10 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         for(int i=0; i<NUMSCRIPTSCREEN-1; i++)
         {
             screenmap[i] = pair<string,string>("","");
+        }
+	for(int i=0; i<NUMSCRIPTSITEMSPRITE-1; i++)
+        {
+            itemspritemap[i] = pair<string,string>("","");
         }
         
         reset_scripts();

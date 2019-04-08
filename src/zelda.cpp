@@ -107,6 +107,7 @@ extern std::map<int, pair<string, string> > lwpnmap;
 extern std::map<int, pair<string, string> > linkmap;
 extern std::map<int, pair<string, string> > dmapmap;
 extern std::map<int, pair<string, string> > screenmap;
+extern std::map<int, pair<string, string> > itemspritemap;
 
 int zq_screen_w, zq_screen_h;
 int passive_subscreen_height=56;
@@ -974,6 +975,7 @@ extern std::map<int, std::pair<std::string, std::string> > lwpnmap;
 extern std::map<int, std::pair<std::string, std::string> > linkmap;
 extern std::map<int, std::pair<std::string, std::string> > dmapmap;
 extern std::map<int, std::pair<std::string, std::string> > screenmap;
+extern std::map<int, std::pair<std::string, std::string> > itemspritemap;
 
 void Z_scripterrlog(const char * const format,...)
 {
