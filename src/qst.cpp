@@ -2491,22 +2491,22 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	    if ( tempheader.build == 24 ) //2.50.0
 	    {
-		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+		    //set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
 		    emulation_patches[emu210BOMBCHU] = 1;
 	    }
 	    if ( tempheader.build == 28 ) //2.50.1
 	    {
-		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+		    //set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
 		    emulation_patches[emu210BOMBCHU] = 1;
 	    }
 	    if ( tempheader.build == 29 ) //2.50.2
 	    {
-		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+		    //set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
 		    emulation_patches[emu210BOMBCHU] = 0;
 	    }
 	    if ( tempheader.build == 30 ) //2.50.3RC1
 	    {
-		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+		    //set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
 		    emulation_patches[emu210BOMBCHU] = 0;
 	    }
     }
@@ -9339,7 +9339,36 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			tempguy.deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
 		}
 	    }
-	    
+	    /* I'm not sure if this is a good idea, because it will overwrite settings by the user. 
+	    Did 2.50.1 allow setting the bombchu weapon? What about 2.50.0?
+	    if ( Header->zelda_version == 0x250  ) 
+	    {
+		if ( tempguy.family == eeWALK )
+		{
+			if ( tempguy.misc9==e9tROPE &&  tempguy.misc2==e2tBOMBCHU )
+			{
+		    
+				switch(Header->build)
+				{
+					case 24: tempguy.wpn = ewSBomb; break;
+					case 25: tempguy.wpn = ewSBomb; break;
+					case 26: tempguy.wpn = ewSBomb; break;
+					case 27: tempguy.wpn = ewSBomb; break;
+						
+					case 28: tempguy.wpn = ewSBomb; break;
+						
+					case 29: tempguy.wpn = ewBomb; break;
+					case 30: 
+					default: break;
+					
+					
+				}
+			}
+		}			
+		    
+		    
+	    }
+	    */
 	    //Fix 1.84 and 1.90 tribbles, forever. 
 
             
