@@ -7464,7 +7464,7 @@ int v210_bombchus()
 		lfont) == 1)
 	{
 		
-		
+		/*
 		if ( get_bit(quest_rules, qr_BOMBCHUSUPERBOMB) ) 
 		{
 			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
@@ -7475,9 +7475,9 @@ int v210_bombchus()
 			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
 			emulation_patches[emu210BOMBCHU] = 1;
 		}
-		
-	    //if (emulation_patches[emu210BOMBCHU] ) emulation_patches[emu210BOMBCHU] = 0;
-	    //else emulation_patches[emu210BOMBCHU] = 1;
+		*/
+	    if (emulation_patches[emu210BOMBCHU] ) emulation_patches[emu210BOMBCHU] = 0;
+	    else emulation_patches[emu210BOMBCHU] = 1;
 		
 	}
     return D_O_K;
