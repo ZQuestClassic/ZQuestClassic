@@ -329,6 +329,7 @@ ffscript *globalscripts[NUMSCRIPTGLOBAL];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
 ffscript *dmapscripts[NUMSCRIPTSDMAP];
+ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];
@@ -19666,6 +19667,17 @@ const char *assignscreenlist(int index, int *list_size)
     return screenmap[index].first.c_str();
 }
 
+const char *assignitemspritelist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)itemspritemap.size();
+        return NULL;
+    }
+    
+    return itemspritemap[index].first.c_str();
+}
+
 const char *assignffcscriptlist(int index, int *list_size)
 {
     if(index<0)
@@ -19765,6 +19777,17 @@ const char *assignscreenscriptlist(int index, int *list_size)
     return asscreenscripts[index].c_str();
 }
 
+const char *assignitemspritescriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asitemspritescripts.size();
+        return NULL;
+    }
+    
+    return asitemspritescripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
@@ -19786,6 +19809,9 @@ static ListData assigndmapscript_list(assigndmapscriptlist, &font);
 
 static ListData assignscreen_list(assignscreenlist, &font);
 static ListData assignscreenscript_list(assignscreenscriptlist, &font);
+
+static ListData assignitemsprite_list(assignitemspritelist, &font);
+static ListData assignitemspritescript_list(assignitemspritescriptlist, &font);
 	
 static DIALOG assignscript_dlg[] =
 {
@@ -20392,6 +20418,32 @@ const char *linkscriptlist2(int index, int *list_size)
     return NULL;
 }
 
+static char itemspritescript_str_buf2[32];
+
+const char *itemspritescriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(itemspritemap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, itemspritemap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(itemspritescript_str_buf2,"%d: %s",index+1, buf);
+        return itemspritescript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTSITEMSPRITE-1);
+    return NULL;
+}
+
+
 static ListData linkscript_sel_dlg_list(linkscriptlist2, &font);
 
 static DIALOG linkscript_sel_dlg[] =
@@ -20446,8 +20498,8 @@ static DIALOG dmapscript_sel_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static char itemspritescript_str_buf2[32];
-
+//static char itemspritescript_str_buf2[32];
+/*
 const char *itemspritescriptlist2(int index, int *list_size)
 {
     if(index>=0)
@@ -20470,8 +20522,8 @@ const char *itemspritescriptlist2(int index, int *list_size)
     *list_size=(NUMSCRIPTSITEMSPRITE-1);
     return NULL;
 }
-
-static ListData itemspritescript_sel_dlg_list(itemspritesscriptlist2, &font);
+*/
+static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font);
 
 static DIALOG itemspritescript_sel_dlg[] =
 {
@@ -21597,6 +21649,34 @@ int onImportNPCScript()
                 npcmap[npcscript_sel_dlg[5].d1].second="ASM script";
                 
             build_binpcs_list();
+        }
+    }
+    
+    return D_O_K;
+}
+int onImportITEMSPRITEScript()
+{
+    char name[20]="";
+    
+    itemsprite_sel_dlg[0].dp2 = lfont;
+    itemsprite_sel_dlg[2].dp = name;
+    itemsprite_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(itemsprite_sel_dlg);
+        
+    int ret=zc_popup_dialog(itemsprite_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&itemspritescripts[itemsprite_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)itemsprite_sel_dlg[2].dp)>0)
+                itemspritemap[itemsprite_sel_dlg[5].d1].second=(char *)itemsprite_sel_dlg[2].dp;
+            else
+                itemspritemap[itemsprite_sel_dlg[5].d1].second="ASM script";
+                
+            build_biitemsprites_list();
         }
     }
     
@@ -25008,6 +25088,12 @@ int main(int argc,char **argv)
         dmapscripts[i][0].command = 0xFFFF;
     }
     
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        itemspritescripts[i] = new ffscript[1];
+        itemspritescripts[i][0].command = 0xFFFF;
+    }
+    
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
     
@@ -25503,6 +25589,10 @@ void quit_game()
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
         if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");

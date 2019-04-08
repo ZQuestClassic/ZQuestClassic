@@ -415,6 +415,7 @@ extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *linkscripts[NUMSCRIPTLINK];
 extern ffscript *screenscripts[NUMSCRIPTSCREEN];
 extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
+extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int sfxdat;
 

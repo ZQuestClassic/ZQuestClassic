@@ -491,6 +491,7 @@ int onImportItemScript();
 int onImportNPCScript();
 int onImportSCREENScript();
 int onImportHEROScript();
+int onImportITEMSPRITEScript();
 int onImportDMapScript();
 int onImportLWPNScript();
 int onImportEWPNScript();

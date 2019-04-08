@@ -8658,6 +8658,7 @@ extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
 extern ffscript *linkscripts[NUMSCRIPTLINK];
 extern ffscript *screenscripts[NUMSCRIPTSCREEN];
 extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
+extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 //ffscript *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
 int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
@@ -8824,6 +8825,16 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             
         }
+	if(s_version >=12)
+	{
+		for(int i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
+		{
+			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemspritescripts[i]);
+                
+			if(ret != 0) return qe_invalid;
+		}
+		
+	}
         /*
         else //Is this trip really necessary?
         {
@@ -9206,6 +9217,11 @@ void reset_scripts()
     {
         dmapscripts[i] = new ffscript[1];
         dmapscripts[i][0].command = 0xFFFF;
+    }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        itemspritescripts[i] = new ffscript[1];
+        itemspritescripts[i][0].command = 0xFFFF;
     }
 }
 

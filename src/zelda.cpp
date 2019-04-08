@@ -391,6 +391,7 @@ ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
 ffscript *dmapscripts[NUMSCRIPTSDMAP];
+ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 
 extern refInfo globalScriptData;
 extern refInfo linkScriptData;
@@ -4297,6 +4298,11 @@ int main(int argc, char* argv[])
         dmapscripts[i] = new ffscript[1];
         dmapscripts[i][0].command = 0xFFFF;
     }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        itemspritescripts[i] = new ffscript[1];
+        itemspritescripts[i][0].command = 0xFFFF;
+    }
     
     
     
@@ -4870,6 +4876,10 @@ void quit_game()
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
         if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
     }
     
     delete zscriptDrawingRenderTarget;

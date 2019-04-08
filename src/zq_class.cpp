@@ -10513,6 +10513,7 @@ extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
 extern ffscript *linkscripts[NUMSCRIPTLINK];
 extern ffscript *screenscripts[NUMSCRIPTSCREEN];
 extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
+extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 
 int writeffscript(PACKFILE *f, zquestheader *Header)
 {
@@ -10654,6 +10655,17 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
 	for(int i=0; i<NUMSCRIPTSDMAP; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &dmapscripts[i]);
+            fake_pack_writing=(writecycle==0);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+	
+	for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+        {
+            int ret = write_one_ffscript(f, Header, i, &itemspritescripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
