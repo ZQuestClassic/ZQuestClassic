@@ -1811,6 +1811,7 @@ script_variable variable_list[]=
 	{"NPCSCALE", NPCSCALE, 0, 0 },
 	{"ITEMSCALE", ITEMSCALE, 0, 0 },
 	{"LINKSCALE", LINKSCALE, 0, 0 },
+	{"ITEMSPRITESCRIPT", ITEMSPRITESCRIPT, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

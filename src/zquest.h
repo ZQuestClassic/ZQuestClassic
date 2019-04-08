@@ -491,6 +491,7 @@ int onImportItemScript();
 int onImportNPCScript();
 int onImportSCREENScript();
 int onImportHEROScript();
+int onImportITEMSPRITEScript();
 int onImportDMapScript();
 int onImportLWPNScript();
 int onImportEWPNScript();
@@ -548,6 +549,11 @@ extern int biscreens_cnt;
 void build_bidmaps_list();
 extern script_struct bidmaps[NUMSCRIPTSDMAP]; //item script
 extern int bidmaps_cnt;
+
+//dmap script list for editors
+void build_biitemsprites_list();
+extern script_struct biditemsprites[NUMSCRIPTSDMAP]; //item script
+extern int biitemsprites_cnt;
 
 //extern script_struct biffs[NUMSCRIPTFFC];
 

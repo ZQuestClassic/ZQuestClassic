@@ -282,6 +282,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
 	    */
     }
     //if ( itemsbuf[id].flags&itemdataOVERRIDE_DRAW_Z_OFFSET ) zofs = itemsbuf[id].zofs;
+    script = itemsbuf[id].sprite_script;
 }
 
 // easy way to draw an item

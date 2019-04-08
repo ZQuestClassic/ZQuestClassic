@@ -163,6 +163,7 @@ void clearRunningItemScripts();
 bool itemScriptEngine();
 void lweaponScriptEngine();
 void eweaponScriptEngine();
+void itemSpriteScriptEngine();
 bool newScriptEngine();
 void initIncludePaths();
 void initRunString();
@@ -3232,6 +3233,7 @@ enum ASM_DEFINE
 #define NPCSCALE 		0x1346
 #define ITEMSCALE 		0x1347
 #define LINKSCALE 		0x1348
+#define ITEMSPRITESCRIPT 		0x1349
 
 //bytecode
 
@@ -3239,7 +3241,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1349
+#define NUMVARIABLES         0x134A
 
 
 // Script types
@@ -3253,6 +3255,7 @@ enum ASM_DEFINE
 #define SCRIPT_NPC             6
 #define SCRIPT_SUBSCREEN       7
 #define SCRIPT_EWPN            8
+
 
 struct quad3Dstruct
 {

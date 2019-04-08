@@ -1718,6 +1718,7 @@ string VarArgument::toString()
 	case NPCSCALE: return "NPCSCALE";
 	case ITEMSCALE: return "ITEMSCALE";
 	case LINKSCALE: return "LINKSCALE";
+	case ITEMSPRITESCRIPT: return "ITEMSPRITESCRIPT";
 	
 	
     default:
