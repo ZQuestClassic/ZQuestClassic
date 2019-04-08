@@ -31,6 +31,8 @@ extern bool show_sprites;
 extern bool show_hitboxes;
 extern bool is_zquest();
 extern void debugging_box(int x1, int y1, int x2, int y2);
+#include "ffscript.h"
+extern FFScript FFCore;
 
 #define degtoFix(d)     ((d)*0.7111111111111)
 #define radtoFix(d)     ((d)*40.743665431525)
@@ -460,6 +462,10 @@ void sprite::draw(BITMAP* dest)
 	if(!show_sprites)
 	{
 		return;
+	}
+	if (FFCore.getQuestHeaderInfo(0) < 0x255 || ( FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42 ))
+	{
+		drawzcboss(dest);
 	}
 	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) ) drawzcboss(dest);
 	int sx = real_x(x+xofs);
