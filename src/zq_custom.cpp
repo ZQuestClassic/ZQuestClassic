@@ -1429,8 +1429,8 @@ static DIALOG itemdata_dlg[] =
     { jwin_text_proc,           177,     170,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Other 2:",                              NULL,   NULL                  },
     { jwin_edit_proc,         276,     168,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //315 item sprite script
-    { jwin_text_proc,          112+10+20+34+1-4,    10+39+32+3+8-5+20,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprite Script:",                            NULL,   NULL                  },
-    { jwin_droplist_proc,      112+10+20+34-4,    10+47+40-5+7-5+20,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemspritescript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,          112+10+20+34+1-4,    10+39+32+3+8-5+28,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprite Script:",                            NULL,   NULL                  },
+    { jwin_droplist_proc,      112+10+20+34-4,    10+47+40-5+7-5+28,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemspritescript_list,                   NULL,   NULL 				   },
     
     { NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
@@ -2373,14 +2373,17 @@ void edit_itemdata(int index)
     }
     for ( int q = 0; q < biitemsprites_cnt; q++)
     {
-	if(biditemsprites[j].second == itemsbuf[index].sprite_script - 1)
-            the_spritescript = j; //sprite script goes after this
+	if(biditemsprites[q].second == itemsbuf[index].sprite_script -1)
+	{
+            the_spritescript = q; //sprite script goes after this
+		//al_trace("Item has sprite script: %d\n", q);
+	}
 	    
     }
     
     itemdata_dlg[102].d1 = pickupscript;
     itemdata_dlg[132].d1 = script;
-    itemdata_dlg[315].d1 = the_spritescript;
+    itemdata_dlg[316].d1 = the_spritescript;
     
     //These cannot be .dp. That crashes ZQuest; but they are not being retained when changed. -Z
      itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
@@ -2427,6 +2430,7 @@ void edit_itemdata(int index)
         test.script = biitems[itemdata_dlg[132].d1].second + 1;
         test.playsound = vbound(atoi(snd), 0, 255); //Why was this clamped to 127? Someone dropped the ball. -Z
         test.collect_script = biitems[itemdata_dlg[102].d1].second + 1;
+        test.sprite_script = biditemsprites[itemdata_dlg[316].d1].second + 1;
         test.misc1  = atoi(ms1);
         test.misc2  = atoi(ms2);
         test.misc3  = atoi(ms3);
@@ -2772,7 +2776,7 @@ void edit_itemdata(int index)
             itemdata_dlg[98].dp = fmx;
             itemdata_dlg[100].dp = max;
             itemdata_dlg[102].d1 = pickupscript;
-            itemdata_dlg[315].d1 = the_spritescript;
+            itemdata_dlg[316].d1 = the_spritescript;
             itemdata_dlg[104].dp = snd;
             itemdata_dlg[106].dp = hrt;
             
@@ -5722,7 +5726,7 @@ void edit_enemydata(int index)
         {
             enedata_dlg[335].d1 = j; 
             break;
-        }
+        } 
     }
     
     int j2 = 0; 
