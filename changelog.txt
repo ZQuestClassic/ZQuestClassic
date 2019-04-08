@@ -1,6 +1,12 @@
 ChangeLog for 2.53.0 
 
 //Release 2
+Disabled the console by default.
+Removed Bombchu QR, because it is not needed.
+	The user can set the bombchu explosion type in the enemy editor.
+	It's the 'Weapon' field. 
+	( ZoriaRPG, 8th April, 2019 )
+	
 Because of Quest 744...
 Added a quest rule to Compatibility Rules for pre-2.50.2
 DrawBitmap() offsets behaviour, and patched quest loader to most-approprately
