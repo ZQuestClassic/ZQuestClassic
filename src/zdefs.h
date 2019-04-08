@@ -2152,6 +2152,7 @@ struct ffscript
 #define SCRIPT_SUBSCREEN       7
 #define SCRIPT_EWPN            8
 #define SCRIPT_DMAP            9
+#define SCRIPT_ITEMSPRITE      10
 
 
 enum

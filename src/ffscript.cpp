@@ -15798,6 +15798,32 @@ int run_script(const byte type, const word script, const long i)
 	    }
 	    break;
 	    
+	    case SCRIPT_ITEMSPRITE:
+	    {
+			int the_index = ItemH::getItemIndex(i);
+			//ri = &(lweaponScriptData[i]);
+			item *w = (item*)items.spr(the_index);
+			ri = w->refinfo;
+			if (!ri) {
+			  ri = w->refinfo = new refInfo;
+			}
+			curscript = itemspritescripts[items.spr(ItemH::getItemIndex(i))->script]; //Set the editor sprite script field to 'script'
+			
+			
+			stack = &(items.spr(ItemH::getItemIndex(i))->stack);
+			
+			item *wa = (item*)items.spr(ItemH::getItemIndex(i));
+			ri->ewpn = wa->getUID();
+			
+			for ( int q = 0; q < 8; q++ ) 
+			{
+				
+				ri->d[q] = items.spr(ItemH::getItemIndex(i))->initD[q]; //w->initiald[q];
+			}
+			
+	    }
+	    break;
+	    
 	    case SCRIPT_ITEM:
 	    {
 		ri = &(itemScriptData[i]);
@@ -17948,6 +17974,15 @@ int run_script(const byte type, const word script, const long i)
 		
 			Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
 			Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
+			
+			//w->weaponscript = 0;
+			break;
+		}
+		case SCRIPT_ITEMSPRITE:
+		{
+		
+			items.spr(ItemH::getEWeaponIndex(i))->doscript = 0;
+			items.spr(ItemH::getEWeaponIndex(i))->script = 0;
 			
 			//w->weaponscript = 0;
 			break;
