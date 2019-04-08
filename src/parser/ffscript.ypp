@@ -110,6 +110,7 @@ extern YYLTYPE noloc;
 %token ALWAYS
 %token ZASM
 %token INCLUDE
+%token UNTIL
 
  // Types
 %token ZVOID
@@ -830,6 +831,12 @@ Statement_While :
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
 		$$ = new ASTStmtWhile(test, body, @$);}
+	| UNTIL LPAREN Expression RPAREN Statement {
+		ASTExpr* test = (ASTExpr*)$3;
+		ASTStmt* body = (ASTStmt*)$5;
+		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, @$);
+		stmt->invert();
+		$$ = stmt;}
 	;
 	
 Statement_Do :
@@ -837,6 +844,12 @@ Statement_Do :
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
 		$$ = new ASTStmtDo(test, body, @$);}
+	| DO Statement UNTIL LPAREN Expression RPAREN {
+		ASTStmt* body = (ASTStmt *)$2;
+		ASTExpr* test = (ASTExpr*)$5;
+		ASTStmtDo* stmt = new ASTStmtDo(test, body, @$);
+		stmt->invert();
+		$$ = stmt;}
 	;
 
 

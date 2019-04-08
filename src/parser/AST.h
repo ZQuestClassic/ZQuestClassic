@@ -455,9 +455,13 @@ namespace ZScript
 		ASTStmtWhile* clone() const {return new ASTStmtWhile(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
+		void invert() {inverted = true;}
+		bool isInverted() const {return inverted;}
 
 		owning_ptr<ASTExpr> test;
 		owning_ptr<ASTStmt> body;
+	private:
+		bool inverted;
 	};
 
 	class ASTStmtDo : public ASTStmt
@@ -469,9 +473,13 @@ namespace ZScript
 		ASTStmtDo* clone() const {return new ASTStmtDo(*this);}
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
+		void invert() {inverted = true;}
+		bool isInverted() const {return inverted;}
 
 		owning_ptr<ASTExpr> test;
 		owning_ptr<ASTStmt> body;
+	private:
+		bool inverted;
 	};
 
 	class ASTStmtReturn : public ASTStmt
