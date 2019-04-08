@@ -103,7 +103,7 @@ public:
     word weaponscript;
     long weap_initiald[8];
     long weap_initiala[2];
-    
+   
     long dialogue_str; //WIll be set in spawn flags. 
     long editorflags; //Enemy editor flags 1 to 16
     
