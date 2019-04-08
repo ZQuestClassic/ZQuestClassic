@@ -17981,8 +17981,8 @@ int run_script(const byte type, const word script, const long i)
 		case SCRIPT_ITEMSPRITE:
 		{
 		
-			items.spr(ItemH::getEWeaponIndex(i))->doscript = 0;
-			items.spr(ItemH::getEWeaponIndex(i))->script = 0;
+			items.spr(ItemH::getItemIndex(i))->doscript = 0;
+			items.spr(ItemH::getItemIndex(i))->script = 0;
 			
 			//w->weaponscript = 0;
 			break;
