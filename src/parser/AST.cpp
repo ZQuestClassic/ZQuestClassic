@@ -366,7 +366,7 @@ void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 
 ASTStmtWhile::ASTStmtWhile(
 		ASTExpr* test, ASTStmt* body, LocationData const& location)
-	: ASTStmt(location), test(test), body(body)
+	: ASTStmt(location), test(test), body(body), inverted(false)
 {}
 
 void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
@@ -378,7 +378,7 @@ void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
 
 ASTStmtDo::ASTStmtDo(
 		ASTExpr* test, ASTStmt* body, LocationData const& location)
-	: ASTStmt(location), test(test), body(body)
+	: ASTStmt(location), test(test), body(body), inverted(false)
 {}
 
 void ASTStmtDo::execute(ASTVisitor& visitor, void* param)

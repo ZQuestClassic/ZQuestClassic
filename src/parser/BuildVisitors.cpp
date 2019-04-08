@@ -272,7 +272,14 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
     addOpcode(start);
     visit(host.test.get(), param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-    addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+    if(host.isInverted()) //Is this `until` or `while`?
+	{
+		addOpcode(new OGotoFalseImmediate(new LabelArgument(endlabel)));
+	}
+	else
+	{
+		addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+	}
 
     int oldbreak = breaklabelid;
 	int oldBreakRefCount = breakRefCount;
@@ -328,7 +335,14 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     addOpcode(start);
     visit(host.test.get(), param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-    addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+    if(host.isInverted()) //Is this `until` or `while`?
+	{
+		addOpcode(new OGotoFalseImmediate(new LabelArgument(endlabel)));
+	}
+	else
+	{
+		addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+	}
     addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
     //nop to end dowhile
     Opcode *end = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
