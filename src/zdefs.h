@@ -1263,42 +1263,42 @@ enum
 // New defence outcomes. 
 enum
 {
-    edNORMAL, // Take damage (or stun)
-    edHALFDAMAGE, // Take half damage
-    edQUARTDAMAGE, // Take 0.25 damage
-    edSTUNONLY, // Stun instead of taking damage.
-    edSTUNORCHINK, // If damage > 0, stun instead. Else, bounce off.
-    edSTUNORIGNORE, // If damage > 0, stun instead. Else, ignore.
-    edCHINKL1, // Bounces off, plays SFX_CHINK
-    edCHINKL2, // Bounce off unless damage >= 2
-    edCHINKL4, // Bounce off unless damage >= 4
-    edCHINKL6, // Bounce off unless damage >= 6
-    edCHINKL8, // Bounce off unless damage >= 8
-    edCHINK, // Bounces off, plays SFX_CHINK
-    edIGNOREL1, // Ignore unless damage > 1.
-    edIGNORE, // Do Nothing
-    ed1HKO, // One-hit knock-out
-	edCHINKL10, //If damage is less than 10 : IMPLEMENTED -Z
-	ed2x, //Double damage : IMPLEMENTED -Z
-	ed3x, //Triple Damage : IMPLEMENTED -Z
-	ed4x, //4x damage : IMPLEMENTED -Z
-	edHEAL, //recover the weapon damage in HP : IMPLEMENTED -Z
-	edTRIGGERSECRETS, //Triggers screen secrets. : IMPLEMENTED -Z
+    edNORMAL, // : IMPLEMENTED : Take damage (or stun)
+    edHALFDAMAGE, // : IMPLEMENTED : Take half damage
+    edQUARTDAMAGE, // : IMPLEMENTED : Take 0.25 damage
+    edSTUNONLY, // : IMPLEMENTED : Stun instead of taking damage.
+    edSTUNORCHINK, // : IMPLEMENTED : If damage > 0, stun instead. Else, bounce off.
+    edSTUNORIGNORE, // : IMPLEMENTED : If damage > 0, stun instead. Else, ignore.
+    edCHINKL1, // : IMPLEMENTED : Bounces off, plays SFX_CHINK
+    edCHINKL2, // : IMPLEMENTED : Bounce off unless damage >= 2
+    edCHINKL4, //: IMPLEMENTED : Bounce off unless damage >= 4
+    edCHINKL6, // : IMPLEMENTED : Bounce off unless damage >= 6
+    edCHINKL8, // : IMPLEMENTED : Bounce off unless damage >= 8
+    edCHINK, // : IMPLEMENTED : Bounces off, plays SFX_CHINK
+    edIGNOREL1, // : IMPLEMENTED : Ignore unless damage > 1.
+    edIGNORE, // : IMPLEMENTED : Do Nothing
+    ed1HKO, // : IMPLEMENTED : One-hit knock-out
+	edCHINKL10, //: IMPLEMENTED : If damage is less than 10
+	ed2x, // : IMPLEMENTED : Double damage.
+	ed3x, // : IMPLEMENTED : Triple Damage.
+	ed4x, // : IMPLEMENTED : 4x damage.
+	edHEAL, // : IMPLEMENTED : Gain the weapon damage in HP.
+	edTRIGGERSECRETS, // : IMPLEMENTED : Triggers screen secrets.
 	edFREEZE, //Freeze solid
 	edMSG_NOT_ENABLED, //A message for 'The following are not yet enabled.
 	edMSG_LINE, //An entry for the hiriz line in THE zq PULLDOWN
 	edLEVELDAMAGE, //Damage * item level
 	edLEVELREDUCTION, //Damage / item level
 	
-	edSPLIT, //causes the enemy to split if it has a split attribute
+	edSPLIT, //: IMPLEMENTED : causes the enemy to split if it has a split attribute
 	edREPLACE, //replaced by next in list?
 	edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by 
 	edLEVELCHINK3, //If item level is < 3: the item that generates it (itemdata::level stored to
 	edLEVELCHINK4, //If item level is < 4: weapon::level, or something similar; then a check to
 	edLEVELCHINK5, //If item level is < 5: read weapon::level in hit detection. 
 	edSHOCK, //buzz blob
-	edEXPLODESMALL, //ew bombblast
-	edEXPLODELARGE, //super bomb blast
+	edEXPLODESMALL, //: IMPLEMENTED : ew bombblast
+	edEXPLODELARGE, //: IMPLEMENTED : super bomb blast
 	edSTONE, //deadrock
 	
 	edBREAKSHIELD, //break the enemy shield
@@ -1306,16 +1306,17 @@ enum
 	edSPECIALDROP, //but where to define it?
 	edINCREASECOUNTER, //but where to define the counter
 	edREDUCECOUNTER, //same problem
-	edEXPLODEHARMLESS, //boss death explosion
+	edEXPLODEHARMLESS, //: IMPLEMENTED : boss death explosion; needs different sprites?
 	edKILLNOSPLIT, //If sufficient damage to kill it, a splitting enemy just dies.
 	edTRIBBLE, //Tribbles on hit. 
-	edFIREBALL, //Makes a 1x1 fireball
-	edFIREBALLLARGE, //Makes a 3x3 fireball
-	edSUMMON, //Summons a number of enemies as defined by the summon properties of the npc. 
+	edFIREBALL, //Makes a 1x1 fireball; Z3 Gibdo
+	edFIREBALLLARGE, //Makes a 3x3  Z3 Gibdo for large npcs. 
+	edSUMMON, //: IMPLEMENTED : Summons a number of enemies as defined by the summon properties of the npc. 
 	//edSAVE, edRETRY, edCRASHZC // Sanity Check Required. -Z
 	edWINGAME, //Wand of Gamelon. 
 	edJUMP, //Z3 stalfos
 	edEATLINK, //-G //Is this practical? We need specisal npc mvoement for it. -Z
+	edSHOWMESSAGE, //Shows a ZString when hit. e.g., Z3 Ganon
 	
     edLAST
 };
