@@ -1,6 +1,8 @@
 ChangeLog for 2.53.0 
 
 //Release 2
+Re-included Bombchu QR, but this time, as a Compatibility rule.
+	It is enabled by default for 2.50.1 or earlier quests. 
 Disabled the console by default.
 Removed Bombchu QR, because it is not needed.
 	The user can set the bombchu explosion type in the enemy editor.
