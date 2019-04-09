@@ -193,6 +193,9 @@ std::vector<string> asdmapscripts;
 extern std::map<int, pair<string, string> > screenmap;
 std::vector<string> asscreenscripts;
 
+extern std::map<int, pair<string, string> > itemspritemap;
+std::vector<string> asitemspritescripts;
+
 char ZQincludePaths[MAX_INCLUDE_PATHS][512];
 
 int CSET_SIZE = 16;
@@ -326,6 +329,7 @@ ffscript *globalscripts[NUMSCRIPTGLOBAL];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
 ffscript *dmapscripts[NUMSCRIPTSDMAP];
+ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];
@@ -19005,6 +19009,9 @@ int biscreens_cnt = -1;
 
 script_struct bidmaps[NUMSCRIPTSDMAP]; //dmap (dmapdata) script
 int bidmaps_cnt = -1;
+
+script_struct biditemsprites[NUMSCRIPTSITEMSPRITE]; //dmap (dmapdata) script
+int biitemsprites_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biffs_list()
@@ -19308,6 +19315,48 @@ void build_biscreens_list()
             biscreens_cnt = i+1;
 }
 
+//screen scripts
+void build_biitemsprites_list()
+{
+    biditemsprites[0].first = "(None)";
+    biditemsprites[0].second = -1;
+    biitemsprites_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTSITEMSPRITE - 1; i++)
+    {
+        if(itemspritemap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << itemspritemap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        biditemsprites[biitemsprites_cnt].first = ss.str();
+        biditemsprites[biitemsprites_cnt].second = i;
+        biitemsprites_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=biitemsprites_cnt; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        biditemsprites[i].first="";
+        biditemsprites[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < biitemsprites_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < biitemsprites_cnt; j++)
+        {
+            if(stricmp(biditemsprites[i].first.c_str(),biditemsprites[j].first.c_str()) > 0 && strcmp(biditemsprites[j].first.c_str(),""))
+                zc_swap(biditemsprites[i],biditemsprites[j]);
+        }
+    }
+    
+    biitemsprites_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
+        if(biditemsprites[i].first.length() > 0)
+            biitemsprites_cnt = i+1;
+}
 
 void build_biitems_list()
 {
@@ -19502,6 +19551,7 @@ static int as_eweapon_list[] = { 24, 25, 26, -1}; //eweapon scripts TAB
 static int as_link_list[] = { 27, 28, 29, -1}; //link scripts TAB
 static int as_screen_list[] = { 30, 31, 32, -1}; //screendata scripts TAB
 static int as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
+static int as_itemsprite_list[] = { 36, 37, 38, -1}; //dmapdata scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -19515,6 +19565,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"Hero",		 0,         as_link_list,   0, NULL },
     { (char *)"DMap",		 0,         as_dmap_list,   0, NULL },
     { (char *)"Screen",		 0,         as_screen_list,   0, NULL },
+    { (char *)"Item Sprite",		 0,         as_itemsprite_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -19616,6 +19667,17 @@ const char *assignscreenlist(int index, int *list_size)
     return screenmap[index].first.c_str();
 }
 
+const char *assignitemspritelist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)itemspritemap.size();
+        return NULL;
+    }
+    
+    return itemspritemap[index].first.c_str();
+}
+
 const char *assignffcscriptlist(int index, int *list_size)
 {
     if(index<0)
@@ -19715,6 +19777,17 @@ const char *assignscreenscriptlist(int index, int *list_size)
     return asscreenscripts[index].c_str();
 }
 
+const char *assignitemspritescriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asitemspritescripts.size();
+        return NULL;
+    }
+    
+    return asitemspritescripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
@@ -19736,26 +19809,29 @@ static ListData assigndmapscript_list(assigndmapscriptlist, &font);
 
 static ListData assignscreen_list(assignscreenlist, &font);
 static ListData assignscreenscript_list(assignscreenscriptlist, &font);
+
+static ListData assignitemsprite_list(assignitemspritelist, &font);
+static ListData assignitemspritescript_list(assignitemspritescriptlist, &font);
 	
 static DIALOG assignscript_dlg[] =
 {
     //						x		y		w		h		fg		bg		key	flags	d1	d2	dp
-    { jwin_win_proc,		  0,	0,		320,	220,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Assign Compiled Script", NULL, NULL },
-    { jwin_tab_proc,		  6,	25,		308,	130,	0,		0,		0,	0,		0,  0,  assignscript_tabs, NULL, (void*)assignscript_dlg },
+    { jwin_win_proc,		  0,	0,		330,	220,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Assign Compiled Script", NULL, NULL },
+    { jwin_tab_proc,		  6,	25,		330-12,	130,	0,		0,		0,	0,		0,  0,  assignscript_tabs, NULL, (void*)assignscript_dlg },
     { jwin_button_proc,	  251,	191,	61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
     { jwin_button_proc,	  182,	191,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffc_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
     //6
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobal_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobalscript_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobalscript_list, NULL, NULL },
     //9
-    { jwin_button_proc,	  154,	93,	15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154+5,	93,	15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitem_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemscript_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemscript_list, NULL, NULL },
     //12
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //13
     { jwin_check_proc,      22,  195,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
     { jwin_text_proc,       22,  158,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked", NULL, NULL },
@@ -19765,34 +19841,39 @@ static DIALOG assignscript_dlg[] =
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //npc scripts
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpc_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpcscript_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpcscript_list, NULL, NULL },
     //20
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //21
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweapon_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweaponscript_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweaponscript_list, NULL, NULL },
     //23
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //24
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigneweapon_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigneweaponscript_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigneweaponscript_list, NULL, NULL },
     //26
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //27
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlink_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlinkscript_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlinkscript_list, NULL, NULL },
     //29
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //30
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignscreen_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignscreenscript_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignscreenscript_list, NULL, NULL },
     //32
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //33
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigndmap_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigndmapscript_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigndmapscript_list, NULL, NULL },
     //35
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //36
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemsprite_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemspritescript_list, NULL, NULL },
+    //38
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
@@ -20337,6 +20418,32 @@ const char *linkscriptlist2(int index, int *list_size)
     return NULL;
 }
 
+static char itemspritescript_str_buf2[32];
+
+const char *itemspritescriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(itemspritemap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, itemspritemap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(itemspritescript_str_buf2,"%d: %s",index+1, buf);
+        return itemspritescript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTSITEMSPRITE-1);
+    return NULL;
+}
+
+
 static ListData linkscript_sel_dlg_list(linkscriptlist2, &font);
 
 static DIALOG linkscript_sel_dlg[] =
@@ -20391,7 +20498,44 @@ static DIALOG dmapscript_sel_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
+//static char itemspritescript_str_buf2[32];
+/*
+const char *itemspritescriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(itemspritemap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, itemspritemap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(itemspritescript_str_buf2,"%d: %s",index+1, buf);
+        return itemspritescript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTSITEMSPRITE-1);
+    return NULL;
+}
+*/
+static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font);
 
+static DIALOG itemspritescript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &itemspritescript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
 
 static char screenscript_str_buf2[32];
 
@@ -20570,6 +20714,8 @@ int onCompileScript()
             asdmapscripts.push_back("<none>");
             asscreenscripts.clear();
             asscreenscripts.push_back("<none>");
+	    asitemspritescripts.clear();
+            asitemspritescripts.push_back("<none>");
             
             for (std::map<string, ZScript::ScriptType>::iterator it =
 	                 stypes.begin(); it != stypes.end(); ++it)
@@ -20592,6 +20738,8 @@ int onCompileScript()
                     {        asdmapscripts.push_back(name); }
                     else if ( type == ZScript::ScriptType::screendata )
                     {        asscreenscripts.push_back(name); }
+		    else if ( type == ZScript::ScriptType::itemsprite )
+                    {        asitemspritescripts.push_back(name); }
                     else if ( type == ZScript::ScriptType::global )
                     {
                         if (name != "~Init")
@@ -20753,6 +20901,16 @@ int onCompileScript()
                     else // Previously loaded script not found
                         sprintf(temp, "Slot %d: **%s**", i+1, dmapmap[i].second.c_str());
                     dmapmap[i].first = temp;
+                }
+		for(int i = 0; i < NUMSCRIPTSITEMSPRITE-1; i++)
+                {
+                    if(itemspritemap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(itemspritemap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, itemspritemap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, itemspritemap[i].second.c_str());
+                    itemspritemap[i].first = temp;
                 }
                 
                 if(is_large)
@@ -21135,6 +21293,46 @@ int onCompileScript()
                             screenscripts[it->first+1][0].command = 0xFFFF;
                         }
                     }
+		    for(std::map<int, pair<string,string> >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&itemspritescripts[it->first+1],"tmp",false);
+                        }
+                        else if(itemspritescripts[it->first+1])
+                        {
+                            delete[] itemspritescripts[it->first+1];
+                            itemspritescripts[it->first+1] = new ffscript[1];
+                            itemspritescripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
                     unlink("tmp");
                     jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
                     build_biffs_list();
@@ -21320,7 +21518,7 @@ int onCompileScript()
                     break;
                 }
 		case 35:
-                    //<<, Screendata
+                    //<<, dmapdata
                 {
                     int lind = assignscript_dlg[33].d1;
                     int rind = assignscript_dlg[34].d1;
@@ -21335,6 +21533,26 @@ int onCompileScript()
                     else
                     {
                         dmapmap[lind].second = asdmapscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 38:
+                    //<<, itemsprite
+                {
+                    int lind = assignscript_dlg[36].d1;
+                    int rind = assignscript_dlg[37].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asitemspritescripts[rind] == "<none>")
+                    {
+                        itemspritemap[lind].second = "";
+                    }
+                    else
+                    {
+                        itemspritemap[lind].second = asitemspritescripts[rind];
                     }
                     
                     break;
@@ -21431,6 +21649,34 @@ int onImportNPCScript()
                 npcmap[npcscript_sel_dlg[5].d1].second="ASM script";
                 
             build_binpcs_list();
+        }
+    }
+    
+    return D_O_K;
+}
+int onImportITEMSPRITEScript()
+{
+    char name[20]="";
+    
+    itemspritescript_sel_dlg[0].dp2 = lfont;
+    itemspritescript_sel_dlg[2].dp = name;
+    itemspritescript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(itemspritescript_sel_dlg);
+        
+    int ret=zc_popup_dialog(itemspritescript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&itemspritescripts[itemspritescript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)itemspritescript_sel_dlg[2].dp)>0)
+                itemspritemap[itemspritescript_sel_dlg[5].d1].second=(char *)itemspritescript_sel_dlg[2].dp;
+            else
+                itemspritemap[itemspritescript_sel_dlg[5].d1].second="ASM script";
+                
+            build_biitemsprites_list();
         }
     }
     
@@ -24842,6 +25088,12 @@ int main(int argc,char **argv)
         dmapscripts[i][0].command = 0xFFFF;
     }
     
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        itemspritescripts[i] = new ffscript[1];
+        itemspritescripts[i][0].command = 0xFFFF;
+    }
+    
     zScript = std::string();
     strcpy(zScriptBytes, "0 Bytes in Buffer");
     
@@ -25337,6 +25589,10 @@ void quit_game()
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
         if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");

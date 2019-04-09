@@ -107,6 +107,7 @@ extern std::map<int, pair<string, string> > lwpnmap;
 extern std::map<int, pair<string, string> > linkmap;
 extern std::map<int, pair<string, string> > dmapmap;
 extern std::map<int, pair<string, string> > screenmap;
+extern std::map<int, pair<string, string> > itemspritemap;
 
 int zq_screen_w, zq_screen_h;
 int passive_subscreen_height=56;
@@ -390,6 +391,7 @@ ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
 ffscript *dmapscripts[NUMSCRIPTSDMAP];
+ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 
 extern refInfo globalScriptData;
 extern refInfo linkScriptData;
@@ -974,6 +976,7 @@ extern std::map<int, std::pair<std::string, std::string> > lwpnmap;
 extern std::map<int, std::pair<std::string, std::string> > linkmap;
 extern std::map<int, std::pair<std::string, std::string> > dmapmap;
 extern std::map<int, std::pair<std::string, std::string> > screenmap;
+extern std::map<int, std::pair<std::string, std::string> > itemspritemap;
 
 void Z_scripterrlog(const char * const format,...)
 {
@@ -2859,7 +2862,8 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "items.animate()\n");
 	#endif
         items.animate();
-	
+	FFCore.itemSpriteScriptEngine();
+	    //Can't be called in items.animate(), as ZQuest also uses this function.
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
 	#endif
@@ -4295,6 +4299,11 @@ int main(int argc, char* argv[])
         dmapscripts[i] = new ffscript[1];
         dmapscripts[i][0].command = 0xFFFF;
     }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        itemspritescripts[i] = new ffscript[1];
+        itemspritescripts[i][0].command = 0xFFFF;
+    }
     
     
     
@@ -4868,6 +4877,10 @@ void quit_game()
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
         if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
     }
     
     delete zscriptDrawingRenderTarget;

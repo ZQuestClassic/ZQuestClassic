@@ -1840,6 +1840,14 @@ long get_register(const long arg)
         
         break;
 	
+	case ITEMSPRITESCRIPT:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((int)((item*)(s))->script)*10000;
+        }
+        
+        break;
+	
 	case ITEMFAMILY:
         if(0!=(s=checkItem(ri->itemref)))
         {
@@ -7428,6 +7436,13 @@ void set_register(const long arg, const long value)
                 movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
         }
         
+        break;
+	
+	case ITEMSPRITESCRIPT:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (s->script)=(value/10000);
+        }
         break;
 	
 	case ITEMSCALE:
@@ -15798,6 +15813,32 @@ int run_script(const byte type, const word script, const long i)
 	    }
 	    break;
 	    
+	    case SCRIPT_ITEMSPRITE:
+	    {
+			int the_index = ItemH::getItemIndex(i);
+			//ri = &(lweaponScriptData[i]);
+			item *w = (item*)items.spr(the_index);
+			ri = w->refinfo;
+			if (!ri) {
+			  ri = w->refinfo = new refInfo;
+			}
+			curscript = itemspritescripts[items.spr(ItemH::getItemIndex(i))->script]; //Set the editor sprite script field to 'script'
+			
+			
+			stack = &(items.spr(ItemH::getItemIndex(i))->stack);
+			
+			item *wa = (item*)items.spr(ItemH::getItemIndex(i));
+			ri->itemref = wa->getUID();
+			
+			for ( int q = 0; q < 8; q++ ) 
+			{
+				
+				ri->d[q] = items.spr(ItemH::getItemIndex(i))->initD[q]; //w->initiald[q];
+			}
+			
+	    }
+	    break;
+	    
 	    case SCRIPT_ITEM:
 	    {
 		ri = &(itemScriptData[i]);
@@ -17948,6 +17989,15 @@ int run_script(const byte type, const word script, const long i)
 		
 			Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
 			Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
+			
+			//w->weaponscript = 0;
+			break;
+		}
+		case SCRIPT_ITEMSPRITE:
+		{
+		
+			items.spr(ItemH::getItemIndex(i))->doscript = 0;
+			items.spr(ItemH::getItemIndex(i))->script = 0;
 			
 			//w->weaponscript = 0;
 			break;
@@ -20990,6 +21040,16 @@ void FFScript::eweaponScriptEngine()
 		    default: break;
 		}
 		*/
+	}
+}
+
+void FFScript::itemSpriteScriptEngine()
+{
+	for ( int q = 0; q < items.Count(); q++ )
+	{
+		item *wp = (item*)items.spr(q);
+		if ( wp->script == 0 ) continue;
+		if ( wp->doscript ) ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, items.spr(q)->script, wp->getUID());		
 	}
 }
 
