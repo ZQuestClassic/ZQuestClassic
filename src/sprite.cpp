@@ -517,7 +517,7 @@ void sprite::draw(BITMAP* dest)
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 					}
 					else rotate_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation));
-					draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+					draw_sprite(dest, sprBMP2, sx, sy);
 				}
 				else
 				{
@@ -525,7 +525,7 @@ void sprite::draw(BITMAP* dest)
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-						draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+						draw_sprite(dest, sprBMP2, sx, sy);
 					}
 					else masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
 				}
@@ -578,7 +578,7 @@ void sprite::draw(BITMAP* dest)
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 					}
 					else rotate_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation));
-					draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+					draw_sprite(dest, sprBMP2, sx, sy);
 					
 				}
 				else
@@ -587,7 +587,7 @@ void sprite::draw(BITMAP* dest)
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-						draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+						draw_sprite(dest, sprBMP2, sx, sy);
 					}
 					else masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
 				}
@@ -631,7 +631,7 @@ void sprite::draw(BITMAP* dest)
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 							}
 							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
-							draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+							draw_sprite(dest, sprBMP2, sx, sy);
 							
 						}
 						else
@@ -640,9 +640,9 @@ void sprite::draw(BITMAP* dest)
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-								draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+								draw_sprite(dest, sprBMP2, sx, sy);
 							}
-							else draw_sprite(dest, sprBMP, x, y+playing_field_offset);
+							else draw_sprite(dest, sprBMP, sx, sy);
 						}
 							
 						destroy_bitmap(sprBMP);
@@ -679,7 +679,7 @@ void sprite::draw(BITMAP* dest)
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 							}
 							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
-							draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+							draw_sprite(dest, sprBMP2, sx, sy);
 							
 						}
 						else
@@ -688,9 +688,9 @@ void sprite::draw(BITMAP* dest)
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-								draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+								draw_sprite(dest, sprBMP2, sx, sy);
 							}
-							else draw_sprite(dest, sprBMP, x, y+playing_field_offset);
+							else draw_sprite(dest, sprBMP, sx, sy);
 						}
 							
 						destroy_bitmap(sprBMP);
@@ -727,7 +727,7 @@ void sprite::draw(BITMAP* dest)
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 							}
 							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
-							draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+							draw_sprite(dest, sprBMP2, sx, sy);
 							
 						}
 						else
@@ -736,9 +736,9 @@ void sprite::draw(BITMAP* dest)
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-								draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+								draw_sprite(dest, sprBMP2, sx, sy);
 							}
-							else draw_sprite(dest, sprBMP, x, y+playing_field_offset);
+							else draw_sprite(dest, sprBMP, sx, sy);
 						}
 							
 						destroy_bitmap(sprBMP);
@@ -779,7 +779,7 @@ void sprite::draw(BITMAP* dest)
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 							}
 							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
-							draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+							draw_sprite(dest, sprBMP2, sx, sy);
 							
 						}
 						else
@@ -788,9 +788,9 @@ void sprite::draw(BITMAP* dest)
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-								draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+								draw_sprite(dest, sprBMP2, sx, sy);
 							}
-							else draw_sprite(dest, sprBMP, x, y+playing_field_offset);
+							else draw_sprite(dest, sprBMP, sx, sy);
 						}
 						
 						destroy_bitmap(sprBMP);
@@ -828,7 +828,7 @@ void sprite::draw(BITMAP* dest)
 							rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 						}
 						else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
-						draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+						draw_sprite(dest, sprBMP2, sx, sy);
 						
 					}
 					else
@@ -837,9 +837,9 @@ void sprite::draw(BITMAP* dest)
 						{
 							double new_scale = scale / 100.0;
 							rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
-							draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+							draw_sprite(dest, sprBMP2, sx, sy);
 						}
-						else draw_sprite(dest, sprBMP, x, y+playing_field_offset);
+						else draw_sprite(dest, sprBMP, sx, sy);
 					}
 					destroy_bitmap(sprBMP);
 					destroy_bitmap(sprBMP2);

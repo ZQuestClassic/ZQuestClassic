@@ -2,6 +2,10 @@
 
 //Alpha 17
 
+Modified Classic Module blank quest (.dat) to call `#include std.zh` and `#include Classic.zh`
+Modified Default Module blank quest (.dat) to call `#include std.zh`
+Moved demo-scripts/* to scripts/* 
+Moved base package includes into ./includes and ./headers
 Resized Assign Scripts dialogue to make all tabs fit at one time.
 Fixed the `this` pointer in itemsprite scripts.
 	( ZoriaRPG, 8th April, 2019 )
