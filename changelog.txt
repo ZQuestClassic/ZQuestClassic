@@ -1,6 +1,8 @@
 ChangeLog for 2.53.0 
 
 //Release 2
+Fixed the easter egg for Lut in 1st/2nd.
+	( ZoriaRPG, 9th APril, 2019 )
 Re-included Bombchu QR, but this time, as a Compatibility rule.
 	It is enabled by default for 2.50.1 or earlier quests. 
 Disabled the console by default.
