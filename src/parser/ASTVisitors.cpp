@@ -24,6 +24,18 @@ bool RecursiveVisitor::breakRecursion(void* param) const
 	return failure || breakNode;
 }
 
+void RecursiveVisitor::syncDisable(AST& parent, AST const& child) const
+{
+	if(child.errorDisabled) parent.errorDisabled = true;
+	if(child.isDisabled()) parent.disable();
+}
+
+void RecursiveVisitor::syncDisable(AST& parent, AST const* child) const
+{
+	if(child->errorDisabled) parent.errorDisabled = true;
+	if(child->isDisabled()) parent.disable();
+}
+
 void RecursiveVisitor::handleError(CompileError const& error)
 {
 	bool skipError = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) != 0);
@@ -119,6 +131,7 @@ void RecursiveVisitor::caseBlock(ASTBlock& host, void* param)
 void RecursiveVisitor::caseStmtIf(ASTStmtIf& host, void* param)
 {
 	visit(host.condition.get(), param);
+	syncDisable(host, *host.condition);
 	if (breakRecursion(host, param)) return;
 	visit(host.thenStatement.get(), param);
 }
@@ -133,6 +146,7 @@ void RecursiveVisitor::caseStmtIfElse(ASTStmtIfElse& host, void* param)
 void RecursiveVisitor::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 {
 	visit(host.key.get(), param);
+	syncDisable(host, *host.key);
 	if (breakRecursion(host, param)) return;
 	visit(host, host.cases, param);
 }
@@ -149,8 +163,10 @@ void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 	visit(host.setup.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.test.get(), param);
+	syncDisable(host, *host.test);
 	if (breakRecursion(host, param)) return;
 	visit(host.increment.get(), param);
+	syncDisable(host, *host.increment);
 	if (breakRecursion(host, param)) return;
 	visit(host.body.get(), param);
 }
@@ -158,6 +174,7 @@ void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 void RecursiveVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
 {
 	visit(host.test.get(), param);
+	syncDisable(host, *host.test);
 	if (breakRecursion(host, param)) return;
 	visit(host.body.get(), param);
 }
@@ -167,6 +184,7 @@ void RecursiveVisitor::caseStmtDo(ASTStmtDo& host, void* param)
 	visit(host.body.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.test.get(), param);
+	syncDisable(host, *host.test);
 }
 
 void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
