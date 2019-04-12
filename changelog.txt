@@ -2,6 +2,10 @@
 
 //Alpha 17
 
+Fixed Lut's Easter Egg in both 1st.qst and 2nd.qst in the Classic Module.
+Fixed a bug in the new sprite::draw() where it was not respecting draw offsets.
+	( ZoriaRPG, 9th April, 2019 )
+	
 Modified Classic Module blank quest (.dat) to call `#include std.zh` and `#include Classic.zh`
 Modified Default Module blank quest (.dat) to call `#include std.zh`
 Moved demo-scripts/* to scripts/* 
