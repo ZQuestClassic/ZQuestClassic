@@ -285,6 +285,10 @@ namespace ZScript
 		// each action that can fail.
 		virtual bool breakRecursion(AST& host, void* param = NULL) const;
 		virtual bool breakRecursion(void* param = NULL) const;
+		
+		// Call this when a node relies on a child node. If the child is disabled, the parent must also be disabled, or else it can crash.
+		void syncDisable(AST& parent, AST const& child) const;
+		void syncDisable(AST& parent, AST const* child) const;
 
 		//Current scope
 		ZScript::Scope* scope;
