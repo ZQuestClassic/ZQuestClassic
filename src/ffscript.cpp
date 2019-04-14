@@ -1279,7 +1279,7 @@ long get_register(const long arg)
         break;
         
     case LINKZ:
-        ret = long(Link.getZ()) * (get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000;
+        ret = long(Link.getZ()) * ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000);
         break;
         
     case LINKJUMP:
@@ -1891,7 +1891,7 @@ long get_register(const long arg)
     case ITEMJUMP:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            ret = long((-((item*)(s))->fall / fix(100.0))  * 10000);
+            ret = long((-((item*)(s))->fall) * 100);
         }
         
         break;
@@ -2671,7 +2671,7 @@ long get_register(const long arg)
         if(GuyH::loadNPC(ri->guyref, "npc->Jump") != SH::_NoError)
             ret = -10000;
         else
-            ret = (long(-GuyH::getNPC()->fall / fix(100.0)) * 10000);
+            ret = (long(-GuyH::getNPC()->fall) * 100);
             
         break;
 	
@@ -3030,7 +3030,7 @@ case NPCBEHAVIOUR: {
         
     case LWPNJUMP:
         if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
-            ret = long((-((weapon*)(s))->fall / fix(100.0)) * 100000);
+            ret = long((-((weapon*)(s))->fall) * 100);
             
         break;
         
@@ -3351,7 +3351,7 @@ case NPCBEHAVIOUR: {
         
     case EWPNJUMP:
         if(0!=(s=checkEWpn(ri->ewpn, "Jump")))
-            ret = long((-((weapon*)(s))->fall / fix(100.0)) * 100000);
+            ret = long((-((weapon*)(s))->fall) * 100);
             
         break;
         
