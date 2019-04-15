@@ -2,6 +2,15 @@
 
 //Alpha 18
 
+
+Fix size of IDATAFLAGS
+	( Venrob, 15th April, 2019 )
+	
+Another revision of the fixes to lwpn, ewpn, item, npc->Jump
+	return values. 
+Updated zcsound.lib.
+	( ZoriaRPG, 15th April, 2019 )
+
 Merged OGGEX code (hand-merged by Z). 
 VBounded the values of SetEnhancedMusicSpeed(); 
 	max of 10x speed, min of 0x speed. 
