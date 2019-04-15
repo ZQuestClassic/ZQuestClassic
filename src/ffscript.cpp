@@ -1708,7 +1708,17 @@ long get_register(const long arg)
         ret=button_press[17]?10000:0;
         break;
         
-    case BUTTONPRESS:
+    case FFRULE:
+		// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
+	{
+		//Read-only
+		int ruleid = vbound((ri->d[0]/10000),0,qr_MAX);
+		ret = get_bit(quest_rules,ruleid)?10000:0;
+		
+	}
+	break;
+	
+	case BUTTONPRESS:
 		// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
 	{
 		//Read-only
@@ -7313,7 +7323,15 @@ void set_register(const long arg, const long value)
         position_mouse_z(value/10000);
         break;
     
-    case BUTTONPRESS:
+	case FFRULE:
+	{
+		//Read-only
+		int ruleid = vbound((ri->d[0]/10000),0,qr_MAX);
+		set_bit(quest_rules, ruleid, (((value/10000)!=0)?true:false));
+	}
+	break;
+	
+	case BUTTONPRESS:
 		// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
 	{
 		//Read-only
@@ -19603,6 +19621,7 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
+	max_ff_rules = qr_MAX;
 	coreflags = 0;
 	skip_ending_credits = 0;
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }

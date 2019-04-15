@@ -1719,6 +1719,7 @@ string VarArgument::toString()
 	case ITEMSCALE: return "ITEMSCALE";
 	case LINKSCALE: return "LINKSCALE";
 	case ITEMSPRITESCRIPT: return "ITEMSPRITESCRIPT";
+	case FFRULE: return "FFRULE";
 	
 	
     default:

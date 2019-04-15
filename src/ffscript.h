@@ -145,6 +145,7 @@ class FFScript
 public:
 //FFScript();
 void init();
+int max_ff_rules;
 int getQRBit(int rule);	
 void setRule(int rule, bool s);
 bool getRule(int rule_bit);
@@ -3234,6 +3235,7 @@ enum ASM_DEFINE
 #define ITEMSCALE 		0x1347
 #define LINKSCALE 		0x1348
 #define ITEMSPRITESCRIPT 		0x1349
+#define FFRULE 		0x134A
 
 //bytecode
 
@@ -3241,7 +3243,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x134A
+#define NUMVARIABLES         0x134B
 
 
 // Script types
