@@ -1638,6 +1638,7 @@ int ogg_ex_getpos(OGGEXFILE *ogg) //!DIMENTIO: both getpos and setpos are in mil
 	
 	return 0;
     }
+    return 0; //if it is NULL, we still need to return a value. -Z
 }
 
 void ogg_ex_setpos(OGGEXFILE *ogg, int msecs)
