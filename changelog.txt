@@ -1,6 +1,11 @@
 ChangeLog for 2.53.0 
 
 //Release 2
+Fixed the return values of lweapon->Jump, eweapon->Jump, npc->Jump
+	and item->Jump.
+Updated build ID to 33.
+	( ZoriaRPG, 16th April, 2019 )
+
 Fixed the easter egg for Lut in 1st/2nd.
 	( ZoriaRPG, 9th APril, 2019 )
 Re-included Bombchu QR, but this time, as a Compatibility rule.
