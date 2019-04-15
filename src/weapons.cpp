@@ -7836,6 +7836,11 @@ void weapon::draw(BITMAP *dest)
     }
     
     // draw it
+    
+    if ( z > 0 && get_bit(quest_rules, qr_WEAPONSHADOWS) )
+    {
+	sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
+    }
     sprite::draw(dest);
 }
 
