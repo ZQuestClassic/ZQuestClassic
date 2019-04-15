@@ -876,6 +876,7 @@ static MENU etc_menu[] =
     { (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
     { (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
     { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
+    { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -894,6 +895,7 @@ static MENU zscript_menu[] =
     { (char *)"Import ASM &Hero Script",  onImportHEROScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &DMap Script",  onImportDMapScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &Screen Script",  onImportSCREENScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM IetmS&prite Script",  onImportITEMSPRITEScript,           NULL,                     0,            NULL   },
 	//divider
         { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
@@ -912,8 +914,9 @@ static MENU module_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-MENU the_menu[] =
+MENU the_menu_large[] =
 {
+    
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
     { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
     { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
@@ -923,6 +926,21 @@ MENU the_menu[] =
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
     { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
     { (char *)"Et&c",                       NULL, (MENU *) etc_menu,        0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+MENU the_menu[] =
+{
+    { (char *)"&ZQuest",                       NULL, (MENU *) etc_menu,        0,            NULL   },
+    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
+    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
+    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
+    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
+    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
+    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
+    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
+    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
+
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1083,6 +1101,7 @@ static DIALOG dialogs[] =
 {
     // still unused:  jm
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
+    //{ d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, ((is_large) ? (void *) the_menu_large : (void *) the_menu), NULL, NULL },
     { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
     
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
@@ -19897,6 +19916,8 @@ static DIALOG zscript_settings_dlg[] =
     { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Scrolling", NULL, NULL },
     { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
     { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
+    { jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Draw Shadows on Weapons", NULL, NULL },
+    { jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Draw Shadows on Items", NULL, NULL },
     
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -19906,6 +19927,7 @@ static DIALOG zscript_settings_dlg[] =
 static int zscriptrules[] =
 {
     qr_ITEMSCRIPTSKEEPRUNNING, qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,qr_LINKXY_IS_FLOAT,
+	qr_WEAPONSHADOWS, qr_ITEMSHADOWS,
     -1
 };
 
@@ -23530,6 +23552,13 @@ void switch_in()
         
     BITMAP *ts=screen;
     screen=menu1;
+    /*
+    if (!is_large) 
+	{
+		dialogs[0].dp = (void *) the_menu;
+	}
+	else dialogs[0].dp = (void *) the_menu_large;
+    */
     jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
     screen=ts;
     zcmusic_pause(zcmusic, ZCM_RESUME);
@@ -25257,7 +25286,13 @@ int main(int argc,char **argv)
     
     FFCore.init();
 	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
-    
+	/*
+	if (!is_large) 
+	{
+		dialogs[0].dp = (void *) the_menu;
+	}
+	else dialogs[0].dp = (void *) the_menu_large;
+        */
     while(!quit)
     {
     
@@ -25278,8 +25313,14 @@ int main(int argc,char **argv)
 #endif
         
         check_autosave();
-        
-        
+        /*
+	if (!is_large) 
+	{
+		dialogs[0].dp = (void *) the_menu;
+	}
+	else
+		dialogs[0].dp = (void *) the_menu_large;
+        */
         ++alignment_arrow_timer;
         
         if(alignment_arrow_timer>63)
@@ -26957,6 +26998,7 @@ int FFScript::GetScriptObjectUID(int type)
 
 void FFScript::init()
 {
+	max_ff_rules = qr_MAX;
 	coreflags = 0;
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
