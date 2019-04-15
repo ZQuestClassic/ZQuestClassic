@@ -3596,6 +3596,10 @@ OOL,         GETTER,       KEYPRESS,         127,      {  ZVARTYPEID_GAME,      
 	{ "LoadDMapData",           ZVARTYPEID_DMAPDATA,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "CreateBitmap",           ZVARTYPEID_BITMAP,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "PlayEnhancedMusicEx",      ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetEnhancedMusicPos",      ZVARTYPEID_FLOAT,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetEnhancedMusicPos",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetEnhancedMusicSpeed",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+
 	
     { "",                       -1,                               -1,           -1,                  -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -5441,7 +5445,50 @@ void GameSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
+    //int GetEnhancedMusicPos(game)
+{
+	    Function* function = getFunction("GetEnhancedMusicPos");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OGetEnhancedMusicPos(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+}
+     //void SetEnhancedMusicPos(game, int)
+    {
+	    Function* function = getFunction("SetEnhancedMusicPos");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetEnhancedMusicPos(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
     
+    //void SetEnhancedMusicSpeed(game, int)
+    {
+	    Function* function = getFunction("SetEnhancedMusicSpeed");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetEnhancedMusicSpeed(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
 }
 
 NPCSymbols NPCSymbols::singleton = NPCSymbols();
@@ -8703,6 +8750,10 @@ static AccessorTable AudioTable[] =
     { "PlayMIDI",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "PlayEnhancedMusic",      ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "PlayEnhancedMusicEx",      ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetEnhancedMusicPos",      ZVARTYPEID_FLOAT,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetEnhancedMusicPos",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetEnhancedMusicSpeed",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+
     
     { "getVolume[]",             ZVARTYPEID_FLOAT,         GETTER,       AUDIOVOLUME,             4,      {  ZVARTYPEID_AUDIO,           ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setVolume[]",             ZVARTYPEID_VOID,          SETTER,       AUDIOVOLUME,             4,      {  ZVARTYPEID_AUDIO,           ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -8919,6 +8970,49 @@ void AudioSymbols::generateCode()
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new OPlayEnhancedMusicEx(new VarArgument(EXP2), new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetEnhancedMusicPos(game)
+{
+	    Function* function = getFunction("GetEnhancedMusicPos");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OGetEnhancedMusicPos(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+}
+     //void SetEnhancedMusicPos(game, int)
+    {
+	    Function* function = getFunction("SetEnhancedMusicPos");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetEnhancedMusicPos(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //void SetEnhancedMusicSpeed(game, int)
+    {
+	    Function* function = getFunction("SetEnhancedMusicSpeed");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetEnhancedMusicSpeed(new VarArgument(EXP1)));
         code.push_back(new OReturn());
         function->giveCode(code);
     }

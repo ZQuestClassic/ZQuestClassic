@@ -57,8 +57,9 @@ ZCM_EXTERN bool zcmusic_stop(ZCMUSIC* zcm);
 ZCM_EXTERN void zcmusic_unload_file(ZCMUSIC* &zcm);
 ZCM_EXTERN int zcmusic_get_tracks(ZCMUSIC* zcm);
 ZCM_EXTERN int zcmusic_change_track(ZCMUSIC* zcm, int tracknum);
-ZCM_EXTERN int zcmusic_get_pos(ZCMUSIC* zcm);
-ZCM_EXTERN void zcmusic_set_pos(ZCMUSIC* zcm, int value);
+ZCM_EXTERN int zcmusic_get_curpos(ZCMUSIC* zcm);
+ZCM_EXTERN void zcmusic_set_curpos(ZCMUSIC* zcm, int value);
+ZCM_EXTERN void zcmusic_set_speed(ZCMUSIC* zcm, int value);
 
 #ifdef __cplusplus
 }                                                           // extern "C"

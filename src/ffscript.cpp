@@ -14831,6 +14831,27 @@ void do_enh_music_ex(bool v)
     }
 }
 
+void do_setpos_enh_music(bool v)
+{
+    long newposition = SH::get_arg(sarg1, v) / 10;
+    
+    set_zcmusicpos(newposition);
+}
+
+void do_getpos_enh_music()
+{
+    int pos = get_zcmusicpos()*10;
+    al_trace("ZC OGG Position is %d\n", pos);
+    set_register(sarg1, pos);
+}
+
+void do_setspeed_enh_music(bool v)
+{
+    long newspeed = SH::get_arg(sarg1, v) / 10;
+    
+    set_zcmusicspeed(newspeed);
+}
+
 void do_get_enh_music_filename(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -16246,10 +16267,6 @@ int run_script(const byte type, const word script, const long i)
 		    do_enh_music(false);
 		    break;
 		    
-		case PLAYENHMUSICEX:
-		    do_enh_music_ex(false);
-		    break;
-		    
 		case GETMUSICFILE:
 		    do_get_enh_music_filename(false);
 		    break;
@@ -17570,6 +17587,22 @@ int run_script(const byte type, const word script, const long i)
 		
 		case NPCADD:
 		    FFCore.do_npc_add(false);
+		    break;
+		
+		case PLAYENHMUSICEX:
+		    do_enh_music_ex(false);
+		    break;
+		    
+		case GETENHMUSICPOS:
+		    do_getpos_enh_music();
+		    break;
+		    
+		case SETENHMUSICPOS:
+		    do_setpos_enh_music(false);
+		    break;
+		    
+		case SETENHMUSICSPEED:
+		    do_setspeed_enh_music(false);
 		    break;
 		
 		default:

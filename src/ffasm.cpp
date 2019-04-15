@@ -770,6 +770,9 @@ script_command command_list[NUMCOMMANDS+1]=
       { "MAPDATAISSOLID",             1,   0,   0,   0},
       { "SHOWF6SCREEN",             0,   0,   0,   0},
       { "PLAYENHMUSICEX",        2,   0,   0,   0},
+      { "GETENHMUSICPOS",          1,   0,   0,   0},
+      { "SETENHMUSICPOS",        1,   0,   0,   0},
+      { "SETENHMUSICSPEED",        1,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 

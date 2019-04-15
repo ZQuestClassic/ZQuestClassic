@@ -127,6 +127,7 @@ bool ogg_ex_reset(OGGEXFILE *ogg);
 void ogg_ex_stop(OGGEXFILE *ogg);
 int ogg_ex_getpos(OGGEXFILE *ogg);
 void ogg_ex_setpos(OGGEXFILE *ogg, int msecs);
+void ogg_ex_setspeed(OGGEXFILE *ogg, int speed);
 
 MP3FILE *load_mp3_file(char *filename);
 int poll_mp3_file(MP3FILE *mp3);
@@ -984,6 +985,19 @@ error:
 	
 	return;
     }
+    void zcmusic_set_speed(ZCMUSIC* zcm, int value)
+    {
+	if(zcm == NULL) return;
+        
+        switch(zcm->type & libflags)
+        {
+        case ZCMF_OGGEX:
+		ogg_ex_setspeed((OGGEXFILE*)zcm, value);
+		break;
+	}
+	
+	return;
+    }
 }                                                           // extern "C"
 
 MP3FILE *load_mp3_file(char *filename)
@@ -1408,19 +1422,27 @@ void ogg_stop(OGGFILE *ogg)
 
 OGGEXFILE *load_ogg_ex_file(char *filename) //!DIMENTIO: Start of og_ex. og_ex allows for seeking and getting total length of audio file.
 {
-    OGGEXFILE *p = NULL;
-    FILE *f = NULL;
-    ALOGG_OGG *s = NULL;
+    //OGGEXFILE *p = NULL;
+    OGGEXFILE *p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE));
+    FILE *f = fopen(filename, "rb");
+    ALOGG_OGG *s = alogg_create_ogg_from_file(f);
     /*char *data = new char[(zcmusic_bufsz_private*512)];
     int len;*/
     
-    if((p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE)))==NULL)
+    /*if((p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE)))==NULL)
+    {
+        goto error;
+    }*/
+    
+    if(!p)
     {
         goto error;
     }
     
-    if((f = fopen(filename, "r"))==NULL)
+    al_trace("oggex filename is: %s\n",filename);
+    if(!f)
     {
+        al_trace("oggex error at %s\n", "reading file");
         goto error;
     }
     
@@ -1431,8 +1453,9 @@ OGGEXFILE *load_ogg_ex_file(char *filename) //!DIMENTIO: Start of og_ex. og_ex a
     
     /*if(len < (zcmusic_bufsz_private*512))
     {*/
-        if((s = alogg_create_ogg_from_file(f))==NULL)
+        if(!s)
         {
+	    al_trace("oggex error at %s\n", "checking alogg");
             goto error;
         }
     /*}
@@ -1610,7 +1633,8 @@ int ogg_ex_getpos(OGGEXFILE *ogg) //!DIMENTIO: both getpos and setpos are in mil
 {
     if(ogg->s != NULL)
     {
-	return alogg_get_pos_msecs_ogg(ogg->s);
+	int baddebugtimes = alogg_get_pos_msecs_ogg(ogg->s);
+	return baddebugtimes;
 	
 	return 0;
     }
@@ -1621,6 +1645,16 @@ void ogg_ex_setpos(OGGEXFILE *ogg, int msecs)
     if(ogg->s != NULL)
     {
 	alogg_seek_abs_msecs_ogg(ogg->s, msecs);
+    }
+}
+
+void ogg_ex_setspeed(OGGEXFILE *ogg, int speed)
+{
+    if(ogg->s != NULL)
+    {
+	//alogg_adjust_ogg(ogg->s, ogg->vol, 128, speed, 1);
+	alogg_stop_ogg(ogg->s);
+	alogg_play_ex_ogg(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128, speed, 1);
     }
 }
 

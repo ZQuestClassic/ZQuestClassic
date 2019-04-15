@@ -2326,6 +2326,21 @@ string OPlayEnhancedMusicEx::toString()
     return "PLAYENHMUSICEX " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OGetEnhancedMusicPos::toString()
+{
+    return "GETENHMUSICPOS " + getArgument()->toString();
+}
+
+string OSetEnhancedMusicPos::toString()
+{
+    return "SETENHMUSICPOS " + getArgument()->toString();
+}
+
+string OSetEnhancedMusicSpeed::toString()
+{
+    return "SETENHMUSICSPEED " + getArgument()->toString();
+}
+
 string OGetDMapMusicFilename::toString()
 {
     return "GETMUSICFILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();

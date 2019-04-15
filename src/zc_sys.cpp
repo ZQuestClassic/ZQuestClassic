@@ -8953,6 +8953,23 @@ bool try_zcmusic_ex(char *filename, int track, int midi)
     return false;
 }
 
+int get_zcmusicpos()
+{
+    int debugtracething = zcmusic_get_curpos(zcmusic);
+    return debugtracething;
+    return 0;
+}
+
+void set_zcmusicpos(int position)
+{
+    zcmusic_set_curpos(zcmusic, position);
+}
+
+void set_zcmusicspeed(int speed)
+{
+    zcmusic_set_speed(zcmusic, speed);
+}
+
 void jukebox(int index,int loop)
 {
     music_stop();

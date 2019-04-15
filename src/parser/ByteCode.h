@@ -2630,6 +2630,39 @@ namespace ZScript
 			return new OPlayEnhancedMusicEx(a->clone(), b->clone());
 		}
 	};
+	
+	class OGetEnhancedMusicPos : public UnaryOpcode
+	{
+	public:
+		OGetEnhancedMusicPos(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetEnhancedMusicPos(a->clone());
+		}
+	};
+	
+	class OSetEnhancedMusicPos : public UnaryOpcode
+	{
+	public:
+		OSetEnhancedMusicPos(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetEnhancedMusicPos(a->clone());
+		}
+	};
+	
+	class OSetEnhancedMusicSpeed : public UnaryOpcode
+	{
+	public:
+		OSetEnhancedMusicSpeed(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetEnhancedMusicSpeed(a->clone());
+		}
+	};
 
 	class OGetDMapMusicFilename : public BinaryOpcode
 	{
