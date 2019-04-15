@@ -2451,7 +2451,7 @@ long get_register(const long arg)
         break;
       //->Flags[5]
       case IDATAFLAGS: {
-	    int index = vbound(ri->d[0]/10000,0,4);
+	    int index = vbound(ri->d[0]/10000,0,15);
 		switch(index){
 		    case 0:
 			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG1)?10000:0;
@@ -7986,7 +7986,7 @@ void set_register(const long arg, const long value)
 
 	//Flags[5]
 	case IDATAFLAGS: {
-	    int index = vbound(ri->d[0]/10000,0,4);
+	    int index = vbound(ri->d[0]/10000,0,15);
 		switch(index){
 		    case 0:
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG1 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG1; 
