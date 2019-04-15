@@ -7294,6 +7294,16 @@ namespace ZScript
 			return new ONPCHitWith(a->clone());
 		}
 	};
+	class OGetNPCDataName : public UnaryOpcode
+	{
+	public:
+		OGetNPCDataName(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetNPCDataName(a->clone());
+		}
+	};
 	class OReturn : public Opcode
 	{
 	public:
