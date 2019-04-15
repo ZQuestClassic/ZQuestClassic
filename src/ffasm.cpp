@@ -770,6 +770,10 @@ script_command command_list[NUMCOMMANDS+1]=
       { "MAPDATAISSOLID",             1,   0,   0,   0},
       { "SHOWF6SCREEN",             0,   0,   0,   0},
       { "NPCDATAGETNAME",             1,   0,   0,   0},
+      { "PLAYENHMUSICEX",        2,   0,   0,   0},
+      { "GETENHMUSICPOS",          1,   0,   0,   0},
+      { "SETENHMUSICPOS",        1,   0,   0,   0},
+      { "SETENHMUSICSPEED",        1,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 
@@ -1800,11 +1804,6 @@ script_variable variable_list[]=
 	{"SKIPF6", SKIPF6, 0, 0 },
 	{"LWPNUSEWEAPON", LWPNUSEWEAPON, 0, 0 },
 	{"LWPNUSEDEFENCE", LWPNUSEDEFENCE, 0, 0 },
-	{"LWPNROTATION", LWPNROTATION, 0, 0 },
-	{"EWPNROTATION", EWPNROTATION, 0, 0 },
-	{"NPCROTATION", NPCROTATION, 0, 0 },
-	{"ITEMROTATION", ITEMROTATION, 0, 0 },
-	{"LINKROTATION", LINKROTATION, 0, 0 },
 	
 	{"LWPNSCALE", LWPNSCALE, 0, 0 },
 	{"EWPNSCALE", EWPNSCALE, 0, 0 },
