@@ -1706,7 +1706,7 @@ string VarArgument::toString()
 	case SKIPF6: return "SKIPF6";
 	case LWPNUSEWEAPON: return "LWPNUSEWEAPON";
 	case LWPNUSEDEFENCE: return "LWPNUSEDEFENCE";
-	
+
 	case LWPNROTATION: return "LWPNROTATION";
 	case EWPNROTATION: return "EWPNROTATION";
 	case NPCROTATION: return "NPCROTATION";
@@ -1719,6 +1719,7 @@ string VarArgument::toString()
 	case ITEMSCALE: return "ITEMSCALE";
 	case LINKSCALE: return "LINKSCALE";
 	case ITEMSPRITESCRIPT: return "ITEMSPRITESCRIPT";
+	case FFRULE: return "FFRULE";
 	
 	
     default:
@@ -2332,6 +2333,26 @@ string OPlayMIDIRegister::toString()
 string OPlayEnhancedMusic::toString()
 {
     return "PLAYENHMUSIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPlayEnhancedMusicEx::toString()
+{
+    return "PLAYENHMUSICEX " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OGetEnhancedMusicPos::toString()
+{
+    return "GETENHMUSICPOS " + getArgument()->toString();
+}
+
+string OSetEnhancedMusicPos::toString()
+{
+    return "SETENHMUSICPOS " + getArgument()->toString();
+}
+
+string OSetEnhancedMusicSpeed::toString()
+{
+    return "SETENHMUSICSPEED " + getArgument()->toString();
 }
 
 string OGetDMapMusicFilename::toString()
@@ -4316,11 +4337,6 @@ string ONPCHitWith::toString()
 {
     return "NPCHITWITH " + getArgument()->toString();
 }
-
-//string ORunItemScript::toString()
-//{
-//    return "RUNITEMSCRIPT";
-//}
 
 string OGetNPCDataName::toString()
 {

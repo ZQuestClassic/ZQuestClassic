@@ -175,6 +175,10 @@ void item::draw(BITMAP *dest)
     if(pickup&ipNODRAW || tile==0)
         return;
         
+    if ( z > 0 && get_bit(quest_rules, qr_ITEMSHADOWS) )
+    {
+	sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
+    }
     if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1)
     {
         if(clk2>32 || (clk2&2)==0 || itemsbuf[id].family == itype_fairy)

@@ -9233,6 +9233,68 @@ bool try_zcmusic(char *filename, int track, int midi)
     return false;
 }
 
+bool try_zcmusic_ex(char *filename, int track, int midi)
+{
+    ZCMUSIC *newzcmusic = NULL;
+    
+    // Try the ZC directory first
+    {
+        char exepath[2048];
+        char musicpath[2048];
+        get_executable_name(exepath, 2048);
+        replace_filename(musicpath, exepath, filename, 2048);
+        newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+    }
+    
+    // Not in ZC directory, try the quest directory
+    if(newzcmusic==NULL)
+    {
+        char musicpath[2048];
+        replace_filename(musicpath, qstpath, filename, 2048);
+        newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+    }
+    
+    // Found it
+    if(newzcmusic!=NULL)
+    {
+        zcmusic_stop(zcmusic);
+        zcmusic_unload_file(zcmusic);
+        stop_midi();
+        
+        zcmusic=newzcmusic;
+        zcmusic_play(zcmusic, emusic_volume);
+        
+        if(track>0)
+            zcmusic_change_track(zcmusic,track);
+            
+        return true;
+    }
+    
+    // Not found, play MIDI - unless this was called by a script (yay, magic numbers)
+    else if(midi>-1000)
+        jukebox(midi);
+        
+    return false;
+}
+
+int get_zcmusicpos()
+{
+    int debugtracething = zcmusic_get_curpos(zcmusic);
+    return debugtracething;
+    return 0;
+}
+
+void set_zcmusicpos(int position)
+{
+    zcmusic_set_curpos(zcmusic, position);
+}
+
+void set_zcmusicspeed(int speed)
+{
+    int newspeed = vbound(speed, 0, 10000);
+    zcmusic_set_speed(zcmusic, newspeed);
+}
+
 void jukebox(int index,int loop)
 {
     music_stop();

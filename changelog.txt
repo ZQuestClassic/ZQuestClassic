@@ -1,7 +1,44 @@
 //2.55 and 2.54 Changes
 
-//Alpha 17
+//Alpha 18
 
+Merged OGGEX code (hand-merged by Z). 
+VBounded the values of SetEnhancedMusicSpeed(); 
+	max of 10x speed, min of 0x speed. 
+	This should prevent crashing.
+Added GetEnhancedMusicPos() and SetEnhancedMusicPos() to both
+	Game-> and Audio->.
+Added SetEnhancedMusicSpeed(); 1 is normal speed, 0.5 is half
+	speed, 2 is 2x speed. 
+	Be careful; passing values too high will crash the game!
+Added OGGEX to zcmusic/zc_sys. 
+	( Dimentio, 15th April, 2019 ) 
+	Commits:
+		https://github.com/ArmageddonGames/ZeldaClassic/pull/332/commits/20e7b40cca7999a6257dec623f62670731f82285
+		https://github.com/ArmageddonGames/ZeldaClassic/pull/332/commits/36f0e3b0ee914e3de9b97cd806db6706217b3528
+		https://github.com/ArmageddonGames/ZeldaClassic/pull/332/commits/b96116722610805c4cd3ca4ce250d0f7078931da
+
+Changed the ZQ main menu so that if the user is in small mode,
+they cqan still access every entry.
+Re-added Import ItemSprite ASM Script to the ZScript menu.
+Added a QR to draw dhadows on items/weapons with a Z > 0. 
+Add bool Game->FFRules[] to ZScript
+	( ZoriaRPG, 15th April, 2019 )
+
+Fixed an error that I introduced into the return value of Link->Z.
+Should fix longstanding rubbish return values for npc, lweapon, eweapon, and item->Jump
+	( ZoriaRPG, 14th April, 2019 )
+	
+Fix NO_ERROR_HALT crash
+Fix crash: Sync errorDisabled state up a level in several statements
+	This prevents crashes caused by invalid data.
+	( Venrob, 12th April, 2019 )
+		
+
+
+//Alpha 17
+Added enum value for edSHOWMESSAGE and marked implemented enemy defences.
+Use #include in built-in headers, rather than import.
 Fixed Lut's Easter Egg in both 1st.qst and 2nd.qst in the Classic Module.
 Fixed a bug in the new sprite::draw() where it was not respecting draw offsets.
 	( ZoriaRPG, 9th April, 2019 )
