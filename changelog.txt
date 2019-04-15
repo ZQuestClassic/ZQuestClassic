@@ -2,6 +2,8 @@
 
 //Alpha 18
 
+Move the EXIT entry from the File menu, to the ZQuest menu, in ZQ.
+	( ZoriaRPG, 15th April, 2019 )
 
 Fix size of IDATAFLAGS
 	( Venrob, 15th April, 2019 )

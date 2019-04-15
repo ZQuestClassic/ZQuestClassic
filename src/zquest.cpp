@@ -585,8 +585,7 @@ static MENU file_menu[] =
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Import\t ",                 NULL,                      import_menu,              0,            NULL   },
     { (char *)"&Export\t ",                 NULL,                      export_menu,              0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+    //separator { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -877,6 +876,8 @@ static MENU etc_menu[] =
     { (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
     { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
     { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
