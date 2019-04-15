@@ -1,7 +1,28 @@
 //2.55 and 2.54 Changes
 
-//Alpha 17
+//Alpha 18
 
+Changed the ZQ main menu so that if the user is in small mode,
+they cqan still access every entry.
+Re-added Import ItemSprite ASM Script to the ZScript menu.
+Added a QR to draw dhadows on items/weapons with a Z > 0. 
+Add bool Game->FFRules[] to ZScript
+	( ZoriaRPG, 15th April, 2019 )
+
+Fixed an error that I introduced into the return value of Link->Z.
+Should fix longstanding rubbish return values for npc, lweapon, eweapon, and item->Jump
+	( ZoriaRPG, 14th April, 2019 )
+	
+Fix NO_ERROR_HALT crash
+Fix crash: Sync errorDisabled state up a level in several statements
+	This prevents crashes caused by invalid data.
+	( Venrob, 12th April, 2019 )
+		
+
+
+//Alpha 17
+Added enum value for edSHOWMESSAGE and marked implemented enemy defences.
+Use #include in built-in headers, rather than import.
 Fixed Lut's Easter Egg in both 1st.qst and 2nd.qst in the Classic Module.
 Fixed a bug in the new sprite::draw() where it was not respecting draw offsets.
 	( ZoriaRPG, 9th April, 2019 )
