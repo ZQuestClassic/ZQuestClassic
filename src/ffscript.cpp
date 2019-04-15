@@ -1403,7 +1403,7 @@ long get_register(const long arg)
         ret = (int)(Link.get_defence(vbound(ri->d[0]/10000,0,255)))* 10000;
         break;
         
-        
+       
     case LINKROTATION:
 	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 	{
@@ -1427,6 +1427,7 @@ long get_register(const long arg)
         break;
     }
     
+
     case LINKHXOFS:
         ret = (int)(Link.hxofs)*10000;
         break;
@@ -2039,7 +2040,7 @@ long get_register(const long arg)
         }
         
         break;
-	
+
 	case ITEMROTATION:
 	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 	{
@@ -2053,7 +2054,7 @@ long get_register(const long arg)
         }
         
         break;
-        
+
     case ITEMHYOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
@@ -2641,7 +2642,7 @@ long get_register(const long arg)
 		ret = -1; break;
 	}
         GET_NPC_VAR_INT(rotation, "npc->Rotation") break;
-        
+
     case NPCTXSZ:
         GET_NPC_VAR_INT(txsz, "npc->TileWidth") break;
         
@@ -3312,7 +3313,7 @@ case NPCBEHAVIOUR: {
             ret=(((weapon*)(s))->script_UID); //literal, not *10000
             
         break;
-	
+
 	case LWPNROTATION:
 	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 	{
@@ -3324,8 +3325,7 @@ case NPCBEHAVIOUR: {
             ret=((weapon*)(s))->rotation*10000;
             
         break;
-	
-    
+
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
@@ -3478,7 +3478,7 @@ case NPCBEHAVIOUR: {
             ret=((weapon*)(s))->flip*10000;
             
         break;
-	
+
 	case EWPNROTATION:
 	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 	{
@@ -3490,7 +3490,7 @@ case NPCBEHAVIOUR: {
             ret=((weapon*)(s))->rotation*10000;
             
         break;
-        
+
     case EWPNCOUNT:
         ret=Ewpns.Count()*10000;
         break;
@@ -6973,7 +6973,7 @@ void set_register(const long arg, const long value)
     case LINKHXOFS:
         (Link.hxofs)=(fix)(value/10000);
         break;
-    
+
     case LINKROTATION:
 	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 	{
@@ -6997,7 +6997,7 @@ void set_register(const long arg, const long value)
 	//al_trace("Trying to set Link.scale to: %d\n", value/100.0);
         break;
     }
-        
+
     case LINKHYOFS:
         (Link.hyofs)=(fix)(value/10000);
         break;
@@ -8364,7 +8364,7 @@ void set_register(const long arg, const long value)
             ((weapon*)s)->flip=(value/10000);
             
         break;
-	
+
 	case LWPNROTATION:
 	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 	{
@@ -8675,7 +8675,7 @@ void set_register(const long arg, const long value)
             ((weapon*)s)->flip=(value/10000);
             
         break;
-        
+       
 	case EWPNROTATION:
 	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 	{
@@ -15100,6 +15100,47 @@ void do_enh_music(bool v)
     }
 }
 
+void do_enh_music_ex(bool v)
+{
+    long arrayptr = SH::get_arg(sarg1, v) / 10000;
+    long track = (SH::get_arg(sarg2, v) / 10000)-1;
+    
+    if(arrayptr == 0)
+        music_stop();
+    else // Pointer to a string..
+    {
+        string filename_str;
+        char filename_char[256];
+        bool ret;
+        ArrayH::getString(arrayptr, filename_str, 256);
+        strncpy(filename_char, filename_str.c_str(), 255);
+        filename_char[255]='\0';
+        ret=try_zcmusic_ex(filename_char, track, -1000);
+        set_register(sarg2, ret ? 10000 : 0);
+    }
+}
+
+void do_setpos_enh_music(bool v)
+{
+    long newposition = SH::get_arg(sarg1, v) / 10;
+    
+    set_zcmusicpos(newposition);
+}
+
+void do_getpos_enh_music()
+{
+    int pos = get_zcmusicpos()*10;
+    al_trace("ZC OGG Position is %d\n", pos);
+    set_register(sarg1, pos);
+}
+
+void do_setspeed_enh_music(bool v)
+{
+    long newspeed = SH::get_arg(sarg1, v) / 10;
+    
+    set_zcmusicspeed(newspeed);
+}
+
 void do_get_enh_music_filename(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -17880,6 +17921,22 @@ int run_script(const byte type, const word script, const long i)
 		
 		case NPCADD:
 		    FFCore.do_npc_add(false);
+		    break;
+		
+		case PLAYENHMUSICEX:
+		    do_enh_music_ex(false);
+		    break;
+		    
+		case GETENHMUSICPOS:
+		    do_getpos_enh_music();
+		    break;
+		    
+		case SETENHMUSICPOS:
+		    do_setpos_enh_music(false);
+		    break;
+		    
+		case SETENHMUSICSPEED:
+		    do_setspeed_enh_music(false);
 		    break;
 		
 		default:

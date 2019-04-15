@@ -1101,14 +1101,13 @@ using namespace std;
 #define NPCROTATION 			1032
 #define ITEMROTATION 			1033
 #define LINKROTATION 			1034
-
 #define LWPNSCALE 			1035
 #define EWPNSCALE 			1036
 #define NPCSCALE 			1037
 #define ITEMSCALE 			1038
 #define LINKSCALE 			1039
 #define ITEMSPRITESCRIPT 		1040
-#define FFRULE 		1041
+#define FFRULE 				1041
 
 #define LAST_BYTECODE 		1042
 
@@ -2630,6 +2629,50 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OPlayEnhancedMusic(a->clone(), b->clone());
+		}
+	};
+	
+	class OPlayEnhancedMusicEx : public BinaryOpcode
+	{
+	public:
+		OPlayEnhancedMusicEx(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPlayEnhancedMusicEx(a->clone(), b->clone());
+		}
+	};
+	
+	class OGetEnhancedMusicPos : public UnaryOpcode
+	{
+	public:
+		OGetEnhancedMusicPos(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetEnhancedMusicPos(a->clone());
+		}
+	};
+	
+	class OSetEnhancedMusicPos : public UnaryOpcode
+	{
+	public:
+		OSetEnhancedMusicPos(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetEnhancedMusicPos(a->clone());
+		}
+	};
+	
+	class OSetEnhancedMusicSpeed : public UnaryOpcode
+	{
+	public:
+		OSetEnhancedMusicSpeed(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetEnhancedMusicSpeed(a->clone());
 		}
 	};
 
@@ -7251,8 +7294,6 @@ namespace ZScript
 			return new ONPCHitWith(a->clone());
 		}
 	};
-	
-	
 	class OGetNPCDataName : public UnaryOpcode
 	{
 	public:
@@ -7263,8 +7304,6 @@ namespace ZScript
 			return new OGetNPCDataName(a->clone());
 		}
 	};
-	
-	
 	class OReturn : public Opcode
 	{
 	public:
