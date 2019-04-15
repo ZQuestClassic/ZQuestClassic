@@ -3607,10 +3607,10 @@ OOL,         GETTER,       KEYPRESS,         127,      {  ZVARTYPEID_GAME,      
 	{ "LoadMessageData",           ZVARTYPEID_ZMESSAGE,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadDMapData",           ZVARTYPEID_DMAPDATA,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "CreateBitmap",           ZVARTYPEID_BITMAP,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "PlayEnhancedMusicEx",      ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetEnhancedMusicPos",      ZVARTYPEID_FLOAT,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetEnhancedMusicPos",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetEnhancedMusicSpeed",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "PlayOgg",      ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetOggPos",      ZVARTYPEID_FLOAT,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetOggPos",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetOggSpeed",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 
 	
     { "",                       -1,                               -1,           -1,                  -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
@@ -5443,7 +5443,7 @@ void GameSymbols::generateCode()
     }
     //void PlayEnhancedMusicEx(game, int, int)
     {
-	    Function* function = getFunction("PlayEnhancedMusicEx");
+	    Function* function = getFunction("PlayOgg");
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
@@ -5459,7 +5459,7 @@ void GameSymbols::generateCode()
     }
     //int GetEnhancedMusicPos(game)
 {
-	    Function* function = getFunction("GetEnhancedMusicPos");
+	    Function* function = getFunction("GetOggPos");
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -5472,7 +5472,7 @@ void GameSymbols::generateCode()
 }
      //void SetEnhancedMusicPos(game, int)
     {
-	    Function* function = getFunction("SetEnhancedMusicPos");
+	    Function* function = getFunction("SetOggPos");
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
@@ -5488,7 +5488,7 @@ void GameSymbols::generateCode()
     
     //void SetEnhancedMusicSpeed(game, int)
     {
-	    Function* function = getFunction("SetEnhancedMusicSpeed");
+	    Function* function = getFunction("SetOggSpeed");
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
@@ -8773,10 +8773,10 @@ static AccessorTable AudioTable[] =
    
     { "PlayMIDI",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "PlayEnhancedMusic",      ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "PlayEnhancedMusicEx",      ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "GetEnhancedMusicPos",      ZVARTYPEID_FLOAT,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "SetEnhancedMusicPos",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "SetEnhancedMusicSpeed",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "PlayOgg",      ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetOggPos",      ZVARTYPEID_FLOAT,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetOggPos",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetOggSpeed",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 
     
     { "getVolume[]",             ZVARTYPEID_FLOAT,         GETTER,       AUDIOVOLUME,             4,      {  ZVARTYPEID_AUDIO,           ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -8983,7 +8983,7 @@ void AudioSymbols::generateCode()
     }
     //void PlayEnhancedMusicEx(game, int, int)
     {
-        Function* function = getFunction("PlayEnhancedMusicEx");
+        Function* function = getFunction("PlayOgg");
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
@@ -8999,7 +8999,7 @@ void AudioSymbols::generateCode()
     }
     //int GetEnhancedMusicPos(game)
 {
-	    Function* function = getFunction("GetEnhancedMusicPos");
+	    Function* function = getFunction("GetOggPos");
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -9012,7 +9012,7 @@ void AudioSymbols::generateCode()
 }
      //void SetEnhancedMusicPos(game, int)
     {
-	    Function* function = getFunction("SetEnhancedMusicPos");
+	    Function* function = getFunction("SetOggPos");
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
@@ -9027,7 +9027,7 @@ void AudioSymbols::generateCode()
     }
     //void SetEnhancedMusicSpeed(game, int)
     {
-	    Function* function = getFunction("SetEnhancedMusicSpeed");
+	    Function* function = getFunction("SetOggSpeed");
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
