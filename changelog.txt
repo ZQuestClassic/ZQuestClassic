@@ -2,6 +2,11 @@
 
 //Alpha 18
 
+Rename EnhancedMusicEx functions to Ogg*
+	Renamed PlayEnhancedMusicEx() to PlayOgg()
+	Renamed SetEnhancedMuiscSpeed() to SetOggSpeed()
+	Renamed SetEnhancedMusicPos to SetOggPos()
+	Renamed GetEnhancedMusicPos to getOggPos()
 Move the EXIT entry from the File menu, to the ZQuest menu, in ZQ.
 	( ZoriaRPG, 15th April, 2019 )
 
