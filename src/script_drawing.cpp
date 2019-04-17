@@ -5504,10 +5504,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
 	if(rot != 0 || mode != 0)    
 	{
-		subBmp = create_bitmap_ex(8,dw, dh);//script_drawing_commands.AquireSubBitmap(dw, dh);
+		subBmp = create_bitmap_ex(8,sourceBitmap->w, sourceBitmap->h);//script_drawing_commands.AquireSubBitmap(dw, dh);
+		clear_bitmap(subBmp);
         
 		if(!subBmp)
 		{
+			Z_scripterrlog("bitmap->Blit failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
+			return;
 		}
 	}
     
