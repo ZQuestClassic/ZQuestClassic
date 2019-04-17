@@ -18193,8 +18193,8 @@ long FFScript::do_create_bitmap()
 			{
 				ri->bitmapref = id+10; 
 				
-				Z_eventlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
-				Z_scripterrlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
+				Z_eventlog("Script created bitmap ID %d with height of %d and width of %d\n", ri->bitmapref , h,w);
+				Z_scripterrlog("Script created bitmap ID %d with height of %d and width of %d\n", ri->bitmapref , h,w);
 			}
 			return id;
 		//}
