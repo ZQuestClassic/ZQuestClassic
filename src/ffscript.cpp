@@ -14058,7 +14058,7 @@ void FFScript::do_loadbitmapid(const bool v)
 	case 4:
 	case 5:
 	case 6:
-		ri->bitmapref = ID; break;
+		ri->bitmapref = ID+10; break;
 	default:
 	{
 		Z_scripterrlog("Invalid Bitmap ID passed to Game->Load BitmapID: %d\n", ID);
@@ -18191,7 +18191,7 @@ long FFScript::do_create_bitmap()
 			}
 			else
 			{
-				ri->bitmapref = id; 
+				ri->bitmapref = id+10; 
 				
 				Z_eventlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
 				Z_scripterrlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
@@ -18560,7 +18560,7 @@ int FFScript::do_getpixel()
 	//al_trace("Getpixel: The current bitmap ID is: %d /n",ri->bitmapref);
 	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);
 	//BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->bitmapref);
-	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref);
+	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref-10);
         //bmp = targetBitmap;
         if(!bitty)
         {
@@ -18569,7 +18569,7 @@ int FFScript::do_getpixel()
 		//return -10000;
 	}
 	// draw to screen with subscreen offset
-	if(!brokenOffset && ri->bitmapref == -1 )
+	if(!brokenOffset && ri->bitmapref == 10-1 )
 	{
                 xoffset = xoff;
                 yoffset = 56; //should this be -56?
