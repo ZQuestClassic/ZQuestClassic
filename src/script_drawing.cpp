@@ -5415,6 +5415,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	switch(bitmapIndex)
 	{
+		case -2: destBMP = bmp; goto SKIP_BLIT;
 		case -1:
 			destBMP = scrollbuf; break;
 		case 0:
@@ -5451,7 +5452,15 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		//masked_blit(sourceBitmap, framebuf, 0, 0, 0, 0, 64, 64);
 		//return;
 	}
+	if ( bitmapIndex == -2 ) 
+	{
 	
+		//Z_scripterrlog("blit() is trying to blit to the scren!%s\n"," ");
+		destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(zscriptDrawingRenderTarget->GetCurrentRenderTarget()); //Drawing to the screen.
+		//masked_blit(sourceBitmap, framebuf, 0, 0, 0, 0, 64, 64);
+		//return;
+	}
+	SKIP_BLIT:
 	//bugfix
 	//sx = vbound(sx, 0, sourceBitmap->w);
 	#if LOG_BMPBLIT > 0
@@ -5474,8 +5483,8 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	Z_scripterrlog("Blit %s is: %d\n", "dh", dh);
 	Z_scripterrlog("Blit %s is: %d\n", "dw", dw);
 	#endif
-	//bool stretched = (sw != dw || sh != dh);
-	bool stretched = (sourceBitmap->w != destBMP->w || sourceBitmap->h != destBMP->h);
+	bool stretched = (sw != dw || sh != dh);
+	//bool stretched = (sourceBitmap->w != destBMP->w || sourceBitmap->h != destBMP->h);
 	#if LOG_BMPBLIT > 0
 	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
 	#endif
