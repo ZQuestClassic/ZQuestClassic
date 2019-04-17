@@ -7606,25 +7606,31 @@ void domouse()
             if((isinRect(x,y,panel[0].x+panel[0].w-28,panel[0].y+32,panel[0].x+panel[0].w-28+24,panel[0].y+32+5) && menutype==m_block && !mouse_down) ||
                     (isinRect(x,y,panel[6].x+panel[6].w-28,panel[6].y+36,panel[6].x+panel[6].w-28+24,panel[6].y+36+5) && menutype==m_layers && !mouse_down))
             {
-                CSet=wrap(CSet+1,0,11);
-                refresh(rCOMBOS+rMENU+rCOMBO);
+		if ( !is_large )
+		{
+			CSet=wrap(CSet+1,0,11);
+			refresh(rCOMBOS+rMENU+rCOMBO);
+		}
             }
             
             if(isinRect(x,y,panel[0].x+panel[0].w-32,panel[0].y+39,panel[0].x+panel[0].w-32+28,panel[0].y+39+5) && menutype==m_block && !mouse_down)
             {
-                bool validlayer=false;
-                
-                while(!validlayer)
-                {
-                    CurrentLayer=wrap(CurrentLayer+1,0,6);
-                    
-                    if((CurrentLayer==0)||(Map.CurrScr()->layermap[CurrentLayer-1]))
-                    {
-                        validlayer=true;
-                    }
-                }
-                
-                refresh(rMENU);
+		if ( !is_large )
+		{
+			bool validlayer=false;
+			
+			while(!validlayer)
+			{
+			    CurrentLayer=wrap(CurrentLayer+1,0,6);
+			    
+			    if((CurrentLayer==0)||(Map.CurrScr()->layermap[CurrentLayer-1]))
+			    {
+				validlayer=true;
+			    }
+			}
+			
+			refresh(rMENU);
+		}
             }
             
             for(int j=0; j<3; ++j)
