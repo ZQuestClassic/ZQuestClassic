@@ -1,6 +1,10 @@
 ChangeLog for 2.53.0 
 
 //Release 2
+Removed invisible widgets carried over tot he 2.50 interface from
+	small mode that allow toggling the cset and layer.
+	( ZoriaRPG, 17th April, 2019 )
+	
 Fixed the return values of lweapon->Jump, eweapon->Jump, npc->Jump
 	and item->Jump.
 Updated build ID to 33.
