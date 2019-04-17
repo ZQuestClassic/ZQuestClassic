@@ -186,6 +186,7 @@ long getQuestHeaderInfo(int type)
 bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir);
 
 void user_bitmaps_init();
+void user_bitmaps_destroy();
 
 int get_free_bitmap();
 

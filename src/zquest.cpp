@@ -27028,6 +27028,7 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
+	FFCore.user_bitmaps_init();
 	initIncludePaths();
 	initRunString();
 	
@@ -28371,4 +28372,24 @@ void ZModule::load(bool zquest)
 long FFScript::getQuestHeaderInfo(int type)
 {
     return quest_format[type];
+}
+
+script_bitmaps scb;
+
+//script_bitmaps scb;
+void FFScript::user_bitmaps_init()
+{
+	scb.num_active = 0;
+	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
+	{
+		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
+		{
+			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
+		}
+		scb.script_created_bitmaps[q].width = 0;
+		scb.script_created_bitmaps[q].height = 0;
+		scb.script_created_bitmaps[q].depth = 0;
+		scb.script_created_bitmaps[q].u_bmp = NULL;
+		
+	}
 }

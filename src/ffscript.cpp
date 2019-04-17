@@ -18133,11 +18133,27 @@ void FFScript::user_bitmaps_init()
 	scb.num_active = 0;
 	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
 	{
-	    scb.script_created_bitmaps[q].width = 0;
-            scb.script_created_bitmaps[q].height = 0;
-            scb.script_created_bitmaps[q].depth = 0;
-            scb.script_created_bitmaps[q].u_bmp = NULL;
+		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
+		{
+			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
+		}
+		scb.script_created_bitmaps[q].width = 0;
+		scb.script_created_bitmaps[q].height = 0;
+		scb.script_created_bitmaps[q].depth = 0;
+		scb.script_created_bitmaps[q].u_bmp = NULL;
 		
+	}
+}
+
+void FFScript::user_bitmaps_destroy()
+{
+	scb.num_active = 0;
+	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
+	{
+		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
+		{
+			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
+		}
 	}
 }
 
@@ -18184,7 +18200,7 @@ int FFScript::highest_valid_user_bitmap()
 
 long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
 {
-	int id;
+	int id = 0;
         do
 	{
 		id = get_free_bitmap();
@@ -18200,6 +18216,7 @@ long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
 	return id;
 }
 
+//Returns the pointer to a user-created bitmap in the struct.
 BITMAP* FFScript::get_user_bitmap(int id)
 {
 	return scb.script_created_bitmaps[id].u_bmp;
