@@ -5416,6 +5416,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	switch(bitmapIndex)
 	{
 		case -1:
+			destBMP = scrollbuf; break;
 		case 0:
 		case 1:
 		case 2:
@@ -5429,12 +5430,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		default: destBMP = FFCore.get_user_bitmap(bitmapIndex); break;
 	}
 	
-	if ( !destBMP ) //the destination is NULL
-	{
-		Z_scripterrlog("bitmap->Blit() is trying to blit to an uninitialised dest bitmap: %d\n",bitmapIndex);
-		return;
-		
-	}
+	
 	
 	#if LOG_BMPBLIT > 0
 	Z_scripterrlog("bitmap->Blit() is trying to blit to dest bitmap ID: %d\n",bitmapIndex);
