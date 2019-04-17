@@ -3,7 +3,7 @@
 
 //! ritate_sprite_trans doesn't seem to be supported by or allegro header !?
 
-#define LOG_BMPBLIT 1
+#define LOG_BMPBLIT_LEVEL 0
 #include "precompiled.h" //always first
 
 #include "allegro_wrapper.h"
@@ -2181,6 +2181,8 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         
 		if(!subBmp)
 		{
+			Z_scripterrlog("DrawBitmap() failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
+			return;
 		}
 	}
     
@@ -2367,6 +2369,8 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         
 		if(!subBmp)
 		{
+			Z_scripterrlog("bitmap->Blit failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
+			return;
 		}
 	}
     
@@ -2374,10 +2378,14 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	dx = dx + xoffset;
 	dy = dy + yoffset;
     
-	if(stretched) {
-		if(masked) {	//stretched and masked
-			if ( rot == 0 ) { //if not rotated
-				switch(mode) {
+	if(stretched) 
+	{
+		if(masked) //stretched and masked
+		{	
+			if ( rot == 0 ) //if not rotated
+			{ 
+				switch(mode) 
+				{
 					case 1:
 					//transparent
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
@@ -2513,8 +2521,10 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				}
 			} //end if not rotated
 			
-			if ( rot != 0 ) { //if rotated
-				switch(mode){
+			if ( rot != 0 ) //if rotated
+			{ 
+				switch(mode)
+				{
 					case 1: 
 						//transparent
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
@@ -2649,10 +2659,10 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			}
 		} //end if stretched and masked 
 		
-		else { //stretched, not masked
-			
-		
-			if ( rot == 0 ) { //if not rotated
+		else  //stretched, not masked
+		{
+			if ( rot == 0 )  //if not rotated
+			{
 				switch(mode) {
 					case 1:
 					//transparent
@@ -2789,8 +2799,10 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				}
 			} //end if not rotated
 			
-			if ( rot != 0 ) { //if rotated
-				switch(mode){
+			if ( rot != 0 ) //if rotated
+			{ 
+				switch(mode)
+				{
 					case 1: 
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
@@ -2925,12 +2937,16 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			
 		} //end if stretched, but not masked
 	}
-	else { //not stretched
+	else //not stretched
+	{ 
 		
-		if(masked) { //if masked, but not stretched
+		if(masked) //if masked, but not stretched
+		{ 
 			
-			if ( rot == 0 ) { //if not rotated
-				switch(mode) {
+			if ( rot == 0 ) //if not rotated
+			{ 
+				switch(mode) 
+				{
 					case 1:
 					//transparent
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
@@ -3066,8 +3082,10 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				}
 			} //end if not rotated
 			
-			if ( rot != 0 ) { //if rotated
-				switch(mode){
+			if ( rot != 0 )  //if rotated
+			{
+				switch(mode)
+				{
 					case 1: 
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);	//transparent
 					rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
@@ -3200,10 +3218,13 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			} //end rtated, masked
 		} //end if masked
 
-		else { //not masked, and not stretched; just blit
+		else //not masked, and not stretched; just blit
+		{ 
 			
-			if ( rot == 0 ) { //if not rotated
-				switch(mode) {
+			if ( rot == 0 ) //if not rotated
+			{ 
+				switch(mode) 
+				{
 					case 1:
 					//transparent
 					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
@@ -3339,11 +3360,13 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				}
 			} //end if not rotated
 			
-			if ( rot != 0 ) { //if rotated
-				switch(mode){
+			if ( rot != 0 ) //if rotated
+			{ 
+				switch(mode)
+				{
 					case 1: 
 						blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);//transparent
-					rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+						rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					 
 					break;
 					
@@ -3476,7 +3499,8 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	} //end if not stretched
     
 	//cleanup
-	if(subBmp) {
+	if(subBmp) 
+	{
 		script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
 	}
 }
@@ -5331,7 +5355,19 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
 	/*
 	//sdci[1]=layer
-	//sdci[2]=bitmap target
+	//sdci[2]=bitmap target 
+		//
+		//	-2 is the current Render Target
+		//	-1, this is the screen (framebuf). 
+		//	0: Render target 0
+		//	1: Render target 1
+		//	2: Render target 2
+		//	3: Render target 3
+		//	4: Render target 4
+		//	5: Render target 5
+		//	6: Render target 6
+		//	Otherwise: The pointer to a bitmap. 
+		
 	//sdci[3]=sourcex
 	//sdci[4]=sourcey
 	//sdci[5]=sourcew
@@ -5345,7 +5381,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//sdci[13] = pivot cy
 	//scdi[14] = effect flags
 	
-		
+		// ZScript-side constant values:
 		const int BITDX_NORMAL = 0;
 		const int BITDX_TRANS = 1; //Translucent
 		const int BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
@@ -5356,32 +5392,26 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		
 	//scdi[15] = litcolour
 		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour); 
-		/not rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+		//not rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 	
 	//sdci[16]=mask
 	
 	*/
 	if ( ri->bitmapref <= 0 )
 	{
-		Z_scripterrlog("bitmap->Arc() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ri->bitmapref);
+		Z_scripterrlog("bitmap->blit() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ri->bitmapref);
 		return;
 	}
-	
-	//BITMAP *refbmp = FFCore.GetScriptBitmap(ri->bitmapref-10);
-	//if ( refbmp == NULL ) return;
 
 	int bitmapIndex = sdci[2]/10000;
 	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
-	#if LOG_BMPBLIT > 0
+	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit() found a dest bitmap ID of: %d\n",bitmapIndex);
 	#endif
 	if ( bitmapIndex > 10000 )
 	{
-		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value.
+		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int> 8;
 	}
-	
-	//BITMAP *destBMP = FFCore.GetScriptBitmap(bitmapIndex);
-	//if ( destBMP == NULL ) return;
 	
 	int sx = sdci[3]/10000;
 	int sy = sdci[4]/10000;
@@ -5400,8 +5430,8 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	int litcolour = sdci[15]/10000;
 	bool masked = (sdci[16] != 0);
 	
-	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ri->bitmapref-10);
-	#if LOG_BMPBLIT > 0
+	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ri->bitmapref-10); //This can be the screen, as -1. 
+	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("bitmap->Blit() is trying to blit ri->bitmapref: %d\n",ri->bitmapref);
 	#endif
 	if(!sourceBitmap)
@@ -5415,69 +5445,64 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	switch(bitmapIndex)
 	{
-		case -2: destBMP = bmp; goto SKIP_BLIT;
-		case -1:
-			destBMP = scrollbuf; break;
+		//-1 and -2 are now handled below. -Z ( 17th April, 2019 )
+		//1 through 6 are the old system bitmaps (Render Targets)
 		case 0:
 		case 1:
 		case 2:
 		case 3:
 		case 4:
 		case 5:
-		case 6: //old system bitmaps (render targets)
+		case 6: 
 		{
+			//This gets a render target.
 		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
 		}
+		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
 		default: destBMP = FFCore.get_user_bitmap(bitmapIndex); break;
 	}
 	
 	
 	
-	#if LOG_BMPBLIT > 0
+	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("bitmap->Blit() is trying to blit to dest bitmap ID: %d\n",bitmapIndex);
 	#endif
 	
-	//BITMAP *destBMP = FFCore.GetScriptBitmap(bitmapIndex);
-	if(!destBMP && bitmapIndex != -1)
+	
+	if ( bitmapIndex == -1 ) 
+	{
+		destBMP = framebuf; //Drawing to the screen.
+	}
+	
+	else if ( bitmapIndex == -2 ) 
+	{
+
+		destBMP = bmp; //Drawing to the current RenderTarget.
+	}
+	else if (!destBMP)
 	{
 		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
-	if ( bitmapIndex == -1 ) 
-	{
 	
-		//Z_scripterrlog("blit() is trying to blit to the scren!%s\n"," ");
-		destBMP = framebuf; //Drawing to the screen.
-		//masked_blit(sourceBitmap, framebuf, 0, 0, 0, 0, 64, 64);
-		//return;
-	}
-	if ( bitmapIndex == -2 ) 
-	{
-	
-		//Z_scripterrlog("blit() is trying to blit to the scren!%s\n"," ");
-		destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(zscriptDrawingRenderTarget->GetCurrentRenderTarget()); //Drawing to the screen.
-		//masked_blit(sourceBitmap, framebuf, 0, 0, 0, 0, 64, 64);
-		//return;
-	}
-	SKIP_BLIT:
 	//bugfix
 	//sx = vbound(sx, 0, sourceBitmap->w);
-	#if LOG_BMPBLIT > 0
+	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit %s is: %d\n", "sx", sx);
 	Z_scripterrlog("Blit %s is: %d\n", "source->w", sourceBitmap->w);
 	#endif
 	//sy = vbound(sy, 0, sourceBitmap->h);
-	#if LOG_BMPBLIT > 0
+	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit %s is: %d\n", "sy", sy);
 	Z_scripterrlog("Blit %s is: %d\n", "source->h", sourceBitmap->h);
 	#endif
 	//sw = vbound(sw, 0, sourceBitmap->w - sx); //keep the w/h within range as well
-	#if LOG_BMPBLIT > 0
+	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit %s is: %d\n", "sw", sw);
 	#endif
 	//sh = vbound(sh, 0, sourceBitmap->h - sy);
-	#if LOG_BMPBLIT > 0
+	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit %s is: %d\n", "sh", sh);
 
 	Z_scripterrlog("Blit %s is: %d\n", "dh", dh);
@@ -5485,7 +5510,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	#endif
 	bool stretched = (sw != dw || sh != dh);
 	//bool stretched = (sourceBitmap->w != destBMP->w || sourceBitmap->h != destBMP->h);
-	#if LOG_BMPBLIT > 0
+	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
 	#endif
 	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
@@ -5496,7 +5521,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
 	BITMAP* subBmp = 0;
 	
-	/*
+	/* IDR what this was. -Z ( 17th April, 2019 )
 	if ( bitmapIndex == -1 ) {
 		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh); 
 	}
@@ -5516,12 +5541,16 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     
 	//dx = dx + xoffset; //don't do this here!
-	//dy = dy + yoffset;
+	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
     
-	if(stretched) {
-		if(masked) {	//stretched and masked
-			if ( rot == 0 ) { //if not rotated
-				switch(mode) {
+	if(stretched) 
+	{
+		if(masked) 
+		{	//stretched and masked
+			if ( rot == 0 ) 
+			{ //if not rotated
+				switch(mode) 
+				{
 					case 1:
 					//transparent
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
@@ -5657,8 +5686,10 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				}
 			} //end if not rotated
 			
-			if ( rot != 0 ) { //if rotated
-				switch(mode){
+			if ( rot != 0 ) //if rotated
+			{ 
+				switch(mode)
+				{
 					case 1: 
 						//transparent
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
@@ -5793,11 +5824,14 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			}
 		} //end if stretched and masked 
 		
-		else { //stretched, not masked
+		else  //stretched, not masked
+		{
 			
 		
-			if ( rot == 0 ) { //if not rotated
-				switch(mode) {
+			if ( rot == 0 ) //if not rotated
+			{
+				switch(mode) 
+				{
 					case 1:
 					//transparent
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
@@ -5933,8 +5967,10 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				}
 			} //end if not rotated
 			
-			if ( rot != 0 ) { //if rotated
-				switch(mode){
+			if ( rot != 0 )  //if rotated
+			{
+				switch(mode)
+				{
 					case 1: 
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
@@ -6069,12 +6105,16 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			
 		} //end if stretched, but not masked
 	}
-	else { //not stretched
+	else //not stretched
+	{ 
 		
-		if(masked) { //if masked, but not stretched
+		if(masked) //if masked, but not stretched
+		{ 
 			
-			if ( rot == 0 ) { //if not rotated
-				switch(mode) {
+			if ( rot == 0 ) //if not rotated
+			{ 
+				switch(mode) 
+				{
 					case 1:
 					//transparent
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
@@ -6210,8 +6250,10 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				}
 			} //end if not rotated
 			
-			if ( rot != 0 ) { //if rotated
-				switch(mode){
+			if ( rot != 0 )  //if rotated
+			{
+				switch(mode)
+				{
 					case 1: 
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);	//transparent
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
@@ -6344,10 +6386,13 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			} //end rtated, masked
 		} //end if masked
 
-		else { //not masked, and not stretched; just blit
+		else  //not masked, and not stretched; just blit
+		{
 			
-			if ( rot == 0 ) { //if not rotated
-				switch(mode) {
+			if ( rot == 0 ) //if not rotated
+			{ 
+				switch(mode) 
+				{
 					case 1:
 					//transparent
 					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
@@ -6483,8 +6528,10 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 				}
 			} //end if not rotated
 			
-			if ( rot != 0 ) { //if rotated
-				switch(mode){
+			if ( rot != 0 )  //if rotated
+			{
+				switch(mode)
+				{
 					case 1: 
 						blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);//transparent
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
@@ -6620,7 +6667,8 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	} //end if not stretched
     
 	//cleanup
-	if(subBmp) {
+	if(subBmp) 
+	{
 		//script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
 		destroy_bitmap(subBmp);
 	}

@@ -7828,7 +7828,7 @@ void weapon::draw(BITMAP *dest)
 				script_wrote_otile = 0;
 			}
 		}
-		Z_scripterrlog("weapon::draw() o_tile is: %d\n", o_tile);
+		//Z_scripterrlog("weapon::draw() o_tile is: %d\n", o_tile);
 	}
 	
         break;

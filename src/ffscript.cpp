@@ -14250,7 +14250,7 @@ void do_drawing_command(const int script_command)
         break;
         
     case LINESARRAY:
-	    set_drawing_command_args(j, 2);
+	    set_drawing_command_args(j, 2); break;
     
     /*
     historical-old-master
@@ -14273,7 +14273,7 @@ void do_drawing_command(const int script_command)
         //ArrayH::getString(script_drawing_commands[j][2] / 10000, *aptr);
         //script_drawing_commands[j].SetArray(aptr);
         //set_drawing_command_args(j, 2);
-        break;
+        //break;
         
     case COMBOARRAYR:
         set_drawing_command_args(j, 2);
@@ -14405,11 +14405,12 @@ void do_drawing_command(const int script_command)
 		string *str = script_drawing_commands.GetString();
 		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
 		script_drawing_commands[j].SetString(str);
-		break;
+		
 	}
+	break;
 	case 	BMPQUADR:	set_drawing_command_args(j, 15); break;
 	case 	BMPQUAD3DR:
-	 {
+	{
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		v->resize(26, 0);
 		
@@ -14425,8 +14426,9 @@ void do_drawing_command(const int script_command)
 		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
 		
 		script_drawing_commands[j].SetVector(v);
-		break;
+		
 	}
+	break;
 	case 	BMPTRIANGLER:	set_drawing_command_args(j, 13); break;
 	case 	BMPTRIANGLE3DR:
 	{
