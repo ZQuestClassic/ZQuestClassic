@@ -18184,10 +18184,18 @@ long FFScript::do_create_bitmap()
 		//}
 		//else
 		//{	
-			ri->bitmapref = id; 
-			
-			Z_eventlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
-			Z_scripterrlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
+			if ( id == 0 )
+			{
+				Z_scripterrlog("FFCore.do_create_bitmap() id is %d\n", id);
+				ri->bitmapref = -2;
+			}
+			else
+			{
+				ri->bitmapref = id; 
+				
+				Z_eventlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
+				Z_scripterrlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
+			}
 			return id;
 		//}
 	}
@@ -18213,6 +18221,10 @@ long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
             scb.script_created_bitmaps[id].u_bmp = create_bitmap_ex(d,w,h);
 	    clear_bitmap(scb.script_created_bitmaps[id].u_bmp);
         }
+	if ( id == 0 ) 
+	{
+		Z_scripterrlog("FFCore.create_user_bitmap_ex() returned: (%d).\n", id);
+	}
 	return id;
 }
 
