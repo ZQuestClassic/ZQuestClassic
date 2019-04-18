@@ -289,7 +289,7 @@ public:
     
     CScriptDrawingCommands() : commands(), count(0) {}
     ~CScriptDrawingCommands() {}
-    
+    int GetCount();
     void Dispose()
     {
         bitmap_pool.Dispose();
@@ -381,10 +381,11 @@ public:
         return small_tex_cache.GetTexture(bw, bh);
     }
     
-    
+public: 
+	int count;
 protected:
     vec_type commands;
-    int count;
+    
     
     DrawingContainer draw_container;
     ScriptDrawingBitmapPool bitmap_pool;

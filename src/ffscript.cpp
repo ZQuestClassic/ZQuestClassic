@@ -21,7 +21,7 @@ extern byte use_dwm_flush;
 #include <time.h>
 //#include "zc_sys.h"
 #include "script_drawing.h"
-CScriptDrawingCommands sdc;
+CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
 zquestheader ZCheader;
 ZModule zcm;
@@ -6468,7 +6468,7 @@ case AUDIOPAN:
 //Graphics->
 
 case NUMDRAWS:
-	ret = sdc.Count() * 10000;
+	ret = scriptdraws.GetCount() * 10000;
         break;
 
 case MAXDRAWS:
@@ -18186,8 +18186,8 @@ long FFScript::do_create_bitmap()
 {
 	Z_scripterrlog("Begin running FFCore.do_create_bitmap()\n");
 	//CreateBitmap(h,w)
-	long h = (ri->d[0] / 10000);
-	long w = (ri->d[1]/10000);
+	long w = (ri->d[0] / 10000);
+	long h = (ri->d[1]/10000);
 	//sanity checks
 	int id = 0;
 	
@@ -21900,7 +21900,10 @@ void FFScript::get_npcdata_initd_label(const bool v)
         Z_scripterrlog("Array supplied to 'npcdata->GetInitDLabel()' not large enough\n");
 }
 
-
+int CScriptDrawingCommands::GetCount()
+{
+	return count;
+}
 //Advances the game frame without checking 'Quit' variable status.
 //Used for making scripts such as Link's onWin and onDeath scripts
 //run for multiple frames.
