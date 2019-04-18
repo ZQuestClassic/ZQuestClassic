@@ -1,5 +1,5 @@
 //std_functions.zh
-//1st April, 2019 for ZC 2.55.0 Alpha 16
+//18th April, 2019 for ZC 2.55.0 Alpha 19
 
 //A
 
@@ -2120,7 +2120,7 @@ eweapon NextToNPC(npc n, int id, int dist)
 //Kills all of Link's inputs
 void NoAction()
 {
-	for ( int q = CB_A; q < MAX_NOACTION_INPUT; ++q )
+	for ( int q = CB_UP; q < MAX_NOACTION_INPUT; ++q )
 	{
 		if ( q == CB_MAP && NOACTION_SKIP_MAP ) continue;
 		if ( q == CB_START && NOACTION_SKIP_START ) continue;

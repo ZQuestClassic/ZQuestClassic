@@ -1,5 +1,5 @@
-//Extended functions for 2.55.0, Alpha 16 and later.
-//1st April, 2019
+//Extended functions for 2.55.0, Alpha 19 and later.
+//18th April, 2019
 
 //A
 
@@ -2147,7 +2147,7 @@ bool MatchNPCT(int list, npc n)
 //Kills inputs from A, B, L, R, Start, Map, and Ex buttons. 
 void NoInput()
 { 
-	for ( int q = CB_A; q < MAX_NOACTION_INPUT; ++q )
+	for ( int q = CB_UP; q < MAX_NOACTION_INPUT; ++q )
 	{
 		Input->Button[q] = false;
 	}
@@ -2158,7 +2158,7 @@ void NoInput()
 void NoInput(bool stick)
 { 
 	int max = ( stick ) ? CB_MAX : 14;
-	for ( int q = CB_A; q < max; ++q )
+	for ( int q = CB_UP; q < max; ++q )
 	{
 		Input->Button[q] = false;
 	}
@@ -2186,7 +2186,7 @@ void NoLinkKnockbackWater()
 //Kills presses from A, B, L, R, Start, Map, and Ex buttons. 
 void NoPress()
 { 
-	for ( int q = CB_A; q < MAX_NOACTION_INPUT; ++q )
+	for ( int q = CB_UP; q < MAX_NOACTION_INPUT; ++q )
 	{
 		Input->Press[q] = false;
 	}
@@ -2197,7 +2197,7 @@ void NoPress()
 void NoPress(bool stick)
 { 
 	int max = ( stick ) ? CB_MAX : 14;
-	for ( int q = CB_A; q < max; ++q )
+	for ( int q = CB_UP; q < max; ++q )
 	{
 		Input->Press[q] = false;
 	}
