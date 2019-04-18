@@ -1,7 +1,31 @@
 //2.55 and 2.54 Changes
 
-//Alpha 18
+//Alpha 19
 
+Converted all script draws to inline functions, with the hope that this may
+	make them faster.
+Additional fixes to bitmaps and script-draws.
+	( ZoriaRPG, 18th April, 2019 )
+
+Restored the file 'zstrings.txt', used for the HELP button in the ZQ String Editor.
+Various fixes to the bitmap datatype, bitmap->Blit, 
+	Game->CreateBitmap(). 
+	Bitmap pointers are now offset by +10.
+	When calling bitmap->Blit(), you can specif the destination
+		as the current RenderTarget by passing -2 as the dest.
+		-1 is the screen normally, but draws to the screen with Blit(RT_SCREEN) only
+		work on 'Layer 7'.
+		Draws to the screen, if the current RenderTarget is RT_SCREEN, using
+		Blit(-2) work on all layers. 
+	Don't consider the SCREEN uninitialised. 
+	Fixed some issues with bitmap pointer values being incorrect.
+	Ensured that the sub-bitmap used for (allegro) sprite rotation commands
+		is large-enough, based on the source bitmap size.
+Removed invisible widgets carried over to the 2.50 (big) interface from
+	small mode that allow toggling the cset and layer.
+	( ZoriaRPG, 17th April, 2019 )
+
+//Alpha 18
 Rename EnhancedMusicEx functions to Ogg*
 	Renamed PlayEnhancedMusicEx() to PlayOgg()
 	Renamed SetEnhancedMuiscSpeed() to SetOggSpeed()
