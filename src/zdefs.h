@@ -1780,6 +1780,11 @@ public:
     {
         pc = 0, sp = 0, scriptflag = 0;
         ffcref = 0, idata = 0, itemref = 0, guyref = 0, lwpn = 0, ewpn = 0;
+	mapsref = 0, screenref = 0, npcdataref = 0, bitmapref = 0, spritesref = 0, combosref = 0, dmapsref = 0, 
+	    zmsgref = 0, shopsref = 0, untypedref = 0,
+		dropsetref = 0, pondref = 0, warpringref = 0, doorsref = 0, zcoloursref = 0, rgbref = 0, 
+		paletteref = 0, palcycleref = 0, tunesref = 0,
+		gamedataref = 0, cheatsref = 0; 
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
     }
@@ -1799,6 +1804,14 @@ public:
         pc = rhs.pc, sp = rhs.sp, scriptflag = rhs.scriptflag;
         ffcref = rhs.ffcref, idata = rhs.idata;
         itemref = rhs.itemref, guyref = rhs.guyref, lwpn = rhs.lwpn, ewpn = rhs.ewpn;
+	    
+	    mapsref = rhs.mapsref, screenref = rhs.screenref, npcdataref = rhs.npcdataref, 
+	    bitmapref = rhs.bitmapref, spritesref = rhs.spritesref, combosref = rhs.combosref, dmapsref = rhs.dmapsref, 
+	    zmsgref = rhs.zmsgref, shopsref = rhs.shopsref, untypedref = rhs.untypedref,
+		dropsetref = rhs.dropsetref, pondref = rhs.pondref, warpringref = rhs.warpringref, 
+		doorsref = rhs.doorsref, zcoloursref = rhs.zcoloursref, rgbref = rhs.rgbref, 
+		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
+		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
         memcpy(d, rhs.d, 8 * sizeof(long));
         memcpy(a, rhs.a, 2 * sizeof(long));
         return *this;

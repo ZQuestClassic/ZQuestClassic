@@ -28380,6 +28380,7 @@ long FFScript::getQuestHeaderInfo(int type)
     return quest_format[type];
 }
 
+
 script_bitmaps scb;
 
 //script_bitmaps scb;
