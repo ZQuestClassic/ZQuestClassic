@@ -5397,11 +5397,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//sdci[16]=mask
 	
 	*/
-	if ( ri->bitmapref <= 0 )
-	{
-		Z_scripterrlog("bitmap->blit() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ri->bitmapref);
-		return;
-	}
+	
 
 	int bitmapIndex = sdci[2]/10000;
 	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
@@ -5430,13 +5426,25 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	int litcolour = sdci[15]/10000;
 	bool masked = (sdci[16] != 0);
 	
-	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ri->bitmapref-10); //This can be the screen, as -1. 
+	int ref = 0;
+	ref = ri->bitmapref;
+	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
+	ref -=10;
+	//Z_scripterrlog("bitmap->blit() modified ref id this frame is: %d\n", ref);
+		
+	
+	if ( ref <= 0 )
+	{
+		Z_scripterrlog("bitmap->blit() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ref);
+		return;
+	}
+	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ref); //This can be the screen, as -1. 
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("bitmap->Blit() is trying to blit ri->bitmapref: %d\n",ri->bitmapref);
 	#endif
 	if(!sourceBitmap)
 	{
-		Z_message("Warning: blit(%d) source bitmap contains invalid data or is not initialized.\n", ri->bitmapref);
+		Z_message("Warning: blit(%d) source bitmap contains invalid data or is not initialized.\n", ref);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
