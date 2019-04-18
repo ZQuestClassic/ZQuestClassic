@@ -20,6 +20,8 @@ extern byte use_dwm_flush;
 #include "zc_subscr.h"
 #include <time.h>
 //#include "zc_sys.h"
+#include "script_drawing.h"
+CScriptDrawingCommands sdc;
 FFScript FFCore;
 zquestheader ZCheader;
 ZModule zcm;
@@ -6463,6 +6465,13 @@ case AUDIOPAN:
 
 
 ///----------------------------------------------------------------------------------------------------//
+//Graphics->
+
+case NUMDRAWS:
+	ret = sdc.Count() * 10000;
+        break;
+
+///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case REFFFC:
         ret = ri->ffcref * 10000;
@@ -12118,8 +12127,8 @@ case AUDIOPAN:
 ///----------------------------------------------------------------------------------------------------//
 //Graphics->
 
-	
-	
+	case NUMDRAWS:
+	break;
 	
 
 ///----------------------------------------------------------------------------------------------------//

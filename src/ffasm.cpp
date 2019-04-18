@@ -1816,6 +1816,7 @@ script_variable variable_list[]=
 	{"LINKSCALE", LINKSCALE, 0, 0 },
 	{"ITEMSPRITESCRIPT", ITEMSPRITESCRIPT, 0, 0 },
 	{"FFRULE", FFRULE, 0, 0 },
+	{"NUMDRAWS", NUMDRAWS, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

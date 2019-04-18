@@ -1108,8 +1108,9 @@ using namespace std;
 #define LINKSCALE 			1039
 #define ITEMSPRITESCRIPT 		1040
 #define FFRULE 				1041
+#define NUMDRAWS 			1042
 
-#define LAST_BYTECODE 		1042
+#define LAST_BYTECODE 		1043
 
 //END OF BYTECODE
 
