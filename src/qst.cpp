@@ -2687,7 +2687,9 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);    
     }
     //Old eweapon->Parent (was added in 2.54, Alpha 19)
-    if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 43) )
+    //The change was made in build 43, but I'm setting this to < 42, because quests made in 42 would benefit from this change, and
+    //older quests can set the rule by hand. We need a new qst.dat again.
+    if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 42) )
     {
 	set_bit(quest_rules, qr_OLDEWPNPARENT, 1);    
     }
