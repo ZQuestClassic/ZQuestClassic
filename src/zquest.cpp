@@ -27005,6 +27005,7 @@ int FFScript::GetScriptObjectUID(int type)
 
 void FFScript::init()
 {
+	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }

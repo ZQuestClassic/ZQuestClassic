@@ -7244,6 +7244,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
     bool isTargetOffScreenBmp = false;
     const int type_mul_10000 = type * 10000;
     const int numDrawCommandsToProcess = script_drawing_commands.Count();
+    FFCore.numscriptdraws = numDrawCommandsToProcess;
     int xoffset=xoff, yoffset=yoff;
     
     for(int i(0); i < numDrawCommandsToProcess; ++i)

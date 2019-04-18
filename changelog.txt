@@ -1,6 +1,8 @@
 //2.55 and 2.54 Changes
 
 //Alpha 19
+Fixed Graphics->NumDraws() to report the correct number of draws
+	on the current frame.
 Corrected (internal) args order for Game->CreateBitmap(h,w).
 Renamed the function identifiers for Dimentio's Enhanced Music Ex
 	chain in ffscript.cpp, and migrated them tot he FFScript class.

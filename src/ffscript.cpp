@@ -6468,7 +6468,7 @@ case AUDIOPAN:
 //Graphics->
 
 case NUMDRAWS:
-	ret = scriptdraws.GetCount() * 10000;
+	ret = FFCore.numscriptdraws * 10000;
         break;
 
 case MAXDRAWS:
@@ -19732,6 +19732,7 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
+	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
 	skip_ending_credits = 0;
@@ -21902,6 +21903,7 @@ void FFScript::get_npcdata_initd_label(const bool v)
 
 int CScriptDrawingCommands::GetCount()
 {
+	al_trace("current number of draws is: %d\n", count);
 	return count;
 }
 //Advances the game frame without checking 'Quit' variable status.

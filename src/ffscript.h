@@ -231,6 +231,7 @@ bool kb_typing_mode; //script only, for disbaling key presses affecting Link, et
 long FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
 long FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
 long FF_subscreen_dimensions[4];
+int numscriptdraws;
 long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
 long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
 
