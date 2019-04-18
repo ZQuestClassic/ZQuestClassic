@@ -1,4 +1,4 @@
-
+		
 /////////////////
 ///  ZScript  ///
 /////////////////
@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 16
-Document Revision: 1st April, 2019
+Document for: 2.55, Alpha 19
+Document Revision: 18th April, 2019
 
 
 ////////////////////////////////////////////////////
@@ -262,8 +262,31 @@ TOKEN: dmapdata script
 *
 * Trying to modify the script while it is running with this->Script, is untested.
 
+//////////////////////////
+/// itemsprite Scripts ///
+//////////////////////////
+
+TOKEN: itemsprite script
+
+* You can now compile and assign scripts to items that appear on the screen.
+* The 'this' pointer for itemsprite scripts is item (ri->itemsref).
+*
+* This script can run for multiple frames. It automatically ends if the item becomes invalid.
+*
+* You can assign this script to an item in the ITEM EDITOR dialogue. 
+*	To do this, open the ITEM EDITOR, and select the 'Scripts' tab.
+*       Use the SPRITE SCRIPT lister to set this script type. 
+*
+* itemsprite Scripts have eight InitD[] args, in the ITEM EDITOR for this script type.
+* 	You may assign values to these in the ITEM EDITOR, and you may label the fields
+* 	for these InitD values in the ITEM EDITOR.
+* 	You may also read or write to them by script with item>InitD[] (or this->InitD[])
+*
+* Trying to modify the script while it is running with this->Script, is untested.
+
+
 //screendata script : t/b/a
-//screenitem script : t/b/a : Scripts for item sprites on the screen.
+
 
 
 ///////////////////////////
@@ -623,6 +646,25 @@ Using the above namespaces as examples:
 	*	Data saved to these may become invalid and require manual clensing by the user!
 	*	Only the value of a pointer is saved, not the struct data associated with that pointer.
 
+/////////////////////
+// Until, do-until //
+/////////////////////
+
+	ZScript now supports the Pascal-style token 'until'. 
+	This functions as an inverted 'while' statement.
+	Aside from the obvious semantical enhancement over 'while(!expression)', the advantage of 
+	this, is that 'until(expression)' is faster (in ASM instructions) than 'while(!expression)'.
+	
+	Examples:
+	
+		until(x > 7) { DoSomething(); }
+		
+		do
+		{
+			Something();
+		} until ( x > 7 );
+
+
 /////////////////
 // Switch-Case //
 /////////////////
@@ -859,6 +901,9 @@ x = Untype(n);
 ////////////
 //  Game  //
 ////////////
+
+bool FFRules[800];
+ * An array consisting of all quest rules. 
 
 void Continue();
 * As Game->End(), but this continues the game as if the user had selected the
@@ -1338,6 +1383,22 @@ int ID;
 ///  Item  ///
 //////////////
 
+int Scale;
+ * The scale factor for this sprited object. 
+ * A scale of 0 and a scale of 1 are identical.
+ * Scale values are a multiplier: 1.5 == 50% larger (150%).
+ * Negative values are undefined.
+ * You can only scale sprites if you disable the Compatibility Quest rule 
+   'Old (Faster) Sprite Drawing.
+ 
+int Rotation;
+ * The rotation factor for this sprited object, in degrees.
+ * You can only rotate sprites if you disable the Compatibility Quest rule 
+   'Old (Faster) Sprite Drawing.
+
+int Script;
+ * The itemsprite script attached to this item.
+
 int Family;
 int Type;
 * The Family (Item Class) of the item.
@@ -1382,6 +1443,19 @@ int AClock
 ///  *weapon  ///
 /////////////////
 
+int Scale;
+ * The scale factor for this sprited object. 
+ * A scale of 0 and a scale of 1 are identical.
+ * Scale values are a multiplier: 1.5 == 50% larger (150%).
+ * Negative values are undefined.
+ * You can only scale sprites if you disable the Compatibility Quest rule 
+   'Old (Faster) Sprite Drawing.
+ 
+int Rotation;
+ * The rotation factor for this sprited object, in degrees.
+ * You can only rotate sprites if you disable the Compatibility Quest rule 
+   'Old (Faster) Sprite Drawing.
+   
 int Script;
 * The weapon script assigned to this weapon.
 
@@ -1397,8 +1471,9 @@ int ScriptFlip;
 * The default value for this is -1. 
 
 int Parent;
-* The ID of the item, or npc (respectively for lweapon, and for eweapon) that created this weapon.
-* Weapons created by script have a default Parent of -1.
+npc Parent;
+* The ID of the item, or pointer of the npc (respectively for lweapon, and for eweapon) that created this weapon.
+* Weapons created by script have a default Parent of -1 (lweapon) and <npc>-0.0001 (eweapon). 
 	
 int Level;
 * The Level value associated with the weapon. 
@@ -1451,6 +1526,19 @@ int AClock
 /////////////
 ///  NPC  ///
 /////////////
+
+int Scale;
+ * The scale factor for this sprited object. 
+ * A scale of 0 and a scale of 1 are identical.
+ * Scale values are a multiplier: 1.5 == 50% larger (150%).
+ * Negative values are undefined.
+ * You can only scale sprites if you disable the Compatibility Quest rule 
+   'Old (Faster) Sprite Drawing.
+ 
+int Rotation;
+ * The rotation factor for this sprited object, in degrees.
+ * You can only rotate sprites if you disable the Compatibility Quest rule 
+   'Old (Faster) Sprite Drawing.
 
 bool isDead();
 * Returns if the NPC is dead, or dying
@@ -1679,6 +1767,19 @@ int FireSound;
 //////////////
 ///  Link  ///
 //////////////
+
+int Scale;
+ * The scale factor for this sprited object. 
+ * A scale of 0 and a scale of 1 are identical.
+ * Scale values are a multiplier: 1.5 == 50% larger (150%).
+ * Negative values are undefined.
+ * You can only scale sprites if you disable the Compatibility Quest rule 
+   'Old (Faster) Sprite Drawing.
+ 
+int Rotation;
+ * The rotation factor for this sprited object, in degrees.
+ * You can only rotate sprites if you disable the Compatibility Quest rule 
+   'Old (Faster) Sprite Drawing.
 
 bool Item[256];
 * Reading from, or writing to this array no longer causes lag.
@@ -2697,43 +2798,61 @@ int BlockWeaponLevel;
 ///  Graphics->  ///
 ////////////////////
 
+int NumDraws();
+ * Returns the number of script draws that have been executed during the current frame.
+ 
+int MaxDraws();
+ * Returns the maximum number of script draws per frame that you can execute in the current build.
+ 
 void Monochrome(int mode);
-* Sets the entire display to monmochrome output, using a hue mode that you may select, and either distributed,
-or uniform colour distribution.
-* This respects the current DMap (level) palette, and it affects the entire main game palette. 
+ * Sets the entire display to monmochrome output, using a hue mode that you may select, and either distributed,
+   or uniform colour distribution.
+ * This respects the current DMap (level) palette, and it affects the entire main game palette. 
 
 void MonoHue(int red, int green, int blue, bool distributed);
-* Sets the entire display to monmochrome output, using either distributed using a uniform mode, or
-a differential mode selected from `bool distributed`, using a hue based on the values that you supply
-as `red`, `green`, and `blue`. 
-* This respects the current DMap (level) palette, and it affects the entire main game palette. 
+ * Sets the entire display to monmochrome output, using either distributed using a uniform mode, or
+   a differential mode selected from `bool distributed`, using a hue based on the values that you supply
+   as `red`, `green`, and `blue`. 
+ * This respects the current DMap (level) palette, and it affects the entire main game palette. 
 
 void Tint(int red, int green, blue);
-* Tints the entire display with a palette shift using the values that you supply as `red`, `green`, and `blue`.
-* This respects the current DMap (level) palette, and it affects the entire main game palette. 
+ * Tints the entire display with a palette shift using the values that you supply as `red`, `green`, and `blue`.
+ * This respects the current DMap (level) palette, and it affects the entire main game palette. 
 
 void ClearTint();
-* Clears all tints, and monochrome/greyscale states back to the original game palette, and normalises it for
-the given DMap palette. 
+ * Clears all tints, and monochrome/greyscale states back to the original game palette, and normalises it for
+   the given DMap palette. 
 
 void Wavy(bool wavyin); 
-* Creates a wavy visual effect, identical to 'Wavy' Warp effects.
-* There are two styles, 'WavyIn', and 'WavyOut'. Select from these using paramater 1. 
+ * Creates a wavy visual effect, identical to 'Wavy' Warp effects.
+ * There are two styles, 'WavyIn', and 'WavyOut'. Select from these using paramater 1. 
 
 void Zap(bool zapin);
-* Creates a wavy visual effect, identical to 'Zap' Warp effects.
-* There are two styles, 'ZapIn', and 'ZapOut'. Select from these using paramater 1. 
+ * Creates a wavy visual effect, identical to 'Zap' Warp effects.
+ * There are two styles, 'ZapIn', and 'ZapOut'. Select from these using paramater 1. 
 
 void Greyscale(bool enable);
-* Converts the game to monochrome greyscale, or reverts from greyscale to colour.
-* This is useful for simulating 'Gameboy' style displays.
+ * Converts the game to monochrome greyscale, or reverts from greyscale to colour.
+ * This is useful for simulating 'Gameboy' style displays.
 	
-//void Monochrome(int hue);
-// t/b/a, would allow monochrome in red, blue, green, or amber hues.
 
 /////////////////
 ///  Audio->  ///
 /////////////////
+
+void PlayOgg(int filename[]);
+ * Similar to PlayEnhancedMusic(), but only for OGG files.
+ * Supports seeking, and other special instructions.
+
+int GetOggPos();
+ * Returns the current seek position of an OGG started with PlayOgg, in ms.
+
+void SetOggPos(int new_pos);
+ * Sets the play position for an OGG started with PlayOgg(), in ms.
+ 
+void SetOggSpeed(int newspeed);
+ * Sets the playback speed of an OGG started with PlayOgg();
+ 
 
 void PlaySound(int soundid);	ZASM Instruction: 
 					PLAYSOUNDR
@@ -2826,31 +2945,46 @@ t/b/a
 /////////////////
 
 Input->Press[18];
-* An array of boolean values that correspond to whether a control button, or a keyboard
-* 	key bound to a control button, was pressed this frame.
-*	Replaces Link->Press*.
+ * An array of boolean values that correspond to whether a control button, or a keyboard
+ * 	key bound to a control button, was pressed this frame.
+ *	Replaces Link->Press*.
 
 
-Button[18], 
+Button[18];
+ * An array of boolean values that correspond to whether a control button, or a keyboard
+ * 	key bound to a control button, was held down this frame.
+ *	Replaces Link->Input*.
 
 bool Hold[18];
-* An array of boolean values that correspond to whether a control button, oir a keyboard
-* 	key bound to a control button, was held down this frame.
-*	Replaces Link->Input*.
+ * An array of boolean values that correspond to whether a control button, or a keyboard
+ * 	key bound to a control button, was held down this frame.
+ * May be identical to Input->Press[] in some regards.
 
 bool Key[127];
-* Read-Only: An array of boolean values that read as 'true'
-* 	if the corresponding keyboard key was pressed this frame.
+ * Read-Only: An array of boolean values that read as 'true'
+ * 	if the corresponding keyboard key was pressed this frame.
+ * You can write a key false, but not true. 
 	
-ReadKey[127] ( should become a function ReadKey() )
+ReadKey[127] ( should become a function ReadKey()? )
+ * As Key[], except that reading a key with ReadKey[] will ignore further input from that key, 
+   until it is released. 
+ * Read-only.
 	
 bool Joypad[18]; //this is erroneously set up as TYPE_FLOAT in the parser.
-* Similar to Press, except that it only returns presses from a joystick device, not a keyboard.
+ * Similar to Press, except that it only returns presses from a joystick device, not a keyboard.
 
 float Mouse[6];
-* An array of boolean values that correspond to whether a mouse button, was clicked this frame,
- plus the x/y components of the mouse.
-*	Replaces mouse variables under Link->.
+ * An array of boolean values that correspond to whether a mouse button, was clicked this frame,
+   plus the x/y components of the mouse.
+ *	Replaces mouse variables under Link->.
+ * indices: 
+ * 	float Mouse[0] Mouse X Position
+ * 	float Mouse[1] Mouse Y Position
+ * 	float Mouse[2] Mouse Z Position
+ * 	bool Mouse[3] Left Button
+ * 	bool Mouse[4] Right Button
+ * 	bool Mouse[5] Middle Button
+
 
 //int Type //this is a dummy function in the table.
 	
