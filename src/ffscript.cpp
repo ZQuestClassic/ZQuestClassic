@@ -6471,6 +6471,10 @@ case NUMDRAWS:
 	ret = sdc.Count() * 10000;
         break;
 
+case MAXDRAWS:
+	ret = MAX_SCRIPT_DRAWING_COMMANDS * 10000;
+        break;
+
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case REFFFC:
@@ -12129,6 +12133,8 @@ case AUDIOPAN:
 
 	case NUMDRAWS:
 	break;
+	
+	case MAXDRAWS: break;
 	
 
 ///----------------------------------------------------------------------------------------------------//

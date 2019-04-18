@@ -1721,6 +1721,7 @@ string VarArgument::toString()
 	case ITEMSPRITESCRIPT: return "ITEMSPRITESCRIPT";
 	case FFRULE: return "FFRULE";
 	case NUMDRAWS: return "NUMDRAWS";
+	case MAXDRAWS: return "MAXDRAWS";
 	
 	
     default:

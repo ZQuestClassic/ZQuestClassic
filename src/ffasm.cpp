@@ -1817,6 +1817,7 @@ script_variable variable_list[]=
 	{"ITEMSPRITESCRIPT", ITEMSPRITESCRIPT, 0, 0 },
 	{"FFRULE", FFRULE, 0, 0 },
 	{"NUMDRAWS", NUMDRAWS, 0, 0 },
+	{"MAXDRAWS", MAXDRAWS, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

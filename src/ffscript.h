@@ -3242,6 +3242,7 @@ enum ASM_DEFINE
 #define ITEMSPRITESCRIPT 	0x1349
 #define FFRULE 			0x134A
 #define NUMDRAWS 		0x134B
+#define MAXDRAWS 		0x134C
 
 //bytecode
 
@@ -3249,7 +3250,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x134C
+#define NUMVARIABLES         	0x134D
 
 // Script types
 

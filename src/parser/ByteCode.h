@@ -1109,8 +1109,9 @@ using namespace std;
 #define ITEMSPRITESCRIPT 		1040
 #define FFRULE 				1041
 #define NUMDRAWS 			1042
+#define MAXDRAWS 			1043
 
-#define LAST_BYTECODE 		1043
+#define LAST_BYTECODE 		1044
 
 //END OF BYTECODE
 
