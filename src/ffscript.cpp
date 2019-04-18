@@ -3598,8 +3598,8 @@ case NPCBEHAVIOUR: {
 	
     case EWPNPARENT:
         if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
-            ret=(((weapon*)(s))->parentid);
-            
+            ret= ((get_bit(quest_rules,qr_OLDEWPNPARENT)) ? (((weapon*)(s))->parentid)*10000 : (((weapon*)(s))->parentid));
+	
         break;
 	
     case EWEAPONSCRIPTUID:
@@ -8797,7 +8797,7 @@ void set_register(const long arg, const long value)
 	
    case EWPNPARENT:
         if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
-            (((weapon*)(s))->parentid)=value;
+            (((weapon*)(s))->parentid)= ( (get_bit(quest_rules,qr_OLDEWPNPARENT)) ? value / 10000 : value );
             
         break;
 	

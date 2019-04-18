@@ -2686,6 +2686,11 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);    
     }
+    //Old eweapon->Parent (was added in 2.54, Alpha 19)
+    if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 43) )
+    {
+	set_bit(quest_rules, qr_OLDEWPNPARENT, 1);    
+    }
     //Sideview spikes in 2.50.0
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
     {

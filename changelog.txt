@@ -1,6 +1,9 @@
 //2.55 and 2.54 Changes
 
 //Alpha 19
+Increased Build ID to 43.
+Added a QR that causes eweapon->Parent to be multiplied / divided by 10000, for
+	legacy support in quests made in older versions of 2.55 (or 2.54). 
 Changed int eweapon->Parent to npc eweapon->Parent to ease typecasting,
 	and removed the 10000 shifting. The npc pointer would use
 	the raw value, not value * or / 10000.

@@ -19925,6 +19925,7 @@ static DIALOG zscript_settings_dlg[] =
     { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
     { jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Draw Shadows on Weapons", NULL, NULL },
     { jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Draw Shadows on Items", NULL, NULL },
+    { jwin_check_proc,      10, 32+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old eweapon->Parent", NULL, NULL },
     
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -19934,7 +19935,7 @@ static DIALOG zscript_settings_dlg[] =
 static int zscriptrules[] =
 {
     qr_ITEMSCRIPTSKEEPRUNNING, qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,qr_LINKXY_IS_FLOAT,
-	qr_WEAPONSHADOWS, qr_ITEMSHADOWS,
+	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT,
     -1
 };
 
