@@ -7407,25 +7407,20 @@ void set_register(const long arg, const long value)
 			}
 			case 3: //Left Click
 			{
-				int tmp = gui_mouse_b();
-				tmp |= 0x01;
-				mouse_b = tmp;
-				//rv=((gui_mouse_b()&0x1))*10000;
+				if ( value ) mouse_b |= 1;
+				else mouse_b &= ~1;
 				break;
 			}
 			case 4: //Right Click
 			{
-				int tmp = gui_mouse_b();
-				tmp |= 0x02;
-				mouse_b = tmp;
-				//rv=((gui_mouse_b()&0x2))*10000;
+				if ( value ) mouse_b |= 2;
+				else mouse_b &= ~2;
 				break;
 			}
 			case 5: //Middle Click
 			{
-				int tmp = gui_mouse_b();
-				tmp |= 0x04;
-				mouse_b = tmp;
+				if ( value ) mouse_b |= 4;
+				else mouse_b &= ~4;
 				break;
 			}
 			default:
