@@ -3598,7 +3598,7 @@ case NPCBEHAVIOUR: {
 	
     case EWPNPARENT:
         if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
-            ret=(((weapon*)(s))->parentid)*10000;
+            ret=(((weapon*)(s))->parentid);
             
         break;
 	
@@ -8802,7 +8802,7 @@ void set_register(const long arg, const long value)
 	
    case EWPNPARENT:
         if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
-            (((weapon*)(s))->parentid)=vbound((value/10000),-1,511);
+            (((weapon*)(s))->parentid)=value;
             
         break;
 	
@@ -16997,6 +16997,10 @@ int run_script(const byte type, const word script, const long i)
 		case ISVALIDITEM:
 		    do_isvaliditem();
 		    break;
+		
+		case ISVALIDBITMAP:
+		    FFCore.do_isvalidbitmap();
+		    break;
 		    
 		case ISVALIDNPC:
 		    do_isvalidnpc();
@@ -18148,7 +18152,9 @@ script_bitmaps scb;
 
 void FFScript::do_isvalidbitmap()
 {
-	if ( scb.script_created_bitmaps[ri->bitmapref-10].u_bmp != NULL ) 
+	Z_scripterrlog("isValidBitmap() bitmap pointer value is %d\n", ri->bitmapref);
+	if ( ri->bitmapref <= 0 ) set_register(sarg1, 0);
+	else if ( scb.script_created_bitmaps[ri->bitmapref-10].u_bmp ) 
 		set_register(sarg1, 10000);
 	else set_register(sarg1, 0);
 }

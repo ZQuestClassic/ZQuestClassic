@@ -1,6 +1,12 @@
 //2.55 and 2.54 Changes
 
 //Alpha 19
+Changed int eweapon->Parent to npc eweapon->Parent to ease typecasting,
+	and removed the 10000 shifting. The npc pointer would use
+	the raw value, not value * or / 10000.
+	The setter now accepts npc as its arg. 
+Added BITMAP to Scope.cpp. This had no effect that I can detect.
+	I'm unsure why it was not there.
 Fixed Graphics->NumDraws() to report the correct number of draws
 	on the current frame.
 Corrected (internal) args order for Game->CreateBitmap(h,w).
