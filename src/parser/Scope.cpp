@@ -963,6 +963,7 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 0);
 	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 0);
 	BuiltinConstant::create(*this, DataType::CHEATS, "Cheats", 0);
+	BuiltinConstant::create(*this, DataType::BITMAP, "Bitmap", 0);
 }
 
 optional<int> RootScope::getRootStackSize() const
