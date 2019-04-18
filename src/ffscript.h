@@ -193,6 +193,12 @@ int get_free_bitmap();
 long create_user_bitmap_ex(int w, int h, int depth);
 void do_isvalidbitmap();
 
+//OGG Ex --Dimentio
+void do_playogg_ex(const bool v);
+void do_set_oggex_position(const bool v);
+void go_get_oggex_position();
+void do_set_oggex_speed(const bool v);
+
 BITMAP* get_user_bitmap(int id);
 
 BITMAP* GetScriptBitmap(int id);

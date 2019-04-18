@@ -1,7 +1,14 @@
 //2.55 and 2.54 Changes
 
 //Alpha 19
+Renamed the function identifiers for Dimentio's Enhanced Music Ex
+	chain in ffscript.cpp, and migrated them tot he FFScript class.
 
+	The new functions are:
+		void FFScript::do_playogg_ex(const bool v);
+		void FFScript::do_set_oggex_position(const bool v);
+		void FFScript::go_get_oggex_position();
+		void FFScript::do_set_oggex_speed(const bool v);
 Added bitmap->isValid() to ZScript.
 Changed Graphics->MaxDraws to Graphics->MaxDraws() and changed
 	Graphics->NumDraws to Graphics->NumDraws().

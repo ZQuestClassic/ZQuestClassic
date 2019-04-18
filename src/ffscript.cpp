@@ -15117,7 +15117,7 @@ void do_enh_music(bool v)
     }
 }
 
-void do_enh_music_ex(bool v)
+void FFScript::do_playogg_ex(const bool v)
 {
     long arrayptr = SH::get_arg(sarg1, v) / 10000;
     long track = (SH::get_arg(sarg2, v) / 10000)-1;
@@ -15137,21 +15137,21 @@ void do_enh_music_ex(bool v)
     }
 }
 
-void do_setpos_enh_music(bool v)
+void FFScript::do_set_oggex_position(const bool v)
 {
     long newposition = SH::get_arg(sarg1, v) / 10;
     
     set_zcmusicpos(newposition);
 }
 
-void do_getpos_enh_music()
+void FFScript::go_get_oggex_position()
 {
     int pos = get_zcmusicpos()*10;
     al_trace("ZC OGG Position is %d\n", pos);
     set_register(sarg1, pos);
 }
 
-void do_setspeed_enh_music(bool v)
+void FFScript::do_set_oggex_speed(const bool v)
 {
     long newspeed = SH::get_arg(sarg1, v) / 10;
     
@@ -17941,19 +17941,19 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case PLAYENHMUSICEX:
-		    do_enh_music_ex(false);
+		    FFCore.do_playogg_ex(false);
 		    break;
 		    
 		case GETENHMUSICPOS:
-		    do_getpos_enh_music();
+		    FFCore.go_get_oggex_position();
 		    break;
 		    
 		case SETENHMUSICPOS:
-		    do_setpos_enh_music(false);
+		    FFCore.do_set_oggex_position(false);
 		    break;
 		    
 		case SETENHMUSICSPEED:
-		    do_setspeed_enh_music(false);
+		    FFCore.do_set_oggex_speed(false);
 		    break;
 		
 		default:
