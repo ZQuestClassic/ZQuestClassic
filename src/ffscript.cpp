@@ -18145,6 +18145,14 @@ int ffscript_engine(const bool preload)
 script_bitmaps scb;
 
 //script_bitmaps scb;
+
+void FFScript::do_isvalidbitmap()
+{
+	if ( scb.script_created_bitmaps[ri->bitmapref-10].u_bmp != NULL ) 
+		set_register(sarg1, 10000);
+	else set_register(sarg1, 0);
+}
+
 void FFScript::user_bitmaps_init()
 {
 	scb.num_active = 0;

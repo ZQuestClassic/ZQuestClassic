@@ -191,6 +191,7 @@ void user_bitmaps_destroy();
 int get_free_bitmap();
 
 long create_user_bitmap_ex(int w, int h, int depth);
+void do_isvalidbitmap();
 
 BITMAP* get_user_bitmap(int id);
 
@@ -2055,6 +2056,7 @@ enum ASM_DEFINE
 	GETENHMUSICPOS,
 	SETENHMUSICPOS,
 	SETENHMUSICSPEED,
+	ISVALIDBITMAP,
 	NUMCOMMANDS           //0x013F
 };
 

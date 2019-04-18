@@ -7304,7 +7304,8 @@ static AccessorTable BitmapTable[] =
 	{ "DrawLayer",     typeVOID, FUNCTION, 0, 1, ARGS_8(ZVARTYPEID_BITMAP,F,F,F,F,F,F,F,F) },
 	{ "DrawScreen",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
 	{ "Blit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,        { ZVARTYPEID_BITMAP, ZVARTYPEID_UNTYPED,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_BOOL, -1,                           -1,                           -1,							  } },
-
+	{ "isValid",                ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+   
 
 	{ "", 		-1,                     -1,             -1,     -1,     { -1,                   -1,                     -1,               -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -7681,6 +7682,20 @@ void BitmapSymbols::generateCode()
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
         
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//bool isValid(item)
+	{
+		Function* function = getFunction("isValid");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//Check validity
+		code.push_back(new OIsValidBitmap(new VarArgument(EXP1)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}

@@ -7306,6 +7306,18 @@ namespace ZScript
 			return new OGetNPCDataName(a->clone());
 		}
 	};
+	
+	class OIsValidBitmap : public UnaryOpcode
+	{
+	public:
+		OIsValidBitmap(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OIsValidBitmap(a->clone());
+		}
+	};
+
 	class OReturn : public Opcode
 	{
 	public:

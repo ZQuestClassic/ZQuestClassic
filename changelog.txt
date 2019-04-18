@@ -2,6 +2,33 @@
 
 //Alpha 19
 
+Added bitmap->isValid() to ZScript.
+Changed Graphics->MaxDraws to Graphics->MaxDraws() and changed
+	Graphics->NumDraws to Graphics->NumDraws().
+
+	The change is purely for the purpose of semantics. If these appear to be a variable,
+	then the user may try to write to them. In the form of a function, it is immediately
+	clear that they are read-only.
+
+	The actual GlobalSymbols code still sees both as a GETTER, as a function with a return value
+	and no parameters can be a basic GETTER. The only difference, is whether the table entry
+	precedes the string with "get" or "set".
+
+	i.e.
+		"getMaxDraws" as a type of GETTER creates a variable 'MaxDraws'.
+		By using the string "MaxDraws", the parser knows that this is the FORM of a function,
+		'MaxDraws()', but it needs no params to push/pop, so it can still work as a
+		GETTER type, instead of as a FUNCTION type.
+
+		See 'NumNPCs' for more information.
+Added Graphics->MaxDraws to ZScript:
+	This, like Graphics->NumDraws is read-only, and it returns the maximum number
+	of script drawing commands per frame.
+	The purpose of this is as a utility for the end-user, as this value is a constant
+		that may change on a per-build basis.
+Added Graphics->NumDraws to ZScript:
+	This returns the current count of script draws (CScriptDrawingCommands.Count())
+	so that the user can know how many they have remaining.
 Converted all script draws to inline functions, with the hope that this may
 	make them faster.
 Additional fixes to bitmaps and script-draws.
