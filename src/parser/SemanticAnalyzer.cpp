@@ -1018,7 +1018,7 @@ void SemanticAnalyzer::caseExprEQ(ASTExprEQ& host, void*)
 	RecursiveVisitor::caseExprEQ(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this));
+	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host);
 	if (breakRecursion(host)) return;
 }
 
@@ -1027,7 +1027,7 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 	RecursiveVisitor::caseExprNE(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this));
+	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host);
 	if (breakRecursion(host)) return;
 }
 
