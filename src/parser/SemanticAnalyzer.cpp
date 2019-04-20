@@ -1018,7 +1018,7 @@ void SemanticAnalyzer::caseExprEQ(ASTExprEQ& host, void*)
 	RecursiveVisitor::caseExprEQ(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host);
+	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host, true);
 	if (breakRecursion(host)) return;
 }
 
@@ -1027,7 +1027,7 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 	RecursiveVisitor::caseExprNE(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host);
+	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this), &host, true);
 	if (breakRecursion(host)) return;
 }
 
@@ -1190,9 +1190,10 @@ void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 }
 
 void SemanticAnalyzer::checkCast(
-		DataType const& sourceType, DataType const& targetType, AST* node)
+		DataType const& sourceType, DataType const& targetType, AST* node, bool twoWay)
 {
 	if (sourceType.canCastTo(targetType)) return;
+	if (twoWay && targetType.canCastTo(sourceType)) return;
 	handleError(
 		CompileError::IllegalCast(
 			node, sourceType.getName(), targetType.getName()));
