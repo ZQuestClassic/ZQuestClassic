@@ -316,6 +316,11 @@ void RecursiveVisitor::caseExprCall(ASTExprCall& host, void* param)
 	//visit(host.left, param);
 	//if (breakRecursion(host, param)) return;
 	visit(host, host.parameters, param);
+	for(vector<ASTExpr*>::iterator it = host.parameters.begin();
+		it != host.parameters.end(); ++it)
+	{
+		syncDisable(host, *it);
+	}
 }
 
 void RecursiveVisitor::caseExprNegate(ASTExprNegate& host, void* param)
