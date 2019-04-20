@@ -217,6 +217,8 @@ void RecursiveVisitor::caseNamespace(ASTNamespace& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host, host.scriptTypes, param);
 	if (breakRecursion(host, param)) return;
+	visit(host, host.use, param);
+	if (breakRecursion(host, param)) return;
 	visit(host, host.namespaces, param);
 	if (breakRecursion(host, param)) return;
 	visit(host, host.variables, param);

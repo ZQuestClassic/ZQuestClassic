@@ -503,6 +503,14 @@ int BasicScope::useNamespace(std::string name)
 			++numMatches;
 		}
 	}
+	if(Scope* scope = getChild(name))
+	{
+		if(scope->isNamespace())
+		{
+			namesp = static_cast<NamespaceScope*>(scope);
+			++numMatches;
+		}
+	}
 	for(vector<NamespaceScope*>::iterator it = usingNamespaces.begin();
 		it != usingNamespaces.end(); ++it)
 	{
