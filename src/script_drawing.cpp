@@ -3664,6 +3664,8 @@ inline void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
 
 inline void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
+	Z_scripterrlog("bmp_do_rectr ri->bitmapref is: %d\n", ri->bitmapref);
+	//Z_scripterrlog("rect sdci[13] is: %d\n", sdci[13]);
     //sdci[1]=layer
     //sdci[2]=x
     //sdci[3]=y
@@ -3680,12 +3682,12 @@ inline void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         return;
     }
-    if ( ri->bitmapref <= 0 ) 
+    if ( sdci[17] <= 0 ) 
     {
-	Z_scripterrlog("bitmap->Rectangle() wanted to write to an invalid bitmap id: %d. Aborting.\n", ri->bitmapref);
+	Z_scripterrlog("bitmap->Rectangle() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-    BITMAP *refbmp = FFCore.GetScriptBitmap(ri->bitmapref-10);
+    BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
     int x1=sdci[2]/10000;
@@ -3783,6 +3785,7 @@ inline void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 inline void bmp_do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
+	Z_scripterrlog("bmp_do_circler ri->bitmapref is: %d\n", ri->bitmapref);
     //sdci[1]=layer
     //sdci[2]=x
     //sdci[3]=y
@@ -5064,6 +5067,7 @@ inline void bmp_do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 inline void bmp_do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
+	Z_scripterrlog("bmp_do_drawstringr ri->bitmapref is: %d\n", ri->bitmapref);
     //sdci[1]=layer
     //sdci[2]=x
     //sdci[3]=y
@@ -5073,13 +5077,13 @@ inline void bmp_do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     //sdci[7]=format_option
     //sdci[8]=string
     //sdci[9]=opacity
-    if ( ri->bitmapref <= 0 )
+    if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->DrawString() wanted to write to an invalid bitmap id: %d. Aborting.\n", ri->bitmapref);
 	return;
     }
 	
-	BITMAP *refbmp = FFCore.GetScriptBitmap(ri->bitmapref-10);
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
@@ -5150,12 +5154,13 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[13]=flip
     //sdci[14]=tile/combo
     //sdci[15]=polytype
-    if ( ri->bitmapref <= 0 )
+	Z_scripterrlog("bitmap quad pointer: %d\n", sdci[17]);
+    if ( sdci[17] <= 0 )
     {
-	Z_scripterrlog("bitmap->Quad() wanted to write to an invalid bitmap id: %d. Aborting.\n", ri->bitmapref);
+	Z_scripterrlog("bitmap->Quad() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-	BITMAP *refbmp = FFCore.GetScriptBitmap(ri->bitmapref-10);
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
     int x1 = sdci[2]/10000;
@@ -5427,7 +5432,7 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 	bool masked = (sdci[16] != 0);
 	
 	int ref = 0;
-	ref = ri->bitmapref;
+	ref = sdci[17];
 	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
 	ref -=10;
 	//Z_scripterrlog("bitmap->blit() modified ref id this frame is: %d\n", ref);

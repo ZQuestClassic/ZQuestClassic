@@ -14212,6 +14212,14 @@ INLINE void set_drawing_command_args(const int j, const word numargs)
         script_drawing_commands[j][k] = SH::read_stack(ri->sp + (numargs - k));
 }
 
+INLINE void set_user_bitmap_command_args(const int j, const word numargs)
+{
+	//ri->bitmapref = SH::read_stack(ri->sp+numargs);
+	//Z_scripterrlog("Current drawing bitmap ref is: %d\n", ri->bitmapref );
+    for(int k = 1; k <= numargs; k++)
+        script_drawing_commands[j][k] = SH::read_stack(ri->sp + (numargs - k));
+}
+
 void do_drawing_command(const int script_command)
 {
     int j = script_drawing_commands.GetNext();
@@ -14393,22 +14401,27 @@ void do_drawing_command(const int script_command)
     }
     break;
     
-     case 	BMPRECTR:	set_drawing_command_args(j, 12); break;
-	case 	BMPCIRCLER:	set_drawing_command_args(j, 11); break;
-	case 	BMPARCR:	set_drawing_command_args(j, 14); break;
-	case 	BMPELLIPSER:	set_drawing_command_args(j, 12); break;
-	case 	BMPLINER:	set_drawing_command_args(j, 11); break;
-	case 	BMPSPLINER:	set_drawing_command_args(j, 11); break;
-	case 	BMPPUTPIXELR:	set_drawing_command_args(j, 8); break;
-	case 	BMPDRAWTILER:	set_drawing_command_args(j, 15); break;
-	case 	BMPDRAWCOMBOR:	set_drawing_command_args(j, 16); break;
-	case 	BMPFASTTILER:	set_drawing_command_args(j, 6); break;
-	case 	BMPFASTCOMBOR:	set_drawing_command_args(j, 6); break;
-	case 	BMPDRAWCHARR:	set_drawing_command_args(j, 10); break;
-	case 	BMPDRAWINTR:	set_drawing_command_args(j, 11); break;
+     case 	BMPRECTR:	
+     {
+	     
+    set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); break;
+     }
+	case 	BMPCIRCLER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
+	case 	BMPARCR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); set_user_bitmap_command_args(j, 14); break;
+	case 	BMPELLIPSER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); set_user_bitmap_command_args(j, 12); break;
+	case 	BMPLINER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
+	case 	BMPSPLINER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
+	case 	BMPPUTPIXELR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); set_user_bitmap_command_args(j, 8); break;
+	case 	BMPDRAWTILER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); set_user_bitmap_command_args(j, 15); break;
+	case 	BMPDRAWCOMBOR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); set_user_bitmap_command_args(j, 16); break;
+	case 	BMPFASTTILER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); set_user_bitmap_command_args(j, 6); break;
+	case 	BMPFASTCOMBOR:  script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); set_user_bitmap_command_args(j, 6); break;
+	case 	BMPDRAWCHARR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+10); set_user_bitmap_command_args(j, 10); break;
+	case 	BMPDRAWINTR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
 	case 	BMPDRAWSTRINGR:	
 	{
-		set_drawing_command_args(j, 9);
+		set_user_bitmap_command_args(j, 9);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
 		// Unused
 		//const int index = script_drawing_commands[j][19] = j;
 		
@@ -14418,9 +14431,10 @@ void do_drawing_command(const int script_command)
 		
 	}
 	break;
-	case 	BMPQUADR:	set_drawing_command_args(j, 15); break;
+	case 	BMPQUADR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); set_user_bitmap_command_args(j, 15);  break;
 	case 	BMPQUAD3DR:
 	{
+		
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		v->resize(26, 0);
 		
@@ -14436,12 +14450,14 @@ void do_drawing_command(const int script_command)
 		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
 		
 		script_drawing_commands[j].SetVector(v);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+8);
 		
 	}
 	break;
-	case 	BMPTRIANGLER:	set_drawing_command_args(j, 13); break;
+	case 	BMPTRIANGLER:	set_user_bitmap_command_args(j, 13); script_drawing_commands[j][17] = SH::read_stack(ri->sp+13); break;
 	case 	BMPTRIANGLE3DR:
 	{
+	
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		v->resize(20, 0);
 		
@@ -14457,12 +14473,20 @@ void do_drawing_command(const int script_command)
 		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
 		
 		script_drawing_commands[j].SetVector(v);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+8);
 		break;
 	}
 	//case 	BMPPOLYGONR:
-	case 	BMPDRAWLAYERR: 	set_drawing_command_args(j, 8); break;
-	case 	BMPDRAWSCREENR:	set_drawing_command_args(j, 6); break;
-	case 	BMPBLIT:	set_drawing_command_args(j, 16); break;
+	case 	BMPDRAWLAYERR: set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
+	case 	BMPDRAWSCREENR: set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+	case 	BMPBLIT:	
+	{
+		
+		//for(int q = 0; q < 8; ++q )
+		//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
+		set_user_bitmap_command_args(j, 16); break;
+	}
     
     
     }
@@ -17211,6 +17235,9 @@ int run_script(const byte type, const word script, const long i)
 		case BITMAPEXR:
 		case DRAWLAYERR:
 		case DRAWSCREENR:
+			do_drawing_command(scommand);
+		    break;
+		
 		case 	BMPRECTR:	
 		case 	BMPCIRCLER:
 		case 	BMPARCR:
@@ -18147,11 +18174,17 @@ script_bitmaps scb;
 
 void FFScript::do_isvalidbitmap()
 {
-	Z_scripterrlog("isValidBitmap() bitmap pointer value is %d\n", ri->bitmapref);
-	if ( ri->bitmapref <= 0 ) set_register(sarg1, 0);
-	else if ( scb.script_created_bitmaps[ri->bitmapref-10].u_bmp ) 
+	
+	long UID = get_register(sarg1);
+	Z_scripterrlog("isValidBitmap() bitmap pointer value is %d\n", UID);
+	if ( UID <= 0 ) set_register(sarg1, 0); 
+	else if ( scb.script_created_bitmaps[UID-10].u_bmp ) 
 		set_register(sarg1, 10000);
 	else set_register(sarg1, 0);
+	
+	
+	
+	
 }
 
 void FFScript::user_bitmaps_init()
@@ -18194,7 +18227,7 @@ long FFScript::do_create_bitmap()
 	
 	if ( highest_valid_user_bitmap() >= (MAX_USER_BITMAPS-1) )
 	{
-		ri->bitmapref = 0;
+		//ri->bitmapref = 0;
 		Z_scripterrlog("Script attempted to create a bitmap, but no bitmaps are available. Setting ri->bitmapref to: %d\n", ri->bitmapref);
 		return id;
 	}
@@ -18213,11 +18246,11 @@ long FFScript::do_create_bitmap()
 			if ( id == 0 )
 			{
 				Z_scripterrlog("FFCore.do_create_bitmap() id is %d\n", id);
-				ri->bitmapref = -2;
+				return -2; //ri->bitmapref = -2;
 			}
 			else
 			{
-				ri->bitmapref = id+10; 
+				return id+10; //ri->bitmapref = id+10; 
 				
 				Z_eventlog("Script created bitmap ID %d, pointer (%d) with height of %d and width of %d\n", id, ri->bitmapref, h,w);
 	
