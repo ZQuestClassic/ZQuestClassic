@@ -7359,7 +7359,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(12, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OReturn());
         
 		function->giveCode(code);
@@ -7374,7 +7374,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7389,7 +7389,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(14, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7404,7 +7404,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(12, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7419,7 +7419,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7434,7 +7434,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7449,7 +7449,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7464,7 +7464,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(10, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7479,7 +7479,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7494,7 +7494,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(15, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7509,7 +7509,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(16, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7524,7 +7524,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(15, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7540,7 +7540,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7556,7 +7556,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(13, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7572,7 +7572,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7587,7 +7587,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7603,7 +7603,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7618,7 +7618,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7633,7 +7633,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(9, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7648,7 +7648,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7663,7 +7663,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7685,7 +7685,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//bool isValid(item)
+	//bool isValid(bitmap)
 	{
 		Function* function = getFunction("isValid");
 		int label = function->getLabel();
