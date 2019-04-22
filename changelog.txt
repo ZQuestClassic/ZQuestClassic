@@ -1,6 +1,8 @@
 //2.55 and 2.54 Changes
 
 //Alpha 20
+Updated default_qst.dat.
+Updated classic_qst.dat.
 Fixed bitmap pointers and drawing functions to respect the correct
 	bitmap pointer ID.
 Fixed Debug->SP to read/write to the correct data location.
