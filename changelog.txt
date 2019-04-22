@@ -1,5 +1,23 @@
 //2.55 and 2.54 Changes
 
+//Alpha 20
+Fixed bitmap pointers and drawing functions to respect the correct
+	bitmap pointer ID.
+Fixed Debug->SP to read/write to the correct data location.
+	( ZoriaRPG, 22nd April, 2019 )
+	
+Fixed missing case for NO_ERROR_HALT:
+	Function calls need to syncDisable with their parameters.
+Fix type issues.
+Function calls need to syncDisable with their parameters.
+Fix: `using` fails to find current-scope namespaces
+Fix: `using` nonfunctional within namespace
+Fix: `==` and `!=` cast two-way 
+	Added two-way checkCast, to see if two types are compatible in EITHER direction.
+Fix: `==` and `!=` casting error failed to report location 
+	This left an error that was extremely difficult to locate!
+	( Venrob, 20th April, 2019 )
+
 //Alpha 19
 Increased Build ID to 43.
 Added a QR that causes eweapon->Parent to be multiplied / divided by 10000, for
