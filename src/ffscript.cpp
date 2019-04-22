@@ -4528,9 +4528,7 @@ case SCREENCATCH:
         
     case DEBUGSP:
     {
-	int r = -1;
-	if ( ri->sp ) r = ri->sp;
-        ret = r * 10000;
+        ret = SH::read_stack(ri->sp) * 10000;
     }   
         break;
     case DEBUGGDR:
@@ -10316,7 +10314,7 @@ break;
         break;
     
     case DEBUGSP:
-        ri->sp = vbound((value / 10000),0,MAX_SCRIPT_REGISTERS-1);
+        SH::write_stack(ri->sp,vbound((value / 10000),0,MAX_SCRIPT_REGISTERS-1));
         break;
         
     case DEBUGREFFFC:
@@ -14402,10 +14400,9 @@ void do_drawing_command(const int script_command)
     break;
     
      case 	BMPRECTR:	
-     {
-	     
-    set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); break;
-     }
+		set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); break;
+		//Pop the args off the stack first. Then pop the pointer and push it to sdci[17]. 
+		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12. 
 	case 	BMPCIRCLER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
 	case 	BMPARCR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); set_user_bitmap_command_args(j, 14); break;
 	case 	BMPELLIPSER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); set_user_bitmap_command_args(j, 12); break;
