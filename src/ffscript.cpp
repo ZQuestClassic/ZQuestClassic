@@ -18185,14 +18185,51 @@ int ffscript_engine(const bool preload)
 
 void FFScript::do_write_bitmap()
 {
+	for ( int q = 0; q < 16; q++)
+	Z_scripterrlog("do_write_bitmap stack sp+%d: %d\n", q, SH::read_stack(ri->sp+q));
 	long arrayptr = get_register(sarg2) / 10000;
 	string filename_str;
 
 	ArrayH::getString(arrayptr, filename_str, 512);
+	int ref = ri->bitmapref-10;
 	Z_scripterrlog("WriteBitmap() filename is %s\n",filename_str.c_str());
-	
-	
-	save_bitmap(filename_str.c_str(), scb.script_created_bitmaps[ri->bitmapref].u_bmp, RAMPal);
+	Z_scripterrlog("WriteBitmap ri->bitmapref is: %d\n",ref );
+	if ( ref <= 0 )
+	{
+		if (ref == -2 )
+		{
+			save_bitmap(filename_str.c_str(), framebuf, RAMpal);
+			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+		}
+		else
+		{
+			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
+		}
+	}
+	else if ( ref >= 7 )
+	{
+		if ( scb.script_created_bitmaps[ref].u_bmp ) 
+		{
+			save_bitmap(filename_str.c_str(), scb.script_created_bitmaps[ri->bitmapref-10].u_bmp, RAMpal);
+			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+		}
+		else
+		{
+			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
+		}
+	}
+	else
+	{
+		if ( zscriptDrawingRenderTarget->GetBitmapPtr(ref) ) 
+		{
+			save_bitmap(filename_str.c_str(), zscriptDrawingRenderTarget->GetBitmapPtr(ref), RAMpal);
+			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+		}
+		else
+		{
+			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
+		}
+	}
 }
 
 void FFScript::do_readbitmap(const bool v)
