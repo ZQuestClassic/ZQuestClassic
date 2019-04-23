@@ -1820,6 +1820,8 @@ script_variable variable_list[]=
 	{"FFRULE", FFRULE, 0, 0 },
 	{"NUMDRAWS", NUMDRAWS, 0, 0 },
 	{"MAXDRAWS", MAXDRAWS, 0, 0 },
+	{"BITMAPWIDTH", BITMAPWIDTH, 0, 0 },
+	{"BITMAPHEIGHT", BITMAPHEIGHT, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

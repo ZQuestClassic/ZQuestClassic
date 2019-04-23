@@ -1110,8 +1110,10 @@ using namespace std;
 #define FFRULE 				1041
 #define NUMDRAWS 			1042
 #define MAXDRAWS 			1043
+#define BITMAPWIDTH 			1044
+#define BITMAPHEIGHT 			1045
 
-#define LAST_BYTECODE 		1044
+#define LAST_BYTECODE 		1046
 
 //END OF BYTECODE
 

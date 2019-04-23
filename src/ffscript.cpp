@@ -26,6 +26,7 @@ FFScript FFCore;
 zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
+script_bitmaps scb;
 
 char runningItemScripts[256] = {0};
  
@@ -6472,6 +6473,14 @@ case NUMDRAWS:
 case MAXDRAWS:
 	ret = MAX_SCRIPT_DRAWING_COMMANDS * 10000;
         break;
+
+case BITMAPWIDTH:
+	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->w * 10000;
+	break;
+
+case BITMAPHEIGHT:
+	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->h * 10000;
+	break;
 
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
@@ -18169,7 +18178,7 @@ int ffscript_engine(const bool preload)
 
 ///----------------------------------------------------------------------------------------------------
 
-script_bitmaps scb;
+
 
 
 void FFScript::do_readbitmap(const bool v)

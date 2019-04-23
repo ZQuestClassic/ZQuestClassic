@@ -3254,6 +3254,8 @@ enum ASM_DEFINE
 #define FFRULE 			0x134A
 #define NUMDRAWS 		0x134B
 #define MAXDRAWS 		0x134C
+#define BITMAPWIDTH 		0x134D
+#define BITMAPHEIGHT 		0x134E
 
 //bytecode
 
@@ -3261,7 +3263,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x134D
+#define NUMVARIABLES         	0x134F
 
 // Script types
 

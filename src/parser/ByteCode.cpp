@@ -1722,6 +1722,8 @@ string VarArgument::toString()
 	case FFRULE: return "FFRULE";
 	case NUMDRAWS: return "NUMDRAWS";
 	case MAXDRAWS: return "MAXDRAWS";
+	case BITMAPWIDTH: return "BITMAPWIDTH";
+	case BITMAPHEIGHT: return "BITMAPHEIGHT";
 	
 	
     default:
