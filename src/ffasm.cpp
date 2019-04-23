@@ -776,6 +776,7 @@ script_command command_list[NUMCOMMANDS+1]=
       { "SETENHMUSICSPEED",        1,   0,   0,   0},
       { "ISVALIDBITMAP",         1,   0,   0,   0},
       { "READBITMAP",        1,   0,   0,   0},
+      { "WRITEBITMAP",        1,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 

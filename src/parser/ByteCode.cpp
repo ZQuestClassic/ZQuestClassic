@@ -4351,6 +4351,10 @@ string OGetReadBitmap::toString()
 {
     return "READBITMAP " + getArgument()->toString();
 }
+string OWriteBitmap::toString()
+{
+    return "WRITEBITMAP " + getArgument()->toString();
+}
 
 string OIsValidBitmap::toString()
 {

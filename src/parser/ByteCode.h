@@ -7320,6 +7320,17 @@ namespace ZScript
 		}
 	};
 	
+	class OWriteBitmap : public UnaryOpcode
+	{
+	public:
+		OWriteBitmap(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OWriteBitmap(a->clone());
+		}
+	};
+	
 	class OIsValidBitmap : public UnaryOpcode
 	{
 	public:

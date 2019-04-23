@@ -17924,6 +17924,10 @@ int run_script(const byte type, const word script, const long i)
 		    FFCore.do_npc_constwalk();
 		    break;
 		
+		case WRITEBITMAP:
+		    FFCore.do_write_bitmap();
+		    break;
+		
 		case NPCVARWALK:
 		    FFCore.do_npc_varwalk();
 		    break;
@@ -18179,7 +18183,17 @@ int ffscript_engine(const bool preload)
 ///----------------------------------------------------------------------------------------------------
 
 
+void FFScript::do_write_bitmap()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	string filename_str;
 
+	ArrayH::getString(arrayptr, filename_str, 512);
+	Z_scripterrlog("WriteBitmap() filename is %s\n",filename_str.c_str());
+	
+	
+	save_bitmap(filename_str.c_str(), scb.script_created_bitmaps[ri->bitmapref].u_bmp, RAMPal);
+}
 
 void FFScript::do_readbitmap(const bool v)
 {	

@@ -950,6 +950,7 @@ static void setLinkBigHitbox(bool v);
 	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
 	static void do_readbitmap(const bool v);
+	static void do_write_bitmap();
 	static void do_loadshopdata(const bool v);
 	static void do_loadinfoshopdata(const bool v);
 	static void do_setMIDI_volume(int m);
@@ -2066,6 +2067,7 @@ enum ASM_DEFINE
 	SETENHMUSICSPEED,
 	ISVALIDBITMAP,
 	READBITMAP,
+	WRITEBITMAP,
 	NUMCOMMANDS           //0x013F
 };
 
