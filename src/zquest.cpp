@@ -1160,6 +1160,7 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_X,          0, (void *) onPreviewMode, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Y,          0, (void *) onCompileScript, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Z,          0, (void *) onSnapshot, NULL, NULL },
+    //{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       0,          0, (void *) onPasteAllToAll, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '0',     0,       0,              0, (void *) on0, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '1',     0,       0,              0, (void *) on1, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '2',     0,       0,              0, (void *) on2, NULL, NULL },
@@ -1691,11 +1692,15 @@ int onH()
 
 int onPaste()
 {
-    {
-        Map.Paste();
-        refresh(rALL);
-    }
-    return D_O_K;
+	if ( (key[KEY_LSHIFT] || key[KEY_RSHIFT]) && !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL])  return onPasteAll();
+	else if ((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ) && !key[KEY_LSHIFT] && !key[KEY_RSHIFT] ) return onPasteToAll();
+	else if ( (key[KEY_LSHIFT] || key[KEY_RSHIFT]) && (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]) ) return onPasteAllToAll();
+	else
+	{
+		Map.Paste();
+		refresh(rALL);
+	}
+	return D_O_K;
 }
 
 int onPasteAll()
@@ -6900,6 +6905,14 @@ static MENU draw_block_menu[] =
     { NULL,                              NULL,            NULL,    0, NULL }
 };
 
+static MENU paste_screen_menu[] =
+{
+    { (char *)"Paste All",                     onPasteAll,  NULL,    0, NULL },
+    { (char *)"Paste to All",                     onPasteToAll,  NULL,    0, NULL },
+    { (char *)"Paste All to All",                     onPasteAllToAll,  NULL,    0, NULL },
+    { NULL,                              NULL,            NULL,    0, NULL }
+};
+
 static MENU draw_rc_menu[] =
 {
     { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
@@ -6917,6 +6930,15 @@ static MENU draw_rc_menu[] =
     { (char *)"",                        NULL,  NULL,              0, NULL },
     { (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
     { (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
+    { (char *)"",                        NULL,  NULL,              0, NULL },
+    { (char *)"Copy Screen",                        onCopy,  NULL,              0, NULL },
+    { (char *)"Paste Screen",                        onPaste,  NULL,              0, NULL },
+    { (char *)"Paste...",                        NULL,  paste_screen_menu,              0, NULL },
+    { (char *)"Adv. Paste",                        NULL,  paste_menu,              0, NULL },
+    { (char *)"Paste Special",                        NULL,  paste_item_menu,              0, NULL },
+    { (char *)"",                        NULL,  NULL,              0, NULL },
+    { (char *)"ZScript",                        NULL,  zscript_menu,              0, NULL },
+    
     { NULL,                              NULL,  NULL,              0, NULL }
 };
 

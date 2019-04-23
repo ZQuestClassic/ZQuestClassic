@@ -4345,6 +4345,11 @@ string OGetNPCDataName::toString()
     return "NPCDATAGETNAME " + getArgument()->toString();
 }
 
+string OGetReadBitmap::toString()
+{
+    return "READBITMAP " + getArgument()->toString();
+}
+
 string OIsValidBitmap::toString()
 {
     return "ISVALIDBITMAP " + getArgument()->toString();

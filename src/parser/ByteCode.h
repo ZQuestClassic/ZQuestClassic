@@ -7307,6 +7307,17 @@ namespace ZScript
 		}
 	};
 	
+	class OGetReadBitmap : public UnaryOpcode
+	{
+	public:
+		OGetReadBitmap(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetReadBitmap(a->clone());
+		}
+	};
+	
 	class OIsValidBitmap : public UnaryOpcode
 	{
 	public:

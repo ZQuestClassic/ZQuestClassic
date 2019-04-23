@@ -1,5 +1,18 @@
 //2.55 and 2.54 Changes
 
+//Alpha 21
+Added the ability to call onPasteAll, onPasteToAll, and onPasteAlltoAll
+	from hotkeys. 
+	All screen paste hotkeys use 'V', as follows:
+		V: 			onPaste
+		Shift+V: 		onPasteAll
+		Control+V: 		onPasteToAll
+		Control+Shift+V: 	onPasteAllToAll
+
+I also added all of the normal copy/paste options to the contextual menu, and I added
+	the ZScript submenu to the contextual menu.
+	( ZoriaRPG, 23rd April, 2019 )
+
 //Alpha 20
 Updated default_qst.dat.
 Updated classic_qst.dat.

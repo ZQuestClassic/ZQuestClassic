@@ -3611,7 +3611,8 @@ OOL,         GETTER,       KEYPRESS,         127,      {  ZVARTYPEID_GAME,      
 	{ "GetOggPos",      ZVARTYPEID_FLOAT,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "SetOggPos",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "SetOggSpeed",      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-
+	{ "ReadBitmap",           ZVARTYPEID_BITMAP,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
 	
     { "",                       -1,                               -1,           -1,                  -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -3826,6 +3827,22 @@ void GameSymbols::generateCode()
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new OLoadBitmapDataRegister(new VarArgument(EXP1)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBITMAP)));
+        code.push_back(new OReturn());
+        function->giveCode(code);   
+    }
+    //Bitmap
+    {
+	    Function* function = getFunction("ReadBitmap");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGetReadBitmap(new VarArgument(EXP1)));
         code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBITMAP)));
         code.push_back(new OReturn());
         function->giveCode(code);   
