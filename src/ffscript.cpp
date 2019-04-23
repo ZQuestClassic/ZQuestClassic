@@ -14053,22 +14053,6 @@ void FFScript::do_loadscreendata(const bool v)
     //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
-void FFScript::do_readbitmap(const bool v)
-{	
-	long arrayptr = SH::get_arg(sarg1, v) / 10000;
-
-	string filename_str;
-
-	ArrayH::getString(arrayptr, filename_str, 512);
-	
-	int bit_id = get_free_bitmap();
-	scb.script_created_bitmaps[bit_id].u_bmp = load_bitmap(filename_str, RGB);
-	if ( scb.script_created_bitmaps[bit_id].u_bmp ) ri->bitmapref = bit_id+10; break; //set_register(sarg1, bit_id);
-	else ri->bitmapref = 0; //set_register(sarg1, 0);
-    
-    //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
-}
-
 void FFScript::do_loadbitmapid(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -18186,6 +18170,36 @@ int ffscript_engine(const bool preload)
 ///----------------------------------------------------------------------------------------------------
 
 script_bitmaps scb;
+
+
+void FFScript::do_readbitmap(const bool v)
+{	
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+
+	string filename_str;
+
+	ArrayH::getString(arrayptr, filename_str, 512);
+	Z_scripterrlog("ReadBitmap() filename is %s\n",filename_str.c_str());
+	int bit_id = FFCore.get_free_bitmap();
+	scb.script_created_bitmaps[bit_id].u_bmp = load_bitmap(filename_str.c_str(), RAMpal);
+	if ( scb.script_created_bitmaps[bit_id].u_bmp ) 
+	{
+		ri->bitmapref = bit_id+10;  //set_register(sarg1, bit_id);
+		Z_scripterrlog("Read a bitmap to pointer: %d\n",bit_id+10);
+		Z_scripterrlog("Height is: %d\n",scb.script_created_bitmaps[bit_id].u_bmp->h);
+		Z_scripterrlog("Width is: %d\n",scb.script_created_bitmaps[bit_id].u_bmp->w);
+	}
+	else 
+	{ 
+		ri->bitmapref = 0; 
+		//set_register(sarg1, 0);
+		--scb.num_active; //Free the struct element, because we didn't use it. 
+		Z_scripterrlog("ReadBitmap failed to properly load bitmap filename %s\n", filename_str.c_str());
+	}
+    
+    //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
+}
+
 
 //script_bitmaps scb;
 
