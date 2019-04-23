@@ -18180,21 +18180,35 @@ void FFScript::do_readbitmap(const bool v)
 
 	ArrayH::getString(arrayptr, filename_str, 512);
 	Z_scripterrlog("ReadBitmap() filename is %s\n",filename_str.c_str());
-	int bit_id = FFCore.get_free_bitmap();
-	scb.script_created_bitmaps[bit_id].u_bmp = load_bitmap(filename_str.c_str(), RAMpal);
-	if ( scb.script_created_bitmaps[bit_id].u_bmp ) 
+	int bit_id = 0;
+        do
 	{
-		ri->bitmapref = bit_id+10;  //set_register(sarg1, bit_id);
-		Z_scripterrlog("Read a bitmap to pointer: %d\n",bit_id+10);
-		Z_scripterrlog("Height is: %d\n",scb.script_created_bitmaps[bit_id].u_bmp->h);
-		Z_scripterrlog("Width is: %d\n",scb.script_created_bitmaps[bit_id].u_bmp->w);
+		bit_id = FFCore.get_free_bitmap();
+	} while (bit_id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
+        if ( bit_id > 0 )
+        {
+		int bit_id = FFCore.get_free_bitmap();
+		scb.script_created_bitmaps[bit_id].u_bmp = load_bitmap(filename_str.c_str(), RAMpal);
+		if ( scb.script_created_bitmaps[bit_id].u_bmp ) 
+		{
+			ri->bitmapref = bit_id+10;  //set_register(sarg1, bit_id);
+			Z_scripterrlog("Read a bitmap to pointer: %d\n",bit_id+10);
+			Z_scripterrlog("Height is: %d\n",scb.script_created_bitmaps[bit_id].u_bmp->h);
+			Z_scripterrlog("Width is: %d\n",scb.script_created_bitmaps[bit_id].u_bmp->w);
+		}
+		else 
+		{ 
+			ri->bitmapref = 0; 
+			//set_register(sarg1, 0);
+			--scb.num_active; //Free the struct element, because we didn't use it. 
+			Z_scripterrlog("ReadBitmap failed to properly load bitmap filename %s\n", filename_str.c_str());
+		}
 	}
 	else 
 	{ 
 		ri->bitmapref = 0; 
 		//set_register(sarg1, 0);
-		--scb.num_active; //Free the struct element, because we didn't use it. 
-		Z_scripterrlog("ReadBitmap failed to properly load bitmap filename %s\n", filename_str.c_str());
+		Z_scripterrlog("ReadBitmap failed to acquire a free bitmap.\n");
 	}
     
     //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
