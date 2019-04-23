@@ -20095,7 +20095,7 @@ static DIALOG zscript_parser_dlg[] =
     { jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
     { jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
     { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
-    { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Relational Operators Give 0.0001 For True", NULL, NULL },
+    { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
     //10
     { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
     { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
@@ -20132,7 +20132,7 @@ static int zscripparsertrules[] =
 	qr_PARSER_250DIVISION,
 	qr_PARSER_NO_LOGGING,
 	qr_PARSER_SHORT_CIRCUIT,
-	qr_PARSER_RELOP_DECIMAL,
+	qr_PARSER_BOOL_TRUE_DECIMAL,
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings

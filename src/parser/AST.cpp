@@ -1007,7 +1007,7 @@ optional<long> ASTExprNot::getCompileTimeValue(
 {
 	if (!operand) return nullopt;
 	if (optional<long> value = operand->getCompileTimeValue(errorHandler, scope))
-		return *value ? 0L : 10000L;
+		return *value ? 0L : (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L);
 	return nullopt;
 }
 
@@ -1145,7 +1145,7 @@ optional<long> ASTExprAnd::getCompileTimeValue(
 	if(short_circuit && !*leftValue) return 0L; //Cut it short if we already know the result, and the option is on.
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue && *rightValue) ? 10000L : 0L;
+	return (*leftValue && *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprOr
@@ -1171,7 +1171,7 @@ optional<long> ASTExprOr::getCompileTimeValue(
 	if(short_circuit && *leftValue) return 10000L; //Cut it short if we already know the result, and the option is on.
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue || *rightValue) ? 10000L : 0L;
+	return (*leftValue || *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTRelExpr
@@ -1202,7 +1202,7 @@ optional<long> ASTExprGT::getCompileTimeValue(
 	if (!leftValue) return nullopt;
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue > *rightValue) ? 10000L : 0L;
+	return (*leftValue > *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprGE
@@ -1226,7 +1226,7 @@ optional<long> ASTExprGE::getCompileTimeValue(
 	if (!leftValue) return nullopt;
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue >= *rightValue) ? 10000L : 0L;
+	return (*leftValue >= *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprLT
@@ -1250,7 +1250,7 @@ optional<long> ASTExprLT::getCompileTimeValue(
 	if (!leftValue) return nullopt;
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue < *rightValue) ? 10000L : 0L;
+	return (*leftValue < *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprLE
@@ -1274,7 +1274,7 @@ optional<long> ASTExprLE::getCompileTimeValue(
 	if (!leftValue) return nullopt;
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue <= *rightValue) ? 10000L : 0L;
+	return (*leftValue <= *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprEQ
@@ -1298,7 +1298,7 @@ optional<long> ASTExprEQ::getCompileTimeValue(
 	if (!leftValue) return nullopt;
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue == *rightValue) ? 10000L : 0L;
+	return (*leftValue == *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprNE
@@ -1322,7 +1322,7 @@ optional<long> ASTExprNE::getCompileTimeValue(
 	if (!leftValue) return nullopt;
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue != *rightValue) ? 10000L : 0L;
+	return (*leftValue != *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTAddExpr

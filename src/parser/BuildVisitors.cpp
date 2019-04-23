@@ -674,7 +674,7 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
     visit(host.operand.get(), param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OSetTrue(new VarArgument(EXP1)));
-	if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+	if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 }
 
 void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
@@ -785,7 +785,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		ocode->setLabel(skip);
 		addOpcode(ocode);
 		addOpcode(new OSetMore(new VarArgument(EXP1)));
-		if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+		if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 	}
 	else
 	{
@@ -802,7 +802,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(2)));
 		addOpcode(new OSetMore(new VarArgument(EXP1)));
-		if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+		if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 	}
 }
 
@@ -829,7 +829,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		Opcode* ocode = new OSetMore(new VarArgument(EXP1));
 		if(short_circuit) ocode->setLabel(skip);
 		addOpcode(ocode);
-		if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+		if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 	}
 	else
 	{
@@ -844,7 +844,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		addOpcode(new OSetMore(new VarArgument(EXP1)));		
-		if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+		if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 	}
 }
 
@@ -865,7 +865,7 @@ void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
     addOpcode(new OSetLess(new VarArgument(EXP1)));
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OSetTrue(new VarArgument(EXP1)));
-	if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+	if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 }
 
 void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
@@ -883,7 +883,7 @@ void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetMore(new VarArgument(EXP1)));
-	if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+	if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 }
 
 void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
@@ -903,7 +903,7 @@ void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
     addOpcode(new OSetMore(new VarArgument(EXP1)));
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OSetTrue(new VarArgument(EXP1)));
-	if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+	if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 }
 
 void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
@@ -921,7 +921,7 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetLess(new VarArgument(EXP1)));
-	if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+	if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 }
 
 void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
@@ -949,7 +949,7 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 
     addOpcode(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
     addOpcode(new OSetTrue(new VarArgument(EXP1)));
-	if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+	if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 }
 
 void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
@@ -977,7 +977,7 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 
     addOpcode(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
     addOpcode(new OSetFalse(new VarArgument(EXP1)));
-	if(*lookupOption(*scope, CompileOption::OPT_RELATIONAL_OP_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
+	if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) == 0) addOpcode(new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(100000000)));
 }
 
 void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)

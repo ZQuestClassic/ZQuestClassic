@@ -22,6 +22,7 @@ namespace ZScript
 #include "y.tab.hpp"
 #include "Compiler.h"
 #include "CompileOption.h"
+#include "Scope.h"
 #include "owning_ptr.h"
 #include "owning_vector.h"
 
@@ -1590,7 +1591,7 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const {
-			return value ? 10000L : 0L;}
+					return value ? (*ZScript::lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;}
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
 	
 		bool value;
