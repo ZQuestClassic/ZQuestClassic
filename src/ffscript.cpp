@@ -14053,6 +14053,22 @@ void FFScript::do_loadscreendata(const bool v)
     //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
+void FFScript::do_readbitmap(const bool v)
+{	
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+
+	string filename_str;
+
+	ArrayH::getString(arrayptr, filename_str, 512);
+	
+	int bit_id = get_free_bitmap();
+	scb.script_created_bitmaps[bit_id].u_bmp = load_bitmap(filename_str, RGB);
+	if ( scb.script_created_bitmaps[bit_id].u_bmp ) ri->bitmapref = bit_id+10; break; //set_register(sarg1, bit_id);
+	else ri->bitmapref = 0; //set_register(sarg1, 0);
+    
+    //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
+}
+
 void FFScript::do_loadbitmapid(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -16892,6 +16908,10 @@ int run_script(const byte type, const word script, const long i)
 		
 		case LOADBITMAPDATAR:
 		    FFScript::do_loadbitmapid(false);
+		    break;
+		
+		case READBITMAP:
+		    FFScript::do_readbitmap(false);
 		    break;
 		case LOADBITMAPDATAV:
 		    FFScript::do_loadbitmapid(true);
