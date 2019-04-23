@@ -7361,11 +7361,11 @@ void BitmapSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the param
-		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
 		first->setLabel(label);
 		code.push_back(first);
 		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OSetRegister(new VarArgument(refVar), new VarArgument(EXP2)));
 		code.push_back(new OWriteBitmap(new VarArgument(EXP1)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
