@@ -1,6 +1,6 @@
 //2.55 and 2.54 Changes
 
-//ALpha 21
+//Alpha 21
 Added the ability to call onPasteAll, onPasteToAll, and onPasteAlltoAll
 	from hotkeys. 
 	All screen paste hotkeys use 'V', as follows:
