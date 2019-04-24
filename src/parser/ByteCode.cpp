@@ -1722,6 +1722,9 @@ string VarArgument::toString()
 	case FFRULE: return "FFRULE";
 	case NUMDRAWS: return "NUMDRAWS";
 	case MAXDRAWS: return "MAXDRAWS";
+	case BITMAPWIDTH: return "BITMAPWIDTH";
+	case BITMAPHEIGHT: return "BITMAPHEIGHT";
+	case ALLOCATEBITMAPR: return "ALLOCATEBITMAPR";
 	
 	
     default:
@@ -4345,9 +4348,18 @@ string OGetNPCDataName::toString()
     return "NPCDATAGETNAME " + getArgument()->toString();
 }
 
-string OGetReadBitmap::toString()
+string OAllocateBitmap::toString()
 {
-    return "READBITMAP " + getArgument()->toString();
+    return "ALLOCATEBITMAP " + getArgument()->toString();
+}
+
+string OReadBitmap::toString()
+{
+    return "READBITMAP";
+}
+string OWriteBitmap::toString()
+{
+    return "WRITEBITMAP";
 }
 
 string OIsValidBitmap::toString()

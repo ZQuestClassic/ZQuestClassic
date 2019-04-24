@@ -950,6 +950,8 @@ static void setLinkBigHitbox(bool v);
 	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
 	static void do_readbitmap(const bool v);
+	static long do_allocate_bitmap();
+	static void do_write_bitmap();
 	static void do_loadshopdata(const bool v);
 	static void do_loadinfoshopdata(const bool v);
 	static void do_setMIDI_volume(int m);
@@ -2066,6 +2068,8 @@ enum ASM_DEFINE
 	SETENHMUSICSPEED,
 	ISVALIDBITMAP,
 	READBITMAP,
+	WRITEBITMAP,
+	ALLOCATEBITMAP,
 	NUMCOMMANDS           //0x013F
 };
 
@@ -3254,6 +3258,9 @@ enum ASM_DEFINE
 #define FFRULE 			0x134A
 #define NUMDRAWS 		0x134B
 #define MAXDRAWS 		0x134C
+#define BITMAPWIDTH 		0x134D
+#define BITMAPHEIGHT 		0x134E
+#define ALLOCATEBITMAPR 		0x134F
 
 //bytecode
 
@@ -3261,7 +3268,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x134D
+#define NUMVARIABLES         	0x1350
 
 // Script types
 

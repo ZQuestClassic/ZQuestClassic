@@ -26,6 +26,7 @@ FFScript FFCore;
 zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
+script_bitmaps scb;
 
 char runningItemScripts[256] = {0};
  
@@ -3809,6 +3810,10 @@ case NPCBEHAVIOUR: {
         ret=currscr*10000;
         break;
         
+    case ALLOCATEBITMAPR:
+        ret=FFCore.do_allocate_bitmap();
+        break;
+        
     case GETMIDI:
         ret=(currmidi-(ZC_MIDI_COUNT-1))*10000;
         break;
@@ -6472,6 +6477,14 @@ case NUMDRAWS:
 case MAXDRAWS:
 	ret = MAX_SCRIPT_DRAWING_COMMANDS * 10000;
         break;
+
+case BITMAPWIDTH:
+	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->w * 10000;
+	break;
+
+case BITMAPHEIGHT:
+	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->h * 10000;
+	break;
 
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
@@ -14403,6 +14416,38 @@ void do_drawing_command(const int script_command)
 		set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); break;
 		//Pop the args off the stack first. Then pop the pointer and push it to sdci[17]. 
 		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12. 
+	case 	READBITMAP:	
+	{
+		Z_scripterrlog("Calling %s\n","READBITMAP");
+		set_user_bitmap_command_args(j, 2);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
+		string *str = script_drawing_commands.GetString();
+		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
+		
+		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
+		std::strncpy(cptr, str->c_str(), str->size());
+		
+		Z_scripterrlog("READBITMAP string is %s\n", cptr);
+		
+		script_drawing_commands[j].SetString(str);
+		break;
+	}
+	case 	WRITEBITMAP:	
+	{
+		Z_scripterrlog("Calling %s\n","WRITEBITMAP");
+		set_user_bitmap_command_args(j, 2);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
+		std::string *str = script_drawing_commands.GetString();
+		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
+		
+		
+		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
+		std::strncpy(cptr, str->c_str(), str->size());
+		
+		Z_scripterrlog("WRITEBITMAP string is %s\n", cptr);
+		script_drawing_commands[j].SetString(str);
+		break;
+	}
 	case 	BMPCIRCLER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
 	case 	BMPARCR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); set_user_bitmap_command_args(j, 14); break;
 	case 	BMPELLIPSER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); set_user_bitmap_command_args(j, 12); break;
@@ -16894,9 +16939,7 @@ int run_script(const byte type, const word script, const long i)
 		    FFScript::do_loadbitmapid(false);
 		    break;
 		
-		case READBITMAP:
-		    FFScript::do_readbitmap(false);
-		    break;
+		
 		case LOADBITMAPDATAV:
 		    FFScript::do_loadbitmapid(true);
 		    break;
@@ -17261,6 +17304,8 @@ int run_script(const byte type, const word script, const long i)
 		case 	BMPDRAWLAYERR: 
 		case 	BMPDRAWSCREENR:
 		case 	BMPBLIT:
+		case 	READBITMAP:
+		case 	WRITEBITMAP:
 		    do_drawing_command(scommand);
 		    break;
 		    
@@ -17915,6 +17960,8 @@ int run_script(const byte type, const word script, const long i)
 		    FFCore.do_npc_constwalk();
 		    break;
 		
+		
+		
 		case NPCVARWALK:
 		    FFCore.do_npc_varwalk();
 		    break;
@@ -18169,8 +18216,55 @@ int ffscript_engine(const bool preload)
 
 ///----------------------------------------------------------------------------------------------------
 
-script_bitmaps scb;
 
+void FFScript::do_write_bitmap()
+{
+	for ( int q = 0; q < 16; q++)
+	Z_scripterrlog("do_write_bitmap stack sp+%d: %d\n", q, SH::read_stack(ri->sp+q));
+	long arrayptr = get_register(sarg2) / 10000;
+	string filename_str;
+
+	ArrayH::getString(arrayptr, filename_str, 512);
+	int ref = ri->bitmapref-10;
+	Z_scripterrlog("WriteBitmap() filename is %s\n",filename_str.c_str());
+	Z_scripterrlog("WriteBitmap ri->bitmapref is: %d\n",ref );
+	if ( ref <= 0 )
+	{
+		if (ref == -2 )
+		{
+			save_bitmap(filename_str.c_str(), framebuf, RAMpal);
+			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+		}
+		else
+		{
+			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
+		}
+	}
+	else if ( ref >= 7 )
+	{
+		if ( scb.script_created_bitmaps[ref].u_bmp ) 
+		{
+			save_bitmap(filename_str.c_str(), scb.script_created_bitmaps[ri->bitmapref-10].u_bmp, RAMpal);
+			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+		}
+		else
+		{
+			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
+		}
+	}
+	else
+	{
+		if ( zscriptDrawingRenderTarget->GetBitmapPtr(ref) ) 
+		{
+			save_bitmap(filename_str.c_str(), zscriptDrawingRenderTarget->GetBitmapPtr(ref), RAMpal);
+			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+		}
+		else
+		{
+			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
+		}
+	}
+}
 
 void FFScript::do_readbitmap(const bool v)
 {	
@@ -18217,6 +18311,16 @@ void FFScript::do_readbitmap(const bool v)
 
 //script_bitmaps scb;
 
+long FFScript::do_allocate_bitmap()
+{	
+	int bit_id = 0;
+        do
+	{
+		bit_id = FFCore.get_free_bitmap();
+	} while (bit_id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
+        if ( bit_id < MAX_USER_BITMAPS ) return bit_id+10;
+	else return 0;
+}
 void FFScript::do_isvalidbitmap()
 {
 	

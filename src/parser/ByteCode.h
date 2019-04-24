@@ -1110,8 +1110,11 @@ using namespace std;
 #define FFRULE 				1041
 #define NUMDRAWS 			1042
 #define MAXDRAWS 			1043
+#define BITMAPWIDTH 			1044
+#define BITMAPHEIGHT 			1045
+#define ALLOCATEBITMAPR 			1046
 
-#define LAST_BYTECODE 		1044
+#define LAST_BYTECODE 		1047
 
 //END OF BYTECODE
 
@@ -7307,17 +7310,6 @@ namespace ZScript
 		}
 	};
 	
-	class OGetReadBitmap : public UnaryOpcode
-	{
-	public:
-		OGetReadBitmap(Argument *A) : UnaryOpcode(A) {}
-		string toString();
-		Opcode *clone()
-		{
-			return new OGetReadBitmap(a->clone());
-		}
-	};
-	
 	class OIsValidBitmap : public UnaryOpcode
 	{
 	public:
@@ -7328,6 +7320,38 @@ namespace ZScript
 			return new OIsValidBitmap(a->clone());
 		}
 	};
+	
+	class OAllocateBitmap : public UnaryOpcode
+	{
+	public:
+		OAllocateBitmap(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAllocateBitmap(a->clone());
+		}
+	};
+	
+	class OReadBitmap : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OReadBitmap();
+		}
+	};
+	
+	class OWriteBitmap : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OWriteBitmap();
+		}
+	};
+	
 
 	class OReturn : public Opcode
 	{
