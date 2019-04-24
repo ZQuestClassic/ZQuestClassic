@@ -7375,18 +7375,19 @@ void BitmapSymbols::generateCode()
 	//void Read(screen, layer, "filename")
 	{
 		Function* function = getFunction("Read");
+		
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		Opcode *first = new OReadBitmap();
-		
-		first->setLabel(label);  
+		first->setLabel(label);
 		code.push_back(first);
 		POP_ARGS(2, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		
 		code.push_back(new OReturn());
-        
 		function->giveCode(code);
+
 	}
 	//void Write(screen, layer, "filename")
 	{

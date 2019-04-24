@@ -14418,19 +14418,33 @@ void do_drawing_command(const int script_command)
 		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12. 
 	case 	READBITMAP:	
 	{
+		Z_scripterrlog("Calling %s\n","READBITMAP");
 		set_user_bitmap_command_args(j, 2);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
 		string *str = script_drawing_commands.GetString();
 		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
+		
+		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
+		std::strncpy(cptr, str->c_str(), str->size());
+		
+		Z_scripterrlog("READBITMAP string is %s\n", cptr);
+		
 		script_drawing_commands[j].SetString(str);
 		break;
 	}
 	case 	WRITEBITMAP:	
 	{
+		Z_scripterrlog("Calling %s\n","WRITEBITMAP");
 		set_user_bitmap_command_args(j, 2);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
-		string *str = script_drawing_commands.GetString();
+		std::string *str = script_drawing_commands.GetString();
 		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
+		
+		
+		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
+		std::strncpy(cptr, str->c_str(), str->size());
+		
+		Z_scripterrlog("WRITEBITMAP string is %s\n", cptr);
 		script_drawing_commands[j].SetString(str);
 		break;
 	}
@@ -18304,7 +18318,8 @@ long FFScript::do_allocate_bitmap()
 	{
 		bit_id = FFCore.get_free_bitmap();
 	} while (bit_id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
-        return bit_id;
+        if ( bit_id < MAX_USER_BITMAPS ) return bit_id+10;
+	else return 0;
 }
 void FFScript::do_isvalidbitmap()
 {
