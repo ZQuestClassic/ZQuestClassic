@@ -3810,6 +3810,10 @@ case NPCBEHAVIOUR: {
         ret=currscr*10000;
         break;
         
+    case ALLOCATEBITMAPR:
+        ret=FFCore.do_allocate_bitmap();
+        break;
+        
     case GETMIDI:
         ret=(currmidi-(ZC_MIDI_COUNT-1))*10000;
         break;
@@ -14412,6 +14416,24 @@ void do_drawing_command(const int script_command)
 		set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); break;
 		//Pop the args off the stack first. Then pop the pointer and push it to sdci[17]. 
 		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12. 
+	case 	READBITMAP:	
+	{
+		set_user_bitmap_command_args(j, 2);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
+		string *str = script_drawing_commands.GetString();
+		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
+		script_drawing_commands[j].SetString(str);
+		break;
+	}
+	case 	WRITEBITMAP:	
+	{
+		set_user_bitmap_command_args(j, 2);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
+		string *str = script_drawing_commands.GetString();
+		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
+		script_drawing_commands[j].SetString(str);
+		break;
+	}
 	case 	BMPCIRCLER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
 	case 	BMPARCR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); set_user_bitmap_command_args(j, 14); break;
 	case 	BMPELLIPSER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); set_user_bitmap_command_args(j, 12); break;
@@ -16903,9 +16925,7 @@ int run_script(const byte type, const word script, const long i)
 		    FFScript::do_loadbitmapid(false);
 		    break;
 		
-		case READBITMAP:
-		    FFScript::do_readbitmap(false);
-		    break;
+		
 		case LOADBITMAPDATAV:
 		    FFScript::do_loadbitmapid(true);
 		    break;
@@ -17270,6 +17290,8 @@ int run_script(const byte type, const word script, const long i)
 		case 	BMPDRAWLAYERR: 
 		case 	BMPDRAWSCREENR:
 		case 	BMPBLIT:
+		case 	READBITMAP:
+		case 	WRITEBITMAP:
 		    do_drawing_command(scommand);
 		    break;
 		    
@@ -17924,9 +17946,7 @@ int run_script(const byte type, const word script, const long i)
 		    FFCore.do_npc_constwalk();
 		    break;
 		
-		case WRITEBITMAP:
-		    FFCore.do_write_bitmap();
-		    break;
+		
 		
 		case NPCVARWALK:
 		    FFCore.do_npc_varwalk();
@@ -18277,6 +18297,15 @@ void FFScript::do_readbitmap(const bool v)
 
 //script_bitmaps scb;
 
+long FFScript::do_allocate_bitmap()
+{	
+	int bit_id = 0;
+        do
+	{
+		bit_id = FFCore.get_free_bitmap();
+	} while (bit_id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
+        return bit_id;
+}
 void FFScript::do_isvalidbitmap()
 {
 	

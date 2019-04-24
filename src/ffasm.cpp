@@ -775,8 +775,9 @@ script_command command_list[NUMCOMMANDS+1]=
       { "SETENHMUSICPOS",        1,   0,   0,   0},
       { "SETENHMUSICSPEED",        1,   0,   0,   0},
       { "ISVALIDBITMAP",         1,   0,   0,   0},
-      { "READBITMAP",        1,   0,   0,   0},
+      { "READBITMAP",        0,   0,   0,   0},
       { "WRITEBITMAP",        0,   0,   0,   0},
+      { "ALLOCATEBITMAP",        1,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 
@@ -1823,6 +1824,7 @@ script_variable variable_list[]=
 	{"MAXDRAWS", MAXDRAWS, 0, 0 },
 	{"BITMAPWIDTH", BITMAPWIDTH, 0, 0 },
 	{"BITMAPHEIGHT", BITMAPHEIGHT, 0, 0 },
+	{"ALLOCATEBITMAPR", ALLOCATEBITMAPR, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

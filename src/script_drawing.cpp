@@ -16,6 +16,7 @@
 extern FFScript FFCore;
 extern ZModule zcm;
 extern refInfo *ri;
+extern script_bitmaps scb;
 #include <stdio.h>
 
 #define DegtoFix(d)     ((d)*0.7111111111111)
@@ -3661,6 +3662,11 @@ inline void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
         
 }
 
+inline void mbp_do_read(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	
+	
+}
 
 inline void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
@@ -5145,6 +5151,73 @@ inline void bmp_do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
             textout_ex(refbmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
         }
     }
+}
+
+
+inline void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+{
+    //sdci[1]=layer
+    //sdci[2]=filename
+    //sdci[3]=y
+    //sdci[4]=font
+    //sdci[5]=color
+    //sdci[6]=bg color
+    //sdci[7]=format_option
+    //sdci[8]=string
+    //sdci[9]=opacity
+	//sdci[17] Bitmap Pointer
+    if ( sdci[17] <= 0 )
+    {
+	Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+	return;
+    }
+	
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+    
+    std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
+
+    if(!str)
+    {
+        al_trace("String pointer is null! Internal error. \n");
+        return;
+    }
+    
+    scb.script_created_bitmaps[sdci[17]].u_bmp = load_bitmap(str->c_str(), RAMpal);
+    Z_scripterrlog("Read image file %s\n",str->c_str());
+}
+
+inline void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+{
+    //sdci[1]=layer
+    //sdci[2]=filename
+    //sdci[3]=y
+    //sdci[4]=font
+    //sdci[5]=color
+    //sdci[6]=bg color
+    //sdci[7]=format_option
+    //sdci[8]=string
+    //sdci[9]=opacity
+	//sdci[17] Bitmap Pointer
+    if ( sdci[17] <= 0 )
+    {
+	Z_scripterrlog("bitmap->Write() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+	return;
+    }
+	
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+    
+    std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
+    
+    if(!str)
+    {
+        al_trace("String pointer is null! Internal error. \n");
+        return;
+    }
+    
+    save_bitmap(str->c_str(), scb.script_created_bitmaps[sdci[17]].u_bmp, RAMpal);
+    Z_scripterrlog("Wrote image file %s\n",str->c_str());
 }
 
 
@@ -7500,6 +7573,8 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 	case 	BMPDRAWLAYERR: do_bmpdrawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPDRAWSCREENR: do_bmpdrawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPBLIT: bmp_do_drawbitmapexr(bmp, sdci, xoffset, yoffset); break;
+	case 	READBITMAP: bmp_do_readr(bmp, i, sdci, xoffset, yoffset); break;
+	case 	WRITEBITMAP: bmp_do_writer(bmp, i, sdci, xoffset, yoffset); break;
         
         }
     }
