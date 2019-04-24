@@ -14473,7 +14473,7 @@ void do_drawing_command(const int script_command)
 		
 	}
 	break;
-	case 	BMPQUADR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); set_user_bitmap_command_args(j, 15);  break;
+	case 	BMPQUADR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); set_user_bitmap_command_args(j, 16);  break;
 	case 	BMPQUAD3DR:
 	{
 		

@@ -18,6 +18,7 @@ extern ZModule zcm;
 extern refInfo *ri;
 extern script_bitmaps scb;
 #include <stdio.h>
+#include <fstream>
 
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
@@ -31,6 +32,12 @@ template<class T> inline
 fixed radians_to_fixed(T d)
 {
     return ftofix(RadtoFix(d));
+}
+
+bool file_exists(const char *filename) 
+{
+	std::ifstream ifile(filename);
+	return (bool)ifile;
 }
 
 BITMAP* ScriptDrawingBitmapPool::_parent_bmp = 0;
@@ -5267,9 +5274,12 @@ inline void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffse
 	//std::strncpy(cptr, str->c_str(), str->size());
     
     //Z_scripterrlog("Trying to write filename %s\n", cptr);
-    
-    save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
-    Z_scripterrlog("Wrote image file %s\n",str->c_str());
+	if (!file_exists(str->c_str()))
+	{
+		save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
+		Z_scripterrlog("Wrote image file %s\n",str->c_str());
+	}
+	else Z_scripterrlog("Cannot write file %s because the file already exists in the specified path.\n", str->c_str());
 }
 
 
@@ -5290,6 +5300,7 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[13]=flip
     //sdci[14]=tile/combo
     //sdci[15]=polytype
+	//sdci[16] = other bitmap as texture
 	//sdci[17] Bitmap Pointer
 	Z_scripterrlog("bitmap quad pointer: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
@@ -5314,6 +5325,9 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int flip=(sdci[13]/10000)&3;
     int tile = sdci[14]/10000;
     int polytype = sdci[15]/10000;
+    int other_bitmap_text = sdci[16];
+    
+    bool tex_is_bitmap = ( sdci[16] != 0 );
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
@@ -5350,14 +5364,25 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     bool mustDestroyBmp = false;
     
+    if ( tex_is_bitmap ) 
+    {
 	if ( tile > 65519 ) tex = zscriptDrawingRenderTarget->GetBitmapPtr(tile - 65519);
 	else tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+    }
+    else tex = FFCore.GetScriptBitmap(other_bitmap_text);
+     
     
     if(!tex)
     {
         mustDestroyBmp = true;
         tex = create_bitmap_ex(8, tex_width, tex_height);
         clear_bitmap(tex);
+    }
+    
+    if ( tex_is_bitmap )
+    {
+	    tex_width = tex->w;
+	    tex_height = tex->h;
     }
     
     int col[4];
@@ -5373,21 +5398,22 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         col[0]=col[1]=col[2]=col[3]=color;
     }
-    
-    if(tile > 0 && tile <= 65519)   // TILE
+    if ( !tex_is_bitmap ) 
     {
-        TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
+	    if(tile > 0 && tile <= 65519)   // TILE
+	    {
+		TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
+	    }
+	    
+	    if ( tile < 0 )        // COMBO
+	    {
+		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		const int tiletodraw = combo_tile(c, x1, y1);
+		flip = flip ^ c.flip;
+		
+		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
+	    }
     }
-    
-    if ( tile < 0 )        // COMBO
-    {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-        const int tiletodraw = combo_tile(c, x1, y1);
-        flip = flip ^ c.flip;
-        
-        TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
-    }
-    
     V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
     V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
     V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
