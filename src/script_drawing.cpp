@@ -3701,6 +3701,8 @@ inline void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int x2=sdci[4]/10000;
     int y2=sdci[5]/10000;
     
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     if(x1>x2)
     {
         zc_swap(x1,x2);
@@ -5536,6 +5538,9 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 	bool masked = (sdci[16] != 0);
 	
 	int ref = 0;
+	
+	dx = dx + xoffset;
+	dy = dy + yoffset;
 	ref = sdci[17];
 	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
 	ref -=10;
