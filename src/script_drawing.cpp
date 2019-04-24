@@ -5309,6 +5309,9 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	return;
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+    
+	BITMAP *bmptexture = FFCore.GetScriptBitmap(sdci[16]-10);
+    
 	if ( refbmp == NULL ) return;
     
     int x1 = sdci[2]/10000;
@@ -5325,7 +5328,8 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int flip=(sdci[13]/10000)&3;
     int tile = sdci[14]/10000;
     int polytype = sdci[15]/10000;
-    int other_bitmap_text = sdci[16];
+    int quad_render_source = sdci[16]-10;
+    Z_scripterrlog("bitmap->Quad() render source is: %d\n", quad_render_source);
     
     bool tex_is_bitmap = ( sdci[16] != 0 );
     
@@ -5364,26 +5368,30 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     bool mustDestroyBmp = false;
     
-    if ( tex_is_bitmap ) 
-    {
+    //if ( !tex_is_bitmap ) 
+    //{
 	if ( tile > 65519 ) tex = zscriptDrawingRenderTarget->GetBitmapPtr(tile - 65519);
 	else tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-    }
-    else tex = FFCore.GetScriptBitmap(other_bitmap_text);
-     
+    //}
+    //else 
+    //{
+	//    Z_scripterrlog("bitmap->Quad() is trying to render from source: %d\n", quad_render_source);
+	//    tex = FFCore.GetScriptBitmap(quad_render_source);
+    //}
     
     if(!tex)
     {
+	//Z_scripterrlog("Bitmap->Quad() found an invalid texture bitmap.\n");
         mustDestroyBmp = true;
         tex = create_bitmap_ex(8, tex_width, tex_height);
         clear_bitmap(tex);
     }
     
-    if ( tex_is_bitmap )
-    {
-	    tex_width = tex->w;
-	    tex_height = tex->h;
-    }
+    //if ( tex_is_bitmap )
+    //{
+	//    tex_width = w;
+	//    tex_height = h;
+    //}
     
     int col[4];
     /*
@@ -5398,8 +5406,8 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         col[0]=col[1]=col[2]=col[3]=color;
     }
-    if ( !tex_is_bitmap ) 
-    {
+    //if ( !tex_is_bitmap ) 
+    //{
 	    if(tile > 0 && tile <= 65519)   // TILE
 	    {
 		TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
@@ -5413,14 +5421,28 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		
 		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
 	    }
-    }
-    V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
-    V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
-    V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
-    V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(tex_width), 0,                              col[3] };
-    
-    quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
-    
+    //}
+	    
+	if ( !tex_is_bitmap )
+	{
+		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
+		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
+		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(tex_width), 0,                              col[3] };
+	    
+		quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
+	}
+	else
+	{
+		Z_scripterrlog("bitmap->Quad() is trying to blit from a bitmap texture.\n");
+		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
+		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
+		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(w), 0,                              col[3] };
+	    
+		quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4);
+		
+	}
     if(mustDestroyBmp)
         destroy_bitmap(tex);
         
