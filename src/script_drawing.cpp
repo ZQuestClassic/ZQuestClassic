@@ -958,7 +958,7 @@ inline void do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-inline void do_putpixelsr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+inline void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
 	//Z_scripterrlog("Starting putpixels()%s\n");
     //sdci[1]=layer
@@ -966,26 +966,34 @@ inline void do_putpixelsr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[3]=rotation anchor x
     //sdci[4]=rotation anchor y
     //sdci[5]=rotation angle
+	
+	
+    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
     
-    int sz = FFCore.getSize(sdci[2]/10000);
-	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
-    int points[214748];// = script_drawing_commands[i].GetPtr();
-
-    for ( int q = 0; q < sz; q++ )
-	{	points[q] = (FFCore.getElement(sdci[2]/10000, q))/10000;
-		//Z_scripterrlog("PutPixels array index %d is %d: \n",q, points[q]);
-		
-	}
+    if(!v_ptr)
+    {
+        al_trace("Quad3d: Vector pointer is null! Internal error. \n");
+        return;
+    }
+    
+    std::vector<long> &v = *v_ptr;
+    
+    if(v.empty())
+        return;
+        
+    long* pos = &v[0];
+    
+  
     //FFCore.getValues(sdci[2]/10000, points, sz);
     
     
 	int x1 = 0;
 	int y1 = 0;
     
-    for ( int q = 0; q < sz; q+=4 )
+    for ( int q = 0; q < v.size(); q+=4 )
     {
-	    x1 = points[q];
-	    y1 = points[q+1];
+	    x1 = pos[q];
+	    y1 = pos[q+1];
 	    if(sdci[5]!=0) //rotation
 	    {
 		int xy[2];
@@ -1003,9 +1011,9 @@ inline void do_putpixelsr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","x",x1);
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","y",y1);
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","colour",points[q+2]);
-	    if ( points[q+3] < 128 ) drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	    if ( pos[q+3] < 128 ) drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	    putpixel(bmp, x1+xoffset, y1+yoffset, points[q+2]);
+	    putpixel(bmp, x1+xoffset, y1+yoffset, pos[q+2]);
 	    //if ( points[q+3] < 128 ) 
 		
 	    //else drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
@@ -5310,8 +5318,6 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
     
-	BITMAP *bmptexture = FFCore.GetScriptBitmap(sdci[16]-10);
-    
 	if ( refbmp == NULL ) return;
     
     int x1 = sdci[2]/10000;
@@ -5332,6 +5338,8 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     Z_scripterrlog("bitmap->Quad() render source is: %d\n", quad_render_source);
     
     bool tex_is_bitmap = ( sdci[16] != 0 );
+    BITMAP *bmptexture;
+	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(quad_render_source);
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
@@ -5473,6 +5481,15 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
+    
+    int render_source = sdci[14]-10;
+    Z_scripterrlog("bitmap->Triangle() render source is: %d\n", render_source);
+    
+    bool tex_is_bitmap = ( sdci[14] != 0 );
+    
+    BITMAP *bmptexture;
+	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(render_source);
+    
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     int x1 = sdci[2]/10000;
@@ -5530,13 +5547,27 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
         
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
+    if ( !tex_is_bitmap )
+    {
+	V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
+	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
     
-    V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
-    V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
-    V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
+    
+	triangle3d_f(refbmp, polytype, tex, &V1, &V2, &V3);
+    
+    }
+    
+    else
+    {
+	V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
+	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
     
     
-    triangle3d_f(refbmp, polytype, tex, &V1, &V2, &V3);
+	triangle3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3);    
+	    
+    }
     
     if(mustDestroyBmp)
         destroy_bitmap(tex);
@@ -7538,7 +7569,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 	case PIXELARRAYR:
         {
 		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
-            do_putpixelsr(bmp, sdci, xoffset, yoffset);
+            do_putpixelsr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
 	

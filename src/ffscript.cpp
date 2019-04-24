@@ -14270,9 +14270,18 @@ void do_drawing_command(const int script_command)
         set_drawing_command_args(j, 8);
         break;
     
-    case PIXELARRAYR:
-        set_drawing_command_args(j, 2);
-        break;
+	case PIXELARRAYR:
+	{
+		
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		int sz = FFCore.getSize(script_drawing_commands[j][2]/10000);
+		v->resize(sz, 0);
+		long* pos = &v->at(0);
+		set_drawing_command_args(j, 2);
+		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+		script_drawing_commands[j].SetVector(v);
+		break;
+	}
     
     case TILEARRAYR:
         set_drawing_command_args(j, 2); //perhaps, copy the entire array passed to sdci. I just don't know. -Z
@@ -14496,7 +14505,7 @@ void do_drawing_command(const int script_command)
 		
 	}
 	break;
-	case 	BMPTRIANGLER:	set_user_bitmap_command_args(j, 13); script_drawing_commands[j][17] = SH::read_stack(ri->sp+13); break;
+	case 	BMPTRIANGLER:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); break;
 	case 	BMPTRIANGLE3DR:
 	{
 	
