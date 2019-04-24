@@ -18,6 +18,7 @@ extern ZModule zcm;
 extern refInfo *ri;
 extern script_bitmaps scb;
 #include <stdio.h>
+#include <fstream>
 
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
@@ -31,6 +32,12 @@ template<class T> inline
 fixed radians_to_fixed(T d)
 {
     return ftofix(RadtoFix(d));
+}
+
+bool file_exists(const char *filename) 
+{
+	std::ifstream ifile(filename);
+	return (bool)ifile;
 }
 
 BITMAP* ScriptDrawingBitmapPool::_parent_bmp = 0;
@@ -2358,6 +2365,8 @@ inline void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
 	BITMAP* subBmp = 0;
 	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't offset if drawing to a target bitmap; only if the target is the screen. 
+	
 	/*
 	if ( bitmapIndex == -1 ) {
 		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh); 
@@ -3549,6 +3558,8 @@ inline void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffs
     int tex_width = w*16;
     int tex_height = h*16;
     
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
     
@@ -3628,6 +3639,8 @@ inline void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     int tex_width = w*16;
     int tex_height = h*16;
     
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
     
@@ -3662,12 +3675,6 @@ inline void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
         
 }
 
-inline void mbp_do_read(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
-{
-	
-	
-}
-
 inline void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
 	//Z_scripterrlog("rect sdci[13] is: %d\n", sdci[13]);
@@ -3696,10 +3703,14 @@ inline void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     int x1=sdci[2]/10000;
     int y1=sdci[3]/10000;
     int x2=sdci[4]/10000;
     int y2=sdci[5]/10000;
+    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     if(x1>x2)
     {
@@ -3815,6 +3826,8 @@ inline void bmp_do_circler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     int x1=sdci[2]/10000;
     int y1=sdci[3]/10000;
     qword r=sdci[4];
@@ -3891,6 +3904,8 @@ inline void bmp_do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
+    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     int cx=sdci[2]/10000;
     int cy=sdci[3]/10000;
@@ -4019,6 +4034,8 @@ inline void bmp_do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     fixed ra=ra1+ra2;
     ra = (ra/360)*256;
     
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     int xy[2];
     xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
     xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
@@ -4028,6 +4045,8 @@ inline void bmp_do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     if(radx<1||rady<1||radx>255||rady>255) return;
     
     BITMAP* bitty = script_drawing_commands.AquireSubBitmap(radx*2+1, rady*2+1);
+    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     if(sdci[11]) //filled
     {
@@ -4130,6 +4149,8 @@ inline void bmp_do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     int color=sdci[6]/10000;
     
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     if(sdci[11]/10000<=127) //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
@@ -4184,6 +4205,8 @@ inline void bmp_do_spliner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     spline(refbmp, points, sdci[10]/10000);
     
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
@@ -4218,6 +4241,8 @@ inline void bmp_do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
+    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     if(sdci[7]!=0) //rotation
     {
@@ -4288,6 +4313,7 @@ inline void bmp_do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int x1=sdci[2]/10000;
     int y1=sdci[3]/10000;
     
+    
     //don't scale if it's not safe to do so
     bool canscale = true;
     
@@ -4299,6 +4325,8 @@ inline void bmp_do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     if(xscale<0||yscale<0)
         canscale = false; //default size
         
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     if((xscale>0 && yscale>0) || rotation)   //scaled or rotated
     {
         BITMAP* pbitty = script_drawing_commands.AquireSubBitmap(w*16, h*16);
@@ -4479,6 +4507,8 @@ inline void bmp_do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     if(xscale<0||yscale<0)
         canscale = false; //default size
         
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     if((xscale>0 && yscale>0) || rotation)   //scaled or rotated
     {
         BITMAP* pbitty = script_drawing_commands.AquireSubBitmap(w*16, h*16);   //-pbitty in the hisouse. :D
@@ -4605,6 +4635,8 @@ inline void bmp_do_fasttiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     if(opacity < 128)
         overtiletranslucent16(refbmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0, opacity);
     else
@@ -4627,6 +4659,8 @@ inline void bmp_do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
+    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     //if( index >= MAXCOMBOS ) return; //bleh.
 	/*
@@ -4663,6 +4697,9 @@ inline void bmp_do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
+	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
 	//broken 2.50.2 and earlier drawcharacter()
 	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
 	{
@@ -4843,6 +4880,9 @@ inline void bmp_do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
+	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
 	//broken 2.50.2 and earlier drawinteger()
 	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
 	{
@@ -5103,6 +5143,8 @@ inline void bmp_do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
     
     if(!str)
@@ -5232,9 +5274,12 @@ inline void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffse
 	//std::strncpy(cptr, str->c_str(), str->size());
     
     //Z_scripterrlog("Trying to write filename %s\n", cptr);
-    
-    save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
-    Z_scripterrlog("Wrote image file %s\n",str->c_str());
+	if (!file_exists(str->c_str()))
+	{
+		save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
+		Z_scripterrlog("Wrote image file %s\n",str->c_str());
+	}
+	else Z_scripterrlog("Cannot write file %s because the file already exists in the specified path.\n", str->c_str());
 }
 
 
@@ -5255,6 +5300,7 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[13]=flip
     //sdci[14]=tile/combo
     //sdci[15]=polytype
+	//sdci[16] = other bitmap as texture
 	//sdci[17] Bitmap Pointer
 	Z_scripterrlog("bitmap quad pointer: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
@@ -5263,6 +5309,9 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	return;
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+    
+	BITMAP *bmptexture = FFCore.GetScriptBitmap(sdci[16]-10);
+    
 	if ( refbmp == NULL ) return;
     
     int x1 = sdci[2]/10000;
@@ -5279,6 +5328,12 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int flip=(sdci[13]/10000)&3;
     int tile = sdci[14]/10000;
     int polytype = sdci[15]/10000;
+    int quad_render_source = sdci[16]-10;
+    Z_scripterrlog("bitmap->Quad() render source is: %d\n", quad_render_source);
+    
+    bool tex_is_bitmap = ( sdci[16] != 0 );
+    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     //todo: finish palette shading
     /*
@@ -5313,15 +5368,30 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     bool mustDestroyBmp = false;
     
+    //if ( !tex_is_bitmap ) 
+    //{
 	if ( tile > 65519 ) tex = zscriptDrawingRenderTarget->GetBitmapPtr(tile - 65519);
 	else tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+    //}
+    //else 
+    //{
+	//    Z_scripterrlog("bitmap->Quad() is trying to render from source: %d\n", quad_render_source);
+	//    tex = FFCore.GetScriptBitmap(quad_render_source);
+    //}
     
     if(!tex)
     {
+	//Z_scripterrlog("Bitmap->Quad() found an invalid texture bitmap.\n");
         mustDestroyBmp = true;
         tex = create_bitmap_ex(8, tex_width, tex_height);
         clear_bitmap(tex);
     }
+    
+    //if ( tex_is_bitmap )
+    //{
+	//    tex_width = w;
+	//    tex_height = h;
+    //}
     
     int col[4];
     /*
@@ -5336,28 +5406,43 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     {
         col[0]=col[1]=col[2]=col[3]=color;
     }
-    
-    if(tile > 0 && tile <= 65519)   // TILE
-    {
-        TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
-    }
-    
-    if ( tile < 0 )        // COMBO
-    {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-        const int tiletodraw = combo_tile(c, x1, y1);
-        flip = flip ^ c.flip;
-        
-        TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
-    }
-    
-    V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
-    V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
-    V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
-    V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(tex_width), 0,                              col[3] };
-    
-    quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
-    
+    //if ( !tex_is_bitmap ) 
+    //{
+	    if(tile > 0 && tile <= 65519)   // TILE
+	    {
+		TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
+	    }
+	    
+	    if ( tile < 0 )        // COMBO
+	    {
+		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		const int tiletodraw = combo_tile(c, x1, y1);
+		flip = flip ^ c.flip;
+		
+		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
+	    }
+    //}
+	    
+	if ( !tex_is_bitmap )
+	{
+		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
+		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
+		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(tex_width), 0,                              col[3] };
+	    
+		quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
+	}
+	else
+	{
+		Z_scripterrlog("bitmap->Quad() is trying to blit from a bitmap texture.\n");
+		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
+		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
+		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(w), 0,                              col[3] };
+	    
+		quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4);
+		
+	}
     if(mustDestroyBmp)
         destroy_bitmap(tex);
         
@@ -5387,6 +5472,8 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
+    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     int x1 = sdci[2]/10000;
     int y1 = sdci[3]/10000;
@@ -5462,7 +5549,7 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
 	/*
-	//sdci[1]=layer
+	//sdci[1]=layer 
 	//sdci[2]=bitmap target 
 		//
 		//	-2 is the current Render Target
@@ -5536,6 +5623,14 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 	bool masked = (sdci[16] != 0);
 	
 	int ref = 0;
+	
+	dx = dx + xoffset;
+	dy = dy + yoffset;
+	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	//Do we need to also check the render target and do the same thing if the 
+		//dest == -2 and the render target is not RT_SCREEN?
+		
 	ref = sdci[17];
 	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
 	ref -=10;
