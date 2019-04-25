@@ -1,7 +1,5 @@
 To-Do
 
-Add Input->Modifiers for allegro keyboard modifier key flags.
-Add Input->KeyControls[] for configuration of keyboard keys.
 Add Input->JoyControls[] for configuration of joypad buttons.
 
 Allow decimal values in item editor power and attributes fields.
@@ -14,12 +12,11 @@ Add freeze, freezeexcept, and such as script instructions.
 Graphics->LoadESP
 Graphics->LoadBossPal
 
-DrawScreen, DrawCombo, Drawlayer--Fix CSet2 rendering
+DrawCombo--CSet2 rendering
 
 Bitmap->ScriptDrawingFunctions()
-bitmap->Blit()
 
-tie beamhearts to any counter
+Tie beamhearts to any counter
 
 Add tooltips to the Quest Rev abd Min ZRev fields of the Quest Header dialogue. 
 
@@ -36,10 +33,11 @@ Over/Under (Vertical; scripted)
 *** NPCS ***
 ------------
 
-Flag: Vulnerable ti clocks.
+Flag: Vulnerable to clocks.
 
-Whistle defence category.--huzzah, we need an extra page, defs 4!!
-Defence type: Split --seems feasible. 
+Defence: TRANSFORM
+Add magic powder, and an npc var: transform.
+The 'transform' var can be an enemy defence (as can split, tribble)!
 
 MOVE the code from zq_custom.cpp that populates custom weapon
 sprites for npcs, into the quest loader.
@@ -70,8 +68,7 @@ NEEDED npc->FrozenTile offsets for facing dir, or something so that ZC chooses t
 
 Enemy flag to block brangs if the npc is already stunned.
 ...or just a defence type, stun(no stunlock). 
-Add magic powder, and an npc var: transform.
-The 'transform' var can be an enemy defence (as can split, tribble)!
+
 
 ------------
 *** LINK ***
@@ -96,7 +93,7 @@ Both of the above are ugly, and very low-priority.
 Item Editor Weapons?
 
 Weapon -> Defence Redirection / Weapon Editor Stuff
- -> THis requires some changes that I am not sure that we are keeping, so I may leave it out of 2.54. 
+ -> This requires some changes that I am not sure that we are keeping, so I may leave it out of 2.54. 
  
 item editor wpnsprite size: adjust all hardcoded sprite usage so that they use += ( n * tilewidth ) and += ( n * tileheight )
 
@@ -174,7 +171,6 @@ Another possibly useful code, would be 'run ffc script'
 *** MISC ***
 ------------
 Combo editor types lists
-lw->, ew->, npc->Scale : Scale sprites and hitboxes around a specific value.
 
 Subscreen scrolling speed variable. 
 
@@ -285,7 +281,14 @@ qr_NOWANDMELEE
 qr_WHIRLWINDMIRROR
 qr_SWORDMIRROR
 qr_SLOWCHARGINGWALK
+Add Input->Modifiers for allegro keyboard modifier key flags.
+Add Input->KeyControls[] for configuration of keyboard keys.
+DrawScreen, Drawlayer--Fix CSet2 rendering
+bitmap->Blit()
+Whistle defence category.--huzzah, we need an extra page, defs 4!!
+Defence type: Split --seems feasible. 
 
+lw->, ew->, npc->Scale : Scale sprites and hitboxes around a specific value.
 
 Might Do:
 
