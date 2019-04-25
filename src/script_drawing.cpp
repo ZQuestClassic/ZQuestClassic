@@ -5233,10 +5233,10 @@ inline void bmp_do_clearr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
     //sdci[1]=layer
 	//sdci[17] Bitmap Pointer
-	Z_scripterrlog("bitmap->Read() pointer is: %d\n", sdci[17]);
+	Z_scripterrlog("bitmap->Clear() pointer is: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
     {
-	Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+	Z_scripterrlog("bitmap->Clear() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
 	int bitid = sdci[17] - 10; 
@@ -5252,10 +5252,10 @@ inline void bmp_do_regenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	int h = sdci[2]/10000;
 	int w = sdci[3]/10000;
 	//sdci[17] Bitmap Pointer
-	Z_scripterrlog("bitmap->Read() pointer is: %d\n", sdci[17]);
+	Z_scripterrlog("bitmap->Create() pointer is: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
     {
-	Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+	Z_scripterrlog("bitmap->Create() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
 	int bitid = sdci[17] - 10; 
