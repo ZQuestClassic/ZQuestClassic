@@ -5311,6 +5311,13 @@ inline void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset
     Z_scripterrlog("Read image file %s\n",str->c_str());
 }
 
+inline bool checkExtension(std::string filename, std::string extension)
+{
+    int dot = filename.find_last_of(".");
+    std::string exten = (dot == std::string::npos ? "" : filename.substr(dot, filename.length() - dot));
+    return exten == extension;
+}
+
 inline void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
     //sdci[1]=layer
@@ -5336,6 +5343,8 @@ inline void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffse
     {
 	    Z_scripterrlog("Tried to write from an invalid bitmap pointer %d. Aborting. \n", sdci[17]);
     }
+    
+    bool overwrite = (sdci[3] != 0);
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
     
     if(!str)
@@ -5346,9 +5355,14 @@ inline void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffse
     
     //char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
 	//std::strncpy(cptr, str->c_str(), str->size());
-    
+    //Z_scripterrlog("bitmap->Write extension matches ? : %s\n!", (checkExtension(str->c_str(), ".png")) ? "true" : "false");
     //Z_scripterrlog("Trying to write filename %s\n", cptr);
-	if (!file_exists(str->c_str()))
+	if ( overwrite && (checkExtension(str->c_str(), ".png")))
+	{
+		save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
+		Z_scripterrlog("Wrote image file %s\n",str->c_str());
+	}
+	else if (!file_exists(str->c_str()))
 	{
 		save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
 		Z_scripterrlog("Wrote image file %s\n",str->c_str());

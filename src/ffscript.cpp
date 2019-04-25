@@ -14538,8 +14538,8 @@ void do_drawing_command(const int script_command)
 	case 	WRITEBITMAP:	
 	{
 		Z_scripterrlog("Calling %s\n","WRITEBITMAP");
-		set_user_bitmap_command_args(j, 2);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
+		set_user_bitmap_command_args(j, 3);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
 		std::string *str = script_drawing_commands.GetString();
 		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
 		
