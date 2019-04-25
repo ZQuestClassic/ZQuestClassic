@@ -803,7 +803,7 @@ inline void do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-inline void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+inline void do_linesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=array[10] = { x, y, x2, y2, colour, scale, rx, ry, angle, opacity }
@@ -823,38 +823,45 @@ inline void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //    return;
     //}
     
-    int sz = FFCore.getSize(sdci[2]/10000);
-	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
-    int points[214740];// = script_drawing_commands[i].GetPtr();
-
-    for ( int q = 0; q < sz; q++ )
-	{	points[q] = (FFCore.getElement(sdci[2]/10000, q))/10000;
-		//Z_scripterrlog("PutPixels array index %d is %d: \n",q, points[q]);
-		
-	}
-	
+    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    
+    if(!v_ptr)
+    {
+        al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
+        return;
+    }
+    
+    std::vector<long> &v = *v_ptr;
+    
+    if(v.empty())
+        return;
+        //Z_scripterrlog("PutPixels reached line %d\n", 983);
+    
+    long* pos = &v[0];
+    int sz = v.size();
+    
     for ( int q = 0; q < sz; q+=10 )
     {
 	
-	    int x1 = points[q];
+	    int x1 = v.at(q);
 	    Z_scripterrlog("Lines( x1 ) is: %d\n", x1);
-	    int y1 = points[q+1];
+	    int y1 = v.at(q+1);
 	    Z_scripterrlog("Lines( x2 ) is: %d\n", y1);
-	    int x2 = points[q+2];
+	    int x2 = v.at(q+2);
 	    Z_scripterrlog("Lines( x2 ) is: %d\n", x2);
-	    int y2 = points[q+3];
+	    int y2 = v.at(q+3);
 	    Z_scripterrlog("Lines( y2 ) is: %d\n", y2);
-	    int color  = points[q+4];
+	    int color  = v.at(q+4);
 	    Z_scripterrlog("Lines( colour ) is: %d\n", color);
-	    Z_scripterrlog("Lines( scale ) is: %d\n", points[q+5]);
-	    if (points[q+5] == 0) { Z_scripterrlog("Lines() aborting due to scale\n"); return; }//scale
+	    Z_scripterrlog("Lines( scale ) is: %d\n", v.at(q+5));
+	    if (v.at(q+5) == 0) { Z_scripterrlog("Lines() aborting due to scale\n"); return; }//scale
 	    
-	    if( points[q+5] != 10000)
+	    if( v.at(q+5) != 10000)
 	    {
 		int w=x2-x1+1;
 		int h=y2-y1+1;
-		int w2=int(w*((double)points[q+5]));
-		int h2=int(h*((double)points[q+5]));
+		int w2=int(w*((double)v.at(q+5)));
+		int h2=int(h*((double)v.at(q+5)));
 		x1=x1-((w2-w)/2);
 		x2=x2+((w2-w)/2);
 		y1=y1-((h2-h)/2);
@@ -862,25 +869,25 @@ inline void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    }
 	    
 	    
-	    Z_scripterrlog("Lines( opacity ) is: %d\n", points[q+9]);
-	    if(points[q+9] <= 127) //translucent
+	    Z_scripterrlog("Lines( opacity ) is: %d\n", v.at(q+9));
+	    if(v.at(q+9) <= 127) //translucent
 	    {
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	    }
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	    Z_scripterrlog("Lines( rotation ) is: %d\n", points[q+8]);
-	    Z_scripterrlog("Lines( rot_x ) is: %d\n", points[q+6]);
-	    Z_scripterrlog("Lines( rot_x ) is: %d\n", points[q+7]);
-	    if( points[q+8] !=0 ) //rotation
+	    Z_scripterrlog("Lines( rotation ) is: %d\n", v.at(q+8));
+	    Z_scripterrlog("Lines( rot_x ) is: %d\n", v.at(q+6));
+	    Z_scripterrlog("Lines( rot_x ) is: %d\n", v.at(q+7));
+	    if( v.at(q+8) !=0 ) //rotation
 	    {
 		int xy[4];
 		    
-		int rx = points[q+6];
+		int rx = v.at(q+6);
 		    
-		int ry = points[q+7];
+		int ry = v.at(q+7);
 		    
-		fixed ra1=itofix(points[q+8] % 1);
-		fixed ra2=itofix(points[q+8]);
+		fixed ra1=itofix(v.at(q+8) % 1);
+		fixed ra2=itofix(v.at(q+8));
 		fixed ra=ra1+ra2;
 		
 		xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
@@ -958,7 +965,7 @@ inline void do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
-inline void do_putpixelsr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+inline void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
 	//Z_scripterrlog("Starting putpixels()%s\n");
     //sdci[1]=layer
@@ -966,16 +973,27 @@ inline void do_putpixelsr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[3]=rotation anchor x
     //sdci[4]=rotation anchor y
     //sdci[5]=rotation angle
+	
+	
+    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
     
-    int sz = FFCore.getSize(sdci[2]/10000);
-	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
-    int points[214748];// = script_drawing_commands[i].GetPtr();
-
-    for ( int q = 0; q < sz; q++ )
-	{	points[q] = (FFCore.getElement(sdci[2]/10000, q))/10000;
-		//Z_scripterrlog("PutPixels array index %d is %d: \n",q, points[q]);
-		
-	}
+    if(!v_ptr)
+    {
+        al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
+        return;
+    }
+    
+    std::vector<long> &v = *v_ptr;
+    
+    if(v.empty())
+        return;
+        //Z_scripterrlog("PutPixels reached line %d\n", 983);
+    
+    long* pos = &v[0];
+    int sz = v.size();
+    //Z_scripterrlog("Vector size is: %d\n", sz);
+    //for ( int m = 0; m < 256; ++m ) Z_scripterrlog("Vector contents at pos[%d]: %d\n", m, pos[m]);
+  
     //FFCore.getValues(sdci[2]/10000, points, sz);
     
     
@@ -984,8 +1002,12 @@ inline void do_putpixelsr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     for ( int q = 0; q < sz; q+=4 )
     {
-	    x1 = points[q];
-	    y1 = points[q+1];
+	    //Z_scripterrlog("Vector q: %d\n", q);
+	    //if ( q > sz-1 ) break;
+	    x1 = v.at(q); //pos[q];
+	    y1 = v.at(q+1); //pos[q+1];
+	    //Z_scripterrlog("x1 is: %d\n", x1);
+	    //Z_scripterrlog("y1 is: %d\n", 1);
 	    if(sdci[5]!=0) //rotation
 	    {
 		int xy[2];
@@ -1003,9 +1025,9 @@ inline void do_putpixelsr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","x",x1);
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","y",y1);
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","colour",points[q+2]);
-	    if ( points[q+3] < 128 ) drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	    if ( v.at(q+3) /*pos[q+3]*/ < 128 ) drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	    putpixel(bmp, x1+xoffset, y1+yoffset, points[q+2]);
+	    putpixel(bmp, x1+xoffset, y1+yoffset, v.at(q+2) /*pos[q+2]*/);
 	    //if ( points[q+3] < 128 ) 
 		
 	    //else drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
@@ -1357,31 +1379,37 @@ inline void do_fasttiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         overtile16(bmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0);
 }
 
-inline void do_fasttilesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+inline void do_fasttilesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
     /* layer, x, y, tile, color opacity */
     
     //sdci[1]=layer
     //sdci[2]=array {x,y,tile,colour,opacity}
     
-    int sz = FFCore.getSize(sdci[2]/10000);
-	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
-    int points[214745];// = script_drawing_commands[i].GetPtr();
-
-    for ( int q = 0; q < sz; q++ )
-    {	
-	    points[q] = (FFCore.getElement(sdci[2]/10000, q))/10000;
-		//Z_scripterrlog("PutPixels array index %d is %d: \n",q, points[q]);
-		
+    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    
+    if(!v_ptr)
+    {
+        al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
+        return;
     }
-	
+    
+    std::vector<long> &v = *v_ptr;
+    
+    if(v.empty())
+        return;
+        //Z_scripterrlog("PutPixels reached line %d\n", 983);
+    
+    long* pos = &v[0];
+    int sz = v.size();
+    
     for ( int q = 0; q < sz; q+=5 )
     {
 	    
-	    if(points[q+4] < 128)
-		overtiletranslucent16(bmp, points[q], xoffset+(points[q+1]), yoffset+(points[q+2]), points[q+3], 0, points[q+4]);
+	    if(v.at(q+4) < 128)
+		overtiletranslucent16(bmp, v.at(q), xoffset+(v.at(q+1)), yoffset+(v.at(q+2)), v.at(q+3), 0, v.at(q+4));
 	    else
-		overtile16(bmp, points[q], xoffset+(points[q+1]), yoffset+(points[q+2]), points[q+3], 0);
+		overtile16(bmp, v.at(q), xoffset+(v.at(q+1)), yoffset+(v.at(q+2)), v.at(q+3), 0);
     }
 }
 
@@ -1419,37 +1447,43 @@ inline void do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	}
 }
 
-inline void do_fastcombosr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+inline void do_fastcombosr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
     /* layer, x, y, combo, cset, opacity */
     
     //sdci[1]=layer
     //sdci[2]=array {x,y,combo,cset,opacity}
     
-    int sz = FFCore.getSize(sdci[2]/10000);
-	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
-    int points[214745];// = script_drawing_commands[i].GetPtr();
-
-    for ( int q = 0; q < sz; q++ )
-    {	
-	    points[q] = (FFCore.getElement(sdci[2]/10000, q))/10000;
-		//Z_scripterrlog("PutPixels array index %d is %d: \n",q, points[q]);
-		
+    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    
+    if(!v_ptr)
+    {
+        al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
+        return;
     }
+    
+    std::vector<long> &v = *v_ptr;
+    
+    if(v.empty())
+        return;
+        //Z_scripterrlog("PutPixels reached line %d\n", 983);
+    
+    long* pos = &v[0];
+    int sz = v.size();
 	
     for ( int q = 0; q < sz; q+=5 )
     {
 	    
-	    if(points[q+4] < 128)
+	    if(v.at(q+4) < 128)
 	{
 		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
-		overcomboblocktranslucent(bmp, xoffset+points[q], yoffset+points[q+1], points[q+2], points[q+3], 1, 1, 128);
+		overcomboblocktranslucent(bmp, xoffset+v.at(q), yoffset+v.at(q+1), v.at(q+2), v.at(q+3), 1, 1, 128);
 
 	}
 	else
 	{
 		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
-		overcomboblock(bmp, xoffset+points[q], yoffset+points[q+1], points[q+2], points[q+3], 1, 1);
+		overcomboblock(bmp, xoffset+v.at(q), yoffset+v.at(q+1), v.at(q+2), v.at(q+3), 1, 1);
 	}
     }
 }
@@ -5310,8 +5344,6 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
     
-	BITMAP *bmptexture = FFCore.GetScriptBitmap(sdci[16]-10);
-    
 	if ( refbmp == NULL ) return;
     
     int x1 = sdci[2]/10000;
@@ -5332,6 +5364,8 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     Z_scripterrlog("bitmap->Quad() render source is: %d\n", quad_render_source);
     
     bool tex_is_bitmap = ( sdci[16] != 0 );
+    BITMAP *bmptexture;
+	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(quad_render_source);
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
@@ -5473,6 +5507,15 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
     
+    
+    int render_source = sdci[14]-10;
+    Z_scripterrlog("bitmap->Triangle() render source is: %d\n", render_source);
+    
+    bool tex_is_bitmap = ( sdci[14] != 0 );
+    
+    BITMAP *bmptexture;
+	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(render_source);
+    
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     int x1 = sdci[2]/10000;
@@ -5530,13 +5573,27 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
         
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
+    if ( !tex_is_bitmap )
+    {
+	V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
+	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
     
-    V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
-    V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
-    V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
+    
+	triangle3d_f(refbmp, polytype, tex, &V1, &V2, &V3);
+    
+    }
+    
+    else
+    {
+	V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
+	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
     
     
-    triangle3d_f(refbmp, polytype, tex, &V1, &V2, &V3);
+	triangle3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3);    
+	    
+    }
     
     if(mustDestroyBmp)
         destroy_bitmap(tex);
@@ -7538,28 +7595,28 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 	case PIXELARRAYR:
         {
 		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
-            do_putpixelsr(bmp, sdci, xoffset, yoffset);
+            do_putpixelsr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
 	
 	case TILEARRAYR:
         {
 		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
-            do_fasttilesr(bmp, sdci, xoffset, yoffset);
+            do_fasttilesr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
 	
 	case LINESARRAY:
         {
 		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
-            do_linesr(bmp, sdci, xoffset, yoffset);
+            do_linesr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
 	
 	case COMBOARRAYR:
         {
 		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
-            do_fastcombosr(bmp, sdci, xoffset, yoffset);
+            do_fastcombosr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
 	

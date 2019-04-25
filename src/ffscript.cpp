@@ -14270,16 +14270,83 @@ void do_drawing_command(const int script_command)
         set_drawing_command_args(j, 8);
         break;
     
-    case PIXELARRAYR:
-        set_drawing_command_args(j, 2);
-        break;
+	case PIXELARRAYR:
+	{
+		set_drawing_command_args(j, 5);
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		//for ( int q = 0; q < 6; q++ ) 
+		//{ 
+		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//}
+		int arrayptr = script_drawing_commands[j][2]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.", arrayptr);
+			break;
+		}
+		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		int sz = ArrayH::getSize(arrayptr);
+		//FFCore.getSize(script_drawing_commands[j][2]/10000);
+		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		v->resize(sz, 0);
+		long* pos = &v->at(0);
+		
+		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		script_drawing_commands[j].SetVector(v);
+		break;
+	}
     
     case TILEARRAYR:
-        set_drawing_command_args(j, 2); //perhaps, copy the entire array passed to sdci. I just don't know. -Z
-        break;
+    {
+		set_drawing_command_args(j, 2);
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		//for ( int q = 0; q < 6; q++ ) 
+		//{ 
+		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//}
+		int arrayptr = script_drawing_commands[j][2]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawTiles(). Aborting.", arrayptr);
+			break;
+		}
+		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		int sz = ArrayH::getSize(arrayptr);
+		//FFCore.getSize(script_drawing_commands[j][2]/10000);
+		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		v->resize(sz, 0);
+		long* pos = &v->at(0);
+		
+		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		script_drawing_commands[j].SetVector(v);
+		break;
+        }
         
     case LINESARRAY:
-	    set_drawing_command_args(j, 2); break;
+	{
+		set_drawing_command_args(j, 2);
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		//for ( int q = 0; q < 6; q++ ) 
+		//{ 
+		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//}
+		int arrayptr = script_drawing_commands[j][2]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->Lines(). Aborting.", arrayptr);
+			break;
+		}
+		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		int sz = ArrayH::getSize(arrayptr);
+		//FFCore.getSize(script_drawing_commands[j][2]/10000);
+		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		v->resize(sz, 0);
+		long* pos = &v->at(0);
+		
+		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		script_drawing_commands[j].SetVector(v);
+		break;
+        }
     
     /*
     historical-old-master
@@ -14305,8 +14372,30 @@ void do_drawing_command(const int script_command)
         //break;
         
     case COMBOARRAYR:
-        set_drawing_command_args(j, 2);
-        break;
+     {
+		set_drawing_command_args(j, 2);
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		//for ( int q = 0; q < 6; q++ ) 
+		//{ 
+		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//}
+		int arrayptr = script_drawing_commands[j][2]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawCombos(). Aborting.", arrayptr);
+			break;
+		}
+		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		int sz = ArrayH::getSize(arrayptr);
+		//FFCore.getSize(script_drawing_commands[j][2]/10000);
+		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		v->resize(sz, 0);
+		long* pos = &v->at(0);
+		
+		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		script_drawing_commands[j].SetVector(v);
+		break;
+        }
         
     case DRAWTILER:
         set_drawing_command_args(j, 15);
@@ -14496,7 +14585,7 @@ void do_drawing_command(const int script_command)
 		
 	}
 	break;
-	case 	BMPTRIANGLER:	set_user_bitmap_command_args(j, 13); script_drawing_commands[j][17] = SH::read_stack(ri->sp+13); break;
+	case 	BMPTRIANGLER:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); break;
 	case 	BMPTRIANGLE3DR:
 	{
 	
