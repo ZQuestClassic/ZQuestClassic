@@ -1,5 +1,9 @@
 To-Do
 
+Add Input->Modifiers for allegro keyboard modifier key flags.
+Add Input->KeyControls[] for configuration of keyboard keys.
+Add Input->JoyControls[] for configuration of joypad buttons.
+
 Allow decimal values in item editor power and attributes fields.
 
 Add freeze, freezeexcept, and such as script instructions.
