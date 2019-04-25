@@ -7430,7 +7430,7 @@ void set_register(const long arg, const long value)
 		//hmm...no, this won;t return properly for modifier keys. 
 		int keyid = ri->d[0]/10000;
 		//key = vbound(key,0,n);
-		(value/10000) ? simulate_keypress(keyid << 8) : break;
+		if (value/10000) simulate_keypress(keyid << 8);
 	}
 	break;
 	
