@@ -1,11 +1,8 @@
 //2.55 and 2.54 Changes
 
-//Alpha 22
-
+//Alpha 21
 Re-wrote sprite script refInfo, closing a memory leak, and removing a hack.
 	( ZoriaRPG, 25th April, 2019 )
-
-//Alpha 21
 Updated std_keyboard.zh, and ZScript_Additions.txt with
 	KB_* constants for modifier key flags.
 Updated internal build to Alpha 21.
