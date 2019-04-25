@@ -14272,13 +14272,26 @@ void do_drawing_command(const int script_command)
     
 	case PIXELARRAYR:
 	{
-		
+		set_drawing_command_args(j, 5);
 		std::vector<long> *v = script_drawing_commands.GetVector();
-		int sz = FFCore.getSize(script_drawing_commands[j][2]/10000);
+		//for ( int q = 0; q < 6; q++ ) 
+		//{ 
+		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//}
+		int arrayptr = script_drawing_commands[j][2]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.", arrayptr);
+			break;
+		}
+		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		int sz = ArrayH::getSize(arrayptr);
+		//FFCore.getSize(script_drawing_commands[j][2]/10000);
+		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
-		set_drawing_command_args(j, 2);
-		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+		
+		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
 		script_drawing_commands[j].SetVector(v);
 		break;
 	}

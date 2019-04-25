@@ -972,7 +972,7 @@ inline void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffse
     
     if(!v_ptr)
     {
-        al_trace("Quad3d: Vector pointer is null! Internal error. \n");
+        al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
         return;
     }
     
@@ -980,9 +980,12 @@ inline void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffse
     
     if(v.empty())
         return;
-        
-    long* pos = &v[0];
+        //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
+    long* pos = &v[0];
+    int sz = v.size();
+    //Z_scripterrlog("Vector size is: %d\n", sz);
+    //for ( int m = 0; m < 256; ++m ) Z_scripterrlog("Vector contents at pos[%d]: %d\n", m, pos[m]);
   
     //FFCore.getValues(sdci[2]/10000, points, sz);
     
@@ -990,10 +993,14 @@ inline void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffse
 	int x1 = 0;
 	int y1 = 0;
     
-    for ( int q = 0; q < v.size(); q+=4 )
+    for ( int q = 0; q < sz; q+=4 )
     {
-	    x1 = pos[q];
-	    y1 = pos[q+1];
+	    //Z_scripterrlog("Vector q: %d\n", q);
+	    //if ( q > sz-1 ) break;
+	    x1 = v.at(q); //pos[q];
+	    y1 = v.at(q+1); //pos[q+1];
+	    //Z_scripterrlog("x1 is: %d\n", x1);
+	    //Z_scripterrlog("y1 is: %d\n", 1);
 	    if(sdci[5]!=0) //rotation
 	    {
 		int xy[2];
@@ -1011,9 +1018,9 @@ inline void do_putpixelsr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffse
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","x",x1);
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","y",y1);
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","colour",points[q+2]);
-	    if ( pos[q+3] < 128 ) drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	    if ( v.at(q+3) /*pos[q+3]*/ < 128 ) drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	    putpixel(bmp, x1+xoffset, y1+yoffset, pos[q+2]);
+	    putpixel(bmp, x1+xoffset, y1+yoffset, v.at(q+2) /*pos[q+2]*/);
 	    //if ( points[q+3] < 128 ) 
 		
 	    //else drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
