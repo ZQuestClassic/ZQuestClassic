@@ -1,6 +1,81 @@
 //2.55 and 2.54 Changes
 
 //Alpha 21
+
+Updated std_keyboard.zh, and ZScript_Additions.txt with
+	KB_* constants for modifier key flags.
+Updated internal build to Alpha 21.
+Updated ZScipt_Additions.txt
+Updated todo.txt
+Added Input->KeyBindings[14] (r/w), Input->ModifierKeys,
+	and Input->SimulateKeypress[127]
+Don't use bitmap->Blit() offset fix on Screen->DrawBitmapEx()
+
+The params for bitmap->Write are now:
+	bitmap->Write(int layer, "filename", bool allow_overwrite);
+
+	Behaviour: Overwriting is off by default. If bool allow_overwrite == true,
+		AND the filename extension is .png, then the file can be overwritten.
+
+Add notes to bitmap->Clear
+
+Added bitmap->Clear(int layer).
+Added bitmap->Create(int layer, int h, int w)
+
+	->Create only works on a bitmap pointer that has been initialised, and it
+	destroys any existing bitmap on that pointer, before creating a new one.
+
+Applied the same set of fixes that I used for Screen->PutPixels()
+	to Screen->Lines(), Screen->DrawCombos(), and Screen->DrawTiles()
+	to all other Screen-> pointer, array-drawing functions.
+Screen->PutPixels() should now work in any scope and in any drawing order.
+	(Enqueued drawing needs vector pointers to keep the ZScript array data in scope.)
+
+Added 'bitmap render_source' arg to bitmap->Quad() and to bitmap->Triangle();
+	The new args are:
+	void Quad ( int layer, 
+		int x1, int y1, int x2, int y2, 
+		int x3, int y3, int x4, int y4,
+		int w, int h, int cset, int flip, 
+		int texture, int render_mode, bitmap render_source);
+	void Triangle	( int layer, 
+			int x1, int y1, int x2, 
+			int y2, int x3, int y3,
+			int w, int h, int cset, 
+			int flip, int texture, int render_mode, bitmap render_source);
+		
+	If render_source is not NULL, then the function *should* use that, rather than a tile/combo
+	as its texture. This is wholly UNPROVEN.
+	( ZoriaRPG, 25th April, 2019 )
+
+
+bitmap->Write() will not overwrite an existing file.
+Added bitmap render_src arg to bitmap->Quad() as its 16th param.
+	All bitmap drawing commands now check if the dest is not the
+	screen, and set their yoffset to 0 if it is not the screen.
+
+	They also check if the dest is ! -2, which is the present RENDER TARGET,
+	but they do not also validate that the RT is not RT_SCREEN.
+
+	We may need to do that, too.
+Fixed the yoffset coordinates for bitmap->Blit and bitmap->Rectangle.
+Fix: Read/Write Bitmaps
+	Changed bitmap Game->ReadBitmap("filename") to bitmap Game->AllocateBitmap();
+	Made bitmap->Read("filename") into a drawing command as bitmap->Read(layer,"filename")
+	Made bitmap->Write("filename") into a drawing command as bitmap->Write(layer,"filename")
+	( ZoriaRPG, 24th April, 2019 )
+	
+Cleanup: Remove "Bitmap" BuiltinConstant
+	( Venrob, 23rd April, 2019 )
+	
+Possible fix for WriteBitmap refVar
+Some fixes to writebitmap()
+Begin adding bitmap->Write("filename")
+Added bitmap->Height, bitmap->Width
+Don't use bitmap pointers < 17 for ReadBitmap()
+Fix compile and improve ReadBitmap
+Begin adding bitmap Game->ReadBitmap("filename")
+
 Added the ability to call onPasteAll, onPasteToAll, and onPasteAlltoAll
 	from hotkeys. 
 	All screen paste hotkeys use 'V', as follows:
@@ -12,6 +87,13 @@ Added the ability to call onPasteAll, onPasteToAll, and onPasteAlltoAll
 I also added all of the normal copy/paste options to the contextual menu, and I added
 	the ZScript submenu to the contextual menu.
 	( ZoriaRPG, 23rd April, 2019 )
+	
+	
+Parser: change `RELATIONAL_OP_RETURN_DECIMAL` to `BOOL_TRUE_RETURN_DECIMAL
+	Now, instead of just relational operators, it also includes `true` itself.
+	Also, the option previously failed to affect constant expressions; this has been fixed.
+	( Venrob, 22nd April, 2019 )
+
 
 //Alpha 20
 Updated default_qst.dat.
