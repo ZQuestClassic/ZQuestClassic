@@ -1769,7 +1769,7 @@ long get_register(const long arg)
 	case KEYBINDINGS:
 	{
 		int keyid = ri->d[0]/10000;
-		switch(key_id)
+		switch(keyid)
 		{
 			case 0: ret = DUkey * 10000; break;
 			case 1: ret = DDkey * 10000; break; 
@@ -1787,7 +1787,7 @@ long get_register(const long arg)
 			case 13: ret = Exkey4 * 10000; break;
 			
 			default: { Z_scripterrlog("Invalid index [%d] passed to Input->KeyBindings[]\n", keyid); ret = 0; break; }
-		
+		}
 		break;
 	}
 
@@ -7443,7 +7443,7 @@ void set_register(const long arg, const long value)
 	case KEYBINDINGS:
 	{
 		int keyid = ri->d[0]/10000;
-		switch(key_id)
+		switch(keyid)
 		{
 			case 0: DUkey = ( value/10000 ); break;
 			case 1: DDkey = ( value/10000 ); break; 
@@ -7461,7 +7461,7 @@ void set_register(const long arg, const long value)
 			case 13: Exkey4 = ( value/10000 ); break;
 			
 			default: { Z_scripterrlog("Invalid index [%d] passed to Input->KeyBindings[]\n", keyid); break; }
-		
+		}
 		break;
 	}
 	
