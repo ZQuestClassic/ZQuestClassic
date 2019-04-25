@@ -89,7 +89,7 @@ sprite::sprite()
         dummy_float[i]=0;
         dummy_bool[i]=false;
     }
-    refinfo = 0;
+    
     //for(int i=0;i<8;i++)
     //{
     //  if(i<2) a[i]=0;
@@ -100,7 +100,7 @@ sprite::sprite()
     //sp=0;
     //itemclass=0;
     //ffcref=0;
-    //scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
+    scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
     doscript=1;
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -164,8 +164,7 @@ sprite::sprite(sprite const & other):
     drawstyle(other.drawstyle),
     extend(other.extend),
     wpnsprite(other.wpnsprite),
-    refinfo(other.refinfo),
-    //scriptData(other.scriptData),
+    scriptData(other.scriptData),
 //ffcref(other.ffcref),
 //itemref(other.itemref),
 //guyref(other.guyref),
@@ -255,8 +254,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
-    refinfo = 0;
-    //scriptData.Clear();
+    scriptData.Clear();
     //ewpnclass=0;
     //lwpnclass=0;
     //guyclass=0;
@@ -294,7 +292,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
 
 sprite::~sprite()
 {
-  delete refinfo;
+  
 }
 
 long sprite::getNextUID()
