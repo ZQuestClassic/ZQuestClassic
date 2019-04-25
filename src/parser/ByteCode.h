@@ -1113,8 +1113,11 @@ using namespace std;
 #define BITMAPWIDTH 			1044
 #define BITMAPHEIGHT 			1045
 #define ALLOCATEBITMAPR 			1046
+#define KEYMODIFIERS 			1047
+#define SIMULATEKEYPRESS 			1048
+#define KEYBINDINGS 			1049
 
-#define LAST_BYTECODE 		1047
+#define LAST_BYTECODE 		1050
 
 //END OF BYTECODE
 

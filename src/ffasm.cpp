@@ -1827,6 +1827,9 @@ script_variable variable_list[]=
 	{"BITMAPWIDTH", BITMAPWIDTH, 0, 0 },
 	{"BITMAPHEIGHT", BITMAPHEIGHT, 0, 0 },
 	{"ALLOCATEBITMAPR", ALLOCATEBITMAPR, 0, 0 },
+	{"KEYMODIFIERS", KEYMODIFIERS, 0, 0 },
+	{"SIMULATEKEYPRESS", SIMULATEKEYPRESS, 0, 0 },
+	{"KEYBINDINGS", KEYBINDINGS, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }
