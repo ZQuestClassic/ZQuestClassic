@@ -2399,8 +2399,6 @@ inline void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
 	BITMAP* subBmp = 0;
 	
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't offset if drawing to a target bitmap; only if the target is the screen. 
-	
 	/*
 	if ( bitmapIndex == -1 ) {
 		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh); 
