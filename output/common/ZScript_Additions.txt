@@ -2951,21 +2951,23 @@ t/b/a
 
 int ModifierKeys;
  * Returns the Allegro Keyboard Modifier Flags:
- *	KB_SHIFT_FLAG
- *	KB_CTRL_FLAG
- *	KB_ALT_FLAG
- *	KB_LWIN_FLAG
- *	KB_RWIN_FLAG
- *	KB_MENU_FLAG
- *	KB_COMMAND_FLAG
- *	KB_SCROLOCK_FLAG
- *	KB_NUMLOCK_FLAG
- *	KB_CAPSLOCK_FLAG
- *	KB_INALTSEQ_FLAG
- *	KB_ACCENT1_FLAG
- *	KB_ACCENT2_FLAG
- *	KB_ACCENT3_FLAG
- *	KB_ACCENT4_FLAG
+ *	KB_SHIFT_FLAG = 0x0001;
+ *	KB_CTRL_FLAG = 0x0002;
+ *	KB_ALT_FLAG = 0x0004;
+ *	KB_LWIN_FLAG = 0x0008;
+ *	KB_RWIN_FLAG = 0x0010;
+ *	KB_MENU_FLAG  = 0x0020;
+ *	KB_COMMAND_FLAG  = 0x0040;
+ *	KB_SCROLOCK_FLAG  = 0x0100;
+ *	KB_NUMLOCK_FLAG = 0x0200;
+ *	KB_CAPSLOCK_FLAG = 0x0400;
+ *	KB_INALTSEQ_FLAG = 0x0800;
+ *	KB_ACCENT1_FLAG = 0x1000; 
+ *	KB_ACCENT2_FLAG = 0x2000; 
+ *	KB_ACCENT3_FLAG = 0x4000; 
+ *	KB_ACCENT4_FLAG = 0x8000; 
+ * I am unsure what 0x80 is, if anything. It is not listed in Allegro keyboard.h. -Z
+ * Might have been reserved for the Apple Right Command key, but never used. 
  
 int KeyBindings[14];
  * Returns the key bound to the 14 possible system keys.
