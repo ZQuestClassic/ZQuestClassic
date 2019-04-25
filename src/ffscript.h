@@ -3263,6 +3263,9 @@ enum ASM_DEFINE
 #define BITMAPWIDTH 		0x134D
 #define BITMAPHEIGHT 		0x134E
 #define ALLOCATEBITMAPR 		0x134F
+#define KEYMODIFIERS 		0x1350
+#define SIMULATEKEYPRESS 		0x1351
+#define KEYBINDINGS 		0x1352
 
 //bytecode
 
@@ -3270,7 +3273,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1350
+#define NUMVARIABLES         	0x1353
 
 // Script types
 

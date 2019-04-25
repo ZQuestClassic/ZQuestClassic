@@ -1725,6 +1725,10 @@ string VarArgument::toString()
 	case BITMAPWIDTH: return "BITMAPWIDTH";
 	case BITMAPHEIGHT: return "BITMAPHEIGHT";
 	case ALLOCATEBITMAPR: return "ALLOCATEBITMAPR";
+	case KEYMODIFIERS: return "KEYMODIFIERS";
+	case SIMULATEKEYPRESS: return "SIMULATEKEYPRESS";
+	case KEYBINDINGS: return "KEYBINDINGS";
+	
 	
 	
     default:
