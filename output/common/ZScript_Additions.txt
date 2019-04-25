@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 20
-Document Revision: 22nd April, 2019
+Document for: 2.55, Alpha 21
+Document Revision: 25th April, 2019
 
 
 ////////////////////////////////////////////////////
@@ -922,6 +922,14 @@ bool SkipCredits;
 bitmap CreateBitmap()int height, int width);
 * Creates a bitmap with a size of height, width, and returns its pointer.
 
+bitmap LoadBitmapID(int id);
+* Loads one of the six internal bitmaps as a ref to a 'bitmap' typed pointer.
+
+bitmap AcquireBitmap();
+ * Initialises a bitmap pointer from the pool of unused bitmap IDs in the system.
+ * The current maximum number of user bitmaps is 249. 
+ * Returns 0 to the pointer on failure. 
+
 int LItems[512];
 * The size of this array has been corrected to 512, from the prior size of 256.
 
@@ -942,9 +950,6 @@ spritedata LoadSpriteData(int id);
 
 messagedata LoadMessageData(int id);
 * Loads an String Table Editor table data ref for ZQ Message String 'id', to a 'messagedata' typed pointer.
-
-bitmap LoadBitmapID(int id);
-* Loads one of the six internal bitmaps as a ref to a 'bitmap' typed pointer.
 
 shopdata LoadShopData(int shop);
 * Loads a Shop Editor table ref for an item shop with an ID of 'id' to a 'shopdata' typed pointer.
@@ -3251,13 +3256,43 @@ t/b/a
 ///  bitmap  ///
 ////////////////
 
+int Width;
+ * Returns the width of the bitmap, in pixels. 
+ * READ-ONLY. Bitmaps cannot be resized by writing to this. 
+ 
+int Height;
+ * Returns the height of the bitmap, in pixels. 
+ * READ-ONLY. Bitmaps cannot be resized by writing to this. 
+
 float GetPixel(int x, int y);
-* Returns the palette index value of a pixel on the current bitmap pointer (set by Game->LoadBitmapID).
+ * Returns the palette index value of a pixel on the current bitmap pointer (set by Game->LoadBitmapID).
 
-bitmap Create(int height, int width);
-Creates a bitmap with a size of height, width, and returns its pointer.
-
-void Blit(int layer, int target, ...);
+void Create(int layer, int height, int width);
+ * Creates a bitmap on an already-initialised bitmap pointer, with a size of height, width.
+ * Destroys any existing bitmap ont hat pointer before creating a new one. 
+ * You can use this in conjunction with Game->AllocateBitmap(), or to destroy an existing bitmap and 
+ * create a new one.
+ * Note: The 'layer' arg in this function is exclusively for ordering. 
+ *       This WILL NOT clear a specific 'layer' of a bitmap. 
+ *       Layers in ZC are only an expression of drawing order/sequence!
+ 
+void Clear(int layer);
+ * Clears the bitmap to colour 0. 
+ * Note: The 'layer' arg in this function is exclusively for ordering. 
+ *       This WILL NOT write out a specific 'layer' of a bitmap.
+ *        Layers in ZC are only an expression of drawing order/sequence!
+ 
+void Read(int layer, "filename");
+ * Reads a valid graphic file into a bitmap pointer.
+ * Use Game->AllocateBitmap() to prime the pointer first, if it is uninitialised.
+ 
+void Write(int layer, "filename");
+ * Writes a bitmap out as a PNG file. 
+ * Will not replace an existing file at this time. (File overwrite protection is locked ON.)
+ * Will fail on an uninitialised pointer. 
+ * Note: The 'layer' arg in this function is exclusively for ordering. 
+ *       This WILL NOT write out a specific 'layer' of a bitmap.
+ *        Layers in ZC are only an expression of drawing order/sequence!
 
 void Blit	( int layer, 
 			bitmap target, 
@@ -3328,15 +3363,9 @@ void FastTile(...);
 void FastCombo(...);
 * Identical to Screen->FastCombo(), but it draws to a target bitmap.
 
-
-// Load()
-// Create()
 // Destroy()
 // All screen drawing instructions.
-// Blit()
 // Resize?
-// int Width (read-only)
-// int Height (read-only)
 // int Depth (read-only)
 // Transform() 
 // RenderTo(target, mode, args[])
