@@ -5242,7 +5242,12 @@ inline void bmp_do_clearr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	int bitid = sdci[17] - 10; 
 	if ( scb.script_created_bitmaps[bitid].u_bmp )
 		clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
-    
+	
+	//Perhaps offer int colour?
+	//void clear_to_color(BITMAP *bitmap, int color); IDK if 'color' here is a palette index, or an RPG value.
+	//The allegro docs say: 
+	///* Clear the screen to red. */
+	//clear_to_color(bmp, makecol(255, 0, 0));
 }
 
 
