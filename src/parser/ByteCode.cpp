@@ -4353,6 +4353,16 @@ string OAllocateBitmap::toString()
     return "ALLOCATEBITMAP " + getArgument()->toString();
 }
 
+string OClearBitmap::toString()
+{
+    return "CLEARBITMAP";
+}
+
+string ORegenerateBitmap::toString()
+{
+    return "REGENERATEBITMAP";
+}
+
 string OReadBitmap::toString()
 {
     return "READBITMAP";

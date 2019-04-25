@@ -5229,6 +5229,46 @@ inline void bmp_do_drawstringr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     }
 }
 
+inline void bmp_do_clearr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+    //sdci[1]=layer
+	//sdci[17] Bitmap Pointer
+	Z_scripterrlog("bitmap->Clear() pointer is: %d\n", sdci[17]);
+    if ( sdci[17] <= 0 )
+    {
+	Z_scripterrlog("bitmap->Clear() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+	return;
+    }
+	int bitid = sdci[17] - 10; 
+	if ( scb.script_created_bitmaps[bitid].u_bmp )
+		clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
+	
+	//Perhaps offer int colour?
+	//void clear_to_color(BITMAP *bitmap, int color); IDK if 'color' here is a palette index, or an RPG value.
+	//The allegro docs say: 
+	///* Clear the screen to red. */
+	//clear_to_color(bmp, makecol(255, 0, 0));
+}
+
+
+inline void bmp_do_regenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+    //sdci[1]=layer
+	int h = sdci[2]/10000;
+	int w = sdci[3]/10000;
+	//sdci[17] Bitmap Pointer
+	Z_scripterrlog("bitmap->Create() pointer is: %d\n", sdci[17]);
+    if ( sdci[17] <= 0 )
+    {
+	Z_scripterrlog("bitmap->Create() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+	return;
+    }
+	int bitid = sdci[17] - 10; 
+	if ( scb.script_created_bitmaps[bitid].u_bmp )
+		destroy_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
+	scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,w,h);
+    
+}
 
 inline void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
@@ -7744,6 +7784,8 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 	case 	BMPBLIT: bmp_do_drawbitmapexr(bmp, sdci, xoffset, yoffset); break;
 	case 	READBITMAP: bmp_do_readr(bmp, i, sdci, xoffset, yoffset); break;
 	case 	WRITEBITMAP: bmp_do_writer(bmp, i, sdci, xoffset, yoffset); break;
+	case 	CLEARBITMAP: bmp_do_clearr(bmp, sdci, xoffset, yoffset); break;
+	case 	REGENERATEBITMAP: bmp_do_regenr(bmp, sdci, xoffset, yoffset); break;
         
         }
     }

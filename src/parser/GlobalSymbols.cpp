@@ -7284,7 +7284,7 @@ static AccessorTable BitmapTable[] =
 {
 //	  name, 	rettype, 		setorget,	var,	num,	params
 	{ "GetPixel", 	ZVARTYPEID_UNTYPED,     FUNCTION,       0,      1,      { ZVARTYPEID_BITMAP,	ZVARTYPEID_FLOAT,	ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Create",           ZVARTYPEID_BITMAP,     FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	//{ "Create",           ZVARTYPEID_BITMAP,     FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Rectangle",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,      ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                      } },
 	{ "Circle",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,      ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           } },
 	{ "Arc",                    ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,      ZVARTYPEID_BOOL,      ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           } },
@@ -7313,6 +7313,8 @@ static AccessorTable BitmapTable[] =
 	{ "setHeight",              ZVARTYPEID_VOID,         SETTER,       BITMAPHEIGHT,           1,      {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Write",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Read",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Clear",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Create",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   
 
 	{ "", 		-1,                     -1,             -1,     -1,     { -1,                   -1,                     -1,               -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
@@ -7326,6 +7328,7 @@ BitmapSymbols::BitmapSymbols()
 
 void BitmapSymbols::generateCode()
 {
+	//int GetPixel(bitmap, x, y)
 	{
 		Function* function = getFunction("GetPixel");
 		int label = function->getLabel();
@@ -7341,6 +7344,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
+	/*
 	//long Create(bitmap, int map,int scr)
 	{
 		Function* function = getFunction("Create");
@@ -7357,7 +7361,8 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	 //void Rectangle(screen, float, float, float, float, float, float, float, float, float, float, bool, float)
+	*/
+	 //void Rectangle(bitmap, float, float, float, float, float, float, float, float, float, float, bool, float)
 	{
 		Function* function = getFunction("Rectangle");
 		int label = function->getLabel();
@@ -7372,7 +7377,7 @@ void BitmapSymbols::generateCode()
         
 		function->giveCode(code);
 	}
-	//void Read(screen, layer, "filename")
+	//void Read(bitmap, layer, "filename")
 	{
 		Function* function = getFunction("Read");
 		
@@ -7389,7 +7394,41 @@ void BitmapSymbols::generateCode()
 		function->giveCode(code);
 
 	}
-	//void Write(screen, layer, "filename")
+	//void Clear(bitmap, layer)
+	{
+		Function* function = getFunction("Clear");
+		
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OClearBitmap();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(1, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		
+		code.push_back(new OReturn());
+		function->giveCode(code);
+
+	}
+	//void Create(bitmap, layer, int h, int w)
+	{
+		Function* function = getFunction("Create");
+		
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new ORegenerateBitmap();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(3, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		
+		code.push_back(new OReturn());
+		function->giveCode(code);
+
+	}
+	//void Write(bitmap, layer, "filename")
 	{
 		Function* function = getFunction("Write");
 		int label = function->getLabel();
@@ -7404,7 +7443,7 @@ void BitmapSymbols::generateCode()
         
 		function->giveCode(code);
 	}
-	//void Circle(screen, float, float, float, float, float, float, float, float, float, bool, float)
+	//void Circle(bitmap, float, float, float, float, float, float, float, float, float, bool, float)
 	{
 		Function* function = getFunction("Circle");
 		int label = function->getLabel();
@@ -7419,7 +7458,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void Arc(screen, float, float, float, float, float, float, float, float, float, float, float, bool, bool, float)
+	//void Arc(bitmap, float, float, float, float, float, float, float, float, float, float, float, bool, bool, float)
 	{
 		Function* function = getFunction("Arc");
 		int label = function->getLabel();
@@ -7434,7 +7473,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void Ellipse(screen, float, float, float, float, float, bool, float, float, float)
+	//void Ellipse(bitmap, float, float, float, float, float, bool, float, float, float)
 	{
 		Function* function = getFunction("Ellipse");
 		int label = function->getLabel();
@@ -7449,7 +7488,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void Line(screen, float, float, float, float, float, float, float, float, float, float, float)
+	//void Line(bitmap, float, float, float, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("Line");
 		int label = function->getLabel();
@@ -7464,7 +7503,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void Spline(screen, float, float, float, float, float, float, float, float, float, float, float)
+	//void Spline(bitmap, float, float, float, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("Spline");
 		int label = function->getLabel();
@@ -7479,7 +7518,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void PutPixel(screen, float, float, float, float, float, float, float, float)
+	//void PutPixel(bitmap, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("PutPixel");
 		int label = function->getLabel();
@@ -7494,7 +7533,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void DrawCharacter(screen, float, float, float, float, float, float, float, float, float, float)
+	//void DrawCharacter(bitmap, float, float, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("DrawCharacter");
 		int label = function->getLabel();
@@ -7509,7 +7548,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void DrawInteger(screen, float, float, float, float, float, float, float, float, float, float, float)
+	//void DrawInteger(bitmap, float, float, float, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("DrawInteger");
 		int label = function->getLabel();
@@ -7524,7 +7563,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void DrawTile(screen, float, float, float, float, float, bool, float, float, float)
+	//void DrawTile(bitmap, float, float, float, float, float, bool, float, float, float)
 	{
 		Function* function = getFunction("DrawTile");
 		int label = function->getLabel();
@@ -7539,7 +7578,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void DrawCombo(screen, float, float, float, float, float, bool, float, float, float)
+	//void DrawCombo(bitmap, float, float, float, float, float, bool, float, float, float)
 	{
 		Function* function = getFunction("DrawCombo");
 		int label = function->getLabel();
@@ -7554,7 +7593,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void Quad(screen, float, float, float, float, float, float, float, float, float)
+	//void Quad(bitmap, float, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("Quad");
 		int label = function->getLabel();
@@ -7569,7 +7608,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void Polygon(screen, float, float, float, float, float, float, float, float, float)
+	//void Polygon(bitmap, float, float, float, float, float, float, float, float, float)
 	/*
 	{
 		Function* function = getFunction("Polygon");
@@ -7586,7 +7625,7 @@ void BitmapSymbols::generateCode()
 		function->giveCode(code);
 	}
     */
-	//void Triangle(screen, float, float, float, float, float, float, float, float, float)
+	//void Triangle(bitmap, float, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("Triangle");
 		int label = function->getLabel();
@@ -7602,7 +7641,7 @@ void BitmapSymbols::generateCode()
 		function->giveCode(code);
 	}
     
-	//void Quad3D(screen, float, float, float, float, float, float, float, float, float)
+	//void Quad3D(bitmap, float, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("Quad3D");
 		int label = function->getLabel();
@@ -7617,7 +7656,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void Triangle3D(screen, float, float, float, float, float, float, float, float, float)
+	//void Triangle3D(bitmap, float, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("Triangle3D");
 		int label = function->getLabel();
@@ -7633,7 +7672,7 @@ void BitmapSymbols::generateCode()
 		function->giveCode(code);
 	}
     
-	//void FastTile(screen, float, float, float, float, float)
+	//void FastTile(bitmap, float, float, float, float, float)
 	{
 		Function* function = getFunction("FastTile");
 		int label = function->getLabel();
@@ -7648,7 +7687,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void FastCombo(screen, float, float, float, float, float)
+	//void FastCombo(bitmap, float, float, float, float, float)
 	{
 		Function* function = getFunction("FastCombo");
 		int label = function->getLabel();
@@ -7663,7 +7702,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void DrawString(screen, float, float, float, float, float, float, float, int *string)
+	//void DrawString(bitmap, float, float, float, float, float, float, float, int *string)
 	{
 		Function* function = getFunction("DrawString");
 		int label = function->getLabel();
@@ -7678,7 +7717,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void DrawLayer(screen, float, float, float, float, float, float, float, float)
+	//void DrawLayer(bitmap, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("DrawLayer");
 		int label = function->getLabel();
@@ -7693,7 +7732,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void DrawScreen(screen, float, float, float, float, float, float)
+	//void DrawScreen(bitmap, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("DrawScreen");
 		int label = function->getLabel();
@@ -7710,7 +7749,7 @@ void BitmapSymbols::generateCode()
 	}
 	
     
-	//void DrawBitmapEx(screen, float, float, float, float, float, float, float, float, float, float, bool)
+	//void DrawBitmapEx(bitmap, float, float, float, float, float, float, float, float, float, float, bool)
 	{
 		Function* function = getFunction("Blit");
 		int label = function->getLabel();

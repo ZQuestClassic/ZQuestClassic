@@ -14505,6 +14505,20 @@ void do_drawing_command(const int script_command)
 		set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); break;
 		//Pop the args off the stack first. Then pop the pointer and push it to sdci[17]. 
 		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12. 
+	case 	CLEARBITMAP:	
+	{
+		Z_scripterrlog("Calling %s\n","CLEARBITMAP");
+		set_user_bitmap_command_args(j, 1);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+1); 
+		break;
+	}
+	case 	REGENERATEBITMAP:	
+	{
+		Z_scripterrlog("Calling %s\n","CLEARBITMAP");
+		set_user_bitmap_command_args(j, 3);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
+		break;
+	}
 	case 	READBITMAP:	
 	{
 		Z_scripterrlog("Calling %s\n","READBITMAP");
@@ -17395,6 +17409,8 @@ int run_script(const byte type, const word script, const long i)
 		case 	BMPBLIT:
 		case 	READBITMAP:
 		case 	WRITEBITMAP:
+		case 	CLEARBITMAP:
+		case 	REGENERATEBITMAP:
 		    do_drawing_command(scommand);
 		    break;
 		    

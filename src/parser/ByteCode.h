@@ -7342,6 +7342,26 @@ namespace ZScript
 		}
 	};
 	
+	class OClearBitmap : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OClearBitmap();
+		}
+	};
+	
+	class ORegenerateBitmap : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ORegenerateBitmap();
+		}
+	};
+	
 	class OWriteBitmap : public Opcode
 	{
 	public:
