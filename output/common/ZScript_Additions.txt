@@ -3341,9 +3341,14 @@ void Read(int layer, "filename");
  * Use Game->AllocateBitmap() to prime the pointer first, if it is uninitialised.
  
 void Write(int layer, "filename", bool allow_overwrite);
- * Writes a bitmap out as a PNG file. 
- * Will not replace an existing file unless bool_overwrite is true, AND the file extension is .png.
- * File overwrite protection is locked ON for non-PNG files.
+ * Writes a bitmap out as a graphic file.
+ * This supports the following formats/extensions:
+ * .png, .gif, .pcx, .tgx, and .bmp. 
+ * The provided filename string MUST include one of these extensions, as this
+ * both sets the output filetype, and validates the write.
+ * Any other extension, or a lack of a valid extension will result in
+ * logging an error and failing to write the file.
+ * Will not replace an existing file unless bool_overwrite is true.
  * Will fail on an uninitialised pointer. 
  * Note: The 'layer' arg in this function is exclusively for ordering. 
  *       This WILL NOT write out a specific 'layer' of a bitmap.

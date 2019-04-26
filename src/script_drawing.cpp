@@ -5355,12 +5355,16 @@ inline void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffse
 	//std::strncpy(cptr, str->c_str(), str->size());
     //Z_scripterrlog("bitmap->Write extension matches ? : %s\n!", (checkExtension(str->c_str(), ".png")) ? "true" : "false");
     //Z_scripterrlog("Trying to write filename %s\n", cptr);
-	if ( overwrite && (checkExtension(str->c_str(), ".png")))
+	if 
+	(
+		( (checkExtension(str->c_str(), "")) ) ||
+		( !(checkExtension(str->c_str(), "png")) && !(checkExtension(str->c_str(), "gif")) && !(checkExtension(str->c_str(), "bmp"))
+			&& !(checkExtension(str->c_str(), "pcx")) && !(checkExtension(str->c_str(), "tga")) )
+	)
 	{
-		save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
-		Z_scripterrlog("Wrote image file %s\n",str->c_str());
+		Z_scripterrlog("No extension, or invalid extension provided for writing bitmap file %s. Could not write the file.\nValid types are .png, .gif, .pcx, .tgx, and .bmp. Aborting.\n",str->c_str());
 	}
-	else if (!file_exists(str->c_str()))
+	else if ( overwrite || (!file_exists(str->c_str())) )
 	{
 		save_bitmap(str->c_str(), scb.script_created_bitmaps[bitid].u_bmp, RAMpal);
 		Z_scripterrlog("Wrote image file %s\n",str->c_str());
