@@ -7,12 +7,30 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 21
-Document Revision: 25th April, 2019
+Document Revision: 26th April, 2019
 
 
 ////////////////////////////////////////////////////
 /// ZSCRIPT PARSER AND LEXER ///////////////////////
 ////////////////////////////////////////////////////
+
+////////////
+// Tokens //
+////////////
+
+The ZScript parser now supports the following standard tokens:
+
+and 	: 	Equivalent to 	&&
+or 	: 	Equivalent to 	||
+not 	: 	Equivalent to 	!
+bitand 	: 	Equivalent to 	&
+bitor 	: 	Equivalent to 	|
+not_eq 	:	Equivalent to 	!=
+or_eq 	: 	Equivalent to 	|=
+xor_eq 	: 	Equivalent to 	^=
+and_eq 	: 	Equivalent to 	&=
+xor 	: 	Equivalent to 	^
+compl	: 	Equivalent to	~
 
 //////////////
 // Bugfixes //
