@@ -1286,6 +1286,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
     {
 	case edREPLACE:
 	{
+		sclk = 0;
 		new_id = id+1; Z_scripterrlog("new id is %d\n", new_id);
 			switch(guysbuf[new_id&0xFFF].family)
 			{
@@ -1581,9 +1582,10 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				default: break;
 			}
 		    
-    
+		
 		
 		((enemy*)guys.spr(guys.Count()-1))->count_enemy = true;
+		((enemy*)guys.spr(guys.Count()-1))->stunclk = 90;
 		((enemy*)guys.spr(guys.Count()-1))->dir = this->dir;
 		((enemy*)guys.spr(guys.Count()-1))->scale = this->scale;
 		((enemy*)guys.spr(guys.Count()-1))->angular = this->angular;
@@ -1592,16 +1594,17 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		((enemy*)guys.spr(guys.Count()-1))->mainguy = this->mainguy;
 		((enemy*)guys.spr(guys.Count()-1))->itemguy = this->itemguy;
 		((enemy*)guys.spr(guys.Count()-1))->leader = this->leader;
+		((enemy*)guys.spr(guys.Count()-1))->hclk = 90;
 		((enemy*)guys.spr(guys.Count()-1))->script_spawned = this->script_spawned;
 		((enemy*)guys.spr(guys.Count()-1))->script_UID = this->script_UID;
+		((enemy*)guys.spr(guys.Count()-1))->sclk = 0;
 		
-		((enemy*)guys.spr(guys.Count()-1))->stunclk = 0;
 		
 		item_set = 0; //Do not make a drop. 
 		explode(0);
 		yofs = -32768;
 		hp = -1000;
-			
+		++game->guys[(currmap*MAPSCRSNORMAL)+currscr];
 		return 0;
 		
 	}
