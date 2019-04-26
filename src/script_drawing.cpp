@@ -5358,8 +5358,8 @@ inline void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffse
 	if 
 	(
 		( (checkExtension(str->c_str(), "")) ) ||
-		( !(checkExtension(str->c_str(), "png")) && !(checkExtension(str->c_str(), "gif")) && !(checkExtension(str->c_str(), "bmp"))
-			&& !(checkExtension(str->c_str(), "pcx")) && !(checkExtension(str->c_str(), "tga")) )
+		( !(checkExtension(str->c_str(), ".png")) && !(checkExtension(str->c_str(), ".gif")) && !(checkExtension(str->c_str(), ".bmp"))
+			&& !(checkExtension(str->c_str(), ".pcx")) && !(checkExtension(str->c_str(), ".tga")) )
 	)
 	{
 		Z_scripterrlog("No extension, or invalid extension provided for writing bitmap file %s. Could not write the file.\nValid types are .png, .gif, .pcx, .tgx, and .bmp. Aborting.\n",str->c_str());
