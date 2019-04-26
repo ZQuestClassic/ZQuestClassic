@@ -1605,7 +1605,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		yofs = -32768;
 		hp = -1000;
 		++game->guys[(currmap*MAPSCRSNORMAL)+currscr];
-		return 0;
+		return 1;
 		
 	}
 	case edSPLIT:
