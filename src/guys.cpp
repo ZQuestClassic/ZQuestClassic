@@ -1219,6 +1219,8 @@ int enemy::resolveEnemyDefence(weapon *w)
 //The input from resolveEnemyDefence() for the param 'edef' is negative if a specific defence RESULT is being used.
 int enemy::defendNew(int wpnId, int *power, int edef)
 {
+	int tempx = x;
+	int tempy = y;
 	int the_defence = 0;
 	if ( edef < 0 ) //we are using a specific base default defence for a weapon
 	{
@@ -1276,9 +1278,333 @@ int enemy::defendNew(int wpnId, int *power, int edef)
     //al_trace("defendNew() is at: %s\n", "switch(the_defence)");
     //al_trace("defendNew() the_defence is: %d\n", the_defence);
     //switch(the_defence)
+    
+    // = NULL;
+    int new_id = id;
+    
     switch(the_defence) //usedefence should be set as part of the edef input to this function
     {
-	
+	case edREPLACE:
+	{
+		new_id = id+1; Z_scripterrlog("new id is %d\n", new_id);
+			switch(guysbuf[new_id&0xFFF].family)
+			{
+				//Fixme: possible enemy memory leak. (minor)
+				case eeWALK:
+				{
+				enemy *e = new eStalfos(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+			
+				case eeLEV:
+				{
+				enemy *e = new eLeever(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+			
+				case eeTEK:
+				{
+				enemy *e = new eTektite(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+			
+				case eePEAHAT:
+				{
+				enemy *e = new ePeahat(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+			
+				case eeZORA:
+				{
+				enemy *e = new eZora(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+			
+				case eeGHINI:
+				{
+				enemy *e = new eGhini(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeKEESE:
+				{
+				enemy *e = new eKeese(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeWIZZ:
+				{
+				enemy *e = new eWizzrobe(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eePROJECTILE:
+				{
+				enemy *e = new eProjectile(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeWALLM:
+				{
+				enemy *e = new eWallM(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeAQUA:
+				{
+				enemy *e = new eAquamentus(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeMOLD:
+				{
+				enemy *e = new eMoldorm(x,y,new_id,zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1)));
+				guys.add(e);
+				}
+				break;
+				
+				case eeMANHAN:
+				{
+				enemy *e = new eManhandla(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeGLEEOK:
+				{
+				enemy *e = new eGleeok(x,y,new_id,zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1)));
+				guys.add(e);
+				}
+				break;
+				
+				case eeGHOMA:
+				{
+				enemy *e = new eGohma(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeLANM:
+				{
+				enemy *e = new eLanmola(x,y,new_id,zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)));
+				guys.add(e);
+				}
+				break;
+				
+				case eeGANON:
+				{
+				enemy *e = new eGanon(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeFAIRY:
+				{
+				enemy *e = new eItemFairy(x,y,new_id+0x1000*clk,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeFIRE:
+				{
+				enemy *e = new eFire(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeOTHER:
+				{
+				enemy *e = new eOther(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				case eeSPINTILE:
+				{
+				enemy *e = new eSpinTile(x,y,new_id,clk);
+				guys.add(e);
+				}
+				break;
+				
+				// and these enemies use the misc10/misc2 value
+				case eeROCK:
+				{
+					switch(guysbuf[new_id&0xFFF].misc10)
+					{
+						case 1:
+						{
+						enemy *e = new eBoulder(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+				    
+						case 0:
+						default:
+						{
+						enemy *e = new eRock(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+					}
+				
+					break;
+				}
+			    
+				case eeTRAP:
+				{
+					switch(guysbuf[new_id&0xFFF].misc2)
+					{
+						case 1:
+						{
+						enemy *e = new eTrap2(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+				    
+						case 0:
+						default:
+						{
+						enemy *e = new eTrap(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+					}
+				
+					break;
+				}
+			    
+				case eeDONGO:
+				{
+					switch(guysbuf[new_id&0xFFF].misc10)
+					{
+						case 1:
+						{
+						enemy *e = new eDodongo2(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+				    
+						case 0:
+						default:
+						{
+						enemy *e = new eDodongo(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+					}
+				
+					break;
+				}
+			    
+				case eeDIG:
+				{
+					switch(guysbuf[new_id&0xFFF].misc10)
+					{
+						case 1:
+						{
+						enemy *e = new eLilDig(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+						
+						case 0:
+						default:
+						{
+						enemy *e = new eBigDig(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+					}
+				
+					break;
+				}
+			    
+				case eePATRA:
+				{
+					switch(guysbuf[new_id&0xFFF].misc10)
+					{
+						case 1:
+						{
+						enemy *e = new ePatraBS(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+				    
+						case 0:
+						default:
+						{
+							enemy *e = new ePatra(x,y,new_id,clk);
+							guys.add(e);
+						}
+						break;
+					}
+				
+					break;
+				}
+			    
+				case eeGUY:
+				{
+					switch(guysbuf[new_id&0xFFF].misc10)
+					{
+						case 1:
+						{
+						enemy *e = new eTrigger(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+				    
+						case 0:
+						default:
+						{
+						enemy *e = new eNPC(x,y,new_id,clk);
+						guys.add(e);
+						}
+						break;
+					}
+				
+					break;
+				}
+			    
+			    
+				
+				default: break;
+			}
+		    
+    
+		
+		((enemy*)guys.spr(guys.Count()-1))->count_enemy = true;
+		((enemy*)guys.spr(guys.Count()-1))->dir = this->dir;
+		((enemy*)guys.spr(guys.Count()-1))->scale = this->scale;
+		((enemy*)guys.spr(guys.Count()-1))->angular = this->angular;
+		((enemy*)guys.spr(guys.Count()-1))->angle = this->angle;
+		((enemy*)guys.spr(guys.Count()-1))->rotation = this->rotation;
+		((enemy*)guys.spr(guys.Count()-1))->mainguy = this->mainguy;
+		((enemy*)guys.spr(guys.Count()-1))->itemguy = this->itemguy;
+		((enemy*)guys.spr(guys.Count()-1))->leader = this->leader;
+		((enemy*)guys.spr(guys.Count()-1))->script_spawned = this->script_spawned;
+		((enemy*)guys.spr(guys.Count()-1))->script_UID = this->script_UID;
+		
+		((enemy*)guys.spr(guys.Count()-1))->stunclk = 0;
+		
+		item_set = 0; //Do not make a drop. 
+		explode(0);
+		yofs = -32768;
+		hp = -1000;
+			
+		return 0;
+		
+	}
 	case edSPLIT:
 	{
 		//int ex = x; int ey = y;
@@ -1310,7 +1636,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		return -1;
 		
 	}
-	case edSUMMON:
+	case edSUMMON: 
 	{
 		
 		

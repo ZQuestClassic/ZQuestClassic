@@ -866,6 +866,7 @@ const char *defenselist(int index, int *list_size)
 	
 	case edSPLIT: 
 		return "Split";
+	case edREPLACE: return "Transform(Next)";
 	
 	case edSUMMON: 
 		return "Summon";
