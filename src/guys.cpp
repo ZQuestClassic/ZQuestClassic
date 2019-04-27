@@ -1292,11 +1292,12 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 	{
 		sclk = 0;
 		if ( dmisc16 > 0 ) new_id = dmisc16;
-		if ( new_id > 511 ) new_id = id+1; //Sanity bound to legal enemy IDs.
+		else new_id = id+1; 
+		if ( new_id > 511 ) new_id = id; //Sanity bound to legal enemy IDs.
 		if ( dmisc17 > 0 ) delay_timer = dmisc17;
 		//if ( dmisc18 > 0 ) dummy_wpn_id = dmisc18;
-		else new_id = id+1; 
-		Z_scripterrlog("new id is %d\n", new_id);
+		
+		//Z_scripterrlog("new id is %d\n", new_id);
 			switch(guysbuf[new_id&0xFFF].family)
 			{
 				//Fixme: possible enemy memory leak. (minor)
@@ -1374,6 +1375,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eAquamentus(x,y,new_id,clk);
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1381,6 +1384,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eMoldorm(x,y,new_id,zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1)));
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1388,6 +1393,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eManhandla(x,y,new_id,clk);
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1395,6 +1402,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eGleeok(x,y,new_id,zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1)));
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1402,6 +1411,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eGohma(x,y,new_id,clk);
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1409,6 +1420,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eLanmola(x,y,new_id,zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)));
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1416,6 +1429,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eGanon(x,y,new_id,clk);
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1423,6 +1438,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eItemFairy(x,y,new_id+0x1000*clk,clk);
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1430,6 +1447,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eFire(x,y,new_id,clk);
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1437,6 +1456,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eOther(x,y,new_id,clk);
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1444,6 +1465,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				{
 				enemy *e = new eSpinTile(x,y,new_id,clk);
 				guys.add(e);
+					e->x = x;
+					e->y = y;
 				}
 				break;
 				
@@ -1456,6 +1479,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						{
 						enemy *e = new eBoulder(x,y,new_id,clk);
 						guys.add(e);
+							e->x = x;
+							e->y = y;
 						}
 						break;
 				    
@@ -1464,6 +1489,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						{
 						enemy *e = new eRock(x,y,new_id,clk);
 						guys.add(e);
+							e->x = x;
+							e->y = y;
 						}
 						break;
 					}
@@ -1479,6 +1506,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						{
 						enemy *e = new eTrap2(x,y,new_id,clk);
 						guys.add(e);
+							e->x = x;
+							e->y = y;
 						}
 						break;
 				    
@@ -1487,6 +1516,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						{
 						enemy *e = new eTrap(x,y,new_id,clk);
 						guys.add(e);
+							e->x = x;
+							e->y = y;
 						}
 						break;
 					}
@@ -1502,6 +1533,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						{
 						enemy *e = new eDodongo2(x,y,new_id,clk);
 						guys.add(e);
+							e->x = x;
+							e->y = y;
 						}
 						break;
 				    
@@ -1510,6 +1543,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						{
 						enemy *e = new eDodongo(x,y,new_id,clk);
 						guys.add(e);
+							e->x = x;
+							e->y = y;
 						}
 						break;
 					}
@@ -1525,6 +1560,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						{
 						enemy *e = new eLilDig(x,y,new_id,clk);
 						guys.add(e);
+							e->x = x;
+							e->y = y;
 						}
 						break;
 						
@@ -1533,6 +1570,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						{
 						enemy *e = new eBigDig(x,y,new_id,clk);
 						guys.add(e);
+							e->x = x;
+							e->y = y;
 						}
 						break;
 					}
@@ -1548,6 +1587,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						{
 						enemy *e = new ePatraBS(x,y,new_id,clk);
 						guys.add(e);
+							e->x = x;
+							e->y = y;
 						}
 						break;
 				    
@@ -1556,6 +1597,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 						{
 							enemy *e = new ePatra(x,y,new_id,clk);
 							guys.add(e);
+							e->x = x;
+							e->y = y;
 						}
 						break;
 					}
@@ -1650,7 +1693,16 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		
 		
 		yofs = -32768;
-		hp = -1000;
+		switch(guysbuf[new_id&0xFFF].family)
+		{
+			case eeGLEEOK:
+			{
+				
+				
+			}
+			default:
+				hp = -1000; break;
+		}
 		++game->guys[(currmap*MAPSCRSNORMAL)+currscr];
 		return 1;
 		
