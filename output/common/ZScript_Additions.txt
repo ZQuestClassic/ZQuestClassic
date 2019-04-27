@@ -208,7 +208,7 @@ TOKEN: lweapon script
 TOKEN: hero script, player script; link script (deprecated)
 
 * You can now compile and assign scripts to the Hero.
-* These do not have a 'this' pointer, at present..
+* The 'this' pointer is identical to `Hero`, ex. `this->X` `this->Y` `this->HP`
 * When you compile this script type, you can assign it to one of the following slots,
 * 	which determines when it runs, and how often it runs:
 *
@@ -329,6 +329,7 @@ It is now possible to permit item scripts to run for more than one frame.
 	Syntax:
 	#ignore error(error_number) {error_generating_code}
 	#ignore warning(error_number) {error_generating_code}
+	catch(error_number) {error_generating_code}
 	
 
 ///////////////////
@@ -380,12 +381,17 @@ To use these, call the #option directive, followed by the flag macro, and (on | 
 		On by default.
 		If set 'off', then all calls to trace() functions will be ignored. 
 		
-Options reset with each imported file (each differing file scope) to their 'default'
-value. If you wish for an option to inherit from the previous scope, such as from
-the buffer, you must explicitely call '#option MACRO inherit' in that file.
+	//This list needs to be updated -V
+		
+Files default to inheriting the option state of the file that imported them. For the buffer, this will use the defaults.
+You may force an option to its' default value by setting it to 'default'
+The default values can be modified in ZQuest, under 'ZScript->Compiler Settings'.
 
-Note: 	You can use any constant expression, or constant value that is non-zero to represent 'on',
+Note: 	You can use any constant expression, or constant value that is one to represent 'on',
 	and any constant expression, or constant value that is zero to represent 'off'.
+	For options which only take 'on' or 'off', any other value is treated as 'on'.
+	You can use any constant expression, or constant value that is two to represent 'error',
+	and any constant expression, or constant value that is three to represent 'warn'.
 	The options 'inherit', and 'default' are specific, and not bound to any literal value. 
 	Thus, you cannot create macros for them, or otherwise trigger them with constant expressions.
 	
@@ -464,12 +470,12 @@ You can now declare, and initialise variables on one line, as in C.
 // Explicit Cast //
 ///////////////////
 
-You may not explicitely cast a value, using a type in angle braces.
+You may now explicitly cast a value, using a type in angle braces.
 
 	ffc f = Screen->LoadFFC(15);
-	int x = <ffc>f;
+	int x = <int>f;
 
-	f = <int>2;
+	f = <ffc>2;
 
 //////////////////////
 // Enumerated Lists //
@@ -501,7 +507,7 @@ the values in the enumerated list.
 		
 	You can explicit cast values to these types to circumnavigate the
 	restrictions.
-		act = <int>7; //this is legal. 
+		act = <actiontype>7; //this is legal. 
 
 ////////////////////
 // Comment Blocks //
@@ -542,7 +548,7 @@ namespace bar
 
 namespace doh
 {
-	iny xyz(){return 128;}
+	int xyz(){return 128;}
 }
 
 Access examples:
@@ -559,7 +565,7 @@ You may invoke the 'using' token to bring the contents of a namespaces
 into the current scope, thus ignoring the requirement for scope-resolution
 (::) until the end of that scope.
 
-You may also invoke 'using' as 'always using' to make that namespace global; this cannot be un-done.
+You may also invoke 'using' as 'always using' to make that namespace global; this cannot be undone.
 
 The following scopes are valid:
 
@@ -574,7 +580,7 @@ Using the above namespaces as examples:
 	always using namespace doh;
 	//now in scope in all files, functions, and scripts
 	//never falls out of scope
-	//cannot be un-done
+	//cannot be undone
 
 	///file 1
 	using namespace foo;
@@ -623,7 +629,7 @@ Using the above namespaces as examples:
 		
 	--end example]
 
-	Nesting array calls should now work properly. (e.g. arrA[ arrB[ arrC[ arrd[4] ] ] ] )
+	Nesting array calls should now work properly. (e.g. arrA[ arrB[ arrC[ arrD[4] ] ] ] )
 
 	Further, you may now use constants in array declarations:
 
@@ -642,7 +648,7 @@ Using the above namespaces as examples:
 
 	[example--
 
-		TraceS("Trace this string.";
+		TraceS("Trace this string.");
 		
 	--end example]
 
@@ -661,7 +667,7 @@ Using the above namespaces as examples:
 /////////////////////
 
 	You may now declare any datatype, including arrays for any datatype at a global scope.
-	*	Data saved to these may become invalid and require manual clensing by the user!
+	*	Data saved to these may become invalid and require manual cleansing by the user!
 	*	Only the value of a pointer is saved, not the struct data associated with that pointer.
 
 /////////////////////
@@ -786,7 +792,7 @@ Using the above namespaces as examples:
 	Constants can now be declared in any scope, not just global scope, and the constant is only
 	valid within its scope, so you may now have constants on a per-script, or per-scope basis. 
 	
-	[exmaple--
+	[example--
 	
 		ffc script foo
 		{
@@ -871,7 +877,7 @@ Using the above namespaces as examples:
 	Hero->
 	Player->
 	
-		These are synonimous with the old Link-> pointer, which is now deprecatedm but retained
+		These are synonymous with the old Link-> pointer, which is now deprecated but retained
 		for compatibility purposes. 
 	
 	Graphics->
@@ -894,7 +900,7 @@ Using the above namespaces as examples:
  
 int GetSystemTime(int index);
 * Returns the time (Real Time Clock) data from the system on which ZC is running.
-* You may read the following indices: Year, month, day of the month (n/monnth), day of the week (n/7), 
+* You may read the following indices: Year, month, day of the month (n/month), day of the week (n/7), 
 * 	hour, minute, second, and day of the year (n/365). 
 * Use the RTC_* constants in std_constants.zh for the index type that you wish to read.
 
@@ -955,10 +961,10 @@ LKeys[512];
 * The size of this array has been corrected to 512, from the prior size of 256.
 
 combodata LoadComboData(int id);
-* Loads a Combo Editor table data ref for combo 'id', to a 'combdata' typed pointer.
+* Loads a Combo Editor table data ref for combo 'id', to a 'combodata' typed pointer.
 
-npcdata LoadNPCData(intid);
-* Loads an Enemy Editor table data ref for NPC 'id', to a 'npdcata' typed pointer.
+npcdata LoadNPCData(int id);
+* Loads an Enemy Editor table data ref for NPC 'id', to a 'npcdata' typed pointer.
 
 mapdata LoadMapData(int map, int screen);
 * Loads a screen data ref for screen ID 'screen', of Map ID 'map', to a 'mapdata' typed pointer.
@@ -979,7 +985,7 @@ shopdata LoadInfoShopData(int shop);
 bool TypingMode;
 * If set true, all keyboard presses that would ordinarily perform an in-engine action are suppressed.
 * 	Example: The 'z' key is bound to the 'A Button'; the user presses the3 'z' key.
-*	if TypingMode == true, then that keystroke will not cause the engine to rehister a Button A Press.
+*	if TypingMode == true, then that keystroke will not cause the engine to register a Button A Press.
 *
 *	Enable this if you wish to create a text prompt using Input->Key[] or Input->ReadKey[].
 	
@@ -1053,7 +1059,7 @@ int Beta;
 * Returns the Beta ID of the version of ZC being used. If the build is not a beta, this returns 0. 
 	
 bool DisableActiveSubscreen;		
-* If set true, the active subscreen will not fall into view ehen the player presses Start.
+* If set true, the active subscreen will not fall into view when the player presses Start.
 
 int GetPointer(bool *ptr[]);
 * Returns the pointer of a bool array as a float. 
@@ -1227,7 +1233,7 @@ int EnemyFlags;
 *
 
 int Pattern;
-* Ths enemy 'Spawn Pattern'.
+* The enemy 'Spawn Pattern'.
 
 int SideWarpType[4];
 * The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3] respectively.
@@ -1286,7 +1292,7 @@ int NoReset;
 * Door Right [3]	0x
 
 int NoCarry;
-* The No Carru Over Flagset. Values are ORd together s follows:
+* The No Carry Over Flagset. Values are ORd together s follows:
 * Secrets		0x
 * Items			0x
 * Special Item		0x
@@ -1434,7 +1440,7 @@ int Pickup;
 	
 int PickupString;
 * If this is > 0, then when Link touches the item, ZC will display a ZQ String Editor message string
-* equal to its vaue.
+* equal to its value.
 * The precise behaviour of this is affected by PickupFlags.
 
 int PickupStringFlags;
@@ -1659,7 +1665,7 @@ void BreathAttack(bool seeklink);
 * Fires the breath weapon set to the enemy.
 
 * bool Collision(int obj_type, untyped obj_pointer);
-* Returns if either an object is collding with the npc, or if an arbitrary set of 
+* Returns if either an object is colliding with the npc, or if an arbitrary set of 
 * coordinates would collide.
 * Valid Object Types:
 *obj_type_lweapon, obj_type_eweapon, obj_type_npc, obj_type_link, obj_type_ffc, obj_type_combo_pos, obj_type_item
@@ -1913,7 +1919,7 @@ int Attack;
 /* The following have not been ported from 2.future to Canonical ZC:
 
 	int Animation;				
-	* Link;s Animation style, as set in Quest->Graphics->Sprites->Link
+	* Link's Animation style, as set in Quest->Graphics->Sprites->Link
 						
 	int WalkASpeed;				
 	* Link's Walking Animation speed as set in Quest->Graphics->Sprites->Link
@@ -2054,7 +2060,7 @@ int PScript;
 * The Pickup Script for the item.
 
 int MagicCost;	
-* The item's maic (or rupees, if this is set) cost.
+* The item's magic (or rupees, if this is set) cost.
 
 int MinHearts;		
 * The minimum number of hearts required to pick up the item.
@@ -2379,7 +2385,7 @@ int EnemyFlags;
 *
 
 int Pattern;
-* Ths enemy 'Spawn Pattern'.
+* This enemy 'Spawn Pattern'.
 
 int SideWarpType[4];
 * The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3] respectively.
@@ -2587,47 +2593,47 @@ int FFCData[32];
 * See ffc->Data for more details. 
 	
 int FFCCSet[32];
-* The CSet variable for each of thr 32 ffcs on the screen.
+* The CSet variable for each of the 32 ffcs on the screen.
 * See ffc->CSet for more details. 
 	
 int FFCDelay[32];
-* The Delay variable for each of thr 32 ffcs on the screen.
+* The Delay variable for each of the 32 ffcs on the screen.
 * See ffc->Delay for more details. 
 	
 int FFCX[32];
-* The X variable for each of thr 32 ffcs on the screen.
+* The X variable for each of the 32 ffcs on the screen.
 * See ffc->X for more details. 
 	
 int FFCY[32];
-* The Y variable for each of thr 32 ffcs on the screen.
+* The Y variable for each of the 32 ffcs on the screen.
 * See ffc->Y for more details. 
 	
 int FFCVx[32];
-* The Vx variable for each of thr 32 ffcs on the screen.
+* The Vx variable for each of the 32 ffcs on the screen.
 * See ffc->Vx for more details. 
 	
 int FFCVy[32];
-* The Vy variable for each of thr 32 ffcs on the screen.
+* The Vy variable for each of the 32 ffcs on the screen.
 * See ffc->Vy for more details. 
 	
 int FFCAx[32];
-* The Ax variable for each of thr 32 ffcs on the screen.
+* The Ax variable for each of the 32 ffcs on the screen.
 * See ffc->Ax for more details. 
 	
 int FFCAy[32];
-* The Vy variable for each of thr 32 ffcs on the screen.
+* The Vy variable for each of the 32 ffcs on the screen.
 * See ffc->Vy for more details. 
 	
 int FFCFlags[32];
-* The Flags variable for each of thr 32 ffcs on the screen.
+* The Flags variable for each of the 32 ffcs on the screen.
 * See ffc->Flags for more details. 
 	
 int FFCLink[32];
-* The Link variable for each of thr 32 ffcs on the screen.
+* The Link variable for each of the 32 ffcs on the screen.
 * See ffc->Link for more details. 
 	
 int FFCScript[32];
-* The Script variable for each of thr 32 ffcs on the screen.
+* The Script variable for each of the 32 ffcs on the screen.
 * See ffc->Script for more details. 
 	
 bool FFCRunning[32];
@@ -2637,14 +2643,14 @@ bool FFCRunning[32];
 
  //Functions
 int GetFFCInitD(int ffc_index, int n);
-* Returns the value of InitD[n] for the ffc on the scrrrn with an ID of ffc_index.
+* Returns the value of InitD[n] for the ffc on the screen with an ID of ffc_index.
 * This needs to be converted to the type 'untyped' to comply
 * 	with the change of float ffc->InitD[] to untyped ffc->InitD[]
 * 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
 * 	With 2D arrays, this would simply be FFCInitD[32][8].
 
 void SetFFCInitD(int ffc_index, int n, float value);
-* Sets the value of InitD[n] for the ffc on the scrrrn with an ID of ffc_index.
+* Sets the value of InitD[n] for the ffc on the screen with an ID of ffc_index.
 * 'int value' needs to be converted to the type 'untyped' to comply
 * 	with the change of float ffc->InitD[] to untyped ffc->InitD[]
 * 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
@@ -2652,13 +2658,13 @@ void SetFFCInitD(int ffc_index, int n, float value);
 
 
 int GetFFCInitA(int ffc_index, int n);
-* Returns the value of InitA[n] for the ffc on the scrrrn with an ID of ffc_index.
+* Returns the value of InitA[n] for the ffc on the screen with an ID of ffc_index.
 * 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
 * 	With 2D arrays, this would simply be FFCInitA[32][2].
 
 
 void SetFFCIniA(int ffc_index, int init_a, float value);
-* Sets the value of InitA[n] for the ffc on the scrrrn with an ID of ffc_index.
+* Sets the value of InitA[n] for the ffc on the screen with an ID of ffc_index.
 * 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
 * 	With 2D arrays, this would simply be FFCInitA[32][2].
 
@@ -2828,12 +2834,12 @@ int MaxDraws();
  * Returns the maximum number of script draws per frame that you can execute in the current build.
  
 void Monochrome(int mode);
- * Sets the entire display to monmochrome output, using a hue mode that you may select, and either distributed,
+ * Sets the entire display to monochrome output, using a hue mode that you may select, and either distributed,
    or uniform colour distribution.
  * This respects the current DMap (level) palette, and it affects the entire main game palette. 
 
 void MonoHue(int red, int green, int blue, bool distributed);
- * Sets the entire display to monmochrome output, using either distributed using a uniform mode, or
+ * Sets the entire display to monochrome output, using either distributed using a uniform mode, or
    a differential mode selected from `bool distributed`, using a hue based on the values that you supply
    as `red`, `green`, and `blue`. 
  * This respects the current DMap (level) palette, and it affects the entire main game palette. 
@@ -2848,11 +2854,11 @@ void ClearTint();
 
 void Wavy(bool wavyin); 
  * Creates a wavy visual effect, identical to 'Wavy' Warp effects.
- * There are two styles, 'WavyIn', and 'WavyOut'. Select from these using paramater 1. 
+ * There are two styles, 'WavyIn', and 'WavyOut'. Select from these using parameter 1. 
 
 void Zap(bool zapin);
  * Creates a wavy visual effect, identical to 'Zap' Warp effects.
- * There are two styles, 'ZapIn', and 'ZapOut'. Select from these using paramater 1. 
+ * There are two styles, 'ZapIn', and 'ZapOut'. Select from these using parameter 1. 
 
 void Greyscale(bool enable);
  * Converts the game to monochrome greyscale, or reverts from greyscale to colour.
@@ -2902,14 +2908,14 @@ void ContinueSound(int soundid);
 void AdjustMusicVolume(int percent); 
 * Adjusts the volume of all MIDI, DIGI, and Enhanced Music.
 * The parameter 'int percent' is the percentage of its present volume.
-* To double the volume, you would pass '200' to paramater 1; to reduce it by half, you
-*	would pass '50' to paramater 1.
+* To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
+*	would pass '50' to parameter 1.
 
 void AdjustSFXVolume(int percent);
 * Adjusts the volume of all Soune Effects (WAV).
 * The parameter 'int percent' is the percentage of its present volume.
-* To double the volume, you would pass '200' to paramater 1; to reduce it by half, you
-*	would pass '50' to paramater 1.
+* To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
+*	would pass '50' to parameter 1.
 
 void AdjustSound(int, int, bool)
 
@@ -3171,7 +3177,7 @@ int Homing;
 int Hunger;
 * The 'hunger' value of the enemy. 
 * Higher values make it more likely that the enemy is attracted to Bait.
-* Vald only for NPCT_WALKING enemies.
+* Valid only for NPCT_WALKING enemies.
 
 int Dropset;
 * The dropset used by the enemy.
@@ -3361,7 +3367,7 @@ void Blit	( int layer,
 			float rotation, int cx, int cy, int mode, int lit,  bool mask);
 			
 * As DrawBitmapEx(), except that it draws the bitmap of an initialised bitmap pointer,
-* to a terget bitmap, which may be a user-created bitmap, or it may be the screen.
+* to a target bitmap, which may be a user-created bitmap, or it may be the screen.
 * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
 *	as the argument to 'bitmap target'.
 * To draw to a user created bitmap, pass its pointer to 'bitmap target'.
@@ -3546,7 +3552,7 @@ Game->DEBUGGING: These might find their way into namespace Debug-> instead of Ga
 int RefFFC; 				ZASM Instruction:
 					REFFFC
 	/**
-	* Returns the present ffc refrence from the stack. FOR DEBUGGING ONLY!
+	* Returns the present ffc reference from the stack. FOR DEBUGGING ONLY!
 	* THIS WILL BE DISABLED IN RELEASE BUILDS !
 	*/ Example Use:
 	
@@ -3555,7 +3561,7 @@ int RefFFC; 				ZASM Instruction:
 int RefItem; 				ZASM Instruction:
 					REFITEM
 	/**
-	* Returns the present item refrence from the stack. FOR DEBUGGING ONLY!
+	* Returns the present item reference from the stack. FOR DEBUGGING ONLY!
 	* THIS WILL BE DISABLED IN RELEASE BUILDS !
 	*/ Example Use:
 	
@@ -3564,7 +3570,7 @@ int RefItem; 				ZASM Instruction:
 int RefItemdata; 			ZASM Instruction:
 					REFIDATA
 	/**
-	* Returns the present itemdata refrence from the stack. FOR DEBUGGING ONLY!
+	* Returns the present itemdata reference from the stack. FOR DEBUGGING ONLY!
 	* THIS WILL BE DISABLED IN RELEASE BUILDS !
 	*/ Example Use:
 	
@@ -3573,7 +3579,7 @@ int RefItemdata; 			ZASM Instruction:
 int RefLWeapon; 			ZASM Instruction:
 					REFLWPN
 	/**
-	* Returns the present lweapon refrence from the stack. FOR DEBUGGING ONLY!
+	* Returns the present lweapon reference from the stack. FOR DEBUGGING ONLY!
 	* THIS WILL BE DISABLED IN RELEASE BUILDS !
 	*/ Example Use:
 	
@@ -3582,7 +3588,7 @@ int RefLWeapon; 			ZASM Instruction:
 int RefEWeapon; 			ZASM Instruction:
 					REFEWPN
 	/**
-	* Returns the present eweapon refrence from the stack. FOR DEBUGGING ONLY!
+	* Returns the present eweapon reference from the stack. FOR DEBUGGING ONLY!
 	* THIS WILL BE DISABLED IN RELEASE BUILDS !
 	*/ Example Use:
 	
@@ -3591,7 +3597,7 @@ int RefEWeapon; 			ZASM Instruction:
 int RefNPC; 				ZASM Instruction:
 					REFNPC
 	/**
-	* Returns the present npc refrence from the stack. FOR DEBUGGING ONLY!
+	* Returns the present npc reference from the stack. FOR DEBUGGING ONLY!
 	* THIS WILL BE DISABLED IN RELEASE BUILDS !
 	*/ Example Use:
 	
@@ -3627,7 +3633,7 @@ void ComboArray	( int layer, int number_of_combos,
 *
 * This function counts as a single draw.
 *
-* Transparency is not yet imlemented, but you may draw to a bitmap and render it translucent.
+* Transparency is not yet implemented, but you may draw to a bitmap and render it translucent.
 *// Example:
 
 int combos[4] = {16,19,31,20};
@@ -3649,14 +3655,14 @@ void TileArray	( int layer, int number_of_tiles,
 /**
 *
 * Draws a number of tiles specified by 'number_of_tiles' to 'layer'.
-* Specify the tiles by populating an array with their IDs and passing the array ointer to 'tiles'.
+* Specify the tiles by populating an array with their IDs and passing the array pointer to 'tiles'.
 * Specify the X coordinate for each by passing an array with their x coordinates to 'x_positions'.
 * Specify the Y coordinate for each by passing an array with their y coordinates to 'y_positions'.
 * Specify the CSet for each by passing an array with their csets to 'csets'.
 *
 * This function counts as a single draw.
 *
-* Transparency is not yet imlemented, but you may draw to a bitmap and render it translucent.
+* Transparency is not yet implemented, but you may draw to a bitmap and render it translucent.
 *// Example:
 
 int tiles[4] = {16,19,31,20};
@@ -3684,7 +3690,7 @@ void PixelArray	( int layer, int number_of_pixels,
 *
 * This function counts as a single draw.
 *
-* Transparency is not yet imlemented, but you may draw to a bitmap and render it translucent.
+* Transparency is not yet implemented, but you may draw to a bitmap and render it translucent.
 *// Example:
 
 int pix[4] = {16,19,31,20};
