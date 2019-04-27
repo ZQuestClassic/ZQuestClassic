@@ -1280,14 +1280,23 @@ int enemy::defendNew(int wpnId, int *power, int edef)
     //switch(the_defence)
     
     // = NULL;
+    
     int new_id = id;
+    int effect_type = dmisc15;
+    int delay_timer = 90;
+    //int dummy_wpn_id = 23;
     
     switch(the_defence) //usedefence should be set as part of the edef input to this function
     {
 	case edREPLACE:
 	{
 		sclk = 0;
-		new_id = id+1; Z_scripterrlog("new id is %d\n", new_id);
+		if ( dmisc16 > 0 ) new_id = dmisc16;
+		if ( new_id > 511 ) new_id = id+1; //Sanity bound to legal enemy IDs.
+		if ( dmisc17 > 0 ) delay_timer = dmisc17;
+		//if ( dmisc18 > 0 ) dummy_wpn_id = dmisc18;
+		else new_id = id+1; 
+		Z_scripterrlog("new id is %d\n", new_id);
 			switch(guysbuf[new_id&0xFFF].family)
 			{
 				//Fixme: possible enemy memory leak. (minor)
@@ -1583,9 +1592,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 			}
 		    
 		
-		
 		((enemy*)guys.spr(guys.Count()-1))->count_enemy = true;
-		((enemy*)guys.spr(guys.Count()-1))->stunclk = 90;
+		((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
 		((enemy*)guys.spr(guys.Count()-1))->dir = this->dir;
 		((enemy*)guys.spr(guys.Count()-1))->scale = this->scale;
 		((enemy*)guys.spr(guys.Count()-1))->angular = this->angular;
@@ -1594,14 +1602,43 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		((enemy*)guys.spr(guys.Count()-1))->mainguy = this->mainguy;
 		((enemy*)guys.spr(guys.Count()-1))->itemguy = this->itemguy;
 		((enemy*)guys.spr(guys.Count()-1))->leader = this->leader;
-		((enemy*)guys.spr(guys.Count()-1))->hclk = 90;
+		((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
 		((enemy*)guys.spr(guys.Count()-1))->script_spawned = this->script_spawned;
 		((enemy*)guys.spr(guys.Count()-1))->script_UID = this->script_UID;
 		((enemy*)guys.spr(guys.Count()-1))->sclk = 0;
 		
 		
 		item_set = 0; //Do not make a drop. 
-		explode(0);
+		
+		switch(effect_type)
+		{
+			case -3: 
+			{
+				weapon *w = new weapon(x,y,z,wBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
+				Lwpns.add(w);
+			}
+			case -2:
+			{
+				weapon *w = new weapon(x,y,z,wSBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
+				Lwpns.add(w);
+			}
+			case -1: break;
+			case 0: 
+			case 1: 
+			case 2: 
+				explode(effect_type); break;
+			default:
+			{
+				//Dummy weapon function
+				if ( effect_type > 255 ) effect_type = 0; //Sanity bound the sprite ID.
+				//weapon *w = new weapon(x,y,z,dummy_wpn_id,effect_type,0,0,Link.getUID(), txsz, tysz);
+				weapon *w = new weapon(x,y,z,wSSparkle,effect_type,0,0,Link.getUID(), txsz, tysz);
+				Lwpns.add(w);
+				break;
+			}
+		}
+		
+		
 		yofs = -32768;
 		hp = -1000;
 		++game->guys[(currmap*MAPSCRSNORMAL)+currscr];

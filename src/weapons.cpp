@@ -7860,5 +7860,53 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
     aframe=temp.aframe;
 }
 
+//Dummy weapon for visual effects.
+weapon::weapon(fix X,fix Y,fix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width) : sprite(), parentid(prntid)
+{
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "X", (int)X);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Y", (int)Y);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Z", (int)Z);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Id", Id);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "usesprite", usesprite);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Dir", Dir);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "step", step);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "prntid", prntid);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "height", height);
+	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "width", width);
+    x=X;
+    y=Y;
+    z=Z;
+	txsz = width > 0 ? width : 1;
+	tysz = height > 0 ? height : 1;
+    id=Id;
+    type=0;
+    power=0;
+    parentitem=-1;
+    dir=zc_max(Dir,0);
+    clk=clk2=flip=misc=misc2=0;
+    frames=flash=wid=aframe=csclk=0;
+    ignorecombo=-1;
+    step=0;
+    dead=-1;
+    bounce= false;
+	ignoreLink=true;
+    yofs=playing_field_offset - 2;
+    dragging=-1;
+    hxsz=1;
+    hysz=1;
+    hzsz=1;
+	hyofs = -32768;
+    useweapon = usedefence = 0;
+    weaprange = weapduration = 0;
+    script_wrote_otile = 0;
+    isLWeapon = 0;
+    ScriptGenerated = 0;
+    LOADGFX(usesprite);
+    //Z_scripterrlog("After calling LOADGFX(), the dummy weapon o_tile is: %d\n", o_tile);
+    step=0;
+    doscript = 0;
+    weaponscript = 0;
+}
+
 /*** end of weapons.cpp ***/
 
