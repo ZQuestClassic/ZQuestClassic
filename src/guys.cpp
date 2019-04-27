@@ -1612,21 +1612,31 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		
 		switch(effect_type)
 		{
-			case -3: 
+			case -7:
+			{
+				weapon *w = new weapon(x,y,z,wBomb,0,wdp,0,-1,getUID(),false, 0);
+				Lwpns.add(w);
+			}
+			case -6:
+			{
+				weapon *w = new weapon(x,y,z,wSBomb,0,wdp,0,-1,getUID(),false, 0);
+				Lwpns.add(w);
+			}
+			case -5: 
 			{
 				weapon *w = new weapon(x,y,z,wBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
 				Lwpns.add(w);
 			}
-			case -2:
+			case -4:
 			{
 				weapon *w = new weapon(x,y,z,wSBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
 				Lwpns.add(w);
 			}
-			case -1: break;
-			case 0: 
-			case 1: 
-			case 2: 
-				explode(effect_type); break;
+			case -3: explode(1); break;
+			case -2: explode(2); break;
+			case -1: explode(0); break;
+			case 0: break;
+			
 			default:
 			{
 				//Dummy weapon function
