@@ -7861,7 +7861,7 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
 }
 
 //Dummy weapon for visual effects.
-weapon::weapon(fix X,fix Y,fix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width) : sprite(), parentid(prntid)
+weapon::weapon(fix X,fix Y,fix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g) : sprite(), parentid(prntid)
 {
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "X", (int)X);
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "Y", (int)Y);

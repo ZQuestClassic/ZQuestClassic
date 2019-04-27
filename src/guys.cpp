@@ -1642,7 +1642,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				//Dummy weapon function
 				if ( effect_type > 255 ) effect_type = 0; //Sanity bound the sprite ID.
 				//weapon *w = new weapon(x,y,z,dummy_wpn_id,effect_type,0,0,Link.getUID(), txsz, tysz);
-				weapon *w = new weapon(x,y,z,wSSparkle,effect_type,0,0,Link.getUID(), txsz, tysz);
+				weapon *w = new weapon(x,y,z,wSSparkle,effect_type,0,0,Link.getUID(), txsz, tysz,0,0,0,0,0,0,0);
 				Lwpns.add(w);
 				break;
 			}
