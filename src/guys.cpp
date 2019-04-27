@@ -1284,6 +1284,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
     int new_id = id;
     int effect_type = dmisc15;
     int delay_timer = 90;
+    enemy *gleeok = NULL;
     //int dummy_wpn_id = 23;
     
     switch(the_defence) //usedefence should be set as part of the edef input to this function
@@ -1400,10 +1401,11 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				
 				case eeGLEEOK:
 				{
-				enemy *e = new eGleeok(x,y,new_id,zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1)));
+				enemy *e = new eGleeok(x,y,new_id,guysbuf[new_id&0xFFF].misc1);
 				guys.add(e);
-					e->x = x;
-					e->y = y;
+					//gleeok->x = x;
+					//gleeok->y = y;
+					gleeok = e;
 				}
 				break;
 				
@@ -1633,6 +1635,163 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				
 				default: break;
 			}
+			
+				// add segments of segmented enemies
+		    int c=0;
+		    
+		    switch(guysbuf[new_id&0xFFF].family)
+		    {
+			    case eeMOLD:
+			    {
+				byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
+				new_id &= 0xFFF;
+				
+				for(int i=0; i<zc_max(1,zc_min(254,guysbuf[new_id].misc1)); i++)
+				{
+				    //christ this is messy -DD
+				    int segclk = -i*((int)(8.0/(fix(guysbuf[new_id&0xFFF].step/100.0))));
+				    
+				    if(!guys.add(new esMoldorm((fix)x,(fix)y,new_id+0x1000,segclk)))
+				    {
+					al_trace("Moldorm segment %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1; j++)
+					    guys.del(guys.Count()-1);
+					    
+					return 0;
+				    }
+				    
+				    if(i>0)
+					((enemy*)guys.spr(guys.Count()-1))->item_set=is;
+					
+				    
+				}
+				
+				break;
+			    }
+			    
+			    case eeLANM:
+			    {
+				new_id &= 0xFFF;
+				int shft = guysbuf[new_id].misc2;
+				byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
+				
+				if(!guys.add(new esLanmola((fix)x,(fix)y,new_id+0x1000,0)))
+				{
+				    al_trace("Lanmola segment 1 could not be created!\n");
+				    guys.del(guys.Count()-1);
+				    return 0;
+				}
+				
+				
+				
+				for(int i=1; i<zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)); i++)
+				{
+				    if(!guys.add(new esLanmola((fix)x,(fix)y,new_id+0x2000,-(i<<shft))))
+				    {
+					al_trace("Lanmola segment %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1; j++)
+					    guys.del(guys.Count()-1);
+					    
+					return 0;
+				    }
+				    
+				    ((enemy*)guys.spr(guys.Count()-1))->item_set=is;
+				    
+				}
+			    }
+			    break;
+			    
+			    case eeMANHAN:
+				new_id &= 0xFFF;
+				
+				for(int i=0; i<((!(guysbuf[new_id].misc2))?4:8); i++)
+				{
+				    if(!guys.add(new esManhandla((fix)x,(fix)y,new_id+0x1000,i)))
+				    {
+					al_trace("Manhandla head %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1; j++)
+					{
+					    guys.del(guys.Count()-1);
+					}
+					
+					return 0;
+				    }
+				    
+				    
+				    ((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[new_id].misc1;
+				}
+				
+				break;
+				
+			    case eeGLEEOK:
+			    {
+				new_id &= 0xFFF;
+				
+				for(int i=0; i<zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1)); i++)
+				{
+				    if(!guys.add(new esGleeok((fix)x,(fix)y,new_id+0x1000,c, gleeok)))
+				    {
+					al_trace("Gleeok head %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1; j++)
+					{
+					    guys.del(guys.Count()-1);
+					}
+					
+					return false;
+				    }
+				    
+				    c-=guysbuf[new_id].misc4;
+				    
+				}
+			    }
+			    break;
+			    
+			    
+			    case eePATRA:
+			    {
+				new_id &= 0xFFF;
+				int outeyes = 0;
+				
+				for(int i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc1); i++)
+				{
+				    if(!(guysbuf[new_id].misc10?guys.add(new esPatraBS((fix)x,(fix)y,new_id+0x1000,i)):guys.add(new esPatra((fix)x,(fix)y,new_id+0x1000,i))))
+				    {
+					al_trace("Patra outer eye %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1; j++)
+					    guys.del(guys.Count()-1);
+					    
+					return 0;
+				    }
+				    else
+					outeyes++;
+					
+				    
+				}
+				
+				for(int i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc2); i++)
+				{
+				    if(!guys.add(new esPatra((fix)x,(fix)y,new_id+0x1000,i)))
+				    {
+					al_trace("Patra inner eye %d could not be created!\n",i+1);
+					
+					for(int j=0; j<i+1+zc_min(254,outeyes); j++)
+					    guys.del(guys.Count()-1);
+					    
+					return 0;
+				    }
+				    
+				    
+				}
+				
+				break;
+			    }
+		    }
+			
 		    
 		
 		((enemy*)guys.spr(guys.Count()-1))->count_enemy = true;
