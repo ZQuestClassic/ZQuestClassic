@@ -1285,6 +1285,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
     int effect_type = dmisc15;
     int delay_timer = 90;
     enemy *gleeok = NULL;
+    int c = 0;
     //int dummy_wpn_id = 23;
     
     switch(the_defence) //usedefence should be set as part of the edef input to this function
@@ -1401,13 +1402,41 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				
 				case eeGLEEOK:
 				{
-				enemy *e = new eGleeok(x,y,new_id,guysbuf[new_id&0xFFF].misc1);
-				guys.add(e);
-					//gleeok->x = x;
-					//gleeok->y = y;
-					gleeok = e;
+					*power = 0; 
+					gleeok = new eGleeok(x,y,new_id,guysbuf[new_id&0xFFF].misc1);
+					guys.add(gleeok);
+					((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
+					//((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
+					new_id &= 0xFFF;
+					int head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1));
+					    Z_scripterrlog("Gleeok head count is %d\n",head_cnt);
+					for(int i=0; i<head_cnt; i++)
+					{
+						//enemy *e = new esGleeok(x,y,new_id+0x1000,clk,gleeok);
+					    if(!guys.add(new esGleeok((fix)x,(fix)y,new_id+0x1000,c, gleeok)))
+					    {
+						al_trace("Gleeok head %d could not be created!\n",i+1);
+						
+						for(int j=0; j<i+1; j++)
+						{
+						    guys.del(guys.Count()-1);
+						}
+						
+						break;
+					    }
+					    else
+					    {
+						((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
+						//((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
+					    }
+					    
+						c-=guysbuf[new_id].misc4;
+						//gleeok->x = x;
+						//gleeok->y = y;
+						//gleeok = e;
+					}
+					return 1;
 				}
-				break;
 				
 				case eeGHOMA:
 				{
@@ -1728,10 +1757,13 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				
 			    case eeGLEEOK:
 			    {
+				/*
 				new_id &= 0xFFF;
-				
-				for(int i=0; i<zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1)); i++)
+				int head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1));
+				    Z_scripterrlog("Gleeok head count is %d\n",head_cnt);
+				for(int i=0; i<head_cnt; i++)
 				{
+					//enemy *e = new esGleeok(x,y,new_id+0x1000,clk,gleeok);
 				    if(!guys.add(new esGleeok((fix)x,(fix)y,new_id+0x1000,c, gleeok)))
 				    {
 					al_trace("Gleeok head %d could not be created!\n",i+1);
@@ -1741,12 +1773,13 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					    guys.del(guys.Count()-1);
 					}
 					
-					return false;
+					break;
 				    }
 				    
 				    c-=guysbuf[new_id].misc4;
+				    */
 				    
-				}
+				//}
 			    }
 			    break;
 			    
@@ -1801,7 +1834,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		((enemy*)guys.spr(guys.Count()-1))->angular = this->angular;
 		((enemy*)guys.spr(guys.Count()-1))->angle = this->angle;
 		((enemy*)guys.spr(guys.Count()-1))->rotation = this->rotation;
-		((enemy*)guys.spr(guys.Count()-1))->mainguy = this->mainguy;
+		//((enemy*)guys.spr(guys.Count()-1))->mainguy = this->mainguy; //This might mean that it is a core. 
 		((enemy*)guys.spr(guys.Count()-1))->itemguy = this->itemguy;
 		((enemy*)guys.spr(guys.Count()-1))->leader = this->leader;
 		((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
@@ -1856,7 +1889,11 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 		{
 			case eeGLEEOK:
 			{
-				
+				Z_scripterrlog("Replacing a gleeok.\n");
+				enemy *tempenemy = (enemy *) guys.getByUID(parentCore);
+				hp = -999;
+				tempenemy->hp = -999; 
+				break;
 				
 			}
 			default:
@@ -12536,6 +12573,7 @@ esGleeok::esGleeok(fix X,fix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,Clk
     dir&=1;                                                   // up or down
     dmisc5=vbound(dmisc5,1,255);
     isCore = false;
+    parentCore = parent->getUID();
     
     for(int i=0; i<dmisc5; i++)
     {
