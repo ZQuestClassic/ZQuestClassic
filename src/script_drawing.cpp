@@ -3669,8 +3669,6 @@ inline void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     int tex_width = w*16;
     int tex_height = h*16;
     
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
     
