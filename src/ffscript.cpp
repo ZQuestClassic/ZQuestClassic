@@ -866,6 +866,23 @@ public:
         }
     }
     
+    //Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
+    //Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
+    //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+    static void getValues2(const long ptr, long* arrayPtr, word num_values) //a hack -Z
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return;
+            
+        for(word i = 0; BC::checkUserArrayIndex(i, ArrayH::getSize(ptr)+1) == _NoError && num_values != 0; i++)
+        {
+            arrayPtr[i] = (a[i] / 10000);
+            num_values--;
+        }
+    }
+    
     //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
     static void getValues(const long ptr, long* arrayPtr, word num_values)
     {
@@ -14363,7 +14380,7 @@ void do_drawing_command(const int script_command)
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
-		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
 		script_drawing_commands[j].SetVector(v);
 		break;
 	}
@@ -14389,7 +14406,7 @@ void do_drawing_command(const int script_command)
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
-		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
 		script_drawing_commands[j].SetVector(v);
 		break;
         }
@@ -14415,7 +14432,7 @@ void do_drawing_command(const int script_command)
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
-		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
 		script_drawing_commands[j].SetVector(v);
 		break;
         }
@@ -14428,9 +14445,9 @@ void do_drawing_command(const int script_command)
 			long* ptr = (long*)script_drawing_commands.AllocateDrawBuffer(3 * count * sizeof(long));
 			long* p = ptr;
 
-			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
-			ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
-			ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+			FFCore.getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+			FFCore.getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+			FFCore.getValues(script_drawing_commands[j][5] / 10000, p, count);
 
 			script_drawing_commands[j].SetPtr(ptr);
     */
@@ -14464,7 +14481,7 @@ void do_drawing_command(const int script_command)
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
-		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
 		script_drawing_commands[j].SetVector(v);
 		break;
         }
@@ -14523,19 +14540,29 @@ void do_drawing_command(const int script_command)
         
     case QUAD3DR:
     {
+	set_drawing_command_args(j, 8);
+	int arrayptr = script_drawing_commands[j][2]/10000;
+	int sz = ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][3]/10000;
+	sz += ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][4]/10000;
+	sz += ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][5]/10000;
+	sz += ArrayH::getSize(arrayptr);
         std::vector<long> *v = script_drawing_commands.GetVector();
-        v->resize(26, 0);
+        v->resize(sz, 0);
         
         long* pos = &v->at(0);
         long* uv = &v->at(12);
         long* col = &v->at(20);
         long* size = &v->at(24);
         
-        set_drawing_command_args(j, 8);
-        ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 12);
-        ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 8);
-        ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 4);
-        ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+        
+        FFCore.getValues((script_drawing_commands[j][2] / 10000), pos, 12);
+        FFCore.getValues((script_drawing_commands[j][3] / 10000), uv, 8);
+        FFCore.getValues((script_drawing_commands[j][4] / 10000), col, 4);
+        //FFCore.getValues2(script_drawing_commands[j][5] / 10000, size, 2);
+        FFCore.getValues((script_drawing_commands[j][5] / 10000), size, 2);
         
         script_drawing_commands[j].SetVector(v);
     }
@@ -14543,19 +14570,30 @@ void do_drawing_command(const int script_command)
     
     case TRIANGLE3DR:
     {
+	set_drawing_command_args(j, 8);
+	    
+	int arrayptr = script_drawing_commands[j][2]/10000;
+	int sz = ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][3]/10000;
+	sz += ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][4]/10000;
+	sz += ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][5]/10000;
+	sz += ArrayH::getSize(arrayptr);
+	    
         std::vector<long> *v = script_drawing_commands.GetVector();
-        v->resize(20, 0);
+        v->resize(sz, 0);
         
         long* pos = &v->at(0);
         long* uv = &v->at(9);
         long* col = &v->at(15);
         long* size = &v->at(18);
         
-        set_drawing_command_args(j, 8);
-        ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
-        ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 6);
-        ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
-        ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+        
+        FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 8);
+        FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 6);
+        FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 3);
+        FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
         
         script_drawing_commands[j].SetVector(v);
     }
@@ -14623,18 +14661,18 @@ void do_drawing_command(const int script_command)
 		script_drawing_commands[j].SetString(str);
 		break;
 	}
-	case 	BMPCIRCLER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
-	case 	BMPARCR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); set_user_bitmap_command_args(j, 14); break;
-	case 	BMPELLIPSER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); set_user_bitmap_command_args(j, 12); break;
-	case 	BMPLINER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
-	case 	BMPSPLINER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
-	case 	BMPPUTPIXELR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); set_user_bitmap_command_args(j, 8); break;
-	case 	BMPDRAWTILER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); set_user_bitmap_command_args(j, 15); break;
-	case 	BMPDRAWCOMBOR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); set_user_bitmap_command_args(j, 16); break;
-	case 	BMPFASTTILER:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); set_user_bitmap_command_args(j, 6); break;
-	case 	BMPFASTCOMBOR:  script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); set_user_bitmap_command_args(j, 6); break;
-	case 	BMPDRAWCHARR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+10); set_user_bitmap_command_args(j, 10); break;
-	case 	BMPDRAWINTR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); set_user_bitmap_command_args(j, 11); break;
+	case 	BMPCIRCLER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11);  break;
+	case 	BMPARCR:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14);  break;
+	case 	BMPELLIPSER:	set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12);  break;
+	case 	BMPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
+	case 	BMPSPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
+	case 	BMPPUTPIXELR:	set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
+	case 	BMPDRAWTILER:	set_user_bitmap_command_args(j, 15); script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); break;
+	case 	BMPDRAWCOMBOR:	set_user_bitmap_command_args(j, 16); script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
+	case 	BMPFASTTILER:	set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+	case 	BMPFASTCOMBOR:  set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+	case 	BMPDRAWCHARR:	set_user_bitmap_command_args(j, 10); script_drawing_commands[j][17] = SH::read_stack(ri->sp+10); break;
+	case 	BMPDRAWINTR:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
 	case 	BMPDRAWSTRINGR:	
 	{
 		set_user_bitmap_command_args(j, 9);
@@ -14648,10 +14686,10 @@ void do_drawing_command(const int script_command)
 		
 	}
 	break;
-	case 	BMPQUADR:	script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); set_user_bitmap_command_args(j, 16);  break;
+	case 	BMPQUADR:	set_user_bitmap_command_args(j, 16);  script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
 	case 	BMPQUAD3DR:
 	{
-		
+		set_drawing_command_args(j, 8);
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		v->resize(26, 0);
 		
@@ -14660,11 +14698,11 @@ void do_drawing_command(const int script_command)
 		long* col = &v->at(20);
 		long* size = &v->at(24);
 		
-		set_drawing_command_args(j, 8);
-		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 12);
-		ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 8);
-		ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 4);
-		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+		
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 12);
+		FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 8);
+		FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 4);
+		FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
 		
 		script_drawing_commands[j].SetVector(v);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+8);
@@ -14674,7 +14712,8 @@ void do_drawing_command(const int script_command)
 	case 	BMPTRIANGLER:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); break;
 	case 	BMPTRIANGLE3DR:
 	{
-	
+		set_drawing_command_args(j, 8);
+		
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		v->resize(20, 0);
 		
@@ -14683,11 +14722,11 @@ void do_drawing_command(const int script_command)
 		long* col = &v->at(15);
 		long* size = &v->at(18);
 		
-		set_drawing_command_args(j, 8);
-		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
-		ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 6);
-		ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
-		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+		
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 8);
+		FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 6);
+		FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 3);
+		FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
 		
 		script_drawing_commands[j].SetVector(v);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+8);
@@ -14698,11 +14737,11 @@ void do_drawing_command(const int script_command)
 	case 	BMPDRAWSCREENR: set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
 	case 	BMPBLIT:	
 	{
-		
+		set_user_bitmap_command_args(j, 16); 
 		//for(int q = 0; q < 8; ++q )
 		//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
-		set_user_bitmap_command_args(j, 16); break;
+		break;
 	}
     
     

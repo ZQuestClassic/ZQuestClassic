@@ -3548,7 +3548,7 @@ inline void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
-inline void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=pos[12]
@@ -3589,8 +3589,6 @@ inline void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffs
     
     int tex_width = w*16;
     int tex_height = h*16;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
