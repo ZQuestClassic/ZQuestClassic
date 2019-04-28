@@ -3405,11 +3405,23 @@ void DrawString(...);
 void DrawLayer(...);
 * Identical to Screen->DrawLayer(), but it draws to a target bitmap.
 
-void Quad(...);
+Quad( int layer, 
+	int x1, int y1, int x2, int y2, 
+	int x3, int y3, int x4, int y4,
+	int w, int h, int cset, int flip, 
+	int texture, int render_mode, bitmap render_source)
 * Identical to Screen->Quad(), but it draws to a target bitmap.
+* If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
 
-void Triangle(...);
+void Triangle	( int layer, 
+			int x1, int y1, int x2, 
+			int y2, int x3, int y3,
+			int w, int h, int cset, 
+			int flip, int texture, 
+			int render_mode, bitmap render_source);
+			
 * Identical to Screen->Triangle(), but it draws to a target bitmap.
+* If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
 
 void Quad3D(...);
 * Identical to Screen->Quad(), but it draws to a target bitmap.
