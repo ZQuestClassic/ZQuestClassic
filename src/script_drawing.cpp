@@ -2114,7 +2114,11 @@ inline void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     polytype = vbound(polytype, 0, 14);
     
-    if(((w-1) & w) != 0 || ((h-1) & h) != 0) return;   //non power of two error
+    if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+    {
+        Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+        return; //non power of two error
+    }
     
     int tex_width = w*16;
     int tex_height = h*16;
@@ -3585,7 +3589,11 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     polytype = vbound(polytype, 0, 14);
     
-    if(((w-1) & w) != 0 || ((h-1) & h) != 0) return;   //non power of two error
+	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+	{
+		Z_message("Quad3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+		return; //non power of two error
+	}
     
     int tex_width = w*16;
     int tex_height = h*16;
@@ -3642,7 +3650,7 @@ inline void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     
     if(!v_ptr)
     {
-        al_trace("Quad3d: Vector pointer is null! Internal error. \n");
+        al_trace("Triange3d: Vector pointer is null! Internal error. \n");
         return;
     }
     
@@ -3664,7 +3672,11 @@ inline void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     
     polytype = vbound(polytype, 0, 14);
     
-    if(((w-1) & w) != 0 || ((h-1) & h) != 0) return;   //non power of two error
+	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+	{
+		Z_message("Triangle3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+		return; //non power of two error
+	}
     
     int tex_width = w*16;
     int tex_height = h*16;
@@ -5415,6 +5427,8 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int y4 = sdci[9]/10000;
     int w = sdci[10]/10000;
     int h = sdci[11]/10000;
+    int utex_h = h;
+    int utex_w = w;
     int color = sdci[12]/10000;
     int flip=(sdci[13]/10000)&3;
     int tile = sdci[14]/10000;
@@ -5448,11 +5462,7 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     */
     polytype = vbound(polytype, 0, 14);
     
-    if(((w-1) & w) != 0 || ((h-1) & h) != 0)
-    {
-        Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
-        return; //non power of two error
-    }
+    
     
     int tex_width = w*16;
     int tex_height = h*16;
@@ -5516,24 +5526,30 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    }
     //}
 	    
-	if ( !tex_is_bitmap )
+	if ( tex_is_bitmap )
 	{
+		
 		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
-		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
-		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
-		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(tex_width), 0,                              col[3] };
+		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(utex_h), col[1] };
+		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(utex_w), static_cast<float>(utex_h), col[2] };
+		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(utex_w), 0,                              col[3] };
 	    
-		quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
+		quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4);
 	}
 	else
 	{
+		if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+		{
+			Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+			return; //non power of two error
+		}
 		Z_scripterrlog("bitmap->Quad() is trying to blit from a bitmap texture.\n");
 		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
 		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
 		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
 		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(w), 0,                              col[3] };
 	    
-		quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4);
+		quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
 		
 	}
     if(mustDestroyBmp)
@@ -5591,8 +5607,9 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
     int polytype = sdci[13]/10000;
     
     polytype = vbound(polytype, 0, 14);
+    int utex_w = w;
+    int utex_h = h;
     
-    if(((w-1) & w) != 0 || ((h-1) & h) != 0) return;   //non power of two error
     
     int tex_width = w*16;
     int tex_height = h*16;
@@ -5634,6 +5651,11 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
     }
     if ( !tex_is_bitmap )
     {
+	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+	{
+		Z_message("bitmap->Triangle() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+		return; //non power of two error
+	}
 	V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
 	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
 	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
@@ -5646,8 +5668,8 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
     else
     {
 	V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
-	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
-	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
+	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(utex_h), col[1] };
+	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(utex_w), static_cast<float>(utex_h), col[2] };
     
     
 	triangle3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3);    
@@ -7048,7 +7070,11 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     
     polytype = vbound(polytype, 0, 14);
     
-    if(((w-1) & w) != 0 || ((h-1) & h) != 0) return;   //non power of two error
+	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+	{
+		Z_message("Quad3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+		return; //non power of two error
+	}
     
     int tex_width = w*16;
     int tex_height = h*16;
@@ -7113,7 +7139,7 @@ inline void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, i
     
     if(!v_ptr)
     {
-        al_trace("Quad3d: Vector pointer is null! Internal error. \n");
+        al_trace("bitmap->Triangle3d: Vector pointer is null! Internal error. \n");
         return;
     }
     
@@ -7135,7 +7161,11 @@ inline void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, i
     
     polytype = vbound(polytype, 0, 14);
     
-    if(((w-1) & w) != 0 || ((h-1) & h) != 0) return;   //non power of two error
+	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+	{
+		Z_message("bitmap->Triangle3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+		return; //non power of two error
+	}
     
     int tex_width = w*16;
     int tex_height = h*16;
