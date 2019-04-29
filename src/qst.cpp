@@ -2693,6 +2693,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	set_bit(quest_rules, qr_OLDEWPNPARENT, 1);    
     }
+    if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
+    {
+	set_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS, 1);    
+    }
     //Sideview spikes in 2.50.0
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
     {

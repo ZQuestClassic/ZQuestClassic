@@ -5250,6 +5250,13 @@ inline void bmp_do_regenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[1]=layer
 	int h = sdci[2]/10000;
 	int w = sdci[3]/10000;
+	if ( get_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS) )
+	{
+		//flip height and width
+		h = h ^ w;
+		w = h ^ w; 
+		h = h ^ w;
+	}
 	//sdci[17] Bitmap Pointer
 	Z_scripterrlog("bitmap->Create() pointer is: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )

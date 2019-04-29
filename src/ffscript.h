@@ -1022,7 +1022,7 @@ enum __Error
         {
             long gptr = ptr - MAX_ZCARRAY_SIZE;
             
-            if(gptr > game->globalRAM.size())
+            if(gptr > (long)game->globalRAM.size())
                 return InvalidError(ptr);
                 
             return game->globalRAM[gptr];
@@ -1101,7 +1101,7 @@ enum __Error
         
         if(a == INVALIDARRAY)
             return;
-	if ( getSize(ptr) < min_size )
+	if ( getSize(ptr) < (unsigned)min_size )
 	{
 		Z_scripterrlog("Invalid array, size of [%d] provided to a function requiring a size of [%d].\n", getSize(ptr), min_size);
         }

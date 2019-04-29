@@ -18589,8 +18589,16 @@ long FFScript::do_create_bitmap()
 {
 	Z_scripterrlog("Begin running FFCore.do_create_bitmap()\n");
 	//CreateBitmap(h,w)
-	long w = (ri->d[0] / 10000);
-	long h = (ri->d[1]/10000);
+	long w = (ri->d[1] / 10000);
+	long h = (ri->d[0]/10000);
+	if ( get_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS) )
+	{
+		//flip height and width
+		h = h ^ w;
+		w = h ^ w; 
+		h = h ^ w;
+	}
+	
 	//sanity checks
 	int id = 0;
 	

@@ -937,7 +937,7 @@ bool SkipF6;
 bool SkipCredits;
 * If set true, the credits sequence shown at the end of the game is skipped.
 
-bitmap CreateBitmap()int height, int width);
+bitmap CreateBitmap(int width, int height);
 * Creates a bitmap with a size of height, width, and returns its pointer.
 
 bitmap LoadBitmapID(int id);
@@ -3321,7 +3321,7 @@ int Height;
 float GetPixel(int x, int y);
  * Returns the palette index value of a pixel on the current bitmap pointer (set by Game->LoadBitmapID).
 
-void Create(int layer, int height, int width);
+void Create(int layer, int width, int height);
  * Creates a bitmap on an already-initialised bitmap pointer, with a size of height, width.
  * Destroys any existing bitmap ont hat pointer before creating a new one. 
  * You can use this in conjunction with Game->AllocateBitmap(), or to destroy an existing bitmap and 
