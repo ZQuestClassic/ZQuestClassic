@@ -14689,7 +14689,7 @@ void do_drawing_command(const int script_command)
 	case 	BMPQUADR:	set_user_bitmap_command_args(j, 16);  script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
 	case 	BMPQUAD3DR:
 	{
-		set_drawing_command_args(j, 8);
+		set_drawing_command_args(j, 9);
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		v->resize(26, 0);
 		
@@ -14705,14 +14705,14 @@ void do_drawing_command(const int script_command)
 		FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
 		
 		script_drawing_commands[j].SetVector(v);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+8);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
 		
 	}
 	break;
 	case 	BMPTRIANGLER:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); break;
 	case 	BMPTRIANGLE3DR:
 	{
-		set_drawing_command_args(j, 8);
+		set_drawing_command_args(j, 9);
 		
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		v->resize(20, 0);
@@ -14729,7 +14729,7 @@ void do_drawing_command(const int script_command)
 		FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
 		
 		script_drawing_commands[j].SetVector(v);
-		script_drawing_commands[j][17] = SH::read_stack(ri->sp+8);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
 		break;
 	}
 	//case 	BMPPOLYGONR:

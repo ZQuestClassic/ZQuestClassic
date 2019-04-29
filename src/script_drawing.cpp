@@ -7035,6 +7035,7 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     //sdci[6]=flip
     //sdci[7]=tile/combo
     //sdci[8]=polytype
+	//sdci[9] = other bitmap as texture
 	//sdci[17] Bitmap Pointer
     if ( sdci[17] <= 0 )
     {
@@ -7067,14 +7068,9 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     int flip = (sdci[6]/10000)&3;
     int tile = sdci[7]/10000;
     int polytype = sdci[8]/10000;
+    int quad_render_source = sdci[9];
     
     polytype = vbound(polytype, 0, 14);
-    
-	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
-	{
-		Z_message("Quad3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
-		return; //non power of two error
-	}
     
     int tex_width = w*16;
     int tex_height = h*16;
@@ -7089,25 +7085,52 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
         clear_bitmap(tex);
     }
     
-    if(tile > 0)   // TILE
+    bool tex_is_bitmap = ( sdci[9] != 0 );
+    BITMAP *bmptexture;
+	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(quad_render_source);
+    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+   
+    
+    if ( !tex_is_bitmap )
     {
-        TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
+		
+	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+	{
+		Z_message("Quad3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+		return; //non power of two error
+	}
+	if(tile > 0)   // TILE
+	    {
+		TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
+	    }
+	    else        // COMBO
+	    {
+		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		const int tiletodraw = combo_tile(c, 0, 0);
+		flip = flip ^ c.flip;
+		
+		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
+	    }
+	    
+	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
+	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
+	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
+	V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
+    
+	quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
     }
-    else        // COMBO
+    else
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-        const int tiletodraw = combo_tile(c, 0, 0);
-        flip = flip ^ c.flip;
+	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
+	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
+	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
+	V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
         
-        TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
+	    
+	quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4);    
+	    
     }
-    
-    V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
-    V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
-    V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
-    V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
-    
-    quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
     
     if(mustDestroyBmp)
         destroy_bitmap(tex);
@@ -7126,6 +7149,7 @@ inline void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, i
     //sdci[6]=flip
     //sdci[7]=tile/combo
     //sdci[8]=polytype
+	//sdci[9] bitmap as texture
 	//sdci[17] Bitmap Pointer
     if ( sdci[17] <= 0 )
     {
@@ -7158,7 +7182,7 @@ inline void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, i
     int flip = (sdci[6]/10000)&3;
     int tile = sdci[7]/10000;
     int polytype = sdci[8]/10000;
-    
+    int quad_render_source = sdci[9];
     polytype = vbound(polytype, 0, 14);
     
 	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
@@ -7180,25 +7204,41 @@ inline void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, i
         clear_bitmap(tex);
     }
     
-    if(tile > 0)   // TILE
+    bool tex_is_bitmap = ( sdci[9] != 0 );
+    BITMAP *bmptexture;
+	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(quad_render_source);
+    
+    if ( !tex_is_bitmap )
     {
-        TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
+	    if(tile > 0)   // TILE
+	    {
+		TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
+	    }
+	    else        // COMBO
+	    {
+		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		const int tiletodraw = combo_tile(c, 0, 0);
+		flip = flip ^ c.flip;
+		
+		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
+	    }
+	    
+	    V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
+	    V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
+	    V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
+	    
+	    triangle3d_f(refbmp, polytype, tex, &V1, &V2, &V3);
     }
-    else        // COMBO
+    else
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-        const int tiletodraw = combo_tile(c, 0, 0);
-        flip = flip ^ c.flip;
-        
-        TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
+	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
+	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
+	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
+	    
+	triangle3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3);    
+	    
+	    
     }
-    
-    V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
-    V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
-    V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
-    
-    triangle3d_f(refbmp, polytype, tex, &V1, &V2, &V3);
-    
     if(mustDestroyBmp)
         destroy_bitmap(tex);
         
