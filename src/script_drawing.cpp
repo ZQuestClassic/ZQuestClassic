@@ -23,6 +23,21 @@ extern script_bitmaps scb;
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
 
+inline double sd_log2( double n )  
+{  
+    // log(n)/log(2) is log2.  
+	double v = log( (double)n ) / log( (double)2 );  
+    return v;
+}  
+
+inline bool isPowerOfTwo(int n) 
+{ 
+   if(n==0) 
+   return false; 
+  
+   return (ceil(sd_log2(n)) == floor(sd_log2(n))); 
+} 
+
 template<class T> inline
 fixed degrees_to_fixed(T d)
 {
@@ -5641,6 +5656,10 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if ( tex_is_bitmap )
 	{
 		
+		if ( !isPowerOfTwo(bmptexture->h) ) Z_scripterrlog("HEIGHT of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
+		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
+		if ( !isPowerOfTwo(utex_h) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", utex_w);
+		if ( !isPowerOfTwo(utex_w) ) Z_scripterrlog("HEIGHT ARG (%d) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", utex_h);
 		
 		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
 		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(utex_h), col[1] };
@@ -5788,6 +5807,11 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
     
     else
     {
+	if ( !isPowerOfTwo(bmptexture->h) ) Z_scripterrlog("HEIGHT of Bitmap ( pointer %d ) provided as a render source for bitmap->Triangle is not a POWER OF TWO.\nTextels may render improperly!\n", render_source);
+		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Triangle is not a POWER OF TWO.\nTextels may render improperly!\n", render_source);
+		if ( !isPowerOfTwo(utex_h) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Triangle is not a POWER OF TWO.\nTextels may render improperly!\n", utex_w);
+		if ( !isPowerOfTwo(utex_w) ) Z_scripterrlog("HEIGHT ARG (%d) provided as a render source for bitmap->Triangle is not a POWER OF TWO.\nTextels may render improperly!\n", utex_h);
+		
 	V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
 	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(utex_h), col[1] };
 	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(utex_w), static_cast<float>(utex_h), col[2] };
@@ -7276,6 +7300,10 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
 			tex_is_bitmap = 0;
 			return;
 		}
+	if ( !isPowerOfTwo(bmptexture->h) ) Z_scripterrlog("HEIGHT of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad3D is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
+		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad3D is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
+		if ( !isPowerOfTwo(h) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Quad3D is not a POWER OF TWO.\nTextels may render improperly!\n", h);
+		if ( !isPowerOfTwo(w) ) Z_scripterrlog("HEIGHT ARG (%d) provided as a render source for bitmap->Quad3D is not a POWER OF TWO.\nTextels may render improperly!\n", w);
 		
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
@@ -7395,7 +7423,11 @@ inline void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, i
     }
     else
     {
-	    
+	if ( !isPowerOfTwo(bmptexture->h) ) Z_scripterrlog("HEIGHT of Bitmap ( pointer %d ) provided as a render source for bitmap->Triangle3D is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
+		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Triangle3D is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
+		if ( !isPowerOfTwo(w) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Triangle3D is not a POWER OF TWO.\nTextels may render improperly!\n", w);
+		if ( !isPowerOfTwo(h) ) Z_scripterrlog("HEIGHT ARG (%d) provided as a render source for bitmap->Triangle3D is not a POWER OF TWO.\nTextels may render improperly!\n", h);
+		
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
