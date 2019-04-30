@@ -7245,8 +7245,8 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     
     
     bool tex_is_bitmap = ( sdci[9] != 0 );
-    Z_scripterrlog("sdci[9] is %d\n", quad_render_source);
-    Z_scripterrlog("sdci[17] is %d\n", sdci[17]-10);
+    //Z_scripterrlog("sdci[9] is %d\n", quad_render_source);
+    //Z_scripterrlog("sdci[17] is %d\n", sdci[17]-10);
     BITMAP *bmptexture;
     
 	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(quad_render_source);
