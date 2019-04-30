@@ -5367,6 +5367,11 @@ inline void bmp_do_regenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if ( scb.script_created_bitmaps[bitid].u_bmp )
 		destroy_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
 	scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,w,h);
+	
+	scb.script_created_bitmaps[bitid].width = w;
+	scb.script_created_bitmaps[bitid].height = h;
+	
+	
     
 }
 
@@ -5408,13 +5413,18 @@ inline void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset
    // Z_scripterrlog("Trying to read filename %s\n", cptr);
     
     scb.script_created_bitmaps[bitid].u_bmp = load_bitmap(str->c_str(), RAMpal);
+    scb.script_created_bitmaps[bitid].width = scb.script_created_bitmaps[bitid].u_bmp->w;
+    scb.script_created_bitmaps[bitid].height = scb.script_created_bitmaps[bitid].u_bmp->h;
     if ( !scb.script_created_bitmaps[bitid].u_bmp )
     {
 	Z_scripterrlog("Failed to load image file %s.\nMaking a blank bitmap on the pointer.\n", str->c_str());
-	scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,256,176);
-	clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
+	//scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,256,176);
+	//clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
     }
-    else Z_scripterrlog("Read image file %s\n",str->c_str());
+    else 
+    {
+	    Z_scripterrlog("Read image file %s\n",str->c_str());
+    }
 }
 
 inline bool checkExtension(std::string filename, std::string extension)

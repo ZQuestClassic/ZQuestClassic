@@ -6527,13 +6527,28 @@ case MAXDRAWS:
         break;
 
 case BITMAPWIDTH:
-	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->w * 10000;
+{
+	//if ( scb.script_created_bitmaps[ri->bitmapref].u_bmp ) 
+	//{
+	//	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->w * 10000;
+	//}
+	//else ret = 0;
+	ret = scb.script_created_bitmaps[ri->bitmapref-10].width * 10000;
 	break;
+}
 
 case BITMAPHEIGHT:
-	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->h * 10000;
+{
+	//Z_scripterrlog("BITMAPHEI|GHT ri->BitmapRef is %d\n", ri->bitmapref);
+	//Z_scripterrlog("ref bitmap height: %d\n", scb.script_created_bitmaps[ri->bitmapref-10].u_bmp->h);
+	//if ( scb.script_created_bitmaps[ri->bitmapref].u_bmp )
+	//{
+	//	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->h * 10000;
+	//}
+	//else ret = 0;
+	ret = scb.script_created_bitmaps[ri->bitmapref-10].height * 10000;
 	break;
-
+}
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case REFFFC:
