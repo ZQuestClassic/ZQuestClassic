@@ -13,7 +13,7 @@ const float PI				= 3.1416;
 const float PI2				= 6.2832;
 const float E				= 2.7183;
 
-const int NULL				= 0;
+const untyped NULL				= 0;
 
 const float RADIAN 			= 57.2958; //Multiplication value for converting degrees to radians.
 const float DEGREE			= 0.0174; //Multiplication value for converting radians to degrees. 

@@ -7304,8 +7304,8 @@ static AccessorTable BitmapTable[] =
 	{ "DrawCombo",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,      ZVARTYPEID_BOOL,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           } },
 	{ "Quad",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,  ZVARTYPEID_FLOAT,                         ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           } },
 	{ "Triangle",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                      ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           -1,                           -1,                           } },
-	{ "Quad3D",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
-	{ "Triangle3D",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
+	{ "Quad3D",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
+	{ "Triangle3D",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
 	{ "FastTile",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
 	{ "FastCombo",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
 	{ "DrawString",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
@@ -7599,7 +7599,7 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void Quad(bitmap, float, float, float, float, float, float, float, float, float)
+	//void Quad(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
 		Function* function = getFunction("Quad");
 		int label = function->getLabel();
@@ -7631,7 +7631,7 @@ void BitmapSymbols::generateCode()
 		function->giveCode(code);
 	}
     */
-	//void Triangle(bitmap, float, float, float, float, float, float, float, float, float)
+	//void Triangle(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
 		Function* function = getFunction("Triangle");
 		int label = function->getLabel();
@@ -7647,7 +7647,7 @@ void BitmapSymbols::generateCode()
 		function->giveCode(code);
 	}
     
-	//void Quad3D(bitmap, float, float, float, float, float, float, float, float, float)
+	//void Quad3D(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
 		Function* function = getFunction("Quad3D");
 		int label = function->getLabel();
@@ -7655,14 +7655,14 @@ void BitmapSymbols::generateCode()
 		Opcode *first = new OBMPQuad3DRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		POP_ARGS(8, EXP2);
+		POP_ARGS(9, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void Triangle3D(bitmap, float, float, float, float, float, float, float, float, float)
+	//void Triangle3D(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
 		Function* function = getFunction("Triangle3D");
 		int label = function->getLabel();
@@ -7670,7 +7670,7 @@ void BitmapSymbols::generateCode()
 		Opcode *first = new OBMPTriangle3DRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		POP_ARGS(8, EXP2);
+		POP_ARGS(9, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
