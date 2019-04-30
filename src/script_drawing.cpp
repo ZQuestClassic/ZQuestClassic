@@ -5857,7 +5857,7 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 	int bitmapIndex = sdci[2]/10000;
 	int usr_bitmap_index = sdci[2]-10;
 	byte using_user_bitmap = 0;
-	Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
+	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
 	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit() found a dest bitmap ID of: %d\n",bitmapIndex);
@@ -5922,7 +5922,7 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 	}
 	
 	BITMAP *destBMP;
-	Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
+	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
 	switch(bitmapIndex)
 	{
 		//-1 and -2 are now handled below. -Z ( 17th April, 2019 )
