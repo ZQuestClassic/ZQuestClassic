@@ -5323,7 +5323,7 @@ inline void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset
     scb.script_created_bitmaps[bitid].u_bmp = load_bitmap(str->c_str(), RAMpal);
     if ( !scb.script_created_bitmaps[bitid].u_bmp )
     {
-	Z_scripterrlog("Failed to load image file %s\n. Making a blank bitmap on the pointer.\n", str->c_str());
+	Z_scripterrlog("Failed to load image file %s.\nMaking a blank bitmap on the pointer.\n", str->c_str());
 	scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,256,176);
 	clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
     }
