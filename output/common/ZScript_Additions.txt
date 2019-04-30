@@ -3339,6 +3339,8 @@ void Clear(int layer);
 void Read(int layer, "filename");
  * Reads a valid graphic file into a bitmap pointer.
  * Use Game->AllocateBitmap() to prime the pointer first, if it is uninitialised.
+ * If the filename provided is invalid (e.g., the file is missing), the pointer
+ * will be initialised with a blank bitmap at a size of 256x176.
  
 void Write(int layer, "filename", bool allow_overwrite);
  * Writes a bitmap out as a graphic file.
@@ -3366,43 +3368,87 @@ void Blit	( int layer,
 *	as the argument to 'bitmap target'.
 * To draw to a user created bitmap, pass its pointer to 'bitmap target'.
 
-void Rectangle(...);
+void Rectangle(int layer, 
+			int x, int y, int x2, int y2, 
+			int color, float scale, 
+			int rx, int ry, int rangle, 
+			bool fill, int opacity		);
 * Identical to Screen->Rectangle(), but it draws to a target bitmap.
 
-void Circle(...);
+void Circle(int layer, 
+		int x, int y, int radius, 
+		int color, float scale, 
+		int rx, int ry, int rangle, 
+		bool fill, int opacity	);
 * Identical to Screen->Circle(), but it draws to a target bitmap.
 
-void Arc(...);
+void Arc(int layer, 
+		int x, int y, int radius, int startangle, int endangle, 
+		int color, float scale, 
+		int rx, int ry, int rangle, 
+		bool closed, bool fill, int opacity	);
 * Identical to Screen->Arc(), but it draws to a target bitmap.
 
 void Ellipse(...);
 * Identical to Screen->Ellipse(), but it draws to a target bitmap.
 
-void Line(...);
+void Line(int layer, 
+		int x, int y, int xradius, int yradius, 
+		int color, float scale, 
+		int rx, int ry, int rangle, 
+		bool fill, int opacity);
 * Identical to Screen->Line(), but it draws to a target bitmap.
 
-void Spline(...);
+void Spline(int layer, 
+		int x1, int y1, int x2, int y2, #
+		int x3, int y3,int x4, int y4, 
+		int color, int opacity);
 * Identical to Screen->Spline(), but it draws to a target bitmap.
 
-void PutPixel(...);
+void PutPixel(int layer, int x, int y, 
+		int color, 
+		int rx, int ry, int rangle, 
+		int opacity);
 * Identical to Screen->PutPixel(), but it draws to a target bitmap.
 
-void DrawCharacter(...);
+void DrawCharacter(int layer, int x, int y, 
+			int font, int color, int background_color, 
+			int width, int height, 'char', 
+			int opacity );
 * Identical to Screen->DrawCharacter(), but it draws to a target bitmap.
 
-void DrawInteger(...);
+void DrawInteger(int layer, int x, int y, 
+			int font, int color, int background_color, 
+			int width, int height, int number, int number_decimal_places, 
+			int opacity);
 * Identical to Screen->DrawInteger(), but it draws to a target bitmap.
 
-void DrawTile(...);
+void DrawTile(int layer, int x, int y, 
+		int tile, int blockw, int blockh, 
+		int cset, int xscale, int yscale, 
+		int rx, int ry, int rangle, 
+		int flip, 
+		bool transparency, int opacity);
 * Identical to Screen->DrawTile(), but it draws to a target bitmap.
 
-void DrawCombo(...);
+void DrawComboint layer, int x, int y, 
+		int combo, int w, int h, 
+		int cset, int xscale, int yscale, 
+		int rx, int ry, int rangle, 
+		int frame, int flip, 
+		bool transparency, int opacity);
 * Identical to Screen->DrawCombo(), but it draws to a target bitmap.
 
-void DrawString(...);
+void DrawString(int layer, 
+			int x, int y, 
+			int font, int color, int background_color, int format, 
+			"string", 
+			int opacity );
 * Identical to Screen->DrawString(), but it draws to a target bitmap.
 
-void DrawLayer(...);
+void DrawLayer(int layer, 
+			int source_map, int source_screen, int source_layer, 
+			int x, int y, float rotation, int opacity);
 * Identical to Screen->DrawLayer(), but it draws to a target bitmap.
 
 Quad( int layer, 
@@ -3410,8 +3456,15 @@ Quad( int layer,
 	int x3, int y3, int x4, int y4,
 	int w, int h, int cset, int flip, 
 	int texture, int render_mode, bitmap render_source)
-* Identical to Screen->Quad(), but it draws to a target bitmap.
-* If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
+ * Identical to Screen->Quad(), but it draws to a target bitmap, and you can specify a bitmap as your texture.
+ * Pass the bitmap pointer that you want to use to 'bitmap render_source'.
+ * If you do not wish to use a bitmap as a texture, pass NULL to the arg 'bitmap render_source'.
+ * Use PT_TEXTURE or a similar polytype, to render your bitmap as a texture.
+ * For bitmap textures, specify the exact height and width of the texture as args 'w' and 'h'.
+ * If rendering a bitmap as a texture, the 'h' and 'w' args need not be a power of 2. 
+ * If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
+ * If the pointer supplied to render_source is invalid (contains no data), then
+ * this function will default to using a tile. 
 
 void Triangle	( int layer, 
 			int x1, int y1, int x2, 
@@ -3420,19 +3473,51 @@ void Triangle	( int layer,
 			int flip, int texture, 
 			int render_mode, bitmap render_source);
 			
-* Identical to Screen->Triangle(), but it draws to a target bitmap.
-* If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
+ * Identical to Screen->Triangle(), but it draws to a target bitmap, and you can specify a bitmap as your texture.
+ * Pass the bitmap pointer that you want to use to 'bitmap render_source'.
+ * If you do not wish to use a bitmap as a texture, pass NULL to the arg 'bitmap render_source'.
+ * Use PT_TEXTURE or a similar polytype, to render your bitmap as a texture. 
+ * For bitmap textures, specify the exact height and width of the texture as args 'w' and 'h'.
+ * If rendering a bitmap as a texture, the 'h' and 'w' args need not be a power of 2. 
+ * If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
+ * If the pointer supplied to render_source is invalid (contains no data), then
+ * this function will default to using a tile. 
 
-void Quad3D(...);
-* Identical to Screen->Quad(), but it draws to a target bitmap.
+void Quad3D( int layer, 
+			int pos[12], int uv[8], int cset[4], int size[2], 
+			int flip, int texture, int polytype, bitmap render_source );
+ * Identical to Screen->Quad(), but it draws to a target bitmap, and you can specify a bitmap as your texture.
+ * Pass the bitmap pointer that you want to use to 'bitmap render_source'.
+ * If you do not wish to use a bitmap as a texture, pass NULL to the arg 'bitmap render_source'.
+ * Use PT_TEXTURE or a similar polytype, to render your bitmap as a texture. 
+ * For bitmap textures, specify the exact height and width of the texture as args 'w' and 'h'.
+ * If rendering a bitmap as a texture, the 'h' and 'w' args need not be a power of 2. 
+ * If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
+ * If the pointer supplied to render_source is invalid (contains no data), then
+ * this function will default to using a tile.
 
-void Triangle3D(...);
-* Identical to Screen->Triangle(), but it draws to a target bitmap.
+void Triangle3D( int layer, 
+			int pos[9], int uv[6], int csets[3], int size[2], 
+			int flip, int tile, int polytype, bitmap render_source);
+			
+ * Identical to Screen->Triangle(), but it draws to a target bitmap, and you can specify a bitmap as your texture.
+ * Pass the bitmap pointer that you want to use to 'bitmap render_source'.
+ * If you do not wish to use a bitmap as a texture, pass NULL to the arg 'bitmap render_source'.
+ * Use PT_TEXTURE or a similar polytype, to render your bitmap as a texture. 
+ * For bitmap textures, specify the exact height and width of the texture as args 'w' and 'h'.
+ * If rendering a bitmap as a texture, the 'h' and 'w' args need not be a power of 2. 
+ * If `bitmap render_source` != NULL, then it will use this as the texture, instead of a tile or combo.
+ * If the pointer supplied to render_source is invalid (contains no data), then
+ * this function will default to using a tile.
 
-void FastTile(...);
+void FastTile(int layer, int x, int y, 
+		int tile, int cset, 
+		int opacity );
 * Identical to Screen->FastTile(), but it draws to a target bitmap.
 
-void FastCombo(...);
+void FastCombo(int layer, int x, int y, 
+		int combo, int cset, 
+		int opacity );
 * Identical to Screen->FastCombo(), but it draws to a target bitmap.
 
 // Destroy()
