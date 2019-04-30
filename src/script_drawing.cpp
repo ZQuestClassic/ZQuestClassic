@@ -5321,7 +5321,13 @@ inline void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset
    // Z_scripterrlog("Trying to read filename %s\n", cptr);
     
     scb.script_created_bitmaps[bitid].u_bmp = load_bitmap(str->c_str(), RAMpal);
-    Z_scripterrlog("Read image file %s\n",str->c_str());
+    if ( !scb.script_created_bitmaps[bitid].u_bmp )
+    {
+	Z_scripterrlog("Failed to load image file %s\n. Making a blank bitmap on the pointer.\n", str->c_str());
+	scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,256,176);
+	clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
+    }
+    else Z_scripterrlog("Read image file %s\n",str->c_str());
 }
 
 inline bool checkExtension(std::string filename, std::string extension)
@@ -5438,7 +5444,15 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     bool tex_is_bitmap = ( sdci[16] != 0 );
     BITMAP *bmptexture;
-	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(quad_render_source);
+	if ( tex_is_bitmap ) 
+	{
+		bmptexture = FFCore.GetScriptBitmap(quad_render_source);
+		if ( !bmptexture ) 
+		{
+			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised. Aborting.\n", "bitmap->Triangle3()");
+			return;
+		}
+	}
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
@@ -5529,6 +5543,7 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if ( tex_is_bitmap )
 	{
 		
+		
 		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
 		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(utex_h), col[1] };
 		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(utex_w), static_cast<float>(utex_h), col[2] };
@@ -5589,7 +5604,15 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
     bool tex_is_bitmap = ( sdci[14] != 0 );
     
     BITMAP *bmptexture;
-	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(render_source);
+	if ( tex_is_bitmap ) 
+	{
+		bmptexture = FFCore.GetScriptBitmap(render_source);
+		if ( !bmptexture ) 
+		{
+			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised. Aborting.\n", "bitmap->Triangle3()");
+			return;
+		}
+	}
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
@@ -7068,7 +7091,7 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     int flip = (sdci[6]/10000)&3;
     int tile = sdci[7]/10000;
     int polytype = sdci[8]/10000;
-    int quad_render_source = sdci[9];
+    int quad_render_source = sdci[9]-10;
     
     polytype = vbound(polytype, 0, 14);
     
@@ -7122,6 +7145,11 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     }
     else
     {
+	    if ( !bmptexture ) 
+		{
+			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised. Aborting.\n", "bitmap->Quad3D()");
+			return;
+		}
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
@@ -7182,7 +7210,7 @@ inline void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, i
     int flip = (sdci[6]/10000)&3;
     int tile = sdci[7]/10000;
     int polytype = sdci[8]/10000;
-    int quad_render_source = sdci[9];
+    int quad_render_source = sdci[9]-10;
     polytype = vbound(polytype, 0, 14);
     
 	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
@@ -7206,7 +7234,15 @@ inline void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, i
     
     bool tex_is_bitmap = ( sdci[9] != 0 );
     BITMAP *bmptexture;
-	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(quad_render_source);
+	if ( tex_is_bitmap ) 
+	{
+		bmptexture = FFCore.GetScriptBitmap(quad_render_source);
+		if ( !bmptexture ) 
+		{
+			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised. Aborting.\n", "bitmap->Triangle3()");
+			return;
+		}
+	}
     
     if ( !tex_is_bitmap )
     {
@@ -7231,6 +7267,7 @@ inline void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, i
     }
     else
     {
+	    
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
