@@ -5449,8 +5449,8 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		bmptexture = FFCore.GetScriptBitmap(quad_render_source);
 		if ( !bmptexture ) 
 		{
-			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised. Aborting.\n", "bitmap->Triangle3()");
-			return;
+			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Triangle3()");
+			tex_is_bitmap = 0;
 		}
 	}
     
@@ -5609,8 +5609,8 @@ inline void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 		bmptexture = FFCore.GetScriptBitmap(render_source);
 		if ( !bmptexture ) 
 		{
-			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised. Aborting.\n", "bitmap->Triangle3()");
-			return;
+			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Triangle3()");
+			tex_is_bitmap = 0;
 		}
 	}
     
@@ -7147,8 +7147,8 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     {
 	    if ( !bmptexture ) 
 		{
-			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised. Aborting.\n", "bitmap->Quad3D()");
-			return;
+			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Quad3D()");
+			tex_is_bitmap = 0;
 		}
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
@@ -7239,8 +7239,8 @@ inline void bmp_do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, i
 		bmptexture = FFCore.GetScriptBitmap(quad_render_source);
 		if ( !bmptexture ) 
 		{
-			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised. Aborting.\n", "bitmap->Triangle3()");
-			return;
+			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Triangle3()");
+			tex_is_bitmap = 0;
 		}
 	}
     
