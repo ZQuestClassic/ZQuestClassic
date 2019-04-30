@@ -780,6 +780,7 @@ script_command command_list[NUMCOMMANDS+1]=
       { "ALLOCATEBITMAP",        1,   0,   0,   0},
       { "CLEARBITMAP",        0,   0,   0,   0},
       { "REGENERATEBITMAP",        0,   0,   0,   0},
+      { "BMPBLITTO",                0,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 

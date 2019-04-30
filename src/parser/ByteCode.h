@@ -6829,6 +6829,15 @@ namespace ZScript
 			return new OBMPDrawBitmapExRegister();
 		}
 	};
+	class OBMPBlitTO : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPBlitTO();
+		}
+	};
 	class OBMPQuadRegister : public Opcode
 	{
 	public:

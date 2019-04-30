@@ -3373,11 +3373,23 @@ void Blit	( int layer,
 			int dest_x, int dest_y, int dest_w, int dest_h, 
 			float rotation, int cx, int cy, int mode, int lit,  bool mask);
 			
-* As DrawBitmapEx(), except that it draws the bitmap of an initialised bitmap pointer,
-* to a target bitmap, which may be a user-created bitmap, or it may be the screen.
+* As DrawBitmapEx(), except that it draws FROM an initialised bitmap pointer,
+* TO a target bitmap, which may be a user-created bitmap, or it may be the screen.
 * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
 *	as the argument to 'bitmap target'.
 * To draw to a user created bitmap, pass its pointer to 'bitmap target'.
+
+void BlitTo ( int layer, 
+			bitmap source, 
+			int source_x, int source_y, int source_w, int source_h, 
+			int dest_x, int dest_y, int dest_w, int dest_h, 
+			float rotation, int cx, int cy, int mode, int lit,  bool mask);
+			
+* As DrawBitmapEx(), except that it draws TO an initialised bitmap pointer,
+* FROM a source bitmap, which may be a user-created bitmap, or it may be the screen.
+* To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
+*	as the argument to 'bitmap source'.
+* To draw from a user created bitmap, pass its pointer to 'bitmap source.
 
 void Rectangle(int layer, 
 			int x, int y, int x2, int y2, 

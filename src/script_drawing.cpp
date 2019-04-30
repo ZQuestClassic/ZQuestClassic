@@ -7188,6 +7188,1365 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 }
 
 
+
+inline void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	/*
+	//sdci[1]=layer 
+	//sdci[2]=bitmap target 
+		//
+		//	-2 is the current Render Target
+		//	-1, this is the screen (framebuf). 
+		//	0: Render target 0
+		//	1: Render target 1
+		//	2: Render target 2
+		//	3: Render target 3
+		//	4: Render target 4
+		//	5: Render target 5
+		//	6: Render target 6
+		//	Otherwise: The pointer to a bitmap. 
+		
+	//sdci[3]=sourcex
+	//sdci[4]=sourcey
+	//sdci[5]=sourcew
+	//sdci[6]=sourceh
+	//sdci[7]=destx
+	//sdci[8]=desty
+	//sdci[9]=destw
+	//sdci[10]=desth
+	//sdci[11]=rotation/angle
+	//scdi[12] = pivot cx
+	//sdci[13] = pivot cy
+	//scdi[14] = effect flags
+	//sdci[17] Bitmap Pointer
+	
+		// ZScript-side constant values:
+		const int BITDX_NORMAL = 0;
+		const int BITDX_TRANS = 1; //Translucent
+		const int BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+		const int BITDX_HFLIP = 4; //Horizontal Flip
+		const int BITDX_VFLIP = 8; //Vertical Flip.
+		//Note:	Some modes cannot be combined. if a combination is not supported, an error
+		//	detailing this will be shown in allegro.log.
+		
+	//scdi[15] = litcolour
+		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour); 
+		//not rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+	
+	//sdci[16]=mask
+	
+	*/
+	
+
+	int bitmapIndex = sdci[2]/10000;
+	int usr_bitmap_index = sdci[2]-10;
+	byte using_user_bitmap = 0;
+	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
+	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit() found a dest bitmap ID of: %d\n",bitmapIndex);
+	#endif
+	if ( bitmapIndex > 10000 )
+	{
+		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int> 8;
+	}
+	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
+	{
+		bitmapIndex = usr_bitmap_index;
+		using_user_bitmap = 1;
+		yoffset = 0;
+	}
+	
+	int sx = sdci[3]/10000;
+	int sy = sdci[4]/10000;
+	int sw = sdci[5]/10000;
+	//Z_scripterrlog("sh is: %d\n",sdci[5]/10000);
+	int sh = sdci[6]/10000;
+	//Z_scripterrlog("sh is: %d\n",sdci[6]/10000);
+	int dx = sdci[7]/10000;
+	int dy = sdci[8]/10000;
+	int dw = sdci[9]/10000;
+	int dh = sdci[10]/10000;
+	float rot = sdci[11]/10000;
+	int cx = sdci[12]/10000;
+	int cy = sdci[13]/10000;
+	int mode = sdci[14]/10000;
+	int litcolour = sdci[15]/10000;
+	bool masked = (sdci[16] != 0);
+	
+	int ref = 0;
+	
+	dx = dx + xoffset;
+	dy = dy + yoffset;
+	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	//Do we need to also check the render target and do the same thing if the 
+		//dest == -2 and the render target is not RT_SCREEN?
+		
+	ref = sdci[17];
+	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
+	ref -=10;
+	//Z_scripterrlog("bitmap->blit() modified ref id this frame is: %d\n", ref);
+		
+	
+	if ( ref <= 0 )
+	{
+		Z_scripterrlog("bitmap->blit() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ref);
+		return;
+	}
+	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ref); //This can be the screen, as -1. 
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("bitmap->Blit() is trying to blit to ref: %d\n",sdci[17]);
+	#endif
+	if(!sourceBitmap)
+	{
+		Z_message("Warning: blit(%d) source bitmap contains invalid data or is not initialized.\n", ref);
+		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
+		return;
+	}
+	
+	BITMAP *destBMP;
+	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
+	switch(bitmapIndex)
+	{
+		//-1 and -2 are now handled below. -Z ( 17th April, 2019 )
+		//1 through 6 are the old system bitmaps (Render Targets)
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6: 
+		{
+			//This gets a render target.
+		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
+		}
+		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
+		default: 
+		{
+			destBMP = scb.script_created_bitmaps[usr_bitmap_index].u_bmp;
+			if ( !scb.script_created_bitmaps[usr_bitmap_index].u_bmp )
+			{
+				Z_scripterrlog("Target for bitmap->Blit is uninitialised. Aborting.\n");
+				break;
+			}
+		}
+			//FFCore.get_user_bitmap(bitmapIndex); break;
+	}
+	
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("bitmap->Blit() is trying to blit to dest bitmap ID: %d\n",bitmapIndex);
+	#endif
+	
+	
+	if ( bitmapIndex == -1 ) 
+	{
+		destBMP = framebuf; //Drawing to the screen.
+	}
+	
+	else if ( bitmapIndex == -2 ) 
+	{
+
+		destBMP = bmp; //Drawing to the current RenderTarget.
+	}
+	else if (!destBMP)
+	{
+		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
+		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
+		return;
+	}
+	
+	//bugfix
+	//sx = vbound(sx, 0, sourceBitmap->w);
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit %s is: %d\n", "sx", sx);
+	Z_scripterrlog("Blit %s is: %d\n", "source->w", sourceBitmap->w);
+	#endif
+	//sy = vbound(sy, 0, sourceBitmap->h);
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit %s is: %d\n", "sy", sy);
+	Z_scripterrlog("Blit %s is: %d\n", "source->h", sourceBitmap->h);
+	#endif
+	//sw = vbound(sw, 0, sourceBitmap->w - sx); //keep the w/h within range as well
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit %s is: %d\n", "sw", sw);
+	#endif
+	//sh = vbound(sh, 0, sourceBitmap->h - sy);
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit %s is: %d\n", "sh", sh);
+
+	Z_scripterrlog("Blit %s is: %d\n", "dh", dh);
+	Z_scripterrlog("Blit %s is: %d\n", "dw", dw);
+	#endif
+	bool stretched = (sw != dw || sh != dh);
+	//bool stretched = (sourceBitmap->w != destBMP->w || sourceBitmap->h != destBMP->h);
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
+	#endif
+	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
+	
+	
+    
+	BITMAP* newDest = sourceBitmap;
+	BITMAP* newSource = destBMP; //Flip them. 
+    
+	BITMAP* subBmp = 0;
+	
+	/* IDR what this was. -Z ( 17th April, 2019 )
+	if ( bitmapIndex == -1 ) {
+		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh); 
+	}
+	*/
+    
+	if(rot != 0 || mode != 0)    
+	{
+		subBmp = create_bitmap_ex(8,sourceBitmap->w, sourceBitmap->h);//script_drawing_commands.AquireSubBitmap(dw, dh);
+		clear_bitmap(subBmp);
+        
+		if(!subBmp)
+		{
+			Z_scripterrlog("bitmap->Blit failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
+			return;
+		}
+	}
+    
+    
+	//dx = dx + xoffset; //don't do this here!
+	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
+    
+	if(stretched) 
+	{
+		if(masked) 
+		{	//stretched and masked
+			if ( rot == 0 ) 
+			{ //if not rotated
+				switch(mode) 
+				{
+					case 1:
+					//transparent
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_trans_sprite(newDest, subBmp, dx, dy);
+					break;
+					
+					
+					case 2: 
+						//pivot?
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
+					break;
+					
+					case 3: 
+						//pivot + trans
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite_trans(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
+					
+					case 4: 
+						//flip v
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_v_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 5: 
+						//trans + v flip
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
+					break;
+					
+					case 6: 
+						//pivot + v flip
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite_v_flip(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
+					
+					case 8: 
+						//vlip h
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_h_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 9: 
+						//trans + h flip
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
+					break;
+					
+					case 10: 
+						//flip H and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
+					//return error cannot pivot and h flip
+					break;
+					
+					case 12:
+						//vh flip
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_vh_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 13: 
+						//trans + vh flip
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
+					break;
+					
+					case 14: 
+						//pivot and vh flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
+					//return error cannot both pivot and vh flip
+					break;
+					
+					case 16: 
+						//lit
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_lit_sprite(newDest, subBmp, dx, dy, litcolour);
+					break;
+					
+					case 18: 
+						//pivot, lit
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite_lit(newDest, subBmp, dx, dy, cx, cy,  degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 20: 
+						//lit + v flip
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
+					break;
+					
+					case 22: 
+						//Pivot, vflip, lit
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite_v_flip_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 24: 
+						//lit + h flip
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
+					break;
+					
+					case 26: 
+						//pivot + lit + hflip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
+					//return error cannot pivot, lit, and flip
+					break;
+					
+					case 28: 
+						//lit + vh flip
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
+					break;
+					
+					case 32: //gouraud
+						//Probably not wort supporting. 
+					//masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					break;
+					
+					case 0: 
+						//no effect
+					masked_stretch_blit(newSource, newDest, sx, sy, sw, sh, dx, dy, dw, dh);
+					break;
+					
+					
+					default:
+						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
+					
+					
+				}
+			} //end if not rotated
+			
+			if ( rot != 0 ) //if rotated
+			{ 
+				switch(mode)
+				{
+					case 1: 
+						//transparent
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					
+					break;
+					
+					case 2: 
+						//pivot?
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					//return an error, cannot both rotate and pivot
+					break;
+					
+					case 3: 
+						//pivot + trans
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					break;
+					
+					case 4: 
+						//flip v
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite_v_flip(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					case 5: 
+						//trans + v flip
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite_v_flip_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					case 6: 
+						//pivot + v flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					//return an error, cannot both rotate and pivot
+					break;
+					
+					case 8: 
+						//flip h
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
+					//return an error, cannot both rotate and flip H
+					break;
+					
+					case 9: 
+						//trans + h flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
+					//return an error, cannot rotate and flip a trans sprite
+					break;
+					
+					case 10: 
+						//flip H and pivot
+					//return error cannot pivot and h flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
+					break;
+					
+					case 12: 
+						//vh flip
+					//return an error, cannot rotate and VH flip a trans sprite
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 13: 
+						//trans + vh flip
+					//return an error, cannot rotate and VH flip a trans sprite
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 14: 
+						//pivot and vh flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					//return error cannot both pivot and vh flip
+					break;
+					
+					case 16: 
+						//lit
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 18: 
+						//pivot, lit
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					break;
+					
+					case 20: 
+						//lit + vflip
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite_v_flip_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 22: 
+						//Pivot, vflip, lit
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					break;
+					
+					case 24: 
+						//lit + h flip
+					//return an error, cannot both rotate and H flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
+					break;
+					
+					case 26: 
+						//pivot + lit + hflip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
+					//return error cannot pivot, lit, and flip
+					break;
+					
+					case 28: 
+						//lit + vh flip
+					//return an error, cannot both rotate and VH flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 32: //gouraud
+						//Probably not wort supporting. 
+					//masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					break;
+					
+					case 0: 
+						//no effect.
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					default:
+						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
+				
+				}
+			}
+		} //end if stretched and masked 
+		
+		else  //stretched, not masked
+		{
+			
+		
+			if ( rot == 0 ) //if not rotated
+			{
+				switch(mode) 
+				{
+					case 1:
+					//transparent
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_trans_sprite(newDest, subBmp, dx, dy);
+					break;
+					
+					
+					case 2: 
+						//pivot?
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
+					break;
+					
+					case 3: 
+						//pivot + trans
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite_trans(newDest, subBmp, dx,dy,  cx,  cy, degrees_to_fixed(rot));
+					break;
+					
+					case 4: 
+						//flip v
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_v_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 5: 
+						//trans + v flip
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
+					break;
+					
+					case 6: 
+						//pivot + v flip
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite_v_flip(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
+					
+					case 8: 
+						//vlip h
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_h_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 9: 
+						//trans + h flip
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
+					break;
+					
+					case 10: 
+						//flip H and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
+					//return error cannot pivot and h flip
+					break;
+					
+					case 12:
+						//vh flip
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_vh_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 13: 
+						//trans + vh flip
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
+					break;
+					
+					case 14: 
+						//pivot and vh flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
+					//return error cannot both pivot and vh flip
+					break;
+					
+					case 16: 
+						//lit
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_lit_sprite(newDest, subBmp, dx, dy, litcolour);
+					break;
+					
+					case 18: 
+						//pivot, lit
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 20: 
+						//lit + v flip
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
+					break;
+					
+					case 22: 
+						//Pivot, vflip, lit
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite_v_flip_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 24: 
+						//lit + h flip
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
+					break;
+					
+					case 26: 
+						//pivot + lit + hflip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
+					//return error cannot pivot, lit, and flip
+					break;
+					
+					case 28: 
+						//lit + vh flip
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
+					break;
+					
+					case 32: //gouraud
+						//Probably not wort supporting. 
+					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					break;
+					
+					case 0: 
+						//no effect
+					stretch_blit(newSource, newDest, sx, sy, sw, sh, dx, dy, dw, dh);
+					break;
+					
+					
+					default:
+						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
+					
+					
+				}
+			} //end if not rotated
+			
+			if ( rot != 0 )  //if rotated
+			{
+				switch(mode)
+				{
+					case 1: 
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
+					rotate_sprite_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					
+					break;
+					
+					case 2: 
+						//pivot?
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					//return an error, cannot both rotate and pivot
+					break;
+					
+					case 3: 
+						//pivot + trans
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					break;
+					
+					case 4: 
+						//flip v
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite_v_flip(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					case 5: 
+						//trans + v flip
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite_v_flip_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					case 6: 
+						//pivot + v flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					//return an error, cannot both rotate and pivot
+					break;
+					
+					case 8: 
+						//flip h
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
+					//return an error, cannot both rotate and flip H
+					break;
+					
+					case 9: 
+						//trans + h flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
+					//return an error, cannot rotate and flip a trans sprite
+					break;
+					
+					case 10: 
+						//flip H and pivot
+					//return error cannot pivot and h flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
+					break;
+					
+					case 12: 
+						//vh flip
+					//return an error, cannot rotate and VH flip a trans sprite
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 13: 
+						//trans + vh flip
+					//return an error, cannot rotate and VH flip a trans sprite
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 14: 
+						//pivot and vh flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					//return error cannot both pivot and vh flip
+					break;
+					
+					case 16: 
+						//lit
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
+					rotate_sprite_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 18: 
+						//pivot, lit
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					break;
+					
+					case 20: 
+						//lit + vflip
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
+					rotate_sprite_v_flip_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 22: 
+						//Pivot, vflip, lit
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					break;
+					
+					case 24: 
+						//lit + h flip
+					//return an error, cannot both rotate and H flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
+					break;
+					
+					case 26: 
+						//pivot + lit + hflip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
+					//return error cannot pivot, lit, and flip
+					break;
+					
+					case 28: 
+						//lit + vh flip
+					//return an error, cannot both rotate and VH flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 32: //gouraud
+						//Probably not wort supporting. 
+					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					break;
+					
+					case 0: 
+						//no effect.
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					rotate_sprite(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					default:
+						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
+				
+				}
+			}
+			
+		} //end if stretched, but not masked
+	}
+	else //not stretched
+	{ 
+		
+		if(masked) //if masked, but not stretched
+		{ 
+			
+			if ( rot == 0 ) //if not rotated
+			{ 
+				switch(mode) 
+				{
+					case 1:
+					//transparent
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_trans_sprite(newDest, subBmp, dx, dy);
+					break;
+					
+					
+					case 2: 
+						//pivot?
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
+					break;
+					
+					case 3: 
+						//pivot + trans
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					pivot_sprite_trans(newDest, subBmp, dx, dy,  cx, cy, degrees_to_fixed(rot));
+					break;
+					
+					case 4: 
+						//flip v
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_sprite_v_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 5: 
+						//trans + v flip
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
+					break;
+					
+					case 6: 
+						//pivot + v flip
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					pivot_sprite_v_flip(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
+					break;
+					
+					case 8: 
+						//vlip h
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_sprite_h_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 9: 
+						//trans + h flip
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
+					break;
+					
+					case 10: 
+						//flip H and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
+					//return error cannot pivot and h flip
+					break;
+					
+					case 12:
+						//vh flip
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_sprite_vh_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 13: 
+						//trans + vh flip
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
+					break;
+					
+					case 14: 
+						//pivot and vh flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
+					//return error cannot both pivot and vh flip
+					break;
+					
+					case 16: 
+						//lit
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_lit_sprite(newDest, subBmp, dx, dy, litcolour);
+					break;
+					
+					case 18: 
+						//pivot, lit
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					pivot_sprite_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 20: 
+						//lit + v flip
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
+					break;
+					
+					case 22: 
+						//Pivot, vflip, lit
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					pivot_sprite_v_flip_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 24: 
+						//lit + h flip
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
+					break;
+					
+					case 26: 
+						//pivot + lit + hflip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
+					//return error cannot pivot, lit, and flip
+					break;
+					
+					case 28: 
+						//lit + vh flip
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
+					break;
+					
+					case 32: //gouraud
+						//Probably not wort supporting. 
+					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					break;
+					
+					case 0: 
+						//no effect
+					masked_blit(newSource, newDest, sx, sy, dx, dy, dw, dh);
+					break;
+					
+					
+					default:
+						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
+					
+					
+				}
+			} //end if not rotated
+			
+			if ( rot != 0 )  //if rotated
+			{
+				switch(mode)
+				{
+					case 1: 
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);	//transparent
+					rotate_sprite_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					
+					break;
+					
+					case 2: 
+						//pivot?
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					//return an error, cannot both rotate and pivot
+					break;
+					
+					case 3: 
+						//pivot + trans
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					break;
+					
+					case 4: 
+						//flip v
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					rotate_sprite_v_flip(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					case 5: 
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);	//trans + v flip
+					rotate_sprite_v_flip_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					case 6: 
+						//pivot + v flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					//return an error, cannot both rotate and pivot
+					break;
+					
+					case 8: 
+						//flip h
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
+					//return an error, cannot both rotate and flip H
+					break;
+					
+					case 9: 
+						//trans + h flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
+					//return an error, cannot rotate and flip a trans sprite
+					break;
+					
+					case 10: 
+						//flip H and pivot
+					//return error cannot pivot and h flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
+					break;
+					
+					case 12: 
+						//vh flip
+					//return an error, cannot rotate and VH flip a trans sprite
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 13: 
+						//trans + vh flip
+					//return an error, cannot rotate and VH flip a trans sprite
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 14: 
+						//pivot and vh flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					//return error cannot both pivot and vh flip
+					break;
+					
+					case 16: 
+						//lit
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					rotate_sprite_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 18: 
+						//pivot, lit
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					break;
+					
+					case 20: 
+						//lit + vflip
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					rotate_sprite_v_flip_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 22: 
+						//Pivot, vflip, lit
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					break;
+					
+					case 24: 
+						//lit + h flip
+					//return an error, cannot both rotate and H flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
+					break;
+					
+					case 26: 
+						//pivot + lit + hflip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
+					//return error cannot pivot, lit, and flip
+					break;
+					
+					case 28: 
+						//lit + vh flip
+					//return an error, cannot both rotate and VH flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 32: //gouraud
+						//Probably not wort supporting. 
+					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					break;
+					
+					case 0: 
+						//no effect.
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					rotate_sprite(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					default:
+						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
+				
+				}
+			} //end rtated, masked
+		} //end if masked
+
+		else  //not masked, and not stretched; just blit
+		{
+			
+			if ( rot == 0 ) //if not rotated
+			{ 
+				switch(mode) 
+				{
+					case 1:
+					//transparent
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_trans_sprite(newDest, subBmp, dx, dy);
+					break;
+					
+					
+					case 2: 
+						//pivot?
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
+					break;
+					
+					case 3: 
+						//pivot + trans
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					pivot_sprite_trans(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
+					break;
+					
+					case 4: 
+						//flip v
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_sprite_v_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 5: 
+						//trans + v flip
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
+					break;
+					
+					case 6: 
+						//pivot + v flip
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					pivot_sprite_v_flip(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
+					
+					case 8: 
+						//vlip h
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_sprite_h_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 9: 
+						//trans + h flip
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
+					break;
+					
+					case 10: 
+						//flip H and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
+					//return error cannot pivot and h flip
+					break;
+					
+					case 12:
+						//vh flip
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_sprite_vh_flip(newDest, subBmp, dx, dy);
+					break;
+					
+					case 13: 
+						//trans + vh flip
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
+					break;
+					
+					case 14: 
+						//pivot and vh flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
+					//return error cannot both pivot and vh flip
+					break;
+					
+					case 16: 
+						//lit
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_lit_sprite(newDest, subBmp, dx, dy, litcolour);
+					break;
+					
+					case 18: 
+						//pivot, lit
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					pivot_sprite_lit(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 20: 
+						//lit + v flip
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
+					break;
+					
+					case 22: 
+						//Pivot, vflip, lit
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					pivot_sprite_v_flip_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 24: 
+						//lit + h flip
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
+					break;
+					
+					case 26: 
+						//pivot + lit + hflip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
+					//return error cannot pivot, lit, and flip
+					break;
+					
+					case 28: 
+						//lit + vh flip
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
+					break;
+					
+					case 32: //gouraud
+						//Probably not wort supporting. 
+					//blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					break;
+					
+					case 0: 
+						//no effect
+					blit(newSource, newDest, sx, sy, dx, dy, dw, dh);
+					break;
+					
+					
+					default:
+						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
+					
+					
+				}
+			} //end if not rotated
+			
+			if ( rot != 0 )  //if rotated
+			{
+				switch(mode)
+				{
+					case 1: 
+						blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);//transparent
+					rotate_sprite_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					 
+					break;
+					
+					case 2: 
+						//pivot?
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					//return an error, cannot both rotate and pivot
+					break;
+					
+					case 3: 
+						//pivot + trans
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					break;
+					
+					case 4: 
+						//flip v
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					rotate_sprite_v_flip(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					case 5: 
+						//trans + v flip
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					rotate_sprite_v_flip_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					case 6: 
+						//pivot + v flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					//return an error, cannot both rotate and pivot
+					break;
+					
+					case 8: 
+						//flip h
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
+					//return an error, cannot both rotate and flip H
+					break;
+					
+					case 9: 
+						//trans + h flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
+					//return an error, cannot rotate and flip a trans sprite
+					break;
+					
+					case 10: 
+						//flip H and pivot
+					//return error cannot pivot and h flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
+					break;
+					
+					case 12: 
+						//vh flip
+					//return an error, cannot rotate and VH flip a trans sprite
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 13: 
+						//trans + vh flip
+					//return an error, cannot rotate and VH flip a trans sprite
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 14: 
+						//pivot and vh flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					//return error cannot both pivot and vh flip
+					break;
+					
+					case 16: 
+						//lit
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					rotate_sprite_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 18: 
+						//pivot, lit
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
+					break;
+					
+					case 20: 
+						//lit + vflip
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					rotate_sprite_v_flip_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
+					break;
+					
+					case 22: 
+						//Pivot, vflip, lit
+					//return an error, cannot both rotate and pivot
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
+					break;
+					
+					case 24: 
+						//lit + h flip
+					//return an error, cannot both rotate and H flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
+					break;
+					
+					case 26: 
+						//pivot + lit + hflip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
+					//return error cannot pivot, lit, and flip
+					break;
+					
+					case 28: 
+						//lit + vh flip
+					//return an error, cannot both rotate and VH flip
+					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
+					break;
+					
+					case 32: //gouraud
+						//Probably not wort supporting. 
+					//blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4);
+					break;
+					
+					case 0: 
+						//no effect.
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					rotate_sprite(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
+					break;
+					
+					default:
+						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
+				
+				}
+			} //end if rotated
+		} //end if not masked
+	} //end if not stretched
+    
+	//cleanup
+	if(subBmp) 
+	{
+		//script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
+		destroy_bitmap(subBmp);
+	}
+}
+
+
 inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
 	
@@ -8068,6 +9427,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 	case 	BMPDRAWLAYERR: do_bmpdrawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPDRAWSCREENR: do_bmpdrawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPBLIT: bmp_do_drawbitmapexr(bmp, sdci, xoffset, yoffset); break;
+	case 	BMPBLITTO: bmp_do_blittor(bmp, sdci, xoffset, yoffset); break;
 	case 	READBITMAP: bmp_do_readr(bmp, i, sdci, xoffset, yoffset); break;
 	case 	WRITEBITMAP: bmp_do_writer(bmp, i, sdci, xoffset, yoffset); break;
 	case 	CLEARBITMAP: bmp_do_clearr(bmp, sdci, xoffset, yoffset); break;

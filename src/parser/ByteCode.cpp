@@ -4199,6 +4199,10 @@ string OBMPDrawBitmapExRegister::toString()
 {
     return "BMPBLIT";
 }
+string OBMPBlitTO::toString()
+{
+    return "BMPBLITTO";
+}
 
 string OBMPQuadRegister::toString()
 {
