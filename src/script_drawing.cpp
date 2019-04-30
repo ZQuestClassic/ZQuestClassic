@@ -5411,8 +5411,9 @@ inline void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset
     }
     
    // Z_scripterrlog("Trying to read filename %s\n", cptr);
-    
-    scb.script_created_bitmaps[bitid].u_bmp = load_bitmap(str->c_str(), RAMpal);
+    PALETTE tempPal;
+    get_palette(tempPal);
+    scb.script_created_bitmaps[bitid].u_bmp = load_bitmap(str->c_str(), tempPal);
     scb.script_created_bitmaps[bitid].width = scb.script_created_bitmaps[bitid].u_bmp->w;
     scb.script_created_bitmaps[bitid].height = scb.script_created_bitmaps[bitid].u_bmp->h;
     if ( !scb.script_created_bitmaps[bitid].u_bmp )
@@ -5854,6 +5855,9 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 	
 
 	int bitmapIndex = sdci[2]/10000;
+	int usr_bitmap_index = sdci[2]-10;
+	byte using_user_bitmap = 0;
+	Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
 	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit() found a dest bitmap ID of: %d\n",bitmapIndex);
@@ -5861,6 +5865,12 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 	if ( bitmapIndex > 10000 )
 	{
 		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int> 8;
+	}
+	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
+	{
+		bitmapIndex = usr_bitmap_index;
+		using_user_bitmap = 1;
+		yoffset = 0;
 	}
 	
 	int sx = sdci[3]/10000;
@@ -5912,7 +5922,7 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 	}
 	
 	BITMAP *destBMP;
-	
+	Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
 	switch(bitmapIndex)
 	{
 		//-1 and -2 are now handled below. -Z ( 17th April, 2019 )
@@ -5929,7 +5939,16 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
 		}
 		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
-		default: destBMP = FFCore.get_user_bitmap(bitmapIndex); break;
+		default: 
+		{
+			destBMP = scb.script_created_bitmaps[usr_bitmap_index].u_bmp;
+			if ( !scb.script_created_bitmaps[usr_bitmap_index].u_bmp )
+			{
+				Z_scripterrlog("Target for bitmap->Blit is uninitialised. Aborting.\n");
+				break;
+			}
+		}
+			//FFCore.get_user_bitmap(bitmapIndex); break;
 	}
 	
 	
@@ -7147,6 +7166,7 @@ inline void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
 
 inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
+	
     //sdci[1]=layer
     //sdci[2]=pos[12]
     //sdci[3]=uv[8]
@@ -7189,6 +7209,7 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     int tile = sdci[7]/10000;
     int polytype = sdci[8]/10000;
     int quad_render_source = sdci[9]-10;
+    Z_scripterrlog("Quad3D texture is %d\n", quad_render_source);
     
     polytype = vbound(polytype, 0, 14);
     
@@ -7196,17 +7217,14 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     int tex_height = h*16;
     
     bool mustDestroyBmp = false;
-    BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+    BITMAP *tex; 
     
-    if(!tex)
-    {
-        mustDestroyBmp = true;
-        tex = create_bitmap_ex(8, tex_width, tex_height);
-        clear_bitmap(tex);
-    }
     
     bool tex_is_bitmap = ( sdci[9] != 0 );
+    Z_scripterrlog("sdci[9] is %d\n", quad_render_source);
+    Z_scripterrlog("sdci[17] is %d\n", sdci[17]-10);
     BITMAP *bmptexture;
+    
 	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(quad_render_source);
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
@@ -7214,7 +7232,14 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
     
     if ( !tex_is_bitmap )
     {
-		
+	tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+    
+	if(!tex)
+	{
+		mustDestroyBmp = true;
+		tex = create_bitmap_ex(8, tex_width, tex_height);
+		clear_bitmap(tex);
+	}
 	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
 	{
 		Z_message("Quad3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
@@ -7239,26 +7264,32 @@ inline void bmp_do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int y
 	V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
     
 	quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
+	if(mustDestroyBmp)
+		destroy_bitmap(tex);
     }
     else
     {
+	    
 	    if ( !bmptexture ) 
 		{
 			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Quad3D()");
 			tex_is_bitmap = 0;
+			return;
 		}
+		
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
 	V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
         
+	BITMAP *foo = create_bitmap_ex(8, 256, 176);
 	    
+	//quad3d_f(refbmp, polytype, foo, &V1, &V2, &V3, &V4);    
 	quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4);    
 	    
     }
     
-    if(mustDestroyBmp)
-        destroy_bitmap(tex);
+    
         
 }
 
