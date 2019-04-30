@@ -941,11 +941,11 @@ inline void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	    }
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	    
-	    //polygon(bmp, (sdci[2]/10000), *pos, col);
-	    polygon(bmp, (sdci[2]/10000), &V, col);
+	    polygon(bmp, (sdci[2]/10000), (int*)pos, col);
+	    //polygon(bmp, (sdci[2]/10000), &v, col);
 }
 
-inline void do_bmp_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+inline void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
     //sdci[1]=layer
     //sdci[2]=point count
@@ -990,8 +990,8 @@ inline void do_bmp_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoff
 	    }
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	    
-	    //polygon(refbmp, (sdci[2]/10000), *pos, col);
-	    polygon(refbmp, (sdci[2]/10000), &V, col);
+	    polygon(refbmp, (sdci[2]/10000), (int*)pos, col);
+	    //polygon(refbmp, (sdci[2]/10000), &v, col);
 }
 
 inline void do_spliner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
@@ -7991,7 +7991,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 		
 	case 	BMPTRIANGLER: bmp_do_drawtriangler(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPTRIANGLE3DR: bmp_do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset); break;
-	case 	BMPPOLYGONR: bmp_do_polygonr(bmp, sdci, xoffset, yoffset); break;
+	case 	BMPPOLYGONR: bmp_do_polygonr(bmp, i, sdci, xoffset, yoffset); break;
 	case 	BMPDRAWLAYERR: do_bmpdrawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPDRAWSCREENR: do_bmpdrawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPBLIT: bmp_do_drawbitmapexr(bmp, sdci, xoffset, yoffset); break;
