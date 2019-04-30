@@ -4041,6 +4041,16 @@ namespace ZScript
 		}
 	};
 
+	class OBMPPolygonRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPPolygonRegister();
+		}
+	};
+
 	class OChangeFFCScriptRegister : public UnaryOpcode
 	{
 	public:
@@ -6817,6 +6827,15 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OBMPDrawBitmapExRegister();
+		}
+	};
+	class OBMPBlitTO : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPBlitTO();
 		}
 	};
 	class OBMPQuadRegister : public Opcode
