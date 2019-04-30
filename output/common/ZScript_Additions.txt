@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 21
-Document Revision: 26th April, 2019
+Document for: 2.55, Alpha 22
+Document Revision: 30th April, 2019
 
 
 ////////////////////////////////////////////////////
