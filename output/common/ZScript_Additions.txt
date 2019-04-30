@@ -1159,6 +1159,11 @@ void Lines(int layer, int ptr[]);
 The arg *ptr[] should be an array with repeating sets of: 
 	{ x, y, x2, y2, colour, scale, rx, ry, angle, opacity }
 	...per line that you want to draw.
+	
+void Polygon(int layer, int num_points, int vertices[], int colour, int transparency);
+	ZASM: POLYGON
+ * Draws a polygon to the screen, with a number of points specified as int points,
+ * with vertices supplied as an array. 
 
 int Valid;
 * ?
@@ -3526,6 +3531,11 @@ void FastCombo(int layer, int x, int y,
 		int opacity );
 * Identical to Screen->FastCombo(), but it draws to a target bitmap.
 
+void Polygon(int layer, int num_points, int vertices[], int colour, int transparency);
+	ZASM: POLYGON
+ * Draws a polygon to the bitmap, with a number of points specified as int points,
+ * with vertices supplied as an array. 
+ 
 // Destroy()
 // All screen drawing instructions.
 // Resize?
@@ -3707,111 +3717,9 @@ int SP; 				ZASM Instruction:
 	* THIS WILL BE DISABLED IN RELEASE BUILDS !
 	*/ Example Use:
 
-
-////////////////////////
-/// Not Implemented  ///
-////////////////////////
-
-void ComboArray	( int layer, int number_of_combos, 
-			int combos[], 
-			int x_positions[], 
-			int y_positions[], 
-			int csets[]);
-			
-			ZASM: COMBOARRAY
-			
-/**
-*
-* Draws a number of combos specified by 'number_of_combos' to 'layer'.
-* Specify the combos by populating an array with their IDs and passing the array ointer to 'combos'.
-* Specify the X coordinate for each by passing an array with their x coordinates to 'x_positions'.
-* Specify the Y coordinate for each by passing an array with their y coordinates to 'y_positions'.
-* Specify the CSet for each by passing an array with their csets to 'csets'.
-*
-* This function counts as a single draw.
-*
-* Transparency is not yet implemented, but you may draw to a bitmap and render it translucent.
-*// Example:
-
-int combos[4] = {16,19,31,20};
-int cmbx[4]= {0, 16, 32, 48}:
-int cmby[4]={8, 8, 8, 8);
-int cmbc[4]={0,0,0,0};
-Screen->ComboArray(6, 4, combos, cmbx, cmby, cmbc);
-
-
-
-void TileArray	( int layer, int number_of_tiles, 
-			int tiles[], 
-			int x_positions[], 
-			int y_positions[], 
-			int csets[]);
-			
-			ZASM: TILEARRAY
-			
-/**
-*
-* Draws a number of tiles specified by 'number_of_tiles' to 'layer'.
-* Specify the tiles by populating an array with their IDs and passing the array pointer to 'tiles'.
-* Specify the X coordinate for each by passing an array with their x coordinates to 'x_positions'.
-* Specify the Y coordinate for each by passing an array with their y coordinates to 'y_positions'.
-* Specify the CSet for each by passing an array with their csets to 'csets'.
-*
-* This function counts as a single draw.
-*
-* Transparency is not yet implemented, but you may draw to a bitmap and render it translucent.
-*// Example:
-
-int tiles[4] = {16,19,31,20};
-int tilx[4]= {0, 16, 32, 48}:
-int tily[4]={8, 8, 8, 8);
-int tilc[4]={0,0,0,0};
-Screen->TileArray(6, 4, tiles, tilx, tily, tilc);
-
-
-/************************************************************************************************************/
-
-void PixelArray	( int layer, int number_of_pixels, 
-			int x_positions[], 
-			int y_positions[], 
-			int colours[]);
-			
-			ZASM: PIXELARRAY
-			
-/**
-*
-* Draws a number of pixel, similar to PutPixel, specified by 'number_of_pixels' to 'layer'.
-* Specify the X coordinate for each by passing an array with their x coordinates to 'x_positions'.
-* Specify the Y coordinate for each by passing an array with their y coordinates to 'y_positions'.
-* Specify the colour for each by passing an array with their csets to 'colours'.
-*
-* This function counts as a single draw.
-*
-* Transparency is not yet implemented, but you may draw to a bitmap and render it translucent.
-*// Example:
-
-int pix[4] = {16,19,31,20};
-int px[4]= {0, 16, 32, 48}:
-int py[4]={8, 8, 8, 8);
-int pc[4]={0x12,0xB0,0xDA,0x4F};
-Screen->TileArray(6, 4, pix, px, py, pc);
-
-/************************************************************************************************************/
-
-CreateBitmap(int id, int xsize, int ysize)
-
-* Min size 1, max 2048
-/************************************************************************************************************/
+**********************************************************************************************************/
 
 SetRenderSource(int target, int x, int y, int w, int h)
-
-/************************************************************************************************************/
-
-void Polygon	( int layer, ... );
-			
-			ZASM: POLYGON
-			
-* Adding to Beta 9 : Postponed -Z
 
 /************************************************************************************************************/
 

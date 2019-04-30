@@ -14380,7 +14380,7 @@ void do_drawing_command(const int script_command)
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
 		script_drawing_commands[j].SetVector(v);
 		break;
 	}
@@ -14406,7 +14406,7 @@ void do_drawing_command(const int script_command)
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
 		script_drawing_commands[j].SetVector(v);
 		break;
         }
@@ -14432,7 +14432,7 @@ void do_drawing_command(const int script_command)
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
 		script_drawing_commands[j].SetVector(v);
 		break;
         }
@@ -14481,10 +14481,32 @@ void do_drawing_command(const int script_command)
 		v->resize(sz, 0);
 		long* pos = &v->at(0);
 		
-		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz-1);
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
 		script_drawing_commands[j].SetVector(v);
 		break;
         }
+	case POLYGONR:
+	{
+		set_drawing_command_args(j, 5);
+		    
+		int arrayptr = script_drawing_commands[j][3]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+			break;
+		}
+		int sz = ArrayH::getSize(arrayptr);
+		    
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		v->resize(sz, 0);
+		
+		long* pos = &v->at(0);
+		
+		
+		FFCore.getValues(script_drawing_commands[j][3] / 10000, pos, sz);
+		script_drawing_commands[j].SetVector(v);
+	}
+	    break;
         
     case DRAWTILER:
         set_drawing_command_args(j, 15);
@@ -14629,6 +14651,28 @@ void do_drawing_command(const int script_command)
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
 		break;
 	}
+	case BMPPOLYGONR:
+	{
+		set_user_bitmap_command_args(j, 5);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+5); 
+		int arrayptr = script_drawing_commands[j][3]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+			break;
+		}
+		int sz = ArrayH::getSize(arrayptr);
+		    
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		v->resize(sz, 0);
+		
+		long* pos = &v->at(0);
+		
+		
+		FFCore.getValues(script_drawing_commands[j][3] / 10000, pos, sz);
+		script_drawing_commands[j].SetVector(v);
+	}
+	    break;
 	case 	READBITMAP:	
 	{
 		Z_scripterrlog("Calling %s\n","READBITMAP");
@@ -14732,7 +14776,7 @@ void do_drawing_command(const int script_command)
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
 		break;
 	}
-	//case 	BMPPOLYGONR:
+	
 	case 	BMPDRAWLAYERR: set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
 	case 	BMPDRAWSCREENR: set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
 	case 	BMPBLIT:	
@@ -17497,6 +17541,7 @@ int run_script(const byte type, const word script, const long i)
 		case BITMAPEXR:
 		case DRAWLAYERR:
 		case DRAWSCREENR:
+		case POLYGONR:
 			do_drawing_command(scommand);
 		    break;
 		

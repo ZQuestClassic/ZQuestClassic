@@ -906,6 +906,94 @@ inline void do_linesr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
+inline void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+{
+    //sdci[1]=layer
+    //sdci[2]=point count
+	//sdci[3]array[]
+	//sdci[4] = colour
+	//sdci[5] = opacity
+
+	int col = sdci[4]/10000;
+	int op = sdci[5]/10000;
+    
+    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    
+    if(!v_ptr)
+    {
+        al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
+        return;
+    }
+    
+    std::vector<long> &v = *v_ptr;
+    
+    if(v.empty())
+        return;
+        //Z_scripterrlog("PutPixels reached line %d\n", 983);
+    
+    long* pos = &v[0];
+    int sz = v.size();
+    
+   
+	    if(op <= 127) //translucent
+	    {
+		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	    }
+	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	    
+	    //polygon(bmp, (sdci[2]/10000), *pos, col);
+	    polygon(bmp, (sdci[2]/10000), &V, col);
+}
+
+inline void do_bmp_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+{
+    //sdci[1]=layer
+    //sdci[2]=point count
+	//sdci[3]array[]
+	//sdci[4] = colour
+	//sdci[5] = opacity
+
+	int col = sdci[4]/10000;
+	int op = sdci[5]/10000;
+	
+	if ( sdci[17] <= 0 ) 
+	{
+		Z_scripterrlog("bitmap->Rectangle() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
+	}
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+		if ( refbmp == NULL ) return;
+    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
+    std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+    
+    if(!v_ptr)
+    {
+        al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
+        return;
+    }
+    
+    std::vector<long> &v = *v_ptr;
+    
+    if(v.empty())
+        return;
+        //Z_scripterrlog("PutPixels reached line %d\n", 983);
+    
+    long* pos = &v[0];
+    int sz = v.size();
+    
+   
+	    if(op <= 127) //translucent
+	    {
+		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	    }
+	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	    
+	    //polygon(refbmp, (sdci[2]/10000), *pos, col);
+	    polygon(refbmp, (sdci[2]/10000), &V, col);
+}
+
 inline void do_spliner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
     /* layer, x1, y1, x2, y2, x3, y3, x4, y4, color, opacity */
@@ -3750,7 +3838,6 @@ inline void bmp_do_rectr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int x2=sdci[4]/10000;
     int y2=sdci[5]/10000;
     
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
     if(x1>x2)
     {
@@ -7853,13 +7940,13 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
-	/*
+	
 	case POLYGONR:
         {
             do_polygonr(bmp, i, sdci, xoffset, yoffset);
         }
         break;
-	*/
+	
         
         case BITMAPR:
         {
@@ -7904,7 +7991,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 		
 	case 	BMPTRIANGLER: bmp_do_drawtriangler(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPTRIANGLE3DR: bmp_do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset); break;
-	//case 	BMPPOLYGONR:
+	case 	BMPPOLYGONR: bmp_do_polygonr(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPDRAWLAYERR: do_bmpdrawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPDRAWSCREENR: do_bmpdrawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPBLIT: bmp_do_drawbitmapexr(bmp, sdci, xoffset, yoffset); break;

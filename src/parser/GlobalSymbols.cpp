@@ -1852,7 +1852,7 @@ static AccessorTable ScreenTable[] =
     { "WavyOut",         	ZVARTYPEID_VOID,          FUNCTION,     0,       		        1,      {  ZVARTYPEID_SCREEN,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "OpeningWipe",         	ZVARTYPEID_VOID,          FUNCTION,     0,       		        1,      {  ZVARTYPEID_SCREEN,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "CreateLWeaponDx",              ZVARTYPEID_LWPN,          FUNCTION,     0,                    1,      {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    //{ "Polygon",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_SCREEN,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,  ZVARTYPEID_FLOAT,                         -1,                           -1,                           -1,                           -1,                           } },
+    { "Polygon",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_SCREEN,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,     	-1,     -1,     -1,     -1,     -1,  -1,                         -1,                           -1,                           -1,                           -1,                           } },
     { "TriggerSecret",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
  
     //mapdata m-> class variables copied to Screen->
@@ -2494,8 +2494,8 @@ void ScreenSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
-    //void Polygon(screen, float, float, float, float, float, float, float, float, float)
-    /*
+    //void Polygon(screen, float, float, float, float, float)
+    
     {
 	    Function* function = getFunction("Polygon");
         int label = function->getLabel();
@@ -2503,17 +2503,17 @@ void ScreenSymbols::generateCode()
         Opcode *first = new OPolygonRegister();
         first->setLabel(label);
         code.push_back(first);
-        POP_ARGS(6, EXP2);
+        POP_ARGS(5, EXP2);
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         
         code.push_back(new OReturn());
         function->giveCode(code);
     }
-    */
+    
     //void Triangle(screen, float, float, float, float, float, float, float, float, float)
     {
-	    Function* function = getFunction("Triangle");
+	Function* function = getFunction("Triangle");
         int label = function->getLabel();
         vector<Opcode *> code;
         Opcode *first = new OTriangleRegister();
@@ -7321,7 +7321,8 @@ static AccessorTable BitmapTable[] =
 	{ "Read",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Clear",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Create",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-  
+	{ "Polygon",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,     	-1,     -1,     -1,     -1,     -1,  -1,                         -1,                           -1,                           -1,                           -1,                           } },
+   
 
 	{ "", 		-1,                     -1,             -1,     -1,     { -1,                   -1,                     -1,               -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -7614,23 +7615,23 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-	//void Polygon(bitmap, float, float, float, float, float, float, float, float, float)
-	/*
+	//void Polygon(bitmap, float, float, float, float, float)
+	
 	{
 		Function* function = getFunction("Polygon");
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OPolygonRegister();
+		Opcode *first = new OBMPPolygonRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		POP_ARGS(6, EXP2);
+		POP_ARGS(5, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-    */
+    
 	//void Triangle(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
 		Function* function = getFunction("Triangle");

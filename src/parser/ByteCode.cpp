@@ -3032,6 +3032,11 @@ string OTriggerSecretRegister::toString()
     return "TRIGGERSECRETR " + getArgument()->toString();
 }
 
+string OBMPPolygonRegister::toString()
+{
+    return "BMPPOLYGONR";
+}
+
 string OPolygonRegister::toString()
 {
     return "POLYGONR";
