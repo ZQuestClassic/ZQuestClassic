@@ -23,20 +23,27 @@ extern script_bitmaps scb;
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
 
-double sd_log2( double n )  
+inline double sd_log2( double n )  
 {  
     // log(n)/log(2) is log2.  
 	double v = log( (double)n ) / log( (double)2 );  
     return v;
 }  
 
-bool isPowerOfTwo(int n) 
+inline bool isPowerOfTwo(int n) 
 { 
    if(n==0) 
    return false; 
   
    return (ceil(sd_log2(n)) == floor(sd_log2(n))); 
 } 
+
+inline bool checkExtension(std::string filename, std::string extension)
+{
+    int dot = filename.find_last_of(".");
+    std::string exten = (dot == std::string::npos ? "" : filename.substr(dot, filename.length() - dot));
+    return exten == extension;
+}
 
 template<class T> inline
 fixed degrees_to_fixed(T d)
@@ -5443,12 +5450,7 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     }
 }
 
-bool checkExtension(std::string filename, std::string extension)
-{
-    int dot = filename.find_last_of(".");
-    std::string exten = (dot == std::string::npos ? "" : filename.substr(dot, filename.length() - dot));
-    return exten == extension;
-}
+
 
 void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 {
@@ -5491,9 +5493,9 @@ void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //Z_scripterrlog("Trying to write filename %s\n", cptr);
 	if 
 	(
-		( (checkExtension(str->c_str(), "")) ) ||
-		( !(checkExtension(str->c_str(), ".png")) && !(checkExtension(str->c_str(), ".gif")) && !(checkExtension(str->c_str(), ".bmp"))
-			&& !(checkExtension(str->c_str(), ".pcx")) && !(checkExtension(str->c_str(), ".tga")) )
+		( (checkExtension(*str, "")) ) ||
+		( !(checkExtension(*str, ".png")) && !(checkExtension(*str, ".gif")) && !(checkExtension(*str, ".bmp"))
+			&& !(checkExtension(*str, ".pcx")) && !(checkExtension(*str, ".tga")) )
 	)
 	{
 		Z_scripterrlog("No extension, or invalid extension provided for writing bitmap file %s. Could not write the file.\nValid types are .png, .gif, .pcx, .tgx, and .bmp. Aborting.\n",str->c_str());
