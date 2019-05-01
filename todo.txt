@@ -1,5 +1,9 @@
 To-Do
 
+Export WAV files and MIDI files from a quest in ZQuest.
+Play external WAV file by script.
+Play external MIDI file by script.
+
 Add Input->JoyControls[] for configuration of joypad buttons.
 
 Allow decimal values in item editor power and attributes fields.
