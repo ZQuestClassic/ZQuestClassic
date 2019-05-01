@@ -38,13 +38,7 @@ inline bool isPowerOfTwo(int n)
    return (ceil(sd_log2(n)) == floor(sd_log2(n))); 
 } 
 
-inline bool checkExtension(std::string &filename, const std::string &extension)
-//inline bool checkExtension(std::string filename, std::string extension)
-{
-    int dot = filename.find_last_of(".");
-    std::string exten = (dot == std::string::npos ? "" : filename.substr(dot, filename.length() - dot));
-    return exten == extension;
-}
+
 
 template<class T> inline
 fixed degrees_to_fixed(T d)
@@ -5490,13 +5484,13 @@ void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     //char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
 	//std::strncpy(cptr, str->c_str(), str->size());
-    //Z_scripterrlog("bitmap->Write extension matches ? : %s\n!", (checkExtension(str->c_str(), ".png")) ? "true" : "false");
+    //Z_scripterrlog("bitmap->Write extension matches ? : %s\n!", (FFCore.checkExtension(str->c_str(), ".png")) ? "true" : "false");
     //Z_scripterrlog("Trying to write filename %s\n", cptr);
 	if 
 	(
-		( (checkExtension(*str, "")) ) ||
-		( !(checkExtension(*str, ".png")) && !(checkExtension(*str, ".gif")) && !(checkExtension(*str, ".bmp"))
-			&& !(checkExtension(*str, ".pcx")) && !(checkExtension(*str, ".tga")) )
+		( (FFCore.checkExtension(*str, "")) ) ||
+		( !(FFCore.checkExtension(*str, ".png")) && !(FFCore.checkExtension(*str, ".gif")) && !(FFCore.checkExtension(*str, ".bmp"))
+			&& !(FFCore.checkExtension(*str, ".pcx")) && !(FFCore.checkExtension(*str, ".tga")) )
 	)
 	{
 		Z_scripterrlog("No extension, or invalid extension provided for writing bitmap file %s. Could not write the file.\nValid types are .png, .gif, .pcx, .tgx, and .bmp. Aborting.\n",str->c_str());

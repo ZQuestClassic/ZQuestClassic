@@ -22309,6 +22309,14 @@ void FFScript::do_npc_add(const bool v)
 	}
 }
 
+bool FFScript::checkExtension(std::string &filename, const std::string &extension)
+//inline bool checkExtension(std::string filename, std::string extension)
+{
+    int dot = filename.find_last_of(".");
+    std::string exten = (dot == std::string::npos ? "" : filename.substr(dot, filename.length() - dot));
+    return exten == extension;
+}
+
 void FFScript::do_npc_canmove(const bool v)
 {
 	long arrayptr = SH::get_arg(sarg1, v) / 10000;

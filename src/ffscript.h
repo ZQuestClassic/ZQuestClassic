@@ -170,6 +170,7 @@ void initIncludePaths();
 void initRunString();
 void updateRunString();
 void updateIncludePaths();
+bool checkExtension(std::string &filename, const std::string &extension);
 
 /*
 long getQuestHeaderInfo(int type)
