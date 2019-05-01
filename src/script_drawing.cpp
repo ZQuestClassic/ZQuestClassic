@@ -56,7 +56,7 @@ fixed radians_to_fixed(T d)
     return ftofix(RadtoFix(d));
 }
 
-bool file_exists(const char *filename) 
+inline bool file_exists(const char *filename) 
 {
 	std::ifstream ifile(filename);
 	return (bool)ifile;
