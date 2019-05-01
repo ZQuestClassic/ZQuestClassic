@@ -38,7 +38,8 @@ inline bool isPowerOfTwo(int n)
    return (ceil(sd_log2(n)) == floor(sd_log2(n))); 
 } 
 
-inline bool checkExtension(std::string filename, std::string extension)
+inline bool checkExtension(std::string &filename, const std::string &extension)
+//inline bool checkExtension(std::string filename, std::string extension)
 {
     int dot = filename.find_last_of(".");
     std::string exten = (dot == std::string::npos ? "" : filename.substr(dot, filename.length() - dot));
