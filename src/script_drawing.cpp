@@ -5534,7 +5534,7 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
     
-	if ( refbmp == NULL ) return;
+	if ( !refbmp ) return;
     
     int x1 = sdci[2]/10000;
     int y1 = sdci[3]/10000;
@@ -5546,17 +5546,24 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int y4 = sdci[9]/10000;
     int w = sdci[10]/10000;
     int h = sdci[11]/10000;
-    int utex_h = h;
-    int utex_w = w;
     int color = sdci[12]/10000;
     int flip=(sdci[13]/10000)&3;
     int tile = sdci[14]/10000;
     int polytype = sdci[15]/10000;
     int quad_render_source = sdci[16]-10;
-    Z_scripterrlog("bitmap->Quad() render source is: %d\n", quad_render_source);
+    //Z_scripterrlog("bitmap->Quad() render source is: %d\n", quad_render_source);
     
     bool tex_is_bitmap = ( sdci[16] != 0 );
     BITMAP *bmptexture;
+    BITMAP *tex;
+    polytype = vbound(polytype, 0, 14);
+
+    int col[4];
+        col[0]=col[1]=col[2]=col[3]=color;
+    bool mustDestroyBmp = false;
+    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
 	if ( tex_is_bitmap ) 
 	{
 		bmptexture = FFCore.GetScriptBitmap(quad_render_source);
@@ -5565,9 +5572,59 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Triangle3()");
 			tex_is_bitmap = 0;
 		}
+		if ( !isPowerOfTwo(bmptexture->h) ) Z_scripterrlog("HEIGHT of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
+		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
+		if ( !isPowerOfTwo(w) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", w);
+		if ( !isPowerOfTwo(h) ) Z_scripterrlog("HEIGHT ARG (%d) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", h);
+		
+		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
+		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
+		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(w), 0,                              col[3] };
+	    
+		quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4);
 	}
+	else
+	{
+		tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+		if(!tex)
+		{
+			//Z_scripterrlog("Bitmap->Quad() found an invalid texture bitmap.\n");
+			mustDestroyBmp = true;
+			tex = create_bitmap_ex(8, w*16, h*16);
+			clear_bitmap(tex);
+		}
+		
+		if(tile > 0 && tile <= 65519)   // TILE
+		{
+			TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
+		}
+	    
+		if ( tile < 0 )        // COMBO
+		{
+			const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+			const int tiletodraw = combo_tile(c, x1, y1);
+			flip = flip ^ c.flip;
+		
+			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
+		}
+		if(((w-1) & w) != 0 || ((h-1) & h) != 0)
+		{
+			Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
+			return; //non power of two error
+		}
+		Z_scripterrlog("bitmap->Quad() is trying to blit from a bitmap texture.\n");
+		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
+		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
+		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(w), 0,                              col[3] };
+	    
+		quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
+		
+	}
+   
     
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    
     
     //todo: finish palette shading
     /*
@@ -5587,103 +5644,7 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     POLYTYPE_ATEX_MASK_TRANS
     POLYTYPE_PTEX_MASK_TRANS
     */
-    polytype = vbound(polytype, 0, 14);
     
-    
-    
-    int tex_width = w*16;
-    int tex_height = h*16;
-    
-    BITMAP *tex;
-    
-    bool mustDestroyBmp = false;
-    
-    //if ( !tex_is_bitmap ) 
-    //{
-	if ( tile > 65519 ) tex = zscriptDrawingRenderTarget->GetBitmapPtr(tile - 65519);
-	else tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-    //}
-    //else 
-    //{
-	//    Z_scripterrlog("bitmap->Quad() is trying to render from source: %d\n", quad_render_source);
-	//    tex = FFCore.GetScriptBitmap(quad_render_source);
-    //}
-    
-    if(!tex)
-    {
-	//Z_scripterrlog("Bitmap->Quad() found an invalid texture bitmap.\n");
-        mustDestroyBmp = true;
-        tex = create_bitmap_ex(8, tex_width, tex_height);
-        clear_bitmap(tex);
-    }
-    
-    //if ( tex_is_bitmap )
-    //{
-	//    tex_width = w;
-	//    tex_height = h;
-    //}
-    
-    int col[4];
-    /*
-    if( color < 0 )
-    {
-    col[0]=draw_container.color_buffer[0];
-    col[1]=draw_container.color_buffer[1];
-    col[2]=draw_container.color_buffer[2];
-    col[3]=draw_container.color_buffer[3];
-    }
-    else */
-    {
-        col[0]=col[1]=col[2]=col[3]=color;
-    }
-    //if ( !tex_is_bitmap ) 
-    //{
-	    if(tile > 0 && tile <= 65519)   // TILE
-	    {
-		TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
-	    }
-	    
-	    if ( tile < 0 )        // COMBO
-	    {
-		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
-		const int tiletodraw = combo_tile(c, x1, y1);
-		flip = flip ^ c.flip;
-		
-		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
-	    }
-    //}
-	    
-	if ( tex_is_bitmap )
-	{
-		
-		if ( !isPowerOfTwo(bmptexture->h) ) Z_scripterrlog("HEIGHT of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
-		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
-		if ( !isPowerOfTwo(utex_h) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", utex_w);
-		if ( !isPowerOfTwo(utex_w) ) Z_scripterrlog("HEIGHT ARG (%d) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", utex_h);
-		
-		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
-		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(utex_h), col[1] };
-		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(utex_w), static_cast<float>(utex_h), col[2] };
-		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(utex_w), 0,                              col[3] };
-	    
-		quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4);
-	}
-	else
-	{
-		if(((w-1) & w) != 0 || ((h-1) & h) != 0)
-		{
-			Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
-			return; //non power of two error
-		}
-		Z_scripterrlog("bitmap->Quad() is trying to blit from a bitmap texture.\n");
-		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
-		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
-		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
-		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(w), 0,                              col[3] };
-	    
-		quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
-		
-	}
     if(mustDestroyBmp)
         destroy_bitmap(tex);
         
