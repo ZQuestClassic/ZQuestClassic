@@ -5554,6 +5554,7 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //Z_scripterrlog("bitmap->Quad() render source is: %d\n", quad_render_source);
     
     bool tex_is_bitmap = ( sdci[16] != 0 );
+    
     BITMAP *bmptexture;
     BITMAP *tex;
     polytype = vbound(polytype, 0, 14);
@@ -5564,14 +5565,19 @@ inline void bmp_do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     
-	if ( tex_is_bitmap ) 
-	{
-		bmptexture = FFCore.GetScriptBitmap(quad_render_source);
+    if ( tex_is_bitmap )
+    {
+	    bmptexture = FFCore.GetScriptBitmap(quad_render_source);
 		if ( !bmptexture ) 
 		{
 			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Triangle3()");
 			tex_is_bitmap = 0;
 		}
+    }
+    
+	if ( tex_is_bitmap ) 
+	{
+		
 		if ( !isPowerOfTwo(bmptexture->h) ) Z_scripterrlog("HEIGHT of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
 		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
 		if ( !isPowerOfTwo(w) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", w);
@@ -9021,7 +9027,7 @@ inline void do_bmpdrawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
     
     BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
         
@@ -9076,7 +9082,9 @@ inline void do_bmpdrawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
 	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
+
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
     int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
     int scrn = sdci[3]/10000;
     int x = sdci[4]/10000;
