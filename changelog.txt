@@ -2,6 +2,9 @@
 
 //Alpha 22
 
+Fix Input->ModifierKeys return type, and values.
+	( ZoriaRPG, 3rd May, 2019 )
+
 Refactor: Move checkExtension to class FFScript
 Don't copy strings with checkExtension
 Updated todo.txt
