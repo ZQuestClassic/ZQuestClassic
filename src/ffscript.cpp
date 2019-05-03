@@ -1779,7 +1779,7 @@ long get_register(const long arg)
 	
 	case KEYMODIFIERS:
 	{
-		ret = (key_shifts/10000);
+		ret = (key_shifts*10000);
 		break;
 	}
 	
