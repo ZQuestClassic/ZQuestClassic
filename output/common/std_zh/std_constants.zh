@@ -1,5 +1,5 @@
-// std_constants.zh for ZC v2.55.0 Alpha 16 and later.
-// 1st April, 2019
+// std_constants.zh for ZC v2.55.0 Alpha 22 and later.
+// 2nd May, 2019
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
