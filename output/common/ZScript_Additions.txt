@@ -3388,6 +3388,7 @@ void Blit	( int layer,
 			int dest_x, int dest_y, int dest_w, int dest_h, 
 			float rotation, int cx, int cy, int mode, int lit,  bool mask);
 			
+ * BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP. 
  * As DrawBitmapEx(), except that it draws FROM an initialised bitmap pointer,
  * TO a target bitmap, which may be a user-created bitmap, or it may be the screen.
  * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
@@ -3400,6 +3401,7 @@ void BlitTo ( int layer,
 			int dest_x, int dest_y, int dest_w, int dest_h, 
 			float rotation, int cx, int cy, int mode, int lit,  bool mask);
 			
+ * BLITS ANOTHER BITMAP TO THE POINTER 'b'.
  * As DrawBitmapEx(), except that it draws TO an initialised bitmap pointer,
  * FROM a source bitmap, which may be a user-created bitmap, or it may be the screen.
  * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh

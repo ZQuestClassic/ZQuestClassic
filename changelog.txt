@@ -1,5 +1,155 @@
 //2.55 and 2.54 Changes
 
+//Alpha 22
+
+Refactor: Move checkExtension to class FFScript
+Don't copy strings with checkExtension
+Updated todo.txt
+Fix: Correct Return Type of Input->Keybindings[]
+Make file_exists inline.
+Minor performance adjustments.
+Updated build date.
+Ensured that unused bitmap pointers are initialised to NULL.
+Removed inline specifier from drawing functions.
+Ensure that bitmap->Quad() checks if the bitmap is valid, if the
+	user suppkies a render source, and if not, use the old Screen-> texture cache.
+Ensure that bitmap->DrawScreen() and bitmap->DrawLayer() use the correct y offsets.
+Optimise bitmap->Quad()
+	( ZoriaRPG, 1st May, 2019 )
+
+Docs: Clean up formatting of ZScript_Additions.txt
+Added bitmap->BlitTo().
+	This blits a source bitmap, to the pointer, using the same args
+	as DrawBitmapEx(), when drawing to the screen.
+Add warning if the size of the render_source bitmap, or the h/w
+	args are not a power of 2.
+Try to ensure that ZC Player PNG snapshots follow the identical
+	logic of ZQ Editor snapshots when writing their palette.
+Fixed the type and internal value for the target of Blit.
+	Before, it would not allow passing a bitmap pointer to the blit target, and
+	the value for the pointer would have been wrong, in any case.
+
+	This fixes both of these issues.
+
+Fixed ZC Player palette corruption when calling bitmap->Read()
+
+Fixed a crash and incorrect values when using bitmap->Height and
+	bitmap->Width.
+
+	These now use the .height and .width members of the struct, which are set when
+	a bitmap is created, or loaded from a file.
+Fix implicit casts.
+
+Added Screen->Polygon(int layer, int points, int vertices[], int colour, int opacity)
+	and bitmap->Polygon(int layer, int points, int vertices[], int colour, int opacity) to ZScript.
+Updated build date.
+Ensure that when calling a polytype function on a bitmap pointer,
+	such as bitmap->Quad(), that if the pointer used as 'render_source' is not
+	initialised, that we default to drawing it using a tile.
+
+	This should prevent some possible stack corruption.
+std.zh: NULL is now untyped.
+Docs: Updated ZScript_Additions.txt for bitmap-> draw instructions.
+Fixed crashes when using bitmap draws from/to uninitialised bitmaps
+	with bitmap->Quad(), &c.
+	Now if bitmap->Read() fails to load an image, it will create a blank bitmap at
+	256x176 on the pointer.
+	( ZoriaRPG, 30th April, 2019 )
+	
+Added 'bitmap render_source' to bitmap->Quad3D, Triangle3D	
+Fix rendering bitmap->Quad() with a bitmap render_src.
+	Applied the same fix to bitmap->Triangle
+
+	Removed mandatory power of 2 check for these two functions, when using a
+	bitmap render_src.
+	
+Flipped thew order of int height, int width for Game->CreateBitmap()
+	and for bitmap->Create().
+
+Added a QR to use the old args order, set for quests with a build ID < 44.
+Enabled that QR for older quests on quest load.
+Fixed some sign mismatches.
+	( ZoriaRPG, 29th April, 2019 )
+	
+Some fixes/changes to edTRANSFORM for boss enemies.
+Docs: Updated ZScript_Additions.txt, documenting `bitmap render_source`
+Fix unintentional forced offset in Screen->Triangle3D
+
+I made the FFCore array access functions non-static, and I used calls
+	to them in place of ArrayH:: static member functions, because somehow ptr.Size() was
+	getting corrupted, or there was some kind of internal i386 stack issue when
+	using those functions with script draws.
+
+	Thus, I replaced every call to ArrayH::getValues() with FFCore.getValues(), which
+	seems to have fixed it.
+
+	This commit also fixes an offset issue with Quad3D.
+std.zh: Fix missing line for including keyboard.zh
+	( ZoriaRPG, 28th April, 2019 )
+	
+Fix various typos and logical issues in examples
+	Update some docs, which referenced mechanics which have changed.
+	Add newline to EOF
+	( Venrob, 27th April, 2019 )
+	
+Fix: Add segments to segmented enemies in edREPLACE
+Fix an if/else chain and coordinates of edREPLACE.
+
+The compiler was choosing the wrong function to use for normal weapon
+	generation, where the dummyweapon function was not intended to be called.
+
+	I added extra params (unused) to the dummy weapon function, to ensure proper
+	function matching.
+
+Changed Values for Transform Effect Type 
+ 	 0: None
+	-1: Particle Dissolve (A)
+	-2: Particle Explode
+	-3: Particle Dissolve (B)
+	-4: Harmless Superbomb Blast
+	-5: Harmless Bomb Blast
+	-6: Superbomb Blast (Harms Link, uses enemy weapon damage for its power.)
+	-7: Bomb Blash (Harms Link, uses enemy weapon damage for its power.)
+	 1: Sprite 1
+	 +: Higher Sprites
+ 
+ Added the ability to control the visual effect for edREPLACE
+	(Enemy Editor Defence: Transform), and added the ability to specify an enemy ID.
+
+	Attribute 15 (Attributes[14] in ZScript): The Effect Type
+		-3: Bomb Blast (harmless)
+		-2: Superbomb Blast (harmless)
+		-1: None
+		 0: Dissolve (a)
+		 1: Dissolve (b)
+		 2: Particle Explode
+		 3: Sparkle Weapon using Sprite ID 3
+		 +: Sparkle weapon with sprite 4 or above.
+
+		Attribute 16 (Attributes[15] in ZScript) : The Enemy ID
+		0: Next in Editor
+		1+: A specific enemy ID.
+	( ZoriaRPG, 27th April, 2019 )
+	
+Fix the return value in case edREPLACE so that bouncing weapons
+	do not phase through enemies. Weapons react as if they hit the original enemy
+	normally.
+Try to ensure that enemies aren't knocked back during transformation.
+
+Added a new defence outcome 'Transform(next)'.
+	If this enemy is hit by the weapon with this defence resolution, it will be replaced
+	by the next enemy in the list, with a visual effect of the original enemy dissolving
+	into particles.
+
+Added the following parser tokens:
+	compl: Equivalent to ~
+	bitnot: Equivalent to ~
+	not_equal: alt for not_eq
+	and_equal: alt for and_eq
+	xor_equal: alt for xor_eq
+	or_equal: alt for or_equal
+	( ZoriaRPG, 26th April, 2019 )
+	
 //Alpha 21
 Fix extension handling of bitmap->Write(), and properly support all
 	legal file formats (.png, .gif, .pcx, .tgx, and .bmp).
