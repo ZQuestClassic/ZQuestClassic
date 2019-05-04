@@ -8838,6 +8838,327 @@ void draw_mapscr(BITMAP *b, const mapscr& m, int x, int y, bool transparent)
     }
 }
 
+void draw_map_solidity(BITMAP *b, const mapscr& m, int x, int y)
+{
+    BITMAP* square = create_bitmap_ex(8,16,16);
+    
+    for(int i(0); i < 176; ++i)
+    {
+        const int x2 = ((i&15)<<4) + x;
+        const int y2 = (i&0xF0) + y;
+	//Blit the palette index of the solidity value.
+	clear_to_color(square,(combobuf[m.data[i]].walk));
+	blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	
+	
+    }
+    destroy_bitmap(square);
+}
+
+void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=x
+    //sdci[5]=y
+    //sdci[6]=rotation
+	//sdci[17] Bitmap Pointer
+	
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int x = sdci[4]/10000;
+    int y = sdci[5]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[6]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    
+    if(index >= TheMaps.size())
+    {
+        al_trace("DrawScreen: invalid map or screen index. \n");
+        return;
+    }
+    
+    const mapscr & m = TheMaps[index];
+    
+    
+    BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+    //draw layer 0
+    draw_map_solidity(b, m, x1, y1);
+    
+    for(int i(0); i < 6; ++i)
+    {
+        if(m.layermap[i] == 0) continue;
+        
+        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        
+        if(layer_screen_index >= TheMaps.size())
+            continue;
+        
+        //draw valid layers
+        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+    }
+    
+    if(rotation != 0) // rotate
+    {
+        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+}
+
+void draw_map_cflag(BITMAP *b, const mapscr& m, int x, int y)
+{
+    BITMAP* square = create_bitmap_ex(8,16,16);
+    
+    for(int i(0); i < 176; ++i)
+    {
+        const int x2 = ((i&15)<<4) + x;
+        const int y2 = (i&0xF0) + y;
+	//Blit the palette index of the solidity value.
+	clear_to_color(square,m.sflag[i]);
+	blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	
+	
+    }
+    destroy_bitmap(square);
+}
+
+void do_bmpdrawscreen_cflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=x
+    //sdci[5]=y
+    //sdci[6]=rotation
+	//sdci[17] Bitmap Pointer
+	
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int x = sdci[4]/10000;
+    int y = sdci[5]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[6]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    
+    if(index >= TheMaps.size())
+    {
+        al_trace("DrawScreen: invalid map or screen index. \n");
+        return;
+    }
+    
+    const mapscr & m = TheMaps[index];
+    
+    
+    BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+    //draw layer 0
+    draw_map_cflag(b, m, x1, y1);
+    
+    for(int i(0); i < 6; ++i)
+    {
+        if(m.layermap[i] == 0) continue;
+        
+        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        
+        if(layer_screen_index >= TheMaps.size())
+            continue;
+        
+        //draw valid layers
+        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+    }
+    
+    if(rotation != 0) // rotate
+    {
+        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+}
+
+
+void draw_map_combotype(BITMAP *b, const mapscr& m, int x, int y)
+{
+    BITMAP* square = create_bitmap_ex(8,16,16);
+    
+    for(int i(0); i < 176; ++i)
+    {
+        const int x2 = ((i&15)<<4) + x;
+        const int y2 = (i&0xF0) + y;
+	//Blit the palette index of the solidity value.
+	clear_to_color(square,(combobuf[m.data[i]].type));
+	blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	
+	
+    }
+    destroy_bitmap(square);
+}
+
+void do_bmpdrawscreen_ctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=x
+    //sdci[5]=y
+    //sdci[6]=rotation
+	//sdci[17] Bitmap Pointer
+	
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int x = sdci[4]/10000;
+    int y = sdci[5]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[6]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    
+    if(index >= TheMaps.size())
+    {
+        al_trace("DrawScreen: invalid map or screen index. \n");
+        return;
+    }
+    
+    const mapscr & m = TheMaps[index];
+    
+    
+    BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+    //draw layer 0
+    draw_map_combotype(b, m, x1, y1);
+    
+    for(int i(0); i < 6; ++i)
+    {
+        if(m.layermap[i] == 0) continue;
+        
+        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        
+        if(layer_screen_index >= TheMaps.size())
+            continue;
+        
+        //draw valid layers
+        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+    }
+    
+    if(rotation != 0) // rotate
+    {
+        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+}
+
+
+void draw_map_comboiflag(BITMAP *b, const mapscr& m, int x, int y)
+{
+    BITMAP* square = create_bitmap_ex(8,16,16);
+    
+    for(int i(0); i < 176; ++i)
+    {
+        const int x2 = ((i&15)<<4) + x;
+        const int y2 = (i&0xF0) + y;
+	//Blit the palette index of the solidity value.
+	clear_to_color(square,(combobuf[m.data[i]].flag));
+	blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	
+	
+    }
+    destroy_bitmap(square);
+}
+
+void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=x
+    //sdci[5]=y
+    //sdci[6]=rotation
+	//sdci[17] Bitmap Pointer
+	
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int x = sdci[4]/10000;
+    int y = sdci[5]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[6]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    
+    if(index >= TheMaps.size())
+    {
+        al_trace("DrawScreen: invalid map or screen index. \n");
+        return;
+    }
+    
+    const mapscr & m = TheMaps[index];
+    
+    
+    BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+    //draw layer 0
+    draw_map_comboiflag(b, m, x1, y1);
+    
+    for(int i(0); i < 6; ++i)
+    {
+        if(m.layermap[i] == 0) continue;
+        
+        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        
+        if(layer_screen_index >= TheMaps.size())
+            continue;
+        
+        //draw valid layers
+        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+    }
+    
+    if(rotation != 0) // rotate
+    {
+        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+}
 
 void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
 {
