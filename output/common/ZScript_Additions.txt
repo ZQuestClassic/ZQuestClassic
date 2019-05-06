@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 22
-Document Revision: 30th April, 2019
+Document Revision: 6th May, 2019
 
 
 ////////////////////////////////////////////////////
@@ -2846,6 +2846,10 @@ int BlockWeaponLevel;
 ///  Graphics->  ///
 ////////////////////
 
+int GetPixel(bitmap b, int x, int y);
+ * Returns the palette index value for a pixel on a bitmap, at coordinates x, y on that bitmap.
+ * The value is expressed as float at this time. 
+
 int NumDraws();
  * Returns the number of script draws that have been executed during the current frame.
  
@@ -3569,6 +3573,59 @@ void Polygon(int layer, int num_points, int vertices[], int colour, int transpar
  * Draws a polygon to the bitmap, with a number of points specified as int points,
  * with vertices supplied as an array. 
  
+ 
+void DrawScreen	(int layer, 
+			int map, int source_screen, 
+			int x, int y, float rotation);
+			
+ * Draws an entire screen from screen on map on the specified layer of the bitmap at (x,y).
+ * If rotation is not zero, it(the entire screen) will rotate about its center.
+
+void DrawScreenSolid	(int layer, 
+			int map, int source_screen, 
+			int x, int y, float rotation);
+			
+ * Draws the solidity mask entire screen from screen on map on the specified layer of the bitmap at (x,y) in colour index 1.
+ * If rotation is not zero, it(the entire screen) will rotate about its center.
+
+void DrawScreenSolidity	(int layer, 
+			int map, int source_screen, 
+			int x, int y, float rotation);
+			
+ * Draws the solidity value for each combo position of an entire screen from screen on map on 
+ * the specified layer of the bitmap at (x,y).
+ * Each combo position will be drawn in the palette index equal to its value as ComboS[].
+ * If rotation is not zero, it(the entire screen) will rotate about its center.
+ 
+void DrawScreenComboTypes	(int layer, 
+			int map, int source_screen, 
+			int x, int y, float rotation);
+			
+ * Draws the combo type value for each combo position of an entire screen from screen on map on 
+ * the specified layer of the bitmap at (x,y).
+ * Each combo position will be drawn in the palette index equal to its value as ComboT[].
+ * If rotation is not zero, it(the entire screen) will rotate about its center.
+
+void DrawScreenComboFlags	(int layer, 
+			int map, int source_screen, 
+			int x, int y, float rotation);
+			
+ * Draws the combo flag value for each combo position of an entire screen from screen on map on 
+ * the specified layer of the bitmap at (x,y).
+ * Each combo position will be drawn in the palette index equal to its value as ComboF[].
+ * If rotation is not zero, it(the entire screen) will rotate about its center.
+
+void DrawScreenComboIFlags	(int layer, 
+			int map, int source_screen, 
+			int x, int y, float rotation);
+			
+ * Draws the combo inh.flag value for each combo position of an entire screen from screen on map on 
+ * the specified layer of the bitmap at (x,y).
+ * Each combo position will be drawn in the palette index equal to its value as ComboI[].
+ * If rotation is not zero, it(the entire screen) will rotate about its center.
+
+
+	
 // Destroy()
 // All screen drawing instructions.
 // Resize?
