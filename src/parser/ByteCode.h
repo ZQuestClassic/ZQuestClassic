@@ -7394,12 +7394,68 @@ namespace ZScript
 		}
 	};
 	
+	class OBMPDrawScreenSolidRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenSolidRegister();
+		}
+	};
+	class OBMPDrawScreenSolid2Register : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenSolid2Register();
+		}
+	};
+	class OBMPDrawScreenComboFRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenComboFRegister();
+		}
+	};
+	class OBMPDrawScreenComboIRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenComboIRegister();
+		}
+	};
+	class OBMPDrawScreenComboTRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenComboTRegister();
+		}
+	};
 
 	class OReturn : public Opcode
 	{
 	public:
 		std::string toString() /*override*/;
 		OReturn* clone() {return new OReturn();}
+	};
+	
+	class OGraphicsGetpixel : public UnaryOpcode
+	{
+	public:
+		OGraphicsGetpixel(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGraphicsGetpixel(a->clone());
+		}
 	};
 }
 

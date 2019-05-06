@@ -4390,6 +4390,33 @@ string OIsValidBitmap::toString()
     return "ISVALIDBITMAP " + getArgument()->toString();
 }
 
+
+string OBMPDrawScreenSolidRegister::toString()
+{
+    return "BMPDRAWSCREENSOLIDR";
+}
+
+string OBMPDrawScreenSolid2Register::toString()
+{
+    return "BMPDRAWSCREENSOLID2R";
+}
+string OBMPDrawScreenComboFRegister::toString()
+{
+    return "BMPDRAWSCREENCOMBOFR";
+}
+string OBMPDrawScreenComboIRegister::toString()
+{
+    return "BMPDRAWSCREENCOMBOIR";
+}
+string OBMPDrawScreenComboTRegister::toString()
+{
+    return "BMPDRAWSCREENCOMBOTR";
+}
+string OGraphicsGetpixel::toString()
+{
+    return "GRAPHICSGETPIXEL " + getArgument()->toString();
+}
+
 string OReturn::toString()
 {
 	return "RETURN";

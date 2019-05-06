@@ -13150,6 +13150,17 @@ void do_getscreeneflags()
     set_register(sarg1, get_screeneflags(&TheMaps[map * MAPSCRS + scrn], flagset));
 }
 
+void FFScript::do_graphics_getpixel()
+{
+    long bitmap_pointer     = (ri->d[2])-10;
+    long xpos  = ri->d[1] / 10000;
+    long ypos = ri->d[0] / 10000;
+    
+    if ( scb.script_created_bitmaps[bitmap_pointer].u_bmp )
+	set_register(sarg1, getpixel(scb.script_created_bitmaps[bitmap_pointer].u_bmp, xpos, ypos));
+    else set_register(sarg1, -10000);
+}
+
 //Some of these need to be reduced to two inputs. -Z
 
 long get_screendoor(mapscr *m, int d)
@@ -14654,14 +14665,14 @@ void do_drawing_command(const int script_command)
 		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12. 
 	case 	CLEARBITMAP:	
 	{
-		Z_scripterrlog("Calling %s\n","CLEARBITMAP");
+		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
 		set_user_bitmap_command_args(j, 1);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+1); 
 		break;
 	}
 	case 	REGENERATEBITMAP:	
 	{
-		Z_scripterrlog("Calling %s\n","CLEARBITMAP");
+		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
 		set_user_bitmap_command_args(j, 3);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
 		break;
@@ -14690,7 +14701,7 @@ void do_drawing_command(const int script_command)
 	    break;
 	case 	READBITMAP:	
 	{
-		Z_scripterrlog("Calling %s\n","READBITMAP");
+		//Z_scripterrlog("Calling %s\n","READBITMAP");
 		set_user_bitmap_command_args(j, 2);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
 		string *str = script_drawing_commands.GetString();
@@ -14706,7 +14717,7 @@ void do_drawing_command(const int script_command)
 	}
 	case 	WRITEBITMAP:	
 	{
-		Z_scripterrlog("Calling %s\n","WRITEBITMAP");
+		//Z_scripterrlog("Calling %s\n","WRITEBITMAP");
 		set_user_bitmap_command_args(j, 3);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
 		std::string *str = script_drawing_commands.GetString();
@@ -14793,7 +14804,13 @@ void do_drawing_command(const int script_command)
 	}
 	
 	case 	BMPDRAWLAYERR: set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
-	case 	BMPDRAWSCREENR: set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+	case 	BMPDRAWSCREENR:
+	case 	BMPDRAWSCREENSOLIDR:
+	case 	BMPDRAWSCREENSOLID2R:
+	case 	BMPDRAWSCREENCOMBOFR:
+	case 	BMPDRAWSCREENCOMBOIR:
+	case 	BMPDRAWSCREENCOMBOTR:
+		set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
 	case 	BMPBLIT:	
 	{
 		set_user_bitmap_command_args(j, 16); 
@@ -17446,6 +17463,10 @@ int run_script(const byte type, const word script, const long i)
 		    do_getscreeneflags();
 		    break;
 		
+		case GRAPHICSGETPIXEL:
+		    FFCore.do_graphics_getpixel();
+		    break;
+		
 		case GETSCREENDOOR:
 		    do_getscreendoor();
 		    break;
@@ -17589,6 +17610,11 @@ int run_script(const byte type, const word script, const long i)
 		case 	BMPPOLYGONR:
 		case 	BMPDRAWLAYERR: 
 		case 	BMPDRAWSCREENR:
+		case 	BMPDRAWSCREENSOLIDR:
+		case 	BMPDRAWSCREENSOLID2R:
+		case 	BMPDRAWSCREENCOMBOFR:
+		case 	BMPDRAWSCREENCOMBOIR:
+		case 	BMPDRAWSCREENCOMBOTR:
 		case 	BMPBLIT:
 		case 	BMPBLITTO:
 		case 	READBITMAP:
@@ -19066,6 +19092,7 @@ int FFScript::do_getpixel()
 	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);
 	//BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->bitmapref);
 	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref-10);
+	Z_scripterrlog("Getpixel pointer is: %d\n", ri->bitmapref-10);
         //bmp = targetBitmap;
         if(!bitty)
         {
@@ -21897,8 +21924,8 @@ void FFScript::do_npc_constwalk()
 				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
 				return;
 			}
-			Z_scripterrlog("Calling npc->ConstantWalk( %d, %d, %d ).\n", (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
-				(getElement(arrayptr, 2)/10000));
+			//Z_scripterrlog("Calling npc->ConstantWalk( %d, %d, %d ).\n", (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
+			//	(getElement(arrayptr, 2)/10000));
 			GuyH::getNPC()->constant_walk( (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
 				(getElement(arrayptr, 2)/10000) );
 		}

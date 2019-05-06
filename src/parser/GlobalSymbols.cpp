@@ -7165,6 +7165,7 @@ static AccessorTable GraphicsTable[] =
 	{ "ClearTint",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GRAPHICS,          -1,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "NumDraws",              ZVARTYPEID_FLOAT,         GETTER,       NUMDRAWS,           1,      {  ZVARTYPEID_GRAPHICS,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "MaxDraws",              ZVARTYPEID_FLOAT,         GETTER,       MAXDRAWS,           1,      {  ZVARTYPEID_GRAPHICS,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetPixel",        ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_GRAPHICS,          ZVARTYPEID_UNTYPED,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
 	{ "",		-1,			-1,		-1,	-1,	{ -1,			-1,			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -7188,6 +7189,24 @@ void GraphicsSymbols::generateCode()
 		// Pop pointer.
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 		code.push_back(new OWavyR(new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	
+	//int GetPixel(graphics,bitmap,int,int)
+	{
+		Function* function = getFunction("GetPixel");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		Opcode *first = new OPopRegister(new VarArgument(INDEX));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OGraphicsGetpixel(new VarArgument(EXP1)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
@@ -7311,6 +7330,11 @@ static AccessorTable BitmapTable[] =
 	{ "DrawString",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
 	{ "DrawLayer",     typeVOID, FUNCTION, 0, 1, ARGS_8(ZVARTYPEID_BITMAP,F,F,F,F,F,F,F,F) },
 	{ "DrawScreen",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
+	{ "DrawScreenSolid",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
+	{ "DrawScreenSolidity",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
+	{ "DrawScreenComboTypes",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
+	{ "DrawScreenComboFlags",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
+	{ "DrawScreenComboIFlags",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
 	{ "Blit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,        { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT,ZVARTYPEID_UNTYPED,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_BOOL, -1,                           -1,                           -1,							  } },
 	{ "BlitTo",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,        { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT,ZVARTYPEID_UNTYPED,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_BOOL, -1,                           -1,                           -1,							  } },
 	{ "isValid",                ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -7746,6 +7770,83 @@ void BitmapSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		Opcode *first = new OBMPDrawScreenRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(6, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	
+	//void DrawScreenSolidity(bitmap, float, float, float, float, float, float)
+	{
+		Function* function = getFunction("DrawScreenSolidity");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OBMPDrawScreenSolidRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(6, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	
+	//void DrawScreenSolid(bitmap, float, float, float, float, float, float)
+	{
+		Function* function = getFunction("DrawScreenSolid");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OBMPDrawScreenSolid2Register();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(6, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void DrawScreenComboTypes(bitmap, float, float, float, float, float, float)
+	{
+		Function* function = getFunction("DrawScreenComboTypes");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OBMPDrawScreenComboTRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(6, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void DrawScreenComboFlags(bitmap, float, float, float, float, float, float)
+	{
+		Function* function = getFunction("DrawScreenComboFlags");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OBMPDrawScreenComboFRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(6, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void DrawScreenComboFlags(bitmap, float, float, float, float, float, float)
+	{
+		Function* function = getFunction("DrawScreenComboIFlags");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OBMPDrawScreenComboIRegister();
 		first->setLabel(label);
 		code.push_back(first);
 		POP_ARGS(6, EXP2);

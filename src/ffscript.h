@@ -158,7 +158,7 @@ void Play_Level_Music();
 int getTime(int type); //get system RTC Information.
 void getRTC(const bool v);
 long getQuestHeaderInfo(int type);
-
+void do_graphics_getpixel();
 
 void clearRunningItemScripts();
 bool itemScriptEngine();
@@ -2089,6 +2089,12 @@ enum ASM_DEFINE
 	CLEARBITMAP,
 	REGENERATEBITMAP,
 	BMPBLITTO,
+	BMPDRAWSCREENSOLIDR,
+	BMPDRAWSCREENCOMBOFR,
+	BMPDRAWSCREENCOMBOIR,
+	BMPDRAWSCREENCOMBOTR,
+	BMPDRAWSCREENSOLID2R,
+	GRAPHICSGETPIXEL,
 	NUMCOMMANDS           //0x013F
 };
 

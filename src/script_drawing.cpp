@@ -5343,7 +5343,7 @@ void bmp_do_clearr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
     //sdci[1]=layer
 	//sdci[17] Bitmap Pointer
-	Z_scripterrlog("bitmap->Clear() pointer is: %d\n", sdci[17]);
+	//Z_scripterrlog("bitmap->Clear() pointer is: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->Clear() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
@@ -8847,7 +8847,13 @@ void draw_map_solidity(BITMAP *b, const mapscr& m, int x, int y)
         const int x2 = ((i&15)<<4) + x;
         const int y2 = (i&0xF0) + y;
 	//Blit the palette index of the solidity value.
-	clear_to_color(square,(combobuf[m.data[i]].walk));
+	//int col = (combobuf[m.data[i]].walk&15);
+	//if ( col != 0 ) 
+	//{
+	//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
+	//	
+	//}
+	clear_to_color(square,(combobuf[m.data[i]].walk&15));
 	blit(square, b, 0, 0, x2, y2, square->w, square->h);
 	
 	
@@ -8909,6 +8915,113 @@ void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffse
         
         //draw valid layers
         draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+    }
+    
+    if(rotation != 0) // rotate
+    {
+        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+}
+
+void draw_map_solid(BITMAP *b, const mapscr& m, int x, int y)
+{
+    BITMAP* square = create_bitmap_ex(8,16,16);
+    BITMAP* subsquare = create_bitmap_ex(8,16,16);
+	clear_to_color(subsquare,1);
+    
+    for(int i(0); i < 176; ++i)
+    {
+        const int x2 = ((i&15)<<4) + x;
+        const int y2 = (i&0xF0) + y;
+	//Blit the palette index of the solidity value.
+	//int col = (combobuf[m.data[i]].walk&15);
+	//if ( col != 0 ) 
+	//{
+	//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
+	//	
+	//}
+	clear_bitmap(square);
+	int sol = (combobuf[m.data[i]].walk);
+	al_trace("Solidity is: %d.\n", sol);
+	if ( sol & 1 )
+	{
+		blit(subsquare, square, 0, 0, 0, 0, 8, 8);
+	}
+	if ( sol & 2 )
+	{
+		blit(subsquare, square, 0, 0, 0, 8, 8, 8);
+	}
+	if ( sol & 4 )
+	{
+		blit(subsquare, square, 0, 0, 8, 0, 8, 8);
+	}
+	if ( sol &8 )	{
+		blit(subsquare, square, 0, 0, 8, 8, 8, 8);
+	}
+	
+	blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	
+	
+    }
+    destroy_bitmap(square);
+    destroy_bitmap(subsquare);
+}
+
+void do_bmpdrawscreen_solidr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=x
+    //sdci[5]=y
+    //sdci[6]=rotation
+	//sdci[17] Bitmap Pointer
+	
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int x = sdci[4]/10000;
+    int y = sdci[5]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[6]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    
+    if(index >= TheMaps.size())
+    {
+        al_trace("DrawScreen: invalid map or screen index. \n");
+        return;
+    }
+    
+    const mapscr & m = TheMaps[index];
+    
+    
+    BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+    //draw layer 0
+    draw_map_solid(b, m, x1, y1);
+    
+    for(int i(0); i < 6; ++i)
+    {
+        if(m.layermap[i] == 0) continue;
+        
+        unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+        
+        if(layer_screen_index >= TheMaps.size())
+            continue;
+        
+        //draw valid layers
+        draw_map_solid(b, TheMaps[ layer_screen_index ], x1, y1);
     }
     
     if(rotation != 0) // rotate
@@ -9714,6 +9827,11 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 	case 	BMPPOLYGONR: bmp_do_polygonr(bmp, i, sdci, xoffset, yoffset); break;
 	case 	BMPDRAWLAYERR: do_bmpdrawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPDRAWSCREENR: do_bmpdrawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWSCREENSOLIDR: do_bmpdrawscreen_solidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWSCREENSOLID2R: do_bmpdrawscreen_solidr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWSCREENCOMBOFR: do_bmpdrawscreen_cflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWSCREENCOMBOIR: do_bmpdrawscreen_ciflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWSCREENCOMBOTR: do_bmpdrawscreen_ctyper(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPBLIT: bmp_do_drawbitmapexr(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPBLITTO: bmp_do_blittor(bmp, sdci, xoffset, yoffset); break;
 	case 	READBITMAP: bmp_do_readr(bmp, i, sdci, xoffset, yoffset); break;
