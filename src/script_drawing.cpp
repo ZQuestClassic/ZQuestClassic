@@ -8928,6 +8928,7 @@ void draw_map_solid(BITMAP *b, const mapscr& m, int x, int y)
 {
     BITMAP* square = create_bitmap_ex(8,16,16);
     BITMAP* subsquare = create_bitmap_ex(8,16,16);
+	clear_to_color(subsquare,1);
     
     for(int i(0); i < 176; ++i)
     {
