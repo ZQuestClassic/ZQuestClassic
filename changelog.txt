@@ -2,6 +2,34 @@
 
 //Alpha 22
 
+Add Graphics->GetPixel(bitmap, x, y) to ZScript
+Add bitmap->DrawScreenSolid()
+	This draws a block in colour 1, if the 8x8 pixel space is solid.
+Added the following bitmap drawing commands:
+	DrawScreenSolidity() : Draws a palette index based on the raw literal value
+	for the solidity of each combo space, by drawing a 16px block to that space
+	in the palette value equal to the solidity mask of that combo.
+
+	DrawScreenComboTypes(), as above, but the palette index is equal to the
+	combo Type ID value.
+
+	DrawScreenComboFlags(), as above, for placed flags.
+
+	DrawScreenComboIFlags(), as above, for inh. flags.
+	( ZoriaRPG, 6th May, 2019 )
+	
+Began adding commands to the bitmap-> pointer, similar to DrawScreen,
+	that when done, should draw blocks to the space on a bitmap that a combo occupies,
+	that the user can utilise in conjunction with GetPixel() to rapidly read values
+	for solidity mask, type, flag, and inh flag.
+
+	This would make it easier to produce large-scale scrolling environments, including
+	with Mode-7 style effects, as the end-user can blit out these masks for an entire map
+	to bitmaps, then read the same absolute position on a set of bitmaps to get
+	the properties of any specific point/node/coordinates.
+std.zh: Begin Optimising std_keyboard.zh
+	( ZoriaRPG, 4th May, 2019 )
+
 Fix Input->ModifierKeys return type, and values.
 	( ZoriaRPG, 3rd May, 2019 )
 
