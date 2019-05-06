@@ -8944,20 +8944,19 @@ void draw_map_solid(BITMAP *b, const mapscr& m, int x, int y)
 	clear_bitmap(square);
 	int sol = (combobuf[m.data[i]].walk);
 	al_trace("Solidity is: %d.\n", sol);
-	if ( sol & (1<<1) )
+	if ( sol & 1 )
 	{
 		blit(subsquare, square, 0, 0, 0, 0, 8, 8);
 	}
-	if ( sol & (1<<2) )
+	if ( sol & 2 )
 	{
 		blit(subsquare, square, 0, 0, 0, 8, 8, 8);
 	}
-	if ( sol & (1<<3) )
+	if ( sol & 4 )
 	{
 		blit(subsquare, square, 0, 0, 8, 0, 8, 8);
 	}
-	if ( sol & (1<<4) )
-	{
+	if ( sol &8 )	{
 		blit(subsquare, square, 0, 0, 8, 8, 8, 8);
 	}
 	
