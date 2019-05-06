@@ -5430,18 +5430,27 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
    // Z_scripterrlog("Trying to read filename %s\n", cptr);
     PALETTE tempPal;
     get_palette(tempPal);
-    scb.script_created_bitmaps[bitid].u_bmp = load_bitmap(str->c_str(), tempPal);
-    scb.script_created_bitmaps[bitid].width = scb.script_created_bitmaps[bitid].u_bmp->w;
-    scb.script_created_bitmaps[bitid].height = scb.script_created_bitmaps[bitid].u_bmp->h;
-    if ( !scb.script_created_bitmaps[bitid].u_bmp )
+    if ( file_exists(str->c_str()) )
     {
-	Z_scripterrlog("Failed to load image file %s.\nMaking a blank bitmap on the pointer.\n", str->c_str());
-	//scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,256,176);
-	//clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
+	    scb.script_created_bitmaps[bitid].u_bmp = load_bitmap(str->c_str(), tempPal);
+	    scb.script_created_bitmaps[bitid].width = scb.script_created_bitmaps[bitid].u_bmp->w;
+	    scb.script_created_bitmaps[bitid].height = scb.script_created_bitmaps[bitid].u_bmp->h;
+	    if ( !scb.script_created_bitmaps[bitid].u_bmp )
+	    {
+		Z_scripterrlog("Failed to load image file %s.\nMaking a blank bitmap on the pointer.\n", str->c_str());
+		//scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,256,176);
+		//clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
+	    }
+	    else 
+	    {
+		    Z_scripterrlog("Read image file %s\n",str->c_str());
+	    }
     }
-    else 
+    else
     {
-	    Z_scripterrlog("Read image file %s\n",str->c_str());
+	    Z_scripterrlog("Failed to load image file: %s. File not found. Creating a blank bitmap on the pointer.\n", str->c_str());
+	    scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,256,176);
+	    clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
     }
 }
 
