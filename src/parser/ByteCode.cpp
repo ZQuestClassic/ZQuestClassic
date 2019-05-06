@@ -4395,6 +4395,11 @@ string OBMPDrawScreenSolidRegister::toString()
 {
     return "BMPDRAWSCREENSOLIDR";
 }
+
+string OBMPDrawScreenSolid2Register::toString()
+{
+    return "BMPDRAWSCREENSOLID2R";
+}
 string OBMPDrawScreenComboFRegister::toString()
 {
     return "BMPDRAWSCREENCOMBOFR";

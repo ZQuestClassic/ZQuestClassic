@@ -14795,6 +14795,7 @@ void do_drawing_command(const int script_command)
 	case 	BMPDRAWLAYERR: set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
 	case 	BMPDRAWSCREENR:
 	case 	BMPDRAWSCREENSOLIDR:
+	case 	BMPDRAWSCREENSOLID2R:
 	case 	BMPDRAWSCREENCOMBOFR:
 	case 	BMPDRAWSCREENCOMBOIR:
 	case 	BMPDRAWSCREENCOMBOTR:
@@ -17595,6 +17596,7 @@ int run_script(const byte type, const word script, const long i)
 		case 	BMPDRAWLAYERR: 
 		case 	BMPDRAWSCREENR:
 		case 	BMPDRAWSCREENSOLIDR:
+		case 	BMPDRAWSCREENSOLID2R:
 		case 	BMPDRAWSCREENCOMBOFR:
 		case 	BMPDRAWSCREENCOMBOIR:
 		case 	BMPDRAWSCREENCOMBOTR:

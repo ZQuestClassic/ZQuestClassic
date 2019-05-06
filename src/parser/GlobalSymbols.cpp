@@ -7311,6 +7311,7 @@ static AccessorTable BitmapTable[] =
 	{ "DrawString",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BITMAP,		 ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
 	{ "DrawLayer",     typeVOID, FUNCTION, 0, 1, ARGS_8(ZVARTYPEID_BITMAP,F,F,F,F,F,F,F,F) },
 	{ "DrawScreen",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
+	{ "DrawScreenSolid",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
 	{ "DrawScreenSolidity",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
 	{ "DrawScreenComboTypes",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
 	{ "DrawScreenComboFlags",    typeVOID, FUNCTION, 0, 1, ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
@@ -7766,6 +7767,22 @@ void BitmapSymbols::generateCode()
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		Opcode *first = new OBMPDrawScreenSolidRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(6, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	
+	//void DrawScreenSolid(bitmap, float, float, float, float, float, float)
+	{
+		Function* function = getFunction("DrawScreenSolid");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OBMPDrawScreenSolid2Register();
 		first->setLabel(label);
 		code.push_back(first);
 		POP_ARGS(6, EXP2);

@@ -7403,6 +7403,15 @@ namespace ZScript
 			return new OBMPDrawScreenSolidRegister();
 		}
 	};
+	class OBMPDrawScreenSolid2Register : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenSolid2Register();
+		}
+	};
 	class OBMPDrawScreenComboFRegister : public Opcode
 	{
 	public:
