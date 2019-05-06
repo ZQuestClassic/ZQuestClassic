@@ -9714,6 +9714,10 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 	case 	BMPPOLYGONR: bmp_do_polygonr(bmp, i, sdci, xoffset, yoffset); break;
 	case 	BMPDRAWLAYERR: do_bmpdrawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPDRAWSCREENR: do_bmpdrawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWSCREENSOLIDR: do_bmpdrawscreen_solidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWSCREENCOMBOFR: do_bmpdrawscreen_cflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWSCREENCOMBOIR: do_bmpdrawscreen_ciflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWSCREENCOMBOTR: do_bmpdrawscreen_ctyper(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPBLIT: bmp_do_drawbitmapexr(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPBLITTO: bmp_do_blittor(bmp, sdci, xoffset, yoffset); break;
 	case 	READBITMAP: bmp_do_readr(bmp, i, sdci, xoffset, yoffset); break;

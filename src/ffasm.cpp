@@ -781,6 +781,12 @@ script_command command_list[NUMCOMMANDS+1]=
       { "CLEARBITMAP",        0,   0,   0,   0},
       { "REGENERATEBITMAP",        0,   0,   0,   0},
       { "BMPBLITTO",                0,   0,   0,   0},
+      
+      { "BMPDRAWSCREENSOLIDR",                0,   0,   0,   0},
+      { "BMPDRAWSCREENCOMBOFR",                0,   0,   0,   0},
+      { "BMPDRAWSCREENCOMBOIR",                0,   0,   0,   0},
+      { "BMPDRAWSCREENCOMBOTR",                0,   0,   0,   0},
+      
       { "",                    0,   0,   0,   0}
 };
 
