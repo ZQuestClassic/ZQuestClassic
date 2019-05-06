@@ -14654,14 +14654,14 @@ void do_drawing_command(const int script_command)
 		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12. 
 	case 	CLEARBITMAP:	
 	{
-		Z_scripterrlog("Calling %s\n","CLEARBITMAP");
+		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
 		set_user_bitmap_command_args(j, 1);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+1); 
 		break;
 	}
 	case 	REGENERATEBITMAP:	
 	{
-		Z_scripterrlog("Calling %s\n","CLEARBITMAP");
+		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
 		set_user_bitmap_command_args(j, 3);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
 		break;
@@ -14690,7 +14690,7 @@ void do_drawing_command(const int script_command)
 	    break;
 	case 	READBITMAP:	
 	{
-		Z_scripterrlog("Calling %s\n","READBITMAP");
+		//Z_scripterrlog("Calling %s\n","READBITMAP");
 		set_user_bitmap_command_args(j, 2);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
 		string *str = script_drawing_commands.GetString();
@@ -14706,7 +14706,7 @@ void do_drawing_command(const int script_command)
 	}
 	case 	WRITEBITMAP:	
 	{
-		Z_scripterrlog("Calling %s\n","WRITEBITMAP");
+		//Z_scripterrlog("Calling %s\n","WRITEBITMAP");
 		set_user_bitmap_command_args(j, 3);
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
 		std::string *str = script_drawing_commands.GetString();
@@ -21908,7 +21908,7 @@ void FFScript::do_npc_constwalk()
 				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
 				return;
 			}
-			Z_scripterrlog("Calling npc->ConstantWalk( %d, %d, %d ).\n", (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
+			//Z_scripterrlog("Calling npc->ConstantWalk( %d, %d, %d ).\n", (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
 				(getElement(arrayptr, 2)/10000));
 			GuyH::getNPC()->constant_walk( (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
 				(getElement(arrayptr, 2)/10000) );

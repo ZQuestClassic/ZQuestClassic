@@ -5343,7 +5343,7 @@ void bmp_do_clearr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
     //sdci[1]=layer
 	//sdci[17] Bitmap Pointer
-	Z_scripterrlog("bitmap->Clear() pointer is: %d\n", sdci[17]);
+	//Z_scripterrlog("bitmap->Clear() pointer is: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->Clear() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
