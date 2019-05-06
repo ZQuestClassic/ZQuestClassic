@@ -13150,6 +13150,17 @@ void do_getscreeneflags()
     set_register(sarg1, get_screeneflags(&TheMaps[map * MAPSCRS + scrn], flagset));
 }
 
+void FFScript::do_graphics_getpixel()
+{
+    long bitmap_pointer     = (ri->d[2]);
+    long xpos  = ri->d[1] / 10000;
+    long ypos = ri->d[0] / 10000;
+    
+    if ( scb.script_created_bitmaps[bitmap_pointer].u_bmp )
+	set_register(sarg1, getpixel(scb.script_created_bitmaps[bitmap_pointer].u_bmp, xpos, ypos));
+    else set_register(sarg1, -10000);
+}
+
 //Some of these need to be reduced to two inputs. -Z
 
 long get_screendoor(mapscr *m, int d)
@@ -17452,6 +17463,10 @@ int run_script(const byte type, const word script, const long i)
 		    do_getscreeneflags();
 		    break;
 		
+		case GRAPHICSGETPIXEL:
+		    FFCore.do_graphics_getpixel();
+		    break;
+		
 		case GETSCREENDOOR:
 		    do_getscreendoor();
 		    break;
@@ -19077,6 +19092,7 @@ int FFScript::do_getpixel()
 	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);
 	//BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->bitmapref);
 	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref-10);
+	Z_scripterrlog("Getpixel pointer is: %d\n", ri->bitmapref-10);
         //bmp = targetBitmap;
         if(!bitty)
         {

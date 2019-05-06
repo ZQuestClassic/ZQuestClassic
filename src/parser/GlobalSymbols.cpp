@@ -7165,6 +7165,7 @@ static AccessorTable GraphicsTable[] =
 	{ "ClearTint",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_GRAPHICS,          -1,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "NumDraws",              ZVARTYPEID_FLOAT,         GETTER,       NUMDRAWS,           1,      {  ZVARTYPEID_GRAPHICS,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "MaxDraws",              ZVARTYPEID_FLOAT,         GETTER,       MAXDRAWS,           1,      {  ZVARTYPEID_GRAPHICS,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetPixel",        ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_GRAPHICS,          ZVARTYPEID_UNTYPED,         ZVARTYPEID_FLOAT,    ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
 	{ "",		-1,			-1,		-1,	-1,	{ -1,			-1,			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -7188,6 +7189,24 @@ void GraphicsSymbols::generateCode()
 		// Pop pointer.
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 		code.push_back(new OWavyR(new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	
+	//int GetPixel(graphics,bitmap,int,int)
+	{
+		Function* function = getFunction("GetPixel");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		Opcode *first = new OPopRegister(new VarArgument(INDEX));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OGraphicsGetpixel(new VarArgument(EXP1)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}

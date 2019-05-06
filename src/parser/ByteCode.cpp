@@ -4412,6 +4412,10 @@ string OBMPDrawScreenComboTRegister::toString()
 {
     return "BMPDRAWSCREENCOMBOTR";
 }
+string OGraphicsGetpixel::toString()
+{
+    return "GRAPHICSGETPIXEL " + getArgument()->toString();
+}
 
 string OReturn::toString()
 {

@@ -7446,6 +7446,17 @@ namespace ZScript
 		std::string toString() /*override*/;
 		OReturn* clone() {return new OReturn();}
 	};
+	
+	class OGraphicsGetpixel : public UnaryOpcode
+	{
+	public:
+		OGraphicsGetpixel(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGraphicsGetpixel(a->clone());
+		}
+	};
 }
 
 #endif
