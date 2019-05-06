@@ -13152,7 +13152,7 @@ void do_getscreeneflags()
 
 void FFScript::do_graphics_getpixel()
 {
-    long bitmap_pointer     = (ri->d[2]);
+    long bitmap_pointer     = (ri->d[2])-10;
     long xpos  = ri->d[1] / 10000;
     long ypos = ri->d[0] / 10000;
     
