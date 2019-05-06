@@ -21909,7 +21909,7 @@ void FFScript::do_npc_constwalk()
 				return;
 			}
 			//Z_scripterrlog("Calling npc->ConstantWalk( %d, %d, %d ).\n", (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
-				(getElement(arrayptr, 2)/10000));
+			//	(getElement(arrayptr, 2)/10000));
 			GuyH::getNPC()->constant_walk( (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
 				(getElement(arrayptr, 2)/10000) );
 		}
