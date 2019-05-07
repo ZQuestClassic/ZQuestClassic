@@ -1,5 +1,9 @@
 To-Do
 
+Fix bitmap->GetPixel: Make it a drawing function.
+Make it a Unary Opcode
+Return the value.
+
 Add bitmap->DrawLayer* functions similar to DrawScreenSOlid, &c.
 Test 'char' as an enum.
 
