@@ -9623,7 +9623,7 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset,
     
     if(rotation != 0) // rotate
     {
-        draw_map_solid(b, l, x1, y1, transparent);
+        draw_map_solid(b, l, x1, y1);
         
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
@@ -9640,7 +9640,7 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset,
             
             if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
             {
-                int sol = (combobuf[m.data[i]].walk);
+                int sol = (combobuf[l.data[i]].walk);
                 
                 if ( sol & 1 )
 		{
@@ -9715,7 +9715,7 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
     
     if(rotation != 0) // rotate
     {
-        draw_map_solidity(b, l, x1, y1, transparent);
+        draw_map_solidity(b, l, x1, y1);
         
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
@@ -9730,7 +9730,7 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
             
             if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
             {
-                clear_to_color(square,(combobuf[m.data[i]].walk&15));
+                clear_to_color(square,(combobuf[l.data[i]].walk&15));
 		blit(square, b, 0, 0, x2, y2, square->w, square->h);
             }
         }
@@ -9787,7 +9787,7 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
     
     if(rotation != 0) // rotate
     {
-        draw_map_cflag(b, l, x1, y1, transparent);
+        draw_map_cflag(b, l, x1, y1);
         
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
@@ -9802,7 +9802,7 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
             
             if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
             {
-                clear_to_color(square,m.sflag[i]);
+                clear_to_color(square,l.sflag[i]);
 		blit(square, b, 0, 0, x2, y2, square->w, square->h);
             }
         }
@@ -9859,7 +9859,7 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
     
     if(rotation != 0) // rotate
     {
-        draw_map_combotype(b, l, x1, y1, transparent);
+        draw_map_combotype(b, l, x1, y1);
         
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
@@ -9874,7 +9874,7 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, boo
             
             if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
             {
-                clear_to_color(square,(combobuf[m.data[i]].type));
+                clear_to_color(square,(combobuf[l.data[i]].type));
 		blit(square, b, 0, 0, x2, y2, square->w, square->h);
             }
         }
@@ -9931,7 +9931,7 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bo
     
     if(rotation != 0) // rotate
     {
-        draw_map_comboiflag(b, l, x1, y1, transparent);
+        draw_map_comboiflag(b, l, x1, y1);
         
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
@@ -9946,7 +9946,7 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bo
             
             if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
             {
-                clear_to_color(square,(combobuf[m.data[i]].flag));
+                clear_to_color(square,(combobuf[l.data[i]].flag));
 		blit(square, b, 0, 0, x2, y2, square->w, square->h);
             }
         }
@@ -9956,77 +9956,6 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bo
     //putscr
 }
 
-void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
-{
-    //sdci[1]=layer
-    //sdci[2]=map
-    //sdci[3]=screen
-    //sdci[4]=layer
-    //sdci[5]=x
-    //sdci[6]=y
-    //sdci[7]=rotation
-    //sdci[8]=opacity
-    
-    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int scrn = sdci[3]/10000;
-    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
-    int x = sdci[5]/10000;
-    int y = sdci[6]/10000;
-    int x1 = x + xoffset;
-    int y1 = y + yoffset;
-    int rotation = sdci[7]/10000;
-    int opacity = sdci[8]/10000;
-    
-    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
-    
-    if(!m) //no need to log it.
-        return;
-
-	if(index >= TheMaps.size())
-	{
-		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
-		return;
-	}
-    
-    const mapscr & l = *m;
-    
-    BITMAP* b = bmp;
-    
-    if(rotation != 0)
-        b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
-    const int maxX = isOffScreen ? 512 : 256;
-    const int maxY = isOffScreen ? 512 : 176 + yoffset;
-    bool transparent = opacity <= 128;
-    
-    if(rotation != 0) // rotate
-    {
-        draw_map_solidity(b, l, x1, y1, transparent);
-        
-        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
-        script_drawing_commands.ReleaseSubBitmap(b);
-    }
-    else
-    {
-	BITMAP* square = create_bitmap_ex(8,16,16);
-        for(int i(0); i < 176; ++i)
-        {
-            const int x2 = ((i&15)<<4) + x1;
-            const int y2 = (i&0xF0) + y1;
-            
-            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
-            {
-                clear_to_color(square,m.sflag[i]);
-		blit(square, b, 0, 0, x2, y2, square->w, square->h);
-            }
-        }
-	destroy_bitmap(square);
-    }
-    
-    //putscr
-}
 
 
 /////////////////////////////////////////////////////////
