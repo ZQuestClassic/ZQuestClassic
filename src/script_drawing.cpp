@@ -8952,7 +8952,7 @@ void draw_map_solid(BITMAP *b, const mapscr& m, int x, int y)
 	//}
 	clear_bitmap(square);
 	int sol = (combobuf[m.data[i]].walk);
-	al_trace("Solidity is: %d.\n", sol);
+	//al_trace("Solidity is: %d.\n", sol);
 	if ( sol & 1 )
 	{
 		blit(subsquare, square, 0, 0, 0, 0, 8, 8);
@@ -9110,7 +9110,7 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
             continue;
         
         //draw valid layers
-        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+        draw_map_cflag(b, TheMaps[ layer_screen_index ], x1, y1);
     }
     
     if(rotation != 0) // rotate
@@ -9191,7 +9191,7 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
             continue;
         
         //draw valid layers
-        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+        draw_map_combotype(b, TheMaps[ layer_screen_index ], x1, y1);
     }
     
     if(rotation != 0) // rotate
@@ -9272,7 +9272,7 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
             continue;
         
         //draw valid layers
-        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+        draw_map_comboiflag(b, TheMaps[ layer_screen_index ], x1, y1);
     }
     
     if(rotation != 0) // rotate
@@ -9576,6 +9576,458 @@ void do_bmpdrawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool is
     }
 }
 
+void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_solid(b, l, x1, y1, transparent);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+	BITMAP* subsquare = create_bitmap_ex(8,16,16);
+	clear_to_color(subsquare,1);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                int sol = (combobuf[m.data[i]].walk);
+                
+                if ( sol & 1 )
+		{
+			blit(subsquare, square, 0, 0, 0, 0, 8, 8);
+		}
+		if ( sol & 2 )
+		{
+			blit(subsquare, square, 0, 0, 0, 8, 8, 8);
+		}
+		if ( sol & 4 )
+		{
+			blit(subsquare, square, 0, 0, 8, 0, 8, 8);
+		}
+		if ( sol &8 )	{
+			blit(subsquare, square, 0, 0, 8, 8, 8, 8);
+		}
+		
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+	destroy_bitmap(subsquare);
+    }
+    
+    //putscr
+}
+
+void do_bmpdrawlayersolidityr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_solidity(b, l, x1, y1, transparent);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                clear_to_color(square,(combobuf[m.data[i]].walk&15));
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+    }
+    
+    //putscr
+}
+
+void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_cflag(b, l, x1, y1, transparent);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                clear_to_color(square,m.sflag[i]);
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+    }
+    
+    //putscr
+}
+
+void do_bmpdrawlayerctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_combotype(b, l, x1, y1, transparent);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                clear_to_color(square,(combobuf[m.data[i]].type));
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+    }
+    
+    //putscr
+}
+
+void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_comboiflag(b, l, x1, y1, transparent);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                clear_to_color(square,(combobuf[m.data[i]].flag));
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+    }
+    
+    //putscr
+}
+
+void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_solidity(b, l, x1, y1, transparent);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                clear_to_color(square,m.sflag[i]);
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+    }
+    
+    //putscr
+}
+
 
 /////////////////////////////////////////////////////////
 // do primitives
@@ -9847,6 +10299,13 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 	case 	WRITEBITMAP: bmp_do_writer(bmp, i, sdci, xoffset, yoffset); break;
 	case 	CLEARBITMAP: bmp_do_clearr(bmp, sdci, xoffset, yoffset); break;
 	case 	REGENERATEBITMAP: bmp_do_regenr(bmp, sdci, xoffset, yoffset); break;
+	
+	case 	BMPDRAWLAYERSOLIDR: do_bmpdrawlayersolidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWLAYERCFLAGR: do_bmpdrawlayercflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWLAYERCTYPER: do_bmpdrawlayerctyper(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWLAYERCIFLAGR: do_bmpdrawlayerciflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWLAYERSOLIDITYR: do_bmpdrawlayersolidityr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	
         
         }
     }
