@@ -74,6 +74,7 @@ namespace ZScript
 		virtual void caseExprTernary(ASTTernaryExpr &host, void *param);
 		// Literals
 		virtual void caseNumberLiteral(ASTNumberLiteral& host, void* param);
+		virtual void caseCharLiteral(ASTCharLiteral& host, void* param);
 		virtual void caseBoolLiteral(ASTBoolLiteral& host, void* param);
 		virtual void caseStringLiteral(ASTStringLiteral& host, void* param);
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);

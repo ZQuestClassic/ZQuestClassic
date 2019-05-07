@@ -117,6 +117,7 @@ extern YYLTYPE noloc;
 %token UNTYPED
 %token ZBOOL
 %token ZFLOAT
+%token ZCHAR
 %token BITMAP
 %token CHEAT
 %token COMBO
@@ -437,6 +438,7 @@ DataType : ZCONST DataType {
 	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
 	| ZFLOAT {$$ = new ASTDataType(DataType::FLOAT, @$);}
+	| ZCHAR {$$ = new ASTDataType(DataType::CHAR, @$);}
 	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
 	| CHEAT {$$ = new ASTDataType(DataType::CHEATS, @$);}
 	| COMBO {$$ = new ASTDataType(DataType::COMBOS, @$);}
@@ -1262,7 +1264,7 @@ Literal :
 		char val[15];
 		sprintf(val, "%d", as->getValue().at(1));
 		ASTFloat* number = new ASTFloat(val, (ASTFloat::Type)0, @$);
-		$$ = new ASTNumberLiteral(number, @$);}
+		$$ = new ASTCharLiteral(number, @$);}
 	| Literal_String {$$ = $1;}
 	| Literal_Bool {$$ = $1;}
 	| Literal_Array {$$ = $1;}
