@@ -4417,6 +4417,27 @@ string OGraphicsGetpixel::toString()
     return "GRAPHICSGETPIXEL " + getArgument()->toString();
 }
 
+string OBMPDrawScreenSolidityRegister::toString()
+{
+    return "BMPDRAWLAYERSOLIDITYR";
+}
+string OBMPDrawScreenSolidMaskRegister::toString()
+{
+    return "BMPDRAWLAYERSOLIDR";
+}
+string OBMPDrawScreenCTypeRegister::toString()
+{
+    return "BMPDRAWLAYERCTYPER";
+}
+string OBMPDrawScreenCFlagRegister::toString()
+{
+    return "BMPDRAWLAYERCFLAGR";
+}
+string OBMPDrawScreenCIFlagRegister::toString()
+{
+    return "BMPDRAWLAYERCIFLAGR";
+}
+
 string OReturn::toString()
 {
 	return "RETURN";

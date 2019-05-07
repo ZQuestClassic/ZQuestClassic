@@ -7440,6 +7440,52 @@ namespace ZScript
 		}
 	};
 
+	class OBMPDrawScreenSolidityRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenSolidityRegister();
+		}
+	};
+	class OBMPDrawScreenSolidMaskRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenSolidMaskRegister();
+		}
+	};
+	class OBMPDrawScreenCTypeRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenCTypeRegister();
+		}
+	};
+	class OBMPDrawScreenCFlagRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenCFlagRegister();
+		}
+	};
+	class OBMPDrawScreenCIFlagRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenCIFlagRegister();
+		}
+	};
+	
 	class OReturn : public Opcode
 	{
 	public:
