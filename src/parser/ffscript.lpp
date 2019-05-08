@@ -98,6 +98,7 @@ always			TOKEN( ALWAYS );
 asm				TOKEN( ZASM );
 zasm			TOKEN( ZASM );
 until			TOKEN( UNTIL );
+unless			TOKEN( UNLESS );
 
  /* Types */
 void		TOKEN( ZVOID );

@@ -112,7 +112,10 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 	visit(host.condition.get(), param);
     int endif = ScriptParser::getUniqueLabelID();
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-    addOpcode(new OGotoTrueImmediate(new LabelArgument(endif)));
+	if(host.isInverted())
+		addOpcode(new OGotoFalseImmediate(new LabelArgument(endif)));
+	else
+		addOpcode(new OGotoTrueImmediate(new LabelArgument(endif)));
     //run the block
     visit(host.thenStatement.get(), param);
     //nop
@@ -128,7 +131,10 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
     int elseif = ScriptParser::getUniqueLabelID();
     int endif = ScriptParser::getUniqueLabelID();
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-    addOpcode(new OGotoTrueImmediate(new LabelArgument(elseif)));
+	if(host.isInverted())
+		addOpcode(new OGotoFalseImmediate(new LabelArgument(elseif)));
+	else
+		addOpcode(new OGotoTrueImmediate(new LabelArgument(elseif)));
     //run if blocl
     visit(host.thenStatement.get(), param);
     addOpcode(new OGotoImmediate(new LabelArgument(endif)));

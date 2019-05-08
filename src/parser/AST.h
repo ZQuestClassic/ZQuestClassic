@@ -377,9 +377,14 @@ namespace ZScript
 		ASTStmtIf* clone() const {return new ASTStmtIf(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		void invert() {inverted = true;}
+		bool isInverted() const {return inverted;}
 
 		owning_ptr<ASTExpr> condition;
 		owning_ptr<ASTStmt> thenStatement;
+	private:
+		bool inverted;
 	};
 
 	class ASTStmtIfElse : public ASTStmtIf
