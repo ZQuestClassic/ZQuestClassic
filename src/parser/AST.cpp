@@ -318,7 +318,7 @@ ASTStmtIfElse::ASTStmtIfElse(
 		ASTExpr* condition, ASTStmt* thenStatement,
 		ASTStmt* elseStatement, LocationData const& location)
 	: ASTStmtIf(condition, thenStatement, location),
-	  elseStatement(elseStatement), inverted(false)
+	  elseStatement(elseStatement)
 {}
 
 void ASTStmtIfElse::execute(ASTVisitor& visitor, void* param)
