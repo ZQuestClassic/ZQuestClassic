@@ -24,13 +24,13 @@ bool RecursiveVisitor::breakRecursion(void* param) const
 	return failure || breakNode;
 }
 
-void RecursiveVisitor::syncDisable(AST& parent, AST const& child) const
+void RecursiveVisitor::syncDisable(AST& parent, AST const& child)
 {
 	if(child.errorDisabled) parent.errorDisabled = true;
 	if(child.isDisabled()) parent.disable();
 }
 
-void RecursiveVisitor::syncDisable(AST& parent, AST const* child) const
+void RecursiveVisitor::syncDisable(AST& parent, AST const* child)
 {
 	if(child->errorDisabled) parent.errorDisabled = true;
 	if(child->isDisabled()) parent.disable();
