@@ -112,6 +112,7 @@ extern YYLTYPE noloc;
 %token INCLUDE
 %token UNTIL
 %token UNLESS
+%token REPEAT
 
  // Types
 %token ZVOID
@@ -697,6 +698,7 @@ Statement :
 	| Statement_For {$$ = $1;}
 	| Statement_While {$$ = $1;}
 	| Statement_Do {$$ = $1;}
+	| Statement_Repeat {$$ = $1;}
 	| Statement_Return SEMICOLON {$$ = $1;}
 	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@$);}
 	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@$);}
@@ -862,6 +864,12 @@ Statement_Do :
 		$$ = stmt;}
 	;
 
+Statement_Repeat :
+	REPEAT LPAREN Expression_Constant RPAREN Statement {
+		ASTExprConst* expr = (ASTExprConst*)$3;
+		ASTStmt* body = (ASTStmt*)$5;
+		$$ = new ASTStmtRepeat(expr, body, @$);}
+	;
 
 Statement_Return :
 	RETURN Expression {

@@ -64,6 +64,7 @@ namespace ZScript
 	class ASTStmtFor;
 	class ASTStmtWhile;
 	class ASTStmtDo;
+	class ASTStmtRepeat;
 	class ASTStmtReturn;
 	class ASTStmtReturnVal;
 	class ASTStmtBreak;
@@ -486,6 +487,18 @@ namespace ZScript
 		owning_ptr<ASTStmt> body;
 	private:
 		bool inverted;
+	};
+	
+	class ASTStmtRepeat : public ASTStmt
+	{
+	public:
+		ASTStmtRepeat(ASTExprConst* iter, ASTStmt* body, LocationData const& location = LocationData::NONE);
+		ASTStmtRepeat* clone() const {return new ASTStmtRepeat(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		owning_ptr<ASTExprConst> iter;
+		owning_ptr<ASTStmt> body;
 	};
 
 	class ASTStmtReturn : public ASTStmt

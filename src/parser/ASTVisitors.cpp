@@ -187,6 +187,32 @@ void RecursiveVisitor::caseStmtDo(ASTStmtDo& host, void* param)
 	syncDisable(host, *host.test);
 }
 
+void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)
+{
+	optional<long> repeats = (*host.iter).getCompileTimeValue(this, scope);
+	if(repeats)
+	{
+		int rep = *repeats / 10000L;
+		if(rep>0)
+		{
+			for(int q = rep - 1; q > 0; --q)
+			{
+				visit((*host.body).clone());
+			}
+			visit(*host.body);
+		}
+		else if(rep < 0)
+		{
+			handleError(CompileError::ConstantBadSize(&*host.iter, ">= 0"));
+		}
+	}
+	else
+	{
+		handleError(CompileError::ExprNotConstant(&*host.iter));
+	}
+	syncDisable(host, *host.iter);
+}
+
 void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
 {
 	visit(host.value.get(), param);

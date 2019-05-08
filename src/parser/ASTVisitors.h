@@ -40,6 +40,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseStmtDo(ASTStmtDo& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseStmtRepeat(ASTStmtRepeat& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseStmtReturn(ASTStmtReturn& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseStmtReturnVal(
@@ -223,6 +225,7 @@ namespace ZScript
 		virtual void caseStmtFor(ASTStmtFor& host, void* param = NULL);
 		virtual void caseStmtWhile(ASTStmtWhile& host, void* param = NULL);
 		virtual void caseStmtDo(ASTStmtDo& host, void* param = NULL);
+		virtual void caseStmtRepeat(ASTStmtRepeat& host, void* param = NULL);
 		virtual void caseStmtReturnVal(
 				ASTStmtReturnVal& host, void* param = NULL);
 		// Declarations
