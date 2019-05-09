@@ -789,11 +789,12 @@ script_command command_list[NUMCOMMANDS+1]=
       { "BMPDRAWSCREENSOLID2R",                0,   0,   0,   0},
       { "GRAPHICSGETPIXEL",     1,   0,   0,   0},
       
-      { "BMPDRAWLAYERSOLIDR",     1,   0,   0,   0},
-      { "BMPDRAWLAYERCFLAGR",     1,   0,   0,   0},
-      { "BMPDRAWLAYERCTYPER",     1,   0,   0,   0},
-      { "BMPDRAWLAYERCIFLAGR",     1,   0,   0,   0},
-      { "BMPDRAWLAYERSOLIDITYR",     1,   0,   0,   0},
+      { "BMPDRAWLAYERSOLIDR",     0,   0,   0,   0},
+      { "BMPDRAWLAYERCFLAGR",     0,   0,   0,   0},
+      { "BMPDRAWLAYERCTYPER",     0,   0,   0,   0},
+      { "BMPDRAWLAYERCIFLAGR",     0,   0,   0,   0},
+      { "BMPDRAWLAYERSOLIDITYR",     0,   0,   0,   0},
+      { "BMPMODE7",     0,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 

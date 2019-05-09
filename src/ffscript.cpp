@@ -14832,6 +14832,14 @@ void do_drawing_command(const int script_command)
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
 		break;
 	}
+	case 	BMPMODE7:	
+	{
+		set_user_bitmap_command_args(j, 16); 
+		//for(int q = 0; q < 8; ++q )
+		//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
+		break;
+	}
     
     
     }
@@ -17627,6 +17635,7 @@ int run_script(const byte type, const word script, const long i)
 		case 	BMPDRAWSCREENCOMBOTR:
 		case 	BMPBLIT:
 		case 	BMPBLITTO:
+		case 	BMPMODE7:
 		case 	READBITMAP:
 		case 	WRITEBITMAP:
 		case 	CLEARBITMAP:

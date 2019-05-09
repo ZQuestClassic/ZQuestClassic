@@ -6838,6 +6838,15 @@ namespace ZScript
 			return new OBMPBlitTO();
 		}
 	};
+	class OBMPMode7 : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPMode7();
+		}
+	};
 	class OBMPQuadRegister : public Opcode
 	{
 	public:

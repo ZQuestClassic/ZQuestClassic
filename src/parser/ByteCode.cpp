@@ -4203,6 +4203,10 @@ string OBMPBlitTO::toString()
 {
     return "BMPBLITTO";
 }
+string OBMPMode7::toString()
+{
+    return "BMPMODE7";
+}
 
 string OBMPQuadRegister::toString()
 {
