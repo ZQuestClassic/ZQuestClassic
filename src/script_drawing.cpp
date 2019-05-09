@@ -6074,8 +6074,8 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		
 		if(srcY+space_y>=0)
 		{
-			if ( masked ) masked_stretch_blit(sourceBitmap, subBmp, srcX+space_x, srcY+space_y, line_dx*destW, 1, screen_x, screen_y, destW, 1);
-			else stretch_blit(sourceBitmap, subBmp, srcX+space_x, srcY+space_y, line_dx*destW, 1, screen_x, screen_y, destW, 1);
+			if ( masked ) masked_stretch_blit(sourceBitmap, destBMP, srcX+space_x, srcY+space_y, line_dx*destW, 1, screen_x, screen_y, destW, 1);
+			else stretch_blit(sourceBitmap, destBMP, srcX+space_x, srcY+space_y, line_dx*destW, 1, screen_x, screen_y, destW, 1);
 		}
 	}
 	
