@@ -104,6 +104,8 @@ struct user_bitmap
 	int depth;
 };
 
+
+
 //Old, 2.50 bitmap IDs
 enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1, 
 	rtBMP2, rtBMP3, rtBMP4, rtBMP5, rtBMP6, firstUserGeneratedBitmap };
@@ -119,6 +121,28 @@ struct script_bitmaps
 {
 	int num_active;
 	user_bitmap script_created_bitmaps[MAX_USER_BITMAPS];
+};
+
+#define MAX_USER_PALETTES 256
+
+struct user_palette
+{
+	PALETTE* u_pal;
+	byte colours[256];
+	int current_id;
+};
+
+struct script_palettes
+{
+	int num_active;
+	user_palette script_created_palettes[MAX_USER_PALETTES];
+};
+
+#define MAX_USER_RGB 256
+struct user_rgb
+{
+	RGB usr_rgb[256][MAX_USER_RGB];
+	int current_active;
 };
 
 //Module System.
@@ -260,6 +284,8 @@ byte FF_jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 byte FF_link_swim_speed;
 
 byte subscreen_scroll_speed;
+
+void set_sarg1(int v);
 
 void setSubscreenScrollSpeed(byte n);
 int getSubscreenScrollSpeed();
@@ -2102,6 +2128,7 @@ enum ASM_DEFINE
 	BMPDRAWLAYERCIFLAGR,
 	BMPDRAWLAYERSOLIDITYR,
 	BMPMODE7,
+	BITMAPGETPIXEL,
 	NUMCOMMANDS           //0x013F
 };
 
