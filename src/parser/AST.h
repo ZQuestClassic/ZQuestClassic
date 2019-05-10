@@ -664,11 +664,20 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
 		Type getDeclarationType() const /*override*/ {return TYPE_FUNCTION;}
+		
+		bool isInvalid() const {return (flags & FUNCFLAG_INVALID);}
+		void setInvalid() {flags |= FUNCFLAG_INVALID;}
+		bool isInline() const {return (flags & FUNCFLAG_INLINE);}
+		void setInline() {flags |= FUNCFLAG_INLINE;}
+		int getFlags() const {return flags;}
 
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
 		std::string name;
 		owning_ptr<ASTBlock> block;
+		std::string invalidMsg;
+	private:
+		int flags;
 	};
 
 	// A line of variable/constant declarations:

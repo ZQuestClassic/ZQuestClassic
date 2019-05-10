@@ -335,7 +335,7 @@ namespace ZScript
 	public:
 		
 		Function(DataType const* returnType, std::string const& name,
-		         std::vector<DataType const*> paramTypes, int id);
+		         std::vector<DataType const*> paramTypes, int id, int flags = 0);
 		~Function();
 		
 		DataType const* returnType;
@@ -362,12 +362,13 @@ namespace ZScript
 		Script* getScript() const;
 
 		int getLabel() const;
-
+		int getFlags() const {return flags;}
 		// If this is a tracing function (enabled by #option trace)
 		bool isTracing() const;
 		
 	private:
 		mutable optional<int> label;
+		int flags;
 
 		// Code implementing this function.
 		std::vector<Opcode*> ownedCode;

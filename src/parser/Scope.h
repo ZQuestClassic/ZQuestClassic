@@ -129,7 +129,7 @@ namespace ZScript
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL)
+				int flags = 0, AST* node = NULL)
 		= 0;
 		virtual void setDefaultOption(CompileOptionSetting value) = 0;
 		virtual void setOption(
@@ -339,7 +339,7 @@ namespace ZScript
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		virtual void setDefaultOption(CompileOptionSetting value);
 		virtual void setOption(
 				CompileOption option, CompileOptionSetting value);
@@ -413,7 +413,7 @@ namespace ZScript
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		
 	protected:
 		virtual bool add(Datum&, CompileErrorHandler*);

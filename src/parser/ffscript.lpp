@@ -100,6 +100,7 @@ zasm			TOKEN( ZASM );
 until			TOKEN( UNTIL );
 unless			TOKEN( UNLESS );
 repeat			TOKEN( REPEAT );
+inline			TOKEN( INLINE );
 
  /* Types */
 void		TOKEN( ZVOID );

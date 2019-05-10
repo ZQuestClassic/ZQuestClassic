@@ -530,6 +530,11 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 
 void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 {
+	if(host.isInvalid())
+	{
+		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
+		return;
+	}
 	// Resolve the return type under current scope.
 	DataType const& returnType = host.returnType->resolve(*scope, this);
 	if (breakRecursion(*host.returnType.get())) return;
@@ -569,7 +574,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
-			&returnType, host.name, paramTypes, &host);
+			&returnType, host.name, paramTypes, host.getFlags(), &host);
 
 	// If adding it failed, it means this scope already has a function with
 	// that name.
