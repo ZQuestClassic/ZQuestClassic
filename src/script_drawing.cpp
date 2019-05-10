@@ -5892,20 +5892,24 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//int litcolour = sdci[15]/10000;
 	
 	//rendering mode 7 args
-	int srcX = sdci[3]/10000;
-	int srcY = sdci[4]/10000; 
-	int srcW = sdci[5]/10000; 
-	int srcH = sdci[6]/10000; 
-	int destW = sdci[7]/10000;
-	int destH = sdci[8]/10000;
-	int angle = sdci[9]/10000; 
-	int cx = sdci[10]/10000;
-	int cy = sdci[11]/10000;
-	int space_z = sdci[12]/10000;
-	int horizon = sdci[13]/10000;
-	int scale_x = sdci[14]/10000;
-	int scale_y = sdci[15]/10000;
-	byte masked = ( sdci[16] ) ? 1 : 0;
+	int srcX = sdci[3];
+	int srcY = sdci[4]; 
+	int destX = sdci[5];
+	int destY = sdci[6];
+	
+	
+//	int srcW = sdci[5]/10000; 
+//	int srcH = sdci[6]/10000; 
+	int destW = sdci[7];
+	int destH = sdci[8];
+//	int angle = sdci[9]/10000; 
+//	int cx = sdci[10]/10000;
+//	int cy = sdci[11]/10000;
+	int space_z = sdci[9];
+	int horizon = sdci[10];
+	int scale_x = sdci[11];
+	int scale_y = sdci[12];
+	byte masked = ( sdci[13] ) ? 1 : 0;
 	
 	
 	int ref = 0;
@@ -6049,33 +6053,45 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     
 	//dx = dx + xoffset; //don't do this here!
 	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
-    
+	//All of these are a factor of 10000 as fix. 
 	int screen_x = 0; int screen_y = 0;
 	
 	int distance = 0; int horizontal_scale = 0;
 	
-	int mask_x = 0;
-	int mask_y = 0;
+	int screen_y_horizon = 0;
 	
 	int line_dx = 0; int line_dy = 0;
 	
 	int space_x = 0; int space_y = 0;
 	
-	for(screen_y=0; screen_y<destH; screen_y++){
-		distance = (space_z * scale_y) / (screen_y + horizon);
+	for(screen_y = 0; screen_y < destH; screen_y += 10000) //fix, offset by .0000
+	{
+		//Calculate the distance of each line from the camera point
+		screen_y_horizon = screen_y + horizon;
 		
-		horizontal_scale = (distance / scale_x);
+		distance = ((space_z * scale_y) / ((screen_y_horizon != 0) ? screen_y_horizon : 1));
+			
+		//Get the scale of each line based on the distance
 		
+		horizontal_scale = (distance / (( scale_x != 0 ) ? scale_x : 1));
+		
+		//There was some math here before I stripped out the rotation step
 		line_dx = horizontal_scale;
 		line_dy = 0;
 		
-		space_x = cx - destW/2 * line_dx;
-		space_y = cy - distance + destH/2 * line_dy;
+		//space_x,space_y - where to grab each scanline from on the space bitmap
+		space_x = srcX - destW/2 * line_dx;
+		space_y = srcY - distance + destH/2 * line_dy;
 		
-		if(srcY+space_y>=0)
+		//Keep blits within the bounds of both bitmaps to avoid crashes
+		int y1 = srcY+space_y;
+		int y2 = destY+screen_y;
+		if(y1>=0 && (y1/10000 ) <= (sourceBitmap->h-1) && y2 >=0 && (y2/10000) <= (destBMP->h-1) )
 		{
-			if ( masked ) masked_stretch_blit(sourceBitmap, destBMP, srcX+space_x, srcY+space_y, line_dx*destW, 1, screen_x, screen_y, destW, 1);
-			else stretch_blit(sourceBitmap, destBMP, srcX+space_x, srcY+space_y, line_dx*destW, 1, screen_x, screen_y, destW, 1);
+			if ( masked ) masked_stretch_blit(sourceBitmap, destBMP, (srcX+space_x/10000), (srcY+space_y/10000), 
+				(line_dx*destW)/10000, 1, (screen_x/10000), (screen_y/10000)+yoffset, (destW/10000), 1);
+			else stretch_blit(sourceBitmap, destBMP, (srcX+space_x/10000), (srcY+space_y/10000), 
+				(line_dx*destW)/10000, 1, (screen_x/10000), (screen_y/10000)+yoffset, (destW/10000), 1);
 		}
 	}
 	
