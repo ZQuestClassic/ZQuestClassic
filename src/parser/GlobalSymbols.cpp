@@ -7377,6 +7377,7 @@ void BitmapSymbols::generateCode()
 		first->setLabel(label);
 		code.push_back(first);
 		POP_ARGS(3, EXP2);
+		
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		
