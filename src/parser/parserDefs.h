@@ -1,8 +1,12 @@
 #ifndef _PARSERDEFS_H_
 #define _PARSERDEFS_H_
 
-#define FUNCFLAG_INVALID			0x01
-#define FUNCFLAG_INLINE				0x02
+//FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.
+#define FUNCFLAG_INLINE				0x01
+#define FUNCFLAG_INVALID			0x02
+
+//RFLAG values, for RecursiveVisitor.
+#define RFLAG_INLINE				0x01
 
 //Option values. NOTE: Result of "lookupOption" must be '/10000.0' -V
 #define OPT_OFF                     0

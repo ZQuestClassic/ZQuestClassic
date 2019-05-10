@@ -956,6 +956,11 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	}
 		
 	host.binding = bestFunctions.front();
+	
+	if(host.binding->getFlags() & FUNCFLAG_INLINE)
+	{
+		host.inlineBlock = host.binding->node->block->clone();
+	}
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)

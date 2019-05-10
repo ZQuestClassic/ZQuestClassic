@@ -1218,6 +1218,13 @@ NamespaceScope::NamespaceScope(Scope* parent, FileScope* parentFile, Namespace* 
 {}
 
 ////////////////////////////////////////////////////////////////
+// InlineScope
+
+InlineScope::InlineScope(Scope* parent, FileScope* parentFile, ASTExprCall* node, ASTBlock* block)
+	: BasicScope(parent, parentFile), node(node), block(block)
+{}
+
+////////////////////////////////////////////////////////////////
 // ZClass
 
 ZClass::ZClass(TypeStore& typeStore, string const& name, int id)

@@ -17,6 +17,8 @@ namespace ZScript
 	class ASTNamespace;
 	class ASTExprIdentifier;
 	class ASTImportDecl;
+	class ASTExprCall;
+	class ASTBlock;
 
 	// CompileError.h
 	class CompileErrorHandler;
@@ -518,6 +520,14 @@ namespace ZScript
 		Namespace* namesp;
 	};
 
+	class InlineScope : public BasicScope
+	{
+	public:
+		InlineScope(Scope* parent, FileScope* parentFile, ASTExprCall* node, ASTBlock* block);
+		ASTExprCall* node;
+		ASTBlock* block;
+	};
+	
 	enum ZClassIdBuiltin
 	{
 		ZCLASSID_START = 0,

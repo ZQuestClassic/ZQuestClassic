@@ -618,41 +618,71 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
-	
     OpcodeContext* c = (OpcodeContext*)param;
-    int funclabel = host.binding->getLabel();
-    //push the stack frame pointer
-    addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-    //push the return address
-    int returnaddr = ScriptParser::getUniqueLabelID();
-    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnaddr)));
-    addOpcode(new OPushRegister(new VarArgument(EXP1)));
+	if(host.binding->getFlags() & FUNCFLAG_INLINE) //Inline function
+	{
+		// If the function is a pointer function (->func()) we need to push the
+		// left-hand-side.
+		if (host.left->isTypeArrow())
+		{
+			//load the value of the left-hand of the arrow into EXP1
+			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+			//visit(host.getLeft(), param);
+			//push it onto the stack
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
 
-    // If the function is a pointer function (->func()) we need to push the
-    // left-hand-side.
-    if (host.left->isTypeArrow())
-    {
-        //load the value of the left-hand of the arrow into EXP1
-	    visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
-        //visit(host.getLeft(), param);
-        //push it onto the stack
-        addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    }
+		//push the parameters, in forward order
+		for (vector<ASTExpr*>::iterator it = host.parameters.begin();
+			it != host.parameters.end(); ++it)
+		{
+			visit(*it, param);
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
+		
+		//Inline-specific:
+		ASTFuncDecl& decl = *(host.binding->node);
+		//Set the inline flag, process the function block, then reset flags to prior state.
+		int oldflags = rflags;
+		rflags |= RFLAG_INLINE;
+		visit((*decl.block).clone(), param);
+		rflags = oldflags;
+	}
+	else //Non-inline function
+	{
+		int funclabel = host.binding->getLabel();
+		//push the stack frame pointer
+		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+		//push the return address
+		int returnaddr = ScriptParser::getUniqueLabelID();
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnaddr)));
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		
+		// If the function is a pointer function (->func()) we need to push the
+		// left-hand-side.
+		if (host.left->isTypeArrow())
+		{
+			//load the value of the left-hand of the arrow into EXP1
+			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+			//visit(host.getLeft(), param);
+			//push it onto the stack
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
 
-    //push the parameters, in forward order
-    for (vector<ASTExpr*>::iterator it = host.parameters.begin();
-		it != host.parameters.end(); ++it)
-    {
-        visit(*it, param);
-        addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    }
-
-    //goto
-    addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
-    //pop the stack frame pointer
-    Opcode *next = new OPopRegister(new VarArgument(SFRAME));
-    next->setLabel(returnaddr);
-    addOpcode(next);
+		//push the parameters, in forward order
+		for (vector<ASTExpr*>::iterator it = host.parameters.begin();
+			it != host.parameters.end(); ++it)
+		{
+			visit(*it, param);
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		}
+		//goto
+		addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+		//pop the stack frame pointer
+		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
+		next->setLabel(returnaddr);
+		addOpcode(next);
+	}
 }
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)

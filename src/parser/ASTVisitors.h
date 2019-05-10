@@ -180,7 +180,7 @@ namespace ZScript
 	class RecursiveVisitor : public ASTVisitor, public CompileErrorHandler
 	{
 	public:
-		RecursiveVisitor() : failure(false), breakNode(NULL), failure_skipped(false) {}
+		RecursiveVisitor() : failure(false), breakNode(NULL), failure_skipped(false), rflags(0) {}
 	
 		// Mark as having failed.
 		void fail() {failure = true;}
@@ -306,6 +306,8 @@ namespace ZScript
 		
 		// Set to true if any errors have occured, but `NO_ERROR_HALT` was set.
 		bool failure_skipped;
+		
+		int rflags;
 	};
 }
 

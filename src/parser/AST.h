@@ -1033,6 +1033,7 @@ namespace ZScript
 	
 		owning_ptr<ASTExpr> left;
 		owning_vector<ASTExpr> parameters;
+		owning_ptr<ASTBlock> inlineBlock;
 
 		Function* binding;
 	};
