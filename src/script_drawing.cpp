@@ -5799,6 +5799,310 @@ void bmp_do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 }
 
 
+void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	/*
+	int layer, int rt, int srcX, int srcY, int srcW, int srcH, int destW, int destH, int angle, int cx, int cy, int space_z, int horizon, 
+	int scale_x, int scale_y){
+	
+	//sdci[1]=layer 
+	//sdci[2]=bitmap target 
+		//
+		//	-2 is the current Render Target
+		//	-1, this is the screen (framebuf). 
+		//	0: Render target 0
+		//	1: Render target 1
+		//	2: Render target 2
+		//	3: Render target 3
+		//	4: Render target 4
+		//	5: Render target 5
+		//	6: Render target 6
+		//	Otherwise: The pointer to a bitmap. 
+		
+	//sdci[3]=sourcex
+	//sdci[4]=sourcey
+	//sdci[5]=sourcew
+	//sdci[6]=sourceh
+
+	//sdci[7]=destw
+	//sdci[8]=desth
+	//sdci[9]=angle
+	//scdi[10] = pivot cx
+	//sdci[11] = pivot cy
+	//sdci[12] = space Z
+	//sdci[13] = horizon
+	//scdi[14] = scale X
+	//scdi[15] = scale Y
+	//sdci[16] = masked?
+	//sdci[17] Bitmap Pointer
+	
+	
+	
+		// ZScript-side constant values:
+		const int BITDX_NORMAL = 0;
+		const int BITDX_TRANS = 1; //Translucent
+		const int BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+		const int BITDX_HFLIP = 4; //Horizontal Flip
+		const int BITDX_VFLIP = 8; //Vertical Flip.
+		//Note:	Some modes cannot be combined. if a combination is not supported, an error
+		//	detailing this will be shown in allegro.log.
+		
+	//scdi[15] = litcolour
+		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour); 
+		//not rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
+	
+	//sdci[16]=mask
+	
+	*/
+	
+
+	int bitmapIndex = sdci[2]/10000;
+	int usr_bitmap_index = sdci[2]-10;
+	byte using_user_bitmap = 0;
+	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
+	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit() found a dest bitmap ID of: %d\n",bitmapIndex);
+	#endif
+	if ( bitmapIndex > 10000 )
+	{
+		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int> 8;
+	}
+	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
+	{
+		bitmapIndex = usr_bitmap_index;
+		using_user_bitmap = 1;
+		yoffset = 0;
+	}
+	
+	//int sx = sdci[3]/10000;
+	//int sy = sdci[4]/10000;
+	//int sw = sdci[5]/10000;
+	//Z_scripterrlog("sh is: %d\n",sdci[5]/10000);
+	//int sh = sdci[6]/10000;
+	//Z_scripterrlog("sh is: %d\n",sdci[6]/10000);
+	//int dx = sdci[7]/10000;
+	//int dy = sdci[8]/10000;
+	//int dw = sdci[9]/10000;
+	//int dh = sdci[10]/10000;
+	//float rot = sdci[11]/10000;
+	//int cx = sdci[12]/10000;
+	//int cy = sdci[13]/10000;
+	//int mode = sdci[14]/10000;
+	//int litcolour = sdci[15]/10000;
+	
+	//rendering mode 7 args
+	int srcX = sdci[3];
+	int srcY = sdci[4]; 
+	int destX = sdci[5];
+	int destY = sdci[6];
+	
+	
+//	int srcW = sdci[5]/10000; 
+//	int srcH = sdci[6]/10000; 
+	int destW = sdci[7];
+	int destH = sdci[8];
+//	int angle = sdci[9]/10000; 
+//	int cx = sdci[10]/10000;
+//	int cy = sdci[11]/10000;
+	int space_z = sdci[9];
+	int horizon = sdci[10];
+	int scale_x = sdci[11];
+	int scale_y = sdci[12];
+	byte masked = ( sdci[13] ) ? 1 : 0;
+	
+	
+	int ref = 0;
+	
+	//dx = 0 + xoffset;
+	//dy = 0 + yoffset;
+	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	//Do we need to also check the render target and do the same thing if the 
+		//dest == -2 and the render target is not RT_SCREEN?
+		
+	ref = sdci[17];
+	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
+	ref -=10;
+	//Z_scripterrlog("bitmap->blit() modified ref id this frame is: %d\n", ref);
+		
+	
+	if ( ref <= 0 )
+	{
+		Z_scripterrlog("bitmap->blit() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ref);
+		return;
+	}
+	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ref); //This can be the screen, as -1. 
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("bitmap->Blit() is trying to blit to ref: %d\n",sdci[17]);
+	#endif
+	if(!sourceBitmap)
+	{
+		Z_message("Warning: blit(%d) source bitmap contains invalid data or is not initialized.\n", ref);
+		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
+		return;
+	}
+	
+	BITMAP *destBMP=NULL;
+	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
+	switch(bitmapIndex)
+	{
+		//-1 and -2 are now handled below. -Z ( 17th April, 2019 )
+		//1 through 6 are the old system bitmaps (Render Targets)
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6: 
+		{
+			//This gets a render target.
+		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
+		}
+		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
+		default: 
+		{
+			destBMP = scb.script_created_bitmaps[usr_bitmap_index].u_bmp;
+			if ( !scb.script_created_bitmaps[usr_bitmap_index].u_bmp )
+			{
+				Z_scripterrlog("Target for bitmap->Blit is uninitialised. Aborting.\n");
+				break;
+			}
+		}
+			//FFCore.get_user_bitmap(bitmapIndex); break;
+	}
+	
+	
+	
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("bitmap->Blit() is trying to blit to dest bitmap ID: %d\n",bitmapIndex);
+	#endif
+	
+	
+	if ( bitmapIndex == -1 ) 
+	{
+		destBMP = framebuf; //Drawing to the screen.
+	}
+	
+	else if ( bitmapIndex == -2 ) 
+	{
+
+		destBMP = bmp; //Drawing to the current RenderTarget.
+	}
+	else if (!destBMP)
+	{
+		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
+		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
+		return;
+	}
+	
+	//bugfix
+	//sx = vbound(sx, 0, sourceBitmap->w);
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit %s is: %d\n", "sx", sx);
+	Z_scripterrlog("Blit %s is: %d\n", "source->w", sourceBitmap->w);
+	#endif
+	//sy = vbound(sy, 0, sourceBitmap->h);
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit %s is: %d\n", "sy", sy);
+	Z_scripterrlog("Blit %s is: %d\n", "source->h", sourceBitmap->h);
+	#endif
+	//sw = vbound(sw, 0, sourceBitmap->w - sx); //keep the w/h within range as well
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit %s is: %d\n", "sw", sw);
+	#endif
+	//sh = vbound(sh, 0, sourceBitmap->h - sy);
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit %s is: %d\n", "sh", sh);
+
+	Z_scripterrlog("Blit %s is: %d\n", "dh", dh);
+	Z_scripterrlog("Blit %s is: %d\n", "dw", dw);
+	#endif
+	//bool stretched = (sw != dw || sh != dh);
+	//bool stretched = (sourceBitmap->w != destBMP->w || sourceBitmap->h != destBMP->h);
+	#if LOG_BMPBLIT_LEVEL > 0
+	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
+	#endif
+	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
+	
+	
+    
+	
+    
+	BITMAP* subBmp = 0;
+	
+	/* IDR what this was. -Z ( 17th April, 2019 )
+	if ( bitmapIndex == -1 ) {
+		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh); 
+	}
+	*/
+    
+	//if(rot != 0 || mode != 0)    
+	//{
+	//	subBmp = create_bitmap_ex(8,sourceBitmap->w, sourceBitmap->h);//script_drawing_commands.AquireSubBitmap(dw, dh);
+	//	clear_bitmap(subBmp);
+        
+	//	if(!subBmp)
+	//	{
+	//		Z_scripterrlog("bitmap->Blit failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
+	//		return;
+	//	}
+	//}
+    
+    
+	//dx = dx + xoffset; //don't do this here!
+	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
+	//All of these are a factor of 10000 as fix. 
+	int screen_x = 0; int screen_y = 0;
+	
+	int distance = 0; int horizontal_scale = 0;
+	
+	int screen_y_horizon = 0;
+	
+	int line_dx = 0; int line_dy = 0;
+	
+	int space_x = 0; int space_y = 0;
+	
+	for(screen_y = 0; screen_y < destH; screen_y += 10000) //fix, offset by .0000
+	{
+		//Calculate the distance of each line from the camera point
+		screen_y_horizon = screen_y + horizon;
+		
+		distance = ((space_z * scale_y) / ((screen_y_horizon != 0) ? screen_y_horizon : 1));
+			
+		//Get the scale of each line based on the distance
+		
+		horizontal_scale = (distance / (( scale_x != 0 ) ? scale_x : 1));
+		
+		//There was some math here before I stripped out the rotation step
+		line_dx = horizontal_scale;
+		line_dy = 0;
+		
+		//space_x,space_y - where to grab each scanline from on the space bitmap
+		space_x = srcX - destW/2 * line_dx;
+		space_y = srcY - distance + destH/2 * line_dy;
+		
+		//Keep blits within the bounds of both bitmaps to avoid crashes
+		int y1 = srcY+space_y;
+		int y2 = destY+screen_y;
+		if(y1>=0 && (y1/10000 ) <= (sourceBitmap->h-1) && y2 >=0 && (y2/10000) <= (destBMP->h-1) )
+		{
+			if ( masked ) masked_stretch_blit(sourceBitmap, destBMP, (srcX+space_x/10000), (srcY+space_y/10000), 
+				(line_dx*destW)/10000, 1, (screen_x/10000), (screen_y/10000)+yoffset, (destW/10000), 1);
+			else stretch_blit(sourceBitmap, destBMP, (srcX+space_x/10000), (srcY+space_y/10000), 
+				(line_dx*destW)/10000, 1, (screen_x/10000), (screen_y/10000)+yoffset, (destW/10000), 1);
+		}
+	}
+	
+	
+	//cleanup
+	if(subBmp) 
+	{
+		//script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
+		destroy_bitmap(subBmp);
+	}
+}
 
 
 //Draw]()
@@ -8952,7 +9256,7 @@ void draw_map_solid(BITMAP *b, const mapscr& m, int x, int y)
 	//}
 	clear_bitmap(square);
 	int sol = (combobuf[m.data[i]].walk);
-	al_trace("Solidity is: %d.\n", sol);
+	//al_trace("Solidity is: %d.\n", sol);
 	if ( sol & 1 )
 	{
 		blit(subsquare, square, 0, 0, 0, 0, 8, 8);
@@ -9110,7 +9414,7 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
             continue;
         
         //draw valid layers
-        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+        draw_map_cflag(b, TheMaps[ layer_screen_index ], x1, y1);
     }
     
     if(rotation != 0) // rotate
@@ -9191,7 +9495,7 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, b
             continue;
         
         //draw valid layers
-        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+        draw_map_combotype(b, TheMaps[ layer_screen_index ], x1, y1);
     }
     
     if(rotation != 0) // rotate
@@ -9272,7 +9576,7 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, 
             continue;
         
         //draw valid layers
-        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+        draw_map_comboiflag(b, TheMaps[ layer_screen_index ], x1, y1);
     }
     
     if(rotation != 0) // rotate
@@ -9576,6 +9880,387 @@ void do_bmpdrawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool is
     }
 }
 
+void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_solid(b, l, x1, y1);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+	BITMAP* subsquare = create_bitmap_ex(8,16,16);
+	clear_to_color(subsquare,1);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                int sol = (combobuf[l.data[i]].walk);
+                
+                if ( sol & 1 )
+		{
+			blit(subsquare, square, 0, 0, 0, 0, 8, 8);
+		}
+		if ( sol & 2 )
+		{
+			blit(subsquare, square, 0, 0, 0, 8, 8, 8);
+		}
+		if ( sol & 4 )
+		{
+			blit(subsquare, square, 0, 0, 8, 0, 8, 8);
+		}
+		if ( sol &8 )	{
+			blit(subsquare, square, 0, 0, 8, 8, 8, 8);
+		}
+		
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+	destroy_bitmap(subsquare);
+    }
+    
+    //putscr
+}
+
+void do_bmpdrawlayersolidityr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_solidity(b, l, x1, y1);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                clear_to_color(square,(combobuf[l.data[i]].walk&15));
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+    }
+    
+    //putscr
+}
+
+void do_bmpdrawlayercflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_cflag(b, l, x1, y1);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                clear_to_color(square,l.sflag[i]);
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+    }
+    
+    //putscr
+}
+
+void do_bmpdrawlayerctyper(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_combotype(b, l, x1, y1);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                clear_to_color(square,(combobuf[l.data[i]].type));
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+    }
+    
+    //putscr
+}
+
+void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+    //sdci[1]=layer
+    //sdci[2]=map
+    //sdci[3]=screen
+    //sdci[4]=layer
+    //sdci[5]=x
+    //sdci[6]=y
+    //sdci[7]=rotation
+    //sdci[8]=opacity
+    
+    int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+    int scrn = sdci[3]/10000;
+    int sourceLayer = vbound(sdci[4]/10000, 0, 6);
+    int x = sdci[5]/10000;
+    int y = sdci[6]/10000;
+    int x1 = x + xoffset;
+    int y1 = y + yoffset;
+    int rotation = sdci[7]/10000;
+    int opacity = sdci[8]/10000;
+    
+    const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    
+    if(!m) //no need to log it.
+        return;
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+    
+    const mapscr & l = *m;
+    
+    BITMAP* b = bmp;
+    
+    if(rotation != 0)
+        b = script_drawing_commands.AquireSubBitmap(256, 176);
+        
+        
+    const int maxX = isOffScreen ? 512 : 256;
+    const int maxY = isOffScreen ? 512 : 176 + yoffset;
+    bool transparent = opacity <= 128;
+    
+    if(rotation != 0) // rotate
+    {
+        draw_map_comboiflag(b, l, x1, y1);
+        
+        rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
+        script_drawing_commands.ReleaseSubBitmap(b);
+    }
+    else
+    {
+	BITMAP* square = create_bitmap_ex(8,16,16);
+        for(int i(0); i < 176; ++i)
+        {
+            const int x2 = ((i&15)<<4) + x1;
+            const int y2 = (i&0xF0) + y1;
+            
+            if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
+            {
+                clear_to_color(square,(combobuf[l.data[i]].flag));
+		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+            }
+        }
+	destroy_bitmap(square);
+    }
+    
+    //putscr
+}
+
+
 
 /////////////////////////////////////////////////////////
 // do primitives
@@ -9842,11 +10527,19 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 	case 	BMPDRAWSCREENCOMBOIR: do_bmpdrawscreen_ciflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPDRAWSCREENCOMBOTR: do_bmpdrawscreen_ctyper(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 	case 	BMPBLIT: bmp_do_drawbitmapexr(bmp, sdci, xoffset, yoffset); break;
+	case 	BMPMODE7: bmp_do_mode7r(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPBLITTO: bmp_do_blittor(bmp, sdci, xoffset, yoffset); break;
 	case 	READBITMAP: bmp_do_readr(bmp, i, sdci, xoffset, yoffset); break;
 	case 	WRITEBITMAP: bmp_do_writer(bmp, i, sdci, xoffset, yoffset); break;
 	case 	CLEARBITMAP: bmp_do_clearr(bmp, sdci, xoffset, yoffset); break;
 	case 	REGENERATEBITMAP: bmp_do_regenr(bmp, sdci, xoffset, yoffset); break;
+	
+	case 	BMPDRAWLAYERSOLIDR: do_bmpdrawlayersolidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWLAYERCFLAGR: do_bmpdrawlayercflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWLAYERCTYPER: do_bmpdrawlayerctyper(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWLAYERCIFLAGR: do_bmpdrawlayerciflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	case 	BMPDRAWLAYERSOLIDITYR: do_bmpdrawlayersolidityr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
+	
         
         }
     }
