@@ -1,5 +1,27 @@
 To-Do
 
+Fix bitmap->GetPixel: Make it a drawing function.
+Make it a Unary Opcode
+Return the value.
+
+Add bitmap->DrawLayer* functions similar to DrawScreenSOlid, &c.
+Test 'char' as an enum.
+
+palette
+Add userpalette struct to ffscript.h
+Create function to replicate allegro make_colour()
+palette->SetColours(int array)
+palette->GetColours(int array)
+palette Game->LoadPalette(int id)
+palette->Load() : Loads to the current palette, calling allegro load_palette()
+
+
+Change bitmap functions so that passing a value >= 10000 uses an internal bitmap,
+	freeing the values 0.0001 -> 0.0006
+	
+
+
+
 Export WAV files and MIDI files from a quest in ZQuest.
 Play external WAV file by script.
 Play external MIDI file by script.

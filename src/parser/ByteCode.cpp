@@ -4222,6 +4222,15 @@ string OBMPBlitTO::toString()
     return "BMPBLITTO";
 }
 
+string OBMPGetPixel::toString()
+{
+    return "BITMAPGETPIXEL";
+}
+string OBMPMode7::toString()
+{
+    return "BMPMODE7";
+}
+
 string OBMPQuadRegister::toString()
 {
     return "BMPQUADR";
@@ -4433,6 +4442,27 @@ string OBMPDrawScreenComboTRegister::toString()
 string OGraphicsGetpixel::toString()
 {
     return "GRAPHICSGETPIXEL " + getArgument()->toString();
+}
+
+string OBMPDrawScreenSolidityRegister::toString()
+{
+    return "BMPDRAWLAYERSOLIDITYR";
+}
+string OBMPDrawScreenSolidMaskRegister::toString()
+{
+    return "BMPDRAWLAYERSOLIDR";
+}
+string OBMPDrawScreenCTypeRegister::toString()
+{
+    return "BMPDRAWLAYERCTYPER";
+}
+string OBMPDrawScreenCFlagRegister::toString()
+{
+    return "BMPDRAWLAYERCFLAGR";
+}
+string OBMPDrawScreenCIFlagRegister::toString()
+{
+    return "BMPDRAWLAYERCIFLAGR";
 }
 
 string OReturn::toString()

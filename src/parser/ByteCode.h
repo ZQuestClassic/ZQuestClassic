@@ -6859,6 +6859,25 @@ namespace ZScript
 			return new OBMPBlitTO();
 		}
 	};
+	
+	class OBMPGetPixel : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPGetPixel();
+		}
+	};
+	class OBMPMode7 : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPMode7();
+		}
+	};
 	class OBMPQuadRegister : public Opcode
 	{
 	public:
@@ -7461,6 +7480,52 @@ namespace ZScript
 		}
 	};
 
+	class OBMPDrawScreenSolidityRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenSolidityRegister();
+		}
+	};
+	class OBMPDrawScreenSolidMaskRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenSolidMaskRegister();
+		}
+	};
+	class OBMPDrawScreenCTypeRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenCTypeRegister();
+		}
+	};
+	class OBMPDrawScreenCFlagRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenCFlagRegister();
+		}
+	};
+	class OBMPDrawScreenCIFlagRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenCIFlagRegister();
+		}
+	};
+	
 	class OReturn : public Opcode
 	{
 	public:
