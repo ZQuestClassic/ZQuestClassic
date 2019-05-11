@@ -6838,6 +6838,16 @@ namespace ZScript
 			return new OBMPBlitTO();
 		}
 	};
+	
+	class OBMPGetPixel : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPGetPixel();
+		}
+	};
 	class OBMPMode7 : public Opcode
 	{
 	public:

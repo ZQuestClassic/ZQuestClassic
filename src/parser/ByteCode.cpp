@@ -4203,6 +4203,11 @@ string OBMPBlitTO::toString()
 {
     return "BMPBLITTO";
 }
+
+string OBMPGetPixel::toString()
+{
+    return "BITMAPGETPIXEL";
+}
 string OBMPMode7::toString()
 {
     return "BMPMODE7";

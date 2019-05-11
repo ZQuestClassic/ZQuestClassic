@@ -14803,12 +14803,12 @@ void do_drawing_command(const int script_command)
 		break;
 	}
 	
-	case 	BMPDRAWLAYERR: set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
-	case 	BMPDRAWLAYERSOLIDR: set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
-	case 	BMPDRAWLAYERCFLAGR: set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
-	case 	BMPDRAWLAYERCTYPER: set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
-	case 	BMPDRAWLAYERCIFLAGR: set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
-	case 	BMPDRAWLAYERSOLIDITYR: set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
+	case 	BMPDRAWLAYERR:
+	case 	BMPDRAWLAYERSOLIDR: 
+	case 	BMPDRAWLAYERCFLAGR: 
+	case 	BMPDRAWLAYERCTYPER: 
+	case 	BMPDRAWLAYERCIFLAGR: 
+	case 	BMPDRAWLAYERSOLIDITYR: set_user_bitmap_command_args(j, 9); script_drawing_commands[j][17] = SH::read_stack(ri->sp+9); break;
 	case 	BMPDRAWSCREENR:
 	case 	BMPDRAWSCREENSOLIDR:
 	case 	BMPDRAWSCREENSOLID2R:
@@ -14816,6 +14816,14 @@ void do_drawing_command(const int script_command)
 	case 	BMPDRAWSCREENCOMBOIR:
 	case 	BMPDRAWSCREENCOMBOTR:
 		set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+	case 	BITMAPGETPIXEL:
+	{
+		for(int q = 0; q < 20; q++)
+		{
+			Z_scripterrlog("getpixel SH::read_stack(ri->sp+%d) is: %d\n", q, SH::read_stack(ri->sp+q));
+		}
+		set_user_bitmap_command_args(j, 3); script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); break;
+	}
 	case 	BMPBLIT:	
 	{
 		set_user_bitmap_command_args(j, 16); 
@@ -17633,6 +17641,7 @@ int run_script(const byte type, const word script, const long i)
 		case 	BMPDRAWSCREENCOMBOFR:
 		case 	BMPDRAWSCREENCOMBOIR:
 		case 	BMPDRAWSCREENCOMBOTR:
+		case 	BITMAPGETPIXEL:
 		case 	BMPBLIT:
 		case 	BMPBLITTO:
 		case 	BMPMODE7:
@@ -18598,6 +18607,11 @@ void FFScript::do_write_bitmap()
 			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
 		}
 	}
+}
+
+void FFScript::set_sarg1(int v)
+{
+	set_register(sarg1, v);
 }
 
 void FFScript::do_readbitmap(const bool v)
