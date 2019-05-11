@@ -5685,6 +5685,7 @@ void bmp_do_getpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int y1 = (sdci[3]/10000)+yoffset;
     int col = getpixel(scb.script_created_bitmaps[(sdci[17]-10)].u_bmp, x1, y1);
     Z_scripterrlog("bitmap->GetPixel col is %d\n",col);
+    Z_scripterrlog("bitmap->GetPixel bitmap ptr is is %d\n",(sdci[17]-10));
     FFCore.set_sarg1(col);
 }
 

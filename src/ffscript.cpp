@@ -14817,7 +14817,13 @@ void do_drawing_command(const int script_command)
 	case 	BMPDRAWSCREENCOMBOTR:
 		set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
 	case 	BITMAPGETPIXEL:
+	{
+		for(int q = 0; q < 20; q++)
+		{
+			Z_scripterrlog("getpixel SH::read_stack(ri->sp+%d) is: %d\n", q, SH::read_stack(ri->sp+q));
+		}
 		set_user_bitmap_command_args(j, 3); script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); break;
+	}
 	case 	BMPBLIT:	
 	{
 		set_user_bitmap_command_args(j, 16); 
