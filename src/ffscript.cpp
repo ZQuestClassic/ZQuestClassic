@@ -2909,7 +2909,7 @@ long get_register(const long arg)
         int a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Attributes") != SH::_NoError ||
-                BC::checkBounds(a, 0, 15, "npc->Attributes") != SH::_NoError)
+                BC::checkBounds(a, 0, 31, "npc->Attributes") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPCDMisc(a) * 10000;
@@ -9338,7 +9338,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         long a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
-                BC::checkBounds(a, 0, 15, "npc->Attributes") == SH::_NoError)
+                BC::checkBounds(a, 0, 31, "npc->Attributes") == SH::_NoError)
 	
 	switch(a){
 		case 0: GuyH::getNPC()->dmisc1 = value / 10000; break;
