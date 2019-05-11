@@ -788,6 +788,7 @@ script_command command_list[NUMCOMMANDS+1]=
       { "BMPDRAWSCREENCOMBOTR",                0,   0,   0,   0},
       { "BMPDRAWSCREENSOLID2R",                0,   0,   0,   0},
       { "GRAPHICSGETPIXEL",     1,   0,   0,   0},
+      { "NOP",                 0,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 

@@ -18345,6 +18345,9 @@ int run_script(const byte type, const word script, const long i)
 		    FFCore.do_set_oggex_speed(false);
 		    break;
 		
+		case NOP: //No Operation. Do nothing. -V
+			break;
+		
 		default:
 		{
 		    Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);

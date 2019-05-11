@@ -5,9 +5,6 @@
 #define FUNCFLAG_INLINE				0x01
 #define FUNCFLAG_INVALID			0x02
 
-//RFLAG values, for RecursiveVisitor.
-#define RFLAG_INLINE				0x01
-
 //Option values. NOTE: Result of "lookupOption" must be '/10000.0' -V
 #define OPT_OFF                     0
 #define OPT_ON                      1

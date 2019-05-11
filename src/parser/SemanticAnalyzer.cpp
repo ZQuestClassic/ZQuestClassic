@@ -62,7 +62,7 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
 	ASTFuncDecl* functionDecl = function.node;
-
+	if(functionDecl->isInline()) return; //Skip inline functions! -V
 	Scope& functionScope = *function.internalScope;
 
 	// Grab the script.
@@ -535,6 +535,11 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
 		return;
 	}
+	if(*lookupOption(*scope, CompileOption::OPT_FORCE_INLINE)
+		&& !host.isRun())
+	{
+		host.setInline();
+	}
 	// Resolve the return type under current scope.
 	DataType const& returnType = host.returnType->resolve(*scope, this);
 	if (breakRecursion(*host.returnType.get())) return;
@@ -815,7 +820,7 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
     }
 }
 
-void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
+void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 {
 	// Cast left.
 	ASTExprArrow* arrow = NULL;
@@ -959,7 +964,26 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	
 	if(host.binding->getFlags() & FUNCFLAG_INLINE)
 	{
+		assert(host.binding->node);
+		scope = scope->makeChild();
+		DataType const* oldReturnType = returnType;
+		returnType = host.binding->returnType;
+		
 		host.inlineBlock = host.binding->node->block->clone();
+		host.inlineParams = host.binding->node->parameters;
+		int sz = host.parameters.size();
+		for(int q = 0; q < sz; ++q)
+		{
+			ASTExpr* init = host.parameters[q];
+			assert(init);
+			host.inlineParams[q]->setInitializer(init->clone());
+		}
+		visit(host, host.inlineParams, param);
+		RecursiveVisitor::caseBlock(*host.inlineBlock, param);
+		
+		scope = scope->getParent();
+		
+		returnType = oldReturnType;
 	}
 }
 

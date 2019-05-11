@@ -1876,6 +1876,11 @@ string OWaitdraw::toString()
     return "WAITDRAW";
 }
 
+string ONoOp::toString()
+{
+	return "NOP";
+}
+
 //I would like to add a Jump instruction tot he parser, which would be 'GOTOLABEL' -Z
 string OGotoImmediate::toString()
 {
@@ -1905,6 +1910,19 @@ string OGotoLessImmediate::toString()
 string OPushRegister::toString()
 {
     return "PUSHR " + getArgument()->toString();
+}
+
+string OPushImmediate::toString()
+{
+	ostringstream oss;
+	oss << "PUSHV ";
+	Argument* arg = getArgument();
+	if (LabelArgument* label = dynamic_cast<LabelArgument*>(arg))
+		oss << label->toStringSetV();
+	else
+		oss << arg->toString();
+	return oss.str();
+    return "PUSHV " + getArgument()->toString();
 }
 
 string OPopRegister::toString()

@@ -668,8 +668,9 @@ namespace ZScript
 		bool isInvalid() const {return (flags & FUNCFLAG_INVALID);}
 		void setInvalid() {flags |= FUNCFLAG_INVALID;}
 		bool isInline() const {return (flags & FUNCFLAG_INLINE);}
-		void setInline() {flags |= FUNCFLAG_INLINE;}
+		void setInline();
 		int getFlags() const {return flags;}
+		bool isRun() const;
 
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
@@ -1034,6 +1035,7 @@ namespace ZScript
 		owning_ptr<ASTExpr> left;
 		owning_vector<ASTExpr> parameters;
 		owning_ptr<ASTBlock> inlineBlock;
+		owning_vector<ASTDataDecl> inlineParams;
 
 		Function* binding;
 	};

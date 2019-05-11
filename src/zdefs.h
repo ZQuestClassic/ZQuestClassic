@@ -854,6 +854,7 @@ enum
 	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
 	qr_OLDSPRITEDRAWS,
 	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS,
+	qr_PARSER_FORCE_INLINE,
     qr_MAX
 };
 

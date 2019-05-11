@@ -359,14 +359,14 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 {
 	deallocateRefsUntilCount(0);
-    addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
+	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }
 
 void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 {
 	visit(host.value.get(), param);
 	deallocateRefsUntilCount(0);
-    addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
+	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }
 
 void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
@@ -402,6 +402,7 @@ void BuildOpcodes::caseStmtEmpty(ASTStmtEmpty &, void *)
 
 void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
+	if(host.isInline()) return; //Skip inline func decls
 	int oldreturnlabelid = returnlabelid;
 	int oldReturnRefCount = returnRefCount;
     returnlabelid = ScriptParser::getUniqueLabelID();
@@ -621,6 +622,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
 	if(host.binding->getFlags() & FUNCFLAG_INLINE) //Inline function
 	{
+		// Set up the stack frame register
+		/*addOpcode(new OSetRegister(new VarArgument(SFRAME),
+		                                    new VarArgument(SP)));*/
+											
 		// If the function is a pointer function (->func()) we need to push the
 		// left-hand-side.
 		if (host.left->isTypeArrow())
@@ -632,21 +637,29 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 
-		//push the parameters, in forward order
-		for (vector<ASTExpr*>::iterator it = host.parameters.begin();
-			it != host.parameters.end(); ++it)
+		//push the data decls, in forward order
+		for (vector<ASTDataDecl*>::iterator it = host.inlineParams.begin();
+			it != host.inlineParams.end(); ++it)
 		{
 			visit(*it, param);
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 		
 		//Inline-specific:
 		ASTFuncDecl& decl = *(host.binding->node);
 		//Set the inline flag, process the function block, then reset flags to prior state.
-		int oldflags = rflags;
-		rflags |= RFLAG_INLINE;
-		visit((*decl.block).clone(), param);
-		rflags = oldflags;
+		int oldreturnlabelid = returnlabelid;
+		int oldReturnRefCount = returnRefCount;
+		returnlabelid = ScriptParser::getUniqueLabelID();
+		returnRefCount = arrayRefs.size();
+		
+		visit(*host.inlineBlock, param);
+		
+		Opcode *next = new ONoOp(); //Just here so the label can be placed.
+		next->setLabel(returnlabelid);
+		addOpcode(next);
+		
+		returnlabelid = oldreturnlabelid;
+		returnRefCount = oldReturnRefCount;
 	}
 	else //Non-inline function
 	{
@@ -655,8 +668,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
 		int returnaddr = ScriptParser::getUniqueLabelID();
-		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnaddr)));
-		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		//addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnaddr)));
+		//addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
+		
 		
 		// If the function is a pointer function (->func()) we need to push the
 		// left-hand-side.

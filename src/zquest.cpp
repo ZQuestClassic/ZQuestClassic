@@ -19997,7 +19997,7 @@ static int compiler_tab_list_global[] =
 
 static int compiler_tab_list_quest[] =
 {
-    6,7,8,9,17,
+    6,7,8,9,17,22,
 	-1
 };
 
@@ -20145,6 +20145,7 @@ static DIALOG zscript_parser_dlg[] =
     { jwin_edit_proc,    16,  102-11,   50,  16,   vc(11),  vc(1),  0,       0,          64,            0,       temprunstring, NULL, NULL },
     { jwin_text_proc,           68,     102-8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "void run()' label:",                  NULL,   NULL                  },
+    { jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Inline all possible functions", NULL, NULL },
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -20163,10 +20164,12 @@ static int zscripparsertrules[] =
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
 	qr_PARSER_MAX_INT_ONE_LARGER,
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	qr_PARSER_FORCE_INLINE,
     -1
 };
 

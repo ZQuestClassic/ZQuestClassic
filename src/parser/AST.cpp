@@ -8,6 +8,9 @@
 #include <assert.h>
 #include <sstream>
 
+#include "../ffscript.h"
+extern FFScript FFCore;
+
 using std::pair;
 using std::string;
 using std::ostringstream;
@@ -554,6 +557,25 @@ void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
 	visitor.caseFuncDecl(*this, param);
 }
 
+void ASTFuncDecl::setInline()
+{
+	if(isRun())
+	{
+		setInvalid();
+		ostringstream oss;
+		string runstr(FFCore.scriptRunString);
+		oss << " void " << runstr << "() functions cannot be `inline`!";
+		invalidMsg += oss.str();
+		return;
+	}
+	flags |= FUNCFLAG_INLINE;
+}
+
+bool ASTFuncDecl::isRun() const
+{
+	return name == FFCore.scriptRunString;
+}
+
 // ASTDataDeclList
 
 ASTDataDeclList::ASTDataDeclList(LocationData const& location)
@@ -642,7 +664,8 @@ ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
 	  name(other.name),
 	  extraArrays(other.extraArrays)
 {
-	setInitializer(other.initializer_.clone());
+	if(other.initializer_)
+		setInitializer(other.initializer_.clone());
 }
 
 ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
