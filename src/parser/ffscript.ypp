@@ -111,6 +111,8 @@ extern YYLTYPE noloc;
 %token ZASM
 %token INCLUDE
 %token UNTIL
+%token UNLESS
+%token REPEAT
 
  // Types
 %token ZVOID
@@ -696,6 +698,7 @@ Statement :
 	| Statement_For {$$ = $1;}
 	| Statement_While {$$ = $1;}
 	| Statement_Do {$$ = $1;}
+	| Statement_Repeat {$$ = $1;}
 	| Statement_Return SEMICOLON {$$ = $1;}
 	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@$);}
 	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@$);}
@@ -754,14 +757,23 @@ Statement_Block_List :
 	;
 
 Statement_If :
-	IF LPAREN Expression RPAREN Statement {
-		ASTExpr* cond = (ASTExpr*)$3;
-		ASTStmt* stmt = (ASTStmt*)$5;
+	IF If_Body {$$ = $2;}
+	| UNLESS If_Body {
+		ASTStmtIf* stmt = (ASTStmtIf*)$2;
+		stmt->invert();
+		$$ = stmt;
+	}
+	;
+	
+If_Body :
+	LPAREN Expression RPAREN Statement {
+		ASTExpr* cond = (ASTExpr*)$2;
+		ASTStmt* stmt = (ASTStmt*)$4;
 		$$ = new ASTStmtIf(cond, stmt, @$);}
-	| IF LPAREN Expression RPAREN Statement ELSE Statement {
-		ASTExpr* test = (ASTExpr*)$3;
-		ASTStmt* thenStatement = (ASTStmt*)$5;
-		ASTStmt* elseStatement = (ASTStmt*)$7;
+	| LPAREN Expression RPAREN Statement ELSE Statement {
+		ASTExpr* test = (ASTExpr*)$2;
+		ASTStmt* thenStatement = (ASTStmt*)$4;
+		ASTStmt* elseStatement = (ASTStmt*)$6;
 		$$ = new ASTStmtIfElse(test, thenStatement, elseStatement, @$);}
 	;
 
@@ -852,6 +864,12 @@ Statement_Do :
 		$$ = stmt;}
 	;
 
+Statement_Repeat :
+	REPEAT LPAREN Expression_Constant RPAREN Statement {
+		ASTExprConst* expr = (ASTExprConst*)$3;
+		ASTStmt* body = (ASTStmt*)$5;
+		$$ = new ASTStmtRepeat(expr, body, @$);}
+	;
 
 Statement_Return :
 	RETURN Expression {
