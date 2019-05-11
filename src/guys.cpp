@@ -3547,13 +3547,13 @@ bool enemy::hit(weapon *w)
 
 void enemy::fix_coords(bool bound)
 {
-    if(bound && !get_bit(quest_rules(qr_OUTOFBOUNDSENEMIES))
+    if(bound && !get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES))
     {
         x=vbound(x, 0, 240);
         y=vbound(y, 0, 160);
     }
     
-    if(!OUTOFBOUNDS)
+    if(!OUTOFBOUNDS && !get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES))
     {
         x=(fix)((int(x)&0xF0)+((int(x)&8)?16:0));
         
