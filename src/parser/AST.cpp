@@ -589,7 +589,7 @@ ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 	for (vector<ASTDataDecl*>::const_iterator it =
 		     other.declarations_.begin();
 	     it != other.declarations_.end(); ++it)
-		addDeclaration(*it);
+		addDeclaration(*it, true);
 }
 
 ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
@@ -600,7 +600,7 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
     declarations_.clear();
 	for (vector<ASTDataDecl*>::const_iterator it = rhs.declarations_.begin();
 	     it != rhs.declarations_.end(); ++it)
-		addDeclaration(*it);
+		addDeclaration(*it, true);
 	
 	return *this;
 }
@@ -610,10 +610,10 @@ void ASTDataDeclList::execute(ASTVisitor& visitor, void* param)
 	visitor.caseDataDeclList(*this, param);
 }
 
-void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
+void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration, bool ignoreBase)
 {
 	// Declarations in a list should not have their own type.
-	assert(!declaration->baseType);
+	if(!ignoreBase) assert(!declaration->baseType);
 
 	declaration->list = this;
 	declarations_.push_back(declaration);
@@ -625,6 +625,19 @@ ASTDataEnum::ASTDataEnum(LocationData const& location)
 	: ASTDataDeclList(location), nextVal(0)
 {
 	baseType = new ASTDataType(DataType::CFLOAT, location);
+}
+
+ASTDataEnum::ASTDataEnum(ASTDataEnum const& other)
+	: ASTDataDeclList(other)
+{}
+
+ASTDataEnum& ASTDataEnum::operator=(ASTDataEnum const& rhs)
+{
+	ASTDataDeclList::operator=(rhs);
+	
+	nextVal = rhs.nextVal;
+	
+	return *this;
 }
 
 void ASTDataEnum::execute(ASTVisitor& visitor, void* param)

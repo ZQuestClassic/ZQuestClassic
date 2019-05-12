@@ -697,7 +697,7 @@ namespace ZScript
 
 		std::vector<ASTDataDecl*> const& getDeclarations() const {
 			return declarations_.data();}
-		virtual void addDeclaration(ASTDataDecl* declaration);
+		virtual void addDeclaration(ASTDataDecl* declaration, bool ignoreBase = false);
 		virtual bool isEnum() const {return false;}
 
 		// The base type at the start of the line shared by all the declarations.
@@ -712,6 +712,8 @@ namespace ZScript
 	{
 	public:
 		ASTDataEnum(LocationData const& location = LocationData::NONE);
+		ASTDataEnum(ASTDataEnum const&);
+		ASTDataEnum& operator=(ASTDataEnum const& rhs);
 		ASTDataEnum* clone() const {return new ASTDataEnum(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
