@@ -3803,7 +3803,7 @@ case NPCBEHAVIOUR: {
 	}
 	else
 	{
-		ret = QMisc.questmisc[indx];
+		ret = QMisc.questmisc[indx]*10000;
 	}
 	break;
     }
@@ -9625,11 +9625,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	int indx = ri->d[0]/10000;
 	if ( indx < 0 || indx > 31 )
 	{
-		Z_scripterrlog("Invalud index used to access Game->Misc: %d\n", indx);
+		Z_scripterrlog("Invalid index used to access Game->Misc: %d\n", indx);
 	}
 	else 
 	{
-		QMisc.questmisc[indx] = value;
+		QMisc.questmisc[indx] = value/10000;
 	}
 	break;
     }

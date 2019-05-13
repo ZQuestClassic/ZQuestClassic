@@ -706,6 +706,8 @@ static MENU quest_menu[] =
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Template",                  onTemplates,               NULL,                     0,            NULL   },
     { (char *)"De&faults\t ",               NULL,                      defs_menu,                0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Misc[]",               onQMiscValues,                      NULL,                0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -2805,6 +2807,135 @@ int stopMusic()
 }
 
 #include "zq_files.h"
+
+static DIALOG gamemiscarray_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,       0,   10,  400,  300,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       NULL, NULL, NULL },
+    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
+    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+    
+    //5
+    { jwin_text_proc,     10,   20,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[0]", NULL, NULL },
+    { jwin_text_proc,     10,   20+20,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[1]", NULL, NULL },
+    { jwin_text_proc,     10,   20+40,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[2]", NULL, NULL },
+    //8
+    { jwin_text_proc,     10,   20+60,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[3]", NULL, NULL },
+    { jwin_text_proc,     10,   20+80,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[4]", NULL, NULL },
+    { jwin_text_proc,     10,   20+100,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[5]", NULL, NULL },
+    { jwin_text_proc,     10,   20+120,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[6]", NULL, NULL },
+    { jwin_text_proc,     10,   20+140,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[7]", NULL, NULL },
+    //13
+    { jwin_text_proc,     80,   20,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[8]", NULL, NULL },
+    { jwin_text_proc,     80,   20+20,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[9]", NULL, NULL },
+    { jwin_text_proc,     80,   20+40,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[10]", NULL, NULL },
+    { jwin_text_proc,     80,   20+60,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[11]", NULL, NULL },
+    { jwin_text_proc,     80,   20+80,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[12]", NULL, NULL },
+    //18
+    { jwin_text_proc,     80,   20+100,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[13]", NULL, NULL },
+    { jwin_text_proc,     80,   20+120,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[14]", NULL, NULL },
+    { jwin_text_proc,     80,   20+140,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[15]", NULL, NULL },
+    { jwin_text_proc,     160,   20,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[16]", NULL, NULL },
+    { jwin_text_proc,     160,   20+20,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[17]", NULL, NULL },
+    //23
+    { jwin_text_proc,     160,   20+40,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[18]", NULL, NULL },
+    { jwin_text_proc,     160,   20+60,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[19]", NULL, NULL },
+    { jwin_text_proc,     160,   20+80,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[20]", NULL, NULL },
+    { jwin_text_proc,     160,   20+100,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[21]", NULL, NULL },
+    { jwin_text_proc,     160,   20+120,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[22]", NULL, NULL },
+    //28
+    { jwin_text_proc,     160,   20+140,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[23]", NULL, NULL },
+    { jwin_text_proc,     240,   20,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[24]", NULL, NULL },
+    { jwin_text_proc,     240,   20+20,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[25]", NULL, NULL },
+    { jwin_text_proc,     240,   20+40,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[26]", NULL, NULL },
+    { jwin_text_proc,     240,   20+60,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[27]", NULL, NULL },
+    //33
+    { jwin_text_proc,     240,   20+80,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[28]", NULL, NULL },
+    { jwin_text_proc,     240,   20+100,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[29]", NULL, NULL },
+    { jwin_text_proc,     240,   20+120,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[30]", NULL, NULL },
+    { jwin_text_proc,     240,   20+140,   40,    8,  vc(7),               vc(1),                  0,           0,     0,             0, (void *) "Misc[31]", NULL, NULL },
+    //36
+    { jwin_edit_proc,     40,  20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     40,  20+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //38
+    { jwin_edit_proc,     40,  20+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     40,  20+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     40,  20+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     40,  20+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     40,  20+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //43
+    { jwin_edit_proc,     40,  20+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     120,  20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     120,  20+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     120,  20+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     120,  20+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //48
+    { jwin_edit_proc,     120,  20+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     120,  20+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     120,  20+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     120,  20+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     200,  20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //53
+    { jwin_edit_proc,     200,  20+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     200,  20+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     200,  20+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     200,  20+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     200,  20+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //58
+    { jwin_edit_proc,     200,  20+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     200,  20+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     280,  20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     280,  20+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     280,  20+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //63
+    { jwin_edit_proc,     280,  20+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     280,  20+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     280,  20+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     280,  20+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     280,  20+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //68
+    { jwin_button_proc,       58,    212,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
+    { jwin_button_proc,      129,    212,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
+    
+    { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void EditGameMiscArray()
+{
+	
+	char miscvalue[32][14];
+	memset(miscvalue, 0, sizeof(miscvalue));
+	for ( int q = 0; q < 32; q++ )
+	{
+		sprintf(miscvalue[q],"%d",misc.questmisc[q]);
+		gamemiscarray_dlg[37+q].dp = miscvalue[q];
+	}
+	//also questmisc_strings
+	int ret;
+	if(is_large)
+		large_dialog(gamemiscarray_dlg);
+        
+	do
+	{
+		ret = zc_popup_dialog(gamemiscarray_dlg,65);
+		for ( int q = 0; q < 32; q++ )
+		{
+			misc.questmisc[q] = atoi(miscvalue[q]);
+		}
+		
+	}
+	while(ret==68);
+}
+
+int onQMiscValues()
+{
+    EditGameMiscArray();
+    
+    return D_O_K;
+}
+
 
 int onTemplates()
 {
