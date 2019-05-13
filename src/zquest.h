@@ -372,6 +372,8 @@ int playMusic();
 int playTune(int pos);
 int stopMusic();
 
+int onQMiscValues();
+
 int onTemplates();
 
 //  +----------+

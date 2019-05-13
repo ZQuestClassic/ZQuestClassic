@@ -302,7 +302,7 @@ static int enemyrules1_list[] =
 
 static int enemyrules2_list[] =
 {
-    22,23,-1
+    22,23,24,-1
 };
 
 static TABPANEL enemyrules_tabs[] =
@@ -324,27 +324,31 @@ static DIALOG enemyrules_dlg[] =
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
     
-    // rules
+    // rules //6
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use New Enemy Tiles", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Jump/Fly Through Z-Axis", NULL, NULL },
     { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hide Enemy-Carried Items", NULL, NULL },
     { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Always Return", NULL, NULL },
+    //10
     { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Temporary No Return Disabled", NULL, NULL },
     { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Must Kill All Bosses To Set 'No Return' Screen State", NULL, NULL },
     { jwin_check_proc,      10, 33+70, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Multi-Directional Traps", NULL, NULL },
     { jwin_check_proc,      10, 33+80, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Line-of-Sight Traps Can Move Across Entire Screen", NULL, NULL },
     { jwin_check_proc,      10, 33+90, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Constant Traps Can Pass Through Enemies", NULL, NULL },
+    //15
     { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Flying Enemies Can Appear on Unwalkable Combos", NULL, NULL },
     { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Enemy Shield Tiles", NULL, NULL },
     { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Don't Flash When Dying", NULL, NULL },
     { jwin_check_proc,      10, 33+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Show Shadows", NULL, NULL },
     { jwin_check_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Translucent Shadows", NULL, NULL },
+    //20
     { jwin_check_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Shadows Flicker", NULL, NULL },
     { jwin_check_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Flicker When Hit", NULL, NULL },
     
-    // rules 2
+    // rules 2 //22
     { jwin_check_proc,      10, 33+10, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Statue Minimum Range Or Double Fireballs", NULL, NULL },
     { jwin_check_proc,      10, 33+20, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Super Bomb Explosions for Explode on Contact", NULL, NULL },
+    { jwin_check_proc,      10, 33+30, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Can Go Out of Bounds", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -354,7 +358,7 @@ static int enemyrules[] =
     qr_HIDECARRIEDITEMS, qr_ALWAYSRET, qr_NOTMPNORET, qr_KILLALL,
     qr_MEANTRAPS, qr_MEANPLACEDTRAPS, qr_PHANTOMPLACEDTRAPS, qr_WALLFLIERS,
     qr_BRKNSHLDTILES, qr_NOFLASHDEATH, qr_SHADOWS, qr_TRANSSHADOWS,
-    qr_SHADOWSFLICKER, qr_ENEMIESFLICKER, qr_BROKENSTATUES, qr_BOMBCHUSUPERBOMB,
+    qr_SHADOWSFLICKER, qr_ENEMIESFLICKER, qr_BROKENSTATUES, qr_BOMBCHUSUPERBOMB,qr_OUTOFBOUNDSENEMIES,
     -1
 };
 

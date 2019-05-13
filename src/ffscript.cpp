@@ -2909,7 +2909,7 @@ long get_register(const long arg)
         int a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Attributes") != SH::_NoError ||
-                BC::checkBounds(a, 0, 15, "npc->Attributes") != SH::_NoError)
+                BC::checkBounds(a, 0, 31, "npc->Attributes") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPCDMisc(a) * 10000;
@@ -3803,7 +3803,7 @@ case NPCBEHAVIOUR: {
 	}
 	else
 	{
-		ret = QMisc.questmisc[indx];
+		ret = QMisc.questmisc[indx]*((get_bit(quest_rules,qr_OLDQUESTMISC)) ? 10000 : 1);
 	}
 	break;
     }
@@ -9338,7 +9338,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         long a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
-                BC::checkBounds(a, 0, 15, "npc->Attributes") == SH::_NoError)
+                BC::checkBounds(a, 0, 31, "npc->Attributes") == SH::_NoError)
 	
 	switch(a){
 		case 0: GuyH::getNPC()->dmisc1 = value / 10000; break;
@@ -9625,11 +9625,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	int indx = ri->d[0]/10000;
 	if ( indx < 0 || indx > 31 )
 	{
-		Z_scripterrlog("Invalud index used to access Game->Misc: %d\n", indx);
+		Z_scripterrlog("Invalid index used to access Game->Misc: %d\n", indx);
 	}
 	else 
 	{
-		QMisc.questmisc[indx] = value;
+		QMisc.questmisc[indx] = (value/((get_bit(quest_rules,qr_OLDQUESTMISC)) ? 10000 : 1));
 	}
 	break;
     }

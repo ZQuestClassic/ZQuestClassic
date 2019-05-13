@@ -47,7 +47,8 @@ void never_return(int index);
 void playLevelMusic();
 
 // If an enemy is this far out of the playing field, just remove it.
-#define OUTOFBOUNDS ((int)y>((tmpscr->flags7&fSIDEVIEW && canfall(id))?192:352) || y<-176 || x<-256 || x > 512)
+//#define OUTOFBOUNDS ((int)y>((tmpscr->flags7&fSIDEVIEW && canfall(id))?192:352) || y<-176 || x<-256 || x > 512)
+#define OUTOFBOUNDS ((int)y>32767 || y<-32767 || x<-32767 || x > 32767)
 
 namespace
 {
@@ -3546,13 +3547,13 @@ bool enemy::hit(weapon *w)
 
 void enemy::fix_coords(bool bound)
 {
-    if(bound)
+    if(bound && !get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES))
     {
         x=vbound(x, 0, 240);
         y=vbound(y, 0, 160);
     }
     
-    if(!OUTOFBOUNDS)
+    if(!OUTOFBOUNDS && !get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES))
     {
         x=(fix)((int(x)&0xF0)+((int(x)&8)?16:0));
         

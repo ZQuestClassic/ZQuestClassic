@@ -388,7 +388,7 @@ vector<Function*> ZScript::getFunctionsInBranch(Scope const& scope)
 {
 	typedef vector<Function*> (Scope::*Call)() const;
 	Call call = static_cast<Call>(&Scope::getLocalFunctions);
-	return getInBranch<Function*>(scope, call);
+	return getInBranch<Function*>(scope, call, true);
 }
 
 ////////////////////////////////////////////////////////////////
