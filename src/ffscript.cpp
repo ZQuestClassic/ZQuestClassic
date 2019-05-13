@@ -3803,7 +3803,7 @@ case NPCBEHAVIOUR: {
 	}
 	else
 	{
-		ret = QMisc.questmisc[indx]*10000;
+		ret = QMisc.questmisc[indx]*((get_bit(quest_rules,qr_OLDQUESTMISC)) ? 1 : 10000);
 	}
 	break;
     }
@@ -9629,7 +9629,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	}
 	else 
 	{
-		QMisc.questmisc[indx] = value/10000;
+		QMisc.questmisc[indx] = (value/((get_bit(quest_rules,qr_OLDQUESTMISC)) ? 1 : 10000));
 	}
 	break;
     }
