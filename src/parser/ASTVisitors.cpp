@@ -24,13 +24,13 @@ bool RecursiveVisitor::breakRecursion(void* param) const
 	return failure || breakNode;
 }
 
-void RecursiveVisitor::syncDisable(AST& parent, AST const& child) const
+void RecursiveVisitor::syncDisable(AST& parent, AST const& child)
 {
 	if(child.errorDisabled) parent.errorDisabled = true;
 	if(child.isDisabled()) parent.disable();
 }
 
-void RecursiveVisitor::syncDisable(AST& parent, AST const* child) const
+void RecursiveVisitor::syncDisable(AST& parent, AST const* child)
 {
 	if(child->errorDisabled) parent.errorDisabled = true;
 	if(child->isDisabled()) parent.disable();
@@ -185,6 +185,34 @@ void RecursiveVisitor::caseStmtDo(ASTStmtDo& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host.test.get(), param);
 	syncDisable(host, *host.test);
+}
+
+void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)
+{
+	visit(*host.iter, param);
+	syncDisable(host, *host.iter);
+	if(breakRecursion(host, param)) return;
+	optional<long> repeats = (*host.iter).getCompileTimeValue(this, scope);
+	if(repeats)
+	{
+		int rep = *repeats / 10000L;
+		if(rep>0)
+		{
+			for(int q = rep - 1; q > 0; --q)
+			{
+				visit((*host.body).clone(), param);
+			}
+			visit(&*host.body, param);
+		}
+		else if(rep < 0)
+		{
+			handleError(CompileError::ConstantBadSize(&*host.iter, ">= 0"));
+		}
+	}
+	else
+	{
+		handleError(CompileError::ExprNotConstant(&*host.iter));
+	}
 }
 
 void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)

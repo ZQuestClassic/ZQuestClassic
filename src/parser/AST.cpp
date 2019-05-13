@@ -304,7 +304,7 @@ void ASTBlock::execute(ASTVisitor& visitor, void* param)
 ASTStmtIf::ASTStmtIf(ASTExpr* condition,
 					 ASTStmt* thenStatement,
 					 LocationData const& location)
-	: ASTStmt(location), condition(condition), thenStatement(thenStatement)
+	: ASTStmt(location), condition(condition), thenStatement(thenStatement), inverted(false)
 {}
 
 void ASTStmtIf::execute(ASTVisitor& visitor, void* param)
@@ -384,6 +384,18 @@ ASTStmtDo::ASTStmtDo(
 void ASTStmtDo::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseStmtDo(*this, param);
+}
+
+// ASTStmtRepeat
+
+ASTStmtRepeat::ASTStmtRepeat(
+		ASTExprConst* iter, ASTStmt* body, LocationData const& location)
+	: ASTStmt(location), iter(iter), body(body)
+{}
+
+void ASTStmtRepeat::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseStmtRepeat(*this, param);
 }
 
 // ASTStmtReturn
