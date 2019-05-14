@@ -622,44 +622,64 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
 	if(host.binding->getFlags() & FUNCFLAG_INLINE) //Inline function
 	{
-		// Set up the stack frame register
-		/*addOpcode(new OSetRegister(new VarArgument(SFRAME),
-		                                    new VarArgument(SP)));*/
-											
-		// If the function is a pointer function (->func()) we need to push the
-		// left-hand-side.
-		if (host.left->isTypeArrow())
+		if(host.binding->isInternal())
 		{
-			//load the value of the left-hand of the arrow into EXP1
-			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
-			//visit(host.getLeft(), param);
-			//push it onto the stack
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			//push the parameters, in forward order
+			for (vector<ASTExpr*>::iterator it = host.parameters.begin();
+				it != host.parameters.end(); ++it)
+			{
+				visit(*it, param);
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
+			
+			vector<Opcode*> const& funcCode = host.binding->getCode();
+			for(vector<Opcode*>::const_iterator it = funcCode.begin();
+				it != funcCode.end(); ++it)
+			{
+				addOpcode((*it)->makeClone());
+			}
 		}
+		else
+		{
+			// Set up the stack frame register
+			/*addOpcode(new OSetRegister(new VarArgument(SFRAME),
+												new VarArgument(SP)));*/
+												
+			// If the function is a pointer function (->func()) we need to push the
+			// left-hand-side.
+			if (host.left->isTypeArrow())
+			{
+				//load the value of the left-hand of the arrow into EXP1
+				visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+				//visit(host.getLeft(), param);
+				//push it onto the stack
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
 
-		//push the data decls, in forward order
-		for (vector<ASTDataDecl*>::iterator it = host.inlineParams.begin();
-			it != host.inlineParams.end(); ++it)
-		{
-			visit(*it, param);
+			//push the data decls, in forward order
+			for (vector<ASTDataDecl*>::iterator it = host.inlineParams.begin();
+				it != host.inlineParams.end(); ++it)
+			{
+				visit(*it, param);
+			}
+			
+			//Inline-specific:
+			ASTFuncDecl& decl = *(host.binding->node);
+			//Set the inline flag, process the function block, then reset flags to prior state.
+			int oldreturnlabelid = returnlabelid;
+			int oldReturnRefCount = returnRefCount;
+			returnlabelid = ScriptParser::getUniqueLabelID();
+			returnRefCount = arrayRefs.size();
+			
+			visit(*host.inlineBlock, param);
+			
+			Opcode *next = new ONoOp(); //Just here so the label can be placed.
+			next->setLabel(returnlabelid);
+			addOpcode(next);
+			
+			returnlabelid = oldreturnlabelid;
+			returnRefCount = oldReturnRefCount;
 		}
-		
-		//Inline-specific:
-		ASTFuncDecl& decl = *(host.binding->node);
-		//Set the inline flag, process the function block, then reset flags to prior state.
-		int oldreturnlabelid = returnlabelid;
-		int oldReturnRefCount = returnRefCount;
-		returnlabelid = ScriptParser::getUniqueLabelID();
-		returnRefCount = arrayRefs.size();
-		
-		visit(*host.inlineBlock, param);
-		
-		Opcode *next = new ONoOp(); //Just here so the label can be placed.
-		next->setLabel(returnlabelid);
-		addOpcode(next);
-		
-		returnlabelid = oldreturnlabelid;
-		returnRefCount = oldReturnRefCount;
 	}
 	else //Non-inline function
 	{

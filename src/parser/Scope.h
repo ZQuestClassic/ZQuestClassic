@@ -121,12 +121,12 @@ namespace ZScript
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL)
+				int flags = 0, AST* node = NULL)
 		= 0;
 		virtual Function* addSetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL)
+				int flags = 0, AST* node = NULL)
 		= 0;
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
@@ -335,11 +335,11 @@ namespace ZScript
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		virtual Function* addSetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
@@ -409,11 +409,11 @@ namespace ZScript
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		virtual Function* addSetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,

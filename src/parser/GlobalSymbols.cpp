@@ -481,15 +481,15 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		if (entry.setorget == SETTER && name.substr(0, 3) == "set")
             {
 			varName = varName.substr(3); // Strip out "set".
-			function = scope.addSetter(returnType, varName, paramTypes);
+			function = scope.addSetter(returnType, varName, paramTypes, entry.funcFlags);
             }
 		else if (entry.setorget == GETTER && name.substr(0, 3) == "get")
                 {
 			varName = varName.substr(3); // Strip out "get".
-			function = scope.addGetter(returnType, varName, paramTypes);
+			function = scope.addGetter(returnType, varName, paramTypes, entry.funcFlags);
                 }
                 else
-			function = scope.addFunction(returnType, varName, paramTypes);
+			function = scope.addFunction(returnType, varName, paramTypes, entry.funcFlags);
 		functions[name] = function;
 
 		// Generate function code for getters/setters
@@ -536,7 +536,7 @@ static AccessorTable GlobalTable[] =
 	{ "Quit",                   ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Waitframe",              ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Waitdraw",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "Trace",                  ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_UNTYPED,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Trace",                  ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_UNTYPED,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "TraceLWeapon",           ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_LWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "TraceEWeapon",           ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_EWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "TraceNPC",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_NPC,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -708,7 +708,7 @@ void GlobalSymbols::generateCode()
         first->setLabel(label);
         code.push_back(first);
         code.push_back(new OTraceRegister(new VarArgument(EXP2)));
-        code.push_back(new OReturn());
+        //code.push_back(new OReturn());
         function->giveCode(code);
     }
     {

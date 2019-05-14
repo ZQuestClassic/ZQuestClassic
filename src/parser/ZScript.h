@@ -54,6 +54,8 @@ namespace ZScript
 
 		// Gets all user-defined functions.
 		std::vector<Function*> getUserFunctions() const;
+		// Gets all non-user-defined functions
+		std::vector<Function*> getInternalFunctions() const;
 
 		// Return a list of all errors in the script declaration.
 		std::vector<CompileError const*> getErrors() const;
@@ -363,7 +365,10 @@ namespace ZScript
 
 		int getLabel() const;
 		int getFlags() const {return flags;}
-		// If this is a tracing function (enabled by #option trace)
+		
+		bool isInternal() const {return !node;};
+		
+		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
 		
 	private:

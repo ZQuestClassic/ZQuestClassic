@@ -694,7 +694,7 @@ bool BasicScope::addScriptType(
 
 Function* BasicScope::addGetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, AST* node)
+		vector<DataType const*> const& paramTypes, int flags, AST* node)
 {
 	if (find<Function*>(getters_, name)) return NULL;
 
@@ -706,7 +706,7 @@ Function* BasicScope::addGetter(
 
 Function* BasicScope::addSetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, AST* node)
+		vector<DataType const*> const& paramTypes, int flags, AST* node)
 {
 	if (find<Function*>(setters_, name)) return NULL;
 
@@ -851,10 +851,10 @@ bool FileScope::addScriptType(string const& name, ScriptType type, AST* node)
 
 Function* FileScope::addGetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, AST* node)
+		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
 {
 	Function* result = BasicScope::addGetter(
-			returnType, name, paramTypes, node);
+			returnType, name, paramTypes, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerGetter(name, result))
 		result = NULL;
@@ -863,10 +863,10 @@ Function* FileScope::addGetter(
 
 Function* FileScope::addSetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, AST* node)
+		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
 {
 	Function* result = BasicScope::addSetter(
-			returnType, name, paramTypes, node);
+			returnType, name, paramTypes, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerSetter(name, result))
 		result = NULL;

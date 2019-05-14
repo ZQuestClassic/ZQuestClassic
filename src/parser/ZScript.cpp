@@ -90,8 +90,21 @@ vector<Function*> Program::getUserFunctions() const
 	     it != functions.end();)
 	{
 		Function& function = **it;
-		if (!function.node) it = functions.erase(it);
+		if (function.isInternal()) it = functions.erase(it);
 		else ++it;
+	}
+	return functions;
+}
+
+vector<Function*> Program::getInternalFunctions() const
+{
+	vector<Function*> functions = getFunctions(*this);
+	for (vector<Function*>::iterator it = functions.begin();
+	     it != functions.end();)
+	{
+		Function& function = **it;
+		if (function.isInternal()) ++it;
+		else it = functions.erase(it);
 	}
 	return functions;
 }

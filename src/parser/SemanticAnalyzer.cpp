@@ -964,26 +964,28 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	
 	if(host.binding->getFlags() & FUNCFLAG_INLINE)
 	{
-		assert(host.binding->node);
-		scope = scope->makeChild();
-		DataType const* oldReturnType = returnType;
-		returnType = host.binding->returnType;
-		
-		host.inlineBlock = host.binding->node->block->clone();
-		host.inlineParams = host.binding->node->parameters;
-		int sz = host.parameters.size();
-		for(int q = 0; q < sz; ++q)
+		if(!host.binding->isInternal())
 		{
-			ASTExpr* init = host.parameters[q];
-			assert(init);
-			host.inlineParams[q]->setInitializer(init->clone());
+			scope = scope->makeChild();
+			DataType const* oldReturnType = returnType;
+			returnType = host.binding->returnType;
+			
+			host.inlineBlock = host.binding->node->block->clone();
+			host.inlineParams = host.binding->node->parameters;
+			int sz = host.parameters.size();
+			for(int q = 0; q < sz; ++q)
+			{
+				ASTExpr* init = host.parameters[q];
+				assert(init);
+				host.inlineParams[q]->setInitializer(init->clone());
+			}
+			visit(host, host.inlineParams, param);
+			RecursiveVisitor::caseBlock(*host.inlineBlock, param);
+			
+			scope = scope->getParent();
+			
+			returnType = oldReturnType;
 		}
-		visit(host, host.inlineParams, param);
-		RecursiveVisitor::caseBlock(*host.inlineBlock, param);
-		
-		scope = scope->getParent();
-		
-		returnType = oldReturnType;
 	}
 }
 
