@@ -29,6 +29,8 @@ struct AccessorTable
     int setorget;
     int var;
     int numindex;
+	int funcFlags;
+	int numParams;
     int params[20];
 };
 
