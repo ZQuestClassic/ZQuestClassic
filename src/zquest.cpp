@@ -2980,7 +2980,7 @@ void EditGameMiscArray()
 int onQMiscValues()
 {
     EditGameMiscArray();
-    
+    saved=false;
     return D_O_K;
 }
 
