@@ -255,16 +255,14 @@ namespace ZScript
 	template <typename Element>
 	std::vector<Element> getInBranch(
 			Scope const& scope,
-			std::vector<Element> (Scope::* call)() const,
-			bool skipFile = false)
+			std::vector<Element> (Scope::* call)() const)
 	{
-		std::vector<Element> results;
-		if(!(skipFile && scope.isFile())) results = (scope.*call)();
+		std::vector<Element> results = (scope.*call)();
 		std::vector<Scope*> children = scope.getChildren();
 		for (std::vector<Scope*>::const_iterator it = children.begin();
 		     it != children.end(); ++it)
 		{
-			std::vector<Element> subResults = getInBranch(**it, call, skipFile);
+			std::vector<Element> subResults = getInBranch(**it, call);
 			results.insert(results.end(),
 			               subResults.begin(), subResults.end());
 		}
