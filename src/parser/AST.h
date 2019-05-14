@@ -665,10 +665,8 @@ namespace ZScript
 
 		Type getDeclarationType() const /*override*/ {return TYPE_FUNCTION;}
 		
-		bool isInvalid() const {return (flags & FUNCFLAG_INVALID);}
-		void setInvalid() {flags |= FUNCFLAG_INVALID;}
-		bool isInline() const {return (flags & FUNCFLAG_INLINE);}
-		void setInline();
+		bool getFlag(int flag) const {return flags & flag;}
+		void setFlag(int flag, bool state = true);
 		int getFlags() const {return flags;}
 		bool isRun() const;
 
@@ -677,8 +675,10 @@ namespace ZScript
 		std::string name;
 		owning_ptr<ASTBlock> block;
 		std::string invalidMsg;
+		Function* func;
 	private:
 		int flags;
+		friend class Function;
 	};
 
 	// A line of variable/constant declarations:
@@ -697,7 +697,7 @@ namespace ZScript
 
 		std::vector<ASTDataDecl*> const& getDeclarations() const {
 			return declarations_.data();}
-		virtual void addDeclaration(ASTDataDecl* declaration, bool ignoreBase = false);
+		virtual void addDeclaration(ASTDataDecl* declaration);
 		virtual bool isEnum() const {return false;}
 
 		// The base type at the start of the line shared by all the declarations.

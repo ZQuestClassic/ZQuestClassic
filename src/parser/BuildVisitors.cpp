@@ -402,7 +402,7 @@ void BuildOpcodes::caseStmtEmpty(ASTStmtEmpty &, void *)
 
 void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
-	if(host.isInline()) return; //Skip inline func decls
+	if(host.getFlag(FUNCFLAG_INLINE)) return; //Skip inline func decls, they are handled at call location -V
 	int oldreturnlabelid = returnlabelid;
 	int oldReturnRefCount = returnRefCount;
     returnlabelid = ScriptParser::getUniqueLabelID();
@@ -620,7 +620,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
     OpcodeContext* c = (OpcodeContext*)param;
-	if(host.binding->getFlags() & FUNCFLAG_INLINE) //Inline function
+	if(host.binding->getFlag(FUNCFLAG_INLINE)) //Inline function
 	{
 		if(host.binding->isInternal())
 		{
@@ -641,9 +641,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		else
 		{
-			// Set up the stack frame register
-			/*addOpcode(new OSetRegister(new VarArgument(SFRAME),
-												new VarArgument(SP)));*/
+			/* This section has issues, and a totally new system for parameters must be devised. For now, just disabling inlining of user functions altogether. -V
 												
 			// If the function is a pointer function (->func()) we need to push the
 			// left-hand-side.
@@ -678,7 +676,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			addOpcode(next);
 			
 			returnlabelid = oldreturnlabelid;
-			returnRefCount = oldReturnRefCount;
+			returnRefCount = oldReturnRefCount;*/
 		}
 	}
 	else //Non-inline function

@@ -335,7 +335,6 @@ namespace ZScript
 	class Function
 	{
 	public:
-		
 		Function(DataType const* returnType, std::string const& name,
 		         std::vector<DataType const*> paramTypes, int id, int flags = 0);
 		~Function();
@@ -364,7 +363,12 @@ namespace ZScript
 		Script* getScript() const;
 
 		int getLabel() const;
-		int getFlags() const {return flags;}
+		void setFlag(int flag, bool state = true)
+		{
+			if(node) state ? node->flags |= flag : node->flags &= ~flag;
+			state ? flags |= flag : flags &= ~flag;
+		}
+		bool getFlag(int flag) const {return flags & flag;}
 		
 		bool isInternal() const {return !node;};
 		
@@ -377,6 +381,7 @@ namespace ZScript
 
 		// Code implementing this function.
 		std::vector<Opcode*> ownedCode;
+		friend class ASTFuncDecl;
 	};
 
 	// Is this function a "run" function?

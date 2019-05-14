@@ -466,7 +466,7 @@ bool ZScript::isRun(Function const& function)
 	return function.internalScope->getParent()->isScript()
 		&& *function.returnType == DataType::ZVOID
 		&& (!( strcmp(function.name.c_str(), FFCore.scriptRunString )))
-		&& (!(function.getFlags() & FUNCFLAG_INLINE)) ;
+		&& (!(function.getFlag(FUNCFLAG_INLINE))) ;
 }
 
 int ZScript::getStackSize(Function const& function)

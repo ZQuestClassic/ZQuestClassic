@@ -558,12 +558,12 @@ Function :
 	INLINE Function
 	{
 		ASTFuncDecl* func = (ASTFuncDecl*)$2;
-		if(func->isInline())
+		if(func->getFlag(FUNCFLAG_INLINE))
 		{
-			func->setInvalid();
+			func->setFlag(FUNCFLAG_INVALID);
 			func->invalidMsg += " Duplicate `inline`.";
 		}
-		else func->setInline();
+		else func->setFlag(FUNCFLAG_INLINE);
 		$$ = func;
 	}
 	| DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN

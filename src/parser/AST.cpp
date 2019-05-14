@@ -549,7 +549,7 @@ void ASTImportDecl::execute(ASTVisitor& visitor, void* param)
 // ASTFuncDecl
 
 ASTFuncDecl::ASTFuncDecl(LocationData const& location)
-	: ASTDecl(location), returnType(NULL), block(NULL), flags(0), invalidMsg("")
+	: ASTDecl(location), returnType(NULL), block(NULL), flags(0), invalidMsg(""), func(NULL)
 {}
 
 void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
@@ -557,18 +557,29 @@ void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
 	visitor.caseFuncDecl(*this, param);
 }
 
-void ASTFuncDecl::setInline()
+void ASTFuncDecl::setFlag(int flag, bool state)
 {
-	if(isRun())
+	switch(flag)
 	{
-		setInvalid();
-		ostringstream oss;
-		string runstr(FFCore.scriptRunString);
-		oss << " void " << runstr << "() functions cannot be `inline`!";
-		invalidMsg += oss.str();
-		return;
+		case FUNCFLAG_INLINE:
+			if(state)
+			{
+				setFlag(FUNCFLAG_INVALID);
+				invalidMsg += " Only internal functions may be inline at this time.";
+				return;
+			}
+			/*if(state && isRun())
+			{
+				setFlag(FUNCFLAG_INVALID);
+				ostringstream oss;
+				string runstr(FFCore.scriptRunString);
+				oss << " void " << runstr << "() functions cannot be `inline`!";
+				invalidMsg += oss.str();
+				return;
+			}*/
 	}
-	flags |= FUNCFLAG_INLINE;
+	if(func) state ? func->flags |= flag : func->flags &= ~flag;
+	state ? flags |= flag : flags &= ~flag;
 }
 
 bool ASTFuncDecl::isRun() const
@@ -586,10 +597,14 @@ ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 	: ASTDecl(other),
 	  baseType(other.baseType)
 {
-	for (vector<ASTDataDecl*>::const_iterator it =
-		     other.declarations_.begin();
+	for (vector<ASTDataDecl*>::const_iterator it = other.declarations_.begin();
 	     it != other.declarations_.end(); ++it)
-		addDeclaration(*it, true);
+	{
+		ASTDataDecl* decl = (*it)->clone();
+		if(decl->baseType)
+			decl->baseType.release();
+		addDeclaration(decl);
+	}
 }
 
 ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
@@ -600,7 +615,12 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
     declarations_.clear();
 	for (vector<ASTDataDecl*>::const_iterator it = rhs.declarations_.begin();
 	     it != rhs.declarations_.end(); ++it)
-		addDeclaration(*it, true);
+	{
+		ASTDataDecl* decl = (*it)->clone();
+		if(decl->baseType)
+			decl->baseType.release();
+		addDeclaration(decl);
+	}
 	
 	return *this;
 }
@@ -610,10 +630,10 @@ void ASTDataDeclList::execute(ASTVisitor& visitor, void* param)
 	visitor.caseDataDeclList(*this, param);
 }
 
-void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration, bool ignoreBase)
+void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
 {
 	// Declarations in a list should not have their own type.
-	if(!ignoreBase) assert(!declaration->baseType);
+	assert(!declaration->baseType);
 
 	declaration->list = this;
 	declarations_.push_back(declaration);

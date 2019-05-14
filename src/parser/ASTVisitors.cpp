@@ -263,7 +263,7 @@ void RecursiveVisitor::caseImportDecl(ASTImportDecl& host, void* param)
 
 void RecursiveVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
-	if(host.isInvalid())
+	if(host.getFlag(FUNCFLAG_INVALID))
 	{
 		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
 		return;

@@ -93,6 +93,8 @@ namespace ZScript
 		// Current function return type.
 		ZScript::DataType const* returnType;
 
+		std::vector<Function*> inlineStack;
+		
 		bool deprecateGlobals;
 
 		// Signal a compile error if source can't be cast to target.
