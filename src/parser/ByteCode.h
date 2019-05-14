@@ -1489,6 +1489,16 @@ namespace ZScript
 			return new OWaitdraw();
 		}
 	};
+	
+	class ONoOp : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ONoOp();
+		}
+	};
 
 	class OGotoImmediate : public UnaryOpcode
 	{
@@ -1553,6 +1563,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OPushRegister(a->clone());
+		}
+	};
+
+	class OPushImmediate : public UnaryOpcode
+	{
+	public:
+		OPushImmediate(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPushImmediate(a->clone());
 		}
 	};
 

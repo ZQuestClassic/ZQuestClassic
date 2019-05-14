@@ -90,8 +90,21 @@ vector<Function*> Program::getUserFunctions() const
 	     it != functions.end();)
 	{
 		Function& function = **it;
-		if (!function.node) it = functions.erase(it);
+		if (function.isInternal()) it = functions.erase(it);
 		else ++it;
+	}
+	return functions;
+}
+
+vector<Function*> Program::getInternalFunctions() const
+{
+	vector<Function*> functions = getFunctions(*this);
+	for (vector<Function*>::iterator it = functions.begin();
+	     it != functions.end();)
+	{
+		Function& function = **it;
+		if (function.isInternal()) ++it;
+		else it = functions.erase(it);
 	}
 	return functions;
 }
@@ -399,10 +412,10 @@ string FunctionSignature::asString() const
 // ZScript::Function
 
 Function::Function(DataType const* returnType, string const& name,
-				   vector<DataType const*> paramTypes, int id)
+				   vector<DataType const*> paramTypes, int id, int flags)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes),
-	  id(id), label(nullopt)
+	  id(id), label(nullopt), flags(flags)
 {}
 
 Function::~Function()
@@ -452,7 +465,8 @@ bool ZScript::isRun(Function const& function)
 	//al_trace("Parser sees run string as: %s\n", FFCore.scriptRunString);
 	return function.internalScope->getParent()->isScript()
 		&& *function.returnType == DataType::ZVOID
-		&& (!( strcmp(function.name.c_str(), FFCore.scriptRunString )));
+		&& (!( strcmp(function.name.c_str(), FFCore.scriptRunString )))
+		&& (!(function.getFlag(FUNCFLAG_INLINE))) ;
 }
 
 int ZScript::getStackSize(Function const& function)

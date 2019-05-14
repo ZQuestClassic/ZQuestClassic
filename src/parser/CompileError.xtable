@@ -86,5 +86,7 @@ X(	HeaderGuardWarn,		P,	A,	W,	STR,	STR,	"Duplicate file for filename %s. %s this
 X(	RedefDataType,				T,	A,	W,	STR,	STR,	"Data Type %s has already been defined as %s."    			)
 X(	ConstAlreadyConstant,				T,	A,	E,	STR,	VOID,	"DataType '%s' is already constant, or cannot be made constant."				)
 X(	ConstantBadSize,				T,	A,	E,	STR,	VOID,	"Invalid constant size. Constant must be %s."				)
+X(	BadFuncModifiers,				T,	A,	E,	STR,	VOID,	"Invalid function modifiers.%s"				)
+X(	ScriptRunInline,		S,	A,	E,	STR,	VOID,	"void %s() functions cannot be inline."						)
 
 #undef STR

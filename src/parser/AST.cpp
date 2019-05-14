@@ -8,6 +8,9 @@
 #include <assert.h>
 #include <sstream>
 
+#include "../ffscript.h"
+extern FFScript FFCore;
+
 using std::pair;
 using std::string;
 using std::ostringstream;
@@ -546,12 +549,42 @@ void ASTImportDecl::execute(ASTVisitor& visitor, void* param)
 // ASTFuncDecl
 
 ASTFuncDecl::ASTFuncDecl(LocationData const& location)
-	: ASTDecl(location), returnType(NULL), block(NULL)
+	: ASTDecl(location), returnType(NULL), block(NULL), flags(0), invalidMsg(""), func(NULL)
 {}
 
 void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseFuncDecl(*this, param);
+}
+
+void ASTFuncDecl::setFlag(int flag, bool state)
+{
+	switch(flag)
+	{
+		case FUNCFLAG_INLINE:
+			if(state)
+			{
+				setFlag(FUNCFLAG_INVALID);
+				invalidMsg += " Only internal functions may be inline at this time.";
+				return;
+			}
+			/*if(state && isRun())
+			{
+				setFlag(FUNCFLAG_INVALID);
+				ostringstream oss;
+				string runstr(FFCore.scriptRunString);
+				oss << " void " << runstr << "() functions cannot be `inline`!";
+				invalidMsg += oss.str();
+				return;
+			}*/
+	}
+	if(func) state ? func->flags |= flag : func->flags &= ~flag;
+	state ? flags |= flag : flags &= ~flag;
+}
+
+bool ASTFuncDecl::isRun() const
+{
+	return name == FFCore.scriptRunString;
 }
 
 // ASTDataDeclList
@@ -564,10 +597,14 @@ ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 	: ASTDecl(other),
 	  baseType(other.baseType)
 {
-	for (vector<ASTDataDecl*>::const_iterator it =
-		     other.declarations_.begin();
+	for (vector<ASTDataDecl*>::const_iterator it = other.declarations_.begin();
 	     it != other.declarations_.end(); ++it)
-		addDeclaration(*it);
+	{
+		ASTDataDecl* decl = (*it)->clone();
+		if(decl->baseType)
+			decl->baseType.release();
+		addDeclaration(decl);
+	}
 }
 
 ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
@@ -578,7 +615,12 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
     declarations_.clear();
 	for (vector<ASTDataDecl*>::const_iterator it = rhs.declarations_.begin();
 	     it != rhs.declarations_.end(); ++it)
-		addDeclaration(*it);
+	{
+		ASTDataDecl* decl = (*it)->clone();
+		if(decl->baseType)
+			decl->baseType.release();
+		addDeclaration(decl);
+	}
 	
 	return *this;
 }
@@ -603,6 +645,19 @@ ASTDataEnum::ASTDataEnum(LocationData const& location)
 	: ASTDataDeclList(location), nextVal(0)
 {
 	baseType = new ASTDataType(DataType::CFLOAT, location);
+}
+
+ASTDataEnum::ASTDataEnum(ASTDataEnum const& other)
+	: ASTDataDeclList(other)
+{}
+
+ASTDataEnum& ASTDataEnum::operator=(ASTDataEnum const& rhs)
+{
+	ASTDataDeclList::operator=(rhs);
+	
+	nextVal = rhs.nextVal;
+	
+	return *this;
 }
 
 void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
@@ -642,7 +697,8 @@ ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
 	  name(other.name),
 	  extraArrays(other.extraArrays)
 {
-	setInitializer(other.initializer_.clone());
+	if(other.initializer_)
+		setInitializer(other.initializer_.clone());
 }
 
 ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)

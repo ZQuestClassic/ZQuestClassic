@@ -244,6 +244,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 	     it != funs.end(); ++it)
 	{
 		Function& function = **it;
+		if(function.getFlag(FUNCFLAG_INLINE)) continue; //Skip inline func decls, they are handled at call location -V
 		ASTFuncDecl& node = *function.node;
 
 		bool isRun = ZScript::isRun(function);

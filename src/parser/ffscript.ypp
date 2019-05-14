@@ -113,6 +113,7 @@ extern YYLTYPE noloc;
 %token UNTIL
 %token UNLESS
 %token REPEAT
+%token INLINE
 
  // Types
 %token ZVOID
@@ -554,7 +555,18 @@ Data_Element_Array_Element_Size_List :
 // Function Declaration
 
 Function :
-	DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN
+	INLINE Function
+	{
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if(func->getFlag(FUNCFLAG_INLINE))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Duplicate `inline`.";
+		}
+		else func->setFlag(FUNCFLAG_INLINE);
+		$$ = func;
+	}
+	| DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN
 		Statement_Block
 	{
 		ASTDataType* returnType = (ASTDataType*)$1;

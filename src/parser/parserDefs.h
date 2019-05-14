@@ -1,6 +1,10 @@
 #ifndef _PARSERDEFS_H_
 #define _PARSERDEFS_H_
 
+//FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.
+#define FUNCFLAG_INLINE				0x01
+#define FUNCFLAG_INVALID			0x02
+
 //Option values. NOTE: Result of "lookupOption" must be '/10000.0' -V
 #define OPT_OFF                     0
 #define OPT_ON                      1

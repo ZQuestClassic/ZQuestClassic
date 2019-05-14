@@ -54,6 +54,8 @@ namespace ZScript
 
 		// Gets all user-defined functions.
 		std::vector<Function*> getUserFunctions() const;
+		// Gets all non-user-defined functions
+		std::vector<Function*> getInternalFunctions() const;
 
 		// Return a list of all errors in the script declaration.
 		std::vector<CompileError const*> getErrors() const;
@@ -333,9 +335,8 @@ namespace ZScript
 	class Function
 	{
 	public:
-		
 		Function(DataType const* returnType, std::string const& name,
-		         std::vector<DataType const*> paramTypes, int id);
+		         std::vector<DataType const*> paramTypes, int id, int flags = 0);
 		~Function();
 		
 		DataType const* returnType;
@@ -362,15 +363,25 @@ namespace ZScript
 		Script* getScript() const;
 
 		int getLabel() const;
-
-		// If this is a tracing function (enabled by #option trace)
+		void setFlag(int flag, bool state = true)
+		{
+			if(node) state ? node->flags |= flag : node->flags &= ~flag;
+			state ? flags |= flag : flags &= ~flag;
+		}
+		bool getFlag(int flag) const {return flags & flag;}
+		
+		bool isInternal() const {return !node;};
+		
+		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
 		
 	private:
 		mutable optional<int> label;
+		int flags;
 
 		// Code implementing this function.
 		std::vector<Opcode*> ownedCode;
+		friend class ASTFuncDecl;
 	};
 
 	// Is this function a "run" function?

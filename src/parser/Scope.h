@@ -17,6 +17,8 @@ namespace ZScript
 	class ASTNamespace;
 	class ASTExprIdentifier;
 	class ASTImportDecl;
+	class ASTExprCall;
+	class ASTBlock;
 
 	// CompileError.h
 	class CompileErrorHandler;
@@ -119,17 +121,17 @@ namespace ZScript
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL)
+				int flags = 0, AST* node = NULL)
 		= 0;
 		virtual Function* addSetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL)
+				int flags = 0, AST* node = NULL)
 		= 0;
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL)
+				int flags = 0, AST* node = NULL)
 		= 0;
 		virtual void setDefaultOption(CompileOptionSetting value) = 0;
 		virtual void setOption(
@@ -333,15 +335,15 @@ namespace ZScript
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		virtual Function* addSetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		virtual void setDefaultOption(CompileOptionSetting value);
 		virtual void setOption(
 				CompileOption option, CompileOptionSetting value);
@@ -407,15 +409,15 @@ namespace ZScript
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		virtual Function* addSetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
-				AST* node = NULL);
+				int flags = 0, AST* node = NULL);
 		
 	protected:
 		virtual bool add(Datum&, CompileErrorHandler*);
@@ -520,6 +522,14 @@ namespace ZScript
 		Namespace* namesp;
 	};
 
+	class InlineScope : public BasicScope
+	{
+	public:
+		InlineScope(Scope* parent, FileScope* parentFile, ASTExprCall* node, ASTBlock* block);
+		ASTExprCall* node;
+		ASTBlock* block;
+	};
+	
 	enum ZClassIdBuiltin
 	{
 		ZCLASSID_START = 0,

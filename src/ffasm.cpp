@@ -796,6 +796,7 @@ script_command command_list[NUMCOMMANDS+1]=
       { "BMPDRAWLAYERSOLIDITYR",     0,   0,   0,   0},
       { "BMPMODE7",     0,   0,   0,   0},
       { "BITMAPGETPIXEL",     0,   0,   0,   0},
+      { "NOP",                 0,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 
