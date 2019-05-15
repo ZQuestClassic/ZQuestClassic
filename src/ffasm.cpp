@@ -1851,7 +1851,7 @@ script_variable variable_list[]=
 	{"SCREENSCRIPT", SCREENSCRIPT, 0, 0 },
 	{"SCREENINITD", SCREENINITD, 0, 0 },
 	{"MAPDATASCRIPT", MAPDATASCRIPT, 0, 0 },
-	{"MAPDATAINITD", MAPDATAINITD, 0, 0 },
+	{"MAPDATAINITDARRAY", MAPDATAINITDARRAY, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

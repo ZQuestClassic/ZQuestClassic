@@ -1731,6 +1731,7 @@ string VarArgument::toString()
 	
 	case MAPDATASCRIPT: return "MAPDATASCRIPT";
 	case MAPDATAINITD: return "MAPDATAINITD";
+	case MAPDATAINITDARRAY: return "MAPDATAINITDARRAY";
 	
 	
 	

@@ -4356,7 +4356,7 @@ case SCREENDATAFLAGS:
         ret=tmpscr->script*10000;
         break;
     
-    case MAPDATAINITD:
+    case MAPDATAINITDARRAY:
         ret=tmpscr->screeninitd[ri->d[0]/10000]*10000;
         break;
     
@@ -10824,7 +10824,7 @@ case MAPDATAWARPARRIVALX: 	SET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); b
 case MAPDATAWARPARRIVALY: 	SET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case MAPDATAPATH: 		SET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
 case MAPDATASIDEWARPSC: 	SET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
-case MAPDATAINITD:	 	SET_MAPDATA_VAR_INDEX32(screeninitd, "InitD", 8); break;	//w, 4 of these
+case MAPDATAINITDARRAY:	 	SET_MAPDATA_VAR_INDEX32(screeninitd, "InitD", 8); break;	//w, 4 of these
 case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 case MAPDATASIDEWARPINDEX: 	SET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
 case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w

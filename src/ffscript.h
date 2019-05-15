@@ -3329,6 +3329,7 @@ enum ASM_DEFINE
 
 #define MAPDATASCRIPT 		0x1353
 #define MAPDATAINITD 		0x1354
+#define MAPDATAINITDARRAY 		0x1355
 
 //bytecode
 

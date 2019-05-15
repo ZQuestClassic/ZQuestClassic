@@ -1117,7 +1117,7 @@ using namespace std;
 #define SIMULATEKEYPRESS 			1048
 #define KEYBINDINGS 			1049
 #define MAPDATASCRIPT 			1050
-#define MAPDATAINITD 			1051
+#define MAPDATAINITDARRAY 			1051
 
 #define LAST_BYTECODE 		1052
 
