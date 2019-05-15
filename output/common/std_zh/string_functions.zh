@@ -467,10 +467,11 @@ int strcmp(int str1, int pos1, int str2, int pos2)
 	for(i = 0; str1[pos1 + i] != 0 && str2[pos2 + i] != 0 && str1[pos1 + i] == str2[pos2 + i]; ++i);
 	return str1[pos1 + i] - str2[pos2 + i];
 }
-int strcmp(int str1, int str2)
-{
-	return strcmp(str1, 0, str2, 0);
-}
+//Now an internal function. -Z ( 15th May, 2019 )
+//int strcmp(int str1, int str2)
+//{
+//	return strcmp(str1, 0, str2, 0);
+//}
 
 //strcmp up to 'n' characters
 int strncmp(int str1, int pos1, int str2, int pos2, int n)
@@ -481,10 +482,11 @@ int strncmp(int str1, int pos1, int str2, int pos2, int n)
 		i--;
 	return str1[pos1 + i] - str2[pos2 + i];
 }
-int strncmp(int str1, int str2, int n)
-{
-	return strncmp(str1, 0, str2, 0 , n);
-}
+//Now an internal function. -Z ( 15th May, 2019 )
+//int strncmp(int str1, int str2, int n)
+//{
+//	return strncmp(str1, 0, str2, 0 , n);
+//}
 
 
 //Converting between variables and strings
