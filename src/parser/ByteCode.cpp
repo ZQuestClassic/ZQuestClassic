@@ -1730,7 +1730,7 @@ string VarArgument::toString()
 	case KEYBINDINGS: return "KEYBINDINGS";
 	
 	case MAPDATASCRIPT: return "MAPDATASCRIPT";
-	case MAPDATAINITD: return "MAPDATAINITD";
+	
 	case MAPDATAINITDARRAY: return "MAPDATAINITDARRAY";
 	
 	
