@@ -1,7 +1,8 @@
 //2.55 and 2.54 Changes
 
 //Alpha 23
-Fix Dialogue Information (display text) for Screen Script dialogue.
+Fix fonts for window title in Screen->Script and Game->Misc[] dialogues.
+Fix Window Title for Screen Script dialogue.
 	( ZoriaRPG, 15th May, 2019 )
 
 //Alpha 22

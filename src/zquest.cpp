@@ -2947,7 +2947,7 @@ static DIALOG gamemiscarray_dlg[] =
 
 void EditGameMiscArray()
 {
-	
+	gamemiscarray_dlg[0].dp2=lfont;
 	char miscvalue[32][14];
 	char miscvalue_labels[32][65];
 	memset(miscvalue, 0, sizeof(miscvalue));
@@ -10764,7 +10764,7 @@ static DIALOG screenscript_dlg[] =
 
 void EditScreenScript()
 {
-	
+	screenscript_dlg[0].dp2=lfont;
 	char initd[8][16];
 	int script = 0;
 	build_biscreens_list();
