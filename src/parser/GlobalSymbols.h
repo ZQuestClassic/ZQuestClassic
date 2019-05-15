@@ -47,10 +47,10 @@ protected:
 	LibrarySymbols() : refVar(0) {}
     int refVar;
 
-	ZScript::Function* getFunction(string const& name) const;
+	ZScript::Function* getFunction(string const& name, int numParams) const;
 
 private:
-    map<string, ZScript::Function*> functions;
+	map<std::pair<string, int>, ZScript::Function*> functions;
 	
 	// Generates the code for functions which can't be auto generated.
 	virtual void generateCode() = 0;
