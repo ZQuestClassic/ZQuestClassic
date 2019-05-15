@@ -197,6 +197,8 @@ void updateIncludePaths();
 bool checkExtension(std::string &filename, const std::string &extension);
 void do_strcmp();
 void do_strncmp();
+void do_strcpy(const bool a, const bool b);
+void do_strlen(const bool v);
 /*
 long getQuestHeaderInfo(int type)
 {
@@ -2135,6 +2137,8 @@ enum ASM_DEFINE
 	NOP,
 	STRINGCOMPARE,
 	STRINGNCOMPARE,
+	STRINGLENGTH,
+	STRINGCOPY,
 	NUMCOMMANDS           //0x0147
 };
 

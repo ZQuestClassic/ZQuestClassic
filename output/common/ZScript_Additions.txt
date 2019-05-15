@@ -696,6 +696,39 @@ Using the above namespaces as examples:
 	*	Data saved to these may become invalid and require manual cleansing by the user!
 	*	Only the value of a pointer is saved, not the struct data associated with that pointer.
 
+////////////
+// Unless //
+////////////
+
+This statement runs the code block attached to it if its statement would evaluate false
+in an if statement.
+
+Example: 
+	int x = 6; int y;
+	unless(x==6)
+	{
+		y = 1;
+	}
+	
+	In this example, the code block would never run, because x == 6. 
+	This is the opposite of 'if', and supports 'else unless' and 'else'
+	blocks following the unless statement.
+	
+////////////
+// Repeat //
+////////////
+
+Repeats a command a given number of times.
+The value passed to repeat(const int v) bust be constant at compile time.
+
+Example:
+	const int N = 10;
+	int x;
+	repeat(N { ++x; }
+	
+This is similar to a for loop, but it produces faster ZASM, because the number
+of iterations is known at compile-time.
+
 /////////////////////
 // Until, do-until //
 /////////////////////

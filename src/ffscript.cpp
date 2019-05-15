@@ -16817,6 +16817,10 @@ int run_script(const byte type, const word script, const long i)
 		case TANR:
 		    do_trig(false, 2);
 		    break;
+		
+		case STRINGLENGTH:
+			FFCore.do_strlen(false);
+			break;
 		    
 		case ARCSINR:
 		    do_asin(false);
@@ -16833,7 +16837,9 @@ int run_script(const byte type, const word script, const long i)
 		case STRINGCOMPARE:
 			FFCore.do_strcmp();
 			break;
-		
+		case STRINGCOPY:
+			FFCore.do_strcpy(false,false);
+			break;
 		
 		case STRINGNCOMPARE:
 			FFCore.do_strncmp();
@@ -22507,6 +22513,29 @@ void FFScript::do_strcmp()
 	FFCore.getString(arrayptr_a, strA);
 	FFCore.getString(arrayptr_b, strB);
 	set_register(sarg1, (strcmp(strA.c_str(), strB.c_str()) * 10000));
+}
+
+void FFScript::do_strcpy(const bool a, const bool b)
+{
+	long arrayptr_b = SH::get_arg(sarg1, a) / 10000;
+	long arrayptr_a = SH::get_arg(sarg2, b) / 10000;
+    
+	string strA;
+
+	FFCore.getString(arrayptr_a, strA);
+
+	if(ArrayH::setArray(arrayptr_b, strA.c_str()) == SH::_Overflow)
+		Z_scripterrlog("Dest string supplied to 'strcpy()' not large enough\n");
+}
+
+void FFScript::do_strlen(const bool v)
+{
+	//Z_scripterrlog("Running: %s\n","strlen()");
+	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	FFCore.getString(arrayptr, str);
+	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	set_register(sarg1, (str.length() * 10000));
 }
 
 void FFScript::do_strncmp()

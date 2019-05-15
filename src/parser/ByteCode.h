@@ -1893,6 +1893,17 @@ namespace ZScript
 			return new OTanRegister(a->clone(), b->clone());
 		}
 	};
+	
+	class Ostrlen : public BinaryOpcode
+	{
+	public:
+		Ostrlen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Ostrlen(a->clone(), b->clone());
+		}
+	};
 
 	class OATanRegister : public UnaryOpcode
 	{
@@ -3431,6 +3442,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OCopyTileRegister(a->clone(),b->clone());
+		}
+	};
+	
+	class Ostrcpy : public BinaryOpcode
+	{
+	public:
+		Ostrcpy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Ostrcpy(a->clone(),b->clone());
 		}
 	};
 

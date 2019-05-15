@@ -1999,6 +1999,11 @@ string OTanRegister::toString()
     return "TANR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string Ostrlen::toString()
+{
+    return "STRINGLENGTH " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OATanRegister::toString()
 {
     return "ARCTANR " + getArgument()->toString();
@@ -2745,6 +2750,11 @@ string OIsValidNPC::toString()
 string OCopyTileRegister::toString()
 {
     return "COPYTILERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string Ostrcpy::toString()
+{
+    return "STRINGCOPY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OOverlayTileRegister::toString()

@@ -799,6 +799,9 @@ script_command command_list[NUMCOMMANDS+1]=
       { "NOP",                 0,   0,   0,   0},
       { "STRINGCOMPARE",		       1,   0,   0,   0},
       { "STRINGNCOMPARE",		       1,   0,   0,   0},
+      { "STRINGLENGTH",                2,   0,   0,   0},
+      { "STRINGCOPY",          2,   0,   0,   0},
+ 
       { "",                    0,   0,   0,   0}
 };
 
