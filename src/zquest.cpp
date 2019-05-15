@@ -832,6 +832,9 @@ static MENU data_menu[] =
     { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
     { (char *)"&Enemies\tE",                onEnemies,                 NULL,                     0,            NULL   },
     { (char *)"&Palette\tF4",               onScreenPalette,           NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Script",                   onScreenScript,                    NULL,                     0,            NULL   },
+    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -2820,7 +2823,6 @@ static int gamemisc1_list[] =
 	-1
 };
 
-// Yep, a whole tab for one rule.
 static int gamemisc2_list[] =
 {
     21,22,23,24,

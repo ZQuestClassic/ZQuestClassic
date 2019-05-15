@@ -996,6 +996,10 @@ void Z_scripterrlog(const char * const format,...)
             al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
             break;
 	
+	case SCRIPT_EWPN:
+            al_trace("EWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
+            break;
+	
 	case SCRIPT_NPC:
             al_trace("LWeapon script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());
             break;
@@ -1011,9 +1015,17 @@ void Z_scripterrlog(const char * const format,...)
 	case SCRIPT_DMAP:
             al_trace("DMap script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
             break;
+	
+	case SCRIPT_ITEMSPRITE:
+            al_trace("itemsprite script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+            break;
         
 	case SCRIPT_SCREEN:
             al_trace("Screen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+            break;
+	
+	case SCRIPT_SUBSCREEN:
+            al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
             break;
         }
         
