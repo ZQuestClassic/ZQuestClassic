@@ -1729,8 +1729,6 @@ string VarArgument::toString()
 	case SIMULATEKEYPRESS: return "SIMULATEKEYPRESS";
 	case KEYBINDINGS: return "KEYBINDINGS";
 	
-	case SCREENSCRIPT: return "SCREENSCRIPT";
-	case SCREENINITD: return "SCREENINITD";
 	case MAPDATASCRIPT: return "MAPDATASCRIPT";
 	case MAPDATAINITD: return "MAPDATAINITD";
 	
