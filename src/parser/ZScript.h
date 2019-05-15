@@ -362,6 +362,7 @@ namespace ZScript
 		// If this is a script level function, return that script.
 		Script* getScript() const;
 
+		int numParams() const {return paramTypes.size();}
 		int getLabel() const;
 		void setFlag(int flag, bool state = true)
 		{
