@@ -185,7 +185,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS           11
 #define V_CSETS            4
 #define V_MAPS            20
-#define V_DMAPS            12
+#define V_DMAPS            13
 #define V_DOORS            1
 #define V_ITEMS           44
 #define V_WEAPONS          7
@@ -2673,6 +2673,7 @@ struct dmap
     char sideview;
     word script;
     long initD[8];
+    char initD_label[8][65];
 };
 
 // DMap flags

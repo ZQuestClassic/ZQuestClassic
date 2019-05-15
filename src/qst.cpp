@@ -4048,6 +4048,30 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
 		}
 	}
 	
+	if(s_version >= 13)
+        {
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		for ( int w = 0; w < 65; w++ )
+		{
+			if(!p_getc(&tempDMap.initD_label[q][w],f,keepdata))
+			{
+				return qe_invalid;
+			} 
+		}
+		    
+	    }
+        }
+	if ( s_version < 13 )
+	{
+		tempDMap.script = 0;
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+				tempDMap.initD_label[q][w] = 0;
+		}
+	}
+	
         if(keepdata==true)
         {
             memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));

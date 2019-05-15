@@ -13343,24 +13343,16 @@ void editdmap(int index)
 	
 	char initdvals[8][13]; //script
 	char initd_labels[8][65];
-	//We'll add this properly int he future, but for now, we will hardcode these.
-	strcpy(initd_labels[0], "InitD[0]");
-	strcpy(initd_labels[1], "InitD[1]");
-	strcpy(initd_labels[2], "InitD[2]");
-	strcpy(initd_labels[3], "InitD[3]");
-	strcpy(initd_labels[4], "InitD[4]");
-	strcpy(initd_labels[5], "InitD[5]");
-	strcpy(initd_labels[6], "InitD[6]");
-	strcpy(initd_labels[7], "InitD[7]");
 	
 	for ( int q = 0; q < 8; q++ )
 	{
-		//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, itemsbuf[index].initD_label[q]);
-		//strcpy(weapon_initd_labels[q], itemsbuf[index].weapon_initD_label[q]);
+		strcpy(initd_labels[q], DMaps[index].initD_label[q]);
+		if ( initd_labels[q][0] == NULL ) sprintf(initd_labels[q],"InitD[%d]",q);
 		editdmap_dlg[130+q].dp = initd_labels[q];
-		//sprintf();
 	    
 	}
+    
+	
 	
     sprintf(levelstr,"%d",DMaps[index].level);
     sprintf(dmapnumstr,"Edit DMap (%d)",index);
@@ -13645,9 +13637,18 @@ void editdmap(int index)
 	
 	DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
 	DMaps[index].script = bidmaps[editdmap_dlg[147].d1].second + 1; 
+	
+	//for ( int q = 0; q < 8; ++q )
+	//{
+	//	strcpy(initd_labels[q], editdmap_dlg[130+q].dp);
+	//}
+	
 	for ( int q = 0; q < 8; q++ )
 	{
 		DMaps[index].initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
+		////initd_labels
+		sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
+//		strcpy(DMaps[index].initD_label[q], initd_labels[q]);
 		//vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
 	}
     }

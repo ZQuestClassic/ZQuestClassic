@@ -6768,6 +6768,16 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 		}
 		    
 	    }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		    for ( int w = 0; w < 65; w++ )
+		    {
+			if (!p_putc(DMaps[i].initD_label[q][w],f))
+			{
+				new_return(33);
+			}
+		}
+	    }
         }
         
         if(writecycle==0)
