@@ -10724,36 +10724,37 @@ static DIALOG screenscript_dlg[] =
     
 { jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Game->Misc[]", NULL, NULL },
     { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
-    { jwin_tab_proc,         5,   26,   300,  202,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
+    { d_dummy_proc,         5,   26,   300,  202,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
     {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
     {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
     
     //5
-    { jwin_text_proc,           10,    42,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Initial Delay:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+20,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Initial Delay:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+40,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Initial Delay:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[0]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+20+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+40+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[2]:",                      NULL,   NULL                  },
     
     
     //8
-    { jwin_text_proc,           10,    42+60,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Initial Delay:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+80,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Initial Delay:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+100,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Initial Delay:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+120,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Initial Delay:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+140,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Initial Delay:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+60+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[3]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+80+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[4]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+100+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[5]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+120+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[6]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+140+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[7]:",                      NULL,   NULL                  },
     
     //13
-     { jwin_edit_proc,     160,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },{ jwin_edit_proc,     160,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+     { jwin_edit_proc,     60,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+     { jwin_edit_proc,     60,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
     //18
-    { jwin_edit_proc,     160,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
     //21
-    { jwin_text_proc,          112+10+20+34+1-4,    10+39+32+3+8-5,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                            NULL,   NULL                  },
+    { jwin_text_proc,          112+10+20+34+1-4,    42+2,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                            NULL,   NULL                  },
     //22
-    { jwin_droplist_proc,      112+10+20+34-4,    10+47+40-5+7-5,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &screenscript_list,                   NULL,   NULL 				   },
+    { jwin_droplist_proc,      112+10+20+34-4,    42+10,     120,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &screenscript_list,                   NULL,   NULL 				   },
    
     { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
     { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
@@ -10766,6 +10767,7 @@ void EditScreenScript()
 	
 	char initd[8][16];
 	int script = 0;
+	build_biscreens_list();
 	memset(initd, 0, sizeof(initd));
 	for ( int q = 0; q < biscreens_cnt; q++)
 	{
@@ -10791,15 +10793,16 @@ void EditScreenScript()
         
 	do
 	{
-		ret = zc_popup_dialog(screenscript_dlg,65);
-		script = biscreens[screenscript_dlg[22].d1].second + 1;
+		ret = zc_popup_dialog(screenscript_dlg,23);
+		build_biscreens_list();
+		Map.CurrScr()->script = biscreens[screenscript_dlg[22].d1].second + 1;
 		
 		
 		for(int j=0; j<8; j++)
 			Map.CurrScr()->screeninitd[j] = vbound(ffparse(initd[j]),-2147483647, 2147483647);
 		
 	}
-	while(ret==23);//press OK
+	while(ret==22);//press OK
 }
 
 int onScreenScript()
