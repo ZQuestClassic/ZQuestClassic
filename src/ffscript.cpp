@@ -22515,11 +22515,11 @@ void FFScript::do_strncmp()
 	long arrayptr_a = ri->d[0]/10000;
 	long arrayptr_b = ri->d[3]/10000;
 	long len = ri->d[2]/10000;
-	for ( int q = 0; q < 8; q++ )
-	{
-		Z_scripterrlog("(ri->d[%d]) is %d\n", q, (ri->d[q]/10000));
-		
-	}
+	//for ( int q = 0; q < 8; q++ )
+	//{
+	//	Z_scripterrlog("(ri->d[%d]) is %d\n", q, (ri->d[q]/10000));
+	//	
+	//}
 	
 	string strA;
 	string strB;
