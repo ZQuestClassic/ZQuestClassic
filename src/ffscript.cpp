@@ -16079,6 +16079,7 @@ int run_script(const byte type, const word script, const long i)
     
     switch(type)
     {
+	    //Z_scripterrlog("The script type is: %d\n", type);
 	    case SCRIPT_FFC:
 	    {
 		ri = &(ffcScriptData[i]);
@@ -16386,6 +16387,7 @@ int run_script(const byte type, const word script, const long i)
 	    
 	    case SCRIPT_SCREEN:
 	    {
+		Z_scripterrlog("FFScript found a screen script to run, id: %d\n", script);
 		ri = &(screenScriptData);
 		curscript = screenscripts[script];
 		stack = &(screen_stack);
@@ -18565,6 +18567,10 @@ int ffscript_engine(const bool preload)
             
         ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
         tmpscr->initialized[i] = true;
+    }
+    if ( tmpscr->script != 0 )
+    {
+	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);    
     }
     
     return 0;

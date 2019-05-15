@@ -3838,13 +3838,16 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     tmpscr[tmp].cset = TheMaps[currmap*MAPSCRS+scr].cset;
     
     //screen / screendata script
+    FFCore.clear_screen_stack();
+    screenScriptData.Clear();
     tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
+    al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
     for ( int q = 0; q < 8; q++ )
     {
 	tmpscr[tmp].screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
     }
-    FFCore.clear_screen_stack();
-    screenScriptData.Clear();
+    
+    
     
     tmpscr[tmp].data.resize(_mapsSize, 0);
     tmpscr[tmp].sflag.resize(_mapsSize, 0);
