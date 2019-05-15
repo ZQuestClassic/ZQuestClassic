@@ -3327,10 +3327,8 @@ enum ASM_DEFINE
 #define SIMULATEKEYPRESS 		0x1351
 #define KEYBINDINGS 		0x1352
 
-#define SCREENSCRIPT 		0x1353
-#define SCREENINITD 		0x1354
-#define MAPDATASCRIPT 		0x1355
-#define MAPDATAINITD 		0x1356
+#define MAPDATASCRIPT 		0x1353
+#define MAPDATAINITD 		0x1354
 
 //bytecode
 
@@ -3338,7 +3336,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1357
+#define NUMVARIABLES         	0x1355
 
 // Script types
 
