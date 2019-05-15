@@ -8,8 +8,9 @@ Fully implemented Screen Scripts (screendata script).
 	The scripts are set via the menu Screen->Script.
 	Each screen has 8 InitD values, and one Script value.
 	Scripts run similar to ffcs, but always on screen init. 
+	V_MAPS is now 20.
+	Updated the quest loader, and the quest reader, for the new screen/maps variables.
 	( ZoriaRPG, 15th May, 2019 )
-
 
 Set saved=false when editing Quest->Misc[32]. 
 	Without this, the SAVE menu option is disabled after editing Game->Misc[].
