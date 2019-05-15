@@ -22513,7 +22513,7 @@ void FFScript::do_strncmp()
 {
 	
 	long arrayptr_a = ri->d[0]/10000;
-	long arrayptr_b = ri->d[1]/10000;
+	long arrayptr_b = ri->d[3]/10000;
 	long len = ri->d[2]/10000;
 	for ( int q = 0; q < 8; q++ )
 	{
