@@ -16392,7 +16392,7 @@ int run_script(const byte type, const word script, const long i)
 		for ( int q = 0; q < 8; q++ ) 
 		{
 			//ri->d[q] = (int)GuyH::getNPC()->initD[q];
-			ri->d[q] = tmpscr->screeninitd[q]// * 10000;
+			ri->d[q] = tmpscr->screeninitd[q];// * 10000;
 			//ri->d[q] = guys.spr(GuyH::getNPCIndex(i))->initD[q]; //w->initiald[q];
 		}
 		
