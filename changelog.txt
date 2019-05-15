@@ -2,6 +2,131 @@
 
 //Alpha 22
 
+Added Screen->Script, Screen->InitD[8], mapdata->Script, and mapdata->InitD[8]
+	to ZScript. Arrays may not be properly deallocated on changing Screen->Script.
+Fully implemented Screen Scripts (screendata script).
+	The scripts are set via the menu Screen->Script.
+	Each screen has 8 InitD values, and one Script value.
+	Scripts run similar to ffcs, but always on screen init. 
+	( ZoriaRPG, 15th May, 2019 )
+
+
+Set saved=false when editing Quest->Misc[32]. 
+	Without this, the SAVE menu option is disabled after editing Game->Misc[].
+	( ZoriaRPG, 14th May, 2019 )
+	
+Disabled `inline` for user-functions, it isn't going to be this easy.
+	Did several optimizations, and an amount of work on the system, regardless.
+Parser: Inline `TraceS()`
+	For internal function inline testing purposes. Works correctly.
+Revert previous commit; incorrect diagnosis 
+	The commit previously reverted was not the cause of the issue, and
+	should not have been reverted. This restores the original commit.
+Revert "Parser: Fix duplicate function ZASM"
+	This caused an unexpected issue, and needs to be reverted until said
+	issue is fixed.
+Parser: Inline internal functions, a start at least.
+	Inlined `Trace()`, saving 5 opcodes.
+	Functions can now be made inline by giving them the flag `FUNCFLAG_INLINE` in their GlobalSymbols.cpp table.
+		Note: The function must actually be edited to work with `inline`. Mostly, `OReturn` must be commented out.
+Parser: Fix duplicate function ZASM 
+	Functions declared at the file scope were having two copies of their ZASM inserted into the quest, due to a duplication issue with RootScope/FileScope. 
+	This has been rectified.
+	( Venrob, 14th May, 2019 )
+
+Flipped the behaviour of qr_OLDQUESTMISC in ffscript.cpp
+Added a ZScript RUle that Game->Misc is not / or * 10000.
+	This is for older 2.55 quest scripts.
+Add Game->Misc Config Panel
+	This is under the Game menu as 'Misc[]', and it allows the user
+	to set up to 32 global constants/vars, each with a label, accessed by
+	scripts as Game->Misc[32].
+	( ZoriaRPG, 13th May, 2019 )
+
+Restructured GlobalSymbols.cpp, assing the number of params for each
+	function, function flags, and general table clean-up.
+	( Venrob, 13th May, 2019 )
+	
+Parser: Some progress debugging `inline`
+	( Venrob, 12th May, 2019 )
+
+Parser: Complete `inline`, option FORCE_INLINE 
+	Option FORCE_INLINE: if on, all functions that can be inline will be made so. Default off.
+	By placing `inline` before a function, the function's assembly will be copied to the locations it is called at. This can help with script speed.
+	( Venrob, 11th May, 2019 )
+	
+Fixed the bounding of npc->Attributes between indicies [0] and [15].
+	It is now [0]and [31], as intended.
+Fixed the display of the QR in Quest->Rules->Enemies->2
+	Added a bit check to a second out of bounds model.
+Add QR to allow npcs to go out of bounds.
+Added logging to bitmap->GetPixel
+	( ZoriaRPG, 11th May, 2019 )
+
+Begin adding rgbdata and palette; revise bitmap->GetPixel
+Rename bitmap->Mode7 to bitmap->DrawPlane
+Revised bitmap->Mode7
+	( ZoriaRPG, 10th May, 2019 )
+	
+Parser: Partially-functional `inline` 
+	`return` is completely nonfunctional. There is still a lot of work left to get this working.
+Preliminary setup of 'inline', add func flags 
+	Function declarations now hold flags. Function objects now hold flags, which are recieved from the function decl object.
+	Added function flag 'invalid' for error checking
+	Added function flag 'inline', for inline functions. Currently does nothing.
+	( Venrob, 10th May, 2019 )
+	
+Fix: Repeat incorrect recursion
+	( Venrob, 9th May, 2019 )
+	
+Fix: Blit to destBMP, not subBMP
+Remove duplicate token entry.
+Changelog: Added bitmap->Mode7(16 args)
+//sdci[1]=layer
+	//sdci[2]=bitmap target
+		//
+		//	-2 is the current Render Target
+		//	-1, this is the screen (framebuf).
+		//	0: Render target 0
+		//	1: Render target 1
+		//	2: Render target 2
+		//	3: Render target 3
+		//	4: Render target 4
+		//	5: Render target 5
+		//	6: Render target 6
+		//	Otherwise: The pointer to a bitmap.
+
+	//sdci[3]=sourcex
+	//sdci[4]=sourcey
+	//sdci[5]=sourcew
+	//sdci[6]=sourceh
+
+	//sdci[7]=destw
+	//sdci[8]=desth
+	//sdci[9]=angle
+	//scdi[10] = pivot cx
+	//sdci[11] = pivot cy
+	//sdci[12] = space Z
+	//sdci[13] = horizon
+	//scdi[14] = scale X
+	//scdi[15] = scale Y
+	//sdci[16] = masked?
+	//sdci[17] Bitmap Pointer
+	( ZoriaRPG, 9th May, 2019 )
+
+Fix: Forgotten field initializers
+Added `repeat(const int){}`
+Parser: Make `syncDisable()` static
+Added `unless`, as opposite of `if` 
+	( Venrob, 8th May, 2019 )
+
+Added bitmap->DrawLayerSolid(), DrawLayerSolidity(), 
+	DrawLayerComboTypes, DrawScreenComboFlags(), and DrawScreenComboIFlags() to ZScript.
+	( ZoriaRPG, 7th May, 2019 )
+
+Fixed crash when trying to load a bitmap file that does not exist.
+Added Scrolling.zh to test_scripts/dmap_scripts
+Corrected bitmap pointer for Graphics->GetPixel.
 Add Graphics->GetPixel(bitmap, x, y) to ZScript
 Add bitmap->DrawScreenSolid()
 	This draws a block in colour 1, if the 8x8 pixel space is solid.
