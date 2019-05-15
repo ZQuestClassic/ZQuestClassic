@@ -956,6 +956,28 @@ of iterations is known at compile-time.
 //////////////
 //  Global  //
 //////////////
+
+int strcmp(string_a[], string_b[]);
+ * Iterates through string_a and string_b until a character is found which is not the same in
+ * both strings, and then returns > 0 if the character is larger in str1, and < 0 if it is
+ * larger in str2. Returns 0 if the strings are equal.
+ * The old string.zh version of this function is still available as:
+ * std::string::strcmp(*a, *b).
+ 
+int strncmp(string_a[], string_b[], int num_chars);
+ * As strcmp(*a, *b), but compares only the first nth characters, specified as num_chars.
+ * The old string.zh version of this function is still available as:
+ * std::string::strncmp(*a, *b, int).
+
+int strlen(string[]);
+ * Returns the length of a string in characters.
+ * The old string.zh version of this function is still available as:
+ * std::string::strlen(*a).
+
+void strcpy(string_dest[], string_src[]);
+ * Copies string string_src into string_dest.
+ * The old string.zh version of this function is still available as:
+ * std::string::strcpy(*a,*b).
  
 int GetSystemTime(int index);
  * Returns the time (Real Time Clock) data from the system on which ZC is running.
