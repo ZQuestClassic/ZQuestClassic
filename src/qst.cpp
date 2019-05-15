@@ -12753,7 +12753,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 	} 
 	for ( int q = 0; q < 8; q++)
 	{
-		if(!p_igetl(&(temp_mapscr->initd[q]),f,true))
+		if(!p_igetl(&(temp_mapscr->screeninitd[q]),f,true))
 		{
 			return qe_invalid;
 		}

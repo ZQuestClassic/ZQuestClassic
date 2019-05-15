@@ -1969,7 +1969,7 @@ struct mapscr
     
     
     word script;
-    long initd[8];
+    long screeninitd[8];
     
     void zero_memory()
     {
@@ -2127,7 +2127,7 @@ struct mapscr
         for ( int q = 0; q < 10; q++ ) new_item_y[q] = 0;
 	
 	script = 0;
-	for ( int q = 0; q < 8; q++) initd[q] = 0;
+	for ( int q = 0; q < 8; q++) screeninitd[q] = 0;
         
         data.assign(176,0);
         sflag.assign(176,0);

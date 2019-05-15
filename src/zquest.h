@@ -757,6 +757,7 @@ int d_combo_proc(int msg,DIALOG *d,int c);
 const char *doorcombosetlist(int index, int *list_size);
 int onDoors();
 int onScrData();
+int onScreenScript();
 const char *nslist(int index, int *list_size);
 const char *flaglist(int index, int *list_size);
 const char *roomslist(int index, int *list_size);

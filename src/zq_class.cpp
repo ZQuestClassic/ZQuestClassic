@@ -8495,7 +8495,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
     } 
     for ( int q = 0; q < 8; q++ )
     {
-	if(!p_iputl(screen.initd[q],f))
+	if(!p_iputl(screen.screeninitd[q],f))
 	{
 		return qe_invalid;
 	} 
