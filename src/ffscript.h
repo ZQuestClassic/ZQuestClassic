@@ -286,7 +286,7 @@ byte FF_link_swim_speed;
 byte subscreen_scroll_speed;
 
 void set_sarg1(int v);
-
+void clear_screen_stack();
 void setSubscreenScrollSpeed(byte n);
 int getSubscreenScrollSpeed();
 void do_fx_zap(const bool v);
@@ -656,6 +656,7 @@ static void set_screen_d(long index1, long index2, int val);
 static int whichlayer(long scr);
 static void clear_ffc_stack(const byte i);
 static void clear_global_stack();
+
 static void do_zapout();
 static void do_zapin();
 static void do_openscreen();
@@ -1286,6 +1287,7 @@ enum __Error
 
 extern long ffmisc[32][16];
 extern refInfo ffcScriptData[32];
+extern refInfo screenScriptData;
 
 extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
