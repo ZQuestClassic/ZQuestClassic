@@ -4352,6 +4352,14 @@ case SCREENDATAFLAGS:
         ret=tmpscr->door[ri->d[0]/10000]*10000;
         break;
     
+    case SCREENSCRIPT:
+        ret=tmpscr->script*10000;
+        break;
+    
+    case MAPDATAINITD:
+        ret=tmpscr->screeninitd[ri->d[0]/10000]*10000;
+        break;
+    
     
     //These use the same method as GetScreenD -Z
     case SCREENWIDTH:
@@ -4951,6 +4959,7 @@ case MAPDATAWARPARRIVALX: 	GET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); b
 case MAPDATAWARPARRIVALY: 	GET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case MAPDATAPATH: 		GET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
 case MAPDATASIDEWARPSC: 	GET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
+case MAPDATAINITD:	 	GET_MAPDATA_VAR_INDEX32(screeninitd, "InitD", 8); break;	//w, 4 of these
 case MAPDATASIDEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 case MAPDATASIDEWARPINDEX: 	GET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
 case MAPDATAUNDERCOMBO: 	GET_MAPDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
@@ -4970,6 +4979,7 @@ case MAPDATASECRETCOMBO: 	GET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 12
 case MAPDATASECRETCSET: 	GET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 case MAPDATASECRETFLAG: 	GET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
 case MAPDATAVIEWX: 		GET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+case MAPDATASCRIPT: 		GET_MAPDATA_VAR_INT32(script, "Script"); break;	//W
 case MAPDATAVIEWY: 		GET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
 case MAPDATASCREENWIDTH: 	GET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 case MAPDATASCREENHEIGHT: 	GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
@@ -10388,6 +10398,29 @@ break;
         FFScript::set_screen_d(ri->d[1]/10000 + ((ri->d[0]/10000)<<7), ri->d[2]/10000, value);
         break;
         
+    case SCREENSCRIPT:
+    {
+	//for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+        //{
+        //    if(arrayOwner[i]==ri->ffcref)
+        //        deallocateArray(i);
+        //}
+        
+        
+        //for(int i=0; i<8; i++)
+        //    tmpscr->initd[q] = 0;
+	screenScriptData.Clear();
+	tmpscr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+        
+       
+        break;
+        
+    }
+    
+    case MAPDATAINITD:
+        tmpscr->screeninitd[ri->d[0]/10000]=value/10000;
+        break;
+    
     case SCRDOORD:
         tmpscr->door[ri->d[0]/10000]=value/10000;
         putdoor(scrollbuf,0,ri->d[0]/10000,value/10000,true,true);
@@ -10791,6 +10824,7 @@ case MAPDATAWARPARRIVALX: 	SET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); b
 case MAPDATAWARPARRIVALY: 	SET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case MAPDATAPATH: 		SET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
 case MAPDATASIDEWARPSC: 	SET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
+case MAPDATAINITD:	 	SET_MAPDATA_VAR_INDEX32(screeninitd, "InitD", 8); break;	//w, 4 of these
 case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 case MAPDATASIDEWARPINDEX: 	SET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
 case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
@@ -10813,6 +10847,33 @@ case MAPDATASECRETCOMBO: 	SET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 12
 case MAPDATASECRETCSET: 	SET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 case MAPDATASECRETFLAG: 	SET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
 case MAPDATAVIEWX: 		SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+case MAPDATASCRIPT:
+{
+	if ( ri->mapsref == LONG_MAX ) 
+	{ 
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Script"); 
+		break; 
+	} 
+	else 
+	{ 
+		mapscr *m = &TheMaps[ri->mapsref];
+		//for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+		//{
+		//    if(arrayOwner[i]==ri->ffcref)
+		//        deallocateArray(i);
+		//}
+        
+        
+		//for(int i=0; i<8; i++)
+		//    tmpscr->initd[q] = 0;
+	
+		
+		screenScriptData.Clear();	
+		m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+	} 
+	break;
+	
+}
 case MAPDATAVIEWY: 		SET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
 case MAPDATASCREENWIDTH: 	SET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 case MAPDATASCREENHEIGHT: 	SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B

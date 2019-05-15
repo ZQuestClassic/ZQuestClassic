@@ -1848,6 +1848,11 @@ script_variable variable_list[]=
 	{"SIMULATEKEYPRESS", SIMULATEKEYPRESS, 0, 0 },
 	{"KEYBINDINGS", KEYBINDINGS, 0, 0 },
 	
+	{"SCREENSCRIPT", SCREENSCRIPT, 0, 0 },
+	{"SCREENINITD", SCREENINITD, 0, 0 },
+	{"MAPDATASCRIPT", MAPDATASCRIPT, 0, 0 },
+	{"MAPDATAINITD", MAPDATAINITD, 0, 0 },
+	
 	
 	{ " ",                       -1,             0,             0 }
 };
