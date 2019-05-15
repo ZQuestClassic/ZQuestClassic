@@ -6716,15 +6716,18 @@ void set_register(const long arg, const long value)
         }
         
         tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
-        
+        if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+	{
+		for(int i=0; i<2; i++)
+			tmpscr->inita[ri->ffcref][i] = 0;
+            
+		for(int i=0; i<8; i++)
+			tmpscr->initd[ri->ffcref][i] = 0;
+	}
         for(int i=0; i<16; i++)
             ffmisc[ri->ffcref][i] = 0;
             
-        for(int i=0; i<2; i++)
-            tmpscr->inita[ri->ffcref][i] = 0;
-            
-        for(int i=0; i<8; i++)
-            tmpscr->initd[ri->ffcref][i] = 0;
+       
             
         ffcScriptData[ri->ffcref].Clear();
         tmpscr->initialized[ri->ffcref] = false;
@@ -8639,7 +8642,14 @@ void set_register(const long arg, const long value)
 	
 	case LWPNSCRIPT:
         if(0!=(s=checkLWpn(ri->lwpn,"Script")))
+	{
 		(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		{
+			for(int q=0; q<8; q++)
+				(((weapon*)(s))->weap_initd[q]) = 0;
+		}
+	}
             
         break;
 	
@@ -8936,8 +8946,14 @@ void set_register(const long arg, const long value)
 	
 	case EWPNSCRIPT:
         if(0!=(s=checkEWpn(ri->ewpn,"Script")))
+	{
 		(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
-            
+		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		{
+			for(int q=0; q<8; q++)
+				(((weapon*)(s))->weap_initd[q]) = 0;
+		}
+	}
         break;
 	
 	case EWPNINITD:
@@ -9345,6 +9361,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	{
 		//enemy *e = (enemy*)guys.spr(ri->guyref);
 		//e->initD[a] = value; 
+		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		{
+			for(int q=0; q<8; q++)
+				GuyH::getNPC()->initD[q] = 0;
+		}
 		GuyH::getNPC()->script = vbound((value/10000), 0, NUMSCRIPTGUYS-1);
 	}
     }
@@ -10406,9 +10427,11 @@ break;
         //        deallocateArray(i);
         //}
         
-        
-        //for(int i=0; i<8; i++)
-        //    tmpscr->initd[q] = 0;
+        if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+	{
+		for(int q=0; q<8; q++)
+			tmpscr->screeninitd[q] = 0;
+	}
 	screenScriptData.Clear();
 	tmpscr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
         
@@ -10863,10 +10886,11 @@ case MAPDATASCRIPT:
 		//        deallocateArray(i);
 		//}
         
-        
-		//for(int i=0; i<8; i++)
-		//    tmpscr->initd[q] = 0;
-	
+		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		{
+			for(int q=0; q<8; q++)
+				tmpscr->screeninitd[q] = 0;
+		}
 		
 		screenScriptData.Clear();	
 		m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
@@ -16805,6 +16829,17 @@ int run_script(const byte type, const word script, const long i)
 		case ARCTANR:
 		    do_arctan();
 		    break;
+		
+		case STRINGCOMPARE:
+			FFCore.do_strcmp();
+			break;
+		
+		
+		case STRINGNCOMPARE:
+			FFCore.do_strncmp();
+			break;
+		
+		
 		    
 		case ABSR:
 		    do_abs(false);
@@ -22460,6 +22495,37 @@ bool FFScript::checkExtension(std::string &filename, const std::string &extensio
     int dot = filename.find_last_of(".");
     std::string exten = (dot == std::string::npos ? "" : filename.substr(dot, filename.length() - dot));
     return exten == extension;
+}
+
+void FFScript::do_strcmp()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strcmp(strA.c_str(), strB.c_str()) * 10000));
+}
+
+void FFScript::do_strncmp()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	long len = ri->d[2]/10000;
+	for ( int q = 0; q < 8; q++ )
+	{
+		Z_scripterrlog("(ri->d[%d]) is %d\n", q, (ri->d[q]/10000));
+		
+	}
+	
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strncmp(strA.c_str(), strB.c_str(), len) * 10000));
 }
 
 void FFScript::do_npc_canmove(const bool v)

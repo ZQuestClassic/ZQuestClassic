@@ -7528,6 +7528,29 @@ namespace ZScript
 		}
 	};
 	
+	
+	class OStrCmp : public UnaryOpcode
+	{
+	public:
+		OStrCmp(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OStrCmp(a->clone());
+		}
+	};
+	class OStrNCmp : public UnaryOpcode
+	{
+	public:
+		OStrNCmp(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OStrNCmp(a->clone());
+		}
+	};
+	
+	
 	class OReturn : public Opcode
 	{
 	public:

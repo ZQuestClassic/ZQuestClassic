@@ -4469,10 +4469,24 @@ string OBMPDrawScreenCIFlagRegister::toString()
     return "BMPDRAWLAYERCIFLAGR";
 }
 
+
+string OStrCmp::toString()
+{
+    return "STRINGCOMPARE " + getArgument()->toString();
+}
+
+
+string OStrNCmp::toString()
+{
+    return "STRINGNCOMPARE " + getArgument()->toString();
+}
+
+
 string OReturn::toString()
 {
 	return "RETURN";
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 

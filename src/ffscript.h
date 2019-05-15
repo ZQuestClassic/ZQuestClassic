@@ -195,7 +195,8 @@ void initRunString();
 void updateRunString();
 void updateIncludePaths();
 bool checkExtension(std::string &filename, const std::string &extension);
-
+void do_strcmp();
+void do_strncmp();
 /*
 long getQuestHeaderInfo(int type)
 {
@@ -2132,6 +2133,8 @@ enum ASM_DEFINE
 	BMPMODE7,
 	BITMAPGETPIXEL,
 	NOP,
+	STRINGCOMPARE,
+	STRINGNCOMPARE,
 	NUMCOMMANDS           //0x0147
 };
 

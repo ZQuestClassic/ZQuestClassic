@@ -552,6 +552,8 @@ static AccessorTable GlobalTable[] =
 	{ "Cos",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Tan",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "ArcTan",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strcmp",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strncmp",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   3,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "ArcSin",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "ArcCos",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "RadianSin",              ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -886,6 +888,33 @@ void GlobalSymbols::generateCode()
         code.push_back(first);
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         code.push_back(new OATanRegister(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int strcmp(*a, *b)
+    {
+	    Function* function = getFunction("strcmp");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        code.push_back(new OStrCmp(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int strncmp(*a, *b, int len)
+    {
+	    Function* function = getFunction("strncmp");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+	code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OStrNCmp(new VarArgument(EXP1)));
         code.push_back(new OReturn());
         function->giveCode(code);
     }
