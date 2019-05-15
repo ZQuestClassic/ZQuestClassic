@@ -172,6 +172,7 @@ long item_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 long link_stack[MAX_SCRIPT_REGISTERS];
 long dmap_stack[MAX_SCRIPT_REGISTERS];
+long screen_stack[MAX_SCRIPT_REGISTERS];
 refInfo ffcScriptData[32];
 
 void clear_ffc_stack(const byte i)
@@ -179,10 +180,17 @@ void clear_ffc_stack(const byte i)
     memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
+
 void clear_global_stack()
 {
     //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
     memset(global_stack, 0, sizeof(global_stack));
+}
+
+void FFScript::clear_screen_stack()
+{
+    //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    memset(screen_stack, 0, sizeof(screen_stack));
 }
 
 void clear_link_stack()
@@ -16071,6 +16079,7 @@ int run_script(const byte type, const word script, const long i)
     
     switch(type)
     {
+	    //Z_scripterrlog("The script type is: %d\n", type);
 	    case SCRIPT_FFC:
 	    {
 		ri = &(ffcScriptData[i]);
@@ -16378,12 +16387,17 @@ int run_script(const byte type, const word script, const long i)
 	    
 	    case SCRIPT_SCREEN:
 	    {
-		ri = &screenScriptData;
-		
+		Z_scripterrlog("FFScript found a screen script to run, id: %d\n", script);
+		ri = &(screenScriptData);
 		curscript = screenscripts[script];
-		    //should this become ri = &(globalScriptData[screen_slot]);
-		stack = &global_stack[GLOBAL_STACK_SCREEN];
-		    //
+		stack = &(screen_stack);
+		for ( int q = 0; q < 8; q++ ) 
+		{
+			//ri->d[q] = (int)GuyH::getNPC()->initD[q];
+			ri->d[q] = tmpscr->screeninitd[q];// * 10000;
+			//ri->d[q] = guys.spr(GuyH::getNPCIndex(i))->initD[q]; //w->initiald[q];
+		}
+		
 	    }
 	    break;
 	    
@@ -18514,6 +18528,9 @@ int run_script(const byte type, const word script, const long i)
 			//w->weaponscript = 0;
 			break;
 		}
+		case SCRIPT_SCREEN:
+		    tmpscr->script = 0;
+		    break;
         }
     }
     else
@@ -18553,6 +18570,10 @@ int ffscript_engine(const bool preload)
             
         ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
         tmpscr->initialized[i] = true;
+    }
+    if ( tmpscr->script != 0 )
+    {
+	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);    
     }
     
     return 0;

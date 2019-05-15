@@ -12746,6 +12746,20 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 		} 
 	}
     }
+    if ( version >= 20 )
+    {
+	if(!p_igetw(&(temp_mapscr->script),f,true))
+	{
+		return qe_invalid;
+	} 
+	for ( int q = 0; q < 8; q++)
+	{
+		if(!p_igetl(&(temp_mapscr->screeninitd[q]),f,true))
+		{
+			return qe_invalid;
+		}
+	}		
+    }
     
     //Dodongos in 2.10 used the boss roar, not the dodongo sound. -Z
     //May be any version before 2.11. -Z

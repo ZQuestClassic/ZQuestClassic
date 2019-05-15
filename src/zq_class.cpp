@@ -8489,7 +8489,18 @@ int writemapscreen(PACKFILE *f, int i, int j)
 		return qe_invalid;
 	} 
     }
-    
+    if(!p_iputw(screen.script,f))
+    {
+		return qe_invalid;
+    } 
+    for ( int q = 0; q < 8; q++ )
+    {
+	if(!p_iputl(screen.screeninitd[q],f))
+	{
+		return qe_invalid;
+	} 
+	    
+    }
     
     return qe_OK;
 }

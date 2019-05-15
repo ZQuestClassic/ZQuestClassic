@@ -33,6 +33,8 @@
 #include "link.h"
 #include "guys.h"
 #include "ffscript.h"
+extern refInfo screenScriptData;
+extern FFScript FFCore;
 #include "particles.h"
 #include "mem_debug.h"
 
@@ -3834,6 +3836,18 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     tmpscr[tmp].data = TheMaps[currmap*MAPSCRS+scr].data;
     tmpscr[tmp].sflag = TheMaps[currmap*MAPSCRS+scr].sflag;
     tmpscr[tmp].cset = TheMaps[currmap*MAPSCRS+scr].cset;
+    
+    //screen / screendata script
+    FFCore.clear_screen_stack();
+    screenScriptData.Clear();
+    tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
+    al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
+    for ( int q = 0; q < 8; q++ )
+    {
+	tmpscr[tmp].screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
+    }
+    
+    
     
     tmpscr[tmp].data.resize(_mapsSize, 0);
     tmpscr[tmp].sflag.resize(_mapsSize, 0);

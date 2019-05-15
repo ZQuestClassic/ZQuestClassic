@@ -832,6 +832,9 @@ static MENU data_menu[] =
     { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
     { (char *)"&Enemies\tE",                onEnemies,                 NULL,                     0,            NULL   },
     { (char *)"&Palette\tF4",               onScreenPalette,           NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Script",                   onScreenScript,                    NULL,                     0,            NULL   },
+    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -10695,6 +10698,119 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,     165,  158,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "Maze Overrides Side Warps", NULL, NULL },
     { NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
+
+
+
+const char *screenscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = biscreens_cnt;
+        return NULL;
+    }
+    
+    return biscreens[index].first.c_str();
+}
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData screenscript_list(screenscriptdroplist, &pfont);
+
+
+#include "zq_files.h"
+//to do: Make string boxes larger, and split into two tabs. 
+static DIALOG screenscript_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
+    
+{ jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Game->Misc[]", NULL, NULL },
+    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         5,   26,   300,  202,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
+    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+    
+    //5
+    { jwin_text_proc,           10,    42+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[0]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+20+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+40+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[2]:",                      NULL,   NULL                  },
+    
+    
+    //8
+    { jwin_text_proc,           10,    42+60+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[3]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+80+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[4]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+100+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[5]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+120+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[6]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+140+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[7]:",                      NULL,   NULL                  },
+    
+    //13
+     { jwin_edit_proc,     60,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+     { jwin_edit_proc,     60,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //18
+    { jwin_edit_proc,     60,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //21
+    { jwin_text_proc,          112+10+20+34+1-4,    42+2,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                            NULL,   NULL                  },
+    //22
+    { jwin_droplist_proc,      112+10+20+34-4,    42+10,     120,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &screenscript_list,                   NULL,   NULL 				   },
+   
+    { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
+    { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
+    
+    { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void EditScreenScript()
+{
+	
+	char initd[8][16];
+	int script = 0;
+	build_biscreens_list();
+	memset(initd, 0, sizeof(initd));
+	for ( int q = 0; q < biscreens_cnt; q++)
+	{
+		if(biscreens[q].second == Map.CurrScr()->script -1)
+		{
+			script = q; //sprite script goes after this
+			//al_trace("Item has sprite script: %d\n", q);
+		}
+		
+	}
+	screenscript_dlg[22].d1 = script;
+	
+	for ( int q = 0; q < 8; q++ )
+	{
+	    
+		sprintf(initd[q],"%.4f",Map.CurrScr()->screeninitd[q]/10000.0);
+	 
+		screenscript_dlg[13+q].dp = initd[q];
+	}
+	int ret;
+	if(is_large)
+		large_dialog(screenscript_dlg);
+        
+	do
+	{
+		ret = zc_popup_dialog(screenscript_dlg,23);
+		build_biscreens_list();
+		Map.CurrScr()->script = biscreens[screenscript_dlg[22].d1].second + 1;
+		
+		
+		for(int j=0; j<8; j++)
+			Map.CurrScr()->screeninitd[j] = vbound(ffparse(initd[j]),-2147483647, 2147483647);
+		
+	}
+	while(ret==22);//press OK
+}
+
+int onScreenScript()
+{
+    EditScreenScript();
+    saved=false;
+    return D_O_K;
+}
 
 int onScrData()
 {
