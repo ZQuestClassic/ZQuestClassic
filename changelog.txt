@@ -1,7 +1,10 @@
 //2.55 and 2.54 Changes
 
-//Alpha 22
+//Alpha 23
+Fix Dialogue Information (display text) for Screen Script dialogue.
+	( ZoriaRPG, 15th May, 2019 )
 
+//Alpha 22
 Added Screen->Script, Screen->InitD[8], mapdata->Script, and mapdata->InitD[8]
 	to ZScript. Arrays may not be properly deallocated on changing Screen->Script.
 Fully implemented Screen Scripts (screendata script).
