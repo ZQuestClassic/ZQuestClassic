@@ -1881,6 +1881,16 @@ void ASTOptionValue::execute(ASTVisitor& visitor, void* param)
 	visitor.caseOptionValue(*this, param);
 }
 
+optional<long> ASTOptionValue::getCompileTimeValue(
+	CompileErrorHandler* errorHandler, Scope* scope) const
+{
+	if (!scope) return nullopt;
+	if (optional<long> value = lookupOption(*scope, option))
+		return value;
+	errorHandler->handleError(CompileError::UnknownOption(this, name));
+	return nullopt;
+}
+
 std::string ASTOptionValue::asString() const
 {
 	return "OPTION_VALUE(" + *option.getName() + ")";

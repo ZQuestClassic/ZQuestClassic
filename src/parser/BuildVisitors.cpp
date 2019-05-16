@@ -1608,7 +1608,7 @@ void BuildOpcodes::arrayLiteralFree(
 void BuildOpcodes::caseOptionValue(ASTOptionValue& host, void*)
 {
 	addOpcode(new OSetImmediate(new VarArgument(EXP1),
-	                            new LiteralArgument(*host.value)));
+	                            new LiteralArgument(*host.getCompileTimeValue(this, scope))));
 }
 
 /////////////////////////////////////////////////////////////////////////////////

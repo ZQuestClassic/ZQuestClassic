@@ -1707,6 +1707,10 @@ namespace ZScript
 		virtual bool isConstant() const {return true;}
 		bool isLiteral() const {return false;} //Despite being an `ASTLiteral`, this is NOT a literal. Why is this under ASTLiteral? -V
 
+		
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
+				const;
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
 			return &DataType::FLOAT;}
 

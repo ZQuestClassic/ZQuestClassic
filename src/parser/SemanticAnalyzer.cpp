@@ -1237,10 +1237,11 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 
 void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 {
+	/* handled in `ASTOptionValue->getCompileTimeValue()` now
 	if (optional<long> value = lookupOption(*scope, host.option))
 		host.value = value;
 	else
-		handleError(CompileError::UnknownOption(&host, host.name));
+		handleError(CompileError::UnknownOption(&host, host.name));*/
 }
 
 void SemanticAnalyzer::checkCast(
