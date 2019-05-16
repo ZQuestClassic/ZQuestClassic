@@ -15026,8 +15026,17 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		}
 		else
 		{
-			Z_scripterrlog("Invalid Warp Return Square Type (%d) provided as an arg to Link->WarpEx().\n",warpDestY);
-			return false;
+			if ( (unsigned)warpDestY == 5 )
+			{
+				//Pit warp
+				wx = Link.getX();
+				wy = Link.getY();
+			}
+			else
+			{
+				Z_scripterrlog("Invalid Warp Return Square Type (%d) provided as an arg to Link->WarpEx().\n",warpDestY);
+				return false;
+			}
 		}
 	}
 	else 
