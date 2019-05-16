@@ -12935,6 +12935,14 @@ void do_rshift(const bool v)
 }
 
 ///----------------------------------------------------------------------------------------------------//
+//Casting
+
+void do_boolcast(const bool isFloat)
+{
+	set_register(sarg1, (get_register(sarg1) ? (isFloat ? 1 : 10000) : 0));
+}
+
+///----------------------------------------------------------------------------------------------------//
 //Gameplay functions
 
 void do_warp(bool v)
@@ -16642,6 +16650,23 @@ int run_script(const byte type, const word script, const long i)
 		    set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
 					 || (ri->scriptflag & TRUEFLAG)) ? 1 : 0);
 		    break;
+		
+		case SETTRUEI:
+		    set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 10000 : 0);
+		    break;
+		    
+		case SETFALSEI:
+		    set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 10000);
+		    break;
+		    
+		case SETMOREI:
+		    set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 10000 : 0);
+		    break;
+		    
+		case SETLESSI:
+		    set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
+					 || (ri->scriptflag & TRUEFLAG)) ? 10000 : 0);
+		    break;
 		    
 		case NOT:
 		    do_not(false);
@@ -16753,6 +16778,13 @@ int run_script(const byte type, const word script, const long i)
 		    do_getitemscript();
 		    break;
 		    
+		case CASTBOOLI:
+			do_boolcast(false);
+			break;
+			
+		case CASTBOOLF:
+			do_boolcast(true);
+			break;
 		    
 		case ADDV:
 		    do_add(true);

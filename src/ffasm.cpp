@@ -801,8 +801,14 @@ script_command command_list[NUMCOMMANDS+1]=
       { "STRINGNCOMPARE",		       1,   0,   0,   0},
       { "STRINGLENGTH",                2,   0,   0,   0},
       { "STRINGCOPY",          2,   0,   0,   0},
- 
-      { "",                    0,   0,   0,   0}
+      { "CASTBOOLI",          1,   0,   0,   0},
+      { "CASTBOOLF",          1,   0,   0,   0},
+    { "SETTRUEI",             1,   0,   0,   0},
+    { "SETFALSEI",            1,   0,   0,   0},
+    { "SETMOREI",             1,   0,   0,   0},
+    { "SETLESSI",             1,   0,   0,   0},
+    
+    { "",                    0,   0,   0,   0}
 };
 
 
