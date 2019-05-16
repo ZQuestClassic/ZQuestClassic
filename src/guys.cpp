@@ -15614,6 +15614,18 @@ bool parsemsgcode()
         getitem(grab_next_argument(), true);
         return true;
         
+    
+    case MSGC_WARP:
+    {
+	int    dmap =  grab_next_argument();
+	int    scrn =  grab_next_argument();
+	int    dx =  grab_next_argument();
+	int    dy =  grab_next_argument();
+	int    wfx =  grab_next_argument();
+	int    sfx =  grab_next_argument();
+	FFCore.warp_link(wtIWARP, dmap, scrn, x, y, wfx, sfx, 0, 0);
+	return true;
+    }
     case MSGC_TAKEITEM:
         takeitem(grab_next_argument());
         return true;
