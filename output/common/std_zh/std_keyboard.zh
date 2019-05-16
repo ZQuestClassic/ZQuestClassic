@@ -60,35 +60,43 @@ key presses from being read as joystick inputs.
 */
 
 //This should be a ZScript function, as Input->ReadKey() -Z
-bool ReadKey(int key){
-	NoAction();
+bool ReadKey(int key)
+{
+	//NoAction();
 	return Input->ReadKey[key];
 }
 
 bool KeyPress(int key){ return Input->Key[key]; }
 
-int GetKeyPress(int key){
+int GetKeyPress(int key)
+{
 	if ( Input->ReadKey[key] ) return KeyToChar(key);
 	else return -1; //Is this safe? Should we return 0, which is null?
 }
 
 //Returns modifier keys
-bool PressShift() { return (( Input->Key[KEY_LSHIFT] || Input->Key[KEY_RSHIFT] ) != 0);}
-bool PressControl(){ return (( Input->Key[KEY_LCONTROL] || Input->Key[KEY_RCONTROL] ) != 0);}
-bool CapsLock() { return Input->Key[KEY_CAPSLOCK]; }
-bool NumLock() { return Input->Key[KEY_NUMLOCK]; }
-bool PressWin() { return (( Input->Key[KEY_LWIN] || Input->Key[KEY_RWIN] ) != 0);}
-bool PressApple() { return (( Input->Key[KEY_LWIN] || Input->Key[KEY_RWIN] ) != 0);}
-bool PressCommand() { return Input->Key[KEY_COMMAND]; }
+bool PressShift() { return (Input->ModifierKeys&KB_SHIFT_FLAG); }
+bool PressControl(){ return (Input->ModifierKeys&KB_CTRL_FLAG); }
+bool PressAlt(){ return (Input->ModifierKeys&KB_ALT_FLAG); }
+bool CapsLock() { return (Input->ModifierKeys&KB_CAPSLOCK_FLAG); }
+bool NumLock()  { return (Input->ModifierKeys&KB_NUMLOCK_FLAG); }
+bool ScrollLock()  { return (Input->ModifierKeys&KB_SCROLOCK_FLAG); }
+bool PressWin()  { return ((Input->ModifierKeys&KB_LWIN_FLAG)||(Input->ModifierKeys&KB_RWIN_FLAG)); }
+bool PressRightWin()  { return (Input->ModifierKeys&KB_RWIN_FLAG); }
+bool PressLeftWin()  { return (Input->ModifierKeys&KB_LWIN_FLAG); }
+bool PressApple() { return (Input->ModifierKeys&KB_COMMAND_FLAG); }
+bool PressCommand()  { return (Input->ModifierKeys&KB_COMMAND_FLAG); }
+bool InAltSequence()  { return (Input->ModifierKeys&KB_INALTSEQ_FLAG); }
+bool AccentShift(int n)  { return (Input->ModifierKeys&(KB_INALTSEQ_FLAG+((n-1)*0x1000))); }
 bool PressAltGR() { return Input->Key[KEY_ALTGR]; }
 
 //Is this Linux only?
-bool PressLinuxMenu() { return Input->Key[KEY_MENU]; }
+bool PressLinuxMenu()  { return (Input->ModifierKeys&KB_MENU_FLAG); }
 
 //Note that these keys are used by the ZC Ui. You can read them this way, but you should not expect
 //a user to utilise them, for input, without some kind of interupt system.
-bool FKey(int f){ if ( f > 0 && f < 13 ) return Input->Key[46+f]; else return false; }
-bool EscKey() { return Input->Key[KEY_ESC]; } 
+bool FKey(int f){ if ( f > 0 && f < 13 ) return Input->ReadKey[46+f]; else return false; }
+bool EscKey() { return Input->ReadKey[KEY_ESC]; } 
 
 
 
@@ -98,7 +106,7 @@ int KeyToChar(int key) { return KeyToChar(key,(Input->ModifierKeys&KB_SHIFT_FLAG
 int KeyToChar(int key, bool shifted) { return KeyToChar(key,shifted,(Input->ModifierKeys&KB_CAPSLOCK_FLAG)); }
 
 int KeyToChar(int key, bool shifted, bool caps){
-	TraceS("KeyToChar bool shifted is: "); TraceB(shifted);
+	//TraceS("KeyToChar bool shifted is: "); TraceB(shifted);
 	if ( shifted )
 	{
 		switch(key)
