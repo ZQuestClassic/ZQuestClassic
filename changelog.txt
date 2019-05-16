@@ -1,6 +1,51 @@
 //2.55 and 2.54 Changes
 
 //Alpha 23
+
+
+Give `namespace` access to parent-scope vars
+	(Removes parent-scope access to namespace-scope vars as a consequence. This is identical to scripts.)
+Fix: OPTION_VALUE is compile-time constant
+Add sanity check on handleError(): Prevent accessing `recursionStack.back()` if `recursionStack` is empty.
+	Fixes crash when array size is > MAX_INT
+Add Opcodes for internal optimization 
+	CASTBOOLI: Sets the value of a register to 1, unless it is currently 0.
+	CASTBOOLF: Sets the value of a register to 0.0001, unless it is currently 0.
+	SETTRUEI: Same as SETTRUE, but uses 1 instead of 0.0001.
+	SETFALSEI: Same as SETFALSE, but uses 1 instead of 0.0001.
+	SETMOREI: Same as SETMORE, but uses 1 instead of 0.0001.
+	SETLESSI: Same as SETLESS, but uses 1 instead of 0.0001.
+
+	Using these opcodes, relational operators have been internally optimized.
+	( Venrob, 16th May, 2019 )
+
+Added a string control code to set Screen->D[reg] = value for any DMap.
+	\19 \dmap \screen \reg \value
+
+	This requires testing as I may have transposed where the bitshift belongs.
+
+Added a string control code to warp Link, as:
+	\18 \dmap \screen \x \y \effect \sound
+
+	If x/y is negative, it should use a warp return point equal to the absolute
+	value passed (e.g. -1 is warp return 1).
+
+DMap Script InitD labels now save properly.
+Increased V_DMaps and updated quest loader/saver.
+	( ZoriaRPG, 16th May, 2019 )
+
+Parser: Match internal functions w/ numParams, allow overloading
+	( Venrob, 15th May, 2019 )
+	
+Moved old ZScript-based strcpy(), strcmp(), strncmp(), and strlen()
+	into namespace std::string in string_functions.zh.
+Converted strcpy(), strncmp(), and strlen() into internal functions.
+Remove logging from strncmp()
+Fix number of params for strcmp, strncmp.
+Make strcmp and strncmp internal.
+Remove strcmp and strncmp from string.zh
+Add QR qr_CLEARINITDONSCRIPTCHANGE
+std.zh: Add enum ffruletype to std_constants.zh.
 Fix fonts for window title in Screen->Script and Game->Misc[] dialogues.
 Fix Window Title for Screen Script dialogue.
 	( ZoriaRPG, 15th May, 2019 )
