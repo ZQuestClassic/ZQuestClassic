@@ -18,6 +18,14 @@ Add Opcodes for internal optimization
 	Using these opcodes, relational operators have been internally optimized.
 	( Venrob, 16th May, 2019 )
 
+If Link->WarpEx() or Warp SCC X coordinate is < 0 and (unsigned)Y coordinate is 5, 
+	we pit-warp Link. Otherwise, if X is < 0 and (unsigned)Y is < 4, we use that warp return 
+	square.
+	Example: 
+		X == -1, Y == 3 uses Warp Return 3
+		X == -1 and Y == -3, also uses Warp Return 3.
+		X == -1 and Y == 5, pit warps Link.
+
 Added a string control code to set Screen->D[reg] = value for any DMap.
 	\19 \dmap \screen \reg \value
 
