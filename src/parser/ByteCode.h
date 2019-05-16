@@ -1307,6 +1307,17 @@ namespace ZScript
 		}
 	};
 
+	class OSetTrueI : public UnaryOpcode
+	{
+	public:
+		OSetTrueI(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetTrueI(a->clone());
+		}
+	};
+
 	class OSetFalse : public UnaryOpcode
 	{
 	public:
@@ -1315,6 +1326,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OSetFalse(a->clone());
+		}
+	};
+
+	class OSetFalseI : public UnaryOpcode
+	{
+	public:
+		OSetFalseI(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetFalseI(a->clone());
 		}
 	};
 
@@ -1329,6 +1351,17 @@ namespace ZScript
 		}
 	};
 
+	class OSetMoreI : public UnaryOpcode
+	{
+	public:
+		OSetMoreI(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetMoreI(a->clone());
+		}
+	};
+
 	class OSetLess : public UnaryOpcode
 	{
 	public:
@@ -1337,6 +1370,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OSetLess(a->clone());
+		}
+	};
+
+	class OSetLessI : public UnaryOpcode
+	{
+	public:
+		OSetLessI(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetLessI(a->clone());
 		}
 	};
 
@@ -1499,6 +1543,28 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new ONoOp();
+		}
+	};
+	
+	class OCastBoolI : public UnaryOpcode
+	{
+	public:
+		OCastBoolI(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCastBoolI(a->clone());
+		}
+	};
+	
+	class OCastBoolF : public UnaryOpcode
+	{
+	public:
+		OCastBoolF(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCastBoolF(a->clone());
 		}
 	};
 

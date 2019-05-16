@@ -85,7 +85,6 @@ namespace ZScript
 		int getReturnLabelID() const {return returnlabelid;}
 		list<long> *getArrayRefs() {return &arrayRefs;}
 		list<long> const *getArrayRefs() const {return &arrayRefs;}
-		void castFromBool(vector<Opcode *> &result, int reg);
 
 	private:
 		void addOpcode(Opcode* code);

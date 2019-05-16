@@ -1787,9 +1787,19 @@ string OSetTrue::toString()
     return "SETTRUE " + getArgument()->toString();
 }
 
+string OSetTrueI::toString()
+{
+    return "SETTRUEI " + getArgument()->toString();
+}
+
 string OSetFalse::toString()
 {
     return "SETFALSE " + getArgument()->toString();
+}
+
+string OSetFalseI::toString()
+{
+    return "SETFALSEI " + getArgument()->toString();
 }
 
 string OSetMore::toString()
@@ -1797,9 +1807,19 @@ string OSetMore::toString()
     return "SETMORE " + getArgument()->toString();
 }
 
+string OSetMoreI::toString()
+{
+    return "SETMOREI " + getArgument()->toString();
+}
+
 string OSetLess::toString()
 {
     return "SETLESS " + getArgument()->toString();
+}
+
+string OSetLessI::toString()
+{
+    return "SETLESSI " + getArgument()->toString();
 }
 
 string OSetImmediate::toString()
@@ -1883,6 +1903,16 @@ string OWaitdraw::toString()
 string ONoOp::toString()
 {
 	return "NOP";
+}
+
+string OCastBoolI::toString()
+{
+	return "CASTBOOLI " + getArgument()->toString();
+}
+
+string OCastBoolF::toString()
+{
+	return "CASTBOOLF " + getArgument()->toString();
 }
 
 //I would like to add a Jump instruction tot he parser, which would be 'GOTOLABEL' -Z
