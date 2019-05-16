@@ -2449,7 +2449,8 @@ enum { msLINKED };
 #define MSGC_CTRSETPC    15 // 2 args
 #define MSGC_GIVEITEM    16 // 1 arg
 #define MSGC_TAKEITEM    17 // 1 arg
-#define MSGC_WARP    18 // 1 arg
+#define MSGC_WARP    18 // 6 args (dmap, screen, x, y, effect, sound
+#define MSGC_SETSCREEND    19 // 4 args (dmap, screen, reg, value)
 #define MSGC_SFX	20 // 1 arg
 #define MSGC_MIDI	21 // 1 arg
 #define MSGC_NAME	22 // 0 args, disabled

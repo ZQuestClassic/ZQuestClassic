@@ -15623,7 +15623,17 @@ bool parsemsgcode()
 	int    dy =  grab_next_argument();
 	int    wfx =  grab_next_argument();
 	int    sfx =  grab_next_argument();
-	FFCore.warp_link(wtIWARP, dmap, scrn, x, y, wfx, sfx, 0, 0);
+	FFCore.warp_link(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, 0, 0);
+	return true;
+    }
+    
+    case MSGC_SETSCREEND:
+    {
+	int dmap =     (grab_next_argument()<<7); //dmap and screen may be transposed here.
+	int screen =     grab_next_argument();
+	int reg =     grab_next_argument();
+	int val =     grab_next_argument();
+	FFCore.set_screen_d(screen + dmap, reg, val);
 	return true;
     }
     case MSGC_TAKEITEM:

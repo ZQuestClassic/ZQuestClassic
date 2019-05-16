@@ -1543,6 +1543,8 @@ int msg_code_operands(int cc)
 	    
     case MSGC_WARP:
 	return 6; //dmap, screen, x, y, effect, sound
+    case MSGC_SETSCREEND:
+	return 4;
     case MSGC_GOTOIFGLOBAL:
     case MSGC_GOTOIFCTRPC:
     case MSGC_GOTOIFCTR:
