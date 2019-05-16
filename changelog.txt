@@ -1,7 +1,6 @@
-//2.55 and 2.54 Changes
+//2.55 Changes
 
 //Alpha 23
-
 
 Give `namespace` access to parent-scope vars
 	(Removes parent-scope access to namespace-scope vars as a consequence. This is identical to scripts.)
@@ -3492,6 +3491,7 @@ Parser Fixes:
 	Add back in missing tokens to scanner (lost in refactor)
 	( grayswandir, 22nd August, 2018 )
 
+//2.54 Changes
 //Alpha 35
 
 Changed the enemy editor default for hitsound from 0 (None)
