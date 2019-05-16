@@ -39,7 +39,7 @@ void RecursiveVisitor::syncDisable(AST& parent, AST const* child)
 void RecursiveVisitor::handleError(CompileError const& error)
 {
 	bool skipError = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) != 0);
-	recursionStack.back()->errorDisabled = true;
+	if(recursionStack.size()) recursionStack.back()->errorDisabled = true;
 	// Scan through the node stack looking for a handler.
 	for (vector<AST*>::const_reverse_iterator it = recursionStack.rbegin();
 		 it != recursionStack.rend(); ++it)
