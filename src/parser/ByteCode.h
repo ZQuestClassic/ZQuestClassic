@@ -3521,6 +3521,17 @@ namespace ZScript
 			return new Ostrcpy(a->clone(),b->clone());
 		}
 	};
+	
+	class oARRAYCOPY : public BinaryOpcode
+	{
+	public:
+		oARRAYCOPY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new oARRAYCOPY(a->clone(),b->clone());
+		}
+	};
 
 
 	class OOverlayTileRegister : public BinaryOpcode
@@ -7638,6 +7649,181 @@ namespace ZScript
 		}
 	};
 	
+	class Oxlen : public BinaryOpcode
+	{
+	public:
+		Oxlen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oxlen(a->clone(), b->clone());
+		}
+	};
+	
+	class Oxtoi : public BinaryOpcode
+	{
+	public:
+		Oxtoi(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oxtoi(a->clone(), b->clone());
+		}
+	};
+	
+	class Oilen : public BinaryOpcode
+	{
+	public:
+		Oilen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oilen(a->clone(), b->clone());
+		}
+	};
+	
+	
+	class Oatoi : public BinaryOpcode
+	{
+	public:
+		Oatoi(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oatoi(a->clone(), b->clone());
+		}
+	};
+	
+	class Ostrcspn : public UnaryOpcode
+	{
+	public:
+		Ostrcspn(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Ostrcspn(a->clone());
+		}
+	};
+	class Ostrstr : public UnaryOpcode
+	{
+	public:
+		Ostrstr(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Ostrstr(a->clone());
+		}
+	};
+	class Oxtoa : public UnaryOpcode
+	{
+	public:
+		Oxtoa(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oxtoa(a->clone());
+		}
+	};
+	class Oitoa : public UnaryOpcode
+	{
+	public:
+		Oitoa(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oitoa(a->clone());
+		}
+	};
+	class Ostrcat : public UnaryOpcode
+	{
+	public:
+		Ostrcat(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Ostrcat(a->clone());
+		}
+	};
+	class Ostrspn : public UnaryOpcode
+	{
+	public:
+		Ostrspn(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Ostrspn(a->clone());
+		}
+	};
+	class Ostrchr : public UnaryOpcode
+	{
+	public:
+		Ostrchr(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Ostrchr(a->clone());
+		}
+	};
+	class Ostrrchr : public UnaryOpcode
+	{
+	public:
+		Ostrrchr(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Ostrrchr(a->clone());
+		}
+	};
+	class Oxlen2 : public UnaryOpcode
+	{
+	public:
+		Oxlen2(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oxlen2(a->clone());
+		}
+	};
+	class Oxtoi2 : public UnaryOpcode
+	{
+	public:
+		Oxtoi2(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oxtoi2(a->clone());
+		}
+	};
+	class Oilen2 : public UnaryOpcode
+	{
+	public:
+		Oilen2(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oilen2(a->clone());
+		}
+	};
+	class Oatoi2 : public UnaryOpcode
+	{
+	public:
+		Oatoi2(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oatoi2(a->clone());
+		}
+	};
+	class Oremchr2 : public UnaryOpcode
+	{
+	public:
+		Oremchr2(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oremchr2(a->clone());
+		}
+	};
 	
 	class OReturn : public Opcode
 	{

@@ -1,92 +1,108 @@
 //yes
 
-int strcatf(int dest[], int arg, int format)
- * Appends 'arg' onto 'dest' as the MF_ constant passed into 'format'
+//1 NINOUT NO RET
+void remchr(int string[])
+ * Remove all characters starting from pointer 'string'
  
-int strncatf(int dest[], int arg, int format, int n)
- * As strcatf, using only 'n' characters of 'arg'
+ 1 input
+ int xlen(int string[])
+ * Returns the length of characters of the (positive) hexadecimal integer pointed by 'string'
  
+int xtoi(int string[])
+ * Returns the (positive) hexadecimal integer pointed by 'string'
+ 
+int ilen(int string[])
+ * Returns the length of characters of the decimal integer pointed by 'string'
+ 
+int atoi(int string[])
+ * Returns the decimal integer pointed by 'string'
+ 
+
+ 
+  
+
+
+2 inputs
+
+int strcspn(int str[], int keys[])
+ * Returns the length of characters in 'str' before a character contained in
+ * 'keys' is found
+ 
+int strstr(int string[], int sub[])
+ * Returns the position of the first occurence of sub-string 'sub' in 'string,
+ * or -1 if sub is not found
+	 
 int xtoa(int string, int num)
  * Places integer 'num' into string 'string' in base 16 without checking for overflow,
  * and returns the number of characters used
- 
-int xtoa(int string, int num, bool upper)
- * Converts a hexadecimal value to a string. Set bool upper to force uppercase.
- 
-int xtoa(int string, int pos, int num, bool upper)
- * As xtoa(), but with a specified starting position.
-
  
 int itoa(int string[], int num)
  * Places integer 'num' into string 'string' without checking for overflow,
  * and returns the number of characters used
  
-int itoa(int string, int pos, int num)
- * As itoa(), but with a specified starting position.
-
-int xlen(int string[])
- * Returns the length of characters of the (positive) hexadecimal integer pointed by 'string'
-
-int xlen(int string, int pos)
- * As xlen(), but with a specified starting position.
+  int strcat(int dest[], int src[])
+ * Appends string 'src' onto string 'dest' (assuming dest has enough extra memory
+ * allocated to allow the operation)
  
-int xtoi(int string[])
- * Returns the (positive) hexadecimal integer pointed by 'string'
-
-int xtoi(int string, int pos)
- * As xtoi(), but with a specified starting position.
- 
-int ilen(int string[])
- * Returns the length of characters of the decimal integer pointed by 'string'
-
-int ilen(int string, int pos)
- * As ilen(), but with a specified starting position.
- 
-int atoi(int string[])
- * Returns the decimal integer pointed by 'string'
- 
-int atoi(int string, int pos)
- * As atoi(), but with a specified starting position.
-
-int strcmp(int str1, int pos1, int str2, int pos2)
- * As strcmp(), but with a specified starting position for each string.
-	 
- int strncmp(int str1, int pos1, int str2, int pos2, int n)
- * As strncmp(), but with a specified starting position for each string.
-	 
-int strspn(int str[], int keys[])
+   int strspn(int str[], int keys[])
  * Returns the length of characters in 'str' before a character not contained in
  * 'keys' is found
  
-int strspn(int str, int pos, int keys)
- * As strspn(), but with a specified starting position.
- 
- * String Complement Span
-int strcspn(int str[], int keys[])
- * Returns the length of characters in 'str' before a character contained in
- * 'keys' is found
- 
-int strcspn(int str, int pos, int keys)
- * As strcspn(), but with a specified starting position.
-int strstr(int string[], int sub[])
- * Returns the position of the first occurence of sub-string 'sub' in 'string,
- * or -1 if sub is not found
- 
-int strstr(int string, int pos, int sub)
- * As strstr(), but with a specified starting position.
+   int strchr(int string[], int character)
+ * Returns the position of the first occurence of 'character' in 'string',
+ * or -1 if none are found
 
-void remchr(int string[])
- * Remove all characters starting from pointer 'string'
+  int strrchr(int string[], int character)
+ * Returns the position of the last occurence of 'character' in 'string'
+ * starting from the end, or -1 if none are found
+	 
+ //OVERLOADS
+int xlen(int string, int pos)
+ * As xlen(), but with a specified starting position. 
+ 
+int xtoi(int string, int pos)
+ * As xtoi(), but with a specified starting position.
+ 
+ int ilen(int string, int pos)
+ * As ilen(), but with a specified starting position.
+ 
+ int atoi(int string, int pos)
+ * As atoi(), but with a specified starting position.
  
 void remnchr(int string[], int n)
  * Remove 'n' characters and shift the rest of the string back to pointer 'string'
  
+
+ 
+
+ 
+
+ 
+ 
+ 
+
+ 
+ 
+3 inputs
+
+int xtoa(int string, int num, bool upper)
+ * Converts a hexadecimal value to a string. Set bool upper to force uppercase.
+ 
+int strcatf(int dest[], int arg, int format)
+ * Appends 'arg' onto 'dest' as the MF_ constant passed into 'format'
+ 
+int itoa(int string, int pos, int num)
+ * As itoa(), but with a specified starting position. 
+ 
+int strstr(int string, int pos, int sub)
+ * As strstr(), but with a specified starting position.
+
+ 
+ 
 void remnchr(int string, int pos, int n)
  * As remnchr(), but with a specified starting position
  
- int strcat(int dest[], int src[])
- * Appends string 'src' onto string 'dest' (assuming dest has enough extra memory
- * allocated to allow the operation)
+
 
 void strcat(int dest, int src, int spos)
  * As strcat(), but with a specified starting position
@@ -94,25 +110,51 @@ void strcat(int dest, int src, int spos)
 int strncat(int dest, int src, int n)
  * strcat for the first 'n' characters in src
  
-void strncat(int dest, int src, int spos, int n)
- * As strncat(), but with a specified starting position.
- 
- int strchr(int string[], int character)
- * Returns the position of the first occurence of 'character' in 'string',
- * or -1 if none are found
  
 int strchr(int string, int pos, int chr)
  * As strchr(), but with a specified starting position.
  
  
- int strrchr(int string[], int character)
- * Returns the position of the last occurence of 'character' in 'string'
- * starting from the end, or -1 if none are found
- 
+
 int strrchr(int string, int pos, int chr)
  * As strrchr(), but with a specified starting position.
  
+ int strspn(int str, int pos, int keys)
+ * As strspn(), but with a specified starting position.
  
+ int strcspn(int str, int pos, int keys)
+ * As strcspn(), but with a specified starting position.
+
+ 4 inputs
+ 
+ void strncat(int dest, int src, int spos, int n)
+ * As strncat(), but with a specified starting position.
+
+ 
+int strncatf(int dest[], int arg, int format, int n)
+ * As strcatf, using only 'n' characters of 'arg'
+ 
+ 
+  * String Complement Span
+
+ 
+int xtoa(int string, int pos, int num, bool upper)
+ * As xtoa(), but with a specified starting position.
+
+ 
+
+int strcmp(int str1, int pos1, int str2, int pos2)
+ * As strcmp(), but with a specified starting position for each string.
+	 
+ int strncmp(int str1, int pos1, int str2, int pos2, int n)
+ * As strncmp(), but with a specified starting position for each string.
+	 
+
+ 
+
+ 
+
+
 //probably
 int UpperToLower(int chr)
  * Converts all upper case characters to lower case, leaving non-alphabetic
