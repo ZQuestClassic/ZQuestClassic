@@ -25,9 +25,9 @@ const float SQRT_MAX			= 463.4095; //The largest square root thet ZC can return.
 ////////////////////////////
 /// ZC Minimums and Maximums
 
-const float MAX_CONSTANT		= (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 214748 : 214747.9999;
+const float MAX_CONSTANT		= 214747.9999 + (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 0.0001 : 0);
 //const float MAX_VARIABLE		= 214748.3648; //Obviously this is truncated as a constant. Equal to ((2^31)-1)/10000
-const float MIN_CONSTANT		= (OPTION_VALUE(MAX_INT_ONE_LARGER) ? -214748 : -214747.9999;
+const float MIN_CONSTANT		= -214747.9999 - (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 0.0001 : 0);
 
 
 const int MAX_SCRIPTDRAWINGCOMMANDS	= 1000;
