@@ -22618,8 +22618,13 @@ void FFScript::do_strstr()
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
 	FFCore.getString(arrayptr_b, strB);
-	Z_scripterrlog("strstr() returned: %d \n", strstr(strA.c_str(), strB.c_str()));
-	set_register(sarg1, ((int)strstr(strA.c_str(), strB.c_str()) * 10000));
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to strstr() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1,-10000);
+		return;
+	}
+	set_register(sarg1, (strA.find(strB) * 10000));
 }
 
 void FFScript::do_strcat()
@@ -22671,17 +22676,48 @@ void FFScript::do_strchr()
 {
 	
 	long arrayptr_a = ri->d[0]/10000;
-	string strA;
+	int chr_to_find = (ri->d[1]/10000);
+	string strA; 
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, ((int)strchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to strchr() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1,-10000);
+		return;
+	}
+	int pos = -1;
+	for ( int q = 0; q < strA.size(); ++q )
+	{
+		if ( strA.at(q) == chr_to_find ) 
+		{
+			set_register(sarg1,q*10000);
+			return;
+		}
+	}
+	set_register(sarg1,-10000);
 }
 void FFScript::do_strrchr()
 {
-	
 	long arrayptr_a = ri->d[0]/10000;
-	string strA;
+	int chr_to_find = (ri->d[1]/10000);
+	string strA; 
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, ((int)strrchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to strrchr() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1,-10000);
+		return;
+	}
+	int pos = -1;
+	for ( int q = strA.size()-1;  q >= 0; --q )
+	{
+		if ( strA.at(q) == chr_to_find ) 
+		{
+			set_register(sarg1,q*10000);
+			return;
+		}
+	}
+	set_register(sarg1,-10000);
 }
 void FFScript::do_xtoi2()
 {
