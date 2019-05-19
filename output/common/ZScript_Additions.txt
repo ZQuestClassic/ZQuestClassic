@@ -358,6 +358,17 @@ It is now possible to permit item scripts to run for more than one frame.
 	catch(error_number) {error_generating_code}
 	
 
+//////////////////////
+// import, #include //
+//////////////////////
+
+The import directive now checks include paths. 
+Order and Priority: It first checks an absolute path, then relative to the ZQ binaries,
+	then include paths. 
+	
+The new directive, #include, checks include paths first, then root, then absolute. 
+	
+
 ///////////////////
 // Header Guards //
 ///////////////////
