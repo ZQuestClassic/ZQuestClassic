@@ -143,9 +143,19 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 		// Parse the imported file.
 		string* fname = NULL;
 		string includePath;
-		if(importDecl.isInclude())
+		string importname = prepareFilename(importDecl.getFilename());
+		if(!importDecl.isInclude()) //Check root dir first for imports
 		{
-			string importname = importDecl.getFilename();
+			FILE* f = fopen(importname.c_str(), "r");
+			if(f)
+			{
+				fclose(f);
+				fname = &importname;
+			}
+		}
+		if(!fname)
+		{
+			// Scan include paths
 			int importfound = importname.find_first_not_of("/\\");
 			if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
 			{
@@ -173,9 +183,9 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 					}
 				}
 			}
-			//Now just run it as though it were an import!
 		}
-		string filename = fname ? *fname : prepareFilename(importDecl.getFilename());
+		//
+		string filename = fname ? *fname : prepareFilename(importname); //Check root dir last, if nothing has been found yet.
 		auto_ptr<ASTFile> imported(parseFile(filename));
 		if (!imported.get())
 		{
