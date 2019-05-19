@@ -22618,7 +22618,8 @@ void FFScript::do_strstr()
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
 	FFCore.getString(arrayptr_b, strB);
-	set_register(sarg1, ((char)strstr(strA.c_str(), strB.c_str()) * 10000));
+	Z_scripterrlog("strstr() returned: %d \n", strstr(strA.c_str(), strB.c_str()));
+	set_register(sarg1, (strstr(strA.c_str(), strB.c_str()) * 10000));
 }
 
 void FFScript::do_strcat()
@@ -22630,8 +22631,11 @@ void FFScript::do_strcat()
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
 	FFCore.getString(arrayptr_b, strB);
-	string strC = strA+strB;
-	if(ArrayH::setArray(arrayptr_b, strC.c_str()) == SH::_Overflow)
+	//char str_c[2048];
+	//strcpy(str_c, strA.c_str());
+	string strC = strA + strB;
+	//Z_scripterrlog("strcat string: %s\n", strC.c_str());
+	if(ArrayH::setArray(arrayptr_a, strC.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'strcat()' not large enough\n");
 		set_register(sarg1, 0);
@@ -22752,7 +22756,7 @@ void FFScript::do_arraycpy(const bool a, const bool b)
 {
 	long arrayptr_b = SH::get_arg(sarg1, a) / 10000;
 	long arrayptr_a = SH::get_arg(sarg2, b) / 10000;
-	long *P;
+	long *P = NULL;
 	FFCore.getValues(arrayptr_a,P, FFCore.getSize(arrayptr_a));
 	//ZScriptArray& a = FFCore.getArray(arrayptr_a);
 	FFCore.setArray(arrayptr_b, FFCore.getSize(arrayptr_a), P);
