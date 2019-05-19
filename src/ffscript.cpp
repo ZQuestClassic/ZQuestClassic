@@ -28,6 +28,74 @@ ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
 
+int zc_strlen(char *p)
+{
+   int count = 0;
+ 
+    while(*p!='\0')
+    {
+        count++;
+        p++;
+    }
+ 
+    return count;
+}
+
+int atox(char *ip_str)
+{
+	char tmp[2]={'2','\0'};
+	int op_val=0, i=0, ip_len = strlen(ip_str);
+
+	if(strncmp(ip_str, "0x", 2) == 0)
+	{
+		ip_str +=2;
+		ip_len -=2;
+	}
+
+	for(i=0;i<ip_len;i++)
+	{
+		op_val *= 0x10;
+		switch(ip_str[i])
+		{
+			case 'a':
+			op_val += 0xa;
+			break;
+			case 'b':
+			op_val += 0xb;
+			break;
+			case 'c':
+			op_val += 0xc;
+			break;
+			case 'd':
+			op_val += 0xd;
+			break;
+			case 'e':
+			op_val += 0xe;
+			break;
+			case 'f':
+			op_val += 0xf;
+			break;
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+			tmp[0] = ip_str[i];
+			op_val += atoi(tmp);
+			break;
+			default :
+			op_val += 0x0;
+			break;
+		}
+	}
+	return op_val;
+}
+
 char runningItemScripts[256] = {0};
  
 //item *FFCore.temp_ff_item = NULL;
@@ -22745,10 +22813,14 @@ void FFScript::do_xlen2()
 void FFScript::do_itoa()
 {
 	
-	long arrayptr_a = ri->d[0]/10000;
-	string strA;
-	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, ((int)_itoa((ri->d[1]/10000),(char*)strA.c_str(),10) * 10000));
+	long arrayptr_a = ri->d[1]/10000;
+	int value = ri->d[0]/10000;
+	char the_string[13];
+	_itoa(value, the_string, 10);
+	//Returns the number of characters used. 
+	if(ArrayH::setArray(arrayptr_a, the_string) == SH::_Overflow)
+		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
+	set_register(sarg1, (zc_strlen(the_string)*10000));
 }
 void FFScript::do_xtoa()
 {
