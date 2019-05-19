@@ -22569,30 +22569,33 @@ void FFScript::do_strcmp()
 }
 void FFScript::do_xlen(const bool v)
 {
+	//not implemented, xlen not found
 	//Z_scripterrlog("Running: %s\n","strlen()");
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
 	//Z_scripterrlog("strlen string size is: %d\n", str.length());
-	set_register(sarg1, (xlen(str.c_str()) * 10000));
+	//set_register(sarg1, (xlen(str.c_str()) * 10000));
 }
 void FFScript::do_xtoi(const bool v)
 {
+	//not implemented, xtoi not found
 	//Z_scripterrlog("Running: %s\n","strlen()");
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
 	//Z_scripterrlog("strlen string size is: %d\n", str.length());
-	set_register(sarg1, (xtoi(str.c_str()) * 10000));
+	//set_register(sarg1, (xtoi(str.c_str()) * 10000));
 }
 void FFScript::do_ilen(const bool v)
 {
+	//not implemented, ilen not found
 	//Z_scripterrlog("Running: %s\n","strlen()");
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
 	//Z_scripterrlog("strlen string size is: %d\n", str.length());
-	set_register(sarg1, (ilen(str.c_str()) * 10000));
+	//set_register(sarg1, (ilen(str.c_str()) * 10000));
 }
 void FFScript::do_atoi(const bool v)
 {
@@ -22615,7 +22618,7 @@ void FFScript::do_strstr()
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
 	FFCore.getString(arrayptr_b, strB);
-	set_register(sarg1, (strstr(strA.c_str(), strB.c_str()) * 10000));
+	set_register(sarg1, ((char)strstr(strA.c_str(), strB.c_str()) * 10000));
 }
 
 void FFScript::do_strcat()
@@ -22627,7 +22630,14 @@ void FFScript::do_strcat()
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
 	FFCore.getString(arrayptr_b, strB);
-	set_register(sarg1, (strcat(strA.c_str(), strB.c_str()) * 10000));
+	string strC = strA+strB;
+	if(ArrayH::setArray(arrayptr_b, strC.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'strcat()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
+	set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 }
 void FFScript::do_strspn()
 {
@@ -22659,7 +22669,7 @@ void FFScript::do_strchr()
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, (strchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	set_register(sarg1, ((int)strchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
 void FFScript::do_strrchr()
 {
@@ -22667,47 +22677,47 @@ void FFScript::do_strrchr()
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, (strrchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	set_register(sarg1, ((int)strrchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
 void FFScript::do_xtoi2()
 {
-	
+	//Not implemented, xtoi not found
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, (xtoi(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	//set_register(sarg1, (xtoi(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
 void FFScript::do_remchr2()
 {
-	
+	//Not implemented, remchr not found
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, (remchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	//set_register(sarg1, (remchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
 void FFScript::do_atoi2()
 {
-	
+	//not implemented; atoi does not take 2 params
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, (atoi(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	//set_register(sarg1, (atoi(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
 void FFScript::do_ilen2()
 {
-	
+	//not implemented, ilen not found
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, (ilen(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	//set_register(sarg1, (ilen(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
 void FFScript::do_xlen2()
 {
-	
+	//not implemented, xlen not found
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, (xlen(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	//set_register(sarg1, (xlen(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
 void FFScript::do_itoa()
 {
@@ -22715,15 +22725,15 @@ void FFScript::do_itoa()
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, (itoa(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	set_register(sarg1, ((int)_itoa((ri->d[1]/10000),(char*)strA.c_str(),10) * 10000));
 }
 void FFScript::do_xtoa()
 {
-	
+	//not implemented, xtoa not found
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	set_register(sarg1, (xtoa(strA.c_str(), (ri->d[1]/10000)) * 10000));
+	//set_register(sarg1, (xtoa(strA.c_str(), (ri->d[1]/10000)) * 10000));
 }
 
 void FFScript::do_strcpy(const bool a, const bool b)
@@ -22742,13 +22752,13 @@ void FFScript::do_arraycpy(const bool a, const bool b)
 {
 	long arrayptr_b = SH::get_arg(sarg1, a) / 10000;
 	long arrayptr_a = SH::get_arg(sarg2, b) / 10000;
-    
-	string strA;
+	long *P;
+	FFCore.getValues(arrayptr_a,P, FFCore.getSize(arrayptr_a));
+	//ZScriptArray& a = FFCore.getArray(arrayptr_a);
+	FFCore.setArray(arrayptr_b, FFCore.getSize(arrayptr_a), P);
 
-	FFCore.getArray(arrayptr_a, strA);
-
-	if(ArrayH::setArray(arrayptr_b, strA.c_str()) == SH::_Overflow)
-		Z_scripterrlog("Dest string supplied to 'ArrayCopy()' not large enough\n");
+	//if(ArrayH::setArray(arrayptr_b, a.size(), a) == SH::_Overflow)
+	//	Z_scripterrlog("Dest string supplied to 'ArrayCopy()' not large enough\n");
 }
 void FFScript::do_strlen(const bool v)
 {
