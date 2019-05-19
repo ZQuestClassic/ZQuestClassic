@@ -555,10 +555,7 @@ static AccessorTable GlobalTable[] =
 	{ "Sin",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Cos",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Tan",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "strlen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "ArcTan",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "strcmp",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "strncmp",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    3,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "ArcSin",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "ArcCos",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "RadianSin",              ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -577,7 +574,7 @@ static AccessorTable GlobalTable[] =
 //  { "CollisionRect",          ZVARTYPEID_BOOL,             FUNCTION,     0,     1,          0,                                    8,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 //  { "CollisionBox",           ZVARTYPEID_BOOL,             FUNCTION,     0,     1,          0,                                    12,          {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "CopyTile",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "strcpy",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
 	{ "SwapTile",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "ClearTile",              ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetScriptRAM",           ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -602,6 +599,33 @@ static AccessorTable GlobalTable[] =
 	{ "Untype",                 ZVARTYPEID_UNTYPED,          FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_UNTYPED,        -1,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 //
 	{ "GetSystemTime",          ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+	{ "strcmp",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strncmp",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    3,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strcpy",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ArrayCopy",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strlen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "atoi",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	//overload, 2 args
+		//{ "atoi",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+		//{ "xtoi",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	//overload, 2 args
+		//{ "xtoi",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+		//{ "xlen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	//overload, 2 args
+		//{ "xlen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "xtoa",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+		//{ "ilen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	//overload, 2 args
+		//{ "ilen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "itoaC",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+		//{ "remchr",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strcat",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strchr",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strcspn",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strspn",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strstr",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "strrchr",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 //	TYPE_UNTYPED
 	{ "",                       -1,                          -1,           -1,    -1,         0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
@@ -884,18 +908,6 @@ void GlobalSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
-    //int strlen(*p)
-    {
-	    Function* function = getFunction("strlen", 1);
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new Ostrlen(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
     //int ArcTan(int X, int Y)
     {
 	    Function* function = getFunction("ArcTan", 2);
@@ -909,33 +921,7 @@ void GlobalSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
-    //int strcmp(*a, *b)
-    {
-	    Function* function = getFunction("strcmp",2);
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        code.push_back(new OStrCmp(new VarArgument(EXP1)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
-    //int strncmp(*a, *b, int len)
-    {
-	    Function* function = getFunction("strncmp", 3);
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-	code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OStrNCmp(new VarArgument(EXP1)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
+    
     //int RadianTan(int val)
     {
 	    Function* function = getFunction("RadianTan", 1);
@@ -1077,19 +1063,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     
-    //int CopyTile(int source, int dest)
-    {
-	    Function* function = getFunction("strcpy", 2);
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP1)));
-        code.push_back(new Ostrcpy(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
+    
     //int SwapTile(int first, int second)
     {
 	    Function* function = getFunction("SwapTile", 2);
@@ -1327,7 +1301,8 @@ void GlobalSymbols::generateCode()
         code.push_back(new OArraySizeL(new VarArgument(EXP1)));
         code.push_back(new OReturn());
         function->giveCode(code);
-    } //int SizeOfArrayEWeapon(eweapon *ptr)
+    } 
+    //int SizeOfArrayEWeapon(eweapon *ptr)
     {
 	    Function* function = getFunction("SizeOfArrayEWeapon", 1);
         int label = function->getLabel();
@@ -1339,6 +1314,295 @@ void GlobalSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
+    //String and Array Functions (String.h, Array.h)
+    	//int strlen(*p)
+	{
+		Function* function = getFunction("strlen", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new Ostrlen(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int strcpy(int source, int dest)
+	{
+		Function* function = getFunction("strcpy", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		code.push_back(new Ostrcpy(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int strcmp(*a, *b)
+	{
+		Function* function = getFunction("strcmp",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new OStrCmp(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int strncmp(*a, *b, int len)
+	{
+		Function* function = getFunction("strncmp", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OStrNCmp(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+    //int ArrayCopy(int source, int dest)
+	{
+		Function* function = getFunction("ArrayCopy", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		code.push_back(new oARRAYCOPY(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int atoi(*p)
+	{
+		Function* function = getFunction("atoi", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new Oatoi(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int atoi2(*a, *b)
+	//{
+	//	Function* function = getFunction("atoi",2);
+	//	int label = function->getLabel();
+	//	vector<Opcode *> code;
+	//	Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+	//	first->setLabel(label);
+	//	code.push_back(first);
+	//	code.push_back(new OPopRegister(new VarArgument(INDEX)));
+	//	code.push_back(new Oatoi2(new VarArgument(EXP1)));
+	//	code.push_back(new OReturn());
+	//	function->giveCode(code);
+	//}
+	/*
+	//int ilen(*p)
+	{
+		Function* function = getFunction("ilen", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new Oilen(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+    
+	//int ilen2(*a, *b)
+	{
+		Function* function = getFunction("ilen",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Oilen2(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	*/
+    
+	//int itoa(*a, *b)
+	{
+		Function* function = getFunction("itoaC",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Oitoa(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int remchr(*a, *b)
+	//{
+	//	Function* function = getFunction("remchr",2);
+	//	int label = function->getLabel();
+	//	vector<Opcode *> code;
+	//	Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+	//	first->setLabel(label);
+	//	code.push_back(first);
+	//	code.push_back(new OPopRegister(new VarArgument(INDEX)));
+	//	code.push_back(new Oremchr2(new VarArgument(EXP1)));
+	//	code.push_back(new OReturn());
+	//	function->giveCode(code);
+	//}
+	//int strcat(*a, *b)
+	{
+		Function* function = getFunction("strcat",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Ostrcat(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int strchr(*a, *b)
+	{
+		Function* function = getFunction("strchr",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Ostrchr(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int strcspn(*a, *b)
+	{
+		Function* function = getFunction("strcspn",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Ostrcspn(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int strspn(*a, *b)
+	{
+		Function* function = getFunction("strspn",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Ostrspn(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int strstr(*a, *b)
+	{
+		Function* function = getFunction("strstr",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Ostrstr(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int strrchr(*a, *b)
+	{
+		Function* function = getFunction("strrchr",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Ostrrchr(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	/*
+	//int xlen(*p)
+	{
+		Function* function = getFunction("xlen", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new Oxlen(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int xlen(*a, *b)
+	{
+		Function* function = getFunction("xlen",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Oxlen2(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int xtoa(*a, *b)
+	{
+		Function* function = getFunction("xtoa",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Oxtoa(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int xtoi(*p)
+	{
+		Function* function = getFunction("xtoi", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new Oxtoi(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int xtoi2(*a, *b)
+	{
+		Function* function = getFunction("xtoi",2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		code.push_back(new Oxtoi2(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	*/
     
 }
 

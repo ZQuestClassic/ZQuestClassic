@@ -4521,6 +4521,131 @@ string OStrNCmp::toString()
     return "STRINGNCOMPARE " + getArgument()->toString();
 }
 
+//based on Ostrcpy
+string oARRAYCOPY::toString()
+{
+    return "ARRAYCOPY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+/*to do 
+  //1 INPUT, NO RETURN 
+     { "REMCHR",                2,   0,   0,   0},
+     { "STRINGUPPERLOWER",                2,   0,   0,   0},
+     { "STRINGLOWERUPPER",                2,   0,   0,   0},
+     { "STRINGCONVERTCASE",                2,   0,   0,   0},
+     */
+
+//1 inp, 1 ret, baseds on STRINGLENGTH / Ostrlen
+
+string Oxlen::toString()
+{
+    return "XLEN " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string Oxtoi::toString()
+{
+    return "XTOI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string Oilen::toString()
+{
+    return "ILEN " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string Oatoi::toString()
+{
+    return "ATOI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+//2 inp, 1 ret, based on STRINGCOMPARE / OStrCmp
+
+string Ostrcspn::toString()
+{
+    return "STRCSPN " + getArgument()->toString();
+}
+
+string Ostrstr::toString()
+{
+    return "STRSTR " + getArgument()->toString();
+}
+
+string Oxtoa::toString()
+{
+    return "XTOA " + getArgument()->toString();
+}
+
+string Oitoa::toString()
+{
+    return "ITOA " + getArgument()->toString();
+}
+
+string Ostrcat::toString()
+{
+    return "STRCAT " + getArgument()->toString();
+}
+
+string Ostrspn::toString()
+{
+    return "STRSPN " + getArgument()->toString();
+}
+string Ostrchr::toString()
+{
+    return "STRCHR " + getArgument()->toString();
+}
+
+string Ostrrchr::toString()
+{
+    return "STRRCHR " + getArgument()->toString();
+}
+string Oxlen2::toString()
+{
+    return "XLEN2 " + getArgument()->toString();
+}
+
+string Oxtoi2::toString()
+{
+    return "XTOI2 " + getArgument()->toString();
+}
+string Oilen2::toString()
+{
+    return "ILEN2 " + getArgument()->toString();
+}
+string Oatoi2::toString()
+{
+    return "ATOI2 " + getArgument()->toString();
+}
+string Oremchr2::toString()
+{
+    return "REMCHR2 " + getArgument()->toString();
+}
+
+
+/*to do
+  //3 INPUT 1 RET 
+    { "XTOA3",		       1,   0,   0,   0},
+    { "STRCATF",		       1,   0,   0,   0},
+    { "ITOA3",		       1,   0,   0,   0},
+    { "STRSTR3",		       1,   0,   0,   0},
+    { "REMNCHR3",		       1,   0,   0,   0},
+    { "STRCAT3",		       1,   0,   0,   0},
+    { "STRNCAT3",		       1,   0,   0,   0},
+    { "STRCHR3",		       1,   0,   0,   0},
+    { "STRRCHR3",		       1,   0,   0,   0},
+    { "STRSPN3",		       1,   0,   0,   0},
+    { "STRCSPN3",		       1,   0,   0,   0},
+    
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 string OReturn::toString()
 {

@@ -1,5 +1,5 @@
 //string_functions.zh
-//18th March, 2019 for ZC 2.55 Alpha 15
+//19th March, 2019 for ZC 2.55 Alpha 23
 //ZScript string handling functions, akin to those found in C
 
 //Returns the number of chracters of a given type in a specified string.
@@ -337,10 +337,6 @@ void strcat(int dest, int src, int spos)
 		dest[l + i] = src[spos + i];
 	dest[l + i] = 0;
 }
-void strcat(int dest, int src)
-{
-	strcat(dest, src, 0);
-}
 
 //strcat up to 'n' characters in src
 void strncat(int dest, int src, int spos, int n)
@@ -368,10 +364,7 @@ int strchr(int string, int pos, int chr)
 			return pos + i;
 	return -1;
 }
-int strchr(int string, int chr)
-{
-	return strchr(string, 0, chr);
-}
+
 
 //String Reverse Character
 //Returns the position of the last occurence of 'character' in 'string'
@@ -383,10 +376,7 @@ int strrchr(int string, int pos, int chr)
 			return i;
 	return -1;
 }
-int strrchr(int string, int chr)
-{
-	return strrchr(string, 0, chr);
-}
+
 
 
 //String Sub-String
@@ -401,10 +391,7 @@ int strstr(int string, int pos, int sub)
 				return pos + i;
 	return -1;
 }
-int strstr(int string, int sub)
-{
-	return strstr(string, 0, sub);
-}
+
 
 //String Span
 //Returns the length of characters in 'str' before a character not contained in
@@ -424,10 +411,6 @@ int strspn(int str, int pos, int keys)
 	}
 	return pos + i;
 }
-int strspn(int str, int keys)
-{
-	return strspn(str, 0, keys);
-}
 
 //String Complement Span
 //Returns the length of characters in 'str' before a character contained in
@@ -441,10 +424,7 @@ int strcspn(int str, int pos, int keys)
 				return pos + i;
 	return pos + i;
 }
-int strcspn(int str, int keys)
-{
-	return strcspn(str, 0, keys);
-}
+
 
 //String Comparison
 //String Compare
@@ -486,10 +466,7 @@ int atoi(int string, int pos)
 		ret = ret*10 + (string[pos + i] - '0');
 	return ret*Cond(neg, -1, 1);
 }
-int atoi(int string)
-{
-	return atoi(string, 0);
-}
+
 
 //Integer Length
 //Returns the length of characters of the decimal integer pointed by 'string'
@@ -2081,6 +2058,34 @@ namespace std
 		void strcpy(int dest, int src)
 		{
 			strcpy(dest, 0, src, 0);
+		}
+		int atoi(int string)
+		{
+			return atoi(string, 0);
+		}
+		void strcat(int dest, int src)
+		{
+			strcat(dest, src, 0);
+		}
+		int strchr(int string, int chr)
+		{
+			return strchr(string, 0, chr);
+		}
+		int strrchr(int string, int chr)
+		{
+			return strrchr(string, 0, chr);
+		}
+		int strspn(int str, int keys)
+		{
+			return strspn(str, 0, keys);
+		}
+		int strcspn(int str, int keys)
+		{
+			return strcspn(str, 0, keys);
+		}
+		int strstr(int string, int sub)
+		{
+			return strstr(string, 0, sub);
 		}
 	}
 }

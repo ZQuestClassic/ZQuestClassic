@@ -808,6 +808,50 @@ script_command command_list[NUMCOMMANDS+1]=
     { "SETMOREI",             1,   0,   0,   0},
     { "SETLESSI",             1,   0,   0,   0},
     
+    { "ARRAYCOPY",          2,   0,   0,   0},
+    { "ARRAYNCOPY",		       1,   0,   0,   0},
+    
+    //1 INPUT, NO RETURN 
+     { "REMCHR",                2,   0,   0,   0},
+     { "STRINGUPPERLOWER",                2,   0,   0,   0},
+     { "STRINGLOWERUPPER",                2,   0,   0,   0},
+     { "STRINGCONVERTCASE",                2,   0,   0,   0},
+     
+    //1 input, 1 ret
+    { "XLEN",                2,   0,   0,   0},
+    { "XTOI",                2,   0,   0,   0},
+    { "ILEN",                2,   0,   0,   0},
+    { "ATOI",                2,   0,   0,   0},
+   
+    //2 INPUT, 1 RET, based on strcmp
+    { "STRCSPN",                1,   0,   0,   0},
+    { "STRSTR",                1,   0,   0,   0},
+    { "XTOA",                1,   0,   0,   0},
+    { "ITOA",                1,   0,   0,   0},
+    { "STRCAT",                1,   0,   0,   0},
+    { "STRSPN",                1,   0,   0,   0},
+    { "STRCHR",                1,   0,   0,   0},
+    { "STRRCHR",                1,   0,   0,   0},
+    //2 INP, 1 RET OVERLOADS
+    { "XLEN2",                1,   0,   0,   0},
+    { "XTOI2",                1,   0,   0,   0},
+    { "ILEN2",                1,   0,   0,   0},
+    { "ATOI2",                1,   0,   0,   0},
+    { "REMCHR2",                1,   0,   0,   0},
+    
+    //3 INPUT 1 RET 
+    { "XTOA3",		       1,   0,   0,   0},
+    { "STRCATF",		       1,   0,   0,   0},
+    { "ITOA3",		       1,   0,   0,   0},
+    { "STRSTR3",		       1,   0,   0,   0},
+    { "REMNCHR3",		       1,   0,   0,   0},
+    { "STRCAT3",		       1,   0,   0,   0},
+    { "STRNCAT3",		       1,   0,   0,   0},
+    { "STRCHR3",		       1,   0,   0,   0},
+    { "STRRCHR3",		       1,   0,   0,   0},
+    { "STRSPN3",		       1,   0,   0,   0},
+    { "STRCSPN3",		       1,   0,   0,   0},
+    
     { "",                    0,   0,   0,   0}
 };
 

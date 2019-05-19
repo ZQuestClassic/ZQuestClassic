@@ -1,5 +1,5 @@
 // std_constants.zh for ZC v2.55.0 Alpha 22 and later.
-// 15th May, 2019
+// 19th May, 2019
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -25,16 +25,17 @@ const float SQRT_MAX			= 463.4095; //The largest square root thet ZC can return.
 ////////////////////////////
 /// ZC Minimums and Maximums
 
-const float MAX_CONSTANT		= 214747.9999;
-const float MAX_FLOAT			= 214747.9999;
+const float MAX_CONSTANT		= 214747.9999 + (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 0.0001 : 0);
 //const float MAX_VARIABLE		= 214748.3648; //Obviously this is truncated as a constant. Equal to ((2^31)-1)/10000
-const float MIN_CONSTANT		= -214747.9999; 
+const float MIN_CONSTANT		= -214747.9999 - (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 0.0001 : 0);
 
 
 const int MAX_SCRIPTDRAWINGCOMMANDS	= 1000;
-const int MAX_INT 			= 214747;
-const int MIN_INT 			= -214747;
-const int MIN_FLOAT 			= -214747.9999;
+
+const int MAX_INT = 214747 + (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 1 : 0);
+const int MIN_INT = -214747 - (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 1 : 0);
+const int MAX_FLOAT = 214747.9999 + (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 0.0001 : 0);
+const int MIN_FLOAT = -214747.9999 - (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 0.0001 : 0);
 
 const int MAX_COUNTER 			= 32768; //or is this 32767, counting 0?
 const int MIN_COUNTER 			= -32768; //" -32767
