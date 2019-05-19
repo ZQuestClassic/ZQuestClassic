@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 23
-Document Revision: 19th May, 2019
+Document Revision: 20th May, 2019
 
 
 ////////////////////////////////////////////////////
@@ -956,6 +956,14 @@ of iterations is known at compile-time.
 //////////////
 //  Global  //
 //////////////
+
+int ilen(string[]);
+ * Returns the number of characters used by a number in the string.
+ * Includes the sign, if negative. 
+
+int itoa(int value, dest_string[]);
+ * Places value into a string as char. 
+ * Returns the number of characters used in the conversion. 
 
 int strcmp(string_a[], string_b[]);
  * Iterates through string_a and string_b until a character is found which is not the same in
