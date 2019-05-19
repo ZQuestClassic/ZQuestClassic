@@ -22676,7 +22676,7 @@ void FFScript::do_strchr()
 {
 	
 	long arrayptr_a = ri->d[0]/10000;
-	int chr_to_find = (ri->d[1]/10000);
+	char chr_to_find = (ri->d[1]/10000);
 	string strA; 
 	FFCore.getString(arrayptr_a, strA);
 	if ( strA.size() < 1 ) 
@@ -22685,21 +22685,13 @@ void FFScript::do_strchr()
 		set_register(sarg1,-10000);
 		return;
 	}
-	int pos = -1;
-	for ( int q = 0; q < strA.size(); ++q )
-	{
-		if ( strA.at(q) == chr_to_find ) 
-		{
-			set_register(sarg1,q*10000);
-			return;
-		}
-	}
-	set_register(sarg1,-10000);
+	
+	set_register(sarg1,strA.find_first_of(chr_to_find)*10000);
 }
 void FFScript::do_strrchr()
 {
 	long arrayptr_a = ri->d[0]/10000;
-	int chr_to_find = (ri->d[1]/10000);
+	char chr_to_find = (ri->d[1]/10000);
 	string strA; 
 	FFCore.getString(arrayptr_a, strA);
 	if ( strA.size() < 1 ) 
@@ -22708,16 +22700,7 @@ void FFScript::do_strrchr()
 		set_register(sarg1,-10000);
 		return;
 	}
-	int pos = -1;
-	for ( int q = strA.size()-1;  q >= 0; --q )
-	{
-		if ( strA.at(q) == chr_to_find ) 
-		{
-			set_register(sarg1,q*10000);
-			return;
-		}
-	}
-	set_register(sarg1,-10000);
+	set_register(sarg1,strA.find_last_of(chr_to_find)*10000);
 }
 void FFScript::do_xtoi2()
 {
