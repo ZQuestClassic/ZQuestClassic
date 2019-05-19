@@ -1,5 +1,5 @@
 //string_functions.zh
-//19th March, 2019 for ZC 2.55 Alpha 23
+//20th March, 2019 for ZC 2.55 Alpha 23
 //ZScript string handling functions, akin to those found in C
 
 //Returns the number of chracters of a given type in a specified string.
@@ -478,10 +478,7 @@ int ilen(int string, int pos)
 	for(; isNumber(string[pos + ret]); ++ret);
 	return ret;
 }
-int ilen(int string)
-{
-	return ilen(string, 0);
-}
+
 
 //Hexadecimal ASCII to Integer
 //Returns the (positive) hexadecimal integer pointed by 'string'
@@ -619,11 +616,6 @@ int itoa(int string, int pos, int num)
 	for(int i = 0; i < digits; ++i)
 		string[pos + ret + i] = (Floor(num / Pow(10, digits - i - 1)) % 10) + '0';
 	return ret + digits;
-}
-
-int itoa(int string, int num)
-{
-	return itoa(string, 0, num);
 }
 
 //Hexadecimal Integer to ASCII
@@ -2086,6 +2078,14 @@ namespace std
 		int strstr(int string, int sub)
 		{
 			return strstr(string, 0, sub);
+		}
+		int ilen(int string)
+		{
+			return ilen(string, 0);
+		}
+		int itoa(int string, int num)
+		{
+			return itoa(string, 0, num);
 		}
 	}
 }
