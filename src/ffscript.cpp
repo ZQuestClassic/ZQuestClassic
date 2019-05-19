@@ -22637,7 +22637,7 @@ void FFScript::do_strcat()
 		set_register(sarg1, 0);
 	}
 	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
-	set_register(sarg1, arrayptr_a); //returns the pointer to the dest
+	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 }
 void FFScript::do_strspn()
 {
