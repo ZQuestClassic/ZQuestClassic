@@ -1393,18 +1393,19 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	//int atoi2(*a, *b)
-	{
-		Function* function = getFunction("atoi",2);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new Oatoi2(new VarArgument(EXP1)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
+	//{
+	//	Function* function = getFunction("atoi",2);
+	//	int label = function->getLabel();
+	//	vector<Opcode *> code;
+	//	Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+	//	first->setLabel(label);
+	//	code.push_back(first);
+	//	code.push_back(new OPopRegister(new VarArgument(INDEX)));
+	//	code.push_back(new Oatoi2(new VarArgument(EXP1)));
+	//	code.push_back(new OReturn());
+	//	function->giveCode(code);
+	//}
+	/*
 	//int ilen(*p)
 	{
 		Function* function = getFunction("ilen", 1);
@@ -1431,6 +1432,7 @@ void GlobalSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
+	*/
     
 	//int itoa(*a, *b)
 	{
@@ -1446,18 +1448,18 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	//int remchr(*a, *b)
-	{
-		Function* function = getFunction("remchr",2);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new Oremchr2(new VarArgument(EXP1)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
+	//{
+	//	Function* function = getFunction("remchr",2);
+	//	int label = function->getLabel();
+	//	vector<Opcode *> code;
+	//	Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+	//	first->setLabel(label);
+	//	code.push_back(first);
+	//	code.push_back(new OPopRegister(new VarArgument(INDEX)));
+	//	code.push_back(new Oremchr2(new VarArgument(EXP1)));
+	//	code.push_back(new OReturn());
+	//	function->giveCode(code);
+	//}
 	//int strcat(*a, *b)
 	{
 		Function* function = getFunction("strcat",2);
@@ -1536,6 +1538,7 @@ void GlobalSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
+	/*
 	//int xlen(*p)
 	{
 		Function* function = getFunction("xlen", 1);
@@ -1599,7 +1602,7 @@ void GlobalSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
-    
+	*/
     
 }
 
