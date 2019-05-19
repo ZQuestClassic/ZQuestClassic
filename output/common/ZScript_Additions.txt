@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 22
-Document Revision: 15th May, 2019
+Document for: 2.55, Alpha 23
+Document Revision: 19th May, 2019
 
 
 ////////////////////////////////////////////////////
@@ -978,6 +978,28 @@ void strcpy(string_dest[], string_src[]);
  * Copies string string_src into string_dest.
  * The old string.zh version of this function is still available as:
  * std::string::strcpy(*a,*b).
+ 
+int atoi(string[]);
+ * Returns the decimal value of a string consisting of a number.
+ * e.g. ("26" would return 26).
+ 
+int strcat(atring_a[], string_b[]);
+ * Append the contents of string_b onto string_a.
+ * Returns the pointer to string_a.
+ 
+int strchr(string[], int chr);
+ * Returns the first index in string that matches 'chr'.
+
+int strrchr(string[], int chr);
+ * Reverse of strchr, finding the last instance of a character in a string.
+ 
+int strspn(string[], string_keys[]);
+ * Returns the number of characters in a string before a character not contained in
+ * 'string_keys' is found
+ 
+int strcspn(string[], string_keys[]);
+ * Returns the length of characters in a string before a character contained in
+ * 'string_keys' is found
  
 int GetSystemTime(int index);
  * Returns the time (Real Time Clock) data from the system on which ZC is running.
