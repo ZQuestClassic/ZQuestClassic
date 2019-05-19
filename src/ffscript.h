@@ -195,10 +195,33 @@ void initRunString();
 void updateRunString();
 void updateIncludePaths();
 bool checkExtension(std::string &filename, const std::string &extension);
+//String.h functions for ffscript - 2.55 Alpha 23
 void do_strcmp();
 void do_strncmp();
 void do_strcpy(const bool a, const bool b);
 void do_strlen(const bool v);
+//More string.h functions, 19th May, 2019 
+void do_arraycpy(const bool a, const bool b);
+void do_xlen(const bool v);
+void do_xtoi(const bool v);
+void do_ilen(const bool v);
+void do_atoi(const bool v);
+void do_strstr();
+void do_strcat();
+void do_strspn();
+void do_strcspn();
+void do_strchr();
+void do_strrchr();
+void do_xtoi2();
+void do_remchr2();
+void do_atoi2();
+void do_ilen2();
+void do_xlen2();
+void do_itoa();
+void do_xtoa();
+
+
+
 /*
 long getQuestHeaderInfo(int type)
 {

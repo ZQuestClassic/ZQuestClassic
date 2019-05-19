@@ -16875,18 +16875,30 @@ int run_script(const byte type, const word script, const long i)
 		    do_arctan();
 		    break;
 		
-		case STRINGCOMPARE:
-			FFCore.do_strcmp();
-			break;
-		case STRINGCOPY:
-			FFCore.do_strcpy(false,false);
-			break;
+		//String.h functions 2.55 Alpha 23
+		case STRINGCOMPARE: FFCore.do_strcmp(); break;
+		case STRINGCOPY: FFCore.do_strcpy(false,false); break;
+		case ARRAYCOPY: FFCore.do_arraycpy(false,false); break;
+		case STRINGNCOMPARE: FFCore.do_strncmp(); break;
 		
-		case STRINGNCOMPARE:
-			FFCore.do_strncmp();
-			break;
-		
-		
+		//More string.h functions, 19th May, 2019 
+		case XLEN: FFCore.do_xlen(false); break;
+		case XTOI: FFCore.do_xtoi(false); break;
+		case ILEN: FFCore.do_ilen(false); break;
+		case ATOI: FFCore.do_atoi(false); break;
+		case STRCSPN: FFCore.do_strcspn(); break;
+		case STRSTR: FFCore.do_strstr(); break;
+		case XTOA: FFCore.do_xtoa(); break;
+		case ITOA: FFCore.do_itoa(); break;
+		case STRCAT: FFCore.do_strcat(); break;
+		case STRSPN: FFCore.do_strspn(); break;
+		case STRCHR: FFCore.do_strchr(); break;
+		case STRRCHR: FFCore.do_strrchr(); break;
+		case XLEN2: FFCore.do_xlen2(); break;
+		case XTOI2: FFCore.do_xtoi2(); break;
+		case ILEN2: FFCore.do_ilen2(); break;
+		case ATOI2: FFCore.do_atoi2(); break;
+		case REMCHR2: FFCore.do_remchr2(); break;
 		    
 		case ABSR:
 		    do_abs(false);
@@ -22555,6 +22567,164 @@ void FFScript::do_strcmp()
 	FFCore.getString(arrayptr_b, strB);
 	set_register(sarg1, (strcmp(strA.c_str(), strB.c_str()) * 10000));
 }
+void FFScript::do_xlen(const bool v)
+{
+	//Z_scripterrlog("Running: %s\n","strlen()");
+	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	FFCore.getString(arrayptr, str);
+	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	set_register(sarg1, (xlen(str.c_str()) * 10000));
+}
+void FFScript::do_xtoi(const bool v)
+{
+	//Z_scripterrlog("Running: %s\n","strlen()");
+	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	FFCore.getString(arrayptr, str);
+	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	set_register(sarg1, (xtoi(str.c_str()) * 10000));
+}
+void FFScript::do_ilen(const bool v)
+{
+	//Z_scripterrlog("Running: %s\n","strlen()");
+	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	FFCore.getString(arrayptr, str);
+	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	set_register(sarg1, (ilen(str.c_str()) * 10000));
+}
+void FFScript::do_atoi(const bool v)
+{
+	//Z_scripterrlog("Running: %s\n","strlen()");
+	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	FFCore.getString(arrayptr, str);
+	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	set_register(sarg1, (atoi(str.c_str()) * 10000));
+}
+
+
+
+void FFScript::do_strstr()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strstr(strA.c_str(), strB.c_str()) * 10000));
+}
+
+void FFScript::do_strcat()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strcat(strA.c_str(), strB.c_str()) * 10000));
+}
+void FFScript::do_strspn()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strspn(strA.c_str(), strB.c_str()) * 10000));
+}
+
+void FFScript::do_strcspn()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strcspn(strA.c_str(), strB.c_str()) * 10000));
+}
+
+void FFScript::do_strchr()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	set_register(sarg1, (strchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_strrchr()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	set_register(sarg1, (strrchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_xtoi2()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	set_register(sarg1, (xtoi(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_remchr2()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	set_register(sarg1, (remchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_atoi2()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	set_register(sarg1, (atoi(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_ilen2()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	set_register(sarg1, (ilen(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_xlen2()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	set_register(sarg1, (xlen(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_itoa()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	set_register(sarg1, (itoa(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_xtoa()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	set_register(sarg1, (xtoa(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
 
 void FFScript::do_strcpy(const bool a, const bool b)
 {
@@ -22568,7 +22738,18 @@ void FFScript::do_strcpy(const bool a, const bool b)
 	if(ArrayH::setArray(arrayptr_b, strA.c_str()) == SH::_Overflow)
 		Z_scripterrlog("Dest string supplied to 'strcpy()' not large enough\n");
 }
+void FFScript::do_arraycpy(const bool a, const bool b)
+{
+	long arrayptr_b = SH::get_arg(sarg1, a) / 10000;
+	long arrayptr_a = SH::get_arg(sarg2, b) / 10000;
+    
+	string strA;
 
+	FFCore.getArray(arrayptr_a, strA);
+
+	if(ArrayH::setArray(arrayptr_b, strA.c_str()) == SH::_Overflow)
+		Z_scripterrlog("Dest string supplied to 'ArrayCopy()' not large enough\n");
+}
 void FFScript::do_strlen(const bool v)
 {
 	//Z_scripterrlog("Running: %s\n","strlen()");
