@@ -28,7 +28,25 @@ ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
 
-int zc_strlen(char *p)
+bool FFScript::isNumber(char chr)
+{
+	if ( chr >= '0' )
+	{
+		if ( chr <= '9' ) return true;
+	}
+	return false;
+}
+
+int FFScript::ilen(char *p)
+{
+	int ret = 0; int pos = 0;
+	if(p[pos] == '-')
+		ret++;
+	for(; FFCore.isNumber(p[pos + ret]); ++ret);
+	return ret;
+}
+
+int FFScript::zc_strlen(char *p)
 {
    int count = 0;
  
@@ -41,10 +59,10 @@ int zc_strlen(char *p)
     return count;
 }
 
-int atox(char *ip_str)
+int FFScript::atox(char *ip_str)
 {
 	char tmp[2]={'2','\0'};
-	int op_val=0, i=0, ip_len = strlen(ip_str);
+	int op_val=0, i=0, ip_len = FFCore.zc_strlen(ip_str);
 
 	if(strncmp(ip_str, "0x", 2) == 0)
 	{
@@ -22657,21 +22675,17 @@ void FFScript::do_xtoi(const bool v)
 }
 void FFScript::do_ilen(const bool v)
 {
-	//not implemented, ilen not found
-	//Z_scripterrlog("Running: %s\n","strlen()");
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
 	//Z_scripterrlog("strlen string size is: %d\n", str.length());
-	//set_register(sarg1, (ilen(str.c_str()) * 10000));
+	set_register(sarg1, (FFCore.ilen((char*)str.c_str()) * 10000));
 }
 void FFScript::do_atoi(const bool v)
 {
-	//Z_scripterrlog("Running: %s\n","strlen()");
 	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
 	string str;
 	FFCore.getString(arrayptr, str);
-	//Z_scripterrlog("strlen string size is: %d\n", str.length());
 	set_register(sarg1, (atoi(str.c_str()) * 10000));
 }
 
@@ -22781,6 +22795,7 @@ void FFScript::do_xtoi2()
 void FFScript::do_remchr2()
 {
 	//Not implemented, remchr not found
+	//not part of any standard library
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
@@ -22820,7 +22835,7 @@ void FFScript::do_itoa()
 	//Returns the number of characters used. 
 	if(ArrayH::setArray(arrayptr_a, the_string) == SH::_Overflow)
 		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
-	set_register(sarg1, (zc_strlen(the_string)*10000));
+	set_register(sarg1, (FFCore.zc_strlen(the_string)*10000));
 }
 void FFScript::do_xtoa()
 {

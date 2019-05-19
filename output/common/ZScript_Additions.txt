@@ -957,6 +957,10 @@ of iterations is known at compile-time.
 //  Global  //
 //////////////
 
+int ilen(string[]);
+ * Returns the number of characters used by a number in the string.
+ * Includes the sign, if negative. 
+
 int itoa(int value, dest_string[]);
  * Places value into a string as char. 
  * Returns the number of characters used in the conversion. 
