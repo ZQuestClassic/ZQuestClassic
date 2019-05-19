@@ -22619,7 +22619,7 @@ void FFScript::do_strstr()
 	FFCore.getString(arrayptr_a, strA);
 	FFCore.getString(arrayptr_b, strB);
 	Z_scripterrlog("strstr() returned: %d \n", strstr(strA.c_str(), strB.c_str()));
-	set_register(sarg1, (strstr(strA.c_str(), strB.c_str()) * 10000));
+	set_register(sarg1, ((int)strstr(strA.c_str(), strB.c_str()) * 10000));
 }
 
 void FFScript::do_strcat()
