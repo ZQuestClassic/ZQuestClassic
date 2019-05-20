@@ -1435,7 +1435,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int ltou(*p)
 	{
-		Function* function = getFunction("ilen", 1);
+		Function* function = getFunction("ltou", 1);
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		Opcode *first = new OPopRegister(new VarArgument(EXP2));

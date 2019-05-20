@@ -22724,13 +22724,32 @@ void FFScript::do_LowerToUpper(const bool v)
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	int ret = LowerToUpper(strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1, 0); return;
+	}
+	for ( int q = 0; q < strA.size(); ++q )
+	{
+		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		{
+			if ( strA[q] < 'a' ) { continue; }
+			else strA[q] -= 32;
+			continue;
+		}
+		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		//{
+		//	strA[q] += 32;
+		//	continue;
+		//}
+	}
+	Z_scripterrlog("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
 		set_register(sarg1, 0);
 	}
-	set_register(sarg1, (ret * 10000));
+	else set_register(sarg1, (10000));
 }
 
 void FFScript::do_UpperToLower(const bool v)
@@ -22739,13 +22758,32 @@ void FFScript::do_UpperToLower(const bool v)
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	int ret = UpperToLower(strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1, 0); return;
+	}
+	for ( int q = 0; q < strA.size(); ++q )
+	{
+		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		{
+			if ( strA[q] < 'a' ) { strA[q] += 32; }
+			else continue;
+			continue;
+		}
+		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		//{
+		//	strA[q] += 32;
+		//	continue;
+		//}
+	}
+	Z_scripterrlog("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
 		set_register(sarg1, 0);
 	}
-	set_register(sarg1, (ret * 10000));
+	else set_register(sarg1, (10000));
 }
 
 void FFScript::do_ConvertCase(const bool v)
