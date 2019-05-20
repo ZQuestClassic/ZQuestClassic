@@ -22743,7 +22743,7 @@ void FFScript::do_LowerToUpper(const bool v)
 		//	continue;
 		//}
 	}
-	Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
@@ -22777,7 +22777,7 @@ void FFScript::do_UpperToLower(const bool v)
 		//	continue;
 		//}
 	}
-	Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
@@ -22811,7 +22811,7 @@ void FFScript::do_ConvertCase(const bool v)
 		//	continue;
 		//}
 	}
-	Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
