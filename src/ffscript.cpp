@@ -75,15 +75,16 @@ int FFScript::ConvertCase(std::string s)
 	}
 	for ( int q = 0; q < s.size(); ++q )
 	{
-		if ( s.at(q) >= 'a' || s.at(q) <= 'z' )
+		if ( s[q] >= 'a' || s[q] <= 'z' )
 		{
-			s.at(q) -= 32;
+			s[q] -= 32;
 		}
-		else if ( s.at(q) >= 'A' || s.at(q) <= 'Z' )
+		else if ( s[q] >= 'A' || s[q] <= 'Z' )
 		{
-			s.at(q) += 32;
+			s[q] += 32;
 		}
 	}
+	Z_scripterrlog("FFScript::ConvertCase(std::string s), post-conversion, string is: %s\n", s.c_str());
 	return 1;
 }
 
@@ -22738,7 +22739,7 @@ void FFScript::do_UpperToLower(const bool v)
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	int ret = LowerToUpper(strA);
+	int ret = UpperToLower(strA);
 	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
@@ -22753,13 +22754,32 @@ void FFScript::do_ConvertCase(const bool v)
 	long arrayptr_a = ri->d[0]/10000;
 	string strA;
 	FFCore.getString(arrayptr_a, strA);
-	int ret = LowerToUpper(strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1, 0); return;
+	}
+	for ( int q = 0; q < strA.size(); ++q )
+	{
+		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		{
+			if ( strA[q] < 'a' ) { strA[q] += 32; }
+			else strA[q] -= 32;
+			continue;
+		}
+		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		//{
+		//	strA[q] += 32;
+		//	continue;
+		//}
+	}
+	Z_scripterrlog("Converted string is: %s \n", strA.c_str());
 	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
 		set_register(sarg1, 0);
 	}
-	set_register(sarg1, (ret * 10000));
+	else set_register(sarg1, (10000));
 }
 
 void FFScript::do_xlen(const bool v)
