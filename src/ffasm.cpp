@@ -852,6 +852,10 @@ script_command command_list[NUMCOMMANDS+1]=
     { "STRSPN3",		       1,   0,   0,   0},
     { "STRCSPN3",		       1,   0,   0,   0},
     
+    
+    { "UPPERTOLOWER",                2,   0,   0,   0},
+    { "LOWERTOUPPER",                2,   0,   0,   0},
+    { "CONVERTCASE",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

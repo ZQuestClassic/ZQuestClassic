@@ -7825,6 +7825,39 @@ namespace ZScript
 		}
 	};
 	
+	
+	class Ouppertolower : public BinaryOpcode
+	{
+	public:
+		Ouppertolower(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Ouppertolower(a->clone(), b->clone());
+		}
+	};
+	
+	class Olowertoupper : public BinaryOpcode
+	{
+	public:
+		Olowertoupper(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Olowertoupper(a->clone(), b->clone());
+		}
+	};
+	
+	class Oconvertcase : public BinaryOpcode
+	{
+	public:
+		Oconvertcase(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oconvertcase(a->clone(), b->clone());
+		}
+	};
 	class OReturn : public Opcode
 	{
 	public:

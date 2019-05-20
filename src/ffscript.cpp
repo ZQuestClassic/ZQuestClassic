@@ -28,6 +28,65 @@ ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
 
+
+	
+	
+	
+int FFScript::UpperToLower(std::string s)
+{
+	if ( s.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		return 0;
+	}
+	for ( int q = 0; q < s.size(); ++q )
+	{
+		if ( s.at(q) >= 'A' || s.at(q) <= 'Z' )
+		{
+			s.at(q) += 32;
+		}
+	}
+	return 1;
+}
+
+int FFScript::LowerToUpper(std::string s)
+{
+	if ( s.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		return 0;
+	}
+	for ( int q = 0; q < s.size(); ++q )
+	{
+		if ( s.at(q) >= 'a' || s.at(q) <= 'z' )
+		{
+			s.at(q) -= 32;
+		}
+	}
+	return 1;
+}
+
+int FFScript::ConvertCase(std::string s)
+{
+	if ( s.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		return 0;
+	}
+	for ( int q = 0; q < s.size(); ++q )
+	{
+		if ( s.at(q) >= 'a' || s.at(q) <= 'z' )
+		{
+			s.at(q) -= 32;
+		}
+		else if ( s.at(q) >= 'A' || s.at(q) <= 'Z' )
+		{
+			s.at(q) += 32;
+		}
+	}
+	return 1;
+}
+
 bool FFScript::isNumber(char chr)
 {
 	if ( chr >= '0' )
@@ -16985,6 +17044,10 @@ int run_script(const byte type, const word script, const long i)
 		case ILEN2: FFCore.do_ilen2(); break;
 		case ATOI2: FFCore.do_atoi2(); break;
 		case REMCHR2: FFCore.do_remchr2(); break;
+		case UPPERTOLOWER: FFCore.do_UpperToLower(false); break;
+		case LOWERTOUPPER: FFCore.do_LowerToUpper(false); break;
+		case CONVERTCASE: FFCore.do_ConvertCase(false); break;
+			
 		    
 		case ABSR:
 		    do_abs(false);
@@ -22653,6 +22716,52 @@ void FFScript::do_strcmp()
 	FFCore.getString(arrayptr_b, strB);
 	set_register(sarg1, (strcmp(strA.c_str(), strB.c_str()) * 10000));
 }
+
+void FFScript::do_LowerToUpper(const bool v)
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	int ret = LowerToUpper(strA);
+	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	set_register(sarg1, (ret * 10000));
+}
+
+void FFScript::do_UpperToLower(const bool v)
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	int ret = LowerToUpper(strA);
+	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	set_register(sarg1, (ret * 10000));
+}
+
+void FFScript::do_ConvertCase(const bool v)
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	int ret = LowerToUpper(strA);
+	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	set_register(sarg1, (ret * 10000));
+}
+
 void FFScript::do_xlen(const bool v)
 {
 	//not implemented, xlen not found

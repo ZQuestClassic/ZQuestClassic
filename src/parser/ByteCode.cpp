@@ -4640,7 +4640,18 @@ string Oremchr2::toString()
 
 
 
-
+string Ouppertolower::toString()
+{
+    return "UPPERTOLOWER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string Olowertoupper::toString()
+{
+    return "LOWERTOUPPER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string Oconvertcase::toString()
+{
+    return "CONVERTCASE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
 
 
 

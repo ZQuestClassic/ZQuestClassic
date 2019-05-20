@@ -616,6 +616,9 @@ static AccessorTable GlobalTable[] =
 		//{ "xlen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "xtoa",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "ilen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "utol",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ltou",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "convcase",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	//overload, 2 args
 		//{ "ilen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "itoa",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -1415,6 +1418,42 @@ void GlobalSymbols::generateCode()
 		first->setLabel(label);
 		code.push_back(first);
 		code.push_back(new Oilen(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int utol(*p)
+	{
+		Function* function = getFunction("utol", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new Ouppertolower(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int ltou(*p)
+	{
+		Function* function = getFunction("ilen", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new Olowertoupper(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int concase(*p)
+	{
+		Function* function = getFunction("convcase", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new Oconvertcase(new VarArgument(EXP1), new VarArgument(EXP2)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
