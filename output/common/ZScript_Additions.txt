@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 23
-Document Revision: 19th May, 2019
+Document Revision: 20th May, 2019
 
 
 ////////////////////////////////////////////////////
@@ -356,6 +356,17 @@ It is now possible to permit item scripts to run for more than one frame.
 	#ignore error(error_number) {error_generating_code}
 	#ignore warning(error_number) {error_generating_code}
 	catch(error_number) {error_generating_code}
+	
+
+//////////////////////
+// import, #include //
+//////////////////////
+
+The import directive now checks include paths. 
+Order and Priority: It first checks an absolute path, then relative to the ZQ binaries,
+	then include paths. 
+	
+The new directive, #include, checks include paths first, then root, then absolute. 
 	
 
 ///////////////////
@@ -956,6 +967,14 @@ of iterations is known at compile-time.
 //////////////
 //  Global  //
 //////////////
+
+int ilen(string[]);
+ * Returns the number of characters used by a number in the string.
+ * Includes the sign, if negative. 
+
+int itoa(int value, dest_string[]);
+ * Places value into a string as char. 
+ * Returns the number of characters used in the conversion. 
 
 int strcmp(string_a[], string_b[]);
  * Iterates through string_a and string_b until a character is found which is not the same in
