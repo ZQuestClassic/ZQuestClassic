@@ -4653,8 +4653,65 @@ string Oconvertcase::toString()
     return "CONVERTCASE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+//Game->GetByString functions
+//similar to Oconvertcase
 
-
+string OGETNPCSCRIPT::toString()
+{
+    return "GETNPCSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETLWEAPONSCRIPT::toString()
+{
+    return "GETLWEAPONSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETEWEAPONSCRIPT::toString()
+{
+    return "GETEWEAPONSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETHEROSCRIPT::toString()
+{
+    return "GETHEROSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETGLOBALSCRIPT::toString()
+{
+    return "GETGLOBALSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETDMAPSCRIPT::toString()
+{
+    return "GETDMAPSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETSCREENSCRIPT::toString()
+{
+    return "GETSCREENSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETSPRITESCRIPT::toString()
+{
+    return "GETSPRITESCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETUNTYPEDSCRIPT::toString()
+{
+    return "GETUNTYPEDSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETSUBSCREENSCRIPT::toString()
+{
+    return "GETSUBSCREENSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETNPCBYNAME::toString()
+{
+    return "GETNPCBYNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETITEMBYNAME::toString()
+{
+    return "GETITEMBYNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETCOMBOBYNAME::toString()
+{
+    return "GETCOMBOBYNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OGETDMAPBYNAME::toString()
+{
+    return "GETDMAPBYNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
 
 
 
