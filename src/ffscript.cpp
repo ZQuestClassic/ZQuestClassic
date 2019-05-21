@@ -16149,7 +16149,7 @@ void do_getffcscript()
     int num=-1;
     ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         if(strcmp(name.c_str(), ffcmap[i].second.c_str())==0)
         {
@@ -17049,6 +17049,20 @@ int run_script(const byte type, const word script, const long i)
 		case LOWERTOUPPER: FFCore.do_LowerToUpper(false); break;
 		case CONVERTCASE: FFCore.do_ConvertCase(false); break;
 			
+		case GETNPCSCRIPT:	FFCore.do_getnpcscript(false); break;
+		case GETLWEAPONSCRIPT:	FFCore.do_getlweaponscript(false); break;
+		case GETEWEAPONSCRIPT:	FFCore.do_geteweaponscript(false); break;
+		case GETHEROSCRIPT:	FFCore.do_getheroscript(false); break;
+		case GETGLOBALSCRIPT:	FFCore.do_getglobalscript(false); break;
+		case GETDMAPSCRIPT:	FFCore.do_getdmapscript(false); break;
+		case GETSCREENSCRIPT:	FFCore.do_getscreenscript(false); break;
+		case GETSPRITESCRIPT:	FFCore.do_getitemspritescript(false); break;
+		case GETUNTYPEDSCRIPT:	FFCore.do_getuntypedscript(false); break;
+		case GETSUBSCREENSCRIPT:FFCore.do_getsubscreenscript(false); break;
+		case GETNPCBYNAME:	FFCore.do_getnpcbyname(false); break;
+		case GETITEMBYNAME:	FFCore.do_getitembyname(false); break;
+		case GETCOMBOBYNAME:	FFCore.do_getcombobyname(false); break;
+		case GETDMAPBYNAME:	FFCore.do_getdmapbyname(false); break;
 		    
 		case ABSR:
 		    do_abs(false);
@@ -22784,6 +22798,236 @@ void FFScript::do_UpperToLower(const bool v)
 		set_register(sarg1, 0);
 	}
 	else set_register(sarg1, (10000));
+}
+
+void FFScript::do_getnpcscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTGUYS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), npcmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getlweaponscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTWEAPONS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), lwpnmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_geteweaponscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTWEAPONS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), ewpnmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getheroscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTLINK; q++)
+	{
+		if(!(strcmp(the_string.c_str(), linkmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getglobalscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTGLOBAL; q++)
+	{
+		if(!(strcmp(the_string.c_str(), globalmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getdmapscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTSDMAP; q++)
+	{
+		if(!(strcmp(the_string.c_str(), dmapmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getscreenscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTSCREEN; q++)
+	{
+		if(!(strcmp(the_string.c_str(), screenmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getitemspritescript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTSITEMSPRITE; q++)
+	{
+		if(!(strcmp(the_string.c_str(), itemspritemap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+//Not assigned to slots at present. If they ever are, then this would get the id of any script (any type) by name. -Z
+void FFScript::do_getuntypedscript(const bool v)
+{
+	set_register(sarg1, 0);
+	//long arrayptr = ri->d[0]/10000;
+	//string the_string;
+	//int script_num = -1;
+	//FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	//for(int q = 0; q < NUMSCRIPTSITEMSPRITE; q++)
+	//{
+	//	if(!(strcmp(the_string.c_str(), itemspritemap[q].second.c_str())))
+	//	{
+	//		script_num = q+1;
+	//		break;
+	//	}
+	//}
+	//set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getsubscreenscript(const bool v)
+{
+	//long arrayptr = ri->d[0]/10000;
+	//string the_string;
+	//int script_num = -1;
+	//FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	//for(int q = 0; q < NUMSCRIPTSUBSCREEN; q++)
+	//{
+	//	if(!(strcmp(the_string.c_str(), subscreenmap[q].second.c_str())))
+	//	{
+	//		script_num = q+1;
+	//		break;
+	//	}
+	//}
+	//set_register(sarg1, (script_num * 10000));
+	set_register(sarg1, 0); //Remove this line, when we add this script type, then un-comment the rest. -Z
+}
+void FFScript::do_getnpcbyname(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXNPCS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), guy_string[q])))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
+}	
+void FFScript::do_getitembyname(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXNPCS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), item_string[q])))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
+}	
+void FFScript::do_getcombobyname(const bool v)
+{
+	set_register(sarg1, 0); //Until I add combo labels. -Z
+	
+}
+void FFScript::do_getdmapbyname(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXNPCS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), DMaps[q].title)))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
 }
 
 void FFScript::do_ConvertCase(const bool v)
