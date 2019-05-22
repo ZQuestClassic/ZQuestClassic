@@ -18753,6 +18753,10 @@ int run_script(const byte type, const word script, const long i)
 		dmap_waitdraw = true;
 		break;
 	
+	case SCRIPT_SCREEN:
+		tempscr->screen_waitdraw = 1;
+		break;
+	
         default:
             Z_scripterrlog("Waitdraw can only be used in the active global script\n");
             break;
@@ -18891,10 +18895,7 @@ int ffscript_engine(const bool preload)
         ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
         tmpscr->initialized[i] = true;
     }
-    if ( tmpscr->script != 0 )
-    {
-	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);    
-    }
+    
     
     return 0;
 }
