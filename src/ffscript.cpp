@@ -18757,6 +18757,10 @@ int run_script(const byte type, const word script, const long i)
 		tmpscr->screen_waitdraw = 1;
 		break;
 	
+	case SCRIPT_FFC:
+		set_bit(tmpscr->ffcswaitdraw, i, 1);
+		break;
+	
         default:
             Z_scripterrlog("Waitdraw can only be used in the active global script\n");
             break;

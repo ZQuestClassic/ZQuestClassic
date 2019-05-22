@@ -14024,6 +14024,19 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
 	tmpscr->screen_waitdraw = 0;	    
     }
+    
+    for ( int q = 0; q < 32; ++q )
+    {
+	if ( get_bit(tmpscr->ffcswaitdraw, q) )
+	{
+		if(tmpscr->ffscript[q] != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
+			set_bit(tmpscr->ffcswaitdraw, q, 0);
+		}
+	}
+    }
+    
     do
     {
         draw_screen(tmpscr);
