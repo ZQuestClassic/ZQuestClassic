@@ -28,6 +28,66 @@ ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
 
+
+	
+	
+	
+int FFScript::UpperToLower(std::string s)
+{
+	if ( s.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		return 0;
+	}
+	for ( int q = 0; q < s.size(); ++q )
+	{
+		if ( s.at(q) >= 'A' || s.at(q) <= 'Z' )
+		{
+			s.at(q) += 32;
+		}
+	}
+	return 1;
+}
+
+int FFScript::LowerToUpper(std::string s)
+{
+	if ( s.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		return 0;
+	}
+	for ( int q = 0; q < s.size(); ++q )
+	{
+		if ( s.at(q) >= 'a' || s.at(q) <= 'z' )
+		{
+			s.at(q) -= 32;
+		}
+	}
+	return 1;
+}
+
+int FFScript::ConvertCase(std::string s)
+{
+	if ( s.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		return 0;
+	}
+	for ( int q = 0; q < s.size(); ++q )
+	{
+		if ( s[q] >= 'a' || s[q] <= 'z' )
+		{
+			s[q] -= 32;
+		}
+		else if ( s[q] >= 'A' || s[q] <= 'Z' )
+		{
+			s[q] += 32;
+		}
+	}
+	Z_scripterrlog("FFScript::ConvertCase(std::string s), post-conversion, string is: %s\n", s.c_str());
+	return 1;
+}
+
 bool FFScript::isNumber(char chr)
 {
 	if ( chr >= '0' )
@@ -188,6 +248,7 @@ extern std::map<int, std::pair<string, string> > lwpnmap;
 extern std::map<int, std::pair<string, string> > linkmap;
 extern std::map<int, std::pair<string, string> > dmapmap;
 extern std::map<int, std::pair<string, string> > screenmap;
+extern std::map<int, std::pair<string, string> > itemspritemap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
@@ -16089,7 +16150,7 @@ void do_getffcscript()
     int num=-1;
     ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         if(strcmp(name.c_str(), ffcmap[i].second.c_str())==0)
         {
@@ -16985,6 +17046,24 @@ int run_script(const byte type, const word script, const long i)
 		case ILEN2: FFCore.do_ilen2(); break;
 		case ATOI2: FFCore.do_atoi2(); break;
 		case REMCHR2: FFCore.do_remchr2(); break;
+		case UPPERTOLOWER: FFCore.do_UpperToLower(false); break;
+		case LOWERTOUPPER: FFCore.do_LowerToUpper(false); break;
+		case CONVERTCASE: FFCore.do_ConvertCase(false); break;
+			
+		case GETNPCSCRIPT:	FFCore.do_getnpcscript(false); break;
+		case GETLWEAPONSCRIPT:	FFCore.do_getlweaponscript(false); break;
+		case GETEWEAPONSCRIPT:	FFCore.do_geteweaponscript(false); break;
+		case GETHEROSCRIPT:	FFCore.do_getheroscript(false); break;
+		case GETGLOBALSCRIPT:	FFCore.do_getglobalscript(false); break;
+		case GETDMAPSCRIPT:	FFCore.do_getdmapscript(false); break;
+		case GETSCREENSCRIPT:	FFCore.do_getscreenscript(false); break;
+		case GETSPRITESCRIPT:	FFCore.do_getitemspritescript(false); break;
+		case GETUNTYPEDSCRIPT:	FFCore.do_getuntypedscript(false); break;
+		case GETSUBSCREENSCRIPT:FFCore.do_getsubscreenscript(false); break;
+		case GETNPCBYNAME:	FFCore.do_getnpcbyname(false); break;
+		case GETITEMBYNAME:	FFCore.do_getitembyname(false); break;
+		case GETCOMBOBYNAME:	FFCore.do_getcombobyname(false); break;
+		case GETDMAPBYNAME:	FFCore.do_getdmapbyname(false); break;
 		    
 		case ABSR:
 		    do_abs(false);
@@ -22653,6 +22732,339 @@ void FFScript::do_strcmp()
 	FFCore.getString(arrayptr_b, strB);
 	set_register(sarg1, (strcmp(strA.c_str(), strB.c_str()) * 10000));
 }
+
+void FFScript::do_LowerToUpper(const bool v)
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1, 0); return;
+	}
+	for ( int q = 0; q < strA.size(); ++q )
+	{
+		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		{
+			if ( strA[q] < 'a' ) { continue; }
+			else strA[q] -= 32;
+			continue;
+		}
+		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		//{
+		//	strA[q] += 32;
+		//	continue;
+		//}
+	}
+	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	else set_register(sarg1, (10000));
+}
+
+void FFScript::do_UpperToLower(const bool v)
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1, 0); return;
+	}
+	for ( int q = 0; q < strA.size(); ++q )
+	{
+		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		{
+			if ( strA[q] < 'a' ) { strA[q] += 32; }
+			else continue;
+			continue;
+		}
+		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		//{
+		//	strA[q] += 32;
+		//	continue;
+		//}
+	}
+	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	else set_register(sarg1, (10000));
+}
+
+void FFScript::do_getnpcscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTGUYS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), npcmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getlweaponscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTWEAPONS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), lwpnmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_geteweaponscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTWEAPONS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), ewpnmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getheroscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTLINK; q++)
+	{
+		if(!(strcmp(the_string.c_str(), linkmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getglobalscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTGLOBAL; q++)
+	{
+		if(!(strcmp(the_string.c_str(), globalmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getdmapscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTSDMAP; q++)
+	{
+		if(!(strcmp(the_string.c_str(), dmapmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getscreenscript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTSCREEN; q++)
+	{
+		if(!(strcmp(the_string.c_str(), screenmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getitemspritescript(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTSITEMSPRITE; q++)
+	{
+		if(!(strcmp(the_string.c_str(), itemspritemap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+//Not assigned to slots at present. If they ever are, then this would get the id of any script (any type) by name. -Z
+void FFScript::do_getuntypedscript(const bool v)
+{
+	set_register(sarg1, 0);
+	//long arrayptr = ri->d[0]/10000;
+	//string the_string;
+	//int script_num = -1;
+	//FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	//for(int q = 0; q < NUMSCRIPTSITEMSPRITE; q++)
+	//{
+	//	if(!(strcmp(the_string.c_str(), itemspritemap[q].second.c_str())))
+	//	{
+	//		script_num = q+1;
+	//		break;
+	//	}
+	//}
+	//set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getsubscreenscript(const bool v)
+{
+	//long arrayptr = ri->d[0]/10000;
+	//string the_string;
+	//int script_num = -1;
+	//FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	//for(int q = 0; q < NUMSCRIPTSUBSCREEN; q++)
+	//{
+	//	if(!(strcmp(the_string.c_str(), subscreenmap[q].second.c_str())))
+	//	{
+	//		script_num = q+1;
+	//		break;
+	//	}
+	//}
+	//set_register(sarg1, (script_num * 10000));
+	set_register(sarg1, 0); //Remove this line, when we add this script type, then un-comment the rest. -Z
+}
+void FFScript::do_getnpcbyname(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXNPCS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), guy_string[q])))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
+}	
+void FFScript::do_getitembyname(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXNPCS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), item_string[q])))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
+}	
+void FFScript::do_getcombobyname(const bool v)
+{
+	set_register(sarg1, 0); //Until I add combo labels. -Z
+	
+}
+void FFScript::do_getdmapbyname(const bool v)
+{
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXNPCS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), DMaps[q].title)))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
+}
+
+void FFScript::do_ConvertCase(const bool v)
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1, 0); return;
+	}
+	for ( int q = 0; q < strA.size(); ++q )
+	{
+		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		{
+			if ( strA[q] < 'a' ) { strA[q] += 32; }
+			else strA[q] -= 32;
+			continue;
+		}
+		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		//{
+		//	strA[q] += 32;
+		//	continue;
+		//}
+	}
+	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	else set_register(sarg1, (10000));
+}
+
 void FFScript::do_xlen(const bool v)
 {
 	//not implemented, xlen not found

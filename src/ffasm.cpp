@@ -852,6 +852,25 @@ script_command command_list[NUMCOMMANDS+1]=
     { "STRSPN3",		       1,   0,   0,   0},
     { "STRCSPN3",		       1,   0,   0,   0},
     
+    
+    { "UPPERTOLOWER",                2,   0,   0,   0},
+    { "LOWERTOUPPER",                2,   0,   0,   0},
+    { "CONVERTCASE",                2,   0,   0,   0},
+    //Game->Get
+    { "GETNPCSCRIPT",                2,   0,   0,   0},
+    { "GETLWEAPONSCRIPT",                2,   0,   0,   0},
+    { "GETEWEAPONSCRIPT",                2,   0,   0,   0},
+    { "GETHEROSCRIPT",                2,   0,   0,   0},
+    { "GETGLOBALSCRIPT",                2,   0,   0,   0},
+    { "GETDMAPSCRIPT",                2,   0,   0,   0},
+    { "GETSCREENSCRIPT",                2,   0,   0,   0},
+    { "GETSPRITESCRIPT",                2,   0,   0,   0},
+    { "GETUNTYPEDSCRIPT",                2,   0,   0,   0},
+    { "GETSUBSCREENSCRIPT",                2,   0,   0,   0},
+    { "GETNPCBYNAME",                2,   0,   0,   0},
+    { "GETITEMBYNAME",                2,   0,   0,   0},
+    { "GETCOMBOBYNAME",                2,   0,   0,   0},
+    { "GETDMAPBYNAME",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

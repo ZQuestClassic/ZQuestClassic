@@ -207,9 +207,32 @@ void do_xtoi(const bool v);
 void do_ilen(const bool v);
 void do_atoi(const bool v);
 bool isNumber(char chr);
+int UpperToLower(std::string s);
+int LowerToUpper(std::string s);
+int ConvertCase(std::string s);
 int ilen(char *p);
 int zc_strlen(char *p);
 int atox(char *ip_str);
+void do_LowerToUpper(const bool v);
+void do_UpperToLower(const bool v);
+void do_ConvertCase(const bool v);
+
+void do_getnpcscript(const bool v);
+void do_getlweaponscript(const bool v);
+void do_geteweaponscript(const bool v);
+void do_getheroscript(const bool v);
+void do_getglobalscript(const bool v);
+void do_getdmapscript(const bool v);
+void do_getscreenscript(const bool v);
+void do_getitemspritescript(const bool v);
+void do_getuntypedscript(const bool v);
+void do_getsubscreenscript(const bool v);
+void do_getnpcbyname(const bool v);
+void do_getitembyname(const bool v);
+void do_getcombobyname(const bool v);
+void do_getdmapbyname(const bool v);
+
+
 void do_strstr();
 void do_strcat();
 void do_strspn();
@@ -2212,7 +2235,26 @@ enum ASM_DEFINE
 	STRRCHR3,
 	STRSPN3,
 	STRCSPN3,
-    
+	UPPERTOLOWER,
+	LOWERTOUPPER,
+	CONVERTCASE,
+	//Game->Get
+	GETNPCSCRIPT,
+	GETLWEAPONSCRIPT,
+	GETEWEAPONSCRIPT,
+	GETHEROSCRIPT,
+	GETGLOBALSCRIPT,
+	GETDMAPSCRIPT,
+	GETSCREENSCRIPT,
+	GETSPRITESCRIPT,
+	GETUNTYPEDSCRIPT,
+	GETSUBSCREENSCRIPT,
+	GETNPCBYNAME,
+	GETITEMBYNAME,
+	GETCOMBOBYNAME,
+	GETDMAPBYNAME,
+
+
 	NUMCOMMANDS           //0x014D
 };
 

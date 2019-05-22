@@ -7825,6 +7825,183 @@ namespace ZScript
 		}
 	};
 	
+	
+	class Ouppertolower : public BinaryOpcode
+	{
+	public:
+		Ouppertolower(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Ouppertolower(a->clone(), b->clone());
+		}
+	};
+	
+	class Olowertoupper : public BinaryOpcode
+	{
+	public:
+		Olowertoupper(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Olowertoupper(a->clone(), b->clone());
+		}
+	};
+	
+	class Oconvertcase : public BinaryOpcode
+	{
+	public:
+		Oconvertcase(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new Oconvertcase(a->clone(), b->clone());
+		}
+	};
+	
+	
+	//Game->Getthingbystring
+	class OGETNPCSCRIPT : public BinaryOpcode
+	{
+	public:
+		OGETNPCSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETNPCSCRIPT(a->clone(), b->clone());
+		}
+	};
+	class OGETLWEAPONSCRIPT : public BinaryOpcode
+	{
+	public:
+		OGETLWEAPONSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETLWEAPONSCRIPT(a->clone(), b->clone());
+		}
+	};
+	class OGETEWEAPONSCRIPT : public BinaryOpcode
+	{
+	public:
+		OGETEWEAPONSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETEWEAPONSCRIPT(a->clone(), b->clone());
+		}
+	};
+	class OGETHEROSCRIPT : public BinaryOpcode
+	{
+	public:
+		OGETHEROSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETHEROSCRIPT(a->clone(), b->clone());
+		}
+	};
+	class OGETGLOBALSCRIPT : public BinaryOpcode
+	{
+	public:
+		OGETGLOBALSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETGLOBALSCRIPT(a->clone(), b->clone());
+		}
+	};
+	class OGETDMAPSCRIPT : public BinaryOpcode
+	{
+	public:
+		OGETDMAPSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETDMAPSCRIPT(a->clone(), b->clone());
+		}
+	};
+	class OGETSCREENSCRIPT : public BinaryOpcode
+	{
+	public:
+		OGETSCREENSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETSCREENSCRIPT(a->clone(), b->clone());
+		}
+	};
+	class OGETSPRITESCRIPT : public BinaryOpcode
+	{
+	public:
+		OGETSPRITESCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETSPRITESCRIPT(a->clone(), b->clone());
+		}
+	};
+	class OGETUNTYPEDSCRIPT : public BinaryOpcode
+	{
+	public:
+		OGETUNTYPEDSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETUNTYPEDSCRIPT(a->clone(), b->clone());
+		}
+	};
+	class OGETSUBSCREENSCRIPT : public BinaryOpcode
+	{
+	public:
+		OGETSUBSCREENSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETSUBSCREENSCRIPT(a->clone(), b->clone());
+		}
+	};
+	class OGETNPCBYNAME : public BinaryOpcode
+	{
+	public:
+		OGETNPCBYNAME(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETNPCBYNAME(a->clone(), b->clone());
+		}
+	};
+	class OGETITEMBYNAME : public BinaryOpcode
+	{
+	public:
+		OGETITEMBYNAME(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETITEMBYNAME(a->clone(), b->clone());
+		}
+	};
+	class OGETCOMBOBYNAME : public BinaryOpcode
+	{
+	public:
+		OGETCOMBOBYNAME(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETCOMBOBYNAME(a->clone(), b->clone());
+		}
+	};
+	class OGETDMAPBYNAME : public BinaryOpcode
+	{
+	public:
+		OGETDMAPBYNAME(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGETDMAPBYNAME(a->clone(), b->clone());
+		}
+	};
+	
 	class OReturn : public Opcode
 	{
 	public:
