@@ -968,6 +968,22 @@ of iterations is known at compile-time.
 //  Global  //
 //////////////
 
+int utol(*string);
+ * Converts all uppercase characters in a string to lowercase characters.
+ * Returns the pointer to the string.
+ * String MUST not be a literal.
+ 
+int ltou(*string);
+ * Converts all lowercase characters in a string to uppercase characters.
+ * Returns the pointer to the string.
+ * String MUST not be a literal.
+ 
+int convcase(*string);
+ * Converts all lowercase characters in a string to uppercase characters, and
+ * all uppercase characters in a string to lowercase characters.
+ * Returns the pointer to the string.
+ * String MUST not be a literal.
+
 int ilen(string[]);
  * Returns the number of characters used by a number in the string.
  * Includes the sign, if negative. 
@@ -1048,6 +1064,63 @@ untyped Untype(any)
 //  Game  //
 ////////////
 
+Adds ZScript:
+
+Game->GetNPCScript("name");
+ * Returns the slot ID of the npc script 'name'.
+ * Returns -1 if there is no match.
+ 
+Game->GetLWeaponScript("name");
+ * Returns the slot ID of the lweapon script 'name'.
+ * Returns -1 if there is no match.
+ 
+Game->GetEWeaponScript("name");
+ * Returns the slot ID of the eweapon script 'name'.
+ * Returns -1 if there is no match.
+ 
+Game->GetHeroScript("name");
+Game->GetLinkScript("name");
+Game->GetPlayerScript("name");
+ * Returns the slot ID of the hero script 'name'.
+ * Returns -1 if there is no match.
+
+Game->GetDMapScript("name");
+ * Returns the slot ID of the dmapdata script 'name'.
+ * Returns -1 if there is no match.
+ 
+Game->GetScreenScript("name");
+ * Returns the slot ID of the screendata script 'name'.
+ * Returns -1 if there is no match.
+ 
+Game->GetSubscreenScript("name");
+ * Returns the slot ID of the subscreen script 'name'.
+ * Returns -1 if there is no match.
+ * Thos script type is not implemented at this time.
+ 
+Game->GetUntypedScript("name");
+ * Returns 0; not implemented as this script type has no slot assignment at this time.
+ 
+Game->GetItemSpriteScript("name");
+ * Returns the slot ID of the itemsprite script 'name'.
+ * Returns -1 if there is no match.
+ 
+Game->GetNPC("name");
+ * Returns the ID of the npc 'name'.
+ * Returns -1 if there is no match.
+ 
+Game->GetItem("name");
+ * Returns the ID of the item 'name'.
+ * Returns -1 if there is no match.
+ 
+Game->GetDMap("name");
+ * Returns the ID of the DMap 'name'.
+ * Returns -1 if there is no match.
+ 
+Game->GetCombo("name");
+ * Returns the ID of the combo with label 'name'.
+ * Returns -1 if there is no match.
+ * Combo labels are not yet implemented.
+ 
 bool FFRules[800];
  * An array consisting of all quest rules. 
 
