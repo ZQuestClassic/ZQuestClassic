@@ -303,6 +303,25 @@ int get_bit(byte *bitstr,int bit)
     return ((*bitstr) >> (bit&7))&1;
 }
 
+
+void set_bitl(long *bitstr,int bit,byte val)
+{
+    bitstr += bit>>3;
+    byte mask = 1 << (bit&7);
+    
+    if(val)
+        *bitstr |= mask;
+    else
+        *bitstr &= ~mask;
+}
+
+int get_bitl(long *bitstr,int bit)
+{
+    bitstr += bit>>3;
+    return ((*bitstr) >> (bit&7))&1;
+}
+
+
 void Z_error(const char *format,...)
 {
     char buf[256];
