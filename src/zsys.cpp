@@ -304,21 +304,21 @@ int get_bit(byte *bitstr,int bit)
 }
 
 
-void set_bitl(long *bitstr,int bit,byte val)
+void set_bitl(long bitstr,int bit,byte val)
 {
     bitstr += bit>>3;
     byte mask = 1 << (bit&7);
     
     if(val)
-        *bitstr |= mask;
+        bitstr |= mask;
     else
-        *bitstr &= ~mask;
+        bitstr &= ~mask;
 }
 
-int get_bitl(long *bitstr,int bit)
+int get_bitl(long bitstr,int bit)
 {
     bitstr += bit>>3;
-    return ((*bitstr) >> (bit&7))&1;
+    return ((bitstr) >> (bit&7))&1;
 }
 
 

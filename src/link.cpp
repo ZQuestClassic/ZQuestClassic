@@ -14027,12 +14027,12 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     
     for ( int q = 0; q < 32; ++q )
     {
-	if ( get_bit(tmpscr->ffcswaitdraw, q) )
+	if ( get_bitl(tmpscr->ffcswaitdraw, q) )
 	{
 		if(tmpscr->ffscript[q] != 0)
 		{
 			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
-			set_bit(tmpscr->ffcswaitdraw, q, 0);
+			set_bitl(tmpscr->ffcswaitdraw, q, 0);
 		}
 	}
     }

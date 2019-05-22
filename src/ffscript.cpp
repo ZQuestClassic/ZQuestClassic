@@ -18758,7 +18758,7 @@ int run_script(const byte type, const word script, const long i)
 		break;
 	
 	case SCRIPT_FFC:
-		set_bit(tmpscr->ffcswaitdraw, i, 1);
+		set_bitl(tmpscr->ffcswaitdraw, i, 1);
 		break;
 	
         default:
