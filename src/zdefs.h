@@ -1973,6 +1973,7 @@ struct mapscr
     word script;
     long screeninitd[8];
     byte screen_waitdraw;
+    long ffcswaitdraw;
     
     void zero_memory()
     {
@@ -2133,6 +2134,7 @@ struct mapscr
 	for ( int q = 0; q < 8; q++) screeninitd[q] = 0;
         
 	screen_waitdraw = 0;
+	ffcswaitdraw = 0;
 	
         data.assign(176,0);
         sflag.assign(176,0);
