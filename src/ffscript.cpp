@@ -18766,7 +18766,7 @@ int run_script(const byte type, const word script, const long i)
 		break;
 	
         default:
-            Z_scripterrlog("Waitdraw cannot be used in script type %s\n", script_types[type]);
+            Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", script_types[type]);
             break;
         }
     }
