@@ -248,6 +248,7 @@ extern std::map<int, std::pair<string, string> > lwpnmap;
 extern std::map<int, std::pair<string, string> > linkmap;
 extern std::map<int, std::pair<string, string> > dmapmap;
 extern std::map<int, std::pair<string, string> > screenmap;
+extern std::map<int, std::pair<string, string> > itemspritemap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
