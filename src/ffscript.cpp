@@ -18754,7 +18754,7 @@ int run_script(const byte type, const word script, const long i)
 		break;
 	
 	case SCRIPT_SCREEN:
-		tempscr->screen_waitdraw = 1;
+		tmpscr->screen_waitdraw = 1;
 		break;
 	
         default:
