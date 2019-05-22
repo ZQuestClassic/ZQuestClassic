@@ -28,7 +28,11 @@ ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
 
-
+const char script_types[11][16]=
+{
+	"global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
+	"eweapon", "dmapdata", "itemsprite"
+};
 	
 	
 	
@@ -18762,7 +18766,7 @@ int run_script(const byte type, const word script, const long i)
 		break;
 	
         default:
-            Z_scripterrlog("Waitdraw can only be used in the active global script\n");
+            Z_scripterrlog("Waitdraw cannot be used in script type %s\n", script_types[type]);
             break;
         }
     }
