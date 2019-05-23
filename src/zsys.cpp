@@ -306,7 +306,7 @@ int get_bit(byte *bitstr,int bit)
 
 void set_bitl(long bitstr,int bit,byte val)
 {
-	if ( val )
+	if ( val ) //intel u32
 	{
 		bitstr |= (1<<bit);
 	}
@@ -315,7 +315,7 @@ void set_bitl(long bitstr,int bit,byte val)
 
 int get_bitl(long bitstr,int bit)
 {
-    return bitstr&(1<<bit);
+    return bitstr&(1<<bit); //intel u32
     //bitstr += bit>>3;
     //return ((bitstr) >> (bit&7))&1;
 }
