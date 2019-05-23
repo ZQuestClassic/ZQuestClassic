@@ -3020,6 +3020,9 @@ void game_loop()
 	}
     }
     
+    //Waitdraw for item scripts. 
+    FFCore.itemScriptEngineOnWaitdraw();
+    
     
     
     #if LOGGAMELOOP > 0

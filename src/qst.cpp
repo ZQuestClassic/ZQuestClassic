@@ -2715,6 +2715,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     if ( tempheader.zelda_version < 0x255 )
     {
 	  set_bit(quest_rules, qr_NOFFCWAITDRAW, 1);  
+	  set_bit(quest_rules, qr_NOITEMWAITDRAW, 1);  
     }
     //Sideview spikes in 2.50.0
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3

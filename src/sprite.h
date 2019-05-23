@@ -93,6 +93,7 @@ public:
     //word pc;
     dword scriptflag;
     word doscript;
+    byte waitdraw;
     //byte itemclass;
     //byte guyclass; 
     //byte lwpnclass;

@@ -179,6 +179,7 @@ int FFScript::atox(char *ip_str)
 }
 
 char runningItemScripts[256] = {0};
+byte itemScriptsWaitdraw[256] = {0};
  
 //item *FFCore.temp_ff_item = NULL;
 //enemy *FFCore.temp_ff_enemy = NULL;
@@ -18761,11 +18762,44 @@ int run_script(const byte type, const word script, const long i)
 		tmpscr->screen_waitdraw = 1;
 		break;
 	
+	case SCRIPT_ITEM:
+		itemScriptsWaitdraw[i] = 1;
+		break;
+	
+	case SCRIPT_NPC:
+	{
+		guys.spr(GuyH::getNPCIndex(i))->waitdraw = 1;
+		break;
+	}
+	case SCRIPT_LWPN:
+	{
+		Lwpns.spr(LwpnH::getLWeaponIndex(i))->waitdraw = 1;
+		break;
+	}
+	case SCRIPT_EWPN:
+	{
+	
+		Ewpns.spr(EwpnH::getEWeaponIndex(i))->waitdraw = 1;
+		break;
+	}
+	case SCRIPT_ITEMSPRITE:
+	{
+		items.spr(ItemH::getItemIndex(i))->waitdraw = 1;
+		break;
+	}
+	
 	case SCRIPT_FFC:
 	{
+		if ( !(get_bit(quest_rules, qr_NOFFCWAITDRAW)) )
+		{
 		//Z_scripterrlog("FFScript: FFC (%d) issued WAITDRAW\n", i);
-		tmpscr->ffcswaitdraw |= (1<<i);
+			tmpscr->ffcswaitdraw |= (1<<i);
 		//set_bitl(tmpscr->ffcswaitdraw, i, 1);
+		}
+		else
+		{
+			Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", "ffc, with Script Rule 'No FFC Waitdraw() enabled!");
+		}
 		break;
 	}
 	
@@ -21640,6 +21674,44 @@ bool FFScript::itemScriptEngine()
 				Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
 			}
+		//}
+		    
+	}
+	
+	return false;
+}
+
+bool FFScript::itemScriptEngineOnWaitdraw()
+{
+	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
+	for ( int q = 0; q < 256; q++ )
+	{
+		//Z_scripterrlog("Checking item ID: %d\n",q);
+		if ( itemsbuf[q].script == 0 ) continue;
+		if ( !itemScriptsWaitdraw[q] ) continue;
+		//if ( runningItemScripts[i] == 1 )
+		//{
+			//Z_scripterrlog("Found a script running on item ID: %d\n",q);
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
+			if ( runningItemScripts[q] == 1 )
+			{
+				if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
+				{
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+				}
+				else //if the QR isn't set, treat Waitframe as Quit()
+				{
+					runningItemScripts[q] = 0;
+				}
+			}
+			else if ( runningItemScripts[q] == 2 ) //forced to run perpetually by itemdata->RunScript(int mode)
+			{
+				Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+			}
+			itemScriptsWaitdraw[q] = 0;
 		//}
 		    
 	}

@@ -102,6 +102,7 @@ sprite::sprite()
     //ffcref=0;
     scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
     doscript=1;
+    waitdraw = 0;
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
@@ -174,6 +175,7 @@ sprite::sprite(sprite const & other):
 //pc(other.pc),
 scriptflag(other.scriptflag),
 doscript(other.doscript),
+waitdraw(other.waitdraw),
 //itemclass(other.itemclass),
 //guyclass(other.guyclass),
 //lwpnclass(other.lwpnclass),
@@ -250,6 +252,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     //sp=0;
     //ffcref=0;
     doscript=1;
+    waitdraw = 0;
     //itemclass=0;
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
