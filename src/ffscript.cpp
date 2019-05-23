@@ -17055,20 +17055,20 @@ int run_script(const byte type, const word script, const long i)
 		case LOWERTOUPPER: FFCore.do_LowerToUpper(false); break;
 		case CONVERTCASE: FFCore.do_ConvertCase(false); break;
 			
-		case GETNPCSCRIPT:	FFCore.do_getnpcscript(false); break;
-		case GETLWEAPONSCRIPT:	FFCore.do_getlweaponscript(false); break;
-		case GETEWEAPONSCRIPT:	FFCore.do_geteweaponscript(false); break;
-		case GETHEROSCRIPT:	FFCore.do_getheroscript(false); break;
-		case GETGLOBALSCRIPT:	FFCore.do_getglobalscript(false); break;
-		case GETDMAPSCRIPT:	FFCore.do_getdmapscript(false); break;
-		case GETSCREENSCRIPT:	FFCore.do_getscreenscript(false); break;
-		case GETSPRITESCRIPT:	FFCore.do_getitemspritescript(false); break;
-		case GETUNTYPEDSCRIPT:	FFCore.do_getuntypedscript(false); break;
-		case GETSUBSCREENSCRIPT:FFCore.do_getsubscreenscript(false); break;
-		case GETNPCBYNAME:	FFCore.do_getnpcbyname(false); break;
-		case GETITEMBYNAME:	FFCore.do_getitembyname(false); break;
-		case GETCOMBOBYNAME:	FFCore.do_getcombobyname(false); break;
-		case GETDMAPBYNAME:	FFCore.do_getdmapbyname(false); break;
+		case GETNPCSCRIPT:	FFCore.do_getnpcscript(); break;
+		case GETLWEAPONSCRIPT:	FFCore.do_getlweaponscript(); break;
+		case GETEWEAPONSCRIPT:	FFCore.do_geteweaponscript(); break;
+		case GETHEROSCRIPT:	FFCore.do_getheroscript(); break;
+		case GETGLOBALSCRIPT:	FFCore.do_getglobalscript(); break;
+		case GETDMAPSCRIPT:	FFCore.do_getdmapscript(); break;
+		case GETSCREENSCRIPT:	FFCore.do_getscreenscript(); break;
+		case GETSPRITESCRIPT:	FFCore.do_getitemspritescript(); break;
+		case GETUNTYPEDSCRIPT:	FFCore.do_getuntypedscript(); break;
+		case GETSUBSCREENSCRIPT:FFCore.do_getsubscreenscript(); break;
+		case GETNPCBYNAME:	FFCore.do_getnpcbyname(); break;
+		case GETITEMBYNAME:	FFCore.do_getitembyname(); break;
+		case GETCOMBOBYNAME:	FFCore.do_getcombobyname(); break;
+		case GETDMAPBYNAME:	FFCore.do_getdmapbyname(); break;
 		    
 		case ABSR:
 		    do_abs(false);
@@ -23330,9 +23330,9 @@ void FFScript::do_UpperToLower(const bool v)
 	else set_register(sarg1, (10000));
 }
 
-void FFScript::do_getnpcscript(const bool v)
+void FFScript::do_getnpcscript()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23347,9 +23347,9 @@ void FFScript::do_getnpcscript(const bool v)
 	}
 	set_register(sarg1, (script_num * 10000));
 }
-void FFScript::do_getlweaponscript(const bool v)
+void FFScript::do_getlweaponscript()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23364,9 +23364,9 @@ void FFScript::do_getlweaponscript(const bool v)
 	}
 	set_register(sarg1, (script_num * 10000));
 }
-void FFScript::do_geteweaponscript(const bool v)
+void FFScript::do_geteweaponscript()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23381,9 +23381,9 @@ void FFScript::do_geteweaponscript(const bool v)
 	}
 	set_register(sarg1, (script_num * 10000));
 }
-void FFScript::do_getheroscript(const bool v)
+void FFScript::do_getheroscript()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23398,9 +23398,9 @@ void FFScript::do_getheroscript(const bool v)
 	}
 	set_register(sarg1, (script_num * 10000));
 }
-void FFScript::do_getglobalscript(const bool v)
+void FFScript::do_getglobalscript()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23415,9 +23415,9 @@ void FFScript::do_getglobalscript(const bool v)
 	}
 	set_register(sarg1, (script_num * 10000));
 }
-void FFScript::do_getdmapscript(const bool v)
+void FFScript::do_getdmapscript()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23432,9 +23432,9 @@ void FFScript::do_getdmapscript(const bool v)
 	}
 	set_register(sarg1, (script_num * 10000));
 }
-void FFScript::do_getscreenscript(const bool v)
+void FFScript::do_getscreenscript()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23449,9 +23449,9 @@ void FFScript::do_getscreenscript(const bool v)
 	}
 	set_register(sarg1, (script_num * 10000));
 }
-void FFScript::do_getitemspritescript(const bool v)
+void FFScript::do_getitemspritescript()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23467,7 +23467,7 @@ void FFScript::do_getitemspritescript(const bool v)
 	set_register(sarg1, (script_num * 10000));
 }
 //Not assigned to slots at present. If they ever are, then this would get the id of any script (any type) by name. -Z
-void FFScript::do_getuntypedscript(const bool v)
+void FFScript::do_getuntypedscript()
 {
 	set_register(sarg1, 0);
 	//long arrayptr = ri->d[0]/10000;
@@ -23485,7 +23485,7 @@ void FFScript::do_getuntypedscript(const bool v)
 	//}
 	//set_register(sarg1, (script_num * 10000));
 }
-void FFScript::do_getsubscreenscript(const bool v)
+void FFScript::do_getsubscreenscript()
 {
 	//long arrayptr = ri->d[0]/10000;
 	//string the_string;
@@ -23503,9 +23503,9 @@ void FFScript::do_getsubscreenscript(const bool v)
 	//set_register(sarg1, (script_num * 10000));
 	set_register(sarg1, 0); //Remove this line, when we add this script type, then un-comment the rest. -Z
 }
-void FFScript::do_getnpcbyname(const bool v)
+void FFScript::do_getnpcbyname()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23520,9 +23520,9 @@ void FFScript::do_getnpcbyname(const bool v)
 	}
 	set_register(sarg1, (num * 10000));
 }	
-void FFScript::do_getitembyname(const bool v)
+void FFScript::do_getitembyname()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23537,9 +23537,9 @@ void FFScript::do_getitembyname(const bool v)
 	}
 	set_register(sarg1, (num * 10000));
 }	
-void FFScript::do_getcombobyname(const bool v)
+void FFScript::do_getcombobyname()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
@@ -23554,9 +23554,9 @@ void FFScript::do_getcombobyname(const bool v)
 	}
 	set_register(sarg1, (num * 10000));
 }
-void FFScript::do_getdmapbyname(const bool v)
+void FFScript::do_getdmapbyname()
 {
-	long arrayptr = ri->d[0]/10000;
+	long arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?

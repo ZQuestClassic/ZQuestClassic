@@ -630,24 +630,6 @@ static AccessorTable GlobalTable[] =
 	{ "strstr",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "strrchr",               ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
-	//GetThingByStyring
-	
-	{ "GetNPCScript",          ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetLWeaponScript",      ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetEWeaponScript",      ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetHeroScript",         ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetPlayerScript",       ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetLinkScript",         ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetGlobalScript",       ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetDMapScript",         ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetScreenScript",       ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetItemSpriteScript",   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetUntypedScript",      ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetSubscreenScript",    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetNPC",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetItem",               ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetCombo",              ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetDMap",               ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	
 //	TYPE_UNTYPED
@@ -1663,200 +1645,6 @@ void GlobalSymbols::generateCode()
 	}
 	*/
 	
-	//Game->GetThingByString()
-	//int GetNPCScript(*p)
-	{
-		Function* function = getFunction("GetNPCScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETNPCSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetLWeaponScript(*p)
-	{
-		Function* function = getFunction("GetLWeaponScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETLWEAPONSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetEWeaponScript(*p)
-	{
-		Function* function = getFunction("GetEWeaponScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETEWEAPONSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetHeroScript(*p)
-	{
-		Function* function = getFunction("GetHeroScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETHEROSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetPlayerScript(*p)
-	{
-		Function* function = getFunction("GetPlayerScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETHEROSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetLinkScript(*p)
-	{
-		Function* function = getFunction("GetLinkScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETHEROSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetGlobalScript(*p)
-	{
-		Function* function = getFunction("GetGlobalScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETGLOBALSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetDMapScript(*p)
-	{
-		Function* function = getFunction("GetDMapScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETDMAPSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetScreenScript(*p)
-	{
-		Function* function = getFunction("GetScreenScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETSCREENSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetItemSpriteScript(*p)
-	{
-		Function* function = getFunction("GetItemSpriteScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETSPRITESCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetUntypedScript(*p)
-	{
-		Function* function = getFunction("GetUntypedScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETUNTYPEDSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetSubscreenScript(*p)
-	{
-		Function* function = getFunction("GetSubscreenScript", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETSUBSCREENSCRIPT(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetNPC(*p)
-	{
-		Function* function = getFunction("GetNPC", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETNPCBYNAME(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	
-	//int GetItem(*p)
-	{
-		Function* function = getFunction("GetItem", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETITEMBYNAME(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetCombo(*p)
-	{
-		Function* function = getFunction("GetCombo", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETCOMBOBYNAME(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
-	//int GetDMap(*p)
-	{
-		Function* function = getFunction("GetDMap", 1);
-		int label = function->getLabel();
-		vector<Opcode *> code;
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OGETDMAPBYNAME(new VarArgument(EXP1), new VarArgument(EXP2)));
-		code.push_back(new OReturn());
-		function->giveCode(code);
-	}
 	
 	
     
@@ -4009,6 +3797,22 @@ static AccessorTable gameTable[] =
 	{ "GetFFCScript",                  ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 //	Get an item script ID, similar to GetFFCScript()
 	{ "GetItemScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetNPCScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetLWeaponScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetEWeaponScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetPlayerScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetLinkScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetGlobalScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetDMapScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetScreenScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetItemSpriteScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetUntypedScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetSubscreenScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetNPC",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetItem",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetCombo",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetDMap",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetHeroScript",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 //	Monochrome mode
 	{ "GreyscaleOn",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    1,           {  ZVARTYPEID_GAME,         -1,                                  -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GreyscaleOff",                  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    1,           {  ZVARTYPEID_GAME,         -1,                                  -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -5130,6 +4934,247 @@ void GameSymbols::generateCode()
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new OGetItemScript(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
+     //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetNPCScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETNPCSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetLWeaponScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETLWEAPONSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetEWeaponScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETEWEAPONSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetHeroScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETHEROSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetPlayerScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETHEROSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetLinkScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETHEROSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetGlobalScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETGLOBALSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetDMapScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETDMAPSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetScreenScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETSCREENSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetItemSpriteScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETSPRITESCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetUntypedScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETUNTYPEDSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetSubscreenScript", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETSUBSCREENSCRIPT(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetNPC", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETNPCBYNAME(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetItem", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETITEMBYNAME(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetCombo", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETCOMBOBYNAME(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetItemScript(game, int)
+    {
+	    Function* function = getFunction("GetDMap", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OGETDMAPBYNAME(new VarArgument(EXP1)));
         code.push_back(new OReturn());
         function->giveCode(code);
     }

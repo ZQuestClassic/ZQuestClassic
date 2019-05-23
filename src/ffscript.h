@@ -220,21 +220,20 @@ void do_LowerToUpper(const bool v);
 void do_UpperToLower(const bool v);
 void do_ConvertCase(const bool v);
 
-void do_getnpcscript(const bool v);
-void do_getlweaponscript(const bool v);
-void do_geteweaponscript(const bool v);
-void do_getheroscript(const bool v);
-void do_getglobalscript(const bool v);
-void do_getdmapscript(const bool v);
-void do_getscreenscript(const bool v);
-void do_getitemspritescript(const bool v);
-void do_getuntypedscript(const bool v);
-void do_getsubscreenscript(const bool v);
-void do_getnpcbyname(const bool v);
-void do_getitembyname(const bool v);
-void do_getcombobyname(const bool v);
-void do_getdmapbyname(const bool v);
-
+void do_getnpcscript();
+void do_getlweaponscript();
+void do_geteweaponscript();
+void do_getheroscript();
+void do_getglobalscript();
+void do_getdmapscript();
+void do_getscreenscript();
+void do_getitemspritescript();
+void do_getuntypedscript();
+void do_getsubscreenscript();
+void do_getnpcbyname();
+void do_getitembyname();
+void do_getcombobyname();
+void do_getdmapbyname();
 
 void do_strstr();
 void do_strcat();
