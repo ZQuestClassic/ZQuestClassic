@@ -182,7 +182,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          6
 #define V_MISC             10
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           11
+#define V_COMBOS           12
 #define V_CSETS            4
 #define V_MAPS            20
 #define V_DMAPS            13
@@ -2366,6 +2366,7 @@ struct newcombo
 	long usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
 	long triggerflags[3]; //96 bits
 	long triggerlevel; //32 bits
+	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//long triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
 		//Thus, a weapon level affects all triggers for that combo type. 

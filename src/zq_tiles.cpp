@@ -11309,6 +11309,10 @@ static DIALOG combo_dlg[] =
    // { jwin_edit_proc,         8+22+16,    135+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
    // { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
     //104
+    //102
+    { jwin_text_proc,           8+22+16,    90+16+4+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    90-4+16+4+12,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -11429,6 +11433,7 @@ bool edit_combo(int c,bool freshen,int cs)
     char attrib2[8];
     char attrib3[8];
     char minlevel[8];
+    char the_label[11];
     
     char combonumstr[25];
     
@@ -11454,6 +11459,7 @@ bool edit_combo(int c,bool freshen,int cs)
     sprintf(attrib2,"%d",curr_combo.attributes[2]);
     sprintf(attrib3,"%d",curr_combo.attributes[3]);
     sprintf(minlevel,"%d",curr_combo.triggerlevel);
+    strcpy(the_label, curr_combo.label);
     
     combo_dlg[13].dp = cset_str;
     
@@ -11563,6 +11569,8 @@ bool edit_combo(int c,bool freshen,int cs)
     combo_dlg[60].dp = attrib2;
     combo_dlg[62].dp = attrib3;
     combo_dlg[88].dp = minlevel;
+    
+    combo_dlg[103+q].dp = the_label;
     
     
     int index=0;
@@ -11802,6 +11810,7 @@ bool edit_combo(int c,bool freshen,int cs)
         curr_combo.animflags = 0;
         curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
         curr_combo.animflags |= (combo_dlg[42].flags & D_SELECTED) ? AF_CYCLE : 0;
+        strcpy(curr_combo.label, the_label);
         combobuf[c] = curr_combo;
     }
     
