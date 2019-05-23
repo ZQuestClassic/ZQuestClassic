@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 23
-Document Revision: 20th May, 2019
+Document Revision: 23rd May, 2019
 
 
 ////////////////////////////////////////////////////
@@ -131,6 +131,17 @@ compl	: 	Equivalent to	~
 //////////////////
 // Script Types //
 //////////////////
+
+//////////////
+// Waitdraw //
+//////////////
+
+The following script types npw support Waitdraw():
+ffc, screendata, eweapon, itemsprite, item.
+You may disable Waitdraw support (for compatibility reasons) for ffc scripts, 
+	and item scripts in the ZScript Quest Settings Dialogue.
+	
+Waitdraw support for npc, and lweapon scripts remains t/b/a.
 
 ///////////////////
 /// NPC Scripts ///
@@ -1117,9 +1128,8 @@ Game->GetDMap("name");
  * Returns -1 if there is no match.
  
 Game->GetCombo("name");
- * Returns the ID of the combo with label 'name'.
+ * Returns the ID of the first combo with label 'name'.
  * Returns -1 if there is no match.
- * Combo labels are not yet implemented.
  
 bool FFRules[800];
  * An array consisting of all quest rules. 
