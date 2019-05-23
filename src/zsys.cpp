@@ -310,7 +310,7 @@ void set_bitl(long bitstr,int bit,byte val)
 	{
 		bitstr |= (1<<bit);
 	}
-	else bitstr &= ~(b1<<bit);
+	else bitstr &= ~(1<<bit);
 }
 
 int get_bitl(long bitstr,int bit)
