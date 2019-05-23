@@ -1973,7 +1973,7 @@ struct mapscr
     word script;
     long screeninitd[8];
     byte screen_waitdraw;
-    long ffcswaitdraw;
+    unsigned long ffcswaitdraw;
     
     void zero_memory()
     {

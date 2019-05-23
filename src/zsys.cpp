@@ -306,19 +306,18 @@ int get_bit(byte *bitstr,int bit)
 
 void set_bitl(long bitstr,int bit,byte val)
 {
-    bitstr += bit>>3;
-    byte mask = 1 << (bit&7);
-    
-    if(val)
-        bitstr |= mask;
-    else
-        bitstr &= ~mask;
+	if ( val ) //intel u32
+	{
+		bitstr |= (1<<bit);
+	}
+	else bitstr &= ~(1<<bit);
 }
 
 int get_bitl(long bitstr,int bit)
 {
-    bitstr += bit>>3;
-    return ((bitstr) >> (bit&7))&1;
+    return bitstr&(1<<bit); //intel u32
+    //bitstr += bit>>3;
+    //return ((bitstr) >> (bit&7))&1;
 }
 
 

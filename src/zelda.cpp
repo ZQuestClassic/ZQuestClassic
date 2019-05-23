@@ -2770,6 +2770,7 @@ void do_dcounters()
 void game_loop()
 {
 	
+	
 	//for ( int qq = 0; qq < 256; qq++ )
     //{
 	    
@@ -3648,6 +3649,7 @@ int main(int argc, char* argv[])
         //{
         //    int t_time_v = FFCore.getTime(q);
         //}
+	    
         break;
     }
         
