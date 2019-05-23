@@ -18762,8 +18762,12 @@ int run_script(const byte type, const word script, const long i)
 		break;
 	
 	case SCRIPT_FFC:
-		set_bitl(tmpscr->ffcswaitdraw, i, 1);
+	{
+		//Z_scripterrlog("FFScript: FFC (%d) issued WAITDRAW\n", i);
+		tmpscr->ffcswaitdraw |= (1<<i);
+		//set_bitl(tmpscr->ffcswaitdraw, i, 1);
 		break;
+	}
 	
         default:
             Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", script_types[type]);

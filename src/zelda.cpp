@@ -3000,6 +3000,26 @@ void game_loop()
 	dmap_waitdraw = false;
     }
     
+    if ( tmpscr->script != 0 && tmpscr->screen_waitdraw )
+    {
+	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
+	tmpscr->screen_waitdraw = 0;	    
+    }
+    
+    for ( int q = 0; q < 32; ++q )
+    {
+	//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
+	if ( tmpscr->ffcswaitdraw&(1<<q) )
+	{
+		//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
+		if(tmpscr->ffscript[q] != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
+			tmpscr->ffcswaitdraw &= ~(1<<q);
+		}
+	}
+    }
+    
     
     
     #if LOGGAMELOOP > 0
