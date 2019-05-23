@@ -2715,6 +2715,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     if ( tempheader.zelda_version < 0x255 )
     {
 	  set_bit(quest_rules, qr_NOFFCWAITDRAW, 1);  
+	  set_bit(quest_rules, qr_NOITEMWAITDRAW, 1);  
     }
     //Sideview spikes in 2.50.0
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
@@ -13281,6 +13282,23 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 		if(!p_igetl(&temp_combo.triggerlevel,f,true))
 		{
 			return qe_invalid;
+		}
+	}
+	if(section_version>=12) //combo label
+	{
+	    for ( int q = 0; q < 11; q++ )
+		{
+		    if(!p_getc(&temp_combo.label[q],f,true))
+		    {
+			return qe_invalid;
+		    }
+		}
+	}
+	if(section_version<12) //combo label
+	{
+	    for ( int q = 0; q < 11; q++ )
+		{
+		    temp_combo.label[q] = 0;
 		}
 	}
         if(version < 0x193)

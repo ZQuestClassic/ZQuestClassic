@@ -14038,6 +14038,12 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 		}
 	}
     }
+    //Waitdraw for item scripts. 
+    FFCore.itemScriptEngineOnWaitdraw();
+    
+    //Sprite scripts on Waitdraw
+    FFCore.eweaponScriptEngineOnWaitdraw();
+    FFCore.itemSpriteScriptEngineOnWaitdraw();
     
     do
     {

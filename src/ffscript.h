@@ -186,9 +186,12 @@ void do_graphics_getpixel();
 
 void clearRunningItemScripts();
 bool itemScriptEngine();
+bool itemScriptEngineOnWaitdraw();
 void lweaponScriptEngine();
 void eweaponScriptEngine();
+void eweaponScriptEngineOnWaitdraw();
 void itemSpriteScriptEngine();
+void itemSpriteScriptEngineOnWaitdraw();
 bool newScriptEngine();
 void initIncludePaths();
 void initRunString();
