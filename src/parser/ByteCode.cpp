@@ -4658,59 +4658,59 @@ string Oconvertcase::toString()
 
 string OGETNPCSCRIPT::toString()
 {
-    return "GETNPCSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETNPCSCRIPT " + getArgument()->toString();
 }
 string OGETLWEAPONSCRIPT::toString()
 {
-    return "GETLWEAPONSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETLWEAPONSCRIPT " + getArgument()->toString();
 }
 string OGETEWEAPONSCRIPT::toString()
 {
-    return "GETEWEAPONSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETEWEAPONSCRIPT " + getArgument()->toString();
 }
 string OGETHEROSCRIPT::toString()
 {
-    return "GETHEROSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETHEROSCRIPT " + getArgument()->toString();
 }
 string OGETGLOBALSCRIPT::toString()
 {
-    return "GETGLOBALSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETGLOBALSCRIPT " + getArgument()->toString();
 }
 string OGETDMAPSCRIPT::toString()
 {
-    return "GETDMAPSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETDMAPSCRIPT " + getArgument()->toString();
 }
 string OGETSCREENSCRIPT::toString()
 {
-    return "GETSCREENSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETSCREENSCRIPT " + getArgument()->toString();
 }
 string OGETSPRITESCRIPT::toString()
 {
-    return "GETSPRITESCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETSPRITESCRIPT " + getArgument()->toString();
 }
 string OGETUNTYPEDSCRIPT::toString()
 {
-    return "GETUNTYPEDSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETUNTYPEDSCRIPT " + getArgument()->toString();
 }
 string OGETSUBSCREENSCRIPT::toString()
 {
-    return "GETSUBSCREENSCRIPT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETSUBSCREENSCRIPT " + getArgument()->toString();
 }
 string OGETNPCBYNAME::toString()
 {
-    return "GETNPCBYNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETNPCBYNAME " + getArgument()->toString();
 }
 string OGETITEMBYNAME::toString()
 {
-    return "GETITEMBYNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETITEMBYNAME " + getArgument()->toString();
 }
 string OGETCOMBOBYNAME::toString()
 {
-    return "GETCOMBOBYNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETCOMBOBYNAME " + getArgument()->toString();
 }
 string OGETDMAPBYNAME::toString()
 {
-    return "GETDMAPBYNAME " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "GETDMAPBYNAME " + getArgument()->toString();
 }
 
 

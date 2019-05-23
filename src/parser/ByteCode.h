@@ -7861,144 +7861,144 @@ namespace ZScript
 	
 	
 	//Game->Getthingbystring
-	class OGETNPCSCRIPT : public BinaryOpcode
+	class OGETNPCSCRIPT : public UnaryOpcode
 	{
 	public:
-		OGETNPCSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETNPCSCRIPT(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETNPCSCRIPT(a->clone(), b->clone());
+			return new OGETNPCSCRIPT(a->clone());
 		}
 	};
-	class OGETLWEAPONSCRIPT : public BinaryOpcode
+	class OGETLWEAPONSCRIPT : public UnaryOpcode
 	{
 	public:
-		OGETLWEAPONSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETLWEAPONSCRIPT(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETLWEAPONSCRIPT(a->clone(), b->clone());
+			return new OGETLWEAPONSCRIPT(a->clone());
 		}
 	};
-	class OGETEWEAPONSCRIPT : public BinaryOpcode
+	class OGETEWEAPONSCRIPT : public UnaryOpcode
 	{
 	public:
-		OGETEWEAPONSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETEWEAPONSCRIPT(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETEWEAPONSCRIPT(a->clone(), b->clone());
+			return new OGETEWEAPONSCRIPT(a->clone());
 		}
 	};
-	class OGETHEROSCRIPT : public BinaryOpcode
+	class OGETHEROSCRIPT : public UnaryOpcode
 	{
 	public:
-		OGETHEROSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETHEROSCRIPT(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETHEROSCRIPT(a->clone(), b->clone());
+			return new OGETHEROSCRIPT(a->clone());
 		}
 	};
-	class OGETGLOBALSCRIPT : public BinaryOpcode
+	class OGETGLOBALSCRIPT : public UnaryOpcode
 	{
 	public:
-		OGETGLOBALSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETGLOBALSCRIPT(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETGLOBALSCRIPT(a->clone(), b->clone());
+			return new OGETGLOBALSCRIPT(a->clone());
 		}
 	};
-	class OGETDMAPSCRIPT : public BinaryOpcode
+	class OGETDMAPSCRIPT : public UnaryOpcode
 	{
 	public:
-		OGETDMAPSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETDMAPSCRIPT(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETDMAPSCRIPT(a->clone(), b->clone());
+			return new OGETDMAPSCRIPT(a->clone());
 		}
 	};
-	class OGETSCREENSCRIPT : public BinaryOpcode
+	class OGETSCREENSCRIPT : public UnaryOpcode
 	{
 	public:
-		OGETSCREENSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETSCREENSCRIPT(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETSCREENSCRIPT(a->clone(), b->clone());
+			return new OGETSCREENSCRIPT(a->clone());
 		}
 	};
-	class OGETSPRITESCRIPT : public BinaryOpcode
+	class OGETSPRITESCRIPT : public UnaryOpcode
 	{
 	public:
-		OGETSPRITESCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETSPRITESCRIPT(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETSPRITESCRIPT(a->clone(), b->clone());
+			return new OGETSPRITESCRIPT(a->clone());
 		}
 	};
-	class OGETUNTYPEDSCRIPT : public BinaryOpcode
+	class OGETUNTYPEDSCRIPT : public UnaryOpcode
 	{
 	public:
-		OGETUNTYPEDSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETUNTYPEDSCRIPT(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETUNTYPEDSCRIPT(a->clone(), b->clone());
+			return new OGETUNTYPEDSCRIPT(a->clone());
 		}
 	};
-	class OGETSUBSCREENSCRIPT : public BinaryOpcode
+	class OGETSUBSCREENSCRIPT : public UnaryOpcode
 	{
 	public:
-		OGETSUBSCREENSCRIPT(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETSUBSCREENSCRIPT(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETSUBSCREENSCRIPT(a->clone(), b->clone());
+			return new OGETSUBSCREENSCRIPT(a->clone());
 		}
 	};
-	class OGETNPCBYNAME : public BinaryOpcode
+	class OGETNPCBYNAME : public UnaryOpcode
 	{
 	public:
-		OGETNPCBYNAME(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETNPCBYNAME(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETNPCBYNAME(a->clone(), b->clone());
+			return new OGETNPCBYNAME(a->clone());
 		}
 	};
-	class OGETITEMBYNAME : public BinaryOpcode
+	class OGETITEMBYNAME : public UnaryOpcode
 	{
 	public:
-		OGETITEMBYNAME(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETITEMBYNAME(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETITEMBYNAME(a->clone(), b->clone());
+			return new OGETITEMBYNAME(a->clone());
 		}
 	};
-	class OGETCOMBOBYNAME : public BinaryOpcode
+	class OGETCOMBOBYNAME : public UnaryOpcode
 	{
 	public:
-		OGETCOMBOBYNAME(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETCOMBOBYNAME(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETCOMBOBYNAME(a->clone(), b->clone());
+			return new OGETCOMBOBYNAME(a->clone());
 		}
 	};
-	class OGETDMAPBYNAME : public BinaryOpcode
+	class OGETDMAPBYNAME : public UnaryOpcode
 	{
 	public:
-		OGETDMAPBYNAME(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGETDMAPBYNAME(Argument *A) : UnaryOpcode(A) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGETDMAPBYNAME(a->clone(), b->clone());
+			return new OGETDMAPBYNAME(a->clone());
 		}
 	};
 	
