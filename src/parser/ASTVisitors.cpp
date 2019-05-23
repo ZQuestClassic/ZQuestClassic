@@ -32,6 +32,7 @@ void RecursiveVisitor::syncDisable(AST& parent, AST const& child)
 
 void RecursiveVisitor::syncDisable(AST& parent, AST const* child)
 {
+	if(!child) return;
 	if(child->errorDisabled) parent.errorDisabled = true;
 	if(child->isDisabled()) parent.disable();
 }
