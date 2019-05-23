@@ -23539,8 +23539,20 @@ void FFScript::do_getitembyname(const bool v)
 }	
 void FFScript::do_getcombobyname(const bool v)
 {
-	set_register(sarg1, 0); //Until I add combo labels. -Z
-	
+	long arrayptr = ri->d[0]/10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXCOMBOS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), combobuf[q].label)))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
 }
 void FFScript::do_getdmapbyname(const bool v)
 {
