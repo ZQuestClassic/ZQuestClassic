@@ -28,7 +28,11 @@ ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
 
-
+const char script_types[11][16]=
+{
+	"global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
+	"eweapon", "dmapdata", "itemsprite"
+};
 	
 	
 	
@@ -18753,8 +18757,16 @@ int run_script(const byte type, const word script, const long i)
 		dmap_waitdraw = true;
 		break;
 	
+	case SCRIPT_SCREEN:
+		tmpscr->screen_waitdraw = 1;
+		break;
+	
+	case SCRIPT_FFC:
+		set_bitl(tmpscr->ffcswaitdraw, i, 1);
+		break;
+	
         default:
-            Z_scripterrlog("Waitdraw can only be used in the active global script\n");
+            Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", script_types[type]);
             break;
         }
     }
@@ -18891,10 +18903,7 @@ int ffscript_engine(const bool preload)
         ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
         tmpscr->initialized[i] = true;
     }
-    if ( tmpscr->script != 0 )
-    {
-	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);    
-    }
+    
     
     return 0;
 }

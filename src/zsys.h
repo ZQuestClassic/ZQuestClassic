@@ -59,6 +59,9 @@ void copy_file(const char *src, const char *dest);
 int  get_bit(byte *bitstr,int bit);
 void set_bit(byte *bitstr,int bit,byte val);
 
+int  get_bitl(long bitstr,int bit);
+void set_bitl(long bitstr,int bit,byte val);
+
 void Z_error(const char *format,...);
 void Z_message(const char *format,...);
 void Z_title(const char *format,...);

@@ -12822,6 +12822,10 @@ void LinkClass::stepforward(int steps, bool adjust)
 			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
 		if ( dmap_doscript ) 
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+		if ( tmpscr->script != 0 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);    
+		}
 	}
 	
         draw_screen(tmpscr);
@@ -13810,6 +13814,10 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
     if ( dmap_doscript ) 
 	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+    if ( tmpscr->script != 0 )
+    {
+	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);    
+    }
     
     x = storex, y = storey;
 }
@@ -14011,6 +14019,24 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 	dmap_waitdraw = false;
     }
+    if ( tmpscr->script != 0 && tmpscr->screen_waitdraw )
+    {
+	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
+	tmpscr->screen_waitdraw = 0;	    
+    }
+    
+    for ( int q = 0; q < 32; ++q )
+    {
+	if ( get_bitl(tmpscr->ffcswaitdraw, q) )
+	{
+		if(tmpscr->ffscript[q] != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
+			set_bitl(tmpscr->ffcswaitdraw, q, 0);
+		}
+	}
+    }
+    
     do
     {
         draw_screen(tmpscr);
