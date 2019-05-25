@@ -2,6 +2,108 @@
 
 //Alpha 23
 
+Move New GetByString functions to Game->, to match GetFFCScript() and GetItemScript().
+Added Label field to the Combo Editor:
+	The user can now supply a label (10 char string) to every combo.
+	They can use the function GetCombo("string") to get the first ID of a combo with that label.
+Add Waitdraw to itemsprite, item, and eweapon scripts.
+Added Waitdraw (with a QR to disable it; disabled by default for
+	quests < 2.55), and began adding it for all sprite scripts.
+Added a QR (ZScript Rule 'No FFC Waitdraw'), and enabled it  by
+	default for quests made < 2.55:
+	This is a QUEST RULE to disable Waitdraw() on ffcs. 
+	It is enabled by default for 2.50 quests,
+		preserving the old behaviour for the old quest format. 
+Fixed Waitdraw not working in ffc/screen scripts:
+	I forgot to call the waitdraw routine in zelda.cpp.
+	Waitdraw now works from screen and ffc scripts
+Change long ffcswaitdraw to unsigned long.
+Correct behaviour for get_bitl(), and set_bitl() in zsys.cpp.
+	( ZoriaRPG, 23rd May, 2019 )
+
+Fix crash when compiling ZScript (pass 3):
+	Missing sanity check in syncDisable, missed comment-out
+	( Venrob, 23rd May, 2019 )
+
+Update error message for Waitdraw() unsupported script types.
+Add set_bitl() and get_bitl() (to zsys.cpp) for longs.
+Added Waitdraw() support to ffcs. 
+Add ffcswaitdraw long to TheMaps.
+Screen scripts now run more like global/DMap scripts, than like ffcs.
+	They also support Waitdraw.
+	( ZoriaRPG, 22nd May, 2019 )
+
+Added a series of getters to get script IDs and other object IDs:
+	int GetNPCScript("name");
+	int GetLWeaponScript("name");
+	int GetEWeaponScript("name");
+	int GetDMapScript("name");
+	int GetScreenScript("name");
+	int GetHeroScript("name");
+	int GetLinkScript("name");
+	int GetPlayerScript("name");
+	int GetSubscreenScript("name");
+	int GetUntypedScript("name");
+	int GetNPC("name");
+	int GetItem("name");
+	int GetDMap("name");
+	int GetCombo("label");
+	( ZoriaRPG, 21st May, 2019 )
+
+Fix many crashes when using NO_ERROR_HALT:
+	Added `syncDisable()` calls for all caseExpr* functions in RecursiveVisitor
+	Added `syncDisable()` calls to analyzer functions in SemanticAnalyzer
+	( Venrob, 20th May, 2019 )
+
+Add utol(string[]), ltou(string[]), and convcase(string[]):
+	int utol(string[]) converts all uppercase characters in a string to lowercase characters.
+	int ltou(string[]) converts all lowercase characters in a string to uppercase characters.
+	int convcase(string[]) converts all uppercase characters in a string to lowercase characters, 
+		and all lowercase characters in that string to uppercase characters, inverting the case of 
+		all characters in a given string.
+		All three of these return the pointer to the string.
+Move old ZASM ilen and itoa into std::string namespace. 
+Fix ilen(), itoa(). These are now internal.
+	( ZoriaRPG, 20th May, 2019 )
+
+`import` will now check include paths if it cannot find the file in the ZC dir/absolute path.
+	( Venrob, 19th May, 2019 )
+	
+Optimise strchr and strnchr
+New ZScript internal functions on the global pointer are:
+	int atoi("string");
+	int strcat(string[], string[]);
+	int strchr(string[], int chr);
+	int strrchr(string[], int chr);
+	int strspn(string[], keys[]);
+	int strcspn(string[], keys[]);
+	int strstr(string[], "substring");
+	Note: While not technically illegal, using literals for these functions is probably pointless in most
+	cases, as the changed string is deleted before it can then be used.
+	Literals can only be safely used when the above functions show them.
+	You can ALWAYS USE A NORMNAL STRING POINTER, WHERE THESE SHOW LITERALS. 
+Moved old ZASM-based string.zh functions, that are now internal, to 
+	a new namespace in string.zh.
+	The namespace is std::string.
+Added some string functions internally, including:
+	strchr(), strrchr(), strstr().
+Update std_constants for new max/min float/int/const.
+	( ZoriaRPG, 19th May, 2019 )
+
+Begin porting string.zh functions to internal functions.
+	( ZoriaRPG, 18th May, 2019 )
+
+Corrected some errors in std_keyboard.zh
+Convert key modifier functions to use Input->ModifierKeys&flag in std_keyboard.zh.
+	The old functions used Input->Key[modifier], which did not give authentic status indication
+		on if the modifier was applied to another keypress.
+
+	Added bool AccentShift(int n); where n == 1, 2, 3, or 4.
+	Added bool ScrollLock();
+Optimised std_keyboard.zh
+Made -5 for the Y coordinate act as a pit warp, instead of using a WR destination.
+	( ZoriaRPG, 16th May, 2019 )
+
 Give `namespace` access to parent-scope vars
 	(Removes parent-scope access to namespace-scope vars as a consequence. This is identical to scripts.)
 Fix: OPTION_VALUE is compile-time constant
