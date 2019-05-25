@@ -19,7 +19,7 @@
 #include "std_zh/std_extension.zh"
 
 //Keyboard handling for 2.54 and above
-#include "std_keyboard.zh"
+#include "std_zh/std_keyboard.zh"
 
 //Locale
 #include "std_zh/locale/std_EnglishIntl.zh" //International English Localisation
