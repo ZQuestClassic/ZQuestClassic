@@ -37,7 +37,8 @@ extern word quest_header_zelda_version;
 extern word quest_header_zelda_build; 
 extern  zquestheader QHeader;
 extern LinkClass Link;
-extern byte emulation_patches[16];
+extern byte emulation_patches[emuLAST];
+extern byte epilepsyFlashReduction;
 
 using std::set;
 
@@ -15167,7 +15168,7 @@ void LinkClass::getTriforce(int id2)
         {
             if(get_bit(quest_rules,qr_FADE))
             {
-                if((f&3)==0)
+                if((f&((epilepsyFlashReduction) ? 6 : 3))==0)
                 {
                     fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
                     refreshpal=true;
@@ -15185,7 +15186,7 @@ void LinkClass::getTriforce(int id2)
             }
             else
             {
-                if((f&7)==0)
+                if((f&((epilepsyFlashReduction) ? 10 : 7))==0)
                 {
                     for(int cs2=2; cs2<5; cs2++)
                     {

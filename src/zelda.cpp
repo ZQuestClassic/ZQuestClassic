@@ -101,7 +101,7 @@ extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for
 extern int directItem;
 extern int directItemA;
 extern int directItemB;
-extern byte emulation_patches[16];
+extern byte emulation_patches[emuLAST];
 bool is_large=false;
 
 bool standalone_mode=false;

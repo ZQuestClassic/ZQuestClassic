@@ -38,7 +38,7 @@ int vhead=0;
 int guycarryingitem=0;
 
 char *guy_string[eMAXGUYS];
-extern byte emulation_patches[16];
+extern byte emulation_patches[emuLAST];
 extern word quest_header_zelda_version;
 extern word quest_header_zelda_build;
 

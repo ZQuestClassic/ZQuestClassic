@@ -43,7 +43,7 @@ extern int loadlast;
 extern int skipcont;
 extern int skipicon;
 
-extern byte emulation_patches[16];
+extern byte emulation_patches[emuLAST];
 
 bool load_custom_game(int file);
 

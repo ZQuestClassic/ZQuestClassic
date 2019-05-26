@@ -84,7 +84,7 @@ bool fixpolsvoice=false;
 word quest_header_zelda_version = 0; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 word quest_header_zelda_build = 0; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 
-extern byte emulation_patches[16];
+extern byte emulation_patches[emuLAST];
 
 int memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
 

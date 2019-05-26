@@ -1,5 +1,10 @@
 ChangeLog for 2.53.0 
 
+//Release 3
+Added an Epilepsy Flash Protection option to the Settings menu,
+	and to zc.cfg.
+	( ZoriaRPG, 26th May, 2019 )
+
 //Release 2
 Removed invisible widgets carried over tot he 2.50 interface from
 	small mode that allow toggling the cset and layer.

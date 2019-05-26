@@ -6030,8 +6030,8 @@ case COMBODDM:
         quakeclk=value/10000;
         break;
         
-        //case ROOMTYPE:
-        //  tmpscr->room=value/10000; break; //this probably doesn't work too well...
+        case ROOMTYPE:
+          tmpscr->room=value/10000; break; //this probably doesn't work too well...
     case ROOMDATA:
         tmpscr->catchall=value/10000;
         break;

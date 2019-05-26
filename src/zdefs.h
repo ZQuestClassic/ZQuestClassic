@@ -98,10 +98,10 @@
 #define ZC_VERSION 25300 //Version ID for ZScript Game->Version
 #define ABOUT_VERSION 0x0253
 #define VERSION_BUILD       33                             //build number of this version
-#define ZELDA_VERSION_STR   "Omnius, 2.53 Release 2"               //version of the program as presented in text
+#define ZELDA_VERSION_STR   "Omnius, 2.53 Release 3"               //version of the program as presented in text
 #define IS_BETA             0                        //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "17th April, 2019"
-#define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius' Release 2"
+#define DATE_STR            "26th May, 2019"
+#define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius' Release 3"
 #define COPYRIGHT_YEAR      "2019"     
                      //shown on title screen and in ending
 
@@ -730,7 +730,9 @@ enum
 enum 
 { 
 	emuITEMPERSEG, emuGRIDCOLLISION, emuOLDTRIBBLES, emu190LINKSPRITES, emuCOPYSWIMSPRITES, emu210WINDROBES,
-	emu250DMAPINTOREPEAT, emuFIXTRIFORCECELLAR, emuNOFLIPFIRETRAIL, emuSWORDTRIGARECONTINUOUS, emu8WAYSHOTSFX, emu210BOMBCHU, emuLAST
+	emu250DMAPINTOREPEAT, emuFIXTRIFORCECELLAR, emuNOFLIPFIRETRAIL, emuSWORDTRIGARECONTINUOUS, emu8WAYSHOTSFX, emu210BOMBCHU, 
+	emuEPILEPSY,
+	emuLAST
 		
 };
 

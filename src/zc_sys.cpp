@@ -67,7 +67,8 @@ byte zc_192b163_compatibility;
 byte midi_patch_fix;
 bool midi_paused=false;
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
-byte emulation_patches[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+byte emulation_patches[emuLAST] = {0};
+byte epilepsyFlashReduction;
 
 extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
@@ -290,11 +291,13 @@ void load_game_configs()
     Exbtn2 = get_config_int(cfg_sect,"btn_ex2",8);
     Exbtn3 = get_config_int(cfg_sect,"btn_ex3",4);
     Exbtn4 = get_config_int(cfg_sect,"btn_ex4",3);
-    
+
     DUbtn = get_config_int(cfg_sect,"btn_up",13);
     DDbtn = get_config_int(cfg_sect,"btn_down",14);
     DLbtn = get_config_int(cfg_sect,"btn_left",15);
     DRbtn = get_config_int(cfg_sect,"btn_right",16);
+    
+    epilepsyFlashReduction = get_config_int(cfg_sect,"epilepsy_flash_reduction",0);
     
     digi_volume = get_config_int(cfg_sect,"digi",248);
     midi_volume = get_config_int(cfg_sect,"midi",255);
@@ -452,6 +455,8 @@ void save_game_configs()
     set_config_int(cfg_sect,"btn_down",DDbtn);
     set_config_int(cfg_sect,"btn_left",DLbtn);
     set_config_int(cfg_sect,"btn_right",DRbtn);
+    
+    set_config_int(cfg_sect,"epilepsy_flash_reduction",epilepsyFlashReduction);
     
     set_config_int(cfg_sect,"digi",digi_volume);
     set_config_int(cfg_sect,"midi",midi_volume);
@@ -6863,7 +6868,27 @@ int onSaveIndicator()
     return D_O_K;
 }
 
-
+int onEpilepsy()
+{
+	if(jwin_alert3(
+			"Epilepsy Flash Reduction", 
+			"Enabling this will reduce flashing when picking up the quest dungeon treasure pieces.",
+			"Disabling this will restore standard flashing behaviour.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if ( epilepsyFlashReduction ) epilepsyFlashReduction = 0;
+	    else epilepsyFlashReduction = 1;
+	    save_game_configs();
+	}
+    return D_O_K;
+}
 
 int onTriforce()
 {
@@ -7248,10 +7273,11 @@ static MENU settings_menu[] =
     { (char *)"Volume &Keys",               onVolKeys,               NULL,                      0, NULL },
     { (char *)"Cont. &Heart Beep",          onHeartBeep,             NULL,                      0, NULL },
     { (char *)"Sa&ve Indicator",            onSaveIndicator,         NULL,                      0, NULL },
-    { (char *)"",                           NULL,                    NULL,                      0, NULL },
+    { (char *)"Epilepsy Flash Reduction",                     onEpilepsy,                 NULL,                      0, NULL },
     { (char *)"S&napshot Format",           NULL,                    snapshot_format_menu,      0, NULL },
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Debu&g",                     onDebug,                 NULL,                      0, NULL },
+    { (char *)"",                           NULL,                    NULL,                      0, NULL },
     
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -8741,7 +8767,9 @@ void System()
         
         settings_menu[11].flags = heart_beep ? D_SELECTED : 0;
         settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
-        reset_snapshot_format_menu();
+        //Epilepsy Prevention
+	settings_menu[13].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+	reset_snapshot_format_menu();
         snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;
         
         if(debug_enabled)
