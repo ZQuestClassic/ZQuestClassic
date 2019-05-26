@@ -1,7 +1,7 @@
 ChangeLog for 2.53.0 
 
 //Release 3
-Apple epilepsyFlashReductionto bomb palette flashes.
+Added epilepsyFlashReductionto bomb palette flashes.
 Added an Epilepsy Flash Protection option to the Settings menu,
 	and to zc.cfg.
 	( ZoriaRPG, 26th May, 2019 )
