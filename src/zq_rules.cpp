@@ -490,7 +490,7 @@ static int miscrules1_list[] =
 
 static int miscrules2_list[] =
 {
-    22,23,24,25,26,-1
+    22,23,24,25,26,27,-1
 };
 
 static TABPANEL miscrules_tabs[] =
@@ -536,6 +536,7 @@ static DIALOG miscrules_dlg[] =
     { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Intro String in Ganon Room", NULL, NULL },
     { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Ammo Required to Display Subscreen Items", NULL, NULL },
     { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Triforce in Cellar Warps Link Out", NULL, NULL },
+    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Reduced Flashing (Epilepsy Protection)", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -544,7 +545,10 @@ static int miscrules[] =
     qr_SELECTAWPN, qr_MORESOUNDS, qr_FASTFILL, qr_QUARTERHEART, qr_ALLOWFASTMSG, qr_ALLOWMSGBYPASS,
     qr_MSGFREEZE, qr_MSGDISAPPEAR, qr_TIME, qr_HEARTRINGFIX, qr_NOHEARTRING, qr_NOSAVE,
     qr_NOCONTINUE, qr_NOGUYFIRES, qr_NOGUYPOOF, qr_LOG, qr_SCRIPTERRLOG, qr_SHOPCHEAT, 
-	qr_NOGANONINTRO,qr_NEVERDISABLEAMMOONSUBSCREEN, qr_SIDEVIEWTRIFORCECELLAR, -1
+	qr_NOGANONINTRO,qr_NEVERDISABLEAMMOONSUBSCREEN, qr_SIDEVIEWTRIFORCECELLAR,
+	qr_SIDEVIEWTRIFORCECELLAR,
+
+	-1
 };
 
 int onMiscRules()

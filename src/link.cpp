@@ -16313,10 +16313,24 @@ void LinkClass::getTriforce(int id2)
 {
     PALETTE flash_pal;
     
-    for(int i=0; i<256; i++)
-    {
-        flash_pal[i] = get_bit(quest_rules,qr_FADE) ? _RGB(63,63,0) : _RGB(63,63,63);
-    }
+	if ( !get_bit(quest_rules,qr_EPILEPSY) )
+	{
+		Z_scripterrlog("Epilepsy is: %s\n", (get_bit(quest_rules,qr_FADE)) ? "on" : "off");
+		for(int i=0; i<256; i++)
+		{
+			flash_pal[i] = get_bit(quest_rules,qr_FADE) ? _RGB(63,63,0) : _RGB(63,63,63); 
+		}
+	}
+	else 
+	{
+		Z_scripterrlog("Epilepsy is: %s\n", (get_bit(quest_rules,qr_FADE)) ? "on" : "off");
+		for(int i=0; i<256; i++)
+		{
+			flash_pal[i] = RAMpal[i];
+		}
+		
+	}
+    
     
     //get rid off all sprites but Link
     guys.clear();
@@ -16360,51 +16374,54 @@ void LinkClass::getTriforce(int id2)
 		FFCore.setLinkAction(oldaction);
         }
         
-        if(f>=40 && f<88)
-        {
-            if(get_bit(quest_rules,qr_FADE))
-            {
-                if((f&3)==0)
-                {
-                    fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
-                    refreshpal=true;
-                }
-                
-                if((f&3)==2)
-                {
-                    loadpalset(0,0);
-                    loadpalset(1,1);
-                    loadpalset(5,5);
-                    
-                    if(currscr<128) loadlvlpal(DMaps[currdmap].color);
-                    else loadlvlpal(0xB); // TODO: Cave/Item Cellar distinction?
-                }
-            }
-            else
-            {
-                if((f&7)==0)
-                {
-                    for(int cs2=2; cs2<5; cs2++)
-                    {
-                        for(int i=1; i<16; i++)
-                        {
-                            RAMpal[CSET(cs2)+i]=flash_pal[CSET(cs2)+i];
-                        }
-                    }
-                    
-                    refreshpal=true;
-                }
-                
-                if((f&7)==4)
-                {
-                    if(currscr<128) loadlvlpal(DMaps[currdmap].color);
-                    else loadlvlpal(0xB);
-                    
-                    loadpalset(5,5);
-                }
-            }
-        }
-        
+	if ( !(get_bit(quest_rules,qr_EPILEPSY)) )
+	{
+		if(f>=40 && f<88)
+		{
+		    if(get_bit(quest_rules,qr_FADE))
+		    {
+			if((f&3)==0)
+			{
+			    fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
+			    refreshpal=true;
+			}
+			
+			if((f&3)==2)
+			{
+			    loadpalset(0,0);
+			    loadpalset(1,1);
+			    loadpalset(5,5);
+			    
+			    if(currscr<128) loadlvlpal(DMaps[currdmap].color);
+			    else loadlvlpal(0xB); // TODO: Cave/Item Cellar distinction?
+			}
+		    }
+		    else
+		    {
+			if((f&7)==0)
+			{
+			    for(int cs2=2; cs2<5; cs2++)
+			    {
+				for(int i=1; i<16; i++)
+				{
+				    RAMpal[CSET(cs2)+i]=flash_pal[CSET(cs2)+i];
+				}
+			    }
+			    
+			    refreshpal=true;
+			}
+			
+			if((f&7)==4)
+			{
+			    if(currscr<128) loadlvlpal(DMaps[currdmap].color);
+			    else loadlvlpal(0xB);
+			    
+			    loadpalset(5,5);
+			}
+		    }
+		}
+
+	}		
         if(itemsbuf[id2].flags & ITEM_GAMEDATA)
         {
             if(f==88)
