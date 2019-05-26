@@ -72,6 +72,7 @@ byte midi_patch_fix;
 bool midi_paused=false;
 byte zc_192b163_warp_compatibility;
 char modulepath[2048];
+byte epilepsyFlashReduction;
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Link, etc. 
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
@@ -305,6 +306,8 @@ void load_game_configs()
     DDbtn = get_config_int(cfg_sect,"btn_down",14);
     DLbtn = get_config_int(cfg_sect,"btn_left",15);
     DRbtn = get_config_int(cfg_sect,"btn_right",16);
+    
+    epilepsyFlashReduction = get_config_int(cfg_sect,"epilepsy_flash_reduction",0);
    
     digi_volume = get_config_int(cfg_sect,"digi",248);
     midi_volume = get_config_int(cfg_sect,"midi",255);
@@ -466,6 +469,8 @@ void save_game_configs()
     set_config_int(cfg_sect,"btn_down",DDbtn);
     set_config_int(cfg_sect,"btn_left",DLbtn);
     set_config_int(cfg_sect,"btn_right",DRbtn);
+    
+    set_config_int(cfg_sect,"epilepsy_flash_reduction",epilepsyFlashReduction);
    
     set_config_int(cfg_sect,"digi",digi_volume);
     set_config_int(cfg_sect,"midi",midi_volume);
@@ -7238,6 +7243,28 @@ int onSaveIndicator()
     return D_O_K;
 }
 
+int onEpilepsy()
+{
+	if(jwin_alert3(
+			"Epilepsy Flash Reduction", 
+			"Enabling this will reduce flashing when picking up the quest dungeon treasure pieces.",
+			"Disabling this will restore standard flashing behaviour.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if ( epilepsyFlashReduction ) epilepsyFlashReduction = 0;
+	    else epilepsyFlashReduction = 1;
+	    save_game_configs();
+	}
+    return D_O_K;
+}
+
 int onTriforce()
 {
     for(int i=0; i<MAXINITTABS; ++i)
@@ -7621,10 +7648,11 @@ static MENU settings_menu[] =
     { (char *)"Volume &Keys",               onVolKeys,               NULL,                      0, NULL },
     { (char *)"Cont. &Heart Beep",          onHeartBeep,             NULL,                      0, NULL },
     { (char *)"Sa&ve Indicator",            onSaveIndicator,         NULL,                      0, NULL },
-    { (char *)"",                           NULL,                    NULL,                      0, NULL },
+    { (char *)"Epilepsy Flash Reduction",                     onEpilepsy,                 NULL,                      0, NULL },
     { (char *)"S&napshot Format",           NULL,                    snapshot_format_menu,      0, NULL },
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Debu&g",                     onDebug,                 NULL,                      0, NULL },
+    { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -8987,6 +9015,8 @@ void System()
         settings_menu[8].flags = NESquit?D_SELECTED:0;
         settings_menu[9].flags = ClickToFreeze?D_SELECTED:0;
         settings_menu[10].flags = volkeys?D_SELECTED:0;
+	//Epilepsy Prevention
+	settings_menu[13].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
         
         name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
         name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
@@ -9064,6 +9094,7 @@ void System()
         
         settings_menu[11].flags = heart_beep ? D_SELECTED : 0;
         settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
+	
         reset_snapshot_format_menu();
         snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;
         

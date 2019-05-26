@@ -71,6 +71,7 @@ int whistleitem=-1;
 extern word g_doscript;
 extern word link_doscript;
 extern word dmap_doscript;
+extern byte epilepsyFlashReduction;
 
 void playLevelMusic();
 
@@ -16311,76 +16312,66 @@ bool LinkClass::refill()
 
 void LinkClass::getTriforce(int id2)
 {
-    PALETTE flash_pal;
-    
-	if ( !get_bit(quest_rules,qr_EPILEPSY) )
-	{
-		Z_scripterrlog("Epilepsy is: %s\n", (get_bit(quest_rules,qr_FADE)) ? "on" : "off");
-		for(int i=0; i<256; i++)
-		{
-			flash_pal[i] = get_bit(quest_rules,qr_FADE) ? _RGB(63,63,0) : _RGB(63,63,63); 
-		}
-	}
-	else 
-	{
-		Z_scripterrlog("Epilepsy is: %s\n", (get_bit(quest_rules,qr_FADE)) ? "on" : "off");
-		for(int i=0; i<256; i++)
-		{
-			flash_pal[i] = RAMpal[i];
-		}
 		
+	PALETTE flash_pal;
+
+	
+	for(int i=0; i<256; i++)
+	{
+		flash_pal[i] = get_bit(quest_rules,qr_FADE) ? _RGB(63,63,0) : _RGB(63,63,63); 
+	}
+
+
+
+	//get rid off all sprites but Link
+	guys.clear();
+	items.clear();
+	Ewpns.clear();
+	Lwpns.clear();
+	Sitems.clear();
+	chainlinks.clear();
+    
+	//decorations.clear();
+	if(!COOLSCROLL)
+	{
+		show_subscreen_items=false;
 	}
     
+	sfx(itemsbuf[id2].playsound);
+	music_stop();
     
-    //get rid off all sprites but Link
-    guys.clear();
-    items.clear();
-    Ewpns.clear();
-    Lwpns.clear();
-    Sitems.clear();
-    chainlinks.clear();
-    
-    //decorations.clear();
-    if(!COOLSCROLL)
-    {
-        show_subscreen_items=false;
-    }
-    
-    sfx(itemsbuf[id2].playsound);
-    music_stop();
-    
-    if(itemsbuf[id2].misc1)
-        jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
-    else
-        try_zcmusic((char*)moduledata.base_NSF_file,moduledata.tf_track, ZC_MIDI_TRIFORCE);
-        
-    if(itemsbuf[id2].flags & ITEM_GAMEDATA)
-    {
-        game->lvlitems[dlevel]|=liTRIFORCE;
-    }
-    
-    int f=0;
-    int x2=0;
-    int curtain_x=0;
-    int c=0;
-    
-    do
-    {
-        if(f==40)
-        {
-            actiontype oldaction = action;
-            ALLOFF(true, false);
-            action=oldaction;                                    // have to reset this flag
-		FFCore.setLinkAction(oldaction);
-        }
-        
-	if ( !(get_bit(quest_rules,qr_EPILEPSY)) )
+	if(itemsbuf[id2].misc1)
+		jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
+	else
+		try_zcmusic((char*)moduledata.base_NSF_file,moduledata.tf_track, ZC_MIDI_TRIFORCE);
+	
+	if(itemsbuf[id2].flags & ITEM_GAMEDATA)
 	{
+		game->lvlitems[dlevel]|=liTRIFORCE;
+	}
+    
+	int f=0;
+	int x2=0;
+	int curtain_x=0;
+	int c=0;
+	
+	do
+	{
+		if(f==40)
+		{
+			actiontype oldaction = action;
+			ALLOFF(true, false);
+			action=oldaction;                                    // have to reset this flag
+			FFCore.setLinkAction(oldaction);
+		}
+	
+	
 		if(f>=40 && f<88)
 		{
 		    if(get_bit(quest_rules,qr_FADE))
 		    {
-			if((f&3)==0)
+			//int flashbit = ;
+			if((f&(((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)) ? 6 : 3))==0)
 			{
 			    fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
 			    refreshpal=true;
@@ -16398,7 +16389,7 @@ void LinkClass::getTriforce(int id2)
 		    }
 		    else
 		    {
-			if((f&7)==0)
+			if((f&((get_bit(quest_rules,qr_EPILEPSY) || FFCore.emulation[emuEPILEPSY]) ? 10 : 7))==0)
 			{
 			    for(int cs2=2; cs2<5; cs2++)
 			    {
@@ -16421,88 +16412,88 @@ void LinkClass::getTriforce(int id2)
 		    }
 		}
 
-	}		
-        if(itemsbuf[id2].flags & ITEM_GAMEDATA)
-        {
-            if(f==88)
-            {
-                refill_what=REFILL_ALL;
-                refill_why=id2;
-                StartRefill(REFILL_ALL);
-                refill();
-            }
-            
-            if(f==89)
-            {
-                if(refill())
-                {
-                    --f;
-                }
-            }
-        }
-        
-        if(itemsbuf[id2].flags & ITEM_FLAG1) // Warp out flag
-        {
-            if(f>=208 && f<288)
-            {
-                ++x2;
-                
-                switch(++c)
-                {
-                case 5:
-                    c=0;
-                    
-                case 0:
-                case 2:
-                case 3:
-                    ++x2;
-                    break;
-                }
-            }
-            
-            do_dcounters();
-            
-            if(f<288)
-            {
-                curtain_x=x2&0xF8;
-                draw_screen_clip_rect_x1=curtain_x;
-                draw_screen_clip_rect_x2=255-curtain_x;
-                draw_screen_clip_rect_y1=0;
-                draw_screen_clip_rect_y2=223;
-                //draw_screen_clip_rect_show_link=true;
-                //draw_screen(tmpscr);
-            }
-        }
-        
-        draw_screen(tmpscr);
-        //this causes bugs
-        //the subscreen appearing over the curtain effect should now be fixed in draw_screen
-        //so this is not necessary -DD
-        //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
-        
-        advanceframe(true);
-        ++f;
-    }
-    while(f<408 || midi_pos > 0 || (zcmusic!=NULL && zcmusic->position<800));   // 800 may not be just right, but it works
+	
+		if(itemsbuf[id2].flags & ITEM_GAMEDATA)
+		{
+			if(f==88)
+			{
+				refill_what=REFILL_ALL;
+				refill_why=id2;
+				StartRefill(REFILL_ALL);
+				refill();
+			}
+	    
+			if(f==89)
+			{
+				if(refill())
+				{
+					--f;
+				}
+			}
+		}
+	
+		if(itemsbuf[id2].flags & ITEM_FLAG1) // Warp out flag
+		{
+			if(f>=208 && f<288)
+			{
+				++x2;
+		
+				switch(++c)
+				{
+					case 5:
+						c=0;
+		    
+					case 0:
+					case 2:
+					case 3:
+						++x2;
+						break;
+				}
+			}
+	    
+			do_dcounters();
+	    
+			if(f<288)
+			{
+				curtain_x=x2&0xF8;
+				draw_screen_clip_rect_x1=curtain_x;
+				draw_screen_clip_rect_x2=255-curtain_x;
+				draw_screen_clip_rect_y1=0;
+				draw_screen_clip_rect_y2=223;
+				//draw_screen_clip_rect_show_link=true;
+				//draw_screen(tmpscr);
+			}
+		}
+	
+		draw_screen(tmpscr);
+		//this causes bugs
+		//the subscreen appearing over the curtain effect should now be fixed in draw_screen
+		//so this is not necessary -DD
+		//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
+	
+		advanceframe(true);
+		++f;
+	}
+	while(f<408 || midi_pos > 0 || (zcmusic!=NULL && zcmusic->position<800));   // 800 may not be just right, but it works
+
+	action=none; FFCore.setLinkAction(none);
+	holdclk=0;
+	draw_screen_clip_rect_x1=0;
+	draw_screen_clip_rect_x2=255;
+	draw_screen_clip_rect_y1=0;
+	draw_screen_clip_rect_y2=223;
+	//draw_screen_clip_rect_show_link=true;
+	show_subscreen_items=true;
     
-    action=none; FFCore.setLinkAction(none);
-    holdclk=0;
-    draw_screen_clip_rect_x1=0;
-    draw_screen_clip_rect_x2=255;
-    draw_screen_clip_rect_y1=0;
-    draw_screen_clip_rect_y2=223;
-    //draw_screen_clip_rect_show_link=true;
-    show_subscreen_items=true;
-    
-    //Warp Link out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
-    //Added a QR for this, to Other->2, as `Triforce in Cellar Warps Link Out`. -Z 15th March, 2019 
-    if(itemsbuf[id2].flags & ITEM_FLAG1 && ( get_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR) ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
-    {
-        sdir=dir;
-        dowarp(1,0); //side warp
-    }
-    else
-        playLevelMusic();
+	//Warp Link out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
+	//Added a QR for this, to Other->2, as `Triforce in Cellar Warps Link Out`. -Z 15th March, 2019 
+	if(itemsbuf[id2].flags & ITEM_FLAG1 && ( get_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR) ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
+	{
+		sdir=dir;
+		dowarp(1,0); //side warp
+	}
+	else
+		playLevelMusic();
 }
 
 void red_shift()
