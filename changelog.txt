@@ -2,6 +2,12 @@
 
 //Alpha 23
 
+Added epilepsyFlashReductionto bomb palette flashes.
+Added an Epilepsy Flash Protection option to the Settings menu,
+	and to zc.cfg.
+	( ZoriaRPG, 26th May, 2019 )
+	
+Fix call to #include "std_keyboard.zh" in std.zh.
 Move New GetByString functions to Game->, to match GetFFCScript() and GetItemScript().
 Added Label field to the Combo Editor:
 	The user can now supply a label (10 char string) to every combo.

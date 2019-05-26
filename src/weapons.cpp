@@ -37,6 +37,7 @@ extern int directWpn;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern enemy Enemy;
+extern byte epilepsyFlashReduction;
 
 /**************************************/
 /***********  Weapon Class  ***********/
@@ -3261,7 +3262,7 @@ bool weapon::animate(int index)
                 }
             }
             
-            if(!get_bit(quest_rules,qr_NOBOMBPALFLASH))
+            if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !epilepsyFlashReduction)
             {
                 if(!usebombpal)
                 {
