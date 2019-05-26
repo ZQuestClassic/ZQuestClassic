@@ -32,6 +32,7 @@
 extern LinkClass Link;
 extern zinitdata zinit;
 extern int directWpn;
+extern byte epilepsyFlashReduction;
 
 /**************************************/
 /***********  Weapon Class  ***********/
@@ -2069,7 +2070,7 @@ bool weapon::animate(int)
                 }
             }
             
-            if(!get_bit(quest_rules,qr_NOBOMBPALFLASH))
+            if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !epilepsyFlashReduction)
             {
                 if(!usebombpal)
                 {
