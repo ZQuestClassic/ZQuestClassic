@@ -18843,6 +18843,7 @@ int run_script(const byte type, const word script, const long i)
 		    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 		    stack = pvsstack;
 		    //stack = NULL;
+			if ( (itemsbuf[i].flags&ITEM_FLAG16) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
 		    break; //item scripts aren't gonna go again anyway
 		}
 		case SCRIPT_NPC:
@@ -21697,7 +21698,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
-			if ( runningItemScripts[q] == 1 )
+			if ( runningItemScripts[q] == 1 || ( /*PASSIVE ITEM THAT ALWAYS RUNS*/ ((itemsbuf[q].flags&ITEM_FLAG16) && game->item[q])) )
 			{
 				if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
 				{
