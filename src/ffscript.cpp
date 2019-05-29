@@ -21660,7 +21660,7 @@ bool FFScript::itemScriptEngine()
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
-			if ( runningItemScripts[q] == 1 )
+			if ( runningItemScripts[q] == 1 || ( /*PASSIVE ITEM THAT ALWAYS RUNS*/ ((itemsbuf[q].flags&ITEM_FLAG16) && game->item[q])) )
 			{
 				if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
 				{
