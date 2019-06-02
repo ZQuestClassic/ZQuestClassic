@@ -10759,6 +10759,8 @@ static DIALOG screenscript_dlg[] =
     { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
     { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
     
+    { jwin_check_proc,          112+10+20+34-4,    42+30,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Run On Screen Init",   NULL,   NULL                  },
+    
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -10779,6 +10781,7 @@ void EditScreenScript()
 		
 	}
 	screenscript_dlg[22].d1 = script;
+	screenscript_dlg[25].flags = Map.CurrScr()->preloadscript ? D_SELECTED : 0;
 	
 	for ( int q = 0; q < 8; q++ )
 	{
@@ -10797,6 +10800,10 @@ void EditScreenScript()
 		build_biscreens_list();
 		Map.CurrScr()->script = biscreens[screenscript_dlg[22].d1].second + 1;
 		
+		if(screenscript_dlg[25].flags & D_SELECTED)
+			Map.CurrScr()->preloadscript = 1;
+		else 
+			Map.CurrScr()->preloadscript = 0;
 		
 		for(int j=0; j<8; j++)
 			Map.CurrScr()->screeninitd[j] = vbound(ffparse(initd[j]),-2147483647, 2147483647);

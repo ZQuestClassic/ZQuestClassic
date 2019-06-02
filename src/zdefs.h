@@ -184,7 +184,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           12
 #define V_CSETS            4
-#define V_MAPS            20
+#define V_MAPS            21
 #define V_DMAPS            13
 #define V_DOORS            1
 #define V_ITEMS           44
@@ -1977,6 +1977,7 @@ struct mapscr
     word script;
     long screeninitd[8];
     byte screen_waitdraw;
+    byte preloadscript;
     unsigned long ffcswaitdraw;
     
     void zero_memory()
@@ -2136,6 +2137,7 @@ struct mapscr
 	
 	script = 0;
 	for ( int q = 0; q < 8; q++) screeninitd[q] = 0;
+	preloadscript = 0;
         
 	screen_waitdraw = 0;
 	ffcswaitdraw = 0;

@@ -18931,6 +18931,8 @@ int run_script(const byte type, const word script, const long i)
 int ffscript_engine(const bool preload)
 {
     //run screen script, first
+	Z_scripterrlog("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
+	if(( preload && tmpscr->preloadscript) || !preload )
 	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
     
     for(byte i = 0; i < MAXFFCS; i++)

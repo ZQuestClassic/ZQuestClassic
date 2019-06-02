@@ -13815,7 +13815,7 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
     if ( dmap_doscript ) 
 	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-    if ( tmpscr->script != 0 )
+    if ( tmpscr->script != 0 && tmpscr->preloadscript )
     {
 	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);    
     }

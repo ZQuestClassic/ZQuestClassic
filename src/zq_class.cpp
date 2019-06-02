@@ -8511,7 +8511,10 @@ int writemapscreen(PACKFILE *f, int i, int j)
 	} 
 	    
     }
-    
+    if(!p_putc(screen.preloadscript,f))
+    {
+		return qe_invalid;
+    }
     return qe_OK;
 }
 
