@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 23
-Document Revision: 23rd May, 2019
+Document for: 2.55, Alpha 24
+Document Revision: 2nd June, 2019
 
 
 ////////////////////////////////////////////////////
@@ -35,6 +35,23 @@ compl	: 	Equivalent to	~
 //////////////
 // Bugfixes //
 //////////////
+
+	//Aplha 24
+	
+	///////////////
+	// NOT Token //
+	///////////////
+	
+	You may now use the NOt (!) token on any datatype, as in C++.
+	Example:
+		ffc f;
+		if ( !f ) f = Screen->LoadFFC(3)l
+		
+		bitmap b;
+		if ( !b ) b = Game->CreateBitmap(16,16);
+		else b->Create(0, 16, 16);
+		
+	This allows checking if a pointer is initialised, easily. 
 
 	//Alpha 16
 	
