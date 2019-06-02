@@ -16641,7 +16641,7 @@ int run_script(const byte type, const word script, const long i)
 	    
 	    case SCRIPT_SCREEN:
 	    {
-		Z_scripterrlog("FFScript found a screen script to run, id: %d\n", script);
+		//Z_scripterrlog("FFScript found a screen script to run, id: %d\n", script);
 		ri = &(screenScriptData);
 		curscript = screenscripts[script];
 		stack = &(screen_stack);
@@ -18930,6 +18930,9 @@ int run_script(const byte type, const word script, const long i)
 //This keeps ffc scripts running beyond the first frame. 
 int ffscript_engine(const bool preload)
 {
+    //run screen script, first
+	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+    
     for(byte i = 0; i < MAXFFCS; i++)
     {
         if(tmpscr->ffscript[i] == 0)
