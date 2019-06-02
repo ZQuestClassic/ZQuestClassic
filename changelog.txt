@@ -1,6 +1,33 @@
 //2.55 Changes
 
+//Alpha 24
+
+Screen scripts now have a flag 'Run on Screen Init', that
+	behaves in an identical manner to ffcs.
+	If enabled, the script runs as soon as scrolling 
+	begins; otherwise, the script runs after the screen 
+	scrolling ends and the screen is fully-loaded.
+Allow using the NOT (!) token on any type.
+	e.g. !bitmap or !FFC will be true if the bitmap pointer
+	is UNINITIALISED.
+Fix timing of Screen (screndata) scripts.
+	Screen scripts now run immediately prior to ffcs, as if they were ffc 0.
+	They execute from ffcscriptengine, as part of the same function invocation,
+		but they run before FFC ID 1. 
+Updated to build Alpha 24.
+	( ZoriaRPG, 2nd June, 2019 )
+	
+
 //Alpha 23
+Waitdraw now works on passive item scripts.
+	Further, if the script calls Quit(), then itemdata[id].script is set to 0,
+	so the script STOPS running.
+Added 'Constant Script' as item Flag16.;
+	If this is enabled on the item, and the item is in inventory (Link->Item == true),
+	then the script will run constantly.
+		***This is for passive item scripts.
+Added Gleeok's old experimental files, including ZPP as refs to repo.
+	( ZoriaRPG, 29th May, 2019 )
 
 Added epilepsyFlashReductionto bomb palette flashes.
 Added an Epilepsy Flash Protection option to the Settings menu,
