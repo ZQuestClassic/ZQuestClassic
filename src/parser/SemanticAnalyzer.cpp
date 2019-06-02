@@ -1009,7 +1009,7 @@ void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
 
 void SemanticAnalyzer::caseExprNot(ASTExprNot& host, void*)
 {
-	analyzeUnaryExpr(host, DataType::BOOL);
+	analyzeUnaryExpr(host, DataType::UNTYPED);
 }
 
 void SemanticAnalyzer::caseExprBitNot(ASTExprBitNot& host, void*)
