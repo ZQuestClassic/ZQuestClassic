@@ -729,6 +729,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 {
     // Recurse on left.
 	visit(host.left.get());
+	syncDisable(host, *host.left);
     if (breakRecursion(host)) return;
 
 	// Grab the left side's class.
