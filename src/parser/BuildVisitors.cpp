@@ -36,6 +36,22 @@ void BuildOpcodes::visit(AST& node, void* param)
 	}
 }
 
+void BuildOpcodes::literalVisit(AST& node, void* param)
+{
+	if(node.isDisabled()) return; //Don't visit disabled nodes.
+	int initIndex = result.size();
+	visit(node, param);
+	//Handle literals
+	OpcodeContext *c = (OpcodeContext *)param;
+	result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
+	c->initCode.clear();
+}
+
+void BuildOpcodes::literalVisit(AST* node, void* param)
+{
+	if(node) literalVisit(*node, param);
+}
+
 void BuildOpcodes::caseDefault(AST&, void*)
 {
     // Unreachable
@@ -95,10 +111,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
     for (vector<ASTStmt*>::iterator it = host.statements.begin();
 		 it != host.statements.end(); ++it)
 	{
-		int initIndex = result.size();
-        visit(*it, param);
-		result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
-		c->initCode.clear();
+        literalVisit(*it, param);
 	}
 
 	deallocateRefsUntilCount(startRefCount);
@@ -109,7 +122,13 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 {
     //run the test
-	visit(host.condition.get(), param);
+	int startRefCount = arrayRefs.size(); //Store ref count
+	literalVisit(host.condition.get(), param);
+	//Deallocate string/array literals from within the condition
+	deallocateRefsUntilCount(startRefCount);
+	while ((int)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
+	//Continue
     int endif = ScriptParser::getUniqueLabelID();
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 	if(host.isInverted())
@@ -127,7 +146,13 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 {
     //run the test
-	visit(host.condition.get(), param);
+	int startRefCount = arrayRefs.size(); //Store ref count
+	literalVisit(host.condition.get(), param);
+	//Deallocate string/array literals from within the condition
+	deallocateRefsUntilCount(startRefCount);
+	while ((int)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
+	//Continue
     int elseif = ScriptParser::getUniqueLabelID();
     int endif = ScriptParser::getUniqueLabelID();
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
@@ -162,7 +187,13 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	breakRefCount = arrayRefs.size();
 
 	// Evaluate the key.
-	visit(host.key.get(), param);
+	int startRefCount = arrayRefs.size(); //Store ref count
+	literalVisit(host.key.get(), param);
+	//Deallocate string/array literals from within the key
+	deallocateRefsUntilCount(startRefCount);
+	while ((int)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
+	//Continue
 	result.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 
 	// Add the tests and jumps.
@@ -223,7 +254,13 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 {
     //run the precondition
-	visit(host.setup.get(), param);
+	int setupRefCount = arrayRefs.size(); //Store ref count
+	literalVisit(host.setup.get(), param);
+	//Deallocate string/array literals from within the setup
+	deallocateRefsUntilCount(setupRefCount);
+	while ((int)arrayRefs.size() > setupRefCount)
+		arrayRefs.pop_back();
+	//Continue
     int loopstart = ScriptParser::getUniqueLabelID();
     int loopend = ScriptParser::getUniqueLabelID();
     int loopincr = ScriptParser::getUniqueLabelID();
@@ -232,7 +269,13 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     next->setLabel(loopstart);
     addOpcode(next);
     //test the termination condition
-    visit(host.test.get(), param);
+    int testRefCount = arrayRefs.size(); //Store ref count
+	literalVisit(host.test.get(), param);
+	//Deallocate string/array literals from within the test
+	deallocateRefsUntilCount(testRefCount);
+	while ((int)arrayRefs.size() > testRefCount)
+		arrayRefs.pop_back();
+	//Continue
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(loopend)));
     //run the loop body
@@ -259,7 +302,13 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
     next->setLabel(loopincr);
     addOpcode(next);
-    visit(host.increment.get(), param);
+    int incRefCount = arrayRefs.size(); //Store ref count
+	literalVisit(host.increment.get(), param);
+	//Deallocate string/array literals from within the increment
+	deallocateRefsUntilCount(incRefCount);
+	while ((int)arrayRefs.size() > incRefCount)
+		arrayRefs.pop_back();
+	//Continue
     addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
     //nop
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
@@ -276,7 +325,13 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
     Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
     start->setLabel(startlabel);
     addOpcode(start);
-    visit(host.test.get(), param);
+	int startRefCount = arrayRefs.size(); //Store ref count
+	literalVisit(host.test.get(), param);
+	//Deallocate string/array literals from within the test
+	deallocateRefsUntilCount(startRefCount);
+	while ((int)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
+	//Continue
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     if(host.isInverted()) //Is this `until` or `while`?
 	{
@@ -339,7 +394,13 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     start = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
     start->setLabel(continuelabel);
     addOpcode(start);
-    visit(host.test.get(), param);
+    int startRefCount = arrayRefs.size(); //Store ref count
+	literalVisit(host.test.get(), param);
+	//Deallocate string/array literals from within the test
+	deallocateRefsUntilCount(startRefCount);
+	while ((int)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
+	//Continue
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     if(host.isInverted()) //Is this `until` or `while`?
 	{

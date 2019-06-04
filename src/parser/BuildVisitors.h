@@ -18,6 +18,8 @@ namespace ZScript
 
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
+		void literalVisit(AST& node, void* param = NULL);
+		void literalVisit(AST* node, void* param = NULL);
 	
 		virtual void caseDefault(AST& host, void* param);
 		virtual void caseSetOption(ASTSetOption& host, void* param);
