@@ -618,6 +618,11 @@ int itoa(int string, int pos, int num)
 	return ret + digits;
 }
 
+int itoa(int string, int num)
+{
+	return itoa(string, 0, num);
+}
+
 //Hexadecimal Integer to ASCII
 //Places integer 'num' into string 'string' in base 16 without checking for overflow,
 //and returns the number of characters used
@@ -2083,9 +2088,6 @@ namespace std
 		{
 			return ilen(string, 0);
 		}
-		int itoa(int string, int num)
-		{
-			return itoa(string, 0, num);
-		}
+		
 	}
 }

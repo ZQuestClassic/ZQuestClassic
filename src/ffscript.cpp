@@ -23790,7 +23790,7 @@ void FFScript::do_itoa()
 	long arrayptr_a = ri->d[1]/10000;
 	int value = ri->d[0]/10000;
 	char the_string[13];
-	_itoa(value, the_string, 10);
+	char* c = _itoa(value, the_string, 10);
 	//Returns the number of characters used. 
 	if(ArrayH::setArray(arrayptr_a, the_string) == SH::_Overflow)
 		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
