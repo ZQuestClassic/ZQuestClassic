@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 24
-Document Revision: 2nd June, 2019
+Document Revision: 3rd June, 2019
 
 
 ////////////////////////////////////////////////////
@@ -318,10 +318,11 @@ TOKEN: screendata script
 * You can now compile and assign scripts to individual screens.
 * The 'this' pointer for dmapdata scripts is Screen->.
 *
-* This script can run for multiple frames, and it runs after ffcs, but on screen init.
-* Thus, if you have ffcs that do not run on screen init, this runs first, otherwise it runs after ffc 32.
+* This script can run for multiple frames, and it runs before ffcs.
+* You can enable the tick box 'Run on Screen Init'. if this is enabled, ther script runs as soon as the screen
+* starts to scroll into view.
 *
-* DMap scripts run only on screens where they are set to run.
+* Screen scripts run only on screens where they are set to run.
 * Warping to a screen with a screen script will start that script.
 *
 * You can assign this script to a screen in the SCREEN SCRIPT EDITOR dialogue. 
