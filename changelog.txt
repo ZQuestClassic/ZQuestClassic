@@ -1,7 +1,16 @@
 //2.55 Changes
 
-//Alpha 24
+//Alpha 25
+Ensure that the internal call to _itoa() in ffscript.cpp has a pointer to 
+	which it can return a value.
+Calls to the internal itoa() were causing memory corruption.
+	For the present, I moved itoa back into the base of string.zh, out of std::string,
+	and I renamed the internal itoa() to itoa_c().
+Prevent possible mapscreen corruption when initialising mapscreens in qst.cpp. (Paranoia patch.)
+	( ZoriaRPG, 5th June, 2019 )
 
+
+//Alpha 24
 Screen scripts now have a flag 'Run on Screen Init', that
 	behaves in an identical manner to ffcs.
 	If enabled, the script runs as soon as scrolling 
