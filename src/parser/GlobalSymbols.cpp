@@ -630,6 +630,8 @@ static AccessorTable GlobalTable[] =
 	{ "strstr",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "strrchr",               ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
+	{ "SRand",                  ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SRand",                  ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      0,           {  -1,                      -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	
 //	TYPE_UNTYPED
@@ -687,6 +689,32 @@ void GlobalSymbols::generateCode()
         code.push_back(first);
         code.push_back(new ORandRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+	
+    //int SRand(int seed)
+    {
+	    Function* function = getFunction("SRand", 1);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop seed
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OSRandRegister(new VarArgument(EXP2)));
+        //code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+	
+    //int SRand()
+    {
+	    Function* function = getFunction("SRand", 0);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        Opcode *first = new OSRandRand(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //code.push_back(new OReturn());
         function->giveCode(code);
     }
     

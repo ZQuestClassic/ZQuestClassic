@@ -2173,6 +2173,39 @@ namespace ZScript
 			return new ORandRegister(a->clone(), b->clone());
 		}
 	};
+	
+	class OSRandRegister : public UnaryOpcode
+	{
+	public:
+		OSRandRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSRandRegister(a->clone());
+		}
+	};
+	
+	class OSRandImmediate : public UnaryOpcode
+	{
+	public:
+		OSRandImmediate(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSRandImmediate(a->clone());
+		}
+	};
+	
+	class OSRandRand : public UnaryOpcode
+	{
+	public:
+		OSRandRand(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSRandRand(a->clone());
+		}
+	};
 
 	class OSqrtRegister : public BinaryOpcode
 	{
