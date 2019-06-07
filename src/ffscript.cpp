@@ -12933,6 +12933,21 @@ void do_rnd(const bool v)
 		set_register(sarg1, 0); // Just return 0. (Do not log an error)
 }
 
+void do_srnd(const bool v)
+{
+	unsigned int seed = SH::get_arg(sarg1, v); //Do not `/10000`- allow the decimal portion to be used! -V
+	srand(seed);
+}
+
+void do_srndrnd()
+{
+	//Randomize the seed to the current system time, + or - the product of 2 random numbers.
+	int seed = time(0) + ((rand() * rand()) * ((rand() % 2) ? 1 : -1));
+	seed = vbound(seed, -2147479999, 2147479999); //Don't allow it to be outside ZScript range, so it can be returned.
+	set_register(sarg1, seed);
+	srand(seed);
+}
+
 //Returns the system Real-Time-Clock value for a specific type. 
 void FFScript::getRTC(const bool v)
 {
@@ -17097,6 +17112,18 @@ int run_script(const byte type, const word script, const long i)
 		case RNDV:
 		    do_rnd(true);
 		    break;
+			
+		case SRNDR:
+			do_srnd(false);
+			break;
+			
+		case SRNDV:
+			do_srnd(true);
+			break;
+			
+		case SRNDRND:
+			do_srndrnd();
+			break;
 		
 		case GETRTCTIMER:
 		    FFCore.getRTC(false);
@@ -18931,7 +18958,7 @@ int run_script(const byte type, const word script, const long i)
 int ffscript_engine(const bool preload)
 {
     //run screen script, first
-	Z_scripterrlog("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
+	//Z_scripterrlog("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
 	if(( preload && tmpscr->preloadscript) || !preload )
 	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
     

@@ -2221,6 +2221,21 @@ string ORandRegister::toString()
     return "RNDR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OSRandRegister::toString()
+{
+    return "SRNDR " + getArgument()->toString();
+}
+
+string OSRandImmediate::toString()
+{
+    return "SRNDV " + getArgument()->toString();
+}
+
+string OSRandRand::toString()
+{
+    return "SRNDRND " + getArgument()->toString();
+}
+
 string OCheckTrig::toString()
 {
     return "CHECKTRIG";
