@@ -14879,10 +14879,11 @@ void paymagiccost(int itemid, bool ignoreTimer)
 	if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
 	{
 		//game->set_counter
-		if ( frame % itemsbuf[itemid].magiccosttimer == 0 ) game->set_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
+		if ( frame % itemsbuf[itemid].magiccosttimer == 0 ) game->change_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
 	}
 	else 
-	{	game->set_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
+	{
+		game->change_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
 		return;
 	}
     }
