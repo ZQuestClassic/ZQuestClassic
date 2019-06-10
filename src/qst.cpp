@@ -2707,6 +2707,18 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	set_bit(quest_rules, qr_OLDEWPNPARENT, 0); 	    
 	set_bit(quest_rules, qr_OLDQUESTMISC, 0); 	    
     }
+    
+    //item scripts continue to run
+    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
+    {
+	set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 0);  	    
+	set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 0);  	    
+	set_bit(quest_rules, qr_SCRIPTDRAWSWHENSCROLLING, 0);  	    
+	set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 0);  	    
+	set_bit(quest_rules, qr_DYINGENEMYESDONTHURTLINK, 0);  	    
+	set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);  	    
+    }
+    
     if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
     {
 	set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);  	    
