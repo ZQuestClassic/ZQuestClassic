@@ -48,7 +48,7 @@ void playLevelMusic();
 
 // If an enemy is this far out of the playing field, just remove it.
 #define OUTOFBOUNDS ((int)y>((tmpscr->flags7&fSIDEVIEW && canfall(id))?192:352) || y<-176 || x<-256 || x > 512)
-//#define OUTOFBOUNDS ((int)y>32767 || y<-32767 || x<-32767 || x > 32767)
+#define NEWOUTOFBOUNDS ((int)y>32767 || y<-32767 || x<-32767 || x > 32767)
 
 namespace
 {
@@ -574,7 +574,7 @@ bool enemy::animate(int index)
     oy = ny;
     
     // Maybe they fell off the bottom in sideview, or were moved by a script.
-    if(OUTOFBOUNDS)
+    if ( (!get_bit(quest_rules, qr_OUTOFBOUNDSENEMIES) && OUTOFBOUNDS) || (get_bit(quest_rules, qr_OUTOFBOUNDSENEMIES) && NEWOUTOFBOUNDS) )
         hp=-1000;
         
     //fall down
