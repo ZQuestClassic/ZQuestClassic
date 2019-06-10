@@ -2719,6 +2719,8 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);  	    
     }
     
+    set_bit(quest_rules, qr_LINKXY_IS_FLOAT, 0);
+    
     if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
     {
 	set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);  	    
