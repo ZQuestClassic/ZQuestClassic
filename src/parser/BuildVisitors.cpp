@@ -685,11 +685,12 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	{
 		if(host.binding->isInternal())
 		{
+			int startRefCount = arrayRefs.size(); //Store ref count
 			//push the parameters, in forward order
 			for (vector<ASTExpr*>::iterator it = host.parameters.begin();
 				it != host.parameters.end(); ++it)
 			{
-				visit(*it, param);
+				literalVisit(*it, param);
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 			
@@ -699,6 +700,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			{
 				addOpcode((*it)->makeClone());
 			}
+			//Deallocate string/array literals from within the parameters
+			deallocateRefsUntilCount(startRefCount);
+			while ((int)arrayRefs.size() > startRefCount)
+			arrayRefs.pop_back();
 		}
 		else
 		{
@@ -714,7 +719,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				//push it onto the stack
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
-
 			//push the data decls, in forward order
 			for (vector<ASTDataDecl*>::iterator it = host.inlineParams.begin();
 				it != host.inlineParams.end(); ++it)
@@ -747,6 +751,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
 		int returnaddr = ScriptParser::getUniqueLabelID();
+		int startRefCount = arrayRefs.size(); //Store ref count
 		//addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnaddr)));
 		//addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
@@ -767,7 +772,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (vector<ASTExpr*>::iterator it = host.parameters.begin();
 			it != host.parameters.end(); ++it)
 		{
-			visit(*it, param);
+			literalVisit(*it, param);
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 		//goto
@@ -776,6 +781,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
 		next->setLabel(returnaddr);
 		addOpcode(next);
+		//Deallocate string/array literals from within the parameters
+		deallocateRefsUntilCount(startRefCount);
+		while ((int)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
 	}
 }
 
