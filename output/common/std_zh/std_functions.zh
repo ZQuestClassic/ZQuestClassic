@@ -2056,6 +2056,38 @@ float LogToBase(float x, float base)
 	return Ln(x)/Ln(base);
 }
 
+
+//Returns a random integer between 0 abd 199,999
+int longrand(int max)
+{
+     int numdigits;
+     if ( max > 99999 ) numdigits = 6;
+     int curpower = 1; int valdigits[6]; int ret;
+     switch(numdigits)
+     {
+          case 6:
+          {
+              // curmax = getDigit(max,6); //0, 1, 2 legal
+              // valdigits[0] = Rand(curmax);          
+               valdigits[0] = Rand(1);
+          } //fallthrough
+          default:
+          {
+               for ( int q = 1; q < 6; ++q )
+               {
+                    valdigits[q] = Rand(9);
+               }
+               break;
+          }
+     }
+     for ( int q = 5; q > -1; --q )
+     {
+          ret += ( valdigits[q] * curpower );
+          curpower *= 10;
+     }
+     return ret;
+}
+
 //M
 
 int MapToDMap(int screen, int dmap) 
