@@ -3547,13 +3547,15 @@ bool enemy::hit(weapon *w)
 
 void enemy::fix_coords(bool bound)
 {
-    if(bound && !get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES))
+    if (get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES )) return;
+
+    if(bound)
     {
         x=vbound(x, 0, 240);
         y=vbound(y, 0, 160);
     }
     
-    if(!OUTOFBOUNDS && !get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES))
+    if(!OUTOFBOUNDS)
     {
         x=(fix)((int(x)&0xF0)+((int(x)&8)?16:0));
         
@@ -3563,7 +3565,6 @@ void enemy::fix_coords(bool bound)
             y=(fix)((int(y)&0xF0)+((int(y)&8)?16:0));
     }
 }
-
 bool enemy::cannotpenetrate()
 {
     return (family == eeAQUA || family == eeMANHAN || family == eeGHOMA);
