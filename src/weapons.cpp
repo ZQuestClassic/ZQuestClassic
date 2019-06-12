@@ -256,7 +256,10 @@ weapon::weapon(weapon const & other):
 
 {
 	if ( isLWeapon ) goto skip_eweapon_script_init;
-	if ( parentid > -1 && parentid != Link.getUID() ) //eweapons
+	//eweapons
+	if ( parentid > -1 && parentid != Link.getUID() 
+		&& !ScriptGenerated //Don't try to read the parent script for a script-generated eweapon!
+	) 
 	{
 		enemy *s = (enemy *)guys.getByUID(parentid);
 	
@@ -2677,12 +2680,16 @@ bool weapon::animate(int index)
 	    case wScript9:
 	    case wScript10:
 	    {
+		if ( ScriptGenerated && !isLWeapon ) break; //Return early for eweapons. We handle those elsewhere. 
 		//Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
 		if ( parentitem > -1 || (isLWeapon && ScriptGenerated) )
 		{
 		    //Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
 		    if ( doscript ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());	
 		}
+		
+		//Can EW_SCRIPT run a weapon script ?? -Z
+		
 		//Disabled for now because FFCore.eweaponScriptEngine() runs the enemy weapon scripts. -Z (25-Dec-2018)
 		//else if ( parentid > -1 && parentid != Link.getUID() && !isLWeapon )
 		//{
