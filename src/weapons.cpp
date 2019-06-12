@@ -2565,8 +2565,13 @@ bool weapon::animate(int index)
     bool hooked=false;
 //	Z_scripterrlog("Weapon script is: %d\n",weaponscript);
 	
-    
-    Link.check_slash_block(this);
+    //Only lweapons, or wScript if the weapon is not script generated, or if it IS script-generated and is not an eweapon.
+    if ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10 && ( (ScriptGenerated && isLWeapon) || !ScriptGenerated) ) ) 
+    {
+	    Link.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
+					  //acting as the correct type with 'useweapon'.
+					  //Non-script-generated eweapons should be safe.
+    }
     // fall down
     switch(id)
     {
