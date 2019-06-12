@@ -26341,8 +26341,8 @@ void FFScript::ZScriptConsole(bool open)
 		zscript_coloured_console.Create("ZScript Debug Console");
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZScript Debug Console:\n");
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZScript Debug Console\n");
 		//coloured_console.SetAsDefaultOutput();
 		zscript_debugger = 1;
 	}
