@@ -26481,23 +26481,25 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		{
 			s_v = ZASMVars[sarg1];
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", s_v.name, get_register(sarg1));
+			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", s_v.name, get_register(sarg1));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t d%d (val = %2d), ", s_v.id-8, get_register(sarg1));
 		}
 		else
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", "immediate", sarg1);
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d), ", "immediate", sarg1);
 		}
 		if(s_c.arg2_type == 0)
 		{
 			s_v = ZASMVars[sarg2];
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg2));
+			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg2));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\t d%d (val = %2d)\n", s_v.id-8, get_register(sarg2));
 		}
 		else
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", "immediate", sarg2);
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg2);
 		}
 	}
 	else if(s_c.args == 1)
@@ -26509,12 +26511,13 @@ void FFScript::ZASMPrintCommand(const word scommand)
 		{
 			s_v = ZASMVars[sarg1];
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg1));
+			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg1));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t d%d (val = %2d)\n", s_v.id-8, get_register(sarg1));
 		}
 		else
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY |  
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", "immediate", sarg1);
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg1);
 		}
 	}
 	else
