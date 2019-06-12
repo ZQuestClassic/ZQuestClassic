@@ -343,7 +343,7 @@ extern int fullscreen;
 extern byte disable_triplebuffer, can_triplebuffer_in_windowed_mode;
 extern byte frame_rest_suggest, forceExit, zc_vsync;
 extern byte zc_color_depth;
-extern byte use_debug_console, use_win32_proc; //windows only
+extern byte use_debug_console, use_win32_proc, zasm_debugger; //windows only
 
 #ifdef _SCRIPT_COUNTER
 void update_script_counter();

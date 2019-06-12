@@ -361,6 +361,7 @@ void load_game_configs()
    
 #ifdef _WIN32
     use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
+    zasm_debugger = (byte) get_config_int(cfg_sect,"print_ZASM",0);
     //use_win7_keyboard_fix = (byte) get_config_int(cfg_sect,"use_win7_key_fix",0);
     use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",0); //buggy
    
@@ -517,6 +518,7 @@ void save_game_configs()
    
 #ifdef _WIN32
     set_config_int(cfg_sect,"debug_console",use_debug_console);
+    set_config_int(cfg_sect,"print_ZASM",zasm_debugger);
     //set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
     set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
     set_config_int("graphics","disable_direct_updating",disable_direct_updating);
@@ -5164,6 +5166,41 @@ int onDebugConsole()
 }
 
 
+int onConsoleZASM()
+{
+	if ( !zasm_debugger ) {
+		if(jwin_alert3(
+			"WARNING: ZASM Debugger", 
+			"ENabling this will open the ZASM Debugger Console", 
+			"Depending on the size of your scripts, this will cause ZC Player to run slowly.",
+			"Are you seure that you wish to open the ZASM Debugger?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+		{
+			FFCore.ZASMPrint(true);
+			zasm_debugger = 1;
+			save_game_configs();
+			return D_O_K;
+		}
+		
+		else return D_O_K;
+	}
+	else { 
+		
+		zasm_debugger = 0;
+		
+		save_game_configs();
+		FFCore.ZASMPrint(false);
+		return D_O_K;
+	}
+}
+
+
 int onFrameSkip()
 {
     FrameSkip = !FrameSkip;
@@ -8002,6 +8039,7 @@ static MENU misc_menu[] =
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
     { (char *)"Save ZC Configuration",           OnSaveZCConfig,           NULL,                      0, NULL },
      { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
+     { (char *)"Show ZASM Debugger",           onConsoleZASM,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -9056,6 +9094,7 @@ void System()
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
+	misc_menu[13].flags =(zasm_debugger)?D_SELECTED:0;
         
         /*
           if(!Playing || (!zcheats.flags && !debug))

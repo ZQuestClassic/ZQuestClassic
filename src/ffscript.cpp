@@ -6801,7 +6801,7 @@ case BITMAPHEIGHT:
     }
     }
     
-    if ( FFCore.print_ZASM ) FFCore.ZASMPrintVarGet(arg, ret);
+    if ( zasm_debugger ) FFCore.ZASMPrintVarGet(arg, ret);
     return ret;
 }
 
@@ -6810,7 +6810,7 @@ case BITMAPHEIGHT:
 
 void set_register(const long arg, const long value)
 {
-	if ( FFCore.print_ZASM ) FFCore.ZASMPrintVarSet(arg, value);
+	if ( zasm_debugger ) FFCore.ZASMPrintVarSet(arg, value);
 	//Macros
 	
 	#define	SET_SPRITEDATA_VAR_INT(member, str) \
@@ -16737,7 +16737,7 @@ int run_script(const byte type, const word script, const long i)
 #endif
 #endif
       
-        if ( FFCore.print_ZASM ) FFCore.ZASMPrintCommand(scommand);
+        if ( zasm_debugger ) FFCore.ZASMPrintCommand(scommand);
         switch(scommand)
         {
 		case QUIT:
@@ -20702,8 +20702,8 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
-	print_ZASM = true;
-	ZASMPrint(true);
+	print_ZASM = zasm_debugger;
+	if ( zasm_debugger ) ZASMPrint(true);
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
@@ -26449,16 +26449,16 @@ void FFScript::ZASMPrint(bool open)
 		coloured_console.Create("ZASM Debugger");
 		coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		coloured_console.gotoxy(0,0);
-		coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | 
+		coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZASM Stack Trace:\n");
 		//coloured_console.SetAsDefaultOutput();
-		FFCore.print_ZASM = true;
+		zasm_debugger = 1;
 	}
 	else
 	{
 		//close
 		coloured_console.Close();
-		FFCore.print_ZASM = false;
+		zasm_debugger = 0;
 	}
 	#endif	
 }
@@ -26467,7 +26467,7 @@ void FFScript::ZASMPrint(bool open)
 void FFScript::ZASMPrintCommand(const word scommand)
 {
 	#ifdef _WIN32
-	//if ( !print_ZASM ) return;
+	//if ( !zasm_debugger ) return;
 	
 	script_command s_c = ZASMcommands[scommand];
 	script_variable s_v = ZASMVars[0];
@@ -26534,7 +26534,7 @@ void FFScript::ZASMPrintCommand(const word scommand)
 void FFScript::ZASMPrintVarSet(const long arg, long argval)
 {
 	#ifdef _WIN32
-	//if ( !print_ZASM ) return;
+	//if ( !zasm_debugger ) return;
 	script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
@@ -26548,7 +26548,7 @@ void FFScript::ZASMPrintVarSet(const long arg, long argval)
 void FFScript::ZASMPrintVarGet(const long arg, long argval)
 {
 	#ifdef _WIN32
-	//if ( !print_ZASM ) return;
+	//if ( !zasm_debugger ) return;
 	script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
