@@ -987,6 +987,8 @@ extern std::map<int, std::pair<std::string, std::string> > dmapmap;
 extern std::map<int, std::pair<std::string, std::string> > screenmap;
 extern std::map<int, std::pair<std::string, std::string> > itemspritemap;
 
+extern CConsoleLoggerEx zscript_coloured_console;
+
 void Z_scripterrlog(const char * const format,...)
 {
     if(get_bit(quest_rules,qr_SCRIPTERRLOG))
@@ -996,7 +998,7 @@ void Z_scripterrlog(const char * const format,...)
         case SCRIPT_GLOBAL:
             al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
 		#ifdef _WIN32
-		if ( zscript_debugger ) { FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
 			curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
 		#endif
@@ -1005,7 +1007,7 @@ void Z_scripterrlog(const char * const format,...)
 	case SCRIPT_LINK:
             al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str());
 		#ifdef _WIN32
-		if ( zscript_debugger ) { FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].second.c_str()); }
 		#endif    
 	break;
@@ -1013,7 +1015,7 @@ void Z_scripterrlog(const char * const format,...)
 	case SCRIPT_LWPN:
             al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
 		#ifdef _WIN32
-		if ( zscript_debugger ) { FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());}
 		#endif    
 	break;
@@ -1021,7 +1023,7 @@ void Z_scripterrlog(const char * const format,...)
 	case SCRIPT_EWPN:
             al_trace("EWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
 		#ifdef _WIN32
-		if ( zscript_debugger ) { FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());}
 		#endif    
 	break;
@@ -1029,7 +1031,7 @@ void Z_scripterrlog(const char * const format,...)
 	case SCRIPT_NPC:
             al_trace("LWeapon script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());
 		#ifdef _WIN32
-		if ( zscript_debugger ) {FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].second.c_str());}
 		#endif    
 	break;
@@ -1038,7 +1040,7 @@ void Z_scripterrlog(const char * const format,...)
             al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
 	    
 		#ifdef _WIN32
-		if ( zscript_debugger ) {FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
 		#endif
 	break;
@@ -1046,7 +1048,7 @@ void Z_scripterrlog(const char * const format,...)
         case SCRIPT_ITEM:
             al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
 		#ifdef _WIN32
-		if ( zscript_debugger ) {FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
 		#endif
 	break;
@@ -1055,7 +1057,7 @@ void Z_scripterrlog(const char * const format,...)
             al_trace("DMap script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
 	    
 		#ifdef _WIN32
-		if ( zscript_debugger ) {FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
 		#endif
 	break;
@@ -1063,7 +1065,7 @@ void Z_scripterrlog(const char * const format,...)
 	case SCRIPT_ITEMSPRITE:
             al_trace("itemsprite script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
 		#ifdef _WIN32
-		if ( zscript_debugger ) {FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
 		#endif
 	break;
@@ -1071,7 +1073,7 @@ void Z_scripterrlog(const char * const format,...)
 	case SCRIPT_SCREEN:
             al_trace("Screen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
 		#ifdef _WIN32
-		if ( zscript_debugger ) {FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
 		#endif
 	break;
@@ -1079,7 +1081,7 @@ void Z_scripterrlog(const char * const format,...)
 	case SCRIPT_SUBSCREEN:
             al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
 		#ifdef _WIN32
-		if ( zscript_debugger ) {FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
 		#endif
 	break;
@@ -1100,7 +1102,7 @@ void Z_scripterrlog(const char * const format,...)
 	if ( zscript_debugger ) 
 	{
 		#ifdef _WIN32
-		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
 		#endif
 	}

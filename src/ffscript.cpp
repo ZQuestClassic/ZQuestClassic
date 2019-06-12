@@ -26356,11 +26356,11 @@ void FFScript::ZScriptConsole(bool open)
 }
 
 
-void FFScript::ZScriptConsolePrint(int colourformat, const char * const format,...)
+void FFScript::ZScriptConsolePrint(int attributes,const char *format,...)
 {
 	#ifdef _WIN32
 	
-	coloured_console.cprintf( colourformat,format);
+	coloured_console.cprintf( attributes,format);
 	//coloured_console.print();
 	#endif	
 }
@@ -26503,7 +26503,7 @@ void FFScript::do_trace(bool v)
 	if ( zscript_debugger ) 
 	{
 		#ifdef _WIN32
-		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
 		#endif
 	}
@@ -26521,7 +26521,7 @@ void FFScript::do_tracebool(const bool v)
 	if ( zscript_debugger ) 
 	{
 		#ifdef _WIN32
-		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", temp ? "true": "false");
 		#endif
 	}
@@ -26538,12 +26538,13 @@ void FFScript::do_tracestring()
         printf("%s", str.c_str());
     
     if ( zscript_debugger ) 
-	{
-		#ifdef _WIN32
-		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+    {
+	#ifdef _WIN32
+	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", str.c_str());
-		#endif
-	}
+
+	#endif
+    }
 }
 
 void FFScript::do_tracenl()
@@ -26555,7 +26556,7 @@ void FFScript::do_tracenl()
         if ( zscript_debugger ) 
 	{
 		#ifdef _WIN32
-		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
 		#endif
 	}
@@ -26628,7 +26629,7 @@ void FFScript::do_tracetobase()
     if ( zscript_debugger ) 
 	{
 		#ifdef _WIN32
-		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
 		#endif
 	}
