@@ -15862,116 +15862,6 @@ void do_set_dmap_enh_music(const bool v)
 
 
 
-///----------------------------------------------------------------------------------------------------//
-//Tracing
-
-void do_trace(bool v)
-{
-    long temp = SH::get_arg(sarg1, v);
-    
-    char tmp[100];
-    sprintf(tmp, (temp < 0 ? "%06ld" : "%05ld"), temp);
-    string s2(tmp);
-    s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
-    al_trace("%s\n", s2.c_str());
-    
-    if(zconsole)
-        printf("%s\n", s2.c_str());
-}
-
-void do_tracebool(const bool v)
-{
-    long temp = SH::get_arg(sarg1, v);
-    
-    al_trace("%s\n", temp ? "true": "false");
-    
-    if(zconsole)
-        printf("%s\n", temp ? "true": "false");
-}
-
-void do_tracestring()
-{
-    long arrayptr = get_register(sarg1) / 10000;
-    string str;
-    ArrayH::getString(arrayptr, str, 512);
-    al_trace("%s", str.c_str());
-    
-    if(zconsole)
-        printf("%s", str.c_str());
-}
-
-void do_tracenl()
-{
-    al_trace("\n");
-    
-    if(zconsole)
-        printf("\n");
-}
-
-void do_cleartrace()
-{
-    zc_trace_clear();
-}
-
-string inttobase(word base, long x, word mindigits)
-{
-    static const char coeff[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    
-    string s2;
-    word digits = zc_max(mindigits - 1, word(floor(log(double(x)) / log(double(base)))));
-    
-    for(int i = digits; i >= 0; i--)
-    {
-        s2 += coeff[word(floor(x / pow(double(base), i))) % base];
-    }
-    
-    return s2;
-}
-
-void do_tracetobase()
-{
-    long x = SH::read_stack(ri->sp + 2) / 10000;
-    unsigned long base = vbound(SH::read_stack(ri->sp + 1) / 10000, 2, 36);
-    unsigned long mindigits = zc_max(1, SH::read_stack(ri->sp) / 10000);
-    
-    string s2 = x < 0 ? "-": "";
-    
-    switch(base)
-    {
-    case 8:
-        s2 += '0';
-        break;
-        
-    case 16:
-        s2 += "0x";
-        break;
-    }
-    
-    s2 += inttobase(base, int(fabs(double(x))), mindigits);
-    
-    switch(base)
-    {
-    case 8:
-    case 10:
-    case 16:
-        break;
-        
-    case 2:
-        s2 += 'b';
-        break;
-        
-    default:
-        std::stringstream ss;
-        ss << " (Base " << base << ')';
-        s2 += ss.str();
-        break;
-    }
-    
-    al_trace("%s\n", s2.c_str());
-    
-    if(zconsole)
-        printf("%s\n", s2.c_str());
-}
 
 ///----------------------------------------------------------------------------------------------------//
 //Array & string related
@@ -17241,15 +17131,15 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		    
 		case TRACER:
-		    do_trace(false);
+		    FFCore.do_trace(false);
 		    break;
 		    
 		case TRACEV:
-		    do_trace(true);
+		    FFCore.do_trace(true);
 		    break;
 		    
 		case TRACE2R:
-		    do_tracebool(false);
+		    FFCore.do_tracebool(false);
 		    break;
 		
 		//Zap and Wavy Effects
@@ -17280,23 +17170,23 @@ int run_script(const byte type, const word script, const long i)
 			break;
 		    
 		case TRACE2V:
-		    do_tracebool(true);
+		    FFCore.do_tracebool(true);
 		    break;
 		    
 		case TRACE3:
-		    do_tracenl();
+		    FFCore.do_tracenl();
 		    break;
 		    
 		case TRACE4:
-		    do_cleartrace();
+		    FFCore.do_cleartrace();
 		    break;
 		    
 		case TRACE5:
-		    do_tracetobase();
+		    FFCore.do_tracetobase();
 		    break;
 		    
 		case TRACE6:
-		    do_tracestring();
+		    FFCore.do_tracestring();
 		    break;
 		    
 		case WARP:
@@ -26438,7 +26328,42 @@ script_variable ZASMVars[]=
 
 #ifdef _WIN32
 CConsoleLoggerEx coloured_console;
+CConsoleLoggerEx zscript_coloured_console;
 #endif
+
+
+void FFScript::ZScriptConsole(bool open)
+{
+	al_trace("Opening ZScript Console");
+	#ifdef _WIN32
+	if ( open )
+	{
+		zscript_coloured_console.Create("ZScript Debug Console");
+		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+		zscript_coloured_console.gotoxy(0,0);
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZScript Debug Console:\n");
+		//coloured_console.SetAsDefaultOutput();
+		zscript_debugger = 1;
+	}
+	else
+	{
+		//close
+		zscript_coloured_console.Close();
+		zscript_debugger = 0;
+	}
+	#endif	
+}
+
+
+void FFScript::ZScriptConsolePrint(int colourformat, const char * const format,...)
+{
+	#ifdef _WIN32
+	
+	coloured_console.cprintf( colourformat,format);
+	//coloured_console.print();
+	#endif	
+}
 
 void FFScript::ZASMPrint(bool open)
 {
@@ -26557,4 +26482,154 @@ void FFScript::ZASMPrintVarGet(const long arg, long argval)
 	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
 	#endif	
+}
+
+
+///----------------------------------------------------------------------------------------------------//
+//Tracing
+
+void FFScript::do_trace(bool v)
+{
+    long temp = SH::get_arg(sarg1, v);
+    
+    char tmp[100];
+    sprintf(tmp, (temp < 0 ? "%06ld" : "%05ld"), temp);
+    string s2(tmp);
+    s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
+    al_trace("%s\n", s2.c_str());
+    
+    if(zconsole)
+        printf("%s\n", s2.c_str());
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
+		#endif
+	}
+}
+
+void FFScript::do_tracebool(const bool v)
+{
+    long temp = SH::get_arg(sarg1, v);
+    
+    al_trace("%s\n", temp ? "true": "false");
+    
+    if(zconsole)
+        printf("%s\n", temp ? "true": "false");
+    
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", temp ? "true": "false");
+		#endif
+	}
+}
+
+void FFScript::do_tracestring()
+{
+    long arrayptr = get_register(sarg1) / 10000;
+    string str;
+    ArrayH::getString(arrayptr, str, 512);
+    al_trace("%s", str.c_str());
+    
+    if(zconsole)
+        printf("%s", str.c_str());
+    
+    if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", str.c_str());
+		#endif
+	}
+}
+
+void FFScript::do_tracenl()
+{
+    al_trace("\n");
+    
+    if(zconsole)
+        printf("\n");
+        if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
+		#endif
+	}
+}
+
+void FFScript::do_cleartrace()
+{
+    zc_trace_clear();
+}
+
+string inttobase(word base, long x, word mindigits)
+{
+    static const char coeff[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    
+    string s2;
+    word digits = zc_max(mindigits - 1, word(floor(log(double(x)) / log(double(base)))));
+    
+    for(int i = digits; i >= 0; i--)
+    {
+        s2 += coeff[word(floor(x / pow(double(base), i))) % base];
+    }
+    
+    return s2;
+}
+
+void FFScript::do_tracetobase()
+{
+    long x = SH::read_stack(ri->sp + 2) / 10000;
+    unsigned long base = vbound(SH::read_stack(ri->sp + 1) / 10000, 2, 36);
+    unsigned long mindigits = zc_max(1, SH::read_stack(ri->sp) / 10000);
+    
+    string s2 = x < 0 ? "-": "";
+    
+    switch(base)
+    {
+    case 8:
+        s2 += '0';
+        break;
+        
+    case 16:
+        s2 += "0x";
+        break;
+    }
+    
+    s2 += inttobase(base, int(fabs(double(x))), mindigits);
+    
+    switch(base)
+    {
+    case 8:
+    case 10:
+    case 16:
+        break;
+        
+    case 2:
+        s2 += 'b';
+        break;
+        
+    default:
+        std::stringstream ss;
+        ss << " (Base " << base << ')';
+        s2 += ss.str();
+        break;
+    }
+    
+    al_trace("%s\n", s2.c_str());
+    
+    if(zconsole)
+        printf("%s\n", s2.c_str());
+    
+    if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		FFCore.ZScriptConsolePrint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
+		#endif
+	}
 }
