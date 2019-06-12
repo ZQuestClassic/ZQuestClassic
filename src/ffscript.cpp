@@ -26331,7 +26331,6 @@ CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
 #endif
 
-
 void FFScript::ZScriptConsole(bool open)
 {
 	al_trace("Opening ZScript Console");
@@ -26496,6 +26495,7 @@ void FFScript::do_trace(bool v)
     sprintf(tmp, (temp < 0 ? "%06ld" : "%05ld"), temp);
     string s2(tmp);
     s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
+    TraceScriptIDs();
     al_trace("%s\n", s2.c_str());
     
     if(zconsole)
@@ -26512,7 +26512,7 @@ void FFScript::do_trace(bool v)
 void FFScript::do_tracebool(const bool v)
 {
     long temp = SH::get_arg(sarg1, v);
-    
+    TraceScriptIDs();
     al_trace("%s\n", temp ? "true": "false");
     
     if(zconsole)
@@ -26532,8 +26532,9 @@ void FFScript::do_tracestring()
     long arrayptr = get_register(sarg1) / 10000;
     string str;
     ArrayH::getString(arrayptr, str, 512);
+    TraceScriptIDs();
     al_trace("%s", str.c_str());
-    
+	
     if(zconsole)
         printf("%s", str.c_str());
     
@@ -26559,6 +26560,107 @@ void FFScript::do_tracenl()
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
 		#endif
+	}
+}
+
+
+void FFScript::TraceScriptIDs()
+{
+	if(get_bit(quest_rules,qr_TRACESCRIPTIDS))
+	{
+		switch(curScriptType)
+		{
+			case SCRIPT_GLOBAL:
+			    al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): ", 
+					curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
+				#endif
+			    break;
+			
+			case SCRIPT_LINK:
+			    al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str()); }
+				#endif    
+			break;
+			
+			case SCRIPT_LWPN:
+			    al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());}
+				#endif    
+			break;
+			
+			case SCRIPT_EWPN:
+			    al_trace("EWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());}
+				#endif    
+			break;
+			
+			case SCRIPT_NPC:
+			    al_trace("LWeapon script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());}
+				#endif    
+			break;
+			    
+			case SCRIPT_FFC:
+			    al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
+			    
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+			    
+			case SCRIPT_ITEM:
+			    al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+			
+			case SCRIPT_DMAP:
+			    al_trace("DMap script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+			    
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+			
+			case SCRIPT_ITEMSPRITE:
+			    al_trace("itemsprite script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+			
+			case SCRIPT_SCREEN:
+			    al_trace("Screen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+			
+			case SCRIPT_SUBSCREEN:
+			    al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+		}
 	}
 }
 
@@ -26620,7 +26722,7 @@ void FFScript::do_tracetobase()
         s2 += ss.str();
         break;
     }
-    
+    TraceScriptIDs();
     al_trace("%s\n", s2.c_str());
     
     if(zconsole)
