@@ -55,6 +55,11 @@ extern ZModule zcm; //modules
 extern zcmodule moduledata;
 extern char runningItemScripts[256];
 extern char modulepath[2048];
+
+
+
+
+
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -413,6 +418,7 @@ byte arrayOwner[MAX_ZCARRAY_SIZE];
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
 
 DebugConsole DebugConsole::singleton = DebugConsole();
+ZASMSTackTrace ZASMSTackTrace::singleton = ZASMSTackTrace();
 
 
 void setZScriptVersion(int s_version)
@@ -2766,11 +2772,28 @@ void do_dcounters()
             sfx(WAV_MSG);
     }
 }
-
+#define F7 46+7
+//bool zasmstacktrace = false;
 void game_loop()
 {
-	
-	
+	if ( DEVLEVEL > 0 )
+	{
+		if ( key[KEY_ZC_LCONTROL] && key[F7]  ) 
+		{
+			if ( !FFCore.print_ZASM ) 
+			{
+				FFCore.ZASMPrint(true);
+				
+			}
+			else 
+			{
+				FFCore.ZASMPrint(false);
+				FFCore.print_ZASM = false;
+				//ZASMSTackTrace::Close();
+				//zasmstacktrace = false;
+			}
+		}
+	}//
 	//for ( int qq = 0; qq < 256; qq++ )
     //{
 	    
