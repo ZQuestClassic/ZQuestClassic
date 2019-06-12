@@ -14491,7 +14491,7 @@ void do_createlweapon(const bool v)
 		ri->lwpn = LONG_MAX;
 		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
 	}
-	return;
+	return; //do not use the old code, below here. 
         //old version is below
     Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
 		
@@ -14517,6 +14517,8 @@ void do_createeweapon(const bool v)
         return;
 		
     addEwpn(0, 0, 0, ID, 0, 0, 0, -1,1); //Param 9 marks it as script-generated.
+    weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1);
+    w->LOADGFX(0);
     //addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
     
     if(Ewpns.Count() < 1)
