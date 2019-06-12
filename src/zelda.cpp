@@ -2788,7 +2788,6 @@ void game_loop()
 			else 
 			{
 				FFCore.ZASMPrint(false);
-				FFCore.print_ZASM = false;
 				//ZASMSTackTrace::Close();
 				//zasmstacktrace = false;
 			}

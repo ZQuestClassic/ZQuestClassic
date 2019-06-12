@@ -1342,7 +1342,7 @@ long get_register(const long arg)
     
     switch(arg)
     {
-	if ( FFCore.print_ZASM ) FFCore.ZASMPrintVar(arg);
+	
 	//Debug->Null()
     case DONULL: 
 	ret = 0;
@@ -6801,6 +6801,7 @@ case BITMAPHEIGHT:
     }
     }
     
+    if ( FFCore.print_ZASM ) FFCore.ZASMPrintVarGet(arg, ret);
     return ret;
 }
 
@@ -6809,6 +6810,7 @@ case BITMAPHEIGHT:
 
 void set_register(const long arg, const long value)
 {
+	if ( FFCore.print_ZASM ) FFCore.ZASMPrintVarSet(arg, value);
 	//Macros
 	
 	#define	SET_SPRITEDATA_VAR_INT(member, str) \
@@ -20700,7 +20702,8 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
-	print_ZASM = false;
+	print_ZASM = true;
+	ZASMPrint(true);
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
@@ -26441,14 +26444,22 @@ void FFScript::ZASMPrint(bool open)
 {
 	Z_scripterrlog("Opening ZASM Console");
 	#ifdef _WIN32
-	
-	FFCore.print_ZASM = true;
-	coloured_console.Create("ZASM Debugger");
-	coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-	coloured_console.gotoxy(0,0);
-	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZASM Stack Trace:\n");
-	//coloured_console.SetAsDefaultOutput();
+	if ( open )
+	{
+		coloured_console.Create("ZASM Debugger");
+		coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+		coloured_console.gotoxy(0,0);
+		coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZASM Stack Trace:\n");
+		//coloured_console.SetAsDefaultOutput();
+		FFCore.print_ZASM = true;
+	}
+	else
+	{
+		//close
+		coloured_console.Close();
+		FFCore.print_ZASM = false;
+	}
 	#endif	
 }
 
@@ -26459,35 +26470,88 @@ void FFScript::ZASMPrintCommand(const word scommand)
 	//if ( !print_ZASM ) return;
 	
 	script_command s_c = ZASMcommands[scommand];
+	script_variable s_v = ZASMVars[0];
+	
+	if(s_c.args == 2)
+	{
+		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s: ", s_c.name);
+        
+		if(s_c.arg1_type == 0)
+		{
+			s_v = ZASMVars[sarg1];
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", s_v.name, get_register(sarg1));
+		}
+		else
+		{
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", "immediate", sarg1);
+		}
+		if(s_c.arg2_type == 0)
+		{
+			s_v = ZASMVars[sarg2];
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg2));
+		}
+		else
+		{
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", "immediate", sarg2);
+		}
+	}
+	else if(s_c.args == 1)
+	{
+		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s: ", s_c.name);
+        
+		if(s_c.arg1_type == 0)
+		{
+			s_v = ZASMVars[sarg1];
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg1));
+		}
+		else
+		{
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY |  
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", "immediate", sarg1);
+		}
+	}
+	else
+	{
+		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s\n",s_c.name);
+	}
 	//s_c.name is the string with the instruction
 	
-	char varToStringTemp[128] = {0};
-	strcpy(varToStringTemp,s_c.name);
-	varToStringTemp[127] = 0;
-	
-	coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,varToStringTemp);
 	//coloured_console.print();
-	coloured_console.print("\n");
-	//coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | 
-	//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"A");
 	#endif	
 }
 
-void FFScript::ZASMPrintVar(const long arg)
+void FFScript::ZASMPrintVarSet(const long arg, long argval)
 {
 	#ifdef _WIN32
 	//if ( !print_ZASM ) return;
-		
 	script_variable s_v = ZASMVars[arg];
-	char varToStringTemp[128] = {0};
-	strcpy(varToStringTemp,s_v.name);
-	varToStringTemp[127] = 0;
-	
-	
+	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,varToStringTemp);
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",s_v.name);
+	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
-	coloured_console.print("\n");
+	#endif	
+}
+
+void FFScript::ZASMPrintVarGet(const long arg, long argval)
+{
+	#ifdef _WIN32
+	//if ( !print_ZASM ) return;
+	script_variable s_v = ZASMVars[arg];
+	//s_v.name is the string with the instruction
+	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",s_v.name);
+	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
+	//coloured_console.print();
 	#endif	
 }

@@ -252,7 +252,8 @@ void do_xtoa();
 bool print_ZASM;
 void ZASMPrint(bool open);
 void ZASMPrintCommand(const word scommand);
-void ZASMPrintVar(const long arg);
+void ZASMPrintVarSet(const long arg, long argval);
+void ZASMPrintVarGet(const long arg, long argval);
 /*
 long getQuestHeaderInfo(int type)
 {
