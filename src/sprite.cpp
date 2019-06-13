@@ -467,15 +467,22 @@ void sprite::draw(BITMAP* dest)
 	if (FFCore.getQuestHeaderInfo(0) < 0x255 || ( FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42 ))
 	{
 		drawzcboss(dest);
+		return; //don't run the rest, use the old code
 	}
-	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) ) drawzcboss(dest);
+	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) ) 
+	{
+		drawzcboss(dest);
+		return; //don't run the rest, use the old code
+	}
 	int sx = real_x(x+xofs);
 	int sy = real_y(y+yofs)-real_z(z+zofs);
-	BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+	
     
 	if(id<0)
+	{
 		return;
-        
+        }
+	BITMAP* sprBMP2 = create_bitmap_ex(8,256,256); //run after above failsafe, so that we always destroy it
 	int e = extend>=3 ? 3 : extend;
 	int flip_type = ((scriptflip > -1) ? scriptflip : flip);
 	if(clk>=0)
@@ -488,7 +495,7 @@ void sprite::draw(BITMAP* dest)
 				temp = create_bitmap_ex(8,16,32);
 				//blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
 				clear_bitmap(temp);
-				clear_bitmap(sprBMP2);
+				if ( sprBMP2 ) clear_bitmap(sprBMP2);
             
 				//Draw sprite tiles to the temp (scratch) bitmap.
 				if(drawstyle==0 || drawstyle==3)
@@ -531,7 +538,7 @@ void sprite::draw(BITMAP* dest)
 					else masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
 				}
 				//clean-up
-				destroy_bitmap(sprBMP2);
+				if ( sprBMP2 ) destroy_bitmap(sprBMP2);
 				destroy_bitmap(temp);
 				break;
             
@@ -812,7 +819,7 @@ void sprite::draw(BITMAP* dest)
 					BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
 					//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
 					clear_bitmap(sprBMP);
-					clear_bitmap(sprBMP2);
+					if ( sprBMP2 ) clear_bitmap(sprBMP2);
 					if(drawstyle==0 || drawstyle==3)
 						overtile16(sprBMP,tile,0,0,cs,flip);
 					else if(drawstyle==1)
@@ -842,8 +849,8 @@ void sprite::draw(BITMAP* dest)
 						}
 						else draw_sprite(dest, sprBMP, sx, sy);
 					}
-					destroy_bitmap(sprBMP);
-					destroy_bitmap(sprBMP2);
+					if ( sprBMP ) destroy_bitmap(sprBMP);
+					if ( sprBMP2 ) destroy_bitmap(sprBMP2);
 					break;
 				}
 			} //end extend == 3, and also extend == 0. Why? Because someone was more mental, than me. -Z (5th April, 2019)
