@@ -1359,69 +1359,86 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
-        ret = tmpscr->ffdata[ri->ffcref]*10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Data") != SH::_NoError)
+		ret = tmpscr->ffdata[ri->ffcref]*10000;
         break;
         
     case FFSCRIPT:
-        ret = tmpscr->ffscript[ri->ffcref]*10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Script") != SH::_NoError)
+		ret = tmpscr->ffscript[ri->ffcref]*10000;
         break;
         
     case FCSET:
+		if(BC::checkFFC(ri->ffcref, "ffc->CSet") != SH::_NoError)
         ret = tmpscr->ffcset[ri->ffcref]*10000;
         break;
         
     case DELAY:
-        ret = tmpscr->ffdelay[ri->ffcref]*10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Delay") != SH::_NoError)
+		ret = tmpscr->ffdelay[ri->ffcref]*10000;
         break;
         
     case FX:
-        ret = tmpscr->ffx[ri->ffcref];
+	if(BC::checkFFC(ri->ffcref, "ffc->X") != SH::_NoError)
+		ret = tmpscr->ffx[ri->ffcref];
         break;
         
     case FY:
-        ret = tmpscr->ffy[ri->ffcref];
+	if(BC::checkFFC(ri->ffcref, "ffc->Y") != SH::_NoError)
+		ret = tmpscr->ffy[ri->ffcref];
         break;
         
     case XD:
-        ret = tmpscr->ffxdelta[ri->ffcref];
+	if(BC::checkFFC(ri->ffcref, "ffc->Vx") != SH::_NoError)
+		ret = tmpscr->ffxdelta[ri->ffcref];
         break;
         
     case YD:
+	if(BC::checkFFC(ri->ffcref, "ffc->Vy") != SH::_NoError)
         ret = tmpscr->ffydelta[ri->ffcref];
         break;
     case FFCID:
+	if(BC::checkFFC(ri->ffcref, "ffc->ID") != SH::_NoError)
         ret=(ri->ffcref*10000)+10000;
         break;
         
     case XD2:
+	if(BC::checkFFC(ri->ffcref, "ffc->Ax") != SH::_NoError)
         ret = tmpscr->ffxdelta2[ri->ffcref];
         break;
         
     case YD2:
+	if(BC::checkFFC(ri->ffcref, "ffc->Ay") != SH::_NoError)
         ret = tmpscr->ffydelta2[ri->ffcref];
         break;
         
     case FFFLAGSD:
+	if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") != SH::_NoError)
         ret=((tmpscr->ffflags[ri->ffcref] >> (ri->d[0] / 10000))&1) ? 10000 : 0;
         break;
         
     case FFCWIDTH:
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") != SH::_NoError)
         ret=((tmpscr->ffwidth[ri->ffcref]&0x3F)+1)*10000;
         break;
         
     case FFCHEIGHT:
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") != SH::_NoError)
         ret=((tmpscr->ffheight[ri->ffcref]&0x3F)+1)*10000;
         break;
         
     case FFTWIDTH:
+	if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") != SH::_NoError)
         ret=((tmpscr->ffwidth[ri->ffcref]>>6)+1)*10000;
         break;
         
     case FFTHEIGHT:
+	if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") != SH::_NoError)
         ret=((tmpscr->ffheight[ri->ffcref]>>6)+1)*10000;
         break;
         
     case FFLINK:
+	if(BC::checkFFC(ri->ffcref, "ffc->Link") != SH::_NoError)
         ret=(tmpscr->fflink[ri->ffcref])*10000;
         break;
         
@@ -1432,7 +1449,10 @@ long get_register(const long arg)
         if(BC::checkMisc(a, "ffc->Misc") != SH::_NoError)
             ret = -10000;
         else
-            ret = ffmisc[ri->ffcref][a];
+	{
+		if(BC::checkFFC(ri->ffcref, "ffc->Misc[]") != SH::_NoError)
+			ret = ffmisc[ri->ffcref][a];
+	}
     }
     break;
     
@@ -1443,7 +1463,10 @@ long get_register(const long arg)
         if(BC::checkBounds(a, 0, 7, "ffc->InitD") != SH::_NoError)
             ret = -10000;
         else
-            ret = tmpscr->initd[ri->ffcref][a];
+	{
+		if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") != SH::_NoError)
+		ret = tmpscr->initd[ri->ffcref][a];
+	}
     }
     break;
     
@@ -6851,6 +6874,7 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
+	if(BC::checkFFC(ri->ffcref, "ffc->Data") != SH::_NoError)
         tmpscr->ffdata[ri->ffcref] = vbound(value/10000,0,MAXCOMBOS-1);
         break;
         
@@ -6863,89 +6887,107 @@ void set_register(const long arg, const long value)
         break;
     
    case FFSCRIPT:
-        for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
-        {
-            if(arrayOwner[i]==ri->ffcref)
-                deallocateArray(i);
-        }
-        
-        tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
-        if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+	if(BC::checkFFC(ri->ffcref, "ffc->Script") != SH::_NoError)
 	{
-		for(int i=0; i<2; i++)
-			tmpscr->inita[ri->ffcref][i] = 0;
-            
-		for(int i=0; i<8; i++)
-			tmpscr->initd[ri->ffcref][i] = 0;
+		for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+		{
+		    if(arrayOwner[i]==ri->ffcref)
+			deallocateArray(i);
+		}
+		
+		tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		{
+			for(int i=0; i<2; i++)
+				tmpscr->inita[ri->ffcref][i] = 0;
+		    
+			for(int i=0; i<8; i++)
+				tmpscr->initd[ri->ffcref][i] = 0;
+		}
+		for(int i=0; i<16; i++)
+		    ffmisc[ri->ffcref][i] = 0;
+		    
+	       
+		    
+		ffcScriptData[ri->ffcref].Clear();
+		tmpscr->initialized[ri->ffcref] = false;
 	}
-        for(int i=0; i<16; i++)
-            ffmisc[ri->ffcref][i] = 0;
-            
-       
-            
-        ffcScriptData[ri->ffcref].Clear();
-        tmpscr->initialized[ri->ffcref] = false;
         break;
         
         
     case FCSET:
+	if(BC::checkFFC(ri->ffcref, "ffc->CSet") != SH::_NoError)
         tmpscr->ffcset[ri->ffcref] = (value/10000)&15;
         break;
         
     case DELAY:
+	if(BC::checkFFC(ri->ffcref, "ffc->Delay") != SH::_NoError)
         tmpscr->ffdelay[ri->ffcref] = value/10000;
         break;
         
     case FX:
+	if(BC::checkFFC(ri->ffcref, "ffc->X") != SH::_NoError)
         tmpscr->ffx[ri->ffcref] = value;
         break;
         
     case FY:
+	if(BC::checkFFC(ri->ffcref, "ffc->Y") != SH::_NoError)
         tmpscr->ffy[ri->ffcref]=value;
         break;
         
     case XD:
+	if(BC::checkFFC(ri->ffcref, "ffc->Vx") != SH::_NoError)
         tmpscr->ffxdelta[ri->ffcref]=value;
         break;
         
     case YD:
+	if(BC::checkFFC(ri->ffcref, "ffc->Vy") != SH::_NoError)
         tmpscr->ffydelta[ri->ffcref]=value;
         break;
     
     case FFCID:
+	//if(BC::checkFFC(ri->ffcref, "ffc->ID") != SH::_NoError)
         ri->ffcref = vbound((value-10000)/10000, 0, 31);
         break;
         
     case XD2:
+	if(BC::checkFFC(ri->ffcref, "ffc->Ax") != SH::_NoError)
         tmpscr->ffxdelta2[ri->ffcref]=value;
         break;
         
     case YD2:
+	if(BC::checkFFC(ri->ffcref, "ffc->Ay") != SH::_NoError)
         tmpscr->ffydelta2[ri->ffcref]=value;
         break;
         
     case FFFLAGSD:
+	if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") != SH::_NoError)
         value ? tmpscr->ffflags[ri->ffcref] |=   1<<((ri->d[0])/10000)
                 : tmpscr->ffflags[ri->ffcref] &= ~(1<<((ri->d[0])/10000));
         break;
         
     case FFCWIDTH:
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") != SH::_NoError)
         tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
         break;
         
     case FFCHEIGHT:
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") != SH::_NoError)
         tmpscr->ffheight[ri->ffcref]= (tmpscr->ffheight[ri->ffcref] & ~63) | (((value/10000)-1)&63);
         break;
         
     case FFTWIDTH:
+	if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") != SH::_NoError)
         tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
         break;
         
     case FFTHEIGHT:
+	if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") != SH::_NoError)
         tmpscr->ffheight[ri->ffcref]=(tmpscr->ffheight[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
         break;
         
     case FFLINK:
+	if(BC::checkFFC(ri->ffcref, "ffc->Link") != SH::_NoError)
         (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 0, 32); // Allow "ffc->Link = 0" to unlink ffc.
 	//0 is none, setting this before made it impssible to clear it. -Z
         break;
@@ -6953,11 +6995,13 @@ void set_register(const long arg, const long value)
     case FFMISCD:
     {
         int a = vbound(ri->d[0]/10000,0,15);
+	if(BC::checkFFC(ri->ffcref, "ffc->Misc[]") != SH::_NoError)
         ffmisc[ri->ffcref][a]=value;
         break;
     }
     
     case FFINITDD:
+	if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") != SH::_NoError)
         (tmpscr->initd[ri->ffcref][vbound(ri->d[0]/10000,0,7)])=value;
         break;
     
