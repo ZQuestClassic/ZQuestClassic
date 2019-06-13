@@ -970,6 +970,7 @@ void Z_eventlog(const char *format,...)
         
         if(zconsole)
             printf("%s",buf);
+	//Add event console here. -Z
     }
 }
 
@@ -3903,6 +3904,10 @@ int main(int argc, char* argv[])
     {
         DebugConsole::Open();
         zconsole = true;
+    }
+    if ( zscript_debugger )
+    {
+	FFCore.ZScriptConsole(true);
     }
     
 #endif
