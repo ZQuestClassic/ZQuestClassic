@@ -4680,40 +4680,56 @@ bool LinkClass::animate(int)
     
     if(game->get_life()<=0)
     {
-        // So scripts can have one frame to handle hp zero events
-        if(false == (last_hurrah = !last_hurrah))
-        {
-            drunkclk=0;
-	    link_is_stunned = 0;
-	    FFCore.setLinkAction(dying);
-	    //initLinkScripts();
-	    //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
-	    //if ( link_doscript ) { last_hurrah = false; return false; }
-		initLinkScripts(); //Get ready to run his death script.
-		int fc = 0;
-		BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
-				clear_bitmap(subscrbmp);
-		do
+	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	{	
+		// So scripts can have one frame to handle hp zero events
+		if(false == (last_hurrah = !last_hurrah))
 		{
-			script_drawing_commands.Clear(); //Maybe only one time, on a variable?
-			if ( link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		    drunkclk=0;
+		    link_is_stunned = 0;
+		    FFCore.setLinkAction(dying);
+		    //initLinkScripts();
+		    //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+		    //if ( link_doscript ) { last_hurrah = false; return false; }
+			initLinkScripts(); //Get ready to run his death script.
+			int fc = 0;
+			BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
+					clear_bitmap(subscrbmp);
+			do
 			{
-				ALLOFF(true,true);
-				ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
-				load_control_state(); 
+				script_drawing_commands.Clear(); //Maybe only one time, on a variable?
+				if ( link_doscript ) 
+				{
+					ALLOFF(true,true);
+					ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+					load_control_state(); 
+					
+				}
+				draw_screen(tmpscr);
+				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+				advanceframe(true);
+				if (!link_doscript ) ++fc;
 				
 			}
-			draw_screen(tmpscr);
-			blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-			advanceframe(true);
-			if (!link_doscript ) ++fc;
-			
+			while(fc < 1 );
+		    gameover();
+		    
+		    return true;
 		}
-		while(fc < 1 );
-            gameover();
-            
-            return true;
-        }
+	}
+	else //2.50.x
+	{
+		
+		// So scripts can have one frame to handle hp zero events
+		if(false == (last_hurrah = !last_hurrah))
+		{
+		    drunkclk=0;
+		    gameover();
+		    
+		    return true;
+		}
+		
+	}
     }
     else last_hurrah=false;
     
