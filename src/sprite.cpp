@@ -821,11 +821,11 @@ void sprite::draw(BITMAP* dest)
 					clear_bitmap(sprBMP);
 					if ( sprBMP2 ) clear_bitmap(sprBMP2);
 					if(drawstyle==0 || drawstyle==3)
-						overtile16(sprBMP,tile,0,0,cs,flip);
+						overtile16(sprBMP,(scripttile > -1 ? scripttile : tile),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
 					else if(drawstyle==1)
-						overtiletranslucent16(sprBMP,tile,0,0,cs,flip,128);
+						overtiletranslucent16(sprBMP,(scripttile > -1 ? scripttile : tile),0,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
 					else if(drawstyle==2)
-						overtilecloaked16(sprBMP,tile,0,0,flip);
+						overtilecloaked16(sprBMP,(scripttile > -1 ? scripttile : tile),0,0,((scriptflip > -1) ? scriptflip : flip));
 					
 					if ( rotation )
 					{
