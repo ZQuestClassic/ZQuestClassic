@@ -18910,8 +18910,9 @@ int ffscript_engine(const bool preload)
     //run screen script, first
 	//Z_scripterrlog("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
 	if(( preload && tmpscr->preloadscript) || !preload )
-	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
-    
+	{
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+	}
     for(byte i = 0; i < MAXFFCS; i++)
     {
         if(tmpscr->ffscript[i] == 0)

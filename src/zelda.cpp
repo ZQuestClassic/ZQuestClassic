@@ -3064,18 +3064,18 @@ void game_loop()
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
-    if ( link_waitdraw )
+    if ( link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
 	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
 	    link_waitdraw = false;
     }
-    if ( dmap_waitdraw )
+    if ( dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
         ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 	dmap_waitdraw = false;
     }
     
-    if ( tmpscr->script != 0 && tmpscr->screen_waitdraw )
+    if ( tmpscr->script != 0 && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
 	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
 	tmpscr->screen_waitdraw = 0;	    
