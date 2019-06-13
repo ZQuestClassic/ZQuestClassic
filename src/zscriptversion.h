@@ -8,6 +8,7 @@
 
 #include "zdefs.h"
 #include "ffscript.h"
+extern FFScript FFCore;
 
 class ZScriptVersion
 {
@@ -32,7 +33,29 @@ public:
     //Only one if check at quest load, rather than each time we use the function
     static inline int RunScript(const byte type, const word script, const long i = -1)
     {
-        return (*Interpreter)(type, script, i);
+	switch(type)
+	{
+		case SCRIPT_LINK: 
+		case SCRIPT_SCREEN: 
+		case SCRIPT_LWPN: 
+		case SCRIPT_SUBSCREEN: 
+		case SCRIPT_NPC: 
+		case SCRIPT_EWPN: 
+		case SCRIPT_DMAP: 
+		case SCRIPT_ITEMSPRITE: 
+		{
+			if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
+			{
+				if ( DEVLEVEL > 1 ) 
+				{
+					Z_scripterrlog("Invalid script type %d for ZC Quest Version: %x\n", type,  FFCore.getQuestHeaderInfo(vZelda));
+				}
+				return 0;
+			}
+		}
+		default:
+			return (*Interpreter)(type, script, i);
+	}
     }
     
     static inline void RunScrollingScript(int scrolldir, int cx, int sx, int sy, bool end_frames)

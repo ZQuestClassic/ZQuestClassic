@@ -26566,7 +26566,7 @@ void FFScript::do_tracenl()
 
 void FFScript::TraceScriptIDs()
 {
-	if(get_bit(quest_rules,qr_TRACESCRIPTIDS))
+	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLEVEL > 1 )
 	{
 		switch(curScriptType)
 		{
