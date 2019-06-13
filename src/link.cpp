@@ -12298,11 +12298,11 @@ bool LinkClass::dowarp(int type, int index)
         {
             hopclk=0xFF;
             attackclk = charging = spins = 0;
-            action=swimming; FFCore.setAction(swimming);
+            action=swimming; FFCore.setLinkAction(swimming);
         }
         else
 	{
-            action = none; FFCore.setAction(none);
+            action = none; FFCore.setLinkAction(none);
 	}
         //preloaded freeform combos
         ffscript_engine(true);
@@ -12444,12 +12444,12 @@ bool LinkClass::dowarp(int type, int index)
 		    hopclk=0xFF;
 		    attackclk = charging = spins = 0;
 		    action=swimming;
-		    FFCore.setAction(swimming);
+		    FFCore.setLinkAction(swimming);
 		}
 		else
 		{
 		    action = none;
-		    FFCore.setAction(none);
+		    FFCore.setLinkAction(none);
 		}
 		//preloaded freeform combos
 		ffscript_engine(true);
