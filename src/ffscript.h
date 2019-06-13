@@ -3482,6 +3482,8 @@ enum ASM_DEFINE
 
 // Script types
 
+
+#define SCRIPT_NONE            -1
 #define SCRIPT_GLOBAL          0
 #define SCRIPT_FFC             1
 #define SCRIPT_SCREEN          2
@@ -3491,6 +3493,9 @@ enum ASM_DEFINE
 #define SCRIPT_NPC             6
 #define SCRIPT_SUBSCREEN       7
 #define SCRIPT_EWPN            8
+#define SCRIPT_DMAP            9
+#define SCRIPT_ITEMSPRITE      10
+
 
 
 struct quad3Dstruct

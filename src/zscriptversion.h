@@ -33,6 +33,7 @@ public:
     //Only one if check at quest load, rather than each time we use the function
     static inline int RunScript(const byte type, const word script, const long i = -1)
     {
+	/*
 	switch(type)
 	{
 		case SCRIPT_LINK: 
@@ -52,10 +53,13 @@ public:
 				}
 				return 0;
 			}
+			else return (*Interpreter)(type, script, i);
 		}
 		default:
 			return (*Interpreter)(type, script, i);
 	}
+	*/
+	return (*Interpreter)(type, script, i);
     }
     
     static inline void RunScrollingScript(int scrolldir, int cx, int sx, int sy, bool end_frames)

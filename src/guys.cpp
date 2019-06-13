@@ -668,7 +668,7 @@ bool enemy::animate(int index)
     //Run its script
     if ( script > 0 && doscript ) 
     {
-	ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
+	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
     }
     
     // returns true when enemy is defeated
