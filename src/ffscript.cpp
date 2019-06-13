@@ -1460,7 +1460,7 @@ long get_register(const long arg)
     {
         int a = ri->d[0] / 10000;
         
-        if(BC::checkBounds(a, 0, 7, "ffc->InitD") == SH::_NoError)
+        if(BC::checkBounds(a, 0, 7, "ffc->InitD") != SH::_NoError)
             ret = -10000;
         else
 	{
