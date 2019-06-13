@@ -12,7 +12,9 @@
 #ifndef _ZDEFS_H_
 #define _ZDEFS_H_
 
-#define DEVLEVEL 1
+#define DEVLEVEL 2
+//Devlevel 1: Ignore passwd
+//DEVLEVEL 2: +More verbose logging. 
 
 //Conditional Debugging Compilation
 //Script related
