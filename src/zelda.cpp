@@ -976,7 +976,7 @@ extern CConsoleLoggerEx zscript_coloured_console;
 
 void Z_eventlog(const char *format,...)
 {
-    if(get_bit(quest_rules,qr_LOG))
+    if(get_bit(quest_rules,qr_LOG) || DEVLEVEL > 1)
     {
         char buf[2048];
         
@@ -998,7 +998,7 @@ void Z_eventlog(const char *format,...)
 
 void Z_scripterrlog(const char * const format,...)
 {
-    if(get_bit(quest_rules,qr_SCRIPTERRLOG))
+    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 1)
     {
         switch(curScriptType)
         {
