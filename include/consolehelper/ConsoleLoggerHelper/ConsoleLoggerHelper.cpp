@@ -350,9 +350,17 @@ int main(int argc, char* argv[])
 				*p2=0;
 				coord.Y = (SHORT)atoi(p1);
 				*p2=c;
+				coord.Y = SHRT_MAX;
+				//if (coord.X && coord.Y)
+				//	SetConsoleScreenBufferSize( GetStdHandle(STD_OUTPUT_HANDLE), coord);
+				coord.X = 1024;
+				coord.Y = 32767;
+				COORD newSize = {121,32766};
 				
-				if (coord.X && coord.Y)
-					SetConsoleScreenBufferSize( GetStdHandle(STD_OUTPUT_HANDLE), coord);
+				system("mode CON: COLS=120");
+				system("mode CON: ROWS=32765");
+				//System.Console.SetBufferSize(140,150000);
+				SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), newSize);
 			}
 			
 		}

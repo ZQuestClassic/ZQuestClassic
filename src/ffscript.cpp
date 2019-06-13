@@ -175,7 +175,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 		  PIPE_READMODE_BYTE|		// message-read mode 
 		  PIPE_WAIT,                // blocking mode 
 		  1,						// max. instances  
-		  4096,						// output buffer size 
+		  32768,						// output buffer size 
 		  0,						// input buffer size (we don't read data, so 0 is fine)
 		  1,						// client time-out 
 		  NULL);                    // no security attribute 
@@ -26401,7 +26401,7 @@ void FFScript::ZScriptConsole(bool open)
 	#ifdef _WIN32
 	if ( open )
 	{
-		zscript_coloured_console.Create("ZScript Debug Console");
+		zscript_coloured_console.Create("ZScript Debug Console", 600, 200);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
 		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
@@ -26436,7 +26436,7 @@ void FFScript::ZASMPrint(bool open)
 	#ifdef _WIN32
 	if ( open )
 	{
-		coloured_console.Create("ZASM Debugger");
+		coloured_console.Create("ZASM Debugger", 600, 200);
 		coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		coloured_console.gotoxy(0,0);
 		coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |

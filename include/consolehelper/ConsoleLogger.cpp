@@ -76,7 +76,7 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 		  PIPE_READMODE_BYTE|		// message-read mode 
 		  PIPE_WAIT,                // blocking mode 
 		  1,						// max. instances  
-		  4096,						// output buffer size 
+		  32768,						// output buffer size 
 		  0,						// input buffer size (we don't read data, so 0 is fine)
 		  1,						// client time-out 
 		  NULL);                    // no security attribute 
