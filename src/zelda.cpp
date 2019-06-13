@@ -956,23 +956,7 @@ void hit_close_button()
     return;
 }
 
-void Z_eventlog(const char *format,...)
-{
-    if(get_bit(quest_rules,qr_LOG))
-    {
-        char buf[2048];
-        
-        va_list ap;
-        va_start(ap, format);
-        vsprintf(buf, format, ap);
-        va_end(ap);
-        al_trace("%s",buf);
-        
-        if(zconsole)
-            printf("%s",buf);
-	//Add event console here. -Z
-    }
-}
+
 
 // Yay, more extern globals.
 extern byte curScriptType;
@@ -989,6 +973,28 @@ extern std::map<int, std::pair<std::string, std::string> > screenmap;
 extern std::map<int, std::pair<std::string, std::string> > itemspritemap;
 
 extern CConsoleLoggerEx zscript_coloured_console;
+
+void Z_eventlog(const char *format,...)
+{
+    if(get_bit(quest_rules,qr_LOG))
+    {
+        char buf[2048];
+        
+        va_list ap;
+        va_start(ap, format);
+        vsprintf(buf, format, ap);
+        va_end(ap);
+        al_trace("%s",buf);
+        
+        if(zconsole)
+            printf("%s",buf);
+	//Add event console here. -Z 
+	#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
+		#endif
+    }
+}
 
 void Z_scripterrlog(const char * const format,...)
 {
