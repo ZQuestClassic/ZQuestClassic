@@ -14530,13 +14530,13 @@ void do_createlweapon(const bool v)
 	{
 			Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
 			ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
-			Lwpns.spr(Lwpns.Count() - 1)->LOADGFX(0);
-			Lwpns.spr(Lwpns.Count() - 1)->ScriptGenerated = 1;
-			Lwpns.spr(Lwpns.Count() - 1)->isLWeapon = 1;
-			//weapon *w = (weapon*)lwpns.spr(lwpns.Count()-1);
-			//w->LOADGFX(0);
-			//w->ScriptGenerated = 1;
-			//w->isLWeapon = 1;
+			//Lwpns.spr(Lwpns.Count() - 1)->LOADGFX(0);
+			//Lwpns.spr(Lwpns.Count() - 1)->ScriptGenerated = 1;
+			//Lwpns.spr(Lwpns.Count() - 1)->isLWeapon = 1;
+			weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+			w->LOADGFX(0);
+			w->ScriptGenerated = 1;
+			w->isLWeapon = 1;
 			Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
 	}
 	else
@@ -14570,13 +14570,13 @@ void do_createeweapon(const bool v)
         return;
 		
     addEwpn(0, 0, 0, ID, 0, 0, 0, -1,1); //Param 9 marks it as script-generated.
-    Ewpns.spr(Ewpns.Count() - 1)->LOADGFX(0);
-    Ewpns.spr(Ewpns.Count() - 1)->ScriptGenerated = 1;
-    Ewpns.spr(Ewpns.Count() - 1)->isLWeapon = 0;
-    //weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1);
-    //w->LOADGFX(0);
-    //w->ScriptGenerated = 1;
-    //w->isLWeapon = 0;
+    //Ewpns.spr(Ewpns.Count() - 1)->LOADGFX(0);
+    //Ewpns.spr(Ewpns.Count() - 1)->ScriptGenerated = 1;
+    //Ewpns.spr(Ewpns.Count() - 1)->isLWeapon = 0;
+    weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+    w->LOADGFX(0);
+    w->ScriptGenerated = 1;
+    w->isLWeapon = 0;
     //addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
     
     if(Ewpns.Count() < 1)
