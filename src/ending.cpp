@@ -234,7 +234,7 @@ void ending()
     for(int f=0; f<365; f++)
     {
 	script_drawing_commands.Clear();
-	if ( link_doscript ) 
+	if ( link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
 	{
 		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
 		--f; load_control_state(); goto adv;

@@ -1924,7 +1924,7 @@ int init_game()
     }
     if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); } //Do this prior to the Link init script, so that if the 
 								//init script makes him invisible, he stays that way. 
-    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
+    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
 								//positional data, sprites, tiles, csets, invisibility states, and the like.
     initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
     Link.resetflags(true); //This should probably occur after running Link's init script. 
