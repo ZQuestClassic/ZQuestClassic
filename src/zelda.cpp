@@ -2933,11 +2933,11 @@ void game_loop()
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
     }
-    if(!freezemsg && link_doscript)
+    if(!freezemsg && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
         ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
     }
-    if(!freezemsg && dmap_doscript)
+    if(!freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
         ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
     }
