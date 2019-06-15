@@ -1890,6 +1890,7 @@ int init_game()
     initZScriptGlobalRAM();
     initZScriptLinkScripts();
     FFCore.initZScriptDMapScripts();
+    FFCore.initZScriptItemScripts();
     
     //Run the init script or the oncontinue script with the highest priority.
     //GLobal Script Init ~Init
@@ -2162,6 +2163,7 @@ int cont_game()
     initZScriptGlobalRAM();
     initZScriptLinkScripts();
     FFCore.initZScriptDMapScripts();
+    FFCore.initZScriptItemScripts();
     return 0;
 }
 

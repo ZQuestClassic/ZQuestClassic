@@ -941,9 +941,20 @@ void FFScript::initZScriptDMapScripts()
     clear_dmap_stack();
 }
 
+
 void clear_item_stack(int i)
 {
     memset(item_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+}
+
+void FFScript::initZScriptItemScripts()
+{
+	for ( int q = 0; q < 256; q++ )
+	{
+		//item_doscript[q] = 0;
+		itemScriptData[q].Clear();
+		clear_item_stack(i);
+	}
 }
 
 /*
@@ -19326,6 +19337,8 @@ int run_script(const byte type, const word script, const long i)
 			{
 				scommand = QUIT;
 				item_doscript[i] = 0;
+				itemScriptData[i].Clear();
+				memset(item_stack[i], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 				break;
 			}
 		}
@@ -19433,6 +19446,8 @@ int run_script(const byte type, const word script, const long i)
 		    //curscript = 0;
 		    //long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
 		    //stack = &(item_stack[i]);
+		    itemScriptData[i].Clear();
+		    memset(item_stack[i], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 		    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 		    //stack = pvsstack;
 		    //stack = NULL;
