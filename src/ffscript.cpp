@@ -21931,11 +21931,11 @@ void FFScript::lweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
 					ri->lwpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -21959,11 +21959,11 @@ void FFScript::lweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
 					ri->lwpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -21985,11 +21985,11 @@ void FFScript::lweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());	
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);
 					ri->lwpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());
 				}
 			}
 			break;
@@ -22016,11 +22016,11 @@ void FFScript::lweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());
 					ri->lwpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
 				}
 			}
 			break;
@@ -22054,11 +22054,11 @@ void FFScript::lweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
 					ri->lwpn = w->getUID();					
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			
@@ -22090,11 +22090,11 @@ void FFScript::lweaponScriptEngine()
 				else
 				{
 				    //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				    //if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-				    //if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-				    //if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
 				    ri->lwpn = w->getUID();
-				    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+				    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22106,7 +22106,7 @@ void FFScript::lweaponScriptEngine()
 			if ( Lwpns.spr(q)->doscript ) 
 			{
 				weapon *w = (weapon*)Lwpns.spr(q);
-				if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 			}
 		
 			
@@ -22141,11 +22141,11 @@ void FFScript::lweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
 					ri->lwpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22167,11 +22167,11 @@ void FFScript::lweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
 					ri->lwpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22201,11 +22201,11 @@ void FFScript::lweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
 					ri->lwpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22302,7 +22302,7 @@ void FFScript::eweaponScriptEngine()
 		//if ( wp->Dead() ) continue;
 		//if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
 		//if ( Ewpns.spr(q)->doscript == 0 ) continue;
-		if ( wp->doscript ) if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, wp->getUID());		
+		if ( wp->doscript ) if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, wp->getUID());		
 				
 		/*
 		switch(Ewpns.spr(q)->id)
@@ -22324,11 +22324,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22351,11 +22351,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
 					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
 				}
 			}
 			break;
@@ -22379,11 +22379,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
 					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
 				}
 			}
 			break;
@@ -22406,11 +22406,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
 					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
 				}
 			}
 			break;
@@ -22432,11 +22432,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();					
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			
@@ -22459,11 +22459,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 				    //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				    //if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-				    //if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-				    //if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 				    ri->ewpn = w->getUID();
-				    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22484,11 +22484,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 		
@@ -22511,11 +22511,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22538,11 +22538,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22564,11 +22564,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22589,11 +22589,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22614,11 +22614,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22639,11 +22639,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22665,11 +22665,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22699,11 +22699,11 @@ void FFScript::eweaponScriptEngine()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22728,7 +22728,7 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 		//if ( Ewpns.spr(q)->doscript == 0 ) continue;
 		if ( wp->doscript && wp->waitdraw ) 
 		{
-			if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, wp->getUID());		
+			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, wp->getUID());		
 			wp->waitdraw = 0;
 		}
 		/*
@@ -22751,11 +22751,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22778,11 +22778,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
 					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
 				}
 			}
 			break;
@@ -22806,11 +22806,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
 					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
 				}
 			}
 			break;
@@ -22833,11 +22833,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
 					ri->ewpn = w->getUID();
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
 				}
 			}
 			break;
@@ -22859,11 +22859,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();					
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			
@@ -22886,11 +22886,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 				    //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				    //if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-				    //if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-				    //if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 				    ri->ewpn = w->getUID();
-				    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22911,11 +22911,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 		
@@ -22938,11 +22938,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22965,11 +22965,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -22991,11 +22991,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -23016,11 +23016,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -23041,11 +23041,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -23066,11 +23066,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -23092,11 +23092,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
@@ -23126,11 +23126,11 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 				else
 				{
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
-					//if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
 					ri->ewpn = w->getUID();
-					if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
 			break;
