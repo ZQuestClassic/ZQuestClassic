@@ -7661,7 +7661,13 @@ void set_register(const long arg, const long value)
             bool settrue = ( value != 0 );
 		    
 	    //Sanity check to prevent setting the item if the value would be the same. -Z
-	    if ( game->item[itemID] != settrue ) game->set_item(itemID,(value != 0));
+	    if ( game->item[itemID] != settrue ) 
+	    {
+		    //Clear the item refInfo and stack for use.
+		    itemScriptData[itemID].Clear();
+		    memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		    game->set_item(itemID,(value != 0));
+	    }
                     
             //resetItems(game); - Is this really necessary? ~Joe123
             if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) 
