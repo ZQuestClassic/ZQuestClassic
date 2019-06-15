@@ -951,9 +951,10 @@ void FFScript::initZScriptItemScripts()
 {
 	for ( int q = 0; q < 256; q++ )
 	{
-		//item_doscript[q] = 0;
+		if ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] ) item_doscript[q] = 1;
+		else item_doscript[q] = 0;
 		itemScriptData[q].Clear();
-		clear_item_stack(i);
+		clear_item_stack(q);
 	}
 }
 
