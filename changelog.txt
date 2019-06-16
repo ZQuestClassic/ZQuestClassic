@@ -1,6 +1,18 @@
 //2.55 Changes
 
 //Alpha 26
+
+Fixed itemdata->RunScript(), and changed param 1 from bool perpetual
+	to int mode, where:
+
+	 * Mode Settings:
+	 * 0 : SCRIPT_MODE_END 
+	 * 	THIS TERMINATES THE RUNNING SCRIPT.
+	 * 1: SCRIPT_MODE_NORMAL
+	 * 	Runs the script either once, or perpetually, based on the ZScript Rule.
+	 * 2: SCRIPT_MODE_PERPETUAL
+	 * 	Runs the script perpetually, even if the QR if off. 
+
 Fixed corruption of the system palette caused by forgetting to
 	set the allegro drawing mode back to Opaque after drawing a polygon.
 Fix: Error message for Polygon() functions.
