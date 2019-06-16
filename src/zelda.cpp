@@ -2047,6 +2047,7 @@ int init_game()
     initZScriptGlobalRAM(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     ffscript_engine(true);  //Here is a much safer place...
     
     return 0;
@@ -4735,6 +4736,7 @@ int main(int argc, char* argv[])
             initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!!
             initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
             FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
+            FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
 		
 	    //Run Global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
@@ -4781,6 +4783,7 @@ int main(int argc, char* argv[])
             initZScriptGlobalRAM();
             initZScriptLinkScripts(); //get ready for the onWin script
             FFCore.initZScriptDMapScripts();
+            FFCore.initZScriptItemScripts();
 	    //Run global script OnExit
             //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN); //runs in ending()
 	    //while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 

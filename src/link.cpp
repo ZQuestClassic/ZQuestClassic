@@ -40,10 +40,12 @@ extern refInfo linkScriptData;
 #include "particles.h"
 
 extern refInfo itemScriptData[256];
+extern refInfo itemCollectScriptData[256];
 extern long item_stack[256][MAX_SCRIPT_REGISTERS];
+extern long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 extern refInfo *ri; //= NULL;
 extern long(*stack)[MAX_SCRIPT_REGISTERS];
-extern byte item_doscript[256];
+extern word item_doscript[256];
 using std::set;
 
 extern int draw_screen_clip_rect_x1;
@@ -2297,7 +2299,7 @@ void LinkClass::checkstab()
 				itemScriptData[items.spr(j)->id].Clear();
 				for ( int q = 0; q < 1024; q++ ) item_stack[items.spr(j)->id][q] = 0;
 			
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id & 0xFFF)*-1));
 				//runningItemScripts[items.spr(j)->id] = 0;
 				
                         }
@@ -3979,8 +3981,9 @@ void LinkClass::hitlink(int hit2)
 		//clear the item script stack for a new script
 		itemScriptData[itemid].Clear();
 		for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 		item_doscript[itemid] = 1;
-                //ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+                
         }
         
         return;
@@ -6492,8 +6495,8 @@ void do_lens()
 			//clear the item script stack for a new script
 			itemScriptData[itemid].Clear();
 			for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 			item_doscript[itemid] = 1;
-		        //ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 		        did_scriptl=true;
 		}
 		
@@ -6541,7 +6544,7 @@ void do_210_lens()
 		//clear the item script stack for a new script
 		itemScriptData[itemid].Clear();
 		for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 		item_doscript[itemid] = 1;
 		did_scriptl=true;
         }
@@ -7097,7 +7100,7 @@ void LinkClass::movelink()
 		
 			itemScriptData[dowpn].Clear();
 			for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0;
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
 			item_doscript[dowpn] = 1;
 			did_scripta=true;
 		}
@@ -7223,7 +7226,7 @@ void LinkClass::movelink()
                 //clear the item script stack for a new script
 		itemScriptData[dowpn].Clear();
 		for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0;
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
 		item_doscript[dowpn] = 1;
 		did_scriptb=true;
         }
@@ -15958,7 +15961,7 @@ void LinkClass::checkitems(int index)
 	    //clear the item script stack for a new script
 		itemScriptData[id2].Clear();
 		for ( int q = 0; q < 1024; q++ ) item_stack[id2][q] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, id2 & 0xFFF);
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
     }
     
     getitem(id2);
