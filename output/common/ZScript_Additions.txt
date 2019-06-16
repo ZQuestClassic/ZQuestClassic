@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 24
-Document Revision: 3rd June, 2019
+Document for: 2.55, Alpha 26
+Document Revision: 16th June, 2019
 
 
 ////////////////////////////////////////////////////
@@ -997,6 +997,12 @@ of iterations is known at compile-time.
 //  Global  //
 //////////////
 
+void SRand(int seed);
+ * Sets the current random seed to a given value, input from script. (DOES NOT /10000)
+
+int SRand(); 
+ * Generates a random seed, sets it, and returns it.
+	
 int utol(*string);
  * Converts all uppercase characters in a string to lowercase characters.
  * Returns the pointer to the string.
