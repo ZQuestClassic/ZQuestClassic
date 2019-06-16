@@ -960,6 +960,7 @@ void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	    
 	    polygon(bmp, (sdci[2]/10000), (int*)pos, col);
 	    //polygon(bmp, (sdci[2]/10000), &v, col);
+	    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
 void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
@@ -1009,6 +1010,7 @@ void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	    
 	    polygon(refbmp, (sdci[2]/10000), (int*)pos, col);
 	    //polygon(refbmp, (sdci[2]/10000), &v, col);
+	    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
 void do_spliner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
