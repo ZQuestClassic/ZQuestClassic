@@ -1,5 +1,146 @@
 //2.55 Changes
 
+//Alpha 26
+Fixed corruption of the system palette caused by forgetting to
+	set the allegro drawing mode back to Opaque after drawing a polygon.
+Fix: Error message for Polygon() functions.
+
+REFACTOR ITEM SCRIPTS (Pt. 2)
+	Fix: Clear correct refInfo and stacks for item collect scripts.
+	Fixed 'Passive Item Scripts' ignoring if the QR 'Item Scripts Keep Running'
+		was on or off.
+		Added some docs on just what the heck is happening with itemScriptEngine.
+	Added separate stacks and refinfo for collect scripts, as they were
+		interferimg with normal item scripts that now can run perpetually.
+
+		Lots of work on refInfo and stack handling for item scripts.
+
+		Solved a number of conflicts. The function itemdata->RunScript() may now be
+		broken and need revision.
+	( ZoriaRPG, 16th June, 2019 )
+
+Clear item refInfo and stacks on game restart.
+REFACTOR ITEM SCRIPTS (Pt. 1)
+Various fixes to item script mechanics.
+Fixed PC/SP issues when setting Link->Item[] true
+	or false, with a passive item script on that item ID.
+	( ZoriaRPG, 15th June, 2019 )
+	
+ZScript and ZASM Debugger Windows are now large, and support massive amounts
+	of data that you can scroll-through for post-mortem, rather than quickly truncating it.
+	( ZoriaRPG, 14th June, 2019 )
+
+Fix: `scriptile` unused if `extend == 0`
+	( Venrob, 13th June, 2019 )
+	
+Chrore: Shifted about some code.
+Fix: Missed some FFCore.setAction() in Warp Functions
+Update build date, build ID is now Alpha 26
+Also added notes re: DEVLEVEL
+Fix Crashes in Sprite::Draw()
+	Add early returns to sprite::draw redirect to old draw function.
+	Move BITMAP* creation after failsafe return.
+	Added minimal sanity checks to prevent possible segfaults.
+	
+Fix: Set basic weapon properties on Create*Weapon.
+Fix: Even more instances of RunScript needed a VC
+Fix: More scripts that should only run in >= 2.55
+Fix: Run Link's Init and OnWin Scripts only on v2.55 and Above
+Fix: Add more weapon setup to Create*Weapon()
+Dev: Autologging if DEVLEVEL > 1
+Set DEVEVEL 2 and add notes on what each value does.
+Fix: Flipped one wrong != to == in FFINITD array BC
+Flip != to == on ffc BoundsCheck
+Fix: 2.50.x quests won't try to run the Link onDeath script.
+Added a Bounds Check to all FFC member variables.
+	Don't allow trying to write to ffc(0)->X, or ffc(33)->X.
+	This is to prevent RAm corruption possible by trying to do this.
+Fix: Add version check to all new script types RunScript() 
+	We still need to flush all instructions held in these script types
+	if a quest is < 0x255, as this will break if the quest is re-saved.
+	( ZoriaRPG, 14th June, 2019 )
+	
+Feat: Log quest header metadata on ZScript Debugger Init
+Feat: Add Event Logging to new console (in amber text).
+Possible Fixes to ZScript Debug Console, Running Illegal Script Types 
+The ZScript Debug Console process now properly opens on startup.
+	Also, if DEVLEVEL > 1, then we will always print the script type and name for script traces.
+
+	I also added a possible way to revent 2.55 from trying to run corrupted slot data
+	in script types not used by 2.50.x, that were still present in 2.50.x.
+Add note on event console, try to launch script console on init.
+	( ZoriaRPG, 13th June, 2019 )
+	
+Add the ability to print script metadata in traces.
+Change ZScript Debugger intro text colour to intense blue (CYAN).
+Feat: Finish Adding New ZScript Debug Console
+
+Added a new ZScript Debug Console. This is attached to another
+	process, so closing it will not terminate ZC, nor will it terminate the parent process.
+
+	It is based on CConsoleLogger / CConsoleLoggerEx.
+
+	Traces will be in white. Script IDs green, errors in red.
+
+	You can open or close the debugger from the menus, and a config int allows opening
+	it with the ZC process. You can also manually close the ZScript Debugger without fear.
+Feat: Begin Adding Improved ZScript Debugging Console
+Feat: Add ZASM Debugger Menu Option 
+	Moved the ZASM Debugger init from a hotkey to a menu option.
+	It is also now a config int, 'print_ZASM'.
+Include: Added include file ConsoleLogger.h
+Formatting fixes to ZASM Debugger
+ZASM Debugger: A few changes. 
+	Migrated some stuff from the old ffdebug and open on quest init.
+Fix: CreateEWeapon() uses LOADGFX(0).
+File: Required helper file for the improved console.
+	Added new required file to the ZC Package: Consolehelper.exe
+	Place it in the same path as the zc.exe file that you are running.
+Feat: Add better console base and ZASM Stack printing.
+Fix: Never try to read the parent->weaponscript for script-generated eweapons.
+Do not run check_slash_block on eweapons or on
+	non-script-generated wScript types. If the weapon is script-generated,
+	only check if it has its isLWeapon flag enabled.
+	( ZoriaRPG, 12th June, 2019 )
+
+Prevent hangs caused by misplased ZASM (brace or no brace blocks)
+	( Venrob, changed by ZoriaRPG, 10th June, 2019 )
+	
+Add additional type of OUTOFBOUNDS
+Re-configure #define OUTOFBOUNDS
+Change order of npc OoB check.
+Set Sprite Coords are ZFloat off by default
+Compat QRs Set By Default: In versions < 0x255 and 2.55 versiosn with a build ID < 46,
+	I now set these off by default:
+
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
+	    {
+		set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 0);
+		set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 0);
+		set_bit(quest_rules, qr_SCRIPTDRAWSWHENSCROLLING, 0);
+		set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 0);
+		set_bit(quest_rules, qr_DYINGENEMYESDONTHURTLINK, 0);
+		set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);
+	    }
+Bounds check update on npc->Attributes 
+	npc->Attributes BC is 0 to 15 is vZelds < 0x255.
+std_functions.zh: Cleanup tabs and note new vers date.
+Added int longrand(int max) to std.zh
+	This allows creating a random integer between 0, and 199,999.
+	( ZoriaRPG, 10th June, 2019 )
+
+Fix: Engine counter underflow for Item Editor UseCounter/Amount.
+	Setting something to `-n` is not the same as subtracting `n`.
+	( Venrob, 8th June, 2019 )
+
+Add `void SRand(int seed)` and `int SRand()` as internal functions.
+	void SRand(int seed);
+		//Sets the current random seed to a given value, input from script. (DOES NOT /10000)
+	int SRand(); 
+		//Generates a random seed, sets it, and returns it.
+	( Venrob, 7th June, 2019 )
+	
+	
 //Alpha 25
 Ensure that the internal call to _itoa() in ffscript.cpp has a pointer to 
 	which it can return a value.
