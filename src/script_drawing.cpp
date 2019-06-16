@@ -938,7 +938,7 @@ void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     if(!v_ptr)
     {
-        al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
+        al_trace("Screen->Polygon: Vector pointer is null! Internal error. \n");
         return;
     }
     
@@ -987,7 +987,7 @@ void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     
     if(!v_ptr)
     {
-        al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
+        al_trace("Screen->Polygon: Vector pointer is null! Internal error. \n");
         return;
     }
     

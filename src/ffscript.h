@@ -369,6 +369,7 @@ void clearTint();
 void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
+void initZScriptItemScripts();
 
 int GetScriptObjectUID(int type);
     

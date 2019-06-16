@@ -874,9 +874,11 @@ word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop
 bool global_wait = false;
 bool link_waitdraw = false;
 bool dmap_waitdraw = false;
+word item_doscript[256] = {0};
 
 //Sprite script data
 refInfo itemScriptData[256];
+refInfo itemCollectScriptData[256];
 refInfo npcScriptData[256];
 refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
@@ -898,6 +900,7 @@ long(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 long ffc_stack[32][MAX_SCRIPT_REGISTERS];
 long global_stack[GLOBAL_STACK_MAX][MAX_SCRIPT_REGISTERS];
 long item_stack[256][MAX_SCRIPT_REGISTERS];
+long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 long link_stack[MAX_SCRIPT_REGISTERS];
 long dmap_stack[MAX_SCRIPT_REGISTERS];
@@ -940,6 +943,33 @@ void FFScript::initZScriptDMapScripts()
     clear_dmap_stack();
 }
 
+
+void clear_item_stack(int i)
+{
+    memset(item_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    memset(item_collect_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+}
+
+void FFScript::initZScriptItemScripts()
+{
+	for ( int q = 0; q < 256; q++ )
+	{
+		if ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] ) item_doscript[q] = 1;
+		else item_doscript[q] = 0;
+		itemScriptData[q].Clear();
+		itemCollectScriptData[q].Clear();
+		clear_item_stack(q);
+	}
+}
+
+/*
+void FFScript::initZScriptItemScripts()
+{
+    dmap_doscript = 1;
+    dmapScriptData.Clear();
+    clear_dmap_stack();
+}
+*/
 
 //ScriptHelper
 class SH
@@ -17112,12 +17142,18 @@ int run_script(const byte type, const word script, const long i)
 	    
 	    case SCRIPT_ITEM:
 	    {
-		ri = &(itemScriptData[i]);
+		int new_i = 0;
+		bool collect = ( i < 1 );
+		if ( collect ) 
+		{
+			new_i = i * -1;
+		}
+		ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
 		//ri->Clear(); //Only runs for one frame so we just zero it out
 		    //What would happen if we don't do this? -Z
 		
 		curscript = itemscripts[script];
-		stack = &(item_stack[i]);
+		stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
 		    
 		//Should we want to allow item scripts to continue running, we'd need a way to mark them as running
 		//in the first place, and a way to re-run them every frame. -Z (26th November, 2018)
@@ -17136,12 +17172,12 @@ int run_script(const byte type, const word script, const long i)
 		    //We can't just free or delete a stack that isn't in use on normal user-controlled objects,
 		    //because they can set `->script = n` at any time. 
 		
-		memcpy(ri->d, itemsbuf[i].initiald, 8 * sizeof(long));
-		memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
+		memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(long));
+		memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(long));
 		
-		ri->idata = i; //'this' pointer
+		ri->idata = ( collect ) ? new_i : i; //'this' pointer
 		//FFCore.runningItemScripts[i] = 1;
-		runningItemScripts[i] = 1;
+		//runningItemScripts[i] = 1;
 		
 	    }
 	    break;
@@ -18872,16 +18908,15 @@ int run_script(const byte type, const word script, const long i)
 			//else
 			//{
 			//	set_register(sarg1, script_id*10000);
-				curscript = 0;
-				long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
-				stack = &(item_stack[ri->idata]);
-				memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
-				stack = pvsstack;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ri->idata].script, (ri->idata) & 0xFFF);
+				itemScriptData[ri->idata].Clear();
+				
+				memset(item_stack[ri->idata], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+				item_doscript[ri->idata] = 1;
 				if ( mode ) 
 				{
-					runningItemScripts[ri->idata] = 2; //2 == script forced
+					runningItemScripts[ri->idata] = 3; //2 == script forced
 				}
+				else runningItemScripts[ri->idata] = 2;
 			//}
 			break;
 		}
@@ -19302,6 +19337,47 @@ int run_script(const byte type, const word script, const long i)
     if(!scriptCanSave)
         scriptCanSave=true;
     
+    //Decide if item scripts called from idata->RunScript should still run:
+    /*
+    for ( int q = 0; q < 256; q++ )
+    {
+	switch(runningItemScripts[q])
+	{
+		case 2: //stop running
+		{
+			item_doscript[i] = 0;
+		   
+			itemScriptData[i].Clear();
+			memset(item_stack[i], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		   
+			break; 
+		}
+		case 3: //keep running
+			break;
+	}
+	    
+    }
+    */
+    /* NOT NEEDED
+    if(scommand == WAITFRAME)
+    {
+        switch(type)
+        {
+		case SCRIPT_ITEM:
+		{
+			if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+			{
+				scommand = QUIT;
+				item_doscript[i] = 0;
+				itemScriptData[i].Clear();
+				memset(item_stack[i], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+				break;
+			}
+		}
+		default: break;
+	}
+    }
+    */
     if(scommand == WAITDRAW)
     {
         switch(type)
@@ -19323,8 +19399,10 @@ int run_script(const byte type, const word script, const long i)
 		break;
 	
 	case SCRIPT_ITEM:
-		itemScriptsWaitdraw[i] = 1;
+	{
+		if ( !get_bit(quest_rules, qr_NOITEMWAITDRAW) ) { itemScriptsWaitdraw[i] = 1; }
 		break;
+	}
 	
 	/* Not just yet.
 	case SCRIPT_NPC:
@@ -19393,18 +19471,30 @@ int run_script(const byte type, const word script, const long i)
 		    
 		case SCRIPT_ITEM:
 		{
+			int new_i = 0;
+			bool collect = ( i < 1 );
+			if ( collect ) 
+			{
+				new_i = i * -1;
+			}
 		    //FFCore.runningItemScripts[i] = 0;
-		    runningItemScripts[i] = 0;
+			if ( !collect ) item_doscript[i] = 0;
+		   // runningItemScripts[i] = 0;
 		    //ri = &(itemScriptData[i]);
 		    //ri->Clear();
-		    curscript = 0;
-		    long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
-		    stack = &(item_stack[i]);
-		    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-		    stack = pvsstack;
+		    //curscript = 0;
+		    //long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+		    //stack = &(item_stack[i]);
+		    //itemScriptData[i].Clear();
+		    //memset(item_stack[i], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		    //stack = pvsstack;
 		    //stack = NULL;
-			if ( (itemsbuf[i].flags&ITEM_FLAG16) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
-		    break; //item scripts aren't gonna go again anyway
+			if ( !collect )
+			{
+				if ( (itemsbuf[i].flags&ITEM_FLAG16) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
+			}
+			break; //item scripts aren't gonna go again anyway
 		}
 		case SCRIPT_NPC:
 		{
@@ -21897,7 +21987,7 @@ void FFScript::clearRunningItemScripts()
 
 bool FFScript::newScriptEngine()
 {
-	itemScriptEngine();
+	//itemScriptEngine();
 	//lweaponScriptEngine();
 	advanceframe(true);
 	return false;
@@ -22221,30 +22311,56 @@ bool FFScript::itemScriptEngine()
 	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
 	for ( int q = 0; q < 256; q++ )
 	{
+		
 		//Z_scripterrlog("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script == 0 ) continue;
+		
+		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
+		    After executing RunScript(), item_doscript is set to '1' in Link.cpp.
+		    If the quest allows the item to continue running, the itemScriptEngine() function ignores running the
+		      same item script (again) that frame, and insteads increments item_doscript to '2'.
+		    If item_doscript == 2, then we know we are on the second frame, and we run it perpetually.
+		    If the QR to enable item scripts to run for more than one frame is not enabled, then item_doscript is set to '0'.
+		    If the item flag 'PERPETUAL SCRIPT' is enabled, then we ignore the lack of item_doscript==2.
+		      This allows passive item scripts to function. 
+		*/
+		if ( ( item_doscript[q] > 1)  || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		//Is this needed? If the user selects perpetual script, then should that not override the QR? Hmm. IDK. -Z 16th June, 2019 
+		{
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		}
+		else if ( item_doscript[q] == 1 )
+		{
+			if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
+			{
+				item_doscript[q] = 0;
+				return false; 
+			}
+			else item_doscript[q] = 2;
+		}
 		//if ( runningItemScripts[i] == 1 )
 		//{
 			//Z_scripterrlog("Found a script running on item ID: %d\n",q);
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
-			if ( runningItemScripts[q] == 1 || ( /*PASSIVE ITEM THAT ALWAYS RUNS*/ ((itemsbuf[q].flags&ITEM_FLAG16) && game->item[q])) )
-			{
-				if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
-				{
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-				}
-				else //if the QR isn't set, treat Waitframe as Quit()
-				{
-					runningItemScripts[q] = 0;
-				}
-			}
-			else if ( runningItemScripts[q] == 2 ) //forced to run perpetually by itemdata->RunScript(int mode)
-			{
-				Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-			}
+			
+			////if ( runningItemScripts[q] == 1 || ( /*PASSIVE ITEM THAT ALWAYS RUNS*/ ((itemsbuf[q].flags&ITEM_FLAG16) && game->item[q])) )
+			////{
+			////	if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
+			////	{
+			////		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+			////	}
+			////	else //if the QR isn't set, treat Waitframe as Quit()
+			////	{
+			////		runningItemScripts[q] = 0;
+			////	}
+			////}
+		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
+		{
+			Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		}
 		//}
 		    
 	}
@@ -22260,31 +22376,27 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		//Z_scripterrlog("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script == 0 ) continue;
 		if ( !itemScriptsWaitdraw[q] ) continue;
-		//if ( runningItemScripts[i] == 1 )
-		//{
-			//Z_scripterrlog("Found a script running on item ID: %d\n",q);
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
-			if ( runningItemScripts[q] == 1 || ( /*PASSIVE ITEM THAT ALWAYS RUNS*/ ((itemsbuf[q].flags&ITEM_FLAG16) && game->item[q])) )
+		if ( ( item_doscript[q] > 1 ) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING))) )
+			//Is this needed? If the user selects perpetual script, then should that not override the QR? Hmm. IDK. -Z 16th June, 2019 
+		{
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+			
+		}
+		else if ( item_doscript[q] == 1 )
+		{
+			if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
 			{
-				if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
-				{
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-				}
-				else //if the QR isn't set, treat Waitframe as Quit()
-				{
-					runningItemScripts[q] = 0;
-				}
+				item_doscript[q] = 0; return false;
 			}
-			else if ( runningItemScripts[q] == 2 ) //forced to run perpetually by itemdata->RunScript(int mode)
-			{
-				Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-			}
-			itemScriptsWaitdraw[q] = 0;
-		//}
-		    
+			else item_doscript[q] = 2;
+		}
+		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
+		{
+			Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		}
+		itemScriptsWaitdraw[q] = 0;
+		
 	}
 	
 	return false;
