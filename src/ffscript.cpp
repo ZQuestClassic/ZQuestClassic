@@ -18897,27 +18897,54 @@ int run_script(const byte type, const word script, const long i)
 		
 		case RUNITEMSCRIPT:
 		{
-			Z_scripterrlog("Trying to run the script on item: %d\n",ri->idata);
-			Z_scripterrlog("The script ID is: %d\n",itemsbuf[ri->idata].script);
+			int itemid = ri->idata;
 			int mode = get_register(sarg1) / 10000;
-			//int script_id = itemsbuf[ri->idata].script;
-			//if ( !script_id ) 
-			//{
-			//	set_register(sarg1, 0);
-			//}
-			//else
-			//{
-			//	set_register(sarg1, script_id*10000);
-				itemScriptData[ri->idata].Clear();
-				
-				memset(item_stack[ri->idata], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
-				item_doscript[ri->idata] = 1;
-				if ( mode ) 
+			Z_scripterrlog("Trying to run the script on item: %d\n",itemid);
+			Z_scripterrlog("The script ID is: %d\n",itemsbuf[itemid].script);
+			Z_scripterrlog("Runitemscript mode is: %d\n", mode);
+			switch(mode)
+			{
+				case 0:
 				{
-					runningItemScripts[ri->idata] = 3; //2 == script forced
+					item_doscript[itemid] = 0;
+					break;
 				}
-				else runningItemScripts[ri->idata] = 2;
-			//}
+				case 1:
+				{
+					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+					{
+						item_doscript[itemid] = 3;
+					}
+					break;
+				}
+				case 2:
+				{
+					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+					{
+						item_doscript[itemid] = 2;
+					}
+					break;
+				}
+				/*
+				case 0:
+				{
+					item_doscript[itemid] = 0;
+					break;
+				}
+				default:
+				{
+				
+					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+					{
+						//itemScriptData[itemid].Clear();
+						//for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
+						//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+						item_doscript[itemid] = 2;
+					}
+					break;
+				}
+				*/
+			}
 			break;
 		}
 		
@@ -22324,6 +22351,15 @@ bool FFScript::itemScriptEngine()
 		    If the item flag 'PERPETUAL SCRIPT' is enabled, then we ignore the lack of item_doscript==2.
 		      This allows passive item scripts to function. 
 		*/
+		if ( ( item_doscript[q] == 3 ) )
+		{
+			if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) item_doscript[q] = 2;
+			else 
+			{
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+				item_doscript[q] = 0;
+			}
+		}
 		if ( ( item_doscript[q] > 1)  || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		//Is this needed? If the user selects perpetual script, then should that not override the QR? Hmm. IDK. -Z 16th June, 2019 
 		{
@@ -22376,6 +22412,15 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		//Z_scripterrlog("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script == 0 ) continue;
 		if ( !itemScriptsWaitdraw[q] ) continue;
+		if ( ( item_doscript[q] == 3 ) )
+		{
+			if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) item_doscript[q] = 2;
+			else 
+			{
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+				item_doscript[q] = 0;
+			}
+		}
 		if ( ( item_doscript[q] > 1 ) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING))) )
 			//Is this needed? If the user selects perpetual script, then should that not override the QR? Hmm. IDK. -Z 16th June, 2019 
 		{

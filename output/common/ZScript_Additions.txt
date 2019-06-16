@@ -2270,11 +2270,15 @@ void WarpEx(int ptr[])
 int ID;		
  * Returns the item number of the item in question.
 
-void RunScript(bool perpetual);
+void RunScript(int mode);
  * Runs the script assigned to this item at any arbitrary time.
- * If (perpetual == true), then the script will continue running for more than
- *	one frame, even if the QR is off. If the QR 'Item Scripts Continue Running'
- *	is enabled, then this boolean does nothing.
+ * Mode Settings:
+ * 0 : SCRIPT_MODE_END 
+ * 	THIS TERMINATES THE RUNNING SCRIPT.
+ * 1: SCRIPT_MODE_NORMAL
+ * 	Runs the script either once, or perpetually, based on the ZScript Rule.
+ * 2: SCRIPT_MODE_PERPETUAL
+ * 	Runs the script perpetually, even if the QR if off. 
 
 int Family;
 int Type;

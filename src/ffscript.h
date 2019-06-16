@@ -2504,7 +2504,7 @@ enum ASM_DEFINE
 #define SP                   0x02EC
 
 //#define SD(n)              ((0x02ED)+(n)) //Spare 8
-#define GD(n)              ((0x02F5)+(n)) //256
+#define GD(n)              ((0x02F5)+(n)) //1024, spare 352
 
 // Defines for accessing gamedata
 //#define GAMECOUNTER(n)     ((0x03F5)+((n)*3)) //All of these spare
