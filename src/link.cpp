@@ -2296,8 +2296,8 @@ void LinkClass::checkstab()
 				//clear item script stack. 
 				//ri = &(itemScriptData[items.spr(j)->id]);
 				//ri->Clear();
-				itemScriptData[items.spr(j)->id].Clear();
-				for ( int q = 0; q < 1024; q++ ) item_stack[items.spr(j)->id][q] = 0;
+				itemCollectScriptData[items.spr(j)->id].Clear();
+				for ( int q = 0; q < 1024; q++ ) item_collect_stack[items.spr(j)->id][q] = 0;
 			
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id & 0xFFF)*-1));
 				//runningItemScripts[items.spr(j)->id] = 0;
@@ -15959,8 +15959,8 @@ void LinkClass::checkitems(int index)
     if(itemsbuf[id2].collect_script)
     {
 	    //clear the item script stack for a new script
-		itemScriptData[id2].Clear();
-		for ( int q = 0; q < 1024; q++ ) item_stack[id2][q] = 0;
+	        itemCollectScriptData[id2].Clear();
+		for ( int q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0;
 		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
     }
     
