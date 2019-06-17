@@ -7687,15 +7687,28 @@ void set_register(const long arg, const long value)
             // If the Cane of Byrna is being removed, cancel its effect.
             if(value==0 && itemID==current_item_id(itype_cbyrna))
                 stopCaneOfByrna();
+	    
+	    //Stop current script if set false.
+	    if ( !value && item_doscript[itemID] )
+	    {
+		item_doscript[itemID] = 0;
+		itemScriptData[itemID].Clear();
+		    
+	    }
+	    else if ( value && !item_doscript[itemID] )
+	    {
+		//Clear the item refInfo and stack for use.
+		itemScriptData[itemID].Clear();
+		memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		    
+	    }
             
             bool settrue = ( value != 0 );
 		    
 	    //Sanity check to prevent setting the item if the value would be the same. -Z
 	    if ( game->item[itemID] != settrue ) 
 	    {
-		    //Clear the item refInfo and stack for use.
-		    itemScriptData[itemID].Clear();
-		    memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		    
 		    game->set_item(itemID,(value != 0));
 	    }
                     
