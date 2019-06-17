@@ -8415,7 +8415,7 @@ void set_register(const long arg, const long value)
     case ITEMX:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            (s->x)=(fix)(value/10000);
+            (s->x)=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
             // Move the Fairy enemy as well.
             if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
@@ -8448,7 +8448,7 @@ void set_register(const long arg, const long value)
     case ITEMY:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            (s->y)=(fix)(value/10000);
+            (s->y)=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
             // Move the Fairy enemy as well.
             if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
@@ -9191,20 +9191,20 @@ void set_register(const long arg, const long value)
 	
     case LWPNX:
         if(0!=(s=checkLWpn(ri->lwpn,"X")))
-            ((weapon*)s)->x=(fix)(value/10000);
+            ((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
 		break;
 	
 	
         
     case LWPNY:
         if(0!=(s=checkLWpn(ri->lwpn,"Y")))
-            ((weapon*)s)->y=(fix)(value/10000);
+            ((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
         break;
         
     case LWPNZ:
         if(0!=(s=checkLWpn(ri->lwpn,"Z")))
-            ((weapon*)s)->z=zc_max((fix)(value/10000),(fix)0);
+            ((weapon*)s)->z=zc_max((fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)),(fix)0);
             
         break;
         
@@ -9515,19 +9515,19 @@ void set_register(const long arg, const long value)
 	
 	case EWPNX:
         if(0!=(s=checkEWpn(ri->ewpn,"X")))
-            ((weapon*)s)->x=(fix)(value/10000);
+            ((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
         break;
         
     case EWPNY:
         if(0!=(s=checkEWpn(ri->ewpn,"Y")))
-            ((weapon*)s)->y=(fix)(value/10000);
+            ((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
         break;
         
     case EWPNZ:
         if(0!=(s=checkEWpn(ri->ewpn,"Z")))
-            ((weapon*)s)->z=zc_max((fix)(value/10000),(fix)0);
+            ((weapon*)s)->z=zc_max((fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)),(fix)0);
             
         break;
         
@@ -9798,10 +9798,10 @@ void set_register(const long arg, const long value)
     {
         if(GuyH::loadNPC(ri->guyref, "npc->X") == SH::_NoError)
         {
-            GuyH::getNPC()->x = fix(value / 10000);
+            GuyH::getNPC()->x = fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
             if(GuyH::hasLink())
-                Link.setX(fix(value / 10000));
+                Link.setX(fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)));
         }
     }
     break;
@@ -9826,11 +9826,11 @@ void set_register(const long arg, const long value)
         if(GuyH::loadNPC(ri->guyref, "npc->Y") == SH::_NoError)
         {
             fix oldy = GuyH::getNPC()->y;
-            GuyH::getNPC()->y = fix(value / 10000);
-            GuyH::getNPC()->floor_y += ((value / 10000) - oldy);
+            GuyH::getNPC()->y = fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+            GuyH::getNPC()->floor_y += ((value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)) - oldy);
             
             if(GuyH::hasLink())
-                Link.setY(fix(value / 10000));
+                Link.setY(fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)));
         }
     }
     break;
@@ -9844,10 +9844,10 @@ void set_register(const long arg, const long value)
                 if(value < 0)
                     GuyH::getNPC()->z = fix(0);
                 else
-                    GuyH::getNPC()->z = fix(value / 10000);
+                    GuyH::getNPC()->z = fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
                     
                 if(GuyH::hasLink())
-                    Link.setZ(fix(value / 10000));
+                    Link.setZ(fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)));
             }
         }
     }
