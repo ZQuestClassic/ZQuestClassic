@@ -361,6 +361,8 @@ int main(int argc, char* argv[])
 				system("mode CON: ROWS=32765");
 				//System.Console.SetBufferSize(140,150000);
 				SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), newSize);
+				HWND theWindow = GetConsoleWindow();
+				SetWindowPos(theWindow, HWND_NOTOPMOST, 0, 0, 400, 600, 0);
 			}
 			
 		}
