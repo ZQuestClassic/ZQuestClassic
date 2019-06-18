@@ -2,6 +2,32 @@
 
 //Alpha 26
 
+FFC Clipboard no longer carries over across opening another quest, and is set to
+	-1 on ZQ init.
+You can now copy an ffc, and repeatedly paste it. It is not cleared
+	from the 'clipboard' after a single paste.
+Display Enemy Tile data (tile, stile, etile), HP, Dmg,
+	Family, Dropset, Script, and Weapon Script metadata in the 'Select Enemy'
+	dialogue/lister.
+Show tile, power, level, family, cset, and script details
+	in the 'Select Item' dialogue.
+Fix issues with the Tile Grabber refusing to place tiles on
+	tile pages > page 252.
+	( ZoriaRPG, 18th June, 2019 )
+	
+	
+Console: Make TOPMOST again on startup.
+Console: Make new console windows smaller, and less annoying on startup.
+	Added a window handle, and used it to make the dimensions of
+	the console window smaller, WITHOUT reducing its BUFFER SIZE.
+	Positioned window at 0,0, and set it to a NONTOPMOST flag.
+Added the code for rule Sprite Coordinates are Float, to
+	setters for LWeapon, Item, NPC, and EWeapon X, Y, and X.
+	This is for Rob, to test.
+Fixed ZASM issues (PC and stack corruption) when writing Link->Item[n] = false
+	while that item is running a script. 
+	( ZoriaRPG, 17th June, 2019 )
+
 Fixed itemdata->RunScript(), and changed param 1 from bool perpetual
 	to int mode, where:
 
