@@ -3995,7 +3995,7 @@ void zmap::PasteOneFFC(int i) //i - destination ffc slot
         screens[currscr].inita[i][j] = copymapscr.inita[copyffc][j];
         
     screens[currscr].numff|=(1<<i);
-    copyffc = -1;
+    //copyffc = -1;
     saved=false;
 }
 
