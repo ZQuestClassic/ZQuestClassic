@@ -359,7 +359,7 @@ int d_combo_proc(int msg,DIALOG *d,int c);
 
 void go_tiles()
 {
-    for(dword i=0; i<NEWMAXTILES; ++i)
+    for(int i=0; i<NEWMAXTILES; ++i)
     {
         newundotilebuf[i].format=newtilebuf[i].format;
         
@@ -4183,6 +4183,7 @@ void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *
     }
 }
 
+//Grabber is not grabbing to tile pages beyond pg. 252 right now. -ZX 18th June, 2019 
 void grab_tile(int tile,int &cs)
 {
     int window_xofs=0;
@@ -4803,7 +4804,7 @@ void grab_tile(int tile,int &cs)
         {
             for(int x=0; x<selwidth; x++)
             {
-                word temptile=tile+((TILES_PER_ROW*y)+x);
+                int temptile=tile+((TILES_PER_ROW*y)+x);
                 int format=(bp==8) ? tf8Bit : tf4Bit;
                 
                 if(newtilebuf[temptile].data!=NULL)
