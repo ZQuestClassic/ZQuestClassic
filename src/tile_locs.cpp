@@ -10,12 +10,28 @@
 #define TILES_PER_ROW       20
 #define TILE_ROWS_PER_PAGE  13
 #define TILES_PER_PAGE      (TILES_PER_ROW*TILE_ROWS_PER_PAGE)
+
+/*
 #define TILE_PAGES          252
 
 #define OLDMAXTILES         (TILES_PER_PAGE*6)              // 1560 tiles
 #define NEWMAXTILES         (TILES_PER_PAGE*TILE_PAGES)     // 32760 tiles
+*/
 
+#define TILE_PAGES          825
+#define TILE_PAGES_ZC250    252 //2.50.x
+
+#define OLDMAXTILES         (TILES_PER_PAGE*6)              // 1560 tiles
+#define NEWMAXTILES         (TILES_PER_PAGE*TILE_PAGES)     // 214500 tiles
+#define ZC250MAXTILES         (TILES_PER_PAGE*TILE_PAGES_ZC250)     // 32760 tiles
+
+/*
 #define NEWTILE_SIZE2       (NEWMAXTILES*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
+*/
+
+#define NEWTILE_SIZE2       (NEWMAXTILES*SINGLE_TILE_SIZE)  // 27456000 bytes 
+#define ZC250TILESIZE       (ZC250MAXTILES*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
+
 
 #define OLDTILE_SIZE2       (OLDMAXTILES*SINGLE_TILE_SIZE)  // 199680 bytes (new packed format, 6 pages)
 // 133120 bytes (new packed format, 4 pages)

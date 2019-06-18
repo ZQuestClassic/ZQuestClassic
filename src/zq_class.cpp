@@ -3995,7 +3995,7 @@ void zmap::PasteOneFFC(int i) //i - destination ffc slot
         screens[currscr].inita[i][j] = copymapscr.inita[copyffc][j];
         
     screens[currscr].numff|=(1<<i);
-    copyffc = -1;
+    //copyffc = -1;
     saved=false;
 }
 
@@ -4272,6 +4272,11 @@ void zmap::PasteEnemies()
         for(int i=0; i<10; i++)
             screens[currscr].enemy[i]=copymapscr.enemy[i];
     }
+}
+
+void zmap::setCopyFFC(int n)
+{
+	copyffc = n;
 }
 
 void zmap::setCanUndo(bool _set)

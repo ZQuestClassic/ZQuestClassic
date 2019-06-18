@@ -12005,10 +12005,46 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
             textprintf_ex(screen,spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i);
             
             textprintf_ex(screen,spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
-		char itempower[10]; 
+            textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Lev:    ");
+            textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam:    ");
+           // textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile:    ");
+            textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile:    ");
+            textprintf_ex(screen,spfont,x,y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet:    ");
+            textprintf_ex(screen,spfont,x,y+56*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Scripts:    ");
+            textprintf_ex(screen,spfont,x,y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Act:    ");
+            textprintf_ex(screen,spfont,x,y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pkp:    ");
+            textprintf_ex(screen,spfont,x,y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Spr:    ");
+            textprintf_ex(screen,spfont,x,y+80*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Wpn:    ");
+		char itempower[10]; char itemlvl[10]; char itmtile[16]; char itmcset[10]; char itmfam[10];
+		char ascript[10];
+		char pscript[10];
+		char sscript[10];
+		char wscript[10];
 		sprintf(itempower, "%03d", itemsbuf[bii[d->d1].i].power); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(itemlvl, "%03d", itemsbuf[bii[d->d1].i].fam_type); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(itmtile, "%03d", itemsbuf[bii[d->d1].i].tile); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(itmcset, "%03d", itemsbuf[bii[d->d1].i].csets); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(itmfam, "%03d", itemsbuf[bii[d->d1].i].family); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(ascript, "%03d", itemsbuf[bii[d->d1].i].script); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(pscript, "%03d", itemsbuf[bii[d->d1].i].collect_script); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(sscript, "%03d", itemsbuf[bii[d->d1].i].sprite_script); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(wscript, "%03d", itemsbuf[bii[d->d1].i].weaponscript); //Give leading zeros so that we don't have graphical corruption in the display. 
             //textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
+	     textprintf_ex(screen,spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"T: %d  ",itemsbuf[bii[d->d1].i].tile);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itemlvl);
+	    //textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"LV: %d  ",itemsbuf[bii[d->d1].i].family_type);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmfam);
+	    //textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"F: %d  ",itemsbuf[bii[d->d1].i].family);
+           
+	    //textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmtile);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmcset);
+	    //Scripts
+	    textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",ascript);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",pscript);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",sscript);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+80*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",wscript);
         }
         
         // Might be a bit confusing for new users
@@ -16974,12 +17010,26 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
             rectfill(screen, x, y+20*(is_large?2:1), x+int(w*(is_large?1.5:1))-1, y+32*(is_large?2:1)-1, vc(4));
         */
         textprintf_ex(screen,is_large?font:spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d   ",id);
+	
+	textprintf_ex(screen,is_large?font:spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile: %d   ",guysbuf[id].tile);
+	
+	textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sTil: %d   ",guysbuf[id].s_tile);
+	textprintf_ex(screen,is_large?font:spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"eTil: %d   ",guysbuf[id].e_tile);
         
-        textprintf_ex(screen,is_large?font:spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP :");
-        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].hp);
+        textprintf_ex(screen,is_large?font:spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP: ");
+        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].hp);
         
-        textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg:");
-        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].dp);
+        textprintf_ex(screen,is_large?font:spfont,x,y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg: ");
+        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].dp);
+	
+	
+	
+	textprintf_ex(screen,is_large?font:spfont,x,y+56*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam: %d   ",guysbuf[id].family);
+	textprintf_ex(screen,is_large?font:spfont,x,y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Drop: %d   ",guysbuf[id].item_set);
+	textprintf_ex(screen,is_large?font:spfont,x,y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Script: %d   ",guysbuf[id].script);
+	textprintf_ex(screen,is_large?font:spfont,x,y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"WScript: %d   ",guysbuf[id].weaponscript);
+    
+	
     }
     
     return ret;
@@ -25633,6 +25683,7 @@ int main(int argc,char **argv)
     
     FFCore.init();
 	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
+	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
 	/*
 	if (!is_large) 
 	{
