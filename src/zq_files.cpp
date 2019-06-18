@@ -808,6 +808,7 @@ int onOpen()
     setup_combo_animations();
     setup_combo_animations2();
     Map.setCurrMap(zinit.last_map);
+    Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
     Map.setCurrScr(zinit.last_screen);
     Map.setCanPaste(false);
     Map.setCanUndo(false);

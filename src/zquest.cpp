@@ -25683,6 +25683,7 @@ int main(int argc,char **argv)
     
     FFCore.init();
 	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
+	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
 	/*
 	if (!is_large) 
 	{

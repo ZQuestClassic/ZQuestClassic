@@ -4274,6 +4274,11 @@ void zmap::PasteEnemies()
     }
 }
 
+void zmap::setCopyFFC(int n)
+{
+	copyffc = n;
+}
+
 void zmap::setCanUndo(bool _set)
 {
     can_paste=can_paste_map=_set;
