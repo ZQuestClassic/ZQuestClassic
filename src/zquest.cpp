@@ -17010,12 +17010,26 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
             rectfill(screen, x, y+20*(is_large?2:1), x+int(w*(is_large?1.5:1))-1, y+32*(is_large?2:1)-1, vc(4));
         */
         textprintf_ex(screen,is_large?font:spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d   ",id);
+	
+	textprintf_ex(screen,is_large?font:spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile: %d   ",guysbuf[id].tile);
+	
+	textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sTil: %d   ",guysbuf[id].s_tile);
+	textprintf_ex(screen,is_large?font:spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"eTil: %d   ",guysbuf[id].e_tile);
         
-        textprintf_ex(screen,is_large?font:spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP :");
-        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].hp);
+        textprintf_ex(screen,is_large?font:spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP: ");
+        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].hp);
         
-        textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg:");
-        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].dp);
+        textprintf_ex(screen,is_large?font:spfont,x,y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg: ");
+        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].dp);
+	
+	
+	
+	textprintf_ex(screen,is_large?font:spfont,x,y+56*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam: %d   ",guysbuf[id].family);
+	textprintf_ex(screen,is_large?font:spfont,x,y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Drop: %d   ",guysbuf[id].item_set);
+	textprintf_ex(screen,is_large?font:spfont,x,y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Script: %d   ",guysbuf[id].script);
+	textprintf_ex(screen,is_large?font:spfont,x,y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"WScript: %d   ",guysbuf[id].weaponscript);
+    
+	
     }
     
     return ret;
