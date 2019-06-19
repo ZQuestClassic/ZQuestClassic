@@ -7738,12 +7738,11 @@ void set_register(const long arg, const long value)
     {
 	if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
 	{
-		ret = Link.setXdbl(value/10000.0);
+		Link.setXdbl(value/10000.0);
 	}
 	else
 	{
-		ret = Link.setX(value/10000);
-		
+		Link.setX(value/10000);
 	}
     }
     break;
@@ -7752,12 +7751,11 @@ void set_register(const long arg, const long value)
     {
 	if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
 	{
-		ret = Link.setYdbl(value/10000.0);
+		Link.setYdbl(value/10000.0);
 	}
 	else
 	{
-		ret = Link.setY(value/10000);
-		
+		Link.setY(value/10000);
 	}
     }
     break;
@@ -7766,12 +7764,11 @@ void set_register(const long arg, const long value)
     {
 	if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
 	{
-		ret = Link.setZdbl(value/10000.0);
+		Link.setZdbl(value/10000.0);
 	}
 	else
 	{
-		ret = Link.setZ(value/10000);
-		
+		Link.setZ(value/10000);
 	}
     }
     break;
