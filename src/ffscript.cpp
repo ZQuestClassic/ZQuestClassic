@@ -18980,6 +18980,7 @@ int run_script(const byte type, const word script, const long i)
 					break;
 				}
 			}
+			break;
 			
 		}
 		
