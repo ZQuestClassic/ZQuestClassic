@@ -18954,8 +18954,68 @@ int run_script(const byte type, const word script, const long i)
 		
 		case LINKWARPEXR:
 		{
-		    FFCore.do_warp_ex(false);
-		    break;
+			//terminate sprite scripts
+			switch(type)
+			{
+				case SCRIPT_NPC:
+				{
+				
+					guys.spr(GuyH::getNPCIndex(i))->doscript = 0;
+					guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
+					/*
+					long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+					stack = &(guys.spr(i)->stack); 
+					memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+					stack = pvsstack;
+					guys.spr(i)->script = 0;
+					//ri->guyref = guys.spr(i)->getUID();
+					*/
+					break;
+				}
+				case SCRIPT_LWPN:
+				{
+				
+					//weapon *w = (weapon*)Lwpns.spr(i);
+					//long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+					//stack = &(Lwpns.spr(i)->stack);
+					//stack = &(w->stack);
+					//stack = &(Lwpns.spr(i)->stack);
+					//memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+					//stack = pvsstack;
+					//Lwpns.spr(i)->weaponscript = 0;
+					
+					//Lwpns.spr(i)->doscript = 0;
+					//Lwpns.spr(i)->weaponscript = 0;
+					//Z_scripterrlog("Cleaning up a script weapon, ID: %d\n",i);
+					//Z_scripterrlog("Cleaning up a script weapon, ri->lwpn: %d\n",ri->lwpn);
+					Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
+					Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
+					
+					//w->weaponscript = 0;
+					break;
+				}
+				case SCRIPT_EWPN:
+				{
+				
+					Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
+					Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
+					
+					//w->weaponscript = 0;
+					break;
+				}
+				case SCRIPT_ITEMSPRITE:
+				{
+				
+					items.spr(ItemH::getItemIndex(i))->doscript = 0;
+					items.spr(ItemH::getItemIndex(i))->script = 0;
+					
+					//w->weaponscript = 0;
+					break;
+				}
+				default: break;
+			}
+			FFCore.do_warp_ex(false);
+			break;
 		}
 		
 		case LINKEXPLODER:
