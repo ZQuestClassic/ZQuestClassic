@@ -1235,6 +1235,7 @@ string VarArgument::toString()
     case GAMESUBSCHEIGHT: return "GAMESUBSCHEIGHT";
     case GAMEPLAYFIELDOFS: return "GAMEPLAYFIELDOFS";
     case PASSSUBOFS: return "PASSSUBOFS";
+    case COMBODATAID: return "COMBODATAID";
     
     case LINKBIGHITBOX: return "LINKBIGHITBOX";
     case LINKDIAG: return "LINKDIAG";

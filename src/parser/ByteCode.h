@@ -1,4 +1,4 @@
-
+	
 #ifndef BYTECODE_H //2.53 Updated to 16th Jan, 2017
 #define BYTECODE_H
 
@@ -1118,8 +1118,9 @@ using namespace std;
 #define KEYBINDINGS 			1049
 #define MAPDATASCRIPT 			1050
 #define MAPDATAINITDARRAY 			1051
+#define COMBODATAID 			1052
 
-#define LAST_BYTECODE 		1052
+#define LAST_BYTECODE 		1053
 
 //END OF BYTECODE
 
