@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
 				//System.Console.SetBufferSize(140,150000);
 				SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), newSize);
 				HWND theWindow = GetConsoleWindow();
-				SetWindowPos(theWindow, HWND_TOPMOST, 0, 0, 400, 600, 0);
+				SetWindowPos(theWindow, HWND_TOP, 0, 0, 400, 600, 0);
 			}
 			
 		}
