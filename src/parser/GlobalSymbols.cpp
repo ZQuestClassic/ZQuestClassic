@@ -2015,23 +2015,29 @@ void LinkSymbols::generateCode()
 	Function* function = getFunction("WarpEx", 2);
         int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OLinkWarpExRegister(new VarArgument(EXP2)));
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLinkWarpExRegister(new VarArgument(EXP1)));
         code.push_back(new OReturn());
-        function->giveCode(code);
+        function->giveCode(code);    
     }
     {
 	Function* function = getFunction("Explode", 2);
-        int label = function->getLabel();
+	int label = function->getLabel();
         vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OLinkExplodeRegister(new VarArgument(EXP2)));
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLinkExplodeRegister(new VarArgument(EXP1)));
         code.push_back(new OReturn());
-        function->giveCode(code);
+        function->giveCode(code);        
     }
        //void SetItemSlot(link, int item, int slot, int force)
     {

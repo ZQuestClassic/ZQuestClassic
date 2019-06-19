@@ -15850,6 +15850,15 @@ static inline bool is_Side_view()
 //valid warpTypes: tile, side, exit, cancel, instant
 bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir)
 {
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpType", warpType);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "dmapID", dmapID);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "scrID", scrID);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpDestX", warpDestX);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpDestY", warpDestY);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpEffect", warpEffect);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpSound", warpSound);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpFlags", warpFlags);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "linkFacesDir", linkFacesDir);
 	byte t = 0;
 	t=(currscr<128)?0:1;
 	bool overlay=false;
@@ -21959,16 +21968,16 @@ void FFScript::Play_Level_Music()
 
 void FFScript::do_warp_ex(bool v)
 {
-	int zscript_array_ptr = get_register(sarg1) / 10000;
-	int zscript_array_size = getSize(zscript_array_ptr);
-	bool success;
+	int zscript_array_ptr = SH::get_arg(sarg1, v) / 10000;
+	int zscript_array_size = FFCore.getSize(zscript_array_ptr);
+	bool success = false;
 	switch(zscript_array_size)
 	{
 		case 8:
 			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
 		{
 			
-			success = warp_link( getElement(zscript_array_ptr,0)/10000,getElement(zscript_array_ptr,1)/10000,getElement(zscript_array_ptr,2)/10000,
+			success = FFCore.warp_link( getElement(zscript_array_ptr,0)/10000,getElement(zscript_array_ptr,1)/10000,getElement(zscript_array_ptr,2)/10000,
 				getElement(zscript_array_ptr,3)/10000, getElement(zscript_array_ptr,4)/10000, getElement(zscript_array_ptr,5)/10000,
 				getElement(zscript_array_ptr,6)/10000, getElement(zscript_array_ptr,7)/10000,-1 );
 			if (!success) 
@@ -21989,7 +21998,7 @@ void FFScript::do_warp_ex(bool v)
 		case 9:
 			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
 		{
-			success = warp_link( getElement(zscript_array_ptr,0)/10000,getElement(zscript_array_ptr,1)/10000,getElement(zscript_array_ptr,2)/10000,
+			success = FFCore.warp_link( getElement(zscript_array_ptr,0)/10000,getElement(zscript_array_ptr,1)/10000,getElement(zscript_array_ptr,2)/10000,
 				getElement(zscript_array_ptr,3)/10000, getElement(zscript_array_ptr,4)/10000, getElement(zscript_array_ptr,5)/10000,
 				getElement(zscript_array_ptr,6)/10000, getElement(zscript_array_ptr,7)/10000, getElement(zscript_array_ptr,8)/10000 );
 			if (!success) 
