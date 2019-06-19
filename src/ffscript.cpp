@@ -2687,7 +2687,11 @@ long get_register(const long arg)
 	case ITEMX:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            ret=((int)((item*)(s))->x)*10000;
+	    if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+	    {
+		ret=((double)((item*)(s))->x)*10000;    
+	    }
+            else ret=((int)((item*)(s))->x)*10000;
         }
         
         break;
@@ -2695,7 +2699,7 @@ long get_register(const long arg)
 	case ITEMSPRITESCRIPT:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            ret=((int)((item*)(s))->script)*10000;
+	    ret=((int)((item*)(s))->script)*10000;
         }
         
         break;
@@ -2727,7 +2731,12 @@ long get_register(const long arg)
     case ITEMY:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            ret=((int)((item*)(s))->y)*10000;
+	    if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+	    {
+		ret=((double)((item*)(s))->y)*10000;    
+	    }
+            else 
+		ret=((int)((item*)(s))->y)*10000;
         }
         
         break;
@@ -2735,7 +2744,12 @@ long get_register(const long arg)
     case ITEMZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            ret=((int)((item*)(s))->z)*10000;
+	    if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+	    {
+		ret=((double)((item*)(s))->z)*10000;    
+	    }
+            else 
+		ret=((int)((item*)(s))->z)*10000;
         }
         
         break;
@@ -3500,13 +3514,72 @@ long get_register(const long arg)
 }
 
     case NPCX:
-        GET_NPC_VAR_FIX(x, "npc->X") break;
+	//GET_NPC_VAR_FIX(x, "npc->X") break;     
+    {
+	if(GuyH::loadNPC(ri->guyref, "X") != SH::_NoError) 
+	{
+		ret = -10000; 
+	}
+	else 
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret = (double(GuyH::getNPC()->x) * 10000); 
+		}
+		else
+		{
+			ret = (long(GuyH::getNPC()->x) * 10000);   
+		}
+	}
+	break;
+
+	
+    }
+    
+       
         
     case NPCY:
-        GET_NPC_VAR_FIX(y, "npc->Y") break;
+        //GET_NPC_VAR_FIX(y, "npc->Y") break;
+    {
+	if(GuyH::loadNPC(ri->guyref, "Y") != SH::_NoError) 
+	{
+		ret = -10000; 
+	}
+	else 
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret = (double(GuyH::getNPC()->y) * 10000); 
+		}
+		else
+		{
+			ret = (long(GuyH::getNPC()->y) * 10000);   
+		}
+	}
+	break;
+    }
+    
         
     case NPCZ:
-        GET_NPC_VAR_FIX(z, "npc->Z") break;
+        //GET_NPC_VAR_FIX(z, "npc->Z") break;
+    {
+	if(GuyH::loadNPC(ri->guyref, "Z") != SH::_NoError) 
+	{
+		ret = -10000; 
+	}
+	else 
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret = (double(GuyH::getNPC()->z) * 10000); 
+		}
+		else
+		{
+			ret = (long(GuyH::getNPC()->z) * 10000);   
+		}
+	}
+	break;
+    }
         
     case NPCXOFS:
         GET_NPC_VAR_FIX(xofs, "npc->DrawXOffset") break;
@@ -3864,19 +3937,39 @@ case NPCBEHAVIOUR: {
 	
 	case LWPNX:
         if(0!=(s=checkLWpn(ri->lwpn,"X")))
-            ret=((int)((weapon*)(s))->x)*10000;
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->x)*10000;  
+		}
+		else 
+			ret=((int)((weapon*)(s))->x)*10000;
+	}
             
         break;
         
     case LWPNY:
         if(0!=(s=checkLWpn(ri->lwpn,"Y")))
-            ret=((int)((weapon*)(s))->y)*10000;
-            
-        break;
+        {
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->y)*10000;  
+		}
+		else 
+			ret=((int)((weapon*)(s))->y)*10000;
+	}
+	break;
         
     case LWPNZ:
         if(0!=(s=checkLWpn(ri->lwpn,"Z")))
-            ret=((int)((weapon*)(s))->z)*10000;
+        {
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->z)*10000;  
+		}
+		else 
+			ret=((int)((weapon*)(s))->z)*10000;
+	}
             
         break;
         
@@ -4184,20 +4277,38 @@ case NPCBEHAVIOUR: {
 
 	case EWPNX:
         if(0!=(s=checkEWpn(ri->ewpn, "X")))
-            ret=((int)((weapon*)(s))->x)*10000;
-            
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->x)*10000;
+		}
+		else 
+			ret=((int)((weapon*)(s))->x)*10000;
+	}
         break;
         
     case EWPNY:
         if(0!=(s=checkEWpn(ri->ewpn, "Y")))
-            ret=((int)((weapon*)(s))->y)*10000;
-            
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->y)*10000;
+		}
+		else 
+			 ret=((int)((weapon*)(s))->y)*10000;
+	}
         break;
         
     case EWPNZ:
         if(0!=(s=checkEWpn(ri->ewpn, "Z")))
-            ret=((int)((weapon*)(s))->z)*10000;
-            
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->z)*10000;
+		}
+		else 
+			ret=((int)((weapon*)(s))->z)*10000;
+	}
         break;
         
     case EWPNJUMP:
@@ -15915,24 +16026,35 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		}
 		
 	}
-	
+	//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15918);
 	//warp coordinates are wx, wy, not x, y! -Z
 	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
 	int wrindex = 0;
 	//we also need to check if dmaps are sideview here! -Z
 	//Likewise, we need to add that check to the normal Link:;dowarp(0
 	bool wasSideview = isSideViewGravity(t); //((tmpscr[t].flags7 & fSIDEVIEW)!=0 || DMaps[currdmap].sideview) && !ignoreSideview;
+	//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15925);
+	//Z_scripterrlog("FFCore.warp_link war type is: %d \n", warpType);
 	
 	//int last_entr_scr = -1;
 	//int last_entr_dmap = -1;
+	
+	if ( warpType < wtEXIT ) warpType = wtIWARP; //Sanity check. We can't use wtCave, or wtPassage, with scritped warps at present.
+	
 	switch(warpType)
 	{
+		
+		//wtCAVE, wtPASS, wtEXIT, wtSCROLL, wtIWARP, wtIWARPBLK, wtIWARPOPEN,
+		//wtIWARPZAP, wtIWARPWAVE, wtNOWARP, wtWHISTLE, wtMAX
+			
+		
 		case wtIWARP:
 		case wtIWARPBLK:
 		case wtIWARPOPEN:
 		case wtIWARPZAP:
 		case wtIWARPWAVE: 
 		{
+			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15936);
 			bool wasswimming = (Link.getAction()==swimming);
 			byte olddiveclk = Link.diveclk;
 			ALLOFF();
@@ -15944,7 +16066,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 				Link.setAction(swimming); FFCore.setLinkAction(swimming);
 				Link.diveclk = olddiveclk;
 			}
-            
+			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15948);
 			switch(warpEffect)
 			{
 				case warpEffectZap: zapout(); break;
@@ -15969,6 +16091,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 				case warpEffectNONE:
 				default: break;
 			}
+			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15973);
 			int c = DMaps[currdmap].color;
 			currdmap = dmapID;
 			dlevel = DMaps[currdmap].level;
@@ -16061,7 +16184,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		
 		case wtEXIT:
 		{
-			Z_scripterrlog("%s was called with a warp type of Entrance/Exit\n", "Link->WarpEx()");
+			//Z_scripterrlog("%s was called with a warp type of Entrance/Exit\n", "Link->WarpEx()");
 			lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
 			ALLOFF();
 			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
@@ -16232,6 +16355,15 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			currcset=DMaps[currdmap].color;
 			dointro();
 			break;
+		}
+		//Cannot use these types with scripts, or with strings. 
+		case wtCAVE:
+		case wtPASS:
+		case wtWHISTLE:
+		default: 
+		{
+			Z_scripterrlog("Invalid warp type (%d) supplied to Hero->WarpEx()!. Cannot warp!!\n", warpType);
+			return false;
 		}
 	}
 	// Stop Link from drowning!
