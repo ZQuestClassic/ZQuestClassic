@@ -375,6 +375,10 @@ public:
     void setX(int new_x);
     void setY(int new_y);
     void setZ(int new_Z);
+    
+    void setXdbl(double new_x);
+    void setYdbl(double new_y);
+    void setZdbl(double new_Z);
     void setFall(fix new_fall);
     void setClimbCoverX(int new_x);
     void setClimbCoverY(int new_y);

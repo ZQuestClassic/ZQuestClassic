@@ -506,6 +506,105 @@ void LinkClass::setZ(int new_z)
     
     z=(new_z>0 ? new_z : 0);
 }
+
+void LinkClass::setXdbl(double new_x)
+{
+    fix dx=new_x-x;
+    if(Lwpns.idFirst(wHookshot)>-1)
+    {
+        Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
+    }
+    
+    if(Lwpns.idFirst(wHSHandle)>-1)
+    {
+        Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=dx;
+    }
+	
+	if(chainlinks.Count()>0)
+	{
+		for(int j=0; j<chainlinks.Count(); j++)
+        {
+            chainlinks.spr(j)->x+=dx;
+        }
+	}
+    
+    x=new_x;
+    
+    // A kludge
+    if(!diagonalMovement && dir<=down)
+        is_on_conveyor=true;
+}
+
+void LinkClass::setYdbl(double new_y)
+{
+    fix dy=new_y-y;
+    if(Lwpns.idFirst(wHookshot)>-1)
+    {
+        Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
+    }
+    
+    if(Lwpns.idFirst(wHSHandle)>-1)
+    {
+        Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=dy;
+    }
+	
+	if(chainlinks.Count()>0)
+	{
+		for(int j=0; j<chainlinks.Count(); j++)
+        {
+            chainlinks.spr(j)->y+=dy;
+        }
+	}
+    
+    y=new_y;
+    
+    // A kludge
+    if(!diagonalMovement && dir>=left)
+        is_on_conveyor=true;
+}
+
+void LinkClass::setZdbl(double new_z)
+{
+    if(isSideview())
+        return;
+        
+    if(z==0 && new_z > 0)
+    {
+        switch(action)
+        {
+        case swimming:
+	{
+            diveclk=0;
+            action=walking; FFCore.setLinkAction(walking);
+            break;
+	}
+            
+        case waterhold1:
+	{
+            action=landhold1; FFCore.setLinkAction(landhold1);
+            break;
+	}
+            
+        case waterhold2:
+	{
+            action=landhold2; FFCore.setLinkAction(landhold2);
+            break;
+	}
+            
+        default:
+            if(charging)
+            {
+                reset_swordcharge();
+                attackclk=0;
+            }
+            
+            break;
+        }
+    }
+    
+    z=(new_z>0 ? new_z : 0);
+}
+
 void LinkClass::setFall(fix new_fall)
 {
     fall=new_fall;
