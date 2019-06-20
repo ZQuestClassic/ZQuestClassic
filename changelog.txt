@@ -2,6 +2,66 @@
 
 //Alpha 26
 
+Fix: y-offset being added to x-values for Polygon 
+	( Venrob, 20th June, 2019 )
+
+Fixed the Y offset drawing position for Screen->Polygon() and for
+	bitmap->Polygon().
+Fixed a place where Link Data for cheats in ZC Player is not properly
+	initialised.
+	( ZoriaRPG, 20th June 2019 )
+
+Added combodata->ID
+Added Link.setXdbl(double), setYdbl(double), setZdbl(double).
+	This function is used if the QR LINKXYISFLOAT is enabled when using GETTER
+	functions for Link->X, Y and Z.
+Overlap on some ZScript rules in the GUI.
+Don't force qr_LINKXY_IS_FLOAT off.
+Script types npc, lweapon, eweapon and itemsprite should refuse to
+	run Link->WarpEx for now. (It crashes if they run it, but it works from all other script types AFAIK.)
+
+	The function needs a rewrite so that it runs fromt he main engine like the normal warp
+	function, so I will need to add byte dowarpex and int warpexargs[9] to class
+	FFScript.
+
+	The script command will need to set those values, and if ( FFCore.dowarpex ), the
+	ZC engine will need to run it as it does Link.do_warp(), then reset the values.
+
+	This should prevent the crashes and allow the function to work in all script types,
+	but it will change the timing.
+
+	I also added const char scripttypenames[11][40] to ffscript.cpp, so that errors can
+	log script name types more easily.
+I missed a spot where npc scripts were reported as lweapon scripts in the
+	console/allegro.log. This fixes the error logging of the script type for npc
+	scripts in both places that it exists.
+Halt sprite scripts on warping Link by script from Link->WarpEx().
+
+Console: Make window open on top, but do not force as always topmost.
+
+If the QR qr_LINKXY_IS_FLOAT is enabled, the sprite getter
+	return value for lweapon, eweapon, npc, or item members:
+		x, y, z
+	is first typecast to double.
+	Example:
+
+	if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+			{
+				ret=((double)((weapon*)(s))->z)*10000;
+			}
+			else
+				ret=((int)((weapon*)(s))->z)*10000;
+
+	This is intended to prevent truncation when trying to work with fix values that have decimal places.
+
+Corrected ZASM for LINKWARPEXR (Link->WarpEx(int[])) and
+	for LINKEXPLODER (Link->Explode(int)).
+	This should fix the issues with ZASM stack overflows. It does not however,
+	make Link->WarpEx actually WORK, as there seems to be a fault in the FFCore.warp_link() function.
+Corrected the script type reported by script errors for
+	npc scripts in the console and allegro.log.
+	( ZoriaRPG, 19th June, 2019 )
+
 FFC Clipboard no longer carries over across opening another quest, and is set to
 	-1 on ZQ init.
 You can now copy an ffc, and repeatedly paste it. It is not cleared
