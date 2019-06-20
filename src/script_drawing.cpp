@@ -934,6 +934,8 @@ void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 	int col = sdci[4]/10000;
 	int op = sdci[5]/10000;
     
+	//bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+	//Z_scripterrlog("Broken offset rule for Polygon() is: %s\n", brokenOffset ? "ON" : "OFF");
     std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
     
     if(!v_ptr)
@@ -951,7 +953,12 @@ void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     long* pos = &v[0];
     int sz = v.size();
     
-   
+    //Fix the draw Y offset. -Z 20th June, 2019
+    for ( int q = 0; q < sz; q++ )
+    {
+	pos[q] += yoffset;    
+	    
+    }
 	    if(op <= 127) //translucent
 	    {
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
@@ -1001,7 +1008,12 @@ void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     long* pos = &v[0];
     int sz = v.size();
     
-   
+    //Fix the draw Y offset. -Z 20th June, 2019
+    for ( int q = 0; q < sz; q++ )
+    {
+	pos[q] += yoffset;    
+	    
+    }
 	    if(op <= 127) //translucent
 	    {
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
