@@ -954,7 +954,7 @@ void do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     int sz = v.size();
     
     //Fix the draw Y offset. -Z 20th June, 2019
-    for ( int q = 0; q < sz; q++ )
+    for ( int q = 1; q < sz; q+=2 )
     {
 	pos[q] += yoffset;    
 	    
@@ -1009,7 +1009,7 @@ void bmp_do_polygonr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     int sz = v.size();
     
     //Fix the draw Y offset. -Z 20th June, 2019
-    for ( int q = 0; q < sz; q++ )
+    for ( int q = 1; q < sz; q+=2 )
     {
 	pos[q] += yoffset;    
 	    
