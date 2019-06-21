@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 26
-Document Revision: 16th June, 2019
+Document Revision: 21st June, 2019
 
 
 ////////////////////////////////////////////////////
@@ -18,19 +18,28 @@ Document Revision: 16th June, 2019
 // Tokens //
 ////////////
 
-The ZScript parser now supports the following standard tokens:
+The ZScript parser now supports the following alternative standard tokens:
 
-and 	: 	Equivalent to 	&&
-or 	: 	Equivalent to 	||
-not 	: 	Equivalent to 	!
-bitand 	: 	Equivalent to 	&
-bitor 	: 	Equivalent to 	|
-not_eq 	:	Equivalent to 	!=
-or_eq 	: 	Equivalent to 	|=
-xor_eq 	: 	Equivalent to 	^=
-and_eq 	: 	Equivalent to 	&=
-xor 	: 	Equivalent to 	^
-compl	: 	Equivalent to	~
+//Logical
+and 		: 	Equivalent to 	&&
+or 		: 	Equivalent to 	||
+not 		: 	Equivalent to 	!
+not_eq 		:	Equivalent to 	!=
+not_equal 	:	Equivalent to 	!=
+
+//Bitwise
+bitand 		: 	Equivalent to 	&
+bitor 		: 	Equivalent to 	|
+xor 		: 	Equivalent to 	^
+compl		: 	Equivalent to	~
+bitnot		: 	Equivalent to	~
+or_eq 		: 	Equivalent to 	|=
+or_equal 	: 	Equivalent to 	|=
+xor_eq 		: 	Equivalent to 	^=
+xor_equal 	: 	Equivalent to 	^=
+and_eq 		: 	Equivalent to 	&=
+and_equal 	: 	Equivalent to 	&=
+
 
 //////////////
 // Bugfixes //
@@ -1481,6 +1490,12 @@ int EnemyFlags;
 
 int Pattern;
  * The enemy 'Spawn Pattern'.
+ 
+int SideWarpID[4];
+ * Returns the sidewarp ID for a given screen edge, as SideWarpID[dir];
+ * Returns -1 if there is no sidewarp in that direction.
+ * Use the SIDEWARP_* constants in std.zh for the value of this (read return value, or write value).
+ * Use the DIR_* constants in std.zh for the index values.
 
 int SideWarpType[4];
  * The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3] respectively.
@@ -1661,6 +1676,10 @@ int ID;
 ///  Item  ///
 //////////////
 
+bool Gravity;
+ * Not implemented at this time.
+ * If set true, the npc would fall in sideview gravity.
+
 int Scale;
  * The scale factor for this sprited object. 
  * A scale of 0 and a scale of 1 are identical.
@@ -1720,6 +1739,10 @@ int AClock
 /////////////////
 ///  *weapon  ///
 /////////////////
+
+bool Gravity;
+ * If set true, the weapon falls in sideview gravity.
+ * Some weapons (e.g. fire, bombs) have this set true by default.
 
 int Scale;
  * The scale factor for this sprited object. 
@@ -1804,6 +1827,10 @@ int AClock
 /////////////
 ///  NPC  ///
 /////////////
+
+bool Gravity;
+ * Not implemented at this time.
+ * If set true, the npc would fall in sideview gravity.
 
 int Scale;
  * The scale factor for this sprited object. 
@@ -2650,6 +2677,12 @@ int EnemyFlags;
 
 int Pattern;
  * This enemy 'Spawn Pattern'.
+
+int SideWarpID[4];
+ * Returns the sidewarp ID for a given screen edge, as SideWarpID[dir];
+ * Returns -1 if there is no sidewarp in that direction.
+ * Use the SIDEWARP_* constants in std.zh for the value of this (read return value, or write value).
+ * Use the DIR_* constants in std.zh for the index values.
 
 int SideWarpType[4];
  * The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3] respectively.
