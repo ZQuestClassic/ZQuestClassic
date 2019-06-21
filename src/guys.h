@@ -145,6 +145,7 @@ public:
     bool canmove(int ndir,fix s,int special);
     bool canmove(int ndir,int special);
     bool canmove(int ndir);
+    bool enemycanfall(int id);
     // 8-directional
     void newdir_8(int rate,int homing, int special,int dx1,int dy1,int dx2,int dy2);
     void newdir_8(int rate,int homing, int special);
