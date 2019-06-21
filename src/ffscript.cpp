@@ -199,8 +199,10 @@ long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	
 	char cmdline[MAX_PATH];;
 	if (!helper_executable)
-		helper_executable=DEFAULT_HELPER_EXE;
-
+		helper_executable=
+			( get_config_int("CONSOLE","console_on_top",0) ) 
+			? "ZConsole_OnTop.exe"
+			: "ZConsole.exe"; //DEFAULT_HELPER_EXE
 	sprintf(cmdline,"%s %s",helper_executable,logger_name);
 	BOOL bRet = CreateProcess(NULL,cmdline,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
 	if (!bRet)
