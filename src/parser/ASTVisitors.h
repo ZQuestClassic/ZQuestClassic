@@ -155,6 +155,9 @@ namespace ZScript
 		virtual void caseNumberLiteral(
 				ASTNumberLiteral& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseCharLiteral(
+				ASTCharLiteral& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseBoolLiteral(
 				ASTBoolLiteral& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -280,6 +283,8 @@ namespace ZScript
 		// Literals
 		virtual void caseNumberLiteral(
 				ASTNumberLiteral& host, void* param = NULL);
+		virtual void caseCharLiteral(
+				ASTCharLiteral& host, void* param = NULL);
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
 
 	protected:

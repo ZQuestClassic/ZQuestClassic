@@ -108,6 +108,7 @@ untyped		TOKEN( UNTYPED );
 bool		TOKEN( ZBOOL );
 float		TOKEN( ZFLOAT );
 int		TOKEN( ZFLOAT );
+char		TOKEN( ZCHAR );
 bitmap		TOKEN( BITMAP );
 cheat		TOKEN( CHEAT );
 combodata	TOKEN( COMBO );

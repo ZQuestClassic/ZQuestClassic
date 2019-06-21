@@ -126,12 +126,14 @@ bool TypeStore::TypeIdMapComparator::operator()(
 // Standard Type definitions.
 DataTypeSimpleConst DataType::CUNTYPED(ZVARTYPEID_UNTYPED, "const untyped");
 DataTypeSimpleConst DataType::CFLOAT(ZVARTYPEID_FLOAT, "const float");
+DataTypeSimpleConst DataType::CCHAR(ZVARTYPEID_CHAR, "const char");
 DataTypeSimpleConst DataType::CBOOL(ZVARTYPEID_BOOL, "const bool");
 DataTypeSimple DataType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", &CUNTYPED);
 DataTypeSimple DataType::ZVOID(ZVARTYPEID_VOID, "void", NULL);
 DataTypeSimple DataType::FLOAT(ZVARTYPEID_FLOAT, "float", &CFLOAT);
+DataTypeSimple DataType::CHAR(ZVARTYPEID_CHAR, "char", &CCHAR);
 DataTypeSimple DataType::BOOL(ZVARTYPEID_BOOL, "bool", &CBOOL);
-DataTypeArray DataType::STRING(FLOAT);
+DataTypeArray DataType::STRING(CHAR);
 //Classes: Global Pointer
 DataTypeClassConst DataType::GAME(ZCLASSID_GAME, "Game");
 DataTypeClassConst DataType::LINK(ZCLASSID_LINK, "Link");
@@ -213,6 +215,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_UNTYPED: return &UNTYPED;
 		case ZVARTYPEID_VOID: return &ZVOID;
 		case ZVARTYPEID_FLOAT: return &FLOAT;
+		case ZVARTYPEID_CHAR: return &CHAR;
 		case ZVARTYPEID_BOOL: return &BOOL;
 		case ZVARTYPEID_GAME: return &GAME;
 		case ZVARTYPEID_LINK: return &LINK;
@@ -407,6 +410,7 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 {
 	if (isUntyped()) return true;
 	if (target.isUntyped()) return true;
+	if (simpleId == ZVARTYPEID_CHAR) return FLOAT.canCastTo(target); //Char casts the same as float.
 
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
@@ -415,6 +419,7 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 	if (DataTypeSimple const* t =
 			dynamic_cast<DataTypeSimple const*>(&target))
 	{
+		if (t->simpleId == ZVARTYPEID_CHAR) return canCastTo(FLOAT); //Char casts the same as float.
 		if (simpleId == ZVARTYPEID_UNTYPED || t->simpleId == ZVARTYPEID_UNTYPED)
 			return true;
 		if (simpleId == ZVARTYPEID_VOID || t->simpleId == ZVARTYPEID_VOID)
@@ -542,7 +547,8 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 		//Enum-declared types can be cast to any non-void simple
 		return(t->getId() == ZVARTYPEID_UNTYPED
 			|| t->getId() == ZVARTYPEID_BOOL
-			|| t->getId() == ZVARTYPEID_FLOAT);
+			|| t->getId() == ZVARTYPEID_FLOAT
+			|| t->getId() == ZVARTYPEID_CHAR);
 	}
 	
 	if (DataTypeCustom const* t =

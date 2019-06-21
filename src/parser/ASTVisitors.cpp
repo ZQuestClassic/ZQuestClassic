@@ -602,6 +602,11 @@ void RecursiveVisitor::caseNumberLiteral(ASTNumberLiteral& host, void* param)
 	visit(host.value.get(), param);
 }
 
+void RecursiveVisitor::caseCharLiteral(ASTCharLiteral& host, void* param)
+{
+	visit(host.value.get(), param);
+}
+
 void RecursiveVisitor::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 {
 	visit(host.type.get(), param);

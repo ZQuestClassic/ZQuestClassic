@@ -1346,6 +1346,22 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
     }
 }
 
+void BuildOpcodes::caseCharLiteral(ASTCharLiteral& host, void*)
+{
+    if (host.getCompileTimeValue(NULL, scope))
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
+    else
+    {
+        pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue(), scope);
+
+        if (!val.second)
+	        handleError(CompileError::ConstTrunc(
+			                    &host, host.value->value));
+
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val.first)));
+    }
+}
+
 void BuildOpcodes::caseBoolLiteral(ASTBoolLiteral& host, void*)
 {
     addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));

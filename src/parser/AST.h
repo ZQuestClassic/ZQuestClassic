@@ -1606,6 +1606,27 @@ namespace ZScript
 	
 		owning_ptr<ASTFloat> value;
 	};
+	
+	class ASTCharLiteral : public ASTLiteral
+	{
+	public:
+		ASTCharLiteral(
+				ASTFloat* value = NULL,
+				LocationData const& location = LocationData::NONE);
+		ASTCharLiteral* clone() const {return new ASTCharLiteral(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		bool isConstant() const {return true;}
+		bool isLiteral() const {return true;}
+
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
+				const;
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::CHAR;}
+	
+		owning_ptr<ASTFloat> value;
+	};
 
 	class ASTBoolLiteral : public ASTLiteral
 	{
