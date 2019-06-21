@@ -1669,6 +1669,8 @@ int ID;
 
 //bool Running; //need to add this to match mapdata. int val
 
+bool Flags[13];
+ * Corrected and expanded the array size from [2] to [13].
 
 /************************************************************************************************************/
 
@@ -2969,6 +2971,9 @@ void SetFFCIniA(int ffc_index, int init_a, float value);
 ///////////////////
 ///  combodata  ///
 ///////////////////
+
+int ID;
+ * Returns the combo ID associated with the current combodata pointer.
 
 int Type; 
  * The 'type' of the combo, in the Combo Editor. 
