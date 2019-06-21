@@ -5236,9 +5236,10 @@ case SCREENSIDEWARPID:
 {
 	int indx = ri->d[0] / 10000;
 	
-	int retval = 0; //Rob needs to find and fill in the equation here.
-	//get retvalue from appropriate tmpscr->members
-	ret = (retval*10000);
+	ret = (((tmpscr->flags2 >> indx) & 1)
+		? (tmpscr->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
+		: -1 //Returns -1 if no warp is set
+		)*10000;
 	break;
 }
 
@@ -5944,9 +5945,10 @@ case MAPDATASIDEWARPID:
 	else
 	{
 		mapscr *m = &TheMaps[ri->mapsref];
-		int retval = 0; //Rob needs to find and fill in the equation here.
-		//get retvalue from appropriate m->members
-		ret = (retval*10000);
+		ret = (((m->flags2 >> indx) & 1)
+			? (m->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
+			: -1 //Returns -1 if no warp is set
+			)*10000;
 	} 
 	break;
 }
@@ -11211,9 +11213,19 @@ case SCREENSIDEWARPID:
 {
 	int indx = ri->d[0] / 10000; //dir
 	
-		//Rob needs to set whatever bits are needed here.
-		int new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
-		//tmpscr->member = whatever
+	int new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
+	if(new_warp_return == -1)
+	{
+		tmpscr->flags2 &= ~(1<<indx); //Unset the "Enabled" flag for this dir
+		tmpscr->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir as well.
+	}
+	else
+	{
+		tmpscr->flags2 |= 1<<indx; //Set the "Enabled" flag for this dir
+		tmpscr->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir bits
+		tmpscr->sidewarpindex |= (new_warp_return<<(2*indx)); //Set the new dir
+	}
+	
 	break;
 } 
 
@@ -11983,10 +11995,19 @@ case MAPDATASIDEWARPID:
 	}
 	else
 	{
-		mapscr *m = &TheMaps[ri->mapsref]; 
-		//Rob needs to set whatever bits are needed here.
+		mapscr *m = &TheMaps[ri->mapsref];
 		int new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
-		//m->member = whatever
+		if(new_warp_return == -1)
+		{
+			m->flags2 &= ~(1<<indx); //Unset the "Enabled" flag for this dir
+			m->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir as well.
+		}
+		else
+		{
+			m->flags2 |= 1<<indx; //Set the "Enabled" flag for this dir
+			m->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir bits
+			m->sidewarpindex |= (new_warp_return<<(2*indx)); //Set the new dir
+		}
 	} 
 	break;
 } 
