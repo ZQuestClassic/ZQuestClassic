@@ -173,6 +173,7 @@ void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
 		}
 		caseNamespace(*first);
 		numMatches = temp->useNamespace(components, iden->delimiters);
+		assert(numMatches==1); //This should be 1. If not, there is an internal error.
 	}
 	//-1 == duplicate; the namespace found had already been added to usingNamespaces for this scope! -V
 	else if(numMatches == -1)
