@@ -2954,8 +2954,9 @@ void game_loop()
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.animate()\n");
 	#endif
-        items.animate();
-	FFCore.itemSpriteScriptEngine();
+        FFCore.itemSpriteScriptEngine();
+	items.animate();
+	
 	    //Can't be called in items.animate(), as ZQuest also uses this function.
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
