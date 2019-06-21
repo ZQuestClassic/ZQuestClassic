@@ -2133,6 +2133,7 @@ const int TILEWARP_A 		= 0;
 const int TILEWARP_B		= 1;
 const int TILEWARP_C		= 2;
 const int TILEWARP_D		= 3;
+const int SIDEWARP_NONE 	= -1;
 const int SIDEWARP_A		= 0;
 const int SIDEWARP_B		= 1;
 const int SIDEWARP_C		= 2;
