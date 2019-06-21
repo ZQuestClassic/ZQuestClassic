@@ -1778,6 +1778,31 @@ optional<long> ASTNumberLiteral::getCompileTimeValue(
 	return val.first;
 }
 
+// ASTCharLiteral
+
+ASTCharLiteral::ASTCharLiteral(
+		ASTFloat* value, LocationData const& location)
+	: ASTLiteral(location), value(value)
+{}
+
+void ASTCharLiteral::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseCharLiteral(*this, param);
+}
+
+optional<long> ASTCharLiteral::getCompileTimeValue(
+	CompileErrorHandler* errorHandler, Scope* scope) const
+{
+	if (!value) return nullopt;
+    pair<long, bool> val = ScriptParser::parseLong(value->parseValue(), scope);
+
+    if (!val.second && errorHandler)
+	    errorHandler->handleError(
+			    CompileError::ConstTrunc(this, value->value.c_str()));
+
+	return val.first;
+}
+
 // ASTBoolLiteral
 
 ASTBoolLiteral::ASTBoolLiteral(bool value, LocationData const& location)

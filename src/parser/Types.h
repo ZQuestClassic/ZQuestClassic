@@ -72,6 +72,7 @@ namespace ZScript
 		ZVARTYPEID_UNTYPED = 0,
 		ZVARTYPEID_VOID,
 		ZVARTYPEID_FLOAT,
+		ZVARTYPEID_CHAR,
 		ZVARTYPEID_BOOL,
 		ZVARTYPEID_PRIMITIVE_END,
 
@@ -173,10 +174,12 @@ namespace ZScript
 	public:
 		static DataTypeSimpleConst CUNTYPED;
 		static DataTypeSimpleConst CFLOAT;
+		static DataTypeSimpleConst CCHAR;
 		static DataTypeSimpleConst CBOOL;
 		static DataTypeSimple UNTYPED;
 		static DataTypeSimple ZVOID;
 		static DataTypeSimple FLOAT;
+		static DataTypeSimple CHAR;
 		static DataTypeSimple BOOL;
 		static DataTypeArray STRING;
 		//Classes: Global Pointer
