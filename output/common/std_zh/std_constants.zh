@@ -2089,30 +2089,34 @@ const int CT_ZELDA              = 23;
 /// FFC Properties
 
 //FFC Flags. To be used as indices into ffc->Flags[].
-const int FFCF_OVERLAY          = 0; // Draw Over (draw between layers 4 and 5)
-const int FFCF_TRANS            = 1; // Translucent
-const int FFCF_SOLID            = 2; // Unused
-const int FFCF_CARRYOVER        = 3; // Carry Over
-const int FFCF_STATIONARY       = 4; // Stationary
-const int FFCF_CHANGER          = 5; // Is A Changer
-const int FFCF_PRELOAD          = 6; // Run Script On Screen Init
-const int FFCF_LENSVIS          = 7; // Only Visible to Lens of Truth
-const int FFCF_RESET            = 8; // Script Resets When Carried Over
-const int FFCF_ETHEREAL         = 9; // The FFC's Combo Type is ignored.
-const int FFCF_IGNOREHOLDUP     = 10; // The FFC is updated while Link is holding up an item
+const int FFCF_OVERLAY          	= 0; // Draw Over (draw between layers 4 and 5)
+const int FFCF_TRANS            	= 1; // Translucent
+const int FFCF_SOLID            	= 2; // Solidity (Partially Implemented)
+const int FFCF_CARRYOVER        	= 3; // Carry Over
+const int FFCF_STATIONARY       	= 4; // Stationary
+const int FFCF_CHANGER          	= 5; // Is A Changer
+const int FFCF_PRELOAD          	= 6; // Run Script On Screen Init
+const int FFCF_LENSVIS          	= 7; // Only Visible to Lens of Truth
+const int FFCF_RESET            	= 8; // Script Resets When Carried Over
+const int FFCF_ETHEREAL         	= 9; // The FFC's Combo Type is ignored.
+const int FFCF_IGNOREHOLDUP     	= 10; // The FFC is updated while Link is holding up an item
+const int FFCF_IGNORECHANGER     	= 11; // The FFC ignores changers
+const int FFCF_IMPRECISIONCHANGER     	= 12; // The FFC is affected by changers if it is within 1px on both axis, not subpixel alignment.
 
 //FFC Bitwise Flags. To be used for bitwise checking of mapdata->FFCFlags[].
-const int FFCBF_OVERLAY   	    = 0x001;
-const int FFCBF_TRANS           = 0x002;
-const int FFCBF_SOLID           = 0x004;
-const int FFCBF_CARRYOVER       = 0x008;
-const int FFCBF_STATIONARY      = 0x010;
-const int FFCBF_CHANGER         = 0x020;
-const int FFCBF_PRELOAD         = 0x040;
-const int FFCBF_LENSVIS         = 0x080;
-const int FFCBF_RESET           = 0x100;
-const int FFCBF_ETHEREAL        = 0x200;
-const int FFCBF_IGNOREHOLDUP    = 0x400;
+const int FFCBF_OVERLAY   		= 0x001;
+const int FFCBF_TRANS           	= 0x002;
+const int FFCBF_SOLID           	= 0x004;
+const int FFCBF_CARRYOVER       	= 0x008;
+const int FFCBF_STATIONARY      	= 0x010;
+const int FFCBF_CHANGER         	= 0x020;
+const int FFCBF_PRELOAD         	= 0x040;
+const int FFCBF_LENSVIS         	= 0x080;
+const int FFCBF_RESET           	= 0x100;
+const int FFCBF_ETHEREAL        	= 0x200;
+const int FFCBF_IGNOREHOLDUP    	= 0x400;
+const int FFCBF_IGNORECHANGER   	= 0x800;
+const int FFCBF_IMPRECISIONCHANGER    	= 0x1000;
 
 
 //Aim-type constants, for use with AimEWeapon
