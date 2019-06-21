@@ -2,6 +2,48 @@
 
 //Alpha 26
 
+std_zh: Add `SIDEWARP_NONE`
+Fill in interpreter blocks for the ->SideWarpID[] instructions, 
+	so they actually do stuff.
+Parser: More detailed ambiguity error; List namespace names of each function candidate.
+Parser: Fix `using` errors:
+	Rootscope Duplication in BasicScope::useNamespace:
+		-Add `assert`, to make sure that any future errors here won't be silent
+		-Add `!isFile()` check to prevent RootScope duplication.
+	Using search logic error:
+		-Was only searching local using, instead of local and parent using! Fixed with `lookupUsingNamespaces` call.
+	Also added some comments.
+	( Venrob, 21st June, 2019 )
+
+Fixed ffc->Flags[2]; it is now [13].
+	How the heck did this go un-noticed for all these years?!
+std.zh: Add constants for new ffc flags.
+
+Added byte obeys_gravity to sprites, and cause weapons to use this.
+	Old hardcoded falling now instead sets this to 1.
+	Added ZScript SETTER and GETTER vars as bool T->Gravity to lweapon, eweapon,
+	npc, and item. The latter two have no effect at this time.
+
+	Added int SideWarpID[int direction] to Screen-> and mapdata-> pointers.
+	The interpreter only has an empty block for Venrob to complete, but the supporting
+	code for the parser and the interpreter is in place.
+
+	(You can issue the instruction, but it always returns 0, and writing to it has
+	no effect.)
+
+	Rob, you wanted to figure out that madness with bits using multiple screen vars,
+	so, have at you!
+
+Added the following new ffc flags:
+	Ignore Changers: If enabled, this ffc ignores changers.
+	Imprecision: If enabled, this ffc will react to a changer as long as it aligns
+		within ONE FULL PIXEL of the changer, rather than needing to precisely align
+		to a SUBPIXEL.
+	Made the 'Soilid' flag visible in the GUI. The user can now set this in the UI,
+		however, at this time, the internal handling for ffc solidity is unfinished.
+Fix: Missing break stmt for combodata->ID.
+	( ZoriaRPG, 21st June, 2019 )
+	
 Fix: y-offset being added to x-values for Polygon 
 	( Venrob, 20th June, 2019 )
 
