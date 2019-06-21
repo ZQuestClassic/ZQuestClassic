@@ -1659,6 +1659,8 @@ struct item_drop_object
 #define ffSCRIPTRESET	0x00000100 //Script resets when carried over.
 #define ffETHEREAL      0x00000200 //Does not occlude combo and flags on the screen
 #define ffIGNOREHOLDUP  0x00000400 //Updated even while Link is holding an item
+#define ffIGNORECHANGER  0x00000800 //Ignore changers
+#define ffIMPRECISIONCHANGER  0x00001000 //Ignore changers
 
 //FF combo changer flags
 

@@ -1823,11 +1823,18 @@ void update_freeform_combos()
                     continue;
                     
                 // Ignore this changer? (ffposx and ffposy are last changer position)
-                if(tmpscr->ffx[j]/10000==ffposx[i]&&tmpscr->ffy[j]/10000==ffposy[i])
+                if((tmpscr->ffx[j]/10000==ffposx[i]&&tmpscr->ffy[j]/10000==ffposy[i]) || tmpscr->ffflags[i]&ffIGNORECHANGER)
                     continue;
                     
                 if((isonline(tmpscr->ffx[i], tmpscr->ffy[i], ffprvx[i],ffprvy[i], tmpscr->ffx[j], tmpscr->ffy[j]) || // Along the line, or...
-                        (tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) && // At exactly the same position, and...
+                        //(tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) && // At exactly the same position, and...
+			( // At exactly the same position, 
+				(tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) 
+				||
+				//or imprecision and close enough
+				( (tmpscr->ffflags[i]&ffIMPRECISIONCHANGER) && ((abs(tmpscr->ffx[i] - tmpscr->ffx[j]) < 10000) && abs(tmpscr->ffy[i] - tmpscr->ffy[j]) < 10000) )
+			)
+		&& //and...
                         (ffprvx[i]>-10000000 && ffprvy[i]>-10000000)) // This isn't the first frame on this screen
                 {
                     if(tmpscr->ffflags[j]&ffCHANGETHIS)

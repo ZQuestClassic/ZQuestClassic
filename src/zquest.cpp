@@ -19167,7 +19167,7 @@ static int ffcombo_data_list[] =
 
 static int ffcombo_flag_list[] =
 {
-    31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,-1
+    31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,78,79,80,-1
 };
 
 static int ffcombo_arg_list[] =
@@ -19284,6 +19284,11 @@ static DIALOG ffcombo_dlg[] =
     { jwin_edit_proc,      140+10,  43+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      220, 151+20,   24,    36,   0,        0,       0,       0,          0,             0, (void*) "", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //78 new ffc flags
+    { jwin_check_proc,    154+10,  45+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Ign. Changers", NULL, NULL },
+    { jwin_check_proc,    154+10,  55+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Solid", NULL, NULL },
+    { jwin_check_proc,    154+10,  65+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Imprecision", NULL, NULL },
+  
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -22391,6 +22396,10 @@ int onEditFFCombo(int ffcombo)
     ffcombo_dlg[41].flags = (f&ffETHEREAL) ? D_SELECTED : 0;
     ffcombo_dlg[42].flags = (f&ffIGNOREHOLDUP) ? D_SELECTED : 0;
     
+    ffcombo_dlg[78].flags = (f&ffIGNORECHANGER) ? D_SELECTED : 0;
+    ffcombo_dlg[79].flags = (f&ffSOLID) ? D_SELECTED : 0;
+    ffcombo_dlg[80].flags = (f&ffIMPRECISIONCHANGER) ? D_SELECTED : 0;
+    
     ffcombo_dlg[49].flags = (f&ffSWAPNEXT) ? D_SELECTED : 0;
     ffcombo_dlg[50].flags = (f&ffSWAPPREV) ? D_SELECTED : 0;
     ffcombo_dlg[51].flags = (f&ffCHANGENEXT) ? D_SELECTED : 0;
@@ -22464,6 +22473,10 @@ int onEditFFCombo(int ffcombo)
         f |= (ffcombo_dlg[51].flags&D_SELECTED) ? ffCHANGENEXT : 0;
         f |= (ffcombo_dlg[52].flags&D_SELECTED) ? ffCHANGEPREV : 0;
         f |= (ffcombo_dlg[53].flags&D_SELECTED) ? ffCHANGETHIS : 0;
+	
+        f |= (ffcombo_dlg[78].flags&D_SELECTED) ? ffIGNORECHANGER : 0;
+        f |= (ffcombo_dlg[79].flags&D_SELECTED) ? ffSOLID : 0;
+        f |= (ffcombo_dlg[80].flags&D_SELECTED) ? ffIMPRECISIONCHANGER : 0;
         Map.CurrScr()->ffflags[ffcombo] = f;
         
         if(Map.CurrScr()->ffdata[ffcombo]!=0)
