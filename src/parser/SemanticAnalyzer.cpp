@@ -941,9 +941,15 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			for (vector<Function*>::const_iterator it = bestFunctions.begin();
 			     it != bestFunctions.end(); ++it)
 			{
-				oss << "        "
-				    << (*it)->getSignature().asString()
-				    << "\n";
+				oss << "        ";
+				string namespacenames = "";
+				for(Scope* current = (*it)->internalScope; current; current = current->getParent())
+				{
+					if(!current->isNamespace()) continue;
+					NamespaceScope* ns = static_cast<NamespaceScope*>(current);
+					namespacenames = ns->namesp->getName() + "::" + namespacenames;
+				}
+				oss << namespacenames << (*it)->getSignature().asString() << "\n";
 			}
 			
 			handleError(
