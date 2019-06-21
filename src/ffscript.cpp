@@ -6986,7 +6986,7 @@ case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); bre
 case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
 case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
-case COMBODATAID: 		ret = ri->combosref * 10000;
+case COMBODATAID: 		ret = (ri->combosref*10000); break;
 //COMBOCLASS STRUCT
 //case COMBODNAME:		//CHAR[64], STRING
 case COMBODBLOCKNPC:		GET_COMBOCLASS_VAR_BYTE(block_enemies, "BlockNPC"); break;			//C
