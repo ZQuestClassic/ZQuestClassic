@@ -126,12 +126,12 @@ bool TypeStore::TypeIdMapComparator::operator()(
 // Standard Type definitions.
 DataTypeSimpleConst DataType::CUNTYPED(ZVARTYPEID_UNTYPED, "const untyped");
 DataTypeSimpleConst DataType::CFLOAT(ZVARTYPEID_FLOAT, "const float");
-DataTypeSimpleConst DataType::CCHAR(ZVARTYPEID_CHAR, "const char");
+DataTypeSimpleConst DataType::CCHAR(ZVARTYPEID_CHAR, "const char32");
 DataTypeSimpleConst DataType::CBOOL(ZVARTYPEID_BOOL, "const bool");
 DataTypeSimple DataType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", &CUNTYPED);
 DataTypeSimple DataType::ZVOID(ZVARTYPEID_VOID, "void", NULL);
 DataTypeSimple DataType::FLOAT(ZVARTYPEID_FLOAT, "float", &CFLOAT);
-DataTypeSimple DataType::CHAR(ZVARTYPEID_CHAR, "char", &CCHAR);
+DataTypeSimple DataType::CHAR(ZVARTYPEID_CHAR, "char32", &CCHAR);
 DataTypeSimple DataType::BOOL(ZVARTYPEID_BOOL, "bool", &CBOOL);
 DataTypeArray DataType::STRING(CHAR);
 //Classes: Global Pointer
