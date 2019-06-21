@@ -1734,6 +1734,13 @@ string VarArgument::toString()
 	
 	case MAPDATAINITDARRAY: return "MAPDATAINITDARRAY";
 	
+	case LWPNGRAVITY: return "LWPNGRAVITY";
+	case EWPNGRAVITY: return "EWPNGRAVITY";
+	case NPCGRAVITY: return "NPCGRAVITY";
+	case ITEMGRAVITY: return "ITEMGRAVITY";
+	case MAPDATASIDEWARPID: return "MAPDATASIDEWARPID";
+	case SCREENSIDEWARPID: return "SCREENSIDEWARPID";
+	
 	
 	
     default:

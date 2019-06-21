@@ -109,6 +109,7 @@ public:
     byte do_animation;
     int rotation;
     int scale; 
+    byte obeys_gravity;
     
     sprite();
     sprite(sprite const & other);

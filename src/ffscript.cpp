@@ -2776,6 +2776,14 @@ long get_register(const long arg)
         }
         
         break;
+      
+    case ITEMGRAVITY:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((((item*)(s))->obeys_gravity) ? 10000 : 0);
+        }
+        
+        break;
         
     case ITEMID:
         if(0!=(s=checkItem(ri->itemref)))
@@ -3630,6 +3638,14 @@ long get_register(const long arg)
             
         break;
 	
+    case NPCGRAVITY:
+        if(GuyH::loadNPC(ri->guyref, "npc->Gravity") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = ((GuyH::getNPC()->obeys_gravity) ? 10000 : 0);
+            
+        break;
+	
         
     case NPCID:
         if(GuyH::loadNPC(ri->guyref, "npc->ID") != SH::_NoError)
@@ -3991,6 +4007,12 @@ case NPCBEHAVIOUR: {
             ret=((weapon*)(s))->dir*10000;
             
         break;
+     
+    case LWPNGRAVITY:
+        if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
+            ret= (((weapon*)(s))->obeys_gravity) ? 10000 : 0;
+            
+        break;
         
     case LWPNSTEP:
         if(0!=(s=checkLWpn(ri->lwpn,"Step")))
@@ -4327,6 +4349,12 @@ case NPCBEHAVIOUR: {
     case EWPNDIR:
         if(0!=(s=checkEWpn(ri->ewpn, "Dir")))
             ret=((weapon*)(s))->dir*10000;
+            
+        break;
+        
+    case EWPNGRAVITY:
+        if(0!=(s=checkEWpn(ri->ewpn, "Gravity")))
+            ret=((((weapon*)(s))->obeys_gravity) ? 10000 : 0);
             
         break;
         
@@ -5203,7 +5231,16 @@ case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); bre
 case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
 case SCREENDATASCREENMIDI: 	GET_SCREENDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
 case SCREENDATALENSLAYER:	 	GET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+
+case SCREENSIDEWARPID: 
+{
+	int indx = ri->d[0] / 10000;
 	
+	int retval = 0; //Rob needs to find and fill in the equation here.
+	//get retvalue from appropriate tmpscr->members
+	ret = (retval*10000);
+	break;
+}
 
 case SCREENDATAFLAGS: 
 {
@@ -5896,6 +5933,23 @@ case MAPDATAFFYDELTA:       GET_MAPDATA_FFCPOS_INDEX32(ffydelta, "FFCVy", 31); b
 case MAPDATAFFXDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ffxdelta2, "FFCAx", 31); break;  //..
 case MAPDATAFFYDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ffydelta2, "FFCAy", 31); break;  //..
 case MAPDATAFFFLAGS:        GET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
+case MAPDATASIDEWARPID: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","SideWarpID");
+		ret = -10000;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		int retval = 0; //Rob needs to find and fill in the equation here.
+		//get retvalue from appropriate m->members
+		ret = (retval*10000);
+	} 
+	break;
+}
  
 case MAPDATAFFWIDTH:       
 {
@@ -8626,6 +8680,14 @@ void set_register(const long arg, const long value)
         
         break;
         
+    case ITEMGRAVITY:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+	    (((item *)s)->obeys_gravity)=((value) ? 1 : 0);
+        }
+        
+        break;
+        
     case ITEMID:
         if(0!=(s=checkItem(ri->itemref)))
         {
@@ -9361,6 +9423,12 @@ void set_register(const long arg, const long value)
             ((weapon*)s)->dir=(value/10000);
             
         break;
+     
+    case LWPNGRAVITY:
+        if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
+            ((weapon*)s)->obeys_gravity = ((value) ? 10000 : 0);
+            
+        break;
         
     case LWPNSTEP:
         if(0!=(s=checkLWpn(ri->lwpn,"Step")))
@@ -9682,6 +9750,12 @@ void set_register(const long arg, const long value)
     case EWPNDIR:
         if(0!=(s=checkEWpn(ri->ewpn,"Dir")))
             ((weapon*)s)->dir=(value/10000);
+            
+        break;
+      
+    case EWPNGRAVITY:
+        if(0!=(s=checkEWpn(ri->ewpn,"Gravity")))
+            ((weapon*)s)->obeys_gravity=((value) ? 1 : 0);
             
         break;
         
@@ -10012,6 +10086,13 @@ void set_register(const long arg, const long value)
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Step") == SH::_NoError)
             GuyH::getNPC()->step = fix(value / 10000) / fix(100.0);
+    }
+    break;
+    
+    case NPCGRAVITY:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->Gravity") == SH::_NoError)
+            GuyH::getNPC()->obeys_gravity = ((value) ? 1 : 0);
     }
     break;
     
@@ -11126,6 +11207,15 @@ case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break
 case SCREENDATASCREENMIDI: 	SET_SCREENDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
 case SCREENDATALENSLAYER:	 	SET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
 	
+case SCREENSIDEWARPID:
+{
+	int indx = ri->d[0] / 10000; //dir
+	
+		//Rob needs to set whatever bits are needed here.
+		int new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
+		//tmpscr->member = whatever
+	break;
+} 
 
 case SCREENDATAFLAGS: 
 {
@@ -11880,6 +11970,27 @@ case MAPDATAFFYDELTA:       SET_MAPDATA_FFCPOS_INDEX32(ffydelta, "FFCVy", 31); b
 case MAPDATAFFXDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ffxdelta2, "FFCAx", 31); break;  //..
 case MAPDATAFFYDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ffydelta2, "FFCAy", 31); break;  //..
 case MAPDATAFFFLAGS:        SET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
+
+
+case MAPDATASIDEWARPID:
+{
+	
+	int indx = ri->d[0] / 10000; //dir
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","SideWarpID"); 
+		break; 
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//Rob needs to set whatever bits are needed here.
+		int new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
+		//m->member = whatever
+	} 
+	break;
+} 
+
 //Height and With are Or'd together, and need to be separate:
 /*
  //TileWidth ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);

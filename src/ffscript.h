@@ -3472,7 +3472,15 @@ enum ASM_DEFINE
 #define MAPDATASCRIPT 		0x1353
 #define MAPDATAINITD 		0x1354
 #define MAPDATAINITDARRAY 		0x1355
-#define COMBODATAID 0x1356
+#define COMBODATAID 		0x1356
+
+#define LWPNGRAVITY 		0x1357
+#define EWPNGRAVITY 		0x1358
+#define NPCGRAVITY 		0x1359
+#define ITEMGRAVITY 		0x135A
+
+#define MAPDATASIDEWARPID 		0x135B
+#define SCREENSIDEWARPID 		0x135C
 
 //bytecode
 
@@ -3480,7 +3488,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1357
+#define NUMVARIABLES         	0x135D
 
 // Script types
 

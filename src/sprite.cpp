@@ -121,6 +121,7 @@ sprite::sprite()
     do_animation = 1;
     rotation = 0;
     scale = 0;
+    obeys_gravity = 0;
     for ( int q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
@@ -185,6 +186,7 @@ weaponscript(other.weaponscript),
 scripttile(other.scripttile),
 scriptflip(other.scriptflip),
 rotation(other.rotation),
+obeys_gravity(other.obeys_gravity),
 scale(other.scale),
 do_animation(other.do_animation)
 
@@ -270,6 +272,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     scripttile = -1;
     scriptflip = -1;
     rotation = 0;
+    obeys_gravity = 0;
     scale = 0;
     do_animation = 1;
     drawstyle=0;

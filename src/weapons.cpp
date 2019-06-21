@@ -2578,54 +2578,59 @@ bool weapon::animate(int index)
     // fall down
     switch(id)
     {
-    case wFire:
-    
-        // Din's Fire shouldn't fall
-        if(parentitem>=0 && itemsbuf[parentitem].family==itype_dinsfire && !(itemsbuf[parentitem].flags & ITEM_FLAG3))
-        {
-            break;
-        }
-        
-    case wLitBomb:
-    case wLitSBomb:
-    case wBait:
-    case ewFlame:
-    case ewFireTrail:
-        if(tmpscr->flags7&fSIDEVIEW)
-        {
-            if(!_walkflag(x,y+16,0))
-            {
-                y+=fall/100;
-                
-                if(fall <= (int)zinit.terminalv)
-                {
-                    fall += zinit.gravity;
-                }
-            }
-            else
-            {
-                if(fall!=0 && !(step>0 && dir==up))  // Don't fix pos if still moving through solidness
-                    y-=(int)y%8; // Fix position
-                    
-                fall = 0;
-            }
-            
-            if(y>192) dead=0;  // Out of bounds
-        }
-        else
-        {
-            z-=fall/100;
-            
-            if(z<=0)
-            {
-                z = fall = 0;
-            }
-            else if(fall <= (int)zinit.terminalv)
-            {
-                fall += zinit.gravity;
-            }
-        }
+	    case wFire:
+	    
+		// Din's Fire shouldn't fall
+		if(parentitem>=0 && itemsbuf[parentitem].family==itype_dinsfire && !(itemsbuf[parentitem].flags & ITEM_FLAG3))
+		{
+		    break;
+		}
+		
+	    case wLitBomb:
+	    case wLitSBomb:
+	    case wBait:
+	    case ewFlame:
+	    case ewFireTrail:
+		obeys_gravity = 1;
     }
+    
+	if ( obeys_gravity ) // from above, or if scripted
+	{
+		if(tmpscr->flags7&fSIDEVIEW)
+		{
+		    if(!_walkflag(x,y+16,0))
+		    {
+			y+=fall/100;
+			
+			if(fall <= (int)zinit.terminalv)
+			{
+			    fall += zinit.gravity;
+			}
+		    }
+		    else
+		    {
+			if(fall!=0 && !(step>0 && dir==up))  // Don't fix pos if still moving through solidness
+			    y-=(int)y%8; // Fix position
+			    
+			fall = 0;
+		    }
+		    
+		    if(y>192) dead=0;  // Out of bounds
+		}
+		else
+		{
+		    z-=fall/100;
+		    
+		    if(z<=0)
+		    {
+			z = fall = 0;
+		    }
+		    else if(fall <= (int)zinit.terminalv)
+		    {
+			fall += zinit.gravity;
+		    }
+		}
+	}
     
     if(id>wEnemyWeapons && id!=ewBrang && id != ewFireball2 && id != ewBomb && id != ewSBomb)
         switch(misc)
