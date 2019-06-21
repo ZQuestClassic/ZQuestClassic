@@ -465,7 +465,7 @@ int BasicScope::useNamespace(vector<std::string> names, vector<std::string> deli
 	string const& name = names.back();
 
 	vector<string> ancestry(names.begin(), --names.end());
-	vector<Scope*> scopes = lookupScopes(*this, ancestry, delimiters);
+	vector<Scope*> scopes = lookupScopes(*this, ancestry, delimiters); //lookupScopes handles usingNamespaces!
 	for (vector<Scope*>::const_iterator it = scopes.begin();
 	     it != scopes.end(); ++it)
 	{
@@ -479,8 +479,8 @@ int BasicScope::useNamespace(vector<std::string> names, vector<std::string> deli
 	if(namesp)
 	{
 		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(*this);
-		for(vector<NamespaceScope*>::iterator it = usingNamespaces.begin();
-			it != usingNamespaces.end(); ++it)
+		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+			it != namespaces.end(); ++it)
 		{
 			if(*it == namesp) return -1; //Already using this namespace! -V
 		}
@@ -503,20 +503,25 @@ int BasicScope::useNamespace(std::string name)
 			++numMatches;
 		}
 	}
-	if(Scope* scope = getChild(name))
+	if(!isFile())
 	{
-		if(scope->isNamespace())
+		if(Scope* scope = getChild(name))
 		{
-			namesp = static_cast<NamespaceScope*>(scope);
-			++numMatches;
+			if(scope->isNamespace())
+			{
+				namesp = static_cast<NamespaceScope*>(scope);
+				++numMatches;
+			}
 		}
 	}
-	for(vector<NamespaceScope*>::iterator it = usingNamespaces.begin();
-		it != usingNamespaces.end(); ++it)
+	vector<NamespaceScope*> namespaces = lookupUsingNamespaces(*this); //Lookup parent using namespaces as well! -V
+	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+		it != namespaces.end(); ++it)
 	{
 		NamespaceScope* scope = *it;
 		if(namesp)
 		{
+			//Return -1 for duplicate namespaces
 			if(&scope == &namesp) return -1;
 		}
 		if(Scope* scope2 = scope->getChild(name))
@@ -524,7 +529,7 @@ int BasicScope::useNamespace(std::string name)
 			if(scope2->isNamespace())
 			{
 				if(namesp)
-					return -1;
+					return -1; //Return -1 for duplicate namespaces
 				namesp = static_cast<NamespaceScope*>(scope2);
 				++numMatches;
 			}

@@ -173,6 +173,7 @@ void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
 		}
 		caseNamespace(*first);
 		numMatches = temp->useNamespace(components, iden->delimiters);
+		assert(numMatches==1); //This should be 1. If not, there is an internal error.
 	}
 	//-1 == duplicate; the namespace found had already been added to usingNamespaces for this scope! -V
 	else if(numMatches == -1)
@@ -940,9 +941,15 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			for (vector<Function*>::const_iterator it = bestFunctions.begin();
 			     it != bestFunctions.end(); ++it)
 			{
-				oss << "        "
-				    << (*it)->getSignature().asString()
-				    << "\n";
+				oss << "        ";
+				string namespacenames = "";
+				for(Scope* current = (*it)->internalScope; current; current = current->getParent())
+				{
+					if(!current->isNamespace()) continue;
+					NamespaceScope* ns = static_cast<NamespaceScope*>(current);
+					namespacenames = ns->namesp->getName() + "::" + namespacenames;
+				}
+				oss << namespacenames << (*it)->getSignature().asString() << "\n";
 			}
 			
 			handleError(
