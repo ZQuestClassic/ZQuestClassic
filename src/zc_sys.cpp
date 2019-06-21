@@ -363,6 +363,7 @@ void load_game_configs()
     use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
     zasm_debugger = (byte) get_config_int("CONSOLE","print_ZASM",0);
     zscript_debugger = (byte) get_config_int("CONSOLE","ZScript_Debugger",0);
+    console_on_top = (byte) get_config_int("CONSOLE","console_on_top",0);
     //use_win7_keyboard_fix = (byte) get_config_int(cfg_sect,"use_win7_key_fix",0);
     use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",0); //buggy
    
@@ -521,6 +522,7 @@ void save_game_configs()
     set_config_int(cfg_sect,"debug_console",use_debug_console);
     set_config_int("CONSOLE","print_ZASM",zasm_debugger);
     set_config_int("CONSOLE","ZScript_Debugger",zscript_debugger);
+    set_config_int("CONSOLE","console_on_top",console_on_top);
     //set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
     set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
     set_config_int("graphics","disable_direct_updating",disable_direct_updating);
