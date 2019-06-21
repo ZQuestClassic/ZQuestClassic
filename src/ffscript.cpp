@@ -23643,7 +23643,7 @@ void FFScript::itemSpriteScriptEngine()
 	{
 		item *wp = (item*)items.spr(q);
 		if ( wp->script == 0 ) continue;
-		if ( wp->doscript && FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, items.spr(q)->script, wp->getUID());		
+		if ( wp->doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, items.spr(q)->script, wp->getUID());		
 	}
 }
 
@@ -23654,7 +23654,7 @@ void FFScript::itemSpriteScriptEngineOnWaitdraw()
 		
 		item *wp = (item*)items.spr(q);
 
-		if ( wp->waitdraw && wp->doscript && wp->script && FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
+		if ( wp->waitdraw && wp->doscript && wp->script && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, items.spr(q)->script, wp->getUID());
 			wp->waitdraw = 0;
