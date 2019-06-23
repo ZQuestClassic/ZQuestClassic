@@ -2,6 +2,47 @@
 
 //Alpha 26
 
+Add proper constructors and subclasses for eScript/eeSCRIPT and
+	for eFriendly/eeFRIENDLY class enemies.
+	Friendly enemies have their hitbox offset by -32768.
+Fix Enemy Gravity for type 'Other' and for type 'Leever' to match 2.50 defaults.
+	( ZoriaRPG, 23rd June, 2019 )
+	
+Console: Add variable console_on_top and load/save configs for it.
+Moved the new ZConsole configs into their own section of zc.cfg ([CONSOLE]).
+Renamed 'ConsoleLoggerHelper.exe' to 'ZConsole.exe' and made a version
+	that always floats on top of other windows as 'ZConsole_OnTop.exe'.
+Added an option (console_on_top) to zc.cfg to call one of two versions of
+	ZConsole.exe, with one version floating on top of all other windows at all times.
+	
+Added obeys_gravity checks to npcs and guys.
+	1. Initialise obeys_gravity for each enemy subclass, with its
+		most-appropriate value (needs verification in playtests).
+	2. Add enemy::enemycanfall(int id).
+		This is used in places where the old canfall() check needs access to
+		the enemy class member variables.
+		The old, global canfall(int id) remains, and is still used in a few places
+			where the enemy pointer would be unknown.
+
+Fixed itemsprite script number metadata reading from itemmap,
+instead of itemspritemap.		
+	
+Timing: Run itemsprite scripts before their animation. 
+	I moved itemScriptEngine() immediately prior to items.animate().
+
+Implemented bool Gravity for items. It is set to true for
+	all items by default, and the user can disable item gravity by script.
+
+	Perhaps we will add a flag to the item editor 'Obeys Gravity' in the future,.
+	to establish a user-defined default, without scripting.
+Fix: Inverted version check (itemsprite scripts).
+	( ZoriaRPG, 21st June, 2019 )
+
+Added char32 datatye to ZScript.
+	This is still a float type, but it allows ensuring a string-specific function signature.
+	String literals are now char32 typed.
+	Two-way casts between char32 and float. If a type if char32, the AST will match it to
+		char32 sigs first, and float/int second.
 std_zh: Add `SIDEWARP_NONE`
 Fill in interpreter blocks for the ->SideWarpID[] instructions, 
 	so they actually do stuff.
@@ -15,6 +56,7 @@ Parser: Fix `using` errors:
 	Also added some comments.
 	( Venrob, 21st June, 2019 )
 
+Add new ZASM tommands to debugger array (updated with missing/new instructions).
 Fixed ffc->Flags[2]; it is now [13].
 	How the heck did this go un-noticed for all these years?!
 std.zh: Add constants for new ffc flags.
