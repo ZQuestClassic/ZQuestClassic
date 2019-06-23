@@ -1686,8 +1686,9 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					guys.add(e);
 					e->x = x;
 					e->y = y;
+					break;
 				}
-				break;
+				
 				
 				case eeFFRIENDLY01:
 				case eeFFRIENDLY02:
@@ -1704,8 +1705,9 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					guys.add(e);
 					e->x = x;
 					e->y = y;
+					break;
 				}
-				break;
+				
 				
 				default: break;
 			}
@@ -14112,44 +14114,41 @@ int addenemy(int x,int y,int z,int id,int clk)
     
     
         case eeSCRIPT01: 
-			        case eeSCRIPT02: 
-			        case eeSCRIPT03: 
-			        case eeSCRIPT04: 
-			        case eeSCRIPT05: 
-			        case eeSCRIPT06: 
-			        case eeSCRIPT07: 
-			        case eeSCRIPT08: 
-			        case eeSCRIPT09: 
-			        case eeSCRIPT10: 
-			        case eeSCRIPT11: 
-			        case eeSCRIPT12: 
-			        case eeSCRIPT13: 
-			        case eeSCRIPT14: 
-			        case eeSCRIPT15: 
-			        case eeSCRIPT16: 
-			        case eeSCRIPT17: 
-			        case eeSCRIPT18: 
-			        case eeSCRIPT19: 
-			        case eeSCRIPT20: 
-				{
-					e = new eScript((fix)x,(fix)y,id,clk);
-				}
-				break;
+	case eeSCRIPT02: 
+	case eeSCRIPT03: 
+	case eeSCRIPT04: 
+	case eeSCRIPT05: 
+	case eeSCRIPT06: 
+	case eeSCRIPT07: 
+	case eeSCRIPT08: 
+	case eeSCRIPT09: 
+	case eeSCRIPT10: 
+	case eeSCRIPT11: 
+	case eeSCRIPT12: 
+	case eeSCRIPT13: 
+	case eeSCRIPT14: 
+	case eeSCRIPT15: 
+	case eeSCRIPT16: 
+	case eeSCRIPT17: 
+	case eeSCRIPT18: 
+	case eeSCRIPT19: 
+	case eeSCRIPT20: 
+		e = new eScript((fix)x,(fix)y,id,clk);
+		break;
 				
-				case eeFFRIENDLY01:
-				case eeFFRIENDLY02:
-				case eeFFRIENDLY03:
-				case eeFFRIENDLY04:
-				case eeFFRIENDLY05:
-				case eeFFRIENDLY06:
-				case eeFFRIENDLY07:
-				case eeFFRIENDLY08:
-				case eeFFRIENDLY09:
-				case eeFFRIENDLY10:
-				{
-					e = new eFriendly((fix)x,(fix)y,id,clk);
-				}
-				break;
+				
+	case eeFFRIENDLY01:
+	case eeFFRIENDLY02:
+	case eeFFRIENDLY03:
+	case eeFFRIENDLY04:
+	case eeFFRIENDLY05:
+	case eeFFRIENDLY06:
+	case eeFFRIENDLY07:
+	case eeFFRIENDLY08:
+	case eeFFRIENDLY09:
+	case eeFFRIENDLY10:
+		e = new eFriendly((fix)x,(fix)y,id,clk);
+		break;
 				
 				
         
