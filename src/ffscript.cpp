@@ -19130,24 +19130,24 @@ int run_script(const byte type, const word script, const long i)
 		case LINKWARPEXR:
 		{
 			
-			
+			FFCore.do_warp_ex(false);
 			//terminate sprite scripts
-			switch(type)
-			{
-				case SCRIPT_NPC:
-				case SCRIPT_LWPN:
-				case SCRIPT_EWPN:
-				case SCRIPT_ITEMSPRITE:
-				{
-					Z_scripterrlog("Hero->WarpEx() cannot be called from script type %s. Ignoring the call.\n", scripttypenames[type]);
-					break;
-				}
-				default: 
-				{
-					FFCore.do_warp_ex(false);
-					break;
-				}
-			}
+			//switch(type)
+			//{
+			//	case SCRIPT_NPC:
+			//	case SCRIPT_LWPN:
+			//	case SCRIPT_EWPN:
+			//	case SCRIPT_ITEMSPRITE:
+			//	{
+			//		Z_scripterrlog("Hero->WarpEx() cannot be called from script type %s. Ignoring the call.\n", scripttypenames[type]);
+			//		break;
+			//	}
+			//	default: 
+			//	{
+			//		FFCore.do_warp_ex(false);
+			//		break;
+			//	}
+			//}
 			break;
 			
 		}
@@ -21698,6 +21698,7 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
+	for ( int q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
 	if ( zasm_debugger ) ZASMPrint(true);
 	numscriptdraws = 0;
@@ -22303,52 +22304,45 @@ void FFScript::do_warp_ex(bool v)
 		case 8:
 			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
 		{
+			Z_scripterrlog("FFscript.cpp running do_warp_ex with %d args\n", 8);
+			FFCore.warpex[wexActive] = 1; 
 			
-			success = FFCore.warp_link( getElement(zscript_array_ptr,0)/10000,getElement(zscript_array_ptr,1)/10000,getElement(zscript_array_ptr,2)/10000,
-				getElement(zscript_array_ptr,3)/10000, getElement(zscript_array_ptr,4)/10000, getElement(zscript_array_ptr,5)/10000,
-				getElement(zscript_array_ptr,6)/10000, getElement(zscript_array_ptr,7)/10000,-1 );
-			if (!success) 
-			{ 
-				Z_scripterrlog("Could not successfully warp Link with Link->WarpEx() using the following args:\n");
-				Z_scripterrlog("type: %d\n",getElement(zscript_array_ptr,0)/10000);
-				Z_scripterrlog("dmap: %d\n",getElement(zscript_array_ptr,1)/10000);
-				Z_scripterrlog("screen: %d\n",getElement(zscript_array_ptr,2)/10000);
-				Z_scripterrlog("x: %d\n",getElement(zscript_array_ptr,3)/10000);
-				Z_scripterrlog("y: %d\n",getElement(zscript_array_ptr,4)/10000);
-				Z_scripterrlog("effect: %d\n",getElement(zscript_array_ptr,5)/10000);
-				Z_scripterrlog("sound: %d\n",getElement(zscript_array_ptr,6)/10000);
-				Z_scripterrlog("flags: %d\n",getElement(zscript_array_ptr,7)/10000);
-				Z_scripterrlog("dir: %d\n",getElement(zscript_array_ptr,8)/10000);
+			for ( int q = 0; q < wexDir; q++ )
+			{
+				FFCore.warpex[q] = (getElement(zscript_array_ptr,q)/10000);
 			}
+			
+			FFCore.warpex[wexDir] = -1;
+			
 			break;
 		}
 		case 9:
 			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
 		{
-			success = FFCore.warp_link( getElement(zscript_array_ptr,0)/10000,getElement(zscript_array_ptr,1)/10000,getElement(zscript_array_ptr,2)/10000,
-				getElement(zscript_array_ptr,3)/10000, getElement(zscript_array_ptr,4)/10000, getElement(zscript_array_ptr,5)/10000,
-				getElement(zscript_array_ptr,6)/10000, getElement(zscript_array_ptr,7)/10000, getElement(zscript_array_ptr,8)/10000 );
-			if (!success) 
-			{ 
-				Z_scripterrlog("Could not successfully warp Link with Link->WarpEx() using the following args:\n");
-				Z_scripterrlog("type: %d\n",getElement(zscript_array_ptr,0)/10000);
-				Z_scripterrlog("dmap: %d\n",getElement(zscript_array_ptr,1)/10000);
-				Z_scripterrlog("screen: %d\n",getElement(zscript_array_ptr,2)/10000);
-				Z_scripterrlog("x: %d\n",getElement(zscript_array_ptr,3)/10000);
-				Z_scripterrlog("y: %d\n",getElement(zscript_array_ptr,4)/10000);
-				Z_scripterrlog("effect: %d\n",getElement(zscript_array_ptr,5)/10000);
-				Z_scripterrlog("sound: %d\n",getElement(zscript_array_ptr,6)/10000);
-				Z_scripterrlog("flags: %d\n",getElement(zscript_array_ptr,7)/10000);
-				Z_scripterrlog("dir: %d\n",getElement(zscript_array_ptr,8)/10000);
+			Z_scripterrlog("FFscript.cpp running do_warp_ex with %d args\n", 9);
+			FFCore.warpex[wexActive] = 1; 
+			
+			for ( int q = 0; q < wexDir; q++ )
+			{
+				FFCore.warpex[q] = (getElement(zscript_array_ptr,q)/10000);
 			}
+			
+			//for ( int q = 0; q < wexLast; q++ ) 
+			//{
+			//	Z_scripterrlog("FFCore.warpex[%d] is: %d\n", q, FFCore.warpex[q]);
+			//}
+			
 			break;
 			
 		}
+	
 		default: 
 		{
 			Z_scripterrlog("Array supplied to Link->WarpEx() is the wrong size!\n The array size was: &d, and valid sizes are [8] and [9].\n",zscript_array_size);
 			break;
 		}
+		
+		
 		
 	}
 }

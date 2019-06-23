@@ -63,6 +63,10 @@ enum {
 enum { curyear, curmonth, curday_month, curday_week, curhour, 
 	curminute, cursecond, curdayyear, curDST, curTimeLAST };
 
+	
+enum { wexType, wexDMap, wexScreen, wexX, wexY, wexEffect, wexSound, wexFlags, wexDir, wexActive, wexLast };
+
+
 //Script drawing: (t/b/a)
 //Allow or forbid drawing during specific game events. 
 enum{
@@ -330,6 +334,7 @@ long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for au
 char includePaths[MAX_INCLUDE_PATHS][512];
 char includePathString[(MAX_INCLUDE_PATHS+1)*512];
 char scriptRunString[21];
+int warpex[wexLast];
 
 #define FFSCRIPTCLASS_CLOCKS 10
 long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 

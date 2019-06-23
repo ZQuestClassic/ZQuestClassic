@@ -5254,6 +5254,21 @@ bool LinkClass::animate(int)
         dowarp(1,0);
     }
     
+    //Link->WarpEx
+    if ( FFCore.warpex[wexActive] )
+    {
+	Z_scripterrlog("Running warpex from Link.cpp\n");
+	FFCore.warpex[wexActive] = 0;
+	int temp_warpex[wexActive] = {0}; //to hold the values as we clear the FFCore array. -Z
+	for ( int q = 0; q < wexActive; q++ ) 
+	{
+		temp_warpex[q] = FFCore.warpex[q];
+		FFCore.warpex[q] = 0;
+	}
+	FFCore.warp_link( temp_warpex[wexType], temp_warpex[wexDMap], temp_warpex[wexScreen], temp_warpex[wexX],
+		temp_warpex[wexY], temp_warpex[wexEffect], temp_warpex[wexSound], temp_warpex[wexFlags], temp_warpex[wexDir]); 
+    }
+    
     // walk through bombed doors and fake walls
     bool walk=false;
     int dtype=dBOMBED;

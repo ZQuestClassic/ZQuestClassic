@@ -27409,6 +27409,8 @@ int FFScript::GetScriptObjectUID(int type)
 
 void FFScript::init()
 {
+	for ( int q = 0; q < wexLast; q++ ) warpex[q] = 0;
+	print_ZASM = 0;
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
