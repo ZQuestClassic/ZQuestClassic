@@ -302,7 +302,7 @@ static int enemyrules1_list[] =
 
 static int enemyrules2_list[] =
 {
-    22,23,24,-1
+    22,23,24,25,-1
 };
 
 static TABPANEL enemyrules_tabs[] =
@@ -349,6 +349,7 @@ static DIALOG enemyrules_dlg[] =
     { jwin_check_proc,      10, 33+10, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Statue Minimum Range Or Double Fireballs", NULL, NULL },
     { jwin_check_proc,      10, 33+20, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Super Bomb Explosions for Explode on Contact", NULL, NULL },
     { jwin_check_proc,      10, 33+30, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Can Go Out of Bounds", NULL, NULL },
+    { jwin_check_proc,      10, 33+40, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Spawning Custom and Friendly Enemy Types", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -359,6 +360,7 @@ static int enemyrules[] =
     qr_MEANTRAPS, qr_MEANPLACEDTRAPS, qr_PHANTOMPLACEDTRAPS, qr_WALLFLIERS,
     qr_BRKNSHLDTILES, qr_NOFLASHDEATH, qr_SHADOWS, qr_TRANSSHADOWS,
     qr_SHADOWSFLICKER, qr_ENEMIESFLICKER, qr_BROKENSTATUES, qr_BOMBCHUSUPERBOMB,qr_OUTOFBOUNDSENEMIES,
+	qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
     -1
 };
 

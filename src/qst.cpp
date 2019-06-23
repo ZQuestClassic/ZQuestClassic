@@ -2730,6 +2730,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
     {
 	set_bit(quest_rules, qr_TRACESCRIPTIDS, 0);      
+	set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);      
 	  	    
     }
     if ( tempheader.zelda_version < 0x255 )

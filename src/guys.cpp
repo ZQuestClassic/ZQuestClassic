@@ -14133,9 +14133,14 @@ int addenemy(int x,int y,int z,int id,int clk)
 	case eeSCRIPT18: 
 	case eeSCRIPT19: 
 	case eeSCRIPT20: 
-		e = new eScript((fix)x,(fix)y,id,clk);
-		break;
-				
+	{
+		if ( !get_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES) )
+		{
+			e = new eScript((fix)x,(fix)y,id,clk);
+			break;
+		}
+		else return 0;
+	}
 				
 	case eeFFRIENDLY01:
 	case eeFFRIENDLY02:
@@ -14147,10 +14152,14 @@ int addenemy(int x,int y,int z,int id,int clk)
 	case eeFFRIENDLY08:
 	case eeFFRIENDLY09:
 	case eeFFRIENDLY10:
-		e = new eFriendly((fix)x,(fix)y,id,clk);
-		break;
+	{
+		if ( !get_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES) )
+		{
+			e = new eFriendly((fix)x,(fix)y,id,clk); break;
+		}
+		else return 0;
 				
-				
+	}	
         
     case eeSPINTILE:
         e = new eSpinTile((fix)x,(fix)y,id,clk);
