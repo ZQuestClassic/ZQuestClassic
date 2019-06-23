@@ -2,6 +2,11 @@
 
 //Alpha 26
 
+Corrected the behaviour of Link->GetX, Y, Z with qr_LINKXY_IS_FLOAT.
+	Note: All operations using the rule Sprite Coordinates are Float
+		suffer from precision loss due to double typecasting during
+		the / 10000.0.
+
 Fix: Add `Constant Script' flag label to CustomXX itemclass items.
 Added a QR that disables using enemy family Custom* and enemy
 	family Friendly*.
