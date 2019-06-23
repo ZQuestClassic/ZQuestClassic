@@ -510,7 +510,8 @@ void LinkClass::setZ(int new_z)
 
 void LinkClass::setXdbl(double new_x)
 {
-    fix dx=new_x-x;
+	//Z_scripterrlog("setxdbl: %f\n",new_x);
+    fix dx=(fix)new_x-x;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
@@ -529,7 +530,7 @@ void LinkClass::setXdbl(double new_x)
         }
 	}
     
-    x=new_x;
+    x=(fix)new_x;
     
     // A kludge
     if(!diagonalMovement && dir<=down)
@@ -538,7 +539,7 @@ void LinkClass::setXdbl(double new_x)
 
 void LinkClass::setYdbl(double new_y)
 {
-    fix dy=new_y-y;
+    fix dy=(fix)new_y-y;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
@@ -557,7 +558,7 @@ void LinkClass::setYdbl(double new_y)
         }
 	}
     
-    y=new_y;
+    y=(fix)new_y;
     
     // A kludge
     if(!diagonalMovement && dir>=left)

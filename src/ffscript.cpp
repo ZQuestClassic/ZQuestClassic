@@ -2090,18 +2090,42 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        ret = long(Link.getX()) * ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000);
-        break;
+    {
+	    if (get_bit(quest_rules,qr_LINKXY_IS_FLOAT))
+	    {
+		    //double lx = (double)Link.getX();
+		    //Z_scripterrlog("lx: %f\n", lx);
+		   
+		    //ret = lx * 10000;
+		    //fix lx = Link.getX();
+		    //Z_scripterrlog("lx: %d\n", lx);
+		    ret = (double)Link.getX()*10000;
+	    }
+	    else ret = long(Link.getX() * 10000);
 
+        break;
+    }
         
     case LINKY:
-        ret = long(Link.getY()) * ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000);
+    {
+	    if (get_bit(quest_rules,qr_LINKXY_IS_FLOAT))
+	    {
+		    ret = (double)Link.getY()*10000;
+	    }
+	    else ret = long(Link.getY() * 10000);
+
         break;
-        
+    }    
     case LINKZ:
-        ret = long(Link.getZ()) * ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000);
+    {
+	    if (get_bit(quest_rules,qr_LINKXY_IS_FLOAT))
+	    {
+		    ret = (double)Link.getZ()*10000;
+	    }
+	    else ret = long(Link.getZ() * 10000);
+
         break;
-        
+    } 
     case LINKJUMP:
         // -fall/100*10000, but doing it that way screwed up the result
         ret = long(-Link.getFall()) * 100;
