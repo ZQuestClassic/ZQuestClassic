@@ -5951,7 +5951,7 @@ eFire::eFire(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     clk4=0;
     shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
-    obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
+    obeys_gravity = 0; //used for enemy type 'Other (Floating)' in 2.50, and these ignore gravity. Used by ghost.zh. -Z 23rd June, 2019
     // Spawn type
     if(flags & guy_fadeflicker)
     {
@@ -6041,6 +6041,7 @@ void eFire::break_shield()
 eOther::eOther(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     clk4=0;
+    obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
     shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
     
     // Spawn type
@@ -14282,11 +14283,21 @@ bool canfall(int id)
 
 bool enemy::enemycanfall(int id)
 {
+	//Z_scripterrlog("canfall family is %d:\n", family);
+	//Z_scripterrlog("canfall obeys_gravity is %s:\n", obeys_gravity ? "true" : "false");
+	//if ( family == eeFIRE && id >= eSTART ) 
+	//{
+	//	Z_scripterrlog("eeFire\n");
+	//	return obeys_gravity; //'Other' enemy class, used by scripts. -Z
+	//}
+	
+	//In ZQ, eeFIRE is Other(floating) and eeOTHER is 'other'.
+	
     switch(guysbuf[id&0xFFF].family)
     {
     case eeGUY:
     {
-        if(id < eOCTO1S) //screen guys and fires that aren't real enemies
+        if(id < eOCTO1S) //screen guys and fires that aren't real enemies, and never fall
             return false;
             
         switch(guysbuf[id&0xFFF].misc10) //I'm unsure what these specify off-hand. Needs better comments. -Z
