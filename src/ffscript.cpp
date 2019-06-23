@@ -884,10 +884,11 @@ bool global_wait = false;
 bool link_waitdraw = false;
 bool dmap_waitdraw = false;
 word item_doscript[256] = {0};
-
+byte dmapscriptInitialised[512] = {0};
 //Sprite script data
 refInfo itemScriptData[256];
 refInfo itemCollectScriptData[256];
+byte itemscriptInitialised[256]={0};
 refInfo npcScriptData[256];
 refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
@@ -16521,6 +16522,10 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			    }
 			}
 			
+			else
+			{
+				dmapscriptInitialised[currdmap] = 0; //reinitialise DMap script InitD
+			}
 			if(DMaps[currdmap].color != c)
 			{
 			    lighting(false, true);
@@ -17261,170 +17266,61 @@ int run_script(const byte type, const word script, const long i)
 	    {
 			int npc_index = GuyH::getNPCIndex(i);
 			enemy *w = (enemy*)guys.spr(npc_index);
-			//ri = w->refinfo;
-			//if (!ri) {
-			//  ri = w->refinfo = new refInfo;
-			//}
+			
 		        ri = &(guys.spr(GuyH::getNPCIndex(i))->scriptData);
-			//curscript = guyscripts[script];
+			
 			curscript = guyscripts[guys.spr(GuyH::getNPCIndex(i))->script];
 			
 			stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
 			
-			//stack = &(guys.spr(i)->stack);
-			
 			enemy *wa = (enemy*)guys.spr(GuyH::getNPCIndex(i));
 			ri->guyref = wa->getUID();
 			
-			//ri->guyref = guys.spr(i)->getUID();
-		    
-			for ( int q = 0; q < 8; q++ ) 
+			if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
 			{
-				//ri->d[q] = (int)GuyH::getNPC()->initD[q];
-				ri->d[q] = wa->initD[q];
-				//ri->d[q] = guys.spr(GuyH::getNPCIndex(i))->initD[q]; //w->initiald[q];
-			}
-			
-			//Perhaps it would be better to add a new function that passes the npc pointer to here?
-			//or a direct pointer to the sprite's stack?
-			//but we'd still need the refinfo ID
-		    
-			//enemy::animate(index) runs by screen index, so, getting the enemy by its index should be fine
-			//as we'd call ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
-			//thus, from 'index', we'd use: stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
-			//and ri->guyref = guys.spr(i)->getUID();;
-	    }
-	    break;
-	    /*
-	    case SCRIPT_NPC:
-	    {
-			ri = &(npcScriptData[i]);
-			curscript = guyscripts[script];
-			stack = &(guys.spr(i)->stack);
-			ri->guyref = guys.spr(i)->getUID();
-		    
-			for ( int q = 0; q < 8; q++ ) 
-			{
-				enemy *e = (enemy*)guys.spr(i);
-				ri->d[q] = e->initD[q];
-				guys.spr(i)->initD[q] = e->initD[q];
 				
-				//al_trace("InitD[%d] for this npc is: %d\n", q, e->initD[q]);
-				//al_trace("GUYSBUF InitD[%d] for this npc is: %d\n", q, guysbuf[guys.spr(i)->id & 0xFFF].initD[q]);
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = wa->initD[q];
+				}
+				guys.spr(GuyH::getNPCIndex(i))->initialised = 1;
 			}
-			//memcpy(ri->d, guys.spr(i)->initD, 8 * sizeof(long));
-			
-			//stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
-			//stack = &(guys.spr(guys.getByUID(i))->stack);
-		    
-			//ri->guyref = i; //'this' pointer
-			//ri->guyref = getNPCIndex(guys.getByUID(i)); //'this' pointer
-			//ZScriptVersion::RunScript(SCRIPT_NPC, guys.spr(i)->.script, guys.spr(i)->getUID());
-				    
-			//Perhaps it would be better to add a new function that passes the npc pointer to here?
-			//or a direct pointer to the sprite's stack?
-			//but we'd still need the refinfo ID
-		    
-			//enemy::animate(index) runs by screen index, so, getting the enemy by its index should be fine
-			//as we'd call ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
-			//thus, from 'index', we'd use: stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
-			//and ri->guyref = guys.spr(i)->getUID();;
 	    }
 	    break;
-	    */
 	    
 	    case SCRIPT_LWPN:
 	    {
 			int lwpn_index = LwpnH::getLWeaponIndex(i);
-			//ri = &(lweaponScriptData[i]);
 			weapon *w = (weapon*)Lwpns.spr(lwpn_index);
 			ri = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->scriptData);
-			//ri = w->refinfo;
-			//if (!ri) {
-			//  ri = w->refinfo = new refInfo;
-			//}
-			//curscript = lwpnscripts[script];
-			curscript = lwpnscripts[Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript];
-			//Z_scripterrlog("FFScript is trying to run lweapon script: %d\n", curscript);
-			//for ( int q = 0; q < 256; q++ )
-			//{
-				
-			//	Z_scripterrlog("Instruction (%d) in the current script is: %d\n", q, lwpnscripts[script][q].command);
-				
-			//}
 			
+			curscript = lwpnscripts[Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript];
+		
 			stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->stack);
-			//stack = &(w->stack);
-			//for ( int q = 0; q < 256; q++ )
-			//{
-			//	al_trace("Current LWeapon Stack Instruction is: %d\n", stack[q]);
-			//}
-			//ri->lwpn = Lwpns.spr(i)->getUID();
+			
 			weapon *wa = (weapon*)Lwpns.spr(LwpnH::getLWeaponIndex(i));
 			ri->lwpn = wa->getUID();
-			//i; //Lwpns.spr(LwpnH::getLWeaponIndex(i))->getUID();
-			//Z_scripterrlog("Trying to run an lw script. ri->lwpn is: %d\n", ri->lwpn);
-			//Z_scripterrlog("Trying to run an lw script. Script ID passed is: %d\n", script);
-			//Z_scripterrlog("Trying to run an lw script. Script ID for weapon is: %d\n", Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript);
-		    
-			for ( int q = 0; q < 8; q++ ) 
-			{
-				
-				//al_trace("Reading InitD[%d] from a weapon script as: %d\n", q, (int)w->initiald[q]);
-				ri->d[q] = Lwpns.spr(LwpnH::getLWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
-				//guys.spr(i)->initD[q] = e->initD[q];
-				
-				//al_trace("InitD[%d] for this npc is: %d\n", q, e->initD[q]);
-				//al_trace("GUYSBUF InitD[%d] for this npc is: %d\n", q, guysbuf[guys.spr(i)->id & 0xFFF].initD[q]);
-			}
-			//memcpy(ri->d, guys.spr(i)->initD, 8 * sizeof(long));
 			
-			//stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
-			//stack = &(guys.spr(guys.getByUID(i))->stack);
-		    
-			//ri->guyref = i; //'this' pointer
-			//ri->guyref = getNPCIndex(guys.getByUID(i)); //'this' pointer
-			//ZScriptVersion::RunScript(SCRIPT_NPC, guys.spr(i)->.script, guys.spr(i)->getUID());
-				    
-			//Perhaps it would be better to add a new function that passes the npc pointer to here?
-			//or a direct pointer to the sprite's stack?
-			//but we'd still need the refinfo ID
-		    
-			//enemy::animate(index) runs by screen index, so, getting the enemy by its index should be fine
-			//as we'd call ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
-			//thus, from 'index', we'd use: stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
-			//and ri->guyref = guys.spr(i)->getUID();;
+			if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
+			{
+				for ( int q = 0; q < 8; q++ ) 
+				{
+	
+					ri->d[q] = Lwpns.spr(LwpnH::getLWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
+				}
+				Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 1;
+			}
+			
 	    }
 	    break;
-	    
-	    //case SCRIPT_LWPN:
-	    //{
-		//	ri = &(lweaponScriptData[i]);
-		//	curscript = lwpnscripts[script];
-		//	stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn))->stack);
-		//	ri->lwpn = i; //'this' pointer
-	    //}
-	    //break;
-	    
-	    //case SCRIPT_EWPN:
-	    //{
-	//		ri = &(eweaponScriptData[i]);
-	//		curscript = ewpnscripts[script];
-	//		stack = &(Ewpns.spr(EwpnH::getEWeaponIndex(ri->ewpn))->stack);
-	//		ri->ewpn = i; //'this' pointer
-	    //}
-	    //break;
 	    
 	    case SCRIPT_EWPN:
 	    {
 			int ewpn_index = EwpnH::getEWeaponIndex(i);
-			//ri = &(lweaponScriptData[i]);
+
 			weapon *w = (weapon*)Ewpns.spr(ewpn_index);
 			ri = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->scriptData);
-			//ri = w->refinfo;
-			//if (!ri) {
-			//  ri = w->refinfo = new refInfo;
-			//}
+			
 			curscript = ewpnscripts[Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript];
 			
 			
@@ -17432,11 +17328,14 @@ int run_script(const byte type, const word script, const long i)
 			
 			weapon *wa = (weapon*)Ewpns.spr(EwpnH::getEWeaponIndex(i));
 			ri->ewpn = wa->getUID();
-			
-			for ( int q = 0; q < 8; q++ ) 
+			if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
 			{
-				
-				ri->d[q] = Ewpns.spr(EwpnH::getEWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					
+					ri->d[q] = Ewpns.spr(EwpnH::getEWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
+				}
+				Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 1;
 			}
 			
 	    }
@@ -17445,25 +17344,24 @@ int run_script(const byte type, const word script, const long i)
 	    case SCRIPT_ITEMSPRITE:
 	    {
 			int the_index = ItemH::getItemIndex(i);
-			//ri = &(lweaponScriptData[i]);
+			
 			item *w = (item*)items.spr(the_index);
 			ri = &(items.spr(ItemH::getItemIndex(i))->scriptData);
-			//ri = w->refinfo;
-			//if (!ri) {
-			//  ri = w->refinfo = new refInfo;
-			//}
+		
 			curscript = itemspritescripts[items.spr(ItemH::getItemIndex(i))->script]; //Set the editor sprite script field to 'script'
-			
-			
+				
 			stack = &(items.spr(ItemH::getItemIndex(i))->stack);
 			
 			item *wa = (item*)items.spr(ItemH::getItemIndex(i));
 			ri->itemref = wa->getUID();
-			
-			for ( int q = 0; q < 8; q++ ) 
+			if (!(items.spr(ItemH::getItemIndex(i))->initialised))
 			{
-				
-				ri->d[q] = items.spr(ItemH::getItemIndex(i))->initD[q]; //w->initiald[q];
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					
+					ri->d[q] = items.spr(ItemH::getItemIndex(i))->initD[q]; //w->initiald[q];
+				}
+				items.spr(ItemH::getItemIndex(i))->initialised = 1;
 			}
 			
 	    }
@@ -17478,35 +17376,17 @@ int run_script(const byte type, const word script, const long i)
 			new_i = i * -1;
 		}
 		ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
-		//ri->Clear(); //Only runs for one frame so we just zero it out
-		    //What would happen if we don't do this? -Z
 		
 		curscript = itemscripts[script];
 		stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
-		    
-		//Should we want to allow item scripts to continue running, we'd need a way to mark them as running
-		//in the first place, and a way to re-run them every frame. -Z (26th November, 2018)
-		//I commented out the clear() and memset() on the above date. -Z
 		
-		//memset(stack, 0, 256 * sizeof(long)); //zero here too //and don't do this? -Z
-		    //If we can make item scripts capable of running for more than one frame, then we can
-		    //copy the behaviour to npcs, weapons, and items.
-		    //In theory, if we keep the screen caps on these, then we would have 256 or 512 stacks
-		    //for each type at all times. That's an awful lot of wasted RAM.
-		    //Suggestions? -Z
-		    
-		    //Note: I decided to put stacks in the sprite class. We'll need to depete stacks from particles
-		    //and from internal phantom weapons or objects that can naver run scripts, but this should suffice.
-		    
-		    //We can't just free or delete a stack that isn't in use on normal user-controlled objects,
-		    //because they can set `->script = n` at any time. 
-		
-		memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(long));
-		memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(long));
-		
+		if ( !(itemscriptInitialised[new_i]) )
+		{
+			memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(long));
+			memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(long));
+			itemscriptInitialised[new_i] = 1;
+		}			
 		ri->idata = ( collect ) ? new_i : i; //'this' pointer
-		//FFCore.runningItemScripts[i] = 1;
-		//runningItemScripts[i] = 1;
 		
 	    }
 	    break;
@@ -17538,31 +17418,34 @@ int run_script(const byte type, const word script, const long i)
 	    
 	    case SCRIPT_DMAP:
 	    {
-		//we will need to clear this whenever we change dmaps.
 		ri = &dmapScriptData;
 		curscript = dmapscripts[script];
 		stack = &dmap_stack;
 		ri->dmapsref = i;
-		for ( int q = 0; q < 8; q++ ) 
+		    //how do we clear initialised on dmap change?
+		if ( !dmapscriptInitialised[i] )
 		{
-			//ri->d[q] = (int)GuyH::getNPC()->initD[q];
-			ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
-			//ri->d[q] = guys.spr(GuyH::getNPCIndex(i))->initD[q]; //w->initiald[q];
+			for ( int q = 0; q < 8; q++ ) 
+			{
+				ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
+			}
+			dmapscriptInitialised[i] = 1;
 		}
 	    }
 	    break;
 	    
 	    case SCRIPT_SCREEN:
 	    {
-		//Z_scripterrlog("FFScript found a screen script to run, id: %d\n", script);
 		ri = &(screenScriptData);
 		curscript = screenscripts[script];
 		stack = &(screen_stack);
-		for ( int q = 0; q < 8; q++ ) 
+		if ( !tmpscr->screendatascriptInitialised )
 		{
-			//ri->d[q] = (int)GuyH::getNPC()->initD[q];
-			ri->d[q] = tmpscr->screeninitd[q];// * 10000;
-			//ri->d[q] = guys.spr(GuyH::getNPCIndex(i))->initD[q]; //w->initiald[q];
+			for ( int q = 0; q < 8; q++ ) 
+			{
+				ri->d[q] = tmpscr->screeninitd[q];// * 10000;
+			}
+			tmpscr->screendatascriptInitialised = 1;
 		}
 		
 	    }
@@ -19843,6 +19726,7 @@ int run_script(const byte type, const word script, const long i)
 		
 		case SCRIPT_DMAP:
 		    dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
+		    dmapscriptInitialised[i] = 0;
 		    break;
 		    
 		case SCRIPT_ITEM:
@@ -19853,60 +19737,30 @@ int run_script(const byte type, const word script, const long i)
 			{
 				new_i = i * -1;
 			}
-		    //FFCore.runningItemScripts[i] = 0;
+	
 			if ( !collect ) item_doscript[i] = 0;
-		   // runningItemScripts[i] = 0;
-		    //ri = &(itemScriptData[i]);
-		    //ri->Clear();
-		    //curscript = 0;
-		    //long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
-		    //stack = &(item_stack[i]);
-		    //itemScriptData[i].Clear();
-		    //memset(item_stack[i], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-		    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-		    //stack = pvsstack;
-		    //stack = NULL;
+		   
 			if ( !collect )
 			{
 				if ( (itemsbuf[i].flags&ITEM_FLAG16) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
 			}
+			itemscriptInitialised[new_i] = 0;
 			break; //item scripts aren't gonna go again anyway
 		}
 		case SCRIPT_NPC:
 		{
-		
 			guys.spr(GuyH::getNPCIndex(i))->doscript = 0;
 			guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
-			/*
-			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
-			stack = &(guys.spr(i)->stack); 
-			memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-			stack = pvsstack;
-			guys.spr(i)->script = 0;
-			//ri->guyref = guys.spr(i)->getUID();
-			*/
+			guys.spr(GuyH::getNPCIndex(i))->initialised = 0;
+
 			break;
 		}
 		case SCRIPT_LWPN:
 		{
-		
-			//weapon *w = (weapon*)Lwpns.spr(i);
-			//long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
-			//stack = &(Lwpns.spr(i)->stack);
-			//stack = &(w->stack);
-			//stack = &(Lwpns.spr(i)->stack);
-			//memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-			//stack = pvsstack;
-			//Lwpns.spr(i)->weaponscript = 0;
-			
-			//Lwpns.spr(i)->doscript = 0;
-			//Lwpns.spr(i)->weaponscript = 0;
-			//Z_scripterrlog("Cleaning up a script weapon, ID: %d\n",i);
-			//Z_scripterrlog("Cleaning up a script weapon, ri->lwpn: %d\n",ri->lwpn);
 			Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
 			Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
+			Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 0;
 			
-			//w->weaponscript = 0;
 			break;
 		}
 		case SCRIPT_EWPN:
@@ -19914,8 +19768,8 @@ int run_script(const byte type, const word script, const long i)
 		
 			Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
 			Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
+			Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 0;
 			
-			//w->weaponscript = 0;
 			break;
 		}
 		case SCRIPT_ITEMSPRITE:
@@ -19923,12 +19777,13 @@ int run_script(const byte type, const word script, const long i)
 		
 			items.spr(ItemH::getItemIndex(i))->doscript = 0;
 			items.spr(ItemH::getItemIndex(i))->script = 0;
+			items.spr(ItemH::getItemIndex(i))->initialised = 0;
 			
-			//w->weaponscript = 0;
 			break;
 		}
 		case SCRIPT_SCREEN:
 		    tmpscr->script = 0;
+		    tmpscr->screendatascriptInitialised = 0;
 		    break;
         }
     }

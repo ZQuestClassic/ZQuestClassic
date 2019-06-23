@@ -1990,6 +1990,7 @@ struct mapscr
     byte screen_waitdraw;
     byte preloadscript;
     unsigned long ffcswaitdraw;
+    byte screendatascriptInitialised;
     
     void zero_memory()
     {
@@ -2152,7 +2153,7 @@ struct mapscr
         
 	screen_waitdraw = 0;
 	ffcswaitdraw = 0;
-	
+	screendatascriptInitialised = 0;
         data.assign(176,0);
         sflag.assign(176,0);
         cset.assign(176,0);

@@ -106,6 +106,7 @@ sprite::sprite()
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
+    initialised = 0;
     
     //itemref = 0;
     //guyref = 0;
@@ -212,6 +213,8 @@ do_animation(other.do_animation)
     for(int i=0; i<32; i++) miscellaneous[i] = other.miscellaneous[i];
     
     scriptcoldet = other.scriptcoldet;
+    initialised = other.initialised;
+    
     
     //for ( int q = 0; q < MAX_SCRIPT_REGISTERS; q++ )
     //{
@@ -259,6 +262,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
+    initialised = 0;
     scriptData.Clear();
     //ewpnclass=0;
     //lwpnclass=0;

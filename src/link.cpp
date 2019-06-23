@@ -45,6 +45,7 @@ extern long item_stack[256][MAX_SCRIPT_REGISTERS];
 extern long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 extern refInfo *ri; //= NULL;
 extern long(*stack)[MAX_SCRIPT_REGISTERS];
+extern byte dmapscriptInitialised[512];
 extern word item_doscript[256];
 using std::set;
 
@@ -12267,7 +12268,11 @@ bool LinkClass::dowarp(int type, int index)
             }
         }
         
-        if(DMaps[currdmap].color != c)
+        else
+	{
+		dmapscriptInitialised[currdmap] = 0; //reinitialise DMap script InitD
+	}
+	if(DMaps[currdmap].color != c)
         {
             lighting(false, true);
         }
