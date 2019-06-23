@@ -5951,7 +5951,7 @@ eFire::eFire(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     clk4=0;
     shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
-    obeys_gravity = 0;
+    obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
     // Spawn type
     if(flags & guy_fadeflicker)
     {
@@ -6638,7 +6638,7 @@ eLeever::eLeever(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
         misc=-1;    //Line of Sight leevers
         clk-=16;
     }
-    obeys_gravity = 1;
+    obeys_gravity = 0; //Seems that Leevers STUPIDLY ignored gravity in 2.50. -Z ( 23rd June, 2019 )
     //nets+1460;
     temprule=(get_bit(quest_rules,qr_NEWENEMYTILES)) != 0;
 }
@@ -14286,10 +14286,10 @@ bool enemy::enemycanfall(int id)
     {
     case eeGUY:
     {
-        if(id < eOCTO1S)
+        if(id < eOCTO1S) //screen guys and fires that aren't real enemies
             return false;
             
-        switch(guysbuf[id&0xFFF].misc10)
+        switch(guysbuf[id&0xFFF].misc10) //I'm unsure what these specify off-hand. Needs better comments. -Z
         {
         case 1:
         case 2:
