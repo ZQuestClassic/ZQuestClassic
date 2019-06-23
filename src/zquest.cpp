@@ -9854,12 +9854,12 @@ void ilist_rclick_func(int index, int x, int y);
 DIALOG ilist_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,   0,       NULL, NULL, NULL },
+    { jwin_win_proc,     60-12,   40,   200+24+24,  148+20,  vc(14),  vc(1),  0,       D_EXIT,          0,   0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,            0,       NULL, NULL, NULL },
     { d_ilist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG], 0, D_EXIT, 0,  0,  NULL, NULL, NULL },
-    { jwin_button_proc,     90,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  163,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { jwin_button_proc,     220,   163,  61,   21,   vc(14),  vc(1),  13,     D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,     90,   163+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,     170,  163+20,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
+    { jwin_button_proc,     220,   163+20,  61,   21,   vc(14),  vc(1),  13,     D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL,  NULL }
 };
 
@@ -16850,12 +16850,12 @@ void elist_rclick_func(int index, int x, int y);
 DIALOG elist_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     50,   40,   200+24+24,  145,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    { jwin_win_proc,     50,   40,   200+24+24,  145+20,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { d_enelist_proc,    62,   68,   188,  88,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { jwin_button_proc,     220,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,     90,   160+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,     170,  160+20,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
+    { jwin_button_proc,     220,   160+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -17192,19 +17192,19 @@ unsigned char check[2] = { (unsigned char)'\x81',0 };
 static DIALOG enemy_dlg[] =
 {
     /* (dialog proc)         (x)     (y)    (w)     (h)     (fg)                    (bg)                   (key)    (flags)      (d1)        (d2)  (dp) */
-    { jwin_win_proc,          0,      0,    240,    190,    vc(14),                 vc(1),                   0,       D_EXIT,     0,           0, (void *) "Enemies",          NULL,   NULL  },
+    { jwin_win_proc,          0,      0,    256,    190+10,    vc(14),                 vc(1),                   0,       D_EXIT,     0,           0, (void *) "Enemies",          NULL,   NULL  },
     { d_timer_proc,           0,      0,      0,      0,    0,                      0,                       0,       0,          0,           0,  NULL,                        NULL,   NULL  },
     { d_enelistnoabc_proc,        14,     24,    188,     97,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,     0,           0, (void *) &enemy_dlg_list,    NULL,   NULL  },
-    { jwin_button_proc,      12,    130,    109,     21,    vc(14),                 vc(1),                   'e',     D_EXIT,     0,           0, (void *) "Paste &Enemies",   NULL,   NULL  },
+    { jwin_button_proc,      12,    130+10,    109,     21,    vc(14),                 vc(1),                   'e',     D_EXIT,     0,           0, (void *) "Paste &Enemies",   NULL,   NULL  },
     { d_dummy_proc,          210,    24,     20,     20,    vc(11),                 vc(1),                   0,       0,          0,           0,  NULL,                        NULL,   NULL  },
-    { jwin_button_proc,     127,    130,     42,     21,    vc(14),                 vc(1),                   'f',     D_EXIT,     0,           0, (void *) "&Flags",           NULL,   NULL  },
-    { jwin_button_proc,     175,    130,     53,     21,    vc(14),                 vc(1),                   'p',     D_EXIT,     0,           0, (void *) "&Pattern",         NULL,   NULL  },
+    { jwin_button_proc,     127,    130+10,     42,     21,    vc(14),                 vc(1),                   'f',     D_EXIT,     0,           0, (void *) "&Flags",           NULL,   NULL  },
+    { jwin_button_proc,     175,    130+10,     53,     21,    vc(14),                 vc(1),                   'p',     D_EXIT,     0,           0, (void *) "&Pattern",         NULL,   NULL  },
     { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       'c',     0,          0,           0, (void *) close_dlg,          NULL,   NULL  },
     { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       'v',     0,          0,           0, (void *) close_dlg,          NULL,   NULL  },
     { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_DEL,     0, (void *) close_dlg,          NULL,   NULL  },
     // 10
-    { jwin_button_proc,      50,    156,     61,     21,    vc(14),                 vc(1),                  'k',       D_EXIT,     0,           0, (void *) "O&K",               NULL,   NULL  },
-    { jwin_button_proc,     130,    156,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,     0,           0, (void *) "Cancel",           NULL,   NULL  },
+    { jwin_button_proc,      50,    156+10,     61,     21,    vc(14),                 vc(1),                  'k',       D_EXIT,     0,           0, (void *) "O&K",               NULL,   NULL  },
+    { jwin_button_proc,     130,    156+10,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,     0,           0, (void *) "Cancel",           NULL,   NULL  },
     { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                      27,       0,          0,           0, (void *) close_dlg,          NULL,   NULL  },
     { jwin_text_proc,         4,    208,      8,      8,    vc(14),                 vc(1),                   0,       0,          0,           0, (void *) check,              NULL,   NULL  },
     { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_F1,      0, (void *) onHelp,             NULL,   NULL  },
