@@ -324,7 +324,7 @@ int fullscreen;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte disable_triplebuffer=0,can_triplebuffer_in_windowed_mode=0;
 byte zc_color_depth=8;
-byte use_debug_console=0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
+byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
