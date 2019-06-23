@@ -2,6 +2,16 @@
 
 //Alpha 26
 
+Fix: Add `Constant Script' flag label to CustomXX itemclass items.
+Added a QR that disables using enemy family Custom* and enemy
+	family Friendly*.
+Fixed script names when logging from dmap, eweapon, and screen scripts.
+
+Added a variable to all script types to use to check if
+	the initD for the current script was initialised, or not.
+
+	Only set the ri->d if the script isn't initialised.
+
 Fixed UI text of item/enemy metadata overlapping UI buttons
 	in the SCREEN place item / SCREEN set enemies dialogues.
 Refactored Link->WarpEx() to try to prevent crashes if non-constant
