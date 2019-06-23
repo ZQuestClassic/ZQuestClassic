@@ -1484,7 +1484,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 				}
 				break;
 				
-				case eeOTHER:
+				case eeOTHER: 
 				{
 				enemy *e = new eOther(x,y,new_id,clk);
 				guys.add(e);
@@ -1661,7 +1661,51 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 					break;
 				}
 			    
-			    
+			        case eeSCRIPT01: 
+			        case eeSCRIPT02: 
+			        case eeSCRIPT03: 
+			        case eeSCRIPT04: 
+			        case eeSCRIPT05: 
+			        case eeSCRIPT06: 
+			        case eeSCRIPT07: 
+			        case eeSCRIPT08: 
+			        case eeSCRIPT09: 
+			        case eeSCRIPT10: 
+			        case eeSCRIPT11: 
+			        case eeSCRIPT12: 
+			        case eeSCRIPT13: 
+			        case eeSCRIPT14: 
+			        case eeSCRIPT15: 
+			        case eeSCRIPT16: 
+			        case eeSCRIPT17: 
+			        case eeSCRIPT18: 
+			        case eeSCRIPT19: 
+			        case eeSCRIPT20: 
+				{
+					enemy *e = new eScript(x,y,new_id,clk);
+					guys.add(e);
+					e->x = x;
+					e->y = y;
+				}
+				break;
+				
+				case eeFFRIENDLY01:
+				case eeFFRIENDLY02:
+				case eeFFRIENDLY03:
+				case eeFFRIENDLY04:
+				case eeFFRIENDLY05:
+				case eeFFRIENDLY06:
+				case eeFFRIENDLY07:
+				case eeFFRIENDLY08:
+				case eeFFRIENDLY09:
+				case eeFFRIENDLY10:
+				{
+					enemy *e = new eFriendly(x,y,new_id,clk);
+					guys.add(e);
+					e->x = x;
+					e->y = y;
+				}
+				break;
 				
 				default: break;
 			}
@@ -6052,7 +6096,6 @@ eOther::eOther(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
         fading=fade_flicker;
         count_enemy=false;
         dir=down;
-	obeys_gravity = 1;
         
         if(!canmove(down,(fix)8,spw_none))
             clk3=int(13.0/step);
@@ -6130,6 +6173,194 @@ void eOther::break_shield()
     if(get_bit(quest_rules,qr_BRKNSHLDTILES))
         o_tile=s_tile;
 }
+
+
+eScript::eScript(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+{
+    clk4=0;
+    obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
+    shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+    
+    // Spawn type
+    if(flags & guy_fadeflicker)
+    {
+        clk=0;
+        superman = 1;
+        fading=fade_flicker;
+        count_enemy=false;
+        dir=down;
+        
+        if(!canmove(down,(fix)8,spw_none))
+            clk3=int(13.0/step);
+    }
+    else if(flags & guy_fadeinstant)
+    {
+        clk=0;
+    }
+}
+
+bool eScript::animate(int index)
+{
+    if(fading)
+    {
+        if(++clk4 > 60)
+        {
+            clk4=0;
+            superman=0;
+            fading=0;
+            
+            if(flags2&cmbflag_armos && z==0)
+                removearmos(x,y);
+                
+            clk2=0;
+            
+            if(!canmove(down,(fix)8,spw_none))
+            {
+                dir=0;
+                y.v&=0xF00000;
+            }
+            
+            return Dead(index);
+        }
+        else if(flags2&cmbflag_armos && z==0 && clk==0)
+            removearmos(x,y);
+    }
+    
+    return enemy::animate(index);
+}
+
+void eScript::draw(BITMAP *dest)
+{
+    update_enemy_frame();
+    enemy::draw(dest);
+}
+
+int eScript::takehit(weapon *w)
+{
+    int wpnId = w->id;
+    int wpnDir = w->dir;
+    
+    if(wpnId==wHammer && shield && (flags & guy_bkshield)
+            && ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
+                || (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+    {
+        shield = false;
+        flags &= ~(inv_left|inv_right|inv_back|inv_front);
+        
+        if(get_bit(quest_rules,qr_BRKNSHLDTILES))
+            o_tile=s_tile;
+    }
+    
+    int ret = enemy::takehit(w);
+    return ret;
+}
+
+void eScript::break_shield()
+{
+    if(!shield)
+        return;
+        
+    flags&=~(inv_front | inv_back | inv_left | inv_right);
+    shield=false;
+    
+    if(get_bit(quest_rules,qr_BRKNSHLDTILES))
+        o_tile=s_tile;
+}
+
+
+eFriendly::eFriendly(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+{
+    clk4=0;
+    hyofs = -32768; //No hitbox initially.
+    obeys_gravity = 1; //used for enemy type 'Other' in 2.50, and these obey gravity. Used by ghost.zh. -Z 23rd June, 2019
+    shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+    
+    // Spawn type
+    if(flags & guy_fadeflicker)
+    {
+        clk=0;
+        superman = 1;
+        fading=fade_flicker;
+        count_enemy=false;
+        dir=down;
+        
+        if(!canmove(down,(fix)8,spw_none))
+            clk3=int(13.0/step);
+    }
+    else if(flags & guy_fadeinstant)
+    {
+        clk=0;
+    }
+}
+
+bool eFriendly::animate(int index)
+{
+    if(fading)
+    {
+        if(++clk4 > 60)
+        {
+            clk4=0;
+            superman=0;
+            fading=0;
+            
+            if(flags2&cmbflag_armos && z==0)
+                removearmos(x,y);
+                
+            clk2=0;
+            
+            if(!canmove(down,(fix)8,spw_none))
+            {
+                dir=0;
+                y.v&=0xF00000;
+            }
+            
+            return Dead(index);
+        }
+        else if(flags2&cmbflag_armos && z==0 && clk==0)
+            removearmos(x,y);
+    }
+    
+    return enemy::animate(index);
+}
+
+void eFriendly::draw(BITMAP *dest)
+{
+    update_enemy_frame();
+    enemy::draw(dest);
+}
+
+int eFriendly::takehit(weapon *w)
+{
+    int wpnId = w->id;
+    int wpnDir = w->dir;
+    
+    if(wpnId==wHammer && shield && (flags & guy_bkshield)
+            && ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
+                || (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+    {
+        shield = false;
+        flags &= ~(inv_left|inv_right|inv_back|inv_front);
+        
+        if(get_bit(quest_rules,qr_BRKNSHLDTILES))
+            o_tile=s_tile;
+    }
+    
+    int ret = enemy::takehit(w);
+    return ret;
+}
+
+void eFriendly::break_shield()
+{
+    if(!shield)
+        return;
+        
+    flags&=~(inv_front | inv_back | inv_left | inv_right);
+    shield=false;
+    
+    if(get_bit(quest_rules,qr_BRKNSHLDTILES))
+        o_tile=s_tile;
+}
+
 
 void enemy::removearmos(int ax,int ay)
 {
@@ -13875,9 +14106,52 @@ int addenemy(int x,int y,int z,int id,int clk)
         e = new eFire((fix)x,(fix)y,id,clk);
         break;
         
-    case eeOTHER:
+    case eeOTHER: 
         e = new eOther((fix)x,(fix)y,id,clk);
         break;
+    
+    
+        case eeSCRIPT01: 
+			        case eeSCRIPT02: 
+			        case eeSCRIPT03: 
+			        case eeSCRIPT04: 
+			        case eeSCRIPT05: 
+			        case eeSCRIPT06: 
+			        case eeSCRIPT07: 
+			        case eeSCRIPT08: 
+			        case eeSCRIPT09: 
+			        case eeSCRIPT10: 
+			        case eeSCRIPT11: 
+			        case eeSCRIPT12: 
+			        case eeSCRIPT13: 
+			        case eeSCRIPT14: 
+			        case eeSCRIPT15: 
+			        case eeSCRIPT16: 
+			        case eeSCRIPT17: 
+			        case eeSCRIPT18: 
+			        case eeSCRIPT19: 
+			        case eeSCRIPT20: 
+				{
+					e = new eScript((fix)x,(fix)y,id,clk);
+				}
+				break;
+				
+				case eeFFRIENDLY01:
+				case eeFFRIENDLY02:
+				case eeFFRIENDLY03:
+				case eeFFRIENDLY04:
+				case eeFFRIENDLY05:
+				case eeFFRIENDLY06:
+				case eeFFRIENDLY07:
+				case eeFFRIENDLY08:
+				case eeFFRIENDLY09:
+				case eeFFRIENDLY10:
+				{
+					e = new eFriendly((fix)x,(fix)y,id,clk);
+				}
+				break;
+				
+				
         
     case eeSPINTILE:
         e = new eSpinTile((fix)x,(fix)y,id,clk);

@@ -307,6 +307,30 @@ public:
     virtual void break_shield();
 };
 
+class eScript : public enemy
+{
+public:
+    int clk4;
+    bool shield;
+    eScript(fix X,fix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
+    virtual bool animate(int index);
+    virtual void draw(BITMAP *dest);
+    virtual int takehit(weapon *w);
+    virtual void break_shield();
+};
+
+class eFriendly : public enemy
+{
+public:
+    int clk4;
+    bool shield;
+    eFriendly(fix X,fix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
+    virtual bool animate(int index);
+    virtual void draw(BITMAP *dest);
+    virtual int takehit(weapon *w);
+    virtual void break_shield();
+};
+
 void removearmos(int ax,int ay);
 
 class eGhini : public enemy
