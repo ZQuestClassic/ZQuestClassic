@@ -1125,8 +1125,9 @@ using namespace std;
 #define ITEMGRAVITY 			1056
 #define MAPDATASIDEWARPID 			1057
 #define SCREENSIDEWARPID 			1058
+#define LINKGRAVITY 			1059
 
-#define LAST_BYTECODE 		1059
+#define LAST_BYTECODE 		1060
 
 //END OF BYTECODE
 

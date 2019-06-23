@@ -930,6 +930,7 @@ void LinkClass::init()
     sdir = up;
     ilswim=true;
     walkable=false;
+    obeys_gravity = 1;
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
     {
@@ -4351,7 +4352,7 @@ bool LinkClass::animate(int)
     if(stomping)
         stomping = false;
         
-    if(isSideview())  // Sideview gravity
+    if(isSideview() && obeys_gravity)  // Sideview gravity
     {
         // Fall, unless on a ladder, rafting, using the hookshot, drowning or cheating.
         if(!(toogam && Up()) && !drownclk && action!=rafting && !pull_link && !((ladderx || laddery) && fall>0))

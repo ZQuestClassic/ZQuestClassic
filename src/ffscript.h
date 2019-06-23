@@ -3481,6 +3481,7 @@ enum ASM_DEFINE
 
 #define MAPDATASIDEWARPID 		0x135B
 #define SCREENSIDEWARPID 		0x135C
+#define LINKGRAVITY 		0x135D
 
 //bytecode
 
@@ -3488,7 +3489,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x135D
+#define NUMVARIABLES         	0x135E
 
 // Script types
 

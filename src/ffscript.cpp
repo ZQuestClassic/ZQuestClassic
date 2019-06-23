@@ -2117,6 +2117,10 @@ long get_register(const long arg)
     case LINKHP:
         ret=(int)(game->get_life())*10000;
         break;
+    
+    case LINKGRAVITY:
+	ret = ( (Link.obeys_gravity) ? 10000 : 0 );
+	break;
         
     case LINKMP:
         ret=(int)(game->get_magic())*10000;
@@ -7846,6 +7850,10 @@ void set_register(const long arg, const long value)
     
     case LINKHITDIR:
         Link.setHitDir(value / 10000);
+        break;
+    
+    case LINKGRAVITY:
+	Link.obeys_gravity = ( (value) ? 1 : 0 ); 
         break;
         
     case LINKHP:

@@ -2081,6 +2081,9 @@ int FireSound;
 ///  Link  ///
 //////////////
 
+bool Gravity;
+ * If set true (the default), the hero falls in sideview gravity.
+ 
 int Scale;
  * The scale factor for this sprited object. 
  * A scale of 0 and a scale of 1 are identical.

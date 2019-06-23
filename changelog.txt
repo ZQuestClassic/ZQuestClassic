@@ -2,6 +2,7 @@
 
 //Alpha 26
 
+Added Link->Gravity to ZScript (implemented fully).
 Add proper constructors and subclasses for eScript/eeSCRIPT and
 	for eFriendly/eeFRIENDLY class enemies.
 	Friendly enemies have their hitbox offset by -32768.
