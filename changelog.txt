@@ -2,6 +2,12 @@
 
 //Alpha 26
 
+Fixed UI text of item/enemy metadata overlapping UI buttons
+	in the SCREEN place item / SCREEN set enemies dialogues.
+Refactored Link->WarpEx() to try to prevent crashes if non-constant
+	scripts (e.g. ffc, npc, screen) try to execute the instruction.
+	It still works as before from constant script types (e.g. global, hero).
+This change is to the interpreter-side, not the ZASM-side.
 Added Link->Gravity to ZScript (implemented fully).
 Add proper constructors and subclasses for eScript/eeSCRIPT and
 	for eFriendly/eeFRIENDLY class enemies.
