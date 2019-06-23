@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 26
-Document Revision: 21st June, 2019
+Document Revision: 23rd June, 2019
 
 
 ////////////////////////////////////////////////////
@@ -1679,9 +1679,9 @@ bool Flags[13];
 //////////////
 
 bool Gravity;
- * Not implemented at this time.
- * If set true, the npc would fall in sideview gravity.
-
+ * If set true, the npc would item in sideview gravity.
+ * Items have gravity set true by default.
+`
 int Scale;
  * The scale factor for this sprited object. 
  * A scale of 0 and a scale of 1 are identical.
@@ -1832,7 +1832,8 @@ int AClock
 
 bool Gravity;
  * Not implemented at this time.
- * If set true, the npc would fall in sideview gravity.
+ * Some npcs have this set true by default, others are false by default,
+ * based on the npc family.
 
 int Scale;
  * The scale factor for this sprited object. 
