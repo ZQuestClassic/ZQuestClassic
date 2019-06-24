@@ -5330,8 +5330,19 @@ case SCREENDATAFLAGS:
 	break;
     
     case MAPDATAINITDARRAY:
-        ret=tmpscr->screeninitd[ri->d[0]/10000];
-        break;
+    {
+	if ( ri->mapsref == LONG_MAX ) 
+	{ 
+		Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[0]/10000); 
+		break; 
+	} 
+	else 
+	{ 
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		ret = m->screeninitd[ri->d[0]/10000];
+	} 
+	break;
+    }
     
     
     //These use the same method as GetScreenD -Z
@@ -11958,7 +11969,22 @@ case MAPDATAWARPARRIVALX: 	SET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); b
 case MAPDATAWARPARRIVALY: 	SET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case MAPDATAPATH: 		SET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
 case MAPDATASIDEWARPSC: 	SET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
-case MAPDATAINITDARRAY:	 	SET_MAPDATA_VAR_INDEX32(screeninitd, "InitD", 8); break;	//w, 4 of these
+case MAPDATAINITDARRAY:	 	
+{
+	
+	if ( ri->mapsref == LONG_MAX ) 
+	{ 
+		Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[0]/10000); 
+		break; 
+	} 
+	else 
+	{ 
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		m->screeninitd[ri->d[0]/10000] = value;
+	} 
+	break;
+}
+
 case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 case MAPDATASIDEWARPINDEX: 	SET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
 case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
