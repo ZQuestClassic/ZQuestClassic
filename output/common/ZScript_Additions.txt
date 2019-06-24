@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 26
-Document Revision: 23rd June, 2019
+Document Revision: 24th June, 2019
 
 
 ////////////////////////////////////////////////////
@@ -39,6 +39,105 @@ xor_eq 		: 	Equivalent to 	^=
 xor_equal 	: 	Equivalent to 	^=
 and_eq 		: 	Equivalent to 	&=
 and_equal 	: 	Equivalent to 	&=
+
+
+///////////////////////
+/// Basic Datatypes ///
+///////////////////////
+The following are the current, supported BASIC datatypes in ZScript:
+
+TYPE		LEGAL RANGE
+float 		-214748.0000, 214748.0000
+int		-214748, 214748
+	The basic numeral datatype. Both float and int are identical.
+	The different tokens exist purely for local semantics and both 
+		resolve to the same type, including for the purpose of
+		matching function signatures.
+	The legal range depends on a compiler flag. Older versions of ZScript had
+		a maximum legal range of -214747.9999, 214747.9999.
+	The current version of the ZScript spec expands this to -214748.0000, 214748.0000.
+	
+bool	false, true
+	A general boolean datatype. Internally, true is '1' and false is 0..
+	Older versions of ZScript used 0.001 as 'true. The user can
+		use this old value set with a copiler flsg, should the user
+		require it for older scripts.
+	When typecasting to bool, any value that is non-zero will
+		evaluate as 'true', and values of EXACTLY zero will evaluate as 'false'.
+		
+char32		-214748, 214748
+	Similar to the C type 'char', but 32 bits wide.
+	A datatype specifically for individual characters, or for strings.
+	String literals are typed as char32.
+	This datatype can be used to narrow function signature matching for use of #
+		SINGLECHAR or STRING as function inputs.
+	When doing signature matches, a SINGLECHAR or a STRING LITERAL will
+		match FIRST to char32.
+		
+		Thus:
+			void foo(char32 a)
+			{
+				TraceS(a);
+			}
+			void foo (int a)
+			{
+				Trace(a);
+			}
+			
+			foo("str\n"); 	//Will call: foo(char32)
+			foo(16);	//Will call (foo (int);
+	
+///////////////////
+// New Datatypes //
+///////////////////
+
+	untyped : A special datatype that can be cast to and from any other type.
+	This has no distinct type of its own.
+	
+	Example:
+		untyped ptrs[4];
+		ffc f = Screen->LoadFFC(2);
+		npc n = Screen->CreateNPC(16);
+		lweapon l = Screen->CreateLWeapon(LW_SCRIPT);
+		bitmap bitty = Game->CreateBitmap(160,240);
+		
+		ptrs[0] = f;
+		ptrs[1] = n;
+		ptrs[2] = l;
+		ptrs[3] = bitty;
+		
+		//These now contain the raw literal value of the pointers to those objects.
+		
+		bool a = true;
+		untyped b = a; //b == 0.0001
+		int c = b; //c == 0.0001 
+
+	npcdata: 
+
+	combodata:
+
+	spritedata:
+
+	mapdata: 
+
+	dmapdata : 
+
+	messagedata :
+
+	shopdata :
+
+
+	dropdata : t/b/a
+	bitmap : t/b/a
+	warpring : t/b/a
+	doorset : t/b/a
+	misccolors : t/b/a
+	rgbdata : t/b/a
+	palette : t/b/a
+	zcmidi : t/b/a
+	palcycle : t/b/a
+	gamedata : t/b/a
+	cheats : t/b/a
 
 
 //////////////
@@ -922,60 +1021,6 @@ of iterations is known at compile-time.
 		const int C = A*(Pow(B,2));
 	
 	--end example]
-
-
-
-///////////////////
-// New Datatypes //
-///////////////////
-
-	untyped : A special datatype that can be cast to and from any other type.
-	This has no distinct type of its own.
-	
-	Example:
-		untyped ptrs[4];
-		ffc f = Screen->LoadFFC(2);
-		npc n = Screen->CreateNPC(16);
-		lweapon l = Screen->CreateLWeapon(LW_SCRIPT);
-		bitmap bitty = Game->CreateBitmap(160,240);
-		
-		ptrs[0] = f;
-		ptrs[1] = n;
-		ptrs[2] = l;
-		ptrs[3] = bitty;
-		
-		//These now contain the raw literal value of the pointers to those objects.
-		
-		bool a = true;
-		untyped b = a; //b == 0.0001
-		int c = b; //c == 0.0001 
-
-	npcdata: 
-
-	combodata:
-
-	spritedata:
-
-	mapdata: 
-
-	dmapdata : 
-
-	messagedata :
-
-	shopdata :
-
-
-	dropdata : t/b/a
-	bitmap : t/b/a
-	warpring : t/b/a
-	doorset : t/b/a
-	misccolors : t/b/a
-	rgbdata : t/b/a
-	palette : t/b/a
-	zcmidi : t/b/a
-	palcycle : t/b/a
-	gamedata : t/b/a
-	cheats : t/b/a
 
 
 //////////////////
