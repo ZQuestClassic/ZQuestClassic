@@ -2,6 +2,18 @@
 
 //Alpha 26
 
+Fixed mapdata->InitD[] using the InitD for the current screen, and fixed
+	it mult/div by 10000.
+Ensured that dmap scripts have their InitD set up correctly
+	both when they first run, and after warping.
+
+	Added a flag to WarpEx as 0x80 to prevent reloading the DMap script.
+
+	Fixed dmapdata->InitD[] not compiling.
+	Fixed Screen->InitD[] not returning the appropriate value.
+	Fixed maodata->InitD returning * 10000.
+	( ZoriaRPG, 24th June, 2019 )
+
 Corrected the behaviour of Link->GetX, Y, Z with qr_LINKXY_IS_FLOAT.
 	Note: All operations using the rule Sprite Coordinates are Float
 		suffer from precision loss due to double typecasting during
