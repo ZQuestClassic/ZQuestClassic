@@ -4600,6 +4600,16 @@ string Oitoa::toString()
     return "ITOA " + getArgument()->toString();
 }
 
+string OSaveGameStructs::toString()
+{
+    return "SAVEGAMESTRUCTS " + getArgument()->toString();
+}
+
+string OReadGameStructs::toString()
+{
+    return "READGAMESTRUCTS " + getArgument()->toString();
+}
+
 string Ostrcat::toString()
 {
     return "STRCAT " + getArgument()->toString();

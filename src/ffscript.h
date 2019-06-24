@@ -202,6 +202,7 @@ void initIncludePaths();
 void initRunString();
 void updateRunString();
 void updateIncludePaths();
+bool file_exists(const char *filename);
 bool checkExtension(std::string &filename, const std::string &extension);
 //String.h functions for ffscript - 2.55 Alpha 23
 void do_strcmp();
@@ -239,6 +240,8 @@ void do_getnpcbyname();
 void do_getitembyname();
 void do_getcombobyname();
 void do_getdmapbyname();
+void do_savegamestructs();
+void do_loadgamestructs();
 
 void do_strstr();
 void do_strcat();
@@ -2278,6 +2281,8 @@ enum ASM_DEFINE
 	SRNDR,
 	SRNDV,
 	SRNDRND,
+	SAVEGAMESTRUCTS,
+	READGAMESTRUCTS,
 
 
 	NUMCOMMANDS           //0x0150

@@ -17766,6 +17766,12 @@ int run_script(const byte type, const word script, const long i)
 		    do_deallocatemem();
 		    break;
 		    
+		case SAVEGAMESTRUCTS:
+		    FFCore.do_savegamestructs();
+		    break;
+		case READGAMESTRUCTS:
+		    FFCore.do_loadgamestructs();
+		    break;
 		case ARRAYSIZE:
 		    do_arraysize();
 		    break;
@@ -24237,6 +24243,52 @@ bool FFScript::checkExtension(std::string &filename, const std::string &extensio
     return exten == extension;
 }
 
+
+
+void FFScript::do_savegamestructs()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string strA;
+	FFCore.getString(arrayptr, strA);
+	
+	if (true /*placeholder for packfile*/)
+	{
+		if ( FFCore.checkExtension(strA, ".zcsram") )
+		{
+			//write the file
+			set_register(sarg1, 10000);
+		}
+		else set_register(sarg1, 0);
+	}
+	else
+	{
+		set_register(sarg1, 0);
+		
+	}
+}
+void FFScript::do_loadgamestructs()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string strA;
+	FFCore.getString(arrayptr, strA);
+	
+	if (true /*placeholder for packfile*/)
+	{
+		if ( FFCore.checkExtension(strA, ".zcsram") )
+		{
+			//read the file
+			set_register(sarg1, 10000);
+		}
+		else set_register(sarg1, 0);
+	}
+	else
+	{
+		set_register(sarg1, 0);
+		
+	}
+}
+
+
 void FFScript::do_strcmp()
 {
 	
@@ -25752,7 +25804,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "SRNDR",                1,   0,   0,   0},
     { "SRNDV",                1,   1,   0,   0},
     { "SRNDRND",              1,   0,   0,   0},
-	
+	{ "SAVEGAMESTRUCTS",                1,   0,   0,   0},
+	{ "READGAMESTRUCTS",                1,   0,   0,   0},
+    
     { "",                    0,   0,   0,   0}
 };
 

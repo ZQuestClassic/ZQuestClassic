@@ -7765,6 +7765,7 @@ namespace ZScript
 			return new Oxtoa(a->clone());
 		}
 	};
+	
 	class Oitoa : public UnaryOpcode
 	{
 	public:
@@ -7773,6 +7774,26 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new Oitoa(a->clone());
+		}
+	};
+	class OSaveGameStructs : public UnaryOpcode
+	{
+	public:
+		OSaveGameStructs(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSaveGameStructs(a->clone());
+		}
+	};
+	class OReadGameStructs : public UnaryOpcode
+	{
+	public:
+		OReadGameStructs(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OReadGameStructs(a->clone());
 		}
 	};
 	class Ostrcat : public UnaryOpcode
