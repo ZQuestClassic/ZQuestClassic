@@ -34,6 +34,7 @@
 #define warpFlagSETENTRANCEDMAP 0x10
 #define warpFlagSETCONTINUESCREEN 0x20
 #define warpFlagSETCONTINUEDMAP 0x040
+#define warpFlagDONTRESTARTDMAPSCRIPT 0x080
 
 //Visual Warp Effect Types for Link->WarpEx()
 enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 

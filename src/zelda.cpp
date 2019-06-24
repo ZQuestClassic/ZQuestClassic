@@ -60,7 +60,7 @@ extern char runningItemScripts[256];
 extern char modulepath[2048];
 
 
-
+extern byte dmapscriptInitialised[512];
 
 
 #include "init.h"
@@ -1878,7 +1878,8 @@ int init_game()
     
     tmpscr[0].zero_memory();
     tmpscr[1].zero_memory();
-    
+    //clear initialise dmap script 
+    for ( int q = 0; q < 512; q++ ) dmapscriptInitialised[q] = 0;
     //Script-related nonsense
     script_drawing_commands.Clear();
     
@@ -1891,6 +1892,7 @@ int init_game()
     initZScriptLinkScripts();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptItemScripts();
+    
     
     //Run the init script or the oncontinue script with the highest priority.
     //GLobal Script Init ~Init

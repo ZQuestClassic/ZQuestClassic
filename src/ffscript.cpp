@@ -5325,8 +5325,12 @@ case SCREENDATAFLAGS:
         ret=tmpscr->script*10000;
         break;
     
+    case SCREENINITD:
+	ret = tmpscr->screeninitd[ri->d[0]/10000];
+	break;
+    
     case MAPDATAINITDARRAY:
-        ret=tmpscr->screeninitd[ri->d[0]/10000]*10000;
+        ret=tmpscr->screeninitd[ri->d[0]/10000];
         break;
     
     
@@ -6618,7 +6622,7 @@ case DMAPINITD:	//byte[8] --array
 	}
 	else
 	{
-		ret = ((byte)DMaps[ri->dmapsref].initD[indx]);  break;
+		ret = DMaps[ri->dmapsref].initD[indx]; break;
 	}
 }
 case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
@@ -11522,6 +11526,10 @@ break;
         FFScript::set_screen_d(ri->d[1]/10000 + ((ri->d[0]/10000)<<7), ri->d[2]/10000, value);
         break;
         
+    case SCREENINITD:
+	tmpscr->screeninitd[ri->d[0]/10000] = value;
+	break;
+    
     case SCREENSCRIPT:
     {
 	//for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
@@ -11544,7 +11552,7 @@ break;
     }
     
     case MAPDATAINITD:
-        tmpscr->screeninitd[ri->d[0]/10000]=value/10000;
+        tmpscr->screeninitd[ri->d[0]/10000]=value;
         break;
     
     case SCRDOORD:
@@ -16675,6 +16683,11 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
                         "Insta-Warp");
                         
 	eventlog_mapflags();
+	if ( !(warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) )
+	{
+		dmap_doscript = 1;
+		dmapScriptData.Clear();
+	}
 	return true;
 	
 	

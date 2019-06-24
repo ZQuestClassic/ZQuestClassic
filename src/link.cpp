@@ -57,6 +57,7 @@ extern int draw_screen_clip_rect_y2;
 extern bool global_wait;
 extern bool link_waitdraw;
 extern bool dmap_waitdraw;
+extern refInfo dmapScriptData;
 
 int link_count = -1;
 int link_animation_speed = 1; //lower is faster animation
@@ -12777,6 +12778,8 @@ bool LinkClass::dowarp(int type, int index)
                         "Insta-Warp");
                         
     eventlog_mapflags();
+    dmap_doscript = 1;
+    dmapScriptData.Clear();
     return true;
 }
 
