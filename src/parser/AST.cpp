@@ -132,6 +132,17 @@ ASTFloat::ASTFloat(long value, Type type, LocationData const& location)
 	ASTFloat::value = string(tmp);
 }
 
+ASTFloat::ASTFloat(long ipart, long dpart, LocationData const& location)
+	: AST(location), type(TYPE_DECIMAL), negative(false)
+{
+	char tmp[13];
+	if(dpart)
+		sprintf(tmp,"%ld.%04ld",ipart,dpart);
+	else
+		sprintf(tmp,"%ld",ipart);
+	value = string(tmp);
+}
+
 void ASTFloat::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseFloat(*this, param);
@@ -651,36 +662,9 @@ ASTDataEnum::ASTDataEnum(ASTDataEnum const& other)
 	: ASTDataDeclList(other)
 {}
 
-ASTDataEnum& ASTDataEnum::operator=(ASTDataEnum const& rhs)
-{
-	ASTDataDeclList::operator=(rhs);
-	
-	nextVal = rhs.nextVal;
-	
-	return *this;
-}
-
 void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseDataEnum(*this, param);
-}
-
-void ASTDataEnum::addDeclaration(ASTDataDecl* declaration)
-{
-	if(ASTExpr* init = declaration->getInitializer())
-	{
-		if(init->getCompileTimeValue())
-		{
-			nextVal = *init->getCompileTimeValue() / 10000;
-		}
-	}
-	else
-	{
-		ASTNumberLiteral* value = new ASTNumberLiteral(new ASTFloat(nextVal, ASTFloat::TYPE_DECIMAL, location), location);
-		declaration->setInitializer(value);
-	}
-	++nextVal;
-	ASTDataDeclList::addDeclaration(declaration);
 }
 
 // ASTDataDecl

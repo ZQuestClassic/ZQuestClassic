@@ -358,7 +358,7 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 	visit(host, host.getDeclarations());
 }
 
-void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void*)
+void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 {
 	// Resolve the base type.
 	DataType const& baseType = host.baseType->resolve(*scope, this);
@@ -383,8 +383,30 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void*)
 		return;
 	}
 
-	// Recurse on list contents, while accepting FLOAT input.
-	visit(host, host.getDeclarations());
+	//Handle initializer assignment
+	long ipart = -1, dpart = 0;
+	std::vector<ASTDataDecl*> decls = host.getDeclarations();
+	for(vector<ASTDataDecl*>::iterator it = decls.begin();
+		it != decls.end(); ++it)
+	{
+		ASTDataDecl* declaration = *it;
+		if(ASTExpr* init = declaration->getInitializer())
+		{
+			if(init->getCompileTimeValue())
+			{
+				long val = *init->getCompileTimeValue();
+				ipart = val/10000;
+				dpart = val%10000;
+			}
+		}
+		else
+		{
+			ASTNumberLiteral* value = new ASTNumberLiteral(new ASTFloat(++ipart, dpart, host.location), host.location);
+			declaration->setInitializer(value);
+		}
+		visit(declaration, param);
+		if(breakRecursion(host, param)) return;
+	}
 }
 
 void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
