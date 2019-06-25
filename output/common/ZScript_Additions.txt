@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 26
-Document Revision: 24th June, 2019
+Document Revision: 25th June, 2019
 
 
 ////////////////////////////////////////////////////
@@ -1050,6 +1050,12 @@ of iterations is known at compile-time.
 //////////////
 //  Global  //
 //////////////
+
+void SaveSRAM("filename.zcsram");
+void LoadSRAM("filename.zcsram");
+ * Saves or loads the internal datatype dats to a .zcsram file.
+ * As of SRAM_VERSION 1, the following datatypes are saved;
+*	npcdata
 
 void SRand(int seed);
  * Sets the current random seed to a given value, input from script. (DOES NOT /10000)
