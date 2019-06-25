@@ -1,5 +1,5 @@
 // std_constants.zh for ZC v2.55.0 Alpha 22 and later.
-// 32rd June, 2019
+// 25th June, 2019
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -2615,3 +2615,12 @@ enum ffruletype
 	
 	
 };
+
+//Flags for SaveSRAM() and LoadSRAM()
+ const int SRAM_ALL	 	=	0;
+ const int SRAM_NPCDATA 	=	0x01;
+ const int SRAM_ITEMDATA 	=	0x02;
+ const int SRAM_SPRITEDATA 	=	0x04;
+ const int SRAM_COMBODATA 	=	0x08;
+ const int SRAM_DMAPDATA 	=	0x10;
+ const int SRAM_MAPDATA 	=	0x20;
