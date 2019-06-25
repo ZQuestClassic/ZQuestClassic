@@ -24249,13 +24249,15 @@ void FFScript::do_loadgamestructs()
 	long arrayptr = get_register(sarg1) / 10000;
 	string strA;
 	FFCore.getString(arrayptr, strA);
-	int cycles = 0;
+	int cycles = 0; int sram_version = 0;
 
 	if ( FFCore.checkExtension(strA, ".zcsram") )
 	{
 		PACKFILE *f = pack_fopen_password(strA.c_str(),F_READ, "");
 		if (f)
 		{
+			p_igetl(&sram_version,f,true);
+			Z_scripterrlog("Reading ZCSRAM, Version: %d\n", sram_version);
 			++cycles;
 			FFCore.readenemies(f);
 			pack_fclose(f);
@@ -24287,6 +24289,7 @@ void FFScript::do_savegamestructs()
 		PACKFILE *f = pack_fopen_password(strA.c_str(),F_WRITE, "");
 		if (f)
 		{
+			p_iputl(SRAM_VERSION,f);
 			++cycles;
 			FFCore.writeenemies(f);
 			pack_fclose(f);
