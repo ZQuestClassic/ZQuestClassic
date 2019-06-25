@@ -24266,6 +24266,7 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svITEMS )FFCore.read_items(f,sram_version);
 			if ( !section_id || section_id&svWEAPONS ) FFCore.read_weaponsprtites(f,sram_version);
 			if ( !section_id || section_id&svCOMBOS ) FFCore.read_combos(f,sram_version);
+			if ( !section_id || section_id&svDMAPS ) FFCore.read_dmaps(f,sram_version);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.read_mapscreens(f,sram_version);
 			pack_fclose(f);
 			Z_scripterrlog("do_loadgamestructs COMPLETED READING %s, Passed Phase %d\n", "ALL", cycles);
@@ -24307,6 +24308,7 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svITEMS ) FFCore.write_items(f,SRAM_VERSION);
 			if ( !section_id || section_id&svWEAPONS ) FFCore.write_weaponsprtites(f,SRAM_VERSION);
 			if ( !section_id || section_id&svCOMBOS ) FFCore.write_combos(f,SRAM_VERSION);
+			if ( !section_id || section_id&svDMAPS ) FFCore.write_dmaps(f,SRAM_VERSION);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.write_mapscreens(f,SRAM_VERSION);
 			pack_fclose(f);
 			Z_scripterrlog("do_savegamestructs COMPLETED WRITING %s, Passed Phase %d\n", "ALL", cycles);
@@ -27325,6 +27327,385 @@ void FFScript::do_tracetobase()
 }
 
 //SRAM Functions
+void FFScript::write_dmaps(PACKFILE *f, int vers_id)
+{
+	word dmap_count=count_dmaps();
+  
+        dmap_count=zc_min(dmap_count, 512);
+        dmap_count=zc_min(dmap_count, MAXDMAPS-0);
+        
+        //finally...  section data
+        if(!p_iputw(dmap_count,f))
+        {
+            Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",5);
+        }
+        
+        
+        for(int i=start_dmap; i<start_dmap+dmap_count; i++)
+        {
+            if(!p_putc(DMaps[i].map,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",6);
+            }
+            
+            if(!p_iputw(DMaps[i].level,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",7);
+            }
+            
+            if(!p_putc(DMaps[i].xoff,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",8);
+            }
+            
+            if(!p_putc(DMaps[i].compass,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",9);
+            }
+            
+            if(!p_iputw(DMaps[i].color,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",10);
+            }
+            
+            if(!p_putc(DMaps[i].midi,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",11);
+            }
+            
+            if(!p_putc(DMaps[i].cont,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",12);
+            }
+            
+            if(!p_putc(DMaps[i].type,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",13);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_putc(DMaps[i].grid[j],f))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",14);
+                }
+            }
+            
+            //16
+            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",15);
+            }
+            
+            if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",16);
+            }
+            
+            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",17);
+            }
+            
+            if(!p_iputl(DMaps[i].minimap_1_tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",18);
+            }
+            
+            if(!p_putc(DMaps[i].minimap_1_cset,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",19);
+            }
+            
+            if(!p_iputl(DMaps[i].minimap_2_tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",20);
+            }
+            
+            if(!p_putc(DMaps[i].minimap_2_cset,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",21);
+            }
+            
+            if(!p_iputl(DMaps[i].largemap_1_tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",22);
+            }
+            
+            if(!p_putc(DMaps[i].largemap_1_cset,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",23);
+            }
+            
+            if(!p_iputl(DMaps[i].largemap_2_tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",24);
+            }
+            
+            if(!p_putc(DMaps[i].largemap_2_cset,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",25);
+            }
+            
+            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",26);
+            }
+            
+            if(!p_putc(DMaps[i].tmusictrack,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",25);
+            }
+            
+            if(!p_putc(DMaps[i].active_subscreen,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",26);
+            }
+            
+            if(!p_putc(DMaps[i].passive_subscreen,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",27);
+            }
+            
+            byte disabled[32];
+            memset(disabled,0,32);
+            
+            for(int j=0; j<MAXITEMS; j++)
+            {
+                if(DMaps[i].disableditems[j])
+                {
+                    disabled[j/8] |= (1 << (j%8));
+                }
+            }
+            
+            if(!pfwrite(disabled,32,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",28);
+            }
+            
+            if(!p_iputl(DMaps[i].flags,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",29);
+            }
+	    if(!p_putc(DMaps[i].sideview,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",30);
+            }
+	    if(!p_iputw(DMaps[i].script,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",31);
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(DMaps[i].initD[q],f))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",32);
+		}
+		    
+	    }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		    for ( int w = 0; w < 65; w++ )
+		    {
+			if (!p_putc(DMaps[i].initD_label[q][w],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",33);
+			}
+		}
+	    }
+        }
+}
+void FFScript::read_dmaps(PACKFILE *f, int vers_id)
+{
+	word dmap_count=count_dmaps();
+  
+        dmap_count=zc_min(dmap_count, 512);
+        dmap_count=zc_min(dmap_count, MAXDMAPS-0);
+        
+        //finally...  section data
+        if(!p_igetw(dmap_count,f,true))
+        {
+            Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",5);
+        }
+        
+        
+        for(int i=start_dmap; i<start_dmap+dmap_count; i++)
+        {
+            if(!p_getc(&DMaps[i].map,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",6);
+            }
+            
+            if(!p_igetw(&DMaps[i].level,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",7);
+            }
+            
+            if(!p_getc(&DMaps[i].xoff,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",8);
+            }
+            
+            if(!p_getc(&DMaps[i].compass,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",9);
+            }
+            
+            if(!p_igetw(&DMaps[i].color,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",10);
+            }
+            
+            if(!p_getc(&DMaps[i].midi,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",11);
+            }
+            
+            if(!p_getc(&DMaps[i].cont,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",12);
+            }
+            
+            if(!p_getc(&DMaps[i].type,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",13);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_getc(&DMaps[i].grid[j],f,true))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",14);
+                }
+            }
+            
+            //16
+            if(!pfwrite(&&DMaps[i].name,sizeof(&DMaps[0].name),f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",15);
+            }
+            
+            if(!pfwrite(&&DMaps[i].title,sizeof(&DMaps[0].title),f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",16);
+            }
+            
+            if(!pfwrite(&&DMaps[i].intro,sizeof(&DMaps[0].intro),f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",17);
+            }
+            
+            if(!p_igetl(&DMaps[i].minimap_1_tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",18);
+            }
+            
+            if(!p_getc(&DMaps[i].minimap_1_cset,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",19);
+            }
+            
+            if(!p_igetl(&DMaps[i].minimap_2_tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",20);
+            }
+            
+            if(!p_getc(&DMaps[i].minimap_2_cset,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",21);
+            }
+            
+            if(!p_igetl(&DMaps[i].largemap_1_tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",22);
+            }
+            
+            if(!p_getc(&DMaps[i].largemap_1_cset,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",23);
+            }
+            
+            if(!p_igetl(&DMaps[i].largemap_2_tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",24);
+            }
+            
+            if(!p_getc(&DMaps[i].largemap_2_cset,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",25);
+            }
+            
+            if(!pfwrite(&&DMaps[i].tmusic,sizeof(&DMaps[0].tmusic),f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",26);
+            }
+            
+            if(!p_getc(&DMaps[i].tmusictrack,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",25);
+            }
+            
+            if(!p_getc(&DMaps[i].active_subscreen,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",26);
+            }
+            
+            if(!p_getc(&DMaps[i].passive_subscreen,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",27);
+            }
+            
+            byte disabled[32];
+            memset(disabled,0,32);
+            
+            for(int j=0; j<MAXITEMS; j++)
+            {
+                if(&DMaps[i].disableditems[j])
+                {
+                    disabled[j/8] |= (1 << (j%8));
+                }
+            }
+            
+            if(!pfwrite(disabled,32,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",28);
+            }
+            
+            if(!p_igetl(&DMaps[i].flags,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",29);
+            }
+	    if(!p_getc(&DMaps[i].sideview,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",30);
+            }
+	    if(!p_igetw(&DMaps[i].script,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",31);
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_igetl(&DMaps[i].initD[q],f,true))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",32);
+		}
+		    
+	    }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		    for ( int w = 0; w < 65; w++ )
+		    {
+			if (!p_getc(&DMaps[i].initD_label[q][w],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",33);
+			}
+		}
+	    }
+        }
+}
+
+
+
 void FFScript::read_combos(PACKFILE *f, int version_id)
 {
    

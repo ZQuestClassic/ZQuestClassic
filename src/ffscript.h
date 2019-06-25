@@ -46,7 +46,8 @@ enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEff
 #define svITEMS 	0x02
 #define svWEAPONS 	0x04
 #define svCOMBOS 	0x08
-#define svMAPSCR 	0x10
+#define svDMAPS 	0x10
+#define svMAPSCR 	0x20
 
 //npc function enums
 // npc_collision()
@@ -253,6 +254,8 @@ void do_getdmapbyname();
 //ZC SRAM
 //void read_maps(PACKFILE *f, int vers_id);
 //void write_maps(PACKFILE *f, int vers_id);
+void read_dmaps(PACKFILE *f, int vers_id);
+void write_dmaps(PACKFILE *f, int vers_id);
 void read_combos(PACKFILE *f, int vers_id);
 void write_combos(PACKFILE *f, int vers_id);
 void write_items(PACKFILE *f, int vers_id);
