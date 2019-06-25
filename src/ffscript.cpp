@@ -24286,6 +24286,7 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 	}
 	else
 	{
+		Z_scripterrlog("Tried to read a .zcsram file, but the file lacked the ..zcsram extension!\n");
 		set_register(sarg1, -20000);
 		
 	}
@@ -24327,8 +24328,8 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 	}
 	else
 	{
+		Z_scripterrlog("Tried to write a .zcsram file, but the file lacked the ..zcsram extension!\n");
 		set_register(sarg1, -20000);
-		
 	}
 }
 
