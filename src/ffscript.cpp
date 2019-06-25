@@ -27341,7 +27341,7 @@ void FFScript::write_dmaps(PACKFILE *f, int vers_id)
         }
         
         
-        for(int i=start_dmap; i<start_dmap+dmap_count; i++)
+        for(int i=0; i<dmap_count; i++)
         {
             if(!p_putc(DMaps[i].map,f))
             {
@@ -27523,13 +27523,13 @@ void FFScript::read_dmaps(PACKFILE *f, int vers_id)
         dmap_count=zc_min(dmap_count, MAXDMAPS-0);
         
         //finally...  section data
-        if(!p_igetw(dmap_count,f,true))
+        if(!p_igetw(&dmap_count,f,true))
         {
             Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",5);
         }
         
         
-        for(int i=start_dmap; i<start_dmap+dmap_count; i++)
+        for(int i=0; i<dmap_count; i++)
         {
             if(!p_getc(&DMaps[i].map,f,true))
             {
@@ -27580,17 +27580,17 @@ void FFScript::read_dmaps(PACKFILE *f, int vers_id)
             }
             
             //16
-            if(!pfwrite(&&DMaps[i].name,sizeof(&DMaps[0].name),f,true))
+            if(!pfread((&DMaps[i].name),sizeof(DMaps[0].name),f,true))
             {
                 Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",15);
             }
             
-            if(!pfwrite(&&DMaps[i].title,sizeof(&DMaps[0].title),f,true))
+            if(!pfread((&DMaps[i].title),sizeof(DMaps[0].title),f,true))
             {
                 Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",16);
             }
             
-            if(!pfwrite(&&DMaps[i].intro,sizeof(&DMaps[0].intro),f,true))
+            if(!pfread((&DMaps[i].intro),sizeof(DMaps[0].intro),f,true))
             {
                 Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",17);
             }
@@ -27635,7 +27635,7 @@ void FFScript::read_dmaps(PACKFILE *f, int vers_id)
                 Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",25);
             }
             
-            if(!pfwrite(&&DMaps[i].tmusic,sizeof(&DMaps[0].tmusic),f,true))
+            if(!pfread((&DMaps[i].tmusic),sizeof(DMaps[0].tmusic),f,true))
             {
                 Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",26);
             }
@@ -27666,7 +27666,7 @@ void FFScript::read_dmaps(PACKFILE *f, int vers_id)
                 }
             }
             
-            if(!pfwrite(disabled,32,f,true))
+            if(!pfread(disabled,32,f,true))
             {
                 Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",28);
             }
