@@ -84,10 +84,10 @@ namespace ZScript
 		// Types
 		void caseDataType(ASTDataType& host, void* param) {}
 
-		vector<Opcode *> getResult() const {return result;}
+		std::vector<Opcode *> getResult() const {return result;}
 		int getReturnLabelID() const {return returnlabelid;}
-		list<long> *getArrayRefs() {return &arrayRefs;}
-		list<long> const *getArrayRefs() const {return &arrayRefs;}
+		std::list<long> *getArrayRefs() {return &arrayRefs;}
+		std::list<long> const *getArrayRefs() const {return &arrayRefs;}
 
 	private:
 		void addOpcode(Opcode* code);
@@ -98,16 +98,16 @@ namespace ZScript
 		void deallocateArrayRef(long arrayRef);
 		void deallocateRefsUntilCount(int count);
 		
-		vector<Opcode *> result;
+		std::vector<Opcode *> result;
 		int returnlabelid;
 		int returnRefCount;
 		int continuelabelid;
 		int continueRefCount;
 		int breaklabelid;
 		int breakRefCount;
-		list<long> arrayRefs;
+		std::list<long> arrayRefs;
 		// Stack of opcode targets. Only the latest is used.
-		vector<vector<Opcode*>*> opcodeTargets;
+		std::vector<std::vector<Opcode*>*> opcodeTargets;
 
 		// Helper Functions.
 
@@ -137,14 +137,14 @@ namespace ZScript
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
 		virtual void caseExprIndex(ASTExprIndex &host, void *param);
-		vector<Opcode *> getResult() {return result;}
+		std::vector<Opcode *> getResult() {return result;}
 	private:
 		void addOpcode(Opcode* code);
 
 		template <class Container>
 		void addOpcodes(Container const& container);
 	
-		vector<Opcode *> result;
+		std::vector<Opcode *> result;
 	};
 
 
@@ -171,7 +171,7 @@ namespace ZScript
 	public:
 		void caseLabel(LabelArgument &host, void *param)
 		{
-			map<int, int> *labels = (map<int, int> *)param;
+			std::map<int, int> *labels = (std::map<int, int> *)param;
 			int lineno = (*labels)[host.getID()];
         
 			if(lineno==0)

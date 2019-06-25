@@ -1,10 +1,10 @@
 #include "../precompiled.h" //always first
 
 #include <assert.h>
-//#include "../zdefs.h"
 #include "../zsyssimple.h"
 #include "GlobalSymbols.h"
 #include "ByteCode.h"
+#include "../zdefs.h" //Putting this higher has issues?
 #include "Scope.h"
 #include "ZScript.h"
 #include "CompilerUtils.h"
@@ -468,8 +468,8 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
         for (int k = 0; entry.params[k] != -1 && k < 20; k++)
 			paramTypes.push_back(typeStore.getType(entry.params[k]));
                 
-        string const& name = entry.name;
-		string varName = name;
+        std::string const& name = entry.name;
+		std::string varName = name;
             
 		// Strip out the array at the end.
 		bool isArray = name.substr(name.size() - 2) == "[]";
@@ -517,9 +517,9 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
     functions.clear();
 }
 
-Function* LibrarySymbols::getFunction(string const& name, int numParams) const
+Function* LibrarySymbols::getFunction(std::string const& name, int numParams) const
 {
-	pair<string, int> p = make_pair(name, numParams);
+	std::pair<std::string, int> p = make_pair(name, numParams);
 	Function* ret = find<Function*>(functions, p).value_or(NULL);
 	/*if(!ret)
 		al_trace("Internal function %s not found with %d parameters!", name, numParams);*/
