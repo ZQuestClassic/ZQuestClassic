@@ -2719,9 +2719,11 @@ void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen
         showlayer = false;
     }
     
+	
     if(showlayer)
     {
-        do_scrolling_layer(bmp, type, layer, x, y, scrolling, tempscreen);
+		if(!(type >= 0 && (layer->hidelayers & (1 << type+1))))
+			do_scrolling_layer(bmp, type, layer, x, y, scrolling, tempscreen);
         
         if(drawprimitives && type >= 0 && type <= 5)
         {
@@ -4305,20 +4307,23 @@ void loadscr2(int tmp,int scr,int)
 
 void putscr(BITMAP* dest,int x,int y, mapscr* scrn)
 {
-    if(scrn->valid==0||!show_layer_0)
+    if(scrn->valid==0||!show_layer_0||scrn->hidelayers & 1)
     {
         rectfill(dest,x,y,x+255,y+175,0);
         return;
     }
-    
-    for(int i=0; i<176; i++)
-    {
-        if(scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER2BG || DMaps[currdmap].flags&dmfLAYER3BG)
-        {
+	
+	if(scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER2BG || DMaps[currdmap].flags&dmfLAYER3BG)
+	{
+		for(int i=0; i<176; ++i)
+		{
             overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
-        }
-        else
-        {
+		}
+	}
+	else
+	{
+		for(int i=0; i<176; ++i)
+		{
             putcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
         }
     }
