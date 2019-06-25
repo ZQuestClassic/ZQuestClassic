@@ -24261,6 +24261,8 @@ void FFScript::do_loadgamestructs()
 			++cycles;
 			FFCore.read_enemies(f,sram_version);
 			FFCore.read_items(f,sram_version);
+			FFCore.read_weaponsprtites(f,sram_version);
+			FFCore.read_mapscreens(f,sram_version);
 			pack_fclose(f);
 			Z_scripterrlog("do_loadgamestructs COMPLETED READING %s, Passed Phase %d\n", "ALL", cycles);
 			set_register(sarg1, cycles*10000);
@@ -24294,6 +24296,8 @@ void FFScript::do_savegamestructs()
 			++cycles;
 			FFCore.write_enemies(f,SRAM_VERSION);
 			FFCore.write_items(f,SRAM_VERSION);
+			FFCore.write_weaponsprtites(f,SRAM_VERSION);
+			FFCore.write_mapscreens(f,SRAM_VERSION);
 			pack_fclose(f);
 			Z_scripterrlog("do_savegamestructs COMPLETED WRITING %s, Passed Phase %d\n", "ALL", cycles);
 			set_register(sarg1, cycles*10000);
@@ -27310,6 +27314,100 @@ void FFScript::do_tracetobase()
 	}
 }
 
+//SRAM Functions
+
+void FFScript::read_weaponsprtites(PACKFILE *f, int vers_id)
+{   
+        for(int i=0; i<wMAX; i++)
+        {
+            if(!p_igetw(&wpnsbuf[i].tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
+            }
+            
+            if(!p_getc(&wpnsbuf[i].misc,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
+            }
+            
+            if(!p_getc(&wpnsbuf[i].csets,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
+            }
+            
+            if(!p_getc(&wpnsbuf[i].frames,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
+            }
+            
+            if(!p_getc(&wpnsbuf[i].speed,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
+            }
+            
+            if(!p_getc(&wpnsbuf[i].type,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
+            }
+	    
+	    if(!p_igetw(&wpnsbuf[i].script,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+            }
+	    
+	    if(!p_igetl(&wpnsbuf[i].newtile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+            }
+        }
+}
+void FFScript::write_weaponsprtites(PACKFILE *f, int vers_id)
+{   
+        for(int i=0; i<wMAX; i++)
+        {
+            if(!p_iputw(wpnsbuf[i].tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
+            }
+            
+            if(!p_putc(wpnsbuf[i].misc,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
+            }
+            
+            if(!p_putc(wpnsbuf[i].csets,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
+            }
+            
+            if(!p_putc(wpnsbuf[i].frames,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
+            }
+            
+            if(!p_putc(wpnsbuf[i].speed,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
+            }
+            
+            if(!p_putc(wpnsbuf[i].type,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
+            }
+	    
+	    if(!p_iputw(wpnsbuf[i].script,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+            }
+	    
+	    if(!p_iputl(wpnsbuf[i].newtile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+            }
+        }
+}
+
+
 void FFScript::read_enemies(PACKFILE *f, int vers_id)
 {
 	if ( !f ) return;
@@ -29113,3 +29211,1212 @@ void FFScript::read_items(PACKFILE *f, int vers_id)
         }
 }
 	
+void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
+{
+	for(int i=0; i<map_count && i<MAXMAPS2; i++)
+        {
+		for(int j=0; j<MAPSCRS; j++)
+		{
+		    mapscr *m = &TheMaps[i*MAPSCRS+j];
+		    
+		    if(!p_putc(m->valid,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->guy,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    {
+			if(!p_iputw(m->str,f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_putc(m->room,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->item,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->hasitem, f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->tilewarptype[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_iputw(m->door_combo_set,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->warpreturnx[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->warpreturny[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_iputw(m->warpreturnc,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->stairx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->stairy,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->itemx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->itemy,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputw(m->color,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->enemyflags,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->door[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_iputw(m->tilewarpdmap[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->tilewarpscr[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_putc(m->tilewarpoverlayflags,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->exitdir,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<10; k++)
+		    {
+			{
+			    if(!p_iputw(m->enemy[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+		    }
+		    
+		    if(!p_putc(m->pattern,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->sidewarptype[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_putc(m->sidewarpoverlayflags,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->warparrivalx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->warparrivaly,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->path[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->sidewarpscr[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_iputw(m->sidewarpdmap[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_putc(m->sidewarpindex,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputw(m->undercombo,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->undercset,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputw(m->catchall,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags2,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags3,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags4,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags5,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputw(m->noreset,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputw(m->nocarry,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags6,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags7,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags8,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags9,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags10,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->csensitive,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->oceansfx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->bosssfx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->secretsfx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->holdupsfx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_putc(m->layermap[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_putc(m->layerscreen[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_putc(m->layeropacity[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_iputw(m->timedwarptics,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->nextmap,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->nextscr,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_iputw(m->secretcombo[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_putc(m->secretcset[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_putc(m->secretflag[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_iputw(m->data.at(k),f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_putc(m->sflag.at(k),f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_putc(m->cset.at(k),f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_iputw(m->screen_midi,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->lens_layer,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputl(m->numff,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<32; k++)
+		    {
+			
+			    if(!p_iputw(m->ffdata[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_putc(m->ffcset[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputw(m->ffdelay[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffx[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffy[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffxdelta[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffydelta[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffxdelta2[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffydelta2[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_putc(m->fflink[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_putc(m->ffwidth[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_putc(m->ffheight[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffflags[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputw(m->ffscript[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][0],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][1],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][2],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][3],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][4],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][5],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][6],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][7],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			
+		    }
+		    
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_iputl(m->npcstrings[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_iputw(m->new_items[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_iputw(m->new_item_x[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_iputw(m->new_item_y[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    if(!p_iputw(m->script,f))
+		    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    } 
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_iputl(m->screeninitd[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+			    
+		    }
+		    if(!p_putc(m->preloadscript,f))
+		    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		}
+	}
+}
+void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
+{
+	for(int i=0; i<map_count && i<MAXMAPS2; i++)
+        {
+		for(int j=0; j<MAPSCRS; j++)
+		{
+		    mapscr *m = &TheMaps[i*MAPSCRS+j];
+		    
+		    if(!p_getc(&(m->valid),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->guy),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    {
+			if(!p_igetw(&(m->str),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_getc(&(m->room),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->item),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->hasitem), f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->tilewarptype[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_igetw(&(m->door_combo_set),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->warpreturnx[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->warpreturny[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_igetw(&(m->warpreturnc),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->stairx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->stairy),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->itemx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->itemy),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_igetw(&(m->color),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->enemyflags),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->door[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_igetw(&(m->tilewarpdmap[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->tilewarpscr[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_getc(&(m->tilewarpoverlayflags),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->exitdir),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<10; k++)
+		    {
+			{
+			    if(!p_igetw(&(m->enemy[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+		    }
+		    
+		    if(!p_getc(&(m->pattern),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->sidewarptype[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_getc(&(m->sidewarpoverlayflags),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->warparrivalx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->warparrivaly),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->path[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->sidewarpscr[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_igetw(&(m->sidewarpdmap[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_getc(&(m->sidewarpindex),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_igetw(&(m->undercombo),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->undercset),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_igetw(&(m->catchall),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags2),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags3),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags4),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags5),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_igetw(&(m->noreset),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_igetw(&(m->nocarry),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags6),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags7),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags8),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags9),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags10),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->csensitive),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->oceansfx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->bosssfx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->secretsfx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->holdupsfx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_getc(&(m->layermap[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_getc(&(m->layerscreen[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_getc(&(m->layeropacity[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_igetw(&(m->timedwarptics),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->nextmap),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->nextscr),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_igetw(&(m->secretcombo[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_getc(&(m->secretcset[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_getc(&(m->secretflag[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_igetw(&(m->data.at(k)),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_getc(&(m->sflag.at(k)),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_getc(&(m->cset.at(k)),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_igetw(&(m->screen_midi),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->lens_layer),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_igetl(&(m->numff),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<32; k++)
+		    {
+			
+			    if(!p_igetw(&(m->ffdata[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_getc(&(m->ffcset[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetw(&(m->ffdelay[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffx[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffy[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffxdelta[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffydelta[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffxdelta2[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffydelta2[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_getc(&(m->fflink[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_getc(&(m->ffwidth[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_getc(&(m->ffheight[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffflags[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetw(&(m->ffscript[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][0]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][1]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][2]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][3]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][4]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][5]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][6]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][7]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			
+		    }
+		    
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetl(&(m->npcstrings[q]),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetw(&(m->new_items[q]),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetw(&(m->new_item_x[q]),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetw(&(m->new_item_y[q]),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    if(!p_igetw(&(m->script),f,true))
+		    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    } 
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_igetl(&(m->screeninitd[q]),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+			    
+		    }
+		    if(!p_getc(&(m->preloadscript),f,true))
+		    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		}
+	}
+}
+/*
+void FFScript::write_maps(PACKFILE *f, int vers_id)
+{
+        for(int i=0; i<map_count && i<MAXMAPS2; i++)
+        {
+		for(int j=0; j<MAPSCRS; j++)
+		{
+			if ( !(FFCore.write_mapscreen(f,i,j,vers_id)) )
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODE: %d",i*j);
+			}
+		}
+        }
+}
+
+void FFScript::read_maps(PACKFILE *f, int vers_id)
+{
+        for(int i=0; i<map_count && i<MAXMAPS2; i++)
+        {
+		for(int j=0; j<MAPSCRS; j++)
+		{
+			if ( !(FFCore.read_mapscreen(f,i,j,vers_id)) )
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE: %d",i*j);
+			}
+		}
+        }
+}
+*/
