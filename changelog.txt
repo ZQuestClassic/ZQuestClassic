@@ -2,6 +2,9 @@
 
 //Alpha 26
 
+Added an error message for wrong extension (e.g. '.sram' instead of '.zcsram')
+	when saving or loading SRAM files. 
+Added a sanity check on SRAM flagset mismatches.
 Added a flagset param to SaveSRAM and to LoadSRAM. The functions are now:
 	void SaveSRAM("filename.zcsram", int flags);
 	void LoadSRAM("filename.zcsram", int flags);
