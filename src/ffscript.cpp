@@ -16290,7 +16290,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		{
 			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15936);
 			bool wasswimming = (Link.getAction()==swimming);
-			byte olddiveclk = Link.diveclk;
+			int olddiveclk = Link.diveclk;
 			ALLOFF();
 			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();

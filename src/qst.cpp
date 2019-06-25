@@ -6811,6 +6811,15 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 		}
 		
+		if( s_version < 45 )
+		{
+			if(tempitem.family == itype_flippers)
+			{
+				tempitem.misc1 = 50; //Dive length, default 50 frames -V
+				tempitem.misc2 = 30; //Dive cooldown, default 30 frames -V
+			}
+		}
+		
 		if(tempitem.fam_type==0)  // Always do this
 			tempitem.fam_type=1;
 			

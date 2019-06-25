@@ -883,7 +883,8 @@ int LinkClass::getHeldItem()
 }
 bool LinkClass::isDiving()
 {
-    return (diveclk>30);
+	int flippers_id = current_item_id(itype_flippers);
+    return (diveclk > (flippers_id < 0 ? 30 : itemsbuf[flippers_id].misc2));
 }
 bool LinkClass::isSwimming()
 {
@@ -1791,7 +1792,7 @@ attack:
                     }
                 }
                 
-                if(diveclk>30)
+                if(isDiving())
                 {
                     if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
 		    {
@@ -1877,7 +1878,7 @@ attack:
 		    }
 		if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 
-                if(diveclk>30)
+                if(isDiving())
                 {
                     if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
 		    {
@@ -1949,7 +1950,7 @@ attack:
 		    }
 		if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 
-                if(diveclk>30)
+                if(isDiving())
                 {
                     if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
 		    {
@@ -3637,7 +3638,7 @@ void LinkClass::checkhit()
         }
     }
     
-    if(hclk>0 || inlikelike == 1 || action==inwind || action==drowning || inwallm || diveclk>30 || (action==hopping && hopclk<255))
+    if(hclk>0 || inlikelike == 1 || action==inwind || action==drowning || inwallm || isDiving() || (action==hopping && hopclk<255))
     {
         return;
     }
@@ -6690,15 +6691,22 @@ void LinkClass::do_hopping()
     if(hopclk==0xFF) //|| (diagonalMovement && hopclk >= 0xFF) ))                                         // swimming
 			//Possible fix for exiting water in diagonal movement. -Z
     {
+		int flippers_id = current_item_id(itype_flippers);
         if(diveclk>0)
+		{
             --diveclk;
+			if(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && DrunkrAbtn()) //Cancellable Diving -V
+			{
+				diveclk = 30;
+			}
+		}
         else if(DrunkrAbtn())
         {
-            bool global_diving=(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1);
+            bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG1);
             bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
             
             if(global_diving==screen_diving)
-                diveclk=80;
+                diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2));
         }
         
         if((!(int(x)&7) && !(int(y)&7)) || diagonalMovement)
@@ -6712,7 +6720,7 @@ void LinkClass::do_hopping()
         {
             linkstep();
             
-            if(diveclk<=30 || (frame&1))
+            if(!isDiving() || (frame&1))
             {
                 switch(dir)
                 {
@@ -7140,21 +7148,24 @@ void LinkClass::movelink()
     int oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
     pushing=0;
     
-    if(diveclk>0)
-    {
-        --diveclk;
-    }
-    else if(action==swimming)
-    {
-        bool global_diving=(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1);
-        bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
-        
-        if(DrunkrAbtn()&&(global_diving==screen_diving))
-        {
-            diveclk=80;
-        }
-    }
-    
+	int flippers_id = current_item_id(itype_flippers);
+	if(diveclk>0)
+	{
+		--diveclk;
+		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && DrunkrAbtn()) //Cancellable Diving -V
+		{
+			diveclk = itemsbuf[flippers_id].misc2;
+		}
+	}
+	else if(DrunkrAbtn())
+	{
+		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG1);
+		bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
+		
+		if(global_diving==screen_diving)
+			diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2));
+	}
+	
     if(action==rafting)
     {
         do_rafting();
@@ -11503,12 +11514,12 @@ void LinkClass::checkspecial2(int *ls)
     
     if(!((type==cCAVE || type==cCAVE2) && z==0) && type!=cSTAIR &&
             type!=cPIT && type!=cSWIMWARP && type!=cRESET &&
-            !(type==cDIVEWARP && diveclk>30))
+            !(type==cDIVEWARP && isDiving()))
     {
         switch(flag)
         {
         case mfDIVE_ITEM:
-            if(diveclk>30 && !getmapflag())
+            if(isDiving() && !getmapflag())
             {
                 additem(x, y, tmpscr->catchall,
                         ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
@@ -11541,7 +11552,7 @@ void LinkClass::checkspecial2(int *ls)
         switch(flag2)
         {
         case mfDIVE_ITEM:
-            if(diveclk>30 && !getmapflag())
+            if(isDiving() && !getmapflag())
             {
                 additem(x, y, tmpscr->catchall,
                         ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
@@ -11574,7 +11585,7 @@ void LinkClass::checkspecial2(int *ls)
         switch(flag3)
         {
         case mfDIVE_ITEM:
-            if(diveclk>30 && !getmapflag())
+            if(isDiving() && !getmapflag())
             {
                 additem(x, y, tmpscr->catchall,
                         ipONETIME2 + ipBIGRANGE + ipHOLDUP + ipNODRAW);
