@@ -622,8 +622,8 @@ static AccessorTable GlobalTable[] =
 	//overload, 2 args
 		//{ "ilen",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "itoa_c",                  ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SaveGameData",     ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_LWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "LoadGameData",     ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_LWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SaveSRAM",     ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_LWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadSRAM",     ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           {  ZVARTYPEID_LWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "strcat",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "strchr",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -1337,9 +1337,9 @@ void GlobalSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     } 
-    //int SaveGameData(eweapon *ptr)
+    //int SaveSRAM(eweapon *ptr)
     {
-	    Function* function = getFunction("SaveGameData", 1);
+	    Function* function = getFunction("SaveSRAM", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1349,9 +1349,9 @@ void GlobalSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
-    //int LoadGameData(eweapon *ptr)
+    //int LoadSRAM(eweapon *ptr)
     {
-	    Function* function = getFunction("LoadGameData", 1);
+	    Function* function = getFunction("LoadSRAM", 1);
         int label = function->getLabel();
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));

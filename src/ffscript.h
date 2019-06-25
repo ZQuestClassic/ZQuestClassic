@@ -240,8 +240,14 @@ void do_getnpcbyname();
 void do_getitembyname();
 void do_getcombobyname();
 void do_getdmapbyname();
+
+//ZC SRAM
+void writeenemies(PACKFILE *f);
+void readenemies(PACKFILE *f);
 void do_savegamestructs();
 void do_loadgamestructs();
+
+
 
 void do_strstr();
 void do_strcat();
