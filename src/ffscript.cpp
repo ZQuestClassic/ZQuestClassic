@@ -24259,7 +24259,8 @@ void FFScript::do_loadgamestructs()
 			p_igetl(&sram_version,f,true);
 			Z_scripterrlog("Reading ZCSRAM, Version: %d\n", sram_version);
 			++cycles;
-			FFCore.readenemies(f);
+			FFCore.read_enemies(f,sram_version);
+			FFCore.read_items(f,sram_version);
 			pack_fclose(f);
 			Z_scripterrlog("do_loadgamestructs COMPLETED READING %s, Passed Phase %d\n", "ALL", cycles);
 			set_register(sarg1, cycles*10000);
@@ -24291,7 +24292,8 @@ void FFScript::do_savegamestructs()
 		{
 			p_iputl(SRAM_VERSION,f);
 			++cycles;
-			FFCore.writeenemies(f);
+			FFCore.write_enemies(f,SRAM_VERSION);
+			FFCore.write_items(f,SRAM_VERSION);
 			pack_fclose(f);
 			Z_scripterrlog("do_savegamestructs COMPLETED WRITING %s, Passed Phase %d\n", "ALL", cycles);
 			set_register(sarg1, cycles*10000);
@@ -27308,7 +27310,7 @@ void FFScript::do_tracetobase()
 	}
 }
 
-void FFScript::readenemies(PACKFILE *f)
+void FFScript::read_enemies(PACKFILE *f, int vers_id)
 {
 	if ( !f ) return;
 	for(int i=0; i<MAXGUYS; i++)
@@ -27777,7 +27779,7 @@ void FFScript::readenemies(PACKFILE *f)
 	}
 }
 
-void FFScript::writeenemies(PACKFILE *f)
+void FFScript::write_enemies(PACKFILE *f, int vers_id)
 {
 	if ( !f ) return;
 	for(int i=0; i<MAXGUYS; i++)
@@ -28245,3 +28247,869 @@ void FFScript::writeenemies(PACKFILE *f)
 		
 	}
 }
+
+
+void FFScript::write_items(PACKFILE *f, int vers_id)
+{
+        for(int i=0; i<iMax; i++)
+        {
+            if(!p_iputl(itemsbuf[i].tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",6);
+            }
+            
+            if(!p_putc(itemsbuf[i].misc,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",7);
+            }
+            
+            if(!p_putc(itemsbuf[i].csets,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",8);
+            }
+            
+            if(!p_putc(itemsbuf[i].frames,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",9);
+            }
+            
+            if(!p_putc(itemsbuf[i].speed,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",10);
+            }
+            
+            if(!p_putc(itemsbuf[i].delay,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",11);
+            }
+            
+            if(!p_iputl(itemsbuf[i].ltm,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",12);
+            }
+            
+            if(!p_iputl(itemsbuf[i].family,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",13);
+            }
+            
+            if(!p_putc(itemsbuf[i].fam_type,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",14);
+            }
+            
+            if(!p_iputl(itemsbuf[i].power,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",14);
+            }
+            
+            if(!p_iputl(itemsbuf[i].flags,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",15);
+            }
+            
+            if(!p_iputw(itemsbuf[i].script,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",16);
+            }
+            
+            if(!p_putc(itemsbuf[i].count,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",17);
+            }
+            
+            if(!p_iputw(itemsbuf[i].amount,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",18);
+            }
+            
+            if(!p_iputw(itemsbuf[i].collect_script,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",19);
+            }
+            
+            if(!p_iputw(itemsbuf[i].setmax,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",21);
+            }
+            
+            if(!p_iputw(itemsbuf[i].max,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",22);
+            }
+            
+            if(!p_putc(itemsbuf[i].playsound,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",23);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_iputl(itemsbuf[i].initiald[j],f))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",24);
+                }
+            }
+            
+            for(int j=0; j<2; j++)
+            {
+                if(!p_putc(itemsbuf[i].initiala[j],f))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",25);
+                }
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",26);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn2,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",27);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn3,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",28);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn4,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",29);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn5,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",30);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn6,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",31);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn7,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",32);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn8,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",33);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn9,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",34);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn10,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",35);
+            }
+            
+            if(!p_putc(itemsbuf[i].pickup_hearts,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",36);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc1,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",37);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc2,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",38);
+            }
+            
+            if(!p_putc(itemsbuf[i].magic,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",39);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc3,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",40);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc4,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",41);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc5,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",42);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc6,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",43);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc7,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",44);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc8,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",45);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc9,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",46);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc10,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",47);
+            }
+            
+            if(!p_putc(itemsbuf[i].usesound,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",48);
+            }
+	    
+	    //New itemdata vars -Z
+	    //! version 27
+	    
+	    if(!p_putc(itemsbuf[i].useweapon,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",49);
+            }
+	    if(!p_putc(itemsbuf[i].usedefence,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",50);
+            }
+	    if(!p_iputl(itemsbuf[i].weaprange,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",51);
+            }
+	    if(!p_iputl(itemsbuf[i].weapduration,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",52);
+            }
+	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+		    if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",53);
+		    }
+	    }
+	    //version 28
+		if(!p_iputl(itemsbuf[i].duplicates,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",54);
+		}
+		for ( int q = 0; q < INITIAL_D; q++ )
+		{
+			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",55);
+			}
+		}
+		for ( int q = 0; q < INITIAL_A; q++ )
+		{
+			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",56);
+			}
+		}
+
+		if(!p_putc(itemsbuf[i].drawlayer,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",57);
+		}
+
+
+		if(!p_iputl(itemsbuf[i].hxofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",58);
+		}
+		if(!p_iputl(itemsbuf[i].hyofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",59);
+		}
+		if(!p_iputl(itemsbuf[i].hxsz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",60);
+		}
+		if(!p_iputl(itemsbuf[i].hysz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",61);
+		}
+		if(!p_iputl(itemsbuf[i].hzsz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",62);
+		}
+		if(!p_iputl(itemsbuf[i].xofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",63);
+		}
+		if(!p_iputl(itemsbuf[i].yofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",64);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hxofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",65);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hyofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",66);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hxsz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",67);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hysz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",68);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hzsz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",69);
+		}
+		if(!p_iputl(itemsbuf[i].weap_xofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",70);
+		}
+		if(!p_iputl(itemsbuf[i].weap_yofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",71);
+		}
+		if(!p_iputw(itemsbuf[i].weaponscript,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",72);
+		}
+		if(!p_iputl(itemsbuf[i].wpnsprite,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",73);
+		}
+		if(!p_iputl(itemsbuf[i].magiccosttimer,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",74);
+		}
+		if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",75);
+		}
+		if(!p_iputl(itemsbuf[i].tilew,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",76);
+		}
+		if(!p_iputl(itemsbuf[i].tileh,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",77);
+		}
+		if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",78);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tilew,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",79);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tileh,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",80);
+		}
+		if(!p_iputl(itemsbuf[i].pickup,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",81);
+		}
+		if(!p_iputw(itemsbuf[i].pstring,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",82);
+		}
+		if(!p_iputw(itemsbuf[i].pickup_string_flags,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",83);
+		}
+		
+		if(!p_putc(itemsbuf[i].cost_counter,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",84);
+		}
+		
+		//InitD[] labels
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",85);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",86);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",87);
+				} 
+			}
+			if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",88);
+			} 
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",89);
+			} 
+			
+		}
+		if(!p_iputw(itemsbuf[i].sprite_script,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",90);
+		} 
+		
+	    
+        }
+}
+
+void FFScript::read_items(PACKFILE *f, int vers_id)
+{
+        for(int i=0; i<iMax; i++)
+        {
+            if(!p_igetl(&itemsbuf[i].tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",6);
+            }
+            
+            if(!p_getc(&itemsbuf[i].misc,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",7);
+            }
+            
+            if(!p_getc(&itemsbuf[i].csets,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",8);
+            }
+            
+            if(!p_getc(&itemsbuf[i].frames,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",9);
+            }
+            
+            if(!p_getc(&itemsbuf[i].speed,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",10);
+            }
+            
+            if(!p_getc(&itemsbuf[i].delay,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",11);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].ltm,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",12);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].family,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",13);
+            }
+            
+            if(!p_getc(&itemsbuf[i].fam_type,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",14);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].power,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",14);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].flags,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",15);
+            }
+            
+            if(!p_igetw(&itemsbuf[i].script,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",16);
+            }
+            
+            if(!p_getc(&itemsbuf[i].count,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",17);
+            }
+            
+            if(!p_igetw(&itemsbuf[i].amount,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",18);
+            }
+            
+            if(!p_igetw(&itemsbuf[i].collect_script,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",19);
+            }
+            
+            if(!p_igetw(&itemsbuf[i].setmax,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",21);
+            }
+            
+            if(!p_igetw(&itemsbuf[i].max,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",22);
+            }
+            
+            if(!p_getc(&itemsbuf[i].playsound,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",23);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_igetl(&itemsbuf[i].initiald[j],f,true))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",24);
+                }
+            }
+            
+            for(int j=0; j<2; j++)
+            {
+                if(!p_getc(&itemsbuf[i].initiala[j],f,true))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",25);
+                }
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",26);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn2,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",27);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn3,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",28);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn4,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",29);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn5,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",30);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn6,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",31);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn7,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",32);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn8,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",33);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn9,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",34);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn10,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",35);
+            }
+            
+            if(!p_getc(&itemsbuf[i].pickup_hearts,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",36);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc1,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",37);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc2,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",38);
+            }
+            
+            if(!p_getc(&itemsbuf[i].magic,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",39);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc3,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",40);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc4,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",41);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc5,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",42);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc6,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",43);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc7,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",44);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc8,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",45);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc9,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",46);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc10,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",47);
+            }
+            
+            if(!p_getc(&itemsbuf[i].usesound,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",48);
+            }
+	    
+	    //New itemdata vars -Z
+	    //! version 27
+	    
+	    if(!p_getc(&itemsbuf[i].useweapon,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",49);
+            }
+	    if(!p_getc(&itemsbuf[i].usedefence,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",50);
+            }
+	    if(!p_igetl(&itemsbuf[i].weaprange,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",51);
+            }
+	    if(!p_igetl(&itemsbuf[i].weapduration,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",52);
+            }
+	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+		    if(!p_igetl(&itemsbuf[i].weap_pattern[q],f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",53);
+		    }
+	    }
+	    //version 28
+		if(!p_igetl(&itemsbuf[i].duplicates,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",54);
+		}
+		for ( int q = 0; q < INITIAL_D; q++ )
+		{
+			if(!p_igetl(&itemsbuf[i].weap_initiald[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",55);
+			}
+		}
+		for ( int q = 0; q < INITIAL_A; q++ )
+		{
+			if(!p_getc(&itemsbuf[i].weap_initiala[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",56);
+			}
+		}
+
+		if(!p_getc(&itemsbuf[i].drawlayer,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",57);
+		}
+
+
+		if(!p_igetl(&itemsbuf[i].hxofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",58);
+		}
+		if(!p_igetl(&itemsbuf[i].hyofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",59);
+		}
+		if(!p_igetl(&itemsbuf[i].hxsz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",60);
+		}
+		if(!p_igetl(&itemsbuf[i].hysz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",61);
+		}
+		if(!p_igetl(&itemsbuf[i].hzsz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",62);
+		}
+		if(!p_igetl(&itemsbuf[i].xofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",63);
+		}
+		if(!p_igetl(&itemsbuf[i].yofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",64);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_hxofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",65);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_hyofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",66);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_hxsz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",67);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_hysz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",68);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_hzsz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",69);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_xofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",70);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_yofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",71);
+		}
+		if(!p_igetw(&itemsbuf[i].weaponscript,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",72);
+		}
+		if(!p_igetl(&itemsbuf[i].wpnsprite,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",73);
+		}
+		if(!p_igetl(&itemsbuf[i].magiccosttimer,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",74);
+		}
+		if(!p_igetl(&itemsbuf[i].overrideFLAGS,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",75);
+		}
+		if(!p_igetl(&itemsbuf[i].tilew,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",76);
+		}
+		if(!p_igetl(&itemsbuf[i].tileh,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",77);
+		}
+		if(!p_igetl(&itemsbuf[i].weapoverrideFLAGS,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",78);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_tilew,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",79);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_tileh,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",80);
+		}
+		if(!p_igetl(&itemsbuf[i].pickup,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",81);
+		}
+		if(!p_igetw(&itemsbuf[i].pstring,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",82);
+		}
+		if(!p_igetw(&itemsbuf[i].pickup_string_flags,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",83);
+		}
+		
+		if(!p_getc(&itemsbuf[i].cost_counter,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",84);
+		}
+		
+		//InitD[] labels
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&itemsbuf[i].initD_label[q][w],f,true))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",85);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&itemsbuf[i].weapon_initD_label[q][w],f,true))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",86);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&itemsbuf[i].sprite_initD_label[q][w],f,true))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",87);
+				} 
+			}
+			if(!p_igetl(&itemsbuf[i].sprite_initiald[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",88);
+			} 
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_getc(&itemsbuf[i].sprite_initiala[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",89);
+			} 
+			
+		}
+		if(!p_igetw(&itemsbuf[i].sprite_script,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",90);
+		} 
+		
+	    
+        }
+}
+	

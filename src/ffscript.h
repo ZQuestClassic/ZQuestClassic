@@ -244,8 +244,10 @@ void do_getcombobyname();
 void do_getdmapbyname();
 
 //ZC SRAM
-void writeenemies(PACKFILE *f);
-void readenemies(PACKFILE *f);
+void write_items(PACKFILE *f, int vers_id);
+void read_items(PACKFILE *f, int vers_id);
+void write_enemies(PACKFILE *f, int vers_id);
+void read_enemies(PACKFILE *f, int vers_id);
 void do_savegamestructs();
 void do_loadgamestructs();
 
