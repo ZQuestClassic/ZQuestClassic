@@ -24265,6 +24265,7 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svGUYS ) FFCore.read_enemies(f,sram_version);
 			if ( !section_id || section_id&svITEMS )FFCore.read_items(f,sram_version);
 			if ( !section_id || section_id&svWEAPONS ) FFCore.read_weaponsprtites(f,sram_version);
+			if ( !section_id || section_id&svCOMBOS ) FFCore.read_combos(f,sram_version);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.read_mapscreens(f,sram_version);
 			pack_fclose(f);
 			Z_scripterrlog("do_loadgamestructs COMPLETED READING %s, Passed Phase %d\n", "ALL", cycles);
@@ -24305,6 +24306,7 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svGUYS ) FFCore.write_enemies(f,SRAM_VERSION);
 			if ( !section_id || section_id&svITEMS ) FFCore.write_items(f,SRAM_VERSION);
 			if ( !section_id || section_id&svWEAPONS ) FFCore.write_weaponsprtites(f,SRAM_VERSION);
+			if ( !section_id || section_id&svCOMBOS ) FFCore.write_combos(f,SRAM_VERSION);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.write_mapscreens(f,SRAM_VERSION);
 			pack_fclose(f);
 			Z_scripterrlog("do_savegamestructs COMPLETED WRITING %s, Passed Phase %d\n", "ALL", cycles);
@@ -25838,8 +25840,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "SRNDR",                1,   0,   0,   0},
     { "SRNDV",                1,   1,   0,   0},
     { "SRNDRND",              1,   0,   0,   0},
-	{ "SAVEGAMESTRUCTS",                1,   0,   0,   0},
-	{ "READGAMESTRUCTS",                1,   0,   0,   0},
+	{ "SAVEGAMESTRUCTS",                2,   0,   0,   0},
+	{ "READGAMESTRUCTS",                2,   0,   0,   0},
     
     { "",                    0,   0,   0,   0}
 };
@@ -27323,7 +27325,241 @@ void FFScript::do_tracetobase()
 }
 
 //SRAM Functions
+void FFScript::read_combos(PACKFILE *f, int version_id)
+{
+   
+	word combos_used = 0;
+    
+        if(!p_igetw(combos_used,f,true))
+        {
+            Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",5);
+        }
+        
+        for(int i=0; i<combos_used; i++)
+        {
+            if(!p_igetl(&combobuf[i].tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",6);
+            }
+            
+            if(!p_getc(&combobuf[i].flip,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",7);
+            }
+            
+            if(!p_getc(&combobuf[i].walk,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",8);
+            }
+            
+            if(!p_getc(&combobuf[i].type,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",9);
+            }
+            
+            if(!p_getc(&combobuf[i].csets,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",10);
+            }
+            
+            if(!p_getc(&combobuf[i].frames,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",11);
+            }
+            
+            if(!p_getc(&combobuf[i].speed,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",12);
+            }
+            
+            if(!p_igetw(&combobuf[i].nextcombo,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",13);
+            }
+            
+            if(!p_getc(&combobuf[i].nextcset,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",14);
+            }
+            
+            if(!p_getc(&combobuf[i].flag,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",15);
+            }
+            
+            if(!p_getc(&combobuf[i].skipanim,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",16);
+            }
+            
+            if(!p_igetw(&combobuf[i].nexttimer,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",17);
+            }
+            
+            if(!p_getc(&combobuf[i].skipanimy,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",18);
+            }
+            
+            if(!p_getc(&combobuf[i].animflags,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",19);
+            }
+	    
+	    for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+	    {
+		if(!p_igetl(&combobuf[i].attributes[q],f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",20);
+		}
+	    }
+	    if(!p_igetl(&combobuf[i].usrflags,f,true))
+	    {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",21);
+	    }	 
+	    for ( int q = 0; q < 3; q++ ) 
+	    {
+	        if(!p_igetl(&combobuf[i].triggerflags[q],f,true))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",22);
+	        }
+	    }
+	   
+	    if(!p_igetl(&combobuf[i].triggerlevel,f,true))
+	    {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",23);
+	    }	
+	    for ( int q = 0; q < 11; q++ ) 
+	    {
+	        if(!p_getc(&combobuf[i].label[q],f,true))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",24);
+	        }
+	    }
+		    
+        }
+}
 
+void FFScript::write_combos(PACKFILE *f, int version_id)
+{
+   
+	word combos_used = 0;
+    
+        //finally...  section data
+        combos_used=count_combos()-0;
+        combos_used=zc_min(combos_used, MAXCOMBOS);
+        
+        if(!p_iputw(combos_used,f))
+        {
+            Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",5);
+        }
+        
+        for(int i=0; i<combos_used; i++)
+        {
+            if(!p_iputl(combobuf[i].tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",6);
+            }
+            
+            if(!p_putc(combobuf[i].flip,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",7);
+            }
+            
+            if(!p_putc(combobuf[i].walk,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",8);
+            }
+            
+            if(!p_putc(combobuf[i].type,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",9);
+            }
+            
+            if(!p_putc(combobuf[i].csets,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",10);
+            }
+            
+            if(!p_putc(combobuf[i].frames,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",11);
+            }
+            
+            if(!p_putc(combobuf[i].speed,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",12);
+            }
+            
+            if(!p_iputw(combobuf[i].nextcombo,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",13);
+            }
+            
+            if(!p_putc(combobuf[i].nextcset,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",14);
+            }
+            
+            if(!p_putc(combobuf[i].flag,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",15);
+            }
+            
+            if(!p_putc(combobuf[i].skipanim,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",16);
+            }
+            
+            if(!p_iputw(combobuf[i].nexttimer,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",17);
+            }
+            
+            if(!p_putc(combobuf[i].skipanimy,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",18);
+            }
+            
+            if(!p_putc(combobuf[i].animflags,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",19);
+            }
+	    
+	    for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+	    {
+		if(!p_iputl(combobuf[i].attributes[q],f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",20);
+		}
+	    }
+	    if(!p_iputl(combobuf[i].usrflags,f))
+	    {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",21);
+	    }	 
+	    for ( int q = 0; q < 3; q++ ) 
+	    {
+	        if(!p_iputl(combobuf[i].triggerflags[q],f))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",22);
+	        }
+	    }
+	   
+	    if(!p_iputl(combobuf[i].triggerlevel,f))
+	    {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",23);
+	    }	
+	    for ( int q = 0; q < 11; q++ ) 
+	    {
+	        if(!p_putc(combobuf[i].label[q],f))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",24);
+	        }
+	    }
+		    
+        }
+}
 void FFScript::read_weaponsprtites(PACKFILE *f, int vers_id)
 {   
         for(int i=0; i<wMAX; i++)
