@@ -1051,11 +1051,19 @@ of iterations is known at compile-time.
 //  Global  //
 //////////////
 
-void SaveSRAM("filename.zcsram");
-void LoadSRAM("filename.zcsram");
+void SaveSRAM("filename.zcsram", int flags);
+void LoadSRAM("filename.zcsram", int flags);
  * Saves or loads the internal datatype dats to a .zcsram file.
- * As of SRAM_VERSION 1, the following datatypes are saved;
-*	npcdata
+ * As of SRAM_VERSION 1, the datatypes (below) are saved.
+ * The user can specify which types to save by passing a flagset, 
+ * where eaxh ttype ias OR'd together. Pasasing '0' uses all of them:
+ * 	TYPE		FLAG
+ *	npcdata		0x01
+ *	itemdata	0x02
+ *	spritedata	0x04
+ *	combodata	0x08
+ *	dmapdata	0x10
+ *	mapdata-	0x20
 
 void SRand(int seed);
  * Sets the current random seed to a given value, input from script. (DOES NOT /10000)
