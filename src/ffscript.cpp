@@ -27330,7 +27330,7 @@ void FFScript::read_combos(PACKFILE *f, int version_id)
    
 	word combos_used = 0;
     
-        if(!p_igetw(combos_used,f,true))
+        if(!p_igetw(&combos_used,f,true))
         {
             Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",5);
         }
