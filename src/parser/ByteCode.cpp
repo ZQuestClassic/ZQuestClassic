@@ -11,6 +11,7 @@
 
 using namespace ZScript;
 using std::ostringstream;
+using namespace std;
 
 string LiteralArgument::toString()
 {
