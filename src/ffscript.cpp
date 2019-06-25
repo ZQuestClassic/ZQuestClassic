@@ -24252,7 +24252,7 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 	//Bitwise OR sections together
 	string strA;
 	FFCore.getString(arrayptr, strA);
-	int cycles = 0; int sram_version = 0;
+	int temp_sram_flags = section_id; int sram_version = 0;
 
 	if ( FFCore.checkExtension(strA, ".zcsram") )
 	{
@@ -24260,8 +24260,13 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 		if (f)
 		{
 			p_igetl(&sram_version,f,true);
+			p_igetl(&section_id,f,true);
 			Z_scripterrlog("Reading ZCSRAM, Version: %d\n", sram_version);
-			++cycles;
+			if ( section_id != temp_sram_flags )
+			{
+				Z_scripterrlog("Reading an SRAM file with a section flag mismatch!\nThe file section flags are (%d) and the specified flagset is (%d).\nThis may cause errors!\n", section_id, temp_sram_flags);
+			}
+			
 			if ( !section_id || section_id&svGUYS ) FFCore.read_enemies(f,sram_version);
 			if ( !section_id || section_id&svITEMS )FFCore.read_items(f,sram_version);
 			if ( !section_id || section_id&svWEAPONS ) FFCore.read_weaponsprtites(f,sram_version);
@@ -24269,8 +24274,9 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svDMAPS ) FFCore.read_dmaps(f,sram_version);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.read_mapscreens(f,sram_version);
 			pack_fclose(f);
-			Z_scripterrlog("do_loadgamestructs COMPLETED READING %s, Passed Phase %d\n", "ALL", cycles);
-			set_register(sarg1, cycles*10000);
+			Z_scripterrlog("do_savegamestructs COMPLETED READINV %s, with section ID flags %d\n", "ALL", section_id);
+			
+			set_register(sarg1, 10000);
 		}
 		else 
 		{
@@ -24301,8 +24307,7 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 		if (f)
 		{
 			p_iputl(SRAM_VERSION,f);
-			++cycles;
-			
+			p_iputl(section_id,f);
 			
 			if ( !section_id || section_id&svGUYS ) FFCore.write_enemies(f,SRAM_VERSION);
 			if ( !section_id || section_id&svITEMS ) FFCore.write_items(f,SRAM_VERSION);
@@ -24311,8 +24316,8 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svDMAPS ) FFCore.write_dmaps(f,SRAM_VERSION);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.write_mapscreens(f,SRAM_VERSION);
 			pack_fclose(f);
-			Z_scripterrlog("do_savegamestructs COMPLETED WRITING %s, Passed Phase %d\n", "ALL", cycles);
-			set_register(sarg1, cycles*10000);
+			Z_scripterrlog("do_savegamestructs COMPLETED WRITING %s, with section ID flags %d\n", "ALL", section_id);
+			set_register(sarg1, 10000);
 		}
 		else 
 		{
