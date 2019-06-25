@@ -41,6 +41,12 @@
 //Visual Warp Effect Types for Link->WarpEx()
 enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
 
+#define svALL 		0
+#define svGUYS 		0x01
+#define svITEMS 	0x02
+#define svWEAPONS 	0x04
+#define svMAPSCR 	0x08
+
 //npc function enums
 // npc_collision()
 	//bool npc->Collision
@@ -254,8 +260,8 @@ void write_weaponsprtites(PACKFILE *f, int vers_id);
 void read_weaponsprtites(PACKFILE *f, int vers_id);
 void write_mapscreens(PACKFILE *f,int vers_id);
 void read_mapscreens(PACKFILE *f, int vers_id);
-void do_savegamestructs();
-void do_loadgamestructs();
+void do_savegamestructs(const bool v, const bool v2);
+void do_loadgamestructs(const bool v, const bool v2);
 
 
 

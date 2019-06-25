@@ -17767,10 +17767,10 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		    
 		case SAVEGAMESTRUCTS:
-		    FFCore.do_savegamestructs();
+		    FFCore.do_savegamestructs(false,false);
 		    break;
 		case READGAMESTRUCTS:
-		    FFCore.do_loadgamestructs();
+		    FFCore.do_loadgamestructs(false,false);
 		    break;
 		case ARRAYSIZE:
 		    do_arraysize();
@@ -24244,9 +24244,12 @@ bool FFScript::checkExtension(std::string &filename, const std::string &extensio
 }
 
 
-void FFScript::do_loadgamestructs()
+void FFScript::do_loadgamestructs(const bool v, const bool v2)
 {
-	long arrayptr = get_register(sarg1) / 10000;
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	long section_id = SH::get_arg(sarg2, v2) / 10000;
+	Z_scripterrlog("do_loadgamestructs selected section is: %d\n", section_id);
+	//Bitwise OR sections together
 	string strA;
 	FFCore.getString(arrayptr, strA);
 	int cycles = 0; int sram_version = 0;
@@ -24259,10 +24262,10 @@ void FFScript::do_loadgamestructs()
 			p_igetl(&sram_version,f,true);
 			Z_scripterrlog("Reading ZCSRAM, Version: %d\n", sram_version);
 			++cycles;
-			FFCore.read_enemies(f,sram_version);
-			FFCore.read_items(f,sram_version);
-			FFCore.read_weaponsprtites(f,sram_version);
-			FFCore.read_mapscreens(f,sram_version);
+			if ( !section_id || section_id&svGUYS ) FFCore.read_enemies(f,sram_version);
+			if ( !section_id || section_id&svITEMS )FFCore.read_items(f,sram_version);
+			if ( !section_id || section_id&svWEAPONS ) FFCore.read_weaponsprtites(f,sram_version);
+			if ( !section_id || section_id&svMAPSCR ) FFCore.read_mapscreens(f,sram_version);
 			pack_fclose(f);
 			Z_scripterrlog("do_loadgamestructs COMPLETED READING %s, Passed Phase %d\n", "ALL", cycles);
 			set_register(sarg1, cycles*10000);
@@ -24280,9 +24283,12 @@ void FFScript::do_loadgamestructs()
 	}
 }
 
-void FFScript::do_savegamestructs()
+void FFScript::do_savegamestructs(const bool v, const bool v2)
 {
-	long arrayptr = get_register(sarg1) / 10000;
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	long section_id = SH::get_arg(sarg2, v2) / 10000;
+	Z_scripterrlog("do_loadgamestructs selected section is: %d\n", section_id);
+	//Bitwise OR sections together
 	string strA;
 	FFCore.getString(arrayptr, strA);
 	int cycles = 0;
@@ -24294,10 +24300,12 @@ void FFScript::do_savegamestructs()
 		{
 			p_iputl(SRAM_VERSION,f);
 			++cycles;
-			FFCore.write_enemies(f,SRAM_VERSION);
-			FFCore.write_items(f,SRAM_VERSION);
-			FFCore.write_weaponsprtites(f,SRAM_VERSION);
-			FFCore.write_mapscreens(f,SRAM_VERSION);
+			
+			
+			if ( !section_id || section_id&svGUYS ) FFCore.write_enemies(f,SRAM_VERSION);
+			if ( !section_id || section_id&svITEMS ) FFCore.write_items(f,SRAM_VERSION);
+			if ( !section_id || section_id&svWEAPONS ) FFCore.write_weaponsprtites(f,SRAM_VERSION);
+			if ( !section_id || section_id&svMAPSCR ) FFCore.write_mapscreens(f,SRAM_VERSION);
 			pack_fclose(f);
 			Z_scripterrlog("do_savegamestructs COMPLETED WRITING %s, Passed Phase %d\n", "ALL", cycles);
 			set_register(sarg1, cycles*10000);

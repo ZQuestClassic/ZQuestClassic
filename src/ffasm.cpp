@@ -875,8 +875,8 @@ script_command command_list[NUMCOMMANDS+1]=
     { "SRNDR",                1,   0,   0,   0},
     { "SRNDV",                1,   1,   0,   0},
     { "SRNDRND",              1,   0,   0,   0},
-	{ "SAVEGAMESTRUCTS",                1,   0,   0,   0},
-	{ "READGAMESTRUCTS",                1,   0,   0,   0},
+	{ "SAVEGAMESTRUCTS",                2,   0,   0,   0},
+	{ "READGAMESTRUCTS",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

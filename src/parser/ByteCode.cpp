@@ -4602,12 +4602,12 @@ string Oitoa::toString()
 
 string OSaveGameStructs::toString()
 {
-    return "SAVEGAMESTRUCTS " + getArgument()->toString();
+    return "SAVEGAMESTRUCTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OReadGameStructs::toString()
 {
-    return "READGAMESTRUCTS " + getArgument()->toString();
+    return "READGAMESTRUCTS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string Ostrcat::toString()

@@ -7776,24 +7776,24 @@ namespace ZScript
 			return new Oitoa(a->clone());
 		}
 	};
-	class OSaveGameStructs : public UnaryOpcode
+	class OSaveGameStructs : public BinaryOpcode
 	{
 	public:
-		OSaveGameStructs(Argument *A) : UnaryOpcode(A) {}
+		OSaveGameStructs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OSaveGameStructs(a->clone());
+			return new OSaveGameStructs(a->clone(),b->clone());
 		}
 	};
-	class OReadGameStructs : public UnaryOpcode
+	class OReadGameStructs : public BinaryOpcode
 	{
 	public:
-		OReadGameStructs(Argument *A) : UnaryOpcode(A) {}
+		OReadGameStructs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OReadGameStructs(a->clone());
+			return new OReadGameStructs(a->clone(),b->clone());
 		}
 	};
 	class Ostrcat : public UnaryOpcode
