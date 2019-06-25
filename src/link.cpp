@@ -834,7 +834,10 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         
     case isdiving:
         if(action==swimming && diveclk==0)
-            diveclk = 80; // Who cares about qr_NODIVING? It's the questmaker's business.
+		{
+			int flippers_id = current_item_id(itype_flippers);
+            diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2)); // Who cares about qr_NODIVING? It's the questmaker's business.
+		}
         return;
         
     case drowning:
@@ -12363,7 +12366,7 @@ bool LinkClass::dowarp(int type, int index)
         {
             //ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
             bool wasswimming = (action == swimming);
-            byte olddiveclk = diveclk;
+            int olddiveclk = diveclk;
             ALLOFF();
             
             if(wasswimming)
@@ -12508,7 +12511,7 @@ bool LinkClass::dowarp(int type, int index)
 		{
 		    //ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
 		    bool wasswimming = (action == swimming);
-		    byte olddiveclk = diveclk;
+		    int olddiveclk = diveclk;
 		    ALLOFF();
 		    
 		    if(wasswimming)
