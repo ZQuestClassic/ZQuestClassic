@@ -2,6 +2,8 @@
 
 //Alpha 26
 
+Added SaveSRAM("filename.zcsram") and LoadSRAM("filename.zcsram").
+	These support npcdata right now, at SRAM_VERSION 1.
 Fixed mapdata->InitD[] using the InitD for the current screen, and fixed
 	it mult/div by 10000.
 Ensured that dmap scripts have their InitD set up correctly
