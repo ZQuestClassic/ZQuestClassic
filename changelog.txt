@@ -2,7 +2,22 @@
 
 //Alpha 26
 
-Added SaveSRAM("filename.zcsram") and LoadSRAM("filename.zcsram").
+Added a flagset param to SaveSRAM and to LoadSRAM. The functions are now:
+	void SaveSRAM("filename.zcsram", int flags);
+	void LoadSRAM("filename.zcsram", int flags);
+	If the user passes '0' to int flags, then the packfile will contain/is expected to contain
+		every section.
+	Otherwise, the user can OR together the section types that
+		they want to use, by using the SRAM_* constants in std.zh.
+SRAM now saves the following datatypes:
+	npcdata, itemdata, spritedata, combodata, dmapdata, mapdata.
+Renamed SRAM functions to SaveSRAM("filename.zcsram") and LoadSRAM("filename.zcsram").
+Added version control to SRAM functions.
+	SRAM files store the SRAM version in the first 4 bytes of the file.
+	( ZoriaRPG, 25th June, 2019 )
+	
+Begin adding the ability to save struct data toi .zcsram files, and to load those files
+	back into ZC using LoadGameData("filename") and ReadGameData("filename").
 	These support npcdata right now, at SRAM_VERSION 1.
 Fixed mapdata->InitD[] using the InitD for the current screen, and fixed
 	it mult/div by 10000.
