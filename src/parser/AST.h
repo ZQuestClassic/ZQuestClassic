@@ -299,6 +299,8 @@ namespace ZScript
 		         LocationData const& location = LocationData::NONE);
 		ASTFloat(long value, Type type,
 		         LocationData const& location = LocationData::NONE);
+		ASTFloat(long ipart, long dpart,
+		         LocationData const& location = LocationData::NONE);
 		ASTFloat* clone() const {return new ASTFloat(*this);}
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -713,11 +715,9 @@ namespace ZScript
 	public:
 		ASTDataEnum(LocationData const& location = LocationData::NONE);
 		ASTDataEnum(ASTDataEnum const&);
-		ASTDataEnum& operator=(ASTDataEnum const& rhs);
 		ASTDataEnum* clone() const {return new ASTDataEnum(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
-		virtual void addDeclaration(ASTDataDecl* declaration);
 		virtual bool isEnum() const {return true;}
 	private:
 		long nextVal;
