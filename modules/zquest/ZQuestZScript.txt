@@ -16,6 +16,7 @@ src/parser/GlobalSymbols.cpp
 src/parser/Scope.cpp
 src/parser/ScriptParser.cpp
 src/parser/SemanticAnalyzer.cpp
+src/parser/RegistrationVisitor.cpp
 src/parser/Types.cpp
 src/parser/ZScript.cpp
 
