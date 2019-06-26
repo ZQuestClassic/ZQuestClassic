@@ -12842,10 +12842,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     }
     if ( version >= 21 )
     {
-	if(!p_getc(&(temp_mapscr->preloadscript),f,true))
-	{
-		return qe_invalid;
-	}     
+	   
     }
     if ( version < 21 )
     {
@@ -12853,6 +12850,23 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     }
     //all builds with version > 20 need this. -Z
     temp_mapscr->ffcswaitdraw = 0;
+    
+    if ( version >= 22 ) //26th June, 2019; Layer Visibility
+    {
+	if(!p_getc(&(temp_mapscr->hidelayers ),f,true))
+	{
+		return qe_invalid;
+	} 
+	if(!p_getc(&(temp_mapscr->hidescriptlayers  ),f,true))
+	{
+		return qe_invalid;
+	}      
+    }
+    if ( version < 22 )
+    {
+	temp_mapscr->hidelayers = 0;    
+	temp_mapscr->hidescriptlayers = 0;    
+    }
     
     //Dodongos in 2.10 used the boss roar, not the dodongo sound. -Z
     //May be any version before 2.11. -Z

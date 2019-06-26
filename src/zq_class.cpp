@@ -8520,6 +8520,14 @@ int writemapscreen(PACKFILE *f, int i, int j)
     {
 		return qe_invalid;
     }
+    if(!p_putc(screen.hidelayers,f))
+    {
+		return qe_invalid;
+    }
+    if(!p_putc(screen.hidescriptlayers,f))
+    {
+		return qe_invalid;
+    }
     return qe_OK;
 }
 
