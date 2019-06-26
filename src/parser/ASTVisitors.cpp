@@ -11,6 +11,12 @@ using std::list;
 using std::vector;
 using namespace ZScript;
 
+struct tag {};
+void* const RecursiveVisitor::paramNone = new tag();
+void* const RecursiveVisitor::paramRead = new tag();
+void* const RecursiveVisitor::paramWrite = new tag();
+void* const RecursiveVisitor::paramReadWrite = new tag();
+
 ////////////////////////////////////////////////////////////////
 // RecursiveVisitor
 

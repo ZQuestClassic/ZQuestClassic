@@ -15,7 +15,9 @@ namespace ZScript
 {
 	class RegistrationVisitor : public RecursiveVisitor
 	{
+	public:
 		RegistrationVisitor(ZScript::Program& program);
+		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
 		////////////////
 		// Cases
@@ -98,12 +100,12 @@ namespace ZScript
 			return node1.registered() && node2.registered();
 		}
 		template <class Container>
-		bool registered(Container const& nodes) const
+		bool registered(AST& host, Container const& nodes) const
 		{
 			for(typename Container::const_iterator it = nodes.begin();
 				it != nodes.end(); ++it)
 			{
-				if(!registered(**it, param)) return false;
+				if(!registered(**it)) return false;
 			}
 			return true;
 		}
@@ -125,7 +127,7 @@ namespace ZScript
 		void analyzeBinaryExpr(ASTBinaryExpr& host);
 		
 		bool hasChanged;
-	}
+	};
 }
 
 #endif

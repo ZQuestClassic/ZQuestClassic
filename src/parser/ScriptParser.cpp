@@ -18,6 +18,7 @@
 #include "Scope.h"
 #include "SemanticAnalyzer.h"
 #include "BuildVisitors.h"
+#include "RegistrationVisitor.h"
 #include "ZScript.h"
 using namespace std;
 using namespace ZScript;
@@ -65,16 +66,23 @@ ScriptsData* ZScript::compile(string const& filename)
 	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 		return NULL;
     
-	box_out("Pass 3: Analyzing Code");
-	box_eol();
-    
 	SimpleCompileErrorHandler handler;
 	Program program(*root, &handler);
 	if (handler.hasError())
 		return NULL;
+	
+	box_out("Pass 3: Registration");
+	box_eol();
 
+	RegistrationVisitor regVisitor(program);
+	if(regVisitor.hasFailed()) return NULL;
+	
+	box_out("Pass 4: Analyzing Code");
+	box_eol();
+	
 	SemanticAnalyzer semanticAnalyzer(program);
-	if (semanticAnalyzer.hasFailed())
+	if (semanticAnalyzer.hasFailed() || semanticAnalyzer.hasSkipFailed()
+		|| regVisitor.hasSkipFailed())
 		return NULL;
     
 	FunctionData fd(program);
@@ -84,14 +92,14 @@ ScriptsData* ZScript::compile(string const& filename)
 		return NULL;
 	}
     
-	box_out("Pass 4: Generating object code");
+	box_out("Pass 5: Generating object code");
 	box_eol();
     
 	auto_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 	if (!id.get())
 		return NULL;
     
-	box_out("Pass 5: Assembling");
+	box_out("Pass 6: Assembling");
 	box_eol();
 
 	ScriptParser::assemble(id.get());

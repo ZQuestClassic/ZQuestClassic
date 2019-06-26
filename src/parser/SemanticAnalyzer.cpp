@@ -157,7 +157,7 @@ void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
 	if(numMatches > 1)
 		handleError(CompileError::TooManyUsing(&host, iden->asString()));
 	else if(!numMatches)
-		handleError(CompileError::NoUsingMatch(&host, iden->asString()));}
+		handleError(CompileError::NoUsingMatch(&host, iden->asString()));
 	else if(numMatches == -1)
 		handleError(CompileError::DuplicateUsing(&host, iden->asString()));
 }
@@ -405,8 +405,11 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		if (breakRecursion(host)) return;
 
 		// Then resolve the type.
-		DataType const& type = *host.resolveType(scope, this);
-		if (breakRecursion(host)) return;
+	}
+	DataType const& type = *host.resolveType(scope, this);
+	if (breakRecursion(host)) return;
+	if(!host.registered())
+	{
 		if (!type.isResolved())
 		{
 			handleError(CompileError::UnresolvedType(&host, type.getName()));
@@ -614,7 +617,7 @@ extern FFScript FFCore;
 void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 {
 	assert(host.script); //Scope must be made during registration
-	scope = host.script->getScope();
+	scope = &host.script->getScope();
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
 }

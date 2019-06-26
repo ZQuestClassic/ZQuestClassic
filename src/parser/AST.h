@@ -243,8 +243,8 @@ namespace ZScript
 		
 		bool isDisabled() const {return disabled_;}
 		void disable() {disabled_ = true;}
-		bool registered() const {return registered;}
-		void Register() {registered = true;}
+		bool registered() const {return isRegistered;}
+		void Register() {isRegistered = true;}
 	
 	
 		// Subclass Predicates (replacing typeof and such).
@@ -260,7 +260,7 @@ namespace ZScript
 		//If this node has been disabled, for some reason or other. This will prevent any visitor from visiting the node (instant return, without error)
 		bool disabled_;
 		//If this node has been registered by RegistrationVisitor
-		bool registered;
+		bool isRegistered;
 	};
 
 
@@ -610,7 +610,6 @@ namespace ZScript
 		owning_vector<ASTUsingDecl> use;
 		
 		Script* script;
-		ScriptScope* scope;
 	};
 
 	class ASTNamespace : public ASTDecl
@@ -639,7 +638,6 @@ namespace ZScript
 		std::string name;
 		
 		Namespace* namesp;
-		NamespaceScope* scope;
 	};
 
 	class ASTImportDecl : public ASTDecl

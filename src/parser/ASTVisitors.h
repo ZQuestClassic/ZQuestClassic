@@ -183,15 +183,14 @@ namespace ZScript
 	class RecursiveVisitor : public ASTVisitor, public CompileErrorHandler
 	{
 	public:
-		struct tag {};
 		// Used as a parameter to signal that no val is needed.
-		static void* const paramNone = new tag();
+		static void* const paramNone;
 		// Used as a parameter to signal that the rval is needed.
-		static void* const paramRead = new tag();
+		static void* const paramRead;
 		// Used as a parameter to signal that the lval is needed.
-		static void* const paramWrite = new tag();
+		static void* const paramWrite;
 		// Used as a parameter to signal that both lval and rval are needed.
-		static void* const paramReadWrite = new tag();
+		static void* const paramReadWrite;
 		
 		RecursiveVisitor() : failure(false), breakNode(NULL), failure_skipped(false) {}
 	
@@ -297,8 +296,9 @@ namespace ZScript
 				ASTCharLiteral& host, void* param = NULL);
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
 		
-		bool hasFailed() const {return failure || failure_skipped;}
-
+		bool hasFailed() const {return failure;}
+		bool hasSkipFailed() const {return failure_skipped;}
+		
 	protected:
 		// Returns true if we have failed or for some other reason must break out
 		// of recursion. Should be called with the current node and param between
