@@ -16,6 +16,7 @@ namespace ZScript
 	class RegistrationVisitor : public RecursiveVisitor
 	{
 		RegistrationVisitor(ZScript::Program& program);
+		void visit(AST& node, void* param = NULL);
 		////////////////
 		// Cases
 		void caseDefault(AST& host, void* param = NULL);
@@ -93,6 +94,9 @@ namespace ZScript
 		}
 	private:
 		ZScript::Program& program;
+		
+		void analyzeUnaryExpr(ASTUnaryExpr& host);
+		void analyzeBinaryExpr(ASTBinaryExpr& host);
 	}
 }
 
