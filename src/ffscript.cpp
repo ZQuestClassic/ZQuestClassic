@@ -5251,6 +5251,20 @@ case SCREENDATALAYERINVIS:
 	}
 	break;
 }
+case SCREENDATASCRIPTDRAWS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 7 )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->HideScriptLayer[]: %d\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+	}
+	break;
+}
 case SCREENDATATIMEDWARPTICS: 	GET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case SCREENDATANEXTMAP: 		GET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case SCREENDATANEXTSCREEN: 	GET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
@@ -11260,6 +11274,22 @@ case SCREENDATALAYERINVIS:
 			tmpscr->hidelayers |= (1<<indx);
 		else
 			tmpscr->hidelayers &= ~(1<<indx);
+	}
+	break;
+}
+case SCREENDATASCRIPTDRAWS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 7 )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->HideScriptLayer[]: %d\n", indx);
+	}
+	else
+	{
+		if(value)
+			tmpscr->hidescriptlayers &= ~(1<<indx);
+		else
+			tmpscr->hidescriptlayers |= (1<<indx);
 	}
 	break;
 }
@@ -26944,6 +26974,7 @@ script_variable ZASMVars[]=
 	{"MAPDATASIDEWARPID", MAPDATASIDEWARPID, 0, 0 },
 	{"SCREENSIDEWARPID", SCREENSIDEWARPID, 0, 0 },
 	{"SCREENDATALAYERINVIS", SCREENDATALAYERINVIS, 0, 0 },
+	{"SCREENDATASCRIPTDRAWS", SCREENDATASCRIPTDRAWS, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

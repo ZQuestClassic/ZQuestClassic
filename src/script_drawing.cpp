@@ -10326,7 +10326,7 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bo
 // do primitives
 ////////////////////////////////////////////////////////
 
-void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
+void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, int yoff)
 {
     color_map = &trans_table2;
     
@@ -10335,7 +10335,8 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
     
     if(type > 7)
         return;
-        
+	if(theScreen->hidescriptlayers & (1<<type))
+		return; //Script draws hidden for this layer
     //--script_drawing_commands[][] reference--
     //[][0]: type
     //[][1-16]: defined by type
