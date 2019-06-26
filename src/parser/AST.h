@@ -288,6 +288,8 @@ namespace ZScript
 		owning_vector<ASTScript> scripts;
 		owning_vector<ASTNamespace> namespaces;
 		owning_vector<ASTUsingDecl> use;
+		
+		FileScope* scope;
 	};
 
 	class ASTFloat : public AST
@@ -606,6 +608,9 @@ namespace ZScript
 		owning_vector<ASTFuncDecl> functions;
 		owning_vector<ASTDataTypeDef> types;
 		owning_vector<ASTUsingDecl> use;
+		
+		Script* script;
+		ScriptScope* scope;
 	};
 
 	class ASTNamespace : public ASTDecl
@@ -632,6 +637,9 @@ namespace ZScript
 		owning_vector<ASTNamespace> namespaces;
 		owning_vector<ASTUsingDecl> use;
 		std::string name;
+		
+		Namespace* namesp;
+		NamespaceScope* scope;
 	};
 
 	class ASTImportDecl : public ASTDecl

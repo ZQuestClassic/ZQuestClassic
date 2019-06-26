@@ -33,7 +33,7 @@ void RegistrationVisitor::visit(AST& node, void* param)
 
 void RegistrationVisitor::caseDefault(AST& host, void* param)
 {
-	assert(false); //This should never be reached.
+	host.Register();
 }
 
 //Handle the root file specially!
@@ -51,20 +51,188 @@ void RegistrationVisitor::caseRoot(ASTFile& host, void* param)
 
 void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	if(host.scope)
+		scope = host.scope;
+	else
+		scope = host.scope = scope->makeFileChild(host.asString());
+	visit(host, host.options, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.use, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.dataTypes, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.scriptTypes, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.imports, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.variables, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.functions, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.namespaces, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.scripts, param);
+	if(registered(host.options) && registered(host.use) && registered(host.dataTypes)
+		&& registered(host.scriptTypes) && registered(host.imports) && registered(host.variables)
+		&& registered(host.functions) && registered(host.namespaces) && registered(host.scripts))
+	{
+		host.Register();
+	}
+	scope = scope->getParent();
 }
 
 void RegistrationVisitor::caseSetOption(ASTSetOption& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	visit(host.expr.get(), param);
+	if(!registered(*host.expr)) return; //Non-initialized constant
+	
+	// If the option name is "default", set the default option instead.
+	if (host.name == "default")
+	{
+		CompileOptionSetting setting = host.getSetting(this, scope);
+		if (!setting) return; // error
+		scope->setDefaultOption(setting);
+		return;
+	}
+	
+	// Make sure the option is valid.
+	if (!host.option.isValid())
+	{
+		handleError(CompileError::UnknownOption(&host, host.name));
+		return;
+	}
+
+	// Set the option to the provided value.
+	CompileOptionSetting setting = host.getSetting(this, scope);
+	if (!setting) return; // error
+	scope->setOption(host.option, setting);
+	host.Register();
+}
+
+// Declarations
+void RegistrationVisitor::caseScript(ASTScript& host, void* param)
+{
+	visit(host.type.get());
+	if(!registered(*host.type)) return;
+	
+	Script& script;
+	if(host.script)
+		script = *host.script;
+	else
+		script = *(host.script = program.addScript(host, *scope, this));
+	if (breakRecursion(host)) return;
+	
+	string name = script.getName();
+
+	// Recurse on script elements with its scope.
+	scope = &script.getScope();
+	visit(host, host.options, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.use, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.types, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.variables, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.functions, param);
+	scope = scope->getParent();
+	if (breakRecursion(host)) return;
+	//
+	if(registered(host.options) && registered(host.use) && registered(host.types)
+		&& registered(host.variables) && registered(host.functions))
+	{
+		host.Register();
+	}
+	else return;
+	//
+	if(script.getType() == ScriptType::untyped) return;
+	// Check for a valid run function.
+	vector<Function*> possibleRuns =
+		//script.getScope().getLocalFunctions("run");
+		script.getScope().getLocalFunctions(FFCore.scriptRunString);
+	if (possibleRuns.size() == 0)
+	{
+		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
+		if (breakRecursion(host)) return;
+	}
+	if (possibleRuns.size() > 1)
+	{
+		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
+		if (breakRecursion(host)) return;
+	}
+	if (*possibleRuns[0]->returnType != DataType::ZVOID)
+	{
+		handleError(CompileError::ScriptRunNotVoid(&host, name, FFCore.scriptRunString));
+		if (breakRecursion(host)) return;
+	}
+}
+
+void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
+{
+	Namespace& namesp;
+	if(host.namesp)
+		namesp = *host.namesp;
+	else
+		namesp = *(host.namesp = program.addNamespace(host, *scope, this));
+	if (breakRecursion(host)) return;
+
+	// Recurse on script elements with its scope.
+	// Namespaces' parent scope is RootScope*, not FileScope*. Store the FileScope* temporarily.
+	Scope* temp = scope;
+	scope = &namesp.getScope();
+	visit(host, host.options, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.dataTypes, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.scriptTypes, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.use, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.variables, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.functions, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.namespaces, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.scripts, param);
+	scope = temp;
+	if(registered(host.options) && registered(host.use) && registered(host.dataTypes)
+		&& registered(host.scriptTypes) && registered(host.variables) && registered(host.functions)
+		&& registered(host.namespaces) && registered(host.scripts))
+	{
+		host.Register();
+	}
+}
+
+void RegistrationVisitor::caseImportDecl(ASTImportDecl& host, void* param)
+{
+	//Check if the import is valid, or to be stopped by header guard. -V
+	if(getRoot(*scope)->checkImport(&host, *lookupOption(*scope, CompileOption::OPT_HEADER_GUARD) / 10000.0, this))
+	{
+		visit(host.getTree(), param);
+		if(registered(host.getTree())) host.Register();
+	}
+	else
+	{
+		host.disable(); //Do not use this import; it is a duplicate, and duplicates have been disallowed! -V
+	}
 }
 
 void RegistrationVisitor::caseUsing(ASTUsingDecl& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	//Handle adding scope
+	ASTExprIdentifier* iden = host.getIdentifier();
+	vector<string> components = iden->components;
+	Scope* temp = host.always ? getRoot(*scope) : scope;
+	int numMatches = temp->useNamespace(components, iden->delimiters);
+	if(numMatches > 1)
+		handleError(CompileError::TooManyUsing(&host, iden->asString()));
+	else if(numMatches == -1)
+		handleError(CompileError::DuplicateUsing(&host, iden->asString()));
+	else if(numMatches==1)
+		host.Register();
 }
 
-// Declarations
 void RegistrationVisitor::caseDataTypeDef(ASTDataTypeDef& host, void* param)
 {
 	//VENROBTODO do stuff here!
@@ -105,45 +273,63 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	//VENROBTODO do stuff here!
 }
 
-void RegistrationVisitor::caseScript(ASTScript& host, void* param)
-{
-	//VENROBTODO do stuff here!
-}
-
-void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
-{
-	//VENROBTODO do stuff here!
-}
-
-void RegistrationVisitor::caseImportDecl(ASTImportDecl& host, void* param)
-{
-	//VENROBTODO do stuff here!
-}
-
 // Expressions -- Needed for constant evaluation
 void RegistrationVisitor::caseExprConst(ASTExprConst& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	RecursiveVisitor::caseExprConst(host, param);
+	if (host.getCompileTimeValue(this, scope)) host.Register();
 }
 
 void RegistrationVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	visit(host.left.get(), paramWrite);
+	if (breakRecursion(host)) return;
+	visit(host.right.get(), paramRead);
+	if (breakRecursion(host)) return;	
+	if(!registered(*host.left, *host.right)) return;
+	DataType const* ltype = host.left->getWriteType(scope, this);
+	if (!ltype)
+	{
+		handleError(
+			CompileError::NoWriteType(
+				host.left.get(), host.left->asString()));
+		return;
+	}
+	host.Register();
 }
 
 void RegistrationVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	// Bind to named variable.
+	host.binding = lookupDatum(*scope, host, this);
+	if (!host.binding) return;
+
+	// Can't write to a constant.
+	if (param == paramWrite || param == paramReadWrite)
+	{
+		if (host.binding->type.isConstant())
+		{
+			handleError(CompileError::LValConst(&host, host.asString()));
+			return;
+		}
+	}
+	host.Register();
 }
 
 void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	//VENROBTODO Error here. Arrows should not be found in global initializers.
 }
 
 void RegistrationVisitor::caseExprIndex(ASTExprIndex& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	visit(host.array.get());
+	syncDisable(host, *host.array);
+	if (breakRecursion(host)) return;
+	visit(host.index.get());
+	syncDisable(host, *host.index);
+	if (breakRecursion(host)) return;
+	if(registered(*host.array, *host.index)) host.Register();
 }
 
 void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
@@ -182,6 +368,11 @@ void RegistrationVisitor::caseExprDecrement(ASTExprDecrement& host, void* param)
 }
 
 void RegistrationVisitor::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
+{
+	analyzeUnaryExpr(host);
+}
+
+void RegistrationVisitor::caseExprCast(ASTExprCast& host, void* param)
 {
 	analyzeUnaryExpr(host);
 }
@@ -290,6 +481,19 @@ void RegistrationVisitor::caseExprTernary(ASTTernaryExpr& host, void* param)
 	if(registered(*host.left) && registered(*host.middle) && registered(*host.right)) host.Register();
 }
 
+//Types
+void RegistrationVisitor::caseScriptType(ASTScriptType& host, void* param)
+{
+	ScriptType const& type = resolveScriptType(host, *scope);
+	if(type.isValid()) host.Register();
+}
+
+void RegistrationVisitor::caseDataType(ASTDataType& host, void* param)
+{
+	DataType const& type = host.resolve(*scope, this);
+	if(type.isResolved()) host.Register();
+}
+
 //Helper Functions
 void RegistrationVisitor::analyzeUnaryExpr(ASTUnaryExpr& host)
 {
@@ -307,7 +511,7 @@ void RegistrationVisitor::analyzeBinaryExpr(ASTBinaryExpr& host)
 	visit(host.right.get());
 	syncDisable(host, *host.right);
 	if (breakRecursion(host)) return;
-	if(registered(*host.left) && registered(*host.right)) host.Register();
+	if(registered(*host.left, *host.right)) host.Register();
 }
 
 
