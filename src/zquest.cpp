@@ -20314,7 +20314,8 @@ static DIALOG zscript_settings_dlg[] =
     { jwin_check_proc,      10, 32+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Game->Misc[] is not *10000", NULL, NULL },
     { jwin_check_proc,      10, 32+110,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Clear InitD[] on Script Change", NULL, NULL },
     { jwin_check_proc,      10, 32+120,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
-    { jwin_check_proc,      10, 32+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
+    //Y 130 and Y140 are No Item Script Waitdraw, No FFC Script Waitdraw.
+    { jwin_check_proc,      10, 32+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
     
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
