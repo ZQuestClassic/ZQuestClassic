@@ -8332,58 +8332,82 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //Input States
     case INPUTSTART:
+    {
         control_state[6]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[6]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[6]=false;
         break;
+    }
         
     case INPUTMAP:
+    {
         control_state[9]=((value/10000)!=0)?true:false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) 
         drunk_toggle_state[9]=false;
         break;
+    }
         
     case INPUTUP:
+    {
         control_state[0]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[0]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[0]=false;
         break;
+    }
         
     case INPUTDOWN:
+    {
         control_state[1]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[1]=false;
+	if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) 
+		drunk_toggle_state[1]=false;
         break;
+    }
         
     case INPUTLEFT:
+    {
         control_state[2]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[2]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[2]=false;
         break;
+    }
         
     case INPUTRIGHT:
+    {
         control_state[3]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[3]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[3]=false;
         break;
+    }
         
     case INPUTA:
+    {
         control_state[4]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[4]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[4]=false;
 	break;
+    }
         
     case INPUTB:
+    {
         control_state[5]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[5]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[5]=false;
         break;
+    }
         
     case INPUTL:
+    {
         control_state[7]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[7]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[7]=false;
         break;
+    }
         
     case INPUTR:
+    {
         control_state[8]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[8]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[8]=false;
         break;
+    }
         
     case INPUTEX1:
+    {
         control_state[10]=((value/10000)!=0)?true:false;
         break;
+    }
         
     case INPUTEX2:
         control_state[11]=((value/10000)!=0)?true:false;
@@ -8526,6 +8550,8 @@ void set_register(const long arg, const long value)
 		//Read-only
 		int button = vbound((ri->d[0]/10000),0,17);
 		control_state[button]=((value/10000)!=0)?true:false;
+		if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
+        
 		
 	}
 	break;
