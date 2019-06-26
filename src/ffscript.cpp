@@ -5372,6 +5372,53 @@ case SCREENDATAFLAGS:
 	break;
     }
     
+    case MAPDATALAYERINVIS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 6 )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->LayerInvisible[]: %d\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		if ( ri->mapsref == LONG_MAX )
+		{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str);
+				ret = -10000;
+		}
+		else
+		{
+			mapscr *m = &TheMaps[ri->mapsref];
+			ret = ((m->hidelayers >> indx) & 1) *10000;
+		}
+	}
+	break;
+}
+case MAPDATASCRIPTDRAWS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 6 )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->LayerInvisible[]: %d\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		if ( ri->mapsref == LONG_MAX )
+		{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str);
+				ret = -10000;
+		}
+		else
+		{
+			mapscr *m = &TheMaps[ri->mapsref];
+			ret = ((m->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+		}
+	}
+	break;
+}
+
     
     //These use the same method as GetScreenD -Z
     case SCREENWIDTH:
@@ -5990,6 +6037,7 @@ case MAPDATANEXTSCREEN: 	GET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
 case MAPDATASECRETCOMBO: 	GET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
 case MAPDATASECRETCSET: 	GET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 case MAPDATASECRETFLAG: 	GET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
+
 case MAPDATAVIEWX: 		GET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
 case MAPDATASCRIPT: 		GET_MAPDATA_VAR_INT32(script, "Script"); break;	//W
 case MAPDATAVIEWY: 		GET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
@@ -11769,6 +11817,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 ///----------------------------------------------------------------------------------------------------//
 //mapdata m-> Variables
 	//mapdata m-> Variables
+	
 	#define	SET_MAPDATA_VAR_INT32(member, str) \
 	{ \
 		if ( ri->mapsref == LONG_MAX ) \
@@ -11878,7 +11927,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		if(indx < 1 || indx > indexbound ) \
 		{ \
 			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
-			break; \
+			break; \ 
 		} \
 		if ( ri->mapsref == LONG_MAX ) \
 		{ \
@@ -12068,6 +12117,67 @@ case MAPDATAINITDARRAY:
 		mapscr *m = &TheMaps[ri->mapsref]; 
 		m->screeninitd[ri->d[0]/10000] = value;
 	} 
+	break;
+}
+
+
+case MAPDATALAYERINVIS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 6 )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->LayerInvisible[]: %d\n", indx);
+		break;
+	}
+	else
+	{
+		
+		if ( ri->mapsref == LONG_MAX )
+		{
+			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str);
+			break;
+		}
+		else
+		{
+			mapscr *m = &TheMaps[ri->mapsref];
+			if(value)
+			{
+				tmpscr->hidelayers |= (1<<indx);
+			}
+			else
+			{
+				tmpscr->hidelayers &= ~(1<<indx);
+			}
+		}
+	}
+	break;
+}
+case MAPDATASCRIPTDRAWS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 7 )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->HideScriptLayer[]: %d\n", indx);
+	}
+	else
+	{
+		if ( ri->mapsref == LONG_MAX )
+		{
+			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str);
+			break;
+		}
+		else
+		{	mapscr *m = &TheMaps[ri->mapsref];
+			if(value)
+			{
+				tmpscr->hidescriptlayers &= ~(1<<indx);
+			}
+			else
+			{
+				tmpscr->hidescriptlayers |= (1<<indx);
+			}
+		}
+	}
 	break;
 }
 

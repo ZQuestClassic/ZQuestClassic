@@ -3524,13 +3524,15 @@ enum ASM_DEFINE
 
 #define SCREENDATALAYERINVIS 		0x135E
 #define SCREENDATASCRIPTDRAWS 		0x135F
+#define MAPDATALAYERINVIS 		0x1360
+#define MAPDATASCRIPTDRAWS 		0x1361
 //bytecode
 
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1360
+#define NUMVARIABLES         	0x1362
 
 // Script types
 
