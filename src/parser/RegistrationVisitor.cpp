@@ -4,6 +4,7 @@
  * Author: Venrob
  */
 
+#include "parserDefs.h"
 #include "RegistrationVisitor.h"
 #include <cassert>
 #include "Scope.h"
@@ -17,7 +18,7 @@ using namespace ZScript;
 // RegistrationVisitor
 
 RegistrationVisitor::RegistrationVisitor(Program& program)
-	: program(program)
+	: program(program), hasChanged(false)
 {
 	scope = &program.getScope();
 	caseRoot(program.getRoot());
@@ -33,20 +34,22 @@ void RegistrationVisitor::visit(AST& node, void* param)
 
 void RegistrationVisitor::caseDefault(AST& host, void* param)
 {
-	host.Register();
+	doRegister(host);
 }
 
 //Handle the root file specially!
 void RegistrationVisitor::caseRoot(ASTFile& host, void* param)
 {
-	int recursionLimit = 50;
+	int recursionLimit = REGISTRATION_REC_LIMIT;
 	while(--recursionLimit)
 	{
 		caseFile(host, param);
 		if(registered(host)) return;
+		if(!hasChanged) return; //Nothing new was registered on this pass. Only errors remain.
+		hasChanged = false;
 	}
 	//Failed recursionLimit
-	//VENROBTODO Compile Warning Here! SemanticAnalyzer should error, somewhere, as well.
+	handleError(CompileError::RegistrationRecursion(&host, REGISTRATION_REC_LIMIT));
 }
 
 void RegistrationVisitor::caseFile(ASTFile& host, void* param)
@@ -76,7 +79,7 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 		&& registered(host.scriptTypes) && registered(host.imports) && registered(host.variables)
 		&& registered(host.functions) && registered(host.namespaces) && registered(host.scripts))
 	{
-		host.Register();
+		doRegister(host);
 	}
 	scope = scope->getParent();
 }
@@ -106,7 +109,7 @@ void RegistrationVisitor::caseSetOption(ASTSetOption& host, void* param)
 	CompileOptionSetting setting = host.getSetting(this, scope);
 	if (!setting) return; // error
 	scope->setOption(host.option, setting);
-	host.Register();
+	doRegister(host);
 }
 
 // Declarations
@@ -141,7 +144,7 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	if(registered(host.options) && registered(host.use) && registered(host.types)
 		&& registered(host.variables) && registered(host.functions))
 	{
-		host.Register();
+		doRegister(host);
 	}
 	else return;
 	//
@@ -200,7 +203,7 @@ void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 		&& registered(host.scriptTypes) && registered(host.variables) && registered(host.functions)
 		&& registered(host.namespaces) && registered(host.scripts))
 	{
-		host.Register();
+		doRegister(host);
 	}
 }
 
@@ -210,7 +213,7 @@ void RegistrationVisitor::caseImportDecl(ASTImportDecl& host, void* param)
 	if(getRoot(*scope)->checkImport(&host, *lookupOption(*scope, CompileOption::OPT_HEADER_GUARD) / 10000.0, this))
 	{
 		visit(host.getTree(), param);
-		if(registered(host.getTree())) host.Register();
+		if(registered(host.getTree())) doRegister(host);
 	}
 	else
 	{
@@ -230,54 +233,341 @@ void RegistrationVisitor::caseUsing(ASTUsingDecl& host, void* param)
 	else if(numMatches == -1)
 		handleError(CompileError::DuplicateUsing(&host, iden->asString()));
 	else if(numMatches==1)
-		host.Register();
+		doRegister(host);
 }
 
 void RegistrationVisitor::caseDataTypeDef(ASTDataTypeDef& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	visit(host.type.get());
+	if (breakRecursion(*host.type.get())) return;
+	if(!registered(*host.type)) return;
+	// Add type to the current scope under its new name.
+	if(!scope->addDataType(host.name, &type, &host))
+	{
+		DataType const& originalType = *lookupDataType(*scope, host.name);
+		if (originalType != type)
+			handleError(
+				CompileError::RedefDataType(
+					&host, host.name, originalType.getName()));
+		return;
+	}
+	doRegister(host);
 }
 
 void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	if(!host.type)
+	{
+		//Don't allow use of a name that already exists
+		if(DataType const* existingType = lookupDataType(*scope, host.name))
+		{
+			handleError(
+				CompileError::RedefDataType(
+					&host, host.name, existingType->getName()));
+			return;
+		}
+		
+		//Construct a new constant type
+		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
+		//Construct the base type
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, newConstType->getCustomId());
+		
+		//Set the type to the base type
+		host.type.reset(new ASTDataType(newBaseType, host.location));
+		//Set the enum type to the const type
+		host.definition->baseType.reset(new ASTDataType(newConstType, host.location));
+		
+		DataType::addCustom(newBaseType);
+		
+		//This call should never fail, because of the error check above.
+		scope->addDataType(host.name, newBaseType, &host);
+		if (breakRecursion(*host.type.get())) return;
+	}
+	visit(host.definition.get());
+	if(registered(*host.definition)) doRegister(host);
 }
 
 void RegistrationVisitor::caseScriptTypeDef(ASTScriptTypeDef& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	// Resolve the base type under current scope.
+	ScriptType type = resolveScriptType(*host.oldType, *scope);
+	if (!type.isValid()) return;
+
+	// Add type to the current scope under its new name.
+	if (!scope->addScriptType(host.newName, type, &host))
+	{
+		ScriptType originalType = lookupScriptType(*scope, host.newName);
+		if (originalType != type)
+			handleError(
+				CompileError::RedefScriptType(
+					&host, host.newName, originalType.getName()));
+		return;
+	}
+	doRegister(host);
 }
 
 void RegistrationVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	// Resolve the base type.
+	DataType const& baseType = host.baseType->resolve(*scope, this);
+    if (breakRecursion(*host.baseType.get())) return;
+	if (!&baseType || !baseType.isResolved()) return;
+
+	// Don't allow void type.
+	if (baseType == DataType::ZVOID)
+	{
+		handleError(CompileError::VoidVar(&host, host.asString()));
+		return;
+	}
+
+	// Check for disallowed global types.
+	if (scope->isGlobal() && !baseType.canBeGlobal())
+	{
+		handleError(CompileError::RefVar(&host, baseType.getName()));
+		return;
+	}
+
+	// Recurse on list contents.
+	visit(host, host.getDeclarations());
+	if (breakRecursion(host)) return;
+	if(registered(host.getDeclarations())) doRegister(host);
 }
 
 void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	// Resolve the base type.
+	DataType const& baseType = host.baseType->resolve(*scope, this);
+    if (breakRecursion(*host.baseType.get())) return;
+	if (!baseType.isResolved()) return;
+
+	// Don't allow void type.
+	if (baseType == DataType::ZVOID)
+	{
+		handleError(CompileError::VoidVar(&host, host.asString()));
+		return;
+	}
+
+	// Check for disallowed global types.
+	if (scope->isGlobal() && !baseType.canBeGlobal())
+	{
+		handleError(CompileError::RefVar(&host, baseType.getName()));
+		return;
+	}
+
+	//Handle initializer assignment
+	long ipart = -1, dpart = 0;
+	std::vector<ASTDataDecl*> decls = host.getDeclarations();
+	for(vector<ASTDataDecl*>::iterator it = decls.begin();
+		it != decls.end(); ++it)
+	{
+		ASTDataDecl* declaration = *it;
+		if(ASTExpr* init = declaration->getInitializer())
+		{
+			if(init->getCompileTimeValue())
+			{
+				long val = *init->getCompileTimeValue();
+				ipart = val/10000;
+				dpart = val%10000;
+			}
+			else return;
+		}
+		else
+		{
+			ASTNumberLiteral* value = new ASTNumberLiteral(new ASTFloat(++ipart, dpart, host.location), host.location);
+			declaration->setInitializer(value);
+		}
+		visit(declaration, param);
+		if(breakRecursion(host, param)) return;
+	}
+	if(registered(host.getDeclarations())) doRegister(host);
 }
 
 void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	// First do standard recursing.
+	RecursiveVisitor::visit(host, param);
+	if (breakRecursion(host)) return;
+	if(!(registered(*host.extraArrays) || registered(host.getInitializer()))) return;
+	// Then resolve the type.
+	DataType const& type = *host.resolveType(scope, this);
+	if (breakRecursion(host)) return;
+	if (!type.isResolved()) return;
+
+	// Don't allow void type.
+	if (type == DataType::ZVOID)
+	{
+		handleError(CompileError::VoidVar(&host, host.name));
+		return;
+	}
+
+	// Check for disallowed global types.
+	if (scope->isGlobal() && !type.canBeGlobal())
+	{
+		handleError(CompileError::RefVar(
+				            &host, type.getName() + " " + host.name));
+		return;
+	}
+
+	// Currently disabled syntaxes:
+	if (getArrayDepth(type) > 1)
+	{
+		handleError(CompileError::UnimplementedFeature(
+				            &host, "Nested Array Declarations"));
+		return;
+	}
+
+	// Is it a constant?
+	bool isConstant = false;
+	if (type.isConstant())
+	{
+		// A constant without an initializer doesn't make sense.
+		if (!host.getInitializer())
+		{
+			handleError(CompileError::ConstUninitialized(&host));
+			return;
+		}
+
+		// Inline the constant if possible.
+		isConstant = host.getInitializer()->getCompileTimeValue(this, scope);
+		//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
+		if(!isConstant && (scope->isGlobal() || scope->isScript()))
+		{
+			handleError(CompileError::ConstNotConstant(&host, host.name));
+			return;
+		}
+	}
+
+	if (isConstant)
+	{
+		if (scope->getLocalDatum(host.name))
+		{
+			handleError(CompileError::VarRedef(&host, host.name));
+			return;
+		}
+		
+		long value = *host.getInitializer()->getCompileTimeValue(this, scope);
+		Constant::create(*scope, host, type, value, this);
+	}
+	else
+	{
+		if (scope->getLocalDatum(host.name))
+		{
+			handleError(CompileError::VarRedef(&host, host.name));
+			return;
+		}
+
+		Variable::create(*scope, host, type, this);
+	}
+	doRegister(host);
 }
 
 void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	// Type Check size expressions.
+	RecursiveVisitor::caseDataDeclExtraArray(host);
+	if (breakRecursion(host)) return;
+	if(!registered(*host.dimensions)) return;
+	
+	// Iterate over sizes.
+	for (vector<ASTExpr*>::const_iterator it = host.dimensions.begin();
+		 it != host.dimensions.end(); ++it)
+	{
+		ASTExpr& size = **it;
+
+		// Make sure each size can cast to float.
+		if (!size.getReadType(scope, this)->canCastTo(DataType::FLOAT))
+		{
+			handleError(CompileError::NonIntegerArraySize(&host));
+			return;
+		}
+
+		// Make sure that the size is constant.
+		if (!size.getCompileTimeValue(this, scope))
+		{
+			handleError(CompileError::ExprNotConstant(&host));
+			return;
+		}
+		
+		if(optional<long> theSize = size.getCompileTimeValue(this, scope))
+		{
+			if(*theSize % 10000)
+			{
+				handleError(CompileError::ArrayDecimal(&host));
+			}
+			theSize = (*theSize / 10000);
+			if(*theSize < 1 || *theSize > 214748)
+			{
+				handleError(CompileError::ArrayInvalidSize(&host));
+				return;
+			}
+		}
+	}
+	doRegister(host);
 }
 
 void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
-	//VENROBTODO do stuff here!
+	if(host.getFlag(FUNCFLAG_INVALID))
+	{
+		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
+		return;
+	}
+	/* This option is being disabled for now, as inlining of user functions is being disabled -V
+	if(*lookupOption(*scope, CompileOption::OPT_FORCE_INLINE)
+		&& !host.isRun())
+	{
+		host.setFlag(FUNCFLAG_INLINE);
+	}*/
+	// Resolve the return type under current scope.
+	DataType const& returnType = host.returnType->resolve(*scope, this);
+	if (breakRecursion(*host.returnType.get())) return;
+	if (!returnType.isResolved()) return;
+
+	// Gather the parameter types.
+	vector<DataType const*> paramTypes;
+	vector<ASTDataDecl*> const& params = host.parameters.data();
+	for (vector<ASTDataDecl*>::const_iterator it = params.begin();
+		 it != params.end(); ++it)
+	{
+		ASTDataDecl& decl = **it;
+
+		// Resolve the parameter type under current scope.
+		DataType const& type = *decl.resolveType(scope, this);
+		if (breakRecursion(decl)) return;
+		if (!type.isResolved()) return;
+
+		// Don't allow void params.
+		if (type == DataType::ZVOID)
+		{
+			handleError(CompileError::FunctionVoidParam(&decl, decl.name));
+			return;
+		}
+
+		paramTypes.push_back(&type);
+	}
+
+	// Add the function to the scope.
+	Function* function = scope->addFunction(
+			&returnType, host.name, paramTypes, host.getFlags(), &host);
+	host.func = function;
+
+	// If adding it failed, it means this scope already has a function with
+	// that name.
+	if (function == NULL)
+	{
+		handleError(CompileError::FunctionRedef(&host, host.name));
+		return;
+	}
+
+	function->node = &host;
+	doRegister(host);
 }
 
 // Expressions -- Needed for constant evaluation
 void RegistrationVisitor::caseExprConst(ASTExprConst& host, void* param)
 {
 	RecursiveVisitor::caseExprConst(host, param);
-	if (host.getCompileTimeValue(this, scope)) host.Register();
+	if (host.getCompileTimeValue(this, scope)) doRegister(host);
 }
 
 void RegistrationVisitor::caseExprAssign(ASTExprAssign& host, void* param)
@@ -295,7 +585,7 @@ void RegistrationVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 				host.left.get(), host.left->asString()));
 		return;
 	}
-	host.Register();
+	doRegister(host);
 }
 
 void RegistrationVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)
@@ -313,12 +603,84 @@ void RegistrationVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* para
 			return;
 		}
 	}
-	host.Register();
+	doRegister(host);
 }
 
 void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 {
-	//VENROBTODO Error here. Arrows should not be found in global initializers.
+	// Recurse on left.
+	visit(host.left.get());
+	syncDisable(host, *host.left);
+    if (breakRecursion(host)) return;
+	if(!registered(*host.left)) return;
+
+	if(!host.leftClass)
+	{
+		// Grab the left side's class.
+		DataTypeClass const* leftType = dynamic_cast<DataTypeClass const*>(
+				&getNaiveType(*host.left->getReadType(scope, this), scope));
+		if (!leftType)
+		{
+			handleError(CompileError::ArrowNotPointer(&host));
+			return;
+		}
+		host.leftClass = program.getTypeStore().getClass(leftType->getClassId());
+	}
+
+	// Find read function.
+	if (!host.readFunction && (!param || param == paramRead || param == paramReadWrite))
+	{
+		host.readFunction = lookupGetter(*host.leftClass, host.right);
+		if (!host.readFunction)
+		{
+			handleError(
+					CompileError::ArrowNoVar(
+							&host,
+							host.right + (host.index ? "[]" : "")));
+			return;
+		}
+		vector<DataType const*>& paramTypes = host.readFunction->paramTypes;
+		if (paramTypes.size() != (host.index ? 2 : 1) || *paramTypes[0] != *leftType)
+		{
+			handleError(
+					CompileError::ArrowNoVar(
+							&host,
+							host.right + (host.index ? "[]" : "")));
+			return;
+		}
+	}
+
+	// Find write function.
+	if (!host.writeFunction && (param == paramWrite || param == paramReadWrite))
+	{
+		host.writeFunction = lookupSetter(*host.leftClass, host.right);
+		if (!host.writeFunction)
+		{
+			handleError(
+					CompileError::ArrowNoVar(
+							&host,
+							host.right + (host.index ? "[]" : "")));
+			return;
+		}
+		vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
+		if (paramTypes.size() != (host.index ? 3 : 2)
+		    || *paramTypes[0] != *leftType)
+		{
+			handleError(
+					CompileError::ArrowNoVar(
+							&host,
+							host.right + (host.index ? "[]" : "")));
+			return;
+		}
+	}
+
+	if (host.index)
+	{
+		visit(host.index.get());
+        if (breakRecursion(host)) return;
+		if(!registered(*host.index)) return;
+    }
+	doRegister(host);
 }
 
 void RegistrationVisitor::caseExprIndex(ASTExprIndex& host, void* param)
@@ -329,12 +691,12 @@ void RegistrationVisitor::caseExprIndex(ASTExprIndex& host, void* param)
 	visit(host.index.get());
 	syncDisable(host, *host.index);
 	if (breakRecursion(host)) return;
-	if(registered(*host.array, *host.index)) host.Register();
+	if(registered(*host.array, *host.index)) doRegister(host);
 }
 
 void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 {
-	//VENROBTODO Error here. Calls should not be found in global initializers.
+	handleError(CompileError::GlobalVarFuncCall(host));
 }
 
 void RegistrationVisitor::caseExprNegate(ASTExprNegate& host, void* param)
@@ -478,20 +840,20 @@ void RegistrationVisitor::caseExprTernary(ASTTernaryExpr& host, void* param)
 	visit(host.right.get());
 	syncDisable(host, *host.right);
 	if (breakRecursion(host)) return;
-	if(registered(*host.left) && registered(*host.middle) && registered(*host.right)) host.Register();
+	if(registered(*host.left) && registered(*host.middle) && registered(*host.right)) doRegister(host);
 }
 
 //Types
 void RegistrationVisitor::caseScriptType(ASTScriptType& host, void* param)
 {
 	ScriptType const& type = resolveScriptType(host, *scope);
-	if(type.isValid()) host.Register();
+	if(type.isValid()) doRegister(host);
 }
 
 void RegistrationVisitor::caseDataType(ASTDataType& host, void* param)
 {
 	DataType const& type = host.resolve(*scope, this);
-	if(type.isResolved()) host.Register();
+	if(type.isResolved()) doRegister(host);
 }
 
 //Helper Functions
@@ -500,7 +862,7 @@ void RegistrationVisitor::analyzeUnaryExpr(ASTUnaryExpr& host)
 	visit(host.operand.get());
 	syncDisable(host, *host.operand);
 	if (breakRecursion(host)) return;
-	if(registered(*host.operand))host.Register();
+	if(registered(*host.operand))doRegister(host);
 }
 
 void RegistrationVisitor::analyzeBinaryExpr(ASTBinaryExpr& host)
@@ -511,7 +873,7 @@ void RegistrationVisitor::analyzeBinaryExpr(ASTBinaryExpr& host)
 	visit(host.right.get());
 	syncDisable(host, *host.right);
 	if (breakRecursion(host)) return;
-	if(registered(*host.left, *host.right)) host.Register();
+	if(registered(*host.left, *host.right)) doRegister(host);
 }
 
 

@@ -801,7 +801,7 @@ void ASTDataTypeDef::execute(ASTVisitor& visitor, void* param)
 ASTCustomDataTypeDef::ASTCustomDataTypeDef(
 		ASTDataType* type, std::string const& name, ASTDataEnum* defn,
 			LocationData const& location)
-		: ASTDataTypeDef(type, name, location), definition(defn)
+		: ASTDataTypeDef(type, name, location), definition(defn), wasDefined(false)
 {}
 
 void ASTCustomDataTypeDef::execute(ASTVisitor& visitor, void* param)

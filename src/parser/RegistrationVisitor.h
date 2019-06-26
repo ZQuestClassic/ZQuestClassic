@@ -80,6 +80,12 @@ namespace ZScript
 			caseDefault(host,param);}
 	protected:
 		
+		void doRegister(AST& host)
+		{
+			host.Register();
+			hasChanged = true;
+		}
+		
 		////////////////////////////////////////////////////////////////
 		// Convenience Functions
 		// Quickly checks if a node, or container of nodes, is all registered
@@ -117,6 +123,8 @@ namespace ZScript
 		
 		void analyzeUnaryExpr(ASTUnaryExpr& host);
 		void analyzeBinaryExpr(ASTBinaryExpr& host);
+		
+		bool hasChanged;
 	}
 }
 

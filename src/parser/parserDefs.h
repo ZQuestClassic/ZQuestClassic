@@ -16,5 +16,7 @@
 
 #define MAX_INCLUDE_PATHS           5
 
+#define REGISTRATION_REC_LIMIT		50
+
 #endif
 

@@ -88,5 +88,7 @@ X(	ConstantBadSize,				T,	A,	E,	STR,	VOID,	"Invalid constant size. Constant must
 X(	BadFuncModifiers,				T,	A,	E,	STR,	VOID,	"Invalid function modifiers.%s"				)
 X(	ScriptRunInline,		S,	A,	E,	STR,	VOID,	"void %s() functions cannot be inline."						)
 X(	NoUsingMatch,				P,	A,	E,	STR,	VOID,	"'using' found no matches for the namespace %s."				)
+X(	RegistrationRecursion,				P,	A,	W,	INT,	VOID,	"Registration passed recursion limit %d. May cause other errors."				)
+X(	GlobalVarFuncCall,				P,	A,	E,	VOID,	VOID,	"Global variable initializers cannot contain function calls"				)
 
 #undef STR
