@@ -212,7 +212,7 @@ namespace ZScript
 		void visit(AST* node, void* param = NULL);
 		// Visit a group of nodes.
 		template <class Container>
-		void visit(AST& host, Container const& nodes, void* param = NULL)
+		void visit(AST& host, Container& nodes, void* param = NULL)
 		{
 			for (typename Container::const_iterator it = nodes.begin();
 			     it != nodes.end(); ++it)

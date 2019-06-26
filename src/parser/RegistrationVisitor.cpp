@@ -34,6 +34,17 @@ void RegistrationVisitor::visit(AST& node, void* param)
 	RecursiveVisitor::visit(node, param);
 }
 
+template <class Container>
+void RegistrationVisitor::regvisit(AST& host, Container const& nodes, void* param)
+{
+	for (typename Container::const_iterator it = nodes.begin();
+		 it != nodes.end(); ++it)
+	{
+		if (breakRecursion(host, param)) return;
+		visit(**it, param);
+	}
+}
+
 void RegistrationVisitor::caseDefault(AST& host, void* param)
 {
 	doRegister(host);
@@ -60,23 +71,23 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 		scope = host.scope;
 	else
 		scope = host.scope = scope->makeFileChild(host.asString());
-	visit(host, host.options, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.use, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.dataTypes, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.scriptTypes, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.imports, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.variables, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.functions, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.namespaces, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.scripts, param);
+	regvisit(host, host.options, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.use, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.dataTypes, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.scriptTypes, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.imports, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.variables, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.functions, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.namespaces, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.scripts, param);
 	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
 		&& registered(host, host.scriptTypes) && registered(host, host.imports) && registered(host, host.variables)
 		&& registered(host, host.functions) && registered(host, host.namespaces) && registered(host, host.scripts))
@@ -120,22 +131,22 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	visit(host.type.get());
 	if(!registered(*host.type)) return;
 	
-	Script& script = host.script ? *host.script : (*(host.script = program.addScript(host, *scope, this)));
+	Script& script = host.script ? *host.script : *(host.script = program.addScript(host, *scope, this));
 	if (breakRecursion(host)) return;
 	
 	string name = script.getName();
 
 	// Recurse on script elements with its scope.
 	scope = &script.getScope();
-	visit(host, host.options, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.use, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.types, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.variables, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.functions, param);
+	regvisit(host, host.options, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.use, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.types, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.variables, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	regvisit(host, host.functions, param);
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 	//
@@ -177,21 +188,21 @@ void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 	// Namespaces' parent scope is RootScope*, not FileScope*. Store the FileScope* temporarily.
 	Scope* temp = scope;
 	scope = &namesp.getScope();
-	visit(host, host.options, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.dataTypes, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.scriptTypes, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.use, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.variables, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.functions, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.namespaces, param);
-	if (breakRecursion(host, param)) return;
-	visit(host, host.scripts, param);
+	regvisit(host, host.options, param);
+	if (breakRecursion(host, param)) {scope = temp; return;}
+	regvisit(host, host.dataTypes, param);
+	if (breakRecursion(host, param)) {scope = temp; return;}
+	regvisit(host, host.scriptTypes, param);
+	if (breakRecursion(host, param)) {scope = temp; return;}
+	regvisit(host, host.use, param);
+	if (breakRecursion(host, param)) {scope = temp; return;}
+	regvisit(host, host.variables, param);
+	if (breakRecursion(host, param)) {scope = temp; return;}
+	regvisit(host, host.functions, param);
+	if (breakRecursion(host, param)) {scope = temp; return;}
+	regvisit(host, host.namespaces, param);
+	if (breakRecursion(host, param)) {scope = temp; return;}
+	regvisit(host, host.scripts, param);
 	scope = temp;
 	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
 		&& registered(host, host.scriptTypes) && registered(host, host.variables) && registered(host, host.functions)
@@ -380,9 +391,9 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 {
 	// First do standard recursing.
-	RecursiveVisitor::visit(host, param);
+	RecursiveVisitor::caseDataDecl(host, paramRead);
 	if (breakRecursion(host)) return;
-	if(!(registered(host, host.extraArrays) || registered(host.getInitializer()))) return;
+	if(!(registered(host, host.extraArrays) && (!host.getInitializer() || registered(host.getInitializer())))) return;
 	// Then resolve the type.
 	DataType const& type = *host.resolveType(scope, this);
 	if (breakRecursion(host)) return;

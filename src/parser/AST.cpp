@@ -48,12 +48,12 @@ string LocationData::asString() const
 // AST
 
 AST::AST(LocationData const& location)
-	: location(location), errorDisabled(false), disabled_(false)
+	: location(location), errorDisabled(false), disabled_(false), isRegistered(false)
 {}
 
 // ASTFile
 
-ASTFile::ASTFile(LocationData const& location) : AST(location) {}
+ASTFile::ASTFile(LocationData const& location) : AST(location), scope(NULL) {}
 
 void ASTFile::execute(ASTVisitor& visitor, void* param)
 {
@@ -480,7 +480,7 @@ ASTDecl::ASTDecl(LocationData const& location)
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
-	: ASTDecl(location), type(NULL), name("") {}
+	: ASTDecl(location), type(NULL), name(""), script(NULL) {}
 
 void ASTScript::execute(ASTVisitor& visitor, void* param)
 {
@@ -509,7 +509,7 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 // ASTNamespace
 
 ASTNamespace::ASTNamespace(LocationData const& location, std::string name)
-	: ASTDecl(location), name(name)
+	: ASTDecl(location), name(name), namesp(NULL)
 {}
 
 void ASTNamespace::addDeclaration(ASTDecl& declaration)
