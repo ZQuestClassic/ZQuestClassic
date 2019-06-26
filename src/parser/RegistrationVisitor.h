@@ -1,5 +1,11 @@
-#ifndef ZSCRIPT_SEMANTIC_ANALYZER_H
-#define ZSCRIPT_SEMANTIC_ANALYZER_H
+/**
+ * Registration handler, to ensure that anything global can be referenced in any order
+ * Begun: 26th June, 2019
+ * Author: Venrob
+ */
+
+#ifndef REGISTRATIONVISITOR_H
+#define REGISTRATIONVISITOR_H
 
 #include "ASTVisitors.h"
 #include "DataStructs.h"
@@ -7,26 +13,18 @@
 
 namespace ZScript
 {
-	class SemanticAnalyzer : public RecursiveVisitor
+	class RegistrationVisitor : public RecursiveVisitor
 	{
-	public:
-
-		SemanticAnalyzer(ZScript::Program& program);
-
+		RegistrationVisitor(ZScript::Program& program);
 		////////////////
 		// Cases
+		void caseDefault(AST& host, void* param = NULL);
+		void caseRoot(ASTFile& host, void* = NULL);
 		void caseFile(ASTFile& host, void* = NULL);
 		void caseSetOption(ASTSetOption& host, void* param = NULL);
 		void caseUsing(ASTUsingDecl& host, void* param = NULL);
 		// Statements
-		void caseBlock(ASTBlock& host, void* = NULL);
-		void caseStmtIf(ASTStmtIf& host, void* = NULL);
-		void caseStmtIfElse(ASTStmtIfElse& host, void* = NULL);
-		void caseStmtSwitch(ASTStmtSwitch& host, void* = NULL);
-		void caseStmtFor(ASTStmtFor& host, void* = NULL);
-		void caseStmtWhile(ASTStmtWhile& host, void* = NULL);
-		void caseStmtReturn(ASTStmtReturn& host, void* = NULL);
-		void caseStmtReturnVal(ASTStmtReturnVal& host, void* = NULL);
+		//Ommitted. Should never be visited by this, as statements occur only in functions.
 		// Declarations
 		void caseDataTypeDef(ASTDataTypeDef& host, void* = NULL);
 		void caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* = NULL);
@@ -39,7 +37,7 @@ namespace ZScript
 		void caseScript(ASTScript& host, void* = NULL);
 		void caseNamespace(ASTNamespace& host, void* = NULL);
 		void caseImportDecl(ASTImportDecl& host, void* = NULL);
-		// Expressions
+		// Expressions -- Needed for constant evaluation
 		void caseExprConst(ASTExprConst& host, void* = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* = NULL);
 		void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
@@ -73,36 +71,30 @@ namespace ZScript
 		void caseExprRShift(ASTExprRShift& host, void* = NULL);
 		void caseExprTernary(ASTTernaryExpr& host, void* = NULL);
 		// Literals
-		void caseStringLiteral(ASTStringLiteral& host, void* = NULL);
-		void caseArrayLiteral(ASTArrayLiteral& host, void* = NULL);
-		void caseOptionValue(ASTOptionValue& host, void* = NULL);
-
+		//Ommitted. Variables with literal initializers cannot be global constants at this time, so no need during registration.
+	protected:
+		
+		////////////////////////////////////////////////////////////////
+		// Convenience Functions
+		// Quickly checks if a node, or container of nodes, is all registered
+		bool registered(AST& node, void* param = NULL) const
+		{
+			return node.registered();
+		}
+		template <class Container>
+		bool registered(Container const& nodes, void* param = NULL) const
+		{
+			for(typename Container::const_iterator it = nodes.begin();
+				it != nodes.end(); ++it)
+			{
+				if(!registered(**it, param)) return false;
+			}
+			return true;
+		}
 	private:
 		ZScript::Program& program;
-		// Current function return type.
-		ZScript::DataType const* returnType;
+	}
+}
 
-		std::vector<Function*> inlineStack;
-		
-		bool deprecateGlobals;
-
-		// Signal a compile error if source can't be cast to target.
-		void checkCast(ZScript::DataType const& sourceType,
-		               ZScript::DataType const& targetType,
-		               AST* node = NULL,
-		               bool twoWay = false);
-
-		void analyzeFunctionInternals(ZScript::Function& function);
-
-		////////////////////////////////////////////////////////////////
-		// Helper Functions.
-
-		void analyzeUnaryExpr(ASTUnaryExpr& host, ZScript::DataType const& type);
-		void analyzeIncrement(ASTUnaryExpr& host);
-		void analyzeBinaryExpr(
-				ASTBinaryExpr& host, ZScript::DataType const& leftType,
-				ZScript::DataType const& rightType);
-
-	};
-}	
 #endif
+

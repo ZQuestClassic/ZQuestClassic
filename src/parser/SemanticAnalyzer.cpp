@@ -11,12 +11,6 @@ using std::vector;
 using std::ostringstream;
 using namespace ZScript;
 
-struct tag {};
-void* const SemanticAnalyzer::paramNone = new tag();
-void* const SemanticAnalyzer::paramRead = new tag();
-void* const SemanticAnalyzer::paramWrite = new tag();
-void* const SemanticAnalyzer::paramReadWrite = new tag();
-
 ////////////////////////////////////////////////////////////////
 // SemanticAnalyzer
 

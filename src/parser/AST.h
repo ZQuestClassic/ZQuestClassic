@@ -243,6 +243,8 @@ namespace ZScript
 		
 		bool isDisabled() const {return disabled_;}
 		void disable() {disabled_ = true;}
+		bool registered() const {return registered;}
+		void Register() {registered = true;}
 	
 	
 		// Subclass Predicates (replacing typeof and such).
@@ -257,6 +259,8 @@ namespace ZScript
 	private:
 		//If this node has been disabled, for some reason or other. This will prevent any visitor from visiting the node (instant return, without error)
 		bool disabled_;
+		//If this node has been registered by RegistrationVisitor
+		bool registered;
 	};
 
 
