@@ -85,6 +85,8 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->keys = gdata->get_keys();
     zinit2->max_bombs = gdata->get_maxbombs();
     zinit2->super_bombs = gdata->get_sbombs();
+    zinit2->nSbombs = gdata->get_sbombs();
+    zinit2->nSBombmax = gdata->get_sbombs();
     zinit2->bomb_ratio = zinit.bomb_ratio;
     zinit2->hcp = gdata->get_HCpieces();
     zinit2->rupies = gdata->get_rupies();
