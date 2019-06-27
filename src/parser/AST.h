@@ -659,9 +659,12 @@ namespace ZScript
 		ASTFile const* getTree() const {return tree_.get();}
 		void giveTree(ASTFile* tree) {tree_ = tree;}
 		bool isInclude() const {return include_;}
+		bool wasChecked() const {return checked;}
+		void check() {checked = true;}
 	
 	private:
 		std::string filename_;
+		bool checked;
 		bool include_;
 		owning_ptr<ASTFile> tree_;
 	};

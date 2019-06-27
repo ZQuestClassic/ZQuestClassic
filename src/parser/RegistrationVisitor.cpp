@@ -215,8 +215,9 @@ void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 void RegistrationVisitor::caseImportDecl(ASTImportDecl& host, void* param)
 {
 	//Check if the import is valid, or to be stopped by header guard. -V
-	if(getRoot(*scope)->checkImport(&host, *lookupOption(*scope, CompileOption::OPT_HEADER_GUARD) / 10000.0, this))
+	if(host.wasChecked() || getRoot(*scope)->checkImport(&host, *lookupOption(*scope, CompileOption::OPT_HEADER_GUARD) / 10000.0, this))
 	{
+		host.check();
 		visit(host.getTree(), param);
 		if(registered(host.getTree())) doRegister(host);
 	}

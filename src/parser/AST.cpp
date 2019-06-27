@@ -549,7 +549,7 @@ void ASTNamespace::execute(ASTVisitor& visitor, void* param)
 
 ASTImportDecl::ASTImportDecl(
 		string const& filename, LocationData const& location, bool isInclude)
-	: ASTDecl(location), filename_(filename), include_(isInclude)
+	: ASTDecl(location), filename_(filename), include_(isInclude), checked(false)
 {}
 
 void ASTImportDecl::execute(ASTVisitor& visitor, void* param)

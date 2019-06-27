@@ -503,7 +503,7 @@ int BasicScope::useNamespace(std::string name)
 			++numMatches;
 		}
 	}
-	if(!isFile())
+	if(!isFile() && !isRoot())
 	{
 		if(Scope* scope = getChild(name))
 		{
