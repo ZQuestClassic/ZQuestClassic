@@ -100,7 +100,7 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 void RegistrationVisitor::caseSetOption(ASTSetOption& host, void* param)
 {
 	visit(host.expr.get(), param);
-	if(!registered(*host.expr)) return; //Non-initialized constant
+	if(!registered(host.expr.get())) return; //Non-initialized constant
 	
 	// If the option name is "default", set the default option instead.
 	if (host.name == "default")
@@ -129,7 +129,7 @@ void RegistrationVisitor::caseSetOption(ASTSetOption& host, void* param)
 void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 {
 	visit(host.type.get());
-	if(!registered(*host.type)) return;
+	if(!registered(host.type.get())) return;
 	
 	Script& script = host.script ? *host.script : *(host.script = program.addScript(host, *scope, this));
 	if (breakRecursion(host)) return;
@@ -245,7 +245,7 @@ void RegistrationVisitor::caseDataTypeDef(ASTDataTypeDef& host, void* param)
 {
 	visit(host.type.get());
 	if (breakRecursion(*host.type.get())) return;
-	if(!registered(*host.type)) return;
+	if(!registered(host.type.get())) return;
 	// Add type to the current scope under its new name.
 	DataType const& type = host.type->resolve(*scope, this);
 	if(!scope->addDataType(host.name, &type, &host))
@@ -290,7 +290,7 @@ void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void
 		if (breakRecursion(*host.type.get())) return;
 	}
 	visit(host.definition.get());
-	if(registered(*host.definition)) doRegister(host);
+	if(registered(host.definition.get())) doRegister(host);
 }
 
 void RegistrationVisitor::caseScriptTypeDef(ASTScriptTypeDef& host, void* param)
@@ -582,7 +582,7 @@ void RegistrationVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 	if (breakRecursion(host)) return;
 	visit(host.right.get(), paramRead);
 	if (breakRecursion(host)) return;	
-	if(!(registered(*host.left) && registered(*host.right))) return;
+	if(!(registered(host.left.get()) && registered(host.right.get()))) return;
 	DataType const* ltype = host.left->getWriteType(scope, this);
 	if (!ltype)
 	{
@@ -618,7 +618,7 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 	visit(host.left.get());
 	syncDisable(host, *host.left);
     if (breakRecursion(host)) return;
-	if(!registered(*host.left)) return;
+	if(!registered(host.left.get())) return;
 
 	// Grab the left side's class.
 	DataTypeClass const* leftType = dynamic_cast<DataTypeClass const*>(
@@ -684,7 +684,7 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 	{
 		visit(host.index.get());
         if (breakRecursion(host)) return;
-		if(!registered(*host.index)) return;
+		if(!registered(host.index.get())) return;
     }
 	doRegister(host);
 }
@@ -697,7 +697,7 @@ void RegistrationVisitor::caseExprIndex(ASTExprIndex& host, void* param)
 	visit(host.index.get());
 	syncDisable(host, *host.index);
 	if (breakRecursion(host)) return;
-	if(registered(*host.array) && registered(*host.index)) doRegister(host);
+	if(registered(host.array.get()) && registered(host.index.get())) doRegister(host);
 }
 
 void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
@@ -846,7 +846,7 @@ void RegistrationVisitor::caseExprTernary(ASTTernaryExpr& host, void* param)
 	visit(host.right.get());
 	syncDisable(host, *host.right);
 	if (breakRecursion(host)) return;
-	if(registered(*host.left) && registered(*host.middle) && registered(*host.right)) doRegister(host);
+	if(registered(host.left.get()) && registered(host.middle.get()) && registered(host.right.get())) doRegister(host);
 }
 
 //Types
@@ -862,13 +862,21 @@ void RegistrationVisitor::caseDataType(ASTDataType& host, void* param)
 	if(type.isResolved()) doRegister(host);
 }
 
+//Literals
+void RegistrationVisitor::caseArrayLiteral(ASTArrayLiteral& host, void* param)
+{
+	RecursiveVisitor::caseArrayLiteral(host, param);
+	if(registered(host.type.get()) && registered(host.size.get()) && registered(host, host.elements))
+		doRegister(host);
+}
+
 //Helper Functions
 void RegistrationVisitor::analyzeUnaryExpr(ASTUnaryExpr& host)
 {
 	visit(host.operand.get());
 	syncDisable(host, *host.operand);
 	if (breakRecursion(host)) return;
-	if(registered(*host.operand))doRegister(host);
+	if(registered(host.operand.get()))doRegister(host);
 }
 
 void RegistrationVisitor::analyzeBinaryExpr(ASTBinaryExpr& host)
@@ -879,7 +887,29 @@ void RegistrationVisitor::analyzeBinaryExpr(ASTBinaryExpr& host)
 	visit(host.right.get());
 	syncDisable(host, *host.right);
 	if (breakRecursion(host)) return;
-	if((registered(*host.left) && registered(*host.right))) doRegister(host);
+	if((registered(host.left.get()) && registered(host.right.get()))) doRegister(host);
+}
+
+bool RegistrationVisitor::registered(AST& node) const
+{
+	return node.registered();
+}
+
+bool RegistrationVisitor::registered(AST* node) const
+{
+	if(node) return registered(*node);
+	return true;
+}
+
+template <class Container>
+bool RegistrationVisitor::registered(AST& host, Container const& nodes) const
+{
+	for(typename Container::const_iterator it = nodes.begin();
+		it != nodes.end(); ++it)
+	{
+		if(!registered(*it)) return false;
+	}
+	return true;
 }
 
 

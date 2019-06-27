@@ -76,10 +76,11 @@ namespace ZScript
 		void caseScriptType(ASTScriptType& host, void* param = NULL);
 		void caseDataType(ASTDataType& host, void* param = NULL);
 		//Literals
-		virtual void caseNumberLiteral(ASTNumberLiteral& host, void* param = NULL){
+		void caseNumberLiteral(ASTNumberLiteral& host, void* param = NULL){
 			caseDefault(host,param);}
-		virtual void caseCharLiteral(ASTCharLiteral& host, void* param = NULL){
+		void caseCharLiteral(ASTCharLiteral& host, void* param = NULL){
 			caseDefault(host,param);}
+		void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
 	protected:
 		
 		void doRegister(AST& host)
@@ -91,35 +92,11 @@ namespace ZScript
 		////////////////////////////////////////////////////////////////
 		// Convenience Functions
 		// Quickly checks if a node, or container of nodes, is all registered
-		bool registered(AST& node) const
-		{
-			return node.registered();
-		}
-		bool registered(AST& node1, AST& node2) const
-		{
-			return node1.registered() && node2.registered();
-		}
-		template <class Container>
-		bool registered(AST& host, Container const& nodes) const
-		{
-			for(typename Container::const_iterator it = nodes.begin();
-				it != nodes.end(); ++it)
-			{
-				if(!registered(**it)) return false;
-			}
-			return true;
-		}
+		bool registered(AST& node) const;
 		//Shortcut for pointer
-		bool registered(AST* node)
-		{
-			if(node) return registered(*node);
-			return false;
-		}
-		bool registered(AST* node1, AST* node2)
-		{
-			if(node1 && node2) return registered(*node1, *node2);
-			return false;
-		}
+		bool registered(AST* node) const;
+		template <class Container>
+		bool registered(AST& host, Container const& nodes) const;
 		//Visiting
 		// Visit a group of nodes. Handle moving the nodes as needed, to accomodate order.
 		template <class Container>

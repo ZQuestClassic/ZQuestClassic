@@ -315,41 +315,46 @@ void SemanticAnalyzer::caseScriptTypeDef(ASTScriptTypeDef& host, void*)
 
 void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 {
-	if(host.registered()) return; //Skip if already handled
-	// Resolve the base type.
-	DataType const& baseType = host.baseType->resolve(*scope, this);
-    if (breakRecursion(*host.baseType.get())) return;
-	if (!&baseType 
-		|| !baseType.isResolved())
+	if(!host.registered())  //Handle initial setup
 	{
-		handleError(CompileError::UnresolvedType(&host, baseType.getName()));
-		return;
-	}
+		// Resolve the base type.
+		DataType const& baseType = host.baseType->resolve(*scope, this);
+		if (breakRecursion(*host.baseType.get())) return;
+		if (!&baseType 
+			|| !baseType.isResolved())
+		{
+			handleError(CompileError::UnresolvedType(&host, baseType.getName()));
+			return;
+		}
 
-	// Don't allow void type.
-	if (baseType == DataType::ZVOID)
-	{
-		handleError(CompileError::VoidVar(&host, host.asString()));
-		return;
-	}
+		// Don't allow void type.
+		if (baseType == DataType::ZVOID)
+		{
+			handleError(CompileError::VoidVar(&host, host.asString()));
+			return;
+		}
 
-	// Check for disallowed global types.
-	if (scope->isGlobal() && !baseType.canBeGlobal())
-	{
-		handleError(CompileError::RefVar(&host, baseType.getName()));
-		return;
+		// Check for disallowed global types.
+		if (scope->isGlobal() && !baseType.canBeGlobal())
+		{
+			handleError(CompileError::RefVar(&host, baseType.getName()));
+			return;
+		}
 	}
-
 	// Recurse on list contents.
 	visit(host, host.getDeclarations());
 }
 
 void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 {
-	if(host.registered()) return; //Skip if already handled
+	if(host.registered())
+	{
+		visit(host, host.getDeclarations());
+		return;
+	}
 	// Resolve the base type.
 	DataType const& baseType = host.baseType->resolve(*scope, this);
-    if (breakRecursion(*host.baseType.get())) return;
+	if (breakRecursion(*host.baseType.get())) return;
 	if (!baseType.isResolved())
 	{
 		handleError(CompileError::UnresolvedType(&host, baseType.getName()));
@@ -398,17 +403,14 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 
 void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 {
-	if(!host.registered()) //Handle initial setup
-	{
-		// First do standard recursing.
-		RecursiveVisitor::caseDataDecl(host);
-		if (breakRecursion(host)) return;
+	// First do standard recursing.
+	RecursiveVisitor::caseDataDecl(host);
+	if (breakRecursion(host)) return;
 
-		// Then resolve the type.
-	}
+	// Then resolve the type.
 	DataType const& type = *host.resolveType(scope, this);
 	if (breakRecursion(host)) return;
-	if(!host.registered())
+	if(!host.registered())  //Handle initial setup
 	{
 		if (!type.isResolved())
 		{
@@ -695,7 +697,7 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 void SemanticAnalyzer::caseExprIdentifier(
 		ASTExprIdentifier& host, void* param)
 {
-	if(host.registered()) return; //Skip if already handled
+	if(host.binding) return; //Skip if already handled
 	// Bind to named variable.
 	host.binding = lookupDatum(*scope, host, this);
 	if (!host.binding)
