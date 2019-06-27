@@ -706,7 +706,14 @@ void ASTDataDecl::execute(ASTVisitor& visitor, void* param)
 
 void ASTDataDecl::setInitializer(ASTExpr* initializer)
 {
-	initializer_ = initializer;
+	if(ASTExprVarInitializer* init = dynamic_cast<ASTExprVarInitializer*>(initializer))
+	{
+		initializer_ = init;
+	}
+	else
+	{
+		initializer_ = new ASTExprVarInitializer(initializer, initializer->location);
+	}
 
 	// Give a string or array literal a reference back to this object so it
 	// can grab size information.
@@ -860,6 +867,30 @@ optional<long> ASTExprConst::getCompileTimeValue(
 	return content ? content->getCompileTimeValue(errorHandler, scope) : nullopt;
 }
 
+// ASTExprVarInitializer
+
+ASTExprVarInitializer::ASTExprVarInitializer(ASTExpr* content, LocationData const& location)
+	: ASTExprConst(content, location), value(nullopt)
+{}
+
+void ASTExprVarInitializer::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseVarInitializer(*this, param);
+}
+
+optional<long> ASTExprVarInitializer::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+		const
+{
+	return value;
+}
+
+bool ASTExprVarInitializer::valueIsArray(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	DataType const* type = getReadType(scope, errorHandler);
+	return type && type->isArray();
+}
+
 // ASTExprAssign
 
 ASTExprAssign::ASTExprAssign(ASTExpr* left, ASTExpr* right,
@@ -911,7 +942,7 @@ optional<long> ASTExprIdentifier::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
-	return binding ? binding->getCompileTimeValue() : nullopt;
+	return binding ? binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()) : nullopt;
 }
 
 DataType const* ASTExprIdentifier::getReadType(Scope* scope, CompileErrorHandler* errorHandler)

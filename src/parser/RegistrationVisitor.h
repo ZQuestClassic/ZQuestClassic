@@ -40,6 +40,7 @@ namespace ZScript
 		void caseFuncDecl(ASTFuncDecl& host, void* param = NULL);
 		// Expressions -- Needed for constant evaluation
 		void caseExprConst(ASTExprConst& host, void* param = NULL);
+		void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* param = NULL);
 		void caseExprIdentifier(ASTExprIdentifier& host, void* param = NULL);
 		void caseExprArrow(ASTExprArrow& host, void* param = NULL);
@@ -89,7 +90,6 @@ namespace ZScript
 			host.Register();
 			hasChanged = true;
 		}
-		
 		////////////////////////////////////////////////////////////////
 		// Convenience Functions
 		// Quickly checks if a node, or container of nodes, is all registered

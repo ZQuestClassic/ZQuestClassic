@@ -85,6 +85,7 @@ namespace ZScript
 	// Expressions
 	class ASTExpr; // virtual
 	class ASTExprConst;
+	class ASTExprVarInitializer;
 	class ASTExprAssign;
 	class ASTExprIdentifier;
 	class ASTExprArrow;
@@ -750,8 +751,8 @@ namespace ZScript
 
 		Type getDeclarationType() const /*override*/ {return TYPE_DATA;}
 
-		ASTExpr* getInitializer() {return initializer_.get();}
-		ASTExpr const* getInitializer() const {return initializer_.get();}
+		ASTExprVarInitializer* getInitializer() {return initializer_.get();}
+		ASTExprVarInitializer const* getInitializer() const {return initializer_.get();}
 		void setInitializer(ASTExpr* initializer);
 
 		// Resolves the type, using either the list's or this node's own base type
@@ -780,7 +781,7 @@ namespace ZScript
 
 	private:
 		// The initialization expression. Optional.
-		owning_ptr<ASTExpr> initializer_;
+		owning_ptr<ASTExprVarInitializer> initializer_;
 	};
 
 	bool hasSize(ASTDataDecl const&);
@@ -909,14 +910,14 @@ namespace ZScript
 	public:
 		ASTExprConst(ASTExpr* content = NULL,
 		             LocationData const& location = LocationData::NONE);
-		ASTExprConst* clone() const {return new ASTExprConst(*this);}
+		virtual ASTExprConst* clone() const {return new ASTExprConst(*this);}
 
-		void execute(ASTVisitor& visitor, void* param = NULL);
+		virtual void execute(ASTVisitor& visitor, void* param = NULL);
 
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return false;}
 
-		optional<long> getCompileTimeValue(
+		virtual optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
@@ -924,6 +925,23 @@ namespace ZScript
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	
 		owning_ptr<ASTExpr> content;
+	};
+	
+	class ASTExprVarInitializer : public ASTExprConst
+	{
+	public:
+		ASTExprVarInitializer(ASTExpr* content = NULL,
+		                LocationData const& location = LocationData::NONE);
+		ASTExprVarInitializer* clone() const {return new ASTExprVarInitializer(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
+				const;
+		
+		bool valueIsArray(Scope* scope, CompileErrorHandler* errorHandler);
+		optional<long> value;
 	};
 
 	class ASTExprAssign : public ASTExpr

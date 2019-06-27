@@ -584,7 +584,7 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
     //load the rval into EXP1
 	visit(host.right.get(), param);
     //and store it
-    LValBOHelper helper;
+    LValBOHelper helper(scope);
     host.left->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -594,7 +594,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
 
 	// If a constant, just load its value.
-    if (optional<long> value = host.binding->getCompileTimeValue())
+    if (optional<long> value = host.binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()))
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1),
                                     new LiteralArgument(*value)));
@@ -844,7 +844,7 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 								new LiteralArgument(10000)));
 	
     // Store it
-    LValBOHelper helper;
+    LValBOHelper helper(scope);
     host.operand->execute(helper, param);
     addOpcodes(helper.getResult());
 	
@@ -863,7 +863,7 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
     addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
 
     // Store it
-    LValBOHelper helper;
+    LValBOHelper helper(scope);
     host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -880,7 +880,7 @@ void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
 								new LiteralArgument(10000)));
 
     // Store it.
-    LValBOHelper helper;
+    LValBOHelper helper(scope);
     host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -897,7 +897,7 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
     addOpcode(new OSubImmediate(new VarArgument(EXP1),
 								new LiteralArgument(10000)));
     // Store it.
-    LValBOHelper helper;
+    LValBOHelper helper(scope);
     host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 
@@ -1701,6 +1701,11 @@ void BuildOpcodes::caseOptionValue(ASTOptionValue& host, void*)
 /////////////////////////////////////////////////////////////////////////////////
 // LValBOHelper
 
+LValBOHelper::LValBOHelper(Scope* scope)
+{
+	ASTVisitor::scope = scope;
+}
+
 void LValBOHelper::caseDefault(void *)
 {
     //Shouldn't happen
@@ -1774,7 +1779,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     //but first save the value of EXP1
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
-    BuildOpcodes oc(NULL);
+    BuildOpcodes oc(scope);
     oc.visit(host.left.get(), param);
 	addOpcodes(oc.getResult());
     
@@ -1788,7 +1793,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     //and push the index, if indexed
     if(isIndexed)
     {
-        BuildOpcodes oc2(NULL);
+        BuildOpcodes oc2(scope);
         oc2.visit(host.index.get(), param);
 		addOpcodes(oc2.getResult());
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -1819,7 +1824,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Get and push the array pointer.
-	BuildOpcodes buildOpcodes1(NULL);
+	BuildOpcodes buildOpcodes1(scope);
 	buildOpcodes1.visit(host.array.get(), param);
 	opcodes = buildOpcodes1.getResult();
 	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
@@ -1827,7 +1832,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Get the index.
-	BuildOpcodes buildOpcodes2(NULL);
+	BuildOpcodes buildOpcodes2(scope);
 	buildOpcodes2.visit(host.index.get(), param);
 	opcodes = buildOpcodes2.getResult();
 	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)

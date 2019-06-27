@@ -132,6 +132,7 @@ namespace ZScript
 	class LValBOHelper : public ASTVisitor
 	{
 	public:
+		LValBOHelper(Scope* scope);
 		virtual void caseDefault(void *param);
 		//virtual void caseDataDecl(ASTDataDecl& host, void* param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);

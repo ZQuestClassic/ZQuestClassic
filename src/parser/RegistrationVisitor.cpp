@@ -365,6 +365,8 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 		ASTDataDecl* declaration = *it;
 		if(ASTExpr* init = declaration->getInitializer())
 		{
+			visit(init);
+			if(!registered(init)) return;
 			if(init->getCompileTimeValue())
 			{
 				long val = *init->getCompileTimeValue();
@@ -572,6 +574,20 @@ void RegistrationVisitor::caseExprConst(ASTExprConst& host, void* param)
 	if (host.getCompileTimeValue(this, scope)) doRegister(host);
 }
 
+void RegistrationVisitor::caseVarInitializer(ASTExprVarInitializer& host, void* param)
+{
+	RecursiveVisitor::caseVarInitializer(host, param);
+	if(registered(host.content.get()))
+	{
+		if(host.valueIsArray(scope, this)) doRegister(host);
+		else
+		{
+			host.value = *host.content->getCompileTimeValue(this, scope);
+			if(host.value) doRegister(host);
+		}
+	}
+}
+
 void RegistrationVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 {
 	visit(host.left.get(), paramWrite);
@@ -595,6 +611,11 @@ void RegistrationVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* para
 	// Bind to named variable.
 	host.binding = lookupDatum(*scope, host, this);
 	if (!host.binding) return;
+	if(host.binding->type.isArray())
+	{
+		handleError(CompileError::NoArrayGlobalVar(&host));
+		return;
+	}
 
 	// Can't write to a constant.
 	if (param == paramWrite || param == paramReadWrite)

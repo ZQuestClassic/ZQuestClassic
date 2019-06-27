@@ -347,6 +347,11 @@ void RecursiveVisitor::caseExprConst(ASTExprConst& host, void* param)
 	syncDisable(host, *host.content);
 }
 
+void RecursiveVisitor::caseVarInitializer(ASTExprVarInitializer& host, void* param)
+{
+	caseExprConst(host, param);
+}
+
 void RecursiveVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 {
 	visit(host.left.get(), param);

@@ -82,6 +82,8 @@ namespace ZScript
 		// Expressions
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprIdentifier(
@@ -175,6 +177,10 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseDataType(ASTDataType& host, void* param = NULL) {
 			caseDefault(host, param);}
+			
+	protected:
+		//Current scope
+		ZScript::Scope* scope;
 	};
 
 	////////////////////////////////////////////////////////////////
@@ -255,6 +261,7 @@ namespace ZScript
 		virtual void caseCustomDataTypeDef(ASTCustomDataTypeDef&, void* param = NULL);
 		// Expressions
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL);
+		virtual void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL);
 		virtual void caseExprArrow(ASTExprArrow& host, void* param = NULL);
 		virtual void caseExprIndex(ASTExprIndex& host, void* param = NULL);
@@ -311,8 +318,6 @@ namespace ZScript
 		static void syncDisable(AST& parent, AST const& child);
 		static void syncDisable(AST& parent, AST const* child);
 
-		//Current scope
-		ZScript::Scope* scope;
 		// Current stack of visited nodes.
 		std::vector<AST*> recursionStack;
 

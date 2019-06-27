@@ -262,30 +262,33 @@ void SemanticAnalyzer::caseDataTypeDef(ASTDataTypeDef& host, void*)
 void SemanticAnalyzer::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void*)
 {
 	if(host.registered()) return; //Skip if already handled
-	//Don't allow use of a name that already exists
-	if(DataType const* existingType = lookupDataType(*scope, host.name))
+	if(!host.type)
 	{
-		handleError(
-			CompileError::RedefDataType(
-				&host, host.name, existingType->getName()));
-		return;
+		//Don't allow use of a name that already exists
+		if(DataType const* existingType = lookupDataType(*scope, host.name))
+		{
+			handleError(
+				CompileError::RedefDataType(
+					&host, host.name, existingType->getName()));
+			return;
+		}
+		
+		//Construct a new constant type
+		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
+		//Construct the base type
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, newConstType->getCustomId());
+		
+		//Set the type to the base type
+		host.type.reset(new ASTDataType(newBaseType, host.location));
+		//Set the enum type to the const type
+		host.definition->baseType.reset(new ASTDataType(newConstType, host.location));
+		
+		DataType::addCustom(newBaseType);
+		
+		//This call should never fail, because of the error check above.
+		scope->addDataType(host.name, newBaseType, &host);
+		if (breakRecursion(*host.type.get())) return;
 	}
-	
-	//Construct a new constant type
-	DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
-	//Construct the base type
-	DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, newConstType->getCustomId());
-	
-	//Set the type to the base type
-	host.type.reset(new ASTDataType(newBaseType, host.location));
-	//Set the enum type to the const type
-	host.definition->baseType.reset(new ASTDataType(newConstType, host.location));
-	
-	DataType::addCustom(newBaseType);
-	
-	//This call should never fail, because of the error check above.
-	scope->addDataType(host.name, newBaseType, &host);
-    if (breakRecursion(*host.type.get())) return;
 	RecursiveVisitor::caseCustomDataTypeDef(host);
 }
 
@@ -389,6 +392,11 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 				long val = *init->getCompileTimeValue();
 				ipart = val/10000;
 				dpart = val%10000;
+			}
+			else
+			{
+				handleError(CompileError::ExprNotConstant(declaration));
+				return;
 			}
 		}
 		else
@@ -650,6 +658,18 @@ void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)
 	if (breakRecursion(host)) return;
 
 	if (!host.getCompileTimeValue(this, scope))
+	{
+		handleError(CompileError::ExprNotConstant(&host));
+		return;
+	}
+}
+
+void SemanticAnalyzer::caseVarInitializer(ASTExprVarInitializer& host, void*)
+{
+	RecursiveVisitor::caseExprConst(host);
+	if (breakRecursion(host)) return;
+	if(!(scope->isGlobal() || scope->isScript())) return; //Only require constant initializer if global var.
+	if (!host.valueIsArray(scope, this) && !host.getCompileTimeValue(this, scope))
 	{
 		handleError(CompileError::ExprNotConstant(&host));
 		return;
