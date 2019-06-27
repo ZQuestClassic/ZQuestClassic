@@ -58,7 +58,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 			 it != ancestor.compileErrorCatches.end(); ++it)
 		{
 			ASTExprConst& idNode = **it;
-			optional<long> errorId = idNode.getCompileTimeValue();
+			optional<long> errorId = idNode.getCompileTimeValue(this, scope);
 			assert(errorId);
 			// If we've found a handler, remove that handler from the node's
 			// list of handlers and disable the current node (if not a
@@ -81,14 +81,6 @@ void RecursiveVisitor::handleError(CompileError const& error)
 		if(skipError) failure_skipped = true;
 		else failure = true;
 	box_out_err(error);
-}
-
-void RecursiveVisitor::logDebugMessage(const char* msg)
-{
-	#if PARSER_DEBUG > 0
-	box_out("Debug: "); box_out(msg);
-	box_eol();
-	#endif
 }
 
 void RecursiveVisitor::visit(AST& node, void* param)

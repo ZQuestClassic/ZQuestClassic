@@ -367,9 +367,9 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 		{
 			visit(init);
 			if(!registered(init)) return;
-			if(init->getCompileTimeValue())
+			if(optional<long> v = init->getCompileTimeValue(this, scope))
 			{
-				long val = *init->getCompileTimeValue();
+				long val = *v;
 				ipart = val/10000;
 				dpart = val%10000;
 			}

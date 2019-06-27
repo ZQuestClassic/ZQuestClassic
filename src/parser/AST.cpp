@@ -882,7 +882,10 @@ optional<long> ASTExprVarInitializer::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
-	return value;
+	if(scope->isGlobal() || scope->isScript())
+		return value;
+	else
+		return value ? value : content->getCompileTimeValue(errorHandler, scope);
 }
 
 bool ASTExprVarInitializer::valueIsArray(Scope* scope, CompileErrorHandler* errorHandler)

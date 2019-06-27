@@ -543,7 +543,7 @@ void BuildOpcodes::buildArrayUninit(
 
 	// Get size of the array.
 	long totalSize;
-	if (optional<int> size = host.extraArrays[0]->getCompileTimeSize(this))
+	if (optional<int> size = host.extraArrays[0]->getCompileTimeSize(this, scope))
 		totalSize = *size * 10000L;
 	else
 	{
@@ -1387,7 +1387,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 	if (declaration.extraArrays.size() == 1)
 	{
 		ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
-		if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
+		if (optional<int> totalSize = extraArray.getCompileTimeSize(this, scope))
 			size = *totalSize;
 		else if (extraArray.hasSize())
 		{
@@ -1529,7 +1529,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	if (size == -1 && declaration.extraArrays.size() == 1)
 	{
 		ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
-		if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
+		if (optional<int> totalSize = extraArray.getCompileTimeSize(this, scope))
 			size = *totalSize;
 		else if (extraArray.hasSize())
 		{
