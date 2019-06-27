@@ -870,6 +870,13 @@ void RegistrationVisitor::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 		doRegister(host);
 }
 
+void RegistrationVisitor::caseStringLiteral(ASTStringLiteral& host, void* param)
+{
+	// Add to scope as a managed literal.
+	Literal::create(*scope, host, *host.getReadType(scope, this), this);
+	doRegister(host);
+}
+
 //Helper Functions
 void RegistrationVisitor::analyzeUnaryExpr(ASTUnaryExpr& host)
 {

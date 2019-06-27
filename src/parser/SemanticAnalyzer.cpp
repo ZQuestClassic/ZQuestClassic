@@ -1155,6 +1155,7 @@ void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
 
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 {
+	if(host.registered()) return; //Skip if already handled
 	// Add to scope as a managed literal.
 	Literal::create(*scope, host, *host.getReadType(scope, this), this);
 }

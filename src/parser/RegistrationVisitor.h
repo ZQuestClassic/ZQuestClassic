@@ -81,6 +81,7 @@ namespace ZScript
 		void caseCharLiteral(ASTCharLiteral& host, void* param = NULL){
 			caseDefault(host,param);}
 		void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
+		void caseStringLiteral(ASTStringLiteral& host, void* param = NULL);
 	protected:
 		
 		void doRegister(AST& host)
