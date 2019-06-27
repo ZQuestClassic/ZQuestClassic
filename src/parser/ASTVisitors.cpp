@@ -4,6 +4,7 @@
 #include "../zsyssimple.h"
 #include "CompileError.h"
 #include "Scope.h"
+#include "parserDefs.h"
 #include <assert.h>
 #include <cstdarg>
 
@@ -80,6 +81,14 @@ void RecursiveVisitor::handleError(CompileError const& error)
 		if(skipError) failure_skipped = true;
 		else failure = true;
 	box_out_err(error);
+}
+
+void RecursiveVisitor::logDebugMessage(const char* msg)
+{
+	#if PARSER_DEBUG > 0
+	box_out("Debug: "); box_out(msg);
+	box_eol();
+	#endif
 }
 
 void RecursiveVisitor::visit(AST& node, void* param)

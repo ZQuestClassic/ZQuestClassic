@@ -1,6 +1,8 @@
 #ifndef _PARSERDEFS_H_
 #define _PARSERDEFS_H_
 
+#define PARSER_DEBUG 0
+
 //FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.
 #define FUNCFLAG_INLINE				0x01
 #define FUNCFLAG_INVALID			0x02

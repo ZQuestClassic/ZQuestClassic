@@ -199,6 +199,7 @@ namespace ZScript
 	
 		// Used to signal that a compile error has occured.
 		void handleError(CompileError const& error) /*override*/;
+		void logDebugMessage(const char* msg);
 		bool hasError() const /*override*/ {return failure;}
 	
 		// Visits a single node. The only virtual visit function as all others
