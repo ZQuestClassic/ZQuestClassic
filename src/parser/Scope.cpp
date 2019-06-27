@@ -324,7 +324,7 @@ vector<NamespaceScope*> ZScript::lookupUsingNamespaces(Scope const& scope)
 			break; //Don't go to parent file!
 		}
 	}
-	if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
+	if(!foundFile && !first->isRoot()) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) - Also, don't get this for root. That crashes. -V
 	{
 		vector<NamespaceScope*> currentNamespaces = first->getFile()->getUsingNamespaces();
 		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
