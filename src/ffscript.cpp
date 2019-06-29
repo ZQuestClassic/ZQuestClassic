@@ -2101,7 +2101,7 @@ long get_register(const long arg)
 		    //Z_scripterrlog("lx: %d\n", lx);
 		    ret = (double)Link.getX()*10000;
 	    }
-	    else ret = long(Link.getX() * 10000);
+	    else ret = long(Link.getX()) * 10000;
 
         break;
     }
@@ -2112,7 +2112,7 @@ long get_register(const long arg)
 	    {
 		    ret = (double)Link.getY()*10000;
 	    }
-	    else ret = long(Link.getY() * 10000);
+	    else ret = long(Link.getY()) * 10000;
 
         break;
     }    
@@ -2122,7 +2122,7 @@ long get_register(const long arg)
 	    {
 		    ret = (double)Link.getZ()*10000;
 	    }
-	    else ret = long(Link.getZ() * 10000);
+	    else ret = long(Link.getZ()) * 10000;
 
         break;
     } 
