@@ -253,6 +253,7 @@ static DIALOG itemrules_dlg[] =
     //30
     { d_dummy_proc,      10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Melee Weapons Require Magic Cost", NULL, NULL },
     { jwin_check_proc,      10, 21+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Magic Book Costs", NULL, NULL },
+    { jwin_check_proc,      10, 21+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Reroll Useless Drops", NULL, NULL },
    
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -265,7 +266,7 @@ static int itemrules[] =
     qr_FIREPROOFLINK, qr_OUCHBOMBS, qr_RINGAFFECTDAMAGE, qr_QUICKSWORD, qr_SLASHFLIPFIX,
     qr_NOWANDMELEE, qr_NOITEMMELEE, qr_BRANGPICKUP, qr_HEARTSREQUIREDFIX, qr_4TRI, qr_3TRI,
     qr_SLOWCHARGINGWALK, qr_LENSHINTS, qr_RAFTLENS, qr_LENSSEESENEMIES,
-    qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_ITEMBUBBLE, qr_MELEEMAGICCOST, qr_BROKENBOOKCOST, -1
+    qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_ITEMBUBBLE, qr_MELEEMAGICCOST, qr_BROKENBOOKCOST, qr_SMARTDROPS, -1
 };
 
 int onItemRules()

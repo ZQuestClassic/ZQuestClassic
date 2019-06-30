@@ -846,6 +846,7 @@ enum
 	qr_SIDEVIEWTRIFORCECELLAR, qr_OUTOFBOUNDSENEMIES,
 	qr_EPILEPSY,
 	qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
+	qr_SMARTDROPS,
 	
 	
 	//ZScript Parser //room for 20 of these
