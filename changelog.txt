@@ -2,6 +2,9 @@
 
 //Alpha 26
 
+Display Build Date in ZQ Editor Info/About Dialogue
+Fix compiler warning.
+Console: Add new mapdata commands to ZASM Logging
 Fixed the accidental removal of reading 'preloadscript' in readmapscreen().
 	( ZoriaRPG, 1st July, 2019 )
 	
