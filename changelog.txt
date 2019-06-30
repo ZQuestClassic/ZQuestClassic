@@ -2,6 +2,119 @@
 
 //Alpha 26
 
+Registration: Handle change in SemanticAnalyzer from other commit
+	caseExprNegate was modified in another branch, and that change needed to be handled for RegistrationVisitor.
+	This handling is required for constant `-214748.3648` to work.
+Feat: qr_SMARTDROPS 
+	Makes it so that if you have no counter max for a counter, items that refill that counter will not drop, and will be rerolled instead.
+Parser: `MAX_INT_ONE_LARGER` now `TRUE_INT_SIZE` 
+	This allows `214748.3647`/`-214748.3648`
+	All appropriate constants in std_constants have been updated.
+	Also, `ftoa` has been patched to not bug out on constants of `MIN_CONSTANT`. A variable of MIN_CONSTANT will potentially still have issues, but those were also present before this commit.
+	( Venrob, 30th June, 2019 )
+	
+Fix: Invalid *10000 when casting Link's coords 
+	*10000 must be AFTER the cast.
+	Doing it inside is doing something wrong, likely simply overflowing max fix (only has 16-bits for the integer portion)
+	( Venrob, 29th June, 2019 )
+	
+Parser: Move `logDebugMessage()`, fix some issues 
+	`logDebugMessage()` moved to `CompileError`, so it is callable from files such as `AST.cpp` as easily as `RecursiveVisitor.cpp`
+	Fix: Require errorHandler/scope parameter for all `getCompileTimeValue`.
+	Fix: `ASTExprVarInitializer::getCompileTimeValue()` now handles local constants
+	( Venrob, 28th June, 2019 )
+
+Parser: Handle global variable initializers 
+	Added ASTExprVarInitializer, as a wrapper node.
+	ASTDataDecl->setInitializer() still takes ASTExpr, but will now construct an ASTExprVarInitializer from it.
+	Datum can now give a compiletimevalue for non-constants, but takes a bool for if it should or not- defaults false.
+	New error, thrown when trying to initailize a global variable to an array.
+	New error code letter: `R`, for Registration errors.
+	`Scope* scope` moved from RecusiveVisitor to ASTVisitor, so LValBOHelper can inherit it (which is required for things not to crash)
+
+	Now `int a = b; int b = 5;` will work again. In any order.
+	`int a = 5; const int b = a;` also works, since the initializer is considered compile-time constant.
+Parser: Add debug definition, debug message logging
+
+Moved the `ASTImportDecl` checked calls inside `checkImport`, rather than having them in every place outside of it.
+Moved the node disabling in the same way.
+	This should change nothing functionally, it's just cleaner/faster code.
+
+Registration: Fix HEADER_GUARD and Using issues 
+	Using was finding duplicates due to rootscope duplication, when using `always using`. Fixed with `!isRoot()` check.
+
+	HEADER_GUARD was checking the same node multiple times, thus disabling entire imports. I don't know how this was causing as few issues as it was.
+	Fixed this by adding `bool checked` to `ASTImportDecl`. If a decl passes check once, it is marked checked, and will not be checked on subsequent checks.
+Registration: Handle strings
+Fix crash: always using 
+	At some point I missed that `always using` will deref null here. Whoops.
+	Added sanity check.	
+Files: Remove Zoria's CMakeCache.txt 
+	Shouldn't be in the repo, dammit.
+Registration: Fix crash, ZScript Compile 
+	ZScript couldn't compile global arrays with initializers!
+	Also, after adding that, realized I had a major crash issue.
+	Also, returned early on some instances in SemanticAnalyzer.
+	All 3 fixed now.
+	( Venrob, 27th June, 2019 )
+	
+Registration: Fix errors
+Registration: Fix Compile
+CMake: Add RegistrationVisitor.cpp
+Registration: Finish up cases
+	Got the last few cases done. Now to actually start testing this thing.
+Registration: More cases handled, fix using issue 
+	Handled remaining expressions, except Call and Arrow
+	Handled File, Namespace, Script, Using, SetOption, ImportDecl
+	`using` a non-existant namespace previously would not error (it could not do so reliably due to a timing issue).
+	Now, it will error (in SemanticAnalyzer), if it finds no match.
+Feat: Add `bool Screen->ScriptDraws[8];` 
+	These default to all true, setting false hides script draws for the respecive layer, 0-7.
+	( Venrob, 26th June, 2019 )
+
+Added bool mapdata->LayerInvisible[7]
+Added bool mapdata->ScriptDraws[7]
+Added hidelayers and hidelayers to quest save/load format, and
+	to SRAM script save data.
+	V_MAPS is now 22.
+	V_SRAM is now 2.
+Fix Y Position of new Script Rule Tickbox
+Fix: Some Init Data Issues 
+	Fixed Uninitialised value in zinit, and zinit2 (ZC Player, Cheat Link Data) struct.
+	Fixed use of wrong value in setting bomb item true.
+	This fixes superbomb count being set to random values.
+Add script rule 'Script write to INPUT overrides Drunk State'
+	( ZoriaRPG, 26th June, 2019 )
+
+Registration: Handle most basic expression types
+Registration: RegistrationVisitor.h Setup 
+	Add files `RegistrationVisitor`(.h and .cpp)
+	Lay out the groundwork for the new system in RegistrationVisitor.h
+	Add registration members to class AST
+	Move some members from SemanticAnalyzer to RecursiveVisitor, for inheritance purposes
+	Set up `caseRoot`, for handling the main looping through the script. This is unique, and not an override of an existing function like most other cases.
+	( Venrob, 26th June, 2019 )
+	
+Parser: Fix enums 
+	Now, referencing an earlier constant in the same enum no longer has continuity issues.
+	Also fixed a precision-loss issue, involving integer division.
+Parser refactor: Remove `using namespace std;` from `ByteCode.h` 
+	`.h` files should not `using`. This broke the ability to include `zdefs.h`.
+Feat: Add `bool Screen->LayerInvisible[7];`
+	Internally, `byte hidelayers`, where the flag for each layer is (1<<layer)	
+	If true, that layer will not be drawn (except for script draws)
+Fix: Didn't handle scripts writing LA_DIVING 
+	Use the length and cooldown of current flippers, same as pressing A while swimming, on writing LA_DIVING
+Feat: New flippers options 
+	Attribute 1: Flipper dive time
+	Attribute 2: Flipper cooldown time
+	Flag 2: Cancellable dive
+	Updated V_ITEMS to 45
+	Replaced various `diveclk>30` calls with `isDiving()` calls, which previously just returned `diveclk>30`, but now handles the new options.
+	Included sanity checks for this at several points.
+	If no flippers are had, the default values of 50 (dive) and 30 (cooldown) will be used.
+	( Venrob, 25th June, 2019 )
+	
 Added an error message for wrong extension (e.g. '.sram' instead of '.zcsram')
 	when saving or loading SRAM files. 
 Added a sanity check on SRAM flagset mismatches.
