@@ -553,7 +553,7 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts, Scope* scope
 	bool negative=false;
 	pair<long, bool> rval;
 	rval.second=true;
-	bool intOneLarger = *lookupOption(*scope, CompileOption::OPT_MAX_INT_ONE_LARGER) != 0;
+	bool intOneLarger = *lookupOption(*scope, CompileOption::OPT_TRUE_INT_SIZE) != 0;
     
 	if(parts.first.data()[0]=='-')
 	{
@@ -574,17 +574,12 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts, Scope* scope
 	}
     
 	int firstpart = atoi(parts.first.c_str());
-    bool noDec = false;
 	if(intOneLarger) //MAX_INT should be 214748, but if that is the value, there should be no float component. -V
 	{
 		if(firstpart > 214748)
 		{
 			firstpart = 214748;
 			rval.second = false;
-		}
-		else if(firstpart == 214748)
-		{
-			noDec = true;
 		}
 	}
 	else if(firstpart > 214747)
@@ -616,11 +611,12 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts, Scope* scope
 	  fpart += atoi(tmp);
 	  }*/
 	  
-	if(fpart && noDec)
+	if(intOneLarger && firstpart == 214748 && (negative ? fpart > 3648 : fpart > 3647))
 	{
-		fpart = 0;
+		fpart = negative ? 3648 : 3647;
 		rval.second = false;
 	}
+	
 	
 	rval.first = intval + fpart;
 	if(negative)

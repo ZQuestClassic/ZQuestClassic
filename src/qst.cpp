@@ -2777,7 +2777,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if((tempheader.zelda_version < 0x255))
 	{
 		set_bit(quest_rules,qr_PARSER_250DIVISION,1);
-		set_bit(quest_rules,qr_PARSER_MAX_INT_ONE_LARGER,0);
+		set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
 		set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
 	}
 	

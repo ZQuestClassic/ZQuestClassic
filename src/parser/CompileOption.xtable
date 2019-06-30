@@ -6,5 +6,5 @@ X(	SHORT_CIRCUIT,                                qr_PARSER_SHORT_CIRCUIT,       
 X(	BOOL_TRUE_RETURN_DECIMAL,                 qr_PARSER_BOOL_TRUE_DECIMAL,            OPTTYPE_QR,                     00000)
 X(	HEADER_GUARD,                                                       0,        OPTTYPE_CONFIG,                     30000)
 X(	NO_ERROR_HALT,                                                      0,        OPTTYPE_CONFIG,                     00000)
-X(	MAX_INT_ONE_LARGER,                      qr_PARSER_MAX_INT_ONE_LARGER,            OPTTYPE_QR,                     10000)
+X(	TRUE_INT_SIZE,                                qr_PARSER_TRUE_INT_SIZE,            OPTTYPE_QR,                     10000)
 X(	FORCE_INLINE,                                  qr_PARSER_FORCE_INLINE,            OPTTYPE_QR,                     00000)
