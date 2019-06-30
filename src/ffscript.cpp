@@ -5237,6 +5237,34 @@ case SCREENDATANOCARRY: 		GET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	/
 case SCREENDATALAYERMAP:	 	GET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
 case SCREENDATALAYERSCREEN: 	GET_SCREENDATA_LAYER_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
 case SCREENDATALAYEROPACITY: 	GET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
+case SCREENDATALAYERINVIS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 6 )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->LayerInvisible[]: %d\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		ret = ((tmpscr->hidelayers >> indx) & 1) *10000;
+	}
+	break;
+}
+case SCREENDATASCRIPTDRAWS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 7 )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->HideScriptLayer[]: %d\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+	}
+	break;
+}
 case SCREENDATATIMEDWARPTICS: 	GET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case SCREENDATANEXTMAP: 		GET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case SCREENDATANEXTSCREEN: 	GET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
@@ -11259,6 +11287,38 @@ case SCREENDATANOCARRY: 		SET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	/
 case SCREENDATALAYERMAP:	 	SET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
 case SCREENDATALAYERSCREEN: 	SET_SCREENDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
 case SCREENDATALAYEROPACITY: 	SET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case SCREENDATALAYERINVIS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 6 )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->LayerInvisible[]: %d\n", indx);
+	}
+	else
+	{
+		if(value)
+			tmpscr->hidelayers |= (1<<indx);
+		else
+			tmpscr->hidelayers &= ~(1<<indx);
+	}
+	break;
+}
+case SCREENDATASCRIPTDRAWS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 7 )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->HideScriptLayer[]: %d\n", indx);
+	}
+	else
+	{
+		if(value)
+			tmpscr->hidescriptlayers &= ~(1<<indx);
+		else
+			tmpscr->hidescriptlayers |= (1<<indx);
+	}
+	break;
+}
 case SCREENDATATIMEDWARPTICS: 	SET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case SCREENDATANEXTMAP: 		SET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case SCREENDATANEXTSCREEN: 	SET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
@@ -26939,6 +26999,8 @@ script_variable ZASMVars[]=
 	
 	{"MAPDATASIDEWARPID", MAPDATASIDEWARPID, 0, 0 },
 	{"SCREENSIDEWARPID", SCREENSIDEWARPID, 0, 0 },
+	{"SCREENDATALAYERINVIS", SCREENDATALAYERINVIS, 0, 0 },
+	{"SCREENDATASCRIPTDRAWS", SCREENDATASCRIPTDRAWS, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

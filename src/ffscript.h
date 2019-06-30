@@ -3522,13 +3522,15 @@ enum ASM_DEFINE
 #define SCREENSIDEWARPID 		0x135C
 #define LINKGRAVITY 		0x135D
 
+#define SCREENDATALAYERINVIS 		0x135E
+#define SCREENDATASCRIPTDRAWS 		0x135F
 //bytecode
 
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x135E
+#define NUMVARIABLES         	0x1360
 
 // Script types
 
