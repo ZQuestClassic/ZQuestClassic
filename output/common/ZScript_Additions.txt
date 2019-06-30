@@ -1394,7 +1394,6 @@ int GetPointer(bool *ptr[]);
 bool LayerInvisible[7]; 
  * Returns true if the current layer is visible. 
  * Writing this false for layers 1 through 6 will make those layers invisible.
- * Writing the state of laye r0 has no effect.
  
 bool ScriptDraws[8];
  * Returns true if the ZC engine will perform script draws ont he given
@@ -2670,7 +2669,6 @@ void GetMusic();
 bool LayerInvisible[7]; 
  * Returns true if the current layer is visible. 
  * Writing this false for layers 1 through 6 will make those layers invisible.
- * Writing the state of laye r0 has no effect.
  
 bool ScriptDraws[8];
  * Returns true if the ZC engine will perform script draws ont he given
