@@ -16387,11 +16387,9 @@ static inline bool is_Side_view()
 
 void FFScript::AlloffLimited(int flagset)
 {
-    if(messagesToo)
-    {
-        clear_bitmap(msgdisplaybuf);
-        set_clip_state(msgdisplaybuf, 1);
-    }
+    clear_bitmap(msgdisplaybuf);
+    set_clip_state(msgdisplaybuf, 1);
+    
     
     clear_bitmap(pricesdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
@@ -16400,6 +16398,31 @@ void FFScript::AlloffLimited(int flagset)
     {
         loadlvlpal(DMaps[currdmap].color);
     }
+    
+    /*
+    
+	#define warpFlagCLEARITEMS 0x200
+	#define warpFlagCLEARGUYS 0x400
+	#define warpFlagCLEARLWEAPONS 0x800
+	#define warpFlagCLEAREWEAPONS 0x1000
+	#define warpFlagCLEARHOOKSHOT 0x2000
+	#define warpFlagCLEARDECORATIONS 0x4000
+	#define warpFlagCLEARPARTICLES 0x8000
+    */
+    
+    if ( (flagset&warpFlagCLEARITEMS) ) items.clear();
+    if ( (flagset&warpFlagCLEARGUYS) ) guys.clear();
+    if ( (flagset&warpFlagCLEARLWEAPONS) ) Lwpns.clear();
+    if ( (flagset&warpFlagCLEAREWEAPONS) ) Ewpns.clear();
+    if ( (flagset&warpFlagCLEARHOOKSHOT) ) 
+    {
+	    chainlinks.clear();
+	    Link.reset_hookshot();
+    }
+    if ( (flagset&warpFlagCLEARDECORATIONS) ) decorations.clear();
+    if ( (flagset&warpFlagCLEARPARTICLES) ) particles.clear();
+    clearScriptHelperData();
+    
     
     
     clearScriptHelperData();

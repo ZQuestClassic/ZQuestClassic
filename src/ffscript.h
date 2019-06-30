@@ -39,6 +39,15 @@
 #define warpFlagDONTRESTARTDMAPSCRIPT 0x080
 #define warpFlagDONTCLEARSPRITES 0x100
 
+#define warpFlagCLEARITEMS 0x200
+#define warpFlagCLEARGUYS 0x400
+#define warpFlagCLEARLWEAPONS 0x800
+#define warpFlagCLEAREWEAPONS 0x1000
+#define warpFlagCLEARHOOKSHOT 0x2000
+#define warpFlagCLEARDECORATIONS 0x4000
+#define warpFlagCLEARPARTICLES 0x8000
+
+
 //Visual Warp Effect Types for Link->WarpEx()
 enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
 
