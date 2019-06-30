@@ -12842,7 +12842,10 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     }
     if ( version >= 21 )
     {
-	   
+	if(!p_getc(&(temp_mapscr->preloadscript),f,true))
+	{
+		return qe_invalid;
+	}       
     }
     if ( version < 21 )
     {
