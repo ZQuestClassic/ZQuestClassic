@@ -2,6 +2,28 @@
 
 //Alpha 26
 
+CompileOption: Binary 32-bit operations/literals 
+	With this compile option on, binary literals and operators will be direct (skipping `/10000` and `*10000`)
+	This allows the use of 32 bits per variable.
+	This option is forced to OFF in `std.zh`.
+	This option defaults to OFF.
+	( Venrob, Merged on 1st July, 2019; committed 30th June, 2019 )
+
+Fixed compile, and added fine-tuning for sprite carryover warpflags:
+	#define warpFlagCLEARITEMS 0x200
+	#define warpFlagCLEARGUYS 0x400
+	#define warpFlagCLEARLWEAPONS 0x800
+	#define warpFlagCLEAREWEAPONS 0x1000
+	#define warpFlagCLEARHOOKSHOT 0x2000
+	#define warpFlagCLEARDECORATIONS 0x4000
+	#define warpFlagCLEARPARTICLES 0x8000
+Added a new warp plag to WarpEx:
+	warpFlagDONTCLEARSPRITES 0x100
+	This should emulate Sprites Carry Over
+	If we need segregated flags, we can add those later.
+Allow setting doors and templates on higher MAPSCRs
+	This fix should allow setting doors and other templates on
+	MAPSCRs up to 0x87.
 Copied rule-based call to drunk_toggle_state[] in ffscript.cpp
 	to BUTTONPRESS, and added clamp to restrict it to buttons 0 through 10 in all places.
 Display Build Date in ZQ Editor Info/About Dialogue
