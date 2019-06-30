@@ -2,6 +2,9 @@
 
 //Alpha 26
 
+Fixed the accidental removal of reading 'preloadscript' in readmapscreen().
+	( ZoriaRPG, 1st July, 2019 )
+	
 APPLIED PARSER REGISTRATION PHASE TO BUILDS on 30th June, 2019.
 
 Registration: Handle change in SemanticAnalyzer from other commit
