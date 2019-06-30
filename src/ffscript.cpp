@@ -5384,7 +5384,7 @@ case SCREENDATAFLAGS:
 	{
 		if ( ri->mapsref == LONG_MAX )
 		{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str);
+				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","LayerInvisible");
 				ret = -10000;
 		}
 		else
@@ -5400,14 +5400,14 @@ case MAPDATASCRIPTDRAWS:
 	int indx = ri->d[0] / 10000;
 	if(indx < 0 || indx > 6 )
 	{
-		Z_scripterrlog("Invalid Index passed to mapdata->LayerInvisible[]: %d\n", indx);
+		Z_scripterrlog("Invalid Index passed to mapdata->DisableScriptDraws[]: %d\n", indx);
 		ret = 0;
 	}
 	else
 	{
 		if ( ri->mapsref == LONG_MAX )
 		{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str);
+				Z_scripterrlog("Script attempted to use a mapdata->DisableScriptDraws on a pointer that is uninitialised\n");
 				ret = -10000;
 		}
 		else
@@ -11927,7 +11927,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		if(indx < 1 || indx > indexbound ) \
 		{ \
 			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
-			break; \ 
+			break; \
 		} \
 		if ( ri->mapsref == LONG_MAX ) \
 		{ \
@@ -12134,7 +12134,7 @@ case MAPDATALAYERINVIS:
 		
 		if ( ri->mapsref == LONG_MAX )
 		{
-			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str);
+			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","LayerInvisible");
 			break;
 		}
 		else
@@ -12157,13 +12157,13 @@ case MAPDATASCRIPTDRAWS:
 	int indx = ri->d[0] / 10000;
 	if(indx < 0 || indx > 7 )
 	{
-		Z_scripterrlog("Invalid Index passed to mapdata->HideScriptLayer[]: %d\n", indx);
+		Z_scripterrlog("Invalid Index passed to mapdata->DisableScriptDraw[]: %d\n", indx);
 	}
 	else
 	{
 		if ( ri->mapsref == LONG_MAX )
 		{
-			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str);
+			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","DisableScriptDraw");
 			break;
 		}
 		else
@@ -30628,12 +30628,11 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 		    }
 		    
-		    
-		    if(!p_putc(&(m->hidelayers),f))
+		    if(!p_putc(m->hidelayers,f))
 		    {
 			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 		    }  
-		    if(!p_putc(&(m->hidescriptlayers),f))
+		    if(!p_putc(m->hidescriptlayers,f))
 		    {
 		    	Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 		    }    
