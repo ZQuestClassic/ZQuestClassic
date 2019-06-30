@@ -23061,9 +23061,11 @@ int main(int argc,char **argv)
                     
         tool_menu[0].flags =
             //data_menu[7].flags = //Allow setting doors on template screens > 0x82. -Z ( 24th March, 2019 )
-                commands[cmdTemplate].flags =
-                    commands[cmdDoors].flags = (Map.getCurrScr()<TEMPLATE) ? 0 : D_DISABLED;
+                commands[cmdTemplate].flags = (Map.getCurrScr()<TEMPLATE) ? 0 : D_DISABLED;
                     
+	data_menu[7].flags = //Allow setting doors on template screens > 0x82. -Z ( 1st July, 2019 )
+		commands[cmdDoors].flags = (Map.getCurrScr()<0x88) ? 0 : D_DISABLED;
+		          
         defs_menu[1].flags =
             commands[cmdDefault_Tiles].flags = 0;
             
