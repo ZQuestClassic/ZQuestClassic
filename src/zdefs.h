@@ -189,7 +189,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            21
 #define V_DMAPS            13
 #define V_DOORS            1
-#define V_ITEMS           44
+#define V_ITEMS           45
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -846,6 +846,7 @@ enum
 	qr_SIDEVIEWTRIFORCECELLAR, qr_OUTOFBOUNDSENEMIES,
 	qr_EPILEPSY,
 	qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
+	qr_SMARTDROPS,
 	
 	
 	//ZScript Parser //room for 20 of these
@@ -854,7 +855,7 @@ enum
 	qr_PARSER_SHORT_CIRCUIT, //Default off.
 	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
 	qr_LINKXY_IS_FLOAT,
-	qr_PARSER_MAX_INT_ONE_LARGER, //Default on
+	qr_PARSER_TRUE_INT_SIZE, //Default on
 	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
 	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
 	qr_OLDSPRITEDRAWS,
@@ -865,6 +866,7 @@ enum
 	qr_NOFFCWAITDRAW,
 	qr_NOITEMWAITDRAW,
 	qr_TRACESCRIPTIDS,
+	qr_FIXDRUNKINPUTS,
     qr_MAX
 };
 

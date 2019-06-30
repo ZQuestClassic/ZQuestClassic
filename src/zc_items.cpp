@@ -75,6 +75,14 @@ int select_dropitem(int item_set, int x, int y)
             {
                 current_chance=0;
             }
+			
+			if(get_bit(quest_rules, qr_SMARTDROPS))
+			{
+				if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
+				{
+					current_chance = 0;
+				}
+			}
         }
         
         total_chance+=current_chance;
@@ -103,6 +111,14 @@ int select_dropitem(int item_set, int x, int y)
             current_chance=0;
         }
         
+		if(get_bit(quest_rules, qr_SMARTDROPS))
+		{
+			if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
+			{
+				current_chance = 0;
+			}
+		}
+		
         if(current_chance>0&&item_chance<=current_chance)
         {
             drop_item=current_item;

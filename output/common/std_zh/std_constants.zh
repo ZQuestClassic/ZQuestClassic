@@ -25,17 +25,17 @@ const float SQRT_MAX			= 463.4095; //The largest square root thet ZC can return.
 ////////////////////////////
 /// ZC Minimums and Maximums
 
-const float MAX_CONSTANT		= 214747.9999 + (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 0.0001 : 0);
+const float MAX_CONSTANT		= 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
 //const float MAX_VARIABLE		= 214748.3648; //Obviously this is truncated as a constant. Equal to ((2^31)-1)/10000
-const float MIN_CONSTANT		= -214747.9999 - (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 0.0001 : 0);
+const float MIN_CONSTANT		= -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
 
 
 const int MAX_SCRIPTDRAWINGCOMMANDS	= 1000;
 
-const int MAX_INT = 214747 + (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 1 : 0);
-const int MIN_INT = -214747 - (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 1 : 0);
-const int MAX_FLOAT = 214747.9999 + (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 0.0001 : 0);
-const int MIN_FLOAT = -214747.9999 - (OPTION_VALUE(MAX_INT_ONE_LARGER) ? 0.0001 : 0);
+const int MAX_INT = 214747 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
+const int MIN_INT = -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
+const int MAX_FLOAT = 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
+const int MIN_FLOAT = -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
 
 const int MAX_COUNTER 			= 32768; //or is this 32767, counting 0?
 const int MIN_COUNTER 			= -32768; //" -32767
@@ -2603,7 +2603,7 @@ enum ffruletype
 	qr_PARSER_SHORT_CIRCUIT, //Default off.
 	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
 	qr_LINKXY_IS_FLOAT,
-	qr_PARSER_MAX_INT_ONE_LARGER, //Default on
+	qr_PARSER_TRUE_INT_SIZE, //Default on
 	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
 	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
 	qr_OLDSPRITEDRAWS,

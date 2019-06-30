@@ -1102,6 +1102,8 @@ namespace ZScript
 				const;
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		
+		bool done;
 	};
 
 	class ASTExprNot : public ASTUnaryExpr
@@ -1634,6 +1636,8 @@ namespace ZScript
 				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		
+		void negate();
 	
 		owning_ptr<ASTFloat> value;
 	};

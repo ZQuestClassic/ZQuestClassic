@@ -20314,6 +20314,8 @@ static DIALOG zscript_settings_dlg[] =
     { jwin_check_proc,      10, 32+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Game->Misc[] is not *10000", NULL, NULL },
     { jwin_check_proc,      10, 32+110,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Clear InitD[] on Script Change", NULL, NULL },
     { jwin_check_proc,      10, 32+120,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
+    //Y 130 and Y140 are No Item Script Waitdraw, No FFC Script Waitdraw.
+    { jwin_check_proc,      10, 32+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
     
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -20325,7 +20327,7 @@ static int zscriptrules[] =
     qr_ITEMSCRIPTSKEEPRUNNING, qr_NOITEMWAITDRAW, qr_NOFFCWAITDRAW, 
 	qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,qr_LINKXY_IS_FLOAT,
 	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS,qr_OLDQUESTMISC,qr_CLEARINITDONSCRIPTCHANGE,
-	qr_TRACESCRIPTIDS,
+	qr_TRACESCRIPTIDS,qr_FIXDRUNKINPUTS,
 	
     -1
 };
@@ -20502,7 +20504,7 @@ static DIALOG zscript_parser_dlg[] =
     { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "Include Paths:",                  NULL,   NULL                  },
     //17
-    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Constant Value 214748", NULL, NULL },
+    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True MAX_INT sizing", NULL, NULL },
    
     { jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": Max Include Paths",                  NULL,   NULL                  },
@@ -20532,7 +20534,7 @@ static int zscripparsertrules[] =
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
-	qr_PARSER_MAX_INT_ONE_LARGER,
+	qr_PARSER_TRUE_INT_SIZE,
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings

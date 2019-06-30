@@ -1888,6 +1888,7 @@ int doInit(zinitdata *local_zinit)
         local_zinit->nBombs=vbound(atoi(bombstring),0,0xFFFF);
         local_zinit->nBombmax=vbound(atoi(maxbombstring),0,0xFFFF);
         local_zinit->nSbombs=vbound(atoi(sbombstring),0,0xFFFF);
+        local_zinit->nSBombmax=vbound(atoi(sbombstring),0,0xFFFF);
         local_zinit->nArrows=vbound(atoi(arrowstring),0,0xFFFF);
         local_zinit->nArrowmax=vbound(atoi(maxarrowstring),0,0xFFFF);
         
@@ -2089,7 +2090,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     //Then set up the counters
     game2->set_bombs(zinit2->nBombs);
     
-    if(zinit2->nBombs > 0 && zinit2->nSBombmax > 0) game2->set_item(iBombs, true);
+    if(zinit2->nBombs > 0 && zinit2->nBombmax > 0) game2->set_item(iBombs, true);
     
     game2->set_keys(zinit2->keys);
     game2->set_sbombs(zinit2->nSbombs);

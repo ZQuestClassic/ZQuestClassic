@@ -2777,7 +2777,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if((tempheader.zelda_version < 0x255))
 	{
 		set_bit(quest_rules,qr_PARSER_250DIVISION,1);
-		set_bit(quest_rules,qr_PARSER_MAX_INT_ONE_LARGER,0);
+		set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
 		set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
 	}
 	
@@ -6808,6 +6808,15 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			{
 				if(get_bit(quest_rules,qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
 				else tempitem.flags &= ~ITEM_FLAG3;
+			}
+		}
+		
+		if( s_version < 45 )
+		{
+			if(tempitem.family == itype_flippers)
+			{
+				tempitem.misc1 = 50; //Dive length, default 50 frames -V
+				tempitem.misc2 = 30; //Dive cooldown, default 30 frames -V
 			}
 		}
 		
