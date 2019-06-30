@@ -724,6 +724,17 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 
 void RegistrationVisitor::caseExprNegate(ASTExprNegate& host, void* param)
 {
+	if(!host.done)
+	{
+		if(ASTNumberLiteral* lit = dynamic_cast<ASTNumberLiteral*>(host.operand.get()))
+		{
+			if(lit->value.get())
+			{
+				lit->negate();
+				host.done = true;
+			}
+		}
+	}
 	analyzeUnaryExpr(host);
 }
 

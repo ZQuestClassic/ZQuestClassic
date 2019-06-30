@@ -1019,10 +1019,13 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
 {
-	if(ASTNumberLiteral* lit = dynamic_cast<ASTNumberLiteral*>(host.operand.get()))
+	if(!host.done)
 	{
-		lit->negate();
-		host.done = true;
+		if(ASTNumberLiteral* lit = dynamic_cast<ASTNumberLiteral*>(host.operand.get()))
+		{
+			lit->negate();
+			host.done = true;
+		}
 	}
 	analyzeUnaryExpr(host, DataType::FLOAT);
 }
