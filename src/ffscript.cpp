@@ -8617,7 +8617,8 @@ void set_register(const long arg, const long value)
 		//Read-only
 		int button = vbound((ri->d[0]/10000),0,17);
 		button_press[button]=((value/10000)!=0)?true:false;
-		
+		if ( button < 11 && get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
+        
 	}
 	break;
 
@@ -8626,9 +8627,7 @@ void set_register(const long arg, const long value)
 		//Read-only
 		int button = vbound((ri->d[0]/10000),0,17);
 		control_state[button]=((value/10000)!=0)?true:false;
-		if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
-        
-		
+		if ( button < 11 && get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
 	}
 	break;
 
