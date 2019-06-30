@@ -11,12 +11,6 @@ using std::vector;
 using std::ostringstream;
 using namespace ZScript;
 
-struct tag {};
-void* const SemanticAnalyzer::paramNone = new tag();
-void* const SemanticAnalyzer::paramRead = new tag();
-void* const SemanticAnalyzer::paramWrite = new tag();
-void* const SemanticAnalyzer::paramReadWrite = new tag();
-
 ////////////////////////////////////////////////////////////////
 // SemanticAnalyzer
 
@@ -117,13 +111,15 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 
 void SemanticAnalyzer::caseFile(ASTFile& host, void*)
 {
-	scope = scope->makeFileChild(host.asString());
+	assert(host.scope); //Scope must be made during registration
+	scope = host.scope;
 	RecursiveVisitor::caseFile(host);
 	scope = scope->getParent();
 }
 
 void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
 {
+	if(host.registered()) return; //Skip if already handled
 	// Recurse on elements.
 	RecursiveVisitor::caseSetOption(host);
 	if (breakRecursion(host)) return;
@@ -152,6 +148,7 @@ void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
 
 void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
 {
+	if(host.registered()) return; //Skip if already handled
 	//Handle adding scope
 	ASTExprIdentifier* iden = host.getIdentifier();
 	vector<string> components = iden->components;
@@ -160,22 +157,7 @@ void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
 	if(numMatches > 1)
 		handleError(CompileError::TooManyUsing(&host, iden->asString()));
 	else if(!numMatches)
-	{
-		//handleError(CompileError::NoUsingMatch(&host, iden->asString()));
-		ASTNamespace* first = new ASTNamespace(host.location, components.front());
-		ASTNamespace* current = first;
-		for(vector<string>::iterator it = ++components.begin();
-			it != components.end(); ++it)
-		{
-			ASTNamespace* next = new ASTNamespace(host.location, *it);
-			current->namespaces.push_back(next);
-			current = next;
-		}
-		caseNamespace(*first);
-		numMatches = temp->useNamespace(components, iden->delimiters);
-		assert(numMatches==1); //This should be 1. If not, there is an internal error.
-	}
-	//-1 == duplicate; the namespace found had already been added to usingNamespaces for this scope! -V
+		handleError(CompileError::NoUsingMatch(&host, iden->asString()));
 	else if(numMatches == -1)
 		handleError(CompileError::DuplicateUsing(&host, iden->asString()));
 }
@@ -255,6 +237,7 @@ void SemanticAnalyzer::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
 
 void SemanticAnalyzer::caseDataTypeDef(ASTDataTypeDef& host, void*)
 {
+	if(host.registered()) return; //Skip if already handled
 	// Resolve the base type under current scope.
 	DataType const& type = host.type->resolve(*scope, this);
     if (breakRecursion(*host.type.get())) return;
@@ -278,35 +261,40 @@ void SemanticAnalyzer::caseDataTypeDef(ASTDataTypeDef& host, void*)
 
 void SemanticAnalyzer::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void*)
 {
-	//Don't allow use of a name that already exists
-	if(DataType const* existingType = lookupDataType(*scope, host.name))
+	if(host.registered()) return; //Skip if already handled
+	if(!host.type)
 	{
-		handleError(
-			CompileError::RedefDataType(
-				&host, host.name, existingType->getName()));
-		return;
+		//Don't allow use of a name that already exists
+		if(DataType const* existingType = lookupDataType(*scope, host.name))
+		{
+			handleError(
+				CompileError::RedefDataType(
+					&host, host.name, existingType->getName()));
+			return;
+		}
+		
+		//Construct a new constant type
+		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
+		//Construct the base type
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, newConstType->getCustomId());
+		
+		//Set the type to the base type
+		host.type.reset(new ASTDataType(newBaseType, host.location));
+		//Set the enum type to the const type
+		host.definition->baseType.reset(new ASTDataType(newConstType, host.location));
+		
+		DataType::addCustom(newBaseType);
+		
+		//This call should never fail, because of the error check above.
+		scope->addDataType(host.name, newBaseType, &host);
+		if (breakRecursion(*host.type.get())) return;
 	}
-	
-	//Construct a new constant type
-	DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
-	//Construct the base type
-	DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, newConstType->getCustomId());
-	
-	//Set the type to the base type
-	host.type.reset(new ASTDataType(newBaseType, host.location));
-	//Set the enum type to the const type
-	host.definition->baseType.reset(new ASTDataType(newConstType, host.location));
-	
-	DataType::addCustom(newBaseType);
-	
-	//This call should never fail, because of the error check above.
-	scope->addDataType(host.name, newBaseType, &host);
-    if (breakRecursion(*host.type.get())) return;
 	RecursiveVisitor::caseCustomDataTypeDef(host);
 }
 
 void SemanticAnalyzer::caseScriptTypeDef(ASTScriptTypeDef& host, void*)
 {
+	if(host.registered()) return; //Skip if already handled
 	// Resolve the base type under current scope.
 	ScriptType type = resolveScriptType(*host.oldType, *scope);
 	if (!type.isValid())
@@ -330,39 +318,46 @@ void SemanticAnalyzer::caseScriptTypeDef(ASTScriptTypeDef& host, void*)
 
 void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 {
-	// Resolve the base type.
-	DataType const& baseType = host.baseType->resolve(*scope, this);
-    if (breakRecursion(*host.baseType.get())) return;
-	if (!&baseType 
-		|| !baseType.isResolved())
+	if(!host.registered())  //Handle initial setup
 	{
-		handleError(CompileError::UnresolvedType(&host, baseType.getName()));
-		return;
-	}
+		// Resolve the base type.
+		DataType const& baseType = host.baseType->resolve(*scope, this);
+		if (breakRecursion(*host.baseType.get())) return;
+		if (!&baseType 
+			|| !baseType.isResolved())
+		{
+			handleError(CompileError::UnresolvedType(&host, baseType.getName()));
+			return;
+		}
 
-	// Don't allow void type.
-	if (baseType == DataType::ZVOID)
-	{
-		handleError(CompileError::VoidVar(&host, host.asString()));
-		return;
-	}
+		// Don't allow void type.
+		if (baseType == DataType::ZVOID)
+		{
+			handleError(CompileError::VoidVar(&host, host.asString()));
+			return;
+		}
 
-	// Check for disallowed global types.
-	if (scope->isGlobal() && !baseType.canBeGlobal())
-	{
-		handleError(CompileError::RefVar(&host, baseType.getName()));
-		return;
+		// Check for disallowed global types.
+		if (scope->isGlobal() && !baseType.canBeGlobal())
+		{
+			handleError(CompileError::RefVar(&host, baseType.getName()));
+			return;
+		}
 	}
-
 	// Recurse on list contents.
 	visit(host, host.getDeclarations());
 }
 
 void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 {
+	if(host.registered())
+	{
+		visit(host, host.getDeclarations());
+		return;
+	}
 	// Resolve the base type.
 	DataType const& baseType = host.baseType->resolve(*scope, this);
-    if (breakRecursion(*host.baseType.get())) return;
+	if (breakRecursion(*host.baseType.get())) return;
 	if (!baseType.isResolved())
 	{
 		handleError(CompileError::UnresolvedType(&host, baseType.getName()));
@@ -392,11 +387,16 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		ASTDataDecl* declaration = *it;
 		if(ASTExpr* init = declaration->getInitializer())
 		{
-			if(init->getCompileTimeValue())
+			if(optional<long> v = init->getCompileTimeValue(this, scope))
 			{
-				long val = *init->getCompileTimeValue();
+				long val = *v;
 				ipart = val/10000;
 				dpart = val%10000;
+			}
+			else
+			{
+				handleError(CompileError::ExprNotConstant(declaration));
+				return;
 			}
 		}
 		else
@@ -418,79 +418,84 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	// Then resolve the type.
 	DataType const& type = *host.resolveType(scope, this);
 	if (breakRecursion(host)) return;
-	if (!type.isResolved())
+	if(!host.registered())  //Handle initial setup
 	{
-		handleError(CompileError::UnresolvedType(&host, type.getName()));
-		return;
-	}
-
-	// Don't allow void type.
-	if (type == DataType::ZVOID)
-	{
-		handleError(CompileError::VoidVar(&host, host.name));
-		return;
-	}
-
-	// Check for disallowed global types.
-	if (scope->isGlobal() && !type.canBeGlobal())
-	{
-		handleError(CompileError::RefVar(
-				            &host, type.getName() + " " + host.name));
-		return;
-	}
-
-	// Currently disabled syntaxes:
-	if (getArrayDepth(type) > 1)
-	{
-		handleError(CompileError::UnimplementedFeature(
-				            &host, "Nested Array Declarations"));
-		return;
-	}
-
-	// Is it a constant?
-	bool isConstant = false;
-	if (type.isConstant())
-	{
-		// A constant without an initializer doesn't make sense.
-		if (!host.getInitializer())
+		if (!type.isResolved())
 		{
-			handleError(CompileError::ConstUninitialized(&host));
+			handleError(CompileError::UnresolvedType(&host, type.getName()));
 			return;
 		}
 
-		// Inline the constant if possible.
-		isConstant = host.getInitializer()->getCompileTimeValue(this, scope);
-		//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
-		if(!isConstant && (scope->isGlobal() || scope->isScript()))
+		// Don't allow void type.
+		if (type == DataType::ZVOID)
 		{
-			handleError(CompileError::ConstNotConstant(&host, host.name));
+			handleError(CompileError::VoidVar(&host, host.name));
 			return;
 		}
-	}
 
-	if (isConstant)
-	{
-		if (scope->getLocalDatum(host.name))
+		// Check for disallowed global types.
+		if (scope->isGlobal() && !type.canBeGlobal())
 		{
-			handleError(CompileError::VarRedef(&host, host.name));
+			handleError(CompileError::RefVar(
+								&host, type.getName() + " " + host.name));
 			return;
+		}
+
+		// Currently disabled syntaxes:
+		if (getArrayDepth(type) > 1)
+		{
+			handleError(CompileError::UnimplementedFeature(
+								&host, "Nested Array Declarations"));
+			return;
+		}
+
+		// Is it a constant?
+		bool isConstant = false;
+		if (type.isConstant())
+		{
+			// A constant without an initializer doesn't make sense.
+			if (!host.getInitializer())
+			{
+				handleError(CompileError::ConstUninitialized(&host));
+				return;
+			}
+
+			// Inline the constant if possible.
+			isConstant = host.getInitializer()->getCompileTimeValue(this, scope);
+			//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
+			if(!isConstant && (scope->isGlobal() || scope->isScript()))
+			{
+				handleError(CompileError::ConstNotConstant(&host, host.name));
+				return;
+			}
+		}
+
+		if (isConstant)
+		{
+			if (scope->getLocalDatum(host.name))
+			{
+				handleError(CompileError::VarRedef(&host, host.name));
+				return;
+			}
+			
+			long value = *host.getInitializer()->getCompileTimeValue(this, scope);
+			Constant::create(*scope, host, type, value, this);
 		}
 		
-		long value = *host.getInitializer()->getCompileTimeValue(this, scope);
-		Constant::create(*scope, host, type, value, this);
+		else
+		{
+			if (scope->getLocalDatum(host.name))
+			{
+				handleError(CompileError::VarRedef(&host, host.name));
+				return;
+			}
+
+			Variable::create(*scope, host, type, this);
+		}
 	}
 	
-	else
-	{
-		if (scope->getLocalDatum(host.name))
-		{
-			handleError(CompileError::VarRedef(&host, host.name));
-			return;
-		}
-
-		Variable::create(*scope, host, type, this);
-	}
-
+	//Handle typechecking regardless of registration
+	
 	// Check the initializer.
 	if (host.getInitializer())
 	{
@@ -510,6 +515,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 void SemanticAnalyzer::caseDataDeclExtraArray(
 		ASTDataDeclExtraArray& host, void*)
 {
+	if(host.registered()) return; //Skip if already handled
 	// Type Check size expressions.
 	RecursiveVisitor::caseDataDeclExtraArray(host);
 	if (breakRecursion(host)) return;
@@ -552,6 +558,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 
 void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 {
+	if(host.registered()) return; //Skip if already handled
 	if(host.getFlag(FUNCFLAG_INVALID))
 	{
 		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
@@ -619,50 +626,19 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 extern FFScript FFCore;
 void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 {
-	Script& script = *program.addScript(host, *scope, this);
-	if (breakRecursion(host)) return;
-	
-	string name = script.getName();
-
-	// Recurse on script elements with its scope.
-	scope = &script.getScope();
+	assert(host.script); //Scope must be made during registration
+	scope = &host.script->getScope();
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
-	if (breakRecursion(host)) return;
-	if(script.getType() == ScriptType::untyped) return;
-	// Check for a valid run function.
-	vector<Function*> possibleRuns =
-		//script.getScope().getLocalFunctions("run");
-		script.getScope().getLocalFunctions(FFCore.scriptRunString);
-	if (possibleRuns.size() == 0)
-	{
-		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
-		if (breakRecursion(host)) return;
-	}
-	if (possibleRuns.size() > 1)
-	{
-		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
-		if (breakRecursion(host)) return;
-	}
-	if (*possibleRuns[0]->returnType != DataType::ZVOID)
-	{
-		handleError(CompileError::ScriptRunNotVoid(&host, name, FFCore.scriptRunString));
-		if (breakRecursion(host)) return;
-	}
 }
 
 void SemanticAnalyzer::caseNamespace(ASTNamespace& host, void*)
 {
-	Namespace& namesp = *program.addNamespace(host, *scope, this);
-	if (breakRecursion(host)) return;
-
-	// Recurse on script elements with its scope.
-	// Namespaces' parent scope is RootScope*, not FileScope*. Store the FileScope* temporarily.
+	assert(host.namesp); //Scope must be made during registration
 	Scope* temp = scope;
-	scope = &namesp.getScope();
+	scope = &host.namesp->getScope();
 	RecursiveVisitor::caseNamespace(host);
 	scope = temp;
-	if (breakRecursion(host)) return;
 }
 
 void SemanticAnalyzer::caseImportDecl(ASTImportDecl& host, void*)
@@ -671,10 +647,6 @@ void SemanticAnalyzer::caseImportDecl(ASTImportDecl& host, void*)
 	if(getRoot(*scope)->checkImport(&host, *lookupOption(*scope, CompileOption::OPT_HEADER_GUARD) / 10000.0, this))
 	{
 		RecursiveVisitor::caseImportDecl(host);
-	}
-	else
-	{
-		host.disable(); //Do not use this import; it is a duplicate, and duplicates have been disallowed! -V
 	}
 }
 
@@ -686,6 +658,18 @@ void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)
 	if (breakRecursion(host)) return;
 
 	if (!host.getCompileTimeValue(this, scope))
+	{
+		handleError(CompileError::ExprNotConstant(&host));
+		return;
+	}
+}
+
+void SemanticAnalyzer::caseVarInitializer(ASTExprVarInitializer& host, void*)
+{
+	RecursiveVisitor::caseExprConst(host);
+	if (breakRecursion(host)) return;
+	if(!(scope->isGlobal() || scope->isScript())) return; //Only require constant initializer if global var.
+	if (!host.valueIsArray(scope, this) && !host.getCompileTimeValue(this, scope))
 	{
 		handleError(CompileError::ExprNotConstant(&host));
 		return;
@@ -729,6 +713,7 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 void SemanticAnalyzer::caseExprIdentifier(
 		ASTExprIdentifier& host, void* param)
 {
+	if(host.binding) return; //Skip if already handled
 	// Bind to named variable.
 	host.binding = lookupDatum(*scope, host, this);
 	if (!host.binding)
@@ -1034,10 +1019,13 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
 {
-	if(ASTNumberLiteral* lit = dynamic_cast<ASTNumberLiteral*>(host.operand.get()))
+	if(!host.done)
 	{
-		lit->negate();
-		host.done = true;
+		if(ASTNumberLiteral* lit = dynamic_cast<ASTNumberLiteral*>(host.operand.get()))
+		{
+			lit->negate();
+			host.done = true;
+		}
 	}
 	analyzeUnaryExpr(host, DataType::FLOAT);
 }
@@ -1191,6 +1179,7 @@ void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
 
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 {
+	if(host.registered()) return; //Skip if already handled
 	// Add to scope as a managed literal.
 	Literal::create(*scope, host, *host.getReadType(scope, this), this);
 }

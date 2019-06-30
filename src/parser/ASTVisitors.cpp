@@ -4,12 +4,19 @@
 #include "../zsyssimple.h"
 #include "CompileError.h"
 #include "Scope.h"
+#include "parserDefs.h"
 #include <assert.h>
 #include <cstdarg>
 
 using std::list;
 using std::vector;
 using namespace ZScript;
+
+struct tag {};
+void* const RecursiveVisitor::paramNone = new tag();
+void* const RecursiveVisitor::paramRead = new tag();
+void* const RecursiveVisitor::paramWrite = new tag();
+void* const RecursiveVisitor::paramReadWrite = new tag();
 
 ////////////////////////////////////////////////////////////////
 // RecursiveVisitor
@@ -51,7 +58,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 			 it != ancestor.compileErrorCatches.end(); ++it)
 		{
 			ASTExprConst& idNode = **it;
-			optional<long> errorId = idNode.getCompileTimeValue();
+			optional<long> errorId = idNode.getCompileTimeValue(this, scope);
 			assert(errorId);
 			// If we've found a handler, remove that handler from the node's
 			// list of handlers and disable the current node (if not a
@@ -330,6 +337,11 @@ void RecursiveVisitor::caseExprConst(ASTExprConst& host, void* param)
 {
 	visit(host.content.get(), param);
 	syncDisable(host, *host.content);
+}
+
+void RecursiveVisitor::caseVarInitializer(ASTExprVarInitializer& host, void* param)
+{
+	caseExprConst(host, param);
 }
 
 void RecursiveVisitor::caseExprAssign(ASTExprAssign& host, void* param)

@@ -503,7 +503,7 @@ int BasicScope::useNamespace(std::string name)
 			++numMatches;
 		}
 	}
-	if(!isFile())
+	if(!isFile() && !isRoot())
 	{
 		if(Scope* scope = getChild(name))
 		{
@@ -1158,9 +1158,12 @@ bool RootScope::registerFunction(Function* function)
 
 bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler)
 {
+	if(node->wasChecked()) return true;
+	node->check();
 	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
 	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, node->getFilename()).value_or(NULL))
 	{
+		node->disable(); //Disable node.
 		switch(headerGuard)
 		{
 			case OPT_ERROR:

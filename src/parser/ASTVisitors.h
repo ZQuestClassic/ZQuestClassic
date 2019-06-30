@@ -82,6 +82,8 @@ namespace ZScript
 		// Expressions
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprIdentifier(
@@ -175,6 +177,10 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseDataType(ASTDataType& host, void* param = NULL) {
 			caseDefault(host, param);}
+			
+	protected:
+		//Current scope
+		ZScript::Scope* scope;
 	};
 
 	////////////////////////////////////////////////////////////////
@@ -183,6 +189,15 @@ namespace ZScript
 	class RecursiveVisitor : public ASTVisitor, public CompileErrorHandler
 	{
 	public:
+		// Used as a parameter to signal that no val is needed.
+		static void* const paramNone;
+		// Used as a parameter to signal that the rval is needed.
+		static void* const paramRead;
+		// Used as a parameter to signal that the lval is needed.
+		static void* const paramWrite;
+		// Used as a parameter to signal that both lval and rval are needed.
+		static void* const paramReadWrite;
+		
 		RecursiveVisitor() : failure(false), breakNode(NULL), failure_skipped(false) {}
 	
 		// Mark as having failed.
@@ -245,6 +260,7 @@ namespace ZScript
 		virtual void caseCustomDataTypeDef(ASTCustomDataTypeDef&, void* param = NULL);
 		// Expressions
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL);
+		virtual void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL);
 		virtual void caseExprArrow(ASTExprArrow& host, void* param = NULL);
 		virtual void caseExprIndex(ASTExprIndex& host, void* param = NULL);
@@ -286,7 +302,10 @@ namespace ZScript
 		virtual void caseCharLiteral(
 				ASTCharLiteral& host, void* param = NULL);
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
-
+		
+		bool hasFailed() const {return failure;}
+		bool hasSkipFailed() const {return failure_skipped;}
+		
 	protected:
 		// Returns true if we have failed or for some other reason must break out
 		// of recursion. Should be called with the current node and param between
@@ -298,8 +317,6 @@ namespace ZScript
 		static void syncDisable(AST& parent, AST const& child);
 		static void syncDisable(AST& parent, AST const* child);
 
-		//Current scope
-		ZScript::Scope* scope;
 		// Current stack of visited nodes.
 		std::vector<AST*> recursionStack;
 

@@ -48,12 +48,12 @@ string LocationData::asString() const
 // AST
 
 AST::AST(LocationData const& location)
-	: location(location), errorDisabled(false), disabled_(false)
+	: location(location), errorDisabled(false), disabled_(false), isRegistered(false)
 {}
 
 // ASTFile
 
-ASTFile::ASTFile(LocationData const& location) : AST(location) {}
+ASTFile::ASTFile(LocationData const& location) : AST(location), scope(NULL) {}
 
 void ASTFile::execute(ASTVisitor& visitor, void* param)
 {
@@ -480,7 +480,7 @@ ASTDecl::ASTDecl(LocationData const& location)
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
-	: ASTDecl(location), type(NULL), name("") {}
+	: ASTDecl(location), type(NULL), name(""), script(NULL) {}
 
 void ASTScript::execute(ASTVisitor& visitor, void* param)
 {
@@ -509,7 +509,7 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 // ASTNamespace
 
 ASTNamespace::ASTNamespace(LocationData const& location, std::string name)
-	: ASTDecl(location), name(name)
+	: ASTDecl(location), name(name), namesp(NULL)
 {}
 
 void ASTNamespace::addDeclaration(ASTDecl& declaration)
@@ -549,7 +549,7 @@ void ASTNamespace::execute(ASTVisitor& visitor, void* param)
 
 ASTImportDecl::ASTImportDecl(
 		string const& filename, LocationData const& location, bool isInclude)
-	: ASTDecl(location), filename_(filename), include_(isInclude)
+	: ASTDecl(location), filename_(filename), include_(isInclude), checked(false)
 {}
 
 void ASTImportDecl::execute(ASTVisitor& visitor, void* param)
@@ -706,7 +706,14 @@ void ASTDataDecl::execute(ASTVisitor& visitor, void* param)
 
 void ASTDataDecl::setInitializer(ASTExpr* initializer)
 {
-	initializer_ = initializer;
+	if(ASTExprVarInitializer* init = dynamic_cast<ASTExprVarInitializer*>(initializer))
+	{
+		initializer_ = init;
+	}
+	else
+	{
+		initializer_ = new ASTExprVarInitializer(initializer, initializer->location);
+	}
 
 	// Give a string or array literal a reference back to this object so it
 	// can grab size information.
@@ -860,6 +867,33 @@ optional<long> ASTExprConst::getCompileTimeValue(
 	return content ? content->getCompileTimeValue(errorHandler, scope) : nullopt;
 }
 
+// ASTExprVarInitializer
+
+ASTExprVarInitializer::ASTExprVarInitializer(ASTExpr* content, LocationData const& location)
+	: ASTExprConst(content, location), value(nullopt)
+{}
+
+void ASTExprVarInitializer::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseVarInitializer(*this, param);
+}
+
+optional<long> ASTExprVarInitializer::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+		const
+{
+	if(scope->isGlobal() || scope->isScript())
+		return value;
+	else
+		return value ? value : content->getCompileTimeValue(errorHandler, scope);
+}
+
+bool ASTExprVarInitializer::valueIsArray(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	DataType const* type = getReadType(scope, errorHandler);
+	return type && type->isArray();
+}
+
 // ASTExprAssign
 
 ASTExprAssign::ASTExprAssign(ASTExpr* left, ASTExpr* right,
@@ -911,7 +945,7 @@ optional<long> ASTExprIdentifier::getCompileTimeValue(
 		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
-	return binding ? binding->getCompileTimeValue() : nullopt;
+	return binding ? binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()) : nullopt;
 }
 
 DataType const* ASTExprIdentifier::getReadType(Scope* scope, CompileErrorHandler* errorHandler)

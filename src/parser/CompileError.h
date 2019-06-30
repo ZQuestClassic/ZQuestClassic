@@ -79,6 +79,7 @@ namespace ZScript
 	};
 
 	void box_out_err(CompileError const&);
+	void logDebugMessage(const char* msg);
 
 	class CompileErrorHandler
 	{

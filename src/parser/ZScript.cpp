@@ -300,6 +300,16 @@ Variable::Variable(
 	node.manager = this;
 }
 
+optional<long> Variable::getCompileTimeValue(bool getinitvalue) const
+{
+	if(getinitvalue)
+	{
+		ASTExprVarInitializer* init = node.getInitializer();
+		return init ? init->value : nullopt;
+	}
+	return nullopt;
+}
+
 // ZScript::BuiltinVariable
 
 BuiltinVariable* BuiltinVariable::create(

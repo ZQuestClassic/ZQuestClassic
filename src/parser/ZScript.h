@@ -192,13 +192,15 @@ namespace ZScript
 		virtual optional<std::string> getName() const {return nullopt;}
 		
 		// Get the value at compile time.
-		virtual optional<long> getCompileTimeValue() const {return nullopt;}
+		virtual optional<long> getCompileTimeValue(bool getinitvalue = false) const {return nullopt;}
 
 		// Get the declaring node.
 		virtual AST* getNode() const {return NULL;}
 		
 		// Get the global register this uses.
 		virtual optional<int> getGlobalId() const {return nullopt;}
+		
+		virtual bool isBuiltIn() const {return false;}
 		
 	protected:
 		Datum(Scope& scope, DataType const& type);
@@ -240,7 +242,7 @@ namespace ZScript
 		optional<std::string> getName() const {return node.name;}
 		ASTDataDecl* getNode() const {return &node;}
 		optional<int> getGlobalId() const {return globalId;}
-
+		optional<long> getCompileTimeValue(bool getinitvalue = false) const;
 	private:
 		Variable(Scope& scope, ASTDataDecl& node, DataType const& type);
 
@@ -259,6 +261,8 @@ namespace ZScript
 		optional<std::string> getName() const {return name;}
 		optional<int> getGlobalId() const {return globalId;}
 
+		virtual bool isBuiltIn() const {return true;}
+		
 	private:
 		BuiltinVariable(Scope&, DataType const&, std::string const& name);
 
@@ -276,7 +280,7 @@ namespace ZScript
 
 		optional<std::string> getName() const;
 
-		optional<long> getCompileTimeValue() const {return value;}
+		optional<long> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		ASTDataDecl* getNode() const {return &node;}
 	
@@ -296,8 +300,10 @@ namespace ZScript
 				CompileErrorHandler* = NULL);
 
 		optional<std::string> getName() const {return name;}
-		optional<long> getCompileTimeValue() const {return value;}
+		optional<long> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
+		virtual bool isBuiltIn() const {return true;}
+		
 	private:
 		BuiltinConstant(Scope&, DataType const&,
 		                std::string const& name, long value);

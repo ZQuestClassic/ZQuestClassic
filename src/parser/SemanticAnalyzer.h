@@ -10,14 +10,6 @@ namespace ZScript
 	class SemanticAnalyzer : public RecursiveVisitor
 	{
 	public:
-		// Used as a parameter to signal that no val is needed.
-		static void* const paramNone;
-		// Used as a parameter to signal that the rval is needed.
-		static void* const paramRead;
-		// Used as a parameter to signal that the lval is needed.
-		static void* const paramWrite;
-		// Used as a parameter to signal that both lval and rval are needed.
-		static void* const paramReadWrite;
 
 		SemanticAnalyzer(ZScript::Program& program);
 
@@ -49,6 +41,7 @@ namespace ZScript
 		void caseImportDecl(ASTImportDecl& host, void* = NULL);
 		// Expressions
 		void caseExprConst(ASTExprConst& host, void* = NULL);
+		void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* = NULL);
 		void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
 		void caseExprArrow(ASTExprArrow& host, void* = NULL);
@@ -84,9 +77,6 @@ namespace ZScript
 		void caseStringLiteral(ASTStringLiteral& host, void* = NULL);
 		void caseArrayLiteral(ASTArrayLiteral& host, void* = NULL);
 		void caseOptionValue(ASTOptionValue& host, void* = NULL);
-
-		////////////////
-		bool hasFailed() const {return failure || failure_skipped;}
 
 	private:
 		ZScript::Program& program;
