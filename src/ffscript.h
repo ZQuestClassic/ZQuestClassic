@@ -37,6 +37,7 @@
 #define warpFlagSETCONTINUESCREEN 0x20
 #define warpFlagSETCONTINUEDMAP 0x040
 #define warpFlagDONTRESTARTDMAPSCRIPT 0x080
+#define warpFlagDONTCLEARSPRITES 0x100
 
 //Visual Warp Effect Types for Link->WarpEx()
 enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
@@ -221,6 +222,7 @@ void do_strcpy(const bool a, const bool b);
 void do_strlen(const bool v);
 //More string.h functions, 19th May, 2019 
 void do_arraycpy(const bool a, const bool b);
+void AlloffLimited(int flagset);
 void do_xlen(const bool v);
 void do_xtoi(const bool v);
 void do_ilen(const bool v);

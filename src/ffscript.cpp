@@ -16385,6 +16385,53 @@ static inline bool is_Side_view()
     return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
 }
 
+void FFScript::AlloffLimited(int flagset)
+{
+    if(messagesToo)
+    {
+        clear_bitmap(msgdisplaybuf);
+        set_clip_state(msgdisplaybuf, 1);
+    }
+    
+    clear_bitmap(pricesdisplaybuf);
+    set_clip_state(pricesdisplaybuf, 1);
+    
+    if(items.idCount(iPile))
+    {
+        loadlvlpal(DMaps[currdmap].color);
+    }
+    
+    
+    clearScriptHelperData();
+   
+    lensclk = 0;
+    lensid=-1;
+    drawguys=Udown=Ddown=Ldown=Rdown=Adown=Bdown=Sdown=true;
+    
+    if(watch && !cheat_superman)
+    {
+        Link.setClock(false);
+    }
+    
+    //  if(watch)
+    //    Link.setClock(false);
+    watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
+    
+    for(int i=0; i<176; i++)
+        guygrid[i]=0;
+        
+    sle_clk=0;
+    
+    if(usebombpal)
+    {
+        memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+        refreshpal=true;
+        usebombpal=false;
+    }
+	
+	
+}
+
 //enum { warpFlagDONTKILLSCRIPTDRAWS, warpFlagDONTKILLSOUNDS, warpFlagDONTKILLMUSIC };
 //enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectMozaic, warpEffectOpen }; 
 //valid warpTypes: tile, side, exit, cancel, instant
@@ -16486,7 +16533,11 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15936);
 			bool wasswimming = (Link.getAction()==swimming);
 			int olddiveclk = Link.diveclk;
-			ALLOFF();
+			if ( !(warpFlags&warpFlagDONTCLEARSPRITES) )
+			{
+				ALLOFF();
+			}
+			else FFCore.AlloffLimited(warpFlags);
 			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
