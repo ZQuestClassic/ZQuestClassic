@@ -2,6 +2,8 @@
 
 //Alpha 26
 
+Copied rule-based call to drunk_toggle_state[] in ffscript.cpp
+	to BUTTONPRESS, and added clamp to restrict it to buttons 0 through 10 in all places.
 Display Build Date in ZQ Editor Info/About Dialogue
 Fix compiler warning.
 Console: Add new mapdata commands to ZASM Logging
