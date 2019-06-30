@@ -663,6 +663,12 @@ int xtoa(int string, int num)
 //regardless of the most significant digit
 int ftoa(int string, int pos, float num, bool printall)
 {
+	if(OPTION_VALUE(TRUE_INT_SIZE) && num == -214748.3648)
+	{
+		int ret = ftoa(string,pos,-214748.364);
+		string[pos + ret] = '8';
+		return ret + 1;
+	}
     int oldPos=pos;
     int place=100000;
     int digit;

@@ -20502,7 +20502,7 @@ static DIALOG zscript_parser_dlg[] =
     { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "Include Paths:",                  NULL,   NULL                  },
     //17
-    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Constant Value 214748", NULL, NULL },
+    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True MAX_INT sizing", NULL, NULL },
    
     { jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) ": Max Include Paths",                  NULL,   NULL                  },
@@ -20532,7 +20532,7 @@ static int zscripparsertrules[] =
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
-	qr_PARSER_MAX_INT_ONE_LARGER,
+	qr_PARSER_TRUE_INT_SIZE,
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings
 	NULL, //this dialogue index is used by global settings

@@ -791,9 +791,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 {
-    if (host.getCompileTimeValue(NULL, scope))
+    if (optional<long> val = host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
         return;
     }
 

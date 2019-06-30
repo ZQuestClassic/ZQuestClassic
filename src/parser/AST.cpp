@@ -1024,7 +1024,7 @@ ASTUnaryExpr::ASTUnaryExpr(LocationData const& location)
 // ASTExprNegate
 
 ASTExprNegate::ASTExprNegate(LocationData const& location)
-	: ASTUnaryExpr(location)
+	: ASTUnaryExpr(location), done(false)
 {}
 
 void ASTExprNegate::execute(ASTVisitor& visitor, void* param)
@@ -1038,7 +1038,7 @@ optional<long> ASTExprNegate::getCompileTimeValue(
 {
 	if (!operand) return nullopt;
 	if (optional<long> value = operand->getCompileTimeValue(errorHandler, scope))
-		return -*value;
+		return done ? *value : -*value;
 	return nullopt;
 }
 
@@ -1754,12 +1754,17 @@ optional<long> ASTNumberLiteral::getCompileTimeValue(
 {
 	if (!value) return nullopt;
     pair<long, bool> val = ScriptParser::parseLong(value->parseValue(), scope);
-
+	
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
 			    CompileError::ConstTrunc(this, value->value.c_str()));
 
 	return val.first;
+}
+
+void ASTNumberLiteral::negate()
+{
+	if(value) value.get()->negative = true;
 }
 
 // ASTCharLiteral

@@ -854,7 +854,7 @@ enum
 	qr_PARSER_SHORT_CIRCUIT, //Default off.
 	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
 	qr_LINKXY_IS_FLOAT,
-	qr_PARSER_MAX_INT_ONE_LARGER, //Default on
+	qr_PARSER_TRUE_INT_SIZE, //Default on
 	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
 	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
 	qr_OLDSPRITEDRAWS,
