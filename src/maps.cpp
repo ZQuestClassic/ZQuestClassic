@@ -2722,7 +2722,7 @@ void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen
 	
     if(showlayer)
     {
-		if(!(type >= 0 && (layer->hidelayers & (1 << type+1))))
+		if(!(type >= 0 && (layer->hidelayers & (1 << (type+1)))))
 			do_scrolling_layer(bmp, type, layer, x, y, scrolling, tempscreen);
         
         if(drawprimitives && type >= 0 && type <= 5)
