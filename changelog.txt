@@ -2,6 +2,8 @@
 
 //Alpha 26
 
+APPLIED PARSER REGISTRATION PHASE TO BUILDS on 30th June, 2019.
+
 Registration: Handle change in SemanticAnalyzer from other commit
 	caseExprNegate was modified in another branch, and that change needed to be handled for RegistrationVisitor.
 	This handling is required for constant `-214748.3648` to work.
