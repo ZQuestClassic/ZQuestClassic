@@ -828,7 +828,11 @@ void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
     }
 
     visit(host.operand.get(), param);
-    addOpcode(new ONot(new VarArgument(EXP1)));
+	
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		addOpcode(new O32BitNot(new VarArgument(EXP1)));
+	else
+		addOpcode(new ONot(new VarArgument(EXP1)));
 }
 
 void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
@@ -1235,7 +1239,10 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    addOpcode(new OAndRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		addOpcode(new O32BitAndRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+	else
+		addOpcode(new OAndRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
 void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
@@ -1251,7 +1258,10 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    addOpcode(new OOrRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		addOpcode(new O32BitOrRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+	else
+		addOpcode(new OOrRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
 void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
@@ -1267,7 +1277,10 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    addOpcode(new OXorRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		addOpcode(new O32BitXorRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+	else
+		addOpcode(new OXorRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
 void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
@@ -1283,7 +1296,10 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    addOpcode(new OLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		addOpcode(new O32BitLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+	else
+		addOpcode(new OLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
@@ -1300,7 +1316,10 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     visit(host.right.get(), param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    addOpcode(new ORShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		addOpcode(new O32BitRShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+	else
+		addOpcode(new ORShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
@@ -1337,7 +1356,7 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
     else
     {
-        pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue(), scope);
+        pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue(this, scope), scope);
 
         if (!val.second)
 	        handleError(CompileError::ConstTrunc(
@@ -1353,7 +1372,7 @@ void BuildOpcodes::caseCharLiteral(ASTCharLiteral& host, void*)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
     else
     {
-        pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue(), scope);
+        pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue(this, scope), scope);
 
         if (!val.second)
 	        handleError(CompileError::ConstTrunc(

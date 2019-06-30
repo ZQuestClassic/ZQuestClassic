@@ -14083,6 +14083,13 @@ void do_and(const bool v)
     set_register(sarg1, (temp2 & temp) * 10000);
 }
 
+void do_and32(const bool v)
+{
+    long temp = SH::get_arg(sarg2, v);
+    long temp2 = get_register(sarg1);
+    set_register(sarg1, (temp2 & temp));
+}
+
 void do_or(const bool v)
 {
     long temp = SH::get_arg(sarg2, v) / 10000;
@@ -14090,11 +14097,25 @@ void do_or(const bool v)
     set_register(sarg1, (temp2 | temp) * 10000);
 }
 
+void do_or32(const bool v)
+{
+    long temp = SH::get_arg(sarg2, v);
+    long temp2 = get_register(sarg1);
+    set_register(sarg1, (temp2 | temp));
+}
+
 void do_xor(const bool v)
 {
     long temp = SH::get_arg(sarg2, v) / 10000;
     long temp2 = get_register(sarg1) / 10000;
     set_register(sarg1, (temp2 ^ temp) * 10000);
+}
+
+void do_xor32(const bool v)
+{
+    long temp = SH::get_arg(sarg2, v);
+    long temp2 = get_register(sarg1);
+    set_register(sarg1, (temp2 ^ temp));
 }
 
 void do_nand(const bool v)
@@ -14130,6 +14151,12 @@ void do_bitwisenot(const bool v)
     set_register(sarg1, (~temp) * 10000);
 }
 
+void do_bitwisenot32(const bool v)
+{
+    long temp = SH::get_arg(sarg1, v);
+    set_register(sarg1, (~temp));
+}
+
 void do_lshift(const bool v)
 {
     long temp = SH::get_arg(sarg2, v) / 10000;
@@ -14137,11 +14164,25 @@ void do_lshift(const bool v)
     set_register(sarg1, (temp2 << temp) * 10000);
 }
 
+void do_lshift32(const bool v)
+{
+    long temp = SH::get_arg(sarg2, v) / 10000;
+    long temp2 = get_register(sarg1);
+    set_register(sarg1, (temp2 << temp));
+}
+
 void do_rshift(const bool v)
 {
     long temp = SH::get_arg(sarg2, v) / 10000;
     long temp2 = get_register(sarg1) / 10000;
     set_register(sarg1, (temp2 >> temp) * 10000);
+}
+
+void do_rshift32(const bool v)
+{
+    long temp = SH::get_arg(sarg2, v) / 10000;
+    long temp2 = get_register(sarg1);
+    set_register(sarg1, (temp2 >> temp));
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -18110,6 +18151,50 @@ int run_script(const byte type, const word script, const long i)
 		    
 		case RSHIFTV:
 		    do_rshift(true);
+		    break;
+		    
+		case ANDR32:
+		    do_and32(false);
+		    break;
+		    
+		case ANDV32:
+		    do_and32(true);
+		    break;
+		    
+		case ORR32:
+		    do_or32(false);
+		    break;
+		    
+		case ORV32:
+		    do_or32(true);
+		    break;
+		    
+		case XORR32:
+		    do_xor32(false);
+		    break;
+		    
+		case XORV32:
+		    do_xor32(true);
+		    break;
+		    
+		case BITNOT32:
+		    do_bitwisenot32(false);
+		    break;
+		    
+		case LSHIFTR32:
+		    do_lshift32(false);
+		    break;
+		    
+		case LSHIFTV32:
+		    do_lshift32(true);
+		    break;
+		    
+		case RSHIFTR32:
+		    do_rshift32(false);
+		    break;
+		    
+		case RSHIFTV32:
+		    do_rshift32(true);
 		    break;
 		    
 		case TRACER:
@@ -25876,6 +25961,17 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "SRNDRND",              1,   0,   0,   0},
 	{ "SAVEGAMESTRUCTS",                2,   0,   0,   0},
 	{ "READGAMESTRUCTS",                2,   0,   0,   0},
+    { "ANDR32",                2,   0,   0,   0},
+    { "ANDV32",                2,   0,   1,   0},
+    { "ORR32",                 2,   0,   0,   0},
+    { "ORV32",                 2,   0,   1,   0},
+    { "XORR32",                2,   0,   0,   0},
+    { "XORV32",                2,   0,   1,   0},
+    { "BITNOT32",                 1,   0,   0,   0},
+    { "LSHIFTR32",             2,   0,   0,   0},
+    { "LSHIFTV32",             2,   0,   1,   0},
+    { "RSHIFTR32",             2,   0,   0,   0},
+    { "RSHIFTV32",             2,   0,   1,   0},
     
     { "",                    0,   0,   0,   0}
 };

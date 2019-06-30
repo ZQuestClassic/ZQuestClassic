@@ -2024,6 +2024,36 @@ string OXorRegister::toString()
     return "XORR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string O32BitAndImmediate::toString()
+{
+    return "ANDV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string O32BitAndRegister::toString()
+{
+    return "ANDR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string O32BitOrImmediate::toString()
+{
+    return "ORV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string O32BitOrRegister::toString()
+{
+    return "ORR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string O32BitXorImmediate::toString()
+{
+    return "XORV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string O32BitXorRegister::toString()
+{
+    return "XORR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OSinRegister::toString()
 {
     return "SINR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -2180,6 +2210,26 @@ string ORShiftRegister::toString()
     return "RSHIFTR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string O32BitLShiftImmediate::toString()
+{
+    return "LSHIFTV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string O32BitLShiftRegister::toString()
+{
+    return "LSHIFTR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string O32BitRShiftImmediate::toString()
+{
+    return "RSHIFTV32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string O32BitRShiftRegister::toString()
+{
+    return "RSHIFTR32 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OModuloImmediate::toString()
 {
     return "MODV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -2193,6 +2243,11 @@ string OModuloRegister::toString()
 string ONot::toString()
 {
     return "BITNOT " + getArgument()->toString();
+}
+
+string O32BitNot::toString()
+{
+    return "BITNOT32 " + getArgument()->toString();
 }
 
 string OTraceRegister::toString()
