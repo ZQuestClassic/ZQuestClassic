@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 26
-Document Revision: 25th June, 2019
+Document Revision: 30th June, 2019
 
 
 ////////////////////////////////////////////////////
@@ -1391,6 +1391,17 @@ int GetPointer(bool *ptr[]);
 ///  Screen  ///
 ////////////////
 
+bool LayerInvisible[7]; 
+ * Returns true if the current layer is visible. 
+ * Writing this false for layers 1 through 6 will make those layers invisible.
+ * Writing the state of laye r0 has no effect.
+ 
+bool ScriptDraws[8];
+ * Returns true if the ZC engine will perform script draws ont he given
+ * queue layer. 
+ * Each queue layer returns true by default. 
+ * Writing this false disables script draws targetted to a specific layer queue. 
+
 int Script; 
  * Returns the ID of the script set to the screen, or sets the script that this screen runs.
  
@@ -2655,6 +2666,17 @@ void GetMusic();
 /////////////////
 ///  mapdata  ///
 /////////////////
+
+bool LayerInvisible[7]; 
+ * Returns true if the current layer is visible. 
+ * Writing this false for layers 1 through 6 will make those layers invisible.
+ * Writing the state of laye r0 has no effect.
+ 
+bool ScriptDraws[8];
+ * Returns true if the ZC engine will perform script draws ont he given
+ * queue layer. 
+ * Each queue layer returns true by default. 
+ * Writing this false disables script draws targetted to a specific layer queue. 
 
 int Script; 
  * Returns the ID of the script set to the mapscreen, or sets the script that this mapscreen runs.
