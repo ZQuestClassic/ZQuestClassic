@@ -17084,10 +17084,10 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	}
 	else
 	{
-		if ( !(warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = scrID;
-		if ( !(warpFlags&warpFlagSETENTRANCEDMAP) ) lastentrance_dmap = dmapID;
-		if ( !(warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(scrID);
-		if ( !(warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmapID);
+		if ( (warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = scrID;
+		if ( (warpFlags&warpFlagSETENTRANCEDMAP) ) lastentrance_dmap = dmapID;
+		if ( (warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(scrID);
+		if ( (warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmapID);
 		
 		
 	}
