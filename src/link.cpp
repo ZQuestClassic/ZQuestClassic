@@ -11885,6 +11885,9 @@ bool LinkClass::dowarp(int type, int index)
         wscr = tmpscr[t].sidewarpscr[index];
         overlay = get_bit(&tmpscr[t].sidewarpoverlayflags,index)?1:0;
         wrindex=(tmpscr->warpreturnc>>(8+(index*2)))&3;
+	//tmpscr->doscript = 0; //kill the currebt screen's script so that it does not continue to run during the scroll.
+	//there is no doscript for screen scripts. They run like ffcs. 
+
         break;
         
     case 2:                                                 // whistle warp
