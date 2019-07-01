@@ -20301,9 +20301,12 @@ int run_script(const byte type, const word script, const long i)
 			break;
 		}
 		case SCRIPT_SCREEN:
+		{
 		    tmpscr->script = 0;
 		    tmpscr->screendatascriptInitialised = 0;
+		    tmpscr->doscript = 0l
 		    break;
+		} 
         }
     }
     else
@@ -20334,7 +20337,14 @@ int ffscript_engine(const bool preload)
 	//Z_scripterrlog("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
 	if(( preload && tmpscr->preloadscript) || !preload )
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		{
+			if ( tmpscr->script > 0 && tmpscr->doscript )
+			{
+				ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+			}
+			
+		}
 	}
     for(byte i = 0; i < MAXFFCS; i++)
     {

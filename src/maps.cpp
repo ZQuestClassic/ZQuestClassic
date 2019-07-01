@@ -3851,13 +3851,26 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     //screen / screendata script
     FFCore.clear_screen_stack();
     screenScriptData.Clear();
-    tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
-    al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
-    for ( int q = 0; q < 8; q++ )
+    if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
     {
-	tmpscr[tmp].screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
+	    tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
+	    al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
+	    if ( !tmpscr[tmp].screendatascriptInitialised )
+	    {
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			tmpscr[tmp].screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
+		    }
+	    }
+	tmpscr[tmp].screendatascriptInitialised = 1;
+	tmpscr[tmp].doscript = 1;
     }
-    
+    else
+    {
+	tmpscr[tmp].script = 0;
+	tmpscr[tmp].screendatascriptInitialised = 1;
+	tmpscr[tmp].doscript = 1;
+    }
     
     
     tmpscr[tmp].data.resize(_mapsSize, 0);
