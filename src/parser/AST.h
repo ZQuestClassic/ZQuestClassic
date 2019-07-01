@@ -312,7 +312,7 @@ namespace ZScript
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
     	
-		std::pair<std::string,std::string> parseValue() const;
+		std::pair<std::string,std::string> parseValue(CompileErrorHandler* errorHandler, Scope* scope) const;
 
 		Type type;
 		std::string value;

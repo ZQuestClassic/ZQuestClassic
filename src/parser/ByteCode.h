@@ -1894,6 +1894,127 @@ namespace ZScript
 			return new ORShiftRegister(a->clone(), b->clone());
 		}
 	};
+	
+	class O32BitAndImmediate : public BinaryOpcode
+	{
+	public:
+		O32BitAndImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitAndImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class O32BitAndRegister : public BinaryOpcode
+	{
+	public:
+		O32BitAndRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitAndRegister(a->clone(),b->clone());
+		}
+	};
+
+	class O32BitOrImmediate : public BinaryOpcode
+	{
+	public:
+		O32BitOrImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitOrImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class O32BitOrRegister : public BinaryOpcode
+	{
+	public:
+		O32BitOrRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitOrRegister(a->clone(),b->clone());
+		}
+	};
+
+	class O32BitXorImmediate : public BinaryOpcode
+	{
+	public:
+		O32BitXorImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitXorImmediate(a->clone(), b->clone());
+		}
+	};
+
+	class O32BitXorRegister : public BinaryOpcode
+	{
+	public:
+		O32BitXorRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitXorRegister(a->clone(), b->clone());
+		}
+	};
+
+	class O32BitNot : public UnaryOpcode
+	{
+	public:
+		O32BitNot(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitNot(a->clone());
+		}
+	};
+
+	class O32BitLShiftImmediate : public BinaryOpcode
+	{
+	public:
+		O32BitLShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitLShiftImmediate(a->clone(), b->clone());
+		}
+	};
+
+	class O32BitLShiftRegister : public BinaryOpcode
+	{
+	public:
+		O32BitLShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitLShiftRegister(a->clone(), b->clone());
+		}
+	};
+
+	class O32BitRShiftImmediate : public BinaryOpcode
+	{
+	public:
+		O32BitRShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitRShiftImmediate(a->clone(), b->clone());
+		}
+	};
+
+	class O32BitRShiftRegister : public BinaryOpcode
+	{
+	public:
+		O32BitRShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new O32BitRShiftRegister(a->clone(), b->clone());
+		}
+	};
 
 	class OModuloImmediate : public BinaryOpcode
 	{

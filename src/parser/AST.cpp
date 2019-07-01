@@ -148,7 +148,7 @@ void ASTFloat::execute(ASTVisitor& visitor, void* param)
 	visitor.caseFloat(*this, param);
 }
 
-pair<string, string> ASTFloat::parseValue() const
+pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Scope* scope) const
 {
 	string f = value;
 	string intpart;
@@ -216,7 +216,7 @@ pair<string, string> ASTFloat::parseValue() const
 		//trim off the 'b'
 		f = f.substr(0,f.size()-1);
 		long val2=0;
-
+		
 		for(unsigned int i=0; i<f.size(); i++)
 		{
 			char b = f.at(i);
@@ -226,10 +226,21 @@ pair<string, string> ASTFloat::parseValue() const
 
 		if(negative && val2 > 0) val2 *= -1;
 
-		char temp[60];
-		sprintf(temp, "%ld", val2);
-		intpart = temp;
-		fpart = "";
+		if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT) != 0)
+		{
+			char temp[60];
+			sprintf(temp, "%ld", val2/10000);
+			intpart = temp;
+			sprintf(temp, "%04ld", abs(val2%10000));
+			fpart = temp;
+		}
+		else
+		{
+			char temp[60];
+			sprintf(temp, "%ld", val2);
+			intpart = temp;
+			fpart = "";
+		}
 		break;
 	}
 	}
@@ -1114,7 +1125,11 @@ optional<long> ASTExprBitNot::getCompileTimeValue(
 {
 	if (!operand) return nullopt;
 	if (optional<long> value = operand->getCompileTimeValue(errorHandler, scope))
+	{
+		if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+			return ~*value;
 		return ~(*value / 10000L) * 10000L;
+	}
 	return nullopt;
 }
 
@@ -1595,7 +1610,8 @@ optional<long> ASTExprBitAnd::getCompileTimeValue(
 	if (!leftValue) return nullopt;
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		return *leftValue & *rightValue;
 	return ((*leftValue / 10000L) & (*rightValue / 10000L)) * 10000L;
 }
 
@@ -1621,6 +1637,8 @@ optional<long> ASTExprBitOr::getCompileTimeValue(
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		return *leftValue | *rightValue;
 	return ((*leftValue / 10000L) | (*rightValue / 10000L)) * 10000L;
 }
 
@@ -1646,6 +1664,8 @@ optional<long> ASTExprBitXor::getCompileTimeValue(
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		return *leftValue ^ *rightValue;
 	return ((*leftValue / 10000L) ^ (*rightValue / 10000L)) * 10000L;
 }
 
@@ -1677,13 +1697,16 @@ optional<long> ASTExprLShift::getCompileTimeValue(
 	if (!leftValue) return nullopt;
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-
+	
 	if (*rightValue % 10000L)
 	{
 		if (errorHandler)
 			errorHandler->handleError(CompileError::ShiftNotInt(this));
 		rightValue = (*rightValue / 10000L) * 10000L;
 	}
+
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		return *leftValue << (*rightValue / 10000L);
 	
 	return ((*leftValue / 10000L) << (*rightValue / 10000L)) * 10000L;
 }
@@ -1716,6 +1739,9 @@ optional<long> ASTExprRShift::getCompileTimeValue(
 			errorHandler->handleError(CompileError::ShiftNotInt(this));
 		rightValue = (*rightValue / 10000L) * 10000L;
 	}
+
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		return *leftValue >> (*rightValue / 10000L);
 	
 	return ((*leftValue / 10000L) >> (*rightValue / 10000L)) * 10000L;
 }
@@ -1787,7 +1813,7 @@ optional<long> ASTNumberLiteral::getCompileTimeValue(
 	CompileErrorHandler* errorHandler, Scope* scope) const
 {
 	if (!value) return nullopt;
-    pair<long, bool> val = ScriptParser::parseLong(value->parseValue(), scope);
+    pair<long, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
 	
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
@@ -1817,7 +1843,7 @@ optional<long> ASTCharLiteral::getCompileTimeValue(
 	CompileErrorHandler* errorHandler, Scope* scope) const
 {
 	if (!value) return nullopt;
-    pair<long, bool> val = ScriptParser::parseLong(value->parseValue(), scope);
+    pair<long, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
 
     if (!val.second && errorHandler)
 	    errorHandler->handleError(

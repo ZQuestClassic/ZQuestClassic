@@ -4,6 +4,9 @@
 // quests' scripts,  add constants and procedures to that file,
 // and #include it separately.
 
+//Options
+#option BINARY_32BIT off
+
 //Main Files
 #include "std_zh/std_constants.zh"
 #include "std_zh/std_functions.zh"
