@@ -17802,21 +17802,19 @@ int run_script(const byte type, const word script, const long i)
 	    {
 		int new_i = 0;
 		bool collect = ( i < 1 );
-		if ( collect ) 
-		{
-			new_i = i * -1;
-		}
+		new_i = ( collect ) ? (i * -1) : i;
+		
 		ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
 		
 		curscript = itemscripts[script];
 		stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
 		
-		if ( !(itemscriptInitialised[new_i]) )
-		{
+		//if ( !(itemscriptInitialised[new_i]) )
+		//{
 			memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(long));
 			memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(long));
-			itemscriptInitialised[new_i] = 1;
-		}			
+		//	itemscriptInitialised[new_i] = 1;
+		//}			
 		ri->idata = ( collect ) ? new_i : i; //'this' pointer
 		
 	    }
@@ -20194,7 +20192,7 @@ int run_script(const byte type, const word script, const long i)
     
     if(scommand == 0xFFFF) //Quit/command list end reached/bad command
     {
-	QUITSCRIPT:
+	
         switch(type)
         {
 		case SCRIPT_FFC:
@@ -20216,20 +20214,22 @@ int run_script(const byte type, const word script, const long i)
 		    
 		case SCRIPT_ITEM:
 		{
+			Z_scripterrlog("Item script reached quit/end of scope\n");
 			int new_i = 0;
 			bool collect = ( i < 1 );
-			if ( collect ) 
-			{
-				new_i = i * -1;
-			}
+			new_i = ( collect ) ? (i * -1) : i;
+			
 	
-			if ( !collect ) item_doscript[i] = 0;
+			//if ( !collect ) 
+				
 		   
 			if ( !collect )
 			{
 				if ( (itemsbuf[i].flags&ITEM_FLAG16) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
 			}
+			Z_scripterrlog("Item script reached quit/end of scope for new_i: %d\n",new_i);
 			itemscriptInitialised[new_i] = 0;
+			item_doscript[new_i] = 0;
 			break; //item scripts aren't gonna go again anyway
 		}
 		case SCRIPT_NPC:
@@ -23032,7 +23032,8 @@ bool FFScript::itemScriptEngine()
 		
 		//Z_scripterrlog("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script == 0 ) continue;
-		
+		if ( item_doscript[q] < 1 ) continue;
+		Z_scripterrlog("Running ItemScriptEngine() for item ID: %dn", q);
 		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
 		    After executing RunScript(), item_doscript is set to '1' in Link.cpp.
 		    If the quest allows the item to continue running, the itemScriptEngine() function ignores running the
@@ -23042,29 +23043,91 @@ bool FFScript::itemScriptEngine()
 		    If the item flag 'PERPETUAL SCRIPT' is enabled, then we ignore the lack of item_doscript==2.
 		      This allows passive item scripts to function. 
 		*/
-		if ( ( item_doscript[q] == 3 ) )
+		switch(item_doscript[q])
 		{
-			if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) item_doscript[q] = 2;
-			else 
+			case 3:
 			{
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-				item_doscript[q] = 0;
+				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+				{
+					item_doscript[q] = 2;
+					continue;
+				}
+				else 
+				{
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+					item_doscript[q] = 0;
+				}
+				break;
 			}
+			case 2:
+			{
+				break;
+				
+			}
+			case 1:
+			{
+				
+				if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
+				{
+					item_doscript[q] = 0;
+					break;
+				}
+				//else 
+				//{	
+				//	item_doscript[q] = 2;
+					//goto SKIPITEM; //the script ran one time this frame, from Link.cpp.
+				//}
+				
+			}
+			case 0:
+			{
+				itemscriptInitialised[q] = 0;
+				break;
+			}
+			
+			
 		}
-		if ( ( item_doscript[q] > 1)  || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
-		//Is this needed? If the user selects perpetual script, then should that not override the QR? Hmm. IDK. -Z 16th June, 2019 
+		
+		if ( (item_doscript[q] > 1) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+			Z_scripterrlog("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+			continue;
+			
 		}
 		else if ( item_doscript[q] == 1 )
 		{
-			if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
+			if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 			{
-				item_doscript[q] = 0;
-				return false; 
+				item_doscript[q] = 2;
+				//get ready for second frame
+				
 			}
-			else item_doscript[q] = 2;
 		}
+			
+		//SKIPITEM:
+		//if ( ( item_doscript[q] == 3 ) )
+		//{
+		//	if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) item_doscript[q] = 2;
+		//	else 
+		//	{
+		//		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		//		item_doscript[q] = 0;
+		//	}
+		//}
+		//if ( ( item_doscript[q] > 1)  || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		//Is this needed? If the user selects perpetual script, then should that not override the QR? Hmm. IDK. -Z 16th June, 2019 
+		//{
+		//	ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		//}
+		//else if ( item_doscript[q] == 1 )
+		//{
+		//	if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
+		//	{
+		//		item_doscript[q] = 0;
+		//	}
+		//	else item_doscript[q] = 2;
+		//}
 		//if ( runningItemScripts[i] == 1 )
 		//{
 			//Z_scripterrlog("Found a script running on item ID: %d\n",q);

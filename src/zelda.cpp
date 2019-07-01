@@ -2990,6 +2990,8 @@ void game_loop()
 	#endif
         clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
 	
+	FFCore.itemScriptEngine(); //run before lweapon scripts
+	
         for(int i = 0; i < (gofast ? 8 : 1); i++)
         {
 	    #if LOGGAMELOOP > 0
@@ -3007,7 +3009,7 @@ void game_loop()
             
             checklink=false;
         }
-	FFCore.itemScriptEngine(); //run before lweapon scripts
+	//FFCore.itemScriptEngine(); //run before lweapon scripts
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
 	#endif
@@ -3019,6 +3021,7 @@ void game_loop()
 	//perhaps add sprite.waitdraw, and call sprite script here too?
         //FFCore.lweaponScriptEngine();
 	Lwpns.animate();
+	
 	//FFCore.lweaponScriptEngine();
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");

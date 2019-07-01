@@ -2403,10 +2403,17 @@ void LinkClass::checkstab()
 				//clear item script stack. 
 				//ri = &(itemScriptData[items.spr(j)->id]);
 				//ri->Clear();
-				itemCollectScriptData[items.spr(j)->id].Clear();
-				for ( int q = 0; q < 1024; q++ ) item_collect_stack[items.spr(j)->id][q] = 0;
-			
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id & 0xFFF)*-1));
+				//itemCollectScriptData[items.spr(j)->id].Clear();
+				//for ( int q = 0; q < 1024; q++ ) item_collect_stack[items.spr(j)->id][q] = 0;
+				ri = &(itemCollectScriptData[items.spr(j)->id]);
+				for ( int q = 0; q < 1024; q++ ) item_collect_stack[items.spr(j)->id][q] = 0xFFFF;
+				ri->Clear();
+				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id & 0xFFF)*-1));
+				if ( items.spr(j)->id > 0 ) //No collect script on item 0.
+				{
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id)*-1));
+					item_doscript[items.spr(j)->id] = 1;
+				}
 				//runningItemScripts[items.spr(j)->id] = 0;
 				
                         }
@@ -4086,9 +4093,13 @@ void LinkClass::hitlink(int hit2)
         if(itemsbuf[itemid].script != 0)
         {
 		//clear the item script stack for a new script
-		itemScriptData[itemid].Clear();
-		for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+		ri = &(itemScriptData[itemid]);
+		for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
+		ri->Clear();
+		//itemScriptData[(itemid & 0xFFF)].Clear();
+		//for ( int q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
+		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
 		item_doscript[itemid] = 1;
                 
         }
@@ -6615,9 +6626,13 @@ void do_lens()
 		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
 		{
 			//clear the item script stack for a new script
-			itemScriptData[itemid].Clear();
-			for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+			//itemScriptData[(itemid & 0xFFF)].Clear();
+			//for ( int q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
+			ri = &(itemScriptData[itemid]);
+			for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
+			ri->Clear();
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
 			item_doscript[itemid] = 1;
 		        did_scriptl=true;
 		}
@@ -6664,9 +6679,13 @@ void do_210_lens()
         if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
         {
 		//clear the item script stack for a new script
-		itemScriptData[itemid].Clear();
-		for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+		//itemScriptData[(itemid & 0xFFF)].Clear();
+		ri = &(itemScriptData[itemid]);
+		for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
+		ri->Clear();
+		//for ( int q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
+		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
 		item_doscript[itemid] = 1;
 		did_scriptl=true;
         }
@@ -7230,9 +7249,13 @@ void LinkClass::movelink()
 		{
 			//clear the item script stack for a new script
 		
-			itemScriptData[dowpn].Clear();
-			for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			ri = &(itemScriptData[dowpn]);
+			for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
+			ri->Clear();
+			//itemScriptData[(dowpn & 0xFFF)].Clear();
+			//for ( int q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
 			item_doscript[dowpn] = 1;
 			did_scripta=true;
 		}
@@ -7356,9 +7379,13 @@ void LinkClass::movelink()
             if(!paidmagic && attack!=wWand)
                 paymagiccost(dowpn);
                 //clear the item script stack for a new script
-		itemScriptData[dowpn].Clear();
-		for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+		//itemScriptData[(dowpn & 0xFFF)].Clear();
+		ri = &(itemScriptData[dowpn]);
+		for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
+		ri->Clear();
+		//for ( int q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
+		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
 		item_doscript[dowpn] = 1;
 		did_scriptb=true;
         }
@@ -16101,9 +16128,17 @@ void LinkClass::checkitems(int index)
     if(itemsbuf[id2].collect_script)
     {
 	    //clear the item script stack for a new script
-	        itemCollectScriptData[id2].Clear();
-		for ( int q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
+		ri = &(itemCollectScriptData[id2]);
+	        for ( int q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
+		ri->Clear();
+	        //itemCollectScriptData[(id2 & 0xFFF)].Clear();
+		//for ( int q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
+		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
+		if ( id2 > 0 ) //No collect script on item 0. 
+		{
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
+			item_doscript[id2] = 1;
+		}
     }
     
     getitem(id2);
