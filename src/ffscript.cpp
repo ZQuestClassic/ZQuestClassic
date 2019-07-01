@@ -23068,7 +23068,7 @@ bool FFScript::itemScriptEngine()
 		//Z_scripterrlog("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script == 0 ) continue;
 		if ( item_doscript[q] < 1 ) continue;
-		Z_scripterrlog("Running ItemScriptEngine() for item ID: %dn", q);
+		//Z_scripterrlog("Running ItemScriptEngine() for item ID: %dn", q);
 		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
 		    After executing RunScript(), item_doscript is set to '1' in Link.cpp.
 		    If the quest allows the item to continue running, the itemScriptEngine() function ignores running the
@@ -23201,29 +23201,69 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		//Z_scripterrlog("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script == 0 ) continue;
 		if ( !itemScriptsWaitdraw[q] ) continue;
-		if ( ( item_doscript[q] == 3 ) )
+		if ( item_doscript[q] < 1 ) continue;
+		switch(item_doscript[q])
 		{
-			if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) item_doscript[q] = 2;
-			else 
+			case 3:
 			{
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-				item_doscript[q] = 0;
+				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+				{
+					item_doscript[q] = 2;
+					continue;
+				}
+				else 
+				{
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+					item_doscript[q] = 0;
+				}
+				break;
 			}
+			case 2:
+			{
+				break;
+				
+			}
+			case 1:
+			{
+				
+				if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
+				{
+					item_doscript[q] = 0;
+					break;
+				}
+				//else 
+				//{	
+				//	item_doscript[q] = 2;
+					//goto SKIPITEM; //the script ran one time this frame, from Link.cpp.
+				//}
+				break;
+			}
+			case 0:
+			{
+				itemscriptInitialised[q] = 0;
+				break;
+			}
+			
+			
 		}
-		if ( ( item_doscript[q] > 1 ) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING))) )
-			//Is this needed? If the user selects perpetual script, then should that not override the QR? Hmm. IDK. -Z 16th June, 2019 
+		
+		if ( (item_doscript[q] > 1) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+			Z_scripterrlog("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+			continue;
 			
 		}
 		else if ( item_doscript[q] == 1 )
 		{
-			if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
+			if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 			{
-				item_doscript[q] = 0; return false;
+				item_doscript[q] = 2;
+				//get ready for second frame
+				
 			}
-			else item_doscript[q] = 2;
 		}
+			
 		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
 		{
 			Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
