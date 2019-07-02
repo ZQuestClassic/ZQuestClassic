@@ -6700,7 +6700,7 @@ void LinkClass::do_hopping()
             --diveclk;
 			if(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && DrunkrAbtn()) //Cancellable Diving -V
 			{
-				diveclk = 30;
+				diveclk = itemsbuf[flippers_id].misc2;
 			}
 		}
         else if(DrunkrAbtn())
@@ -7160,7 +7160,7 @@ void LinkClass::movelink()
 			diveclk = itemsbuf[flippers_id].misc2;
 		}
 	}
-	else if(DrunkrAbtn())
+	else if(action == swimming && DrunkrAbtn())
 	{
 		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG1);
 		bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
