@@ -1022,6 +1022,10 @@ idlist_scopres:
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
+	| SCOPERES Ambigious_Iden_List {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$2;
+		identifier->noUsing = true;
+		$$ = identifier;}
 	;
 	
 idlist_dot:

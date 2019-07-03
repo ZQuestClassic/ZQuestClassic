@@ -151,9 +151,8 @@ void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
 	if(host.registered()) return; //Skip if already handled
 	//Handle adding scope
 	ASTExprIdentifier* iden = host.getIdentifier();
-	vector<string> components = iden->components;
 	Scope* temp = host.always ? getRoot(*scope) : scope;
-	int numMatches = temp->useNamespace(components, iden->delimiters);
+	int numMatches = temp->useNamespace(iden->components, iden->delimiters, iden->noUsing);
 	if(numMatches > 1)
 		handleError(CompileError::TooManyUsing(&host, iden->asString()));
 	else if(!numMatches)
@@ -866,8 +865,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	// Grab functions with the proper name.
 	vector<Function*> functions =
 		identifier
-		? lookupFunctions(*scope, identifier->components, identifier->delimiters)
-		: lookupFunctions(*arrow->leftClass, arrow->right);
+		? lookupFunctions(*scope, identifier->components, identifier->delimiters, identifier->noUsing)
+		: lookupFunctions(*arrow->leftClass, arrow->right, true); //Never `using` arrow functions
 
 	// Filter out invalid functions.
 	for (vector<Function*>::iterator it = functions.begin();
