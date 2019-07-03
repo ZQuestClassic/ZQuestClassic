@@ -2157,6 +2157,7 @@ void NoAction()
 		if ( q == CB_MAP && NOACTION_SKIP_MAP ) continue;
 		if ( q == CB_START && NOACTION_SKIP_START ) continue;
 		Input->Button[q] = false;
+		Input->Press[q] = false;
 	}
 	/*
 	Link->InputUp = false; Link->PressUp = false;
