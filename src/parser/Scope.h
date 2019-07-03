@@ -77,8 +77,8 @@ namespace ZScript
 		virtual std::vector<Scope*> getChildren() const = 0;
 		virtual FileScope* getFile() const = 0;
 		virtual ScriptScope* getScript() = 0;
-		virtual int useNamespace(std::string name) = 0;
-		virtual int useNamespace(std::vector<std::string> names, std::vector<std::string> delimiters) = 0;
+		virtual int useNamespace(std::string name, bool noUsing) = 0;
+		virtual int useNamespace(std::vector<std::string> names, std::vector<std::string> delimiters, bool noUsing) = 0;
 	
 		// Lookup Local
 		virtual DataType const* getLocalDataType(std::string const& name)
@@ -181,15 +181,15 @@ namespace ZScript
 			Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters);
 
 	// Find a scope with the given name in this scope.
-	Scope* lookupScope(Scope const&, std::string const& name, AST& host, CompileErrorHandler* errorHandler);
+	Scope* lookupScope(Scope const&, std::string const& name, bool noUsing, AST& host, CompileErrorHandler* errorHandler);
 
 	// Find first scope with the given ancestry in this scope.
-	Scope* lookupScope(Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters, AST& host, CompileErrorHandler* errorHandler);
+	Scope* lookupScope(Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters, bool noUsing, AST& host, CompileErrorHandler* errorHandler);
 
 	// Find all scopes with the given ancestry in this scope. Note than an
 	// empty name list will the current scope and its ancestry.
 	std::vector<Scope*> lookupScopes(
-			Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters);
+			Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters, bool noUsing);
 
 	// Get the most distant parent.
 	RootScope* getRoot(Scope const&);
@@ -207,7 +207,7 @@ namespace ZScript
 	ZClass* lookupClass(Scope const&, std::string const& name);
 
 	// Attempt to resolve name to a variable under scope.
-	Datum* lookupDatum(Scope &, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool useNamespace = false);
+	Datum* lookupDatum(Scope &, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool forceSkipUsing = false);
 	Datum* lookupDatum(Scope &, ASTExprIdentifier& host, CompileErrorHandler* errorHandler);
 	
 	// Attempt to resolve name to a getter under scope.
@@ -221,9 +221,9 @@ namespace ZScript
 	
 	// Attempt to resolve name to possible functions under scope.
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::string const& name, bool useNamespace = false);
+			Scope&, std::string const& name, bool noUsing = true);
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters);
+			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, bool noUsing);
 
 	// Resolve an option value under the scope. Will only return empty if
 	// the provided option is invalid. If the option is valid but not set,
@@ -292,8 +292,8 @@ namespace ZScript
 		virtual std::vector<Scope*> getChildren() const;
 		virtual FileScope* getFile() const {return parentFile_;}
 		virtual ScriptScope* getScript();
-		virtual int useNamespace(std::string name);
-		virtual int useNamespace(std::vector<std::string> names, std::vector<std::string> delimiters);
+		virtual int useNamespace(std::string name, bool noUsing);
+		virtual int useNamespace(std::vector<std::string> names, std::vector<std::string> delimiters, bool noUsing);
 	
 		// Lookup Local
 		DataType const* getLocalDataType(std::string const& name)

@@ -998,6 +998,8 @@ namespace ZScript
 		// What this identifier refers to.
 		Datum* binding;
 		
+		bool noUsing;
+		
 	private:
 		bool constant_;
 	};

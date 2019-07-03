@@ -927,7 +927,7 @@ optional<long> ASTExprAssign::getCompileTimeValue(
 
 ASTExprIdentifier::ASTExprIdentifier(string const& name,
 									 LocationData const& location)
-	: ASTExpr(location), binding(NULL), constant_(false)
+	: ASTExpr(location), binding(NULL), constant_(false), noUsing(false)
 {
 	if (name != "") components.push_back(name);
 }

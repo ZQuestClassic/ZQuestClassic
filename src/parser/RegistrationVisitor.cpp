@@ -226,9 +226,8 @@ void RegistrationVisitor::caseUsing(ASTUsingDecl& host, void* param)
 {
 	//Handle adding scope
 	ASTExprIdentifier* iden = host.getIdentifier();
-	vector<string> components = iden->components;
 	Scope* temp = host.always ? getRoot(*scope) : scope;
-	int numMatches = temp->useNamespace(components, iden->delimiters);
+	int numMatches = temp->useNamespace(iden->components, iden->delimiters, iden->noUsing);
 	if(numMatches > 1)
 		handleError(CompileError::TooManyUsing(&host, iden->asString()));
 	else if(numMatches == -1)
