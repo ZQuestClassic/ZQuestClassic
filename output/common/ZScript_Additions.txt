@@ -1805,6 +1805,14 @@ float UID;
 int AClock 
  * The clock used for the item's animation cycle. 
 
+int ScriptTile;
+ * If set to 0 or higher, then the item will be drawn with this tile.
+ * The default value for this is -1.
+
+int ScriptFlip;
+ * If set to 0, or higher, then the engine will use this Flip state to draw the item.
+ * The default value for this is -1. 
+
 /************************************************************************************************************/	
 
 /////////////////
@@ -2665,6 +2673,14 @@ void GetMusic();
 /////////////////
 ///  mapdata  ///
 /////////////////
+
+int Map;
+ * Returns the map that this mapdata points to
+ * Read-Only
+
+int Screen;
+ * Returns the screen that this mapdata points to
+ * Read-Only
 
 bool LayerInvisible[7]; 
  * Returns true if the current layer is visible. 
