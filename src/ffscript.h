@@ -3551,11 +3551,13 @@ enum ASM_DEFINE
 #define MAPDATASCRIPTDRAWS 		0x1361
 //bytecode
 
+#define ITEMSCRIPTTILE 		0x1362
+#define ITEMSCRIPTFLIP 		0x1363
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1362
+#define NUMVARIABLES         	0x1364
 
 // Script types
 

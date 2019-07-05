@@ -2831,6 +2831,22 @@ long get_register(const long arg)
         }
         
         break;
+		
+	case ITEMSCRIPTTILE:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((item*)(s))->scripttile*10000;
+        }
+        
+        break;
+		
+	case ITEMSCRIPTFLIP:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((item*)(s))->scriptflip*10000;
+        }
+        
+        break;
 	
     case ITEMPSTRING:
         if(0!=(s=checkItem(ri->itemref)))
@@ -8857,6 +8873,20 @@ void set_register(const long arg, const long value)
         }
         
         break;
+		
+    case ITEMSCRIPTTILE:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (((item *)s)->scripttile)=vbound(value/10000,-1,NEWMAXTILES-1);
+        }
+		break;
+        
+    case ITEMSCRIPTFLIP:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (((item *)s)->scriptflip)=vbound((value/10000),-1,127);
+        }
+		break;
 	
     case ITEMPSTRING:
         if(0!=(s=checkItem(ri->itemref)))
@@ -27283,6 +27313,8 @@ script_variable ZASMVars[]=
 	{"MAPDATALAYERINVIS", MAPDATALAYERINVIS, 0, 0 },
 	{"MAPDATASCRIPTDRAWS", MAPDATASCRIPTDRAWS, 0, 0 },
 	
+	{"ITEMSCRIPTTILE", ITEMSCRIPTTILE, 0, 0 },
+	{"ITEMSCRIPTFLIP", ITEMSCRIPTFLIP, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -1748,6 +1748,8 @@ string VarArgument::toString()
 	case MAPDATALAYERINVIS: return "MAPDATALAYERINVIS";
 	case MAPDATASCRIPTDRAWS: return "MAPDATASCRIPTDRAWS";
 	
+	case ITEMSCRIPTTILE: return "ITEMSCRIPTTILE";
+	case ITEMSCRIPTFLIP: return "ITEMSCRIPTFLIP";
 	
 	
     default:
