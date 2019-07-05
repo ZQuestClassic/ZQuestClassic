@@ -1670,6 +1670,7 @@ struct item_drop_object
 #define ffIGNOREHOLDUP  0x00000400 //Updated even while Link is holding an item
 #define ffIGNORECHANGER  0x00000800 //Ignore changers
 #define ffIMPRECISIONCHANGER  0x00001000 //Ignore changers
+#define ffLENSINVIS		0x00002000 //Visible, but not to the Lens of Truth
 
 //FF combo changer flags
 

@@ -2152,7 +2152,9 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
             if(layer->ffdata[i])
             {
-                if(!(layer->ffflags[i]&ffCHANGER) && (!(layer->ffflags[i]&ffLENSVIS) || lensclk))
+                if(!(layer->ffflags[i]&ffCHANGER) //If FFC is a changer, don't draw
+					&& !((layer->ffflags[i]&ffLENSINVIS) && lensclk) //If lens is active and ffc is invis to lens, don't draw
+					&& (!(layer->ffflags[i]&ffLENSVIS) || lensclk)) //If FFC does not require lens, or lens is active, draw
                 {
                     if(scrolling && (layer->ffflags[i] & ffCARRYOVER) != 0 && tempscreen == 3)
                         continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
