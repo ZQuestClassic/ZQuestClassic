@@ -436,7 +436,7 @@ static int itemdata_action_list[] =
     // dialog control number
     /*131, 132,*/ 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156,
 	157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 199,200, 
-	262,263,
+	262,263, 317,
 	-1
 };
 
@@ -1442,7 +1442,9 @@ static DIALOG itemdata_dlg[] =
     //315 item sprite script
     { jwin_text_proc,          112+10+20+34+1-4,    10+39+32+3+8-5+28,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprite Script:",                            NULL,   NULL                  },
     { jwin_droplist_proc,      112+10+20+34-4,    10+47+40-5+7-5+28,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemspritescript_list,                   NULL,   NULL 				   },
-    
+    //317 validate cost flag
+    { jwin_check_proc,        120,     62,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Only Validate Cost",                        NULL,   NULL                  },
+	
     { NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
 
@@ -2257,6 +2259,7 @@ void edit_itemdata(int index)
     itemdata_dlg[136].dp = asn;
     itemdata_dlg[137].flags = (itemsbuf[index].flags&ITEM_DOWNGRADE) ? D_SELECTED : 0;
     itemdata_dlg[138].flags = (itemsbuf[index].flags&ITEM_RUPEE_MAGIC) ? D_SELECTED : 0;
+    itemdata_dlg[317].flags = (itemsbuf[index].flags&ITEM_VALIDATEONLY) ? D_SELECTED : 0;
     
     //Magic cost timer
     itemdata_dlg[200].dp = mgtimer;
@@ -2600,6 +2603,9 @@ void edit_itemdata(int index)
             
         if(itemdata_dlg[138].flags & D_SELECTED)
             test.flags |= ITEM_RUPEE_MAGIC;
+		
+        if(itemdata_dlg[317].flags & D_SELECTED)
+            test.flags |= ITEM_VALIDATEONLY;
             
         test.csets  |= (atoi(fcs)&15)<<4;
         test.frames = zc_min(atoi(frm),255);
@@ -2801,6 +2807,7 @@ void edit_itemdata(int index)
             itemdata_dlg[136].dp = asn;
             itemdata_dlg[137].flags = (test.flags&ITEM_DOWNGRADE) ? D_SELECTED : 0;
             itemdata_dlg[138].flags = (test.flags&ITEM_RUPEE_MAGIC) ? D_SELECTED : 0;
+            itemdata_dlg[137].flags = (test.flags&ITEM_VALIDATEONLY) ? D_SELECTED : 0;
 	    
 	    
 	    //Magic cost timer:

@@ -1437,30 +1437,31 @@ struct itemdata
     byte fam_type;	//level										// What type in this family the item is
     long power;	// Damage, height, etc. //changed from byte to int in V_ITEMS 31
     long flags;
-#define ITEM_GAMEDATA    0x0001  // Whether this item sets the corresponding gamedata value or not
-#define ITEM_EDIBLE      0x0002  // can be eaten by Like Like
-#define ITEM_COMBINE     0x0004  // blue potion + blue potion = red potion
-#define ITEM_DOWNGRADE   0x0008
-#define ITEM_FLAG1   0x0010
-#define ITEM_FLAG2   0x0020
-#define ITEM_KEEPOLD     0x0040
-#define ITEM_RUPEE_MAGIC 0x0080
-#define ITEM_UNUSED       0x0100
-#define ITEM_GAINOLD     0x0200
-#define ITEM_FLAG3     0x0400
-#define ITEM_FLAG4     0x0800
-#define ITEM_FLAG5     0x1000
-#define ITEM_FLAG6     0x2000
-#define ITEM_FLAG7     0x4000
-#define ITEM_FLAG8     0x8000
-#define ITEM_FLAG9     0x10000
-#define ITEM_FLAG10     0x20000
-#define ITEM_FLAG11     0x40000
-#define ITEM_FLAG12     0x80000
-#define ITEM_FLAG13     0x100000
-#define ITEM_FLAG14     0x200000
-#define ITEM_FLAG15     0x400000
-#define ITEM_FLAG16     0x800000
+#define ITEM_GAMEDATA    0x00000001  // Whether this item sets the corresponding gamedata value or not
+#define ITEM_EDIBLE      0x00000002  // can be eaten by Like Like
+#define ITEM_COMBINE     0x00000004  // blue potion + blue potion = red potion
+#define ITEM_DOWNGRADE   0x00000008
+#define ITEM_FLAG1   0x00000010
+#define ITEM_FLAG2   0x00000020
+#define ITEM_KEEPOLD     0x00000040
+#define ITEM_RUPEE_MAGIC 0x00000080
+#define ITEM_UNUSED       0x00000100
+#define ITEM_GAINOLD     0x00000200
+#define ITEM_FLAG3     0x00000400
+#define ITEM_FLAG4     0x00000800
+#define ITEM_FLAG5     0x00001000
+#define ITEM_FLAG6     0x00002000
+#define ITEM_FLAG7     0x00004000
+#define ITEM_FLAG8     0x00008000
+#define ITEM_FLAG9     0x00010000
+#define ITEM_FLAG10     0x00020000
+#define ITEM_FLAG11     0x00040000
+#define ITEM_FLAG12     0x00080000
+#define ITEM_FLAG13     0x00100000
+#define ITEM_FLAG14     0x00200000
+#define ITEM_FLAG15     0x00400000
+#define ITEM_FLAG16     0x00800000
+#define ITEM_VALIDATEONLY	0x01000000
 
 
 
