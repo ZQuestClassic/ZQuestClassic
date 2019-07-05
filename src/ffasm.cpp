@@ -1966,6 +1966,7 @@ script_variable variable_list[]=
 	{"ITEMSCRIPTFLIP", ITEMSCRIPTFLIP, 0, 0 },
 	{"MAPDATAMAP", MAPDATAMAP, 0, 0 },
 	{"MAPDATASCREEN", MAPDATASCREEN, 0, 0 },
+	{"IDATAVALIDATE", IDATAVALIDATE, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
