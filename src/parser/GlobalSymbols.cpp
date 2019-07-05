@@ -154,7 +154,7 @@ const int radsperdeg = 572958;
 	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
 	code.push_back(new OPopRegister(new VarArgument(EXP1))); \
 	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
-	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+	code.push_back(new OPopRegister(new VarArgument(refVar))); \
 	code.push_back(new OSetRegister(new VarArgument(ffins), new VarArgument(EXP2))); \
 	code.push_back(new OReturn()); \
 	function->giveCode(code); \
@@ -187,7 +187,7 @@ const int radsperdeg = 572958;
 	code.push_back(first); \
 	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
 	code.push_back(new OPopRegister(new VarArgument(EXP1))); \
-	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+	code.push_back(new OPopRegister(new VarArgument(refVar))); \
 	code.push_back(new ocode(new VarArgument(EXP1))); \
 	code.push_back(new OReturn()); \
 	function->giveCode(code); \
@@ -7659,8 +7659,8 @@ void MapDataSymbols::generateCode()
 		first->setLabel(label);
 		code.push_back(first);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		//pop pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
 		code.push_back(new OIsSolidMapdata(new VarArgument(EXP1)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7676,8 +7676,8 @@ void MapDataSymbols::generateCode()
 		first->setLabel(label);
 		code.push_back(first);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		//pop pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
 		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(MAPDATAINTID)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7695,8 +7695,8 @@ void MapDataSymbols::generateCode()
 		code.push_back(first);
 		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		//pop pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
 		code.push_back(new OSetRegister(new VarArgument(MAPDATAINTID), new VarArgument(SFTEMP)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7713,8 +7713,8 @@ void MapDataSymbols::generateCode()
 		first->setLabel(label);
 		code.push_back(first);
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		//pop pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
 		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(MAPDATAINITA)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
@@ -7732,8 +7732,8 @@ void MapDataSymbols::generateCode()
 		code.push_back(first);
 		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		//pop pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
 		code.push_back(new OSetRegister(new VarArgument(MAPDATAINITA), new VarArgument(SFTEMP)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
