@@ -6289,6 +6289,26 @@ case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//
 case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
 case MAPDATASCREENMIDI: 	GET_MAPDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
 case MAPDATALENSLAYER:	 	GET_MAPDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+case MAPDATAMAP:
+{
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Map");
+		ret = -10000;
+	}
+	ret = (ri->mapsref / MAPSCRS + 1) * 10000;
+	break;
+}
+case MAPDATASCREEN:
+{
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Screen");
+		ret = -10000;
+	}
+	ret = (ri->mapsref % MAPSCRS) * 10000;
+	break;
+}
 	
 
 case MAPDATAFLAGS: 
@@ -27315,6 +27335,8 @@ script_variable ZASMVars[]=
 	
 	{"ITEMSCRIPTTILE", ITEMSCRIPTTILE, 0, 0 },
 	{"ITEMSCRIPTFLIP", ITEMSCRIPTFLIP, 0, 0 },
+	{"MAPDATAMAP", MAPDATAMAP, 0, 0 },
+	{"MAPDATASCREEN", MAPDATASCREEN, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

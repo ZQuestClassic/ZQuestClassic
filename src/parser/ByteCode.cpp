@@ -1750,6 +1750,8 @@ string VarArgument::toString()
 	
 	case ITEMSCRIPTTILE: return "ITEMSCRIPTTILE";
 	case ITEMSCRIPTFLIP: return "ITEMSCRIPTFLIP";
+	case MAPDATAMAP: return "MAPDATAMAP";
+	case MAPDATASCREEN: return "MAPDATASCREEN";
 	
 	
     default:

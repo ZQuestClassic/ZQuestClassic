@@ -1964,6 +1964,8 @@ script_variable variable_list[]=
 	
 	{"ITEMSCRIPTTILE", ITEMSCRIPTTILE, 0, 0 },
 	{"ITEMSCRIPTFLIP", ITEMSCRIPTFLIP, 0, 0 },
+	{"MAPDATAMAP", MAPDATAMAP, 0, 0 },
+	{"MAPDATASCREEN", MAPDATASCREEN, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 
