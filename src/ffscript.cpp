@@ -3366,6 +3366,10 @@ long get_register(const long arg)
       case IDATADOWNGRADE:
         ret=(itemsbuf[ri->idata].flags & ITEM_DOWNGRADE)?10000:0;
         break;
+	  //Only validate the cost, don't charge it
+      case IDATAVALIDATE:
+        ret=(itemsbuf[ri->idata].flags & ITEM_VALIDATEONLY)?10000:0;
+        break;
       //->Flags[5]
       case IDATAFLAGS: {
 	    int index = vbound(ri->d[0]/10000,0,15);
@@ -9352,11 +9356,15 @@ void set_register(const long arg, const long value)
     //My additions begin here. -Z
     //Stack item to gain next level
     case IDATACOMBINE:
-		(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_COMBINE:0; 
+		(value) ? (itemsbuf[ri->idata].flags)|=ITEM_COMBINE: (itemsbuf[ri->idata].flags)&= ~ITEM_COMBINE;
 		break;
     //using a level of an item downgrades to a lower one
 	case IDATADOWNGRADE:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_DOWNGRADE:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_DOWNGRADE: (itemsbuf[ri->idata].flags)&= ~ITEM_DOWNGRADE;
+		break;
+	  //Only validate the cost, don't charge it
+	case IDATAVALIDATE:
+		(value) ? (itemsbuf[ri->idata].flags)|=ITEM_VALIDATEONLY: (itemsbuf[ri->idata].flags)&= ~ITEM_VALIDATEONLY;
 		break;
 
 	//Flags[5]
@@ -9421,23 +9429,23 @@ void set_register(const long arg, const long value)
 	}
 	//Keep Old in editor
 	case IDATAKEEPOLD:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_KEEPOLD:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_KEEPOLD : (itemsbuf[ri->idata].flags)&= ~ITEM_KEEPOLD;
 		break;
 	//Ruppes for magic
 	case IDATARUPEECOST:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_RUPEE_MAGIC:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_RUPEE_MAGIC : (itemsbuf[ri->idata].flags)&= ~ITEM_RUPEE_MAGIC;
 		break;
 	//can be eaten
 	case IDATAEDIBLE:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_EDIBLE:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_EDIBLE : (itemsbuf[ri->idata].flags)&= ~ITEM_EDIBLE;
 		break;
 	//Reserving this for item editor stuff. 
 	case IDATAFLAGUNUSED:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_UNUSED:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_UNUSED : (itemsbuf[ri->idata].flags)&= ~ITEM_UNUSED;
 		break;
 	//gain lower level items
 	case IDATAGAINLOWER:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAINOLD:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_GAINOLD : (itemsbuf[ri->idata].flags)&= ~ITEM_GAINOLD;
 		break;
 	//Set the action script
 	case IDATASCRIPT:
@@ -27337,6 +27345,7 @@ script_variable ZASMVars[]=
 	{"ITEMSCRIPTFLIP", ITEMSCRIPTFLIP, 0, 0 },
 	{"MAPDATAMAP", MAPDATAMAP, 0, 0 },
 	{"MAPDATASCREEN", MAPDATASCREEN, 0, 0 },
+	{"IDATAVALIDATE", IDATAVALIDATE, 0, 0 },
 	{ " ",                       -1,             0,             0 }
 };
 

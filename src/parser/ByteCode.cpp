@@ -1752,6 +1752,7 @@ string VarArgument::toString()
 	case ITEMSCRIPTFLIP: return "ITEMSCRIPTFLIP";
 	case MAPDATAMAP: return "MAPDATAMAP";
 	case MAPDATASCREEN: return "MAPDATASCREEN";
+	case IDATAVALIDATE: return "IDATAVALIDATE";
 	
 	
     default:

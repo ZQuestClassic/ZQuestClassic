@@ -3555,11 +3555,12 @@ enum ASM_DEFINE
 #define ITEMSCRIPTFLIP 		0x1363
 #define MAPDATAMAP			0x1364
 #define MAPDATASCREEN		0x1365
+#define IDATAVALIDATE		0x1366
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1366
+#define NUMVARIABLES         	0x1367
 
 // Script types
 

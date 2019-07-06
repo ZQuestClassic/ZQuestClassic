@@ -15004,7 +15004,11 @@ void paymagiccost(int itemid, bool ignoreTimer)
     else if(itemsbuf[itemid].magic <= 0)
     {
 	    return;
-    }    
+    }
+	else if(itemsbuf[itemid].flags&ITEM_VALIDATEONLY) //Only validate, not pay, the cost. -V
+	{
+		return;
+	}
     else if((current_item_power(itype_magicring) > 0 && (itemsbuf[itemid].cost_counter == 4 || (itemsbuf[itemid].cost_counter == 1 && get_bit(quest_rules,qr_OLDINFMAGIC)))) || (!get_bit(quest_rules,qr_OLDINFMAGIC) && current_item_power(itype_wallet) > 0 && itemsbuf[itemid].cost_counter == 1))
     {
         return;
