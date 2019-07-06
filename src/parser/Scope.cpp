@@ -251,6 +251,18 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 {
 	set<Function*> functions;
 	Scope const* current = &scope;
+	bool foundFile = false;
+	//Standard lookup loop
+	for (; current; current = current->getParent())
+	{
+		if(current->isFile() || (current->isRoot() && !foundFile))
+		{
+			if(!functions.empty()) noUsing = true;
+		}
+		if(current->isFile()) foundFile = true;
+		vector<Function*> currentFunctions = current->getLocalFunctions(name);
+		functions.insert(currentFunctions.begin(), currentFunctions.end());
+	}
 	if(!noUsing)
 	{
 		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
@@ -262,12 +274,6 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
 		current = &scope;
-	}
-	//Standard lookup loop
-	for (; current; current = current->getParent())
-	{
-		vector<Function*> currentFunctions = current->getLocalFunctions(name);
-		functions.insert(currentFunctions.begin(), currentFunctions.end());
 	}
 	return vector<Function*>(functions.begin(), functions.end());
 }
