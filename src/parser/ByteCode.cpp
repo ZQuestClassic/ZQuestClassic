@@ -4551,6 +4551,11 @@ string OIsValidBitmap::toString()
     return "ISVALIDBITMAP " + getArgument()->toString();
 }
 
+string OIsAllocatedBitmap::toString()
+{
+    return "ISALLOCATEDBITMAP " + getArgument()->toString();
+}
+
 
 string OBMPDrawScreenSolidRegister::toString()
 {

@@ -7656,6 +7656,17 @@ namespace ZScript
 		}
 	};
 	
+	class OIsAllocatedBitmap : public UnaryOpcode
+	{
+	public:
+		OIsAllocatedBitmap(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OIsAllocatedBitmap(a->clone());
+		}
+	};
+	
 	class OAllocateBitmap : public UnaryOpcode
 	{
 	public:

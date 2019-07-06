@@ -331,6 +331,7 @@ int get_free_bitmap();
 
 long create_user_bitmap_ex(int w, int h, int depth);
 void do_isvalidbitmap();
+void do_isallocatedbitmap();
 
 //OGG Ex --Dimentio
 void do_playogg_ex(const bool v);
@@ -2334,6 +2335,7 @@ enum ASM_DEFINE
 	LSHIFTV32,
 	RSHIFTR32,
 	RSHIFTV32,
+	ISALLOCATEDBITMAP,
 
 
 	NUMCOMMANDS           //0x015B

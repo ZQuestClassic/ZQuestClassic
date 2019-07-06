@@ -19015,6 +19015,10 @@ int run_script(const byte type, const word script, const long i)
 		case ISVALIDBITMAP:
 		    FFCore.do_isvalidbitmap();
 		    break;
+		
+		case ISALLOCATEDBITMAP:
+		    FFCore.do_isallocatedbitmap();
+		    break;
 		    
 		case ISVALIDNPC:
 		    do_isvalidnpc();
@@ -20433,17 +20437,25 @@ long FFScript::do_allocate_bitmap()
 }
 void FFScript::do_isvalidbitmap()
 {
-	
 	long UID = get_register(sarg1);
 	Z_scripterrlog("isValidBitmap() bitmap pointer value is %d\n", UID);
 	if ( UID <= 0 ) set_register(sarg1, 0); 
 	else if ( scb.script_created_bitmaps[UID-10].u_bmp ) 
 		set_register(sarg1, 10000);
 	else set_register(sarg1, 0);
-	
-	
-	
-	
+}
+void FFScript::do_isallocatedbitmap()
+{
+	long UID = get_register(sarg1);
+	Z_scripterrlog("isAllocatedBitmap() bitmap pointer value is %d\n", UID);
+	if ( UID <= 0 ) set_register(sarg1, 0); 
+	else
+	{
+		UID-=10;
+		if ( UID <= highest_valid_user_bitmap() || UID < firstUserGeneratedBitmap)
+			set_register(sarg1, 10000);
+		else set_register(sarg1, 0);
+	}
 }
 
 void FFScript::user_bitmaps_init()
@@ -26273,6 +26285,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "LSHIFTV32",             2,   0,   1,   0},
     { "RSHIFTR32",             2,   0,   0,   0},
     { "RSHIFTV32",             2,   0,   1,   0},
+    { "ISALLOCATEDBITMAP",         1,   0,   0,   0},
     
     { "",                    0,   0,   0,   0}
 };

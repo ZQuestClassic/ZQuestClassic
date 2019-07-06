@@ -8019,6 +8019,7 @@ static AccessorTable BitmapTable[] =
 //	{ "Mode7",                  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    17,          { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT,ZVARTYPEID_UNTYPED,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_BOOL, -1,                           -1,                           -1,                              } },
 	{ "DrawPlane",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    14,          { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT,ZVARTYPEID_UNTYPED,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_BOOL,-1,-1,-1, -1,                           -1,                           -1,                              } },
 	{ "isValid",                ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             0,                                    1,           {  ZVARTYPEID_BITMAP,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "isAllocated",            ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             0,                                    1,           {  ZVARTYPEID_BITMAP,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getWidth",               ZVARTYPEID_FLOAT,         GETTER,       BITMAPWIDTH,          1,             0,                                    1,           {  ZVARTYPEID_BITMAP,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setWidth",               ZVARTYPEID_VOID,          SETTER,       BITMAPWIDTH,          1,             0,                                    2,           {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getHeight",              ZVARTYPEID_FLOAT,         GETTER,       BITMAPHEIGHT,         1,             0,                                    1,           {  ZVARTYPEID_BITMAP,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -8671,6 +8672,20 @@ void BitmapSymbols::generateCode()
 		code.push_back(first);
 		//Check validity
 		code.push_back(new OIsValidBitmap(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//bool isAllocated(bitmap)
+	{
+		Function* function = getFunction("isAllocated", 1);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//Check validity
+		code.push_back(new OIsAllocatedBitmap(new VarArgument(EXP1)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
