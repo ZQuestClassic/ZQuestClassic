@@ -1246,7 +1246,7 @@ bitmap CreateBitmap(int width, int height);
 bitmap LoadBitmapID(int id);
  * Loads one of the six internal bitmaps as a ref to a 'bitmap' typed pointer.
 
-bitmap AcquireBitmap();
+bitmap AllocateBitmap();
  * Initialises a bitmap pointer from the pool of unused bitmap IDs in the system.
  * The current maximum number of user bitmaps is 249. 
  * Returns 0 to the pointer on failure. 
@@ -3730,8 +3730,18 @@ int Height;
  * Returns the height of the bitmap, in pixels. 
  * READ-ONLY. Bitmaps cannot be resized by writing to this. 
 
+bool isValid();
+ * Returns true if the bitmap points to a valid bitmap
+ * A bitmap is valid when it has been created, and can be written to
+ * A bitmap returned from `Game->AllocateBitmap()` is NOT valid, until it is created.
+ 
+bool isAllocated();
+ * Returns true if the bitmap points to an allocated bitmap
+ * A bitmap which has not been allocated should not be used, and should be allocated with `Game->AllocateBitmap()` or created with `Game->CreateBitmap()`
+ * A bitmap which has been allocated, but is not valid, cannot be written to; however, it can be used with `bitmap->Create()` or `bitmap->Read()`
+ 
 float GetPixel(int x, int y);
- * Returns the palette index value of a pixel on the current bitmap pointer (set by Game->LoadBitmapID).
+ * Returns the palette index value of a pixel on the current bitmap pointer.
 
 void Create(int layer, int width, int height);
  * Creates a bitmap on an already-initialised bitmap pointer, with a size of height, width.
@@ -3762,7 +3772,7 @@ void Write(int layer, "filename", bool allow_overwrite);
  * both sets the output filetype, and validates the write.
  * Any other extension, or a lack of a valid extension will result in
  * logging an error and failing to write the file.
- * Will not replace an existing file unless bool_overwrite is true.
+ * Will not replace an existing file unless allow_overwrite is true.
  * Will fail on an uninitialised pointer. 
  * Note: The 'layer' arg in this function is exclusively for ordering. 
  *       This WILL NOT write out a specific 'layer' of a bitmap.
