@@ -833,12 +833,33 @@ Ambigious identifier access is an error that can occur with 'using'.
 	--end example]
 	
 In this case, you can select which identifier to reference using scope resolution.
+	[example--
 	void example2()
 	{
 		using namespace bar;
 		bar::foo(); //Calls 'foo()' within namespace 'bar'
 		::foo(); //Calls 'foo()' that is not in a namespace
 	}
+	--end example]
+Another example:
+	[example--
+	namespace bar
+	{
+		void foo(){}
+	}
+	namespace foo
+	{
+		using namespace bar;
+		void foo(){}
+		void example3()
+		{
+			foo(); //This is LEGAL.
+		}
+	}
+	--end example]
+	In this example, 'foo::foo()' will be called. 'using' namespaces only apply if
+	there is no local match. In this case, since 'example3()' is in 'namespace foo',
+	functions also in 'namespace foo' are considered local, and prioritiezed over 'using'.
 
 
 ////////////////////////////////////
