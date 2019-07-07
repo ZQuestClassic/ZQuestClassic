@@ -3532,6 +3532,12 @@ bool Hold[18];
  * May be identical to Input->Press[] in some regards.
  * Use the CB_* constants to access this array. 
  
+bool DisableButton[18];
+ * Setting an index of this to 'true' will prevent the ENGINE from reading that button as pressed/held
+ * Scripts will still read the button normally, ignoring this
+ * This allows disabling the engine's button, while not disabling the button for scripts.
+ * Use the CB_* constants to access this array. 
+ 
 bool Key[127];
  * Read-Only: An array of boolean values that read as 'true'
  * 	if the corresponding keyboard key was pressed this frame.
@@ -3542,6 +3548,13 @@ bool ReadKey[127] ( should become a function ReadKey()? )
  * As Key[], except that reading a key with ReadKey[] will ignore further input from that key, 
    until it is released. 
  * Read-only.
+ * Use the KEY_* constants to access this array. 
+ 
+bool DisableKey[127];
+ * Setting an index of this array to 'true' will disable that key for engine input
+ * Ex. 'Input->DisableKey[KEY_F6] = true;' will disable the F6 menu from being activated
+ * Script key reading, such as 'Input->Key[]', are unaffected.
+ * Currently, KEY_ESC, KEY_F7, KEY_F8, and KEY_F9 cannot be disabled.
  * Use the KEY_* constants to access this array. 
  
 bool Joypad[18]; //this is erroneously set up as TYPE_FLOAT in the parser.
