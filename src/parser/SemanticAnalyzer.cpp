@@ -862,44 +862,11 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		 it != host.parameters.end(); ++it)
 		parameterTypes.push_back((*it)->getReadType(scope, this));
 
-	// Grab functions with the proper name.
+	// Grab functions with the proper name, and matching parameter types
 	vector<Function*> functions =
 		identifier
-		? lookupFunctions(*scope, identifier->components, identifier->delimiters, identifier->noUsing)
-		: lookupFunctions(*arrow->leftClass, arrow->right, true); //Never `using` arrow functions
-
-	// Filter out invalid functions.
-	for (vector<Function*>::iterator it = functions.begin();
-		 it != functions.end();)
-	{
-		Function& function = **it;
-
-		// Match against parameter count.
-		if (function.paramTypes.size() != parameterTypes.size())
-		{
-			it = functions.erase(it);
-			continue;
-		}
-
-		// Check parameter types.
-		bool parametersMatch = true;
-		for (int i = 0; i < parameterTypes.size(); ++i)
-		{
-			if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
-			{
-				parametersMatch = false;
-				break;
-			}
-		}
-		if (!parametersMatch)
-		{
-			it = functions.erase(it);
-			continue;
-		}
-
-		// Keep function.
-		++it;
-	}
+		? lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing)
+		: lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;

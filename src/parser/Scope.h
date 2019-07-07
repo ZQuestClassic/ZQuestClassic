@@ -190,6 +190,9 @@ namespace ZScript
 	// empty name list will the current scope and its ancestry.
 	std::vector<Scope*> lookupScopes(
 			Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters, bool noUsing);
+	// This version will ONLY get scopes from usingNamespaces, not normally available scopes
+	std::vector<Scope*> lookupUsingScopes(
+			Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters);
 
 	// Get the most distant parent.
 	RootScope* getRoot(Scope const&);
@@ -221,9 +224,11 @@ namespace ZScript
 	
 	// Attempt to resolve name to possible functions under scope.
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::string const& name, bool noUsing = true);
+			Scope&, std::string const& name, std::vector<DataType const*> const& parameterTypes, bool noUsing);
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, bool noUsing);
+			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, std::vector<DataType const*> const& parameterTypes, bool noUsing);
+			
+	inline void trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes);
 
 	// Resolve an option value under the scope. Will only return empty if
 	// the provided option is invalid. If the option is valid but not set,

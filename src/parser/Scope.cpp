@@ -124,6 +124,19 @@ vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& n
 	return scopes;
 }
 
+vector<Scope*> ZScript::lookupUsingScopes(Scope const& scope, vector<string> const& names, vector<std::string> const& delimiters)
+{
+	vector<Scope*> scopes;
+	vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
+	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+		it != namespaces.end(); ++it)
+	{
+		if (Scope* descendant = getDescendant(**it, names, delimiters))
+			scopes.push_back(descendant);
+	}
+	return scopes;
+}
+
 RootScope* ZScript::getRoot(Scope const& scope)
 {
 	Scope* current = const_cast<Scope*>(&scope);
@@ -247,7 +260,7 @@ Function* ZScript::lookupFunction(Scope const& scope,
 	return NULL;
 }*/
 
-vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, bool noUsing)
+vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing)
 {
 	set<Function*> functions;
 	Scope const* current = &scope;
@@ -261,6 +274,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 		}
 		if(current->isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
+		trimBadFunctions(currentFunctions, parameterTypes);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
 	}
 	if(!noUsing)
@@ -271,6 +285,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 		{
 			NamespaceScope* nsscope = *it;
 			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
+			trimBadFunctions(currentFunctions, parameterTypes);
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
 		current = &scope;
@@ -279,28 +294,86 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 }
 
 vector<Function*> ZScript::lookupFunctions(
-		Scope& scope, vector<string> const& names, vector<string> const& delimiters, bool noUsing)
+		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing)
 {
 	if (names.size() == 0)
 		return vector<Function*>();
 	else if (names.size() == 1)
-		return lookupFunctions(scope, names[0], noUsing);
+		return lookupFunctions(scope, names[0], parameterTypes, noUsing);
 
 	vector<Function*> functions;
 	string const& name = names.back();
 
 	vector<string> ancestry(names.begin(), --names.end());
-	vector<Scope*> scopes = lookupScopes(scope, ancestry, delimiters, noUsing); //lookupScopes handles `UsingNamespaces`.
+	vector<Scope*> scopes = lookupScopes(scope, ancestry, delimiters, true); //Don't include using scopes
+	vector<Scope*> usingScopes = lookupUsingScopes(scope, ancestry, delimiters); //get ONLY using scopes
+	//Check all non-using scopes for valid function matches
+	bool foundFile = false;
 	for (vector<Scope*>::const_iterator it = scopes.begin();
 	     it != scopes.end(); ++it)
 	{
 		Scope& current = **it;
+		if(current.isFile() || (current.isRoot() && !foundFile))
+		{
+			if(!functions.empty()) noUsing = true; //If there are local matches, don't check using
+		}
+		if(current.isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current.getLocalFunctions(name);
+		trimBadFunctions(currentFunctions, parameterTypes);
 		functions.insert(functions.end(),
 		                 currentFunctions.begin(), currentFunctions.end());
 	}
+	if(!noUsing)
+	{
+		//Check using functions
+		for (vector<Scope*>::const_iterator it = usingScopes.begin();
+			 it != usingScopes.end(); ++it)
+		{
+			Scope& current = **it;
+			vector<Function*> currentFunctions = current.getLocalFunctions(name);
+			trimBadFunctions(currentFunctions, parameterTypes);
+			functions.insert(functions.end(),
+							 currentFunctions.begin(), currentFunctions.end());
+		}
+	}
 
 	return functions;
+}
+
+inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes)
+{
+	// Filter out invalid functions.
+	for (vector<Function*>::iterator it = functions.begin();
+		 it != functions.end();)
+	{
+		Function& function = **it;
+
+		// Match against parameter count.
+		if (function.paramTypes.size() != parameterTypes.size())
+		{
+			it = functions.erase(it);
+			continue;
+		}
+
+		// Check parameter types.
+		bool parametersMatch = true;
+		for (int i = 0; i < parameterTypes.size(); ++i)
+		{
+			if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
+			{
+				parametersMatch = false;
+				break;
+			}
+		}
+		if (!parametersMatch)
+		{
+			it = functions.erase(it);
+			continue;
+		}
+
+		// Keep function.
+		++it;
+	}
 }
 
 optional<long> ZScript::lookupOption(Scope const& scope, CompileOption option)
