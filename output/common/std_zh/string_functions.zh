@@ -524,14 +524,13 @@ float atof(int string, int pos)
 		ret = ret*10 + (string[pos + i]-'0');
 
 	if(string[pos + i] != '.')
-		return ret;
+		return neg ? -ret : ret;
 	i++;
 
 	int decimal = 0;
 	for(int j = 0; j < 4; ++j)
 		decimal = decimal*10 + Cond(isNumber(string[pos + i + j]), (string[pos + i + j] - '0'), 0);
-
-	return (ret + decimal / 10000) * Cond(neg, -1, 1);
+	return neg ? -(ret + decimal/10000) : (ret + decimal/10000);
 }
 float atof(int string)
 {
