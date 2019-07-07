@@ -2640,10 +2640,26 @@ long get_register(const long arg)
 	{
 		//Game->ReadKey(int key), also clears it. 
 		int keyid = ri->d[0]/10000;
-		bool pressed = ReadKey(keyid);
+		bool pressed = zc_readkey(keyid, true);
 		ret = pressed?10000:0;
 	}
 	break;
+	
+	case DISABLEKEY:
+	{
+		//Input->DisableKey(int key)
+		int keyid = ri->d[0]/10000;
+		ret = disabledKeys[keyid]?10000:0;
+		break;
+	}
+	
+	case DISABLEBUTTON:
+	{
+		//Input->DisableButton(int cb)
+		int cbid = ri->d[0]/10000;
+		ret = disable_control[cbid]?10000:0;
+		break;
+	}
 
 	case JOYPADPRESS:
 	{
@@ -8728,6 +8744,25 @@ void set_register(const long arg, const long value)
 			
 			default: { Z_scripterrlog("Invalid index [%d] passed to Input->KeyBindings[]\n", keyid); break; }
 		}
+		break;
+	}
+	
+	case DISABLEKEY:
+	{
+		//Input->DisableKey(int key, bool disable)
+		int keyid = ri->d[0]/10000;
+		if(!zc_disablekey(keyid, value))
+		{
+			//Z_scripterrlog("The key %d passed to Input->DisableKey[] is system-reserved, and cannot be disabled\n",keyid);
+		}
+		break;
+	}
+	
+	case DISABLEBUTTON:
+	{
+		//Input->DisableButton(int cb, bool disable)
+		int cbid = ri->d[0]/10000;
+		disable_control[cbid] = value?true:false;
 		break;
 	}
 	
@@ -27359,6 +27394,8 @@ script_variable ZASMVars[]=
 	{"MAPDATAMAP", MAPDATAMAP, 0, 0 },
 	{"MAPDATASCREEN", MAPDATASCREEN, 0, 0 },
 	{"IDATAVALIDATE", IDATAVALIDATE, 0, 0 },
+	{ "DISABLEKEY",		DISABLEKEY,        0,             0 },
+	{ "DISABLEBUTTON",		DISABLEBUTTON,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

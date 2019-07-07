@@ -7703,7 +7703,7 @@ void weapon::draw(BITMAP *dest)
             ;
         }
         
-        if(get_debug() && key[KEY_O])
+        if(get_debug() && zc_getkey(KEY_O))
             rectfill(dest,x+hxofs,y+hyofs+yofs-(z+zofs),
                      x+hxofs+hxsz-1,y+hyofs+hysz-1+yofs,vc(id));
                      

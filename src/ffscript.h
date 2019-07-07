@@ -3558,11 +3558,13 @@ enum ASM_DEFINE
 #define MAPDATAMAP			0x1364
 #define MAPDATASCREEN		0x1365
 #define IDATAVALIDATE		0x1366
+#define DISABLEKEY			0x1367
+#define DISABLEBUTTON		0x1368
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1367
+#define NUMVARIABLES         	0x1369
 
 // Script types
 
