@@ -2102,6 +2102,7 @@ const int FFCF_ETHEREAL         	= 9; // The FFC's Combo Type is ignored.
 const int FFCF_IGNOREHOLDUP     	= 10; // The FFC is updated while Link is holding up an item
 const int FFCF_IGNORECHANGER     	= 11; // The FFC ignores changers
 const int FFCF_IMPRECISIONCHANGER     	= 12; // The FFC is affected by changers if it is within 1px on both axis, not subpixel alignment.
+const int FFCF_LENSINVIS	     	= 13; // Not visible to the lens of truth
 
 //FFC Bitwise Flags. To be used for bitwise checking of mapdata->FFCFlags[].
 const int FFCBF_OVERLAY   		= 0x001;

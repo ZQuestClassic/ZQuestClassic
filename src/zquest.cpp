@@ -19167,7 +19167,7 @@ static int ffcombo_data_list[] =
 
 static int ffcombo_flag_list[] =
 {
-    31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,78,79,80,-1
+    31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,78,79,80,81,-1
 };
 
 static int ffcombo_arg_list[] =
@@ -19288,6 +19288,7 @@ static DIALOG ffcombo_dlg[] =
     { jwin_check_proc,    154+10,  45+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Ign. Changers", NULL, NULL },
     { jwin_check_proc,    154+10,  55+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Solid", NULL, NULL },
     { jwin_check_proc,    154+10,  65+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Imprecision", NULL, NULL },
+    { jwin_check_proc,    154+10,  75+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Inv. to Lens", NULL, NULL },
   
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -22409,6 +22410,7 @@ int onEditFFCombo(int ffcombo)
     ffcombo_dlg[51].flags = (f&ffCHANGENEXT) ? D_SELECTED : 0;
     ffcombo_dlg[52].flags = (f&ffCHANGEPREV) ? D_SELECTED : 0;
     ffcombo_dlg[53].flags = (f&ffCHANGETHIS) ? D_SELECTED : 0;
+    ffcombo_dlg[81].flags = (f&ffLENSINVIS) ? D_SELECTED : 0;
     
     if(is_large)
         large_dialog(ffcombo_dlg);
@@ -22481,6 +22483,7 @@ int onEditFFCombo(int ffcombo)
         f |= (ffcombo_dlg[78].flags&D_SELECTED) ? ffIGNORECHANGER : 0;
         f |= (ffcombo_dlg[79].flags&D_SELECTED) ? ffSOLID : 0;
         f |= (ffcombo_dlg[80].flags&D_SELECTED) ? ffIMPRECISIONCHANGER : 0;
+        f |= (ffcombo_dlg[81].flags&D_SELECTED) ? ffLENSINVIS : 0;
         Map.CurrScr()->ffflags[ffcombo] = f;
         
         if(Map.CurrScr()->ffdata[ffcombo]!=0)
