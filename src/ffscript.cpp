@@ -23077,7 +23077,7 @@ bool FFScript::itemScriptEngine()
 				//	item_doscript[q] = 2;
 					//goto SKIPITEM; //the script ran one time this frame, from Link.cpp.
 				//}
-				
+				break;
 			}
 			case 0:
 			{

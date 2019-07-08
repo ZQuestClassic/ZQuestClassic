@@ -7385,8 +7385,8 @@ void LinkClass::movelink()
 		ri->Clear();
 		//for ( int q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
 		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
 		item_doscript[dowpn] = 1;
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
 		did_scriptb=true;
         }
         
@@ -16136,8 +16136,8 @@ void LinkClass::checkitems(int index)
 		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
 		if ( id2 > 0 ) //No collect script on item 0. 
 		{
+			//item_doscript[id2] = 1;
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
-			item_doscript[id2] = 1;
 		}
     }
     
