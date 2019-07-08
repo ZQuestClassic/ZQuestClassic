@@ -455,7 +455,10 @@ or_equal		TOKEN( BITORASSIGN );
 [ \t\r]+	ADVANCE;
 
  /* Error */
-.		yymsg("WARNING: Unknown Character");
+ .		{
+	yymsg("WARNING: Unknown Character");
+	TERMINATE;
+}
 
 %%
 
