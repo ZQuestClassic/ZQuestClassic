@@ -160,9 +160,8 @@ void SetLinkItem(int itm, bool state){
 //Mayne next version. 
 void TraceArray(int arr){
 	TraceNL();
-	int _spc[2]=" ";
 	for ( int q = 0; q < SizeOfArray(arr); q++ ) {
-		Trace(arr[q]); TraceS(_spc);
+		Trace(arr[q]); TraceS(" ");
 		if ( q % 10 == 0 ) TraceNL();
 	}
 }
@@ -170,30 +169,25 @@ void TraceArray(int arr){
 //Trace the indices of a Boolean array, with a space between each. max 20 per line. 
 void TraceArrayB(bool arr, int size){
 	TraceNL();
-	int _spc[2]=" ";
 	for ( int q = 0; q < size; q++ ) {
-		TraceB(arr[q]); TraceS(_spc);
+		TraceB(arr[q]); TraceS(" ");
 		if ( q % 10 == 0 ) TraceNL();
 	}
 }
 
 void TraceArray(int arr, bool verbose){
 	if ( verbose ) 	{
-		int str[]="Tracing array with Pointer: ";
-		TraceNL(); TraceS(str); Trace(arr); TraceNL();
+		TraceNL(); TraceS("Tracing array with Pointer: "); Trace(arr); TraceNL();
 
 		for ( int q = 0; q < SizeOfArray(arr); q++ ) {
-			int str2[]="Index: ";
-			int str3[]="is : ";
-			TraceS(str2); Trace(q); TraceS(str3); Trace(arr[q]);
+			TraceS("Index: "); Trace(q); TraceS("is : "); Trace(arr[q]);
 			TraceNL();
 		}
 	}
 	else {
 		TraceNL();
-		int _spc[2]=" ";
 		for ( int q = 0; q < SizeOfArray(arr); q++ ) {
-			Trace(arr[q]); TraceS(_spc);
+			Trace(arr[q]); TraceS(" ");
 			if ( q % 10 == 0 ) TraceNL();
 		}
 	}
@@ -203,23 +197,17 @@ void TraceArray(int arr, bool verbose){
 void TraceArrayB(bool arr, int size, bool verbose){
 	if ( verbose ) {
 		//ZScript has no facility to read a pointer ID of an array with a type of bool, ffc, item, *weapon, or itemdata.
-		//int str[]="Tracing array with Pointer: ";
-		int str[]="Tracing Boolean Array: ";
-		TraceNL(); TraceS(str); TraceNL();
+		TraceNL(); TraceS("Tracing Boolean Array: "); TraceNL();
 		
-		int _spc[2]=" ";
 		for ( int q = 0; q < size; q++ ) {
-			int str2[]="Index: ";
-			int str3[]="is : ";
-			TraceS(str2); Trace(q); TraceS(str3); TraceB(arr[q]); TraceS(_spc);
+			TraceS("Index: "); Trace(q); TraceS("is : "); TraceB(arr[q]); TraceS(" ");
 			TraceNL();
 		}
 	}
 	else {
 		TraceNL();
-		int _spc[2]=" ";
 		for ( int q = 0; q < size; q++ ) {
-			TraceB(arr[q]); TraceS(_spc);
+			TraceB(arr[q]); TraceS(" ");
 			if ( q % 10 == 0 ) TraceNL();
 		}	
 	}
@@ -859,8 +847,7 @@ void SetLayerComboS(int layer, int pos, int solidity, bool layer0) {
 		if ( layer == 1 ) 
 		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
 		else if ( layer > 1 ) {
-			int str[]="Setting solidity on layers higher than 1 causes this version of ZC to crash.";
-			TraceS(str);
+			TraceS("Setting solidity on layers higher than 1 causes this version of ZC to crash.");
 		}
 	}
 	else Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
@@ -1331,8 +1318,7 @@ void SetLayerComboS(int layer, int pos, int solidity, bool layer0) {
 		if ( layer == 1 ) 
 		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
 		else if ( layer > 1 ) {
-			int str[]="Setting solidity on layers higher than 1 causes this version of ZC to crash.";
-			TraceS(str);
+			TraceS("Setting solidity on layers higher than 1 causes this version of ZC to crash.");
 		}
 	}
 	else Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);

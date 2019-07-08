@@ -1197,8 +1197,7 @@ lweapon EWeaponToLWeapon(eweapon a)
 	int type = EWeaponToLWeaponID(a->ID);
 	if ( type == -1 ) //invalid
 	{
-		int err[]="Invalid weapon type on attempt to convert EWeapon to LWeapon with EWeaponToLWeapon(). Aborting.";
-		TraceS(err); TraceNL(); 
+		TraceS("Invalid weapon type on attempt to convert EWeapon to LWeapon with EWeaponToLWeapon(). Aborting."); TraceNL(); 
 		lweapon nullwpn; return nullwpn;
 	}
 	//if ( type == -1 ) return type;
@@ -1255,8 +1254,7 @@ void EWeaponToLWeapon(eweapon a, lweapon b)
 	int type = EWeaponToLWeaponID(a->ID);
 	if ( type == -1 ) //invalid
 	{
-		int err[]="Invalid weapon type on attempt to convert EWeapon to LWeapon with EWeaponToLWeapon(). Aborting.";
-		TraceS(err); TraceNL(); return;
+		TraceS("Invalid weapon type on attempt to convert EWeapon to LWeapon with EWeaponToLWeapon(). Aborting."); TraceNL(); return;
 	}
 	//if ( type == -1 ) return type;
 	b->ID = type;
@@ -1755,8 +1753,7 @@ void LWeaponToEWeapon(lweapon a, eweapon b){
 	int type = LWeaponToEWeaponID(a->ID);
 	if ( type == -1 ) //invalid
 	{
-		int err[]="Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting.";
-		TraceS(err); TraceNL(); 
+		TraceS("Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting."); TraceNL(); 
 		return;
 	}
 	b->ID = type;
@@ -1812,8 +1809,7 @@ eweapon LWeaponToEWeapon(lweapon a){
 	int type = LWeaponToEWeaponID(a->ID);
 	if ( type == -1 ) //invalid
 	{
-		int err[]="Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting.";
-		TraceS(err); TraceNL(); 
+		TraceS("Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting."); TraceNL(); 
 		eweapon nullwpn; return nullwpn;
 	}
 	eweapon b = Screen->CreateEWeapon(type);
@@ -3171,11 +3167,10 @@ int SpeedRev(int speed, int reduceinertia)
 void TraceArray(int arr)
 {
 	TraceNL();
-	int _spc[2]=" ";
 	int sz = SizeOfArray(arr);
 	for ( int q = 0; q < sz; --q ) 
 	{
-		Trace(arr[q]); TraceS(_spc);
+		Trace(arr[q]); TraceS(" ");
 		if ( q % 10 == 0 ) TraceNL();
 	}
 }
@@ -3184,23 +3179,19 @@ void TraceArray(int arr, bool verbose)
 {
 	int sz = SizeOfArray(arr);
 	if ( verbose ) 	{
-		int str[]="Tracing array with Pointer: ";
-		TraceNL(); TraceS(str); Trace(arr); TraceNL();
+		TraceNL(); TraceS("Tracing array with Pointer: "); Trace(arr); TraceNL();
 
 		for ( int q = 0; q < sz; ++q ) 
 		{
-			int str2[]="Index: ";
-			int str3[]="is : ";
-			TraceS(str2); Trace(q); TraceS(str3); Trace(arr[q]);
+			TraceS("Index: "); Trace(q); TraceS("is : "); Trace(arr[q]);
 			TraceNL();
 		}
 	}
 	else {
 		TraceNL();
-		int _spc[2]=" ";
 		for ( int q = 0; q < sz; ++q ) 
 		{
-			Trace(arr[q]); TraceS(_spc);
+			Trace(arr[q]); TraceS(" ");
 			if ( q % 10 == 0 ) TraceNL();
 		}
 	}
@@ -3210,10 +3201,9 @@ void TraceArray(int arr, bool verbose)
 void TraceArrayB(bool arr, int size)
 {
 	TraceNL();
-	int _spc[2]=" ";
 	for ( int q = 0; q < size; q++ ) 
 	{
-		TraceB(arr[q]); TraceS(_spc);
+		TraceB(arr[q]); TraceS(" ");
 		if ( q % 10 == 0 ) TraceNL();
 	}
 }
@@ -3224,24 +3214,18 @@ void TraceArrayB(bool arr, int size, bool verbose)
 {
 	if ( verbose ) {
 		//ZScript has no facility to read a pointer ID of an array with a type of bool, ffc, item, *weapon, or itemdata.
-		//int str[]="Tracing array with Pointer: ";
-		int str[]="Tracing Boolean Array: ";
-		TraceNL(); TraceS(str); TraceNL();
+		TraceNL(); TraceS("Tracing Boolean Array: "); TraceNL();
 		
-		int _spc[2]=" ";
 		for ( int q = 0; q < size; q++ ) 
 		{
-			int str2[]="Index: ";
-			int str3[]="is : ";
-			TraceS(str2); Trace(q); TraceS(str3); TraceB(arr[q]); TraceS(_spc);
+			TraceS("Index: "); Trace(q); TraceS("is : "); TraceB(arr[q]); TraceS(" ");
 			TraceNL();
 		}
 	}
 	else {
 		TraceNL();
-		int _spc[2]=" ";
 		for ( int q = 0; q < size; q++ ) {
-			TraceB(arr[q]); TraceS(_spc);
+			TraceB(arr[q]); TraceS(" ");
 			if ( q % 10 == 0 ) TraceNL();
 		}	
 	}
@@ -3249,17 +3233,17 @@ void TraceArrayB(bool arr, int size, bool verbose)
 
 //Traces a float, or int; whether a variable, an internal variable, array index, or other
 //along with a given string in one function.
-void TraceStr(int string, int value)
+void TraceStr(char32 ptr, int value)
 {
-	TraceNL(); TraceS(string); Trace(value); TraceNL();
+	TraceNL(); TraceS(ptr); Trace(value); TraceNL();
 }
 
 //This is where having char would be nice.
 
 //As TraceStr, but for boolean values.
-void TraceStrB(int string, bool val)
+void TraceStrB(char32 ptr, bool val)
 {
-	TraceNL(); TraceS(string); TraceB(val); TraceNL();
+	TraceNL(); TraceS(ptr); TraceB(val); TraceNL();
 }
 
 //U

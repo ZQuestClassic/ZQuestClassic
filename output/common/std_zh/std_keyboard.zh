@@ -15,22 +15,22 @@ const int KEYBOARD_LAYOUT_UK = 1;
 const int KEYBOARD_LAYOUT_EU = 2;
 
 //Special Circumstance Characters to store in strings if needed. 
-const int CHAR_ERROR 		= -1;
-const int CHAR_BACKSPC 		= -2; 
-const int CHAR_DELETE 		= -4; 
-const int CHAR_HOMEKEY 		= -8;
-const int CHAR_ENDKEY 		= -16;
-const int CHAR_PAGEUP 		= -32;
-const int CHAR_PAGEDOWN 	= -64;
-const int CHAR_ARROW_U 		= -128;
-const int CHAR_ARROW_L 		= -256;
+const char32 CHAR_ERROR 		= -1;
+const char32 CHAR_BACKSPC 		= -2; 
+const char32 CHAR_DELETE 		= -4; 
+const char32 CHAR_HOMEKEY 		= -8;
+const char32 CHAR_ENDKEY 		= -16;
+const char32 CHAR_PAGEUP 		= -32;
+const char32 CHAR_PAGEDOWN 	= -64;
+const char32 CHAR_ARROW_U 		= -128;
+const char32 CHAR_ARROW_L 		= -256;
 
-const int CHAR_ARROW_D 		= -512;
-const int CHAR_ARROW_R 		= -1024;
-const int CHAR_PRINTSCREEN 	= -2048;
-const int CHAR_PAUSE 		= -4096;
+const char32 CHAR_ARROW_D 		= -512;
+const char32 CHAR_ARROW_R 		= -1024;
+const char32 CHAR_PRINTSCREEN 	= -2048;
+const char32 CHAR_PAUSE 		= -4096;
 
-const int CHAR_NONE = 0;
+const char32 CHAR_NONE = 0;
 
 //8192 for special modifiers?
 
@@ -43,7 +43,7 @@ const float KEYBOARD_REPEAT_RATE = 6; //frames per keypress. 3 == 1/20 second
 
 //Checks if a key was pressed. If it was, it returns its char value. 
 //Returns CHAR_NONE / false if key was not pressed.
-int CheckKeyToChar(int key)
+char32 CheckKeyToChar(int key)
 {
 	if ( KeyPress(key) ) {
 		return KeyToChar(key);
@@ -68,7 +68,7 @@ bool ReadKey(int key)
 
 bool KeyPress(int key){ return Input->Key[key]; }
 
-int GetKeyPress(int key)
+char32 GetKeyPress(int key)
 {
 	if ( Input->ReadKey[key] ) return KeyToChar(key);
 	else return -1; //Is this safe? Should we return 0, which is null?
@@ -95,17 +95,18 @@ bool PressLinuxMenu()  { return (Input->ModifierKeys&KB_MENU_FLAG); }
 
 //Note that these keys are used by the ZC Ui. You can read them this way, but you should not expect
 //a user to utilise them, for input, without some kind of interupt system.
+// Input->DisableKey[] can be used to disable F keys, aside from F7,F8,F9. -V
 bool FKey(int f){ if ( f > 0 && f < 13 ) return Input->ReadKey[46+f]; else return false; }
 bool EscKey() { return Input->ReadKey[KEY_ESC]; } 
 
 
 
 //converts a key to its proper char (int, in ZScript).
-int KeyToChar(int key) { return KeyToChar(key,(Input->ModifierKeys&KB_SHIFT_FLAG),(Input->ModifierKeys&KB_CAPSLOCK_FLAG)); }
+char32 KeyToChar(int key) { return KeyToChar(key,(Input->ModifierKeys&KB_SHIFT_FLAG),(Input->ModifierKeys&KB_CAPSLOCK_FLAG)); }
 //bool caps ==true : caps acts as shift, == false, standard
-int KeyToChar(int key, bool shifted) { return KeyToChar(key,shifted,(Input->ModifierKeys&KB_CAPSLOCK_FLAG)); }
+char32 KeyToChar(int key, bool shifted) { return KeyToChar(key,shifted,(Input->ModifierKeys&KB_CAPSLOCK_FLAG)); }
 
-int KeyToChar(int key, bool shifted, bool caps)
+char32 KeyToChar(int key, bool shifted, bool caps)
 {
 	//TraceS("KeyToChar bool shifted is: "); TraceB(shifted);
 	if ( shifted )
@@ -146,8 +147,8 @@ int KeyToChar(int key, bool shifted, bool caps)
 				switch(KEYBOARD_TYPE)
 				{
 					case KEYBOARD_LAYOUT_US: return '@';
-					case KEYBOARD_LAYOUT_UK: return CHAR_DQUOTE;
-					case KEYBOARD_LAYOUT_EU: return CHAR_DQUOTE;
+					case KEYBOARD_LAYOUT_UK: return '"';
+					case KEYBOARD_LAYOUT_EU: return '"';
 				}
 			}
 			case KEY_3:
@@ -177,7 +178,7 @@ int KeyToChar(int key, bool shifted, bool caps)
 			case KEY_TILDE: return '~';
 			case KEY_MINUS: return '_';
 			case KEY_EQUALS: return '+';
-			case KEY_BACKSPACE: return -2; //-2 is backspace
+			case KEY_BACKSPACE: return CHAR_BACKSPC; //-2 is backspace
 			case KEY_TAB: return CHAR_TAB;
 			case KEY_OPENBRACE: return '{';
 			case KEY_CLOSEBRACE: return '}';
@@ -199,23 +200,23 @@ int KeyToChar(int key, bool shifted, bool caps)
 			case KEY_STOP: return '>';
 			case KEY_SLASH: return '?';
 			case KEY_SPACE: return ' ';
-			case KEY_DEL: return -4; //-4 is delete
-			case KEY_HOME: return -8; //-8 is home
-			case KEY_END: return -16; //-16 is 'end'
-			case KEY_PGUP: return -32; //-32 
-			case KEY_PGDN: return -64; //-64
-			case KEY_UP: return -128; //ARROWS
-			case KEY_LEFT: return -256; //ARROWS
-			case KEY_DOWN: return -512; //ARROWS
-			case KEY_RIGHT: return -1024; //ARROWS
+			case KEY_DEL: return CHAR_DELETE; //-4 is delete
+			case KEY_HOME: return CHAR_HOMEKEY; //-8 is home
+			case KEY_END: return CHAR_ENDKEY; //-16 is 'end'
+			case KEY_PGUP: return CHAR_PAGEUP; //-32 
+			case KEY_PGDN: return CHAR_PAGEDOWN; //-64
+			case KEY_UP: return CHAR_ARROW_U; //ARROWS
+			case KEY_LEFT: return CHAR_ARROW_L; //ARROWS
+			case KEY_DOWN: return CHAR_ARROW_D; //ARROWS
+			case KEY_RIGHT: return CHAR_ARROW_R; //ARROWS
 			case KEY_SLASH_PAD: return '/';
 			case KEY_ASTERISK: return '*';
 			case KEY_MINUS_PAD: return '-';
 			case KEY_PLUS_PAD: return '+';
-			case KEY_DEL_PAD: return -4;
+			case KEY_DEL_PAD: return CHAR_DELETE;
 			case KEY_ENTER_PAD: return CHAR_CR;
-			case KEY_PRTSCR: return -2048;
-			case KEY_PAUSE: return -4096;
+			case KEY_PRTSCR: return CHAR_PRINTSCREEN;
+			case KEY_PAUSE: return CHAR_PAUSE;
 			case KEY_CIRCUMFLEX: return '^';
 			case KEY_COLON2: return ':';
 			
@@ -328,7 +329,7 @@ int KeyToChar(int key, bool shifted, bool caps)
 				}
 				case  KEY_MINUS: return '-';
 				case  KEY_EQUALS: return '=';
-				case  KEY_BACKSPACE: return -2; //-2 is backspace
+				case  KEY_BACKSPACE: return CHAR_BACKSPC; //-2 is backspace
 				case  KEY_TAB: return CHAR_TAB;
 				case  KEY_OPENBRACE: return '[';
 				case  KEY_CLOSEBRACE: return ']';
@@ -344,32 +345,32 @@ int KeyToChar(int key, bool shifted, bool caps)
 						case KEYBOARD_LAYOUT_UK:
 						case KEYBOARD_LAYOUT_EU:
 						default:
-							return CHAR_QUOTE;
+							return '\'';
 					}
 				}
-				case  KEY_BACKSLASH: return CHAR_BSLASH;
-				case  KEY_BACKSLASH2: return CHAR_BSLASH;
+				case  KEY_BACKSLASH: return '\\';
+				case  KEY_BACKSLASH2: return '\\';
 				case  KEY_COMMA: return ',';
 				case  KEY_STOP: return '.';
 				case  KEY_SLASH: return '/';
 				case  KEY_SPACE: return ' ';
-				case  KEY_DEL: return -4;  //-4 is delete
-				case  KEY_HOME: return -8; //-8 is home
-				case  KEY_END: return -16;//-16 is 'end'
-				case  KEY_PGUP: return -32; //-32 
-				case  KEY_PGDN: return -64; //-64
-				case  KEY_UP: return -128; //ARROWS
-				case  KEY_LEFT: return -256; //ARROWS
-				case  KEY_DOWN:return -512; //ARROWS
-				case  KEY_RIGHT: return -1024;//ARROWS
+				case  KEY_DEL: return CHAR_DELETE;  //-4 is delete
+				case  KEY_HOME: return CHAR_HOMEKEY; //-8 is home
+				case  KEY_END: return CHAR_ENDKEY;//-16 is 'end'
+				case  KEY_PGUP: return CHAR_PAGEUP; //-32 
+				case  KEY_PGDN: return CHAR_PAGEDOWN; //-64
+				case  KEY_UP: return CHAR_ARROW_U; //ARROWS
+				case  KEY_LEFT: return CHAR_ARROW_L; //ARROWS
+				case  KEY_DOWN:return CHAR_ARROW_D; //ARROWS
+				case  KEY_RIGHT: return CHAR_ARROW_R;//ARROWS
 				case  KEY_SLASH_PAD: return '/'; //Start Numeric Pad 
 				case  KEY_ASTERISK: return '*';
 				case  KEY_MINUS_PAD: return '-';
 				case  KEY_PLUS_PAD: return '+';
-				case  KEY_DEL_PAD: return -4;
-				case  KEY_ENTER_PAD: return CHAR_LF;
-				case  KEY_PRTSCR: return -2048;
-				case  KEY_PAUSE: return -4096;
+				case  KEY_DEL_PAD: return CHAR_DELETE;
+				case  KEY_ENTER_PAD: return '\n';
+				case  KEY_PRTSCR: return CHAR_PRINTSCREEN;
+				case  KEY_PAUSE: return CHAR_PAUSE;
 				case  KEY_CIRCUMFLEX: return '^';
 				case  KEY_COLON2: return ':';
 				default: return CHAR_ERROR;
