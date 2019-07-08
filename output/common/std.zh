@@ -6,6 +6,9 @@
 
 //Options
 #option BINARY_32BIT off
+	//Would break a number of things if set on
+#option SHORT_CIRCUIT on
+	//Should work for everything in std_zh, and just speed it up
 
 //Main Files
 #include "std_zh/std_constants.zh"

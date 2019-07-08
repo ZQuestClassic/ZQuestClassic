@@ -216,26 +216,26 @@ int ContainsCharPosRev(char32 chr, int pos, char32 buffer)
 //characters unchanged
 char32 UpperToLower(char32 chr)
 {
-	if(!isAlphabetic(chr))
+	unless(isAlphabetic(chr))
 		return chr;
-	return Cond(isLowerCase(chr), chr, chr + ('a' - 'A'));
+	return isLowerCase(chr) ? chr : chr + ('a' - 'A');
 }
 
 //Converts all lower case characters to upper case, leaving non-alphabetic
 //characters unchanged
 char32 LowerToUpper(char32 chr)
 {
-	if(!isAlphabetic(chr))
+	unless(isAlphabetic(chr))
 		return chr;
-	return Cond(isLowerCase(chr), chr - ('a' - 'A'), chr);
+	return isLowerCase(chr) ? chr - ('a' - 'A') : chr;
 }
 
 //Converts lower case to upper case and upper case to lower case
 char32 ConvertCase(char32 chr)
 {
-	if(!isAlphabetic(chr))
+	unless(isAlphabetic(chr))
 		return chr;
-	return chr + Cond(isLowerCase(chr), 'A' - 'a', 'a' - 'A');
+	return chr + (isLowerCase(chr) ? 'A' - 'a' : 'a' - 'A');
 }
 
 
@@ -321,7 +321,7 @@ void remnchr(char32 ptr, int pos, int n)
 	int l = strlen(ptr);
 	int temp = n + pos;
 	for(int i = 0; ptr[pos + i] != 0; ++i)
-		ptr[pos + i] = Cond(temp + i < l, ptr[temp + i] ,0);
+		ptr[pos + i] = (temp + i < l) ? ptr[temp + i] : 0;
 }
 
 
@@ -406,7 +406,7 @@ int strspn(char32 ptr, int pos, int keys)
 		for(int j = 0; keys[j] != 0; ++j)
 			if(ptr[pos + i] == keys[j])
 				found = true;
-		if(!found)
+		unless(found)
 			return pos + i;
 	}
 	return pos + i;
@@ -464,7 +464,7 @@ int atoi(char32 ptr, int pos)
 	int ret;
 	for(ret = 0; isNumber(ptr[pos + i]); ++i)
 		ret = ret*10 + (ptr[pos + i] - '0');
-	return ret*Cond(neg, -1, 1);
+	return neg ? -ret : ret;
 }
 
 
@@ -486,7 +486,7 @@ int xtoi(char32 ptr, int pos)
 {
 	int ret = 0;
 	for(int i = 0; isHex(ptr[pos + i]); ++i)
-		ret = ret*0x10 + Cond(isNumber(ptr[pos + i]), ptr[pos + i] - '0', LowerToUpper(ptr[pos + i]) - ('A' + 0xA));
+		ret = ret*0x10 + (isNumber(ptr[pos + i]) ? ptr[pos + i] - '0' : LowerToUpper(ptr[pos + i]) - ('A' + 0xA));
 	return ret;
 }
 int xtoi(char32 ptr)
@@ -529,7 +529,7 @@ float atof(char32 ptr, int pos)
 
 	int decimal = 0;
 	for(int j = 0; j < 4; ++j)
-		decimal = decimal*10 + Cond(isNumber(ptr[pos + i + j]), (ptr[pos + i + j] - '0'), 0);
+		decimal = decimal*10 + (isNumber(ptr[pos + i + j]) ? (ptr[pos + i + j] - '0') : 0);
 
 	return neg ? -(ret + decimal/10000) : (ret + decimal/10000);
 }
@@ -640,11 +640,11 @@ int xtoa(char32 ptr, int pos, int num, bool upper)
 	}
 
 	int digits = Floor(LogToBase(num, 16) + 1);
-	int alphaoffset = Cond(upper, 'A' - 0xA, 'a' - 0xa);
+	int alphaoffset = upper ? 'A' - 0xA : 'a' - 0xa;
 	for(int i = 0; i < digits; ++i)
 	{
 		int coeff = (Floor(num / Pow(0x10, digits - i - 1)) % 0x10);
-		ptr[pos + ret + i] = Cond(coeff < 0xA, coeff + '0', coeff + alphaoffset);
+		ptr[pos + ret + i] = coeff < 0xA ? coeff + '0' : coeff + alphaoffset;
 	}
 	return ret + digits;
 }
@@ -1388,7 +1388,7 @@ void LogPrint(char32 s, int v1, int v2) //what if we use an array literal for th
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1478,7 +1478,7 @@ void LogPrint(char32 s, int v1, int v2, int v3) //what if we use an array litera
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1564,7 +1564,7 @@ void LogPrint(char32 s, int v1, int v2, int v3, int v4) //what if we use an arra
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1650,7 +1650,7 @@ void LogPrint(char32 s, int v1, int v2, int v3, int v4, int v5) //what if we use
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1736,7 +1736,7 @@ void LogPrint(char32 s, int v1, int v2, int v3, int v4, int v5, int v6) //what i
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1822,7 +1822,7 @@ void LogPrint(char32 s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) 
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1908,7 +1908,7 @@ void LogPrint(char32 s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, 
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;

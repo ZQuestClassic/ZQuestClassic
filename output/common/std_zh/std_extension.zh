@@ -204,7 +204,7 @@ int CenterX(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 { 
 	int lx = anLWeapon->X;
 	if ( usehitbox ) lx += anLWeapon->HitWidth/2;
-	if ( !usehitbox ) lx += 8*anLWeapon->TileWidth;
+	unless ( usehitbox ) lx += 8*anLWeapon->TileWidth;
 	if ( trueoffset ) lx += anLWeapon->HitXOffset;
 	if ( drawoffset ) lx += anLWeapon->DrawXOffset;
 	return lx;
@@ -216,7 +216,7 @@ int CenterX(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 { 
 	int ex = anEWeapon->X;
 	if ( usehitbox ) ex += anEWeapon->HitWidth/2;
-	if ( !usehitbox ) ex += 8*anEWeapon->TileWidth;
+	unless ( usehitbox ) ex += 8*anEWeapon->TileWidth;
 	if ( trueoffset ) ex += anEWeapon->HitXOffset;
 	if ( drawoffset ) ex += anEWeapon->DrawXOffset;
 	return ex;
@@ -228,7 +228,7 @@ int CenterX(npc n, bool usehitbox, bool trueoffset, bool drawoffset)
 { 
 	int nx = n->X;
 	if ( usehitbox ) nx += n->HitWidth/2;
-	if ( !usehitbox ) nx += 8*n->TileWidth;
+	unless ( usehitbox ) nx += 8*n->TileWidth;
 	if ( trueoffset ) nx += n->HitXOffset;
 	if ( drawoffset ) nx += n->DrawXOffset;
 	return nx;
@@ -240,7 +240,7 @@ int CenterX(item i, bool usehitbox, bool trueoffset, bool drawoffset)
 { 
 	int ix = i->X;
 	if ( usehitbox ) ix += i->HitWidth/2;
-	if ( !usehitbox ) ix += 8*i->TileWidth;
+	unless ( usehitbox ) ix += 8*i->TileWidth;
 	if ( trueoffset ) ix += i->HitXOffset;
 	if ( drawoffset ) ix += i->DrawXOffset;
 	return ix;
@@ -280,7 +280,7 @@ int CenterY(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 { 
 	int ly = anLWeapon->Y;
 	if ( usehitbox ) ly += anLWeapon->HitHeight/2;
-	if ( !usehitbox ) ly += 8*anLWeapon->TileHeight;
+	unless ( usehitbox ) ly += 8*anLWeapon->TileHeight;
 	if ( trueoffset ) ly += anLWeapon->HitYOffset;
 	if ( drawoffset ) ly += anLWeapon->DrawYOffset;
 	return ly;
@@ -292,7 +292,7 @@ int CenterY(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 { 
 	int ey = anEWeapon->Y;
 	if ( usehitbox ) ey += anEWeapon->HitHeight/2;
-	if ( !usehitbox ) ey += 8*anEWeapon->TileHeight;
+	unless ( usehitbox ) ey += 8*anEWeapon->TileHeight;
 	if ( trueoffset ) ey += anEWeapon->HitYOffset;
 	if ( drawoffset ) ey += anEWeapon->DrawYOffset;
 	return ey;
@@ -304,7 +304,7 @@ int CenterY(npc n, bool usehitbox, bool trueoffset, bool drawoffset)
 { 
 	int ny = n->Y;
 	if ( usehitbox ) ny += n->HitHeight/2;
-	if ( !usehitbox ) ny += 8*n->TileHeight;
+	unless ( usehitbox ) ny += 8*n->TileHeight;
 	if ( trueoffset ) ny += n->HitYOffset;
 	if ( drawoffset ) ny += n->DrawYOffset;
 	return ny;
@@ -316,7 +316,7 @@ int CenterY(item i, bool usehitbox, bool trueoffset, bool drawoffset)
 { 
 	int iy = i->Y;
 	if ( usehitbox ) iy += i->HitHeight/2;
-	if ( !usehitbox ) iy += 8*i->TileHeight;
+	unless ( usehitbox ) iy += 8*i->TileHeight;
 	if ( trueoffset ) iy += i->HitYOffset;
 	if ( drawoffset ) iy += i->DrawYOffset;
 	return iy;
@@ -480,9 +480,9 @@ void CloneLayerCombo(int layer_a, int layer_b, int pos_a, int pos_b)
 //Check for collision between Link and a combo at location 'cmb'. 
 bool Collision(int cmb)
 {
-	if ( !RectCollision( ComboX(cmb), ComboY(cmb), (ComboX(cmb)+16), (ComboY(cmb)+16), (Link->X+Link->HitXOffset+Link->DrawXOffset), (Link->Y+Link->HitYOffset+Link->DrawYOffset),
+	unless ( RectCollision( ComboX(cmb), ComboY(cmb), (ComboX(cmb)+16), (ComboY(cmb)+16), (Link->X+Link->HitXOffset+Link->DrawXOffset), (Link->Y+Link->HitYOffset+Link->DrawYOffset),
 		((Link->X+Link->HitXOffset+Link->DrawXOffset)+(Link->HitWidth)), ((Link->Y+Link->HitYOffset+Link->DrawYOffset)+(Link->HitHeight))) ) return false;
-	else if ( !(Distance(CenterLinkX(), CenterLinkY(), (ComboX(cmb)+8), (ComboY(cmb)+8)) < 8) ) return false;
+	else unless ( (Distance(CenterLinkX(), CenterLinkY(), (ComboX(cmb)+8), (ComboY(cmb)+8)) < 8) ) return false;
 	return true;
 }
 
@@ -747,7 +747,7 @@ int DirY(int dir)
 	// Is a diagonal.
 	if (dir & 100b) return ( (dir & 010b) ? (Sin(45)) : (Sin(45)*-1) );
 	// Is vertical.
-	if (!(dir & 010b)) return ( (dir & 001b) ? 1 :-1 );
+	unless ((dir & 010b)) return ( (dir & 001b) ? 1 :-1 );
 	return 0;
 }
 
@@ -759,7 +759,7 @@ int DirY(int dir)
 //Returns -1 on error. 
 float Distance(int x1, int y1, int x2, int y2, int scale) 
 {
-	if ( !scale ) scale = 1; //sanity check
+	unless ( scale ) scale = 1; //sanity check
 	float x = (x1-x2) / scale;
 	float y = (y1-y2) / scale;
 	float factor = (x*x)+(y*y);
