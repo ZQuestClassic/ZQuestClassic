@@ -62,19 +62,19 @@ public:
 	return (*Interpreter)(type, script, i);
     }
     
-    static inline void RunScrollingScript(int scrolldir, int cx, int sx, int sy, bool end_frames)
+    static inline void RunScrollingScript(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw)
     {
-        (*onScrolling)(scrolldir, cx, sx, sy, end_frames);
+        (*onScrolling)(scrolldir, cx, sx, sy, end_frames,waitdraw);
     }
     
 private:
     static int CurrentVersion;
     static int (*Interpreter)(const byte, const word, const long);
-    static void (*onScrolling)(int, int, int, int, bool);
+    static void (*onScrolling)(int, int, int, int, bool, bool);
     
     //Couldn't do anything with old ZScript
-    static inline void NullScrollingScript(int, int, int, int, bool) { }
-    static void ScrollingScript(int scrolldir, int cx, int sx, int sy, bool end_frames);
+    static inline void NullScrollingScript(int, int, int, int, bool, bool) { }
+    static void ScrollingScript(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw);
 };
 
 #endif

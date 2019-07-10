@@ -294,7 +294,7 @@ public:
     
     int get_scroll_step(int scrolldir);
     int get_scroll_delay(int scrolldir);
-    void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames);
+    void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw);
     void scrollscr(int dir,int destscr = -1, int destdmap = -1);
     
 private:
