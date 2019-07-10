@@ -900,20 +900,20 @@ float DotProduct( float x1, float y1, float x2, float y2 )
 //Overload to Screen->DrawString which includes a position to start drawing from in the string
 //Does not check for overflow
 void DrawString(int layer, int x, int y, int font, int color, int background_color, int format, int opacity,
-				int string, int start)
+				char32 ptr, int start)
 {
-	int buffer[256];
-	for(int i=start;string[i]!=0;++i) buffer[i-start] = string[i];
+	char32 buffer[256];
+	for(int i=start;ptr[i]!=0;++i) buffer[i-start] = ptr[i];
 	Screen->DrawString(layer,x,y,font,color,background_color,format,opacity,buffer);
 }
 
 //Overload to Screen->DrawString which includes a start and end position to draw the string
 //Does not check for overflow
 void DrawString(int layer, int x, int y, int font, int color, int background_color, int format, int opacity,
-				int string, int start, int end)
+				char32 ptr, int start, int end)
 {
-	int buffer[256];
-	for(int i=start;i<end;++i) buffer[i-start] = string[i];
+	char32 buffer[256];
+	for(int i=start;i<end;++i) buffer[i-start] = ptr[i];
 	Screen->DrawString(layer,x,y,font,color,background_color,format,opacity,buffer);
 }
 
@@ -1069,7 +1069,7 @@ bool EnemiesAlive()
 		npc n = Screen->LoadNPC(q); 
 		if ( n->Type != NPCT_PROJECTILE )
 		{
-			if ( !(n->MiscFlags&NPCMF_NOT_BEATABLE) )
+			unless ( (n->MiscFlags&NPCMF_NOT_BEATABLE) )
 			{
 				if ( n->Type != NPCT_FAIRY )
 				{
@@ -1111,7 +1111,7 @@ int FirstComboFlagOf(int t, int layer)
 {
 	for (int i = 0; i < 176; ++i) 
 	{
-		if (!layer) //layer 0 
+		unless (layer) //layer 0 
 		{
 			if ( Screen->ComboF[i] == t ) return i;
 			if ( Screen->ComboI[i] == t ) return i;
@@ -1130,7 +1130,7 @@ int FirstComboTypeOf(int t, int layer)
 {
 	for (int i = 0; i < 176; ++i) 
 	{
-		if (!layer) //layer 0 
+		unless (layer) //layer 0 
 		{
 			if (Screen->ComboT[i] == t)
 				return i;
@@ -1149,7 +1149,7 @@ int FirstComboOf(int t, int layer)
 {
 	for (int i = 0; i < 176; ++i) 
 	{
-		if (!layer) //layer 0 
+		unless (layer) //layer 0 
 		{
 			if (Screen->ComboD[i] == t)
 				return i;
@@ -1314,9 +1314,9 @@ int GetLayerComboC(int layer, int pos)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			unless ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
 				return Screen->ComboC[pos];
 			}
@@ -1357,9 +1357,9 @@ int GetLayerComboD(int layer, int pos)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			unless ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
 				return Screen->ComboD[pos];
 			}
@@ -1399,9 +1399,9 @@ int GetLayerComboF(int layer, int pos)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			unless ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
 				return Screen->ComboF[pos];
 			}
@@ -1441,9 +1441,9 @@ int GetLayerComboI(int layer, int pos)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			unless ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
 				return Screen->ComboI[pos];
 			}
@@ -1484,9 +1484,9 @@ int GetLayerComboS(int layer, int pos)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			unless ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
 				return Screen->ComboS[pos];
 			}
@@ -1527,9 +1527,9 @@ int GetLayerComboT(int layer, int pos)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			unless ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
 				return Screen->ComboT[pos];
 			}
@@ -1552,12 +1552,12 @@ bool GetLevelItem(int itm)
 	return (Game->LItems[Game->GetCurLevel()]&itm);
 }
 
-void GetMessage(int ID, int string)
+void GetMessage(int ID, char32 ptr)
 {
-	Game->GetMessage(ID, string);
+	Game->GetMessage(ID, ptr);
 	int i;
-	for(i = MAX_MESSAGELENGTH-2; string[i] == ' '; --i);
-	string[i+1] = 0;
+	for(i = MAX_MESSAGELENGTH-2; ptr[i] == ' '; --i);
+	ptr[i+1] = 0;
 }
 
 //Returns true if an npc's Misc. flag is set.
@@ -1567,13 +1567,13 @@ bool GetNPCMiscFlag(npc e, int flag)
 }
 
 //Get an NPC's name from an ID
-void GetNPCName(int npc_id, int buffer)
+void GetNPCName(int npc_id, char32 buffer)
 {
 	//we need npcdata->GetName()
 	npcdata nd = Game->LoadNPCData(npc_id);
 	nd->GetName(buffer);
 	//npc n = Screen->CreateNPC(ID);
-	//n->GetName(string);
+	//n->GetName(ptr);
 	//Remove(n);
 }
 
@@ -1873,7 +1873,7 @@ int LastComboFlagOf(int t, int layer)
 {
 	for (int i = 175; i >= 0; --i) 
 	{
-		if (!layer) //layer 0 
+		unless (layer) //layer 0 
 		{
 			if (Screen->ComboF[i] == t ) return i;
 			if ( Screen->ComboI[i] == t ) return i;
@@ -1893,7 +1893,7 @@ int LastComboTypeOf(int t, int layer)
 {
 	for (int i = 175; i >= 0; --i) 
 	{
-		if (!layer) //layer 0 
+		unless (layer) //layer 0 
 		{
 			if (Screen->ComboT[i] == t)
 				return i;
@@ -1912,7 +1912,7 @@ int LastComboOf(int t, int layer)
 {
 	for (int i = 175; i >= 0; --i) 
 	{
-		if (!layer) //layer 0 
+		unless (layer) //layer 0 
 		{
 			if (Screen->ComboD[i] == t)
 				return i;
@@ -2185,7 +2185,7 @@ int NumberEnemies()
 		npc n = Screen->LoadNPC(q); 
 		if ( n->Type != NPCT_PROJECTILE )
 		{
-			if ( !(n->MiscFlags&NPCMF_NOT_BEATABLE) )
+			unless ( (n->MiscFlags&NPCMF_NOT_BEATABLE) )
 			{
 				if ( n->Type != NPCT_FAIRY )
 				{
@@ -2295,7 +2295,7 @@ int NumTriforcePieces(int maxlevel)
 //A shorthand way to get a combo on the current layer.
 //Layer 0 is the screen itself.
 int old_GetLayerComboD(int layer, int pos) {
-	if (!layer)
+	unless (layer)
 		return Screen->ComboD[pos];
 	else
 		return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
@@ -2304,7 +2304,7 @@ int old_GetLayerComboD(int layer, int pos) {
 //A shorthand way to set a combo on the current layer.
 //Layer 0 is the screen itself.
 void old_SetLayerComboD(int layer, int pos, int combo) {
-	if (!layer)
+	unless (layer)
 		Screen->ComboD[pos] = combo;
 	else
 		Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
@@ -2313,7 +2313,7 @@ void old_SetLayerComboD(int layer, int pos, int combo) {
 //A shorthand way to get a combo flag on the current layer.
 //Layer 0 is the screen itself.
 int old_GetLayerComboF(int layer, int pos) {
-	if (!layer)
+	unless (layer)
 		return Screen->ComboF[pos];
 	else
 		return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
@@ -2322,7 +2322,7 @@ int old_GetLayerComboF(int layer, int pos) {
 //A shorthand way to set a combo flag on the current layer.
 //Layer 0 is the screen itself.
 void old_SetLayerComboF(int layer, int pos, int flag) {
-	if (!layer)
+	unless (layer)
 		Screen->ComboF[pos] = flag;
 	else
 		Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, flag);
@@ -2331,7 +2331,7 @@ void old_SetLayerComboF(int layer, int pos, int flag) {
 //A shorthand way to get a combo's solidity on the current layer.
 //Layer 0 is the screen itself.
 int old_GetLayerComboS(int layer, int pos) {
-	if (!layer)
+	unless (layer)
 		return Screen->ComboS[pos];
 	else if(Screen->LayerMap(layer)<0)
 	// Special case for this one: return 0 if there's no layer
@@ -2343,7 +2343,7 @@ int old_GetLayerComboS(int layer, int pos) {
 //A shorthand way to set a combo's solidity on the current layer.
 //Layer 0 is the screen itself.
 void old_SetLayerComboS(int layer, int pos, int solidity) {
-	if (!layer)
+	unless (layer)
 		Screen->ComboS[pos] = solidity;
 	else
 		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
@@ -2352,7 +2352,7 @@ void old_SetLayerComboS(int layer, int pos, int solidity) {
 //A shorthand way to get a combo type on the current layer.
 //Layer 0 is the screen itself.
 int old_GetLayerComboT(int layer, int pos) {
-	if (!layer)
+	unless (layer)
 		return Screen->ComboT[pos];
 	else
 		return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
@@ -2361,7 +2361,7 @@ int old_GetLayerComboT(int layer, int pos) {
 //A shorthand way to set a combo type on the current layer.
 //Layer 0 is the screen itself.
 void old_SetLayerComboT(int layer, int pos, int type) {
-	if (!layer)
+	unless (layer)
 		Screen->ComboT[pos] = type;
 	else
 		Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, type);
@@ -2447,7 +2447,7 @@ bool RectCollision(int box1_x1, int box1_y1, int box1_x2, int box1_y2, int box2_
 //Removes LWeapon 'l' from the screen
 void Remove(lweapon l)
 {
-	if(!l->isValid()) return;
+	unless(l->isValid()) return;
 	l->DeadState = WDS_DEAD;
 	l->X = 32768;
 }
@@ -2455,7 +2455,7 @@ void Remove(lweapon l)
 //Removes EWeapon 'e' from the screen
 void Remove(eweapon e)
 {
-	if(!e->isValid()) return;
+	unless(e->isValid()) return;
 	e->DeadState = WDS_DEAD;
 	e->X = 32768;
 }
@@ -2463,14 +2463,14 @@ void Remove(eweapon e)
 //Removes Item 'i' from the screen
 void Remove(item i)
 {
-	if(!i->isValid()) return;
+	unless(i->isValid()) return;
 	i->X = 32768;
 }
 
 //Removes NPC 'n' from the screen
 void Remove(npc n)
 {
-	if(!n->isValid()) return;
+	unless(n->isValid()) return;
 	n->X = 32768;
 	n->HP = -1000;
 }
@@ -2646,7 +2646,7 @@ void SetLayerComboC(int layer, int pos, int combo)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
 			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
@@ -2703,7 +2703,7 @@ void SetLayerComboD(int layer, int pos, int combo)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
 			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
@@ -2760,7 +2760,7 @@ void SetLayerComboF(int layer, int pos, int combo)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
 			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
@@ -2817,7 +2817,7 @@ void SetLayerComboI(int layer, int pos, int combo)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
 			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
@@ -2875,7 +2875,7 @@ void SetLayerComboS(int layer, int pos, int combo)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
 			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
@@ -2933,7 +2933,7 @@ void SetLayerComboT(int layer, int pos, int combo)
 	}
 	else
 	{
-		if (!layer) //layer 0
+		unless (layer) //layer 0
 		{
 			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{

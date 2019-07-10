@@ -3,47 +3,47 @@
 //ZScript string handling functions, akin to those found in C
 
 //Returns the number of chracters of a given type in a specified string.
-int NumCharsOf(int str, int chr)
+int NumCharsOf(char32 ptr, char32 chr)
 {
 	int chars; 
-	for ( int q = 0; str[q]!=0; ++q ) {
-		if ( str[q] == chr ) chars++;
+	for ( int q = 0; ptr[q]!=0; ++q ) {
+		if ( ptr[q] == chr ) chars++;
 	}
 	return chars;
 }
 
-int NumCharsOf(int str, int pos, int chr)
+int NumCharsOf(char32 ptr, int pos, char32 chr)
 {
 	int chars; 
-	for ( int q = pos; str[q]!=0; ++q ) {
-		if ( str[q] == chr ) chars++;
+	for ( int q = pos; ptr[q]!=0; ++q ) {
+		if ( ptr[q] == chr ) chars++;
 	}
 	return chars;
 }
 
 //reversed
 //Returns the number of chracters of a given type in a specified string.
-int NumCharsOfRev(int str, int chr)
+int NumCharsOfRev(char32 ptr, char32 chr)
 {
 	int chars;
-	for ( int q = SizeOfArray(str)-1; q >= 0; --q ) {
-		if ( str[q] == chr ) chars++;
+	for ( int q = SizeOfArray(ptr)-1; q >= 0; --q ) {
+		if ( ptr[q] == chr ) chars++;
 	}
 	return chars;
 }
 
-int NumCharsOfRev(int str, int pos, int chr)
+int NumCharsOfRev(char32 ptr, int pos, char32 chr)
 {
 	int chars; 
 	for ( int q = pos; q >= 0; --q ) {
-		if ( str[q] == chr ) chars++;
+		if ( ptr[q] == chr ) chars++;
 	}
 	return chars;
 }
 
 //Single character functions
 //Returns true if 'chr' is in the control code range of ascii characters
-bool isControlCode(int chr)
+bool isControlCode(char32 chr)
 {
 	if ( chr >= 0 )
 	{
@@ -53,7 +53,7 @@ bool isControlCode(int chr)
 }
 
 //Returns true if 'chr' is in the range of ascii characters '0' to '9'
-bool isNumber(int chr)
+bool isNumber(char32 chr)
 {
 	if ( chr >= '0' )
 	{
@@ -63,7 +63,7 @@ bool isNumber(int chr)
 }
 
 //Returns true if 'chr' is an alphabetic character
-bool isAlphabetic(int chr)
+bool isAlphabetic(char32 chr)
 {
 	if ( chr >= 'a' )
 	{
@@ -77,36 +77,36 @@ bool isAlphabetic(int chr)
 }
 
 //Returns true if 'chr' is an alphanumeric character
-bool isAlphaNumeric(int chr)
+bool isAlphaNumeric(char32 chr)
 {
 	return isNumber(chr) || isAlphabetic(chr);
 }
 
 //Returns true if 'chr' is in the set { '0'-'9', 'A'-'F' , 'a'-'f' }
-bool isHex(int chr)
+bool isHex(char32 chr)
 {
 	return isNumber(chr) || (chr >= 'A' && chr <= 'F') || (chr >= 'a' && chr <= 'f');
 }
 
 //Returns true if 'chr' is an upper-case character
-bool isUpperCase(int chr)
+bool isUpperCase(char32 chr)
 {
 	return (chr >= 'A' && chr <= 'Z');
 }
 
 //Returns true if 'chr' is a lower-case character
-bool isLowerCase(int chr)
+bool isLowerCase(char32 chr)
 {
 	return (chr >= 'a' && chr <= 'z');
 }
 
 //Retruns true if a 'chr' is a blank space.
-bool isSpace(int chr){
+bool isSpace(char32 chr){
 	return (chr == ' ');
 }
 
 //Returns true if 'chr' is a vowel. 
-bool isVowel(int chr)
+bool isVowel(char32 chr)
 {
 	switch(chr)
 	{
@@ -127,7 +127,7 @@ bool isVowel(int chr)
 }
 
 //Returns true if the string contains a specific character.
-bool ContainsChar(int chr, int buffer)
+bool ContainsChar(char32 chr, char32 buffer)
 {
 	//int sz = SizeOfArray(buffer)-1;
 	for ( int q = 0; buffer[q]!=0; ++q )
@@ -138,7 +138,7 @@ bool ContainsChar(int chr, int buffer)
 }
 
 //Returns first character position if the string contains a specific character, else -1.
-int ContainsCharPos(int chr, int buffer){
+int ContainsCharPos(char32 chr, char32 buffer){
 	//int sz = SizeOfArray(buffer)-1;
 	for ( int q = 0; buffer[q]!=0; ++q )
 	{
@@ -148,7 +148,7 @@ int ContainsCharPos(int chr, int buffer){
 }
 
 //Returns true if the string contains a specific character.
-bool ContainsChar(int chr, int pos, int buffer)
+bool ContainsChar(char32 chr, int pos, char32 buffer)
 {
 	//int sz = SizeOfArray(buffer)-1;
 	for ( int q = pos; buffer[q]!=0; ++q )
@@ -159,7 +159,7 @@ bool ContainsChar(int chr, int pos, int buffer)
 }
 
 //Returns first character position if the string contains a specific character, else -1.
-int ContainsCharPos(int chr, int pos, int buffer)
+int ContainsCharPos(char32 chr, int pos, char32 buffer)
 {
 	//int sz = SizeOfArray(buffer)-1;
 	for ( int q = pos; buffer[q]!=0; ++q )
@@ -171,7 +171,7 @@ int ContainsCharPos(int chr, int pos, int buffer)
 
 
 //Returns true if the string contains a specific character.
-bool ContainsCharRev(int chr, int buffer)
+bool ContainsCharRev(char32 chr, char32 buffer)
 {
 	for ( int q = (SizeOfArray(buffer)-1); q >= 0; --q )
 	{
@@ -181,7 +181,7 @@ bool ContainsCharRev(int chr, int buffer)
 }
 
 //Returns first character position if the string contains a specific character, else -1.
-int ContainsCharPosRev(int chr, int buffer)
+int ContainsCharPosRev(char32 chr, char32 buffer)
 {
 	for ( int q = (SizeOfArray(buffer)-1); q >= 0; --q )
 	{
@@ -192,7 +192,7 @@ int ContainsCharPosRev(int chr, int buffer)
 
 
 //Returns true if the string contains a specific character.
-bool ContainsCharRev(int chr, int pos, int buffer)
+bool ContainsCharRev(char32 chr, int pos, char32 buffer)
 {
 	for ( int q = pos; q >= 0; --q )
 	{
@@ -202,7 +202,7 @@ bool ContainsCharRev(int chr, int pos, int buffer)
 }
 
 //Returns first character position if the string contains a specific character, else -1.
-int ContainsCharPosRev(int chr, int pos, int buffer)
+int ContainsCharPosRev(char32 chr, int pos, char32 buffer)
 {
 	for ( int q = pos; q >= 0; --q )
 	{
@@ -214,61 +214,61 @@ int ContainsCharPosRev(int chr, int pos, int buffer)
 
 //Converts all upper case characters to lower case, leaving non-alphabetic
 //characters unchanged
-int UpperToLower(int chr)
+char32 UpperToLower(char32 chr)
 {
-	if(!isAlphabetic(chr))
+	unless(isAlphabetic(chr))
 		return chr;
-	return Cond(isLowerCase(chr), chr, chr + ('a' - 'A'));
+	return isLowerCase(chr) ? chr : chr + ('a' - 'A');
 }
 
 //Converts all lower case characters to upper case, leaving non-alphabetic
 //characters unchanged
-int LowerToUpper(int chr)
+char32 LowerToUpper(char32 chr)
 {
-	if(!isAlphabetic(chr))
+	unless(isAlphabetic(chr))
 		return chr;
-	return Cond(isLowerCase(chr), chr - ('a' - 'A'), chr);
+	return isLowerCase(chr) ? chr - ('a' - 'A') : chr;
 }
 
 //Converts lower case to upper case and upper case to lower case
-int ConvertCase(int chr)
+char32 ConvertCase(char32 chr)
 {
-	if(!isAlphabetic(chr))
+	unless(isAlphabetic(chr))
 		return chr;
-	return chr + Cond(isLowerCase(chr), 'A' - 'a', 'a' - 'A');
+	return chr + (isLowerCase(chr) ? 'A' - 'a' : 'a' - 'A');
 }
 
 
 //Memory Manipulation
 //Memory Set
 //Sets block of memory of size 'n' pointed by 'ptr' to 'value'
-void memset(int ptr, int pos, int value, int n)
+void memset(untyped ptr, int pos, untyped value, int n)
 {
 	for(int i = 0; i < n; ++i)
 		ptr[pos + i] = value;
 }
-void memset(int ptr, int value, int n)
+void memset(untyped ptr, untyped value, int n)
 {
 	memset(ptr, 0, value, n);
 }
 
 //Memory Copy
 //Copys block of memory pointed by 'src' of size 'n' to 'dest'
-void memcpy(int dest, int dpos, int src, int spos, int n)
+void memcpy(untyped dest, int dpos, untyped src, int spos, int n)
 {
 	for(int i = 0; i < n; ++i)
 		dest[dpos + i] = src[spos + i];
 }
-void memcpy(int dest, int src, int n)
+void memcpy(untyped dest, untyped src, int n)
 {
 	memcpy(dest, 0, src, 0, n);
 }
 
 //Memory Move
 //As memcpy, but uses a buffer so memory space can overlap
-int memmove(int dest, int dpos, int src, int spos, int n)
+untyped memmove(untyped dest, int dpos, untyped src, int spos, int n)
 {
-	int buffer[0x100];
+	untyped buffer[0x100];
 	for(int i = 0; i < n; ++i)
 		buffer[i] = src[spos + i];
 	for(int i = 0; i < n; ++i)
@@ -309,19 +309,19 @@ void strncpy(int dest, int src, int n)
 
 //Remove Characters
 //Remove all characters starting from pointer 'string'
-void remchr(int string, int pos)
+void remchr(char32 ptr, int pos)
 {
-	for(int i = 0; string[pos + i] != 0; ++i)
-		string[pos + i] = 0;
+	for(int i = 0; ptr[pos + i] != 0; ++i)
+		ptr[pos + i] = 0;
 }
 
 //Remove 'n' characters and shift string back to pointer 'string'
-void remnchr(int string, int pos, int n)
+void remnchr(char32 ptr, int pos, int n)
 {
-	int l = strlen(string);
+	int l = strlen(ptr);
 	int temp = n + pos;
-	for(int i = 0; string[pos + i] != 0; ++i)
-		string[pos + i] = Cond(temp + i < l, string[temp + i] ,0);
+	for(int i = 0; ptr[pos + i] != 0; ++i)
+		ptr[pos + i] = (temp + i < l) ? ptr[temp + i] : 0;
 }
 
 
@@ -357,10 +357,10 @@ void strncat(int dest, int src, int n)
 //String Character
 //Returns the position of the first occurence of 'character' in 'string',
 //or -1 if none are found
-int strchr(int string, int pos, int chr)
+int strchr(char32 ptr, int pos, char32 chr)
 {
-	for(int i = 0; string[pos + i] != 0; ++i)
-		if(string[pos + i] == chr)
+	for(int i = 0; ptr[pos + i] != 0; ++i)
+		if(ptr[pos + i] == chr)
 			return pos + i;
 	return -1;
 }
@@ -369,10 +369,10 @@ int strchr(int string, int pos, int chr)
 //String Reverse Character
 //Returns the position of the last occurence of 'character' in 'string'
 //starting from the end, or -1 if none are found
-int strrchr(int string, int pos, int chr)
+int strrchr(char32 ptr, int pos, char32 chr)
 {
-	for(int i = strlen(string) - pos; i > 0; --i)
-		if(string[i] == chr)
+	for(int i = strlen(ptr) - pos; i > 0; --i)
+		if(ptr[i] == chr)
 			return i;
 	return -1;
 }
@@ -382,11 +382,11 @@ int strrchr(int string, int pos, int chr)
 //String Sub-String
 //Returns the position of the first occurence of sub-string 'sub' in 'string',
 //or -1 if sub is not found
-int strstr(int string, int pos, int sub)
+int strstr(char32 ptr, int pos, int sub)
 {
 	int l = strlen(sub) - 1;
-	for(int i = 0; string[pos + i] != 0; ++i)
-		for(int j = 0; sub[j] != 0 && string[pos + i + j] != 0 && string[pos + i + j] == sub[j]; ++j)
+	for(int i = 0; ptr[pos + i] != 0; ++i)
+		for(int j = 0; sub[j] != 0 && ptr[pos + i + j] != 0 && ptr[pos + i + j] == sub[j]; ++j)
 			if(j == l)
 				return pos + i;
 	return -1;
@@ -394,33 +394,33 @@ int strstr(int string, int pos, int sub)
 
 
 //String Span
-//Returns the length of characters in 'str' before a character not contained in
+//Returns the length of characters in 'ptr' before a character not contained in
 //'keys' is found
-int strspn(int str, int pos, int keys)
+int strspn(char32 ptr, int pos, int keys)
 {
 	int i;
 	bool found;
-	for(i = 0; str[pos + i] != 0; ++i)
+	for(i = 0; ptr[pos + i] != 0; ++i)
 	{
 		found = false;
 		for(int j = 0; keys[j] != 0; ++j)
-			if(str[pos + i] == keys[j])
+			if(ptr[pos + i] == keys[j])
 				found = true;
-		if(!found)
+		unless(found)
 			return pos + i;
 	}
 	return pos + i;
 }
 
 //String Complement Span
-//Returns the length of characters in 'str' before a character contained in
+//Returns the length of characters in 'ptr' before a character contained in
 //'keys' is found
-int strcspn(int str, int pos, int keys)
+int strcspn(char32 ptr, int pos, int keys)
 {
 	int i;
-	for(i = 0; str[pos + i] != 0; ++i)
+	for(i = 0; ptr[pos + i] != 0; ++i)
 		for(int j = 0; keys[j] != 0; ++j)
-			if(str[pos + i] == keys[j])
+			if(ptr[pos + i] == keys[j])
 				return pos + i;
 	return pos + i;
 }
@@ -428,24 +428,24 @@ int strcspn(int str, int pos, int keys)
 
 //String Comparison
 //String Compare
-//Iterates through str1 and str2 until a character is found which is not the same in
-//both strings, and then returns > 0 if the character is larger in str1, and < 0 if it is
-//larger in str2. Returns 0 if the strings are equal
-int strcmp(int str1, int pos1, int str2, int pos2)
+//Iterates through ptr1 and ptr2 until a character is found which is not the same in
+//both strings, and then returns > 0 if the character is larger in ptr1, and < 0 if it is
+//larger in ptr2. Returns 0 if the strings are equal
+int strcmp(char32 ptr1, int pos1, char32 ptr2, int pos2)
 {
 	int i;
-	for(i = 0; str1[pos1 + i] != 0 && str2[pos2 + i] != 0 && str1[pos1 + i] == str2[pos2 + i]; ++i);
-	return str1[pos1 + i] - str2[pos2 + i];
+	for(i = 0; ptr1[pos1 + i] != 0 && ptr2[pos2 + i] != 0 && ptr1[pos1 + i] == ptr2[pos2 + i]; ++i);
+	return ptr1[pos1 + i] - ptr2[pos2 + i];
 }
 
 //strcmp up to 'n' characters
-int strncmp(int str1, int pos1, int str2, int pos2, int n)
+int strncmp(char32 ptr1, int pos1, char32 ptr2, int pos2, int n)
 {
 	int i;
-	for(i = 0; str1[pos1 + i] != 0 && str2[pos2 + i] != 0 && str1[pos1 + i] == str2[pos2 + i] && i < n; ++i);
+	for(i = 0; ptr1[pos1 + i] != 0 && ptr2[pos2 + i] != 0 && ptr1[pos1 + i] == ptr2[pos2 + i] && i < n; ++i);
 	if(i == n)
 		i--;
-	return str1[pos1 + i] - str2[pos2 + i];
+	return ptr1[pos1 + i] - ptr2[pos2 + i];
 }
 
 
@@ -453,219 +453,220 @@ int strncmp(int str1, int pos1, int str2, int pos2, int n)
 //Converting between variables and strings
 //ASCII to Integer
 //Returns the decimal integer pointed by 'string'
-int atoi(int string, int pos)
+int atoi(char32 ptr, int pos)
 {
 	int i=0;
 	bool neg = false;
-	if(string[pos + i] == '-'){
+	if(ptr[pos + i] == '-'){
 		++i;
 		neg = true;
 	}
 	int ret;
-	for(ret = 0; isNumber(string[pos + i]); ++i)
-		ret = ret*10 + (string[pos + i] - '0');
-	return ret*Cond(neg, -1, 1);
+	for(ret = 0; isNumber(ptr[pos + i]); ++i)
+		ret = ret*10 + (ptr[pos + i] - '0');
+	return neg ? -ret : ret;
 }
 
 
 //Integer Length
 //Returns the length of characters of the decimal integer pointed by 'string'
-int ilen(int string, int pos)
+int ilen(char32 ptr, int pos)
 {
 	int ret = 0;
-	if(string[pos] == '-')
+	if(ptr[pos] == '-')
 		ret++;
-	for(; isNumber(string[pos + ret]); ++ret);
+	for(; isNumber(ptr[pos + ret]); ++ret);
 	return ret;
 }
 
 
 //Hexadecimal ASCII to Integer
 //Returns the (positive) hexadecimal integer pointed by 'string'
-int xtoi(int string, int pos)
+int xtoi(char32 ptr, int pos)
 {
 	int ret = 0;
-	for(int i = 0; isHex(string[pos + i]); ++i)
-		ret = ret*0x10 + Cond(isNumber(string[pos + i]), string[pos + i] - '0', LowerToUpper(string[pos + i]) - ('A' + 0xA));
+	for(int i = 0; isHex(ptr[pos + i]); ++i)
+		ret = ret*0x10 + (isNumber(ptr[pos + i]) ? ptr[pos + i] - '0' : LowerToUpper(ptr[pos + i]) - ('A' + 0xA));
 	return ret;
 }
-int xtoi(int string)
+int xtoi(char32 ptr)
 {
-	return xtoi(string, 0);
+	return xtoi(ptr, 0);
 }
 
 //Hexadecimal Length
 //Returns the length of characters of the (positive) hexadecimal integer pointed by 'string'
-int xlen(int string, int pos)
+int xlen(char32 ptr, int pos)
 {
 	int ret = 0;
-	for(; isHex(string[pos + ret]); ++ret);
+	for(; isHex(ptr[pos + ret]); ++ret);
 	return ret;
 }
-int xlen(int string)
+int xlen(char32 ptr)
 {
-	return xlen(string, 0);
+	return xlen(ptr, 0);
 }
 
 //ASCII to Float
 //Returns the floating point number pointed by 'string'
-float atof(int string, int pos)
+float atof(char32 ptr, int pos)
 {
 	int i = 0;
 	bool neg = false;
-	if(string[pos + i] == '-')
+	if(ptr[pos + i] == '-')
 	{
 		++i;
 		neg = true;
 	}
 
 	int ret = 0;
-	for(; isNumber(string[pos + i]); ++i)
-		ret = ret*10 + (string[pos + i]-'0');
+	for(; isNumber(ptr[pos + i]); ++i)
+		ret = ret*10 + (ptr[pos + i]-'0');
 
-	if(string[pos + i] != '.')
+	if(ptr[pos + i] != '.')
 		return neg ? -ret : ret;
 	i++;
 
 	int decimal = 0;
 	for(int j = 0; j < 4; ++j)
-		decimal = decimal*10 + Cond(isNumber(string[pos + i + j]), (string[pos + i + j] - '0'), 0);
+		decimal = decimal*10 + (isNumber(ptr[pos + i + j]) ? (ptr[pos + i + j] - '0') : 0);
+
 	return neg ? -(ret + decimal/10000) : (ret + decimal/10000);
 }
-float atof(int string)
+float atof(char32 ptr)
 {
-	return atof(string, 0);
+	return atof(ptr, 0);
 }
 
 //Float Length
 //Returns the length of characters of the floating point number pointed by 'string'
-int flen(int string, int pos)
+int flen(char32 ptr, int pos)
 {
-	int ret = ilen(string, pos);
+	int ret = ilen(ptr, pos);
 
-	if(string[pos + ret] != '.')
+	if(ptr[pos + ret] != '.')
 		return ret;
 	++ret;
 
-	return ret + ilen(string, pos + ret);
+	return ret + ilen(ptr, pos + ret);
 }
-int flen(int string)
+int flen(char32 ptr)
 {
-	return flen(string, 0);
+	return flen(ptr, 0);
 }
 
 //ASCII to Number
 //Calls either atoi or atof depending on context
-int aton(int string, int pos)
+int aton(char32 ptr, int pos)
 {
 	int i = 0;
-	if(string[pos + i] == '-')
+	if(ptr[pos + i] == '-')
 		i++;
-	for(; isNumber(string[pos + i]); ++i);
+	for(; isNumber(ptr[pos + i]); ++i);
 
-	if(string[pos + i] == '.')
-		return atof(string, pos);
+	if(ptr[pos + i] == '.')
+		return atof(ptr, pos);
 	else
-		return atoi(string, pos);
+		return atoi(ptr, pos);
 }
-int aton(int string)
+int aton(char32 ptr)
 {
-	return aton(string, 0);
+	return aton(ptr, 0);
 }
 
 //Number Length
 //Calls either flen or ilen depending on context
-int nlen(int string, int pos)
+int nlen(char32 ptr, int pos)
 {
 	int i = 0;
-	if(string[pos + i] == '-')
+	if(ptr[pos + i] == '-')
 		i++;
-	for(; isNumber(string[pos + i]); ++i);
+	for(; isNumber(ptr[pos + i]); ++i);
 
-	if(string[i] == '.')
-		return flen(string, pos);
+	if(ptr[i] == '.')
+		return flen(ptr, pos);
 	else
-		return ilen(string, pos);
+		return ilen(ptr, pos);
 }
-int nlen(int string)
+int nlen(char32 ptr)
 {
-	return nlen(string, 0);
+	return nlen(ptr, 0);
 }
 
 
 //Integer to ASCII
 //Places integer 'num' into string 'string' without checking for overflow,
 //and returns the number of characters used
-int itoa(int string, int pos, int num)
+int itoa(char32 ptr, int pos, int num)
 {
 	int ret = 0;
 	if(num < 0)
 	{
-		string[pos] = '-';
+		ptr[pos] = '-';
 		++ret;
 		num = -num;
 	}
 	else if(num == 0)
 	{
-		string[pos] = '0';
+		ptr[pos] = '0';
 		return 1;
 	}
 
 	int digits = Floor(Log10(num) + 1);
 	for(int i = 0; i < digits; ++i)
-		string[pos + ret + i] = (Floor(num / Pow(10, digits - i - 1)) % 10) + '0';
+		ptr[pos + ret + i] = (Floor(num / Pow(10, digits - i - 1)) % 10) + '0';
 	return ret + digits;
 }
 
-int itoa(int string, int num)
+int itoa(char32 ptr, int num)
 {
-	return itoa(string, 0, num);
+	return itoa(ptr, 0, num);
 }
 
 //Hexadecimal Integer to ASCII
 //Places integer 'num' into string 'string' in base 16 without checking for overflow,
 //and returns the number of characters used
-int xtoa(int string, int pos, int num, bool upper)
+int xtoa(char32 ptr, int pos, int num, bool upper)
 {
     num = Floor(Abs(num));
-    string[pos] = '0';
-    string[pos+1] = 'x';
+    ptr[pos] = '0';
+    ptr[pos+1] = 'x';
     int ret = 2;
 
 	if(num == 0)
 	{
-		string[pos+2] = '0';
+		ptr[pos+2] = '0';
 		return 3;
 	}
 
 	int digits = Floor(LogToBase(num, 16) + 1);
-	int alphaoffset = Cond(upper, 'A' - 0xA, 'a' - 0xa);
+	int alphaoffset = upper ? 'A' - 0xA : 'a' - 0xa;
 	for(int i = 0; i < digits; ++i)
 	{
 		int coeff = (Floor(num / Pow(0x10, digits - i - 1)) % 0x10);
-		string[pos + ret + i] = Cond(coeff < 0xA, coeff + '0', coeff + alphaoffset);
+		ptr[pos + ret + i] = coeff < 0xA ? coeff + '0' : coeff + alphaoffset;
 	}
 	return ret + digits;
 }
-int xtoa(int string, int num, bool upper)
+int xtoa(char32 ptr, int num, bool upper)
 {
-	return xtoa(string, 0, num, upper);
+	return xtoa(ptr, 0, num, upper);
 }
-int xtoa(int string, int num)
+int xtoa(char32 ptr, int num)
 {
-	return xtoa(string, 0, num, true);
+	return xtoa(ptr, 0, num, true);
 }
 
 //Float to ASCII
 //Places float 'num' into string 'string' without checking for overflow,
 //and returns the number of characters used. If 'printall' is true, it will add 4 decimal places
 //regardless of the most significant digit
-int ftoa(int string, int pos, float num, bool printall)
+int ftoa(char32 ptr, int pos, float num, bool printall)
 {
 	if(OPTION_VALUE(TRUE_INT_SIZE) && num == -214748.3648)
 	{
-		int ret = ftoa(string,pos,-214748.364);
-		string[pos + ret] = '8';
+		int ret = ftoa(ptr,pos,-214748.364);
+		ptr[pos + ret] = '8';
 		return ret + 1;
 	}
     int oldPos=pos;
@@ -676,7 +677,7 @@ int ftoa(int string, int pos, float num, bool printall)
     
     if(num<0)
     {
-        string[pos]='-';
+        ptr[pos]='-';
         ++pos;
         num=-num;
     }
@@ -692,7 +693,7 @@ int ftoa(int string, int pos, float num, bool printall)
         {
             if(digit>0 || printZero)
             {
-                string[pos]=digit+'0';
+                ptr[pos]=digit+'0';
                 ++pos;
                 
                 // Start printing 0 at the first non-zero digit.
@@ -713,11 +714,11 @@ int ftoa(int string, int pos, float num, bool printall)
             {
                 for(; storedZeroes>0; storedZeroes--)
                 {
-                    string[pos]='0';
+                    ptr[pos]='0';
                     ++pos;
                 }
                 
-                string[pos]=digit+'0';
+                ptr[pos]=digit+'0';
                 ++pos;
             }
         }
@@ -730,7 +731,7 @@ int ftoa(int string, int pos, float num, bool printall)
         
         else if(place==0.1) // Reached the fractional part
         {
-            string[pos]='.';
+            ptr[pos]='.';
             ++pos;
         }
     }
@@ -739,37 +740,37 @@ int ftoa(int string, int pos, float num, bool printall)
     {
         // printall is false and the number is an integer;
         // just add one zero to the end.
-        string[pos]='0';
+        ptr[pos]='0';
         ++pos;
     }
     
     return pos-oldPos;
 }
-int ftoa(int string, float num, bool printall)
+int ftoa(char32 ptr, float num, bool printall)
 {
-	return ftoa(string, 0, num, printall);
+	return ftoa(ptr, 0, num, printall);
 }
-int ftoa(int string, int pos, float num)
+int ftoa(char32 ptr, int pos, float num)
 {
-	return ftoa(string, pos, num, false);
+	return ftoa(ptr, pos, num, false);
 }
-int ftoa(int string, float num)
+int ftoa(char32 ptr, float num)
 {
-	return ftoa(string, 0, num, false);
+	return ftoa(ptr, 0, num, false);
 }
 
 //Number to ASCII
 //Checks whether 'num' is an integer or not, and calls the appropriate function
-int ntoa(int string, int pos, float num)
+int ntoa(char32 ptr, int pos, float num)
 {
 	if(num == Floor(num))
-		return itoa(string, pos, num);
+		return itoa(ptr, pos, num);
 	else
-		return ftoa(string, pos, num, false);
+		return ftoa(ptr, pos, num, false);
 }
-int ntoa(int string, float num)
+int ntoa(char32 ptr, float num)
 {
-	return ntoa(string, 0, num);
+	return ntoa(ptr, 0, num);
 }
 
 
@@ -782,49 +783,49 @@ void strcatf(int dest, int arg, int format)
 	{
 		case MF_INT:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			itoa(buffer, arg);
 			strcat(dest, buffer);
 			break;
 		}
 		case MF_HEXLOWER:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			xtoa(buffer, arg, false);
 			strcat(dest, buffer);
 			break;
 		}
 		case MF_HEXUPPER:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			xtoa(buffer, arg, true);
 			strcat(dest, buffer);
 			break;
 		}
 		case MF_FLOAT:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			ftoa(buffer, arg, false);
 			strcat(dest, buffer);
 			break;
 		}
 		case MF_NUM:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			ntoa(buffer, arg);
 			strcat(dest, buffer);
 			break;
 		}
 		case MF_PTR:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			itoa(buffer, arg);
 			strcat(dest, buffer);
 			break;
 		}
 		case MF_CHAR:
 		{
-			int buffer[0x2];
+			char32 buffer[0x2];
 			arrayset(buffer, arg, 0);
 			strcat(dest, buffer);
 			break;
@@ -849,49 +850,49 @@ void strncatf(int dest, int arg, int format, int n)
 	{
 		case MF_INT:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			itoa(buffer, arg);
 			strncat(dest, buffer, n);
 			break;
 		}
 		case MF_HEXLOWER:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			xtoa(buffer, arg, false);
 			strncat(dest, buffer, n);
 			break;
 		}
 		case MF_HEXUPPER:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			xtoa(buffer, arg, true);
 			strncat(dest, buffer, n);
 			break;
 		}
 		case MF_FLOAT:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			ftoa(buffer, arg, false);
 			strncat(dest, buffer, n);
 			break;
 		}
 		case MF_NUM:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			ntoa(buffer, arg);
 			strncat(dest, buffer, n);
 			break;
 		}
 		case MF_PTR:
 		{
-			int buffer[0x20];
+			char32 buffer[0x20];
 			itoa(buffer, arg);
 			strncat(dest, buffer, n);
 			break;
 		}
 		case MF_CHAR:
 		{
-			int buffer[0x2];
+			char32 buffer[0x2];
 			arrayset(buffer, arg, 0);
 			strncat(dest, buffer, n);
 			break;
@@ -912,7 +913,7 @@ void strncatf(int dest, int arg, int format, int n)
 //String Print Format
 //Prints string 'formatstr' into 'ret' according to the arguments inputted (see C function for reference)
 //Maximum 16 arguments
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+int sprintf(int ret, char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 								  int a8,int a9,int aa,int ab,int ac,int ad,int ae,int af)
 {
 	int pos = 0;
@@ -922,10 +923,10 @@ int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int 
 
 	for(int i = 0; formatstr[i] != 0; ++i)
 	{
-		int chr = formatstr[i];
-		if(chr == '\') //Control code
+		char32 chr = formatstr[i];
+		if(chr == '\\') //Control code
 		{
-			int nextchr = formatstr[i + 1];
+			char32 nextchr = formatstr[i + 1];
 			if(nextchr == 'n')
 			{
 				ret[pos] = MSGC_LINEFEED;
@@ -936,7 +937,7 @@ int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int 
 		}
 		else if(chr == '%') //Format argument
 		{
-			int nextchr = formatstr[i + 1];
+			char32 nextchr = formatstr[i + 1];
 			if(sprintf_isMFCode(nextchr))
 			{
 				strcatf(ret, a[currentarg], sprintf_MFCodeToInt(nextchr));
@@ -956,16 +957,16 @@ int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int 
 
 //Print Format
 //Uses a buffer to print the results of sprintf(formatstr,...) straight to allegro.log
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 						  int a8,int a9,int aa,int ab,int ac,int ad,int ae,int af)
 {
-	int buffer[0x200]; //Max TraceS length is 512
+	char32 buffer[0x200]; //Max TraceS length is 512
 	sprintf(buffer,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,af);
 	TraceS(buffer);
 }
 
 //Used by sprintf
-bool sprintf_isMFCode(int chr)
+bool sprintf_isMFCode(char32 chr)
 {
 	switch (chr)
 	{
@@ -981,7 +982,7 @@ bool sprintf_isMFCode(int chr)
 		default: return false;
 	}
 }
-int sprintf_MFCodeToInt(int chr)
+int sprintf_MFCodeToInt(char32 chr)
 {
 	switch(chr)
 	{
@@ -1001,111 +1002,111 @@ int sprintf_MFCodeToInt(int chr)
 
 
 //Function overloads
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 								   int a8,int a9,int aa,int ab,int ac,int ad,int ae){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 								   int a8,int a9,int aa,int ab,int ac,int ad){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 								   int a8,int a9,int aa,int ab){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 								   int a8,int a9,int aa){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 								   int a8,int a9){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,0,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 								   int a8){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,0,0,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,a7,0,0,0,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,a6,0,0,0,0,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5){
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,a5,0,0,0,0,0,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4){
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3,int a4){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,a4,0,0,0,0,0,0,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3){
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2,int a3){
 	return sprintf(ret,formatstr,a0,a1,a2,a3,0,0,0,0,0,0,0,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1,int a2){
+int sprintf(int ret,char32 formatstr,int a0,int a1,int a2){
 	return sprintf(ret,formatstr,a0,a1,a2,0,0,0,0,0,0,0,0,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0,int a1){
+int sprintf(int ret,char32 formatstr,int a0,int a1){
 	return sprintf(ret,formatstr,a0,a1,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr,int a0){
+int sprintf(int ret,char32 formatstr,int a0){
 	return sprintf(ret,formatstr,a0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 }
-int sprintf(int ret,int formatstr){
+int sprintf(int ret,char32 formatstr){
 	return sprintf(ret,formatstr,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 }
 
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 						  int a8,int a9,int aa,int ab,int ac,int ad,int ae){
 	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 						  int a8,int a9,int aa,int ab,int ac,int ad){
 	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 						  int a8,int a9,int aa,int ab,int ac){
 	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,0,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 						  int a8,int a9,int aa,int ab){
 	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,0,0,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 						  int a8,int a9,int aa){
 	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,0,0,0,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 						  int a8,int a9){
 	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,0,0,0,0,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 						  int a8){
 	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,a8,0,0,0,0,0,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7){
 	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,a7,0,0,0,0,0,0,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6){
 	printf(formatstr,a0,a1,a2,a3,a4,a5,a6,0,0,0,0,0,0,0,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5){
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4,int a5){
 	printf(formatstr,a0,a1,a2,a3,a4,a5,0,0,0,0,0,0,0,0,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3,int a4){
+void printf(char32 formatstr,int a0,int a1,int a2,int a3,int a4){
 	printf(formatstr,a0,a1,a2,a3,a4,0,0,0,0,0,0,0,0,0,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2,int a3){
+void printf(char32 formatstr,int a0,int a1,int a2,int a3){
 	printf(formatstr,a0,a1,a2,a3,0,0,0,0,0,0,0,0,0,0,0,0);
 }
-void printf(int formatstr,int a0,int a1,int a2){
+void printf(char32 formatstr,int a0,int a1,int a2){
 	printf(formatstr,a0,a1,a2,0,0,0,0,0,0,0,0,0,0,0,0,0);
 }
-void printf(int formatstr,int a0,int a1){
+void printf(char32 formatstr,int a0,int a1){
 	printf(formatstr,a0,a1,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 }
-void printf(int formatstr,int a0){
+void printf(char32 formatstr,int a0){
 	printf(formatstr,a0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 }
-void printf(int formatstr){
+void printf(char32 formatstr){
 	printf(formatstr,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 }
 
@@ -1170,49 +1171,49 @@ void arrayset(int a,int a0){
 }
 
 
-int ReturnStringCharPos(int str, int chr)
+int ReturnStringCharPos(char32 ptr, char32 chr)
 {
-	int sz = strlen(str-1);
-	for ( int q = 0; str[q]!=0; ++q ) {
-		if ( str[q] == chr ) return q;
+	int sz = strlen(ptr-1);
+	for ( int q = 0; ptr[q]!=0; ++q ) {
+		if ( ptr[q] == chr ) return q;
 	}
 	return -1;
 }
 
-int ReturnStringCharPos(int str, int pos, int chr)
+int ReturnStringCharPos(char32 ptr, int pos, char32 chr)
 {
-	for ( int q = pos; str[q]!=0; ++q ) {
-		if ( str[q] == chr ) return q;
+	for ( int q = pos; ptr[q]!=0; ++q ) {
+		if ( ptr[q] == chr ) return q;
 	}
 	return -1;
 }
 
-int ReturnStringCharPosRev(int str, int chr)
+int ReturnStringCharPosRev(char32 ptr, char32 chr)
 {
-	for ( int q = strlen(str-1); q >= 0; --q ) {
-		int a = str[q];
+	for ( int q = strlen(ptr-1); q >= 0; --q ) {
+		int a = ptr[q];
 		if ( a == chr ) return q;
 	}
 	return -1;
 }
 
-int ReturnStringCharPosRev(int str, int pos, int chr)
+int ReturnStringCharPosRev(char32 ptr, int pos, char32 chr)
 {
 	for ( int q = pos; q >= 0; --q ) {
-		int a = str[q];
+		int a = ptr[q];
 		if ( a == chr ) return q;
 	}
 	return -1;
 }
 
-int IsChar(int chr) { return chr; }
-bool IsChar(int chr, int comp) { return (chr == comp); }
+char32 IsChar(char32 chr) { return chr; }
+bool IsChar(char32 chr, char32 comp) { return (chr == comp); }
 
 
 //old error logging function used by Arkanoid.qst and Atari.qst -Z
-void TraceError(int s, float v)
+void TraceError(char32 s, float v)
 {
-	int buf[12];
+	char32 buf[12];
 	ftoa(buf,v);
 	TraceS(s); TraceS(": "); TraceS(buf); TraceNL();
 }
@@ -1221,9 +1222,9 @@ void TraceError(int s, float v)
 //in their namespace aren't mapped properly, it seems), I'm moving these from log.print to here.
 // -ZoriaRPG, 29th November, 2018
 
-void LogPrint(int s, int v) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void LogPrint(char32 s, int v) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
-	int main_buf[2048];
+	char32 main_buf[2048];
 	int buffer_pos; int string_pos; int q;
 	for ( ; s[string_pos] != '%'; ++string_pos )
 	{
@@ -1265,7 +1266,7 @@ void LogPrint(int s, int v) //what if we use an array literal for the inputs?. N
 		{
 			//++buffer_pos; //skip over the token
 			//main_buf[buffer_pos+q+1] = ' '; //add a trailing space
-			int i_val[12];
+			char32 i_val[12];
 			ftoa(i_val,v);
 			for ( q = 0; i_val[q]; ++q )
 			{
@@ -1284,7 +1285,7 @@ void LogPrint(int s, int v) //what if we use an array literal for the inputs?. N
 		{
 			//++buffer_pos; 
 			//main_buf[buffer_pos+q+1] = ' '; //add a trailing space
-			int f_val[12];
+			char32 f_val[12];
 			itoa(f_val,v);
 			for ( q = 0; f_val[q] != 0; ++q )
 			{
@@ -1311,9 +1312,9 @@ void LogPrint(int s, int v) //what if we use an array literal for the inputs?. N
         TraceS(main_buf); //TraceNL();
 }
     
-void LogPrint(int s, int v1, int v2) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void LogPrint(char32 s, int v1, int v2) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
-	int main_buf[2048];
+	char32 main_buf[2048];
 	int buffer_pos; int string_pos; int q;
 	for ( ; s[string_pos] != '%'; ++string_pos )
 	{
@@ -1335,7 +1336,7 @@ void LogPrint(int s, int v1, int v2) //what if we use an array literal for the i
 			case 'S':
 			case 's':
 			{
-				int ptr = values[val_index];
+				char32 ptr = values[val_index];
 				//for ( q = 0; (values[val_index[q]]); ++q ) //until we reach NULL
 				for ( q = 0; ptr[q]; ++q ) //until we reach NULL
 				{
@@ -1353,7 +1354,7 @@ void LogPrint(int s, int v1, int v2) //what if we use an array literal for the i
 			case 'F':
 			case 'f':
 			{
-				int i_val[12];
+				char32 i_val[12];
 				ftoa(i_val,values[val_index]);
 				for ( q = 0; (i_val[q]); ++q ) //until we reach NULL
 				{
@@ -1368,7 +1369,7 @@ void LogPrint(int s, int v1, int v2) //what if we use an array literal for the i
 			case 'D':
 			case 'd':
 			{
-				int f_val[12];
+				char32 f_val[12];
 				itoa(f_val,values[val_index]);
 				for ( q = 0; (f_val[q]); ++q )
 				{
@@ -1387,7 +1388,7 @@ void LogPrint(int s, int v1, int v2) //what if we use an array literal for the i
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1403,9 +1404,9 @@ void LogPrint(int s, int v1, int v2) //what if we use an array literal for the i
         TraceS(main_buf); //TraceNL();
 }
         
-void LogPrint(int s, int v1, int v2, int v3) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void LogPrint(char32 s, int v1, int v2, int v3) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
-	int main_buf[2048];
+	char32 main_buf[2048];
 	int buffer_pos; int string_pos; int q;
 	for ( ; s[string_pos] != '%'; ++string_pos )
 	{
@@ -1425,7 +1426,7 @@ void LogPrint(int s, int v1, int v2, int v3) //what if we use an array literal f
 			case 'S':
 			case 's':
 			{
-				int ptr = values[val_index];
+				char32 ptr = values[val_index];
 				//for ( q = 0; (values[val_index[q]]); ++q ) //until we reach NULL
 				for ( q = 0; ptr[q]; ++q ) //until we reach NULL
 				{
@@ -1443,7 +1444,7 @@ void LogPrint(int s, int v1, int v2, int v3) //what if we use an array literal f
 			case 'F':
 			case 'f':
 			{
-				int i_val[12];
+				char32 i_val[12];
 				ftoa(i_val,values[val_index]);
 				for ( q = 0; (i_val[q]); ++q ) //until we reach NULL
 				{
@@ -1458,7 +1459,7 @@ void LogPrint(int s, int v1, int v2, int v3) //what if we use an array literal f
 			case 'D':
 			case 'd':
 			{
-				int f_val[12];
+				char32 f_val[12];
 				itoa(f_val,values[val_index]);
 				for ( q = 0; (f_val[q]); ++q )
 				{
@@ -1477,7 +1478,7 @@ void LogPrint(int s, int v1, int v2, int v3) //what if we use an array literal f
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1489,9 +1490,9 @@ void LogPrint(int s, int v1, int v2, int v3) //what if we use an array literal f
         TraceS(main_buf); //TraceNL();
 }
             
-void LogPrint(int s, int v1, int v2, int v3, int v4) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void LogPrint(char32 s, int v1, int v2, int v3, int v4) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
-	int main_buf[2048];
+	char32 main_buf[2048];
 	int buffer_pos; int string_pos; int q;
 	for ( ; s[string_pos] != '%'; ++string_pos )
 	{
@@ -1511,7 +1512,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4) //what if we use an array l
 			case 'S':
 			case 's':
 			{
-				int ptr = values[val_index];
+				char32 ptr = values[val_index];
 				//for ( q = 0; (values[val_index[q]]); ++q ) //until we reach NULL
 				for ( q = 0; ptr[q]; ++q ) //until we reach NULL
 				{
@@ -1529,7 +1530,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4) //what if we use an array l
 			case 'F':
 			case 'f':
 			{
-				int i_val[12];
+				char32 i_val[12];
 				ftoa(i_val,values[val_index]);
 				for ( q = 0; (i_val[q]); ++q ) //until we reach NULL
 				{
@@ -1544,7 +1545,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4) //what if we use an array l
 			case 'D':
 			case 'd':
 			{
-				int f_val[12];
+				char32 f_val[12];
 				itoa(f_val,values[val_index]);
 				for ( q = 0; (f_val[q]); ++q )
 				{
@@ -1563,7 +1564,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4) //what if we use an array l
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1575,9 +1576,9 @@ void LogPrint(int s, int v1, int v2, int v3, int v4) //what if we use an array l
         TraceS(main_buf); //TraceNL();
 }
                 
-void LogPrint(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void LogPrint(char32 s, int v1, int v2, int v3, int v4, int v5) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
-	int main_buf[2048];
+	char32 main_buf[2048];
 	int buffer_pos; int string_pos; int q;
 	for ( ; s[string_pos] != '%'; ++string_pos )
 	{
@@ -1597,7 +1598,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an
 			case 'S':
 			case 's':
 			{
-				int ptr = values[val_index];
+				char32 ptr = values[val_index];
 				//for ( q = 0; (values[val_index[q]]); ++q ) //until we reach NULL
 				for ( q = 0; ptr[q]; ++q ) //until we reach NULL
 				{
@@ -1615,7 +1616,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an
 			case 'F':
 			case 'f':
 			{
-				int i_val[12];
+				char32 i_val[12];
 				ftoa(i_val,values[val_index]);
 				for ( q = 0; (i_val[q]); ++q ) //until we reach NULL
 				{
@@ -1630,7 +1631,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an
 			case 'D':
 			case 'd':
 			{
-				int f_val[12];
+				char32 f_val[12];
 				itoa(f_val,values[val_index]);
 				for ( q = 0; (f_val[q]); ++q )
 				{
@@ -1649,7 +1650,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1661,9 +1662,9 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an
         TraceS(main_buf); //TraceNL();
 }
                     
-void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void LogPrint(char32 s, int v1, int v2, int v3, int v4, int v5, int v6) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
-	int main_buf[2048];
+	char32 main_buf[2048];
 	int buffer_pos; int string_pos; int q;
 	for ( ; s[string_pos] != '%'; ++string_pos )
 	{
@@ -1683,7 +1684,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if w
 			case 'S':
 			case 's':
 			{
-				int ptr = values[val_index];
+				char32 ptr = values[val_index];
 				//for ( q = 0; (values[val_index[q]]); ++q ) //until we reach NULL
 				for ( q = 0; ptr[q]; ++q ) //until we reach NULL
 				{
@@ -1701,7 +1702,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if w
 			case 'F':
 			case 'f':
 			{
-				int i_val[12];
+				char32 i_val[12];
 				ftoa(i_val,values[val_index]);
 				for ( q = 0; (i_val[q]); ++q ) //until we reach NULL
 				{
@@ -1716,7 +1717,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if w
 			case 'D':
 			case 'd':
 			{
-				int f_val[12];
+				char32 f_val[12];
 				itoa(f_val,values[val_index]);
 				for ( q = 0; (f_val[q]); ++q )
 				{
@@ -1735,7 +1736,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if w
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1747,9 +1748,9 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if w
         TraceS(main_buf); //TraceNL();
 }
                         
-void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void LogPrint(char32 s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
-	int main_buf[2048];
+	char32 main_buf[2048];
 	int buffer_pos; int string_pos; int q;
 	for ( ; s[string_pos] != '%'; ++string_pos )
 	{
@@ -1769,7 +1770,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //w
 			case 'S':
 			case 's':
 			{
-				int ptr = values[val_index];
+				char32 ptr = values[val_index];
 				//for ( q = 0; (values[val_index[q]]); ++q ) //until we reach NULL
 				for ( q = 0; ptr[q]; ++q ) //until we reach NULL
 				{
@@ -1787,7 +1788,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //w
 			case 'F':
 			case 'f':
 			{
-				int i_val[12];
+				char32 i_val[12];
 				ftoa(i_val,values[val_index]);
 				for ( q = 0; (i_val[q]); ++q ) //until we reach NULL
 				{
@@ -1802,7 +1803,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //w
 			case 'D':
 			case 'd':
 			{
-				int f_val[12];
+				char32 f_val[12];
 				itoa(f_val,values[val_index]);
 				for ( q = 0; (f_val[q]); ++q )
 				{
@@ -1821,7 +1822,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //w
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1833,9 +1834,9 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //w
         TraceS(main_buf); //TraceNL();
 }
                             
-void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void LogPrint(char32 s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
-	int main_buf[2048];
+	char32 main_buf[2048];
 	int buffer_pos; int string_pos; int q;
 	for ( ; s[string_pos] != '%'; ++string_pos )
 	{
@@ -1855,7 +1856,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int
 			case 'S':
 			case 's':
 			{
-				int ptr = values[val_index];
+				char32 ptr = values[val_index];
 				//for ( q = 0; (values[val_index[q]]); ++q ) //until we reach NULL
 				for ( q = 0; ptr[q]; ++q ) //until we reach NULL
 				{
@@ -1873,7 +1874,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int
 			case 'F':
 			case 'f':
 			{
-				int i_val[12];
+				char32 i_val[12];
 				ftoa(i_val,values[val_index]);
 				for ( q = 0; (i_val[q]); ++q ) //until we reach NULL
 				{
@@ -1888,7 +1889,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int
 			case 'D':
 			case 'd':
 			{
-				int f_val[12];
+				char32 f_val[12];
 				itoa(f_val,values[val_index]);
 				for ( q = 0; (f_val[q]); ++q )
 				{
@@ -1907,7 +1908,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int
 		//we copied the insertion, so, resume the rest o the string:
 		for ( ; s[string_pos] != '%'; ++string_pos ) //Until we reach NULL
 		{
-			if (!(s[string_pos])) break;
+			unless ((s[string_pos])) break;
 			//copy the rest of the string:
 			main_buf[buffer_pos] = s[string_pos];
 			++buffer_pos;
@@ -1932,7 +1933,7 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int
 //	`int args` is an array literal with the following format required:
 //	{ LAYER, X, Y, FONT, TEXT_COLOUR, TEXT_BG_COLOUR, FORMAT, OPCITY }
 
-void ScreenPrint(int s, int v, int args) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void ScreenPrint(char32 s, int v, int args) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
 	int args_size = SizeOfArray(args);
 	if ( args_size < 8 )
@@ -1941,7 +1942,7 @@ void ScreenPrint(int s, int v, int args) //what if we use an array literal for t
 		LogPrint("The required size of the array is at least [%d]\n", 8); //WE COULD SUPPORT VARIABLE ARGS
 		return;
 	}
-	int main_buf[2048];
+	char32 main_buf[2048];
 	int buffer_pos; int string_pos; int q;
 	for ( ; s[string_pos] != '%'; ++string_pos )
 	{
@@ -1983,7 +1984,7 @@ void ScreenPrint(int s, int v, int args) //what if we use an array literal for t
 		{
 			//++buffer_pos; //skip over the token
 			//main_buf[buffer_pos+q+1] = ' '; //add a trailing space
-			int i_val[12];
+			char32 i_val[12];
 			ftoa(i_val,v);
 			for ( q = 0; i_val[q]; ++q )
 			{
@@ -2002,7 +2003,7 @@ void ScreenPrint(int s, int v, int args) //what if we use an array literal for t
 		{
 			//++buffer_pos; 
 			//main_buf[buffer_pos+q+1] = ' '; //add a trailing space
-			int f_val[12];
+			char32 f_val[12];
 			itoa(f_val,v);
 			for ( q = 0; f_val[q] != 0; ++q )
 			{
@@ -2036,24 +2037,24 @@ namespace std
 	{
 
 		//Now an internal function. -Z ( 15th May, 2019 )
-		int strcmp(int str1, int str2)
+		int strcmp(char32 ptr1, char32 ptr2)
 		{
-			return strcmp(str1, 0, str2, 0);
+			return strcmp(ptr1, 0, ptr2, 0);
 		}
 
 		//Now an internal function. -Z ( 15th May, 2019 )
-		int strncmp(int str1, int str2, int n)
+		int strncmp(char32 ptr1, char32 ptr2, int n)
 		{
-			return strncmp(str1, 0, str2, 0 , n);
+			return strncmp(ptr1, 0, ptr2, 0 , n);
 		}
 
 		//Internal as of 2.55 Alpha 23, 15th may, 2019 
 		//String Length
 		//Returns the length of string 'string'
-		int strlen(int string)
+		int strlen(char32 ptr)
 		{
 			int l;
-			for(l = 0; string[l] != 0; ++l);
+			for(l = 0; ptr[l] != 0; ++l);
 		return l;
 		}
 
@@ -2061,37 +2062,37 @@ namespace std
 		{
 			strcpy(dest, 0, src, 0);
 		}
-		int atoi(int string)
+		int atoi(char32 ptr)
 		{
-			return atoi(string, 0);
+			return atoi(ptr, 0);
 		}
 		void strcat(int dest, int src)
 		{
 			strcat(dest, src, 0);
 		}
-		int strchr(int string, int chr)
+		int strchr(char32 ptr, char32 chr)
 		{
-			return strchr(string, 0, chr);
+			return strchr(ptr, 0, chr);
 		}
-		int strrchr(int string, int chr)
+		int strrchr(char32 ptr, char32 chr)
 		{
-			return strrchr(string, 0, chr);
+			return strrchr(ptr, 0, chr);
 		}
-		int strspn(int str, int keys)
+		int strspn(char32 ptr, int keys)
 		{
-			return strspn(str, 0, keys);
+			return strspn(ptr, 0, keys);
 		}
-		int strcspn(int str, int keys)
+		int strcspn(char32 ptr, int keys)
 		{
-			return strcspn(str, 0, keys);
+			return strcspn(ptr, 0, keys);
 		}
-		int strstr(int string, int sub)
+		int strstr(char32 ptr, int sub)
 		{
-			return strstr(string, 0, sub);
+			return strstr(ptr, 0, sub);
 		}
-		int ilen(int string)
+		int ilen(char32 ptr)
 		{
-			return ilen(string, 0);
+			return ilen(ptr, 0);
 		}
 		
 	}
