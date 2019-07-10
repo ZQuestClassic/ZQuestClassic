@@ -2620,14 +2620,14 @@ void draw_lens_under(BITMAP *dest, bool layer)
                 case mfPUSHDINS:
                 case mfPUSHLINS:
                 case mfPUSHRINS:
-                    if(!hints && ((!(get_debug() && key[KEY_N]) && (lensclk&16))
-                                  || ((get_debug() && key[KEY_N]) && (frame&16))))
+                    if(!hints && ((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&16))
+                                  || ((get_debug() && zc_getkey(KEY_N)) && (frame&16))))
                     {
                         if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->undercombo,tmpscr->undercset);
                     }
                     
-                    if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                            || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                    if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                            || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                     {
                         if(hints)
                         {
@@ -2665,8 +2665,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2687,8 +2687,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem < 0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2710,8 +2710,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2733,8 +2733,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2758,8 +2758,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         tempweapon=wFire;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2787,8 +2787,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2810,8 +2810,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2833,8 +2833,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2856,8 +2856,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2879,8 +2879,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         tempweapon = wLitBomb;
                         
                         //if (tempitem<0) break;
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempweaponx=x;
                             tempweapony=y;
@@ -2902,8 +2902,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         //if (tempitem<0) break;
                         tempweapon = wLitSBomb;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempweaponx=x;
                             tempweapony=y;
@@ -2932,8 +2932,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2955,8 +2955,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -2978,8 +2978,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3003,8 +3003,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         tempweapon=itemsbuf[tempitem].wpn3;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3040,8 +3040,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         tempweapon=ewMagic;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3090,8 +3090,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         tempweapon=ewFireball;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3132,8 +3132,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3155,8 +3155,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3178,8 +3178,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3201,8 +3201,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3224,8 +3224,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3247,8 +3247,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3270,8 +3270,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3293,8 +3293,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3316,8 +3316,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3339,8 +3339,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3362,8 +3362,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                         
                         if(tempitem<0) break;
                         
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
-                                || ((get_debug() && key[KEY_N]) && (frame&blink_rate)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
+                                || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             tempitemx=x;
                             tempitemy=y;
@@ -3419,7 +3419,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 				special:
                     if(layer && ((checkflag!=mfRAFT && checkflag!=mfRAFT_BRANCH&& checkflag!=mfRAFT_BOUNCE) ||(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG4)))
                     {
-                        if((!(get_debug() && key[KEY_N]) && (lensclk&1)) || ((get_debug() && key[KEY_N]) && (frame&1)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&1)) || ((get_debug() && zc_getkey(KEY_N)) && (frame&1)))
                         {
                             rectfill(dest,x,y,x+15,y+15,WHITE);
                         }
@@ -3477,8 +3477,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     int tempitemx=-16;
                     int tempitemy=-16;
                     
-                    if((!(get_debug() && key[KEY_N]) && (lensclk&(blink_rate/4)))
-                            || ((get_debug() && key[KEY_N]) && (frame&(blink_rate/4))))
+                    if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
+                            || ((get_debug() && zc_getkey(KEY_N)) && (frame&(blink_rate/4))))
                     {
                         tempitemx=tmpscr->stairx;
                         tempitemy=tmpscr->stairy+playing_field_offset;
@@ -3730,7 +3730,7 @@ void updatescr(bool allowwavy)
     BITMAP *target = NULL;
     
     bool dontusetb = triplebuffer_not_available ||
-                     !(Throttlefps ^ (true && key[KEY_TILDE]));
+                     !(Throttlefps ^ (true && zc_getkey(KEY_TILDE)));
                      
     if(dontusetb)
         target=screen;
@@ -3855,7 +3855,7 @@ int onNonGUISnapshot()
 {
     PALETTE temppal;
     get_palette(temppal);
-    bool realpal=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+    bool realpal=(zc_getkey(KEY_ZC_LCONTROL, true) || zc_getkey(KEY_ZC_RCONTROL, true));
     
     char buf[200];
     int num=0;
@@ -3887,7 +3887,7 @@ int onNonGUISnapshot()
 
 int onSnapshot()
 {
-    if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
+    if(zc_getkey(KEY_LSHIFT, true)||zc_getkey(KEY_RSHIFT, true))
     {
         onGUISnapshot();
     }
@@ -4201,11 +4201,9 @@ void f_Quit(int type)
     
     eat_buttons();
     
-    if(key[KEY_ESC])
-        key[KEY_ESC]=0;
+    zc_readkey(KEY_ESC);
         
-    if(key[KEY_ENTER])
-        key[KEY_ENTER]=0;
+    zc_readkey(KEY_ENTER);
 }
 
 //----------------------------------------------------------------
@@ -4354,7 +4352,7 @@ int onGoTo();
 int onGoToComplete();
 
 // Used in syskeys() to prevent keys from being read as both game and system input
-static int storedInput[14];
+/*static int storedInput[14];
 static void backupAndClearInput()
 {
     storedInput[0]=key[DUkey];
@@ -4404,7 +4402,7 @@ static void restoreInput()
     key[Exkey3]=storedInput[12];
     key[Exkey4]=storedInput[13];
 }
-
+*/
 void syskeys()
 {
 	  //Saffith's method of separating system and game key bindings. Can't do this!!
@@ -4428,9 +4426,9 @@ void syskeys()
     
     mouse_down=gui_mouse_b();
     
-    if(ReadKey(KEY_F1))
+    if(zc_readkey(KEY_F1))
     {
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+        if(zc_getkey(KEY_ZC_LCONTROL) || zc_getkey(KEY_ZC_RCONTROL))
         {
             halt=!halt;
             //zinit.subscreen=(zinit.subscreen+1)%ssdtMAX;
@@ -4442,36 +4440,36 @@ void syskeys()
         }
     }
     
-    //  if(ReadKey(KEY_F1))    Vsync=!Vsync;
+    //  if(zc_readkey(KEY_F1))    Vsync=!Vsync;
     /*
-      if(ReadKey(KEY_F1))    set_bit(QHeader.rules4,qr4_NEWENEMYTILES,
+      if(zc_readkey(KEY_F1))    set_bit(QHeader.rules4,qr4_NEWENEMYTILES,
       1-((get_bit(QHeader.rules4,qr4_NEWENEMYTILES))));
       */
     
-    if(ReadKey(KEY_OPENBRACE))    if(frame_rest_suggest > 0) frame_rest_suggest--;
+    if(zc_readkey(KEY_OPENBRACE))    if(frame_rest_suggest > 0) frame_rest_suggest--;
     
-    if(ReadKey(KEY_CLOSEBRACE))    if(frame_rest_suggest <= 2) frame_rest_suggest++;
+    if(zc_readkey(KEY_CLOSEBRACE))    if(frame_rest_suggest <= 2) frame_rest_suggest++;
     
-    if(ReadKey(KEY_F2))    ShowFPS=!ShowFPS;
+    if(zc_readkey(KEY_F2))    ShowFPS=!ShowFPS;
     
-    if(ReadKey(KEY_F3) && Playing)    Paused=!Paused;
+    if(zc_readkey(KEY_F3) && Playing)    Paused=!Paused;
     
-    if(ReadKey(KEY_F4) && Playing)
+    if(zc_readkey(KEY_F4) && Playing)
     {
         Paused=true;
         Advance=true;
     }
     
-    if(ReadKey(KEY_F6))    if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+    if(zc_readkey(KEY_F6))    if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
     
 #ifndef ALLEGRO_MACOSX
-    if(ReadKey(KEY_F9))    f_Quit(qRESET);
+    if(zc_readkey(KEY_F9))    f_Quit(qRESET);
     
-    if(ReadKey(KEY_F10))   f_Quit(qEXIT);
+    if(zc_readkey(KEY_F10))   f_Quit(qEXIT);
 #else
-    if(ReadKey(KEY_F7))    f_Quit(qRESET);
+    if(zc_readkey(KEY_F7))    f_Quit(qRESET);
     
-    if(ReadKey(KEY_F8))   f_Quit(qEXIT);
+    if(zc_readkey(KEY_F8))   f_Quit(qEXIT);
 #endif
     if(rF5()&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))    onSaveMapPic();
     
@@ -4480,25 +4478,25 @@ void syskeys()
         onSnapshot();
     }
     
-    if(debug_enabled && ReadKey(KEY_TAB))
+    if(debug_enabled && zc_readkey(KEY_TAB))
         set_debug(!get_debug());
         
     if(get_debug() || cheat>=1)
     {
 	if( CheatModifierKeys() )
 	{
-			if(ReadKey(KEY_ASTERISK) || ReadKey(KEY_H))   game->set_life(game->get_maxlife());
+			if(zc_readkey(KEY_ASTERISK) || zc_readkey(KEY_H))   game->set_life(game->get_maxlife());
 			
-			if(ReadKey(KEY_SLASH_PAD) || ReadKey(KEY_M))  game->set_magic(game->get_maxmagic());
+			if(zc_readkey(KEY_SLASH_PAD) || zc_readkey(KEY_M))  game->set_magic(game->get_maxmagic());
 			
-			if(ReadKey(KEY_R))          game->set_drupy(999);
+			if(zc_readkey(KEY_R))          game->set_drupy(999);
 			
-			if(ReadKey(KEY_B))
+			if(zc_readkey(KEY_B))
 			{
 			    onCheatBombs();
 			}
 			
-			if(ReadKey(KEY_A))
+			if(zc_readkey(KEY_A))
 			{
 			    onCheatArrows();
 			}
@@ -4532,7 +4530,7 @@ void syskeys()
 			    onGoFast();
 			}
 			
-			if(ReadKey(KEY_F))
+			if(zc_readkey(KEY_F))
 			{
 			    if(Link.getAction()==freeze)
 			    {
@@ -4544,56 +4542,56 @@ void syskeys()
 			    }
 			}
 			
-			if(ReadKey(KEY_G))   onGoToComplete();
+			if(zc_readkey(KEY_G))   onGoToComplete();
 			
-			if(ReadKey(KEY_0))   onShowLayer0();
+			if(zc_readkey(KEY_0))   onShowLayer0();
 			
-			if(ReadKey(KEY_1))   onShowLayer1();
+			if(zc_readkey(KEY_1))   onShowLayer1();
 			
-			if(ReadKey(KEY_2))   onShowLayer2();
+			if(zc_readkey(KEY_2))   onShowLayer2();
 			
-			if(ReadKey(KEY_3))   onShowLayer3();
+			if(zc_readkey(KEY_3))   onShowLayer3();
 			
-			if(ReadKey(KEY_4))   onShowLayer4();
+			if(zc_readkey(KEY_4))   onShowLayer4();
 			
-			if(ReadKey(KEY_5))   onShowLayer5();
+			if(zc_readkey(KEY_5))   onShowLayer5();
 			
-			if(ReadKey(KEY_6))   onShowLayer6();
+			if(zc_readkey(KEY_6))   onShowLayer6();
 			
-			//if(ReadKey(KEY_7))   onShowLayerO();
-			if(ReadKey(KEY_7))   onShowLayerF();
+			//if(zc_readkey(KEY_7))   onShowLayerO();
+			if(zc_readkey(KEY_7))   onShowLayerF();
 			
-			if(ReadKey(KEY_8))   onShowLayerS();
+			if(zc_readkey(KEY_8))   onShowLayerS();
 			
-			if(ReadKey(KEY_W))   onShowLayerW();
+			if(zc_readkey(KEY_W))   onShowLayerW();
 			
-			if(ReadKey(KEY_L))   onLightSwitch();
+			if(zc_readkey(KEY_L))   onLightSwitch();
 			
-			if(ReadKey(KEY_V))   onIgnoreSideview();
+			if(zc_readkey(KEY_V))   onIgnoreSideview();
 			
-			if(ReadKey(KEY_K))   onKillCheat();
-			if(ReadKey(KEY_O))   onShowLayerO();
-			if(ReadKey(KEY_P))   onShowLayerP();
-			if(ReadKey(KEY_C))   onShowHitboxes();
-			if(ReadKey(KEY_F))   onShowFFScripts();
+			if(zc_readkey(KEY_K))   onKillCheat();
+			if(zc_readkey(KEY_O))   onShowLayerO();
+			if(zc_readkey(KEY_P))   onShowLayerP();
+			if(zc_readkey(KEY_C))   onShowHitboxes();
+			if(zc_readkey(KEY_F))   onShowFFScripts();
 	}
     }
     
     if(volkeys)
     {
-        if(ReadKey(KEY_PGUP)) master_volume(-1,midi_volume+8);
+        if(zc_readkey(KEY_PGUP)) master_volume(-1,midi_volume+8);
         
-        if(ReadKey(KEY_PGDN)) master_volume(-1,midi_volume==255?248:midi_volume-8);
+        if(zc_readkey(KEY_PGDN)) master_volume(-1,midi_volume==255?248:midi_volume-8);
         
-        if(ReadKey(KEY_HOME)) master_volume(digi_volume+8,-1);
+        if(zc_readkey(KEY_HOME)) master_volume(digi_volume+8,-1);
         
-        if(ReadKey(KEY_END))  master_volume(digi_volume==255?248:digi_volume-8,-1);
+        if(zc_readkey(KEY_END))  master_volume(digi_volume==255?248:digi_volume-8,-1);
     }
     
     if(!get_debug() || !SystemKeys)
         goto bottom;
         
-    if(ReadKey(KEY_D))
+    if(zc_readkey(KEY_D))
     {
         details = !details;
         rectfill(screen,0,0,319,7,BLACK);
@@ -4602,20 +4600,20 @@ void syskeys()
         rectfill(screen,32,232,287,239,BLACK);
     }
     
-    if(ReadKey(KEY_P))   Paused=!Paused;
+    if(zc_readkey(KEY_P))   Paused=!Paused;
     
-    //if(ReadKey(KEY_P))   centerLink();
-    if(ReadKey(KEY_A))
+    //if(zc_readkey(KEY_P))   centerLink();
+    if(zc_readkey(KEY_A))
     {
         Paused=true;
         Advance=true;
     }
     
-    if(ReadKey(KEY_G))   db=(db==999)?0:999;
+    if(zc_readkey(KEY_G))   db=(db==999)?0:999;
 #ifndef ALLEGRO_MACOSX
-    if(ReadKey(KEY_F8))  Showpal=!Showpal;
+    if(zc_readkey(KEY_F8))  Showpal=!Showpal;
     
-    if(ReadKey(KEY_F7))
+    if(zc_readkey(KEY_F7))
     {
         Matrix(ss_speed, ss_density, 0);
         game_pal();
@@ -4623,21 +4621,21 @@ void syskeys()
 #else
     // The reason these are different on Mac in the first place is that
     // the OS doesn't let us use F9 and F10...
-    if(ReadKey(KEY_F10))  Showpal=!Showpal;
+    if(zc_readkey(KEY_F10))  Showpal=!Showpal;
     
-    if(ReadKey(KEY_F9))
+    if(zc_readkey(KEY_F9))
     {
         Matrix(ss_speed, ss_density, 0);
         game_pal();
     }
 #endif
-    if(ReadKey(KEY_PLUS_PAD) || ReadKey(KEY_EQUALS))
+    if(zc_readkey(KEY_PLUS_PAD) || zc_readkey(KEY_EQUALS))
     {
         //change containers
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+        if(zc_getkey(KEY_ZC_LCONTROL) || zc_getkey(KEY_ZC_RCONTROL))
         {
             //magic containers
-            if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+            if(zc_getkey(KEY_LSHIFT) || zc_getkey(KEY_RSHIFT))
             {
                 game->set_maxmagic(zc_min(game->get_maxmagic()+MAGICPERBLOCK,MAGICPERBLOCK*8));
             }
@@ -4648,7 +4646,7 @@ void syskeys()
         }
         else
         {
-            if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+            if(zc_getkey(KEY_LSHIFT) || zc_getkey(KEY_RSHIFT))
             {
                 game->set_magic(zc_min(game->get_magic()+1,game->get_maxmagic()));
             }
@@ -4659,13 +4657,13 @@ void syskeys()
         }
     }
     
-    if(ReadKey(KEY_MINUS_PAD) || ReadKey(KEY_MINUS))
+    if(zc_readkey(KEY_MINUS_PAD) || zc_readkey(KEY_MINUS))
     {
         //change containers
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+        if(zc_getkey(KEY_ZC_LCONTROL) || zc_getkey(KEY_ZC_RCONTROL))
         {
             //magic containers
-            if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+            if(zc_getkey(KEY_LSHIFT) || zc_getkey(KEY_RSHIFT))
             {
                 game->set_maxmagic(zc_max(game->get_maxmagic()-MAGICPERBLOCK,0));
                 game->set_magic(zc_min(game->get_maxmagic(), game->get_magic()));
@@ -4679,7 +4677,7 @@ void syskeys()
         }
         else
         {
-            if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+            if(zc_getkey(KEY_LSHIFT) || zc_getkey(KEY_RSHIFT))
             {
                 game->set_magic(zc_max(game->get_magic()-1,0));
             }
@@ -4690,12 +4688,12 @@ void syskeys()
         }
     }
     
-    if(ReadKey(KEY_COMMA))  jukebox(currmidi-1);
+    if(zc_readkey(KEY_COMMA))  jukebox(currmidi-1);
     
-    if(ReadKey(KEY_STOP))   jukebox(currmidi+1);
+    if(zc_readkey(KEY_STOP))   jukebox(currmidi+1);
     
     /*
-      if(ReadKey(KEY_TILDE)) {
+      if(zc_readkey(KEY_TILDE)) {
       wavyout();
       zinit.subscreen=(zinit.subscreen+1)%3;
       wavyin();
@@ -4723,13 +4721,13 @@ bottom:
 void checkQuitKeys()
 {
 #ifndef ALLEGRO_MACOSX
-    if(ReadKey(KEY_F9))    f_Quit(qRESET);
+    if(zc_readkey(KEY_F9))    f_Quit(qRESET);
     
-    if(ReadKey(KEY_F10))   f_Quit(qEXIT);
+    if(zc_readkey(KEY_F10))   f_Quit(qEXIT);
 #else
-    if(ReadKey(KEY_F7))    f_Quit(qRESET);
+    if(zc_readkey(KEY_F7))    f_Quit(qRESET);
     
-    if(ReadKey(KEY_F8))   f_Quit(qEXIT);
+    if(zc_readkey(KEY_F8))   f_Quit(qEXIT);
 #endif
 }
 
@@ -5097,7 +5095,7 @@ int onContinue()
 
 int onEsc() // Unused?? -L
 {
-    return key[KEY_ESC]?D_CLOSE:D_O_K;
+    return zc_getkey(KEY_ESC, true)?D_CLOSE:D_O_K;
 }
 
 int onVsync()
@@ -6205,8 +6203,7 @@ int onGoToComplete()
     onGoTo();
     eat_buttons();
     
-    if(key[KEY_ESC])
-        key[KEY_ESC]=0;
+    zc_readkey(KEY_ESC);
         
     show_mouse(NULL);
     game_pal();
@@ -9073,7 +9070,7 @@ void System()
     }
     
     // drop the menu on startup if menu button pressed
-    if(joybtn(Mbtn)||key[KEY_ESC])
+    if(joybtn(Mbtn)||zc_getkey(KEY_ESC))
         simulate_keypress(KEY_G << 8);
         
     do
@@ -9900,7 +9897,27 @@ static bool rButton(bool(proc)(),bool &flag)
     return false;
 }
 
+static bool rButton(bool &btn, bool &flag)
+{
+    if(!btn)
+    {
+        flag=false;
+    }
+    else if(!flag)
+    {
+        flag=true;
+        return true;
+    }
+    
+    return false;
+}
+
 bool control_state[18]=
+{
+    false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
+};
+
+bool disable_control[18]=
 {
     false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 };
@@ -9908,6 +9925,16 @@ bool control_state[18]=
 bool drunk_toggle_state[11]=
 {
     false, false, false, false, false, false, false, false, false, false, false
+};
+
+bool disabledKeys[127]=
+{
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
+	false,false,false,false,false,false,false
 };
 
 bool button_press[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
@@ -9921,20 +9948,20 @@ bool button_hold[18] = {false, false, false, false, false, false, false, false, 
 
 void load_control_state()
 {
-    control_state[0]=key[DUkey]||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
-    control_state[1]=key[DDkey]||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
-    control_state[2]=key[DLkey]||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
-    control_state[3]=key[DRkey]||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
-    control_state[4]=key[Akey]||joybtn(Abtn);
-    control_state[5]=key[Bkey]||joybtn(Bbtn);
-    control_state[6]=key[Skey]||joybtn(Sbtn);
-    control_state[7]=key[Lkey]||joybtn(Lbtn);
-    control_state[8]=key[Rkey]||joybtn(Rbtn);
-    control_state[9]=key[Pkey]||joybtn(Pbtn);
-    control_state[10]=key[Exkey1]||joybtn(Exbtn1);
-    control_state[11]=key[Exkey2]||joybtn(Exbtn2);
-    control_state[12]=key[Exkey3]||joybtn(Exbtn3);
-    control_state[13]=key[Exkey4]||joybtn(Exbtn4);
+    control_state[0]=zc_getkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
+    control_state[1]=zc_getkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
+    control_state[2]=zc_getkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
+    control_state[3]=zc_getkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
+    control_state[4]=zc_getkey(Akey, true)||joybtn(Abtn);
+    control_state[5]=zc_getkey(Bkey, true)||joybtn(Bbtn);
+    control_state[6]=zc_getkey(Skey, true)||joybtn(Sbtn);
+    control_state[7]=zc_getkey(Lkey, true)||joybtn(Lbtn);
+    control_state[8]=zc_getkey(Rkey, true)||joybtn(Rbtn);
+    control_state[9]=zc_getkey(Pkey, true)||joybtn(Pbtn);
+    control_state[10]=zc_getkey(Exkey1, true)||joybtn(Exbtn1);
+    control_state[11]=zc_getkey(Exkey2, true)||joybtn(Exbtn2);
+    control_state[12]=zc_getkey(Exkey3, true)||joybtn(Exbtn3);
+    control_state[13]=zc_getkey(Exkey4, true)||joybtn(Exbtn4);
     
     if(num_joysticks != 0)
     {
@@ -9944,243 +9971,305 @@ void load_control_state()
         control_state[17]= STICK_2_X.pos - js_stick_2_x_offset > STICK_PRECISION;
     }
     
-    button_press[0]=rButton(Up,button_hold[0]);
-    button_press[1]=rButton(Down,button_hold[1]);
-    button_press[2]=rButton(Left,button_hold[2]);
-    button_press[3]=rButton(Right,button_hold[3]);
-    button_press[4]=rButton(cAbtn,button_hold[4]);
-    button_press[5]=rButton(cBbtn,button_hold[5]);
-    button_press[6]=rButton(cSbtn,button_hold[6]);
-    button_press[7]=rButton(cLbtn,button_hold[7]);
-    button_press[8]=rButton(cRbtn,button_hold[8]);
-    button_press[9]=rButton(cPbtn,button_hold[9]);
-    button_press[10]=rButton(cEx1btn,button_hold[10]);
-    button_press[11]=rButton(cEx2btn,button_hold[11]);
-    button_press[12]=rButton(cEx3btn,button_hold[12]);
-    button_press[13]=rButton(cEx4btn,button_hold[13]);
-    button_press[14]=rButton(AxisUp,button_hold[14]);
-    button_press[15]=rButton(AxisDown,button_hold[15]);
-    button_press[16]=rButton(AxisLeft,button_hold[16]);
-    button_press[17]=rButton(AxisRight,button_hold[17]);
+    button_press[0]=rButton(control_state[0],button_hold[0]);
+    button_press[1]=rButton(control_state[1],button_hold[1]);
+    button_press[2]=rButton(control_state[2],button_hold[2]);
+    button_press[3]=rButton(control_state[3],button_hold[3]);
+    button_press[4]=rButton(control_state[4],button_hold[4]);
+    button_press[5]=rButton(control_state[5],button_hold[5]);
+    button_press[6]=rButton(control_state[6],button_hold[6]);
+    button_press[7]=rButton(control_state[7],button_hold[7]);
+    button_press[8]=rButton(control_state[8],button_hold[8]);
+    button_press[9]=rButton(control_state[9],button_hold[9]);
+    button_press[10]=rButton(control_state[10],button_hold[10]);
+    button_press[11]=rButton(control_state[11],button_hold[11]);
+    button_press[12]=rButton(control_state[12],button_hold[12]);
+    button_press[13]=rButton(control_state[13],button_hold[13]);
+    button_press[14]=rButton(control_state[14],button_hold[14]);
+    button_press[15]=rButton(control_state[15],button_hold[15]);
+    button_press[16]=rButton(control_state[16],button_hold[16]);
+    button_press[17]=rButton(control_state[17],button_hold[17]);
 }
 
 // Returns true if any game key is pressed. This is needed because keypressed()
 // doesn't detect modifier keys and control_state[] can be modified by scripts.
 bool zc_key_pressed()
 {
-    if((key[DUkey]||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset< -STICK_PRECISION : joybtn(DUbtn))) ||
-       (key[DDkey]||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn))) ||
-       (key[DLkey]||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn))) ||
-       (key[DRkey]||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn))) ||
-       (key[Akey]||joybtn(Abtn)) ||
-       (key[Bkey]||joybtn(Bbtn)) ||
-       (key[Skey]||joybtn(Sbtn)) ||
-       (key[Lkey]||joybtn(Lbtn)) ||
-       (key[Rkey]||joybtn(Rbtn)) ||
-       (key[Pkey]||joybtn(Pbtn)) ||
-       (key[Exkey1]||joybtn(Exbtn1)) ||
-       (key[Exkey2]||joybtn(Exbtn2)) ||
-       (key[Exkey3]||joybtn(Exbtn3)) ||
-       (key[Exkey4]||joybtn(Exbtn4))) // Skipping joystick axes
+    if((zc_getkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset< -STICK_PRECISION : joybtn(DUbtn))) ||
+       (zc_getkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn))) ||
+       (zc_getkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn))) ||
+       (zc_getkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn))) ||
+       (zc_getkey(Akey, true)||joybtn(Abtn)) ||
+       (zc_getkey(Bkey, true)||joybtn(Bbtn)) ||
+       (zc_getkey(Skey, true)||joybtn(Sbtn)) ||
+       (zc_getkey(Lkey, true)||joybtn(Lbtn)) ||
+       (zc_getkey(Rkey, true)||joybtn(Rbtn)) ||
+       (zc_getkey(Pkey, true)||joybtn(Pbtn)) ||
+       (zc_getkey(Exkey1, true)||joybtn(Exbtn1)) ||
+       (zc_getkey(Exkey2, true)||joybtn(Exbtn2)) ||
+       (zc_getkey(Exkey3, true)||joybtn(Exbtn3)) ||
+       (zc_getkey(Exkey4, true)||joybtn(Exbtn4))) // Skipping joystick axes
         return true;
     
     return false;
 }
 
+bool getInput(int btn, bool press, bool drunk, bool ignoreDisable)
+{
+	bool ret = false, drunkstate = false;
+	bool* flag = NULL;
+	switch(btn)
+	{
+		case btnF12:
+			ret = zc_getkey(KEY_F12, ignoreDisable);
+			flag = &F12;
+			break;
+		case btnF11:
+			ret = zc_getkey(KEY_F11, ignoreDisable);
+			flag = &F11;
+			break;
+		case btnF5:
+			ret = zc_getkey(KEY_F5, ignoreDisable);
+			flag = &F5;
+			break;
+		case btnQ:
+			ret = zc_getkey(KEY_Q, ignoreDisable);
+			flag = &keyQ;
+			break;
+		case btnI:
+			ret = zc_getkey(KEY_I, ignoreDisable);
+			flag = &keyI;
+			break;
+		case btnM:
+			ret = zc_getkey(KEY_ESC, true);
+			flag = &Mdown;
+			break;
+		default: //control_state[] index
+			if(FFCore.kb_typing_mode) return false;
+			if(!ignoreDisable && get_bit(quest_rules, qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
+			else if(btn<11) drunkstate = drunk_toggle_state[btn];
+			ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
+			switch(btn)
+			{
+				case btnUp: flag = &Udown; break;
+				case btnDown: flag = &Ddown; break;
+				case btnLeft: flag = &Ldown; break;
+				case btnRight: flag = &Rdown; break;
+				case btnA: flag = &Adown; break;
+				case btnB: flag = &Bdown; break;
+				case btnS: flag = &Sdown; break;
+				case btnL: flag = &LBdown; break;
+				case btnR: flag = &RBdown; break;
+				case btnP: flag = &Pdown; break;
+				case btnEx1: flag = &Ex1down; break;
+				case btnEx2: flag = &Ex2down; break;
+				case btnEx3: flag = &Ex3down; break;
+				case btnEx4: flag = &Ex4down; break;
+				case btnAxisUp: flag = &AUdown; break;
+				case btnAxisDown: flag = &ADdown; break;
+				case btnAxisLeft: flag = &ALdown; break;
+				case btnAxisRight: flag = &ARdown; break;
+			}
+	}
+	assert(flag);
+	if(press) ret = rButton(ret, *flag);
+	if(drunk && drunkstate) ret = !ret;
+	return ret;
+}
 bool Up()
 {
-    return (control_state[0] && !(FFCore.kb_typing_mode));
+    return getInput(btnUp);
 }
 bool Down()
 {
-    return (control_state[1] && !(FFCore.kb_typing_mode));
+    return getInput(btnDown);
 }
 bool Left()
 {
-    return (control_state[2] && !(FFCore.kb_typing_mode));
+    return getInput(btnLeft);
 }
 bool Right()
 {
-    return (control_state[3] && !(FFCore.kb_typing_mode));
+    return getInput(btnRight);
 }
 bool cAbtn()
 {
-    return (control_state[4] && !(FFCore.kb_typing_mode));
+    return getInput(btnA);
 }
 bool cBbtn()
 {
-    return (control_state[5] && !(FFCore.kb_typing_mode));
+    return getInput(btnB);
 }
 bool cSbtn()
 {
-    return (control_state[6] && !(FFCore.kb_typing_mode));
+    return getInput(btnS);
 }
 bool cLbtn()
 {
-    return (control_state[7] && !(FFCore.kb_typing_mode));
+    return getInput(btnL);
 }
 bool cRbtn()
 {
-    return (control_state[8] && !(FFCore.kb_typing_mode));
+    return getInput(btnR);
 }
 bool cPbtn()
 {
-    return (control_state[9] && !(FFCore.kb_typing_mode));
+    return getInput(btnP);
 }
 bool cEx1btn()
 {
-    return (control_state[10] && !(FFCore.kb_typing_mode));
+    return getInput(btnEx1);
 }
 bool cEx2btn()
 {
-    return (control_state[11] && !(FFCore.kb_typing_mode));
+    return getInput(btnEx2);
 }
 bool cEx3btn()
 {
-    return (control_state[12] && !(FFCore.kb_typing_mode));
+    return getInput(btnEx3);
 }
 bool cEx4btn()
 {
-    return (control_state[13] && !(FFCore.kb_typing_mode));
+    return getInput(btnEx4);
 }
 bool AxisUp()
 {
-    return (control_state[14] && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisUp);
 }
 bool AxisDown()
 {
-    return (control_state[15] && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisDown);
 }
 bool AxisLeft()
 {
-    return (control_state[16] && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisLeft);
 }
 bool AxisRight()
 {
-    return (control_state[17] && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisRight);
 }
 
 bool cMbtn()
 {
-    return ((key[KEY_ESC]||joybtn(Mbtn)) && !(FFCore.kb_typing_mode));
+    return getInput(btnM);
 }
 bool cF12()
 {
-    return ((key[KEY_F12] != 0) && !(FFCore.kb_typing_mode));
+    return getInput(btnF12);
 }
 bool cF11()
 {
-    return ((key[KEY_F11] != 0) && !(FFCore.kb_typing_mode));
+    return getInput(btnF11);
 }
 bool cF5()
 {
-    return ((key[KEY_F5]  != 0 ) && !(FFCore.kb_typing_mode));
+    return getInput(btnF5);
 }
 bool cQ()
 {
-    return ((key[KEY_Q]   != 0) && !(FFCore.kb_typing_mode));
+    return getInput(btnQ);
 }
 bool cI()
 {
-    return ((key[KEY_I]   != 0) && !(FFCore.kb_typing_mode));
+    return getInput(btnI);
 }
 
 bool rUp()
 {
-    return ((rButton(Up,Udown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnUp, true);
 }
 bool rDown()
 {
-    return ((rButton(Down,Ddown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnDown, true);
 }
 bool rLeft()
 {
-    return ((rButton(Left,Ldown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnLeft, true);
 }
 bool rRight()
 {
-    return ((rButton(Right,Rdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnRight, true);
 }
 bool rAbtn()
 {
-    return ((rButton(cAbtn,Adown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnA, true);
 }
 bool rBbtn()
 {
-    return ((rButton(cBbtn,Bdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnB, true);
 }
 bool rSbtn()
 {
-    return ((rButton(cSbtn,Sdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnS, true);
 }
 bool rMbtn()
 {
-    return ((rButton(cMbtn,Mdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnM, true);
 }
 bool rLbtn()
 {
-    return ((rButton(cLbtn,LBdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnL, true);
 }
 bool rRbtn()
 {
-    return ((rButton(cRbtn,RBdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnR, true);
 }
 bool rPbtn()
 {
-    return ((rButton(cPbtn,Pdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnP, true);
 }
 bool rEx1btn()
 {
-    return ((rButton(cEx1btn,Ex1down)) && !(FFCore.kb_typing_mode));
+    return getInput(btnEx1, true);
 }
 bool rEx2btn()
 {
-    return ((rButton(cEx2btn,Ex2down)) && !(FFCore.kb_typing_mode));
+    return getInput(btnEx2, true);
 }
 bool rEx3btn()
 {
-    return ((rButton(cEx3btn,Ex3down)) && !(FFCore.kb_typing_mode));
+    return getInput(btnEx3, true);
 }
 bool rEx4btn()
 {
-    return ((rButton(cEx4btn,Ex4down)) && !(FFCore.kb_typing_mode));
+    return getInput(btnEx4, true);
 }
 bool rAxisUp()
 {
-    return ((rButton(AxisUp,AUdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisUp, true);
 }
 bool rAxisDown()
 {
-    return ((rButton(AxisDown,ADdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisDown, true);
 }
 bool rAxisLeft()
 {
-    return ((rButton(AxisLeft,ALdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisLeft, true);
 }
 bool rAxisRight()
 {
-    return ((rButton(AxisRight,ARdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisRight, true);
 }
 
 bool rF12()
 {
-    return rButton(cF12, F12);
+    return getInput(btnF12, true);
 }
 bool rF11()
 {
-    return rButton(cF11, F11);
+    return getInput(btnF11, true);
 }
 bool rF5()
 {
-    return rButton(cF5, F5);
+    return getInput(btnF5, true);
 }
 bool rQ()
 {
-    return rButton(cQ,  keyQ);
+    return getInput(btnQ, true);
 }
 bool rI()
 {
-    return rButton(cI,  keyI);
+    return getInput(btnI, true);
 }
 
 /*No longer in use -V
@@ -10191,118 +10280,150 @@ bool drunk()
 
 bool DrunkUp()
 {
-    return !drunk_toggle_state[0] != !Up();
+    return getInput(btnUp, false, true);
 }
 bool DrunkDown()
 {
-    return !drunk_toggle_state[1] != !Down();
+    return getInput(btnDown, false, true);
 }
 bool DrunkLeft()
 {
-    return !drunk_toggle_state[2] != !Left();
+    return getInput(btnLeft, false, true);
 }
 bool DrunkRight()
 {
-    return !drunk_toggle_state[3] != !Right();
+    return getInput(btnRight, false, true);
 }
 bool DrunkcAbtn()
 {
-    return !drunk_toggle_state[4] != !cAbtn();
+    return getInput(btnA, false, true);
 }
 bool DrunkcBbtn()
 {
-    return !drunk_toggle_state[5] != !cBbtn();
+    return getInput(btnB, false, true);
 }
 bool DrunkcSbtn()
 {
-    return !drunk_toggle_state[6] != !cSbtn();
+    return getInput(btnS, false, true);
 }
 bool DrunkcMbtn()
 {
-    return !drunk_toggle_state[10] != !cMbtn();
+    return getInput(btnM, false, true);
 }
 bool DrunkcLbtn()
 {
-    return !drunk_toggle_state[7] != !cLbtn();
+    return getInput(btnL, false, true);
 }
 bool DrunkcRbtn()
 {
-    return !drunk_toggle_state[8] != !cRbtn();
+    return getInput(btnR, false, true);
 }
 bool DrunkcPbtn()
 {
-    return !drunk_toggle_state[9] != !cPbtn();
+    return getInput(btnP, false, true);
 }
 
 bool DrunkrUp()
 {
-    return !drunk_toggle_state[0] != !rUp();
+    return getInput(btnUp, true, true);
 }
 bool DrunkrDown()
 {
-    return !drunk_toggle_state[1] != !rDown();
+    return getInput(btnDown, true, true);
 }
 bool DrunkrLeft()
 {
-    return !drunk_toggle_state[2] != !rLeft();
+    return getInput(btnLeft, true, true);
 }
 bool DrunkrRight()
 {
-    return !drunk_toggle_state[3] != !rRight();
+    return getInput(btnRight, true, true);
 }
 bool DrunkrAbtn()
 {
-    return !drunk_toggle_state[4] != !rAbtn();
+    return getInput(btnA, true, true);
 }
 bool DrunkrBbtn()
 {
-    return !drunk_toggle_state[5] != !rBbtn();
+    return getInput(btnB, true, true);
 }
 bool DrunkrSbtn()
 {
-    return !drunk_toggle_state[6] != !rSbtn();
+    return getInput(btnS, true, true);
 }
 bool DrunkrMbtn()
 {
-    return !drunk_toggle_state[10] != !rMbtn();
+    return getInput(btnM, true, true);
 }
 bool DrunkrLbtn()
 {
-    return !drunk_toggle_state[7] != !rLbtn();
+    return getInput(btnL, true, true);
 }
 bool DrunkrRbtn()
 {
-    return !drunk_toggle_state[8] != !rRbtn();
+    return getInput(btnR, true, true);
 }
 bool DrunkrPbtn()
 {
-    return !drunk_toggle_state[9] != !rPbtn();
+    return getInput(btnP, true, true);
 }
 
 void eat_buttons()
 {
-    rAbtn();
-    rBbtn();
-    rSbtn();
-    rMbtn();
-    rLbtn();
-    rRbtn();
-    rPbtn();
-    rEx1btn();
-    rEx2btn();
-    rEx3btn();
-    rEx4btn();
+	getInput(btnA, true, false, true);
+	getInput(btnB, true, false, true);
+	getInput(btnS, true, false, true);
+	getInput(btnM, true, false, true);
+	getInput(btnL, true, false, true);
+	getInput(btnR, true, false, true);
+	getInput(btnP, true, false, true);
+	getInput(btnEx1, true, false, true);
+	getInput(btnEx2, true, false, true);
+	getInput(btnEx3, true, false, true);
+	getInput(btnEx4, true, false, true);
 }
 
-bool ReadKey(int k)
+bool zc_readkey(int k, bool ignoreDisable)
 {
-    if(key[k])
+    if(zc_getkey(k, ignoreDisable))
     {
         key[k]=0;
         return true;
     }
-    
+    key[k]=0;
     return false;
+}
+
+bool zc_getkey(int k, bool ignoreDisable)
+{
+	if(ignoreDisable) return key[k];
+	switch(k)
+	{
+		case KEY_ESC:
+		case KEY_F7:
+		case KEY_F8:
+		case KEY_F9:
+			return key[k];
+			
+		default:
+			return key[k] && !disabledKeys[k];
+	}
+}
+
+bool zc_disablekey(int k, bool val)
+{
+	switch(k)
+	{
+		case KEY_ESC:
+		case KEY_F7:
+		case KEY_F8:
+		case KEY_F9:
+			return false;
+			
+		default:
+			disabledKeys[k] = val;
+			return true;
+	}
 }
 
 void zc_putpixel(int layer, int x, int y, int cset, int color, int timer)

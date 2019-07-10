@@ -62,11 +62,15 @@ int onCheatArrows();
 int  next_press_key();
 int  next_press_btn();
 bool joybtn(int b);
-bool ReadKey(int k);
+bool zc_readkey(int k, bool ignoreDisable = false);
+bool zc_getkey(int k, bool ignoreDisable = false);
+bool zc_disablekey(int k, bool val);
 void eat_buttons();
 
 extern bool control_state[18];
+extern bool disable_control[18];
 extern bool drunk_toggle_state[11];
+extern bool disabledKeys[127];
 extern bool button_press[18];
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
 
@@ -75,6 +79,7 @@ extern bool button_hold[18];
 void load_control_state();
 extern int sfx_voice[WAV_COUNT];
 
+bool getInput(int btn, bool press = false, bool drunk = false, bool ignoreDisable = false);
 bool Up();
 bool Down();
 bool Left();

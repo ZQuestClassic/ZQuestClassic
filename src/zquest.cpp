@@ -17530,7 +17530,7 @@ int onHeader()
 		}
 	}
 		
-	//if (ReadKey(KEY_ENTER)||ReadKey(KEY_ENTER_PAD) && ret == -1) ret = 17; 
+	//if (zc_readkey(KEY_ENTER)||zc_readkey(KEY_ENTER_PAD) && ret == -1) ret = 17; 
         
         if(ret==20)
             questrev_help();

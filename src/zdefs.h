@@ -3414,6 +3414,14 @@ struct zcmap
     bool subpTrans;
 };
 
+enum controls //Args for 'getInput()'
+{
+	//control_state indeces
+	btnUp, btnDown, btnLeft, btnRight, btnA, btnB, btnS, btnL, btnR, btnP, btnEx1, btnEx2, btnEx3, btnEx4, btnAxisUp, btnAxisDown, btnAxisLeft, btnAxisRight,
+	//Other controls
+	btnM, btnF12, btnF11, btnF5, btnQ, btnI
+};
+
 ///////////////
 /// MODULES ///
 ///////////////

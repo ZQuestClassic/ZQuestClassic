@@ -1968,6 +1968,8 @@ script_variable variable_list[]=
 	{"MAPDATAMAP", MAPDATAMAP, 0, 0 },
 	{"MAPDATASCREEN", MAPDATASCREEN, 0, 0 },
 	{"IDATAVALIDATE", IDATAVALIDATE, 0, 0 },
+	{ "DISABLEKEY",		DISABLEKEY,        0,             0 },
+	{ "DISABLEBUTTON",		DISABLEBUTTON,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

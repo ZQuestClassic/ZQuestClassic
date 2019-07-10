@@ -171,7 +171,7 @@ void throttleFPS()
     timeBeginPeriod(1); // Basically, jist is that other programs can affect the FPS of ZC in weird ways. (making it better for example... go figure)
 #endif
 
-    if(Throttlefps ^ (key[KEY_TILDE]!=0))
+    if(Throttlefps ^ (zc_getkey(KEY_TILDE)!=0))
     {
         if(zc_vsync == FALSE)
         {
@@ -4807,6 +4807,11 @@ int main(int argc, char* argv[])
         setMonochrome(false);
 		doClearTint();
 		Link.setDontDraw(0);
+		if(Quit != qCONT)
+		{
+			memset(disabledKeys, 0, sizeof(disabledKeys));
+			memset(disable_control, 0, sizeof(disable_control));
+		}
 		
         kill_sfx();
         music_stop();

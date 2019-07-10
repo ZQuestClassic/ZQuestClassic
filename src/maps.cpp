@@ -2893,7 +2893,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     putscr(scrollbuf,0,playing_field_offset,this_screen);
     
     // Lens hints, then primitives, then particles.
-    if((lensclk || (get_debug() && key[KEY_L])) && !get_bit(quest_rules, qr_OLDLENSORDER))
+    if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_bit(quest_rules, qr_OLDLENSORDER))
     {
         draw_lens_under(scrollbuf, false);
     }
@@ -3007,7 +3007,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     putscrdoors(scrollbuf,0,playing_field_offset,this_screen);
     
     // Lens hints, doors etc.
-    if(lensclk || (get_debug() && key[KEY_L]))
+    if(lensclk || (get_debug() && zc_getkey(KEY_L)))
     {
         if(get_bit(quest_rules, qr_OLDLENSORDER))
         {
@@ -4896,7 +4896,7 @@ void ViewMap()
         advanceframe(false, false);
         
         
-        if(rSbtn())
+        if(getInput(btnS, true, false, true)) //rSbtn
             done = true;
             
     }

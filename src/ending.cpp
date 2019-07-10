@@ -557,7 +557,7 @@ void ending()
         }
         
         load_control_state();
-        rSbtn();
+        getInput(btnS, true, false, true);//rSbtn();
     }
     
     do
@@ -583,7 +583,7 @@ void ending()
         
         load_control_state();
     }
-    while(!rSbtn());
+    while(!getInput(btnS, true, false, true)); //rSbtn()
     
     credits_skip:
     

@@ -255,6 +255,8 @@ string VarArgument::toString()
     case BUTTONHELD: return "BUTTONHELD";
     case KEYPRESS: return "KEYPRESS";
     case READKEY: return "READKEY";
+	case DISABLEKEY: return "DISABLEKEY";
+	case DISABLEBUTTON: return "DISABLEBUTTON";
     case JOYPADPRESS: return "JOYPADPRESS";
     
      case LINKINVFRAME:
