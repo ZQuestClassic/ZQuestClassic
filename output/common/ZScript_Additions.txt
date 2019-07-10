@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 26
-Document Revision: 6th July, 2019
+Document Revision: 10th July, 2019
 
 
 ////////////////////////////////////////////////////
@@ -1843,8 +1843,8 @@ int ID;
 
 //bool Running; //need to add this to match mapdata. int val
 
-bool Flags[13];
- * Corrected and expanded the array size from [2] to [13].
+bool Flags[14];
+ * Corrected and expanded the array size from [2] to [14].
 
 /************************************************************************************************************/
 
