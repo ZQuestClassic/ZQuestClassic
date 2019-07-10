@@ -3765,7 +3765,7 @@ void game_over(int type)
     
     do load_control_state();
     
-    while(rSbtn());
+    while(getInput(btnS, true, false, true));//rSbtn
     
     do
     {
@@ -3773,7 +3773,7 @@ void game_over(int type)
         
         if(f==-1)
         {
-            if(rUp())
+            if(getInput(btnUp, true, false, true))//rUp
             {
                 sfx(WAV_CHINK);
                 pos=(pos==0)?2:pos-1;
@@ -3784,7 +3784,7 @@ void game_over(int type)
                 }
             }
             
-            if(rDown())
+            if(getInput(btnDown, true, false, true))//rDown
             {
                 sfx(WAV_CHINK);
                 pos=(pos+1)%3;
@@ -3795,7 +3795,7 @@ void game_over(int type)
                 }
             }
             
-            if(rSbtn()) ++f;
+            if(getInput(btnS, true, false, true)) ++f;//rSbtn
         }
         
         if(f>=0)
@@ -3957,19 +3957,19 @@ bool save_game(bool savepoint, int type)
             
             if(f==-1)
             {
-                if(rUp())
+                if(getInput(btnUp, true, false, true))//rUp
                 {
                     sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
                     pos=(pos==0)?2:pos-1;
                 }
                 
-                if(rDown())
+                if(getInput(btnDown, true, false, true))//rDown
                 {
                     sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
                     pos=(pos+1)%3;
                 }
                 
-                if(rSbtn()) ++f;
+                if(getInput(btnS, true, false, true)) ++f;//rSbtn
             }
             
             if(f>=0)
@@ -4071,19 +4071,19 @@ bool save_game(bool savepoint, int type)
                     
                     if(g==-1)
                     {
-                        if(rUp())
+                        if(getInput(btnUp, true, false, true))//rUp
                         {
                             sfx(WAV_CHINK);
                             pos2=(pos2==0)?1:pos2-1;
                         }
                         
-                        if(rDown())
+                        if(getInput(btnDown, true, false, true))//rDown
                         {
                             sfx(WAV_CHINK);
                             pos2=(pos2+1)%2;
                         }
                         
-                        if(rSbtn()) ++g;
+                        if(getInput(btnS, true, false, true)) ++g;//rSbtn
                     }
                     
                     if(g>=0)

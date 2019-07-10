@@ -4894,7 +4894,7 @@ void ViewMap()
         advanceframe(false, false);
         
         
-        if(rSbtn())
+        if(getInput(btnS, true, false, true)) //rSbtn
             done = true;
             
     }

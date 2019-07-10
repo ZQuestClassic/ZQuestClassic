@@ -10014,200 +10014,262 @@ bool zc_key_pressed()
     return false;
 }
 
+bool getInput(int btn, bool press, bool drunk, bool ignoreDisable)
+{
+	bool ret = false, drunkstate = false;
+	bool* flag = NULL;
+	switch(btn)
+	{
+		case btnF12:
+			ret = zc_getkey(KEY_F12, ignoreDisable);
+			flag = &F12;
+			break;
+		case btnF11:
+			ret = zc_getkey(KEY_F11, ignoreDisable);
+			flag = &F11;
+			break;
+		case btnF5:
+			ret = zc_getkey(KEY_F5, ignoreDisable);
+			flag = &F5;
+			break;
+		case btnQ:
+			ret = zc_getkey(KEY_Q, ignoreDisable);
+			flag = &keyQ;
+			break;
+		case btnI:
+			ret = zc_getkey(KEY_I, ignoreDisable);
+			flag = &keyI;
+			break;
+		case btnM:
+			ret = zc_getkey(KEY_ESC, true);
+			flag = &Mdown;
+			break;
+		default: //control_state[] index
+			if(FFCore.kb_typing_mode) return false;
+			if(!ignoreDisable && get_bit(quest_rules, qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
+			else if(btn<11) drunkstate = drunk_toggle_state[btn];
+			ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
+			switch(btn)
+			{
+				case btnUp: flag = &Udown; break;
+				case btnDown: flag = &Ddown; break;
+				case btnLeft: flag = &Ldown; break;
+				case btnRight: flag = &Rdown; break;
+				case btnA: flag = &Adown; break;
+				case btnB: flag = &Bdown; break;
+				case btnS: flag = &Sdown; break;
+				case btnL: flag = &LBdown; break;
+				case btnR: flag = &RBdown; break;
+				case btnP: flag = &Pdown; break;
+				case btnEx1: flag = &Ex1down; break;
+				case btnEx2: flag = &Ex2down; break;
+				case btnEx3: flag = &Ex3down; break;
+				case btnEx4: flag = &Ex4down; break;
+				case btnAxisUp: flag = &AUdown; break;
+				case btnAxisDown: flag = &ADdown; break;
+				case btnAxisLeft: flag = &ALdown; break;
+				case btnAxisRight: flag = &ARdown; break;
+			}
+	}
+	assert(flag);
+	if(press) ret = rButton(ret, *flag);
+	if(drunk && drunkstate) ret = !ret;
+	return ret;
+}
 bool Up()
 {
-    return (control_state[0] && !disable_control[0] && !(FFCore.kb_typing_mode));
+    return getInput(btnUp);
 }
 bool Down()
 {
-    return (control_state[1] && !disable_control[1] && !(FFCore.kb_typing_mode));
+    return getInput(btnDown);
 }
 bool Left()
 {
-    return (control_state[2] && !disable_control[2] && !(FFCore.kb_typing_mode));
+    return getInput(btnLeft);
 }
 bool Right()
 {
-    return (control_state[3] && !disable_control[3] && !(FFCore.kb_typing_mode));
+    return getInput(btnRight);
 }
 bool cAbtn()
 {
-    return (control_state[4] && !disable_control[4] && !(FFCore.kb_typing_mode));
+    return getInput(btnA);
 }
 bool cBbtn()
 {
-    return (control_state[5] && !disable_control[5] && !(FFCore.kb_typing_mode));
+    return getInput(btnB);
 }
 bool cSbtn()
 {
-    return (control_state[6] && !disable_control[6] && !(FFCore.kb_typing_mode));
+    return getInput(btnS);
 }
 bool cLbtn()
 {
-    return (control_state[7] && !disable_control[7] && !(FFCore.kb_typing_mode));
+    return getInput(btnL);
 }
 bool cRbtn()
 {
-    return (control_state[8] && !disable_control[8] && !(FFCore.kb_typing_mode));
+    return getInput(btnR);
 }
 bool cPbtn()
 {
-    return (control_state[9] && !disable_control[9] && !(FFCore.kb_typing_mode));
+    return getInput(btnP);
 }
 bool cEx1btn()
 {
-    return (control_state[10] && !disable_control[10] && !(FFCore.kb_typing_mode));
+    return getInput(btnEx1);
 }
 bool cEx2btn()
 {
-    return (control_state[11] && !disable_control[11] && !(FFCore.kb_typing_mode));
+    return getInput(btnEx2);
 }
 bool cEx3btn()
 {
-    return (control_state[12] && !disable_control[12] && !(FFCore.kb_typing_mode));
+    return getInput(btnEx3);
 }
 bool cEx4btn()
 {
-    return (control_state[13] && !disable_control[13] && !(FFCore.kb_typing_mode));
+    return getInput(btnEx4);
 }
 bool AxisUp()
 {
-    return (control_state[14] && !disable_control[14] && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisUp);
 }
 bool AxisDown()
 {
-    return (control_state[15] && !disable_control[15] && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisDown);
 }
 bool AxisLeft()
 {
-    return (control_state[16] && !disable_control[16] && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisLeft);
 }
 bool AxisRight()
 {
-    return (control_state[17] && !disable_control[17] && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisRight);
 }
 
 bool cMbtn()
 {
-    return ((zc_getkey(KEY_ESC)||joybtn(Mbtn)) && !(FFCore.kb_typing_mode));
+    return getInput(btnM);
 }
 bool cF12()
 {
-    return ((zc_getkey(KEY_F12) != 0) && !(FFCore.kb_typing_mode));
+    return getInput(btnF12);
 }
 bool cF11()
 {
-    return ((zc_getkey(KEY_F11) != 0) && !(FFCore.kb_typing_mode));
+    return getInput(btnF11);
 }
 bool cF5()
 {
-    return ((zc_getkey(KEY_F5)  != 0 ) && !(FFCore.kb_typing_mode));
+    return getInput(btnF5);
 }
 bool cQ()
 {
-    return ((zc_getkey(KEY_Q)   != 0) && !(FFCore.kb_typing_mode));
+    return getInput(btnQ);
 }
 bool cI()
 {
-    return ((zc_getkey(KEY_I)   != 0) && !(FFCore.kb_typing_mode));
+    return getInput(btnI);
 }
 
 bool rUp()
 {
-    return ((rButton(Up,Udown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnUp, true);
 }
 bool rDown()
 {
-    return ((rButton(Down,Ddown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnDown, true);
 }
 bool rLeft()
 {
-    return ((rButton(Left,Ldown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnLeft, true);
 }
 bool rRight()
 {
-    return ((rButton(Right,Rdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnRight, true);
 }
 bool rAbtn()
 {
-    return ((rButton(cAbtn,Adown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnA, true);
 }
 bool rBbtn()
 {
-    return ((rButton(cBbtn,Bdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnB, true);
 }
 bool rSbtn()
 {
-    return ((rButton(cSbtn,Sdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnS, true);
 }
 bool rMbtn()
 {
-    return ((rButton(cMbtn,Mdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnM, true);
 }
 bool rLbtn()
 {
-    return ((rButton(cLbtn,LBdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnL, true);
 }
 bool rRbtn()
 {
-    return ((rButton(cRbtn,RBdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnR, true);
 }
 bool rPbtn()
 {
-    return ((rButton(cPbtn,Pdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnP, true);
 }
 bool rEx1btn()
 {
-    return ((rButton(cEx1btn,Ex1down)) && !(FFCore.kb_typing_mode));
+    return getInput(btnEx1, true);
 }
 bool rEx2btn()
 {
-    return ((rButton(cEx2btn,Ex2down)) && !(FFCore.kb_typing_mode));
+    return getInput(btnEx2, true);
 }
 bool rEx3btn()
 {
-    return ((rButton(cEx3btn,Ex3down)) && !(FFCore.kb_typing_mode));
+    return getInput(btnEx3, true);
 }
 bool rEx4btn()
 {
-    return ((rButton(cEx4btn,Ex4down)) && !(FFCore.kb_typing_mode));
+    return getInput(btnEx4, true);
 }
 bool rAxisUp()
 {
-    return ((rButton(AxisUp,AUdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisUp, true);
 }
 bool rAxisDown()
 {
-    return ((rButton(AxisDown,ADdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisDown, true);
 }
 bool rAxisLeft()
 {
-    return ((rButton(AxisLeft,ALdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisLeft, true);
 }
 bool rAxisRight()
 {
-    return ((rButton(AxisRight,ARdown)) && !(FFCore.kb_typing_mode));
+    return getInput(btnAxisRight, true);
 }
 
 bool rF12()
 {
-    return rButton(cF12, F12);
+    return getInput(btnF12, true);
 }
 bool rF11()
 {
-    return rButton(cF11, F11);
+    return getInput(btnF11, true);
 }
 bool rF5()
 {
-    return rButton(cF5, F5);
+    return getInput(btnF5, true);
 }
 bool rQ()
 {
-    return rButton(cQ,  keyQ);
+    return getInput(btnQ, true);
 }
 bool rI()
 {
-    return rButton(cI,  keyI);
+    return getInput(btnI, true);
 }
 
 /*No longer in use -V
@@ -10218,107 +10280,107 @@ bool drunk()
 
 bool DrunkUp()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[0]) && (!drunk_toggle_state[0] != !Up());
+    return getInput(btnUp, false, true);
 }
 bool DrunkDown()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[1]) && (!drunk_toggle_state[1] != !Down());
+    return getInput(btnDown, false, true);
 }
 bool DrunkLeft()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[2]) && (!drunk_toggle_state[2] != !Left());
+    return getInput(btnLeft, false, true);
 }
 bool DrunkRight()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[3]) && (!drunk_toggle_state[3] != !Right());
+    return getInput(btnRight, false, true);
 }
 bool DrunkcAbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[4]) && (!drunk_toggle_state[4] != !cAbtn());
+    return getInput(btnA, false, true);
 }
 bool DrunkcBbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[5]) && (!drunk_toggle_state[5] != !cBbtn());
+    return getInput(btnB, false, true);
 }
 bool DrunkcSbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[6]) && (!drunk_toggle_state[6] != !cSbtn());
+    return getInput(btnS, false, true);
 }
 bool DrunkcMbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[10]) && (!drunk_toggle_state[10] != !cMbtn());
+    return getInput(btnM, false, true);
 }
 bool DrunkcLbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[7]) && (!drunk_toggle_state[7] != !cLbtn());
+    return getInput(btnL, false, true);
 }
 bool DrunkcRbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[8]) && (!drunk_toggle_state[8] != !cRbtn());
+    return getInput(btnR, false, true);
 }
 bool DrunkcPbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[9]) && (!drunk_toggle_state[9] != !cPbtn());
+    return getInput(btnP, false, true);
 }
 
 bool DrunkrUp()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[0]) && (!drunk_toggle_state[0] != !rUp());
+    return getInput(btnUp, true, true);
 }
 bool DrunkrDown()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[1]) && (!drunk_toggle_state[1] != !rDown());
+    return getInput(btnDown, true, true);
 }
 bool DrunkrLeft()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[2]) && (!drunk_toggle_state[2] != !rLeft());
+    return getInput(btnLeft, true, true);
 }
 bool DrunkrRight()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[3]) && (!drunk_toggle_state[3] != !rRight());
+    return getInput(btnRight, true, true);
 }
 bool DrunkrAbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[4]) && (!drunk_toggle_state[4] != !rAbtn());
+    return getInput(btnA, true, true);
 }
 bool DrunkrBbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[5]) && (!drunk_toggle_state[5] != !rBbtn());
+    return getInput(btnB, true, true);
 }
 bool DrunkrSbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[6]) && (!drunk_toggle_state[6] != !rSbtn());
+    return getInput(btnS, true, true);
 }
 bool DrunkrMbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[10]) && (!drunk_toggle_state[10] != !rMbtn());
+    return getInput(btnM, true, true);
 }
 bool DrunkrLbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[7]) && (!drunk_toggle_state[7] != !rLbtn());
+    return getInput(btnL, true, true);
 }
 bool DrunkrRbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[8]) && (!drunk_toggle_state[8] != !rRbtn());
+    return getInput(btnR, true, true);
 }
 bool DrunkrPbtn()
 {
-    return (!get_bit(quest_rules, qr_FIXDRUNKINPUTS) || !disable_control[9]) && (!drunk_toggle_state[9] != !rPbtn());
+    return getInput(btnP, true, true);
 }
 
 void eat_buttons()
 {
-    rAbtn();
-    rBbtn();
-    rSbtn();
-    rMbtn();
-    rLbtn();
-    rRbtn();
-    rPbtn();
-    rEx1btn();
-    rEx2btn();
-    rEx3btn();
-    rEx4btn();
+	getInput(btnA, true, false, true);
+	getInput(btnB, true, false, true);
+	getInput(btnS, true, false, true);
+	getInput(btnM, true, false, true);
+	getInput(btnL, true, false, true);
+	getInput(btnR, true, false, true);
+	getInput(btnP, true, false, true);
+	getInput(btnEx1, true, false, true);
+	getInput(btnEx2, true, false, true);
+	getInput(btnEx3, true, false, true);
+	getInput(btnEx4, true, false, true);
 }
 
 bool zc_readkey(int k, bool ignoreDisable)

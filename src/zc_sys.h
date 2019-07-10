@@ -79,6 +79,7 @@ extern bool button_hold[18];
 void load_control_state();
 extern int sfx_voice[WAV_COUNT];
 
+bool getInput(int btn, bool press = false, bool drunk = false, bool ignoreDisable = false);
 bool Up();
 bool Down();
 bool Left();
@@ -122,7 +123,7 @@ bool DrunkcPbtn();
 
 bool rAbtn();
 bool rBbtn();
-bool rSbtn(bool ignoreDisable = false);
+bool rSbtn();
 bool rMbtn();
 bool rLbtn();
 bool rRbtn();
