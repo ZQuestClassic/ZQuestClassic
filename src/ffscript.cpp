@@ -629,7 +629,7 @@ int FFScript::UpperToLower(std::string s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
 		return 0;
 	}
-	for ( int q = 0; q < s.size(); ++q )
+	for ( unsigned int q = 0; q < s.size(); ++q )
 	{
 		if ( s.at(q) >= 'A' || s.at(q) <= 'Z' )
 		{
@@ -646,7 +646,7 @@ int FFScript::LowerToUpper(std::string s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
 		return 0;
 	}
-	for ( int q = 0; q < s.size(); ++q )
+	for ( unsigned int q = 0; q < s.size(); ++q )
 	{
 		if ( s.at(q) >= 'a' || s.at(q) <= 'z' )
 		{
@@ -663,7 +663,7 @@ int FFScript::ConvertCase(std::string s)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
 		return 0;
 	}
-	for ( int q = 0; q < s.size(); ++q )
+	for ( unsigned int q = 0; q < s.size(); ++q )
 	{
 		if ( s[q] >= 'a' || s[q] <= 'z' )
 		{
@@ -24918,7 +24918,7 @@ void FFScript::do_LowerToUpper(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
 		{
@@ -24952,7 +24952,7 @@ void FFScript::do_UpperToLower(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
 		{
@@ -25228,7 +25228,7 @@ void FFScript::do_ConvertCase(const bool v)
 		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
-	for ( int q = 0; q < strA.size(); ++q )
+	for ( unsigned int q = 0; q < strA.size(); ++q )
 	{
 		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
 		{
@@ -30804,7 +30804,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			    }
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range&)
 			{
 			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -30819,7 +30819,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			    }
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range&)
 			{
 			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -30834,7 +30834,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			    }
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range&)
 			{
 			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
@@ -31405,7 +31405,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			    }
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range&)
 			{
 			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
@@ -31420,7 +31420,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			    }
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range&)
 			{
 			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
@@ -31435,7 +31435,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			    }
 			}
-			catch(std::out_of_range& e)
+			catch(std::out_of_range&)
 			{
 			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}

@@ -263,7 +263,7 @@ void load_game_configs()
     js_stick_2_y_stick = get_config_int(cfg_sect,"js_stick_2_y_stick",1);
     js_stick_2_y_axis = get_config_int(cfg_sect,"js_stick_2_y_axis",1);
     js_stick_2_y_offset = get_config_int(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
-    analog_movement = (get_config_int(cfg_sect,"analog_movement",1));
+    analog_movement = (get_config_int(cfg_sect,"analog_movement",1))!=0;
    
     //cheat modifier keya
     cheat_modifier_keys[0] = get_config_int(cfg_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
@@ -7112,7 +7112,7 @@ int onJoystickDir()
     int ret = zc_popup_dialog(btndir_dlg,15);
     
     if(ret==15) // OK
-        analog_movement = (btndir_dlg[14].flags&D_SELECTED);
+        analog_movement = (btndir_dlg[14].flags&D_SELECTED)!=0;
     else // Cancel
     {
         DUbtn = up;
@@ -10396,17 +10396,26 @@ bool zc_readkey(int k, bool ignoreDisable)
 
 bool zc_getkey(int k, bool ignoreDisable)
 {
-	if(ignoreDisable) return key[k];
+	if(ignoreDisable)
+	{
+		if(key[k])
+			return true;
+		else return false;
+	}
 	switch(k)
 	{
 		case KEY_ESC:
 		case KEY_F7:
 		case KEY_F8:
 		case KEY_F9:
-			return key[k];
+			if(key[k])
+				return true;
+			else return false;
 			
 		default:
-			return key[k] && !disabledKeys[k];
+			if(key[k])
+				return !disabledKeys[k];
+			return false;
 	}
 }
 

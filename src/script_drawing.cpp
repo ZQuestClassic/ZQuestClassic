@@ -54,7 +54,8 @@ fixed radians_to_fixed(T d)
 inline bool file_exists(const char *filename) 
 {
 	std::ifstream ifile(filename);
-	return (bool)ifile;
+	if(ifile) return true;
+	return false;
 }
 
 BITMAP* ScriptDrawingBitmapPool::_parent_bmp = 0;
@@ -745,8 +746,8 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         int endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
         int endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
         
-        for(int y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
-            for(int x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
+        for(y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
+            for(x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
                 if(getpixel(bmp, x, y)==255)
                     putpixel(bmp, x, y, 0);
     }
@@ -4250,8 +4251,8 @@ void bmp_do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         int endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
         int endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
         
-        for(int y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
-            for(int x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
+        for(y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
+            for(x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
                 if(getpixel(refbmp, x, y)==255)
                     putpixel(refbmp, x, y, 0);
     }

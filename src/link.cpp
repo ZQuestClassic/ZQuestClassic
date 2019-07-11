@@ -998,8 +998,8 @@ void LinkClass::init()
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
-    bigHitbox=(get_bit(quest_rules, qr_LTTPCOLLISION));
-    diagonalMovement=(get_bit(quest_rules,qr_LTTPWALK));
+    bigHitbox=(get_bit(quest_rules, qr_LTTPCOLLISION)!=0);
+    diagonalMovement=(get_bit(quest_rules,qr_LTTPWALK)!=0);
     
     //2.6
 	preventsubscreenfalling = false;  //-Z
@@ -4025,7 +4025,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
     
     int hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
     
-    bool global_ring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
+    bool global_ring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1)!=0);
     bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
     
     int itemid = current_item_id(itype_boots);
@@ -11687,7 +11687,7 @@ void LinkClass::checkspecial2(int *ls)
         
         stop_sfx(WAV_ER);
         bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
-                        ? false : COOLSCROLL);
+                        ? false : COOLSCROLL!=0);
                         
         draw_screen(tmpscr);
         advanceframe(true);
@@ -12219,14 +12219,14 @@ bool LinkClass::dowarp(int type, int index)
                 reset_pal_cycling();
                 putscr(scrollbuf,0,0,tmpscr);
                 putscrdoors(scrollbuf,0,0,tmpscr);
-                walkup(COOLSCROLL);
+                walkup(COOLSCROLL!=0);
             }
             else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
             {
                 reset_pal_cycling();
                 putscr(scrollbuf,0,0,tmpscr);
                 putscrdoors(scrollbuf,0,0,tmpscr);
-                walkdown2(COOLSCROLL);
+                walkdown2(COOLSCROLL!=0);
             }
             else if(COOLSCROLL)
             {
@@ -12483,14 +12483,14 @@ bool LinkClass::dowarp(int type, int index)
             reset_pal_cycling();
             putscr(scrollbuf,0,0,tmpscr);
             putscrdoors(scrollbuf,0,0,tmpscr);
-            walkup(COOLSCROLL);
+            walkup(COOLSCROLL!=0);
         }
         else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
         {
             reset_pal_cycling();
             putscr(scrollbuf,0,0,tmpscr);
             putscrdoors(scrollbuf,0,0,tmpscr);
-            walkdown2(COOLSCROLL);
+            walkdown2(COOLSCROLL!=0);
         }
         else if(wtype==wtIWARPZAP)
         {
@@ -12630,14 +12630,14 @@ bool LinkClass::dowarp(int type, int index)
 		    reset_pal_cycling();
 		    putscr(scrollbuf,0,0,tmpscr);
 		    putscrdoors(scrollbuf,0,0,tmpscr);
-		    walkup(COOLSCROLL);
+		    walkup(COOLSCROLL!=0);
 		}
 		else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
 		{
 		    reset_pal_cycling();
 		    putscr(scrollbuf,0,0,tmpscr);
 		    putscrdoors(scrollbuf,0,0,tmpscr);
-		    walkdown2(COOLSCROLL);
+		    walkdown2(COOLSCROLL!=0);
 		}
 		else if(wtype==wtIWARPZAP)
 		{
@@ -12862,11 +12862,11 @@ void LinkClass::exitcave()
     
     if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
     {
-        walkup(COOLSCROLL);
+        walkup(COOLSCROLL!=0);
     }
     else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
     {
-        walkdown2(COOLSCROLL);
+        walkdown2(COOLSCROLL!=0);
     }
     
     show_subscreen_life=true;

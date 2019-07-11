@@ -226,7 +226,7 @@ bool m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
     if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
         return true;
         
-    bool isInDungeon = isdungeon();
+    bool isInDungeon = isdungeon()!=0;
     if(isInDungeon || special==spw_wizzrobe)
     {
         if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
@@ -14608,7 +14608,7 @@ bool enemy::enemycanfall(int id)
     
     else
     {
-	return (obeys_gravity);    
+	return (obeys_gravity!=0);    
     }
     //return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }

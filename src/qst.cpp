@@ -13855,7 +13855,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
 
 int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int max_tiles, bool from_init, bool keepdata)
 {
-    int dummy;
+    //int dummy;
     int tiles_used=0;
 	word section_version = 0;
 	word section_cversion = 0;
@@ -15871,7 +15871,7 @@ void port250QuestRules(){
 
 void portCandleRules()
 {
-	bool hurtslink = get_bit(quest_rules,qr_FIREPROOFLINK);
+	bool hurtslink = get_bit(quest_rules,qr_FIREPROOFLINK)!=0;
 	//itemdata itemsbuf;
 	for ( int q = 0; q < MAXITEMS; q++ ) 
 	{
@@ -15885,7 +15885,7 @@ void portCandleRules()
 
 void portBombRules()
 {
-	bool hurtslink = get_bit(quest_rules,qr_OUCHBOMBS);
+	bool hurtslink = get_bit(quest_rules,qr_OUCHBOMBS)!=0;
 	//itemdata itemsbuf;
 	for ( int q = 0; q < MAXITEMS; q++ ) 
 	{

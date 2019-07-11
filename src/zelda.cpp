@@ -795,7 +795,7 @@ int donew_shop_msg(int itmstr, int shopstr)
 	if(msg_onscreen || msg_active)
 			dismissmsg();
 	
-	int tempmsg;
+	//int tempmsg;
 	int tempmsgnext = MsgStrings[shopstr].nextstring; //store the next string
 	//Disabling this for now.
 	/*

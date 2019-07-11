@@ -681,7 +681,7 @@ namespace ZScript
 
 		Type getDeclarationType() const /*override*/ {return TYPE_FUNCTION;}
 		
-		bool getFlag(int flag) const {return flags & flag;}
+		bool getFlag(int flag) const {return (flags & flag)==flag;}
 		void setFlag(int flag, bool state = true);
 		int getFlags() const {return flags;}
 		bool isRun() const;
@@ -800,7 +800,7 @@ namespace ZScript
 		owning_vector<ASTExpr> dimensions;
 
 		// If this declares an a sized array.
-		bool hasSize() const {return (dimensions.size());}
+		bool hasSize() const {return (dimensions.size())!=0;}
 
 		// Get the total size of this array at compile time.
 		optional<int> getCompileTimeSize(

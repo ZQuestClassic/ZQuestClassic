@@ -60,7 +60,7 @@ namespace ZScript
 		// Return a list of all errors in the script declaration.
 		std::vector<CompileError const*> getErrors() const;
 		// Does this script have a declaration error?
-		bool hasError() const {return (getErrors().size());}
+		bool hasError() const {return (getErrors().size())!=0;}
 
 	private:
 		std::map<std::string, Script*> scriptsByName_;
@@ -375,7 +375,7 @@ namespace ZScript
 			if(node) state ? node->flags |= flag : node->flags &= ~flag;
 			state ? flags |= flag : flags &= ~flag;
 		}
-		bool getFlag(int flag) const {return flags & flag;}
+		bool getFlag(int flag) const {return (flags & flag)==flag;}
 		
 		bool isInternal() const {return !node;};
 		

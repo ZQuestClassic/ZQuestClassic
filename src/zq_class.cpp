@@ -1010,7 +1010,7 @@ bool zmap::ishookshottable(int bx, int by, int i)
 bool zmap::isstepable(int combo)
 {
     // This is kind of odd but it's true to the engine (see maps.cpp)
-    return (combo_class_buf[combobuf[combo].type].ladder_pass);
+    return (combo_class_buf[combobuf[combo].type].ladder_pass)!=0;
 }
 
 // Returns the letter of the warp combo.
@@ -8299,7 +8299,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range&)
         {
             return qe_invalid;
         }
@@ -8314,7 +8314,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range&)
         {
             return qe_invalid;
         }
@@ -8329,7 +8329,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
                 return qe_invalid;
             }
         }
-        catch(std::out_of_range& e)
+        catch(std::out_of_range&)
         {
             return qe_invalid;
         }
