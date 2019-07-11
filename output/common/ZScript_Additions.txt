@@ -3556,7 +3556,7 @@ bool DisableKey[127];
  * Setting an index of this array to 'true' will disable that key for engine input
  * Ex. 'Input->DisableKey[KEY_F6] = true;' will disable the F6 menu from being activated
  * Script key reading, such as 'Input->Key[]', are unaffected.
- * Currently, KEY_ESC, KEY_F7, KEY_F8, and KEY_F9 cannot be disabled.
+ * Currently, KEY_F7, KEY_F8, and KEY_F9 cannot be disabled.
  * Use the KEY_* constants to access this array. 
  
 bool Joypad[18]; //this is erroneously set up as TYPE_FLOAT in the parser.

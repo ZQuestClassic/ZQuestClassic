@@ -10041,7 +10041,8 @@ bool getInput(int btn, bool press, bool drunk, bool ignoreDisable)
 			flag = &keyI;
 			break;
 		case btnM:
-			ret = zc_getkey(KEY_ESC, true);
+			if(FFCore.kb_typing_mode) return false;
+			ret = zc_getkey(KEY_ESC, ignoreDisable);
 			flag = &Mdown;
 			break;
 		default: //control_state[] index
@@ -10399,7 +10400,6 @@ bool zc_getkey(int k, bool ignoreDisable)
 	if(ignoreDisable) return key[k];
 	switch(k)
 	{
-		case KEY_ESC:
 		case KEY_F7:
 		case KEY_F8:
 		case KEY_F9:
@@ -10414,7 +10414,6 @@ bool zc_disablekey(int k, bool val)
 {
 	switch(k)
 	{
-		case KEY_ESC:
 		case KEY_F7:
 		case KEY_F8:
 		case KEY_F9:
