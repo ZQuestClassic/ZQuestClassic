@@ -1345,7 +1345,7 @@ enum
 
 
 // enemy patters
-enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR };
+enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
 
 enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 

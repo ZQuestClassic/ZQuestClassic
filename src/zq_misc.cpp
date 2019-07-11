@@ -1124,12 +1124,12 @@ const char *walkmisc9_string[e9tARMOS+1] =
 
 const char *pattern_string[MAXPATTERNS] =
 {
-    "Spawn (Classic)", "Enter from Sides (Consecutive)", "Enter from Sides (Random)", "Fall From Ceiling (Classic)", "Fall From Ceiling (Random)", "Spawn (Random)"
+    "Spawn (Classic)", "Enter from Sides (Consecutive)", "Enter from Sides (Random)", "Fall From Ceiling (Classic)", "Fall From Ceiling (Random)", "Spawn (Random)", "Spawn No Enemies"
 };
 
 const char *short_pattern_string[MAXPATTERNS] =
 {
-    "Spawn (C)", "Sides", "Sides (R)", "Ceiling (C)", "Ceiling (R)", "Spawn (R)"
+    "Spawn (C)", "Sides", "Sides (R)", "Ceiling (C)", "Ceiling (R)", "Spawn (R)", "No Spawning"
 };
 
 const char *midi_string[MAXCUSTOMMIDIS_ZQ] =

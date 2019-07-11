@@ -15380,6 +15380,7 @@ int placeenemy(int i)
 
 void loadenemies()
 {
+	if(tmpscr->pattern==pNOSPAWN) return;
     if(loaded_enemies)
         return;
         

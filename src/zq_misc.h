@@ -25,7 +25,7 @@
 #define MAXWARPEFFECTS   weMAX
 #define MAXCOMBOTYPES  cMAX
 #define MAXFLAGS    mfMAX
-#define MAXPATTERNS  6
+#define MAXPATTERNS  7
 #define MAXCUSTOMMIDIS_ZQ  (4+MAXCUSTOMMIDIS)
 
 #define cWALK            1
