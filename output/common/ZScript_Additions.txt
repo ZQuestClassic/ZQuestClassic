@@ -1664,6 +1664,7 @@ int EnemyFlags;
 
 int Pattern;
  * The enemy 'Spawn Pattern'.
+ * Use the PATTERN_* constants in std.zh for the valid values
  
 int SideWarpID[4];
  * Returns the sidewarp ID for a given screen edge, as SideWarpID[dir];
@@ -2882,6 +2883,7 @@ int EnemyFlags;
 
 int Pattern;
  * This enemy 'Spawn Pattern'.
+ * Use the PATTERN_* constants in std.zh for the valid values
 
 int SideWarpID[4];
  * Returns the sidewarp ID for a given screen edge, as SideWarpID[dir];
