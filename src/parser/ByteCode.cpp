@@ -1756,7 +1756,6 @@ string VarArgument::toString()
 	case MAPDATASCREEN: return "MAPDATASCREEN";
 	case IDATAVALIDATE: return "IDATAVALIDATE";
 	case GAMESUSPEND: return "GAMESUSPEND";
-	case GAMERESUME: return "GAMERESUME";
 	
 	
     default:

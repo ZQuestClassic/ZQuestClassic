@@ -3596,12 +3596,11 @@ enum ASM_DEFINE
 #define DISABLEKEY			0x1367
 #define DISABLEBUTTON		0x1368
 #define GAMESUSPEND		0x1369
-#define GAMERESUME		0x136A
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x136B
+#define NUMVARIABLES         	0x136A
 
 // Script types
 
