@@ -10523,11 +10523,8 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     case NPCSCRIPTTILE:
     {
-        long tile = value / 10000;
-        
-        if(GuyH::loadNPC(ri->guyref, "npc->Tile") == SH::_NoError &&
-                BC::checkTile(tile, "npc->Tile") == SH::_NoError)
-            GuyH::getNPC()->scripttile = vbound(tile, -1, NEWMAXTILES-1);
+        if(GuyH::loadNPC(ri->guyref, "npc->ScriptTile") == SH::_NoError)
+            GuyH::getNPC()->scripttile = vbound((value/10000),-1, NEWMAXTILES-1);
     }
     break;
     
