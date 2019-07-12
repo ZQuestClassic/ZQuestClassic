@@ -2371,7 +2371,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
     
     //  int page = tmpscr->cpage;
     {
-        int blink_rate=1;
+        int blink_rate=((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)?6:1);
         //    int temptimer=0;
         int tempitem, tempweapon=0;
         strike_hint=strike_hint_table[strike_hint_counter];
@@ -3419,7 +3419,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 				special:
                     if(layer && ((checkflag!=mfRAFT && checkflag!=mfRAFT_BRANCH&& checkflag!=mfRAFT_BOUNCE) ||(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG4)))
                     {
-                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&1)) || ((get_debug() && zc_getkey(KEY_N)) && (frame&1)))
+                        if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate)) || ((get_debug() && zc_getkey(KEY_N)) && (frame&blink_rate)))
                         {
                             rectfill(dest,x,y,x+15,y+15,WHITE);
                         }
