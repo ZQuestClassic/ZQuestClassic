@@ -60,12 +60,13 @@ enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEff
 #define svMAPSCR 	0x20
 
 //suspend types
-enum { susptNONE, susptCOMBOANIM, susptCONTROLSTATE, susptSCRIPDRAWCLEAR, susptUPDATEFFC, 
-	susptGLOBALGAME, susptLINKACTIVE, susptDMAPSCRIPT, susptMOVINGBLOCKS, susptITEMSPRITESCRIPTS, susptITEMS,
-	susptCONVEYORS, susptGUYS, susptROAMINGITEM, susptDRAGGINGITEM, susptEWEAPONS, susptEWEAPONSCRIPTS, 
-	susptONEFRAMECONDS, susptITEMSCRIPTENGINE, susptLINK, susptMAGICCAST, susptLWEAPONS, susptDECORATIONS,
-	susptPARTICLES, susptHOOKSHOT, susptCOLLISIONS, susptLAKES, susptPALCYCLE, susptFFCSCRIPTS, 
-	susptSCREENDRAW, susptLAST };
+enum { susptCOMBOANIM, susptCONTROLSTATE, susptSCRIPDRAWCLEAR, susptUPDATEFFC, susptGLOBALGAME, 
+	susptLINKACTIVE, susptDMAPSCRIPT, susptMOVINGBLOCKS, susptITEMSPRITESCRIPTS, susptITEMS,
+	susptCONVEYORSITEMS, susptGUYS, susptROAMINGITEM, susptDRAGGINGITEM, susptEWEAPONS, 
+	susptEWEAPONSCRIPTS, susptONEFRAMECONDS, susptITEMSCRIPTENGINE, susptLINK, susptMAGICCAST, 
+	susptLWEAPONS, susptDECORATIONS, susptPARTICLES, susptHOOKSHOT, susptCOLLISIONS, 
+	susptLAKES, susptPALCYCLE, susptFFCSCRIPTS, susptSCREENDRAW, susptSCREENSCRIPTS, 
+	susptLENS, susptQUAKE, susptLAST };
 
 //npc function enums
 // npc_collision()
@@ -3569,11 +3570,13 @@ enum ASM_DEFINE
 #define IDATAVALIDATE		0x1366
 #define DISABLEKEY			0x1367
 #define DISABLEBUTTON		0x1368
+#define GAMESUSPEND		0x1369
+#define GAMERESUME		0x136A
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1369
+#define NUMVARIABLES         	0x136B
 
 // Script types
 

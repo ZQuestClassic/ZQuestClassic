@@ -2917,34 +2917,34 @@ void game_loop()
     #if LOGGAMELOOP > 0
     al_trace("game_loop is calling: %s\n", "animate_combos()\n");
     #endif
-    animate_combos();
+    if ( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
     #if LOGGAMELOOP > 0
     al_trace("game_loop is calling: %s\n", "load_control_state()\n");
     #endif
-    load_control_state();
+    if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
     
     if(!freezemsg)
     {
-        script_drawing_commands.Clear();
+        if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
     }
     
     if(!freezeff)
     {
-        update_freeform_combos();
+        if ( !FFCore.system_suspend[susptUPDATEFFC] ) update_freeform_combos();
     }
     
     // Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
     if(!freezemsg && g_doscript)
     {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+        if ( !FFCore.system_suspend[susptGLOBALGAME] ) ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
     }
     if(!freezemsg && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
-        ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+        if ( !FFCore.system_suspend[susptLINKACTIVE] ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
     }
     if(!freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
-        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+        if ( !FFCore.system_suspend[susptDMAPSCRIPT] ) ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
     }
     
     if(!freeze && !freezemsg)
@@ -2952,75 +2952,79 @@ void game_loop()
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "mblock2.animate()\n");
 	#endif
-        mblock2.animate(0);
+        if ( !FFCore.system_suspend[susptMOVINGBLOCKS] )  mblock2.animate(0);
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.animate()\n");
 	#endif
-        FFCore.itemSpriteScriptEngine();
-	items.animate();
+        if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] )  FFCore.itemSpriteScriptEngine();
+	if ( !FFCore.system_suspend[susptITEMS] ) items.animate();
 	
 	    //Can't be called in items.animate(), as ZQuest also uses this function.
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
 	#endif
-        items.check_conveyor();
+        if ( !FFCore.system_suspend[susptCONVEYORSITEMS] ) items.check_conveyor();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "guys.animate()\n");
 	#endif
-        guys.animate();
+        if ( !FFCore.system_suspend[susptGUYS] ) guys.animate();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "roaming_item()\n");
 	#endif
-        roaming_item();
+        if ( !FFCore.system_suspend[susptROAMINGITEM] ) roaming_item();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "dragging_item()\n");
 	#endif
-        dragging_item();
+        if ( !FFCore.system_suspend[susptDRAGGINGITEM] ) dragging_item();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
 	#endif
-        Ewpns.animate();
-	FFCore.eweaponScriptEngine();
+        if ( !FFCore.system_suspend[susptEWEAPONS] ) Ewpns.animate();
+	if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngine();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is setting: %s\n", "checklink=true()\n");
 	#endif
-        checklink = true;
+        if ( !FFCore.system_suspend[susptLINK] ) checklink = true;
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
 	#endif
-        clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
+        
+	if ( !FFCore.system_suspend[susptONEFRAMECONDS] )  clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
 	
-	FFCore.itemScriptEngine(); //run before lweapon scripts
+	if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )  FFCore.itemScriptEngine(); //run before lweapon scripts
 	
-        for(int i = 0; i < (gofast ? 8 : 1); i++)
-        {
-	    #if LOGGAMELOOP > 0
-	al_trace("game_loop is at: %s\n", "if(Link.animate(0)\n");
-	#endif
-            if(Link.animate(0))
-            {
-                if(!Quit)
-                {
-                    Quit = qGAMEOVER;
-                }
-                
-                return;
-            }
-            
-            checklink=false;
-        }
+	if ( !FFCore.system_suspend[susptLINK] )
+	{
+		for(int i = 0; i < (gofast ? 8 : 1); i++)
+		{
+		    #if LOGGAMELOOP > 0
+		al_trace("game_loop is at: %s\n", "if(Link.animate(0)\n");
+		#endif
+		    if(Link.animate(0))
+		    {
+			if(!Quit)
+			{
+			    Quit = qGAMEOVER;
+			}
+			
+			return;
+		    }
+		    
+		    checklink=false;
+		}
+	}
 	//FFCore.itemScriptEngine(); //run before lweapon scripts
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
 	#endif
 	Link.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
-        do_magic_casting();
+        if ( !FFCore.system_suspend[susptMAGICCAST] ) do_magic_casting();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
 	#endif
 	//perhaps add sprite.waitdraw, and call sprite script here too?
         //FFCore.lweaponScriptEngine();
-	Lwpns.animate();
+	if ( !FFCore.system_suspend[susptLWEAPONS] ) Lwpns.animate();
 	
 	//FFCore.lweaponScriptEngine();
         #if LOGGAMELOOP > 0
@@ -3030,15 +3034,15 @@ void game_loop()
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
 	#endif
-        decorations.animate();
+        if ( !FFCore.system_suspend[susptDECORATIONS] ) decorations.animate();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "particles.animate()\n");
 	#endif
-        particles.animate();
+        if ( !FFCore.system_suspend[susptPARTICLES] ) particles.animate();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "update_hookshot()\n");
 	#endif
-        update_hookshot();
+        if ( !FFCore.system_suspend[susptHOOKSHOT] ) update_hookshot();
         
         if(conveyclk<=0)
         {
@@ -3049,42 +3053,46 @@ void game_loop()
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "check_collisions()\n");
 	#endif
-        check_collisions();
+        if ( !FFCore.system_suspend[susptCOLLISIONS] ) check_collisions();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "dryuplake()\n");
 	#endif
-        dryuplake();
+        if ( !FFCore.system_suspend[susptLAKES] ) dryuplake();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "cycle_palette()\n");
 	#endif
-        cycle_palette();
+        if ( !FFCore.system_suspend[susptPALCYCLE] ) cycle_palette();
     }
     else if(freezemsg)
     {
         for(int i=0; i<guys.Count(); i++)
+	{
             if(((enemy*)guys.spr(i))->ignore_msg_freeze())
-                guys.spr(i)->animate(i);
+	    {
+                if ( !FFCore.system_suspend[susptGUYS] ) guys.spr(i)->animate(i);
+	    }
+        }
     }
     #if LOGGAMELOOP > 0
 	al_trace("game_loop at: %s\n", "if(global_wait)\n");
 	#endif
-    if(global_wait)
+    if(global_wait && !FFCore.system_suspend[susptGLOBALGAME] )
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
-    if ( link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    if ( link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptLINKACTIVE] )
     {
 	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
 	    link_waitdraw = false;
     }
-    if ( dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+    if ( dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptDMAPSCRIPT] )
     {
         ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 	dmap_waitdraw = false;
     }
     
-    if ( tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    if ( tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS] )
     {
 	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
 	tmpscr->screen_waitdraw = 0;	    
@@ -3096,7 +3104,7 @@ void game_loop()
 	if ( tmpscr->ffcswaitdraw&(1<<q) )
 	{
 		//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
-		if(tmpscr->ffscript[q] != 0)
+		if(tmpscr->ffscript[q] != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 		{
 			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
 			tmpscr->ffcswaitdraw &= ~(1<<q);
@@ -3105,11 +3113,11 @@ void game_loop()
     }
     
     //Waitdraw for item scripts. 
-    FFCore.itemScriptEngineOnWaitdraw();
+    if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] ) FFCore.itemScriptEngineOnWaitdraw();
     
     //Sprite scripts on Waitdraw
-    FFCore.eweaponScriptEngineOnWaitdraw();
-    FFCore.itemSpriteScriptEngineOnWaitdraw();
+    if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngineOnWaitdraw();
+    if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) FFCore.itemSpriteScriptEngineOnWaitdraw();
     
     
     
@@ -3117,7 +3125,7 @@ void game_loop()
     #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "draw_screen()\n");
 	#endif
-    draw_screen(tmpscr);
+    if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr);
     
     //clear Link's last hits 
     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
@@ -3262,7 +3270,7 @@ void game_loop()
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "if(lensclk)\n");
 	#endif
-        if(lensclk)
+        if(lensclk && !FFCore.system_suspend[susptLENS])
         {
             draw_lens_over();
             --lensclk;
@@ -3271,7 +3279,7 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "if(quakeclk)\n");
 	#endif
         // Earthquake!
-        if(quakeclk>0)
+        if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
         {
             playing_field_offset=56+((int)(sin((double)(--quakeclk*2-frame))*4));
         }

@@ -4819,7 +4819,11 @@ case NPCBEHAVIOUR: {
     case DISABLEDITEM:
 	ret = (game->items_off[(ri->d[0])/10000] ? 10000 : 0);
 	break;
-        
+    case GAMESUSPEND:
+    {
+	ret = (( FFCore.system_suspend[(ri->d[0])/10000] ) ? 10000 : 0);
+	break;
+    }
     case GAMELITEMSD:
         ret=game->lvlitems[(ri->d[0])/10000]*10000;
         break;
@@ -10971,6 +10975,12 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case DISABLEDITEM:
 	game->items_off[(ri->d[0])/10000]=value/10000;
 	break;
+    
+    case GAMESUSPEND:
+    {
+	FFCore.system_suspend[(ri->d[0])/10000]= ( (value) ? 1 : 0 );
+	break;
+    }
         
     case GAMELITEMSD:
         game->lvlitems[(ri->d[0])/10000]=value/10000;
