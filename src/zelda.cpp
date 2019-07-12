@@ -3084,7 +3084,7 @@ void game_loop()
 	dmap_waitdraw = false;
     }
     
-    if ( tmpscr->script != 0 && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    if ( tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
 	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
 	tmpscr->screen_waitdraw = 0;	    
