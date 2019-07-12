@@ -22097,6 +22097,8 @@ void FFScript::init()
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
 	skip_ending_credits = 0;
+	//quest_format : is this properly initialised?
+	for ( int q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 

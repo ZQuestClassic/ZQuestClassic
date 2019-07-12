@@ -59,6 +59,14 @@ enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEff
 #define svDMAPS 	0x10
 #define svMAPSCR 	0x20
 
+//suspend types
+enum { susptNONE, susptCOMBOANIM, susptCONTROLSTATE, susptSCRIPDRAWCLEAR, susptUPDATEFFC, 
+	susptGLOBALGAME, susptLINKACTIVE, susptDMAPSCRIPT, susptMOVINGBLOCKS, susptITEMSPRITESCRIPTS, susptITEMS,
+	susptCONVEYORS, susptGUYS, susptROAMINGITEM, susptDRAGGINGITEM, susptEWEAPONS, susptEWEAPONSCRIPTS, 
+	susptONEFRAMECONDS, susptITEMSCRIPTENGINE, susptLINK, susptMAGICCAST, susptLWEAPONS, susptDECORATIONS,
+	susptPARTICLES, susptHOOKSHOT, susptCOLLISIONS, susptLAKES, susptPALCYCLE, susptFFCSCRIPTS, 
+	susptSCREENDRAW, susptLAST };
+
 //npc function enums
 // npc_collision()
 	//bool npc->Collision
@@ -359,6 +367,7 @@ long quest_format[versiontypesLAST];
 byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game credits, but not Link's Win script. -Z
 
 long emulation[emuLAST];
+byte system_suspend[susptLAST];
 
 long coreflags;
 long script_UIDs[UID_TYPES];
