@@ -13,6 +13,8 @@
 #define _ZDEFS_H_
 
 #define DEVLEVEL 2
+#define COLLECT_SCRIPT_ITEM_ZERO -32767
+
 //DEVLEVEL 1: Ignore passwd
 //DEVLEVEL 2: +More verbose logging. 
 

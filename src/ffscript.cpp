@@ -884,6 +884,7 @@ bool global_wait = false;
 bool link_waitdraw = false;
 bool dmap_waitdraw = false;
 word item_doscript[256] = {0};
+word item_collect_doscript[256] = {0};
 byte dmapscriptInitialised[512] = {0};
 //Sprite script data
 refInfo itemScriptData[256];
@@ -966,6 +967,7 @@ void FFScript::initZScriptItemScripts()
 	{
 		if ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] ) item_doscript[q] = 1;
 		else item_doscript[q] = 0;
+		item_collect_doscript[q] = 0;
 		itemScriptData[q].Clear();
 		itemCollectScriptData[q].Clear();
 		clear_item_stack(q);
@@ -17833,8 +17835,8 @@ int run_script(const byte type, const word script, const long i)
 	    case SCRIPT_ITEM:
 	    {
 		int new_i = 0;
-		bool collect = ( i < 1 );
-		new_i = ( collect ) ? (i * -1) : i;
+		bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+		new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
 		
 		ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
 		
