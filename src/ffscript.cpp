@@ -20304,7 +20304,7 @@ int run_script(const byte type, const word script, const long i)
 		{
 		    tmpscr->script = 0;
 		    tmpscr->screendatascriptInitialised = 0;
-		    tmpscr->doscript = 0l
+		    tmpscr->doscript = 0;
 		    break;
 		} 
         }
