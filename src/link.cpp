@@ -5523,7 +5523,10 @@ bool LinkClass::startwpn(int itemid)
                 return false;
                 
             paymagiccost(itemid);
-            fall -= FEATHERJUMP*(itemsbuf[itemid].power+2);
+			if(itemsbuf[itemid].flags & ITEM_FLAG1)
+				fall -= itemsbuf[itemid].power;
+			else
+				fall -= FEATHERJUMP*(itemsbuf[itemid].power+2);
             
             // Reset the ladder, unless on an unwalkable combo
             if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0)))
