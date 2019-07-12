@@ -2713,7 +2713,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 0);  	    
 	set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 0);  	    
-	set_bit(quest_rules, qr_SCRIPTDRAWSWHENSCROLLING, 0);  	    
+	set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 0);
 	set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 0);  	    
 	set_bit(quest_rules, qr_DYINGENEMYESDONTHURTLINK, 0);  	    
 	set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);  

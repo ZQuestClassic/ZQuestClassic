@@ -13964,53 +13964,86 @@ int LinkClass::lookaheadflag(int d2)
 }
 
 //Bit of a messy kludge to give the correct Link->X/Link->Y in the script
-void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames)
+void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw)
 {
-    fix storex = x, storey = y;
-    
-    switch(scrolldir)
-    {
-    case up:
-        if(y < 160) y = 176;
-        else if(cx > 0 && !end_frames) y = sy + 156;
-        else y = 160;
-        
-        break;
-        
-    case down:
-        if(y > 0) y = -16;
-        else if(cx > 0 && !end_frames) y = sy - 172;
-        else y = 0;
-        
-        break;
-        
-    case left:
-        if(x < 240) x = 256;
-        else if(cx > 0) x = sx + 236;
-        else x = 240;
-        
-        break;
-        
-    case right:
-        if(x > 0) x = -16;
-        else if(cx > 0)	x = sx - 252;
-        else x = 0;
-        
-        break;
-    }
-    
-    if(g_doscript)
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-    if (link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
-	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
-    if ( dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
-	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-    if ( tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);    
-    }
-    
-    x = storex, y = storey;
+	// For rafting (and possibly other esoteric things)
+	// Link's action should remain unchanged while scrolling,
+	// but for the sake of scripts, here's an eye-watering kludge.
+	actiontype lastaction = action;
+	action=scrolling; FFCore.setLinkAction(scrolling);
+	
+	fix storex = x, storey = y;
+	
+	switch(scrolldir)
+	{
+	case up:
+		if(y < 160) y = 176;
+		else if(cx > 0 && !end_frames) y = sy + 156;
+		else y = 160;
+		
+		break;
+		
+	case down:
+		if(y > 0) y = -16;
+		else if(cx > 0 && !end_frames) y = sy - 172;
+		else y = 0;
+		
+		break;
+		
+	case left:
+		if(x < 240) x = 256;
+		else if(cx > 0) x = sx + 236;
+		else x = 240;
+		
+		break;
+		
+	case right:
+		if(x > 0) x = -16;
+		else if(cx > 0)	x = sx - 252;
+		else x = 0;
+		
+		break;
+	}
+	if(waitdraw)
+	{
+		if(global_wait)
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+			global_wait=false;
+		}
+		if ( link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+			link_waitdraw = false;
+		}
+		if ( dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+			dmap_waitdraw = false;
+		}
+		if ( tmpscr->script != 0 && tmpscr->screen_waitdraw && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
+			tmpscr->screen_waitdraw = 0;		
+		}
+	}
+	else
+	{
+		if(g_doscript)
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+		if (link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+		if ( dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+		if ( tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+		}
+	}
+	
+	x = storex, y = storey;
+	
+	action=lastaction; FFCore.setLinkAction(lastaction);
 }
 
 //Has solving the maze enabled a side warp?
@@ -14181,6 +14214,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     int cx = 0;
     int step = get_scroll_step(scrolldir);
     int delay = get_scroll_delay(scrolldir);
+    bool end_frames = false;
     
     int scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
     if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
@@ -14195,26 +14229,26 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     lstep = (lstep + 6) % 12;
     cx = scx;
     
-    if(global_wait)
-    {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-        global_wait=false;
-    }
-    if ( link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
-        link_waitdraw = false;
-    }
-    if ( dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-	dmap_waitdraw = false;
-    }
-    if ( tmpscr->script != 0 && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
-	tmpscr->screen_waitdraw = 0;	    
-    }
+	if(global_wait)
+	{
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+		global_wait=false;
+	}
+	if ( link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+		link_waitdraw = false;
+	}
+	if ( dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	{
+		ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+		dmap_waitdraw = false;
+	}
+	if ( tmpscr->script != 0 && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	{
+		ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
+		tmpscr->screen_waitdraw = 0;		
+	}
     
     for ( int q = 0; q < 32; ++q )
     {
@@ -14236,8 +14270,28 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     FFCore.eweaponScriptEngineOnWaitdraw();
     FFCore.itemSpriteScriptEngineOnWaitdraw();
     
-    do
+	//This is no longer a do-while, as the first iteration is now slightly different. -V
+	draw_screen(tmpscr);
+	
+	if(cx == scx)
+		rehydratelake(false);
+		
+	advanceframe(true);
+	
+	if(Quit)
+	{
+		screenscrolling = false;
+		return;
+	}
+	
+	++cx;
+    while(cx < 32)
     {
+		if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
+		{
+			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
+			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
+		}
         draw_screen(tmpscr);
         
         if(cx == scx)
@@ -14253,8 +14307,6 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         
         ++cx;
     }
-    while(cx < 32);
-    if ( !get_bit(quest_rules,qr_SCRIPTDRAWSWHENSCROLLING))
 	script_drawing_commands.Clear();
     
     
@@ -14417,7 +14469,6 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     cx *= delay; //so we can have drawing re-done every frame,
     //previously it was for(0 to delay) advanceframes at end of loop
     int no_move = 0;
-    bool end_frames = false;
     
     for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
     {
@@ -14427,16 +14478,9 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
             return;
         }
         
-	if ( !get_bit(quest_rules,qr_SCRIPTDRAWSWHENSCROLLING) )
 		script_drawing_commands.Clear();
         
-        // For rafting (and possibly other esoteric things)
-        // Link's action should remain unchanged while scrolling,
-        // but for the sake of scripts, here's an eye-watering kludge.
-        lastaction = action;
-        action=scrolling; FFCore.setLinkAction(scrolling);
-        ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames);
-        action=lastaction; FFCore.setLinkAction(lastaction);
+        ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false);
         
         if(no_move > 0)
             no_move--;
@@ -14514,15 +14558,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
             }
         }
         //FFScript.OnWaitdraw()
-        if(global_wait)
-        {
-            // And now to injure your other eye
-            lastaction=action;
-            action=scrolling; FFCore.setLinkAction(scrolling);
-            ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames);
-            action=lastaction; FFCore.setLinkAction(lastaction);
-            global_wait=false;
-        }
+		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
         
         //Drawing
         tx = sx;
@@ -14694,7 +14730,6 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     }//end main scrolling loop (2 spaces tab width makes me sad =( )
     
     
-    
     clear_bitmap(msgdisplaybuf);
     set_clip_state(msgdisplaybuf, 1);
     
@@ -14835,6 +14870,12 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     loadside = scrolldir^1;
     eventlog_mapflags();
     decorations.animate(); //continue to animate tall grass during scrolling
+    if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
+	{
+		script_drawing_commands.Clear();
+		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
+		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
+	}
 }
 
 // How much to reduce Link's damage, taking into account various rings.
