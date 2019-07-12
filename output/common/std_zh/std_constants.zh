@@ -1779,6 +1779,7 @@ const int CF_ARMOSITEM          = 10;
 const int CF_SBOMB              = 11;
 const int CF_RAFTBRANCH         = 12;
 const int CF_DIVEITEM           = 13;
+const int CF_LENSMARKER			= 14;
 const int CF_ZELDA              = 15;
 const int CF_SECRETS01          = 16;
 const int CF_SECRETS02          = 17;
