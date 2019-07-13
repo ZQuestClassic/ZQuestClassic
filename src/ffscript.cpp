@@ -8077,9 +8077,8 @@ void set_register(const long arg, const long value)
 	    //Stop current script if set false.
 	    if ( !value && item_doscript[itemID] )
 	    {
-		item_doscript[itemID] = 0;
-		itemScriptData[itemID].Clear();
-		    
+		item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+		//itemScriptData[itemID].Clear(); //Don't clear here, causes crash if is current item!
 	    }
 	    else if ( value && !item_doscript[itemID] )
 	    {
@@ -20260,20 +20259,25 @@ int run_script(const byte type, const word script, const long i)
 		{
 			Z_scripterrlog("Item script reached quit/end of scope\n");
 			int new_i = 0;
-			bool collect = ( i < 1 );
-			new_i = ( collect ) ? (i * -1) : i;
+			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
 			
-	
-			//if ( !collect ) 
-				
-		   
 			if ( !collect )
 			{
 				if ( (itemsbuf[i].flags&ITEM_FLAG16) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
+				item_doscript[new_i] = 0;
+				for ( int q = 0; q < 1024; q++ ) item_stack[new_i][q] = 0xFFFF;
+				itemScriptData[new_i].Clear();
+			}
+			else
+			{
+				item_collect_doscript[new_i] = 0;
+				for ( int q = 0; q < 1024; q++ ) item_collect_stack[new_i][q] = 0xFFFF;
+				itemCollectScriptData[new_i].Clear();
 			}
 			Z_scripterrlog("Item script reached quit/end of scope for new_i: %d\n",new_i);
 			itemscriptInitialised[new_i] = 0;
-			item_doscript[new_i] = 0;
+			
 			break; //item scripts aren't gonna go again anyway
 		}
 		case SCRIPT_NPC:
@@ -23137,6 +23141,12 @@ bool FFScript::itemScriptEngine()
 				//}
 				break;
 			}
+			case 4: //Item set itself false, kill script and clear data here
+			{
+				item_doscript[q] = 0;
+				itemScriptData[q].Clear();
+				//fall-through
+			}
 			case 0:
 			{
 				itemscriptInitialised[q] = 0;
@@ -23162,7 +23172,13 @@ bool FFScript::itemScriptEngine()
 				
 			}
 		}
-			
+		
+		if(item_doscript[q]==4)  //Item set itself false, kill script and clear data here
+		{
+			item_doscript[q] = 0;
+			itemScriptData[q].Clear();
+			itemscriptInitialised[q] = 0;
+		}
 		//SKIPITEM:
 		//if ( ( item_doscript[q] == 3 ) )
 		//{
