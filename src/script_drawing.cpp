@@ -5991,7 +5991,12 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
 	switch(bitmapIndex)
 	{
-		//-1 and -2 are now handled below. -Z ( 17th April, 2019 )
+		case -1:
+			destBMP = framebuf; //Drawing to the screen.
+			break;
+		case -2:
+			destBMP = bmp; //Drawing to the current RenderTarget.
+			break;
 		//1 through 6 are the old system bitmaps (Render Targets)
 		case 0:
 		case 1:
@@ -6024,17 +6029,7 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	#endif
 	
 	
-	if ( bitmapIndex == -1 ) 
-	{
-		destBMP = framebuf; //Drawing to the screen.
-	}
-	
-	else if ( bitmapIndex == -2 ) 
-	{
-
-		destBMP = bmp; //Drawing to the current RenderTarget.
-	}
-	else if (!destBMP)
+	if (!destBMP)
 	{
 		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
@@ -6270,7 +6265,12 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
 	switch(bitmapIndex)
 	{
-		//-1 and -2 are now handled below. -Z ( 17th April, 2019 )
+		case -1:
+			destBMP = framebuf; //Drawing to the screen.
+			break;
+		case -2:
+			destBMP = bmp; //Drawing to the current RenderTarget.
+			break;
 		//1 through 6 are the old system bitmaps (Render Targets)
 		case 0:
 		case 1:
@@ -6303,17 +6303,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	#endif
 	
 	
-	if ( bitmapIndex == -1 ) 
-	{
-		destBMP = framebuf; //Drawing to the screen.
-	}
-	
-	else if ( bitmapIndex == -2 ) 
-	{
-
-		destBMP = bmp; //Drawing to the current RenderTarget.
-	}
-	else if (!destBMP)
+	if (!destBMP)
 	{
 		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
@@ -7630,7 +7620,12 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
 	switch(bitmapIndex)
 	{
-		//-1 and -2 are now handled below. -Z ( 17th April, 2019 )
+		case -1:
+			destBMP = framebuf; //Drawing to the screen.
+			break;
+		case -2:
+			destBMP = bmp; //Drawing to the current RenderTarget.
+			break;
 		//1 through 6 are the old system bitmaps (Render Targets)
 		case 0:
 		case 1:
@@ -7661,17 +7656,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	#endif
 	
 	
-	if ( bitmapIndex == -1 ) 
-	{
-		destBMP = framebuf; //Drawing to the screen.
-	}
-	
-	else if ( bitmapIndex == -2 ) 
-	{
-
-		destBMP = bmp; //Drawing to the current RenderTarget.
-	}
-	else if (!destBMP)
+	if (!destBMP)
 	{
 		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
