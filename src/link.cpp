@@ -13013,13 +13013,19 @@ void LinkClass::stepforward(int steps, bool adjust)
         
 	if ( get_bit(quest_rules,qr_SCRIPTSRUNINLINKSTEPFORWARD) )
 	{
-		if(g_doscript)
+		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && g_doscript )
+		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-		if (link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		}
+		if ((!( FFCore.system_suspend[susptLINKACTIVE] )) && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		{
 			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
-		if ( dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		}
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-		if ( tmpscr->script != 0 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		}
+		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);    
 		}
@@ -14012,22 +14018,23 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	}
 	if(waitdraw)
 	{
-		if(global_wait)
+		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && global_wait)
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
 			global_wait=false;
 		}
-		if ( link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptLINKACTIVE] )) && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
 			link_waitdraw = false;
 		}
-		if ( dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 			dmap_waitdraw = false;
 		}
-		if ( tmpscr->script != 0 && tmpscr->screen_waitdraw && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
+		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->screen_waitdraw && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
 			tmpscr->screen_waitdraw = 0;		
@@ -14035,13 +14042,19 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	}
 	else
 	{
-		if(g_doscript)
+		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && g_doscript)
+		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-		if (link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		}
+		if ((!( FFCore.system_suspend[susptLINKACTIVE] )) && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		{
 			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
-		if ( dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		}
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-		if ( tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		}
+		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
 		}
@@ -14235,22 +14248,22 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     lstep = (lstep + 6) % 12;
     cx = scx;
     
-	if(global_wait)
+	if((!( FFCore.system_suspend[susptGLOBALGAME] )) && global_wait)
 	{
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
 		global_wait=false;
 	}
-	if ( link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptLINKACTIVE] )) && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
 		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
 		link_waitdraw = false;
 	}
-	if ( dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
 		ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 		dmap_waitdraw = false;
 	}
-	if ( tmpscr->script != 0 && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
 		ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
 		tmpscr->screen_waitdraw = 0;		
