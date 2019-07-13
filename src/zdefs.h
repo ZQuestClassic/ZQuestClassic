@@ -311,6 +311,14 @@ extern bool fake_pack_writing;
 #define MAXCUSTOMMIDIS        252                                 // uses bit string for midi flags, so 32 bytes
 #define MIDIFLAGS_SIZE  ((MAXCUSTOMMIDIS+7)>>3)
 #define MAXCUSTOMTUNES        252
+//Midi offsets
+//The offset from dmap/mapscr-> midi/screen_midi to currmidi
+#define MIDIOFFSET_DMAP		(ZC_MIDI_COUNT-4)
+#define MIDIOFFSET_MAPSCR	(ZC_MIDI_COUNT-4)
+//The offset from currmidi to ZScript MIDI values
+#define MIDIOFFSET_ZSCRIPT	(ZC_MIDI_COUNT-1)
+//Use together as `(MIDIOFFSET_DMAP-MIDIOFFSET_ZSCRIPT)` to go from `dmap` directly to `zscript`
+
 
 #define MAXMUSIC              256                                 // uses bit string for music flags, so 32 bytes
 #define MUSICFLAGS_SIZE       MAXMUSIC>>3
