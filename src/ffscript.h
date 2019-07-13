@@ -60,12 +60,38 @@ enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEff
 #define svMAPSCR 	0x20
 
 //suspend types
-enum { susptNONE, susptCOMBOANIM, susptCONTROLSTATE, susptSCRIPDRAWCLEAR, susptUPDATEFFC, 
-	susptGLOBALGAME, susptLINKACTIVE, susptDMAPSCRIPT, susptMOVINGBLOCKS, susptITEMSPRITESCRIPTS, susptITEMS,
-	susptCONVEYORS, susptGUYS, susptROAMINGITEM, susptDRAGGINGITEM, susptEWEAPONS, susptEWEAPONSCRIPTS, 
-	susptONEFRAMECONDS, susptITEMSCRIPTENGINE, susptLINK, susptMAGICCAST, susptLWEAPONS, susptDECORATIONS,
-	susptPARTICLES, susptHOOKSHOT, susptCOLLISIONS, susptLAKES, susptPALCYCLE, susptFFCSCRIPTS, 
-	susptSCREENDRAW, susptLAST };
+enum { 
+	//Typical processes that we want to pause, similar to ALLOFF()
+	
+	//0 : Combo animation
+	susptCOMBOANIM,
+	
+	//1->5 Main Sprite animation by type
+	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptLINK, 
+	
+	//6 : FFC (e.g. movement, changers, but not scripts)
+	susptUPDATEFFC, //ffcs
+	
+	//7->8 : Sprite subclasses
+	susptDECORATIONS, susptPARTICLES, //sprite subclasses
+	
+	//9->10: Palette events
+	susptPALCYCLE, susptLAKES, //lake dries up
+	
+	//11->15 : game system events
+	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
+
+	//16->26 Script Types
+	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
+	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
+	susptSUBSCREENSCRIPTS, //26
+	
+	//27->29 : Moving items
+	susptCONVEYORSITEMS, susptDRAGGINGITEM, susptROAMINGITEM,
+	//30->34 : Misc
+	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
+	//35
+	susptLAST };
 
 //npc function enums
 // npc_collision()
@@ -3569,11 +3595,12 @@ enum ASM_DEFINE
 #define IDATAVALIDATE		0x1366
 #define DISABLEKEY			0x1367
 #define DISABLEBUTTON		0x1368
+#define GAMESUSPEND		0x1369
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1369
+#define NUMVARIABLES         	0x136A
 
 // Script types
 

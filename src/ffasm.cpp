@@ -1970,6 +1970,7 @@ script_variable variable_list[]=
 	{"IDATAVALIDATE", IDATAVALIDATE, 0, 0 },
 	{ "DISABLEKEY",		DISABLEKEY,        0,             0 },
 	{ "DISABLEBUTTON",		DISABLEBUTTON,        0,             0 },
+	{ "GAMESUSPEND",		GAMESUSPEND,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -4819,7 +4819,11 @@ case NPCBEHAVIOUR: {
     case DISABLEDITEM:
 	ret = (game->items_off[(ri->d[0])/10000] ? 10000 : 0);
 	break;
-        
+    case GAMESUSPEND:
+    {
+	ret = (( FFCore.system_suspend[(ri->d[0])/10000] ) ? 10000 : 0);
+	break;
+    }
     case GAMELITEMSD:
         ret=game->lvlitems[(ri->d[0])/10000]*10000;
         break;
@@ -10971,6 +10975,12 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case DISABLEDITEM:
 	game->items_off[(ri->d[0])/10000]=value/10000;
 	break;
+    
+    case GAMESUSPEND:
+    {
+	FFCore.system_suspend[(ri->d[0])/10000]= ( (value) ? 1 : 0 );
+	break;
+    }
         
     case GAMELITEMSD:
         game->lvlitems[(ri->d[0])/10000]=value/10000;
@@ -22759,6 +22769,7 @@ bool FFScript::newScriptEngine()
 
 void FFScript::lweaponScriptEngine()
 {
+	if ( FFCore.system_suspend[susptLWEAPONSCRIPTS] ) return;
 	for ( int q = 0; q < Lwpns.Count(); q++ )
 	{
 		//ri->lwpn = Lwpns.spr(q)->getUID();
@@ -23072,6 +23083,7 @@ void FFScript::lweaponScriptEngine()
 
 bool FFScript::itemScriptEngine()
 {
+	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
 	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
 	for ( int q = 0; q < 256; q++ )
 	{
@@ -23206,6 +23218,7 @@ bool FFScript::itemScriptEngine()
 
 bool FFScript::itemScriptEngineOnWaitdraw()
 {
+	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
 	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
 	for ( int q = 0; q < 256; q++ )
 	{
@@ -23289,6 +23302,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 
 void FFScript::eweaponScriptEngine()
 {
+	if ( FFCore.system_suspend[susptEWEAPONSCRIPTS] ) return;
 	for ( int q = 0; q < Ewpns.Count(); q++ )
 	{
 		//ri->ewpn = Ewpns.spr(q)->getUID();
@@ -23713,6 +23727,7 @@ void FFScript::eweaponScriptEngine()
 
 void FFScript::eweaponScriptEngineOnWaitdraw()
 {
+	if ( FFCore.system_suspend[susptEWEAPONSCRIPTS] ) return;
 	for ( int q = 0; q < Ewpns.Count(); q++ )
 	{
 		//ri->ewpn = Ewpns.spr(q)->getUID();
@@ -24140,6 +24155,7 @@ void FFScript::eweaponScriptEngineOnWaitdraw()
 
 void FFScript::itemSpriteScriptEngine()
 {
+	if ( FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) return;
 	for ( int q = 0; q < items.Count(); q++ )
 	{
 		item *wp = (item*)items.spr(q);
@@ -24150,6 +24166,7 @@ void FFScript::itemSpriteScriptEngine()
 
 void FFScript::itemSpriteScriptEngineOnWaitdraw()
 {
+	if ( FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) return;
 	for ( int q = 0; q < items.Count(); q++ )
 	{
 		
