@@ -2934,17 +2934,17 @@ void game_loop()
     }
     
     // Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
-    if(!freezemsg && g_doscript)
+    if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && g_doscript)
     {
-        if ( !FFCore.system_suspend[susptGLOBALGAME] ) ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
     }
-    if(!freezemsg && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+    if(!FFCore.system_suspend[susptLINKACTIVE] && !freezemsg && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
-        if ( !FFCore.system_suspend[susptLINKACTIVE] ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+        ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
     }
-    if(!freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+    if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
-        if ( !FFCore.system_suspend[susptDMAPSCRIPT] ) ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
     }
     
     if(!freeze && !freezemsg)
@@ -3076,23 +3076,23 @@ void game_loop()
     #if LOGGAMELOOP > 0
 	al_trace("game_loop at: %s\n", "if(global_wait)\n");
 	#endif
-    if(global_wait && !FFCore.system_suspend[susptGLOBALGAME] )
+    if( !FFCore.system_suspend[susptGLOBALGAME] && global_wait )
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
-    if ( link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptLINKACTIVE] )
+    if ( !FFCore.system_suspend[susptLINKACTIVE] && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
 	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
 	    link_waitdraw = false;
     }
-    if ( dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptDMAPSCRIPT] )
+    if ( !FFCore.system_suspend[susptDMAPSCRIPT] && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
         ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 	dmap_waitdraw = false;
     }
     
-    if ( tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS] )
+    if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
 	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
 	tmpscr->screen_waitdraw = 0;	    
