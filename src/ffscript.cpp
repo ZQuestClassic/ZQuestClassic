@@ -2474,7 +2474,7 @@ long get_register(const long arg)
     
     case INPUTMOUSEY:
     {
-        int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+        int topOffset=(resy/2)-((112-(quakeclk > 0 ? (playing_field_offset=56+((int)(sin((double)(--quakeclk*2-frame))*4))) : (playing_field_offset))*screen_scale);
         ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
         break;
     }
