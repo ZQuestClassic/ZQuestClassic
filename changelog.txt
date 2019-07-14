@@ -2,6 +2,12 @@
 
 //Alpha 26
 
+Fix: Spamming Item Scripts 
+	Spamming a button item with a multi-frame item script will no longer
+	cause the script to restart before it completes.
+Add sanity guard on idata->RunScript(2)
+Fix crashes with itemdata->RunScript
+Fix: Start/Resume Passive Item Scripts on Link->Item = true
 Updated qst.dat files for classic and default module with QRs appropriate to Alpha 26.
 Fix some QR defaults when reading quests < 2.66 Build 46
 Modules: Updated default quest with appropriate rules.
