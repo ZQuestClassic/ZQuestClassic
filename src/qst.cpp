@@ -2731,6 +2731,12 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	set_bit(quest_rules, qr_TRACESCRIPTIDS, 0);      
 	set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);      
+	set_bit(quest_rules, qr_PARSER_BOOL_TRUE_DECIMAL, 1);   
+	set_bit(quest_rules,qr_PARSER_250DIVISION,1);
+	set_bit(quest_rules,qr_PARSER_BOOL_TRUE_DECIMAL,1);
+	set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
+	set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
+	set_bit(quest_rules,qr_32BIT_BINARY,0);
 	  	    
     }
     if ( tempheader.zelda_version < 0x255 )
@@ -2776,11 +2782,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if((tempheader.zelda_version < 0x255))
 	{
-		set_bit(quest_rules,qr_PARSER_250DIVISION,1);
-		set_bit(quest_rules,qr_PARSER_BOOL_TRUE_DECIMAL,1);
-		set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
-		set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
-		set_bit(quest_rules,qr_32BIT_BINARY,0);
+		
 	}
 	
     if(keepdata==true)
