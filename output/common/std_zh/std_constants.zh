@@ -2637,3 +2637,13 @@ enum EnemyPattern
 	PATTERN_STANDARD_RANDOM,
 	PATTERN_NO_SPAWNING
 };
+
+//MIDI values, used for 'Screen->MIDI', 'dmapdata->MIDI', 'mapdata->MIDI', 'Audio->PlayMIDI'
+enum
+{
+    MIDI_USE_DMAP = -4, //ONLY for 'Screen->MIDI' and 'mapdata->MIDI'
+    MIDI_NONE,
+    MIDI_OVERWORLD,
+    MIDI_DUNGEON,
+    MIDI_LEVEL9 //==0, cannot be played by 'Audio->PlayMIDI'
+}

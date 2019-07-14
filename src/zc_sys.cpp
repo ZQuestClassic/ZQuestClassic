@@ -9531,7 +9531,7 @@ void play_DmapMusic()
             
         default:
             if(m>=4 && m<4+MAXCUSTOMMIDIS)
-                jukebox(m-4+ZC_MIDI_COUNT);
+                jukebox(m+MIDIOFFSET_DMAP);
             else
                 music_stop();
         }
@@ -9566,7 +9566,7 @@ void playLevelMusic()
         
     default:
         if(m>=4 && m<4+MAXCUSTOMMIDIS)
-            jukebox(m-4+ZC_MIDI_COUNT);
+            jukebox(m+MIDIOFFSET_MAPSCR);
         else
             music_stop();
     }
