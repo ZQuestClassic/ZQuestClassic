@@ -19699,18 +19699,29 @@ int run_script(const byte type, const word script, const long i)
 			{
 				case 0:
 				{
-					item_doscript[itemid] = 0;
+					item_doscript[itemid] = 4;
 					break;
 				}
 				case 1:
 				{
 					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
 					{
-						item_doscript[itemid] = 3;
+						if ( !item_doscript[itemid] ) 
+						{
+							for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
+							itemScriptData[itemid].Clear();
+							item_doscript[itemid] = 1;
+							//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
+						}
+						else
+						{
+							//Rob, clear the stack here, clear refinfo, and set up to run again on the next frame from the beginning.
+						}
 					}
 					break;
 				}
 				case 2:
+				default:
 				{
 					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
 					{
