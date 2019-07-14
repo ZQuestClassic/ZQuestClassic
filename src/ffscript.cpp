@@ -8103,6 +8103,7 @@ void set_register(const long arg, const long value)
 		//Clear the item refInfo and stack for use.
 		itemScriptData[itemID].Clear();
 		memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
 		    
 	    }
             
