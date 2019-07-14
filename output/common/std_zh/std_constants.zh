@@ -1,5 +1,5 @@
 // std_constants.zh
-// 1st July, 2019 for ZC 2.55 Alpha 26
+// 14th July, 2019 for ZC 2.55 Alpha 26
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -2646,4 +2646,4 @@ enum
     MIDI_OVERWORLD,
     MIDI_DUNGEON,
     MIDI_LEVEL9 //==0, cannot be played by 'Audio->PlayMIDI'
-}
+};
