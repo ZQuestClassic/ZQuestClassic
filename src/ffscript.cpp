@@ -19725,7 +19725,7 @@ int run_script(const byte type, const word script, const long i)
 				{
 					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
 					{
-						item_doscript[itemid] = 2;
+						if (item_doscript[itemid] != 2 )item_doscript[itemid] = 2;
 					}
 					break;
 				}
