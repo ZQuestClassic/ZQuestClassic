@@ -1,5 +1,5 @@
 //String Constants
-//10-JUNE-2016
+//1st July, 2019 for ZC 2.55 Alpha 26
 
 //printf, sprintf and strcatf arguments
 const char32 MSGC_LINEFEED			= 10;	// '\n'

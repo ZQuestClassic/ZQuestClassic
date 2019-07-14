@@ -1,4 +1,5 @@
-// std.zh - for ZC 2.55.0 : 28th April, 2019
+// std.zh
+// 1st July, 2019 for ZC 2.55 Alpha 26
 // Standard header for ZScript.
 // Please don't edit this file. Instead, create a new header file for your
 // quests' scripts,  add constants and procedures to that file,
