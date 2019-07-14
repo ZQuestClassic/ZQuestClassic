@@ -2410,11 +2410,18 @@ void LinkClass::checkstab()
 				for ( int q = 0; q < 1024; q++ ) item_collect_stack[items.spr(j)->id][q] = 0xFFFF;
 				ri->Clear();
 				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id & 0xFFF)*-1));
-				if ( items.spr(j)->id > 0 ) //No collect script on item 0.
+				
+				if ( items.spr(j)->id > 0 && !item_collect_doscript[items.spr(j)->id] ) //No collect script on item 0. 
 				{
 					item_collect_doscript[items.spr(j)->id] = 1;
 					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id)*-1));
 				}
+				else if (items.spr(j)->id == 0 && !item_collect_doscript[items.spr(j)->id]) //item 0
+				{
+					item_collect_doscript[items.spr(j)->id] = 1;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+				}
+	
 				//runningItemScripts[items.spr(j)->id] = 0;
 				
                         }
@@ -4091,7 +4098,7 @@ void LinkClass::hitlink(int hit2)
             game->set_item(itemid,false);
             
         // Stomp Boots script
-        if(itemsbuf[itemid].script != 0)
+        if(itemsbuf[itemid].script != 0 && !item_doscript[itemid])
         {
 		//clear the item script stack for a new script
 		ri = &(itemScriptData[itemid]);
@@ -6626,7 +6633,7 @@ void do_lens()
 		
 		paymagiccost(itemid);
 		
-		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
+		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !item_doscript[itemid])
 		{
 			//clear the item script stack for a new script
 			//itemScriptData[(itemid & 0xFFF)].Clear();
@@ -6679,7 +6686,7 @@ void do_210_lens()
         
         paymagiccost(itemid);
         
-        if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
+        if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !item_doscript[itemid])
         {
 		//clear the item script stack for a new script
 		//itemScriptData[(itemid & 0xFFF)].Clear();
@@ -7248,7 +7255,7 @@ void LinkClass::movelink()
 		attackclk=0;
 		sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(int(x)));
 		
-		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn))
+		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn) && !item_doscript[dowpn])
 		{
 			//clear the item script stack for a new script
 		
@@ -7375,7 +7382,7 @@ void LinkClass::movelink()
             }
         }
         
-        if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scriptb && (paidmagic || checkmagiccost(dowpn)))
+        if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scriptb && (paidmagic || checkmagiccost(dowpn)) && !item_doscript[dowpn])
         {
             // Only charge for magic if item's magic cost wasn't already charged
             // for the item's main use.
@@ -16194,12 +16201,12 @@ void LinkClass::checkitems(int index)
 	        //itemCollectScriptData[(id2 & 0xFFF)].Clear();
 		//for ( int q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
 		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
-		if ( id2 > 0 ) //No collect script on item 0. 
+		if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
 		{
 			item_collect_doscript[id2] = 1;
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
 		}
-		else //item 0
+		else if (!id2 && !item_collect_doscript[id2]) //item 0
 		{
 			item_collect_doscript[id2] = 1;
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
