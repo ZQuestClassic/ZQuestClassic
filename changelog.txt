@@ -2,6 +2,175 @@
 
 //Alpha 26
 
+Updated qst.dat files for classic and default module with QRs appropriate to Alpha 26.
+Fix some QR defaults when reading quests < 2.66 Build 46
+Modules: Updated default quest with appropriate rules.
+std.zh: Update version data, and file dates.
+	Version is now 1.6001
+Fix: Another change to the MOUSEY logic.
+Should fix mouse cursor position reading incorrectly during quake.
+	( ZoriaRPG, 14th July, 2019 )
+
+Fix: Item scripts quitting improperly on Link->Item[]
+	when they set themselves false, it cleared their stack. Stack clearing needs to wait a bit.
+	Also fixed stack not being properly chosen for collect/non-collect scripts. (from Zoria)
+Added MIDIOFFSET_ macros to zdefs.h, and applied them where useful.
+	Fixed offset on r/w of Screen->MIDI, dmapdata->MIDI, and mapdata->MIDI
+	Added MIDI_ constants to std_zh, for use with these
+	...Perhaps the offsets could be cleaner, but, the values are just a mess in the first place. Why such odd offsets?
+Removed extraneous error messages during bitmap blitting.
+	Attempting to blit to `-1` or `-2` (screen and current render target respectively), was going to the `default` case, for user bitmaps, and thus printing extraneous error messages.
+	The `-1` and `-2` handling has been moved inside the switch, now with their own cases.
+	( Venrob, 13th July, 2019 )
+
+Change bit priority for if !FFCore.system_suspend[script] to 1st boolean param.
+Add checks to see if script types are suspended.
+	( ZoriaRPG, 13th July, 2019 )
+	
+Remove ZASM instruction GAMERESUME. We didn't use it.
+Add check to see if npc scripts are suspended.
+Add check to see if LWpn Scripts are Suspended
+Rearranged the category values for Game->Suspend ton better
+	organise them, and to put those that we may not include in a public build
+	at the end of the list.
+	Added the missing script types to the list.
+Feat: Added bool Game->Suspend[36]
+Add check for doscript on Screen Script Waitdraw
+	( ZoriaRPG, 12th July, 2019 )
+	
+Feat: Epilepsy Reduction reduces lens flash rate 
+	That blinking is WAY too fast... but is this new setting good enough? Not totally sure...
+std_zh: Add `CF_LENSMARKER`. This never existed?
+Fix: npc->ScriptTile broken
+	Should not boundcheck the tile to `checkTile`, as `-1` is a valid scripttile value (clearing the scripttile).
+	Changed to work just like the other scripttile setters.
+	( Venrob, 12th July, 2019 )
+	
+Fix: Allow KEY_ESC to be disabled (and update docs) 
+	This allows it to be disabled both with Input->DisableKey[], as well as Game->TypingMode
+	Updated ZScript_Additionz.txt to reflect this.
+Fix: Missed compile option QR in qst.cpp
+std_zh: Add `enum EnemyPattern`, `PATTERN_` constants
+Feat: Enemy pattern "No Spawning" 
+	Does not spawn the enemies on the screen.
+	Writing the pattern to a valid pattern via `Screen->Pattern` should instantly spawn the enemies via the new pattern (via standard spawning rules)
+Feat: Rocs feather flag "Jump is Power*100" 
+	This makes a feather power of 500 equivalent to writing Hero->Jump=5; allowing better precise control over the power of the feather.
+	Implemented as ITEM_FLAG1.
+	( Venrob 11th July, 2019 )
+
+Added doscript to mapscr.
+Added sanity checks on screen scripts.
+Add notes on screen scripts for debugging.
+Fix: Inverted flags for Link->WarpEx
+	( ZoriaRPG, 11th July, 2019; repo commit date is wrong due to system clock sync)
+
+Fix: Script draws during scrolling 
+	Renamed `qr_SCRIPTDRAWSWHENSCROLLING` to `qr_FIXSCRIPTSDURINGSCROLLING` (better description of actual issue)
+	Set up new timings for script running during scrolling, during frames that previously skipped running scripts entirely.
+	Update `LinkClass::run_scrolling_scripts` with `bool waitdraw`, so that it handles both pre and post waitdraw depending on the param. This fixes some potential issues, since previously it was only called for waitdraw if `global_waitdraw` is true, even though it also handled `link`, `dmap`, and `screendata` script waitdraws. Now, each waitdraw condition is checked individually.
+	Moved `action = scrolling` from `scrollscr` to `run_scrolling_scripts`, so it doesn't need to be duplicated repeatedly.
+	Re-tabbed a couple blocks, because OCD.
+	( Venrob, 10th July, 2019 )
+	
+Create FUNDING.yml in the GH repo, for future dev support fundraising.
+	( ZoriaRPG, 9th July, 2019 )
+
+Parser: Fix lexer error 
+	Error carryover when finding unknown character, now fixed.
+	( Venrob, 8th July, 2019 )
+
+std_zh fix: atof disrespects negatives 
+	For strings not containing a decimal point, atof returns early. This early return lacked the negative status of the output. This has been rectified.
+Parser: Refactor function matching 
+	Move typechecking into lookupFunctions, fixing errors with using.
+	Only functions whos params match will be returned to `caseExprCall`, though best cast checking still occurs there.
+Fix: Bad function lookup with using 
+	If a local function is found, then using namespace functions should NOT be checked.
+	They should only be checked if the only found functions are filescope or higher.
+	Fixed, by adding check for local functions found.
+	( Venrob, 7th July, 2019 )
+	
+Docs: Major update ZScript_Additions.txt
+Feat: Add `bitmap->isAllocated()`
+	This checks if a bitmap has been allocated. It will always return true for system bitmap values.
+	This differs from `isValid()`, in that it will return true even if the bitmap is uninitialized; i.e. cannot be drawn to.
+	A bitmap which is not valid but has been allocated can be used with `bitmap->Create()` or `bitmap->Read()`
+	A bitmap which has not been allocated should not be used, and should be reassigned with `Game->AllocateBitmap()` first.
+Fix: Convert bitmap->GetPixel() to work as Graphics->GetPixel() does
+	Uses the same ZASM as Graphics->GetPixel(), save for not needing to pop the extra pointer to NUL. Should function perfectly identically in every situation, considering it's basically the same ZASM.
+	No interpreter changes were made.
+Fix: Update size of `ffc->Flags[]`
+	( Venrob, 6th July, 2019 )
+
+std.zh: Add new FFCF_LENSINVIS constant 
+Feat: FFC flag `Invis to Lens` 
+	If this is checked, using the lens will not show the FFC
+	If this and `only visible to lens` are checked, the FFC will be always invisible.
+Changes to itemdata access by script
+	Add accessor `itemdata->Validate` for new `only validate cost` flag
+	Fix setters for `itemdata->` `Combine`,`Downgrade`,`KeepOld`,`RupeeCost`,`Edible`,`Unused`, and `GainLower`.
+	These flags could be set true, but could not be set false; as it did an `|=`, but no `&=~`.
+Feat: Validate Only item flag
+	If checked, will only validate the cost, not actually pay it.
+	It just does `return` in `paymagiccost`.
+	Still needs script access!
+Feat: mapdata->Map, mapdata->Screen
+	These are read-only.
+GlobalSymbols: Fix mapdata pointer 
+	THIS SHOULD NEVER POP TO `NUL`. EVER. WHY IS IT POPPING TO NUL?
+	THE POINTER SHOULD ALWAYS BE POPPED TO THE REFVAR.
+	...Uhg.
+	If this is not popped to `refVar`, then `ri->mapsref` will never be updated, and will not point to the correct mapdata.
+	This pop is what updates `ri->*ref`, so, popping to `NUL` means not updating the ref. This should only be done in the case of global pointers. But, `refVar==NUL` for global pointers, so popping to `refVar` should always be safe.
+Add item->ScriptTile
+	( Venrob, 5th July, 2019 )
+
+Parser: Allow blank scoperes, fix wrong error msg 
+	Fixed returning -1 when finding too many matches for using, as it should return 2 (or greater).
+	Blank Scoperes Example:
+	when `using namespace foo`, and `foo` contains `void bar()`, and there is a global function `void bar()`, calling `bar()` gives an error. Calling `foo::bar()` will call the function within foo. Now, you can call `::bar()` to call the global function. This is implemented as per C++.
+std_zh: Fix NoAction() 
+	It previously killed both `Input*` and `Press*`, but now it only kills `Input[]`?
+	Restored it to killing both. Not doing so breaks existing scripts.
+	( Venrob, 3rd July, 2019 )
+	
+Fix: Diving in land? 	
+	Reversion: Accidentally removed an `action==swimming` check! Diving in land is bad!
+Abstract button input
+	Now calls to `Up()`, `Down()`, etc all call `getInput()`, which can handle any of the buttons, as well as being a press check, and drunk; also can ignore a button being disabled.
+	`enum controls` added to zdefs, with all button indeces.
+
+	Several calls in title.cpp to `rSbtn()`, `rUp()`, and `rDown()` have been replaced with calls to `getInput()`, so that they ignore buttons being disabled (namely, save/continue menus)
+	Actual title screen and such should have no disabled buttons to worry about, as that is cleared on quest exit.
+	2 calls to `rSbtn()` in `ending.cpp` have also been given immunity to disable.
+	The `rSbtn()` call to exit the fullscreen map has been given immunity to disable.
+	( Venrob, 3rd July, 2019 )
+
+//Some commit dates here are incorrect, but I am placing them in the order of commits, not the datestamps in the repo. -z
+Fix: Item script crashes 
+	Collect scripts cannot use `item_doscript`. They will need their own array added. For now, commented out it's usage.
+	Action scripts need to set `item_doscript` BEFORE they run, as it is set to 0 on quit, and setting it directly back to 1 causes errors.
+std_zh: Optimizations 
+	Force `#option SHORT_CIRCUIT on` for std_zh; nothing has func calls that matter non-first in a bool operation, so this is safe.
+	Replace all calls to `Cond()` with ternary expressions
+	Replace a number of `if(!`'s with `unless(`'s.
+std_zh: string and char32 update 
+	Update many instances of `int` to `char32`
+	Change `string` to `ptr` (identifier change)
+	Switch many `int buf[] = ""; TraceS(buf);` to `TraceS("")` (now using string literals)
+	( Venrob, 8th July, 2019 )s
+
+Refactor: Input, ReadKey, key[] access
+	Change `ReadKey()` to `zc_readkey()`
+	Add `zc_getkey()` as a wrapper for `key[]` access
+	Both of these now have `bool ignoreDisabled` defaulting to `false`
+	Added `Input->DisableKey[]` and `Input->DisableButton[]`, referencing `disable_control[18]` and `disabledKeys[127]`
+		If an index of disabledKeys is true, then `zc_getkey/readkey` will return false for the key, regardless of state, except for some reserved keys.
+		If an index of disable_control is true, then the corresponding function (`Up()`,`Down()`,`cAbtn()`, etc) will return false regardless of control_state
+			If qr_FIXDRUNKINPUTS is true, this will also disable the ability for drunk to toggle this key.
+	( Venrob, 7th July, 2019 )
+
 CompileOption: Binary 32-bit operations/literals 
 	With this compile option on, binary literals and operators will be direct (skipping `/10000` and `*10000`)
 	This allows the use of 32 bits per variable.
@@ -9,6 +178,12 @@ CompileOption: Binary 32-bit operations/literals
 	This option defaults to OFF.
 	( Venrob, Merged on 1st July, 2019; committed 30th June, 2019 )
 
+Copy fixes from itemScriptEngine to itemScriptEngineOnWaitdraw.
+Experimental fixes to item scripts.
+Fix placement of item_doscript.
+Added item_collect_doscript.
+Added a constant for using collect scripts on item 0 and corrected the code for it.
+Added timestamp to build date.
 Fixed compile, and added fine-tuning for sprite carryover warpflags:
 	#define warpFlagCLEARITEMS 0x200
 	#define warpFlagCLEARGUYS 0x400
