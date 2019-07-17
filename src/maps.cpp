@@ -3919,7 +3919,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 	for(int ffid = 0; ffid < 32; ++ffid)
 	{
 		if(!ffscr.flags5&fNOFFCARRYOVER && ffscr.ffflags[ffid]&ffCARRYOVER) continue;
-		FFCore.deallocateAllArrays(SCRIPT_FFC, ffid);
+		FFCore.deallocateAllArrays(SCRIPT_FFC, ffid, false); //false means this does not require 'qr_ALWAYS_DEALLOCATE_ARRAYS' to be checked. -V
 	}
 	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
         

@@ -1907,12 +1907,12 @@ int init_game()
     if(firstplay)
     {
         memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
     }
     else
     {
 	    //Global script OnContinue
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
     }
 */
     global_wait=false;
@@ -1929,13 +1929,18 @@ int init_game()
     if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
     {
         memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
-	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
+	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
     }
     if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); } //Do this prior to the Link init script, so that if the 
 								//init script makes him invisible, he stays that way. 
-    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
+	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
 								//positional data, sprites, tiles, csets, invisibility states, and the like.
+		FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
+	}
     initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
     Link.resetflags(true); //This should probably occur after running Link's init script. 
     Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
@@ -2024,14 +2029,15 @@ int init_game()
     //if(firstplay)
     //{
     //    memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-    //    ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
-	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
+    //    ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
+	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
     //}
     //else
     if(!firstplay)
     {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
-        //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
+        //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
+	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE);
     }
     
     if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
@@ -2943,11 +2949,11 @@ void game_loop()
     // Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
     if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && g_doscript)
     {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
     }
     if(!FFCore.system_suspend[susptLINKACTIVE] && !freezemsg && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
-        ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+        ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
     }
     if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
@@ -3085,12 +3091,12 @@ void game_loop()
 	#endif
     if( !FFCore.system_suspend[susptGLOBALGAME] && global_wait )
     {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
     if ( !FFCore.system_suspend[susptLINKACTIVE] && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
-	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
 	    link_waitdraw = false;
     }
     if ( !FFCore.system_suspend[susptDMAPSCRIPT] && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -4739,7 +4745,9 @@ int main(int argc, char* argv[])
         
         tmpscr->flags3=0;
         Playing=Paused=false;
-        
+	//Clear active script array ownership
+        FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+        FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
         switch(Quit)
         {
         case qQUIT:
@@ -4754,13 +4762,13 @@ int main(int argc, char* argv[])
             introclk=intropos=0;
             for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
-            initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!!
+            initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!! //No, this clears the active script stack so that the exit script can run -V
             initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
             FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
             FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
 		
 	    //Run Global script OnExit
-            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
+            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
            
             if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
             
@@ -4806,10 +4814,10 @@ int main(int argc, char* argv[])
             FFCore.initZScriptDMapScripts();
             FFCore.initZScriptItemScripts();
 	    //Run global script OnExit
-            //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN); //runs in ending()
+            //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN); //runs in ending()
 	    //while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
 		//We need a special routine for win and death link scripts. Otherwise, they work. 
-            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
+            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
 		
 	    
 		
@@ -4827,7 +4835,8 @@ int main(int argc, char* argv[])
 			memset(disabledKeys, 0, sizeof(disabledKeys));
 			memset(disable_control, 0, sizeof(disable_control));
 		}
-		
+		//Deallocate ALL ZScript arrays on ANY exit.
+		FFCore.deallocateAllArrays();
         kill_sfx();
         music_stop();
         clear_to_color(screen,BLACK);

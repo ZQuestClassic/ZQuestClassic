@@ -1428,7 +1428,7 @@ enum __Error
         return _NoError;
     }
     
-	static void deallocateAllArrays(const byte scriptType, const long UID);
+	static void deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways = true);
 	static void deallocateAllArrays();
 	
     private:

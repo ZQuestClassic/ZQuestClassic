@@ -186,7 +186,7 @@ void LinkClass::sethitLinkUID(int type, int screen_index)
 	//No, we clear it in Zelda.cpp, with this:
 	    if(global_wait)
 	    {
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		global_wait=false;
 	    }
 	    
@@ -4824,7 +4824,7 @@ bool LinkClass::animate(int)
 		    link_is_stunned = 0;
 		    FFCore.setLinkAction(dying);
 		    //initLinkScripts();
-		    //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+		    //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
 		    //if ( link_doscript ) { last_hurrah = false; return false; }
 			initLinkScripts(); //Get ready to run his death script.
 			int fc = 0;
@@ -4836,7 +4836,7 @@ bool LinkClass::animate(int)
 				if ( link_doscript ) 
 				{
 					ALLOFF(true,true);
-					ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+					ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
 					load_control_state(); 
 					
 				}
@@ -13030,11 +13030,11 @@ void LinkClass::stepforward(int steps, bool adjust)
 	{
 		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && g_doscript )
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		if ((!( FFCore.system_suspend[susptLINKACTIVE] )) && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
@@ -14035,12 +14035,12 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	{
 		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && global_wait)
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 			global_wait=false;
 		}
 		if ( (!( FFCore.system_suspend[susptLINKACTIVE] )) && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
 			link_waitdraw = false;
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -14059,11 +14059,11 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	{
 		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && g_doscript)
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		if ((!( FFCore.system_suspend[susptLINKACTIVE] )) && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
@@ -14265,12 +14265,12 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     
 	if((!( FFCore.system_suspend[susptGLOBALGAME] )) && global_wait)
 	{
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		global_wait=false;
 	}
 	if ( (!( FFCore.system_suspend[susptLINKACTIVE] )) && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
-		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
 		link_waitdraw = false;
 	}
 	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -16945,10 +16945,10 @@ void LinkClass::gameover()
 	//do
 	//{
 		
-	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
 	//	FFCore.Waitframe();
 	//}while(link_doscript);
-	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
 	//while(link_doscript) { advanceframe(true); } //Not safe. The script runs for only one frame at present.
 	
 	//Playing=false;
@@ -17030,7 +17030,7 @@ void LinkClass::gameover()
 	{
 		//if ( link_doscript ) 
 		//{
-		//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+		//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
 			//if ( f ) --f; 
 		//	load_control_state(); //goto adv;
 		//}

@@ -1837,8 +1837,9 @@ void deallocateArray(const long ptrval)
     }
 }
 
-void FFScript::deallocateAllArrays(const byte scriptType, const long UID)
+void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways)
 {
+	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS)) return; //Keep 2.50.2 behavior if QR unchecked.
 	Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
 	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
 	{
@@ -1852,9 +1853,11 @@ void FFScript::deallocateAllArrays(const byte scriptType, const long UID)
 
 void FFScript::deallocateAllArrays()
 {
+	if(!get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS)) return; //Keep 2.50.2 behavior if QR unchecked.
 	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
 	{
-		deallocateArray(i);
+		if(arrawOwner[i].scriptType != SCRIPT_NONE)
+			deallocateArray(i);
 	}
 }
 
