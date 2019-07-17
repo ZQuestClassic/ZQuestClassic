@@ -4838,6 +4838,8 @@ bool LinkClass::animate(int)
 		    //initLinkScripts();
 		    //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
 		    //if ( link_doscript ) { last_hurrah = false; return false; }
+			FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+			FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
 			initLinkScripts(); //Get ready to run his death script.
 			int fc = 0;
 			BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
