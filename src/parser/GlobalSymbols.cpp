@@ -2013,6 +2013,8 @@ static AccessorTable LinkSTable[] =
 	{ "setRotation",            ZVARTYPEID_VOID,          SETTER,       LINKROTATION,         1,           0,                                    2,           {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getScale",               ZVARTYPEID_FLOAT,         GETTER,       LINKSCALE,            1,           0,                                    1,           {  ZVARTYPEID_LINK,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setScale",               ZVARTYPEID_VOID,          SETTER,       LINKSCALE,            1,           0,                                    2,           {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetOriginalTile",        ZVARTYPEID_VOID,          SETTER,       LINKSCALE,            1,           0,                                    2,           {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetOriginalFlip",        ZVARTYPEID_VOID,          SETTER,       LINKSCALE,            1,           0,                                    2,           {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "",                       -1,                       -1,           -1,                   -1,          0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 };
 
@@ -2163,7 +2165,38 @@ void LinkSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
-    
+    //int GetLinkOriginaTile(game, int,int)
+    {
+        Function* function = getFunction("GetLinkOriginaTile", 3);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOTILE)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetLinkOriginalFlip(game, int,int)
+    {
+        Function* function = getFunction("GetLinkOriginalFlip", 3);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOFLIP)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
     
 }
 

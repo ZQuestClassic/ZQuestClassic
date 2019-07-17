@@ -59,6 +59,13 @@ enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEff
 #define svDMAPS 	0x10
 #define svMAPSCR 	0x20
 
+enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr, 
+	LSprswimspr, LSprdivespr, LSprpoundspr,
+LSprjumpspr, LSprchargespr, LSprcastingspr, 
+	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
+
+	
+
 //suspend types
 enum { 
 	//Typical processes that we want to pause, similar to ALLOFF()
@@ -295,6 +302,9 @@ void do_getnpcbyname();
 void do_getitembyname();
 void do_getcombobyname();
 void do_getdmapbyname();
+
+int getLinkOTile(long index1, long index2);
+int getLinkOFlip(long index1, long index2);
 
 //ZC SRAM
 //void read_maps(PACKFILE *f, int vers_id);
@@ -3596,11 +3606,13 @@ enum ASM_DEFINE
 #define DISABLEKEY			0x1367
 #define DISABLEBUTTON		0x1368
 #define GAMESUSPEND		0x1369
+#define LINKOTILE		0x136A
+#define LINKOFLIP		0x136B
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x136A
+#define NUMVARIABLES         	0x136C
 
 // Script types
 
