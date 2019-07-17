@@ -1971,6 +1971,8 @@ script_variable variable_list[]=
 	{ "DISABLEKEY",		DISABLEKEY,        0,             0 },
 	{ "DISABLEBUTTON",		DISABLEBUTTON,        0,             0 },
 	{ "GAMESUSPEND",		GAMESUSPEND,        0,             0 },
+	{ "LINKOTILE",		LINKOTILE,        0,             0 },
+	{ "LINKOFLIP",		LINKOFLIP,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
