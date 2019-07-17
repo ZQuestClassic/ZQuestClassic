@@ -2415,11 +2415,15 @@ void LinkClass::checkstab()
 				{
 					item_collect_doscript[items.spr(j)->id] = 1;
 					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, ((items.spr(j)->id)*-1));
+					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+						FFCore.deallocateAllArrays(SCRIPT_ITEM,-(items.spr(j)->id));
 				}
 				else if (items.spr(j)->id == 0 && !item_collect_doscript[items.spr(j)->id]) //item 0
 				{
 					item_collect_doscript[items.spr(j)->id] = 1;
 					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+						FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
 				}
 	
 				//runningItemScripts[items.spr(j)->id] = 0;
@@ -16209,11 +16213,15 @@ void LinkClass::checkitems(int index)
 		{
 			item_collect_doscript[id2] = 1;
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
+			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+				FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id2));
 		}
 		else if (!id2 && !item_collect_doscript[id2]) //item 0
 		{
 			item_collect_doscript[id2] = 1;
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+				FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
 		}
     }
     

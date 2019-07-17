@@ -1839,13 +1839,13 @@ void deallocateArray(const long ptrval)
 
 void FFScript::deallocateAllArrays(const byte scriptType, const long UID)
 {
-	Z_scripterrlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
+	Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
 	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
 	{
 		if(arrayOwner[i].scriptType == scriptType && arrayOwner[i].ownerUID==UID)
 		{
 			deallocateArray(i);
-			Z_scripterrlog("Deallocated array %d from %s UID %d\n", i, script_types[scriptType], UID);
+			Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[scriptType], UID);
 		}
 	}
 }
@@ -23267,6 +23267,8 @@ bool FFScript::itemScriptEngine()
 				if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
 				{
 					item_doscript[q] = 0;
+					itemScriptData[q].Clear();
+					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
 					break;
 				}
 				//else 
