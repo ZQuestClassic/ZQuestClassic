@@ -15442,7 +15442,28 @@ void do_getscreennpc()
 void do_isvalidarray()
 {
 	long ptr = get_register(sarg1)/10000;
-	set_register(sarg1,(localRAM[ptr].Size() == 0) ? 0 : 10000); 
+	
+	
+	if(ptr <= 0) //invalid pointer
+	{
+            set_register(sarg1,0); return;
+	}
+            
+        if(ptr >= MAX_ZCARRAY_SIZE) //check global
+        {
+            dword gptr = ptr - MAX_ZCARRAY_SIZE;
+            
+            if(gptr > game->globalRAM.size())
+	    {
+		    set_register(sarg1,0); return;
+	    }
+	    else set_register(sarg1,(game->globalRAM[gptr].Size() == 0) ? 0 : 10000); return;
+	}
+	   
+        else
+        {
+		set_register(sarg1,(localRAM[ptr].Size() == 0) ? 0 : 10000); 
+	}
 }
 
 void do_isvaliditem()
