@@ -2119,6 +2119,7 @@ const int FFCBF_ETHEREAL        	= 0x200;
 const int FFCBF_IGNOREHOLDUP    	= 0x400;
 const int FFCBF_IGNORECHANGER   	= 0x800;
 const int FFCBF_IMPRECISIONCHANGER    	= 0x1000;
+const int FFCBF_LENSINVIS	   	= 0x2000;
 
 
 //Aim-type constants, for use with AimEWeapon
@@ -2647,3 +2648,12 @@ enum
     MIDI_DUNGEON,
     MIDI_LEVEL9 //==0, cannot be played by 'Audio->PlayMIDI'
 };
+
+
+
+enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr, 
+	LSprswimspr, LSprdivespr, LSprpoundspr,
+LSprjumpspr, LSprchargespr, LSprcastingspr, 
+	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
+
+	
