@@ -5411,6 +5411,10 @@ case SCREENDATAFLAGS:
     case SDDD:
         ret=FFScript::get_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1] / 10000);
         break;
+    
+    case LINKOTILE:
+        ret=FFCore.getLinkOTile(ri->d[0]/10000, ri->d[1] / 10000);
+        break;
         
     case SDDDD:
         ret=FFScript::get_screen_d(ri->d[1] / 10000 + ((ri->d[0]/10000)<<7), ri->d[2] / 10000);
@@ -31848,3 +31852,33 @@ void FFScript::read_maps(PACKFILE *f, int vers_id)
         }
 }
 */
+
+
+int FFScript::getLinkOTile(long index1, long index2)
+{
+	{
+		linkspritetype lst = (linkspritetype)index1;
+		int dir = index2;
+		int the_ret = 0;
+		switch(lst)
+		{
+			case LSprwalkspr: the_ret = walkspr[dir][0];
+			case LSprstabspr: the_ret = stabspr[dir][0];
+			case LSprslashspr: the_ret = slashspr[dir][0];
+			case LSprfloatspr: the_ret = floatspr[dir][0];
+			case LSprswimspr: the_ret = swimspr[dir][0];
+			case LSprdivespr: the_ret = divespr[dir][0];
+			case LSprpoundspr: the_ret = poundspr[dir][0];
+			case LSprjumpspr: the_ret = jumpspr[dir][0];
+			case LSprchargespr: the_ret = chargespr[dir][0];
+			case LSprcastingspr: the_ret = castingspr[0];
+			case LSprholdspr1: the_ret = holdspr[0][0][0];
+			case LSprholdspr2:  the_ret = holdspr[0][1][0];
+			case LSprholdsprw1: the_ret = holdspr[1][0][0];
+			case LSprholdsprw2: the_ret = holdspr[1][1][0];
+			default: the_ret = 0;
+		}
+	
+	return the_ret*10000;
+	}
+}

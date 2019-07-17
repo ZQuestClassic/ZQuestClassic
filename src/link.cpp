@@ -4745,10 +4745,22 @@ bool LinkClass::animate(int)
         
     }
     
-    if(DrunkrLbtn() && !get_bit(quest_rules,qr_SELECTAWPN))
+    if(DrunkrLbtn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ !get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+    {
         selectNextBWpn(SEL_LEFT);
-    else if(DrunkrRbtn() && !get_bit(quest_rules,qr_SELECTAWPN))
+    }
+    else if(DrunkrRbtn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ !get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+    {
         selectNextBWpn(SEL_RIGHT);
+    }
+    else if(rEx3btn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP))
+    {
+        selectNextAWpn(SEL_LEFT);
+    }
+    else if(rEx4btn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP))
+    {
+        selectNextAWpn(SEL_RIGHT);
+    }
         
     if(rPbtn())
     
