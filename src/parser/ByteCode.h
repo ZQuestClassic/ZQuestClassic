@@ -3300,6 +3300,17 @@ namespace ZScript
 		}
 	};
 
+	class OIsValidArray : public UnaryOpcode
+	{
+	public:
+		OIsValidArray(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OIsValidArray(a->clone());
+		}
+	};
+
 	class OIsValidItem : public UnaryOpcode
 	{
 	public:

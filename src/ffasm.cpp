@@ -889,6 +889,7 @@ script_command command_list[NUMCOMMANDS+1]=
     { "RSHIFTR32",             2,   0,   0,   0},
     { "RSHIFTV32",             2,   0,   1,   0},
     { "ISALLOCATEDBITMAP",         1,   0,   0,   0},
+    { "ISVALIDARRAY",         1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}

@@ -1840,13 +1840,13 @@ void deallocateArray(const long ptrval)
 void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways)
 {
 	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS)) return; //Keep 2.50.2 behavior if QR unchecked.
-	Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
+	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
 	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
 	{
 		if(arrayOwner[i].scriptType == scriptType && arrayOwner[i].ownerUID==UID)
 		{
 			deallocateArray(i);
-			Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[scriptType], UID);
+			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[scriptType], UID);
 		}
 	}
 }
@@ -1856,8 +1856,11 @@ void FFScript::deallocateAllArrays()
 	if(!get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS)) return; //Keep 2.50.2 behavior if QR unchecked.
 	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
 	{
-		if(arrawOwner[i].scriptType != SCRIPT_NONE)
+		if(localRAM[i].Size() > 0)
+		{
+			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[arrayOwner[i].scriptType], arrayOwner[i].ownerUID);
 			deallocateArray(i);
+		}
 	}
 }
 
@@ -14095,7 +14098,8 @@ void do_allocatemem(const bool v, const bool local, const byte type, const unsig
             for(dword j = 0; j < (dword)size; j++)
                 a[j] = 0; //initialize array
                 
-            // Keep track of which FFC created the array so we know which to deallocate when changing screens
+            // Keep track of which object created the array so we know which to deallocate
+	    //Z_eventlog("Allocating array %d to script %s, %d\n", ptrval, script_types[type], UID);
             arrayOwner[ptrval].scriptType = type;
 	    arrayOwner[ptrval].ownerUID = UID;
         }
@@ -15376,6 +15380,12 @@ void do_getscreennpc()
 
 ///----------------------------------------------------------------------------------------------------//
 //Pointer handling
+
+void do_isvalidarray()
+{
+	long ptr = get_register(sarg1)/10000;
+	set_register(sarg1,(localRAM[ptr].Size() == 0) ? 0 : 10000); 
+}
 
 void do_isvaliditem()
 {
@@ -19169,6 +19179,10 @@ int run_script(const byte type, const word script, const long i)
 		case CREATENPCV:
 		    do_createnpc(true);
 		    break;
+		    
+		case ISVALIDARRAY:
+			do_isvalidarray();
+			break;
 		    
 		case ISVALIDITEM:
 		    do_isvaliditem();
@@ -26613,6 +26627,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "RSHIFTR32",             2,   0,   0,   0},
     { "RSHIFTV32",             2,   0,   1,   0},
     { "ISALLOCATEDBITMAP",         1,   0,   0,   0},
+    { "ISVALIDARRAY",         1,   0,   0,   0},
     
     { "",                    0,   0,   0,   0}
 };

@@ -635,7 +635,8 @@ static AccessorTable GlobalTable[] =
 	{ "SRand",                  ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "SRand",                  ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      0,           {  -1,                      -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
-	
+	{ "IsValidArray",           ZVARTYPEID_BOOL,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_UNTYPED,                      -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+		
 //	TYPE_UNTYPED
 	{ "",                       -1,                          -1,           -1,    -1,         0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -719,6 +720,20 @@ void GlobalSymbols::generateCode()
         //code.push_back(new OReturn());
         function->giveCode(code);
     }
+    
+	//bool IsValidArray(untyped)
+	{
+		Function* function = getFunction("IsValidArray", 1);
+		int label = function->getLabel();
+		vector<Opcode*> code;
+		//Pop array ptr
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OIsValidArray(new VarArgument(EXP1)));
+		//code.push_back(new OReturn());
+		function->giveCode(code);
+	}
     
     //int GetSystemTime(int category)
     {
@@ -2013,8 +2028,8 @@ static AccessorTable LinkSTable[] =
 	{ "setRotation",            ZVARTYPEID_VOID,          SETTER,       LINKROTATION,         1,           0,                                    2,           {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getScale",               ZVARTYPEID_FLOAT,         GETTER,       LINKSCALE,            1,           0,                                    1,           {  ZVARTYPEID_LINK,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setScale",               ZVARTYPEID_VOID,          SETTER,       LINKSCALE,            1,           0,                                    2,           {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetOriginalTile",        ZVARTYPEID_VOID,          SETTER,       LINKSCALE,            1,           0,                                    2,           {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetOriginalFlip",        ZVARTYPEID_VOID,          SETTER,       LINKSCALE,            1,           0,                                    2,           {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetOriginalTile",        ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,           0,                                    3,           {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetOriginalFlip",        ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,           0,                                    3,           {  ZVARTYPEID_LINK,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "",                       -1,                       -1,           -1,                   -1,          0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 };
 
@@ -2165,9 +2180,9 @@ void LinkSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
-    //int GetLinkOriginaTile(game, int,int)
+    //int GetLinkOriginaTile(link, int,int)
     {
-        Function* function = getFunction("GetLinkOriginaTile", 3);
+        Function* function = getFunction("GetOriginalTile", 3);
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
@@ -2181,9 +2196,9 @@ void LinkSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
-    //int GetLinkOriginalFlip(game, int,int)
+    //int GetLinkOriginalFlip(link, int,int)
     {
-        Function* function = getFunction("GetLinkOriginalFlip", 3);
+        Function* function = getFunction("GetOriginalFlip", 3);
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the params
