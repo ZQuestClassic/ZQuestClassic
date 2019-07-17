@@ -1,6 +1,7 @@
 //2.55 Changes
 
 //Alpha 27
+Add Link->OriginalTile(int spriteid, int dir).
 Added a QR to prevent uncapping.
 Added a QR to prevent swapping B button items on L/R button presses.
 Added a QR to enable swapping A button items on Ex3/Ex4 button presses.
