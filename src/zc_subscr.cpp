@@ -128,11 +128,35 @@ void dosubscr(miscQdata *misc)
         else if(rDown())  Bpos = selectWpn_new(SEL_DOWN, pos);
         else if(rLeft())  Bpos = selectWpn_new(SEL_LEFT, pos);
         else if(rRight()) Bpos = selectWpn_new(SEL_RIGHT, pos);
-        else if(rLbtn() && !get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))  Bpos = selectWpn_new(SEL_LEFT, pos);
-        else if(rRbtn() && !get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))  Bpos = selectWpn_new(SEL_RIGHT, pos);
-        else if(rEx3btn() && get_bit(quest_rules,qr_SELECTAWPN) && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP))  Awpn = selectWpn_new(SEL_RIGHT, pos);
-        else if(rEx4btn() && get_bit(quest_rules,qr_SELECTAWPN) && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP))  Awpn = selectWpn_new(SEL_RIGHT, pos);
-       
+        else if(rLbtn())
+	{
+		if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+		{
+			Bpos = selectWpn_new(SEL_LEFT, pos);
+		}
+	}
+        else if(rRbtn() )
+	{
+		if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
+		{
+			Bpos = selectWpn_new(SEL_RIGHT, pos);
+		}
+	}
+        else if(rEx3btn() )
+	{
+		if ( get_bit(quest_rules,qr_SELECTAWPN) && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP) )
+		{
+			selectNextAWpn(SEL_LEFT);
+		}
+	}
+	else if(rEx4btn() )
+	{
+		if ( get_bit(quest_rules,qr_SELECTAWPN) && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP) )
+		{
+			selectNextAWpn(SEL_RIGHT);
+		}
+	}
+        
         if(get_bit(quest_rules,qr_SELECTAWPN))
         {
             if(rBbtn())
