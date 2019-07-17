@@ -1428,13 +1428,11 @@ enum __Error
         return _NoError;
     }
     
+	static void deallocateAllArrays(const byte scriptType, const long UID);
+	static void deallocateAllArrays();
+	
     private:
     long sid;
-    
-    
-    
-  
-    
 };
 
 extern long ffmisc[32][16];

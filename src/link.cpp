@@ -1508,7 +1508,7 @@ attack:
 		    //else paymagiccost(itemid);
 			//placing this here causes the sword to use magic more than one time per use, and when Link
 			//is out of MP, he flickers and the sword slash sound still plays. 
-                    Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID()));
+                    Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID(),false,false,true));
                     w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
                     
                     positionSword(w,itemid);
@@ -1599,7 +1599,7 @@ attack:
             
             if(!found)
             {
-                Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,wHammer,0,0,dir,itemid,getUID()));
+                Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,wHammer,0,0,dir,itemid,getUID(),false,false,true));
                 w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
                 found = true;
             }
@@ -3450,6 +3450,7 @@ int LinkClass::EwpnHit()
                 //        ew->power*=DAMAGE_MULTIPLIER;
                 Lwpns.add(ew);
                 Ewpns.remove(ew);
+		ew->isLWeapon = true; //Make sure this gets set everywhere!
             }
             
             if(ew->id==wRefMagic)
@@ -3799,6 +3800,7 @@ killweapon:
                             {
                                 Lwpns.add(ew);
                                 Ewpns.remove(ew);
+				ew->isLWeapon = true; //Make sure this gets set everywhere!
                             }
                             
                             if(ew->id==wRefMagic)
@@ -4279,7 +4281,7 @@ void LinkClass::addsparkle(int wpn)
         
         Lwpns.add(new weapon((fix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
                              (fix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
-                             w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID()));
+                             w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID(),false,false,true));
     }
 }
 
@@ -5591,7 +5593,7 @@ bool LinkClass::startwpn(int itemid)
                 return false;
         }
         
-        Lwpns.add(new weapon(x,y,z,wWhistle,0,0,dir,itemid,getUID()));
+        Lwpns.add(new weapon(x,y,z,wWhistle,0,0,dir,itemid,getUID(),false,false,true));
         
         if(whistleflag=findentrance(x,y,mfWHISTLE,false))
             didstuff |= did_whistle;
@@ -5615,7 +5617,7 @@ bool LinkClass::startwpn(int itemid)
             if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
                     itemsbuf[itemid].misc2 >= 0 && itemsbuf[itemid].misc2 <= 8 && !whistleflag)
                 Lwpns.add(new weapon((fix)(where==left?240:where==right?0:x),(fix)(where==down?0:where==up?160:y),
-                                     (fix)0,wWind,0,0,where,itemid,getUID()));
+                                     (fix)0,wWind,0,0,where,itemid,getUID(),false,false,true));
                                      
             whistleitem=itemid;
         }
@@ -5672,7 +5674,7 @@ bool LinkClass::startwpn(int itemid)
         }
         
         Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitBomb,itemsbuf[itemid].fam_type,
-                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
         sfx(WAV_PLACE,pan(wx));
     }
     break;
@@ -5716,7 +5718,7 @@ bool LinkClass::startwpn(int itemid)
         if(itemsbuf[itemid].misc1>0) // If not remote bombs
             deselectbombs(true);
             
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir, itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wLitSBomb,itemsbuf[itemid].fam_type,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir, itemid,getUID(),false,false,true));
         sfx(WAV_PLACE,pan(wx));
     }
     break;
@@ -5763,7 +5765,7 @@ bool LinkClass::startwpn(int itemid)
         for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
             if(dir!=(i^1))
 	    {
-		weapon *magic = new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID());
+		weapon *magic = new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID(),false,false,true);
 		if(paybook)magic->miscellaneous[31] = bookid;
                 Lwpns.add(magic);
 	    }
@@ -5836,7 +5838,7 @@ bool LinkClass::startwpn(int itemid)
         
         //Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
 	//Add weapon script to sword beams.
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID(),false,false,true));
 	//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //the pointer to this beam
 	//w->weaponscript = itemsbuf[itemid].weaponscript;
 	//w->canrunscript = 0;
@@ -5867,7 +5869,7 @@ bool LinkClass::startwpn(int itemid)
         
         Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wFire,
                              (itemsbuf[itemid].fam_type > 1), //To do with combo flags
-                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                             itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
         sfx(itemsbuf[itemid].usesound,pan(wx));
         attack=wFire;
     }
@@ -5881,7 +5883,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript1,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript1,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -5896,7 +5898,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript2,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript2,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -5911,7 +5913,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript3,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript3,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -5926,7 +5928,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript4,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript4,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -5941,7 +5943,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript5,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript5,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -5956,7 +5958,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript6,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript6,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -5971,7 +5973,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript7,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript7,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -5986,7 +5988,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript8,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript8,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -6001,7 +6003,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript9,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript9,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -6016,7 +6018,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript10,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript10,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -6031,7 +6033,7 @@ bool LinkClass::startwpn(int itemid)
         if(!checkmagiccost(itemid))
             return false;
 	
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wIce,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wIce,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -6063,7 +6065,7 @@ bool LinkClass::startwpn(int itemid)
         
         paymagiccost(itemid);
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID(),false,false,true));
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -6094,7 +6096,7 @@ bool LinkClass::startwpn(int itemid)
             return false;
         }
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBait,0,0,dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBait,0,0,dir,itemid,getUID(),false,false,true));
         break;
         
     case itype_brang:
@@ -6107,7 +6109,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         current_item_power(itype_brang);
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),dir,itemid,getUID()));
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),dir,itemid,getUID(),false,false,true));
     }
     break;
     
@@ -6172,9 +6174,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((fix)wx,(fix)wy-4,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx;
                 hs_starty=wy-4;
             }
@@ -6184,9 +6186,9 @@ bool LinkClass::startwpn(int itemid)
                 int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
                 hookshot_used=true;
                 Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx;
                 hs_starty=wy;
             }
@@ -6195,9 +6197,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((fix)(wx-4),(fix)wy,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx-4;
                 hs_starty=wy;
             }
@@ -6206,9 +6208,9 @@ bool LinkClass::startwpn(int itemid)
             {
                 hookshot_used=true;
                 Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 Lwpns.add(new weapon((fix)(wx+4),(fix)wy,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
                 hs_startx=wx+4;
                 hs_starty=wy;
             }
@@ -6274,7 +6276,7 @@ bool LinkClass::startwpn(int itemid)
 	last_cane_of_byrna_item_id = itemid; 
         
         for(int i=0; i<itemsbuf[itemid].misc3; i++)
-            Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+            Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID(),false,false,true));
 	if(!(Lwpns.idCount(wCByrna))) stop_sfx(itemsbuf[itemid].usesound); //If we can't create the beams, kill the sound. 
 	
     }
@@ -11936,6 +11938,7 @@ bool LinkClass::dowarp(int type, int index)
     }
     
     bool intradmap = (wdmap == currdmap);
+    int olddmap = currdmap;
     //if ( intradmap ) 
     //{
 	//FFCore.initZScriptDMapScripts();   //Not needed. 
@@ -12366,7 +12369,7 @@ bool LinkClass::dowarp(int type, int index)
         else wrx=tmpscr->warparrivalx;
         
         Lwpns.add(new weapon((fix)(index==left?240:index==right?0:wrx),(fix)(index==down?0:index==up?160:wry),
-                             (fix)0,wWind,1,0,index,whistleitem,getUID()));
+                             (fix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true	));
         whirlwind=255;
         whistleitem=-1;
     }
@@ -12833,6 +12836,7 @@ bool LinkClass::dowarp(int type, int index)
                         
     eventlog_mapflags();
     dmap_doscript = 1;
+    FFCore.deallocateAllArrays(SCRIPT_DMAP, olddmap);
     dmapScriptData.Clear();
     return true;
 }

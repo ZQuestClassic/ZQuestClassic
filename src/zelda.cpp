@@ -412,10 +412,17 @@ extern bool global_wait;
 extern bool link_waitdraw;
 extern bool dmap_waitdraw;
 
+ScriptOwner::ScriptOwner() : scriptType(SCRIPT_NONE), ownerUID(0) {}
+void ScriptOwner::clear()
+{
+	scriptType = SCRIPT_NONE;
+	ownerUID = 0;
+}
+
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
-byte arrayOwner[MAX_ZCARRAY_SIZE];
+ScriptOwner arrayOwner[MAX_ZCARRAY_SIZE];
 
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
@@ -434,7 +441,7 @@ void initZScriptArrayRAM(bool firstplay)
     for(word i = 0; i < MAX_ZCARRAY_SIZE; i++)
     {
         localRAM[i].Clear();
-        arrayOwner[i]=255;
+        arrayOwner[i].clear();
     }
     
     if(game->globalRAM.size() != 0)

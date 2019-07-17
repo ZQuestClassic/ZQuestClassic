@@ -525,7 +525,10 @@ void enemy::explode(int type)
 
 int enemy::getScriptUID() { return script_UID; }
 void enemy::setScriptUID(int new_id) { script_UID = new_id; }
-enemy::~enemy() {}
+enemy::~enemy()
+{
+	FFCore.deallocateAllArrays(SCRIPT_NPC, getUID());
+}
 
 // Supplemental animation code that all derived classes should call
 // as a return value for animate().
