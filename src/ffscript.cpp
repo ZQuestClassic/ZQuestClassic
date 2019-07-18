@@ -6612,7 +6612,9 @@ case MAPDATAMISCD:
     
     case MAPDATASCREENSTATED:
     {
-        ret=((game->maps[ri->mapsref]>>((ri->d[0]/10000)))&1)?10000:0;
+	int mi = ri->mapsref;
+	mi -= 8*((ri->mapsref) / MAPSCRS);
+        ret=((game->maps[mi]>>((ri->d[0]/10000)))&1)?10000:0;
     }
     break;
     case MAPDATASCREENFLAGSD:
