@@ -3856,14 +3856,14 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     {
 	    tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
 	    al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
-	    if ( !tmpscr[tmp].screendatascriptInitialised )
-	    {
+	    //if ( !tmpscr[tmp].screendatascriptInitialised )
+	    //{
 		    for ( int q = 0; q < 8; q++ )
 		    {
 			tmpscr[tmp].screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
 		    }
-	    }
-	tmpscr[tmp].screendatascriptInitialised = 1;
+	    //}
+	tmpscr[tmp].screendatascriptInitialised = 0;
 	tmpscr[tmp].doscript = 1;
     }
     else

@@ -18129,15 +18129,15 @@ int run_script(const byte type, const word script, const long i)
 		ri = &(screenScriptData);
 		curscript = screenscripts[script];
 		stack = &(screen_stack);
-		//if ( !tmpscr->screendatascriptInitialised )
-		    //al_trace("tmpscr->screendatascriptInitialised is %d\n",tmpscr->screendatascriptInitialised);
-		//{
-			//for ( int q = 0; q < 8; q++ ) 
-			//{
-			//	ri->d[q] = tmpscr->screeninitd[q];// * 10000;
-			//}
-			//tmpscr->screendatascriptInitialised = 1;
-		//}
+		if ( !tmpscr->screendatascriptInitialised )
+		    al_trace("tmpscr->screendatascriptInitialised is %d\n",tmpscr->screendatascriptInitialised);
+		{
+			for ( int q = 0; q < 8; q++ ) 
+			{
+				ri->d[q] = tmpscr->screeninitd[q];// * 10000;
+			}
+			tmpscr->screendatascriptInitialised = 1;
+		}
 		 
 	    }
 	    break;
