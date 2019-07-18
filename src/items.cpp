@@ -277,6 +277,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     pickup_string_flags = itemsbuf[id].pickup_string_flags;
     
     obeys_gravity = 1;
+    for ( int q = 0; q < 8; q++ ) initD[q] = itemsbuf[id].initiald[q];
     
     if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;
     
