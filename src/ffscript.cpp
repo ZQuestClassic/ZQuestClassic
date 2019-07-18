@@ -18068,7 +18068,7 @@ int run_script(const byte type, const word script, const long i)
 		
 		//if ( !(itemscriptInitialised[new_i]) )
 		//{
-		    al_trace("itemscriptInitialised[new_i] is %d\n"),itemscriptInitialised[new_i]);
+		    al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
 			memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(long));
 			memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(long));
 		//	itemscriptInitialised[new_i] = 1;
@@ -18111,7 +18111,7 @@ int run_script(const byte type, const word script, const long i)
 		ri->dmapsref = i;
 		    //how do we clear initialised on dmap change?
 		//if ( !dmapscriptInitialised[i] )
-		     al_trace("dmapscriptInitialised[i] is %d\n"),dmapscriptInitialised[i]);
+		     al_trace("dmapscriptInitialised[i] is %d\n",dmapscriptInitialised[i]);
 		{
 			for ( int q = 0; q < 8; q++ ) 
 			{
@@ -18128,7 +18128,7 @@ int run_script(const byte type, const word script, const long i)
 		curscript = screenscripts[script];
 		stack = &(screen_stack);
 		//if ( !tmpscr->screendatascriptInitialised )
-		    al_trace("tmpscr->screendatascriptInitialised is %d\n"),tmpscr->screendatascriptInitialised);
+		    al_trace("tmpscr->screendatascriptInitialised is %d\n",tmpscr->screendatascriptInitialised);
 		{
 			for ( int q = 0; q < 8; q++ ) 
 			{
