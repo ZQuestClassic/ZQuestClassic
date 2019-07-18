@@ -1,7 +1,42 @@
 //2.55 Changes
 
+//Alhga 28
+
+sts.zh: Vers now 1.6002; Added constants and enums.
+
+Changelog: Added font height constants.
+Added mapdata->FFCFlags[32] constant for Invisible to Lens
+Added Link Sprite Type enum for Link->GetOriginalTile(linkspritetype,int dir)
+Added enum for Game->Suspend indices.
+	Note: Indices higher than susptSUBSCREENSCRIPTS aren't officially supported and
+	exist purely for testing purposes.
+	( Venrob, ZoriaRPG, 14th->18th July, 2019 )
+	
+Fix Missing checks in isValidArray()
+	Was not validating global arrays.
+	( ZoriaRPG, 17th July, 2019 )
+	
+Active scripts were not being deallocated in time for Link's OnDeath script. Added 2 deallocation calls to handle this.
+Link->OriginalTile was broken in GlobalSymbols.cpp, causing crash on every zscript compilation.
+Added IsValidArray: Returns true (10000) if the passed array is valid, false (0) otherwise. Global function table.
+Fix: Add qr_ALWAYS_DEALLOCATE_ARRAYS, handle link/global script deallocation
+	Link and Global scripts SHOULD now deallocate arrays properly
+	ALL arrays are now deallocated upon exit.
+	If the qr_ALWAYS_DEALLOCATE_ARRAYS is unchecked, only the array deallocations of FFCs on screen transition from 2.50.2 will remain active.
+Added deallocation calls to immediately after running collect scripts, as well as to the case that sets item_doscript to 0 if multi-frame QR is off.
+	Also, changed my debug messages to `Z_eventlog`, as they are not always running from a script, thus `Z_scripterrlog` prints invalid metadata.
+Set array ownership to be a struct, instead of byte, and allow any script type to own arrays, instead of just FFC scripts.
+Add `FFCore.deallocateAllArrays()`, given arguments `scriptType, UID` will clear all array ownership from that script owner. Given no arguments, will clear ALL array ownership.
+	Set up to call this from various places, including sprite destructors, and warping.
+	Also, call this on `Quit()`/end of scope for ALL script types.
+	This ensures that arrays are not leaked at runtime.
+	!!Note: Still need to do more for Global, Link, and item scripts!!
+	Added more params to weapon constructors in Link.cpp; so that their isLWeapon byte is set true, which is required to deallocate scripts in weapon::~weapon().
+	( Venrob, 17th July, 2019 )
+	
+
 //Alpha 27
-Add Link->OriginalTile(int spriteid, int dir).
+Add Link->OriginalTile(linkspritetype spriteid, int dir).
 Added a QR to prevent uncapping.
 Added a QR to prevent swapping B button items on L/R button presses.
 Added a QR to enable swapping A button items on Ex3/Ex4 button presses.
