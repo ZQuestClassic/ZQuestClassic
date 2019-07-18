@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 26
-Document Revision: 10th July, 2019
+Document Revision: 14th July, 2019
 
 
 ////////////////////////////////////////////////////
@@ -3481,7 +3481,29 @@ int PanStyle;
 ///  Text->  ///
 ////////////////
 
-t/b/a
+int FontHeight(int font);
+int StringHeight(char32 ptr, int font);
+int CharHeight(char32 chr, int font);
+ * Returns the height, in pixels, of the given font.
+
+int StringWidth(char32 ptr, int font);
+ * Returns the width, in pixels, of the string pointed to by 'ptr', in the given font.
+ * This is the width as DrawString() will draw it, so some special characters such as '\n'
+ * 	may not be fully accurate, as DrawString() does not draw these properly.
+
+int CharWidth(char32 chr, int font);
+ * Returns the width, in pixels, of the character 'chr', in the given font.
+ * This is the width as DrawString() will draw it, so some special characters such as '\n'
+ * 	may not be fully accurate, as DrawString() does not draw these properly.
+
+int MessageWidth(int msg);
+ * Returns the width, in pixels, of the internal string at index 'msg'.
+ * This uses the font and text as set in the 'Strings' editor,
+ * 	and ignores both trailing spaces and line breaks.
+
+int MessageHeight(int msg);
+ * Returns the height, in pixels, of the internal string at index 'msg'.
+ * This uses the font as set in the 'Strings' editor, and ignores line breaks.
 
 /////////////////
 ///  Input->  ///
