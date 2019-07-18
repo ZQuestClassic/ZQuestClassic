@@ -12773,7 +12773,9 @@ case MAPDATAMISCD:
 
     case MAPDATASCREENSTATED:
     {
-        (value)?setmapflag(ri->mapsref, 1<<((ri->d[0])/10000)) : unsetmapflag(ri->mapsref, 1 << ((ri->d[0]) / 10000));
+	int mi = ri->mapsref;
+	mi -= 8*((ri->mapsref) / MAPSCRS);
+        (value)?setmapflag(mi, 1<<((ri->d[0])/10000)) : unsetmapflag(mi, 1 << ((ri->d[0]) / 10000));
     }
     break;
     
