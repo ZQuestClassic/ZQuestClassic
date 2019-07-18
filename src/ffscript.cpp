@@ -17962,6 +17962,7 @@ int run_script(const byte type, const word script, const long i)
 			
 			//if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
 			{
+				al_trace("(guys.spr(GuyH::getNPCIndex(i))->initialised) is %d\n",(guys.spr(GuyH::getNPCIndex(i))->initialised));
 				
 				for ( int q = 0; q < 8; q++ ) 
 				{
@@ -17985,8 +17986,9 @@ int run_script(const byte type, const word script, const long i)
 			weapon *wa = (weapon*)Lwpns.spr(LwpnH::getLWeaponIndex(i));
 			ri->lwpn = wa->getUID();
 			
-			if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
+			//if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
 			{
+				al_trace("(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised) is %d\n",(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised));
 				for ( int q = 0; q < 8; q++ ) 
 				{
 	
@@ -18014,6 +18016,7 @@ int run_script(const byte type, const word script, const long i)
 			ri->ewpn = wa->getUID();
 			//if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
 			{
+				al_trace("(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised) is %d\n",(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised));
 				for ( int q = 0; q < 8; q++ ) 
 				{
 					
@@ -18040,6 +18043,7 @@ int run_script(const byte type, const word script, const long i)
 			ri->itemref = wa->getUID();
 			//if (!(items.spr(ItemH::getItemIndex(i))->initialised))
 			{
+				 al_trace("(items.spr(ItemH::getItemIndex(i))->initialised) is %d\n",(items.spr(ItemH::getItemIndex(i))->initialised));
 				for ( int q = 0; q < 8; q++ ) 
 				{
 					
@@ -18064,6 +18068,7 @@ int run_script(const byte type, const word script, const long i)
 		
 		//if ( !(itemscriptInitialised[new_i]) )
 		//{
+		    al_trace("itemscriptInitialised[new_i] is %d\n"),itemscriptInitialised[new_i]);
 			memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(long));
 			memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(long));
 		//	itemscriptInitialised[new_i] = 1;
@@ -18106,6 +18111,7 @@ int run_script(const byte type, const word script, const long i)
 		ri->dmapsref = i;
 		    //how do we clear initialised on dmap change?
 		//if ( !dmapscriptInitialised[i] )
+		     al_trace("dmapscriptInitialised[i] is %d\n"),dmapscriptInitialised[i]);
 		{
 			for ( int q = 0; q < 8; q++ ) 
 			{
@@ -18122,6 +18128,7 @@ int run_script(const byte type, const word script, const long i)
 		curscript = screenscripts[script];
 		stack = &(screen_stack);
 		//if ( !tmpscr->screendatascriptInitialised )
+		    al_trace("tmpscr->screendatascriptInitialised is %d\n"),tmpscr->screendatascriptInitialised);
 		{
 			for ( int q = 0; q < 8; q++ ) 
 			{
