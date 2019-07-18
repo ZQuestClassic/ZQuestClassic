@@ -98,7 +98,7 @@ bool item::animate(int)
 		(
 			(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
 			||
-			(can_drop(x,y) && ipDUMMY && miscellaneous[31] == eeGANON ) //Ganon's dust pile
+			(can_drop(x,y) && ipDUMMY && linked_parent == eeGANON ) //Ganon's dust pile
 		) 
 		&& 
 		( obeys_gravity ) //if the user set item->Gravity = false, let it float. -Z
@@ -275,7 +275,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     overrideFLAGS = itemsbuf[id].overrideFLAGS; 
     pstring = itemsbuf[id].pstring;
     pickup_string_flags = itemsbuf[id].pickup_string_flags;
-    
+    linked_parent = 0;
     obeys_gravity = 1;
     for ( int q = 0; q < 8; q++ ) initD[q] = itemsbuf[id].initiald[q];
     

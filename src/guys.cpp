@@ -11084,7 +11084,7 @@ bool eGanon::animate(int index)
         sfx(WAV_GANON);
 	    //Ganon's dustpile; fall in sideview. -Z
             item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
-	    dustpile->miscellaneous[31] = eeGANON;
+	    dustpile->linked_parent = eeGANON;
             setmapflag();
         //items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
         break;
@@ -11381,7 +11381,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
 		item *dustpile = NULL;
 		//dustpile = (item *)items.spr(items.Count() - 1)->getUID();
 		dustpile = (item *)items.spr(items.Count() - 1);
-		dustpile->miscellaneous[31] = eeGANON;
+		dustpile->linked_parent = eeGANON; //was miscellaneous[31]
             //setmapflag(); //Could be why the Triforce doesn't drop. Disabling this now. -Z ( 6th March, 2019 )
         //items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
         break;
