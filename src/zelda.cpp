@@ -3713,7 +3713,7 @@ int onFullscreen()
     if(jwin_alert3(
 			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
 			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
-			(is_windowed_mode()) ? "We strongly advise saving your game before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to windowed mode?",
+			(is_windowed_mode()) ? "We strongly advise saving your game before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
 			(is_windowed_mode()) ? "Do you wish to continue to fullscreen mode?" : NULL,
 		 "&Yes", 
 		"&No", 
