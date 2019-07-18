@@ -1,11 +1,11 @@
 //General-Use Arrays with Getter/Setter functions
-///14th July, 2019
+///17th July, 2019
 
 //A generic array, pre-included with all quests. 
 //float stdArray[4096]; //This should be called GlobalRAM[]
 int std_zh___GlobalRAM[4096];
 
-const float STD_VERSION = 1.6001;
+const float STD_VERSION = 1.6002;
 float __stdzh_getVersion() { return STD_VERSION; }
 
 //! Because this is the first global array that will likely be declared, called from the 'import "std.zh"' 

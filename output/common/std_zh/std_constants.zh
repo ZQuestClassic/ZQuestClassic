@@ -1,5 +1,5 @@
 // std_constants.zh
-// 14th July, 2019 for ZC 2.55 Alpha 26
+// 18th July, 2019 for ZC 2.55 Alpha 28
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -2730,3 +2730,37 @@ LSprjumpspr, LSprchargespr, LSprcastingspr,
 	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
 
 	
+
+//suspend types
+enum { 
+	//Typical processes that we want to pause, similar to ALLOFF()
+	
+	//0 : Combo animation
+	susptCOMBOANIM,
+	
+	//1->5 Main Sprite animation by type
+	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptLINK, 
+	
+	//6 : FFC (e.g. movement, changers, but not scripts)
+	susptUPDATEFFC, //ffcs
+	
+	//7->8 : Sprite subclasses
+	susptDECORATIONS, susptPARTICLES, //sprite subclasses
+	
+	//9->10: Palette events
+	susptPALCYCLE, susptLAKES, //lake dries up
+	
+	//11->15 : game system events
+	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
+
+	//16->26 Script Types
+	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
+	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
+	susptSUBSCREENSCRIPTS, //26
+	
+	//27->29 : Moving items
+	susptCONVEYORSITEMS, susptDRAGGINGITEM, susptROAMINGITEM,
+	//30->34 : Misc
+	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
+	//35
+	susptLAST };
