@@ -17960,7 +17960,7 @@ int run_script(const byte type, const word script, const long i)
 			enemy *wa = (enemy*)guys.spr(GuyH::getNPCIndex(i));
 			ri->guyref = wa->getUID();
 			
-			if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
+			//if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
 			{
 				
 				for ( int q = 0; q < 8; q++ ) 
@@ -18012,7 +18012,7 @@ int run_script(const byte type, const word script, const long i)
 			
 			weapon *wa = (weapon*)Ewpns.spr(EwpnH::getEWeaponIndex(i));
 			ri->ewpn = wa->getUID();
-			if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
+			//if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
 			{
 				for ( int q = 0; q < 8; q++ ) 
 				{
@@ -18038,7 +18038,7 @@ int run_script(const byte type, const word script, const long i)
 			
 			item *wa = (item*)items.spr(ItemH::getItemIndex(i));
 			ri->itemref = wa->getUID();
-			if (!(items.spr(ItemH::getItemIndex(i))->initialised))
+			//if (!(items.spr(ItemH::getItemIndex(i))->initialised))
 			{
 				for ( int q = 0; q < 8; q++ ) 
 				{
@@ -18105,7 +18105,7 @@ int run_script(const byte type, const word script, const long i)
 		stack = &dmap_stack;
 		ri->dmapsref = i;
 		    //how do we clear initialised on dmap change?
-		if ( !dmapscriptInitialised[i] )
+		//if ( !dmapscriptInitialised[i] )
 		{
 			for ( int q = 0; q < 8; q++ ) 
 			{
@@ -18121,7 +18121,7 @@ int run_script(const byte type, const word script, const long i)
 		ri = &(screenScriptData);
 		curscript = screenscripts[script];
 		stack = &(screen_stack);
-		if ( !tmpscr->screendatascriptInitialised )
+		//if ( !tmpscr->screendatascriptInitialised )
 		{
 			for ( int q = 0; q < 8; q++ ) 
 			{
