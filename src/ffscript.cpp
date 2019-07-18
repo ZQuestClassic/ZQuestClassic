@@ -2791,7 +2791,7 @@ long get_register(const long arg)
 	case ITEMSPRITEINITD:
         if(0!=(s=checkItem(ri->itemref)))
         {
-	    int a = vbound(ri->d[0]/10000,0,31);
+	    int a = vbound(ri->d[0]/10000,0,7);
 	    ret=((int)((item*)(s))->initD[a])*10000;
         }
         
@@ -8973,7 +8973,7 @@ void set_register(const long arg, const long value)
         if(0!=(s=checkItem(ri->itemref)))
         {
 		
-	    int a = vbound(ri->d[0]/10000,0,31);
+	    int a = vbound(ri->d[0]/10000,0,7);
             (((item *)s)->initD[a])=value/10000;
         }
         
