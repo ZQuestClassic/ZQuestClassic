@@ -3851,6 +3851,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     //screen / screendata script
     FFCore.clear_screen_stack();
     screenScriptData.Clear();
+    FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
     if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
     {
 	    tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
@@ -3868,8 +3869,8 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     else
     {
 	tmpscr[tmp].script = 0;
-	tmpscr[tmp].screendatascriptInitialised = 1;
-	tmpscr[tmp].doscript = 1;
+	tmpscr[tmp].screendatascriptInitialised = 0;
+	tmpscr[tmp].doscript = 0;
     }
     
     
