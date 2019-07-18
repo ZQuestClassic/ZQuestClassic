@@ -1,6 +1,6 @@
 //2.55 Changes
 
-//Alhga 28
+//Alpha 28
 
 sts.zh: Vers now 1.6002; Added constants and enums.
 
