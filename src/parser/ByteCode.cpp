@@ -2862,6 +2862,11 @@ string OTriggerSecrets::toString()
     return "SECRETS";
 }
 
+string OIsValidArray::toString()
+{
+    return "ISVALIDARRAY " + getArgument()->toString();
+}
+
 string OIsValidItem::toString()
 {
     return "ISVALIDITEM " + getArgument()->toString();

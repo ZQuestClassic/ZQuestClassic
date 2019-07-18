@@ -1816,14 +1816,14 @@ public:
     }
 };
 
-// Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
+// Called to deallocate arrays when a script stops running
 void deallocateArray(const long ptrval)
 {
     if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
         Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
     else
     {
-        arrayOwner[ptrval] = 255;
+        arrayOwner[ptrval].clear();
         
         if(localRAM[ptrval].Size() == 0)
             Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
@@ -1837,6 +1837,33 @@ void deallocateArray(const long ptrval)
             size = size;
         }
     }
+}
+
+void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways)
+{
+	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS)) return; //Keep 2.50.2 behavior if QR unchecked.
+	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
+	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	{
+		if(arrayOwner[i].scriptType == scriptType && arrayOwner[i].ownerUID==UID)
+		{
+			deallocateArray(i);
+			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[scriptType], UID);
+		}
+	}
+}
+
+void FFScript::deallocateAllArrays()
+{
+	if(!get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS)) return; //Keep 2.50.2 behavior if QR unchecked.
+	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	{
+		if(localRAM[i].Size() > 0)
+		{
+			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[arrayOwner[i].scriptType], arrayOwner[i].ownerUID);
+			deallocateArray(i);
+		}
+	}
 }
 
 item *checkItem(long iid)
@@ -7875,33 +7902,27 @@ void set_register(const long arg, const long value)
         FFScript::do_changeffcscript(true);
         break;
     
-   case FFSCRIPT:
-	if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
-	{
-		for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	case FFSCRIPT:
+		if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
 		{
-		    if(arrayOwner[i]==ri->ffcref)
-			deallocateArray(i);
+			
+			tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+			if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+			{
+				for(int i=0; i<2; i++)
+					tmpscr->inita[ri->ffcref][i] = 0;
+				
+				for(int i=0; i<8; i++)
+					tmpscr->initd[ri->ffcref][i] = 0;
+			}
+			for(int i=0; i<16; i++)
+				ffmisc[ri->ffcref][i] = 0;
+			
+			ffcScriptData[ri->ffcref].Clear();
+			FFScript::deallocateAllArrays(SCRIPT_FFC, ri->ffcref);
+			tmpscr->initialized[ri->ffcref] = false;
 		}
-		
-		tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
-		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
-		{
-			for(int i=0; i<2; i++)
-				tmpscr->inita[ri->ffcref][i] = 0;
-		    
-			for(int i=0; i<8; i++)
-				tmpscr->initd[ri->ffcref][i] = 0;
-		}
-		for(int i=0; i<16; i++)
-		    ffmisc[ri->ffcref][i] = 0;
-		    
-	       
-		    
-		ffcScriptData[ri->ffcref].Clear();
-		tmpscr->initialized[ri->ffcref] = false;
-	}
-        break;
+		break;
         
         
     case FCSET:
@@ -8879,10 +8900,11 @@ void set_register(const long arg, const long value)
         break;
 	
 	case ITEMSPRITESCRIPT:
-        if(0!=(s=checkItem(ri->itemref)))
-        {
-            (s->script)=(value/10000);
-        }
+		FFScript::deallocateAllArrays(SCRIPT_ITEMSPRITE, ri->itemref);
+		if(0!=(s=checkItem(ri->itemref)))
+		{
+			(s->script)=(value/10000);
+		}
         break;
 	
 	case ITEMSCALE:
@@ -9514,8 +9536,9 @@ void set_register(const long arg, const long value)
 		break;
 	//Set the action script
 	case IDATASCRIPT:
-        itemsbuf[ri->idata].script=vbound(value/10000,1,255);
-        break;
+		FFScript::deallocateAllArrays(SCRIPT_ITEM, ri->idata);
+		itemsbuf[ri->idata].script=vbound(value/10000,1,255);
+		break;
     
       /*
       case ITEMMISCD:
@@ -9595,9 +9618,14 @@ void set_register(const long arg, const long value)
         itemsbuf[ri->idata].ltm=value/10000;
         break;
 	//Pickup script
-    case IDATAPSCRIPT:
-        itemsbuf[ri->idata].collect_script=vbound(value/10000, 1, 255);
-        break;
+	case IDATAPSCRIPT:
+	{
+		//Need to get collect script ref, not standard idata ref!
+		const long new_ref = ri->idata!=0 ? -(ri->idata) : COLLECT_SCRIPT_ITEM_ZERO;
+		FFScript::deallocateAllArrays(SCRIPT_ITEM,new_ref);
+		itemsbuf[ri->idata].collect_script=vbound(value/10000, 1, 255);
+		break;
+	}
     //pickup string
     case IDATAPSTRING:
         itemsbuf[ri->idata].pstring=vbound(value/10000, 1, 255);
@@ -9951,17 +9979,17 @@ void set_register(const long arg, const long value)
         break;
 	
 	case LWPNSCRIPT:
-        if(0!=(s=checkLWpn(ri->lwpn,"Script")))
-	{
-		(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
-		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		if(0!=(s=checkLWpn(ri->lwpn,"Script")))
 		{
-			for(int q=0; q<8; q++)
-				(((weapon*)(s))->weap_initd[q]) = 0;
-		}
-	}
-            
-        break;
+			FFScript::deallocateAllArrays(SCRIPT_LWPN, ri->lwpn);
+			(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+			if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+			{
+				for(int q=0; q<8; q++)
+					(((weapon*)(s))->weap_initd[q]) = 0;
+			}
+		}  
+		break;
 	
 	case LWPNUSEWEAPON:
         if(0!=(s=checkLWpn(ri->lwpn,"Weapon")))
@@ -10261,16 +10289,17 @@ void set_register(const long arg, const long value)
         break;
 	
 	case EWPNSCRIPT:
-        if(0!=(s=checkEWpn(ri->ewpn,"Script")))
-	{
-		(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
-		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		if(0!=(s=checkEWpn(ri->ewpn,"Script")))
 		{
-			for(int q=0; q<8; q++)
-				(((weapon*)(s))->weap_initd[q]) = 0;
+			FFScript::deallocateAllArrays(SCRIPT_EWPN, ri->ewpn);
+			(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+			if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+			{
+				for(int q=0; q<8; q++)
+					(((weapon*)(s))->weap_initd[q]) = 0;
+			}
 		}
-	}
-        break;
+		break;
 	
 	case EWPNINITD:
 	{
@@ -10679,6 +10708,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Script") == SH::_NoError)
 	{
+		FFScript::deallocateAllArrays(SCRIPT_NPC, ri->guyref);
 		//enemy *e = (enemy*)guys.spr(ri->guyref);
 		//e->initD[a] = value; 
 		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
@@ -11804,26 +11834,19 @@ break;
 	tmpscr->screeninitd[ri->d[0]/10000] = value;
 	break;
     
-    case SCREENSCRIPT:
-    {
-	//for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
-        //{
-        //    if(arrayOwner[i]==ri->ffcref)
-        //        deallocateArray(i);
-        //}
-        
-        if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+	case SCREENSCRIPT:
 	{
-		for(int q=0; q<8; q++)
-			tmpscr->screeninitd[q] = 0;
+		FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
+		
+		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		{
+			for(int q=0; q<8; q++)
+				tmpscr->screeninitd[q] = 0;
+		}
+		screenScriptData.Clear();
+		tmpscr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+		break;
 	}
-	screenScriptData.Clear();
-	tmpscr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
-        
-       
-        break;
-        
-    }
     
     case MAPDATAINITD:
         tmpscr->screeninitd[ri->d[0]/10000]=value;
@@ -12341,20 +12364,17 @@ case MAPDATASCRIPT:
 	} 
 	else 
 	{ 
+		//FFScript::deallocateAllArrays(SCRIPT_SCREEN, ri->mapsref);//Mapdata never updates a running script, so does not need this deallocation block.
+		
 		mapscr *m = &TheMaps[ri->mapsref];
-		//for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
-		//{
-		//    if(arrayOwner[i]==ri->ffcref)
-		//        deallocateArray(i);
-		//}
         
-		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		/*if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE)) //Mapdata never updates a running script. Why would it clear `tmpscr`, in any case?
 		{
 			for(int q=0; q<8; q++)
 				tmpscr->screeninitd[q] = 0;
-		}
+		}*/
 		
-		screenScriptData.Clear();	
+		/*screenScriptData.Clear();*/ //Mapdata never updates a running script. Why would it clear the current screen script's data, in any case?
 		m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 	} 
 	break;
@@ -12913,6 +12933,7 @@ case DMAPDATATYPE:	//byte
 }
 case DMAPSCRIPT:	//byte
 {
+	FFScript::deallocateAllArrays(SCRIPT_DMAP, ri->dmapsref);
 	DMaps[ri->dmapsref].type = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 }
 case DMAPDATASIDEVIEW:	//byte, treat as bool
@@ -13931,14 +13952,74 @@ case AUDIOPAN:
 ///----------------------------------------------------------------------------------------------------//
 //Internal (to ZScript)
 
-void do_set(const bool v, byte whichFFC)
+void do_set(const bool v, const byte whichType, const long whichUID)
 {
-    // Trying to change the current script?
-    if(sarg1==FFSCRIPT && ri->ffcref==whichFFC)
-        return;
-        
-    long temp = SH::get_arg(sarg2, v);
-    set_register(sarg1, temp);
+	bool allowed = true;
+	switch(whichType) //Check for objects attempting to change own script
+	{
+		//case SCRIPT_GLOBAL:
+		
+		case SCRIPT_FFC:
+			if(sarg1==FFSCRIPT && ri->ffcref==whichUID)
+				allowed = false;
+			break;
+		
+		case SCRIPT_SCREEN:
+			if(sarg1==SCREENSCRIPT) //Only 1 screen script running at a time, no UID check needed
+				allowed = false;
+			break;
+		
+		//case SCRIPT_LINK:
+		
+		case SCRIPT_ITEM:
+		{
+			bool collect = ( ( whichUID < 1 ) || (whichUID == COLLECT_SCRIPT_ITEM_ZERO) );
+			long new_UID = ( collect ) ? (( whichUID != COLLECT_SCRIPT_ITEM_ZERO ) ? (whichUID * -1) : 0) : whichUID;
+			
+			if(collect)
+			{
+				if(sarg1==IDATAPSCRIPT && ri->idata==new_UID)
+					allowed = false;
+			}
+			else if(sarg1==IDATASCRIPT && ri->idata==new_UID)
+				allowed = false;
+			break;
+		}
+		
+		case SCRIPT_LWPN:
+			if(sarg1==LWPNSCRIPT && ri->lwpn==whichUID)
+				allowed = false;
+			break;
+			
+		case SCRIPT_NPC:
+			if(sarg1==NPCSCRIPT && ri->guyref==whichUID)
+				allowed = false;
+			break;
+		
+		//case SCRIPT_SUBSCREEN:
+		
+		case SCRIPT_EWPN:
+			if(sarg1==EWPNSCRIPT && ri->ewpn==whichUID)
+				allowed = false;
+			break;
+		
+		case SCRIPT_DMAP:
+			if(sarg1==DMAPSCRIPT && ri->dmapsref==whichUID)
+				allowed = false;
+			break;
+		
+		case SCRIPT_ITEMSPRITE:
+			if(sarg1==ITEMSPRITESCRIPT && ri->itemref==whichUID)
+				allowed = false;
+			break;
+	}   
+	if(!allowed)
+	{
+		Z_scripterrlog("Script attemtped to change own object's script! This has been ignored.\n");
+		return;
+	}
+	long temp = SH::get_arg(sarg2, v);
+	set_register(sarg1, temp);
 }
 
 void do_push(const bool v)
@@ -13988,7 +14069,7 @@ void do_comp(const bool v)
     else                ri->scriptflag &= ~TRUEFLAG;
 }
 
-void do_allocatemem(const bool v, const bool local, const byte i)
+void do_allocatemem(const bool v, const bool local, const byte type, const unsigned long UID)
 {
     const long size = SH::get_arg(sarg2, v) / 10000;
     dword ptrval;
@@ -14019,8 +14100,10 @@ void do_allocatemem(const bool v, const bool local, const byte i)
             for(dword j = 0; j < (dword)size; j++)
                 a[j] = 0; //initialize array
                 
-            // Keep track of which FFC created the array so we know which to deallocate when changing screens
-            arrayOwner[ptrval]=i;
+            // Keep track of which object created the array so we know which to deallocate
+	    //Z_eventlog("Allocating array %d to script %s, %d\n", ptrval, script_types[type], UID);
+            arrayOwner[ptrval].scriptType = type;
+	    arrayOwner[ptrval].ownerUID = UID;
         }
     }
     else
@@ -15355,6 +15438,12 @@ void do_getscreennpc()
 
 ///----------------------------------------------------------------------------------------------------//
 //Pointer handling
+
+void do_isvalidarray()
+{
+	long ptr = get_register(sarg1)/10000;
+	set_register(sarg1,(localRAM[ptr].Size() == 0) ? 0 : 10000); 
+}
 
 void do_isvaliditem()
 {
@@ -16713,6 +16802,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	t=(currscr<128)?0:1;
 	bool overlay=false;
 	bool intradmap = (dmapID == currdmap);
+	int olddmap = currdmap;
 	//if ( intradmap ) 
 	//{
 	//	initZScriptDMapScripts();    //Not needed.
@@ -17221,6 +17311,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	if ( !(warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) )
 	{
 		dmap_doscript = 1;
+		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
 		dmapScriptData.Clear();
 	}
 	return true;
@@ -18208,11 +18299,11 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		    
 		case SETV:
-		    do_set(true, type==SCRIPT_FFC ? i : -1);
+		    do_set(true, type, i);
 		    break;
 		    
 		case SETR:
-		    do_set(false, type==SCRIPT_FFC ? i : -1);
+		    do_set(false, type, i);
 		    break;
 		    
 		case PUSHR:
@@ -18252,21 +18343,21 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		    
 		case ALLOCATEGMEMR:
-		    if(type == SCRIPT_GLOBAL) do_allocatemem(false, false, type==SCRIPT_FFC?i:255);
+		    if(type == SCRIPT_GLOBAL) do_allocatemem(false, false, type, i);
 		    
 		    break;
 		    
 		case ALLOCATEGMEMV:
-		    if(type == SCRIPT_GLOBAL) do_allocatemem(true, false, type==SCRIPT_FFC?i:255);
+		    if(type == SCRIPT_GLOBAL) do_allocatemem(true, false, type, i);
 		    
 		    break;
 		    
 		case ALLOCATEMEMR:
-		    do_allocatemem(false, true, type==SCRIPT_FFC?i:255);
+		    do_allocatemem(false, true, type, i);
 		    break;
 		    
 		case ALLOCATEMEMV:
-		    do_allocatemem(true, true, type==SCRIPT_FFC?i:255);
+		    do_allocatemem(true, true, type, i);
 		    break;
 		    
 		case DEALLOCATEMEMR:
@@ -19164,6 +19255,10 @@ int run_script(const byte type, const word script, const long i)
 		case CREATENPCV:
 		    do_createnpc(true);
 		    break;
+		    
+		case ISVALIDARRAY:
+			do_isvalidarray();
+			break;
 		    
 		case ISVALIDITEM:
 		    do_isvaliditem();
@@ -20367,19 +20462,23 @@ int run_script(const byte type, const word script, const long i)
         {
 		case SCRIPT_FFC:
 		    tmpscr->ffscript[i] = 0;
+		    FFScript::deallocateAllArrays(type, i);
 		    break;
 		    
 		case SCRIPT_GLOBAL:
 		    g_doscript = 0;
+		    FFScript::deallocateAllArrays(type, i);
 		    break;
 		
 		case SCRIPT_LINK:
 		    link_doscript = 0;
+		    FFScript::deallocateAllArrays(type, i);
 		    break;
 		
 		case SCRIPT_DMAP:
 		    dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
 		    dmapscriptInitialised[i] = 0;
+		    FFScript::deallocateAllArrays(type, i);
 		    break;
 		    
 		case SCRIPT_ITEM:
@@ -20402,6 +20501,7 @@ int run_script(const byte type, const word script, const long i)
 				for ( int q = 0; q < 1024; q++ ) item_collect_stack[new_i][q] = 0xFFFF;
 				itemCollectScriptData[new_i].Clear();
 			}
+			FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
 			Z_scripterrlog("Item script reached quit/end of scope for new_i: %d\n",new_i);
 			itemscriptInitialised[new_i] = 0;
 			
@@ -20412,6 +20512,7 @@ int run_script(const byte type, const word script, const long i)
 			guys.spr(GuyH::getNPCIndex(i))->doscript = 0;
 			guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
 			guys.spr(GuyH::getNPCIndex(i))->initialised = 0;
+			FFScript::deallocateAllArrays(type, i);
 
 			break;
 		}
@@ -20420,6 +20521,7 @@ int run_script(const byte type, const word script, const long i)
 			Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
 			Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
 			Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 0;
+			FFScript::deallocateAllArrays(type, i);
 			
 			break;
 		}
@@ -20429,6 +20531,7 @@ int run_script(const byte type, const word script, const long i)
 			Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
 			Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
 			Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 0;
+			FFScript::deallocateAllArrays(type, i);
 			
 			break;
 		}
@@ -20438,6 +20541,7 @@ int run_script(const byte type, const word script, const long i)
 			items.spr(ItemH::getItemIndex(i))->doscript = 0;
 			items.spr(ItemH::getItemIndex(i))->script = 0;
 			items.spr(ItemH::getItemIndex(i))->initialised = 0;
+			FFScript::deallocateAllArrays(type, i);
 			
 			break;
 		}
@@ -20446,6 +20550,7 @@ int run_script(const byte type, const word script, const long i)
 		    tmpscr->script = 0;
 		    tmpscr->screendatascriptInitialised = 0;
 		    tmpscr->doscript = 0;
+		    FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
 		    break;
 		} 
         }
@@ -21163,7 +21268,7 @@ void FFScript::deallocateZScriptArray(const long ptrval)
         Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
     else
     {
-        arrayOwner[ptrval] = 255;
+        arrayOwner[ptrval].clear();
         
         if(localRAM[ptrval].Size() == 0)
             Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
@@ -23259,6 +23364,8 @@ bool FFScript::itemScriptEngine()
 				if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
 				{
 					item_doscript[q] = 0;
+					itemScriptData[q].Clear();
+					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
 					break;
 				}
 				//else 
@@ -23272,6 +23379,7 @@ bool FFScript::itemScriptEngine()
 			{
 				item_doscript[q] = 0;
 				itemScriptData[q].Clear();
+				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
 				//fall-through
 			}
 			case 0:
@@ -23285,7 +23393,7 @@ bool FFScript::itemScriptEngine()
 		
 		if ( (item_doscript[q] > 1) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
-			Z_scripterrlog("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
+			//Z_scripterrlog("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
 			continue;
 			
@@ -23416,7 +23524,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		
 		if ( (item_doscript[q] > 1) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
-			Z_scripterrlog("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
+			//Z_scripterrlog("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
 			continue;
 			
@@ -26600,7 +26708,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "CHARWIDTHR",             2,   0,   0,   0},
     { "MESSAGEWIDTHR",          1,   0,   0,   0},
     { "MESSAGEHEIGHTR",         1,   0,   0,   0},
-    
+    { "ISVALIDARRAY",         1,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

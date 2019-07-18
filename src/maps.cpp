@@ -3915,11 +3915,13 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     if(tmp==0)
     {
         // Before loading new FFCs, deallocate the arrays used by those that aren't carrying over
-        for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
-        {
-            if(arrayOwner[i]<32 && (!(ffscr.ffflags[arrayOwner[i]]&ffCARRYOVER) || ffscr.flags5&fNOFFCARRYOVER))
-                deallocateArray(i);
-        }
+	
+	for(int ffid = 0; ffid < 32; ++ffid)
+	{
+		if(!(ffscr.flags5&fNOFFCARRYOVER) && (ffscr.ffflags[ffid]&ffCARRYOVER)) continue;
+		FFCore.deallocateAllArrays(SCRIPT_FFC, ffid, false); //false means this does not require 'qr_ALWAYS_DEALLOCATE_ARRAYS' to be checked. -V
+	}
+	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
         
         for(int i = 0; i < 32; i++)
         {

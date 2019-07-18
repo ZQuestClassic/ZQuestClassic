@@ -219,7 +219,7 @@ void ending()
     //do
 	//{
 		
-	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
 	//	FFCore.Waitframe();
 	//}while(link_doscript);
     game->set_cheat(game->get_cheat() | (cheat>1)?1:0);
@@ -236,7 +236,7 @@ void ending()
 	script_drawing_commands.Clear();
 	if ( link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
 	{
-		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
 		--f; load_control_state(); goto adv;
 	}
 	if ( f == 0 ) { sfx(WAV_ZELDA); music_stop(); }
@@ -313,7 +313,7 @@ void ending()
     for(int f=408; f<927; f++)
     {
 	//Z_scripterrlog("f = %d and link_doscript = %d\n", f, link_doscript);
-	//if ( link_doscript ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+	//if ( link_doscript ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
         /*
           668  LINK out, ZELDA out
           669  LINK in (TRIFORCE overhead), ZELDA in (TRIFORCE overhead)

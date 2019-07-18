@@ -40,8 +40,9 @@ int fairy_cnt=0;
 
 item::~item()
 {
-    if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0)
-        killfairy(misc);
+	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0)
+		killfairy(misc);
+	FFCore.deallocateAllArrays(SCRIPT_ITEMSPRITE, getUID());
 }
 
 bool item::animate(int)

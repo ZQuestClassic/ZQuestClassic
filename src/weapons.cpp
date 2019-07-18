@@ -353,6 +353,7 @@ weapon::weapon(weapon const & other):
 // Let's dispose of some sound effects!
 weapon::~weapon()
 {
+	FFCore.deallocateAllArrays(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, getUID());
     // First, check for the existence of weapons that don't have parentitems
     // but make looping sounds anyway.
     if(parentitem<0 && get_bit(quest_rules, qr_MORESOUNDS))
@@ -3478,7 +3479,7 @@ bool weapon::animate(int index)
         }
 	//eweapon script, again, later
        //if ( doscript )
-	//{
+	// {
 	//	FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
 	///}
         break;

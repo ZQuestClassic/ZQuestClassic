@@ -419,10 +419,18 @@ extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int sfxdat;
 
+struct ScriptOwner
+{
+	ScriptOwner();
+	byte scriptType;
+	unsigned long ownerUID;
+	void clear();
+};
+
 #define MAX_ZCARRAY_SIZE	4096
 typedef ZCArray<long> ZScriptArray;
 extern ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
-extern byte arrayOwner[MAX_ZCARRAY_SIZE];
+extern ScriptOwner arrayOwner[MAX_ZCARRAY_SIZE];
 
 dword getNumGlobalArrays();
 

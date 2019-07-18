@@ -1264,6 +1264,9 @@ untyped Untype(any)
   int x; 
   npc n = Screen->LoadNPC(10);
   x = Untype(n);
+  
+bool IsValidArray(untyped[]);
+ * Returns true if the passed array pointer is valid (usable), false if it is invalid (should not be used).
  
 
 /************************************************************************************************************/

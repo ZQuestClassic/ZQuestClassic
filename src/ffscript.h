@@ -1438,13 +1438,11 @@ enum __Error
         return _NoError;
     }
     
+	static void deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways = true);
+	static void deallocateAllArrays();
+	
     private:
     long sid;
-    
-    
-    
-  
-    
 };
 
 extern long ffmisc[32][16];
@@ -2381,11 +2379,13 @@ enum ASM_DEFINE
 	RSHIFTR32,
 	RSHIFTV32,
 	ISALLOCATEDBITMAP,
+
 	FONTHEIGHTR,
 	STRINGWIDTHR,
 	CHARWIDTHR,
 	MESSAGEWIDTHR,
 	MESSAGEHEIGHTR,
+  ISVALIDARRAY,
 
 
 	NUMCOMMANDS           //0x015B
