@@ -968,81 +968,97 @@ extern int zqwin_scale;
 
 int onFullScreen()
 {
-    int old_scale = zqwin_scale;
-#ifdef ALLEGRO_DOS
-    return D_O_K;
-#endif
-    get_palette(RAMpal);
-    show_mouse(NULL);
-    scrtmp = screen;
-    screen = hw_screen;
-    hw_screen = scrtmp;
-    bool windowed=is_windowed_mode()!=0;
-    
-    if(windowed)
+	
+    if(jwin_alert3(
+			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
+			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
+			(is_windowed_mode()) ? "We strongly advise saving your quest before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to windowed mode?",
+			(is_windowed_mode()) ? "Do you wish to continue to fullscreen mode?" : NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		lfont) == 1)	
     {
-        zqwin_set_scale(1);
+	    int old_scale = zqwin_scale;
+	#ifdef ALLEGRO_DOS
+	    return D_O_K;
+	#endif
+	    get_palette(RAMpal);
+	    show_mouse(NULL);
+	    scrtmp = screen;
+	    screen = hw_screen;
+	    hw_screen = scrtmp;
+	    bool windowed=is_windowed_mode()!=0;
+	    
+	    if(windowed)
+	    {
+		zqwin_set_scale(1);
+	    }
+	    else
+	    {
+		zqwin_set_scale(scale_arg);
+	    }
+	    
+	    int ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+	    
+	    if(ret!=0)
+	    {
+		if(zqwin_scale==1&&windowed)
+		{
+		    zqwin_set_scale(2);
+		    ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+		    
+		    if(ret!=0)
+		    {
+			zqwin_set_scale(scale_arg);
+			ret=set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+			
+			if(ret!=0)
+			{
+			    Z_message("Can't set video mode (%d).\n", ret);
+			    Z_message(allegro_error);
+			    //quit_game();
+			    exit(1);
+			}
+		    }
+		}
+		else
+		{
+		    zqwin_set_scale(old_scale);
+		    ret=set_gfx_mode(GFX_AUTODETECT_FULLSCREEN,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+		    
+		    if(ret!=0)
+		    {
+			Z_message("Can't set video mode (%d).\n", ret);
+			Z_message(allegro_error);
+			// quit_game();
+			exit(1);
+		    }
+		}
+	    }
+	    
+	    scrtmp = hw_screen;
+	    hw_screen = screen;
+	    screen = scrtmp;
+	    set_palette(RAMpal);
+	    gui_mouse_focus=0;
+	    gui_bg_color=jwin_pal[jcBOX];
+	    gui_fg_color=jwin_pal[jcBOXFG];
+	    gui_mg_color=jwin_pal[jcMEDDARK];
+	    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	    //zqwin_set_scale(zq_scale);
+	    set_palette(RAMpal);
+	    position_mouse(zq_screen_w/2,zq_screen_h/2);
+	    show_mouse(screen);
+	    set_display_switch_mode(SWITCH_BACKGROUND);
+	    set_display_switch_callback(SWITCH_OUT, switch_out);
+	    set_display_switch_callback(SWITCH_IN, switch_in);
+	    return D_REDRAW;
     }
-    else
-    {
-        zqwin_set_scale(scale_arg);
-    }
-    
-    int ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-    
-    if(ret!=0)
-    {
-        if(zqwin_scale==1&&windowed)
-        {
-            zqwin_set_scale(2);
-            ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-            
-            if(ret!=0)
-            {
-                zqwin_set_scale(scale_arg);
-                ret=set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-                
-                if(ret!=0)
-                {
-                    Z_message("Can't set video mode (%d).\n", ret);
-                    Z_message(allegro_error);
-                    //quit_game();
-                    exit(1);
-                }
-            }
-        }
-        else
-        {
-            zqwin_set_scale(old_scale);
-            ret=set_gfx_mode(GFX_AUTODETECT_FULLSCREEN,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-            
-            if(ret!=0)
-            {
-                Z_message("Can't set video mode (%d).\n", ret);
-                Z_message(allegro_error);
-                // quit_game();
-                exit(1);
-            }
-        }
-    }
-    
-    scrtmp = hw_screen;
-    hw_screen = screen;
-    screen = scrtmp;
-    set_palette(RAMpal);
-    gui_mouse_focus=0;
-    gui_bg_color=jwin_pal[jcBOX];
-    gui_fg_color=jwin_pal[jcBOXFG];
-    gui_mg_color=jwin_pal[jcMEDDARK];
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    //zqwin_set_scale(zq_scale);
-    set_palette(RAMpal);
-    position_mouse(zq_screen_w/2,zq_screen_h/2);
-    show_mouse(screen);
-    set_display_switch_mode(SWITCH_BACKGROUND);
-    set_display_switch_callback(SWITCH_OUT, switch_out);
-    set_display_switch_callback(SWITCH_IN, switch_in);
-    return D_REDRAW;
+    else return D_O_K;
 }
 
 int onEnter()
