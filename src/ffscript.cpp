@@ -17962,8 +17962,8 @@ int run_script(const byte type, const word script, const long i)
 			enemy *wa = (enemy*)guys.spr(GuyH::getNPCIndex(i));
 			ri->guyref = wa->getUID();
 			
-			//if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
-			//{
+			if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
+			{
 				al_trace("(guys.spr(GuyH::getNPCIndex(i))->initialised) is %d\n",(guys.spr(GuyH::getNPCIndex(i))->initialised));
 				
 				for ( int q = 0; q < 8; q++ ) 
@@ -17971,7 +17971,7 @@ int run_script(const byte type, const word script, const long i)
 					ri->d[q] = wa->initD[q];
 				}
 				guys.spr(GuyH::getNPCIndex(i))->initialised = 1;
-			//}
+			}
 	    }
 	    break;
 	    
@@ -17988,8 +17988,8 @@ int run_script(const byte type, const word script, const long i)
 			weapon *wa = (weapon*)Lwpns.spr(LwpnH::getLWeaponIndex(i));
 			ri->lwpn = wa->getUID();
 			
-			//if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
-			//{
+			if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
+			{
 				al_trace("(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised) is %d\n",(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised));
 				for ( int q = 0; q < 8; q++ ) 
 				{
@@ -17997,7 +17997,7 @@ int run_script(const byte type, const word script, const long i)
 					ri->d[q] = Lwpns.spr(LwpnH::getLWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
 				}
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 1;
-			//}
+			}
 			
 	    }
 	    break;
@@ -18016,8 +18016,8 @@ int run_script(const byte type, const word script, const long i)
 			
 			weapon *wa = (weapon*)Ewpns.spr(EwpnH::getEWeaponIndex(i));
 			ri->ewpn = wa->getUID();
-			//if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
-			//{
+			if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
+			{
 				al_trace("(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised) is %d\n",(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised));
 				for ( int q = 0; q < 8; q++ ) 
 				{
@@ -18025,7 +18025,7 @@ int run_script(const byte type, const word script, const long i)
 					ri->d[q] = Ewpns.spr(EwpnH::getEWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
 				}
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 1;
-			//}
+			}
 			
 	    }
 	    break;
@@ -18043,16 +18043,16 @@ int run_script(const byte type, const word script, const long i)
 			
 			item *wa = (item*)items.spr(ItemH::getItemIndex(i));
 			ri->itemref = wa->getUID();
-			//if (!(items.spr(ItemH::getItemIndex(i))->initialised))
-			//{
-				 al_trace("(items.spr(ItemH::getItemIndex(i))->initialised) is %d\n",(items.spr(ItemH::getItemIndex(i))->initialised));
+			if (!(items.spr(ItemH::getItemIndex(i))->initialised))
+			{
+				al_trace("(items.spr(ItemH::getItemIndex(i))->initialised) is %d\n",(items.spr(ItemH::getItemIndex(i))->initialised));
 				for ( int q = 0; q < 8; q++ ) 
 				{
 					
 					ri->d[q] = items.spr(ItemH::getItemIndex(i))->initD[q]; //w->initiald[q];
 				}
 				items.spr(ItemH::getItemIndex(i))->initialised = 1;
-			//}
+			}
 			
 	    }
 	    break;
@@ -18068,13 +18068,13 @@ int run_script(const byte type, const word script, const long i)
 		curscript = itemscripts[script];
 		stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
 		
-		//if ( !(itemscriptInitialised[new_i]) )
-		//{
+		if ( !(itemscriptInitialised[new_i]) )
+		{
 		    al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
 			memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(long));
 			memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(long));
-		//	itemscriptInitialised[new_i] = 1;
-		//}			
+			itemscriptInitialised[new_i] = 1;
+		}			
 		ri->idata = ( collect ) ? new_i : i; //'this' pointer
 		
 	    }
@@ -18112,15 +18112,15 @@ int run_script(const byte type, const word script, const long i)
 		stack = &dmap_stack;
 		ri->dmapsref = i;
 		    //how do we clear initialised on dmap change?
-		//if ( !dmapscriptInitialised[i] )
-		     al_trace("dmapscriptInitialised[i] is %d\n",dmapscriptInitialised[i]);
-		//{
+		if ( !dmapscriptInitialised[i] )
+		{
+			al_trace("dmapscriptInitialised[i] is %d\n",dmapscriptInitialised[i]);
 			for ( int q = 0; q < 8; q++ ) 
 			{
 				ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
 			}
 			dmapscriptInitialised[i] = 1;
-		//}
+		}
 	    }
 	    break;
 	    
@@ -18130,8 +18130,9 @@ int run_script(const byte type, const word script, const long i)
 		curscript = screenscripts[script];
 		stack = &(screen_stack);
 		if ( !tmpscr->screendatascriptInitialised )
-		    al_trace("tmpscr->screendatascriptInitialised is %d\n",tmpscr->screendatascriptInitialised);
+		    
 		{
+			al_trace("tmpscr->screendatascriptInitialised is %d\n",tmpscr->screendatascriptInitialised);
 			for ( int q = 0; q < 8; q++ ) 
 			{
 				ri->d[q] = tmpscr->screeninitd[q];// * 10000;
