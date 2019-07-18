@@ -4913,7 +4913,7 @@ case NPCBEHAVIOUR: {
     break;
     
     case GAMEMAXMAPS:
-	ret = (map_count-1)*10000;
+	ret = (map_count)*10000;
 	break;
     case GAMENUMMESSAGES:
 	ret = (msg_count-1) * 10000; 
