@@ -1979,6 +1979,7 @@ script_variable variable_list[]=
 	{ "GAMESUSPEND",		GAMESUSPEND,        0,             0 },
 	{ "LINKOTILE",		LINKOTILE,        0,             0 },
 	{ "LINKOFLIP",		LINKOFLIP,        0,             0 },
+	{ "ITEMSPRITEINITD",		ITEMSPRITEINITD,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

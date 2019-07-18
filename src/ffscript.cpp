@@ -2787,6 +2787,13 @@ long get_register(const long arg)
         {
 	    ret=((int)((item*)(s))->script)*10000;
         }
+	
+	case ITEMSPRITEINITD:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+	    int a = vbound(ri->d[0]/10000,0,31);
+	    ret=((int)((item*)(s))->initD[a])*10000;
+        }
         
         break;
 	
@@ -8958,6 +8965,16 @@ void set_register(const long arg, const long value)
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->drawstyle)=value/10000;
+        }
+        
+        break;
+        
+     case ITEMSPRITEINITD:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+		
+	    int a = vbound(ri->d[0]/10000,0,31);
+            (((item *)s)->initD[a])=value/10000;
         }
         
         break;

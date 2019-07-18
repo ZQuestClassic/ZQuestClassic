@@ -1758,6 +1758,7 @@ string VarArgument::toString()
 	case GAMESUSPEND: return "GAMESUSPEND";
 	case LINKOTILE: return "LINKOTILE";
 	case LINKOFLIP: return "LINKOFLIP";
+	case ITEMSPRITEINITD: return "ITEMSPRITEINITD";
 	
 	
     default:
