@@ -7815,7 +7815,63 @@ namespace ZScript
 		}
 	};
 	
+	//Text ptr opcodes
+	class OFontHeight : public UnaryOpcode
+	{
+	public:
+		OFontHeight(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFontHeight(a->clone());
+		}
+	};
 	
+	class OStringWidth : public BinaryOpcode
+	{
+	public:
+		OStringWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStringWidth(a->clone(),b->clone());
+		}
+	};
+	
+	class OCharWidth : public BinaryOpcode
+	{
+	public:
+		OCharWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OCharWidth(a->clone(),b->clone());
+		}
+	};
+	
+	class OMessageWidth : public UnaryOpcode
+	{
+	public:
+		OMessageWidth(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OMessageWidth(a->clone());
+		}
+	};
+	
+	class OMessageHeight : public UnaryOpcode
+	{
+	public:
+		OMessageHeight(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OMessageHeight(a->clone());
+		}
+	};
+	
+	//
 	class OStrCmp : public UnaryOpcode
 	{
 	public:

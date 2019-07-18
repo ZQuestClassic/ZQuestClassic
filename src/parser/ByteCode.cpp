@@ -4609,6 +4609,33 @@ string OBMPDrawScreenCIFlagRegister::toString()
     return "BMPDRAWLAYERCIFLAGR";
 }
 
+//Text ptr opcodes
+string OFontHeight::toString()
+{
+	return "FONTHEIGHTR " + getArgument()->toString();
+}
+
+string OStringWidth::toString()
+{
+	return "STRINGWIDTHR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OCharWidth::toString()
+{
+	return "CHARWIDTHR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OMessageWidth::toString()
+{
+	return "MESSAGEWIDTHR " + getArgument()->toString();
+}
+
+string OMessageHeight::toString()
+{
+	return "MESSAGEHEIGHTR " + getArgument()->toString();
+}
+
+//
 
 string OStrCmp::toString()
 {

@@ -7109,6 +7109,13 @@ static AccessorTable TextTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,                    numindex,      funcFlags,                            numParams,   params
 //	{ "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,            1,             0,                                    1,           {  ZVARTYPEID_TEXT,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "StringWidth",            ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    3,           {  ZVARTYPEID_TEXT,          ZVARTYPEID_CHAR,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "CharWidth",              ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    3,           {  ZVARTYPEID_TEXT,          ZVARTYPEID_CHAR,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "StringHeight",           ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    3,           {  ZVARTYPEID_TEXT,          ZVARTYPEID_CHAR,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "CharHeight",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    3,           {  ZVARTYPEID_TEXT,          ZVARTYPEID_CHAR,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "FontHeight",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           {  ZVARTYPEID_TEXT,          ZVARTYPEID_FLOAT,        -1,                  -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "MessageWidth",           ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    3,           {  ZVARTYPEID_TEXT,          ZVARTYPEID_FLOAT,        -1,                  -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "MessageHeight",          ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           {  ZVARTYPEID_TEXT,          ZVARTYPEID_FLOAT,        -1,                  -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,                     -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -7121,6 +7128,119 @@ TextPtrSymbols::TextPtrSymbols()
 
 void TextPtrSymbols::generateCode()
 {
+	//void StringWidth(char32 ptr, int font)
+	{
+		Function* function = getFunction("StringWidth", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the font
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop off the string ptr
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		//pop off the pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+		code.push_back(new OStringWidth(new VarArgument(EXP2),new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void CharWidth(char32 chr, int font)
+	{
+		Function* function = getFunction("CharWidth", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the font
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop off the character
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		//pop off the pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+		code.push_back(new OCharWidth(new VarArgument(EXP2),new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void StringHeight(char32 ptr, int font)
+	{
+		Function* function = getFunction("StringHeight", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the font
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//ignore the string ptr; height is purely font-based
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		//pop off the pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+		code.push_back(new OFontHeight(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void CharHeight(char32 chr, int font)
+	{
+		Function* function = getFunction("CharHeight", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the font
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//ignore the character; height is purely font-based
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		//pop off the pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+		code.push_back(new OFontHeight(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void FontHeight(int font)
+	{
+		Function* function = getFunction("FontHeight", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the font
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop off the pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+		code.push_back(new OFontHeight(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void MessageWidth(int message)
+	{
+		Function* function = getFunction("MessageWidth", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the message
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop off the pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+		code.push_back(new OMessageWidth(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void MessageHeight(int message)
+	{
+		Function* function = getFunction("MessageHeight", 2);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the message
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop off the pointer
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+		code.push_back(new OMessageHeight(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
 }
 
 

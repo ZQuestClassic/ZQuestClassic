@@ -28,6 +28,8 @@ ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
 
+FONT *get_zc_font(int index);
+
 const char scripttypenames[11][40]=
 {
 	"Global Script", "FFC Script", "Screen Script", "Hero Script", 
@@ -14504,6 +14506,62 @@ void do_boolcast(const bool isFloat)
 }
 
 ///----------------------------------------------------------------------------------------------------//
+//Text ptr functions
+void do_fontheight()
+{
+	int font = get_register(sarg1)/10000;
+	ri->d[2] = text_height(get_zc_font(font))*10000;
+}
+
+void do_strwidth()
+{
+	int strptr = get_register(sarg1)/10000;
+	int font = get_register(sarg2)/10000;
+	string the_string;
+	ArrayH::getString(strptr, the_string, 512);
+	ri->d[2] = text_length(get_zc_font(font), the_string.c_str())*10000;
+}
+
+void do_charwidth()
+{
+	char chr = get_register(sarg1)/10000;
+	int font = get_register(sarg2)/10000;
+	char *cstr = new char[2];
+	cstr[0] = chr;
+	cstr[1] = '\0';
+	ri->d[2] = text_length(get_zc_font(font), cstr)*10000;
+	delete[] cstr;
+}
+
+void do_msgwidth(int msg)
+{
+	if(BC::checkMessage(msg, "Text->MessageWidth()") != SH::_NoError)
+	{
+		ri->d[2] = -10000;
+		return;
+	}
+	char *cstr = new char[MSGSIZE+1];
+	strcpy(cstr,MsgStrings[msg].s);
+	for(int q = MSGSIZE; q >= 0; --q) //trim trailing spaces
+	{
+		if(cstr[q]==' ')cstr[q]=0;
+		else if(cstr[q]!=0) break;
+	}
+	ri->d[2] = text_length(get_zc_font(MsgStrings[msg].font), cstr)*10000;
+	delete[] cstr;
+}
+
+void do_msgheight(int msg)
+{
+	if(BC::checkMessage(msg, "Text->MessageHeight()") != SH::_NoError)
+	{
+		ri->d[2] = -10000;
+		return;
+	}
+	ri->d[2] = text_height(get_zc_font(MsgStrings[msg].font))*10000;
+}
+
+///----------------------------------------------------------------------------------------------------//
 //Gameplay functions
 
 void do_warp(bool v)
@@ -18340,6 +18398,24 @@ int run_script(const byte type, const word script, const long i)
 		case ARCTANR:
 		    do_arctan();
 		    break;
+		
+		//Text ptr functions
+		case FONTHEIGHTR:
+			do_fontheight();
+			break;
+		case STRINGWIDTHR:
+			do_strwidth();
+			break;
+		case CHARWIDTHR:
+			do_charwidth();
+			break;
+		case MESSAGEWIDTHR:
+			do_msgwidth(get_register(sarg1)/10000);
+			break;
+		case MESSAGEHEIGHTR:
+			do_msgheight(get_register(sarg1)/10000);
+			break;
+		//
 		
 		//String.h functions 2.55 Alpha 23
 		case STRINGCOMPARE: FFCore.do_strcmp(); break;
@@ -26519,6 +26595,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "RSHIFTR32",             2,   0,   0,   0},
     { "RSHIFTV32",             2,   0,   1,   0},
     { "ISALLOCATEDBITMAP",         1,   0,   0,   0},
+    { "FONTHEIGHTR",            1,   0,   0,   0},
+    { "STRINGWIDTHR",           2,   0,   0,   0},
+    { "CHARWIDTHR",             2,   0,   0,   0},
+    { "MESSAGEWIDTHR",          1,   0,   0,   0},
+    { "MESSAGEHEIGHTR",         1,   0,   0,   0},
     
     { "",                    0,   0,   0,   0}
 };
