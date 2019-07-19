@@ -52,6 +52,7 @@ public:
 	byte script_wrote_otile;
     int temp1;
     bool behind;
+	byte linkedItem;
 
 	//!Dimentio: More variables? That suuuuuure won't break anything. Nope.
     int count1; 

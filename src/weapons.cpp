@@ -249,7 +249,8 @@ weapon::weapon(weapon const & other):
     wpnsprite(other.wpnsprite),
     magiccosttimer(other.magiccosttimer),
     ScriptGenerated(other.ScriptGenerated),
-    isLWeapon(other.isLWeapon)
+    isLWeapon(other.isLWeapon),
+	linkedItem(other.linkedItem)
     
 	
 	//End Weapon editor non-arrays. 
@@ -495,6 +496,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	weap_pattern[q] = 0; //int	The movement pattern and args.
     }
     isLit = false;
+	linkedItem = 0;
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
 		//This will need an input in the params! -Z
@@ -4115,8 +4117,8 @@ bool weapon::animate(int index)
 	else
 	{
                 //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3418);
-		 if((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family == itype_book &&
-                itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+		 if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
+                itemsbuf[linkedItem].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 		{
 		    findentrance(x,y,mfBCANDLE,true);
 		    findentrance(x,y,mfRCANDLE,true);
@@ -4426,8 +4428,8 @@ bool weapon::animate(int index)
 	else
 	{
                 //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3418);
-		 if((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family == itype_book &&
-                itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+		 if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
+                itemsbuf[linkedItem].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 		{
 		    findentrance(x,y,mfBCANDLE,true);
 		    findentrance(x,y,mfRCANDLE,true);
@@ -6479,8 +6481,8 @@ bool weapon::animateandrunscript(int ii)
 	else
 	{
                 //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3418);
-		 if((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family == itype_book &&
-                itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+		 if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
+                itemsbuf[linkedItem].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 		{
 		    findentrance(x,y,mfBCANDLE,true);
 		    findentrance(x,y,mfRCANDLE,true);
@@ -7444,20 +7446,20 @@ offscreenCheck:
 			sfx(WAV_FIRE,pan(x));
 		    }
 			
-		    else sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+		    else sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
 		}
 	}
 	else
 	{
-		if(((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family==itype_book &&
-			(itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+		if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
+			(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
-		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,miscellaneous[31],-1));
+		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,linkedItem,-1));
 		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
 		    {
 			sfx(WAV_FIRE,pan(x));
 		    }
-		    else sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+		    else sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
 		}
         }
         break;
