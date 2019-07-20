@@ -44,6 +44,7 @@ public:
     int overrideFLAGS; //Override flags.
     long family;
     byte lvl;
+    int linked_parent;
     //int weapoverrideFLAGS; 
     
     //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.

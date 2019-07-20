@@ -3613,11 +3613,12 @@ enum ASM_DEFINE
 #define GAMESUSPEND		0x1369
 #define LINKOTILE		0x136A
 #define LINKOFLIP		0x136B
+#define ITEMSPRITEINITD		0x136C
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x136C
+#define NUMVARIABLES         	0x136D
 
 // Script types
 
