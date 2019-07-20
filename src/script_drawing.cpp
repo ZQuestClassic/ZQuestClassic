@@ -5378,8 +5378,8 @@ void bmp_do_clearr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 void bmp_do_regenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
     //sdci[1]=layer
-	int h = sdci[2]/10000;
-	int w = sdci[3]/10000;
+	int h = sdci[3]/10000;
+	int w = sdci[2]/10000;
 	if ( get_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS) )
 	{
 		//flip height and width
@@ -6038,6 +6038,7 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	//bugfix
 	//sx = vbound(sx, 0, sourceBitmap->w);
+	/* //These vars are named wrongly for this function -V
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit %s is: %d\n", "sx", sx);
 	Z_scripterrlog("Blit %s is: %d\n", "source->w", sourceBitmap->w);
@@ -6063,6 +6064,7 @@ void bmp_do_mode7r(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
 	#endif
+	*/
 	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
 	
 	
@@ -7548,7 +7550,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	*/
 	
-
+	int srcyoffset = yoffset, srcxoffset = xoffset;
 	int bitmapIndex = sdci[2]/10000;
 	int usr_bitmap_index = sdci[2]-10;
 	byte using_user_bitmap = 0;
@@ -7565,7 +7567,7 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	{
 		bitmapIndex = usr_bitmap_index;
 		using_user_bitmap = 1;
-		yoffset = 0;
+		srcyoffset = 0;
 	}
 	
 	int sx = sdci[3]/10000;
@@ -7587,12 +7589,18 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	int ref = 0;
 	
-	dx = dx + xoffset;
-	dy = dy + yoffset;
+	//These should go down farther, should they not? -V
+	//dx = dx + xoffset;
+	//dy = dy + yoffset;
 	
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	if ( (bitmapIndex) != -2 && (bitmapIndex) != -1 ) srcyoffset = 0; //Don't crop. 
 	//Do we need to also check the render target and do the same thing if the 
 		//dest == -2 and the render target is not RT_SCREEN?
+	dx = dx + xoffset;
+	dy = dy + yoffset;
+	sx = sx + srcxoffset;
+	sy = sy + srcyoffset;
 		
 	ref = sdci[17];
 	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
@@ -7682,8 +7690,11 @@ void bmp_do_blittor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("Blit %s is: %d\n", "sh", sh);
 
+	Z_scripterrlog("Blit %s is: %d\n", "dx", dx);
+	Z_scripterrlog("Blit %s is: %d\n", "dy", dy);
 	Z_scripterrlog("Blit %s is: %d\n", "dh", dh);
 	Z_scripterrlog("Blit %s is: %d\n", "dw", dw);
+	Z_scripterrlog("Blit %s is: %d\n", "yoffset", yoffset);
 	#endif
 	bool stretched = (sw != dw || sh != dh);
 	//bool stretched = (sourceBitmap->w != destBMP->w || sourceBitmap->h != destBMP->h);
