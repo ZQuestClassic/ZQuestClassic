@@ -758,10 +758,17 @@ int  LinkClass::getAction2() // Used by ZScript new FFCore.actions
 void LinkClass::setAction(actiontype new_action) // Used by ZScript
 {
     if(new_action==dying || new_action==won || new_action==scrolling ||
-       new_action==inwind || new_action==rafting || new_action==ischarging ||
+       new_action==inwind || new_action==ischarging ||
        new_action==hopping)
         return; // Can't use these actions.
     
+	if(new_action==rafting)
+	{
+		if(!(isRaftFlag(nextflag(x+8,y+8,dir,false))||isRaftFlag(nextflag(x+8,y+8,dir,true))))
+			return;
+	}
+	
+	
     if(magicitem>-1 && itemsbuf[magicitem].family==itype_faroreswind)
     {
         // Using Farore's Wind
