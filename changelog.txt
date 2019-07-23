@@ -1,7 +1,44 @@
 //2.55 Changes
 
-//Alpha 28
+//Alpha 29
+ZCL: Segregated ZC Player and ZQ Editor GFX Drivers.
+	Version is noe 2.7.0
+Added confirmation/warning dialogues when shifting between
+	fullscreen and windowed modes in both ZQ Editor and ZC Player.
+Corrected label for 'Ex3/Ex4' shifts A-button items.
+	( ZoriaRPG, 23rd ]commit may show 18th] July, 2019 )
 
+std_zh: Update QR enum
+	Number of QRs have been added since last update; need to be available for `FFRules[]` access.
+	( Venrob, 23rd July, 2019 )
+	
+Fix: Crash on invalid script type
+	That needs to call `program.addScript`, as that's where the error is handled!
+	( Venrob, 22nd July, 2019 )
+	
+Fix: Port 'linkedItem' from 2.53, to fix wand crash
+	Book ID is now stored on this new var, instead of miscellaneous[31]
+	( Venrob, 19th July, 2019 )
+	
+Feat: Add item->InitD[8] to ZScriptl which is this->InitD in itemsprite scripts.
+Added linked_parent to item sprite subclass, init to 0 in its
+	constructor, and moved the == eeGANON check to use the new var, instead of
+	Misc31; as the latter can be overwritten by scripts.
+Fix setter for MAPDATASCREENSTATED
+This commit completes a series as follows:
+	Fixed itemsprite script initD being populated with '0' by ensuring that
+	the sprite initD was read by the item::item constructor from itemdata.
+
+	Fixed screen script initD by ensuring that tmpscr->initialised was not set to 1 by
+	loadscr() in maps.cpp; it should always be set to 0 by loadscr().
+Fix screen script initD init points.
+Deallocate screen script arrays and only set initD on loadscr()
+Fix Game->MapCount offset by 1.
+Fix getter for MAPDATASCREENSTATED
+Fix: Set items.sprite->initD in constructor.
+	( ZoriaRPG, 18th July, 2019 )
+	
+//Alpha 28
 sts.zh: Vers now 1.6002; Added constants and enums.
 
 Changelog: Added font height constants.
