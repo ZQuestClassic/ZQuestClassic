@@ -149,6 +149,7 @@ extern YYLTYPE noloc;
 %token SCREEN
 %token LINK
 %token ITEMSPRITE
+%token FILE
 
  // Syntax
 %token COMMA

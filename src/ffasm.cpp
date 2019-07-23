@@ -895,6 +895,7 @@ script_command command_list[NUMCOMMANDS+1]=
     { "MESSAGEWIDTHR",          1,   0,   0,   0},
     { "MESSAGEHEIGHTR",         1,   0,   0,   0},
     { "ISVALIDARRAY",         1,   0,   0,   0},
+    { "DIREXISTS",         1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}

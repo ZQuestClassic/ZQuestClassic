@@ -4863,6 +4863,11 @@ string OReturn::toString()
 	return "RETURN";
 }
 
+string ODirExists::toString()
+{
+	return "DIREXISTS " + getArgument()->toString();
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 

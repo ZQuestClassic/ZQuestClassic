@@ -1169,6 +1169,9 @@ static void setLinkBigHitbox(bool v);
 	static void do_setDMapData_dmapintro(const bool v);
 	static void do_getDMapData_music(const bool v);
 	static void do_setDMapData_music(const bool v);
+	
+	static bool checkDir(const char* path);
+	static void do_checkdir();
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -2385,10 +2388,11 @@ enum ASM_DEFINE
 	CHARWIDTHR,
 	MESSAGEWIDTHR,
 	MESSAGEHEIGHTR,
-  ISVALIDARRAY,
+	ISVALIDARRAY,
+	DIREXISTS,
 
 
-	NUMCOMMANDS           //0x015B
+	NUMCOMMANDS           //0x015C
 };
 
 
