@@ -685,6 +685,30 @@ static void NES_titlescreen()
     memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
     FFCore.skip_ending_credits = 0;
+    /*if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }
+    */
     for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
     int f=0;
@@ -756,6 +780,30 @@ static void DX_mainscreen(int f)
 {
     memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
+    /*if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }
+    */
     FFCore.skip_ending_credits = 0;
     for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 	
@@ -868,6 +916,31 @@ static void DX_titlescreen()
     //  JGMOD *yea;
     memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
+    /*
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }
+    */
     FFCore.skip_ending_credits = 0;
 	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
@@ -932,6 +1005,31 @@ static void v25_mainscreen(int f)
 {
     memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
+    /*
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }
+    */
     FFCore.skip_ending_credits = 0;
 	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 	
@@ -1043,6 +1141,31 @@ static void v25_titlescreen()
 {
     memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
+	/*
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }
+    */
     FFCore.skip_ending_credits = 0;
 	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
@@ -1113,6 +1236,29 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 {
     memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }
     FFCore.skip_ending_credits = 0;
     //word item_count;
     word qstpath_len;
@@ -1733,6 +1879,31 @@ int load_savedgames()
 {
     memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
+/*    
+if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }
+    */
     FFCore.skip_ending_credits = 0;
     char *fname = SAVE_FILE;
     char *iname = (char *)zc_malloc(2048);
@@ -2346,6 +2517,29 @@ static void delete_mode()
 static void selectscreen()
 {
     FFCore.kb_typing_mode = false;
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }
     FFCore.skip_ending_credits = 0;
     //  text_mode(0);
     init_NES_mode();
@@ -3650,6 +3844,31 @@ void titlescreen(int lsave)
     Quit=0;
     Playing=Paused=false;
     FFCore.kb_typing_mode = false;
+/*
+if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }	
+    */
     FFCore.skip_ending_credits = 0;
     
     if(q==qCONT)
@@ -3731,6 +3950,31 @@ void game_over(int type)
 {
 
     FFCore.kb_typing_mode = false; 
+    /*
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }
+    */
     FFCore.skip_ending_credits = 0;
     kill_sfx();
     music_stop();

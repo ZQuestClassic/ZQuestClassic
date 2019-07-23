@@ -17364,65 +17364,79 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 
 void FFScript::do_adjustvolume(const bool v)
 {
-	long perc = SH::get_arg(sarg1, v) / 10000;
-	int temp_midi;
-	int temp_digi;
-	int temp_mus;
+	long perc = (SH::get_arg(sarg1, v) / 10000);
+	float pct = perc / 100.0;
+	Z_scripterrlog("pct is: %f\n",pct);
+	float temp_midi = 0;
+	float temp_digi = 0;
+	float temp_mus = 0;
 	if ( !(coreflags&FFCORE_SCRIPTED_MIDI_VOLUME) ) 
 	{
+		Z_scripterrlog("FFCORE_SCRIPTED_MIDI_VOLUME: wasn't set\n");
 		temp_midi = do_getMIDI_volume();
-		usr_midi_volume = temp_midi;
+		Z_scripterrlog("temp_midi is %f\n", temp_midi);
+		usr_midi_volume = do_getMIDI_volume();
+		Z_scripterrlog("usr_midi_volume stored as %d\n", usr_midi_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_MIDI_VOLUME,true);
 	}
 	else 
 	{
-		temp_midi = usr_midi_volume;
+		temp_midi = (float)usr_midi_volume;
 	}
 	if ( !(coreflags&FFCORE_SCRIPTED_DIGI_VOLUME) ) 
 	{
 		temp_digi = do_getDIGI_volume();
-		usr_digi_volume = temp_digi;
+		usr_digi_volume = do_getDIGI_volume();
+		Z_scripterrlog("usr_music_volume stored as %d\n", usr_digi_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_DIGI_VOLUME,true);
 	}
 	else
 	{
-		temp_digi = usr_digi_volume;
+		temp_digi = (float)usr_digi_volume;
 	}
 	if ( !(coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME) ) 
 	{
 		temp_mus = do_getMusic_volume();
-		usr_music_volume = temp_mus;
+		usr_music_volume = do_getMusic_volume();
+		Z_scripterrlog("usr_music_volume stored as %d\n", usr_music_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_MUSIC_VOLUME,true);
 	}
 	else
 	{
-		temp_mus = usr_music_volume;
+		temp_mus = (float)usr_music_volume;
 	}
-	temp_midi = ( (temp_midi / 100 ) * perc );
-	temp_digi = ( (temp_digi / 100 ) * perc );
-	temp_mus = ( (temp_mus / 100 ) * perc );
-	do_setMIDI_volume(temp_midi);
-	do_setDIGI_volume(temp_digi);
-	do_setMusic_volume(temp_mus);
+	
+	temp_midi *= pct;
+	temp_digi *= pct;
+	temp_mus *= pct;
+	Z_scripterrlog("temp_midi is: %f\n",temp_midi);
+	Z_scripterrlog("temp_digi is: %f\n",temp_digi);
+	Z_scripterrlog("temp_mus is: %f\n",temp_mus);
+	do_setMIDI_volume((int)temp_midi);
+	do_setDIGI_volume((int)temp_digi);
+	do_setMusic_volume((int)temp_mus);
+	
 
 }
 
 void FFScript::do_adjustsfxvolume(const bool v)
 {
-	long perc = SH::get_arg(sarg1, v) / 10000;
-	int temp_sfx;
+	long perc = (SH::get_arg(sarg1, v) / 10000);
+	float pct = perc / 100.0;
+	float temp_sfx = 0;
 	if ( !(coreflags&FFCORE_SCRIPTED_SFX_VOLUME) ) 
 	{
 		temp_sfx = do_getSFX_volume();
-		usr_sfx_volume = temp_sfx;
+		usr_sfx_volume = (int)temp_sfx;
+		Z_scripterrlog("usr_sfx_volume stored as %d\n", usr_sfx_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_SFX_VOLUME,true);
 	}
 	else 
 	{
-		temp_sfx = usr_sfx_volume;
+		temp_sfx = (float)usr_sfx_volume;
 	}
-	temp_sfx = ( (temp_sfx / 100 ) * perc );
-	do_setSFX_volume(temp_sfx);
+	temp_sfx *= pct;
+	do_setSFX_volume((int)temp_sfx);
 }
 	
 
@@ -22389,6 +22403,9 @@ void FFScript::init()
 	for ( int q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
 	if ( zasm_debugger ) ZASMPrint(true);
+	
+	
+
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
@@ -22398,7 +22415,11 @@ void FFScript::init()
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 
-	long usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
+	long usr_midi_volume = midi_volume;
+	usr_digi_volume = digi_volume;
+	usr_sfx_volume = sfx_volume;
+	usr_music_volume = emusic_volume;
+	usr_panstyle = pan_style;
 	FF_link_tile = 0; FF_link_action = 0;
 	for ( int q = 0; q < 4; q++ ) 
 	{
