@@ -22543,10 +22543,14 @@ bool FFScript::checkDir(const char* path)
 
 void FFScript::do_checkdir()
 {
-    int strptr = get_register(sarg1)/10000;
-    string the_string;
-    ArrayH::getString(strptr, the_string, 512);
-    set_register(sarg1, checkDir(the_string.c_str()) ? 10000 : 0);
+	int strptr = get_register(sarg1)/10000;
+	string the_string;
+	ArrayH::getString(strptr, the_string, 512);
+	the_string = the_string.substr(the_string.find_first_not_of('/'),string::npos); //Kill leading '/'
+	size_t last = the_string.find_last_not_of('/');
+	if(last!=string::npos)++last;
+	the_string = the_string.substr(0,last); //Kill trailing '/'
+	set_register(sarg1, checkDir(the_string.c_str()) ? 10000 : 0);
 }
 
 //Modules
