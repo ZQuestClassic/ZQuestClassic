@@ -803,6 +803,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 	if (host.index)
 	{
 		visit(host.index.get());
+		syncDisable(host, *host.index);
         if (breakRecursion(host)) return;
 
         checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
