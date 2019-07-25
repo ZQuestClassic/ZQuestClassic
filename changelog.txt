@@ -1,6 +1,45 @@
 //2.55 Changes
 
 //Alpha 29
+
+Added int Game->ZScriptVersion to ZScript. I made this r/w, with 
+	the ZASM instruction ZSCRIPTVERSION so that it is possible to 
+	modify ZASM scripts to get the current version, write a version to 
+	use for the script, and set back the correct version when the
+	script exits.
+
+Versions of Zscript prior to 13 are now shown, rather than -1.
+	NOTE however, that this merely reflects the constant V_FFSCRIPT used
+	by ZQ when that quest was saved, and it does not reflect when it was truly
+	last compiled (13+ do), but it is better than a generic '-1' and
+	may prove useful.
+
+	Linked all checks for this through 'FFCore.quest_format[vLastCompile]'.
+
+Game->Beta now returns a negative value if the build is an ALPHA
+	**and** the current compiled ZScript version is >= 13.
+
+The internal ID of the ZScript version is stored when compiling scripts,
+	during compilation. The value is stored in the QMisc struct.
+
+	The 'Compile Script' dialogue displays the last language version used in a quest.
+	Versions prior to 13 read as -1 at present.
+
+	This feature should be used with GREAT CARE as individual scripts do not
+	have this metadata and obviously, there is no way to determine in
+	what build an ASM script was compiled.
+
+	Build is now 47. Updated build date.
+	( ZoriaRPG, 25th July, 2019 )
+
+Fix: NO_ERROR_HALT crash with array accessing
+	`arr[NONEXISTANT_CONSTANT]` now no longer crashes.
+	( Venrob, 24th July, 2019 )
+	
+Corrected the behaviour of Audio->AdjustMusicVolume
+	and ensure proper reset to user defaults on quest exit.
+	( ZoriaRPG, 23rd July, 2019 )
+	
 ZCL: Segregated ZC Player and ZQ Editor GFX Drivers.
 	Version is noe 2.7.0
 Added confirmation/warning dialogues when shifting between
