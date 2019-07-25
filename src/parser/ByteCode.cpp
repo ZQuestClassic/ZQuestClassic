@@ -1759,6 +1759,7 @@ string VarArgument::toString()
 	case LINKOTILE: return "LINKOTILE";
 	case LINKOFLIP: return "LINKOFLIP";
 	case ITEMSPRITEINITD: return "ITEMSPRITEINITD";
+	case ZSCRIPTVERSION: return "ZSCRIPTVERSION";
 	
 	
     default:

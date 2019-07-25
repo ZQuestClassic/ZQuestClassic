@@ -4757,6 +4757,12 @@ case NPCBEHAVIOUR: {
     case ZELDABUILD:
 	ret = (int)VERSION_BUILD*10000;
 	break;
+    
+    case ZSCRIPTVERSION: 
+    {
+	ret = (FFCore.quest_format[vLastCompile]) * 10000;
+    }
+    
     case ZELDABETA:
     {
 	if ( (FFCore.quest_format[vLastCompile]) < 13 )
@@ -10964,6 +10970,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
 
+    case ZSCRIPTVERSION:
+    {
+	    (FFCore.quest_format[vLastCompile]) = value/10000;
+	    break;
+    }
     
     case GAMEDEATHS:
         game->set_deaths(value/10000);

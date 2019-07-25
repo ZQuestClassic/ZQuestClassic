@@ -3614,11 +3614,12 @@ enum ASM_DEFINE
 #define LINKOTILE		0x136A
 #define LINKOFLIP		0x136B
 #define ITEMSPRITEINITD		0x136C
+#define ZSCRIPTVERSION		0x136D
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x136D
+#define NUMVARIABLES         	0x136E
 
 // Script types
 
