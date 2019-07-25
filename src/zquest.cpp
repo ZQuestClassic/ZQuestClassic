@@ -499,6 +499,7 @@ char                zquestdat_sig[52];
 char                qstdat_sig[52];
 char                sfxdat_sig[52];
 char		    qstdat_str[2048];
+miscQdata           QMisc;
 
 int gme_track=0;
 
@@ -21037,7 +21038,7 @@ int onCompileScript()
     for(;;) //while(true)
     {
         sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
-	sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(int)misc.zscript_last_compiled_version);
+	sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
         int ret = zc_popup_dialog(compile_dlg,5);
         
         switch(ret)
@@ -21215,6 +21216,7 @@ int onCompileScript()
 	    
 	    //scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
 	    misc.zscript_last_compiled_version = V_FFSCRIPT;
+	    FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
 	    al_trace("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
             
             assignscript_dlg[0].dp2 = lfont;

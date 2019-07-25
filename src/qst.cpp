@@ -42,6 +42,8 @@ extern ZModule zcm;
 extern zcmodule moduledata;
 //FFSCript   FFEngine;
 
+int temp_ffscript_version = 0;
+
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
 #endif
@@ -5142,7 +5144,6 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
 	    temp_misc.zscript_last_compiled_version = -1;
     }
    
-    al_trace("Scipts last compiled in ZScript version: %d\n", temp_misc.zscript_last_compiled_version);
     FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
     
     if(keepdata==true)
@@ -8766,6 +8767,8 @@ extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
 extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 //ffscript *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
+
+
 int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     int dummy;
@@ -8796,6 +8799,10 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     //ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
     setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
+    temp_ffscript_version = s_version;
+    //miscQdata *the_misc;
+    if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
+    al_trace("Loaded scripts last compiled in ZScript version: %d\n", (FFCore.quest_format[vLastCompile]));
     
     //finally...  section data
     for(int i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)

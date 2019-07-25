@@ -4759,7 +4759,7 @@ case NPCBEHAVIOUR: {
 	break;
     case ZELDABETA:
     {
-	if ( QMisc.zscript_last_compiled_version < 13 )
+	if ( (FFCore.quest_format[vLastCompile]) < 13 )
 	{
 		
 		ret = VERSION_BETA*10000;
