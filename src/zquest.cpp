@@ -21037,7 +21037,7 @@ int onCompileScript()
     for(;;) //while(true)
     {
         sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
-	sprintf(zLastVer, "Last Compiled Using ZScript: %d",(int)misc.zscript_last_compiled_version);
+	sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(int)misc.zscript_last_compiled_version);
         int ret = zc_popup_dialog(compile_dlg,5);
         
         switch(ret)
