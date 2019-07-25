@@ -150,7 +150,7 @@ enum
 	vTiles, vCombos, vCSets, vMaps, vDMaps, vDoors, vItems, vWeaponSprites,
 	vColours, vIcons, vGfxPack, vInitData, vGuys, vMIDIs, vCheats, vSaveformat,
 	vComboAliases, vLinkSprites, vSubscreen, vItemDropsets, vFFScript, vSFX, vFavourites,
-	qMapCount,
+	qMapCount, vLastCompile,
 	versiontypesLAST
 	
 };

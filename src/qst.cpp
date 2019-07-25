@@ -5114,6 +5114,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     
     memset(&temp_misc.questmisc, 0, sizeof(long)*32);
     memset(&temp_misc.questmisc_strings, 0, sizeof(char)*4096);
+    memset(&temp_misc.zscript_last_compiled_version, 0, sizeof(long));
     
     //v9 includes quest misc[32]
     if(s_version >= 9)
@@ -5130,6 +5131,19 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
                     return qe_invalid;
 	}
     }
+    
+    if(s_version >= 11 )
+    {
+	    if(!p_igetl(&temp_misc.zscript_last_compiled_version,f,true))
+                    return qe_invalid;
+    }
+    else if(s_version < 11 )
+    {
+	    temp_misc.zscript_last_compiled_version = -1;
+    }
+   
+    al_trace("Scipts last compiled in ZScript version: %d\n", temp_misc.zscript_last_compiled_version);
+    FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
     
     if(keepdata==true)
     {

@@ -4758,8 +4758,18 @@ case NPCBEHAVIOUR: {
 	ret = (int)VERSION_BUILD*10000;
 	break;
     case ZELDABETA:
-	ret = (int)VERSION_BETA*10000;
+    {
+	if ( QMisc.zscript_last_compiled_version < 13 )
+	{
+		
+		ret = VERSION_BETA*10000;
+	}
+	else 
+	{
+		ret = (int)IS_BETA*10000;
+	}
 	break;
+    }
     case GAMEDEATHS:
         ret=game->get_deaths()*10000;
         break;

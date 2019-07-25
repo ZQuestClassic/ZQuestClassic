@@ -336,6 +336,7 @@ refInfo ffcScriptData[32];
 
 extern std::string zScript;
 char zScriptBytes[512];
+char zLastVer[512] = { 0 };
 SAMPLE customsfxdata[WAV_COUNT];
 unsigned char customsfxflag[WAV_COUNT>>3];
 int sfxdat=1;
@@ -19962,6 +19963,7 @@ static DIALOG compile_dlg[] =
     { jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
     { jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+     { jwin_text_proc,		8,		25,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zLastVer, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,   NULL,  NULL }
 };
 
@@ -21035,6 +21037,7 @@ int onCompileScript()
     for(;;) //while(true)
     {
         sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
+	sprintf(zLastVer, "Last Compiled Using ZScript: %d",(int)misc.zscript_last_compiled_version);
         int ret = zc_popup_dialog(compile_dlg,5);
         
         switch(ret)
@@ -21209,6 +21212,10 @@ int onCompileScript()
 		            asglobalscripts.push_back(name);
                     */
             }
+	    
+	    //scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
+	    misc.zscript_last_compiled_version = V_FFSCRIPT;
+	    al_trace("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
             
             assignscript_dlg[0].dp2 = lfont;
             assignscript_dlg[4].d1 = -1;
