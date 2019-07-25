@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 26
-Document Revision: 14th July, 2019
+Document for: 2.55, Alpha 29
+Document Revision: 25th July, 2019
 
 
 ////////////////////////////////////////////////////
@@ -1459,7 +1459,14 @@ int Build;
 			
 int Beta;				
  * Returns the Beta ID of the version of ZC being used. If the build is not a beta, this returns 0. 
-	
+
+int ZScriptVersion;
+ * ZASM command ZSCRIPTVERSION
+ * Reads or sets the operating 'last compiled in ZScript Version' value.
+ * Writing to this should be limited to editing ASM scripts where it is needed
+ * to read and store the correct/current version, and temporarily 
+ * modify it during the execution of --that script--, restoring it thereafter.
+
 bool DisableActiveSubscreen;		
  * If set true, the active subscreen will not fall into view when the player presses Start.
 
@@ -1855,6 +1862,10 @@ bool Flags[14];
 //////////////
 ///  Item  ///
 //////////////
+
+untyped InitD[8];
+ * The 8 D args for the item.
+ * Used as this->InitD[] for itemsprite scripts.
 
 bool Gravity;
  * If set true, the npc would item in sideview gravity.
