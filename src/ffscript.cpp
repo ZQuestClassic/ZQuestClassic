@@ -6443,7 +6443,8 @@ case MAPDATAFLAGS:
 case MAPDATAMISCD:
 {
 	int indx = (ri->d[0])/10000;
-	
+	int mi = ri->mapsref;
+	mi -= 8*((ri->mapsref) / MAPSCRS);
 	if(indx < 0 || indx > 9)
 	{
 		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
@@ -6452,7 +6453,7 @@ case MAPDATAMISCD:
 	}
 	else 
 	{
-	    ret = (game->screen_d[ri->mapsref][indx]) * 10000;
+	    ret = (game->screen_d[mi][indx]) * 10000;
 	    break;
 	}
 }
@@ -12715,6 +12716,8 @@ case MAPDATAFLAGS:
 case MAPDATAMISCD:
 {
 	int indx = (ri->d[0])/10000;
+	int mi = ri->mapsref;
+	mi -= 8*((ri->mapsref) / MAPSCRS);
 	if(indx < 0 || indx > 7)
 	{
 		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
@@ -12722,7 +12725,7 @@ case MAPDATAMISCD:
 	}
 	else 
 	{
-		game->screen_d[ri->mapsref][indx] = value/10000;
+		game->screen_d[mi][indx] = value/10000;
 		break;
 	}
 }
