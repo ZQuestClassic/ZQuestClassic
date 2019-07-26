@@ -6445,7 +6445,7 @@ case MAPDATAMISCD:
 	int indx = (ri->d[0])/10000;
 	int mi = ri->mapsref;
 	mi -= 8*((ri->mapsref) / MAPSCRS);
-	if(indx < 0 || indx > 9)
+	if( ((unsigned)indx) > 7 )
 	{
 		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
 		ret = -10000;
@@ -12718,7 +12718,7 @@ case MAPDATAMISCD:
 	int indx = (ri->d[0])/10000;
 	int mi = ri->mapsref;
 	mi -= 8*((ri->mapsref) / MAPSCRS);
-	if(indx < 0 || indx > 7)
+	if( ((unsigned)indx) > 7 )
 	{
 		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
 		break;
