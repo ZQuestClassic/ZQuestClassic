@@ -11192,7 +11192,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         if(pos >= 0 && pos < 176)
         {
             screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr->data[pos]=(value/10000);
+            tmpscr->data[pos]=vbound(value/10000,0,MAXCOMBOS);
             screen_combo_modify_postroutine(tmpscr,pos);
         }
     }
@@ -11276,15 +11276,15 @@ case COMBODDM:
         long scr = zc_max(m*MAPSCRS+sc,0);
         
         if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
-        
+        long combo = vbound(value/10000,0,MAXCOMBOS);
         if(scr==(currmap*MAPSCRS+currscr))
             screen_combo_modify_preroutine(tmpscr,pos);
             
-        TheMaps[scr].data[pos]=value/10000;
+        TheMaps[scr].data[pos]=combo;
         
         if(scr==(currmap*MAPSCRS+currscr))
         {
-            tmpscr->data[pos] = value/10000;
+            tmpscr->data[pos] = combo;
             screen_combo_modify_postroutine(tmpscr,pos);
         }
         
@@ -11294,7 +11294,7 @@ case COMBODDM:
         {
             //if (layr==(currmap*MAPSCRS+currscr))
             //  screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr2[layr].data[pos]=value/10000;
+            tmpscr2[layr].data[pos]=combo;
             //if (layr==(currmap*MAPSCRS+currscr))
             //  screen_combo_modify_postroutine(tmpscr,pos);
         }
@@ -12738,7 +12738,7 @@ case MAPDATAMISCD:
         if(pos >= 0 && pos < 176)
         {
             screen_combo_modify_preroutine(m,pos);
-            m->data[pos]=(value/10000);
+            m->data[pos]=vbound(value/10000,0,MAXCOMBOS);
             screen_combo_modify_postroutine(m,pos);
         }
     }
