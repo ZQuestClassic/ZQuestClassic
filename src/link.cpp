@@ -927,7 +927,6 @@ void LinkClass::init()
 	scale = 0;
 	rotation = 0;
 	do_animation = 1;
-    setMonochrome(false);
     if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw link == 0
     hookshot_used=false;
     hookshot_frozen=false;
@@ -1010,6 +1009,16 @@ void LinkClass::init()
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
 	for ( int q = 0; q < wMax; q++ ) defence[q] = 0; //we will need to have a Link section in the quest load/save code! -Z
+	
+	//Run script!
+	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) ) //if (!hasplayed) runs in game_loop()
+	{
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); 
+		FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
+		initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
+		setEntryPoints(LinkX(),LinkY()); //screen entry at spawn; //This should be after the init script, so that Link->X and Link->Y set by the script
+						//are properly set by the engine.
+	}
 }
 
 void LinkClass::draw_under(BITMAP* dest)

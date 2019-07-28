@@ -1925,27 +1925,27 @@ int init_game()
     
     //preloaded freeform combos
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
-    FFCore.init(); ///Initialise new ffscript engine core. 
-    Link.init();
-    if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
-    {
-        memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
-	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
-    }
-    if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); } //Do this prior to the Link init script, so that if the 
-								//init script makes him invisible, he stays that way. 
-	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	FFCore.init(); ///Initialise new ffscript engine core. 
+	Link.init();
+	if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
 	{
-		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
-								//positional data, sprites, tiles, csets, invisibility states, and the like.
-		FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
+		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
+		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+		//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
+		//if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); } //Do this prior to the Link init script, so that if the 
+									//init script makes him invisible, he stays that way. 
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
+									//positional data, sprites, tiles, csets, invisibility states, and the like.
+			FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
+		}
+		initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script.
+		Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
+						//are properly set by the engine.
 	}
-    initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
-    Link.resetflags(true); //This should probably occur after running Link's init script. 
-    Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
-					//are properly set by the engine.
+	Link.resetflags(true); //This should probably occur after running Link's init script. 
     
     
     copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
