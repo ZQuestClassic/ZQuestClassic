@@ -8297,6 +8297,17 @@ namespace ZScript
 			return new OGraphicsGetpixel(a->clone());
 		}
 	};
+	
+	class ODirExists : public UnaryOpcode
+	{
+	public:
+		ODirExists(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODirExists(a->clone());
+		}
+	};
 }
 
 #endif

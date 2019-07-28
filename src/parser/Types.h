@@ -110,6 +110,7 @@ namespace ZScript
 		ZVARTYPEID_PALCYCLE,
 		ZVARTYPEID_GAMEDATA,
 		ZVARTYPEID_CHEATS,
+		ZVARTYPEID_FILESYSTEM,
 		ZVARTYPEID_CLASS_END,
 
 		ZVARTYPEID_END = ZVARTYPEID_CLASS_END
@@ -191,6 +192,7 @@ namespace ZScript
 		static DataTypeClassConst GRAPHICS;
 		static DataTypeClassConst INPUT;
 		static DataTypeClassConst TEXT;
+		static DataTypeClassConst FILESYSTEM;
 		//Class: Types
 		static DataTypeClassConst CBITMAP;
 		static DataTypeClassConst CCHEATS;
