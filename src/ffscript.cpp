@@ -10,6 +10,12 @@
 #include <sstream>
 #include <math.h>
 #include <cstdio>
+//
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+//
 
 #include "ffasm.h"
 #include "zc_sys.h"
@@ -20401,6 +20407,9 @@ int run_script(const byte type, const word script, const long i)
 		    FFCore.do_set_oggex_speed(false);
 		    break;
 		
+		case DIREXISTS:
+			FFCore.do_checkdir();
+		
 		case NOP: //No Operation. Do nothing. -V
 			break;
 		
@@ -20954,7 +20963,7 @@ BITMAP* FFScript::GetScriptBitmap(int id)
 {
 	
     //if ( id < MIN_OLD_RENDERTARGETS || id > highest_valid_user_bitmap() ) 
-    //{
+    // {
 //	    Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
 //	    return NULL;
  //   }
@@ -22563,6 +22572,30 @@ void FFScript::init()
 long FFScript::getQuestHeaderInfo(int type)
 {
     return quest_format[type];
+}
+
+bool FFScript::checkDir(const char* path)
+{
+    struct stat info;
+
+    if(stat( path, &info ) != 0)
+        return false;
+    else if(info.st_mode & S_IFDIR)
+        return true;
+    else
+        return false;
+}
+
+void FFScript::do_checkdir()
+{
+	int strptr = get_register(sarg1)/10000;
+	string the_string;
+	ArrayH::getString(strptr, the_string, 512);
+	the_string = the_string.substr(the_string.find_first_not_of('/'),string::npos); //Kill leading '/'
+	size_t last = the_string.find_last_not_of('/');
+	if(last!=string::npos)++last;
+	the_string = the_string.substr(0,last); //Kill trailing '/'
+	set_register(sarg1, checkDir(the_string.c_str()) ? 10000 : 0);
 }
 
 //Modules
@@ -26804,6 +26837,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "MESSAGEWIDTHR",          1,   0,   0,   0},
     { "MESSAGEHEIGHTR",         1,   0,   0,   0},
     { "ISVALIDARRAY",         1,   0,   0,   0},
+    { "DIREXISTS",         1,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
