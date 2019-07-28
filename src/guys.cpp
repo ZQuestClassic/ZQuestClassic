@@ -5893,7 +5893,7 @@ waves2:
         }
         else
         {
-            tile=o_tile+(txsz*change)+((tysz-1)*TILES_PER_ROW)*((o_tile+txsz*change)/TILES_PER_ROW)-(o_tile/TILES_PER_ROW);
+            tile=o_tile+(txsz*change)+((tysz-1)*TILES_PER_ROW)*(((o_tile+txsz*change)/TILES_PER_ROW)-(o_tile/TILES_PER_ROW));
         }
     }
     else
