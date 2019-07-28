@@ -2792,7 +2792,7 @@ long get_register(const long arg)
         if(0!=(s=checkItem(ri->itemref)))
         {
 	    int a = vbound(ri->d[0]/10000,0,7);
-	    ret=((int)((item*)(s))->initD[a])*10000;
+	    ret=((int)((item*)(s))->initD[a]);
         }
         
         break;
@@ -8991,7 +8991,7 @@ void set_register(const long arg, const long value)
         {
 		
 	    int a = vbound(ri->d[0]/10000,0,7);
-            (((item *)s)->initD[a])=value/10000;
+            (((item *)s)->initD[a])=value;
         }
         
         break;
