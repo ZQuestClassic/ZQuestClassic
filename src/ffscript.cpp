@@ -6137,9 +6137,9 @@ case MAPDATACATCHALL:	 	GET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
 case MAPDATACSENSITIVE: 	GET_MAPDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
 case MAPDATANORESET: 		GET_MAPDATA_VAR_INT32(noreset, "NoReset"); break;	//W
 case MAPDATANOCARRY: 		GET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
-case MAPDATALAYERMAP:	 	GET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-case MAPDATALAYERSCREEN: 	GET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
-case MAPDATALAYEROPACITY: 	GET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case MAPDATALAYERMAP:	 	GET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
+case MAPDATALAYERSCREEN: 	GET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
+case MAPDATALAYEROPACITY: 	GET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
 case MAPDATATIMEDWARPTICS: 	GET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case MAPDATANEXTMAP: 		GET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case MAPDATANEXTSCREEN: 	GET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
