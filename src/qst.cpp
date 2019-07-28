@@ -8843,14 +8843,35 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             if(ret != 0) return qe_invalid;
         }
 	
-        if(s_version > 4)
-        {
-            for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
+        if(s_version > 13)
+		{
+            for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
             {
                 ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i]);
                 
                 if(ret != 0) return qe_invalid;
             }
+		}
+		else if(s_version > 4)
+        {
+            for(int i = 0; i < NUMSCRIPTGLOBAL253; ++i)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+            
+            if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
+                
+            globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_ONLAUNCH][0].command = 0xFFFF;
+            
+            if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
+                
+            globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_ONCONTGAME][0].command = 0xFFFF;
         }
         else
         {
@@ -8861,11 +8882,11 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 if(ret != 0) return qe_invalid;
             }
             
-            if(globalscripts[GLOBAL_SCRIPT_CONTINUE] != NULL)
-                delete [] globalscripts[GLOBAL_SCRIPT_CONTINUE];
+            if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_ONSAVELOAD];
                 
-            globalscripts[GLOBAL_SCRIPT_CONTINUE] = new ffscript[1];
-            globalscripts[GLOBAL_SCRIPT_CONTINUE][0].command = 0xFFFF;
+            globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_ONSAVELOAD][0].command = 0xFFFF;
         }
         
 	if(s_version > 10) //expanded the number of Link scripts to 5. 
@@ -9017,8 +9038,8 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 {
                     globalmap[id].second = "";
                     
-                    if(globalscripts[GLOBAL_SCRIPT_CONTINUE] != NULL)
-                        globalscripts[GLOBAL_SCRIPT_CONTINUE][0].command = 0xFFFF;
+                    if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
+                        globalscripts[GLOBAL_SCRIPT_ONSAVELOAD][0].command = 0xFFFF;
                 }
                 else
                 {

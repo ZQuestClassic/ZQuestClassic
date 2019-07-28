@@ -19932,17 +19932,21 @@ const char *gscriptlist2(int index, int *list_size)
             buf[19]='\0';
         }
         
-        if(index==0)
-            sprintf(gscript_str_buf2,"Initialization: %s", buf);
-            
-        if(index==1)
-            sprintf(gscript_str_buf2,"Active: %s", buf);
-            
-        if(index==2)
-            sprintf(gscript_str_buf2,"onExit: %s", buf);
-            
-        if(index==3)
-            sprintf(gscript_str_buf2,"onContinue: %s", buf);
+        switch(index)
+        {
+            case GLOBAL_SCRIPT_INIT:
+                sprintf(gscript_str_buf2,"Initialization: %s", buf); break;
+            case GLOBAL_SCRIPT_GAME:
+                sprintf(gscript_str_buf2,"Active: %s", buf); break;
+            case GLOBAL_SCRIPT_END:
+                sprintf(gscript_str_buf2,"onExit: %s", buf); break;
+            case GLOBAL_SCRIPT_ONSAVELOAD:
+                sprintf(gscript_str_buf2,"onSaveLoad: %s", buf); break;
+            case GLOBAL_SCRIPT_ONLAUNCH:
+                sprintf(gscript_str_buf2,"onLaunch: %s", buf); break;
+            case GLOBAL_SCRIPT_ONCONTGAME:
+                sprintf(gscript_str_buf2,"onContGame: %s", buf); break;
+        }
             
         return gscript_str_buf2;
     }
@@ -21251,10 +21255,18 @@ int onCompileScript()
                     const char* asterisks;
                     switch(i)
                     {
-                        case 0: format="Initialization: %s%s%s"; break;
-                        case 1: format="Active: %s%s%s"; break;
-                        case 2: format="onExit: %s%s%s"; break;
-                        case 3: format="onContinue: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_INIT:
+                            format="Initialization: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_GAME:
+                            format="Active: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_END:
+                            format="onExit: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONSAVELOAD:
+                            format="onSaveLoad: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONLAUNCH:
+                            format="onLaunch: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONCONTGAME:
+                            format="onContGame: %s%s%s"; break;
                     }
                     if(globalmap[i].second == "")
                         asterisks="";

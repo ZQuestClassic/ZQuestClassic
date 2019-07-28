@@ -1913,7 +1913,7 @@ int init_game()
     else
     {
 	    //Global script OnContinue
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
     }
 */
     global_wait=false;
@@ -2034,12 +2034,17 @@ int init_game()
 	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
     //}
     //else
-    if(!firstplay)
-    {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
-        //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
-	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE);
-    }
+	if(!firstplay)
+	{
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
+		//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
+		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
+	}
+	initZScriptGlobalRAM();
+	//Run after Init/onSaveLoad, regardless of firstplay -V
+	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
+	
     
     if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
     openscreen();
@@ -2156,6 +2161,11 @@ int cont_game()
     //  for(int i=0; i<128; i++)
     //    key[i]=0;
     
+	//Run onContGame script -V
+	initZScriptGlobalRAM();
+	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
+	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME);
+	
     update_subscreens();
     Playing=true;
     map_bkgsfx(true);
@@ -4764,84 +4774,81 @@ int main(int argc, char* argv[])
 	//Clear active script array ownership
         FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
-        switch(Quit)
-        {
-        case qQUIT:
-        case qGAMEOVER:
-        {
-            playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
-            show_subscreen_dmap_dots=true;
-            show_subscreen_numbers=true;
-            show_subscreen_items=true;
-            show_subscreen_life=true;
-            show_ff_scripts=false;
-            introclk=intropos=0;
-            for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+		switch(Quit)
+		{
+			case qQUIT:
+			case qGAMEOVER:
+			{
+				playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
+				show_subscreen_dmap_dots=true;
+				show_subscreen_numbers=true;
+				show_subscreen_items=true;
+				show_subscreen_life=true;
+				show_ff_scripts=false;
+				introclk=intropos=0;
+				for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
-            initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!! //No, this clears the active script stack so that the exit script can run -V
-            initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
-            FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
-            FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
-		
-	    //Run Global script OnExit
-            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
-           
-            if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
-            
-		
-	    
-            skipcont = 0;
-		
-		
-		//restore user volume settings
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
-		{
-			master_volume(-1,((long)FFCore.usr_midi_volume));
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-		{
-			master_volume((long)(FFCore.usr_digi_volume),1);
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-		{
-			emusic_volume = (long)FFCore.usr_music_volume;
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-		{
-			sfx_volume = (long)FFCore.usr_sfx_volume;
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-		{
-			pan_style = (long)FFCore.usr_panstyle;
-		}
-        }
-        break;
-        
-        case qWON:
-        {
-            show_subscreen_dmap_dots=true;
-            show_subscreen_numbers=true;
-            show_subscreen_items=true;
-            show_subscreen_life=true;
-            for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+				initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!! //No, this clears the active script stack so that the exit script can run -V
+				initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
+				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
+				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
+			
+				//Run Global script OnExit
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
+			   
+				if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
+				
+				skipcont = 0;
+				
+				//restore user volume settings
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+				{
+					master_volume(-1,((long)FFCore.usr_midi_volume));
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+				{
+					master_volume((long)(FFCore.usr_digi_volume),1);
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+				{
+					emusic_volume = (long)FFCore.usr_music_volume;
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+				{
+					sfx_volume = (long)FFCore.usr_sfx_volume;
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+				{
+					pan_style = (long)FFCore.usr_panstyle;
+				}
+			}
+			break;
+			
+			case qWON:
+			{
+				show_subscreen_dmap_dots=true;
+				show_subscreen_numbers=true;
+				show_subscreen_items=true;
+				show_subscreen_life=true;
+				for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
-            initZScriptGlobalRAM();
-            initZScriptLinkScripts(); //get ready for the onWin script
-            FFCore.initZScriptDMapScripts();
-            FFCore.initZScriptItemScripts();
-	    //Run global script OnExit
-            //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN); //runs in ending()
-	    //while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
-		//We need a special routine for win and death link scripts. Otherwise, they work. 
-            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
-		
-	    
-		
-            ending();
-        }
-        break;
-        
-        }
+				initZScriptGlobalRAM();
+				initZScriptLinkScripts(); //get ready for the onWin script
+				FFCore.initZScriptDMapScripts();
+				FFCore.initZScriptItemScripts();
+				//Run global script OnExit
+				//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN); //runs in ending()
+				//while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
+				//We need a special routine for win and death link scripts. Otherwise, they work. 
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
+			
+			
+			
+				ending();
+			}
+			break;
+		}
+        FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		//Restore original palette before exiting for any reason!
         setMonochrome(false);
 		doClearTint();
