@@ -4866,7 +4866,7 @@ bool LinkClass::animate(int)
 				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
 				advanceframe(true);
 				if (!link_doscript ) ++fc;
-				
+				if(Quit) break;
 			}
 			while(fc < 1 );
 		    gameover();
