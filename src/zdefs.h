@@ -4054,7 +4054,7 @@ extern void removeFromItemCache(int itemid);
 #define NUMSCRIPTITEM		256
 #define NUMSCRIPTGUYS		256
 #define NUMSCRIPTWEAPONS	256
-#define NUMSCRIPTGLOBAL		6
+#define NUMSCRIPTGLOBAL		7
 #define NUMSCRIPTGLOBAL253		4
 #define NUMSCRIPTGLOBALOLD	3
 #define NUMSCRIPTLINKOLD		3
@@ -4069,6 +4069,7 @@ extern void removeFromItemCache(int itemid);
 #define GLOBAL_SCRIPT_ONSAVELOAD	3
 #define GLOBAL_SCRIPT_ONLAUNCH		4
 #define GLOBAL_SCRIPT_ONCONTGAME	5
+#define GLOBAL_SCRIPT_F6	6
 
 #define SCRIPT_LINK_INIT 1
 #define SCRIPT_LINK_ACTIVE 2

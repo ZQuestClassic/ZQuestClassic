@@ -19946,6 +19946,8 @@ const char *gscriptlist2(int index, int *list_size)
                 sprintf(gscript_str_buf2,"onLaunch: %s", buf); break;
             case GLOBAL_SCRIPT_ONCONTGAME:
                 sprintf(gscript_str_buf2,"onContGame: %s", buf); break;
+            case GLOBAL_SCRIPT_F6:
+                sprintf(gscript_str_buf2,"onF6Menu: %s", buf); break;
         }
             
         return gscript_str_buf2;
@@ -21267,6 +21269,8 @@ int onCompileScript()
                             format="onLaunch: %s%s%s"; break;
                         case GLOBAL_SCRIPT_ONCONTGAME:
                             format="onContGame: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_F6:
+                            format="onF6Menu: %s%s%s"; break;
                     }
                     if(globalmap[i].second == "")
                         asterisks="";

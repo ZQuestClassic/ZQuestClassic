@@ -881,11 +881,11 @@ byte curScriptType;
 word curScriptNum;
 
 //Global script data
-refInfo globalScriptData;
+refInfo globalScriptData[NUMSCRIPTGLOBAL];
 refInfo linkScriptData;
 refInfo screenScriptData;
 refInfo dmapScriptData;
-word g_doscript = 1;
+word g_doscript = 0xFFFF;
 word link_doscript = 1;
 word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
 bool global_wait = false;
@@ -909,15 +909,9 @@ refInfo itemactiveScriptData[256];
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
 
-#define GLOBAL_STACK_MAIN 0
-#define GLOBAL_STACK_DMAP 1
-#define GLOBAL_STACK_SCREEN 2
-#define GLOBAL_STACK_LINK 3
-#define GLOBAL_STACK_MAX 4
-
 long(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 long ffc_stack[32][MAX_SCRIPT_REGISTERS];
-long global_stack[GLOBAL_STACK_MAX][MAX_SCRIPT_REGISTERS];
+long global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
 long item_stack[256][MAX_SCRIPT_REGISTERS];
 long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
@@ -932,15 +926,13 @@ void clear_ffc_stack(const byte i)
 }
 
 
-void clear_global_stack()
+void clear_global_stack(const byte i)
 {
-    //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
-    memset(global_stack, 0, sizeof(global_stack));
+    memset(global_stack[i], 0, sizeof(global_stack[i]));
 }
 
 void FFScript::clear_screen_stack()
 {
-    //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
     memset(screen_stack, 0, sizeof(screen_stack));
 }
 
@@ -18148,11 +18140,10 @@ int run_script(const byte type, const word script, const long i)
 	    
 	    case SCRIPT_GLOBAL:
 	    {
-		ri = &globalScriptData;
-		    //should this become ri = &(globalScriptData[global_slot]);
+		ri = &globalScriptData[script];
 		
 		curscript = globalscripts[script];
-		stack = &global_stack[GLOBAL_STACK_MAIN];
+		stack = &global_stack[script];
 		    //
 	    }
 	    break;
@@ -18160,7 +18151,6 @@ int run_script(const byte type, const word script, const long i)
 	    case SCRIPT_LINK:
 	    {
 		ri = &linkScriptData;
-		    //should this become ri = &(globalScriptData[link_slot]);
 		
 		curscript = linkscripts[script];
 		stack = &link_stack;
@@ -19768,7 +19758,7 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case SHOWF6SCREEN:
-		    game_over(0); //0 == show three choices, 1 == show two
+		    Quit = qTRYQUIT;
 		    break;
 		    
 		case SAVEQUITSCREEN:
@@ -20563,7 +20553,7 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		    
 		case SCRIPT_GLOBAL:
-		    g_doscript = 0;
+		    g_doscript &= ~(1<<i);
 		    FFScript::deallocateAllArrays(type, i);
 		    break;
 		
@@ -21420,9 +21410,9 @@ void FFScript::clear_ffc_stack(const byte i)
     memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
-void FFScript::clear_global_stack()
+void FFScript::clear_global_stack(const byte i)
 {
-    memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    memset(global_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void FFScript::do_zapout()

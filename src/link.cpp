@@ -4860,8 +4860,7 @@ bool LinkClass::animate(int)
 				{
 					ALLOFF(true,true);
 					ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
-					load_control_state(); 
-					
+					load_control_state();
 				}
 				draw_screen(tmpscr);
 				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
@@ -13051,7 +13050,7 @@ void LinkClass::stepforward(int steps, bool adjust)
         
 	if ( get_bit(quest_rules,qr_SCRIPTSRUNINLINKSTEPFORWARD) )
 	{
-		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && g_doscript )
+		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)) )
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
@@ -14080,7 +14079,7 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	}
 	else
 	{
-		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && g_doscript)
+		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}

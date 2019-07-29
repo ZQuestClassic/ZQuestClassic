@@ -817,7 +817,7 @@ static int get_screen_d(long index1, long index2);
 static void set_screen_d(long index1, long index2, int val);
 static int whichlayer(long scr);
 static void clear_ffc_stack(const byte i);
-static void clear_global_stack();
+static void clear_global_stack(const byte i);
 
 static void do_zapout();
 static void do_zapin();
@@ -1460,7 +1460,7 @@ int run_script(const byte type, const word script, const long i = -1); //Global 
 int ffscript_engine(const bool preload);
 
 void clear_ffc_stack(const byte i);
-void clear_global_stack();
+void clear_global_stack(const byte i);
 void clear_link_stack();
 void clear_dmap_stack();
 void initZScriptLinkScripts();

@@ -8872,6 +8872,12 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
             globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new ffscript[1];
             globalscripts[GLOBAL_SCRIPT_ONCONTGAME][0].command = 0xFFFF;
+            
+            if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_F6];
+                
+            globalscripts[GLOBAL_SCRIPT_F6] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_F6][0].command = 0xFFFF;
         }
         else
         {

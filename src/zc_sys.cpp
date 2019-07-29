@@ -4460,7 +4460,7 @@ void syskeys()
         Advance=true;
     }
     
-    if(zc_readkey(KEY_F6))    if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+    if(zc_readkey(KEY_F6)) onTryQuit();
     
 #ifndef ALLEGRO_MACOSX
     if(zc_readkey(KEY_F9))    f_Quit(qRESET);
@@ -7255,6 +7255,19 @@ int onQuit()
     }
     
     return D_O_K;
+}
+
+int onTryQuit()
+{
+	if(Playing)
+	{
+		disableClickToFreeze=false;
+		Quit = qTRYQUIT;
+		
+		return D_CLOSE;
+	}
+	
+	return D_O_K;
 }
 
 int onReset()

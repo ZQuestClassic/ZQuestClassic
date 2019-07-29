@@ -402,7 +402,7 @@ ffscript *screenscripts[NUMSCRIPTSCREEN];
 ffscript *dmapscripts[NUMSCRIPTSDMAP];
 ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 
-extern refInfo globalScriptData;
+extern refInfo globalScriptData[NUMSCRIPTGLOBAL];
 extern refInfo linkScriptData;
 extern refInfo screenScriptData;
 extern refInfo dmapScriptData;
@@ -480,9 +480,19 @@ void initZScriptArrayRAM(bool firstplay)
 
 void initZScriptGlobalRAM()
 {
-    g_doscript = 1;
-    globalScriptData.Clear();
-    clear_global_stack();
+	g_doscript = 0xFFFF; //Set all scripts active
+	for(int q = 0; q < NUMSCRIPTGLOBAL; ++q)
+	{
+		globalScriptData[q].Clear();
+		clear_global_stack(q);
+	}
+}
+
+void initZScriptGlobalScript(int ID)
+{
+	g_doscript |= (1<<ID);
+	globalScriptData[ID].Clear();
+	clear_global_stack(ID);
 }
 
 void initZScriptLinkScripts()
@@ -1932,9 +1942,6 @@ int init_game()
 		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
 		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
-		//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
-		//if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); } //Do this prior to the Link init script, so that if the 
-									//init script makes him invisible, he stays that way. 
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
@@ -2037,10 +2044,8 @@ int init_game()
 	if(!firstplay)
 	{
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-		//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
 		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
-	initZScriptGlobalRAM();
 	//Run after Init/onSaveLoad, regardless of firstplay -V
 	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
@@ -2065,7 +2070,7 @@ int init_game()
         playLevelMusic();
         
     
-    initZScriptGlobalRAM(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
     initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
@@ -2162,7 +2167,7 @@ int cont_game()
     //    key[i]=0;
     
 	//Run onContGame script -V
-	initZScriptGlobalRAM();
+	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
 	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME);
 	
@@ -2187,7 +2192,7 @@ int cont_game()
         activated_timed_warp=false;
     }
     
-    initZScriptGlobalRAM();
+    initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
     initZScriptLinkScripts();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptItemScripts();
@@ -2958,7 +2963,7 @@ void game_loop()
     }
     
     // Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
-    if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && g_doscript)
+    if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
     }
@@ -4749,25 +4754,46 @@ int main(int argc, char* argv[])
         setup_combo_animations();
         setup_combo_animations2();
         
-        while(!Quit)
-        {
+		while(Quit<=0)
+		{
 #ifdef _WIN32
-        
-            if(use_win32_proc != FALSE)
-            {
-                win32data.Update(0);
-            }
-            
-#endif
-            game_loop();
-	    //Perpetual item Script:
-	    FFCore.newScriptEngine();
-            
 		
-	     //clear Link's last hits 
-	     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
+			if(use_win32_proc != FALSE)
+			{
+				win32data.Update(0);
+			}
+			
+#endif
+			game_loop();
+			//Perpetual item Script:
+			FFCore.newScriptEngine();
+			
+			if(Quit==qTRYQUIT)
+			{
+				initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
+				int frame = 0;
+				Quit = 0;
+				while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
+				{
+					script_drawing_commands.Clear(); //Maybe only one time, on a variable
+					ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+					load_control_state(); 
+					draw_screen(tmpscr);
+					advanceframe(true);
+					if(Quit==qTRYQUIT) Quit=0; //Don't try running the F6 script while already in the F6 script!
+					if(Quit) break; //Something quit, end script running
+				}
+				if(!Quit)
+				{
+					if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+				}
+				zc_readkey(KEY_F6);
+			}
+		
+			//clear Link's last hits 
+			//for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
 									//to read before or after waitdraw in scripts. 
-        }
+		}
         
         tmpscr->flags3=0;
         Playing=Paused=false;
@@ -4788,7 +4814,7 @@ int main(int argc, char* argv[])
 				introclk=intropos=0;
 				for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
-				initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!! //No, this clears the active script stack so that the exit script can run -V
+				initZScriptGlobalScript(GLOBAL_SCRIPT_END);
 				initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
@@ -4832,7 +4858,7 @@ int main(int argc, char* argv[])
 				show_subscreen_life=true;
 				for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
-				initZScriptGlobalRAM();
+				initZScriptGlobalScript(GLOBAL_SCRIPT_END);
 				initZScriptLinkScripts(); //get ready for the onWin script
 				FFCore.initZScriptDMapScripts();
 				FFCore.initZScriptItemScripts();
