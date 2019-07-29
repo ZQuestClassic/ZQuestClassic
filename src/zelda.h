@@ -65,7 +65,7 @@ int onFullscreen();
 /******** Enums & Structs ********/
 /*********************************/
 
-enum { qTRYQUIT=-1, qQUIT=1, qRESET, qEXIT, qGAMEOVER, qCONT, qWON, qERROR };
+enum { qQUIT=1, qRESET, qEXIT, qGAMEOVER, qCONT, qWON, qERROR };
 
 // "special" walk flags
 enum
@@ -243,6 +243,9 @@ bool isSideViewGravity(int t);
 
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 
+//Script Clearing
+void initZScriptGlobalScript(int ID);
+
 /**********************************/
 /******** Global Variables ********/
 /**********************************/
@@ -361,6 +364,7 @@ extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
 extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 extern bool analog_movement;
 extern int joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
+extern unsigned long GameFlags;
 extern int js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
 extern int js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
 extern int js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;

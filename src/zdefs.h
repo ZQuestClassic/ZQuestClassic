@@ -863,6 +863,7 @@ enum
 	qr_NO_L_R_BUTTON_INVENTORY_SWAP,
 	qr_USE_EX1_EX2_INVENTORYSWAP,
 	qr_NOFASTMODE,
+	qr_OLD_F6,
 	
 	
 	//ZScript Parser //room for 20 of these
@@ -3539,6 +3540,9 @@ struct zcmodule
 #undef  min*/
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
+
+//GameFlags
+#define GAMEFLAG_TRYQUIT	0x01
 
 #define DCLICK_START      0
 #define DCLICK_RELEASE    1

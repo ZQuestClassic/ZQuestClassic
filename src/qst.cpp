@@ -2787,6 +2787,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 	}
 	
+    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
+	{
+		set_bit(quest_rules,qr_OLD_F6,1);
+	}
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));

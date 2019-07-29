@@ -19758,7 +19758,7 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case SHOWF6SCREEN:
-		    Quit = qTRYQUIT;
+		    onTryQuit(false);
 		    break;
 		    
 		case SAVEQUITSCREEN:
@@ -23119,6 +23119,36 @@ bool FFScript::newScriptEngine()
 	//lweaponScriptEngine();
 	advanceframe(true);
 	return false;
+}
+
+void FFScript::runF6Engine()
+{
+	if(GameFlags&GAMEFLAG_TRYQUIT)
+	{
+		Z_eventlog("Trying run F6 Script!\n");
+		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF/* && globalscripts[GLOBAL_SCRIPT_F6][0].command != 0*/)
+		{
+			Z_eventlog("Running F6 Script!\n");
+			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
+			int frame = 0;
+			Quit = 0;
+			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
+			{
+				script_drawing_commands.Clear(); //Maybe only one time, on a variable
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+				load_control_state(); 
+				draw_screen(tmpscr);
+				advanceframe(true);
+				if(Quit) break; //Something quit, end script running
+			}
+		}
+		if(!Quit)
+		{
+			if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+		}
+		zc_readkey(KEY_F6);
+		GameFlags &= ~GAMEFLAG_TRYQUIT;
+	}
 }
 
 void FFScript::lweaponScriptEngine()

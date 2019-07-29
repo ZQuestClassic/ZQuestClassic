@@ -332,6 +332,7 @@ int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
 int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 bool analog_movement=true;
 int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
+unsigned long GameFlags=0;
 int js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
 int js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
 int js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
@@ -4768,27 +4769,7 @@ int main(int argc, char* argv[])
 			//Perpetual item Script:
 			FFCore.newScriptEngine();
 			
-			if(Quit==qTRYQUIT)
-			{
-				initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
-				int frame = 0;
-				Quit = 0;
-				while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
-				{
-					script_drawing_commands.Clear(); //Maybe only one time, on a variable
-					ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
-					load_control_state(); 
-					draw_screen(tmpscr);
-					advanceframe(true);
-					if(Quit==qTRYQUIT) Quit=0; //Don't try running the F6 script while already in the F6 script!
-					if(Quit) break; //Something quit, end script running
-				}
-				if(!Quit)
-				{
-					if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
-				}
-				zc_readkey(KEY_F6);
-			}
+			FFCore.runF6Engine();
 		
 			//clear Link's last hits 
 			//for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
@@ -4886,6 +4867,7 @@ int main(int argc, char* argv[])
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();
+		GameFlags = 0; //Clear game flags on ANY exit
         kill_sfx();
         music_stop();
         clear_to_color(screen,BLACK);

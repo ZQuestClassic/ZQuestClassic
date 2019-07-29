@@ -52,7 +52,7 @@ void switch_in_callback();
 void game_pal();
 int  onSave();
 int  onQuit();
-int  onTryQuit();
+int  onTryQuit(bool inMenu = true);
 int  onReset();
 int  onExit();
 void fix_dialogs();

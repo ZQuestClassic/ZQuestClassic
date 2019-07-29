@@ -590,7 +590,7 @@ static int compatrules[] =
    qr_GOTOLESSNOTEQUAL, qr_OLDLENSORDER, qr_NOFAIRYGUYFIRES, qr_TRIGGERSREPEAT,
    qr_HOOKSHOTDOWNBUG, qr_REPLACEOPENDOORS, qr_NOSOLIDDAMAGECOMBOS, qr_OLDHOOKSHOTGRAB,
    qr_PEAHATCLOCKVULN, qr_OFFSCREENWEAPONS, qr_ITEMPICKUPSETSBELOW, qr_OLDSIDEVIEWSPIKES,
-   qr_OLDINFMAGIC, qr_BITMAPOFFSETFIX, qr_OLDSPRITEDRAWS,
+   qr_OLDINFMAGIC, qr_BITMAPOFFSETFIX, qr_OLDSPRITEDRAWS, qr_OLD_F6,
    -1 
 };
 
@@ -625,6 +625,7 @@ static DIALOG compatrules_dlg[] =
     { jwin_check_proc,      10, 13+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Infinite Magic Prevents Items From Draining Rupees", NULL, NULL },
     { jwin_check_proc,      10, 13+170, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Use DrawBitmap() Offsets Prior to 2.50.2", NULL, NULL },
     { jwin_check_proc,      10, 13+180, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Faster) Sprite Drawing", NULL, NULL },
+    { jwin_check_proc,      10, 13+190, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Instant) F6 Menu", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };
 

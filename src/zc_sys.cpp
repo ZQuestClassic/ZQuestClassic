@@ -4460,7 +4460,7 @@ void syskeys()
         Advance=true;
     }
     
-    if(zc_readkey(KEY_F6)) onTryQuit();
+    if(zc_readkey(KEY_F6)) onTryQuit(false);
     
 #ifndef ALLEGRO_MACOSX
     if(zc_readkey(KEY_F9))    f_Quit(qRESET);
@@ -7257,13 +7257,21 @@ int onQuit()
     return D_O_K;
 }
 
-int onTryQuit()
+int onTryQuit(bool inMenu)
 {
 	if(Playing)
 	{
-		disableClickToFreeze=false;
-		Quit = qTRYQUIT;
-		
+		if(get_bit(quest_rules,qr_OLD_F6))
+		{
+			if(inMenu) onQuit();
+			else if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+		}
+		else
+		{
+			disableClickToFreeze=false;
+			GameFlags |= GAMEFLAG_TRYQUIT;
+			Z_eventlog("Set GAMEFLAG_TRYQUIT!\n");
+		}
 		return D_CLOSE;
 	}
 	
@@ -8205,7 +8213,7 @@ static DIALOG system_dlg[] =
     { jwin_menu_proc,    0,    0,    0,    0,    0,    0,    0,       D_USER,  0,        0, (void *) the_menu, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onVsync, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onQuit, NULL,  NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onTryQuit, NULL,  NULL },
 #ifndef ALLEGRO_MACOSX
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,   0, (void *) onReset, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,  0, (void *) onExit, NULL,  NULL },
@@ -8225,7 +8233,7 @@ static DIALOG system_dlg2[] =
     { jwin_menu_proc,    0,    0,    0,    0,    0,    0,    0,       D_USER,  0,        0, (void *) the_menu2, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onVsync, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onQuit, NULL,  NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onTryQuit, NULL,  NULL },
 #ifndef ALLEGRO_MACOSX
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,   0, (void *) onReset, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,  0, (void *) onExit, NULL,  NULL },
