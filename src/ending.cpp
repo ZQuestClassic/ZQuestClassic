@@ -268,7 +268,7 @@ void ending()
         }
         adv:
         draw_screen(tmpscr);
-        advanceframe(true);
+        advanceframe(true,true,false);
         
         if(Quit) return;
     }

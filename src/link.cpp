@@ -4864,8 +4864,9 @@ bool LinkClass::animate(int)
 				}
 				draw_screen(tmpscr);
 				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-				advanceframe(true);
+				advanceframe(true,true,false);
 				if (!link_doscript ) ++fc;
+				if(Quit==qQUIT) Quit = 0; //No F6 during OnDeath!
 				if(Quit) break;
 			}
 			while(fc < 1 );
@@ -14782,7 +14783,11 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
             do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
             
         //end drawing
-        advanceframe(true);
+        advanceframe(true,true,false);
+		actiontype lastaction = action;
+		action=scrolling; FFCore.setLinkAction(scrolling);
+		FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
+		action=lastaction; FFCore.setLinkAction(lastaction);
     }//end main scrolling loop (2 spaces tab width makes me sad =( )
     
     

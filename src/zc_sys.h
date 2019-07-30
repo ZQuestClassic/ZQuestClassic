@@ -40,7 +40,7 @@ void draw_lens_over();
 void fix_menu();
 int onFullscreenMenu();
 void f_Quit(int type);
-void advanceframe(bool allowwavy, bool sfxcleaup = true);
+void advanceframe(bool allowwavy, bool sfxcleaup = true, bool allowF6Script = true);
 void updatescr(bool allowwavy);
 void syskeys();
 void checkQuitKeys();

@@ -4748,7 +4748,7 @@ bool CheatModifierKeys()
 // 99*360 + 59*60
 #define MAXTIME  21405240
 
-void advanceframe(bool allowwavy, bool sfxcleanup)
+void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 {
     if(zcmusic!=NULL)
     {
@@ -4759,6 +4759,10 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
     {
         // have to call this, otherwise we'll get an infinite loop
         syskeys();
+		if(allowF6Script)
+		{
+			FFCore.runF6Engine();
+		}
         // to keep fps constant
         updatescr(allowwavy);
         throttleFPS();
@@ -4789,6 +4793,10 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
     ++frame;
     
     syskeys();
+	if(allowF6Script)
+	{
+		FFCore.runF6Engine();
+	}
     // Someday... maybe install a Turbo button here?
     updatescr(allowwavy);
     throttleFPS();

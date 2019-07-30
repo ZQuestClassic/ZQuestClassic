@@ -260,6 +260,7 @@ void itemSpriteScriptEngine();
 void itemSpriteScriptEngineOnWaitdraw();
 bool newScriptEngine();
 void runF6Engine();
+void runF6EngineScrolling(mapscr* newscr, mapscr* oldscr, int tx, int ty, int tx2, int ty2, int sx, int sy, int scrolldir);
 void initIncludePaths();
 void initRunString();
 void updateRunString();
