@@ -9579,7 +9579,7 @@ void set_register(const long arg, const long value)
 	//Set the action script
 	case IDATASCRIPT:
 		FFScript::deallocateAllArrays(SCRIPT_ITEM, ri->idata);
-		itemsbuf[ri->idata].script=vbound(value/10000,1,255);
+		itemsbuf[ri->idata].script=vbound(value/10000,0,255);
 		break;
     
       /*
@@ -9665,7 +9665,7 @@ void set_register(const long arg, const long value)
 		//Need to get collect script ref, not standard idata ref!
 		const long new_ref = ri->idata!=0 ? -(ri->idata) : COLLECT_SCRIPT_ITEM_ZERO;
 		FFScript::deallocateAllArrays(SCRIPT_ITEM,new_ref);
-		itemsbuf[ri->idata].collect_script=vbound(value/10000, 1, 255);
+		itemsbuf[ri->idata].collect_script=vbound(value/10000, 0, 255);
 		break;
 	}
     //pickup string
