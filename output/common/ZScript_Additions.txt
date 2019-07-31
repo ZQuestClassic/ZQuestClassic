@@ -436,14 +436,27 @@ Waitdraw Support:	Yes, based on slot.
 // Slot (7) : Menu //
 /////////////////////
 
-*	SLOT NAME: 'onMenu'
+*	SLOT NAME: 'onF6Menu'
 *
-* 	This script runs for multiple frames, whenever the player presses F6 to display the save screen
-* 	menu, or runs the 'Game->ShowContinueScreen()' ZScript command, (but not when the player dies;
-* 	see Hero Slot (3) 'onDeath' for that application.)
-* 
-* 	The purpose of this script slot is to permit making a drop-in, scripted  replacement for the standard 
-* 	Continue/Save/Retry menu screen.
+*	This script runs for multiple frames, whenever the player presses F6 or selects the system menu option
+*	'Game>>End Game' to display the save screen menu, or runs the 'Game->ShowContinueScreen()' ZScript command,
+*	(but not when the player dies; see Hero Slot (3) 'onDeath' for that application.)
+*
+*	If the compatibility rule 'Old (Instant) F6 Menu' in 'Quest->Rules->Backwards Compatibility' is enabled,
+*	this script slot will never be executed.
+*
+*	The purpose of this script slot is to permit making a drop-in, scripted  replacement for the standard 
+*	Continue/Save/Retry menu screen.
+*
+*	During the execution of this script, all script draws will occur above a static image of the screen as it was
+*	before the script began. All engine action, save for this script, and input polling, will be suspended for the duration
+*	of the script.
+*
+*	This script will run until either you exit the game via a command such as 'Game->End()', or you exit the script.
+*	Exiting the script without invoking a command such as 'Game->End()' will then open the standard system F6 menu,
+*	unless the quest rule 'Skip Continue Screen' in 'Quest->Rules->Other' is active. If the player does not chooses
+*	to exit via the standard continue screen, or it is skipped via the aforementioned rule, gameplay will resume
+*	exactly where it left off.
    
    
 ////////////////////
@@ -515,21 +528,33 @@ Waitdraw Support:	Yes, based on slot.
 // Slot (3) : Death //
 //////////////////////
 
-*	SLOT NAME: onDeath
+*	SLOT NAME: 'onDeath'
 *
 *	This script runs when Hero DIES. 
-*	It runs AFTER the GLOBAL EXIT script, and after Hero is DEAD, with no chance of revival.
+*	It runs BEFORE the GLOBAL EXIT script, and after Hero is DEAD, with no chance of revival.
 *		^ If you need to revive the player, such as with a Faerie in a Bottle, use the
-*		^ Hero Active script slot for that effect. 
+*		^ Hero Active script slot for that effect.
+*	The script will run before the engine's death animation, unless the quest rule
+*	'Hero OnDeath script runs AFTER engine death animation' under 'ZScript->Quest Script Settings' is selected, in which case
+*	it will run immediately following this animation.
 *
 *	This script can run for multiple frames, and is intended to permit you to construct your
 *	own Game Over sequences.
+*
+*	During the execution of this script, all script draws will occur above a static image of the screen as it was
+*	before the script began. All engine action, save for this script, and input polling, will be suspended for the duration
+*	of the script.
+*
+*	This script will run until either you exit the game via a command such as 'Game->End()', or you exit the script.
+*	Exiting the script without invoking a command such as 'Game->End()' will continue the player's death where it left off.
+*	If the script is set to run prior to the engine death animation, exiting via a command such as 'Game->End()' will
+*	skip the engine's death animation.
 
 ///////////////////////
 // Slot (4) : Ending //
 ///////////////////////
 
-*	SLOT NAME: onWin
+*	SLOT NAME: 'onWin'
 *
 *	This script runs if the player WINS THE GAME (e.g. via Combo Flag 15).
 *	It can run for more than one frame, and it is intended to permit you to make your own
@@ -1632,6 +1657,12 @@ bool FFRules[800];
 void Continue();
  * As Game->End(), but this continues the game as if the user had selected the
  * CONTINUE option on the game over screen.
+
+void SaveAndContinue();
+ * As Game->Continue(), but also saves the game (after onExit has been executed)
+
+void SaveAndQuit();
+ * As Game->End(), but also saves the game (after onExit has been executed)
 
 void ShowContinueScreen();
  * As void ShowSaveScreen(), but it shows the base Save/Retry/Continue screen.
