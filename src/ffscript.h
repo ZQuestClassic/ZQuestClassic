@@ -260,7 +260,7 @@ void itemSpriteScriptEngine();
 void itemSpriteScriptEngineOnWaitdraw();
 bool newScriptEngine();
 void runF6Engine();
-void runF6EngineScrolling(mapscr* newscr, mapscr* oldscr, int tx, int ty, int tx2, int ty2, int sx, int sy, int scrolldir);
+void doF6Draws();
 void initIncludePaths();
 void initRunString();
 void updateRunString();
@@ -1453,7 +1453,7 @@ enum __Error
 extern long ffmisc[32][16];
 extern refInfo ffcScriptData[32];
 extern refInfo screenScriptData;
-
+extern word g_doscript;
 extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
 

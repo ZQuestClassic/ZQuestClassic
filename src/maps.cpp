@@ -2828,7 +2828,11 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
 
 void draw_screen(mapscr* this_screen, bool showlink)
 {
-
+	if(GameFlags & GAMEFLAG_SCRIPTMENU_ACTIVE)
+	{
+		FFCore.doF6Draws();
+		return;
+	}
     //The Plan:
 	//0: Set sideview gravity from dmaps. -Z
     //1. Draw some layers onto scrollbuf with clipping

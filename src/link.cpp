@@ -4870,7 +4870,7 @@ bool LinkClass::animate(int)
 				if(Quit) break;
 			}
 			while(fc < 1 );
-		    gameover();
+		    heroDeathAnimation();
 		    
 		    return true;
 		}
@@ -4882,7 +4882,7 @@ bool LinkClass::animate(int)
 		if(false == (last_hurrah = !last_hurrah))
 		{
 		    drunkclk=0;
-		    gameover();
+		    heroDeathAnimation();
 		    
 		    return true;
 		}
@@ -14786,7 +14786,8 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         advanceframe(true,true,false);
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setLinkAction(scrolling);
-		FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
+		FFCore.runF6Engine();
+		//FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
 		action=lastaction; FFCore.setLinkAction(lastaction);
     }//end main scrolling loop (2 spaces tab width makes me sad =( )
     
@@ -16961,7 +16962,7 @@ void slide_in_color(int color)
 }
 
 
-void LinkClass::gameover()
+void LinkClass::heroDeathAnimation()
 {
 	int f=0;
     

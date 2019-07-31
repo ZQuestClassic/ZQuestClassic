@@ -4803,7 +4803,7 @@ case NPCBEHAVIOUR: {
         break;
     
     case SKIPF6:
-        ret=skipcont?10000:0;
+        ret=get_bit(quest_rules,qr_NOCONTINUE)?10000:0;
         break;
         
     case GAMESTANDALONE:
@@ -11005,7 +11005,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         break;
     
     case SKIPF6:
-        skipcont = ((value/10000)?true:false);
+        set_bit(quest_rules,qr_NOCONTINUE,((value/10000)?1:0));
         break;
     
     
@@ -19758,7 +19758,7 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case SHOWF6SCREEN:
-		    onTryQuit(false);
+		    onTryQuit();
 		    break;
 		    
 		case SAVEQUITSCREEN:
@@ -23123,26 +23123,32 @@ bool FFScript::newScriptEngine()
 
 void FFScript::runF6Engine()
 {
-	if(GameFlags&GAMEFLAG_TRYQUIT)
+	if(!Quit && (GameFlags&GAMEFLAG_TRYQUIT) && !(GameFlags&GAMEFLAG_SCRIPTMENU_ACTIVE))
 	{
-		Z_eventlog("Trying run F6 Script!\n");
 		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF/* && globalscripts[GLOBAL_SCRIPT_F6][0].command != 0*/)
 		{
-			Z_eventlog("Running F6 Script!\n");
+			clear_bitmap(f6_buf);
+			blit(framebuf, f6_buf, 0, 0, 0, 0, 256, 224);
 			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
-			int frame = 0;
-			Quit = 0;
 			int openingwipe = black_opening_count;
+			black_opening_count = 0; //No opening wipe during F6 menu
+			GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
 			{
-				script_drawing_commands.Clear(); //Maybe only one time, on a variable
-				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+				script_drawing_commands.Clear();
 				load_control_state(); 
-				draw_screen(tmpscr);
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+				//Draw
+				clear_bitmap(framebuf);
+				doF6Draws();
+				//
 				advanceframe(true,true,false);
-				black_opening_count = openingwipe; //Keep the screen frozen, including the wipe.
 				if(Quit) break; //Something quit, end script running
 			}
+			script_drawing_commands.Clear();
+			GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+			//
+			black_opening_count = openingwipe;
 		}
 		if(!Quit)
 		{
@@ -23153,180 +23159,20 @@ void FFScript::runF6Engine()
 	}
 }
 
-void handleF6ScrollingDraw(mapscr* newscr, mapscr* oldscr, int tx, int ty, int tx2, int ty2, int sx, int sy, int scrolldir)
+void FFScript::doF6Draws()
 {
-	clear_bitmap(scrollbuf);
-	clear_bitmap(framebuf);
-	
-	switch(scrolldir)
-	{
-		case up:
-			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
-			
-			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, -176+playing_field_offset, 3);
-			
-			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
-			
-			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, -176+playing_field_offset, 3);
-			
-			// Draw both screens' background layer primitives together, after both layers' combos.
-			// Not ideal, but probably good enough for all realistic purposes.
-			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
-			
-			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
-			
-			putscr(scrollbuf, 0, 0, newscr);
-			putscr(scrollbuf, 0, 176, oldscr);
-			break;
-			
-		case down:
-			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, -176+playing_field_offset, 2);
-			
-			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
-			
-			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, -176+playing_field_offset, 2);
-			
-			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
-			
-			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
-			
-			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
-			
-			putscr(scrollbuf, 0, 0, oldscr);
-			putscr(scrollbuf, 0, 176, newscr);
-			break;
-			
-		case left:
-			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
-			
-			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, -256, playing_field_offset, 3);
-			
-			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
-			
-			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, -256, playing_field_offset, 3);
-			
-			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
-			
-			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
-			
-			putscr(scrollbuf, 0, 0, newscr);
-			putscr(scrollbuf, 256, 0, oldscr);
-			break;
-			
-		case right:
-			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, -256, playing_field_offset, 2);
-			
-			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
-			
-			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, -256, playing_field_offset, 2);
-			
-			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
-			
-			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
-			
-			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
-			
-			putscr(scrollbuf, 0, 0, oldscr);
-			putscr(scrollbuf, 256, 0, newscr);
-			break;
-	}
-	
-	blit(scrollbuf, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
-	do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
-	
-	do_layer(framebuf, 0, oldscr, tx2, ty2, 3);
-	
-	if(!(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG) ) do_layer(framebuf,1, oldscr, tx2, ty2, 3);
-	
-	do_layer(framebuf, 0, newscr, tx, ty, 2, false, true);
-	
-	if(!(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(framebuf,1, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
-	
-	do_layer(framebuf, -2, oldscr, tx2, ty2, 3); //push blocks
-	do_layer(framebuf, -2, newscr, tx, ty, 2);
-	
-	do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
-	do_walkflags(framebuf, newscr, tx, ty,2);
-	
-	if(get_bit(quest_rules, qr_FFCSCROLL))
-	{
-		do_layer(framebuf, -3, oldscr, tx2, ty2, 3, true); //ffcs
-		do_layer(framebuf, -3, newscr, tx, ty, 2, true);
-	}
-	
-	putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
-	putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
-	//linkstep();
-	
-	if(Link.getZ() > 0 && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
-	{
-		Link.drawshadow(framebuf, get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
-	}
-	
-	if(!isdungeon() || get_bit(quest_rules,qr_FREEFORM))
-	{
-		Link.draw_under(framebuf); //draw the ladder or raft
-		decorations.draw2(framebuf, true);
-		Link.draw(framebuf); //Link
-		decorations.draw(framebuf,  true);
-	}
-	
-	if(!(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, oldscr, tx2, ty2, 3);
-	
-	do_layer(framebuf, 3, oldscr, tx2, ty2, 3); //layer 3
-	do_layer(framebuf,-1, oldscr, tx2, ty2, 3); //overhead combos
-	do_layer(framebuf, 4, oldscr, tx2, ty2, 3); //layer 4
-	do_layer(framebuf,-4, oldscr, tx2, ty2, 3, true); //overhead FFCs
-	do_layer(framebuf, 5, oldscr, tx2, ty2, 3); //layer 5
-	
-	if(!(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ));
-	
-	do_layer(framebuf, 3, newscr, tx, ty, 2, false, true); //layer 3
-	do_layer(framebuf,-1, newscr, tx, ty, 2); //overhead combos
-	do_layer(framebuf, 4, newscr, tx, ty, 2, false, true); //layer 4
-	do_layer(framebuf,-4, newscr, tx, ty, 2, true); //overhead FFCs
-	do_layer(framebuf, 5, newscr, tx, ty, 2, false, true); //layer 5
-	
-	if(msgdisplaybuf->clip == 0)
-		masked_blit(msgdisplaybuf, framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
-		
-	put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
-	
-	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
-		do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
-}
-
-void FFScript::runF6EngineScrolling(mapscr* newscr, mapscr* oldscr, int tx, int ty, int tx2, int ty2, int sx, int sy, int scrolldir)
-{
-	if(GameFlags&GAMEFLAG_TRYQUIT)
-	{
-		Z_eventlog("Trying run F6 Script Scrolling!\n");
-		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF/* && globalscripts[GLOBAL_SCRIPT_F6][0].command != 0*/)
-		{
-			Z_eventlog("Running F6 Script Scrolling!\n");
-			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
-			int frame = 0;
-			Quit = 0;
-			int openingwipe = black_opening_count;
-			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
-			{
-				script_drawing_commands.Clear(); //Maybe only one time, on a variable
-				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
-				load_control_state(); 
-				//draw_screen(tmpscr);
-				handleF6ScrollingDraw(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
-				advanceframe(true,true,false);
-				black_opening_count = openingwipe; //Keep the screen frozen, including the wipe.
-				if(Quit) break; //Something quit, end script running
-			}
-		}
-		if(!Quit)
-		{
-			if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
-		}
-		zc_readkey(KEY_F6);
-		GameFlags &= ~GAMEFLAG_TRYQUIT;
-	}
+	blit(f6_buf, framebuf, 0, 0, 0, 0, 256, 224);
+	//Script draws
+	if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(framebuf, 3, tmpscr, 0, 0);
+	if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(framebuf, 2, tmpscr, 0, 0);
+	do_primitives(framebuf, 0, tmpscr, 0, 0);
+	do_primitives(framebuf, 1, tmpscr, 0, 0);
+	if(!(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG )) do_primitives(framebuf, 2, tmpscr, 0, 0);
+	if(!(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_primitives(framebuf, 3, tmpscr, 0, 0);
+	do_primitives(framebuf, 4, tmpscr, 0, 0);
+	do_primitives(framebuf, 5, tmpscr, 0, 0);
+	do_primitives(framebuf, 6, tmpscr, 0, 0);
+	do_primitives(framebuf, 7, tmpscr, 0, playing_field_offset);
 }
 
 void FFScript::lweaponScriptEngine()
