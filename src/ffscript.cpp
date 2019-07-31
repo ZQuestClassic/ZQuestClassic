@@ -881,11 +881,11 @@ byte curScriptType;
 word curScriptNum;
 
 //Global script data
-refInfo globalScriptData;
+refInfo globalScriptData[NUMSCRIPTGLOBAL];
 refInfo linkScriptData;
 refInfo screenScriptData;
 refInfo dmapScriptData;
-word g_doscript = 1;
+word g_doscript = 0xFFFF;
 word link_doscript = 1;
 word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
 bool global_wait = false;
@@ -909,15 +909,9 @@ refInfo itemactiveScriptData[256];
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
 
-#define GLOBAL_STACK_MAIN 0
-#define GLOBAL_STACK_DMAP 1
-#define GLOBAL_STACK_SCREEN 2
-#define GLOBAL_STACK_LINK 3
-#define GLOBAL_STACK_MAX 4
-
 long(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 long ffc_stack[32][MAX_SCRIPT_REGISTERS];
-long global_stack[GLOBAL_STACK_MAX][MAX_SCRIPT_REGISTERS];
+long global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
 long item_stack[256][MAX_SCRIPT_REGISTERS];
 long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
@@ -932,15 +926,13 @@ void clear_ffc_stack(const byte i)
 }
 
 
-void clear_global_stack()
+void clear_global_stack(const byte i)
 {
-    //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
-    memset(global_stack, 0, sizeof(global_stack));
+    memset(global_stack[i], 0, sizeof(global_stack[i]));
 }
 
 void FFScript::clear_screen_stack()
 {
-    //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
     memset(screen_stack, 0, sizeof(screen_stack));
 }
 
@@ -962,6 +954,12 @@ void FFScript::initZScriptDMapScripts()
     clear_dmap_stack();
 }
 
+void FFScript::initZScriptLinkScripts()
+{
+    link_doscript = 1;
+    linkScriptData.Clear();
+    clear_link_stack();
+}
 
 void clear_item_stack(int i)
 {
@@ -4811,7 +4809,7 @@ case NPCBEHAVIOUR: {
         break;
     
     case SKIPF6:
-        ret=skipcont?10000:0;
+        ret=get_bit(quest_rules,qr_NOCONTINUE)?10000:0;
         break;
         
     case GAMESTANDALONE:
@@ -11013,7 +11011,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         break;
     
     case SKIPF6:
-        skipcont = ((value/10000)?true:false);
+        set_bit(quest_rules,qr_NOCONTINUE,((value/10000)?1:0));
         break;
     
     
@@ -18148,11 +18146,10 @@ int run_script(const byte type, const word script, const long i)
 	    
 	    case SCRIPT_GLOBAL:
 	    {
-		ri = &globalScriptData;
-		    //should this become ri = &(globalScriptData[global_slot]);
+		ri = &globalScriptData[script];
 		
 		curscript = globalscripts[script];
-		stack = &global_stack[GLOBAL_STACK_MAIN];
+		stack = &global_stack[script];
 		    //
 	    }
 	    break;
@@ -18160,7 +18157,6 @@ int run_script(const byte type, const word script, const long i)
 	    case SCRIPT_LINK:
 	    {
 		ri = &linkScriptData;
-		    //should this become ri = &(globalScriptData[link_slot]);
 		
 		curscript = linkscripts[script];
 		stack = &link_stack;
@@ -19749,10 +19745,22 @@ int run_script(const byte type, const word script, const long i)
 		    reset_combo_animations2();
 		
 		    Quit = qCONT;
-		    //skipcont = 1;
+		    skipcont = 1;
 			//cont_game();
 		    scommand = 0xFFFF;
 		    break;
+			
+		case GAMESAVEQUIT:
+			Quit = qSAVE;
+			skipcont = 1;
+			scommand =0xFFFF;
+			break;
+			
+		case GAMESAVECONTINUE:
+			Quit = qSAVECONT;
+			skipcont = 1;
+			scommand =0xFFFF;
+			break;
 		    
 		case SAVE:
 		    if(scriptCanSave)
@@ -19768,7 +19776,7 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case SHOWF6SCREEN:
-		    game_over(0); //0 == show three choices, 1 == show two
+		    onTryQuit();
 		    break;
 		    
 		case SAVEQUITSCREEN:
@@ -20563,7 +20571,7 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		    
 		case SCRIPT_GLOBAL:
-		    g_doscript = 0;
+		    g_doscript &= ~(1<<i);
 		    FFScript::deallocateAllArrays(type, i);
 		    break;
 		
@@ -21420,9 +21428,9 @@ void FFScript::clear_ffc_stack(const byte i)
     memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
-void FFScript::clear_global_stack()
+void FFScript::clear_global_stack(const byte i)
 {
-    memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    memset(global_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void FFScript::do_zapout()
@@ -23129,6 +23137,81 @@ bool FFScript::newScriptEngine()
 	//lweaponScriptEngine();
 	advanceframe(true);
 	return false;
+}
+
+void FFScript::runF6Engine()
+{
+	if(!Quit && (GameFlags&GAMEFLAG_TRYQUIT) && !(GameFlags&GAMEFLAG_SCRIPTMENU_ACTIVE))
+	{
+		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF)
+		{
+			clear_bitmap(script_menu_buf);
+			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
+			int openingwipe = black_opening_count;
+			black_opening_count = 0; //No opening wipe during F6 menu
+			GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
+			{
+				script_drawing_commands.Clear();
+				load_control_state(); 
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+				//Draw
+				clear_bitmap(framebuf);
+				doScriptMenuDraws();
+				//
+				advanceframe(true,true,false);
+				if(Quit) break; //Something quit, end script running
+			}
+			script_drawing_commands.Clear();
+			GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+			//
+			black_opening_count = openingwipe;
+		}
+		if(!Quit)
+		{
+			if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+		}
+		zc_readkey(KEY_F6);
+		GameFlags &= ~GAMEFLAG_TRYQUIT;
+	}
+}
+void FFScript::runOnDeathEngine()
+{
+	if(linkscripts[SCRIPT_LINK_DEATH][0].command == 0xFFFF) return; //No script to run
+	clear_bitmap(script_menu_buf);
+	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+	initZScriptLinkScripts();
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	while(link_doscript && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
+		//Draw
+		clear_bitmap(framebuf);
+		doScriptMenuDraws();
+		//
+		advanceframe(true,true,false);
+	}
+	script_drawing_commands.Clear();
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+}
+
+void FFScript::doScriptMenuDraws()
+{
+	blit(script_menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
+	//Script draws
+	if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
+	if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 0, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 1, tmpscr, 0, playing_field_offset);
+	if(!(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG )) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
+	if(!(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 4, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 5, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 6, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 7, tmpscr, 0, playing_field_offset);
 }
 
 void FFScript::lweaponScriptEngine()
@@ -26838,6 +26921,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "MESSAGEHEIGHTR",         1,   0,   0,   0},
     { "ISVALIDARRAY",         1,   0,   0,   0},
     { "DIREXISTS",         1,   0,   0,   0},
+    { "GAMESAVEQUIT",         0,   0,   0,   0},
+    { "GAMESAVECONTINUE",         0,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

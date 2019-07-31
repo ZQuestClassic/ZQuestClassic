@@ -19932,17 +19932,23 @@ const char *gscriptlist2(int index, int *list_size)
             buf[19]='\0';
         }
         
-        if(index==0)
-            sprintf(gscript_str_buf2,"Initialization: %s", buf);
-            
-        if(index==1)
-            sprintf(gscript_str_buf2,"Active: %s", buf);
-            
-        if(index==2)
-            sprintf(gscript_str_buf2,"onExit: %s", buf);
-            
-        if(index==3)
-            sprintf(gscript_str_buf2,"onContinue: %s", buf);
+        switch(index)
+        {
+            case GLOBAL_SCRIPT_INIT:
+                sprintf(gscript_str_buf2,"Initialization: %s", buf); break;
+            case GLOBAL_SCRIPT_GAME:
+                sprintf(gscript_str_buf2,"Active: %s", buf); break;
+            case GLOBAL_SCRIPT_END:
+                sprintf(gscript_str_buf2,"onExit: %s", buf); break;
+            case GLOBAL_SCRIPT_ONSAVELOAD:
+                sprintf(gscript_str_buf2,"onSaveLoad: %s", buf); break;
+            case GLOBAL_SCRIPT_ONLAUNCH:
+                sprintf(gscript_str_buf2,"onLaunch: %s", buf); break;
+            case GLOBAL_SCRIPT_ONCONTGAME:
+                sprintf(gscript_str_buf2,"onContGame: %s", buf); break;
+            case GLOBAL_SCRIPT_F6:
+                sprintf(gscript_str_buf2,"onF6Menu: %s", buf); break;
+        }
             
         return gscript_str_buf2;
     }
@@ -20337,6 +20343,7 @@ static DIALOG zscript_settings_dlg[] =
     //Y 130 and Y140 are No Item Script Waitdraw, No FFC Script Waitdraw.
     { jwin_check_proc,      10, 32+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
     { jwin_check_proc,      10, 32+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Deallocate Arrays", NULL, NULL },
+    { jwin_check_proc,      10, 32+170,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hero OnDeath script runs AFTER engine death animation", NULL, NULL },
     
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -20348,7 +20355,7 @@ static int zscriptrules[] =
     qr_ITEMSCRIPTSKEEPRUNNING, qr_NOITEMWAITDRAW, qr_NOFFCWAITDRAW, 
 	qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,qr_LINKXY_IS_FLOAT,
 	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS,qr_OLDQUESTMISC,qr_CLEARINITDONSCRIPTCHANGE,
-	qr_TRACESCRIPTIDS,qr_FIXDRUNKINPUTS, qr_ALWAYS_DEALLOCATE_ARRAYS,
+	qr_TRACESCRIPTIDS,qr_FIXDRUNKINPUTS, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,
 	
     -1
 };
@@ -21251,10 +21258,20 @@ int onCompileScript()
                     const char* asterisks;
                     switch(i)
                     {
-                        case 0: format="Initialization: %s%s%s"; break;
-                        case 1: format="Active: %s%s%s"; break;
-                        case 2: format="onExit: %s%s%s"; break;
-                        case 3: format="onContinue: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_INIT:
+                            format="Initialization: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_GAME:
+                            format="Active: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_END:
+                            format="onExit: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONSAVELOAD:
+                            format="onSaveLoad: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONLAUNCH:
+                            format="onLaunch: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONCONTGAME:
+                            format="onContGame: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_F6:
+                            format="onF6Menu: %s%s%s"; break;
                     }
                     if(globalmap[i].second == "")
                         asterisks="";

@@ -2979,6 +2979,16 @@ string OGameContinue::toString()
     return "GAMECONTINUE";
 }
 
+string OGameSaveQuit::toString()
+{
+    return "GAMESAVEQUIT";
+}
+
+string OGameSaveContinue::toString()
+{
+    return "GAMESAVECONTINUE";
+}
+
 string OShowF6Screen::toString()
 {
     return "SHOWF6SCREEN";

@@ -237,6 +237,9 @@ char32		-214748, 214748
 // Waitdraw //
 //////////////
 
+The Waitdraw() instruction defers further execution of a script (pausing it) until 
+	draws to the screen have been rendered for the present frame.
+	
 The following script types now support Waitdraw():
 ffc, screendata, eweapon, itemsprite, item.
 You may disable Waitdraw support (for compatibility reasons) for ffc scripts, 
@@ -245,129 +248,333 @@ You may disable Waitdraw support (for compatibility reasons) for ffc scripts,
 Waitdraw support for npc, and lweapon scripts remains t/b/a.
 
 ///////////////////
-/// NPC Scripts ///
+/// FFC Scripts ///
 ///////////////////
 
-TOKEN: npc script
+TOKEN(s):		ffc script
+POINTER: 		ffc
+InitD:			Yes, [8]
+InitD Labels:		No
+InitA:			Yes, [2]
+Multiple Frames:	Yes
+Waitdraw Support:	Yes, depends on QR
 
-* You can now compile and assign scripts to npcs. 
-* The 'this' pointer for npc scripts is npc (ri->guyref).
-* You can assign this script type to enemies in the ENEMY EDITOR:
-* 	To do this, select the 'Scripts' tab, and then select the 'Action Script' tab. 
-* You may assign scripts to enemies from other scripts, via npc->Script.
-*
-* You can read, or write to the ENEMY EDITOR data for the script ID, with npcdata->Script
-* 	on an initialised npcdata pointer.
-*
-* Enemies have eight InitD[] args, in the ENEMY EDITOR for this script type.
-* 	You may assign values to these in the ENEMY EDITOR, and you may label the fields
-* 	for these InitD values in the ENEMY EDITOR.
-* 	You may also read or write to them by script with npc->InitD[] (or this->InitD[])
-* 	or npcdata->InitD[]. 
-* Trying to modify the script while it is running with this->Script, is untested.
-* Use of these on Room Guys is untested, but should be feasible. 
+* FFC Scripts are the absolute, pure origin og ZScript. Originally called FFScript, and designed 
+* to be attached to 'FreeForm Combos' in ZQuest 2.11, FFC scripts still serve this subtle, yet powerful
+* purpose to this day.
 
+* The 'this' pointer for ffc scripts is ffc (ri->ffcref).
+* You can assign this script type to each of the 32 ffcs on every mapscreen via the menus
+* 	Screen>>>Edit FFC>>Script (tab).
+*
+* In order to run its script, not only must you set the script ID, but the FFC MUST use a combo ID
+*	greater than zero. Combo ID 0 cannot run scripts initially, although an already-running
+* 	ffc script can write this->Data = 0without the script exiting,
+*
+* FFC scripts can run for multiple frames, and in addition to the eight standard D[] registers,
+*	they have two A[] (address) registers, however the use of A registers is exclusive to ZASM
+*	(assembly code) scripts, and there is no benefit to using them in the ZScript C++ style
+*	language.
+*
+*	The purpose of these A registers is to allow ASM-level access to the D-registers of other FFC 
+*		scripts running on the same screen.
+* In past versions of ZQuest, FFC scripts did not have support for the Waitdraw instruction.
+* As of 2.55, Alpha 26, FFCs can use Waitdraw() properly.
+* A QR governs this capability: Legacy quests will disable FFC Waitdraw support on quest loading
+* 	in ZC Player, and when you load the old quest into the ZQ Editor,
+(	New quests created in 2.55 have Waitdraw() support enabled by default.
+*	You may enable Waitdraw support in legacy quests by toggling the ZScript setting:'No FFC Waitdraw'.
+*	When this setting is enabled, FFC scripts that call Waitdraw() behave as 2.11->2.53 FFC scripts 
+* 		that call Waitdraw().
+
+
+
+//////////////////////
+/// Global Scripts ///
+//////////////////////
+
+TOKEN(s):		global script
+POINTER: 		n/a
+InitD:			No
+InitD Labels:		No
+InitA:			No
+Multiple Frames:	Yes, based on slot.
+Waitdraw Support:	Yes, based on slot.
+
+* Global scripts run without context to a specific pointer or datatype.
+* There are six, fixed slota; of which you may directly assign scripts
+* to five. 
+* 
+* Slot assignment during compilation to the ~Init Slot (1) is automatic.
+* 
+* Global scripts do not have InitD args, and parameters listed within the 
+* braces of the normal run(...) function are initialised to NULL (0).
+* 
+* Global scripts are executed automatically when their conditions are valid, 
+* based on the script slot to which the user assigns them.
+
+//////////////////////////
+// Slot (1) : Game Init //
+//////////////////////////
+
+*	SLOT NAME: '~Init'
+*
+* 	This script runs FOR ONE FRAME, on the first play of a quest.
+* 	It is used to initialise global arrays, and the user can create additional
+* 	context for it by creating a script named 'global script Init'. 
+* 	
+* 	During post-compilation slot assignment, any global script with the
+* 	EXACT IDENTIFIER 'Init' will be assigned to this slot.
+* 
+* 	Manual slot assignment to ~Init is possible for ASM script imports,
+* 	but doing this may have unintended side-effects.
+* 	
+* 	Any instructions within the body of the run() function of the script
+* 	will execute during game initialisation, but only if the player has not
+* 	saved the game.
 
 ///////////////////////
-/// EWeapon Scripts ///
+// Slot (2) : Active //
 ///////////////////////
 
-TOKEN: eweapon script
-
-* You can now compile and assign scripts to eweapons.
-* The 'this' pointer for npc scripts is eweapon (ri->ewpn).
-* You can assign this script type to the weapon generated by an npc in the ENEMY EDITOR.
-* 	To do this, select the 'Scripts' tab, and then select the 'Weapon Script' tab. 
-* You may assign scripts to eweapons from other scripts, via eweapon->Script, 
-* 	on an initialised eweapon pointer.
+*	SLOT NAME: 'Active'
 *
-* You can read, or write to the ENEMY EDITOR data for the script ID, with npcdata->WeaponScript.
+* 	This script can run for multiple frames, and runs during the normal action of the game.
+* 	
+* 	The typical purpose of this script slot is to tailor the game engine to your needs, and 
+* 	the body of its run() function serves as the ZScript equivalent to a main() loop in C.
+* 
+* 	Generally, the body of this script is an infinite loop, ending in a Waitframe(), although
+* 	it may consist of a conditional loop or series of loops, each with instructions to process
+* 	during different stages of your game.
+* 
+* 	Normally, if the player is still playing the quest, then this script is running:
+* 		It automatically terminates if you issue a Quit() instruction, if it runs out of scope, 
+* 		or under one of the following conditions:
+* 	
+* 		The player HP falls below '1'. 
+* 			Under this circumstance, the script runs for ONE additional frame to allow
+* 			your scripts to restore the player HP.
+* 			Failing to revive the player will exit this script, and the Hero Scrit Death Slot
+* 				will run, followed by the Global Exit Slot (3).
+* 				!!VERIFY TIMING
+* 		The player triggers the F6 menu.
+* 		Any script calls Game->Continue(), or Game->End().
+* 
+* 	The global active script can run for multiple frames, and supports the Waitdraw() command.
+
+//////////////////////////
+// Slot (3) : Game Exit //
+//////////////////////////
+
+*	SLOT NAME: 'onExit'
 *
-* Enemy Weapons have eight InitD[] args, in the ENEMY EDITOR for this script type.
-* 	You may assign values to these in the ENEMY EDITOR, and you may label the fields
-* 	for these InitD values in the ENEMY EDITOR.
-* 	You may also read or write to them by script with eweapon->InitD[] (or this->InitD[])
-* 	or npcdata->WeaponInitD[]. 
-* Trying to modify the script while it is running with this->Script, is untested.
+* 	This script runs FOR ONE FRAME, after the player dies, or otherwise after the 
+* 	game action ends via calling the game over menu.
+* 
+* 	The purpose of this script slot is to modify global variables or array values prior to 
+* 	writing the game save, such as the number of times the polayer has saved his adventure.
 
-///////////////////////
-/// LWeapon Scripts ///
-///////////////////////
+///////////////////////////////
+// Slot (4) : Load from Save //
+///////////////////////////////
 
-TOKEN: lweapon script
-
-* You can now compile and assign scripts to lweapons.
-* The 'this' pointer for npc scripts is lweapon (ri->lwpn).
-* You can assign this script type to the weapon generated by an item in the ITEM EDITOR.
-* 	To do this, select the 'Scripts' tab, and then select the 'Weapon Script' tab (W.Script).
-* You may assign scripts to lweapons from other scripts, via lweapon->Script
-* 	on an initialised lweapon pointer.
+*	SLOT NAME: 'onLoadSave'
 *
-* You can read, or write to the ITEM EDITOR data for the script ID, with itemdata->WeaponScript.
+* 	This script runs FOR ONE FRAME, on every load of a quest from the file select 
+* 	screen, AFTER the player has saved the game at least one time.
+* 
+* 	This script does not run when continuing a game with F6>>>Contunue from the game over
+* 	menu, nor when continuing a game with the Game->Continue() ZScript command.
+* 
+* 	The purpose of this script slot is to reinitialise any user-created conditions, such as re-init
+* 	of user bitmaps, re-priming global pointers, or otherwie ensuring that your global or internal
+* 	values are correct before the game resumes from a file where values to these variables / pointers
+* 	may now be stale, but were saved to the .sav file.
+
+//////////////////////////
+// Slot (5) Game Launch //
+//////////////////////////
+
+* 	SLOT NAME: 'onLaunch'
 *
-* Link Weapons have eight InitD[] args, in the ITEM EDITOR for this script type.
-* 	You may assign values to these in the ITEM EDITOR, and you may label the fields
-* 	for these InitD values in the ITEM EDITOR.
-* 	You may also read or write to them by script with lweapon->InitD[] (or this->InitD[])
-* 	or itemdata->WeaponInitD[]. 
-* Trying to modify the script while it is running with this->Script, is untested.
+* 	This script slot runs FOR ONE FRAME, on every load of a quest from the file select 
+* 	screen, whether the quest has been previously played, or not. 
+* 
+* 	This script does not run when continuing a game with F6>>>Contunue from the game over
+* 	menu, nor when continuing a game with the Game->Continue() ZScript command.
+* 
+*	It is similar to slots (1) and (4), and can take the place of either, unless you have timing-specific 
+* 	issues that require two scripts to execute.
+* 
+* 	This script runs after global slot (1) and after Hero script slot (1) on a virgin save slot, 
+* 	or directly after global slot (4) if the game has previously been saved.
+* 
+* 	The purpose of this script slot is to reinitialise any user-created conditions, such as re-init
+* 	of user bitmaps, re-priming global pointers, or otherwie ensuring that your global or internal
+* 	values are correct before the game resumes from a file where values to these variables / pointers
+* 	may now be stale, but were saved to the .sav file.
 
+/////////////////////////////////////////
+// Slot (6) :  Continue Game from Menu //
+/////////////////////////////////////////
 
+*	 SLOT NAME: 'onContGame'
+*
+*	 This script runs FOR ONE FRAME, when the user resumes/reloads an already-running
+*	 game either via F6>>>Contunue, or Game->ShowContinueScreen(), from the game over menu, 
+*	 or by continuing a game with the Game->Continue() and similar ZScript commands.
+* 
+*	 This script does not run when loading a game from the file select screen.
+* 
+*	 The purpose of this script slot is similar to that of slots (2), (4) and (5), but it may also 
+*	 be useful in setting minor conditions, such as the player health/magic.
+* 
+*	 This script slot runs prior to the opening wipe.
+
+/////////////////////
+// Slot (7) : Menu //
+/////////////////////
+
+*	SLOT NAME: 'onF6Menu'
+*
+*	This script runs for multiple frames, whenever the player presses F6 or selects the system menu option
+*	'Game>>End Game' to display the save screen menu, or runs the 'Game->ShowContinueScreen()' ZScript command,
+*	(but not when the player dies; see Hero Slot (3) 'onDeath' for that application.)
+*
+*	If the compatibility rule 'Old (Instant) F6 Menu' in 'Quest->Rules->Backwards Compatibility' is enabled,
+*	this script slot will never be executed.
+*
+*	The purpose of this script slot is to permit making a drop-in, scripted  replacement for the standard 
+*	Continue/Save/Retry menu screen.
+*
+*	During the execution of this script, all script draws will occur above a static image of the screen as it was
+*	before the script began. All engine action, save for this script, and input polling, will be suspended for the duration
+*	of the script.
+*
+*	This script will run until either you exit the game via a command such as 'Game->End()', or you exit the script.
+*	Exiting the script without invoking a command such as 'Game->End()' will then open the standard system F6 menu,
+*	unless the quest rule 'Skip Continue Screen' in 'Quest->Rules->Other' is active. If the player does not chooses
+*	to exit via the standard continue screen, or it is skipped via the aforementioned rule, gameplay will resume
+*	exactly where it left off.
+   
+   
 ////////////////////
 /// Hero Scripts ///
 ////////////////////
 
-TOKEN: hero script, player script; link script (deprecated)
+TOKEN(s):		hero script, player script; link script (deprecated)
+POINTER: 		Hero, Player, Link
+InitD:			No
+InitD Labels:		No
+InitA:			No
+Multiple Frames:	Yes, based on slot.
+Waitdraw Support:	Yes, based on slot.
 
 * You can now compile and assign scripts to the Hero.
 * The 'this' pointer is identical to `Hero`, ex. `this->X` `this->Y` `this->HP`
 * When you compile this script type, you can assign it to one of the following slots,
-* 	which determines when it runs, and how often it runs:
+* 	which determines when it runs, and how often it runs.
+* Hero scripts are executed automatically when their conditions are valid, 
+* 	based on the script slot to which the user assigns them.
+
+/////////////////////
+// Slot (1) : Init //
+/////////////////////
+
+*	SLOT NAME: 'Init'
 *
-* 	HERO INIT
-* 	This script runs FOR ONE FRAME at the start of every game session (not on F6 Continue), 
-*		and it allows you to set up initial values for Link, BEFORE the opening wipe,
-*		such as his Invisibility state, or his screen position.
-* 		You can give him equipment, and other effects at this time.
-*		These effects take place BEFORE the engine writes to Screen->EntryX,
-*			and Screen->EntryY, so if you give Link custom starting coordinates
-*			by script, reading those values from the Screen pointer, should 
-* 			give you accurate data.
+* 	This script runs FOR ONE FRAME at the start whenever the player sprite is initialised, 
+*	both at the start of a game, and via F6>>>Continue (or Game->Continue()).
+*	
+*	It allows you to set up initial values for the player, BEFORE the opening wipe, such as his 
+*	Invisibility state, or his screen position.
+* 	You can give the player  equipment, and other effects at this time.
 *
-*	HERO ACTIVE
-*	This script runs after HERO INIT, and also after the GLOBAL ACTIVE script.
-*	The HERO ACTIVE script can run for multiple frames, until either it runs out of
-*		scope, or you call Quit() inside the script body.
+*	These effects take place BEFORE the engine writes to Screen->EntryX, and Screen->EntryY, 
+*	so if you give the player sprite custom starting coordinates by script, reading those values 
+*	from the Screen pointer, should give you accurate data.
+*
+
+///////////////////////
+// Slot (2) : Active //
+///////////////////////
+
+*	SLOT NAME: 'Active'
+*
+*	This script slot runs after (1), and also after the global script (2; active).
+*
+* 	This script can run for multiple frames, and runs during the normal action of the game.
+* 	
+* 	The typical purpose of this script slot is to control the player sprite in ways that 
+*	extend beyond the normal internal engine mechanics, such as scaling the sprite with the
+* 	Z-Axis of the player, or using scripted tiles and animations for diagonal walking.
+*
+* 	Generally, the body of this script is an infinite loop, ending in a Waitframe(), although
+* 	it may consist of a conditional loop or series of loops, each with instructions to process
+* 	during different stages of your game.
+
+*	This script can run for multiple frames, until either it runs out of, scope, 
+*	you call Quit() inside the script body, or the player presses F6 to open the standard
+*	SAVE/CONTINUE/RETRY menu.
+*
 * 	You may use Waitdraw() in this script type. 
 *	
-*	If Hero dies, this script halts.
-*	If Hero wins the game, this script halts.
+*	If Hero dies, this script halts, and hero script (3), 'onDeath' runs.
+*	If Hero wins the game, this script halts, and hero script (4), 'onWin' runs.
 *
-*	HERO DEATH
+
+//////////////////////
+// Slot (3) : Death //
+//////////////////////
+
+*	SLOT NAME: 'onDeath'
+*
 *	This script runs when Hero DIES. 
-*	It runs AFTER the GLOBAL EXIT script, and after Hero is DEAD, with no chance of revival.
-*		^ If you need to revive Link, such as with a Faerie in a Bottle, use his Active
-*		^ script for this effect. 
+*	It runs BEFORE the GLOBAL EXIT script, and after Hero is DEAD, with no chance of revival.
+*		^ If you need to revive the player, such as with a Faerie in a Bottle, use the
+*		^ Hero Active script slot for that effect.
+*	The script will run before the engine's death animation, unless the quest rule
+*	'Hero OnDeath script runs AFTER engine death animation' under 'ZScript->Quest Script Settings' is selected, in which case
+*	it will run immediately following this animation.
 *
 *	This script can run for multiple frames, and is intended to permit you to construct your
-*		own Game Over sequences.
+*	own Game Over sequences.
 *
-*	HERO WIN
-*	This script runs if Link WINS THE GAME (Flag 15).
+*	During the execution of this script, all script draws will occur above a static image of the screen as it was
+*	before the script began. All engine action, save for this script, and input polling, will be suspended for the duration
+*	of the script.
+*
+*	This script will run until either you exit the game via a command such as 'Game->End()', or you exit the script.
+*	Exiting the script without invoking a command such as 'Game->End()' will continue the player's death where it left off.
+*	If the script is set to run prior to the engine death animation, exiting via a command such as 'Game->End()' will
+*	skip the engine's death animation.
+
+///////////////////////
+// Slot (4) : Ending //
+///////////////////////
+
+*	SLOT NAME: 'onWin'
+*
+*	This script runs if the player WINS THE GAME (e.g. via Combo Flag 15).
 *	It can run for more than one frame, and it is intended to permit you to make your own
-*		Game Ending scenes, or credits scroll.
-*	You can disable the internal credits scroll, or you can permit that to run normally,
-*		with Game->SkipCredits.
+*	Game Ending scenes, or credits scroll.
 *
-*	These scripts automatically run when their conditions are valid, based on the
-*	script slot, to which you assign them.
+*	You can disable the internal credits scroll, or you can permit that to run normally,
+*	after your own credits sequence via the command Game->SkipCredits.
 
 
 ////////////////////
 /// DMap Scripts ///
 ////////////////////
-
-TOKEN: dmapdata script
+ 
+TOKEN(s):		dmapdata script
+POINTER: 		dmapdata
+InitD:			Yes, [8]
+InitD Labels:		Yes, [8]
+InitA:			No
+Multiple Frames:	Yes
+Waitdraw Support:	Yes
 
 * You can now compile and assign scripts to DMaps.
 * The 'this' pointer for dmapdata scripts is dmapdata (ri->dmapsref).
@@ -396,7 +603,13 @@ TOKEN: dmapdata script
 /// Screen Scripts ///
 //////////////////////
 
-TOKEN: screendata script
+TOKEN(s):		screendata script
+POINTER: 		Screen
+InitD:			Yes, [8]
+InitD Labels:		No
+InitA:			No
+Multiple Frames:	Yes
+Waitdraw Support:	Yes
 
 * You can now compile and assign scripts to individual screens.
 * The 'this' pointer for screendata scripts is identical to 'Screen->'.
@@ -422,11 +635,105 @@ TOKEN: screendata script
 * Trying to modify the script while it is running with this->Script, is untested.
 
 
+///////////////////
+/// NPC Scripts ///
+///////////////////
+
+TOKEN(s):		npc script
+POINTER: 		npc
+InitD:			Yes, [8]
+InitD Labels:		Yes, [8]
+InitA:			No
+Multiple Frames:	Yes
+Waitdraw Support:	No
+
+* You can now compile and assign scripts to npcs. 
+* The 'this' pointer for npc scripts is npc (ri->guyref).
+* You can assign this script type to enemies in the ENEMY EDITOR:
+* 	To do this, select the 'Scripts' tab, and then select the 'Action Script' tab. 
+* You may assign scripts to enemies from other scripts, via npc->Script.
+*
+* You can read, or write to the ENEMY EDITOR data for the script ID, with npcdata->Script
+* 	on an initialised npcdata pointer.
+*
+* Enemies have eight InitD[] args, in the ENEMY EDITOR for this script type.
+* 	You may assign values to these in the ENEMY EDITOR, and you may label the fields
+* 	for these InitD values in the ENEMY EDITOR.
+* 	You may also read or write to them by script with npc->InitD[] (or this->InitD[])
+* 	or npcdata->InitD[]. 
+* Trying to modify the script while it is running with this->Script, is untested.
+* Use of these on Room Guys is untested, but should be feasible. 
+
+
+///////////////////////
+/// EWeapon Scripts ///
+///////////////////////
+
+TOKEN(s):		eweapon script
+POINTER: 		eweapon
+InitD:			Yes, [8]
+InitD Labels:		Yes, [8]
+InitA:			No
+Multiple Frames:	Yes
+Waitdraw Support:	No
+
+* You can now compile and assign scripts to eweapons.
+* The 'this' pointer for npc scripts is eweapon (ri->ewpn).
+* You can assign this script type to the weapon generated by an npc in the ENEMY EDITOR.
+* 	To do this, select the 'Scripts' tab, and then select the 'Weapon Script' tab. 
+* You may assign scripts to eweapons from other scripts, via eweapon->Script, 
+* 	on an initialised eweapon pointer.
+*
+* You can read, or write to the ENEMY EDITOR data for the script ID, with npcdata->WeaponScript.
+*
+* Enemy Weapons have eight InitD[] args, in the ENEMY EDITOR for this script type.
+* 	You may assign values to these in the ENEMY EDITOR, and you may label the fields
+* 	for these InitD values in the ENEMY EDITOR.
+* 	You may also read or write to them by script with eweapon->InitD[] (or this->InitD[])
+* 	or npcdata->WeaponInitD[]. 
+* Trying to modify the script while it is running with this->Script, is untested.
+
+
+///////////////////////
+/// LWeapon Scripts ///
+///////////////////////
+
+TOKEN(s):		lweapon script
+POINTER: 		lweapon
+InitD:			Yes, [8]
+InitD Labels:		Yes, [8]
+InitA:			No
+Multiple Frames:	Yes
+Waitdraw Support:	No
+
+* You can now compile and assign scripts to lweapons.
+* The 'this' pointer for npc scripts is lweapon (ri->lwpn).
+* You can assign this script type to the weapon generated by an item in the ITEM EDITOR.
+* 	To do this, select the 'Scripts' tab, and then select the 'Weapon Script' tab (W.Script).
+* You may assign scripts to lweapons from other scripts, via lweapon->Script
+* 	on an initialised lweapon pointer.
+*
+* You can read, or write to the ITEM EDITOR data for the script ID, with itemdata->WeaponScript.
+*
+* Link Weapons have eight InitD[] args, in the ITEM EDITOR for this script type.
+* 	You may assign values to these in the ITEM EDITOR, and you may label the fields
+* 	for these InitD values in the ITEM EDITOR.
+* 	You may also read or write to them by script with lweapon->InitD[] (or this->InitD[])
+* 	or itemdata->WeaponInitD[]. 
+* Trying to modify the script while it is running with this->Script, is untested.
+
+
 //////////////////////////
 /// itemsprite Scripts ///
 //////////////////////////
 
-TOKEN: itemsprite script
+TOKEN(s):		itemsprite script
+POINTER: 		item
+InitD:			Yes, [8]
+InitD Labels:		Yes, [8]
+InitA:			No
+Multiple Frames:	Yes
+Waitdraw Support:	Yes
 
 * You can now compile and assign scripts to items that appear on the screen.
 * The 'this' pointer for itemsprite scripts is item (ri->itemsref).
@@ -444,10 +751,21 @@ TOKEN: itemsprite script
 *
 * Trying to modify the script while it is running with this->Script, is untested.
 
+t/b/a
+Item Script, FFC Script
 
-///////////////////////////
-/// Item Script Changes ///
-///////////////////////////
+
+////////////////////
+/// Item Scripts ///
+////////////////////
+
+TOKEN(s):		item script
+POINTER: 		itemdata
+InitD:			Yes, [8]
+InitD Labels:		Yes, [8]
+InitA:			Yes, [2]
+Multiple Frames:	Yes, depends on QR or item flag
+Waitdraw Support:	Yes, depends on QR
 
 It is now possible to permit item scripts to run for more than one frame.
 	To do this, you must enable the Quest Rule, 'Item Scripts Continue to Run', 
@@ -455,6 +773,8 @@ It is now possible to permit item scripts to run for more than one frame.
 	
 	This rule is disabled by default, and disabled for all legacy quests, for compatibility
 	reasons.
+
+
 
 
 ///////////////////////////
@@ -1337,6 +1657,12 @@ bool FFRules[800];
 void Continue();
  * As Game->End(), but this continues the game as if the user had selected the
  * CONTINUE option on the game over screen.
+
+void SaveAndContinue();
+ * As Game->Continue(), but also saves the game (after onExit has been executed)
+
+void SaveAndQuit();
+ * As Game->End(), but also saves the game (after onExit has been executed)
 
 void ShowContinueScreen();
  * As void ShowSaveScreen(), but it shows the base Save/Retry/Continue screen.

@@ -22,6 +22,7 @@
 #include "link.h"
 #include "gamedata.h"
 #include "guys.h"
+#include "ffscript.h"
 
 extern LinkClass   Link;
 extern int directItem;
@@ -111,6 +112,7 @@ void dosubscr(miscQdata *misc)
         put_passive_subscr(framebuf,misc,0,176-2-y,showtime,sspSCROLLING);
         //put the active subscreen above the passive subscreen
         put_active_subscr(misc,y,sspSCROLLING);
+        
         advanceframe(false);
         
         if(Quit)
@@ -223,6 +225,7 @@ void dosubscr(miscQdata *misc)
         put_passive_subscr(framebuf,misc,0,176-2-miny,showtime,sspDOWN);
         //put the active subscreen above the passive subscreen
         put_active_subscr(misc,miny,sspDOWN);
+        
         
         advanceframe(false);
         

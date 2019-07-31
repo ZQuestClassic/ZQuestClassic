@@ -314,7 +314,7 @@ private:
     void Start250Refill(int refillWhat);
     int  EwpnHit();
     int  LwpnHit();
-    void gameover();
+    void heroDeathAnimation();
     void ganon_intro();
     void saved_Zelda();
     void check_slash_block(int bx, int by);
