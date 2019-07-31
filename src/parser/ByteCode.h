@@ -3874,6 +3874,26 @@ namespace ZScript
 			return new OGameContinue();
 		}
 	};
+	
+	class OGameSaveQuit : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGameSaveQuit();
+		}
+	};
+	
+	class OGameSaveContinue : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGameSaveContinue();
+		}
+	};
 
 	class OShowF6Screen : public Opcode
 	{

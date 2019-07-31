@@ -3905,6 +3905,8 @@ static AccessorTable gameTable[] =
 	{ "Save",                          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    1,           {  ZVARTYPEID_GAME,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "End",                           ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    1,           {  ZVARTYPEID_GAME,         -1,                                  -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Continue",                      ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    1,           {  ZVARTYPEID_GAME,         -1,                                  -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SaveAndQuit",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    1,           {  ZVARTYPEID_GAME,         -1,                                  -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SaveAndContinue",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    1,           {  ZVARTYPEID_GAME,         -1,                                  -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "ShowContinueScreen",            ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    1,           {  ZVARTYPEID_GAME,         -1,                                  -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "ComboTile",                     ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetSaveName",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -4794,6 +4796,34 @@ void GameSymbols::generateCode()
         first->setLabel(label);
         code.push_back(first);
         code.push_back(new OGameContinue());
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
+    //void SaveAndQuit(game)
+    {
+	    Function* function = getFunction("SaveAndQuit", 1);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(refVar));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OGameSaveQuit());
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
+    //void SaveAndContinue(game)
+    {
+	    Function* function = getFunction("SaveAndContinue", 1);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(refVar));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OGameSaveContinue());
         code.push_back(new OReturn());
         function->giveCode(code);
     }

@@ -4777,6 +4777,8 @@ int main(int argc, char* argv[])
         FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
 		switch(Quit)
 		{
+			case qSAVE:
+			case qSAVECONT:
 			case qCONT:
 			case qQUIT:
 			case qGAMEOVER:
@@ -4799,6 +4801,16 @@ int main(int argc, char* argv[])
 				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
 			   
 				if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
+				
+				if(Quit==qSAVE)
+				{
+					save_game(false);
+				}
+				else if(Quit==qSAVECONT)
+				{
+					save_game(false);
+					Quit = qCONT;
+				}
 				
 				skipcont = 0;
 				

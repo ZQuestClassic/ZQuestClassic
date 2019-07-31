@@ -19749,6 +19749,18 @@ int run_script(const byte type, const word script, const long i)
 			//cont_game();
 		    scommand = 0xFFFF;
 		    break;
+			
+		case GAMESAVEQUIT:
+			Quit = qSAVE;
+			skipcont = 1;
+			scommand =0xFFFF;
+			break;
+			
+		case GAMESAVECONTINUE:
+			Quit = qSAVECONT;
+			skipcont = 1;
+			scommand =0xFFFF;
+			break;
 		    
 		case SAVE:
 		    if(scriptCanSave)
@@ -26909,6 +26921,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "MESSAGEHEIGHTR",         1,   0,   0,   0},
     { "ISVALIDARRAY",         1,   0,   0,   0},
     { "DIREXISTS",         1,   0,   0,   0},
+    { "GAMESAVEQUIT",         0,   0,   0,   0},
+    { "GAMESAVECONTINUE",         0,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
