@@ -8744,7 +8744,7 @@ void set_register(const long arg, const long value)
 	{
 		//Read-only
 		int ruleid = vbound((ri->d[0]/10000),0,qr_MAX);
-		set_bit(quest_rules, ruleid, (((value/10000)!=0)?true:false));
+		set_bit(quest_rules, ruleid, (value?true:false));
 	}
 	break;
 	
