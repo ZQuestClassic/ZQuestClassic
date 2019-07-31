@@ -2830,7 +2830,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 {
 	if(GameFlags & GAMEFLAG_SCRIPTMENU_ACTIVE)
 	{
-		FFCore.doF6Draws();
+		FFCore.doScriptMenuDraws();
 		return;
 	}
     //The Plan:

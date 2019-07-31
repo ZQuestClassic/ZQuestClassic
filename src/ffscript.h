@@ -260,7 +260,8 @@ void itemSpriteScriptEngine();
 void itemSpriteScriptEngineOnWaitdraw();
 bool newScriptEngine();
 void runF6Engine();
-void doF6Draws();
+void runOnDeathEngine();
+void doScriptMenuDraws();
 void initIncludePaths();
 void initRunString();
 void updateRunString();
@@ -465,6 +466,7 @@ void clearTint();
 void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
+void initZScriptLinkScripts();
 void initZScriptItemScripts();
 
 int GetScriptObjectUID(int type);
@@ -1465,7 +1467,6 @@ void clear_ffc_stack(const byte i);
 void clear_global_stack(const byte i);
 void clear_link_stack();
 void clear_dmap_stack();
-void initZScriptLinkScripts();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 

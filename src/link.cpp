@@ -89,14 +89,6 @@ static inline bool isSideview()
     return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
 }
 
-
-void initLinkScripts()
-{
-    link_doscript = 1;
-    linkScriptData.Clear();
-    clear_link_stack();
-}
-
 int LinkClass::DrunkClock()
 {
     return drunkclk;
@@ -1015,7 +1007,7 @@ void LinkClass::init()
 	{
 		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); 
 		FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
-		initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
+		FFCore.initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
 		setEntryPoints(LinkX(),LinkY()); //screen entry at spawn; //This should be after the init script, so that Link->X and Link->Y set by the script
 						//are properly set by the engine.
 	}
@@ -4834,61 +4826,49 @@ bool LinkClass::animate(int)
     ClearhitLinkUIDs(); //clear them before we advance. 
     checkhit();
     
-    if(game->get_life()<=0)
-    {
-	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-	{	
-		// So scripts can have one frame to handle hp zero events
-		if(false == (last_hurrah = !last_hurrah))
-		{
-		    drunkclk=0;
-		    link_is_stunned = 0;
-		    FFCore.setLinkAction(dying);
-		    //initLinkScripts();
-		    //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
-		    //if ( link_doscript ) { last_hurrah = false; return false; }
-			FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-			FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
-			initLinkScripts(); //Get ready to run his death script.
-			int fc = 0;
-			BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
-					clear_bitmap(subscrbmp);
-			do
-			{
-				script_drawing_commands.Clear(); //Maybe only one time, on a variable?
-				if ( link_doscript ) 
-				{
-					ALLOFF(true,true);
-					ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
-					load_control_state();
-				}
-				draw_screen(tmpscr);
-				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-				advanceframe(true,true,false);
-				if (!link_doscript ) ++fc;
-				if(Quit==qQUIT) Quit = 0; //No F6 during OnDeath!
-				if(Quit) break;
-			}
-			while(fc < 1 );
-		    heroDeathAnimation();
-		    
-		    return true;
-		}
-	}
-	else //2.50.x
+	if(game->get_life()<=0)
 	{
-		
-		// So scripts can have one frame to handle hp zero events
-		if(false == (last_hurrah = !last_hurrah))
-		{
-		    drunkclk=0;
-		    heroDeathAnimation();
-		    
-		    return true;
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{	
+			// So scripts can have one frame to handle hp zero events
+			if(false == (last_hurrah = !last_hurrah))
+			{
+				drunkclk=0;
+				link_is_stunned = 0;
+				FFCore.setLinkAction(dying);
+				FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+				FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+				ALLOFF(true,true);
+				Playing = false; //Disallow F6
+				if(!get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
+				{
+					FFCore.runOnDeathEngine();
+					FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+				}
+				heroDeathAnimation();
+				if(get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
+				{
+					FFCore.runOnDeathEngine();
+					FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+				}
+				ALLOFF(true,true);
+				return true;
+			}
 		}
-		
+		else //2.50.x
+		{
+			
+			// So scripts can have one frame to handle hp zero events
+			if(false == (last_hurrah = !last_hurrah))
+			{
+				drunkclk=0;
+				heroDeathAnimation();
+				
+				return true;
+			}
+			
+		}
 	}
-    }
     else last_hurrah=false;
     
     if(swordclk>0)

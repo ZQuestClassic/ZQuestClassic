@@ -954,6 +954,12 @@ void FFScript::initZScriptDMapScripts()
     clear_dmap_stack();
 }
 
+void FFScript::initZScriptLinkScripts()
+{
+    link_doscript = 1;
+    linkScriptData.Clear();
+    clear_link_stack();
+}
 
 void clear_item_stack(int i)
 {
@@ -19739,7 +19745,7 @@ int run_script(const byte type, const word script, const long i)
 		    reset_combo_animations2();
 		
 		    Quit = qCONT;
-		    //skipcont = 1;
+		    skipcont = 1;
 			//cont_game();
 		    scommand = 0xFFFF;
 		    break;
@@ -23125,10 +23131,10 @@ void FFScript::runF6Engine()
 {
 	if(!Quit && (GameFlags&GAMEFLAG_TRYQUIT) && !(GameFlags&GAMEFLAG_SCRIPTMENU_ACTIVE))
 	{
-		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF/* && globalscripts[GLOBAL_SCRIPT_F6][0].command != 0*/)
+		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF)
 		{
-			clear_bitmap(f6_buf);
-			blit(framebuf, f6_buf, 0, 0, 0, 0, 256, 224);
+			clear_bitmap(script_menu_buf);
+			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
 			int openingwipe = black_opening_count;
 			black_opening_count = 0; //No opening wipe during F6 menu
@@ -23140,7 +23146,7 @@ void FFScript::runF6Engine()
 				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
 				//Draw
 				clear_bitmap(framebuf);
-				doF6Draws();
+				doScriptMenuDraws();
 				//
 				advanceframe(true,true,false);
 				if(Quit) break; //Something quit, end script running
@@ -23158,20 +23164,41 @@ void FFScript::runF6Engine()
 		GameFlags &= ~GAMEFLAG_TRYQUIT;
 	}
 }
-
-void FFScript::doF6Draws()
+void FFScript::runOnDeathEngine()
 {
-	blit(f6_buf, framebuf, 0, 0, 0, 0, 256, 224);
+	if(linkscripts[SCRIPT_LINK_DEATH][0].command == 0xFFFF) return; //No script to run
+	clear_bitmap(script_menu_buf);
+	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+	initZScriptLinkScripts();
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	while(link_doscript && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
+		//Draw
+		clear_bitmap(framebuf);
+		doScriptMenuDraws();
+		//
+		advanceframe(true,true,false);
+	}
+	script_drawing_commands.Clear();
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+}
+
+void FFScript::doScriptMenuDraws()
+{
+	blit(script_menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	//Script draws
-	if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(framebuf, 3, tmpscr, 0, 0);
-	if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(framebuf, 2, tmpscr, 0, 0);
-	do_primitives(framebuf, 0, tmpscr, 0, 0);
-	do_primitives(framebuf, 1, tmpscr, 0, 0);
-	if(!(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG )) do_primitives(framebuf, 2, tmpscr, 0, 0);
-	if(!(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_primitives(framebuf, 3, tmpscr, 0, 0);
-	do_primitives(framebuf, 4, tmpscr, 0, 0);
-	do_primitives(framebuf, 5, tmpscr, 0, 0);
-	do_primitives(framebuf, 6, tmpscr, 0, 0);
+	if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
+	if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 0, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 1, tmpscr, 0, playing_field_offset);
+	if(!(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG )) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
+	if(!(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 4, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 5, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 6, tmpscr, 0, playing_field_offset);
 	do_primitives(framebuf, 7, tmpscr, 0, playing_field_offset);
 }
 

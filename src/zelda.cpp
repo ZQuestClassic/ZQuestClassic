@@ -238,7 +238,7 @@ bool triplebuffer_not_available=false;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *f6_buf;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf;
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
            *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont,
@@ -494,13 +494,6 @@ void initZScriptGlobalScript(int ID)
 	g_doscript |= (1<<ID);
 	globalScriptData[ID].Clear();
 	clear_global_stack(ID);
-}
-
-void initZScriptLinkScripts()
-{
-    link_doscript = 1;
-    linkScriptData.Clear();
-    clear_link_stack();
 }
 
 dword getNumGlobalArrays()
@@ -1908,7 +1901,7 @@ int init_game()
     
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();
-    initZScriptLinkScripts();
+    FFCore.initZScriptLinkScripts();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptItemScripts();
     
@@ -1949,7 +1942,7 @@ int init_game()
 									//positional data, sprites, tiles, csets, invisibility states, and the like.
 			FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
 		}
-		initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script.
+		FFCore.initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script.
 		Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
 						//are properly set by the engine.
 	}
@@ -2072,7 +2065,7 @@ int init_game()
         
     
     initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
-    initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    FFCore.initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     ffscript_engine(true);  //Here is a much safer place...
@@ -2194,7 +2187,7 @@ int cont_game()
     }
     
     initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
-    initZScriptLinkScripts();
+    FFCore.initZScriptLinkScripts();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptItemScripts();
     return 0;
@@ -4153,7 +4146,7 @@ int main(int argc, char* argv[])
     msgdisplaybuf = create_bitmap_ex(8,256, 176);
     msgbmpbuf = create_bitmap_ex(8, 512+16, 512+16);
     pricesdisplaybuf = create_bitmap_ex(8,256, 176);
-	f6_buf = create_bitmap_ex(8,256,224);
+	script_menu_buf = create_bitmap_ex(8,256,224);
     
     if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
             || !screen2 || !msgdisplaybuf || !pricesdisplaybuf)
@@ -4784,6 +4777,7 @@ int main(int argc, char* argv[])
         FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
 		switch(Quit)
 		{
+			case qCONT:
 			case qQUIT:
 			case qGAMEOVER:
 			{
@@ -4797,7 +4791,7 @@ int main(int argc, char* argv[])
 				for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
 				initZScriptGlobalScript(GLOBAL_SCRIPT_END);
-				initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
+				FFCore.initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
 			
@@ -4841,7 +4835,7 @@ int main(int argc, char* argv[])
 				for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
 				initZScriptGlobalScript(GLOBAL_SCRIPT_END);
-				initZScriptLinkScripts(); //get ready for the onWin script
+				FFCore.initZScriptLinkScripts(); //get ready for the onWin script
 				FFCore.initZScriptDMapScripts();
 				FFCore.initZScriptItemScripts();
 				//Run global script OnExit
@@ -4979,7 +4973,7 @@ void quit_game()
     destroy_bitmap(msgdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
     destroy_bitmap(pricesdisplaybuf);
-	destroy_bitmap(f6_buf);
+	destroy_bitmap(script_menu_buf);
     
     al_trace("Subscreens... \n");
     
