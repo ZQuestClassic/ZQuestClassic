@@ -191,6 +191,7 @@ and		TOKEN( AND );
 "||"		TOKEN( OR );
 or		TOKEN( OR );
 "="		TOKEN( ASSIGN );
+":="		TOKEN( ASSIGN );
 "+="		TOKEN( PLUSASSIGN );
 "-="		TOKEN( MINUSASSIGN );
 "*="		TOKEN( TIMESASSIGN );
