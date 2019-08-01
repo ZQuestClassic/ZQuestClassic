@@ -1846,7 +1846,17 @@ void deallocateArray(const long ptrval)
 
 void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways)
 {
-	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS)) return; //Keep 2.50.2 behavior if QR unchecked.
+	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS))
+	{
+		//Keep 2.50.2 behavior if QR unchecked.
+		switch(scriptType)
+		{
+			case SCRIPT_FFC:
+			case SCRIPT_ITEM:
+			case SCRIPT_GLOBAL:
+				return;
+		}
+	}
 	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
 	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
 	{
@@ -1860,7 +1870,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool r
 
 void FFScript::deallocateAllArrays()
 {
-	if(!get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS)) return; //Keep 2.50.2 behavior if QR unchecked.
+	//No QR check here- always deallocate on quest exit.
 	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
 	{
 		if(localRAM[i].Size() > 0)
