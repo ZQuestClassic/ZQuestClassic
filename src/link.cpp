@@ -55,7 +55,7 @@ extern int draw_screen_clip_rect_x2;
 extern int draw_screen_clip_rect_y1;
 extern int draw_screen_clip_rect_y2;
 //extern bool draw_screen_clip_rect_show_link;
-extern bool global_wait;
+extern word global_wait;
 extern bool link_waitdraw;
 extern bool dmap_waitdraw;
 extern refInfo dmapScriptData;
@@ -14036,10 +14036,10 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 	}
 	if(waitdraw)
 	{
-		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && global_wait)
+		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (global_wait & (1<<GLOBAL_SCRIPT_GAME)))
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-			global_wait=false;
+			global_wait&= ~(1<<GLOBAL_SCRIPT_GAME);
 		}
 		if ( (!( FFCore.system_suspend[susptLINKACTIVE] )) && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
@@ -14266,10 +14266,10 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     lstep = (lstep + 6) % 12;
     cx = scx;
     
-	if((!( FFCore.system_suspend[susptGLOBALGAME] )) && global_wait)
+	if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (global_wait & (1<<GLOBAL_SCRIPT_GAME)))
 	{
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-		global_wait=false;
+		global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
 	}
 	if ( (!( FFCore.system_suspend[susptLINKACTIVE] )) && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{

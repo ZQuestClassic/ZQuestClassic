@@ -888,7 +888,7 @@ refInfo dmapScriptData;
 word g_doscript = 0xFFFF;
 word link_doscript = 1;
 word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
-bool global_wait = false;
+word global_wait = 0;
 bool link_waitdraw = false;
 bool dmap_waitdraw = false;
 word item_doscript[256] = {0};
@@ -957,6 +957,7 @@ void FFScript::initZScriptDMapScripts()
 void FFScript::initZScriptLinkScripts()
 {
     link_doscript = 1;
+	link_waitdraw = false;
     linkScriptData.Clear();
     clear_link_stack();
 }
@@ -20494,7 +20495,7 @@ int run_script(const byte type, const word script, const long i)
         switch(type)
         {
         case SCRIPT_GLOBAL:
-            global_wait = true;
+            global_wait |= (1<<i);
             break;
             
 	case SCRIPT_LINK:
@@ -23156,6 +23157,11 @@ void FFScript::runF6Engine()
 				script_drawing_commands.Clear();
 				load_control_state(); 
 				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+				if(global_wait & (1<<GLOBAL_SCRIPT_F6))
+				{
+					ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+					global_wait &= ~(1<<GLOBAL_SCRIPT_F6);
+				}
 				//Draw
 				clear_bitmap(framebuf);
 				doScriptMenuDraws();
@@ -23188,6 +23194,37 @@ void FFScript::runOnDeathEngine()
 		script_drawing_commands.Clear();
 		load_control_state();
 		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
+		if(link_waitdraw)
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+			link_waitdraw = false;
+		}
+		//Draw
+		clear_bitmap(framebuf);
+		doScriptMenuDraws();
+		//
+		advanceframe(true,true,false);
+	}
+	script_drawing_commands.Clear();
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+}
+void FFScript::runOnLaunchEngine()
+{
+	if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH][0].command == 0xFFFF) return; //No script to run
+	//Do NOT blit the prior screen to this bitmap; that would be the TITLE SCREEN.
+	clear_to_color(script_menu_buf,BLACK);
+	initZScriptGlobalScript(GLOBAL_SCRIPT_ONLAUNCH);
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	while(g_doscript & (1<<GLOBAL_SCRIPT_ONLAUNCH) && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+		if(global_wait & (1<<GLOBAL_SCRIPT_ONLAUNCH))
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+			global_wait &= ~(1<<GLOBAL_SCRIPT_ONLAUNCH);
+		}
 		//Draw
 		clear_bitmap(framebuf);
 		doScriptMenuDraws();

@@ -261,6 +261,7 @@ void itemSpriteScriptEngineOnWaitdraw();
 bool newScriptEngine();
 void runF6Engine();
 void runOnDeathEngine();
+void runOnLaunchEngine();
 void doScriptMenuDraws();
 void initIncludePaths();
 void initRunString();

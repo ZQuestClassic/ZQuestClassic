@@ -7283,7 +7283,6 @@ int onTryQuit(bool inMenu)
 		{
 			disableClickToFreeze=false;
 			GameFlags |= GAMEFLAG_TRYQUIT;
-			Z_eventlog("Set GAMEFLAG_TRYQUIT!\n");
 		}
 		return D_CLOSE;
 	}

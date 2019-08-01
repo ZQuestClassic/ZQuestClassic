@@ -410,7 +410,7 @@ extern refInfo dmapScriptData;
 extern word g_doscript;
 extern word link_doscript;
 extern word dmap_doscript;
-extern bool global_wait;
+extern word global_wait;
 extern bool link_waitdraw;
 extern bool dmap_waitdraw;
 
@@ -482,6 +482,7 @@ void initZScriptArrayRAM(bool firstplay)
 void initZScriptGlobalRAM()
 {
 	g_doscript = 0xFFFF; //Set all scripts active
+	global_wait = 0; //Clear waitdraws
 	for(int q = 0; q < NUMSCRIPTGLOBAL; ++q)
 	{
 		globalScriptData[q].Clear();
@@ -492,6 +493,7 @@ void initZScriptGlobalRAM()
 void initZScriptGlobalScript(int ID)
 {
 	g_doscript |= (1<<ID);
+	global_wait &= ~(1<<ID);
 	globalScriptData[ID].Clear();
 	clear_global_stack(ID);
 }
@@ -1920,7 +1922,7 @@ int init_game()
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
     }
 */
-    global_wait=false;
+    global_wait=0;
     
     //loadscr(0,currscr,up);
     loadscr(0,currdmap,currscr,-1,false);
@@ -2041,7 +2043,7 @@ int init_game()
 		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
 	//Run after Init/onSaveLoad, regardless of firstplay -V
-	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+	FFCore.runOnLaunchEngine();
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
 	
     
@@ -3099,10 +3101,10 @@ void game_loop()
     #if LOGGAMELOOP > 0
 	al_trace("game_loop at: %s\n", "if(global_wait)\n");
 	#endif
-    if( !FFCore.system_suspend[susptGLOBALGAME] && global_wait )
+    if( !FFCore.system_suspend[susptGLOBALGAME] && (global_wait & (1<<GLOBAL_SCRIPT_GAME)) )
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-        global_wait=false;
+        global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
     }
     if ( !FFCore.system_suspend[susptLINKACTIVE] && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
