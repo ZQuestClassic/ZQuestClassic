@@ -146,6 +146,7 @@ file	TOKEN( FILE );
 "."		TOKEN( DOT );
 ";"		TOKEN( SEMICOLON );
 "::"	TOKEN( SCOPERES );
+".."	TOKEN( SCOPERES );
 ":"		TOKEN( COLON );
 "("		TOKEN( LPAREN );
 ")"		TOKEN( RPAREN );
