@@ -100,7 +100,7 @@ const int INIT_D_SIZE			= 8;
 const int INIT_A_SIZE			= 2;
 const int MISC_SIZE			= 32;
 const int NPC_ATTRIBUTES_SIZE		= 32;
-const int ITEM_ATTRIBUTES_SIZE`		= 10;
+const int ITEM_ATTRIBUTES_SIZE		= 10;
 const int GAMEMISC_SIZE 		= 32;
 
 /////////////////////
