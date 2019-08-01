@@ -10787,11 +10787,14 @@ void EditScreenScript()
 	screenscript_dlg[0].dp2=lfont;
 	char initd[8][16];
 	int script = 0;
+
+	mapscr *theMap = &TheMaps[Map.getCurrMap()*MAPSCRS+Map.getCurrScr()];
+	
 	build_biscreens_list();
 	memset(initd, 0, sizeof(initd));
 	for ( int q = 0; q < biscreens_cnt; q++)
 	{
-		if(biscreens[q].second == Map.CurrScr()->script -1)
+		if(biscreens[q].second == theMap->script -1)
 		{
 			script = q; //sprite script goes after this
 			//al_trace("Item has sprite script: %d\n", q);
@@ -10804,7 +10807,7 @@ void EditScreenScript()
 	for ( int q = 0; q < 8; q++ )
 	{
 	    
-		sprintf(initd[q],"%.4f",Map.CurrScr()->screeninitd[q]/10000.0);
+		sprintf(initd[q],"%.4f",theMap->screeninitd[q]/10000.0);
 	 
 		screenscript_dlg[13+q].dp = initd[q];
 	}
@@ -10816,15 +10819,15 @@ void EditScreenScript()
 	{
 		ret = zc_popup_dialog(screenscript_dlg,23);
 		build_biscreens_list();
-		Map.CurrScr()->script = biscreens[screenscript_dlg[22].d1].second + 1;
+		theMap->script = biscreens[screenscript_dlg[22].d1].second + 1;
 		
 		if(screenscript_dlg[25].flags & D_SELECTED)
-			Map.CurrScr()->preloadscript = 1;
+			theMap->preloadscript = 1;
 		else 
-			Map.CurrScr()->preloadscript = 0;
+			theMap->preloadscript = 0;
 		
 		for(int j=0; j<8; j++)
-			Map.CurrScr()->screeninitd[j] = vbound(ffparse(initd[j]),-2147483647, 2147483647);
+			theMap->screeninitd[j] = vbound(ffparse(initd[j]),-2147483647, 2147483647);
 		
 	}
 	while(ret==22);//press OK
