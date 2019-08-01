@@ -1346,7 +1346,7 @@ of iterations is known at compile-time.
 	typedef old_type new_type;
 
 	[example--
-		typedef object ffc; //Allows you to declare object vars that are typed to ffc. 
+		typedef ffc object; //Allows you to declare object vars that are typed to ffc. 
 
 		typedef const int DEFINE;
 		//Allows you to use the token DEFINE to declare constant ints. 
