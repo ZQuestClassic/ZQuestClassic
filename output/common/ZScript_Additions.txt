@@ -398,7 +398,7 @@ Waitdraw Support:	Yes, based on slot.
 
 * 	SLOT NAME: 'onLaunch'
 *
-* 	This script slot runs FOR ONE FRAME, on every load of a quest from the file select 
+* 	This script slot runs for MULTIPLE FRAMES, on every load of a quest from the file select 
 * 	screen, whether the quest has been previously played, or not. 
 * 
 * 	This script does not run when continuing a game with F6>>>Contunue from the game over
@@ -411,9 +411,12 @@ Waitdraw Support:	Yes, based on slot.
 * 	or directly after global slot (4) if the game has previously been saved.
 * 
 * 	The purpose of this script slot is to reinitialise any user-created conditions, such as re-init
-* 	of user bitmaps, re-priming global pointers, or otherwie ensuring that your global or internal
+* 	of user bitmaps, re-priming global pointers, or otherwise ensuring that your global or internal
 * 	values are correct before the game resumes from a file where values to these variables / pointers
 * 	may now be stale, but were saved to the .sav file.
+*
+*	This script will run until either you exit the game via a command such as 'Game->End()', or you exit the script.
+*	Exiting the script without invoking a command such as 'Game->End()' will proceed to the opening wipe.
 
 /////////////////////////////////////////
 // Slot (6) :  Continue Game from Menu //
