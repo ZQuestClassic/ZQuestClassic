@@ -148,12 +148,67 @@ RootScope* ZScript::getRoot(Scope const& scope)
 // Lookup
 
 DataType const* ZScript::lookupDataType(
-	Scope const& scope, string const& name)
+	Scope const& scope, string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool isTypedefCheck, bool forceSkipUsing)
 {
-	for (Scope const* current = &scope;
-	     current; current = current->getParent())
-		if (DataType const* type = current->getLocalDataType(name))
-			return type;
+	DataType const* type = NULL;
+	Scope const* current = &scope;
+	for (; current; current = current->getParent())
+	{
+		DataType const* temp = current->getLocalDataType(name);
+		if(!type)
+		{
+			//Only continue if this var was found at the file scope or higher.
+			if(current->isFile() || current->isRoot())
+				type = temp;
+			else if(temp)
+				return temp;
+		}
+		else if(temp)
+		{
+			//Don't give a duplication warning on RootScope! -V
+			if(current->isRoot())
+				break;
+			if(type->compare(*temp))
+			{
+				if(!isTypedefCheck)errorHandler->handleError(CompileError::TooManyType(&host, name));
+				return NULL;
+			}
+		}
+		if(isTypedefCheck && !current->isFile()) return type; //Only check current scope, and root for file, for typedefs
+	}
+	if(host.noUsing || forceSkipUsing || isTypedefCheck) return type; //End early
+	vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
+	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+		it != namespaces.end(); ++it)
+	{
+		NamespaceScope* nsscope = *it;
+		DataType const* temp = nsscope->getLocalDataType(name);
+		if(!type)
+			type = temp;
+		else if(temp)
+		{
+			if(type->compare(*temp))
+			{
+				errorHandler->handleError(CompileError::TooManyType(&host, name));
+				return NULL;
+			}
+		}
+	}
+	return type;
+}
+
+DataType const* ZScript::lookupDataType(
+	Scope const& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool isTypedefCheck)
+{
+	vector<string> names = host.components;
+	if (names.size() == 0)
+		return NULL;
+	else if (names.size() == 1)
+		return lookupDataType(scope, names[0], host, errorHandler, isTypedefCheck);
+	vector<string> childNames(names.begin(), --names.end());
+	if (Scope* child = lookupScope(scope, childNames, host.delimiters, host.noUsing, host, errorHandler))
+		return lookupDataType(*child, names.back(), host, errorHandler, isTypedefCheck, true); //lookupScope() handles UsingNamespaces; don't allow using to occur again! -V
+
 	return NULL;
 }
 

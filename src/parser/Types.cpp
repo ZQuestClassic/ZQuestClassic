@@ -5,6 +5,7 @@
 #include "DataStructs.h"
 #include "Scope.h"
 #include "Types.h"
+#include "AST.h"
 
 using namespace std;
 using namespace ZScript;
@@ -383,17 +384,40 @@ int ZScript::getArrayDepth(DataType const& type)
 ////////////////////////////////////////////////////////////////
 // DataTypeUnresolved
 
-DataType* DataTypeUnresolved::resolve(Scope& scope)
+DataTypeUnresolved::DataTypeUnresolved(ASTExprIdentifier* iden)
+	: DataType(NULL), iden(iden)
 {
-	if (DataType const* type = lookupDataType(scope, name))
+	name = iden->components.back();
+}
+
+DataTypeUnresolved::~DataTypeUnresolved()
+{
+	delete iden;
+}
+
+DataTypeUnresolved* DataTypeUnresolved::clone() const
+{
+	DataTypeUnresolved* copy = new DataTypeUnresolved(*this);
+	copy->iden = iden->clone();
+	return copy;
+}
+
+DataType* DataTypeUnresolved::resolve(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	if (DataType const* type = lookupDataType(scope, *iden, errorHandler))
 		return type->clone();
 	return NULL;
+}
+ 
+std::string DataTypeUnresolved::getName() const
+{
+	return name;
 }
 
 int DataTypeUnresolved::selfCompare(DataType const& rhs) const
 {
 	DataTypeUnresolved const& o = static_cast<DataTypeUnresolved const&>(rhs);
-	return name.compare(o.name);
+	return name.compare(name);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -460,7 +484,7 @@ DataTypeClass::DataTypeClass(int classId, string const& className, DataType* con
 	: DataType(constType), classId(classId), className(className)
 {}
 
-DataTypeClass* DataTypeClass::resolve(Scope& scope)
+DataTypeClass* DataTypeClass::resolve(Scope& scope, CompileErrorHandler* errorHandler)
 {
 	// Grab the proper name for the class the first time it's resolved.
 	if (className == "")

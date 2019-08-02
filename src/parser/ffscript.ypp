@@ -75,7 +75,7 @@ extern YYLTYPE noloc;
 
 %glr-parser
 %expect 1
-%expect-rr 26
+//%expect-rr 26
 %error-verbose
 %start Init
 %parse-param {ZScript::ASTFile*& root}
@@ -469,10 +469,10 @@ DataType : ZCONST DataType {
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
 	//Typedef types
-	| IDENTIFIER {
-			ASTString *name = (ASTString*)$1;
-			$$ = new ASTDataType(DataTypeUnresolved(name->getValue()), @$);
-			delete name;}
+	| Identifier_List {
+			ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
+			$$ = new ASTDataType(DataTypeUnresolved(iden), @$);
+			}
 	;
 
 ScriptTypeDef : SCRIPT TYPEDEF Script_Type IDENTIFIER {
@@ -1057,31 +1057,6 @@ Ambigious_Iden_List:
 
 Identifier :
 	IDENTIFIER {$$ = $1;}
-	| BITMAP {$$ = new ASTString("bitmap", @$);}
-	| CHEAT {$$ = new ASTString("cheat", @$);}
-	| COMBO {$$ = new ASTString("combo", @$);}
-	| DOORSET {$$ = new ASTString("doorset", @$);}
-	| DROPSET {$$ = new ASTString("dropset", @$);}
-	| DMAP {$$ = new ASTString("dmap", @$);}
-	| EWEAPON {$$ = new ASTString("eweapon", @$);}
-	| FFC {$$ = new ASTString("ffc", @$);}
-	| GAMEDATA {$$ = new ASTString("gamedata", @$);}
-	| ITEM {$$ = new ASTString("item", @$);}
-	| ITEMCLASS {$$ = new ASTString("itemdata", @$);}
-	| LWEAPON {$$ = new ASTString("lweapon", @$);}
-	| MAP {$$ = new ASTString("map", @$);}
-	| MESSAGE {$$ = new ASTString("message", @$);}
-	| MISCCOLOR {$$ = new ASTString("misccolor", @$);}
-	| NPC {$$ = new ASTString("npc", @$);}
-	| NPCDATA {$$ = new ASTString("npcdata", @$);}
-	| PALCYCLE {$$ = new ASTString("palcycle", @$);}
-	| PALETTE {$$ = new ASTString("palette", @$);}
-	| POND {$$ = new ASTString("pond", @$);}
-	| RGB {$$ = new ASTString("rgb", @$);}
-	| SHOP {$$ = new ASTString("shop", @$);}
-	| SPRITE {$$ = new ASTString("sprite", @$);}
-	| TUNE {$$ = new ASTString("tune", @$);}
-	| WARPRING {$$ = new ASTString("warpring", @$);}
 	;
 
 Expr_3_Call :
@@ -1330,7 +1305,7 @@ Literal_Bool :
 
 Literal_Array :
 	// (int[5]){1, 2, 3}
-	LPAREN DataType LBRACKET Expression_Constant RBRACKET RPAREN
+	LT DataType LBRACKET Expression_Constant RBRACKET GT
 		  LBRACE Literal_Array_Body RBRACE
 	{
 		ASTDataType* type = (ASTDataType*)$2;
@@ -1342,7 +1317,7 @@ Literal_Array :
 		$$ = al;
 	}
 	// (int[]){1, 2, 3}
-	| LPAREN DataType LBRACKET RBRACKET RPAREN
+	| LT DataType LBRACKET RBRACKET GT
 		  LBRACE Literal_Array_Body RBRACE
 	{
 		ASTDataType* type = (ASTDataType*)$2;
@@ -1352,8 +1327,8 @@ Literal_Array :
 		$$ = al;
 	}
 	// (int[5]){}
-	| LPAREN DataType LBRACKET Expression_Constant RBRACKET
-		  RPAREN LBRACE RBRACE
+	| LT DataType LBRACKET Expression_Constant RBRACKET
+		  GT LBRACE RBRACE
 	{
 		ASTDataType* type = (ASTDataType*)$2;
 		ASTExpr* size = (ASTExpr*)$4;
@@ -1362,13 +1337,6 @@ Literal_Array :
 		al->size = size;
 		$$ = al;
 	}
-	/*0-sized arrays should not be allowed!!
-	// (int[]){}
-	| LPAREN DataType LBRACKET RBRACKET RPAREN LBRACE RBRACE {
-		ASTDataType* type = (ASTDataType*)$2;
-		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
-		al->type = type;
-		$$ = al;}*/
 	// {1, 2, 3}
 	| LBRACE Literal_Array_Body RBRACE {
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$2;

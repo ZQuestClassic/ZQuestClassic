@@ -78,8 +78,10 @@ void RecursiveVisitor::handleError(CompileError const& error)
 
 	// Actually handle the error.
 	if (error.isStrict())
+	{
 		if(skipError) failure_skipped = true;
 		else failure = true;
+	}
 	box_out_err(error);
 }
 
