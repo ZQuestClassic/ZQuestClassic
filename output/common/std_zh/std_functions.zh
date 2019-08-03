@@ -3172,3 +3172,17 @@ float WrapDegrees( float degrees )
 //Y
 
 //Z
+
+//New functions are all going into a namespace.
+//Later, we will likely migrate all std functions to here:
+
+namespace std
+{
+	////clkptr is an array, sized at least [1], frames is the duration on/off, so, 10 would be on for ten frames, then off for ten frames
+	bool Blink(int clkptr, int frames)
+	{
+	    const int clkIindx = 0;
+	    clkptr[clkIindx] = (clkptr[clkIindx]+1)%(frames<<1);
+	    return( clkptr[clkIindx]&frames );
+	}
+}
