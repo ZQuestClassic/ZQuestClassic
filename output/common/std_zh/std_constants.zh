@@ -1,5 +1,5 @@
 // std_constants.zh
-// 25th July, 2019 for ZC 2.55 Alpha 29
+// 1st August, 2019 for ZC 2.55 Alpha 29
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -94,6 +94,14 @@ const int MAX_FFC_W 			= 4; //Four tiles wide
 const int MAX_FFC_H 			= 4; //Four tiles high
 const int MAX_FFC_EFFECT_W		= 64; //Sixty-four pixels wide.
 const int MAX_FFC_EFFECT_H		= 64; //Sixty four pixels high. 
+
+//Default array sizes
+const int INIT_D_SIZE			= 8;
+const int INIT_A_SIZE			= 2;
+const int MISC_SIZE			= 32;
+const int NPC_ATTRIBUTES_SIZE		= 32;
+const int ITEM_ATTRIBUTES_SIZE		= 10;
+const int GAMEMISC_SIZE 		= 32;
 
 /////////////////////
 /// Screen Dimensions
