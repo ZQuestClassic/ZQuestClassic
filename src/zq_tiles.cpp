@@ -275,6 +275,7 @@ void merge_tiles(int dest_tile, int src_quarter1, int src_quarter2, int src_quar
 
 static void make_combos(int startTile, int endTile, int cs)
 {
+	 al_trace("inside make_combos()\n");
     int startCombo=0;
     
     if(!select_combo_2(startCombo,cs))
@@ -303,6 +304,7 @@ static void make_combos(int startTile, int endTile, int cs)
 
 static void make_combos_rect(int top, int left, int numRows, int numCols, int cs)
 {
+	//al_trace("inside make_combos_rect()\n");
     int startCombo=0;
     
     if(!select_combo_2(startCombo, cs))
@@ -314,6 +316,7 @@ static void make_combos_rect(int top, int left, int numRows, int numCols, int cs
     
     if(!edit_combo(startCombo, false, cs))
     {
+	    al_trace("make_combos_rect() early return\n");
         combobuf[startCombo].tile=temp;
         return;
     }
@@ -8985,8 +8988,10 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
             break;
             
             case KEY_M:
+		    //al_trace("mass combo key pressed, type == %d\n",type);
                 if(type==0)
                 {
+			 //al_trace("mass combo key pressed, copy == %d\n",copy);
                     if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
                     {
                         go_tiles();
@@ -8997,9 +9002,13 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                         // I don't know what this was supposed to be doing before.
                         // It didn't work in anything like a sensible way.
                         if(rect_sel)
+			{
                             make_combos_rect(top, left, rows, columns, cs);
+			}
                         else
+			{
                             make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+			}
                     }
                     
                     redraw=true;
@@ -11822,7 +11831,7 @@ bool edit_combo(int c,bool freshen,int cs)
     
     setup_combo_animations();
     setup_combo_animations2();
-    return (ret==1);
+    return (ret==2);
 }
 
 int d_itile_proc(int msg,DIALOG *d,int)
