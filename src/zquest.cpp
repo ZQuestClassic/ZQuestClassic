@@ -7113,6 +7113,77 @@ static MENU paste_screen_menu[] =
     { NULL,                              NULL,            NULL,    0, NULL }
 };
 
+ void onRCSelectCombo(int c)
+ {
+	    int drawmap, drawscr;
+	    
+	    if(CurrentLayer==0)
+	    {
+		drawmap=Map.getCurrMap();
+		drawscr=Map.getCurrScr();
+	    }
+	    else
+	    {
+		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+		
+		if(drawmap<0)
+		{
+		    return;
+		}
+	    }
+	    
+	   Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+}
+
+ void onRCScrollToombo(int c)
+ {
+	    int drawmap, drawscr;
+	    
+	    if(CurrentLayer==0)
+	    {
+		drawmap=Map.getCurrMap();
+		drawscr=Map.getCurrScr();
+	    }
+	    else
+	    {
+		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+		
+		if(drawmap<0)
+		{
+		    return;
+		}
+	    }
+	    
+	    
+		First[current_combolist]=vbound((Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),0,MAXCOMBOS-(combolist[0].w*combolist[0].h));
+	    
+}
+
+static MENU rc_menu_combo[] =
+{
+       { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
+    { (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
+    { (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
+    { (char *)"Replace All",             NULL,  NULL,              0, NULL },
+    { (char *)"Draw Block",		       NULL,  draw_block_menu,	0, NULL },
+    { (char *)"Set Brush Width\t ",      NULL,  brush_width_menu,  0, NULL },
+    { (char *)"Set Brush Height\t ",     NULL,  brush_height_menu, 0, NULL },
+    { (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
+    { NULL,                              NULL,            NULL,    0, NULL }
+};
+
+static MENU rc_menu_screen[] =
+{
+{ (char *)"Copy Screen",                        onCopy,  NULL,              0, NULL },
+    { (char *)"Paste Screen",                        onPaste,  NULL,              0, NULL },
+    { (char *)"Paste...",                        NULL,  paste_screen_menu,              0, NULL },
+    { (char *)"Adv. Paste",                        NULL,  paste_menu,              0, NULL },
+    { (char *)"Paste Special",                        NULL,  paste_item_menu,              0, NULL },
+};
+
+
 static MENU draw_rc_menu[] =
 {
     { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
@@ -7131,11 +7202,7 @@ static MENU draw_rc_menu[] =
     { (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
     { (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
     { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Copy Screen",                        onCopy,  NULL,              0, NULL },
-    { (char *)"Paste Screen",                        onPaste,  NULL,              0, NULL },
-    { (char *)"Paste...",                        NULL,  paste_screen_menu,              0, NULL },
-    { (char *)"Adv. Paste",                        NULL,  paste_menu,              0, NULL },
-    { (char *)"Paste Special",                        NULL,  paste_item_menu,              0, NULL },
+    { (char *)"Screen",                        NULL,  rc_menu_screen,              0, NULL },
     { (char *)"",                        NULL,  NULL,              0, NULL },
     { (char *)"ZScript",                        NULL,  zscript_menu,              0, NULL },
     
