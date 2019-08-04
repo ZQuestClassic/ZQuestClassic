@@ -1435,6 +1435,7 @@ script_variable variable_list[]=
 	{"PASSSUBOFS", PASSSUBOFS, 0, 0 },
 	
 	{"COMBODATAID", COMBODATAID, 0, 0 },
+	{"REFFILE", REFFILE, 0, 0 },
 	//{"MAPDATAID", MAPDATAID, 0, 0 },
 	//{"MAPDATAID", MAPDATAID, 0, 0 },
 	

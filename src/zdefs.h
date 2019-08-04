@@ -1817,6 +1817,7 @@ public:
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
+	dword fileref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -1830,6 +1831,7 @@ public:
 		dropsetref = 0, pondref = 0, warpringref = 0, doorsref = 0, zcoloursref = 0, rgbref = 0, 
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
+		fileref = 0;
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
     }
