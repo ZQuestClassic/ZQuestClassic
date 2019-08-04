@@ -11459,7 +11459,10 @@ bool edit_combo(int c,bool freshen,int cs)
     
     sprintf(combonumstr,"Combo %d", c);
     sprintf(cset_str,"%d",csets);
+    //int temptile = curr_combo.tile;
+    //int temptile2 = NEWMAXTILES - temptile;
     sprintf(frm,"%d",vbound(curr_combo.frames,0,NEWMAXTILES-curr_combo.tile));
+    //al_trace("frm is: %s\n",frm);
     sprintf(spd,"%d",curr_combo.speed);
     sprintf(skip,"%d",curr_combo.skipanim);
     sprintf(skipy,"%d",curr_combo.skipanimy);
@@ -11797,8 +11800,8 @@ bool edit_combo(int c,bool freshen,int cs)
         int bound = (NEWMAXTILES-curr_combo.tile+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy)/
                     (1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
                     
-        //curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
-        curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
+        curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
+        //curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
         
         curr_combo.speed = vbound(atoi(spd),0,255);  //bind to size of byte! -Z
         curr_combo.type = bict[combo_dlg[25].d1].i;

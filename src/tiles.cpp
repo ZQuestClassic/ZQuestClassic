@@ -29,12 +29,12 @@ extern byte        quest_rules[QUESTRULES_SIZE];
 //BITMAP* tilebuf[NEWMAXTILES];
 tiledata *newtilebuf, *grabtilebuf;
 newcombo *combobuf;
-word animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
-word animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
-word animated_combos;
-word animated_combo_table2[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
-word animated_combo_table24[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
-word animated_combos2;
+int animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
+int animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
+int animated_combos;
+int animated_combo_table2[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
+int animated_combo_table24[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
+int animated_combos2;
 bool blank_tile_table[NEWMAXTILES];                         //keeps track of blank tiles
 bool used_tile_table[NEWMAXTILES];                          //keeps track of used tiles
 bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of blank tile quarters
