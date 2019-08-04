@@ -28,6 +28,9 @@
 extern sprite_list particles;
 
 extern FFScript FFCore;
+extern word item_doscript[256];
+extern refInfo itemScriptData[256];
+extern long item_stack[256][MAX_SCRIPT_REGISTERS];
 extern ZModule zcm;
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -15970,19 +15973,31 @@ bool parsemsgcode()
     }
     
     case MSGC_GIVEITEM:
-        getitem(grab_next_argument(), true);
+    {
+	int itemID = grab_next_argument();
+        getitem(itemID, true);
+	if ( !item_doscript[itemID] && (((unsigned)itemID) < 256) )
+	{
+		itemScriptData[itemID].Clear();
+		memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
+	}
         return true;
+    }
         
     
     case MSGC_WARP:
     {
-	int    dmap =  grab_next_argument();
-	int    scrn =  grab_next_argument();
-	int    dx =  grab_next_argument();
-	int    dy =  grab_next_argument();
-	int    wfx =  grab_next_argument();
-	int    sfx =  grab_next_argument();
-	FFCore.warp_link(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, 0, 0);
+	FFCore.warpex[0] =  grab_next_argument();
+	FFCore.warpex[1] =  grab_next_argument();
+	FFCore.warpex[2] =  grab_next_argument();
+	FFCore.warpex[3] =  grab_next_argument();
+	FFCore.warpex[4] =  grab_next_argument();
+	FFCore.warpex[5] =  grab_next_argument();
+	FFCore.warpex[6] =  0;
+	FFCore.warpex[7] =  0;
+	FFCore.warpex[wexDir] = -1;
+	FFCore.warpex[wexActive] = 1; 
 	return true;
     }
     
@@ -15996,8 +16011,15 @@ bool parsemsgcode()
 	return true;
     }
     case MSGC_TAKEITEM:
-        takeitem(grab_next_argument());
+    {
+	int itemID = grab_next_argument();
+	if ( item_doscript[itemID] )
+	{
+		item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+	}
+        takeitem(itemID);
         return true;
+    }
         
     case MSGC_SFX:
         sfx((int)grab_next_argument(),128);
