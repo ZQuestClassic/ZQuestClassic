@@ -152,33 +152,63 @@ char32		-214748, 214748
 		untyped b = a; //b == 1
 		int c = b; //c == 1
 
+	bitmap:
+		Used to create user bitmaps, similar to the old 2.50 Render Target bitmaps,
+		but with custom sizing.
+		
+		Bitmap objects have their own drawing functions, and you may save/load them to/from
+		files by script.
+		
+		There are a maximum of 250 user bitmaps at any one time.
+	
 	npcdata: 
+		Access to all Eemy Editor data.
 
 	combodata:
+		Access to all Combo Editor data.
 
 	spritedata:
+		Access to Weapon Sprite Editor data.
 
 	mapdata: 
+		Access to all data contained on MAPS (mapscreens).
 
 	dmapdata : 
+		Access to all DMap Editor data.
 
 	messagedata :
+		Access to all String Editor data.
 
 	shopdata :
+		Access to all Item Shop Editor and Info Shop Editor data.
 
-
+	//Planned/Incomplete
 	dropdata : t/b/a
-	bitmap : t/b/a
+		(Planned) Access to all Dropset Editor data.
 	warpring : t/b/a
+		(Planned) Access to all Warpring Editor data.
 	doorset : t/b/a
+		(Planned) Access to all Doorset Editor data
 	misccolors : t/b/a
+		(Planned) Access to all Misc Colours dialogue data.
 	rgbdata : t/b/a
+		(Planned) DATATYPE for colour triplets as red,green,blue in one integer value.
+		Because ZScript will interpret the value as 'float' inside the script, this datatype
+		allows operating on a value as a true integer.
 	palette : t/b/a
+		(Planned) OBJECT TYPE, for loading and using USER PALETTES.
+		This is similar to how user bitmaps work, and may also include a save/load format similar
+		to ZPL, so that palettes created by script can be saved, then imported into other quests.
 	zcmidi : t/b/a
+		(Planned) OBJECT TYPE for working with MIDIs, both in-quest, and as external files.
 	palcycle : t/b/a
+		(Planned) Access to all Palette Cycle data.
 	gamedata : t/b/a
+		(Planned) Access to all global game data (game->, in source)
 	cheats : t/b/a
-
+		(Planned) Access to cheat code information.
+	file : t/b/a
+		(Planned_ OBJECT TYPE for working with raw files (e.g. ASCII/ANSI text files.
 
 //////////////
 // Bugfixes //
@@ -1501,13 +1531,19 @@ of iterations is known at compile-time.
 		for compatibility purposes. 
 	
 	Graphics->
+		Used for graphical functions.
 
 	Audio->
+		Used for sound and music functions.
 
 	Input->
+		Used to read and write buttons, and keyboard keys; as well as control states.
 
 	Text->
+		Used to get information on fonts, or to display text.
 
+	FileSystem->
+		Used to get information on the user filesystem, such as fileexists(), pathexists().
 
 
 ////////////////////////////////////////////////////
@@ -1631,6 +1667,16 @@ untyped Untype(any)
 bool IsValidArray(untyped[]);
  * Returns true if the passed array pointer is valid (usable), false if it is invalid (should not be used).
  
+
+/************************************************************************************************************/
+
+//////////////////
+//  FileSystem  //
+//////////////////
+
+bool DirExists(char32[] "filepath");
+ * Returns true if the string passed to 'filepath' exists in the filesystem,
+ * relative to the current ZC path.
 
 /************************************************************************************************************/
 
