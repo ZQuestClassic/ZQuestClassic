@@ -8339,7 +8339,7 @@ void domouse()
                     draw_rc_menu[11].flags = draw_rc_menu[10].flags = D_DISABLED;
                 }
                 
-                int m = popup_menu(draw_rc_menu,x,y);
+                int m = popup_menu(draw_rc_menu,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
                 
                 switch(m)
                 {
