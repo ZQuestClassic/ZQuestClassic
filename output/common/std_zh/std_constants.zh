@@ -1,5 +1,5 @@
 // std_constants.zh
-// 1st August, 2019 for ZC 2.55 Alpha 29
+// 4th August, 2019 for ZC 2.55 Alpha 29
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -2604,10 +2604,9 @@ enum
 };
 
 
-enum ffruletype 
+enum ffruletype
 {
-	
-	// 1st byte out of 20
+    // 1st byte out of 20
     qr_SOLIDBLK, qr_NOTMPNORET, qr_ALWAYSRET, qr_MEANTRAPS,
     qr_BSZELDA, qr_FADE, qr_FADECS5, qr_FASTDNGN,
     // 2
@@ -2671,11 +2670,11 @@ enum ffruletype
     qr_ITEMPICKUPSETSBELOW /* Compatibility */,
     
     qr_NOGANONINTRO, //bugfix//
-	qr_MELEEMAGICCOST/*DEPRECATED*/,
-	qr_OLDMIRRORCOMBOS,
-	qr_BROKENBOOKCOST,
-	qr_OLDSIDEVIEWSPIKES,
-	//21
+    qr_MELEEMAGICCOST/*DEPRECATED*/,
+    qr_OLDMIRRORCOMBOS,
+    qr_BROKENBOOKCOST,
+    qr_OLDSIDEVIEWSPIKES,
+    //21
 	qr_OLDINFMAGIC/* Compatibility */, //Infinite magic prevents items from draining rupees
 	qr_NEVERDISABLEAMMOONSUBSCREEN, qr_ITEMSCRIPTSKEEPRUNNING,
 	qr_SCRIPTSRUNINLINKSTEPFORWARD, /*qr_SCRIPTDRAWSINCANCELWARP,*/ qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,
@@ -2689,6 +2688,7 @@ enum ffruletype
 	qr_NO_L_R_BUTTON_INVENTORY_SWAP,
 	qr_USE_EX1_EX2_INVENTORYSWAP,
 	qr_NOFASTMODE,
+	qr_OLD_F6,
 	
 	
 	//ZScript Parser //room for 20 of these
@@ -2714,9 +2714,8 @@ enum ffruletype
 	qr_FIXDRUNKINPUTS,
 	qr_32BIT_BINARY,
 	qr_ALWAYS_DEALLOCATE_ARRAYS,
-	qr_MAX
-	
-	
+	qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,
+    qr_MAX
 };
 
 //Flags for SaveSRAM() and LoadSRAM()
