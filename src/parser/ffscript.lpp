@@ -177,6 +177,7 @@ bitnot		TOKEN( BITNOT );
 ">"		TOKEN( GT );
 ">="		TOKEN( GE );
 "=="		TOKEN( EQ );
+"equals"	TOKEN( EQ );
 "!="		TOKEN( NE );
 not_eq		TOKEN( NE );
 not_equal		TOKEN( NE );
