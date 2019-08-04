@@ -12228,7 +12228,7 @@ FileSystemSymbols::FileSystemSymbols()
 
 void FileSystemSymbols::generateCode()
 {
-	//void DirExists(FileSystem, char32*)
+	//bool DirExists(FileSystem, char32*)
     {
 	    Function* function = getFunction("DirExists", 2);
         int label = function->getLabel();
