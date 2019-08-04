@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 29
-Document Revision: 25th July, 2019
+Document Revision: 4th August, 2019
 
 
 ////////////////////////////////////////////////////
@@ -18,16 +18,56 @@ Document Revision: 25th July, 2019
 // Tokens //
 ////////////
 
-The ZScript parser now supports the following alternative standard tokens:
+The ZScript parser supports the following standard and alternative tokens:
+
+//Operational
++		:	Addition
+-		: 	Subtraction
+*		:	Multiplication
+/		:	Division
+++		: 	Increment (Pre, or Post)
+--		: 	Decrement (Pre, or Post)
+
+//Assignment
+=		: 	Assign
+:=		: 	Assign (alternative)
++=		: 	Add-Assign
+-=		: 	Subtract-Assign
+*=		: 	Multiply-Assign
+/=		:	Divide-Assign
+
+//Relational
+<		:	Less-Than
+>		:	Greater-Than
+<=		:	Less-Than-or-Equal
+>=		:	More-Than-or-Equal
+==		: 	Equal
+!=		:	Not-Equal
+equals		: 	Equivalent to 	==
+not_equal 	:	Equivalent to 	!=
 
 //Logical
+!		: 	Not
+||		:	Logical OR
+&&		:	Logical XOR
 and 		: 	Equivalent to 	&&
 or 		: 	Equivalent to 	||
 not 		: 	Equivalent to 	!
 not_eq 		:	Equivalent to 	!=
-not_equal 	:	Equivalent to 	!=
+
+//Resolution
+.		:	Script Name Scope Resolution
+::		:	Namespace Scope Resolution
+..		:	Namespace Scope Resolution (alt)
 
 //Bitwise
+&		: 	Bitwise AND
+~		: 	Bitwise NOT
+|		: 	Bitwise OR
+^		: 	Bitwise XOR
+|=		:	Bitwise OR-Assign
+&=		:	Bitwise AND-Assign
+^=		:	Bitwise XOR-Assign
 bitand 		: 	Equivalent to 	&
 bitor 		: 	Equivalent to 	|
 xor 		: 	Equivalent to 	^
