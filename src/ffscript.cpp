@@ -23109,7 +23109,7 @@ void FFScript::do_warp_ex(bool v)
 			Z_scripterrlog("FFscript.cpp running do_warp_ex with %d args\n", 9);
 			FFCore.warpex[wexActive] = 1; 
 			
-			for ( int q = 0; q < wexDir; q++ )
+			for ( int q = 0; q < wexActive; q++ )
 			{
 				FFCore.warpex[q] = (getElement(zscript_array_ptr,q)/10000);
 			}
