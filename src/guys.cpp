@@ -15988,16 +15988,13 @@ bool parsemsgcode()
     
     case MSGC_WARP:
     {
-	FFCore.warpex[0] =  grab_next_argument();
-	FFCore.warpex[1] =  grab_next_argument();
-	FFCore.warpex[2] =  grab_next_argument();
-	FFCore.warpex[3] =  grab_next_argument();
-	FFCore.warpex[4] =  grab_next_argument();
-	FFCore.warpex[5] =  grab_next_argument();
-	FFCore.warpex[6] =  0;
-	FFCore.warpex[7] =  0;
-	FFCore.warpex[wexDir] = -1;
-	FFCore.warpex[wexActive] = 1; 
+	int    dmap =  grab_next_argument();
+	int    scrn =  grab_next_argument();
+	int    dx =  grab_next_argument();
+	int    dy =  grab_next_argument();
+	int    wfx =  grab_next_argument();
+	int    sfx =  grab_next_argument();
+	FFCore.warp_link(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, 0, 0);
 	return true;
     }
     
