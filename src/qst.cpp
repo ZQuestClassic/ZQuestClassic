@@ -2325,7 +2325,6 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	al_trace("Quest author is\n");
 	if ( strncmp(tempheader.author, "Lunaria",7) == 0 )
 	{
 		al_trace("Fuck off, Lunaria!\n");
