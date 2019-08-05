@@ -704,7 +704,6 @@ static MENU quest_menu[] =
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Graphics\t ",               NULL,                      graphics_menu,            0,            NULL   },
     { (char *)"A&udio\t ",                  NULL,                      audio_menu,               0,            NULL   },
-    { (char *)"S&cripts\t ",                NULL,                      script_menu,              0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Template",                  onTemplates,               NULL,                     0,            NULL   },
     { (char *)"De&faults\t ",               NULL,                      defs_menu,                0,            NULL   },
@@ -814,6 +813,15 @@ static MENU view_menu[] =
 
 int onSelectFFCombo();
 
+static MENU room_menu[] =
+{
+  { (char *)"&Guy\tG",                    onGuy,                     NULL,                     0,            NULL   },
+    { (char *)"&Message String\tS",         onString,                  NULL,                     0,            NULL   },
+    { (char *)"&Room Type\tR",              onRType,                   NULL,                     0,            NULL   },
+    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     0,   	       NULL   }, //Allow setting a generic catch-a;;. or clearing it mamnually.
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU data_menu[] =
 {
     { (char *)"&Screen Data\tF9",           onScrData,                 NULL,                     0,            NULL   },
@@ -826,10 +834,8 @@ static MENU data_menu[] =
     { (char *)"&Doors\tF6",                 onDoors,                   NULL,                     0,            NULL   },
     { (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Guy\tG",                    onGuy,                     NULL,                     0,            NULL   },
-    { (char *)"&Message String\tS",         onString,                  NULL,                     0,            NULL   },
-    { (char *)"&Room Type\tR",              onRType,                   NULL,                     0,            NULL   },
-    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     0,   	       NULL   }, //Allow setting a generic catch-a;;. or clearing it mamnually.
+    { (char *)"Room ",                   NULL,                      room_menu,                0,            NULL   },
+    
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
     { (char *)"&Enemies\tE",                onEnemies,                 NULL,                     0,            NULL   },
@@ -888,10 +894,27 @@ static MENU etc_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+static MENU media_menu[] =
+{
+	{ (char *)"The Travels of Link",        NULL,                      tunes_menu,               0,            NULL   },
+    { (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
+    { (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
+    { (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+
+};
+
+
+
 //New ZScript Menu for 2.55 Alpha 16
 static MENU zscript_menu[] =
 {
     { (char *)"Compile &ZScript...",        onCompileScript,           NULL,                     0,            NULL   },
+    //divider
+    	
+        { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
+    { (char *)"&Quest Script Settings",        onZScriptSettings,           NULL,                     0,            NULL   },
     //divider
         { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"Import ASM &FFC Script",     onImportFFScript,          NULL,                     0,            NULL   },
@@ -904,11 +927,7 @@ static MENU zscript_menu[] =
     { (char *)"Import ASM &DMap Script",  onImportDMapScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &Screen Script",  onImportSCREENScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM IetmS&prite Script",  onImportITEMSPRITEScript,           NULL,                     0,            NULL   },
-	//divider
-        { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
-    { (char *)"&Quest Script Settings",        onZScriptSettings,           NULL,                     0,            NULL   },
-    //{ (char *)"Set Include Path",        onZScriptSetIncludePath,           NULL,                     0,            NULL   },
+//{ (char *)"Set Include Path",        onZScriptSetIncludePath,           NULL,                     0,            NULL   },
 
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -919,6 +938,28 @@ static MENU module_menu[] =
     { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
     //divider
    
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU etc_menu_smallmode[] =
+{
+    { (char *)"&Help",                      onHelp,                    NULL,                     0,            NULL   },
+    { (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
+    { (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
+    { (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
+    { (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
+    { (char *)"Media",        NULL,                      media_menu,               0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+   { (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
+    { (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
+    { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
+     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
+    { (char *)"ZScript",        NULL,                      zscript_menu,               0,            NULL   },
+    
+    { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -933,13 +974,13 @@ MENU the_menu_large[] =
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
     { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
-    { (char *)"Et&c",                       NULL, (MENU *) etc_menu,        0,            NULL   },
+    { (char *)"Et&c",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 MENU the_menu[] =
 {
-    { (char *)"&ZQuest",                       NULL, (MENU *) etc_menu,        0,            NULL   },
+    { (char *)"&ZQuest",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
     { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
     { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
