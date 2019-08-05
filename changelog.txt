@@ -2,6 +2,11 @@
 
 //Alpha 29
 
+Feat: Add H/V Flip Context Menu Entries to Tile Editor
+Feat: Add options to Tile Editor Context Menu 
+	Added 'Overlay' and 'Create Combos' to the Tile Editor
+	right-click (contextual) menu.
+	These perform OverlatTile, and Mass Combo creation, respectively.
 Fix: Crash on ZQ Context Menu>>>Screen Submenu
 Fix: Set Whistle Pols Voice Defence to OKHO 
 	Force defense[edefWhistle] = OKHO for Whistle Pols Voice
