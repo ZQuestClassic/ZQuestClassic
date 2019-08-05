@@ -9876,6 +9876,10 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
  // Not sure when this first changed, but it's necessary for 2.10, at least
     // @TODO: @BUG:1.92 - 1.84? Figure this out exactly for the final 2.50 release.
 //2.10 Fixes  
+     if((Header->zelda_version <= 0x255) || (Header->zelda_version == 0x255 && Header->build < 47) )
+    {
+	guysbuf[eWPOLSV].defense[edefWhistle] = ed1HKO;
+    }
     if(Header->zelda_version <= 0x210)
     {
         guysbuf[eGLEEOK1F].misc6 = 16;
