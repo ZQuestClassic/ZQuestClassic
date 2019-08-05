@@ -1,7 +1,11 @@
-//2.55 Changes
+//2.55 Changeshttps://github.com/ArmageddonGames/ZeldaClassic/commit/c98fd3f55235192deab262b4b6d2af0c28190ffe
 
 //Alpha 29
 
+Fix: Crash on ZQ Context Menu>>>Screen Submenu
+Fix: Set Whistle Pols Voice Defence to OKHO 
+	Force defense[edefWhistle] = OKHO for Whistle Pols Voice
+	npc in versions < 2.55 Build 47, on quest load.
 Condense and Rearrange ZQ Menus to fit Small Mode
 Used Smaller Context Menu in Small ZQ Mode
 Marked where config ints can be used to modify the Contextual Menu
