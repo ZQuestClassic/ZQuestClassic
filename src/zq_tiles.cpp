@@ -5210,6 +5210,8 @@ static MENU select_tile_rc_menu[] =
     { (char *)"Blank?",  NULL,  NULL, 0, NULL },
     { (char *)"",        NULL,  NULL, 0, NULL },
     { (char *)"View\t ", NULL,  select_tile_view_menu, 0, NULL },
+    { (char *)"Overlay",  NULL,  NULL, 0, NULL },
+    { (char *)"Create Combos",  NULL,  NULL, 0, NULL },
     { NULL,              NULL,  NULL, 0, NULL }
 };
 
@@ -9408,6 +9410,40 @@ REDRAW:
             case 9:
                 show_blank_tile(tile);
                 break;
+	    
+	    case 12: //overlay
+		    overlay_tile(newtilebuf,tile,copy,cs,0);
+		    break;
+	    
+	    case 13: //mass combo
+	    {
+		if(type==0)
+                {
+			 //al_trace("mass combo key pressed, copy == %d\n",copy);
+                    if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
+                    {
+                        go_tiles();
+                        saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
+                    }
+                    else if(copy==-1)
+                    {
+                        // I don't know what this was supposed to be doing before.
+                        // It didn't work in anything like a sensible way.
+                        if(rect_sel)
+			{
+                            make_combos_rect(top, left, rows, columns, cs);
+			}
+                        else
+			{
+                            make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+			}
+                    }
+                    
+                    redraw=true;
+                }
+		    
+	    }
+		    break;
                 
             default:
                 redraw=false;
