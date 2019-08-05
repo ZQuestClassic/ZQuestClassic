@@ -7222,6 +7222,7 @@ static MENU rc_menu_screen[] =
     { (char *)"Paste...",                        NULL,  paste_screen_menu,              0, NULL },
     { (char *)"Adv. Paste",                        NULL,  paste_menu,              0, NULL },
     { (char *)"Paste Special",                        NULL,  paste_item_menu,              0, NULL },
+    { NULL,                              NULL,            NULL,    0, NULL }
 };
 
 
