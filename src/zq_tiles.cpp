@@ -5211,6 +5211,8 @@ static MENU select_tile_rc_menu[] =
     { (char *)"",        NULL,  NULL, 0, NULL },
     { (char *)"View\t ", NULL,  select_tile_view_menu, 0, NULL },
     { (char *)"Overlay",  NULL,  NULL, 0, NULL },
+    { (char *)"H-Flip",  NULL,  NULL, 0, NULL },
+    { (char *)"V-Flip",  NULL,  NULL, 0, NULL },
     { (char *)"Create Combos",  NULL,  NULL, 0, NULL },
     { NULL,              NULL,  NULL, 0, NULL }
 };
@@ -9415,7 +9417,51 @@ REDRAW:
 		    overlay_tile(newtilebuf,tile,copy,cs,0);
 		    break;
 	    
-	    case 13: //mass combo
+	    case 13: //h-flip
+	    {
+		flip^=1;
+		go_tiles();
+		
+		if(type==0)
+		{
+		    normalize(tile,tile2,rect_sel,flip);
+		    flip=0;
+		}
+		
+		redraw=true;   
+		break;
+		    
+	      }
+	      
+	      case 14: //h-flip
+	      {
+			if(copy==-1)
+			{
+			    if(type!=2)
+			    {
+				flip^=2;
+				go_tiles();
+				
+				if(type==0)
+				{
+				    normalize(tile,tile2,rect_sel,flip);
+				    flip=0;
+				}
+			    }
+			}
+			else
+			{
+			    go_tiles();
+			    saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
+			}
+			
+			redraw=true;
+		break;
+		    
+	      }
+		    
+	    
+	    case 15: //mass combo
 	    {
 		if(type==0)
                 {
