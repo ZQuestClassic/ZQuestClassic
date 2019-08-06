@@ -631,7 +631,7 @@ bool enemy::animate(int index)
     return Dead(index);
 }
 
-bool enemy::m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
+bool enemy::m_walkflag(int dx,int dy,int special, int input_x=-1000, int input_y=-1000)
 {
     int yg = (special==spw_floater)?8:0;
     int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
@@ -674,10 +674,10 @@ bool enemy::m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
     bool isInDungeon = isdungeon();
     if(isInDungeon || special==spw_wizzrobe)
     {
-        if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
+        if((input_x>=32 && dy<32-yg) || (input_y>-1000 && input_y<=144 && dy>=144))
             return true;
             
-        if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
+        if((input_x>=32 && dx<32) || (input_x>-1000 && input_x<224 && dx>=224))
             if(special!=spw_door) // walk in door way
                 return true;
     }
@@ -688,7 +688,7 @@ bool enemy::m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
         if(dy>=128 || dx>=208) return true;
         
     case spw_clipright:
-        break; //if(x>=208) return true; break;
+        break; //if(input_x>=208) return true; break;
         
     case spw_wizzrobe: // fall through
     case spw_floater: // Special case for fliers and wizzrobes - hack!
