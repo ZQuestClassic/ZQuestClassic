@@ -635,6 +635,32 @@ bool enemy::m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
 {
     int yg = (special==spw_floater)?8:0;
     int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
+	
+	switch(dir)
+	{
+		case up: break;
+		case down: 
+		{
+			if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) )
+			{
+				dy += (tysz-1)*16;	
+			}
+			break;
+			
+		}
+		case left: break;
+		case right:
+		{
+			if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) )
+			{
+				dx += (txsz-1)*16;	
+			}
+			break;
+			
+		}
+		default: break;
+		
+	}
     
     if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
         return true;
