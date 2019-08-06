@@ -641,9 +641,12 @@ bool enemy::m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
 		case up: break;
 		case down: 
 		{
-			if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) )
+			if ( ((unsigned)id) < MAXGUYS )
 			{
-				dy += (tysz-1)*16;	
+				if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) )
+				{
+					dy += (tysz-1)*16;	
+				}
 			}
 			break;
 			
@@ -651,9 +654,12 @@ bool enemy::m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
 		case left: break;
 		case right:
 		{
-			if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) )
+			if ( ((unsigned)id) < MAXGUYS )
 			{
-				dx += (txsz-1)*16;	
+				if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) )
+				{
+					dx += (txsz-1)*16;	
+				}
 			}
 			break;
 			
@@ -869,17 +875,20 @@ void enemy::FireWeapon()
     
     int xoff = 0;
     int yoff = 0;
-    if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH )
+    if ( ((unsigned)id) < MAXGUYS )
     {
-	    
-	 xoff += (txsz-1)*8;   
-	    //Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
-	    
-    }
-    if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT )
-    {
-	 yoff += (tysz-1)*8;   
-	    //Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
+	    if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH )
+	    {
+		    
+		 xoff += (txsz-1)*8;   
+		    //Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
+		    
+	    }
+	    if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT )
+	    {
+		 yoff += (tysz-1)*8;   
+		    //Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
+	    }
     }
         
     switch(dmisc1)
@@ -3648,8 +3657,16 @@ void enemy::fix_coords(bool bound)
     
     if(bound)
     {
-        x=vbound(x, 0, (240 - (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (((txsz-1)*16)) : 0)));
-        y=vbound(y, 0, (160 - (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (((tysz-1)*16)) : 0)));
+	    if ( ((unsigned)id) < MAXGUYS )
+	    {
+		x=vbound(x, 0, (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256-((txsz-1)*16)) : 240));
+		y=vbound(y, 0,(( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176-((txsz-1)*16)) : 160));
+	    }
+	    else
+	    {
+		   x=vbound(x, 0,240); 
+		    y=vbound(y, 0,160);
+	    }
     }
     
     if(!OUTOFBOUNDS)
@@ -3670,10 +3687,10 @@ bool enemy::cannotpenetrate()
 // returns true if next step is ok, false if there is something there
 bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 {
-    bool ok;
+    bool ok = false; //initialise the var, son't just declare it
     int dx = 0, dy = 0;
     int sv = 8;
-    int tries = 1; int try_x = 0; int try_y = 0; byte both_ok[2] = {0};
+    int tries = 1; int try_x = 0; int try_y = 0;
     //Why is this here??? Why is it needed???
     s += 0.5; // Make the ints round; doesn't seem to cause any problems.
     
@@ -3687,10 +3704,12 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
             
         dy = dy1-s;
         special = (special==spw_clipbottomright)?spw_none:special;
-	
-	if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
+	if ( ((unsigned)id) < MAXGUYS )
 	{
-		tries = txsz * 16;
+		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
+		{
+			tries = txsz * 16;
+		}
 	}
 	for ( ; tries >= 0; tries-- )
 	{
@@ -3706,9 +3725,12 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
             return false;
             
         dy = dy2+s;
-	if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
+	if ( ((unsigned)id) < MAXGUYS )
 	{
-		tries = txsz * 16;
+		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
+		{
+			tries = txsz * 16;
+		}
 	}
 	for ( ; tries >= 0; tries-- )
 	{
@@ -3723,9 +3745,12 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
         dx = dx1-s;
         sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
         special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
-        if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
+	if ( ((unsigned)id) < MAXGUYS )
 	{
-		tries = tysz * 16;
+		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
+		{
+			tries = tysz * 16;
+		}
 	}
 	for ( ; tries >= 0; tries-- )
 	{
@@ -3739,9 +3764,12 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     case right:
         dx = dx2+s;
         sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
-	if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
+	if ( ((unsigned)id) < MAXGUYS )
 	{
-		tries = tysz * 16;
+		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
+		{
+			tries = tysz * 16;
+		}
 	}
 	for ( ; tries >= 0; tries-- )
 	{
@@ -3756,11 +3784,13 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     
         dx = dx2+s;
         dy = dy1-s;
-	
-	if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+	if ( ((unsigned)id) < MAXGUYS )
 	{
-		try_x = txsz * 16;
-		try_y = tysz * 16;
+		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+		{
+			try_x = txsz * 16;
+			try_y = tysz * 16;
+		}
 	}
 	for ( ; try_x >= 0; try_x-- )
 	{
@@ -3781,10 +3811,13 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     case r_down:
         dx = dx2+s;
         dx = dy2+s;
-        if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+	if ( ((unsigned)id) < MAXGUYS )
 	{
-		try_x = txsz * 16;
-		try_y = tysz * 16;
+		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+		{
+			try_x = txsz * 16;
+			try_y = tysz * 16;
+		}
 	}
 	for ( ; try_x >= 0; try_x-- )
 	{
@@ -3802,10 +3835,13 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     case l_down:
         dx = dx1-s;
         dy = dy2+s;
-        if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+	if ( ((unsigned)id) < MAXGUYS )
 	{
-		try_x = txsz * 16;
-		try_y = tysz * 16;
+		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+		{
+			try_x = txsz * 16;
+			try_y = tysz * 16;
+		}
 	}
 	for ( ; try_x >= 0; try_x-- )
 	{
@@ -3823,10 +3859,13 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     case l_up:
         dx = dx1-s;
         dy = dy1-s;
-        if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+	if ( ((unsigned)id) < MAXGUYS )
 	{
-		try_x = txsz * 16;
-		try_y = tysz * 16;
+		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+		{
+			try_x = txsz * 16;
+			try_y = tysz * 16;
+		}
 	}
 	for ( ; try_x >= 0; try_x-- )
 	{
