@@ -3690,7 +3690,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     bool ok = false; //initialise the var, son't just declare it
     int dx = 0, dy = 0;
     int sv = 8;
-    int tries = 1; int try_x = 0; int try_y = 0;
+    int tries = 0; int try_x = 0; int try_y = 0;
     //Why is this here??? Why is it needed???
     s += 0.5; // Make the ints round; doesn't seem to cause any problems.
     
