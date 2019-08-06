@@ -2,6 +2,23 @@
 
 //Alpha 29
 
+Added sanity check if ( ((unsigned)id) < MAXGUYS ) to reads into guys structs.
+Add more clipping prevention to large enemies, ...and diagonals. 
+	This seems to work far better but enemies can still occasionally clip
+	through solid combos, and they seem to be bound too close in toward the middle of the screen
+	from the left edge of the screen.
+Try to add multi-pixel solidity checks to bool enemy::canmove
+Fix: More checks for large enemies.
+	Added some bounding to m_walkflag based on dir, but we need
+	a routine for can_walk stuff that checks between points of the corners.
+	Large enemies can still clip through solid stuff, quite easily.
+Move m_walkflag into enemy class. 
+	This gives it access to the current enemy internal vars, so that
+	we can check txsz and tysz or hxsz / hysz for being on screen
+	or touching solid combos.
+	( ZoriaRPG, 6th August, 2019 )
+	
+Fix: Centre EWeapons for Large Enemies
 Feat: Add H/V Flip Context Menu Entries to Tile Editor
 Feat: Add options to Tile Editor Context Menu 
 	Added 'Overlay' and 'Create Combos' to the Tile Editor
