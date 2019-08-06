@@ -221,56 +221,6 @@ bool flyerblocked(int dx, int dy, int special)
              (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)));
 }
 
-bool m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
-{
-    int yg = (special==spw_floater)?8:0;
-    int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
-    
-    if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
-        return true;
-        
-    bool isInDungeon = isdungeon();
-    if(isInDungeon || special==spw_wizzrobe)
-    {
-        if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
-            return true;
-            
-        if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
-            if(special!=spw_door) // walk in door way
-                return true;
-    }
-    
-    switch(special)
-    {
-    case spw_clipbottomright:
-        if(dy>=128 || dx>=208) return true;
-        
-    case spw_clipright:
-        break; //if(x>=208) return true; break;
-        
-    case spw_wizzrobe: // fall through
-    case spw_floater: // Special case for fliers and wizzrobes - hack!
-		{
-			if(isInDungeon)
-			{
-				if(dy < 32-yg || dy >= 144) return true;
-				if(dx < 32 || dx >= 224) return true;
-			}
-			return false;
-		}
-    }
-    
-    dx&=(special==spw_halfstep)?(~7):(~15);
-    dy&=(special==spw_halfstep || tmpscr->flags7&fSIDEVIEW)?(~7):(~15);
-    
-    if(special==spw_water)
-        return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
-        
-    return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
-           groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
-}
-
-
 /**********************************/
 /*******  Enemy Base Class  *******/
 /**********************************/
@@ -681,6 +631,58 @@ bool enemy::animate(int index)
     return Dead(index);
 }
 
+bool enemy::m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
+{
+    int yg = (special==spw_floater)?8:0;
+    int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
+    
+    if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
+        return true;
+        
+    bool isInDungeon = isdungeon();
+    if(isInDungeon || special==spw_wizzrobe)
+    {
+        if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
+            return true;
+            
+        if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
+            if(special!=spw_door) // walk in door way
+                return true;
+    }
+    
+    switch(special)
+    {
+    case spw_clipbottomright:
+        if(dy>=128 || dx>=208) return true;
+        
+    case spw_clipright:
+        break; //if(x>=208) return true; break;
+        
+    case spw_wizzrobe: // fall through
+    case spw_floater: // Special case for fliers and wizzrobes - hack!
+		{
+			if(isInDungeon)
+			{
+				if(dy < 32-yg || dy >= 144) return true;
+				if(dx < 32 || dx >= 224) return true;
+			}
+			return false;
+		}
+    }
+    
+    dx&=(special==spw_halfstep)?(~7):(~15);
+    dy&=(special==spw_halfstep || tmpscr->flags7&fSIDEVIEW)?(~7):(~15);
+    
+    if(special==spw_water)
+        return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
+        
+    return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
+           groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
+}
+
+
+
+
 // Stops playing the given sound only if there are no enemies left to play it
 void enemy::stop_bgsfx(int index)
 {
@@ -845,13 +847,13 @@ void enemy::FireWeapon()
     {
 	    
 	 xoff += (txsz-1)*8;   
-	    Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
+	    //Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
 	    
     }
     if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT )
     {
 	 yoff += (tysz-1)*8;   
-	    Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
+	    //Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
     }
         
     switch(dmisc1)
@@ -3615,11 +3617,13 @@ bool enemy::hit(weapon *w)
 void enemy::fix_coords(bool bound)
 {
     if (get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES )) return;
-
+	
+    
+    
     if(bound)
     {
-        x=vbound(x, 0, 240);
-        y=vbound(y, 0, 160);
+        x=vbound(x, 0, (240 - (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (((txsz-1)*16)) : 0)));
+        y=vbound(y, 0, (160 - (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (((tysz-1)*16)) : 0)));
     }
     
     if(!OUTOFBOUNDS)
