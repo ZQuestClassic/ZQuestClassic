@@ -3673,29 +3673,49 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     bool ok;
     int dx = 0, dy = 0;
     int sv = 8;
-	
+    int tries = 1; int try_x = 0; int try_y = 0;
     //Why is this here??? Why is it needed???
     s += 0.5; // Make the ints round; doesn't seem to cause any problems.
     
-    switch(ndir)
+    switch(ndir) //need to check every 8 pixels between two points
     {
     case 8:
     case up:
+    {
         if(enemycanfall(id) && tmpscr->flags7&fSIDEVIEW)
             return false;
             
         dy = dy1-s;
         special = (special==spw_clipbottomright)?spw_none:special;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
+	
+	if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
+	{
+		tries = txsz *2;
+	}
+	for ( ; tries > 0; tries-- )
+	{
+		ok = !m_walkflag(x+try_x,y+dy,special, x+try_x, y) && !flyerblocked(x+try_x,y+dy, special);
+		try_x += 8;
+		if (!ok) break;
+	}
         break;
-        
+    }
     case 12:
     case down:
         if(enemycanfall(id) && tmpscr->flags7&fSIDEVIEW)
             return false;
             
         dy = dy2+s;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
+	if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
+	{
+		tries = txsz *2;
+	}
+	for ( ; tries > 0; tries-- )
+	{
+		ok = !m_walkflag(x+try_x,y+dy,special, x+try_x, y) && !flyerblocked(x+try_x,y+dy, special);
+		try_x += 8;
+		if (!ok) break;
+	}
         break;
         
     case 14:
@@ -3703,14 +3723,32 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
         dx = dx1-s;
         sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
         special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
-        ok = !m_walkflag(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
-        break;
+        if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
+	{
+		tries = tysz *2;
+	}
+	for ( ; tries > 0; tries-- )
+	{
+		ok = !m_walkflag(x+dx,y+sv+try_y,special, x, y+try_y) && !flyerblocked(x+dx,y+8+try_y, special);
+		try_y += 8;
+		if (!ok) break;
+	}
+	break;
         
     case 10:
     case right:
         dx = dx2+s;
         sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
-        ok = !m_walkflag(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
+	if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
+	{
+		tries = tysz *2;
+	}
+	for ( ; tries > 0; tries-- )
+	{
+		ok = !m_walkflag(x+dx,y+sv+try_y,special, x, y+try_y) && !flyerblocked(x+dx,y+8, special);
+		try_y += 8;
+		if (!ok) break;
+	}
         break;
         
     case 9:
