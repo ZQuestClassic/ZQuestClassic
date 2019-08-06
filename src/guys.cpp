@@ -3690,12 +3690,12 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 	
 	if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
 	{
-		tries = txsz *2;
+		tries = txsz * 16;
 	}
 	for ( ; tries > 0; tries-- )
 	{
-		ok = !m_walkflag(x+try_x,y+dy,special, x+try_x, y) && !flyerblocked(x+try_x,y+dy, special);
-		try_x += 8;
+		ok = !m_walkflag(x+tries,y+dy,special, x+tries, y) && !flyerblocked(x+tries,y+dy, special);
+		//try_x += 8;
 		if (!ok) break;
 	}
         break;
@@ -3708,12 +3708,12 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
         dy = dy2+s;
 	if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
 	{
-		tries = txsz *2;
+		tries = txsz * 16;
 	}
 	for ( ; tries > 0; tries-- )
 	{
-		ok = !m_walkflag(x+try_x,y+dy,special, x+try_x, y) && !flyerblocked(x+try_x,y+dy, special);
-		try_x += 8;
+		ok = !m_walkflag(x+tries,y+dy,special, x+tries, y) && !flyerblocked(x+tries,y+dy, special);
+		//try_x += 8;
 		if (!ok) break;
 	}
         break;
@@ -3725,12 +3725,12 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
         special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
         if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
 	{
-		tries = tysz *2;
+		tries = tysz * 16;
 	}
 	for ( ; tries > 0; tries-- )
 	{
-		ok = !m_walkflag(x+dx,y+sv+try_y,special, x, y+try_y) && !flyerblocked(x+dx,y+8+try_y, special);
-		try_y += 8;
+		ok = !m_walkflag(x+dx,y+sv+tries,special, x, y+tries) && !flyerblocked(x+dx,y+8+tries, special);
+		//try_y += 8;
 		if (!ok) break;
 	}
 	break;
@@ -3741,12 +3741,12 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
         sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
 	if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
 	{
-		tries = tysz *2;
+		tries = tysz * 16;
 	}
 	for ( ; tries > 0; tries-- )
 	{
-		ok = !m_walkflag(x+dx,y+sv+try_y,special, x, y+try_y) && !flyerblocked(x+dx,y+8, special);
-		try_y += 8;
+		ok = !m_walkflag(x+dx,y+sv+tries,special, x, y+tries) && !flyerblocked(x+dx,y+8+tries, special);
+		//try_y += 8;
 		if (!ok) break;
 	}
         break;
