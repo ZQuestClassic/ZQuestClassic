@@ -3673,7 +3673,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     bool ok;
     int dx = 0, dy = 0;
     int sv = 8;
-    int tries = 1; int try_x = 0; int try_y = 0;
+    int tries = 1; int try_x = 0; int try_y = 0; byte both_ok[2] = {0};
     //Why is this here??? Why is it needed???
     s += 0.5; // Make the ints round; doesn't seem to cause any problems.
     
@@ -3692,7 +3692,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 	{
 		tries = txsz * 16;
 	}
-	for ( ; tries > 0; tries-- )
+	for ( ; tries >= 0; tries-- )
 	{
 		ok = !m_walkflag(x+tries,y+dy,special, x+tries, y) && !flyerblocked(x+tries,y+dy, special);
 		//try_x += 8;
@@ -3710,7 +3710,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 	{
 		tries = txsz * 16;
 	}
-	for ( ; tries > 0; tries-- )
+	for ( ; tries >= 0; tries-- )
 	{
 		ok = !m_walkflag(x+tries,y+dy,special, x+tries, y) && !flyerblocked(x+tries,y+dy, special);
 		//try_x += 8;
@@ -3727,7 +3727,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 	{
 		tries = tysz * 16;
 	}
-	for ( ; tries > 0; tries-- )
+	for ( ; tries >= 0; tries-- )
 	{
 		ok = !m_walkflag(x+dx,y+sv+tries,special, x, y+tries) && !flyerblocked(x+dx,y+8+tries, special);
 		//try_y += 8;
@@ -3743,7 +3743,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 	{
 		tries = tysz * 16;
 	}
-	for ( ; tries > 0; tries-- )
+	for ( ; tries >= 0; tries-- )
 	{
 		ok = !m_walkflag(x+dx,y+sv+tries,special, x, y+tries) && !flyerblocked(x+dx,y+8+tries, special);
 		//try_y += 8;
@@ -3753,34 +3753,91 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
         
     case 9:
     case r_up:
+    
         dx = dx2+s;
         dy = dy1-s;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
-             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+	
+	if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+	{
+		try_x = txsz * 16;
+		try_y = tysz * 16;
+	}
+	for ( ; try_x >= 0; try_x-- )
+	{
+		for ( ; try_y >= 0; try_y-- )
+		{
+			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+			if (!ok) break;
+		}
+		if (!ok) break;
+	}
+		
+		
+	
         break;
         
     case 11:
     case r_down:
         dx = dx2+s;
         dx = dy2+s;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
-             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+        if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+	{
+		try_x = txsz * 16;
+		try_y = tysz * 16;
+	}
+	for ( ; try_x >= 0; try_x-- )
+	{
+		for ( ; try_y >= 0; try_y-- )
+		{
+			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+			if (!ok) break;
+		}
+		if (!ok) break;
+	}
         break;
         
     case 13:
     case l_down:
         dx = dx1-s;
         dy = dy2+s;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
-             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+        if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+	{
+		try_x = txsz * 16;
+		try_y = tysz * 16;
+	}
+	for ( ; try_x >= 0; try_x-- )
+	{
+		for ( ; try_y >= 0; try_y-- )
+		{
+			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+			if (!ok) break;
+		}
+		if (!ok) break;
+	}
         break;
         
     case 15:
     case l_up:
         dx = dx1-s;
         dy = dy1-s;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
-             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+        if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+	{
+		try_x = txsz * 16;
+		try_y = tysz * 16;
+	}
+	for ( ; try_x >= 0; try_x-- )
+	{
+		for ( ; try_y >= 0; try_y-- )
+		{
+			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+			if (!ok) break;
+		}
+		if (!ok) break;
+	}
         break;
         
     default:
