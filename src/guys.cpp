@@ -838,22 +838,37 @@ void enemy::FireWeapon()
         
     if(wpn==ewFireTrail && dmisc1>=e1t3SHOTS && dmisc1<=e1t8SHOTS)
         dmisc1 = e1tEACHTILE;
+    
+    int xoff = 0;
+    int yoff = 0;
+    if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH )
+    {
+	    
+	 xoff += (txsz-1)*8;   
+	    Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
+	    
+    }
+    if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT )
+    {
+	 yoff += (tysz-1)*8;   
+	    Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
+    }
         
     switch(dmisc1)
     {
     case e1t5SHOTS: //BS-Aquamentus
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^left)+5)<<3),wdp,dir,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^right)+5)<<3),wdp,dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+5)<<3),wdp,dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+5)<<3),wdp,dir,-1, getUID(),false));
         
         //fallthrough
     case e1t3SHOTSFAST:
     case e1t3SHOTS: //Aquamentus
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^left)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^right)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
         
         //fallthrough
     default:
-        Ewpns.add(new weapon(x,y,z,wpn,2+(dmisc1==e1t3SHOTSFAST || dmisc1==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(dmisc1==e1t3SHOTSFAST || dmisc1==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
         sfx(wpnsfx(wpn),pan(int(x)));
         break;
         
@@ -866,23 +881,23 @@ void enemy::FireWeapon()
         else if(((Link.x-x) > 8 && dir==up) || ((Link.x-x) < -8 && dir==down) || ((Link.y-y) > 8 && dir==left) || ((Link.y-y) < -8 && dir==right))
             slant = right;
             
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^slant)+1)<<3),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^slant)+1)<<3),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
         sfx(wpnsfx(wpn),pan(int(x)));
         break;
     }
     
     case e1t8SHOTS: //Fire Wizzrobe
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,l_up,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,l_down,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,r_up,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,r_down,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_up,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_down,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_up,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_down,-1, getUID(),false));
         
         //fallthrough
     case e1t4SHOTS: //Stalfos 3
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,up,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,down,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,left,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,right,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,up,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,down,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,left,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,right,-1, getUID(),false));
         sfx(wpnsfx(wpn),pan(int(x)));
         break;
         
