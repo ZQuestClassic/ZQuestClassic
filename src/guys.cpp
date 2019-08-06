@@ -412,6 +412,8 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
   
     if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
     
+	SIZEflags = d->SIZEflags;
+	
     if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
         wpn = 0;
 }
@@ -631,11 +633,10 @@ bool enemy::animate(int index)
     return Dead(index);
 }
 
-bool enemy::m_walkflag(int dx,int dy,int special, int input_x=-1000, int input_y=-1000)
+bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int input_y)
 {
     int yg = (special==spw_floater)?8:0;
     int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
-	
 	switch(dir)
 	{
 		case up: break;
@@ -643,9 +644,10 @@ bool enemy::m_walkflag(int dx,int dy,int special, int input_x=-1000, int input_y
 		{
 			if ( ((unsigned)id) < MAXGUYS )
 			{
-				if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) )
+				if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT && !isflier(id) )
 				{
-					dy += (tysz-1)*16;	
+					//Z_eventlog("Adding %d to dy\n",hysz-16);
+					dy += hysz-16;
 				}
 			}
 			break;
@@ -656,9 +658,10 @@ bool enemy::m_walkflag(int dx,int dy,int special, int input_x=-1000, int input_y
 		{
 			if ( ((unsigned)id) < MAXGUYS )
 			{
-				if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) )
+				if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH && !isflier(id) )
 				{
-					dx += (txsz-1)*16;	
+					//Z_eventlog("Adding %d to dx\n",hxsz-16);
+					dx += hxsz-16;
 				}
 			}
 			break;
@@ -667,6 +670,7 @@ bool enemy::m_walkflag(int dx,int dy,int special, int input_x=-1000, int input_y
 		default: break;
 		
 	}
+	//Z_eventlog("Checking x,y %d,%d\n",dx,dy);
     
     if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
         return true;
@@ -707,9 +711,11 @@ bool enemy::m_walkflag(int dx,int dy,int special, int input_x=-1000, int input_y
     
     if(special==spw_water)
         return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
-        
-    return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
-           groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
+	
+	//Is changing this going to break things? -V
+	return _walkflag(dx,dy,1) || groundblocked(dx,dy);
+	/*return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
+	         groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);*/
 }
 
 
@@ -757,7 +763,7 @@ void enemy::leave_item()
 {
     int drop_item = select_dropitem(item_set, x, y);
     
-    if(drop_item!=-1&&((itemsbuf[drop_item].family!=itype_fairy)||!m_walkflag(x,y,0)))
+    if(drop_item!=-1&&((itemsbuf[drop_item].family!=itype_fairy)||!m_walkflag(x,y,0,dir)))
     {
         if(extend >= 3) items.add(new item(x+(txsz-1)*8,y+(tysz-1)*8,(fix)0,drop_item,ipBIGRANGE+ipTIMER,0));
         else items.add(new item(x,y,(fix)0,drop_item,ipBIGRANGE+ipTIMER,0));
@@ -994,7 +1000,7 @@ void enemy::FireWeapon()
                     x2=16*((rand()%12)+2);
                     y2=16*((rand()%7)+2);
                     
-                    if((!m_walkflag(x2,y2,0))&&((abs(x2-Link.getX())>=32)||(abs(y2-Link.getY())>=32)))
+                    if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Link.getX())>=32)||(abs(y2-Link.getY())>=32)))
                     {
                         if(addenemy(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10))
                             ((enemy*)guys.spr(kids+i))->count_enemy = false;
@@ -2231,7 +2237,7 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 		//the enemy defence is 'NONE' for this weapon type, so we ead that in enemy::defend()
 
 		//def = defend(getWeaponID(w), power, resolveEnemyDefence(w));
-	//}
+	// }
 	
 	int wid = getWeaponID(w);
 	//al_trace("defenditemclassnew wid is: %d\n", wid);
@@ -2342,16 +2348,16 @@ int enemy::defenditemclassNew(int wpnId, int *power, weapon *w)
 		    //Z_message("enemy::defenditemclass(), reached DEFAULT, doing defendNew(wid, power, resolveEnemyDefence(w); def is: %d\n", def);
 			   
 		//if(wpnId>=wScript1 && wpnId<=wScript10)
-		//{
+		// {
 		 //   def = defend(wpnId, power, edefSCRIPT);
-		//}
-		//}
+		// }
+		// }
 		
 		break;
 	    }
 	    //al_trace("defenditemclassnew def is %d\n",def);
 	    return def;
-    //}
+    // }
 }
 
 
@@ -2674,10 +2680,10 @@ int enemy::defenditemclass(int wpnId, int *power)
     //such as bool UseSeparatedScriptDefences. hah.
     default:
         //if(wpnId>=wScript1 && wpnId<=wScript10)
-        //{
+        // {
          //   def = defend(wpnId, power, edefSCRIPT);
-        //}
-        //}
+        // }
+        // }
         
         break;
     }
@@ -3687,204 +3693,196 @@ bool enemy::cannotpenetrate()
 // returns true if next step is ok, false if there is something there
 bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 {
-    bool ok = false; //initialise the var, son't just declare it
-    int dx = 0, dy = 0;
-    int sv = 8;
-    int tries = 0; int try_x = 0; int try_y = 0;
-    //Why is this here??? Why is it needed???
-    s += 0.5; // Make the ints round; doesn't seem to cause any problems.
-    
-    switch(ndir) //need to check every 8 pixels between two points
-    {
-    case 8:
-    case up:
-    {
-        if(enemycanfall(id) && tmpscr->flags7&fSIDEVIEW)
-            return false;
-            
-        dy = dy1-s;
-        special = (special==spw_clipbottomright)?spw_none:special;
-	if ( ((unsigned)id) < MAXGUYS )
+	bool ok = false; //initialise the var, son't just declare it
+	int dx = 0, dy = 0;
+	int sv = 8;
+	int tries = 2; int try_x = 0; int try_y = 0;
+	//Why is this here??? Why is it needed???
+	s += 0.5; // Make the ints round; doesn't seem to cause any problems.
+	int usexoffs = (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ? hxofs : 0;
+	int useyoffs = (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? hyofs : 0;
+	int usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
+	int usehei = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hysz : 16;
+	if (unsigned(id) < MAXGUYS && isflier(id))
 	{
-		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
+		usewid = 16;
+		usehei = 16;
+	}
+	switch(ndir) //need to check every 8 pixels between two points
+	{
+		case 8:
+		case up:
 		{
-			tries = txsz * 16;
+			if(enemycanfall(id) && tmpscr->flags7&fSIDEVIEW)
+				return false;
+				
+			dy = dy1-s;
+			special = (special==spw_clipbottomright)?spw_none:special;
+			tries = usewid/8;
+			//Z_eventlog("Trying move UP, dy=%d,usewid=%d,usehei=%d\n",int(dy),usewid,usehei);
+			for ( ; tries > 0; --tries )
+			{
+				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy, special);
+				try_x += 8;
+				if (!ok) break;
+			}
+			if(!ok) break;
+			ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy, special);
+			break;
 		}
+		case 12:
+		case down:
+			if(enemycanfall(id) && tmpscr->flags7&fSIDEVIEW)
+				return false;
+				
+			dy = dy2+s;
+			tries = usewid/8;
+			//Z_eventlog("Trying move DOWN, dy=%d,usewid=%d,usehei=%d\n",int(dy),usewid,usehei);
+			for ( ; tries > 0; --tries )
+			{
+				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-16, special);
+				try_x += 8;
+				if (!ok) break;
+			}
+			if(!ok) break;
+			ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-16, special);
+			break;
+			
+		case 14:
+		case left:
+			dx = dx1-s;
+			sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
+			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
+			tries = usehei/8;
+			//Z_eventlog("Trying move LEFT, dx=%d,usewid=%d,usehei=%d\n",int(dx),usewid,usehei);
+			for ( ; tries > 0; --tries )
+			{
+				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+try_y, special);
+				try_y += 8;
+				if (!ok) break;
+			}
+			if(!ok) break;
+			ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+usehei-1, special);
+			break;
+			
+		case 10:
+		case right:
+			dx = dx2+s;
+			sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
+			tries = usehei/8;
+			//Z_eventlog("Trying move RIGHT, dx=%d,usewid=%d,usehei=%d\n",int(dx),usewid,usehei);
+			for ( ; tries > 0; --tries )
+			{
+				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y) && !flyerblocked(x+usexoffs+dx+usewid-16,y+8+useyoffs+try_y, special);
+				try_y += 8;
+				if (!ok) break;
+			}
+			if(!ok) break;
+			ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx+usewid-16,y+8+useyoffs+usehei-1, special);
+			break;
+			
+		case 9:
+		case r_up:
+			dx = dx2+s;
+			dy = dy1-s;
+			if ( ((unsigned)id) < MAXGUYS )
+			{
+				if ( ( (SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+				{
+					try_x = txsz * 16;
+					try_y = tysz * 16;
+				}
+			}
+			for ( ; try_x >= 0; try_x-- )
+			{
+				for ( ; try_y >= 0; try_y-- )
+				{
+					ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+					!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+					if (!ok) break;
+				}
+				if (!ok) break;
+			}
+			break;
+			
+		case 11:
+		case r_down:
+			dx = dx2+s;
+			dx = dy2+s;
+			if ( ((unsigned)id) < MAXGUYS )
+			{
+				if ( ( (SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+				{
+					try_x = txsz * 16;
+					try_y = tysz * 16;
+				}
+			}
+			for ( ; try_x >= 0; try_x-- )
+			{
+				for ( ; try_y >= 0; try_y-- )
+				{
+					ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+					!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+					if (!ok) break;
+				}
+				if (!ok) break;
+			}
+			break;
+			
+		case 13:
+		case l_down:
+			dx = dx1-s;
+			dy = dy2+s;
+			if ( ((unsigned)id) < MAXGUYS )
+			{
+				if ( ( (SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+				{
+					try_x = txsz * 16;
+					try_y = tysz * 16;
+				}
+			}
+			for ( ; try_x >= 0; try_x-- )
+			{
+				for ( ; try_y >= 0; try_y-- )
+				{
+					ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+					!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+					if (!ok) break;
+				}
+				if (!ok) break;
+			}
+			break;
+			
+		case 15:
+		case l_up:
+			dx = dx1-s;
+			dy = dy1-s;
+			if ( ((unsigned)id) < MAXGUYS )
+			{
+				if ( ( (SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+				{
+					try_x = txsz * 16;
+					try_y = tysz * 16;
+				}
+			}
+			for ( ; try_x >= 0; try_x-- )
+			{
+				for ( ; try_y >= 0; try_y-- )
+				{
+					ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+					!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+					if (!ok) break;
+				}
+				if (!ok) break;
+			}
+			break;
+			
+		default:
+			db=99;
+			return true;
 	}
-	for ( ; tries >= 0; tries-- )
-	{
-		ok = !m_walkflag(x+tries,y+dy,special, x+tries, y) && !flyerblocked(x+tries,y+dy, special);
-		//try_x += 8;
-		if (!ok) break;
-	}
-        break;
-    }
-    case 12:
-    case down:
-        if(enemycanfall(id) && tmpscr->flags7&fSIDEVIEW)
-            return false;
-            
-        dy = dy2+s;
-	if ( ((unsigned)id) < MAXGUYS )
-	{
-		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
-		{
-			tries = txsz * 16;
-		}
-	}
-	for ( ; tries >= 0; tries-- )
-	{
-		ok = !m_walkflag(x+tries,y+dy,special, x+tries, y) && !flyerblocked(x+tries,y+dy, special);
-		//try_x += 8;
-		if (!ok) break;
-	}
-        break;
-        
-    case 14:
-    case left:
-        dx = dx1-s;
-        sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
-        special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
-	if ( ((unsigned)id) < MAXGUYS )
-	{
-		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
-		{
-			tries = tysz * 16;
-		}
-	}
-	for ( ; tries >= 0; tries-- )
-	{
-		ok = !m_walkflag(x+dx,y+sv+tries,special, x, y+tries) && !flyerblocked(x+dx,y+8+tries, special);
-		//try_y += 8;
-		if (!ok) break;
-	}
-	break;
-        
-    case 10:
-    case right:
-        dx = dx2+s;
-        sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
-	if ( ((unsigned)id) < MAXGUYS )
-	{
-		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
-		{
-			tries = tysz * 16;
-		}
-	}
-	for ( ; tries >= 0; tries-- )
-	{
-		ok = !m_walkflag(x+dx,y+sv+tries,special, x, y+tries) && !flyerblocked(x+dx,y+8+tries, special);
-		//try_y += 8;
-		if (!ok) break;
-	}
-        break;
-        
-    case 9:
-    case r_up:
-    
-        dx = dx2+s;
-        dy = dy1-s;
-	if ( ((unsigned)id) < MAXGUYS )
-	{
-		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
-		{
-			try_x = txsz * 16;
-			try_y = tysz * 16;
-		}
-	}
-	for ( ; try_x >= 0; try_x-- )
-	{
-		for ( ; try_y >= 0; try_y-- )
-		{
-			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
-			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
-			if (!ok) break;
-		}
-		if (!ok) break;
-	}
-		
-		
-	
-        break;
-        
-    case 11:
-    case r_down:
-        dx = dx2+s;
-        dx = dy2+s;
-	if ( ((unsigned)id) < MAXGUYS )
-	{
-		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
-		{
-			try_x = txsz * 16;
-			try_y = tysz * 16;
-		}
-	}
-	for ( ; try_x >= 0; try_x-- )
-	{
-		for ( ; try_y >= 0; try_y-- )
-		{
-			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
-			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
-			if (!ok) break;
-		}
-		if (!ok) break;
-	}
-        break;
-        
-    case 13:
-    case l_down:
-        dx = dx1-s;
-        dy = dy2+s;
-	if ( ((unsigned)id) < MAXGUYS )
-	{
-		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
-		{
-			try_x = txsz * 16;
-			try_y = tysz * 16;
-		}
-	}
-	for ( ; try_x >= 0; try_x-- )
-	{
-		for ( ; try_y >= 0; try_y-- )
-		{
-			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
-			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
-			if (!ok) break;
-		}
-		if (!ok) break;
-	}
-        break;
-        
-    case 15:
-    case l_up:
-        dx = dx1-s;
-        dy = dy1-s;
-	if ( ((unsigned)id) < MAXGUYS )
-	{
-		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
-		{
-			try_x = txsz * 16;
-			try_y = tysz * 16;
-		}
-	}
-	for ( ; try_x >= 0; try_x-- )
-	{
-		for ( ; try_y >= 0; try_y-- )
-		{
-			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
-			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
-			if (!ok) break;
-		}
-		if (!ok) break;
-	}
-        break;
-        
-    default:
-        db=99;
-        return true;
-    }
-    
-    return ok;
+	//Z_eventlog("\n");
+	return ok;
 }
 
 
@@ -4458,7 +4456,7 @@ void enemy::variable_walk(int newrate,int newhoming,int special)
     }
     
     if(((int(x)&15)==0 && (int(y)&15)==0 && clk3!=pos(x,y)) ||
-            m_walkflag(int(x+dx),int(y+dy), spw_halfstep))
+            m_walkflag(int(x+dx),int(y+dy), spw_halfstep, dir))
     {
         fix_coords();
         newdir(newrate,newhoming,special);
@@ -4773,7 +4771,7 @@ void enemy::place_on_axis(bool floater, bool solid_ok)
             // Red Wizzrobes should be able to appear on water, but not other
             // solid combos; however, they could appear on solid combos in 2.10,
             // and some quests depend on that.
-            if((solid_ok || !m_walkflag(x,y,floater ? spw_water : spw_door))
+            if((solid_ok || !m_walkflag(x,y,floater ? spw_water : spw_door, dir))
                     && !flyerblocked(x,y,floater ? spw_floater : spw_door))
                 placed=true;
         }
@@ -7249,11 +7247,11 @@ bool eLeever::canplace(int d2)
         break;
     }
     
-    if(m_walkflag(nx,ny,spw_halfstep)||m_walkflag(nx,ny-8,spw_halfstep))                         /*none*/
+    if(m_walkflag(nx,ny,spw_halfstep, dir)||m_walkflag(nx,ny-8,spw_halfstep, dir))                         /*none*/
         return false;
         
     if(d2>=left)
-        if(m_walkflag(LinkX(),LinkY(),spw_halfstep)||m_walkflag(LinkX(),LinkY()-8,spw_halfstep))                         /*none*/
+        if(m_walkflag(LinkX(),LinkY(),spw_halfstep, dir)||m_walkflag(LinkX(),LinkY()-8,spw_halfstep, dir))                         /*none*/
             return false;
             
     x=nx;
@@ -9482,7 +9480,7 @@ void eStalfos::vire_hop()
         if(clk2<=0)
         {
             //z=0;
-            if(!canmove(dir,(fix)2,spw_none) || m_walkflag(x,y,spw_none) || (rand()&15)>=hrate)
+            if(!canmove(dir,(fix)2,spw_none) || m_walkflag(x,y,spw_none, dir) || (rand()&15)>=hrate)
                 clk2=(wpn==ewBrang ? 1 : 16*jump_width/step);
         }
         
@@ -9658,7 +9656,7 @@ bool eKeese::animate(int index)
     {
         if(++clk4==256)
         {
-            if(!m_walkflag(x,y,0))
+            if(!m_walkflag(x,y,0, dir))
             {
                 int kids = guys.Count();
                 bool success = false;
@@ -9794,7 +9792,7 @@ bool eWizzrobe::animate(int index)
 					y=((rand()%9)+1)*16;
 				}
                         
-				if(!m_walkflag(x,y,spw_door)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+				if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
 				{
 					placed=true;
 				}
@@ -9852,7 +9850,7 @@ bool eWizzrobe::animate(int index)
                             y=((rand()%9)+1)*16;
                         }
                         
-                        if(!m_walkflag(x,y,spw_door)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+                        if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
                         {
                             placed=true;
                         }
@@ -10032,7 +10030,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
                     x2=16*((rand()%12)+2);
                     y2=16*((rand()%7)+2);
                     
-                    if(!m_walkflag(x2,y2,0) && (abs(x2-Link.getX())>=32 || abs(y2-Link.getY())>=32))
+                    if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Link.getX())>=32 || abs(y2-Link.getY())>=32))
                     {
                         if(addenemy(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10))
                             ((enemy*)guys.spr(kids+i))->count_enemy = false;
@@ -10064,7 +10062,7 @@ void eWizzrobe::wizzrobe_attack()
         switch(misc)
         {
         case 1:                                               //walking
-            if(!m_walkflag(x,y,spw_door))
+            if(!m_walkflag(x,y,spw_door, dir))
                 misc=0;
             else
             {

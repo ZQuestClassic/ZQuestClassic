@@ -132,7 +132,7 @@ public:
     virtual void kickbucket();
     // Stop BG SFX only if no other enemy is playing it
     void stop_bgsfx(int index);
-    bool m_walkflag(int dx,int dy,int special, int x,int y);
+    bool m_walkflag(int dx,int dy,int special, int dir, int x=-1000,int y=-1000);
     // Take damage or ignore it
     virtual int takehit(weapon *w);
     // override hit detection to check for invicibility, stunned, etc
