@@ -16442,8 +16442,16 @@ void do_drawing_command(const int script_command)
         set_drawing_command_args(j, 15);
         break;
         
+    case DRAWTILECLOAKEDR:
+        set_drawing_command_args(j, 7);
+        break;
+        
     case DRAWCOMBOR:
         set_drawing_command_args(j, 16);
+        break;
+        
+    case DRAWCOMBOCLOAKEDR:
+        set_drawing_command_args(j, 7);
         break;
         
     case FASTTILER:
@@ -16642,7 +16650,9 @@ void do_drawing_command(const int script_command)
 	case 	BMPSPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
 	case 	BMPPUTPIXELR:	set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
 	case 	BMPDRAWTILER:	set_user_bitmap_command_args(j, 15); script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); break;
+	case 	BMPDRAWTILECLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
 	case 	BMPDRAWCOMBOR:	set_user_bitmap_command_args(j, 16); script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
+	case 	BMPDRAWCOMBOCLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
 	case 	BMPFASTTILER:	set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
 	case 	BMPFASTCOMBOR:  set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
 	case 	BMPDRAWCHARR:	set_user_bitmap_command_args(j, 10); script_drawing_commands[j][17] = SH::read_stack(ri->sp+10); break;
@@ -19576,7 +19586,9 @@ int run_script(const byte type, const word script, const long i)
 		case LINESARRAY:
 		case COMBOARRAYR:
 		case DRAWTILER:
+		case DRAWTILECLOAKEDR:
 		case DRAWCOMBOR:
+		case DRAWCOMBOCLOAKEDR:
 		case DRAWCHARR:
 		case DRAWINTR:
 		case QUADR:
@@ -19603,7 +19615,9 @@ int run_script(const byte type, const word script, const long i)
 		case 	BMPSPLINER:
 		case 	BMPPUTPIXELR:
 		case 	BMPDRAWTILER:
+		case 	BMPDRAWTILECLOAKEDR:
 		case 	BMPDRAWCOMBOR:
+		case 	BMPDRAWCOMBOCLOAKEDR:
 		case 	BMPFASTTILER:
 		case 	BMPFASTCOMBOR:
 		case 	BMPDRAWCHARR:
@@ -26970,6 +26984,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "DIREXISTS",         1,   0,   0,   0},
     { "GAMESAVEQUIT",         0,   0,   0,   0},
     { "GAMESAVECONTINUE",         0,   0,   0,   0},
+    { "DRAWTILECLOAKEDR",                0,   0,   0,   0},
+    { "BMPDRAWTILECLOAKEDR",                0,   0,   0,   0},
+    { "DRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+    { "BMPDRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
