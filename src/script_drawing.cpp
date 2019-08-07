@@ -284,6 +284,48 @@ public:
             break;
         }
     }
+	
+	static void OverTileCloaked(BITMAP* _Dest, int tile, int x, int y, int w, int h, int flip, byte skiprows=0)
+	{
+		if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
+		{
+			byte w2=(tile+w)%TILES_PER_ROW;
+			OverTileCloaked(_Dest, tile, x, y, w-w2, h, flip);
+			OverTileCloaked(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, flip);
+			return;
+		}
+		
+		switch(flip)
+		{
+			case 1:
+				for(int j=0; j<h; j++)
+					for(int k=w-1; k>=0; k--)
+						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, flip);
+						
+				break;
+				
+			case 2:
+				for(int j=h-1; j>=0; j--)
+					for(int k=0; k<w; k++)
+						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, flip);
+						
+				break;
+				
+			case 3:
+				for(int j=h-1; j>=0; j--)
+					for(int k=w-1; k>=0; k--)
+						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, flip);
+						
+				break;
+				
+			default:
+				for(int j=0; j<h; j++)
+					for(int k=0; k<w; k++)
+						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, flip);
+						
+				break;
+		}
+	}
     
     static void OverTileTranslucent(BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, int opacity, byte skiprows=0)
     {
@@ -1317,6 +1359,32 @@ void do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 }
 
+void do_drawtilecloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	//sdci[1]=layer
+	//sdci[2]=x
+	//sdci[3]=y
+	//sdci[4]=tile
+	//sdci[5]=tile width
+	//sdci[6]=tile height
+	//sdci[7]=flip
+	
+	int w = sdci[5]/10000;
+	int h = sdci[6]/10000;
+	
+	if(w < 1 || h < 1 || h > 20 || w > 20)
+	{
+		return;
+	}
+	
+	int flip=(sdci[7]/10000)&3;
+	
+	int x1=sdci[2]/10000;
+	int y1=sdci[3]/10000;
+	
+	TileHelper::OverTileCloaked(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, flip);
+}
+
 
 void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
@@ -1483,6 +1551,35 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
                 TileHelper::OldPutTile(bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, color, flip, skiprows);
         }
     }
+}
+
+void do_drawcombocloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	//sdci[1]=layer
+	//sdci[2]=x
+	//sdci[3]=y
+	//sdci[4]=combo
+	//sdci[5]=tile width
+	//sdci[6]=tile height
+	//sdci[7]=flip
+	
+	int w = sdci[5]/10000;
+	int h = sdci[6]/10000;
+	
+	if(w<1||h<1||h>20||w>20)
+	{
+		return;
+	}
+	
+	int x1=sdci[2]/10000;
+	int y1=sdci[3]/10000;
+	
+	const newcombo & c = combobuf[(sdci[4]/10000)];
+	int tiletodraw = combo_tile(c, x1, y1);
+	int flip = ((sdci[7]/10000) & 3) ^ c.flip;
+	int skiprows=combobuf[(sdci[4]/10000)].skipanimy;
+	
+	TileHelper::OverTileCloaked(bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, flip, skiprows);
 }
 
 
@@ -4598,6 +4695,44 @@ void bmp_do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     }
 }
 
+void bmp_do_drawtilecloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	//sdci[1]=layer
+	//sdci[2]=x
+	//sdci[3]=y
+	//sdci[4]=tile
+	//sdci[5]=tile width
+	//sdci[6]=tile height
+	//sdci[7]=flip
+	//sdci[17] Bitmap Pointer
+	
+	int w = sdci[5]/10000;
+	int h = sdci[6]/10000;
+	
+	if(w < 1 || h < 1 || h > 20 || w > 20)
+	{
+		return;
+	}
+	
+	if ( sdci[17] <= 0 )
+	{
+		Z_scripterrlog("bitmap->DrawTileCloaked() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
+	}
+	
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+	
+	int flip=(sdci[7]/10000)&3;
+	
+	int x1=sdci[2]/10000;
+	int y1=sdci[3]/10000;
+		
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
+	TileHelper::OverTileCloaked(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, flip);
+}
+
 
 void bmp_do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
@@ -4776,6 +4911,48 @@ void bmp_do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
                 TileHelper::OldPutTile(refbmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, color, flip, skiprows);
         }
     }
+}
+
+
+void bmp_do_drawcombocloakedr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	//sdci[1]=layer
+	//sdci[2]=x
+	//sdci[3]=y
+	//sdci[4]=combo
+	//sdci[5]=tile width
+	//sdci[6]=tile height
+	//sdci[7]=flip
+	//sdci[17] Bitmap Pointer
+	
+	int w = sdci[5]/10000;
+	int h = sdci[6]/10000;
+	
+	if(w<1||h<1||h>20||w>20)
+	{
+		return;
+	}
+	
+	if ( sdci[17] <= 0 )
+	{
+		Z_scripterrlog("bitmap->DrawComboCloaked() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
+	}
+	
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL ) return;
+	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
+	int x1=sdci[2]/10000;
+	int y1=sdci[3]/10000;
+	
+	const newcombo & c = combobuf[(sdci[4]/10000)];
+	int tiletodraw = combo_tile(c, x1, y1);
+	int flip = ((sdci[7]/10000) & 3) ^ c.flip;
+	int skiprows=combobuf[(sdci[4]/10000)].skipanimy;
+	
+	TileHelper::OverTileCloaked(refbmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, flip, skiprows);
 }
 
 
@@ -10464,10 +10641,22 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, 
             do_drawtiler(bmp, sdci, xoffset, yoffset);
         }
         break;
+		
+        case DRAWTILECLOAKEDR:
+        {
+            do_drawtilecloakedr(bmp, sdci, xoffset, yoffset);
+        }
+        break;
         
         case DRAWCOMBOR:
         {
             do_drawcombor(bmp, sdci, xoffset, yoffset);
+        }
+        break;
+        
+        case DRAWCOMBOCLOAKEDR:
+        {
+            do_drawcombocloakedr(bmp, sdci, xoffset, yoffset);
         }
         break;
         
@@ -10564,7 +10753,9 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, 
 	case 	BMPSPLINER: bmp_do_spliner(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPPUTPIXELR: bmp_do_putpixelr(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPDRAWTILER: bmp_do_drawtiler(bmp, sdci, xoffset, yoffset); break;
+	case 	BMPDRAWTILECLOAKEDR: bmp_do_drawtilecloakedr(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPDRAWCOMBOR: bmp_do_drawcombor(bmp, sdci, xoffset, yoffset); break;
+	case 	BMPDRAWCOMBOCLOAKEDR: bmp_do_drawcombocloakedr(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPFASTTILER: bmp_do_fasttiler(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPFASTCOMBOR: bmp_do_fastcombor(bmp, sdci, xoffset, yoffset); break;
 	case 	BMPDRAWCHARR: bmp_do_drawcharr(bmp, sdci, xoffset, yoffset); break;

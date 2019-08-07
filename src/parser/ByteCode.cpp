@@ -2704,9 +2704,19 @@ string ODrawTileRegister::toString()
     return "DRAWTILE";
 }
 
+string ODrawTileCloakedRegister::toString()
+{
+    return "DRAWTILECLOAKEDR";
+}
+
 string ODrawComboRegister::toString()
 {
     return "DRAWCOMBO";
+}
+
+string ODrawComboCloakedRegister::toString()
+{
+    return "DRAWCOMBOCLOAKEDR";
 }
 
 string OFastTileRegister::toString()
@@ -4350,9 +4360,19 @@ string OBMPDrawTileRegister::toString()
     return "BMPDRAWTILER";
 }
 
+string OBMPDrawTileCloakedRegister::toString()
+{
+    return "BMPDRAWTILECLOAKEDR";
+}
+
 string OBMPDrawComboRegister::toString()
 {
     return "BMPDRAWCOMBOR";
+}
+
+string OBMPDrawComboCloakedRegister::toString()
+{
+    return "BMPDRAWCOMBOCLOAKEDR";
 }
 
 string OBMPFastTileRegister::toString()

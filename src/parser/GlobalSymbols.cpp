@@ -2268,7 +2268,9 @@ static AccessorTable ScreenTable[] =
 	{ "DrawCharacter",                ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    11,          {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
 	{ "DrawInteger",                  ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    12,          {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
 	{ "DrawTile",                     ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    16,          {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,      ZVARTYPEID_BOOL,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           } },
+	{ "DrawTileCloaked",              ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    8,           {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,     -1,     -1,      -1,    -1,                           -1,                           -1,                           -1,                           -1,                           } },
 	{ "DrawCombo",                    ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    17,          {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,      ZVARTYPEID_BOOL,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           } },
+	{ "DrawComboCloaked",             ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    8,           {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,     -1,     -1,     -1,      -1,    -1,                           -1,                           -1,                           -1,                           } },
 	{ "Quad",                         ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    16,          {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,  ZVARTYPEID_FLOAT,                         -1,                           -1,                           -1,                           -1,                           } },
 	{ "Triangle",                     ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    14,          {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                      -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           } },
 	{ "Quad3D",                       ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    9,           {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
@@ -2955,6 +2957,21 @@ void ScreenSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
+    //void DrawTileCloaked(screen, ...args)
+    {
+	    Function* function = getFunction("DrawTileCloaked", 8);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        Opcode *first = new ODrawTileCloakedRegister();
+        first->setLabel(label);
+        code.push_back(first);
+        POP_ARGS(7, EXP2);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
     //void DrawCombo(screen, float, float, float, float, float, bool, float, float, float)
     {
 	    Function* function = getFunction("DrawCombo", 17);
@@ -2964,6 +2981,21 @@ void ScreenSymbols::generateCode()
         first->setLabel(label);
         code.push_back(first);
         POP_ARGS(16, EXP2);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //void DrawComboCloaked(screen, ...args)
+    {
+	    Function* function = getFunction("DrawComboCloaked", 8);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        Opcode *first = new ODrawComboCloakedRegister();
+        first->setLabel(label);
+        code.push_back(first);
+        POP_ARGS(7, EXP2);
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         
@@ -8205,7 +8237,9 @@ static AccessorTable BitmapTable[] =
 	{ "DrawCharacter",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    11,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
 	{ "DrawInteger",            ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    12,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
 	{ "DrawTile",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    16,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,      ZVARTYPEID_BOOL,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           } },
+	{ "DrawTileCloaked",        ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    8,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,     -1,     -1,      -1,    -1,                           -1,                           -1,                           -1,                           -1,                           } },
 	{ "DrawCombo",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    17,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,      ZVARTYPEID_BOOL,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           } },
+	{ "DrawComboCloaked",       ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    8,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,     -1,     -1,     -1,      -1,    -1,                           -1,                           -1,                           -1,                           } },
 	{ "Quad",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    17,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,  ZVARTYPEID_FLOAT,                         ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           } },
 	{ "Triangle",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    15,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                      ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           -1,                           -1,                           } },
 	{ "Quad3D",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    10,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
@@ -8503,6 +8537,21 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}
+	//void DrawTileCloaked(bitmap, ...args)
+	{
+		Function* function = getFunction("DrawTileCloaked", 8);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OBMPDrawTileCloakedRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(7, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
 	//void DrawCombo(bitmap, float, float, float, float, float, bool, float, float, float)
 	{
 		Function* function = getFunction("DrawCombo", 17);
@@ -8512,6 +8561,21 @@ void BitmapSymbols::generateCode()
 		first->setLabel(label);
 		code.push_back(first);
 		POP_ARGS(16, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void DrawComboCloaked(bitmap, ...args)
+	{
+		Function* function = getFunction("DrawComboCloaked", 8);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OBMPDrawComboCloakedRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(7, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
         
