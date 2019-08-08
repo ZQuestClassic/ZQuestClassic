@@ -2752,6 +2752,12 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	  	    
     }
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
+	{
+		//Compatibility: The calculation for when to loop an animation did not factor in ASkipY correctly, resulting in
+		//animations ending earlier than they should.
+		set_bit(quest_rules, qr_BROKEN_ASKIP_Y_FRAMES, 1);
+	}
     if ( tempheader.zelda_version < 0x255 )
     {
 	  set_bit(quest_rules, qr_NOFFCWAITDRAW, 1);  
