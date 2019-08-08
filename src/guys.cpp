@@ -688,22 +688,22 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
     
     switch(special)
     {
-    case spw_clipbottomright:
-        if(dy>=128 || dx>=208) return true;
-        
-    case spw_clipright:
-        break; //if(input_x>=208) return true; break;
-        
-    case spw_wizzrobe: // fall through
-    case spw_floater: // Special case for fliers and wizzrobes - hack!
-		{
-			if(isInDungeon)
+		case spw_clipbottomright:
+			if(dy>=128 || dx>=208) return true;
+			
+		case spw_clipright:
+			break; //if(input_x>=208) return true; break;
+			
+		case spw_wizzrobe: // fall through
+		case spw_floater: // Special case for fliers and wizzrobes - hack!
 			{
-				if(dy < 32-yg || dy >= 144) return true;
-				if(dx < 32 || dx >= 224) return true;
+				if(isInDungeon)
+				{
+					if(dy < 32-yg || dy >= 144) return true;
+					if(dx < 32 || dx >= 224) return true;
+				}
+				return false;
 			}
-			return false;
-		}
     }
     
     dx&=(special==spw_halfstep)?(~7):(~15);
@@ -712,13 +712,16 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
     if(special==spw_water)
         return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
 	
-	//Is changing this going to break things? -V
-	return _walkflag(dx,dy,1) || groundblocked(dx,dy);
-	/*return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
-	         groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);*/
+	if(SIZEflags & (guyflagOVERRIDE_HIT_HEIGHT | guyflagOVERRIDE_HIT_WIDTH))
+	{
+		return _walkflag(dx,dy,1) || groundblocked(dx,dy);
+	}
+	else
+	{
+		return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
+		       groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
+	}
 }
-
-
 
 
 // Stops playing the given sound only if there are no enemies left to play it
