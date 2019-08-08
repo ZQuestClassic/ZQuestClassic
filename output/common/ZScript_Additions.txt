@@ -1983,6 +1983,16 @@ void DrawScreen()
 void DrawLayer()
  * These now support Combo CSet values.
 
+void DrawTileCloaked(int layer, int x, int y,
+		int tile, int blockw, int blockh,
+		int flip);
+ * As DrawTile(), but draws with a cloaked effect.
+
+void DrawComboCloaked(int layer, int x, int y,
+		int combo, int tilewidth, int tileheight,
+		int flip);
+ * As DrawCombo(), but draws with a cloaked effect.
+
 void PutPixels(int layer, int ptr[])
  * Puts multiple pixels to the screen in one function call.
  * PutPixels() expects an array as its arg, with the array in the format of
@@ -4440,6 +4450,16 @@ void DrawTile(int layer, int x, int y,
 		int flip, 
 		bool transparency, int opacity);
  * Identical to Screen->DrawTile(), but it draws to a target bitmap.
+
+void DrawTileCloaked(int layer, int x, int y,
+		int tile, int blockw, int blockh,
+		int flip);
+ * Identical to Screen->DrawTileCloaked(), but it draws to a target bitmap.
+
+void DrawComboCloaked(int layer, int x, int y,
+		int combo, int tilewidth, int tileheight,
+		int flip);
+ * Identical to Screen->DrawComboCloaked(), but it draws to a target bitmap.
 
 void DrawComboint layer, int x, int y, 
 		int combo, int w, int h, 

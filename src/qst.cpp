@@ -2742,8 +2742,22 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
 	set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
 	set_bit(quest_rules,qr_32BIT_BINARY,0);
+	if ( get_bit(quest_rules, qr_SELECTAWPN) ) 
+	{
+		set_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP,1); 
+		//In < 2.55a27, if you had an A+B subscreen, L and R didn't shift through inventory.
+		//Now they **do**, unless you disable that behaviour.
+		//For the sake of compatibility, old quests with the A+B subscreen rule enabed
+		//now enable the disable L/R item swap on load.
+	}
 	  	    
     }
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
+	{
+		//Compatibility: The calculation for when to loop an animation did not factor in ASkipY correctly, resulting in
+		//animations ending earlier than they should.
+		set_bit(quest_rules, qr_BROKEN_ASKIP_Y_FRAMES, 1);
+	}
     if ( tempheader.zelda_version < 0x255 )
     {
 	  set_bit(quest_rules, qr_NOFFCWAITDRAW, 1);  

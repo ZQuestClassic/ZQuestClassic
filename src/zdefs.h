@@ -108,7 +108,7 @@
 #define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 29"                    //version of the program as presented in text
 #define IS_BETA             -29                         //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        29
-#define DATE_STR            "6th August, 2019, 10:32GMT"
+#define DATE_STR            "7th August, 2019, 10:50EST"
 #define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 29"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
@@ -863,7 +863,9 @@ enum
 	qr_NO_L_R_BUTTON_INVENTORY_SWAP,
 	qr_USE_EX1_EX2_INVENTORYSWAP,
 	qr_NOFASTMODE,
-	qr_OLD_F6,
+	qr_OLD_F6 /* Compatibility */,
+	//23
+	qr_BROKEN_ASKIP_Y_FRAMES /* Compatibility */,
 	
 	
 	//ZScript Parser //room for 20 of these

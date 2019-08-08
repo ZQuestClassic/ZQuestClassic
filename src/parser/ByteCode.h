@@ -3520,6 +3520,16 @@ namespace ZScript
 		}
 	};
 
+	class ODrawTileCloakedRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODrawTileCloakedRegister();
+		}
+	};
+
 	class ODrawComboRegister : public Opcode
 	{
 	public:
@@ -3527,6 +3537,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new ODrawComboRegister();
+		}
+	};
+
+	class ODrawComboCloakedRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODrawComboCloakedRegister();
 		}
 	};
 
@@ -7280,6 +7300,15 @@ namespace ZScript
 			return new OBMPDrawComboRegister();
 		}
 	};
+	class OBMPDrawComboCloakedRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawComboCloakedRegister();
+		}
+	};
 	class OBMPDrawTileRegister : public Opcode
 	{
 	public:
@@ -7287,6 +7316,15 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OBMPDrawTileRegister();
+		}
+	};
+	class OBMPDrawTileCloakedRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawTileCloakedRegister();
 		}
 	};
 	class OBMPDrawIntRegister : public Opcode
