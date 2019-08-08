@@ -712,15 +712,8 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
     if(special==spw_water)
         return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
 	
-	if(SIZEflags & (guyflagOVERRIDE_HIT_HEIGHT | guyflagOVERRIDE_HIT_WIDTH))
-	{
-		return _walkflag(dx,dy,1) || groundblocked(dx,dy);
-	}
-	else
-	{
-		return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
-		       groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
-	}
+	return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
+	       groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
 }
 
 
