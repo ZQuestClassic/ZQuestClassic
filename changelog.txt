@@ -2,6 +2,38 @@
 
 //Alpha 29
 
+Pruned `Quest->Rules->Scripts`, and associated data, as it is unused/hidden anyway.
+Added a TABPANEL to `Quest->Rules->Backwards Compatibility`
+Added `qr_BROKEN_ASKIP_Y_FRAMES` ("Broken ASkipY Animation Frames") to compat rules, now that there is space
+Added a TABPANEL to `ZScript->Quest Script Settings`; sorted into 5 tabs, by type of rule.
+Fixed typo: "IetmSprite" -> "ItemSprite", for ASM import option
+	( Venrob, 9th August, 2019 )
+	
+Fixed screenshot colours when taking a screenshot in ZC Player, via the menus.
+	( ZoriaRPG, 9th August, 2019 )
+	
+Fixed Combo Animations with SkipY
+	The formula for calculating when to reset a combo animation to the start did not properly account for ASkipY, causing it to use the wrong number of frames.
+	This has been fixed, though 'qr_BROKEN_ASKIP_Y_FRAMES' being enabled will cause it to use the old behavior.
+	This QR is NOT yet in the GUI, and needs to be added to the second tab of 'Quest->Rules->Backwards Compatibility', when that gets it's tabpanel.
+	( Venrob, 8th August, 2019 )
+	
+In < 2.55a27, if you had an A+B subscreen, L and R didn't shift
+through inventory.
+	Now they **do**, unless you disable that behaviour.
+	For the sake of compatibility, old quests with the A+B subscreen rule enabed
+	now enable the disable L/R item swap on load.
+	( ZoriaRPG, 7th August, 2019 )
+	
+Added to 'Screen->' and 'bitmap->' 2 new functions:
+	'->DrawTileCloaked(int layer, int x, int y, int tile, int blockw, int blockh, int flip);'
+	'->DrawComboCloaked(int layer, int x, int y, int combo, int tilewidth, int tileheight, int flip);'
+	These will draw the appropriate tile using 'overtilecloaked16()'; a distortion effect.
+	Distortion effects have issues with sub-bitmaps, so features such as scale, rotate, and transparency are incompatible with cloaked drawing.
+	Distortion effects also ignore CSet, thus why that argument is not present.
+	( Venrob, 7th August, 2019 )
+	
+Remove shadow vars from enemy::m_walkflag params	
 Added sanity check if ( ((unsigned)id) < MAXGUYS ) to reads into guys structs.
 Add more clipping prevention to large enemies, ...and diagonals. 
 	This seems to work far better but enemies can still occasionally clip
