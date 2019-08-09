@@ -592,7 +592,7 @@ static int compatrules1_list[] =
 
 static int compatrules2_list[] =
 {
-	22, 23, 24, -1
+	22, 23, 24, 25, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -609,6 +609,7 @@ static int compatrules[] =
    qr_HOOKSHOTDOWNBUG, qr_REPLACEOPENDOORS, qr_NOSOLIDDAMAGECOMBOS, qr_OLDHOOKSHOTGRAB,
    qr_PEAHATCLOCKVULN, qr_OFFSCREENWEAPONS, qr_ITEMPICKUPSETSBELOW, qr_OLDSIDEVIEWSPIKES,
    qr_OLDINFMAGIC, qr_BITMAPOFFSETFIX, qr_OLDSPRITEDRAWS, qr_OLD_F6, qr_BROKEN_ASKIP_Y_FRAMES,
+   qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY,
    -1 
 };
 
@@ -627,25 +628,29 @@ static DIALOG compatrules_dlg[] =
     { jwin_text_proc,       10, 13+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "These rules are enabled automatically for compatibility.", NULL, NULL },
     { jwin_text_proc,       10, 13+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Enabling them manually may cause unexpected behavior.", NULL, NULL },
     
-    // rules
+    // rules 8
     { jwin_check_proc,      10, 13+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old GOTOLESS Behavior", NULL, NULL },
     { jwin_check_proc,      10, 13+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Lens Drawing Order", NULL, NULL },
-    { jwin_check_proc,      10, 13+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "No Fairy Guy Fires", NULL, NULL },
+    // 10
+	{ jwin_check_proc,      10, 13+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "No Fairy Guy Fires", NULL, NULL },
     { jwin_check_proc,      10, 13+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Continuous Step Triggers", NULL, NULL },
     { jwin_check_proc,      10, 13+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Downward Hookshot Bug", NULL, NULL },
     { jwin_check_proc,      10, 13+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Fix Open Door Solidity", NULL, NULL },
     { jwin_check_proc,      10, 13+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "No Solid Damage Combos", NULL, NULL },
-    { jwin_check_proc,      10, 13+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Hookshot Grab Checking", NULL, NULL },
+    // 15
+	{ jwin_check_proc,      10, 13+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Hookshot Grab Checking", NULL, NULL },
     { jwin_check_proc,      10, 13+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Peahats Are Vulnerable When Frozen By Clocks", NULL, NULL },
     { jwin_check_proc,      10, 13+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Weapons With No Collision Detection Move Offscreen", NULL, NULL },
     { jwin_check_proc,      10, 13+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Screen Item Pickup Disables Hunger/Special Item", NULL, NULL },
     { jwin_check_proc,      10, 13+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Sideview Spike Detection Prior to 2.50.1RC3", NULL, NULL },
-    { jwin_check_proc,      10, 13+170, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Infinite Magic Prevents Items From Draining Rupees", NULL, NULL },
+    // 20
+	{ jwin_check_proc,      10, 13+170, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Infinite Magic Prevents Items From Draining Rupees", NULL, NULL },
     { jwin_check_proc,      10, 13+180, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Use DrawBitmap() Offsets Prior to 2.50.2", NULL, NULL },
-    // 22
     { jwin_check_proc,      10, 13+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Faster) Sprite Drawing", NULL, NULL },
 	{ jwin_check_proc,      10, 13+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old (Instant) F6 Menu", NULL, NULL },
 	{ jwin_check_proc,      10, 13+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Broken ASkipY Animation Frames", NULL, NULL },
+	// 25
+	{ jwin_check_proc,      10, 13+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Enemies Clip Through Top-Half Partial Solids", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };
 

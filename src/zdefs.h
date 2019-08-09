@@ -866,6 +866,7 @@ enum
 	qr_OLD_F6 /* Compatibility */,
 	//23
 	qr_BROKEN_ASKIP_Y_FRAMES /* Compatibility */,
+	qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY /* Compatibility */,
 	
 	
 	//ZScript Parser //room for 20 of these

@@ -646,8 +646,8 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
 			{
 				if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT && !isflier(id) )
 				{
-					//Z_eventlog("Adding %d to dy\n",hysz-16);
-					dy += hysz-16;
+					//Small enemies are treated as 16x16, for the purposes of m_walkflag!
+					dy += zc_max(hysz-16,0);
 				}
 			}
 			break;
@@ -660,8 +660,8 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
 			{
 				if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH && !isflier(id) )
 				{
-					//Z_eventlog("Adding %d to dx\n",hxsz-16);
-					dx += hxsz-16;
+					//Small enemies are treated as 16x16, for the purposes of m_walkflag!
+					dx += zc_max(hxsz-16,0);
 				}
 			}
 			break;
@@ -712,8 +712,18 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
     if(special==spw_water)
         return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
 	
-	return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
-	       groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
+	if(get_bit(quest_rules,qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY))
+	{
+		return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
+		       groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
+	}
+	else
+	{
+		return _walkflag(dx,dy,1) || _walkflag(dx+8,dy,1) ||
+		       _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
+		       groundblocked(dx,dy) || groundblocked(dx+8,dy) ||
+		       groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
+	}
 }
 
 
@@ -877,21 +887,16 @@ void enemy::FireWeapon()
     
     int xoff = 0;
     int yoff = 0;
-    if ( ((unsigned)id) < MAXGUYS )
-    {
-	    if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH )
-	    {
-		    
-		 xoff += (txsz-1)*8;   
-		    //Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
-		    
-	    }
-	    if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT )
-	    {
-		 yoff += (tysz-1)*8;   
-		    //Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
-	    }
-    }
+	if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH )
+	{
+		xoff += (hxsz/2)-8;   
+		//Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
+	}
+	if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT )
+	{
+		yoff += (hysz/2)-8;   
+		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
+	}
         
     switch(dmisc1)
     {
@@ -3699,10 +3704,12 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 	int useyoffs = (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? hyofs : 0;
 	int usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
 	int usehei = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hysz : 16;
-	if (unsigned(id) < MAXGUYS && isflier(id))
+	bool offgrid = editorflags & ENEMY_FLAG15;
+	if(!offgrid)
 	{
-		usewid = 16;
-		usehei = 16;
+		//Enemies smaller than 1-tile must act as 1-tile large, if off-grid movement is disabled.
+		if(usehei<16)usehei=16;
+		if(usewid<16)usewid=16;
 	}
 	switch(ndir) //need to check every 8 pixels between two points
 	{
@@ -3715,15 +3722,16 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 			dy = dy1-s;
 			special = (special==spw_clipbottomright)?spw_none:special;
 			tries = usewid/8;
+			if(!offgrid) tries/=2;
 			//Z_eventlog("Trying move UP, dy=%d,usewid=%d,usehei=%d\n",int(dy),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
 				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy, special);
-				try_x += 8;
+				try_x += (offgrid ? 8 : 16);
 				if (!ok) break;
 			}
 			if(!ok) break;
-			ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy, special);
+			if(offgrid || (usewid%16)>0) ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy, special);
 			break;
 		}
 		case 12:
@@ -3733,48 +3741,51 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 				
 			dy = dy2+s;
 			tries = usewid/8;
+			if(!offgrid) tries/=2;
 			//Z_eventlog("Trying move DOWN, dy=%d,usewid=%d,usehei=%d\n",int(dy),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
-				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-16, special);
-				try_x += 8;
+				ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy,special, ndir, x+usexoffs+try_x, y+useyoffs) && !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+zc_max(usehei-16,0), special);
+				try_x += (offgrid ? 8 : 16);
 				if (!ok) break;
 			}
 			if(!ok) break;
-			ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-16, special);
+			if(offgrid || (usewid%16)>0) ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+zc_max(usehei-16,0), special);
 			break;
 			
 		case 14:
 		case left:
 			dx = dx1-s;
-			sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
+			sv = ((tmpscr->flags7&fSIDEVIEW)?7:0);
 			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
 			tries = usehei/8;
+			if(!offgrid) tries/=2;
 			//Z_eventlog("Trying move LEFT, dx=%d,usewid=%d,usehei=%d\n",int(dx),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
 				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+try_y, special);
-				try_y += 8;
+				try_y += (offgrid ? 8 : 16);
 				if (!ok) break;
 			}
 			if(!ok) break;
-			ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+usehei-1, special);
+			if(offgrid || (usehei%16)>0) ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+usehei-1, special);
 			break;
 			
 		case 10:
 		case right:
 			dx = dx2+s;
-			sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
+			sv = ((tmpscr->flags7&fSIDEVIEW)?7:0);
 			tries = usehei/8;
+			if(!offgrid) tries/=2;
 			//Z_eventlog("Trying move RIGHT, dx=%d,usewid=%d,usehei=%d\n",int(dx),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
-				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y) && !flyerblocked(x+usexoffs+dx+usewid-16,y+8+useyoffs+try_y, special);
-				try_y += 8;
+				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+try_y+sv,special, ndir, x+usexoffs, y+useyoffs+try_y) && !flyerblocked(x+usexoffs+dx+zc_max(usewid-16,0),y+8+useyoffs+try_y, special);
+				try_y += (offgrid ? 8 : 16);
 				if (!ok) break;
 			}
 			if(!ok) break;
-			ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx+usewid-16,y+8+useyoffs+usehei-1, special);
+			if(offgrid || (usehei%16)>0) ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx+zc_max(usewid-16,0),y+8+useyoffs+usehei-1, special);
 			break;
 			
 		case 9:
