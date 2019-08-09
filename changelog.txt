@@ -1,4 +1,4 @@
-//2.55 Changeshttps://github.com/ArmageddonGames/ZeldaClassic/commit/c98fd3f55235192deab262b4b6d2af0c28190ffe
+//2.55 Changes
 
 //Alpha 29
 
