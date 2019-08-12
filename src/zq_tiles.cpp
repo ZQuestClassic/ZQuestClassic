@@ -275,6 +275,7 @@ void merge_tiles(int dest_tile, int src_quarter1, int src_quarter2, int src_quar
 
 static void make_combos(int startTile, int endTile, int cs)
 {
+	 al_trace("inside make_combos()\n");
     int startCombo=0;
     
     if(!select_combo_2(startCombo,cs))
@@ -303,6 +304,7 @@ static void make_combos(int startTile, int endTile, int cs)
 
 static void make_combos_rect(int top, int left, int numRows, int numCols, int cs)
 {
+	//al_trace("inside make_combos_rect()\n");
     int startCombo=0;
     
     if(!select_combo_2(startCombo, cs))
@@ -314,6 +316,7 @@ static void make_combos_rect(int top, int left, int numRows, int numCols, int cs
     
     if(!edit_combo(startCombo, false, cs))
     {
+	    al_trace("make_combos_rect() early return\n");
         combobuf[startCombo].tile=temp;
         return;
     }
@@ -5207,6 +5210,10 @@ static MENU select_tile_rc_menu[] =
     { (char *)"Blank?",  NULL,  NULL, 0, NULL },
     { (char *)"",        NULL,  NULL, 0, NULL },
     { (char *)"View\t ", NULL,  select_tile_view_menu, 0, NULL },
+    { (char *)"Overlay",  NULL,  NULL, 0, NULL },
+    { (char *)"H-Flip",  NULL,  NULL, 0, NULL },
+    { (char *)"V-Flip",  NULL,  NULL, 0, NULL },
+    { (char *)"Create Combos",  NULL,  NULL, 0, NULL },
     { NULL,              NULL,  NULL, 0, NULL }
 };
 
@@ -8985,8 +8992,10 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
             break;
             
             case KEY_M:
+		    //al_trace("mass combo key pressed, type == %d\n",type);
                 if(type==0)
                 {
+			 //al_trace("mass combo key pressed, copy == %d\n",copy);
                     if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
                     {
                         go_tiles();
@@ -8997,9 +9006,13 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                         // I don't know what this was supposed to be doing before.
                         // It didn't work in anything like a sensible way.
                         if(rect_sel)
+			{
                             make_combos_rect(top, left, rows, columns, cs);
+			}
                         else
+			{
                             make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+			}
                     }
                     
                     redraw=true;
@@ -9399,6 +9412,84 @@ REDRAW:
             case 9:
                 show_blank_tile(tile);
                 break;
+	    
+	    case 12: //overlay
+		    overlay_tile(newtilebuf,tile,copy,cs,0);
+		    break;
+	    
+	    case 13: //h-flip
+	    {
+		flip^=1;
+		go_tiles();
+		
+		if(type==0)
+		{
+		    normalize(tile,tile2,rect_sel,flip);
+		    flip=0;
+		}
+		
+		redraw=true;   
+		break;
+		    
+	      }
+	      
+	      case 14: //h-flip
+	      {
+			if(copy==-1)
+			{
+			    if(type!=2)
+			    {
+				flip^=2;
+				go_tiles();
+				
+				if(type==0)
+				{
+				    normalize(tile,tile2,rect_sel,flip);
+				    flip=0;
+				}
+			    }
+			}
+			else
+			{
+			    go_tiles();
+			    saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
+			}
+			
+			redraw=true;
+		break;
+		    
+	      }
+		    
+	    
+	    case 15: //mass combo
+	    {
+		if(type==0)
+                {
+			 //al_trace("mass combo key pressed, copy == %d\n",copy);
+                    if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
+                    {
+                        go_tiles();
+                        saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
+                    }
+                    else if(copy==-1)
+                    {
+                        // I don't know what this was supposed to be doing before.
+                        // It didn't work in anything like a sensible way.
+                        if(rect_sel)
+			{
+                            make_combos_rect(top, left, rows, columns, cs);
+			}
+                        else
+			{
+                            make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+			}
+                    }
+                    
+                    redraw=true;
+                }
+		    
+	    }
+		    break;
                 
             default:
                 redraw=false;
@@ -11450,7 +11541,10 @@ bool edit_combo(int c,bool freshen,int cs)
     
     sprintf(combonumstr,"Combo %d", c);
     sprintf(cset_str,"%d",csets);
+    //int temptile = curr_combo.tile;
+    //int temptile2 = NEWMAXTILES - temptile;
     sprintf(frm,"%d",vbound(curr_combo.frames,0,NEWMAXTILES-curr_combo.tile));
+    //al_trace("frm is: %s\n",frm);
     sprintf(spd,"%d",curr_combo.speed);
     sprintf(skip,"%d",curr_combo.skipanim);
     sprintf(skipy,"%d",curr_combo.skipanimy);
@@ -11788,8 +11882,8 @@ bool edit_combo(int c,bool freshen,int cs)
         int bound = (NEWMAXTILES-curr_combo.tile+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy)/
                     (1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
                     
-        //curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
-        curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
+        curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
+        //curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
         
         curr_combo.speed = vbound(atoi(spd),0,255);  //bind to size of byte! -Z
         curr_combo.type = bict[combo_dlg[25].d1].i;
@@ -11822,7 +11916,7 @@ bool edit_combo(int c,bool freshen,int cs)
     
     setup_combo_animations();
     setup_combo_animations2();
-    return (ret==1);
+    return (ret==2);
 }
 
 int d_itile_proc(int msg,DIALOG *d,int)

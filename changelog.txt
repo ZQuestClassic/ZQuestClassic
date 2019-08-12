@@ -1,7 +1,281 @@
 //2.55 Changes
 
-//Alpha 28
+//Alpha 29
 
+Pruned `Quest->Rules->Scripts`, and associated data, as it is unused/hidden anyway.
+Added a TABPANEL to `Quest->Rules->Backwards Compatibility`
+Added `qr_BROKEN_ASKIP_Y_FRAMES` ("Broken ASkipY Animation Frames") to compat rules, now that there is space
+Added a TABPANEL to `ZScript->Quest Script Settings`; sorted into 5 tabs, by type of rule.
+Fixed typo: "IetmSprite" -> "ItemSprite", for ASM import option
+	( Venrob, 9th August, 2019 )
+	
+Fixed screenshot colours when taking a screenshot in ZC Player, via the menus.
+	( ZoriaRPG, 9th August, 2019 )
+	
+Fixed Combo Animations with SkipY
+	The formula for calculating when to reset a combo animation to the start did not properly account for ASkipY, causing it to use the wrong number of frames.
+	This has been fixed, though 'qr_BROKEN_ASKIP_Y_FRAMES' being enabled will cause it to use the old behavior.
+	This QR is NOT yet in the GUI, and needs to be added to the second tab of 'Quest->Rules->Backwards Compatibility', when that gets it's tabpanel.
+	( Venrob, 8th August, 2019 )
+	
+In < 2.55a27, if you had an A+B subscreen, L and R didn't shift
+through inventory.
+	Now they **do**, unless you disable that behaviour.
+	For the sake of compatibility, old quests with the A+B subscreen rule enabed
+	now enable the disable L/R item swap on load.
+	( ZoriaRPG, 7th August, 2019 )
+	
+Added to 'Screen->' and 'bitmap->' 2 new functions:
+	'->DrawTileCloaked(int layer, int x, int y, int tile, int blockw, int blockh, int flip);'
+	'->DrawComboCloaked(int layer, int x, int y, int combo, int tilewidth, int tileheight, int flip);'
+	These will draw the appropriate tile using 'overtilecloaked16()'; a distortion effect.
+	Distortion effects have issues with sub-bitmaps, so features such as scale, rotate, and transparency are incompatible with cloaked drawing.
+	Distortion effects also ignore CSet, thus why that argument is not present.
+	( Venrob, 7th August, 2019 )
+	
+Remove shadow vars from enemy::m_walkflag params	
+Added sanity check if ( ((unsigned)id) < MAXGUYS ) to reads into guys structs.
+Add more clipping prevention to large enemies, ...and diagonals. 
+	This seems to work far better but enemies can still occasionally clip
+	through solid combos, and they seem to be bound too close in toward the middle of the screen
+	from the left edge of the screen.
+Try to add multi-pixel solidity checks to bool enemy::canmove
+Fix: More checks for large enemies.
+	Added some bounding to m_walkflag based on dir, but we need
+	a routine for can_walk stuff that checks between points of the corners.
+	Large enemies can still clip through solid stuff, quite easily.
+Move m_walkflag into enemy class. 
+	This gives it access to the current enemy internal vars, so that
+	we can check txsz and tysz or hxsz / hysz for being on screen
+	or touching solid combos.
+	( ZoriaRPG, 6th August, 2019 )
+	
+Fix: Centre EWeapons for Large Enemies
+Feat: Add H/V Flip Context Menu Entries to Tile Editor
+Feat: Add options to Tile Editor Context Menu 
+	Added 'Overlay' and 'Create Combos' to the Tile Editor
+	right-click (contextual) menu.
+	These perform OverlatTile, and Mass Combo creation, respectively.
+Fix: Crash on ZQ Context Menu>>>Screen Submenu
+Fix: Set Whistle Pols Voice Defence to OKHO 
+	Force defense[edefWhistle] = OKHO for Whistle Pols Voice
+	npc in versions < 2.55 Build 47, on quest load.
+Condense and Rearrange ZQ Menus to fit Small Mode
+Used Smaller Context Menu in Small ZQ Mode
+Marked where config ints can be used to modify the Contextual Menu
+Condense ZQuest Contextual Menu
+	( ZoriaRPG, 5th August, 2019 )
+	
+The arrays that held combo animation tile data were sized to word,
+	not int, and thus, combo animations would not work properly if the tile was
+	> 16b.
+
+	I've resized all of these arrays to int, and thus, they can now hold tile values
+	large-enough to work properly from the extended pages.
+Fixed Mass Combo Creation. 
+	The bug was cased by edit_combo()
+	returning the incorrect value, after old modifications to its DIALOGUE
+	array, when we added Combo Attributes..
+Fixed Give/Take Item SCCs failing to trigger passive item scripts, or disabling them.
+Fixed array[9] passed to Link->WarpEx ignoring the last index value.
+Feat: Add refInfo object fileref, and REFFILE for file datatype.
+Parser: Added token 'equals' as alt for '=='
+Docs: Added ffrules.txt v1.0
+Chore: Correct typos in Item Rules
+std: Update std_constants with new ffrules enum.
+	( ZoriaRPG, 4th August, 2019 )
+	
+Change std::Blink() to std::blink()
+std.zh - Add namespace std, and bool Blink.
+	( ZoriaRPG, 3rd August, 2019 )
+	
+Fix lexical error in std_constants
+Added the following to std_constants.zh:
+	//Default array sizes
+	const int INIT_D_SIZE			= 8;
+	const int INIT_A_SIZE			= 2;
+	const int MISC_SIZE			= 32;
+	const int NPC_ATTRIBUTES_SIZE		= 32;
+	const int ITEM_ATTRIBUTES_SIZE`		= 10;
+	const int GAMEMISC_SIZE 		= 32;
+Fix syntax err in typedef docs (ZSA.txt)
+Parser: Add Pascal Style ASSIGN token (:=)
+Parser: Added '..' as alt token for '::' (namespace scoperes)
+Try to fix the pointer used by EditScreenScript(), that may have been causing Screen Script
+	data to vanish at random.
+	( ZoriaRPG, 1st August, 2019 )
+	
+Feat: `global_wait` for each slot, multiframe onLaunch 
+	`global_wait` is now bitwise, matching `g_doscript`
+	`onLaunch` scripts now can run for multiple frames, in the same style as onF6Menu and onDeath scripts. 
+	As a side effect, F6 cannot be used during them.
+	This script slot is now set up perfectly for use for quest Title Screens.
+	Removed a trace that was left behind during F6 slot dev.
+	( Venrob, 1st August, 2019 )
+	
+Fix: FFRules[] setter broken 
+	When reading a bool, do NOT use `value/10000`, 
+	as this will break completely with `true==0.0001` compiler option on, as `1/10000`, 
+	integer division, is `0`.
+Feat: Add 'Game->SaveAndQuit()' and 'Game->SaveAndContinue()' 
+	These do as their names say. They benefit over doing 'Game->Save(); Game->End();' 
+	(or 'Game->Save(); Game->Continue();' respectively) in that they will save the game AFTER 
+	the execution of the global script onExit.
+	If an onExit script is important to the quest, these may be neccesary over the prior options 
+	for scripts to function as expected.
+Feat: Hero OnDeath matches Global onF6Menu 
+	These script types now run with similar functionality to each other, 
+	for consistency in menu scripts.
+Also added `qr_ONDEATH_RUNS_AFTER_DEATH_ANIM`, which does as the name says. 
+	With the correct toggling of this rule via script, it is possible to cause onDeath to run twice in a row.
+Fixed 'Game->Continue' skipping exiting code, including passive item script cleanup (could cause CRASHES), and skipping the global script onExit's execution.
+Moved Hero script onDeath's execution from 'link.cpp' to 'ffscript.cpp', runOnDeathEngine().
+Fixed 'doScriptMenuDraws()' not applying the playing_field_offset to layers other than 7.
+Moved `initZScriptLinkScripts()` into FFCore.
+Fix/Feat: Fix, and FINISH, F6 scripts. 
+	Also fix:
+	`SKIPF6` now refs `qr_NOCONTINUE`, instead of separate thing
+	`LinkClass::gameover()` now named `LinkClass::heroDeathAnimation()`, 
+	because `gameover()` + `game_over()` is not good identifier names.
+	Remove several duplicate `put_passive_subscr()` calls; `draw_screen()` already calls this!!!!
+	`Game>>>End Game...` now calls F6 script.
+	( Venrob, 31st July, 2019 )
+	
+Fix Bounding Error on itemdata 
+	'0' is a valid writable value, but VBound was 1-255. 
+	This prevented making an item NOT have a script(either pickup or action).
+Fix: Delayed F6
+	FFCore.runF6Engine is now called from advanceframe(), unless the third parameter is passed as 'false'.
+	This should be false for Link OnWin/OnDeath, as well as the F6 script itself.
+	This is ALSO false for LinkClass::scrollscr(), as that needs custom F6 handling to draw the scrolling screen properly. This is handled via 'FFCore.runF6EngineScrolling()'.
+	This still needs testing.
+	( Venrob, 30th July, 2019 )
+	
+Fix: Cannot F9 during Hero OnDeath
+Implement F6 script via unsigned long GameFlags, add QR 
+	qr_OLD_F6, automatic for quests <0x255 build 47; reverts all F6 behavior, 
+	including prevent F6 script from running.
+	F6 running moved to `FFCore.runF6Engine()`, callable from wherever we want.
+	Add check to prevent wasting a frame running an empty F6 script
+	Allow F6 from main menu to run script (but NOT `File->End Game`... should this as well?)
+Feat/Refactor: Global Scripts 
+	Each global script slot now has it's own stack/refinfo/doscript (bit)
+	Added Global Script onF6Menu, runs when F6 is pressed, or 'Game->ShowContinueScreen()' is called via script.
+	During this script, other action is halted. This script will run for multiple frames similarly to Link OnDeath and Link OnWin. If you cancel out of the menu (exit, with qr_NOCONTINUE==true,without setting Quit) then the game_loop and global active will resume right where they left off.
+	Todo: Global InitD[], further testing of F6 scripts
+	( Venrob, 29th July, 2019 )
+
+Feat: New Global Slots
+	Renamed `onContinue` to `onSaveLoad`, for clarity
+	Added `onLaunch`; runs after onContinue, regardless of `firstplay`
+	Added `onContGame`; runs after `Continue`, after Link Init, just before opening 
+	wipe (qCONT; Game->Continue(), F6->Continue, Game Over->Continue)
+Fix: Link Init runs in Link.init() 
+	Now runs on F6->Continue
+Fix: Mapdata->Layer*[] throw errors on valid index 
+	mapdata->Layer*[6] represents layer 6's data, but, throws errors when attempting to access.
+	Fixed the index bounder on these getters.
+Fix: Large Enemy Tiles 
+	There should be parentheses there. Order of operations, ya know?
+Fix: Itemsprite InitD[] should NOT * or / 10000 
+	InitD is direct value, there should be no conversion. 
+	This would truncate any decimal, as well as cause the parameter variables to be /10000 what they should be.
+	( Venrob, 28th July, 2019 )
+
+Fix: Crash when writing negative combos 
+	When writing a combo via script, now VBound between `0` and `MAXCOMBOS`.
+	Previously, `Screen->ComboD[foo] = -1;` would crash ZC.
+	( Venrob, 26th July, 2019 )
+	
+Fix: Bounds check for mapdata->D[] 
+	Corrected the bounds check for mapdata->D[8].
+	The BC was checking < 9, not 8.
+	I also simplified it with an unsigned cast.#
+	**We need to go through ffscript.cpp and convert all if > 0 && < n
+	checks to 'if ( (unsigned)v) < n )' to reduce overhead.
+Fix: mapdata->D[] 
+	Fixed offsets for mapdata->D[8] to account for it
+	only working on normap mapscreens.
+	Based on how SCREENSTATED works.
+	( ZoriaRPG, 26th July, 2019 )
+	
+Update file date on std_constants and ensure consistency.
+Added int Game->ZScriptVersion to ZScript. I made this r/w, with 
+	the ZASM instruction ZSCRIPTVERSION so that it is possible to 
+	modify ZASM scripts to get the current version, write a version to 
+	use for the script, and set back the correct version when the
+	script exits.
+
+Versions of Zscript prior to 13 are now shown, rather than -1.
+	NOTE however, that this merely reflects the constant V_FFSCRIPT used
+	by ZQ when that quest was saved, and it does not reflect when it was truly
+	last compiled (13+ do), but it is better than a generic '-1' and
+	may prove useful.
+
+	Linked all checks for this through 'FFCore.quest_format[vLastCompile]'.
+
+Game->Beta now returns a negative value if the build is an ALPHA
+	**and** the current compiled ZScript version is >= 13.
+
+The internal ID of the ZScript version is stored when compiling scripts,
+	during compilation. The value is stored in the QMisc struct.
+
+	The 'Compile Script' dialogue displays the last language version used in a quest.
+	Versions prior to 13 read as -1 at present.
+
+	This feature should be used with GREAT CARE as individual scripts do not
+	have this metadata and obviously, there is no way to determine in
+	what build an ASM script was compiled.
+
+	Build is now 47. Updated build date.
+	( ZoriaRPG, 25th July, 2019 )
+
+Fix: NO_ERROR_HALT crash with array accessing
+	`arr[NONEXISTANT_CONSTANT]` now no longer crashes.
+	( Venrob, 24th July, 2019 )
+	
+Corrected the behaviour of Audio->AdjustMusicVolume
+	and ensure proper reset to user defaults on quest exit.
+	( ZoriaRPG, 23rd July, 2019 )
+	
+ZCL: Segregated ZC Player and ZQ Editor GFX Drivers.
+	Version is noe 2.7.0
+Added confirmation/warning dialogues when shifting between
+	fullscreen and windowed modes in both ZQ Editor and ZC Player.
+Corrected label for 'Ex3/Ex4' shifts A-button items.
+	( ZoriaRPG, 23rd ]commit may show 18th] July, 2019 )
+
+std_zh: Update QR enum
+	Number of QRs have been added since last update; need to be available for `FFRules[]` access.
+	( Venrob, 23rd July, 2019 )
+	
+Fix: Crash on invalid script type
+	That needs to call `program.addScript`, as that's where the error is handled!
+	( Venrob, 22nd July, 2019 )
+	
+Fix: Port 'linkedItem' from 2.53, to fix wand crash
+	Book ID is now stored on this new var, instead of miscellaneous[31]
+	( Venrob, 19th July, 2019 )
+	
+Feat: Add item->InitD[8] to ZScriptl which is this->InitD in itemsprite scripts.
+Added linked_parent to item sprite subclass, init to 0 in its
+	constructor, and moved the == eeGANON check to use the new var, instead of
+	Misc31; as the latter can be overwritten by scripts.
+Fix setter for MAPDATASCREENSTATED
+This commit completes a series as follows:
+	Fixed itemsprite script initD being populated with '0' by ensuring that
+	the sprite initD was read by the item::item constructor from itemdata.
+
+	Fixed screen script initD by ensuring that tmpscr->initialised was not set to 1 by
+	loadscr() in maps.cpp; it should always be set to 0 by loadscr().
+Fix screen script initD init points.
+Deallocate screen script arrays and only set initD on loadscr()
+Fix Game->MapCount offset by 1.
+Fix getter for MAPDATASCREENSTATED
+Fix: Set items.sprite->initD in constructor.
+	( ZoriaRPG, 18th July, 2019 )
+	
+//Alpha 28
 sts.zh: Vers now 1.6002; Added constants and enums.
 
 Changelog: Added font height constants.

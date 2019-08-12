@@ -42,6 +42,8 @@ extern ZModule zcm;
 extern zcmodule moduledata;
 //FFSCript   FFEngine;
 
+int temp_ffscript_version = 0;
+
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
 #endif
@@ -2114,7 +2116,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             return qe_invalid;
         }
-        
+	
         get_questpwd(temp_pwd, temp_pwdkey, temp_pwd2);
         cvs_MD5Init(&ctx);
         cvs_MD5Update(&ctx, (const unsigned char*)temp_pwd2, (unsigned)strlen(temp_pwd2));
@@ -2383,6 +2385,9 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             return qe_invalid;
         }
+	
+	
+        
 	
     }
     
@@ -2737,8 +2742,22 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
 	set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
 	set_bit(quest_rules,qr_32BIT_BINARY,0);
+	if ( get_bit(quest_rules, qr_SELECTAWPN) ) 
+	{
+		set_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP,1); 
+		//In < 2.55a27, if you had an A+B subscreen, L and R didn't shift through inventory.
+		//Now they **do**, unless you disable that behaviour.
+		//For the sake of compatibility, old quests with the A+B subscreen rule enabed
+		//now enable the disable L/R item swap on load.
+	}
 	  	    
     }
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
+	{
+		//Compatibility: The calculation for when to loop an animation did not factor in ASkipY correctly, resulting in
+		//animations ending earlier than they should.
+		set_bit(quest_rules, qr_BROKEN_ASKIP_Y_FRAMES, 1);
+	}
     if ( tempheader.zelda_version < 0x255 )
     {
 	  set_bit(quest_rules, qr_NOFFCWAITDRAW, 1);  
@@ -2785,6 +2804,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 	}
 	
+    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
+	{
+		set_bit(quest_rules,qr_OLD_F6,1);
+	}
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
@@ -5114,6 +5137,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     
     memset(&temp_misc.questmisc, 0, sizeof(long)*32);
     memset(&temp_misc.questmisc_strings, 0, sizeof(char)*4096);
+    memset(&temp_misc.zscript_last_compiled_version, 0, sizeof(long));
     
     //v9 includes quest misc[32]
     if(s_version >= 9)
@@ -5130,6 +5154,18 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
                     return qe_invalid;
 	}
     }
+    
+    if(s_version >= 11 )
+    {
+	    if(!p_igetl(&temp_misc.zscript_last_compiled_version,f,true))
+                    return qe_invalid;
+    }
+    else if(s_version < 11 )
+    {
+	    temp_misc.zscript_last_compiled_version = -1;
+    }
+   
+    FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
     
     if(keepdata==true)
     {
@@ -8752,6 +8788,8 @@ extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
 extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 //ffscript *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
+
+
 int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     int dummy;
@@ -8782,6 +8820,10 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     //ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
     setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
+    temp_ffscript_version = s_version;
+    //miscQdata *the_misc;
+    if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
+    al_trace("Loaded scripts last compiled in ZScript version: %d\n", (FFCore.quest_format[vLastCompile]));
     
     //finally...  section data
     for(int i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
@@ -8822,14 +8864,41 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             if(ret != 0) return qe_invalid;
         }
 	
-        if(s_version > 4)
-        {
-            for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
+        if(s_version > 13)
+		{
+            for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
             {
                 ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i]);
                 
                 if(ret != 0) return qe_invalid;
             }
+		}
+		else if(s_version > 4)
+        {
+            for(int i = 0; i < NUMSCRIPTGLOBAL253; ++i)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+            
+            if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
+                
+            globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_ONLAUNCH][0].command = 0xFFFF;
+            
+            if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
+                
+            globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_ONCONTGAME][0].command = 0xFFFF;
+            
+            if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_F6];
+                
+            globalscripts[GLOBAL_SCRIPT_F6] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_F6][0].command = 0xFFFF;
         }
         else
         {
@@ -8840,11 +8909,11 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 if(ret != 0) return qe_invalid;
             }
             
-            if(globalscripts[GLOBAL_SCRIPT_CONTINUE] != NULL)
-                delete [] globalscripts[GLOBAL_SCRIPT_CONTINUE];
+            if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_ONSAVELOAD];
                 
-            globalscripts[GLOBAL_SCRIPT_CONTINUE] = new ffscript[1];
-            globalscripts[GLOBAL_SCRIPT_CONTINUE][0].command = 0xFFFF;
+            globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_ONSAVELOAD][0].command = 0xFFFF;
         }
         
 	if(s_version > 10) //expanded the number of Link scripts to 5. 
@@ -8996,8 +9065,8 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 {
                     globalmap[id].second = "";
                     
-                    if(globalscripts[GLOBAL_SCRIPT_CONTINUE] != NULL)
-                        globalscripts[GLOBAL_SCRIPT_CONTINUE][0].command = 0xFFFF;
+                    if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
+                        globalscripts[GLOBAL_SCRIPT_ONSAVELOAD][0].command = 0xFFFF;
                 }
                 else
                 {
@@ -9824,6 +9893,10 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
  // Not sure when this first changed, but it's necessary for 2.10, at least
     // @TODO: @BUG:1.92 - 1.84? Figure this out exactly for the final 2.50 release.
 //2.10 Fixes  
+     if((Header->zelda_version <= 0x255) || (Header->zelda_version == 0x255 && Header->build < 47) )
+    {
+	guysbuf[eWPOLSV].defense[edefWhistle] = ed1HKO;
+    }
     if(Header->zelda_version <= 0x210)
     {
         guysbuf[eGLEEOK1F].misc6 = 16;

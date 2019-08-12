@@ -895,6 +895,14 @@ script_command command_list[NUMCOMMANDS+1]=
     { "MESSAGEWIDTHR",          1,   0,   0,   0},
     { "MESSAGEHEIGHTR",         1,   0,   0,   0},
     { "ISVALIDARRAY",         1,   0,   0,   0},
+    { "DIREXISTS",         1,   0,   0,   0},
+    { "GAMESAVEQUIT",         0,   0,   0,   0},
+    { "GAMESAVECONTINUE",         0,   0,   0,   0},
+    { "DRAWTILECLOAKEDR",                0,   0,   0,   0},
+    { "BMPDRAWTILECLOAKEDR",                0,   0,   0,   0},
+    { "DRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+    { "BMPDRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+	
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}
@@ -1432,6 +1440,7 @@ script_variable variable_list[]=
 	{"PASSSUBOFS", PASSSUBOFS, 0, 0 },
 	
 	{"COMBODATAID", COMBODATAID, 0, 0 },
+	{"REFFILE", REFFILE, 0, 0 },
 	//{"MAPDATAID", MAPDATAID, 0, 0 },
 	//{"MAPDATAID", MAPDATAID, 0, 0 },
 	
@@ -1980,6 +1989,7 @@ script_variable variable_list[]=
 	{ "LINKOTILE",		LINKOTILE,        0,             0 },
 	{ "LINKOFLIP",		LINKOFLIP,        0,             0 },
 	{ "ITEMSPRITEINITD",		ITEMSPRITEINITD,        0,             0 },
+	{ "ZSCRIPTVERSION",		ZSCRIPTVERSION,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -625,7 +625,11 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 extern FFScript FFCore;
 void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 {
-	assert(host.script); //Scope must be made during registration
+	if(!host.script)
+	{
+		host.script = program.addScript(host, *scope, this);
+		if (breakRecursion(host)) return;
+	}
 	scope = &host.script->getScope();
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
@@ -799,6 +803,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 	if (host.index)
 	{
 		visit(host.index.get());
+		syncDisable(host, *host.index);
         if (breakRecursion(host)) return;
 
         checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,

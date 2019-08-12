@@ -10,6 +10,12 @@
 #include <sstream>
 #include <math.h>
 #include <cstdio>
+//
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+//
 
 #include "ffasm.h"
 #include "zc_sys.h"
@@ -875,14 +881,14 @@ byte curScriptType;
 word curScriptNum;
 
 //Global script data
-refInfo globalScriptData;
+refInfo globalScriptData[NUMSCRIPTGLOBAL];
 refInfo linkScriptData;
 refInfo screenScriptData;
 refInfo dmapScriptData;
-word g_doscript = 1;
+word g_doscript = 0xFFFF;
 word link_doscript = 1;
 word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
-bool global_wait = false;
+word global_wait = 0;
 bool link_waitdraw = false;
 bool dmap_waitdraw = false;
 word item_doscript[256] = {0};
@@ -903,15 +909,9 @@ refInfo itemactiveScriptData[256];
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
 
-#define GLOBAL_STACK_MAIN 0
-#define GLOBAL_STACK_DMAP 1
-#define GLOBAL_STACK_SCREEN 2
-#define GLOBAL_STACK_LINK 3
-#define GLOBAL_STACK_MAX 4
-
 long(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 long ffc_stack[32][MAX_SCRIPT_REGISTERS];
-long global_stack[GLOBAL_STACK_MAX][MAX_SCRIPT_REGISTERS];
+long global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
 long item_stack[256][MAX_SCRIPT_REGISTERS];
 long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
@@ -926,15 +926,13 @@ void clear_ffc_stack(const byte i)
 }
 
 
-void clear_global_stack()
+void clear_global_stack(const byte i)
 {
-    //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
-    memset(global_stack, 0, sizeof(global_stack));
+    memset(global_stack[i], 0, sizeof(global_stack[i]));
 }
 
 void FFScript::clear_screen_stack()
 {
-    //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
     memset(screen_stack, 0, sizeof(screen_stack));
 }
 
@@ -956,6 +954,13 @@ void FFScript::initZScriptDMapScripts()
     clear_dmap_stack();
 }
 
+void FFScript::initZScriptLinkScripts()
+{
+    link_doscript = 1;
+	link_waitdraw = false;
+    linkScriptData.Clear();
+    clear_link_stack();
+}
 
 void clear_item_stack(int i)
 {
@@ -1841,7 +1846,17 @@ void deallocateArray(const long ptrval)
 
 void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways)
 {
-	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS)) return; //Keep 2.50.2 behavior if QR unchecked.
+	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS))
+	{
+		//Keep 2.50.2 behavior if QR unchecked.
+		switch(scriptType)
+		{
+			case SCRIPT_FFC:
+			case SCRIPT_ITEM:
+			case SCRIPT_GLOBAL:
+				return;
+		}
+	}
 	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
 	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
 	{
@@ -1855,7 +1870,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool r
 
 void FFScript::deallocateAllArrays()
 {
-	if(!get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS)) return; //Keep 2.50.2 behavior if QR unchecked.
+	//No QR check here- always deallocate on quest exit.
 	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
 	{
 		if(localRAM[i].Size() > 0)
@@ -2792,7 +2807,7 @@ long get_register(const long arg)
         if(0!=(s=checkItem(ri->itemref)))
         {
 	    int a = vbound(ri->d[0]/10000,0,7);
-	    ret=((int)((item*)(s))->initD[a])*10000;
+	    ret=((int)((item*)(s))->initD[a]);
         }
         
         break;
@@ -4757,9 +4772,25 @@ case NPCBEHAVIOUR: {
     case ZELDABUILD:
 	ret = (int)VERSION_BUILD*10000;
 	break;
+    
+    case ZSCRIPTVERSION: 
+    {
+	ret = (FFCore.quest_format[vLastCompile]) * 10000;
+    }
+    
     case ZELDABETA:
-	ret = (int)VERSION_BETA*10000;
+    {
+	if ( (FFCore.quest_format[vLastCompile]) < 13 )
+	{
+		
+		ret = VERSION_BETA*10000;
+	}
+	else 
+	{
+		ret = (int)IS_BETA*10000;
+	}
 	break;
+    }
     case GAMEDEATHS:
         ret=game->get_deaths()*10000;
         break;
@@ -4789,7 +4820,7 @@ case NPCBEHAVIOUR: {
         break;
     
     case SKIPF6:
-        ret=skipcont?10000:0;
+        ret=get_bit(quest_rules,qr_NOCONTINUE)?10000:0;
         break;
         
     case GAMESTANDALONE:
@@ -6115,9 +6146,9 @@ case MAPDATACATCHALL:	 	GET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
 case MAPDATACSENSITIVE: 	GET_MAPDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
 case MAPDATANORESET: 		GET_MAPDATA_VAR_INT32(noreset, "NoReset"); break;	//W
 case MAPDATANOCARRY: 		GET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
-case MAPDATALAYERMAP:	 	GET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-case MAPDATALAYERSCREEN: 	GET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
-case MAPDATALAYEROPACITY: 	GET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case MAPDATALAYERMAP:	 	GET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
+case MAPDATALAYERSCREEN: 	GET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
+case MAPDATALAYEROPACITY: 	GET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
 case MAPDATATIMEDWARPTICS: 	GET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case MAPDATANEXTMAP: 		GET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case MAPDATANEXTSCREEN: 	GET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
@@ -6427,8 +6458,9 @@ case MAPDATAFLAGS:
 case MAPDATAMISCD:
 {
 	int indx = (ri->d[0])/10000;
-	
-	if(indx < 0 || indx > 9)
+	int mi = ri->mapsref;
+	mi -= 8*((ri->mapsref) / MAPSCRS);
+	if( ((unsigned)indx) > 7 )
 	{
 		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
 		ret = -10000;
@@ -6436,7 +6468,7 @@ case MAPDATAMISCD:
 	}
 	else 
 	{
-	    ret = (game->screen_d[ri->mapsref][indx]) * 10000;
+	    ret = (game->screen_d[mi][indx]) * 10000;
 	    break;
 	}
 }
@@ -8723,7 +8755,7 @@ void set_register(const long arg, const long value)
 	{
 		//Read-only
 		int ruleid = vbound((ri->d[0]/10000),0,qr_MAX);
-		set_bit(quest_rules, ruleid, (((value/10000)!=0)?true:false));
+		set_bit(quest_rules, ruleid, (value?true:false));
 	}
 	break;
 	
@@ -8974,7 +9006,7 @@ void set_register(const long arg, const long value)
         {
 		
 	    int a = vbound(ri->d[0]/10000,0,7);
-            (((item *)s)->initD[a])=value/10000;
+            (((item *)s)->initD[a])=value;
         }
         
         break;
@@ -9556,7 +9588,7 @@ void set_register(const long arg, const long value)
 	//Set the action script
 	case IDATASCRIPT:
 		FFScript::deallocateAllArrays(SCRIPT_ITEM, ri->idata);
-		itemsbuf[ri->idata].script=vbound(value/10000,1,255);
+		itemsbuf[ri->idata].script=vbound(value/10000,0,255);
 		break;
     
       /*
@@ -9642,7 +9674,7 @@ void set_register(const long arg, const long value)
 		//Need to get collect script ref, not standard idata ref!
 		const long new_ref = ri->idata!=0 ? -(ri->idata) : COLLECT_SCRIPT_ITEM_ZERO;
 		FFScript::deallocateAllArrays(SCRIPT_ITEM,new_ref);
-		itemsbuf[ri->idata].collect_script=vbound(value/10000, 1, 255);
+		itemsbuf[ri->idata].collect_script=vbound(value/10000, 0, 255);
 		break;
 	}
     //pickup string
@@ -10954,6 +10986,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
 
+    case ZSCRIPTVERSION:
+    {
+	    (FFCore.quest_format[vLastCompile]) = value/10000;
+	    break;
+    }
     
     case GAMEDEATHS:
         game->set_deaths(value/10000);
@@ -10985,7 +11022,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         break;
     
     case SKIPF6:
-        skipcont = ((value/10000)?true:false);
+        set_bit(quest_rules,qr_NOCONTINUE,((value/10000)?1:0));
         break;
     
     
@@ -11170,7 +11207,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         if(pos >= 0 && pos < 176)
         {
             screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr->data[pos]=(value/10000);
+            tmpscr->data[pos]=vbound(value/10000,0,MAXCOMBOS);
             screen_combo_modify_postroutine(tmpscr,pos);
         }
     }
@@ -11254,15 +11291,15 @@ case COMBODDM:
         long scr = zc_max(m*MAPSCRS+sc,0);
         
         if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
-        
+        long combo = vbound(value/10000,0,MAXCOMBOS);
         if(scr==(currmap*MAPSCRS+currscr))
             screen_combo_modify_preroutine(tmpscr,pos);
             
-        TheMaps[scr].data[pos]=value/10000;
+        TheMaps[scr].data[pos]=combo;
         
         if(scr==(currmap*MAPSCRS+currscr))
         {
-            tmpscr->data[pos] = value/10000;
+            tmpscr->data[pos] = combo;
             screen_combo_modify_postroutine(tmpscr,pos);
         }
         
@@ -11272,7 +11309,7 @@ case COMBODDM:
         {
             //if (layr==(currmap*MAPSCRS+currscr))
             //  screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr2[layr].data[pos]=value/10000;
+            tmpscr2[layr].data[pos]=combo;
             //if (layr==(currmap*MAPSCRS+currscr))
             //  screen_combo_modify_postroutine(tmpscr,pos);
         }
@@ -12694,14 +12731,16 @@ case MAPDATAFLAGS:
 case MAPDATAMISCD:
 {
 	int indx = (ri->d[0])/10000;
-	if(indx < 0 || indx > 7)
+	int mi = ri->mapsref;
+	mi -= 8*((ri->mapsref) / MAPSCRS);
+	if( ((unsigned)indx) > 7 )
 	{
 		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
 		break;
 	}
 	else 
 	{
-		game->screen_d[ri->mapsref][indx] = value/10000;
+		game->screen_d[mi][indx] = value/10000;
 		break;
 	}
 }
@@ -12714,7 +12753,7 @@ case MAPDATAMISCD:
         if(pos >= 0 && pos < 176)
         {
             screen_combo_modify_preroutine(m,pos);
-            m->data[pos]=(value/10000);
+            m->data[pos]=vbound(value/10000,0,MAXCOMBOS);
             screen_combo_modify_postroutine(m,pos);
         }
     }
@@ -16403,8 +16442,16 @@ void do_drawing_command(const int script_command)
         set_drawing_command_args(j, 15);
         break;
         
+    case DRAWTILECLOAKEDR:
+        set_drawing_command_args(j, 7);
+        break;
+        
     case DRAWCOMBOR:
         set_drawing_command_args(j, 16);
+        break;
+        
+    case DRAWCOMBOCLOAKEDR:
+        set_drawing_command_args(j, 7);
         break;
         
     case FASTTILER:
@@ -16603,7 +16650,9 @@ void do_drawing_command(const int script_command)
 	case 	BMPSPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
 	case 	BMPPUTPIXELR:	set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
 	case 	BMPDRAWTILER:	set_user_bitmap_command_args(j, 15); script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); break;
+	case 	BMPDRAWTILECLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
 	case 	BMPDRAWCOMBOR:	set_user_bitmap_command_args(j, 16); script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
+	case 	BMPDRAWCOMBOCLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
 	case 	BMPFASTTILER:	set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
 	case 	BMPFASTCOMBOR:  set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
 	case 	BMPDRAWCHARR:	set_user_bitmap_command_args(j, 10); script_drawing_commands[j][17] = SH::read_stack(ri->sp+10); break;
@@ -17364,65 +17413,79 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 
 void FFScript::do_adjustvolume(const bool v)
 {
-	long perc = SH::get_arg(sarg1, v) / 10000;
-	int temp_midi;
-	int temp_digi;
-	int temp_mus;
+	long perc = (SH::get_arg(sarg1, v) / 10000);
+	float pct = perc / 100.0;
+	Z_scripterrlog("pct is: %f\n",pct);
+	float temp_midi = 0;
+	float temp_digi = 0;
+	float temp_mus = 0;
 	if ( !(coreflags&FFCORE_SCRIPTED_MIDI_VOLUME) ) 
 	{
+		Z_scripterrlog("FFCORE_SCRIPTED_MIDI_VOLUME: wasn't set\n");
 		temp_midi = do_getMIDI_volume();
-		usr_midi_volume = temp_midi;
+		Z_scripterrlog("temp_midi is %f\n", temp_midi);
+		usr_midi_volume = do_getMIDI_volume();
+		Z_scripterrlog("usr_midi_volume stored as %d\n", usr_midi_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_MIDI_VOLUME,true);
 	}
 	else 
 	{
-		temp_midi = usr_midi_volume;
+		temp_midi = (float)usr_midi_volume;
 	}
 	if ( !(coreflags&FFCORE_SCRIPTED_DIGI_VOLUME) ) 
 	{
 		temp_digi = do_getDIGI_volume();
-		usr_digi_volume = temp_digi;
+		usr_digi_volume = do_getDIGI_volume();
+		Z_scripterrlog("usr_music_volume stored as %d\n", usr_digi_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_DIGI_VOLUME,true);
 	}
 	else
 	{
-		temp_digi = usr_digi_volume;
+		temp_digi = (float)usr_digi_volume;
 	}
 	if ( !(coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME) ) 
 	{
 		temp_mus = do_getMusic_volume();
-		usr_music_volume = temp_mus;
+		usr_music_volume = do_getMusic_volume();
+		Z_scripterrlog("usr_music_volume stored as %d\n", usr_music_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_MUSIC_VOLUME,true);
 	}
 	else
 	{
-		temp_mus = usr_music_volume;
+		temp_mus = (float)usr_music_volume;
 	}
-	temp_midi = ( (temp_midi / 100 ) * perc );
-	temp_digi = ( (temp_digi / 100 ) * perc );
-	temp_mus = ( (temp_mus / 100 ) * perc );
-	do_setMIDI_volume(temp_midi);
-	do_setDIGI_volume(temp_digi);
-	do_setMusic_volume(temp_mus);
+	
+	temp_midi *= pct;
+	temp_digi *= pct;
+	temp_mus *= pct;
+	Z_scripterrlog("temp_midi is: %f\n",temp_midi);
+	Z_scripterrlog("temp_digi is: %f\n",temp_digi);
+	Z_scripterrlog("temp_mus is: %f\n",temp_mus);
+	do_setMIDI_volume((int)temp_midi);
+	do_setDIGI_volume((int)temp_digi);
+	do_setMusic_volume((int)temp_mus);
+	
 
 }
 
 void FFScript::do_adjustsfxvolume(const bool v)
 {
-	long perc = SH::get_arg(sarg1, v) / 10000;
-	int temp_sfx;
+	long perc = (SH::get_arg(sarg1, v) / 10000);
+	float pct = perc / 100.0;
+	float temp_sfx = 0;
 	if ( !(coreflags&FFCORE_SCRIPTED_SFX_VOLUME) ) 
 	{
 		temp_sfx = do_getSFX_volume();
-		usr_sfx_volume = temp_sfx;
+		usr_sfx_volume = (int)temp_sfx;
+		Z_scripterrlog("usr_sfx_volume stored as %d\n", usr_sfx_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_SFX_VOLUME,true);
 	}
 	else 
 	{
-		temp_sfx = usr_sfx_volume;
+		temp_sfx = (float)usr_sfx_volume;
 	}
-	temp_sfx = ( (temp_sfx / 100 ) * perc );
-	do_setSFX_volume(temp_sfx);
+	temp_sfx *= pct;
+	do_setSFX_volume((int)temp_sfx);
 }
 	
 
@@ -18104,11 +18167,10 @@ int run_script(const byte type, const word script, const long i)
 	    
 	    case SCRIPT_GLOBAL:
 	    {
-		ri = &globalScriptData;
-		    //should this become ri = &(globalScriptData[global_slot]);
+		ri = &globalScriptData[script];
 		
 		curscript = globalscripts[script];
-		stack = &global_stack[GLOBAL_STACK_MAIN];
+		stack = &global_stack[script];
 		    //
 	    }
 	    break;
@@ -18116,7 +18178,6 @@ int run_script(const byte type, const word script, const long i)
 	    case SCRIPT_LINK:
 	    {
 		ri = &linkScriptData;
-		    //should this become ri = &(globalScriptData[link_slot]);
 		
 		curscript = linkscripts[script];
 		stack = &link_stack;
@@ -19525,7 +19586,9 @@ int run_script(const byte type, const word script, const long i)
 		case LINESARRAY:
 		case COMBOARRAYR:
 		case DRAWTILER:
+		case DRAWTILECLOAKEDR:
 		case DRAWCOMBOR:
+		case DRAWCOMBOCLOAKEDR:
 		case DRAWCHARR:
 		case DRAWINTR:
 		case QUADR:
@@ -19552,7 +19615,9 @@ int run_script(const byte type, const word script, const long i)
 		case 	BMPSPLINER:
 		case 	BMPPUTPIXELR:
 		case 	BMPDRAWTILER:
+		case 	BMPDRAWTILECLOAKEDR:
 		case 	BMPDRAWCOMBOR:
+		case 	BMPDRAWCOMBOCLOAKEDR:
 		case 	BMPFASTTILER:
 		case 	BMPFASTCOMBOR:
 		case 	BMPDRAWCHARR:
@@ -19705,10 +19770,22 @@ int run_script(const byte type, const word script, const long i)
 		    reset_combo_animations2();
 		
 		    Quit = qCONT;
-		    //skipcont = 1;
+		    skipcont = 1;
 			//cont_game();
 		    scommand = 0xFFFF;
 		    break;
+			
+		case GAMESAVEQUIT:
+			Quit = qSAVE;
+			skipcont = 1;
+			scommand =0xFFFF;
+			break;
+			
+		case GAMESAVECONTINUE:
+			Quit = qSAVECONT;
+			skipcont = 1;
+			scommand =0xFFFF;
+			break;
 		    
 		case SAVE:
 		    if(scriptCanSave)
@@ -19724,7 +19801,7 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case SHOWF6SCREEN:
-		    game_over(0); //0 == show three choices, 1 == show two
+		    onTryQuit();
 		    break;
 		    
 		case SAVEQUITSCREEN:
@@ -20363,6 +20440,9 @@ int run_script(const byte type, const word script, const long i)
 		    FFCore.do_set_oggex_speed(false);
 		    break;
 		
+		case DIREXISTS:
+			FFCore.do_checkdir();
+		
 		case NOP: //No Operation. Do nothing. -V
 			break;
 		
@@ -20439,7 +20519,7 @@ int run_script(const byte type, const word script, const long i)
         switch(type)
         {
         case SCRIPT_GLOBAL:
-            global_wait = true;
+            global_wait |= (1<<i);
             break;
             
 	case SCRIPT_LINK:
@@ -20516,7 +20596,7 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		    
 		case SCRIPT_GLOBAL:
-		    g_doscript = 0;
+		    g_doscript &= ~(1<<i);
 		    FFScript::deallocateAllArrays(type, i);
 		    break;
 		
@@ -20916,7 +20996,7 @@ BITMAP* FFScript::GetScriptBitmap(int id)
 {
 	
     //if ( id < MIN_OLD_RENDERTARGETS || id > highest_valid_user_bitmap() ) 
-    //{
+    // {
 //	    Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
 //	    return NULL;
  //   }
@@ -21373,9 +21453,9 @@ void FFScript::clear_ffc_stack(const byte i)
     memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
-void FFScript::clear_global_stack()
+void FFScript::clear_global_stack(const byte i)
 {
-    memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    memset(global_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void FFScript::do_zapout()
@@ -22389,6 +22469,9 @@ void FFScript::init()
 	for ( int q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
 	if ( zasm_debugger ) ZASMPrint(true);
+	
+	
+
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
@@ -22398,7 +22481,11 @@ void FFScript::init()
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 
-	long usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
+	long usr_midi_volume = midi_volume;
+	usr_digi_volume = digi_volume;
+	usr_sfx_volume = sfx_volume;
+	usr_music_volume = emusic_volume;
+	usr_panstyle = pan_style;
 	FF_link_tile = 0; FF_link_action = 0;
 	for ( int q = 0; q < 4; q++ ) 
 	{
@@ -22518,6 +22605,30 @@ void FFScript::init()
 long FFScript::getQuestHeaderInfo(int type)
 {
     return quest_format[type];
+}
+
+bool FFScript::checkDir(const char* path)
+{
+    struct stat info;
+
+    if(stat( path, &info ) != 0)
+        return false;
+    else if(info.st_mode & S_IFDIR)
+        return true;
+    else
+        return false;
+}
+
+void FFScript::do_checkdir()
+{
+	int strptr = get_register(sarg1)/10000;
+	string the_string;
+	ArrayH::getString(strptr, the_string, 512);
+	the_string = the_string.substr(the_string.find_first_not_of('/'),string::npos); //Kill leading '/'
+	size_t last = the_string.find_last_not_of('/');
+	if(last!=string::npos)++last;
+	the_string = the_string.substr(0,last); //Kill trailing '/'
+	set_register(sarg1, checkDir(the_string.c_str()) ? 10000 : 0);
 }
 
 //Modules
@@ -23012,7 +23123,7 @@ void FFScript::do_warp_ex(bool v)
 			Z_scripterrlog("FFscript.cpp running do_warp_ex with %d args\n", 9);
 			FFCore.warpex[wexActive] = 1; 
 			
-			for ( int q = 0; q < wexDir; q++ )
+			for ( int q = 0; q < wexActive; q++ )
 			{
 				FFCore.warpex[q] = (getElement(zscript_array_ptr,q)/10000);
 			}
@@ -23051,6 +23162,117 @@ bool FFScript::newScriptEngine()
 	//lweaponScriptEngine();
 	advanceframe(true);
 	return false;
+}
+
+void FFScript::runF6Engine()
+{
+	if(!Quit && (GameFlags&GAMEFLAG_TRYQUIT) && !(GameFlags&GAMEFLAG_SCRIPTMENU_ACTIVE))
+	{
+		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF)
+		{
+			clear_bitmap(script_menu_buf);
+			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
+			int openingwipe = black_opening_count;
+			black_opening_count = 0; //No opening wipe during F6 menu
+			GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
+			{
+				script_drawing_commands.Clear();
+				load_control_state(); 
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+				if(global_wait & (1<<GLOBAL_SCRIPT_F6))
+				{
+					ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+					global_wait &= ~(1<<GLOBAL_SCRIPT_F6);
+				}
+				//Draw
+				clear_bitmap(framebuf);
+				doScriptMenuDraws();
+				//
+				advanceframe(true,true,false);
+				if(Quit) break; //Something quit, end script running
+			}
+			script_drawing_commands.Clear();
+			GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+			//
+			black_opening_count = openingwipe;
+		}
+		if(!Quit)
+		{
+			if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+		}
+		zc_readkey(KEY_F6);
+		GameFlags &= ~GAMEFLAG_TRYQUIT;
+	}
+}
+void FFScript::runOnDeathEngine()
+{
+	if(linkscripts[SCRIPT_LINK_DEATH][0].command == 0xFFFF) return; //No script to run
+	clear_bitmap(script_menu_buf);
+	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+	initZScriptLinkScripts();
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	while(link_doscript && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
+		if(link_waitdraw)
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+			link_waitdraw = false;
+		}
+		//Draw
+		clear_bitmap(framebuf);
+		doScriptMenuDraws();
+		//
+		advanceframe(true,true,false);
+	}
+	script_drawing_commands.Clear();
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+}
+void FFScript::runOnLaunchEngine()
+{
+	if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH][0].command == 0xFFFF) return; //No script to run
+	//Do NOT blit the prior screen to this bitmap; that would be the TITLE SCREEN.
+	clear_to_color(script_menu_buf,BLACK);
+	initZScriptGlobalScript(GLOBAL_SCRIPT_ONLAUNCH);
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	while(g_doscript & (1<<GLOBAL_SCRIPT_ONLAUNCH) && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+		if(global_wait & (1<<GLOBAL_SCRIPT_ONLAUNCH))
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+			global_wait &= ~(1<<GLOBAL_SCRIPT_ONLAUNCH);
+		}
+		//Draw
+		clear_bitmap(framebuf);
+		doScriptMenuDraws();
+		//
+		advanceframe(true,true,false);
+	}
+	script_drawing_commands.Clear();
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+}
+
+void FFScript::doScriptMenuDraws()
+{
+	blit(script_menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
+	//Script draws
+	if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
+	if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 0, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 1, tmpscr, 0, playing_field_offset);
+	if(!(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG )) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
+	if(!(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 4, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 5, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 6, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 7, tmpscr, 0, playing_field_offset);
 }
 
 void FFScript::lweaponScriptEngine()
@@ -26759,6 +26981,13 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "MESSAGEWIDTHR",          1,   0,   0,   0},
     { "MESSAGEHEIGHTR",         1,   0,   0,   0},
     { "ISVALIDARRAY",         1,   0,   0,   0},
+    { "DIREXISTS",         1,   0,   0,   0},
+    { "GAMESAVEQUIT",         0,   0,   0,   0},
+    { "GAMESAVECONTINUE",         0,   0,   0,   0},
+    { "DRAWTILECLOAKEDR",                0,   0,   0,   0},
+    { "BMPDRAWTILECLOAKEDR",                0,   0,   0,   0},
+    { "DRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+    { "BMPDRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

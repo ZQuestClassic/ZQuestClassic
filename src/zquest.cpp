@@ -336,6 +336,7 @@ refInfo ffcScriptData[32];
 
 extern std::string zScript;
 char zScriptBytes[512];
+char zLastVer[512] = { 0 };
 SAMPLE customsfxdata[WAV_COUNT];
 unsigned char customsfxflag[WAV_COUNT>>3];
 int sfxdat=1;
@@ -498,6 +499,7 @@ char                zquestdat_sig[52];
 char                qstdat_sig[52];
 char                sfxdat_sig[52];
 char		    qstdat_str[2048];
+miscQdata           QMisc;
 
 int gme_track=0;
 
@@ -683,7 +685,6 @@ static MENU rules_menu[] =
     { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
     { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
     { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
-    //{ (char *)"&Scripts",    		    onScriptRules,             NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -702,7 +703,6 @@ static MENU quest_menu[] =
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Graphics\t ",               NULL,                      graphics_menu,            0,            NULL   },
     { (char *)"A&udio\t ",                  NULL,                      audio_menu,               0,            NULL   },
-    { (char *)"S&cripts\t ",                NULL,                      script_menu,              0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Template",                  onTemplates,               NULL,                     0,            NULL   },
     { (char *)"De&faults\t ",               NULL,                      defs_menu,                0,            NULL   },
@@ -812,6 +812,15 @@ static MENU view_menu[] =
 
 int onSelectFFCombo();
 
+static MENU room_menu[] =
+{
+  { (char *)"&Guy\tG",                    onGuy,                     NULL,                     0,            NULL   },
+    { (char *)"&Message String\tS",         onString,                  NULL,                     0,            NULL   },
+    { (char *)"&Room Type\tR",              onRType,                   NULL,                     0,            NULL   },
+    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     0,   	       NULL   }, //Allow setting a generic catch-a;;. or clearing it mamnually.
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU data_menu[] =
 {
     { (char *)"&Screen Data\tF9",           onScrData,                 NULL,                     0,            NULL   },
@@ -824,10 +833,8 @@ static MENU data_menu[] =
     { (char *)"&Doors\tF6",                 onDoors,                   NULL,                     0,            NULL   },
     { (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Guy\tG",                    onGuy,                     NULL,                     0,            NULL   },
-    { (char *)"&Message String\tS",         onString,                  NULL,                     0,            NULL   },
-    { (char *)"&Room Type\tR",              onRType,                   NULL,                     0,            NULL   },
-    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     0,   	       NULL   }, //Allow setting a generic catch-a;;. or clearing it mamnually.
+    { (char *)"Room ",                   NULL,                      room_menu,                0,            NULL   },
+    
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
     { (char *)"&Enemies\tE",                onEnemies,                 NULL,                     0,            NULL   },
@@ -886,10 +893,27 @@ static MENU etc_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+static MENU media_menu[] =
+{
+	{ (char *)"The Travels of Link",        NULL,                      tunes_menu,               0,            NULL   },
+    { (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
+    { (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
+    { (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+
+};
+
+
+
 //New ZScript Menu for 2.55 Alpha 16
 static MENU zscript_menu[] =
 {
     { (char *)"Compile &ZScript...",        onCompileScript,           NULL,                     0,            NULL   },
+    //divider
+    	
+        { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
+    { (char *)"&Quest Script Settings",        onZScriptSettings,           NULL,                     0,            NULL   },
     //divider
         { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"Import ASM &FFC Script",     onImportFFScript,          NULL,                     0,            NULL   },
@@ -901,12 +925,8 @@ static MENU zscript_menu[] =
     { (char *)"Import ASM &Hero Script",  onImportHEROScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &DMap Script",  onImportDMapScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &Screen Script",  onImportSCREENScript,           NULL,                     0,            NULL   },
-    { (char *)"Import ASM IetmS&prite Script",  onImportITEMSPRITEScript,           NULL,                     0,            NULL   },
-	//divider
-        { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
-    { (char *)"&Quest Script Settings",        onZScriptSettings,           NULL,                     0,            NULL   },
-    //{ (char *)"Set Include Path",        onZScriptSetIncludePath,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM ItemS&prite Script",  onImportITEMSPRITEScript,           NULL,                     0,            NULL   },
+//{ (char *)"Set Include Path",        onZScriptSetIncludePath,           NULL,                     0,            NULL   },
 
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -917,6 +937,28 @@ static MENU module_menu[] =
     { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
     //divider
    
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU etc_menu_smallmode[] =
+{
+    { (char *)"&Help",                      onHelp,                    NULL,                     0,            NULL   },
+    { (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
+    { (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
+    { (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
+    { (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
+    { (char *)"Media",        NULL,                      media_menu,               0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+   { (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
+    { (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
+    { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
+     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
+    { (char *)"ZScript",        NULL,                      zscript_menu,               0,            NULL   },
+    
+    { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -931,13 +973,13 @@ MENU the_menu_large[] =
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
     { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
-    { (char *)"Et&c",                       NULL, (MENU *) etc_menu,        0,            NULL   },
+    { (char *)"Et&c",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 MENU the_menu[] =
 {
-    { (char *)"&ZQuest",                       NULL, (MENU *) etc_menu,        0,            NULL   },
+    { (char *)"&ZQuest",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
     { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
     { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
@@ -968,81 +1010,97 @@ extern int zqwin_scale;
 
 int onFullScreen()
 {
-    int old_scale = zqwin_scale;
-#ifdef ALLEGRO_DOS
-    return D_O_K;
-#endif
-    get_palette(RAMpal);
-    show_mouse(NULL);
-    scrtmp = screen;
-    screen = hw_screen;
-    hw_screen = scrtmp;
-    bool windowed=is_windowed_mode()!=0;
-    
-    if(windowed)
+	
+    if(jwin_alert3(
+			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
+			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
+			(is_windowed_mode()) ? "We strongly advise saving your quest before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
+			(is_windowed_mode()) ? "Do you wish to continue to fullscreen mode?" : NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		lfont) == 1)	
     {
-        zqwin_set_scale(1);
+	    int old_scale = zqwin_scale;
+	#ifdef ALLEGRO_DOS
+	    return D_O_K;
+	#endif
+	    get_palette(RAMpal);
+	    show_mouse(NULL);
+	    scrtmp = screen;
+	    screen = hw_screen;
+	    hw_screen = scrtmp;
+	    bool windowed=is_windowed_mode()!=0;
+	    
+	    if(windowed)
+	    {
+		zqwin_set_scale(1);
+	    }
+	    else
+	    {
+		zqwin_set_scale(scale_arg);
+	    }
+	    
+	    int ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+	    
+	    if(ret!=0)
+	    {
+		if(zqwin_scale==1&&windowed)
+		{
+		    zqwin_set_scale(2);
+		    ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+		    
+		    if(ret!=0)
+		    {
+			zqwin_set_scale(scale_arg);
+			ret=set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+			
+			if(ret!=0)
+			{
+			    Z_message("Can't set video mode (%d).\n", ret);
+			    Z_message(allegro_error);
+			    //quit_game();
+			    exit(1);
+			}
+		    }
+		}
+		else
+		{
+		    zqwin_set_scale(old_scale);
+		    ret=set_gfx_mode(GFX_AUTODETECT_FULLSCREEN,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+		    
+		    if(ret!=0)
+		    {
+			Z_message("Can't set video mode (%d).\n", ret);
+			Z_message(allegro_error);
+			// quit_game();
+			exit(1);
+		    }
+		}
+	    }
+	    
+	    scrtmp = hw_screen;
+	    hw_screen = screen;
+	    screen = scrtmp;
+	    set_palette(RAMpal);
+	    gui_mouse_focus=0;
+	    gui_bg_color=jwin_pal[jcBOX];
+	    gui_fg_color=jwin_pal[jcBOXFG];
+	    gui_mg_color=jwin_pal[jcMEDDARK];
+	    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	    //zqwin_set_scale(zq_scale);
+	    set_palette(RAMpal);
+	    position_mouse(zq_screen_w/2,zq_screen_h/2);
+	    show_mouse(screen);
+	    set_display_switch_mode(SWITCH_BACKGROUND);
+	    set_display_switch_callback(SWITCH_OUT, switch_out);
+	    set_display_switch_callback(SWITCH_IN, switch_in);
+	    return D_REDRAW;
     }
-    else
-    {
-        zqwin_set_scale(scale_arg);
-    }
-    
-    int ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-    
-    if(ret!=0)
-    {
-        if(zqwin_scale==1&&windowed)
-        {
-            zqwin_set_scale(2);
-            ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-            
-            if(ret!=0)
-            {
-                zqwin_set_scale(scale_arg);
-                ret=set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-                
-                if(ret!=0)
-                {
-                    Z_message("Can't set video mode (%d).\n", ret);
-                    Z_message(allegro_error);
-                    //quit_game();
-                    exit(1);
-                }
-            }
-        }
-        else
-        {
-            zqwin_set_scale(old_scale);
-            ret=set_gfx_mode(GFX_AUTODETECT_FULLSCREEN,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-            
-            if(ret!=0)
-            {
-                Z_message("Can't set video mode (%d).\n", ret);
-                Z_message(allegro_error);
-                // quit_game();
-                exit(1);
-            }
-        }
-    }
-    
-    scrtmp = hw_screen;
-    hw_screen = screen;
-    screen = scrtmp;
-    set_palette(RAMpal);
-    gui_mouse_focus=0;
-    gui_bg_color=jwin_pal[jcBOX];
-    gui_fg_color=jwin_pal[jcBOXFG];
-    gui_mg_color=jwin_pal[jcMEDDARK];
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    //zqwin_set_scale(zq_scale);
-    set_palette(RAMpal);
-    position_mouse(zq_screen_w/2,zq_screen_h/2);
-    show_mouse(screen);
-    set_display_switch_mode(SWITCH_BACKGROUND);
-    set_display_switch_callback(SWITCH_OUT, switch_out);
-    set_display_switch_callback(SWITCH_IN, switch_in);
-    return D_REDRAW;
+    else return D_O_K;
 }
 
 int onEnter()
@@ -7095,6 +7153,78 @@ static MENU paste_screen_menu[] =
     { NULL,                              NULL,            NULL,    0, NULL }
 };
 
+ void onRCSelectCombo(int c)
+ {
+	    int drawmap, drawscr;
+	    
+	    if(CurrentLayer==0)
+	    {
+		drawmap=Map.getCurrMap();
+		drawscr=Map.getCurrScr();
+	    }
+	    else
+	    {
+		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+		
+		if(drawmap<0)
+		{
+		    return;
+		}
+	    }
+	    
+	   Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+}
+
+ void onRCScrollToombo(int c)
+ {
+	    int drawmap, drawscr;
+	    
+	    if(CurrentLayer==0)
+	    {
+		drawmap=Map.getCurrMap();
+		drawscr=Map.getCurrScr();
+	    }
+	    else
+	    {
+		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+		
+		if(drawmap<0)
+		{
+		    return;
+		}
+	    }
+	    
+	    
+		First[current_combolist]=vbound((Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),0,MAXCOMBOS-(combolist[0].w*combolist[0].h));
+	    
+}
+
+static MENU rc_menu_combo[] =
+{
+       { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
+    { (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
+    { (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
+    { (char *)"Replace All",             NULL,  NULL,              0, NULL },
+    { (char *)"Draw Block",		       NULL,  draw_block_menu,	0, NULL },
+    { (char *)"Set Brush Width\t ",      NULL,  brush_width_menu,  0, NULL },
+    { (char *)"Set Brush Height\t ",     NULL,  brush_height_menu, 0, NULL },
+    { (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
+    { NULL,                              NULL,            NULL,    0, NULL }
+};
+
+static MENU rc_menu_screen[] =
+{
+{ (char *)"Copy Screen",                        onCopy,  NULL,              0, NULL },
+    { (char *)"Paste Screen",                        onPaste,  NULL,              0, NULL },
+    { (char *)"Paste...",                        NULL,  paste_screen_menu,              0, NULL },
+    { (char *)"Adv. Paste",                        NULL,  paste_menu,              0, NULL },
+    { (char *)"Paste Special",                        NULL,  paste_item_menu,              0, NULL },
+    { NULL,                              NULL,            NULL,    0, NULL }
+};
+
+
 static MENU draw_rc_menu[] =
 {
     { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
@@ -7113,13 +7243,30 @@ static MENU draw_rc_menu[] =
     { (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
     { (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
     { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Copy Screen",                        onCopy,  NULL,              0, NULL },
-    { (char *)"Paste Screen",                        onPaste,  NULL,              0, NULL },
-    { (char *)"Paste...",                        NULL,  paste_screen_menu,              0, NULL },
-    { (char *)"Adv. Paste",                        NULL,  paste_menu,              0, NULL },
-    { (char *)"Paste Special",                        NULL,  paste_item_menu,              0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
+    { (char *)"Screen",                        NULL,  rc_menu_screen,              0, NULL },
     { (char *)"ZScript",                        NULL,  zscript_menu,              0, NULL },
+    
+    { NULL,                              NULL,  NULL,              0, NULL }
+};
+
+static MENU draw_rc_menu_truncated[] =
+{
+    { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
+    { (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
+    { (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
+    { (char *)"",                        NULL,  NULL,              0, NULL },
+    { (char *)"Replace All",             NULL,  NULL,              0, NULL },
+    { (char *)"Draw Block",		       NULL,  draw_block_menu,	0, NULL },
+    { (char *)"Set Brush Width\t ",      NULL,  brush_width_menu,  0, NULL },
+    { (char *)"Set Brush Height\t ",     NULL,  brush_height_menu, 0, NULL },
+    { (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
+    { (char *)"",                        NULL,  NULL,              0, NULL },
+    { (char *)"Follow Tile Warp",        NULL,  NULL,              0, NULL },
+    { (char *)"Edit Tile Warp",          NULL,  NULL,              0, NULL },
+    { (char *)"",                        NULL,  NULL,              0, NULL },
+    { (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
+    { (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
+    { (char *)"Screen",                        NULL,  rc_menu_screen,              0, NULL },
     
     { NULL,                              NULL,  NULL,              0, NULL }
 };
@@ -8254,7 +8401,7 @@ void domouse()
                     draw_rc_menu[11].flags = draw_rc_menu[10].flags = D_DISABLED;
                 }
                 
-                int m = popup_menu(draw_rc_menu,x,y);
+                int m = popup_menu(is_large ? draw_rc_menu : draw_rc_menu_truncated,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
                 
                 switch(m)
                 {
@@ -10769,11 +10916,14 @@ void EditScreenScript()
 	screenscript_dlg[0].dp2=lfont;
 	char initd[8][16];
 	int script = 0;
+
+	mapscr *theMap = &TheMaps[Map.getCurrMap()*MAPSCRS+Map.getCurrScr()];
+	
 	build_biscreens_list();
 	memset(initd, 0, sizeof(initd));
 	for ( int q = 0; q < biscreens_cnt; q++)
 	{
-		if(biscreens[q].second == Map.CurrScr()->script -1)
+		if(biscreens[q].second == theMap->script -1)
 		{
 			script = q; //sprite script goes after this
 			//al_trace("Item has sprite script: %d\n", q);
@@ -10786,7 +10936,7 @@ void EditScreenScript()
 	for ( int q = 0; q < 8; q++ )
 	{
 	    
-		sprintf(initd[q],"%.4f",Map.CurrScr()->screeninitd[q]/10000.0);
+		sprintf(initd[q],"%.4f",theMap->screeninitd[q]/10000.0);
 	 
 		screenscript_dlg[13+q].dp = initd[q];
 	}
@@ -10798,15 +10948,15 @@ void EditScreenScript()
 	{
 		ret = zc_popup_dialog(screenscript_dlg,23);
 		build_biscreens_list();
-		Map.CurrScr()->script = biscreens[screenscript_dlg[22].d1].second + 1;
+		theMap->script = biscreens[screenscript_dlg[22].d1].second + 1;
 		
 		if(screenscript_dlg[25].flags & D_SELECTED)
-			Map.CurrScr()->preloadscript = 1;
+			theMap->preloadscript = 1;
 		else 
-			Map.CurrScr()->preloadscript = 0;
+			theMap->preloadscript = 0;
 		
 		for(int j=0; j<8; j++)
-			Map.CurrScr()->screeninitd[j] = vbound(ffparse(initd[j]),-2147483647, 2147483647);
+			theMap->screeninitd[j] = vbound(ffparse(initd[j]),-2147483647, 2147483647);
 		
 	}
 	while(ret==22);//press OK
@@ -19914,17 +20064,23 @@ const char *gscriptlist2(int index, int *list_size)
             buf[19]='\0';
         }
         
-        if(index==0)
-            sprintf(gscript_str_buf2,"Initialization: %s", buf);
-            
-        if(index==1)
-            sprintf(gscript_str_buf2,"Active: %s", buf);
-            
-        if(index==2)
-            sprintf(gscript_str_buf2,"onExit: %s", buf);
-            
-        if(index==3)
-            sprintf(gscript_str_buf2,"onContinue: %s", buf);
+        switch(index)
+        {
+            case GLOBAL_SCRIPT_INIT:
+                sprintf(gscript_str_buf2,"Initialization: %s", buf); break;
+            case GLOBAL_SCRIPT_GAME:
+                sprintf(gscript_str_buf2,"Active: %s", buf); break;
+            case GLOBAL_SCRIPT_END:
+                sprintf(gscript_str_buf2,"onExit: %s", buf); break;
+            case GLOBAL_SCRIPT_ONSAVELOAD:
+                sprintf(gscript_str_buf2,"onSaveLoad: %s", buf); break;
+            case GLOBAL_SCRIPT_ONLAUNCH:
+                sprintf(gscript_str_buf2,"onLaunch: %s", buf); break;
+            case GLOBAL_SCRIPT_ONCONTGAME:
+                sprintf(gscript_str_buf2,"onContGame: %s", buf); break;
+            case GLOBAL_SCRIPT_F6:
+                sprintf(gscript_str_buf2,"onF6Menu: %s", buf); break;
+        }
             
         return gscript_str_buf2;
     }
@@ -19946,6 +20102,7 @@ static DIALOG compile_dlg[] =
     { jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
     { jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+     { jwin_text_proc,		8,		25,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zLastVer, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,   NULL,  NULL }
 };
 
@@ -20287,40 +20444,77 @@ static DIALOG assignscript_dlg[] =
     
 };
 
+static int zscript_settings_scripts_list[] =
+{
+	6, 18, 22, -1
+};
+
+static int zscript_settings_instructions_list[] =
+{
+	7, 8, 15, 16, 19, 20, -1
+};
+
+static int zscript_settings_objects_list[] =
+{
+	12, 13, 14, -1
+};
+
+static int zscript_settings_drawing_list[] =
+{
+	9, 11, -1
+};
+
+static int zscript_settings_bugfixes_list[] =
+{
+	10, 17, 21, -1
+};
+
+static TABPANEL zscript_settings_tabs[] =
+{
+    // (text)
+    { (char *)" Scripts ",         D_SELECTED,  zscript_settings_scripts_list, 0, NULL },
+    { (char *)" Instructions ",    0,           zscript_settings_instructions_list, 0, NULL },
+    { (char *)" Objects ",         0,           zscript_settings_objects_list, 0, NULL },
+    { (char *)" Drawing ",         0,           zscript_settings_drawing_list, 0, NULL },
+    { (char *)" Bugfixes ",        0,           zscript_settings_bugfixes_list, 0, NULL },
+    { NULL,              0,           NULL,             0, NULL }
+};
+
 static DIALOG zscript_settings_dlg[] =
 {
-    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Settings", NULL, NULL },
-    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_settings_dlg },
-    // 3
-    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
-    // rules //6
-    { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
-    { jwin_check_proc,      10, 32+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Item Script Waitdraw()", NULL, NULL },
-    { jwin_check_proc,      10, 32+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No FFC Waitdraw()", NULL, NULL },
-    
-    
-    { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
-    { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fix Scripts Running During Scrolling", NULL, NULL },
-    { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
-    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
-    { jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Draw Shadows on Weapons", NULL, NULL },
-    { jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Draw Shadows on Items", NULL, NULL },
-    { jwin_check_proc,      10, 32+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old eweapon->Parent", NULL, NULL },
-    { jwin_check_proc,      10, 32+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Args for CreateBitmap() and bitmap->Create()", NULL, NULL },
-    { jwin_check_proc,      10, 32+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Game->Misc[] is not *10000", NULL, NULL },
-    { jwin_check_proc,      10, 32+110,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Clear InitD[] on Script Change", NULL, NULL },
-    { jwin_check_proc,      10, 32+120,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
-    //Y 130 and Y140 are No Item Script Waitdraw, No FFC Script Waitdraw.
-    { jwin_check_proc,      10, 32+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
-    { jwin_check_proc,      10, 32+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Deallocate Arrays", NULL, NULL },
-    
-    
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Settings", NULL, NULL },
+	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) zscript_settings_tabs, NULL, (void *)zscript_settings_dlg },
+	// 3
+	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	
+	// rules //6
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Item Script Waitdraw()", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No FFC Waitdraw()", NULL, NULL },
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
+	// 10
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fix Scripts Running During Scrolling", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Have Shadows", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Have Shadows", NULL, NULL },
+	// 15
+	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old eweapon->Parent", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Args for CreateBitmap() and bitmap->Create()", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Game->Misc[] is not *10000", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Clear InitD[] on Script Change", NULL, NULL },
+	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
+	// 20
+	{ jwin_check_proc,      10, 33+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Deallocate Arrays", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hero OnDeath script runs AFTER engine death animation", NULL, NULL },
+	
+	
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 
@@ -20329,7 +20523,7 @@ static int zscriptrules[] =
     qr_ITEMSCRIPTSKEEPRUNNING, qr_NOITEMWAITDRAW, qr_NOFFCWAITDRAW, 
 	qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,qr_LINKXY_IS_FLOAT,
 	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS,qr_OLDQUESTMISC,qr_CLEARINITDONSCRIPTCHANGE,
-	qr_TRACESCRIPTIDS,qr_FIXDRUNKINPUTS, qr_ALWAYS_DEALLOCATE_ARRAYS,
+	qr_TRACESCRIPTIDS,qr_FIXDRUNKINPUTS, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,
 	
     -1
 };
@@ -21019,6 +21213,7 @@ int onCompileScript()
     for(;;) //while(true)
     {
         sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
+	sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
         int ret = zc_popup_dialog(compile_dlg,5);
         
         switch(ret)
@@ -21193,6 +21388,11 @@ int onCompileScript()
 		            asglobalscripts.push_back(name);
                     */
             }
+	    
+	    //scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
+	    misc.zscript_last_compiled_version = V_FFSCRIPT;
+	    FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
+	    al_trace("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
             
             assignscript_dlg[0].dp2 = lfont;
             assignscript_dlg[4].d1 = -1;
@@ -21226,10 +21426,20 @@ int onCompileScript()
                     const char* asterisks;
                     switch(i)
                     {
-                        case 0: format="Initialization: %s%s%s"; break;
-                        case 1: format="Active: %s%s%s"; break;
-                        case 2: format="onExit: %s%s%s"; break;
-                        case 3: format="onContinue: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_INIT:
+                            format="Initialization: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_GAME:
+                            format="Active: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_END:
+                            format="onExit: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONSAVELOAD:
+                            format="onSaveLoad: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONLAUNCH:
+                            format="onLaunch: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONCONTGAME:
+                            format="onContGame: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_F6:
+                            format="onF6Menu: %s%s%s"; break;
                     }
                     if(globalmap[i].second == "")
                         asterisks="";

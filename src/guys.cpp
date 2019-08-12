@@ -28,6 +28,9 @@
 extern sprite_list particles;
 
 extern FFScript FFCore;
+extern word item_doscript[256];
+extern refInfo itemScriptData[256];
+extern long item_stack[256][MAX_SCRIPT_REGISTERS];
 extern ZModule zcm;
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -217,56 +220,6 @@ bool flyerblocked(int dx, int dy, int special)
              (MAPFLAG(dx,dy)==mfNOENEMY)||
              (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)));
 }
-
-bool m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
-{
-    int yg = (special==spw_floater)?8:0;
-    int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
-    
-    if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
-        return true;
-        
-    bool isInDungeon = isdungeon();
-    if(isInDungeon || special==spw_wizzrobe)
-    {
-        if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
-            return true;
-            
-        if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
-            if(special!=spw_door) // walk in door way
-                return true;
-    }
-    
-    switch(special)
-    {
-    case spw_clipbottomright:
-        if(dy>=128 || dx>=208) return true;
-        
-    case spw_clipright:
-        break; //if(x>=208) return true; break;
-        
-    case spw_wizzrobe: // fall through
-    case spw_floater: // Special case for fliers and wizzrobes - hack!
-		{
-			if(isInDungeon)
-			{
-				if(dy < 32-yg || dy >= 144) return true;
-				if(dx < 32 || dx >= 224) return true;
-			}
-			return false;
-		}
-    }
-    
-    dx&=(special==spw_halfstep)?(~7):(~15);
-    dy&=(special==spw_halfstep || tmpscr->flags7&fSIDEVIEW)?(~7):(~15);
-    
-    if(special==spw_water)
-        return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
-        
-    return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
-           groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
-}
-
 
 /**********************************/
 /*******  Enemy Base Class  *******/
@@ -678,6 +631,90 @@ bool enemy::animate(int index)
     return Dead(index);
 }
 
+bool enemy::m_walkflag(int dx,int dy,int special, int input_x=-1000, int input_y=-1000)
+{
+    int yg = (special==spw_floater)?8:0;
+    int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
+	
+	switch(dir)
+	{
+		case up: break;
+		case down: 
+		{
+			if ( ((unsigned)id) < MAXGUYS )
+			{
+				if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) )
+				{
+					dy += (tysz-1)*16;	
+				}
+			}
+			break;
+			
+		}
+		case left: break;
+		case right:
+		{
+			if ( ((unsigned)id) < MAXGUYS )
+			{
+				if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) )
+				{
+					dx += (txsz-1)*16;	
+				}
+			}
+			break;
+			
+		}
+		default: break;
+		
+	}
+    
+    if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
+        return true;
+        
+    bool isInDungeon = isdungeon();
+    if(isInDungeon || special==spw_wizzrobe)
+    {
+        if((input_x>=32 && dy<32-yg) || (input_y>-1000 && input_y<=144 && dy>=144))
+            return true;
+            
+        if((input_x>=32 && dx<32) || (input_x>-1000 && input_x<224 && dx>=224))
+            if(special!=spw_door) // walk in door way
+                return true;
+    }
+    
+    switch(special)
+    {
+    case spw_clipbottomright:
+        if(dy>=128 || dx>=208) return true;
+        
+    case spw_clipright:
+        break; //if(input_x>=208) return true; break;
+        
+    case spw_wizzrobe: // fall through
+    case spw_floater: // Special case for fliers and wizzrobes - hack!
+		{
+			if(isInDungeon)
+			{
+				if(dy < 32-yg || dy >= 144) return true;
+				if(dx < 32 || dx >= 224) return true;
+			}
+			return false;
+		}
+    }
+    
+    dx&=(special==spw_halfstep)?(~7):(~15);
+    dy&=(special==spw_halfstep || tmpscr->flags7&fSIDEVIEW)?(~7):(~15);
+    
+    if(special==spw_water)
+        return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
+        
+    return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
+           groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
+}
+
+
+
+
 // Stops playing the given sound only if there are no enemies left to play it
 void enemy::stop_bgsfx(int index)
 {
@@ -835,22 +872,40 @@ void enemy::FireWeapon()
         
     if(wpn==ewFireTrail && dmisc1>=e1t3SHOTS && dmisc1<=e1t8SHOTS)
         dmisc1 = e1tEACHTILE;
+    
+    int xoff = 0;
+    int yoff = 0;
+    if ( ((unsigned)id) < MAXGUYS )
+    {
+	    if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH )
+	    {
+		    
+		 xoff += (txsz-1)*8;   
+		    //Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
+		    
+	    }
+	    if ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT )
+	    {
+		 yoff += (tysz-1)*8;   
+		    //Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
+	    }
+    }
         
     switch(dmisc1)
     {
     case e1t5SHOTS: //BS-Aquamentus
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^left)+5)<<3),wdp,dir,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^right)+5)<<3),wdp,dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+5)<<3),wdp,dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+5)<<3),wdp,dir,-1, getUID(),false));
         
         //fallthrough
     case e1t3SHOTSFAST:
     case e1t3SHOTS: //Aquamentus
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^left)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^right)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
         
         //fallthrough
     default:
-        Ewpns.add(new weapon(x,y,z,wpn,2+(dmisc1==e1t3SHOTSFAST || dmisc1==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(dmisc1==e1t3SHOTSFAST || dmisc1==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
         sfx(wpnsfx(wpn),pan(int(x)));
         break;
         
@@ -863,23 +918,23 @@ void enemy::FireWeapon()
         else if(((Link.x-x) > 8 && dir==up) || ((Link.x-x) < -8 && dir==down) || ((Link.y-y) > 8 && dir==left) || ((Link.y-y) < -8 && dir==right))
             slant = right;
             
-        Ewpns.add(new weapon(x,y,z,wpn,2+(((dir^slant)+1)<<3),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^slant)+1)<<3),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
         sfx(wpnsfx(wpn),pan(int(x)));
         break;
     }
     
     case e1t8SHOTS: //Fire Wizzrobe
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,l_up,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,l_down,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,r_up,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,r_down,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_up,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_down,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_up,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_down,-1, getUID(),false));
         
         //fallthrough
     case e1t4SHOTS: //Stalfos 3
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,up,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,down,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,left,-1, getUID(),false));
-        Ewpns.add(new weapon(x,y,z,wpn,0,wdp,right,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,up,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,down,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,left,-1, getUID(),false));
+        Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,right,-1, getUID(),false));
         sfx(wpnsfx(wpn),pan(int(x)));
         break;
         
@@ -3597,11 +3652,21 @@ bool enemy::hit(weapon *w)
 void enemy::fix_coords(bool bound)
 {
     if (get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES )) return;
-
+	
+    
+    
     if(bound)
     {
-        x=vbound(x, 0, 240);
-        y=vbound(y, 0, 160);
+	    if ( ((unsigned)id) < MAXGUYS )
+	    {
+		x=vbound(x, 0, (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256-((txsz-1)*16)) : 240));
+		y=vbound(y, 0,(( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176-((txsz-1)*16)) : 160));
+	    }
+	    else
+	    {
+		   x=vbound(x, 0,240); 
+		    y=vbound(y, 0,160);
+	    }
     }
     
     if(!OUTOFBOUNDS)
@@ -3622,32 +3687,57 @@ bool enemy::cannotpenetrate()
 // returns true if next step is ok, false if there is something there
 bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 {
-    bool ok;
+    bool ok = false; //initialise the var, son't just declare it
     int dx = 0, dy = 0;
     int sv = 8;
-	
+    int tries = 0; int try_x = 0; int try_y = 0;
     //Why is this here??? Why is it needed???
     s += 0.5; // Make the ints round; doesn't seem to cause any problems.
     
-    switch(ndir)
+    switch(ndir) //need to check every 8 pixels between two points
     {
     case 8:
     case up:
+    {
         if(enemycanfall(id) && tmpscr->flags7&fSIDEVIEW)
             return false;
             
         dy = dy1-s;
         special = (special==spw_clipbottomright)?spw_none:special;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
+	if ( ((unsigned)id) < MAXGUYS )
+	{
+		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
+		{
+			tries = txsz * 16;
+		}
+	}
+	for ( ; tries >= 0; tries-- )
+	{
+		ok = !m_walkflag(x+tries,y+dy,special, x+tries, y) && !flyerblocked(x+tries,y+dy, special);
+		//try_x += 8;
+		if (!ok) break;
+	}
         break;
-        
+    }
     case 12:
     case down:
         if(enemycanfall(id) && tmpscr->flags7&fSIDEVIEW)
             return false;
             
         dy = dy2+s;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
+	if ( ((unsigned)id) < MAXGUYS )
+	{
+		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) )
+		{
+			tries = txsz * 16;
+		}
+	}
+	for ( ; tries >= 0; tries-- )
+	{
+		ok = !m_walkflag(x+tries,y+dy,special, x+tries, y) && !flyerblocked(x+tries,y+dy, special);
+		//try_x += 8;
+		if (!ok) break;
+	}
         break;
         
     case 14:
@@ -3655,46 +3745,138 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
         dx = dx1-s;
         sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
         special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
-        ok = !m_walkflag(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
-        break;
+	if ( ((unsigned)id) < MAXGUYS )
+	{
+		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
+		{
+			tries = tysz * 16;
+		}
+	}
+	for ( ; tries >= 0; tries-- )
+	{
+		ok = !m_walkflag(x+dx,y+sv+tries,special, x, y+tries) && !flyerblocked(x+dx,y+8+tries, special);
+		//try_y += 8;
+		if (!ok) break;
+	}
+	break;
         
     case 10:
     case right:
         dx = dx2+s;
         sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
-        ok = !m_walkflag(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
+	if ( ((unsigned)id) < MAXGUYS )
+	{
+		if ( ( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) )
+		{
+			tries = tysz * 16;
+		}
+	}
+	for ( ; tries >= 0; tries-- )
+	{
+		ok = !m_walkflag(x+dx,y+sv+tries,special, x, y+tries) && !flyerblocked(x+dx,y+8+tries, special);
+		//try_y += 8;
+		if (!ok) break;
+	}
         break;
         
     case 9:
     case r_up:
+    
         dx = dx2+s;
         dy = dy1-s;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
-             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+	if ( ((unsigned)id) < MAXGUYS )
+	{
+		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+		{
+			try_x = txsz * 16;
+			try_y = tysz * 16;
+		}
+	}
+	for ( ; try_x >= 0; try_x-- )
+	{
+		for ( ; try_y >= 0; try_y-- )
+		{
+			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+			if (!ok) break;
+		}
+		if (!ok) break;
+	}
+		
+		
+	
         break;
         
     case 11:
     case r_down:
         dx = dx2+s;
         dx = dy2+s;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
-             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+	if ( ((unsigned)id) < MAXGUYS )
+	{
+		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+		{
+			try_x = txsz * 16;
+			try_y = tysz * 16;
+		}
+	}
+	for ( ; try_x >= 0; try_x-- )
+	{
+		for ( ; try_y >= 0; try_y-- )
+		{
+			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+			if (!ok) break;
+		}
+		if (!ok) break;
+	}
         break;
         
     case 13:
     case l_down:
         dx = dx1-s;
         dy = dy2+s;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
-             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+	if ( ((unsigned)id) < MAXGUYS )
+	{
+		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+		{
+			try_x = txsz * 16;
+			try_y = tysz * 16;
+		}
+	}
+	for ( ; try_x >= 0; try_x-- )
+	{
+		for ( ; try_y >= 0; try_y-- )
+		{
+			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+			if (!ok) break;
+		}
+		if (!ok) break;
+	}
         break;
         
     case 15:
     case l_up:
         dx = dx1-s;
         dy = dy1-s;
-        ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
-             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+	if ( ((unsigned)id) < MAXGUYS )
+	{
+		if ( ( (guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+		{
+			try_x = txsz * 16;
+			try_y = tysz * 16;
+		}
+	}
+	for ( ; try_x >= 0; try_x-- )
+	{
+		for ( ; try_y >= 0; try_y-- )
+		{
+			ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
+			!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+			if (!ok) break;
+		}
+		if (!ok) break;
+	}
         break;
         
     default:
@@ -5893,7 +6075,7 @@ waves2:
         }
         else
         {
-            tile=o_tile+(txsz*change)+((tysz-1)*TILES_PER_ROW)*((o_tile+txsz*change)/TILES_PER_ROW)-(o_tile/TILES_PER_ROW);
+            tile=o_tile+(txsz*change)+((tysz-1)*TILES_PER_ROW)*(((o_tile+txsz*change)/TILES_PER_ROW)-(o_tile/TILES_PER_ROW));
         }
     }
     else
@@ -15970,8 +16152,17 @@ bool parsemsgcode()
     }
     
     case MSGC_GIVEITEM:
-        getitem(grab_next_argument(), true);
+    {
+	int itemID = grab_next_argument();
+        getitem(itemID, true);
+	if ( !item_doscript[itemID] && (((unsigned)itemID) < 256) )
+	{
+		itemScriptData[itemID].Clear();
+		memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
+	}
         return true;
+    }
         
     
     case MSGC_WARP:
@@ -15996,8 +16187,15 @@ bool parsemsgcode()
 	return true;
     }
     case MSGC_TAKEITEM:
-        takeitem(grab_next_argument());
+    {
+	int itemID = grab_next_argument();
+	if ( item_doscript[itemID] )
+	{
+		item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+	}
+        takeitem(itemID);
         return true;
+    }
         
     case MSGC_SFX:
         sfx((int)grab_next_argument(),128);

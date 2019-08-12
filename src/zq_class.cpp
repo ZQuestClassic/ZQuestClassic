@@ -7292,7 +7292,9 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		if(!p_putc(Misc->questmisc_strings[q][j],f))
                      new_return(22);
 	}
-	
+	//V_MISC >= 11
+	if(!p_iputl(Misc->zscript_last_compiled_version,f))
+                     new_return(23);
         
         if(writecycle==0)
         {

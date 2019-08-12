@@ -150,7 +150,7 @@ enum
 	vTiles, vCombos, vCSets, vMaps, vDMaps, vDoors, vItems, vWeaponSprites,
 	vColours, vIcons, vGfxPack, vInitData, vGuys, vMIDIs, vCheats, vSaveformat,
 	vComboAliases, vLinkSprites, vSubscreen, vItemDropsets, vFFScript, vSFX, vFavourites,
-	qMapCount,
+	qMapCount, vLastCompile,
 	versiontypesLAST
 	
 };
@@ -259,6 +259,10 @@ void eweaponScriptEngineOnWaitdraw();
 void itemSpriteScriptEngine();
 void itemSpriteScriptEngineOnWaitdraw();
 bool newScriptEngine();
+void runF6Engine();
+void runOnDeathEngine();
+void runOnLaunchEngine();
+void doScriptMenuDraws();
 void initIncludePaths();
 void initRunString();
 void updateRunString();
@@ -463,6 +467,7 @@ void clearTint();
 void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
+void initZScriptLinkScripts();
 void initZScriptItemScripts();
 
 int GetScriptObjectUID(int type);
@@ -817,7 +822,7 @@ static int get_screen_d(long index1, long index2);
 static void set_screen_d(long index1, long index2, int val);
 static int whichlayer(long scr);
 static void clear_ffc_stack(const byte i);
-static void clear_global_stack();
+static void clear_global_stack(const byte i);
 
 static void do_zapout();
 static void do_zapin();
@@ -1169,6 +1174,9 @@ static void setLinkBigHitbox(bool v);
 	static void do_setDMapData_dmapintro(const bool v);
 	static void do_getDMapData_music(const bool v);
 	static void do_setDMapData_music(const bool v);
+	
+	static bool checkDir(const char* path);
+	static void do_checkdir();
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -1448,7 +1456,7 @@ enum __Error
 extern long ffmisc[32][16];
 extern refInfo ffcScriptData[32];
 extern refInfo screenScriptData;
-
+extern word g_doscript;
 extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
 
@@ -1457,10 +1465,9 @@ int run_script(const byte type, const word script, const long i = -1); //Global 
 int ffscript_engine(const bool preload);
 
 void clear_ffc_stack(const byte i);
-void clear_global_stack();
+void clear_global_stack(const byte i);
 void clear_link_stack();
 void clear_dmap_stack();
-void initZScriptLinkScripts();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
@@ -2385,10 +2392,17 @@ enum ASM_DEFINE
 	CHARWIDTHR,
 	MESSAGEWIDTHR,
 	MESSAGEHEIGHTR,
-  ISVALIDARRAY,
+	ISVALIDARRAY,
+	DIREXISTS,
+	GAMESAVEQUIT,
+	GAMESAVECONTINUE,
+	DRAWTILECLOAKEDR,
+	BMPDRAWTILECLOAKEDR,
+	DRAWCOMBOCLOAKEDR,
+	BMPDRAWCOMBOCLOAKEDR,
 
 
-	NUMCOMMANDS           //0x015B
+	NUMCOMMANDS           //0x0162
 };
 
 
@@ -3614,11 +3628,13 @@ enum ASM_DEFINE
 #define LINKOTILE		0x136A
 #define LINKOFLIP		0x136B
 #define ITEMSPRITEINITD		0x136C
+#define ZSCRIPTVERSION		0x136D
+#define REFFILE			0x136E
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x136D
+#define NUMVARIABLES         	0x136F
 
 // Script types
 

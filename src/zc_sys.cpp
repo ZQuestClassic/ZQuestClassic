@@ -1696,7 +1696,7 @@ void close_black_opening(int x, int y, bool wait)
         for(int i=0; i<66; i++)
         {
             draw_screen(tmpscr);
-            put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+            //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
             syskeys();
             advanceframe(true);
             
@@ -1734,7 +1734,7 @@ void open_black_opening(int x, int y, bool wait)
         for(int i=0; i<66; i++)
         {
             draw_screen(tmpscr);
-            put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+            //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
             syskeys();
             advanceframe(true);
             
@@ -3867,6 +3867,7 @@ int onNonGUISnapshot()
     while(num<99999 && exists(buf));
     
     BITMAP *panorama = create_bitmap_ex(8,256,168);
+    /*
     PALETTE tempRAMpal;
     get_palette(tempRAMpal);
     
@@ -3879,6 +3880,20 @@ int onNonGUISnapshot()
     else
     {
         save_bitmap(buf,framebuf,realpal?temppal:tempRAMpal);
+    }
+    
+    destroy_bitmap(panorama);
+    return D_O_K;
+    */
+     if(tmpscr->flags3&fNOSUBSCR)
+    {
+        clear_to_color(panorama,0);
+        blit(framebuf,panorama,0,playing_field_offset,0,0,256,168);
+        save_bitmap(buf,panorama,realpal?temppal:RAMpal);
+    }
+    else
+    {
+        save_bitmap(buf,framebuf,realpal?temppal:RAMpal);
     }
     
     destroy_bitmap(panorama);
@@ -4460,7 +4475,7 @@ void syskeys()
         Advance=true;
     }
     
-    if(zc_readkey(KEY_F6))    if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+    if(zc_readkey(KEY_F6)) onTryQuit();
     
 #ifndef ALLEGRO_MACOSX
     if(zc_readkey(KEY_F9))    f_Quit(qRESET);
@@ -4748,7 +4763,7 @@ bool CheatModifierKeys()
 // 99*360 + 59*60
 #define MAXTIME  21405240
 
-void advanceframe(bool allowwavy, bool sfxcleanup)
+void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 {
     if(zcmusic!=NULL)
     {
@@ -4759,6 +4774,10 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
     {
         // have to call this, otherwise we'll get an infinite loop
         syskeys();
+		if(allowF6Script)
+		{
+			FFCore.runF6Engine();
+		}
         // to keep fps constant
         updatescr(allowwavy);
         throttleFPS();
@@ -4789,6 +4808,10 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
     ++frame;
     
     syskeys();
+	if(allowF6Script)
+	{
+		FFCore.runF6Engine();
+	}
     // Someday... maybe install a Turbo button here?
     updatescr(allowwavy);
     throttleFPS();
@@ -4832,7 +4855,7 @@ void zapin()
 {
     draw_screen(tmpscr);
     set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
-    put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+    //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
     blit(framebuf,scrollbuf,0,0,256,0,256,224);
     
     // zap out
@@ -4853,7 +4876,7 @@ void zapin()
 void wavyout(bool showlink)
 {
     draw_screen(tmpscr, showlink);
-    put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+    //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
     
     BITMAP *wavebuf = create_bitmap_ex(8,288,224);
     clear_to_color(wavebuf,0);
@@ -4916,7 +4939,7 @@ void wavyout(bool showlink)
 void wavyin()
 {
     draw_screen(tmpscr);
-    put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+    //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
     
     BITMAP *wavebuf = create_bitmap_ex(8,288,224);
     clear_to_color(wavebuf,0);
@@ -7257,6 +7280,31 @@ int onQuit()
     return D_O_K;
 }
 
+int onTryQuitMenu()
+{
+	return onTryQuit(true);
+}
+
+int onTryQuit(bool inMenu)
+{
+	if(Playing)
+	{
+		if(get_bit(quest_rules,qr_OLD_F6))
+		{
+			if(inMenu) onQuit();
+			else if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+		}
+		else
+		{
+			disableClickToFreeze=false;
+			GameFlags |= GAMEFLAG_TRYQUIT;
+		}
+		return D_CLOSE;
+	}
+	
+	return D_O_K;
+}
+
 int onReset()
 {
     if(queding("  Reset system?  ",NULL,NULL)==1)
@@ -7657,7 +7705,7 @@ static MENU game_menu[] =
     { (char *)"&Continue\tESC",            onContinue,               NULL,                      0, NULL },
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
     { (char *)"L&oad Quest...",            onCustomGame,             NULL,                      0, NULL },
-    { (char *)"&End Game\tF6",             onQuit,                   NULL,                      0, NULL },
+    { (char *)"&End Game\tF6",             onTryQuitMenu,                NULL,                      0, NULL },
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
 #ifndef ALLEGRO_MACOSX
     { (char *)"&Reset\tF9",                onReset,                  NULL,                      0, NULL },
@@ -8192,7 +8240,7 @@ static DIALOG system_dlg[] =
     { jwin_menu_proc,    0,    0,    0,    0,    0,    0,    0,       D_USER,  0,        0, (void *) the_menu, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onVsync, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onQuit, NULL,  NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onTryQuitMenu, NULL,  NULL },
 #ifndef ALLEGRO_MACOSX
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,   0, (void *) onReset, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,  0, (void *) onExit, NULL,  NULL },
@@ -8212,7 +8260,7 @@ static DIALOG system_dlg2[] =
     { jwin_menu_proc,    0,    0,    0,    0,    0,    0,    0,       D_USER,  0,        0, (void *) the_menu2, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onVsync, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onQuit, NULL,  NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onTryQuitMenu, NULL,  NULL },
 #ifndef ALLEGRO_MACOSX
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,   0, (void *) onReset, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,  0, (void *) onExit, NULL,  NULL },

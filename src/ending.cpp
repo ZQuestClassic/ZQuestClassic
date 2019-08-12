@@ -268,7 +268,7 @@ void ending()
         }
         adv:
         draw_screen(tmpscr);
-        advanceframe(true);
+        advanceframe(true,true,false);
         
         if(Quit) return;
     }
@@ -607,11 +607,14 @@ void ending()
     //restore user volume if it was changed by script
     if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
     {
-	master_volume(-1,((long)FFCore.usr_midi_volume));
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
     }
     if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
     {
-	master_volume((long)(FFCore.usr_digi_volume),1);
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
     }
     if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
     {

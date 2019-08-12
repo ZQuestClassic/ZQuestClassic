@@ -1759,6 +1759,8 @@ string VarArgument::toString()
 	case LINKOTILE: return "LINKOTILE";
 	case LINKOFLIP: return "LINKOFLIP";
 	case ITEMSPRITEINITD: return "ITEMSPRITEINITD";
+	case ZSCRIPTVERSION: return "ZSCRIPTVERSION";
+	case REFFILE: return "REFFILE";
 	
 	
     default:
@@ -2702,9 +2704,19 @@ string ODrawTileRegister::toString()
     return "DRAWTILE";
 }
 
+string ODrawTileCloakedRegister::toString()
+{
+    return "DRAWTILECLOAKEDR";
+}
+
 string ODrawComboRegister::toString()
 {
     return "DRAWCOMBO";
+}
+
+string ODrawComboCloakedRegister::toString()
+{
+    return "DRAWCOMBOCLOAKEDR";
 }
 
 string OFastTileRegister::toString()
@@ -2976,6 +2988,16 @@ string OEnd::toString()
 string OGameContinue::toString()
 {
     return "GAMECONTINUE";
+}
+
+string OGameSaveQuit::toString()
+{
+    return "GAMESAVEQUIT";
+}
+
+string OGameSaveContinue::toString()
+{
+    return "GAMESAVECONTINUE";
 }
 
 string OShowF6Screen::toString()
@@ -4338,9 +4360,19 @@ string OBMPDrawTileRegister::toString()
     return "BMPDRAWTILER";
 }
 
+string OBMPDrawTileCloakedRegister::toString()
+{
+    return "BMPDRAWTILECLOAKEDR";
+}
+
 string OBMPDrawComboRegister::toString()
 {
     return "BMPDRAWCOMBOR";
+}
+
+string OBMPDrawComboCloakedRegister::toString()
+{
+    return "BMPDRAWCOMBOCLOAKEDR";
 }
 
 string OBMPFastTileRegister::toString()
@@ -4861,6 +4893,11 @@ string OGETDMAPBYNAME::toString()
 string OReturn::toString()
 {
 	return "RETURN";
+}
+
+string ODirExists::toString()
+{
+	return "DIREXISTS " + getArgument()->toString();
 }
 
 

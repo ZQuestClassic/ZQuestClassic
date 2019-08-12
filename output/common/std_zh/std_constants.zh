@@ -1,5 +1,5 @@
 // std_constants.zh
-// 18th July, 2019 for ZC 2.55 Alpha 28
+// 4th August, 2019 for ZC 2.55 Alpha 29
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -94,6 +94,14 @@ const int MAX_FFC_W 			= 4; //Four tiles wide
 const int MAX_FFC_H 			= 4; //Four tiles high
 const int MAX_FFC_EFFECT_W		= 64; //Sixty-four pixels wide.
 const int MAX_FFC_EFFECT_H		= 64; //Sixty four pixels high. 
+
+//Default array sizes
+const int INIT_D_SIZE			= 8;
+const int INIT_A_SIZE			= 2;
+const int MISC_SIZE			= 32;
+const int NPC_ATTRIBUTES_SIZE		= 32;
+const int ITEM_ATTRIBUTES_SIZE		= 10;
+const int GAMEMISC_SIZE 		= 32;
 
 /////////////////////
 /// Screen Dimensions
@@ -2596,10 +2604,9 @@ enum
 };
 
 
-enum ffruletype 
+enum ffruletype
 {
-	
-	// 1st byte out of 20
+    // 1st byte out of 20
     qr_SOLIDBLK, qr_NOTMPNORET, qr_ALWAYSRET, qr_MEANTRAPS,
     qr_BSZELDA, qr_FADE, qr_FADECS5, qr_FASTDNGN,
     // 2
@@ -2667,13 +2674,25 @@ enum ffruletype
     qr_OLDMIRRORCOMBOS,
     qr_BROKENBOOKCOST,
     qr_OLDSIDEVIEWSPIKES,
+    //21
 	qr_OLDINFMAGIC/* Compatibility */, //Infinite magic prevents items from draining rupees
 	qr_NEVERDISABLEAMMOONSUBSCREEN, qr_ITEMSCRIPTSKEEPRUNNING,
-	qr_SCRIPTSRUNINLINKSTEPFORWARD, /*qr_SCRIPTDRAWSINCANCELWARP,*/ qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,
+	qr_SCRIPTSRUNINLINKSTEPFORWARD, /*qr_SCRIPTDRAWSINCANCELWARP,*/ qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,
 	qr_DYINGENEMYESDONTHURTLINK, //t.b.a
-	qr_SIDEVIEWTRIFORCECELLAR, qr_OUTOFBOUNDSENEMIES,
+	qr_SIDEVIEWTRIFORCECELLAR,
+	//22
+	qr_OUTOFBOUNDSENEMIES,
+	qr_EPILEPSY,
+	qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
+	qr_SMARTDROPS,
+	qr_NO_L_R_BUTTON_INVENTORY_SWAP,
+	qr_USE_EX1_EX2_INVENTORYSWAP,
+	qr_NOFASTMODE,
+	qr_OLD_F6,
+	
 	
 	//ZScript Parser //room for 20 of these
+	//80
 	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
 	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
 	qr_PARSER_SHORT_CIRCUIT, //Default off.
@@ -2682,14 +2701,21 @@ enum ffruletype
 	qr_PARSER_TRUE_INT_SIZE, //Default on
 	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
 	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
+	//81
 	qr_OLDSPRITEDRAWS,
 	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS,
 	qr_OLDQUESTMISC, 
 	qr_PARSER_FORCE_INLINE,
 	qr_CLEARINITDONSCRIPTCHANGE,
+	//82
+	qr_NOFFCWAITDRAW,
+	qr_NOITEMWAITDRAW,
+	qr_TRACESCRIPTIDS,
+	qr_FIXDRUNKINPUTS,
+	qr_32BIT_BINARY,
+	qr_ALWAYS_DEALLOCATE_ARRAYS,
+	qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,
     qr_MAX
-	
-	
 };
 
 //Flags for SaveSRAM() and LoadSRAM()

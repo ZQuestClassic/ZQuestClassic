@@ -103,13 +103,13 @@
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       46                              //build number of this version
+#define VERSION_BUILD       47                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 28"                    //version of the program as presented in text
-#define IS_BETA             -28                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        28
-#define DATE_STR            "18h July, 2019, 08:43GMT"
-#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 27"
+#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 29"                    //version of the program as presented in text
+#define IS_BETA             -29                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        29
+#define DATE_STR            "9th August, 2019, 17:49GMT"
+#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 29"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -184,7 +184,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           3
 #define V_RULES           15
 #define V_STRINGS          6
-#define V_MISC             10
+#define V_MISC             11
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           12
 #define V_CSETS            4
@@ -205,7 +205,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         12
+#define V_FFSCRIPT         14
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -863,6 +863,9 @@ enum
 	qr_NO_L_R_BUTTON_INVENTORY_SWAP,
 	qr_USE_EX1_EX2_INVENTORYSWAP,
 	qr_NOFASTMODE,
+	qr_OLD_F6 /* Compatibility */,
+	//23
+	qr_BROKEN_ASKIP_Y_FRAMES /* Compatibility */,
 	
 	
 	//ZScript Parser //room for 20 of these
@@ -888,6 +891,7 @@ enum
 	qr_FIXDRUNKINPUTS,
 	qr_32BIT_BINARY,
 	qr_ALWAYS_DEALLOCATE_ARRAYS,
+	qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,
     qr_MAX
 };
 
@@ -1815,6 +1819,7 @@ public:
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
+	dword fileref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -1828,6 +1833,7 @@ public:
 		dropsetref = 0, pondref = 0, warpringref = 0, doorsref = 0, zcoloursref = 0, rgbref = 0, 
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
+		fileref = 0;
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
     }
@@ -2895,6 +2901,7 @@ struct miscQdata
     long questmisc[32]; //Misc init values for the user. Used by scripts.
     char questmisc_strings[32][128]; //needs to be memset then data allocated from IntiData
 	//We probably want a way to access these in ZScript by their string, or to get the strings stored.
+    long zscript_last_compiled_version;
 };
 
 #define MFORMAT_MIDI 0
@@ -3539,6 +3546,10 @@ struct zcmodule
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 
+//GameFlags
+#define GAMEFLAG_TRYQUIT	0x01
+#define GAMEFLAG_SCRIPTMENU_ACTIVE	0x02
+
 #define DCLICK_START      0
 #define DCLICK_RELEASE    1
 #define DCLICK_AGAIN      2
@@ -4053,7 +4064,8 @@ extern void removeFromItemCache(int itemid);
 #define NUMSCRIPTITEM		256
 #define NUMSCRIPTGUYS		256
 #define NUMSCRIPTWEAPONS	256
-#define NUMSCRIPTGLOBAL		4
+#define NUMSCRIPTGLOBAL		7
+#define NUMSCRIPTGLOBAL253		4
 #define NUMSCRIPTGLOBALOLD	3
 #define NUMSCRIPTLINKOLD		3
 #define NUMSCRIPTLINK		5
@@ -4064,7 +4076,10 @@ extern void removeFromItemCache(int itemid);
 #define GLOBAL_SCRIPT_INIT 		0
 #define GLOBAL_SCRIPT_GAME		1
 #define GLOBAL_SCRIPT_END		2
-#define GLOBAL_SCRIPT_CONTINUE 	3
+#define GLOBAL_SCRIPT_ONSAVELOAD	3
+#define GLOBAL_SCRIPT_ONLAUNCH		4
+#define GLOBAL_SCRIPT_ONCONTGAME	5
+#define GLOBAL_SCRIPT_F6	6
 
 #define SCRIPT_LINK_INIT 1
 #define SCRIPT_LINK_ACTIVE 2

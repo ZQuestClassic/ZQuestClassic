@@ -1,5 +1,5 @@
 //std_functions.zh
-//1st July, 2019 for ZC 2.55.0 Alpha 26
+//1st August, 2019 for ZC 2.55.0 Alpha 26
 
 //A
 
@@ -3172,3 +3172,18 @@ float WrapDegrees( float degrees )
 //Y
 
 //Z
+
+//New functions are all going into a namespace.
+//Later, we will likely migrate all std functions to here:
+//Should namespace scope functions be uppercase?
+//They aren't global, and lowercase seems logical?!
+namespace std
+{
+	////clkptr is an array, sized at least [1], frames is the duration on/off, so, 10 would be on for ten frames, then off for ten frames
+	bool blink(int clkptr, int frames)
+	{
+	    const int clkIindx = 0;
+	    clkptr[clkIindx] = (clkptr[clkIindx]+1)%(frames<<1);
+	    return( clkptr[clkIindx]&frames );
+	}
+}

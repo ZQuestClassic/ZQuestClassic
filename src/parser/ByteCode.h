@@ -1142,8 +1142,10 @@
 #define LINKOTILE		1072
 #define LINKOFLIP		1073
 #define ITEMSPRITEINITD		1074
+#define ZSCRIPTVERSION		1075
+#define REFFILE			1076
 
-#define LAST_BYTECODE 		1075
+#define LAST_BYTECODE 		1077
 
 //END OF BYTECODE
 
@@ -3518,6 +3520,16 @@ namespace ZScript
 		}
 	};
 
+	class ODrawTileCloakedRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODrawTileCloakedRegister();
+		}
+	};
+
 	class ODrawComboRegister : public Opcode
 	{
 	public:
@@ -3525,6 +3537,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new ODrawComboRegister();
+		}
+	};
+
+	class ODrawComboCloakedRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODrawComboCloakedRegister();
 		}
 	};
 
@@ -3871,6 +3893,26 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OGameContinue();
+		}
+	};
+	
+	class OGameSaveQuit : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGameSaveQuit();
+		}
+	};
+	
+	class OGameSaveContinue : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGameSaveContinue();
 		}
 	};
 
@@ -7258,6 +7300,15 @@ namespace ZScript
 			return new OBMPDrawComboRegister();
 		}
 	};
+	class OBMPDrawComboCloakedRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawComboCloakedRegister();
+		}
+	};
 	class OBMPDrawTileRegister : public Opcode
 	{
 	public:
@@ -7265,6 +7316,15 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OBMPDrawTileRegister();
+		}
+	};
+	class OBMPDrawTileCloakedRegister : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawTileCloakedRegister();
 		}
 	};
 	class OBMPDrawIntRegister : public Opcode
@@ -8294,6 +8354,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OGraphicsGetpixel(a->clone());
+		}
+	};
+	
+	class ODirExists : public UnaryOpcode
+	{
+	public:
+		ODirExists(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODirExists(a->clone());
 		}
 	};
 }

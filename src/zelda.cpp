@@ -238,7 +238,7 @@ bool triplebuffer_not_available=false;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf;
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
            *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont,
@@ -332,6 +332,7 @@ int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
 int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 bool analog_movement=true;
 int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
+unsigned long GameFlags=0;
 int js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
 int js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
 int js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
@@ -402,14 +403,14 @@ ffscript *screenscripts[NUMSCRIPTSCREEN];
 ffscript *dmapscripts[NUMSCRIPTSDMAP];
 ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 
-extern refInfo globalScriptData;
+extern refInfo globalScriptData[NUMSCRIPTGLOBAL];
 extern refInfo linkScriptData;
 extern refInfo screenScriptData;
 extern refInfo dmapScriptData;
 extern word g_doscript;
 extern word link_doscript;
 extern word dmap_doscript;
-extern bool global_wait;
+extern word global_wait;
 extern bool link_waitdraw;
 extern bool dmap_waitdraw;
 
@@ -480,16 +481,21 @@ void initZScriptArrayRAM(bool firstplay)
 
 void initZScriptGlobalRAM()
 {
-    g_doscript = 1;
-    globalScriptData.Clear();
-    clear_global_stack();
+	g_doscript = 0xFFFF; //Set all scripts active
+	global_wait = 0; //Clear waitdraws
+	for(int q = 0; q < NUMSCRIPTGLOBAL; ++q)
+	{
+		globalScriptData[q].Clear();
+		clear_global_stack(q);
+	}
 }
 
-void initZScriptLinkScripts()
+void initZScriptGlobalScript(int ID)
 {
-    link_doscript = 1;
-    linkScriptData.Clear();
-    clear_link_stack();
+	g_doscript |= (1<<ID);
+	global_wait &= ~(1<<ID);
+	globalScriptData[ID].Clear();
+	clear_global_stack(ID);
 }
 
 dword getNumGlobalArrays()
@@ -1897,7 +1903,7 @@ int init_game()
     
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();
-    initZScriptLinkScripts();
+    FFCore.initZScriptLinkScripts();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptItemScripts();
     
@@ -1913,10 +1919,10 @@ int init_game()
     else
     {
 	    //Global script OnContinue
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
     }
 */
-    global_wait=false;
+    global_wait=0;
     
     //loadscr(0,currscr,up);
     loadscr(0,currdmap,currscr,-1,false);
@@ -1925,27 +1931,24 @@ int init_game()
     
     //preloaded freeform combos
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
-    FFCore.init(); ///Initialise new ffscript engine core. 
-    Link.init();
-    if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
-    {
-        memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
-	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
-    }
-    if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); } //Do this prior to the Link init script, so that if the 
-								//init script makes him invisible, he stays that way. 
-	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	FFCore.init(); ///Initialise new ffscript engine core. 
+	Link.init();
+	if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
 	{
-		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
-								//positional data, sprites, tiles, csets, invisibility states, and the like.
-		FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
+		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
+		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
+									//positional data, sprites, tiles, csets, invisibility states, and the like.
+			FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
+		}
+		FFCore.initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script.
+		Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
+						//are properly set by the engine.
 	}
-    initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
-    Link.resetflags(true); //This should probably occur after running Link's init script. 
-    Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
-					//are properly set by the engine.
+	Link.resetflags(true); //This should probably occur after running Link's init script. 
     
     
     copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
@@ -2034,12 +2037,15 @@ int init_game()
 	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
     //}
     //else
-    if(!firstplay)
-    {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
-        //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
-	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE);
-    }
+	if(!firstplay)
+	{
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
+		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
+	}
+	//Run after Init/onSaveLoad, regardless of firstplay -V
+	FFCore.runOnLaunchEngine();
+	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
+	
     
     if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
     openscreen();
@@ -2060,8 +2066,8 @@ int init_game()
         playLevelMusic();
         
     
-    initZScriptGlobalRAM(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
-    initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
+    FFCore.initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     ffscript_engine(true);  //Here is a much safer place...
@@ -2156,6 +2162,11 @@ int cont_game()
     //  for(int i=0; i<128; i++)
     //    key[i]=0;
     
+	//Run onContGame script -V
+	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
+	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
+	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME);
+	
     update_subscreens();
     Playing=true;
     map_bkgsfx(true);
@@ -2177,8 +2188,8 @@ int cont_game()
         activated_timed_warp=false;
     }
     
-    initZScriptGlobalRAM();
-    initZScriptLinkScripts();
+    initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
+    FFCore.initZScriptLinkScripts();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptItemScripts();
     return 0;
@@ -2948,7 +2959,7 @@ void game_loop()
     }
     
     // Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
-    if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && g_doscript)
+    if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
     }
@@ -3090,10 +3101,10 @@ void game_loop()
     #if LOGGAMELOOP > 0
 	al_trace("game_loop at: %s\n", "if(global_wait)\n");
 	#endif
-    if( !FFCore.system_suspend[susptGLOBALGAME] && global_wait )
+    if( !FFCore.system_suspend[susptGLOBALGAME] && (global_wait & (1<<GLOBAL_SCRIPT_GAME)) )
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-        global_wait=false;
+        global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
     }
     if ( !FFCore.system_suspend[susptLINKACTIVE] && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
@@ -3710,50 +3721,65 @@ bool setGraphicsMode(bool windowed)
 
 int onFullscreen()
 {
-    PALETTE oldpal;
-    get_palette(oldpal);
-    
-    show_mouse(NULL);
-    bool windowed=is_windowed_mode()!=0;
-    
-    // these will become ultra corrupted no matter what.
-    Triplebuffer.Destroy();
-    
-    bool success=setGraphicsMode(!windowed);
-    if(success)
-        fullscreen=!fullscreen;
-    else
+    if(jwin_alert3(
+			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
+			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
+			(is_windowed_mode()) ? "We strongly advise saving your game before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
+			(is_windowed_mode()) ? "Do you wish to continue to fullscreen mode?" : NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		lfont) == 1)	
     {
-        // Try to restore the previous mode, then...
-        success=setGraphicsMode(windowed);
-        if(!success)
-        {
-            Z_message("Failed to set video mode.\n");
-            Z_message(allegro_error);
-            exit(1);
-        }
-    }
-    
-    /* ZC will crash going from fullscreen to windowed mode if triple buffer is left unchecked. -Gleeok  */
-    if(Triplebuffer.GFX_can_triple_buffer())
-    {
-        Triplebuffer.Create();
-        Z_message("Triplebuffer enabled \n");
-    }
-    else
-        Z_message("Triplebuffer disabled \n");
-    
-    //Everything set?
-    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
-    
-    set_palette(oldpal);
-    gui_mouse_focus=0;
-    show_mouse(screen);
-    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:SWITCH_BACKGROUND);
-//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
-//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
+	    PALETTE oldpal;
+	    get_palette(oldpal);
+	    
+	    show_mouse(NULL);
+	    bool windowed=is_windowed_mode()!=0;
+	    
+	    // these will become ultra corrupted no matter what.
+	    Triplebuffer.Destroy();
+	    
+	    bool success=setGraphicsMode(!windowed);
+	    if(success)
+		fullscreen=!fullscreen;
+	    else
+	    {
+		// Try to restore the previous mode, then...
+		success=setGraphicsMode(windowed);
+		if(!success)
+		{
+		    Z_message("Failed to set video mode.\n");
+		    Z_message(allegro_error);
+		    exit(1);
+		}
+	    }
+	    
+	    /* ZC will crash going from fullscreen to windowed mode if triple buffer is left unchecked. -Gleeok  */
+	    if(Triplebuffer.GFX_can_triple_buffer())
+	    {
+		Triplebuffer.Create();
+		Z_message("Triplebuffer enabled \n");
+	    }
+	    else
+		Z_message("Triplebuffer disabled \n");
+	    
+	    //Everything set?
+	    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
+	    
+	    set_palette(oldpal);
+	    gui_mouse_focus=0;
+	    show_mouse(screen);
+	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:SWITCH_BACKGROUND);
+	//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
+	//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 
-    return D_REDRAW;
+	    return D_REDRAW;
+    }
+    else return D_O_K;
 }
 
 int main(int argc, char* argv[])
@@ -4122,6 +4148,7 @@ int main(int argc, char* argv[])
     msgdisplaybuf = create_bitmap_ex(8,256, 176);
     msgbmpbuf = create_bitmap_ex(8, 512+16, 512+16);
     pricesdisplaybuf = create_bitmap_ex(8,256, 176);
+	script_menu_buf = create_bitmap_ex(8,256,224);
     
     if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
             || !screen2 || !msgdisplaybuf || !pricesdisplaybuf)
@@ -4724,109 +4751,120 @@ int main(int argc, char* argv[])
         setup_combo_animations();
         setup_combo_animations2();
         
-        while(!Quit)
-        {
+		while(Quit<=0)
+		{
 #ifdef _WIN32
-        
-            if(use_win32_proc != FALSE)
-            {
-                win32data.Update(0);
-            }
-            
-#endif
-            game_loop();
-	    //Perpetual item Script:
-	    FFCore.newScriptEngine();
-            
 		
-	     //clear Link's last hits 
-	     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
+			if(use_win32_proc != FALSE)
+			{
+				win32data.Update(0);
+			}
+			
+#endif
+			game_loop();
+			//Perpetual item Script:
+			FFCore.newScriptEngine();
+			
+			FFCore.runF6Engine();
+		
+			//clear Link's last hits 
+			//for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
 									//to read before or after waitdraw in scripts. 
-        }
+		}
         
         tmpscr->flags3=0;
         Playing=Paused=false;
 	//Clear active script array ownership
         FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
-        switch(Quit)
-        {
-        case qQUIT:
-        case qGAMEOVER:
-        {
-            playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
-            show_subscreen_dmap_dots=true;
-            show_subscreen_numbers=true;
-            show_subscreen_items=true;
-            show_subscreen_life=true;
-            show_ff_scripts=false;
-            introclk=intropos=0;
-            for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+		switch(Quit)
+		{
+			case qSAVE:
+			case qSAVECONT:
+			case qCONT:
+			case qQUIT:
+			case qGAMEOVER:
+			{
+				playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
+				show_subscreen_dmap_dots=true;
+				show_subscreen_numbers=true;
+				show_subscreen_items=true;
+				show_subscreen_life=true;
+				show_ff_scripts=false;
+				introclk=intropos=0;
+				for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
-            initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!! //No, this clears the active script stack so that the exit script can run -V
-            initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
-            FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
-            FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
-		
-	    //Run Global script OnExit
-            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
-           
-            if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
-            
-		
-	    
-            skipcont = 0;
-		
-		
-		//restore user volume settings
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
-		{
-			master_volume(-1,((long)FFCore.usr_midi_volume));
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-		{
-			master_volume((long)(FFCore.usr_digi_volume),1);
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-		{
-			emusic_volume = (long)FFCore.usr_music_volume;
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-		{
-			sfx_volume = (long)FFCore.usr_sfx_volume;
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-		{
-			pan_style = (long)FFCore.usr_panstyle;
-		}
-        }
-        break;
-        
-        case qWON:
-        {
-            show_subscreen_dmap_dots=true;
-            show_subscreen_numbers=true;
-            show_subscreen_items=true;
-            show_subscreen_life=true;
-            for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+				initZScriptGlobalScript(GLOBAL_SCRIPT_END);
+				FFCore.initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
+				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
+				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
+			
+				//Run Global script OnExit
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
+			   
+				if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
+				
+				if(Quit==qSAVE)
+				{
+					save_game(false);
+				}
+				else if(Quit==qSAVECONT)
+				{
+					save_game(false);
+					Quit = qCONT;
+				}
+				
+				skipcont = 0;
+				
+				//restore user volume settings
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+				{
+					master_volume(-1,((long)FFCore.usr_midi_volume));
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+				{
+					master_volume((long)(FFCore.usr_digi_volume),1);
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+				{
+					emusic_volume = (long)FFCore.usr_music_volume;
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+				{
+					sfx_volume = (long)FFCore.usr_sfx_volume;
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+				{
+					pan_style = (long)FFCore.usr_panstyle;
+				}
+			}
+			break;
+			
+			case qWON:
+			{
+				show_subscreen_dmap_dots=true;
+				show_subscreen_numbers=true;
+				show_subscreen_items=true;
+				show_subscreen_life=true;
+				for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
-            initZScriptGlobalRAM();
-            initZScriptLinkScripts(); //get ready for the onWin script
-            FFCore.initZScriptDMapScripts();
-            FFCore.initZScriptItemScripts();
-	    //Run global script OnExit
-            //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN); //runs in ending()
-	    //while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
-		//We need a special routine for win and death link scripts. Otherwise, they work. 
-            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
-		
-	    
-		
-            ending();
-        }
-        break;
-        
-        }
+				initZScriptGlobalScript(GLOBAL_SCRIPT_END);
+				FFCore.initZScriptLinkScripts(); //get ready for the onWin script
+				FFCore.initZScriptDMapScripts();
+				FFCore.initZScriptItemScripts();
+				//Run global script OnExit
+				//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN); //runs in ending()
+				//while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
+				//We need a special routine for win and death link scripts. Otherwise, they work. 
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
+			
+			
+			
+				ending();
+			}
+			break;
+		}
+        FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		//Restore original palette before exiting for any reason!
         setMonochrome(false);
 		doClearTint();
@@ -4838,6 +4876,7 @@ int main(int argc, char* argv[])
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();
+		GameFlags = 0; //Clear game flags on ANY exit
         kill_sfx();
         music_stop();
         clear_to_color(screen,BLACK);
@@ -4948,6 +4987,7 @@ void quit_game()
     destroy_bitmap(msgdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
     destroy_bitmap(pricesdisplaybuf);
+	destroy_bitmap(script_menu_buf);
     
     al_trace("Subscreens... \n");
     

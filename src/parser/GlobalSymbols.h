@@ -355,6 +355,21 @@ private:
     void generateCode();
 };
 
+//Filesystem->
+class FileSystemSymbols : public LibrarySymbols
+{
+public:
+    static FileSystemSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static FileSystemSymbols singleton;
+    FileSystemSymbols();
+    void generateCode();
+};
+
 //Input->
 class InputSymbols : public LibrarySymbols
 {
