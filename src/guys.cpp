@@ -639,8 +639,12 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
     int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
 	switch(dir)
 	{
-		case up: break;
-		case down: 
+		case l_down:
+		case r_down:
+		case down:
+		case 11: //r_down
+		case 12: //down
+		case 13: //l_down
 		{
 			if ( ((unsigned)id) < MAXGUYS )
 			{
@@ -651,10 +655,16 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
 				}
 			}
 			break;
-			
 		}
-		case left: break;
+	}
+	switch(dir)
+	{
+		case r_up:
+		case r_down:
 		case right:
+		case 9: //r_up
+		case 10: //right
+		case 11: //r_down
 		{
 			if ( ((unsigned)id) < MAXGUYS )
 			{
@@ -665,10 +675,7 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
 				}
 			}
 			break;
-			
 		}
-		default: break;
-		
 	}
 	//Z_eventlog("Checking x,y %d,%d\n",dx,dy);
     
@@ -3721,8 +3728,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 				
 			dy = dy1-s;
 			special = (special==spw_clipbottomright)?spw_none:special;
-			tries = usewid/8;
-			if(!offgrid) tries/=2;
+			tries = usewid/(offgrid ? 8 : 16);
 			//Z_eventlog("Trying move UP, dy=%d,usewid=%d,usehei=%d\n",int(dy),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
@@ -3731,17 +3737,20 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 				if (!ok) break;
 			}
 			if(!ok) break;
-			if(offgrid || (usewid%16)>0) ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy, special);
+			if((usewid%16)>0) //Uneven width
+			{
+				ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy, special);
+			}
 			break;
 		}
 		case 12:
 		case down:
+		{
 			if(enemycanfall(id) && tmpscr->flags7&fSIDEVIEW)
 				return false;
 				
 			dy = dy2+s;
-			tries = usewid/8;
-			if(!offgrid) tries/=2;
+			tries = usewid/(offgrid ? 8 : 16);
 			//Z_eventlog("Trying move DOWN, dy=%d,usewid=%d,usehei=%d\n",int(dy),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
@@ -3750,16 +3759,19 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 				if (!ok) break;
 			}
 			if(!ok) break;
-			if(offgrid || (usewid%16)>0) ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+zc_max(usehei-16,0), special);
+			if((usewid%16)>0) //Uneven width
+			{
+				ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy,special, ndir, x+usexoffs+usewid-1, y+useyoffs) && !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+zc_max(usehei-16,0), special);
+			}
 			break;
-			
+		}
 		case 14:
 		case left:
+		{
 			dx = dx1-s;
 			sv = ((tmpscr->flags7&fSIDEVIEW)?7:0);
 			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
-			tries = usehei/8;
-			if(!offgrid) tries/=2;
+			tries = usehei/(offgrid ? 8 : 16);
 			//Z_eventlog("Trying move LEFT, dx=%d,usewid=%d,usehei=%d\n",int(dx),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
@@ -3768,15 +3780,18 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 				if (!ok) break;
 			}
 			if(!ok) break;
-			if(offgrid || (usehei%16)>0) ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+usehei-1, special);
+			if((usehei%16)>0) //Uneven height
+			{
+				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx,y+8+useyoffs+usehei-1, special);
+			}
 			break;
-			
+		}
 		case 10:
 		case right:
+		{
 			dx = dx2+s;
 			sv = ((tmpscr->flags7&fSIDEVIEW)?7:0);
-			tries = usehei/8;
-			if(!offgrid) tries/=2;
+			tries = usehei/(offgrid ? 8 : 16);
 			//Z_eventlog("Trying move RIGHT, dx=%d,usewid=%d,usehei=%d\n",int(dx),usewid,usehei);
 			for ( ; tries > 0; --tries )
 			{
@@ -3785,105 +3800,196 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 				if (!ok) break;
 			}
 			if(!ok) break;
-			if(offgrid || (usehei%16)>0) ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx+zc_max(usewid-16,0),y+8+useyoffs+usehei-1, special);
+			if((usehei%16)>0) //Uneven height
+			{
+				ok = !m_walkflag(x+usexoffs+dx,y+useyoffs+usehei-1+sv,special, ndir, x+usexoffs, y+useyoffs+usehei-1) && !flyerblocked(x+usexoffs+dx+zc_max(usewid-16,0),y+8+useyoffs+usehei-1, special);
+			}
 			break;
-			
+		}
 		case 9:
 		case r_up:
+		{
 			dx = dx2+s;
 			dy = dy1-s;
-			if ( ((unsigned)id) < MAXGUYS )
+			int tries_x = usewid/8;
+			for ( ; tries_x > 0; --tries_x )
 			{
-				if ( ( (SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+				int tries_y = usehei/8;
+				try_y = 0;
+				for ( ; tries_y > 0; --tries_y )
 				{
-					try_x = txsz * 16;
-					try_y = tysz * 16;
-				}
-			}
-			for ( ; try_x >= 0; try_x-- )
-			{
-				for ( ; try_y >= 0; try_y-- )
-				{
-					ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
-					!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
+					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
+					try_y += 8;
 					if (!ok) break;
 				}
 				if (!ok) break;
+				if((usehei%16)>0) //Uneven height
+				{
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
+					     !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
+				}
+				try_x += 8;
+			}
+			if(!ok) break;
+			if((usewid%16)>0) //Uneven width
+			{
+				int tries_y = usehei/8;
+				try_y = 0;
+				for ( ; tries_y > 0; --tries_y )
+				{
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
+					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
+					try_y += 8;
+					if (!ok) break;
+				}
+				if (!ok) break;
+				if((usehei%16)>0) //Uneven height
+				{
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) &&
+					     !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special);
+				}
 			}
 			break;
-			
+		}
 		case 11:
 		case r_down:
+		{
 			dx = dx2+s;
 			dx = dy2+s;
-			if ( ((unsigned)id) < MAXGUYS )
+			int tries_x = usewid/8;
+			for ( ; tries_x > 0; --tries_x )
 			{
-				if ( ( (SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+				int tries_y = usehei/8;
+				try_y = 0;
+				for ( ; tries_y > 0; --tries_y )
 				{
-					try_x = txsz * 16;
-					try_y = tysz * 16;
-				}
-			}
-			for ( ; try_x >= 0; try_x-- )
-			{
-				for ( ; try_y >= 0; try_y-- )
-				{
-					ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
-					!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
+					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
+					try_y += 8;
 					if (!ok) break;
 				}
 				if (!ok) break;
+				if((usehei%16)>0) //Uneven height
+				{
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
+					     !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
+				}
+				try_x += 8;
+			}
+			if(!ok) break;
+			if((usewid%16)>0) //Uneven width
+			{
+				int tries_y = usehei/8;
+				try_y = 0;
+				for ( ; tries_y > 0; --tries_y )
+				{
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
+					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
+					try_y += 8;
+					if (!ok) break;
+				}
+				if (!ok) break;
+				if((usehei%16)>0) //Uneven height
+				{
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) &&
+					     !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special);
+				}
 			}
 			break;
-			
+		}
 		case 13:
 		case l_down:
+		{
 			dx = dx1-s;
 			dy = dy2+s;
-			if ( ((unsigned)id) < MAXGUYS )
+			int tries_x = usewid/8;
+			for ( ; tries_x > 0; --tries_x )
 			{
-				if ( ( (SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+				int tries_y = usehei/8;
+				try_y = 0;
+				for ( ; tries_y > 0; --tries_y )
 				{
-					try_x = txsz * 16;
-					try_y = tysz * 16;
-				}
-			}
-			for ( ; try_x >= 0; try_x-- )
-			{
-				for ( ; try_y >= 0; try_y-- )
-				{
-					ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
-					!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
+					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
+					try_y += 8;
 					if (!ok) break;
 				}
 				if (!ok) break;
+				if((usehei%16)>0) //Uneven height
+				{
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
+					     !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
+				}
+				try_x += 8;
+			}
+			if(!ok) break;
+			if((usewid%16)>0) //Uneven width
+			{
+				int tries_y = usehei/8;
+				try_y = 0;
+				for ( ; tries_y > 0; --tries_y )
+				{
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
+					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
+					try_y += 8;
+					if (!ok) break;
+				}
+				if (!ok) break;
+				if((usehei%16)>0) //Uneven height
+				{
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) &&
+					     !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special);
+				}
 			}
 			break;
-			
+		}
 		case 15:
 		case l_up:
+		{
 			dx = dx1-s;
 			dy = dy1-s;
-			if ( ((unsigned)id) < MAXGUYS )
+			int tries_x = usewid/8;
+			for ( ; tries_x > 0; --tries_x )
 			{
-				if ( ( (SIZEflags&guyflagOVERRIDE_TILE_HEIGHT || SIZEflags&guyflagOVERRIDE_TILE_WIDTH ) && !isflier(id) ) )
+				int tries_y = usehei/8;
+				try_y = 0;
+				for ( ; tries_y > 0; --tries_y )
 				{
-					try_x = txsz * 16;
-					try_y = tysz * 16;
-				}
-			}
-			for ( ; try_x >= 0; try_x-- )
-			{
-				for ( ; try_y >= 0; try_y-- )
-				{
-					ok = !m_walkflag(x+try_x,y+dy+try_y,special, x+try_x, y+try_y) && !m_walkflag(x+dx+try_x,y+sv+try_y,special, x+try_x, y+try_y) &&
-					!flyerblocked(x+try_x,y+dy+try_y, special) && !flyerblocked(x+dx+try_x,y+8+try_y, special);
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
+					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
+					try_y += 8;
 					if (!ok) break;
 				}
 				if (!ok) break;
+				if((usehei%16)>0) //Uneven height
+				{
+					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
+					     !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
+				}
+				try_x += 8;
+			}
+			if(!ok) break;
+			if((usewid%16)>0) //Uneven width
+			{
+				int tries_y = usehei/8;
+				try_y = 0;
+				for ( ; tries_y > 0; --tries_y )
+				{
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
+					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
+					try_y += 8;
+					if (!ok) break;
+				}
+				if (!ok) break;
+				if((usehei%16)>0) //Uneven height
+				{
+					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+usewid-1, y+useyoffs+usehei-1) &&
+					     !flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+usehei-1, special);
+				}
 			}
 			break;
-			
+		}
 		default:
 			db=99;
 			return true;
