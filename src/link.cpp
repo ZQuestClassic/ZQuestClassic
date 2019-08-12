@@ -756,6 +756,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
     
 	if(new_action==rafting)
 	{
+		if(get_bit(quest_rules, qr_DISALLOW_SETTING_RAFTING)) return;
 		if(!(isRaftFlag(nextflag(x+8,y+8,dir,false))||isRaftFlag(nextflag(x+8,y+8,dir,true))))
 			return;
 	}
