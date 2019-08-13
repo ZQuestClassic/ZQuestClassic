@@ -1761,6 +1761,7 @@ string VarArgument::toString()
 	case ITEMSPRITEINITD: return "ITEMSPRITEINITD";
 	case ZSCRIPTVERSION: return "ZSCRIPTVERSION";
 	case REFFILE: return "REFFILE";
+	case REFSUBSCREEN: return "REFSUBSCREEN";
 	
 	
     default:

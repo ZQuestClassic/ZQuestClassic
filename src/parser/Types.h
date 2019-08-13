@@ -111,6 +111,8 @@ namespace ZScript
 		ZVARTYPEID_GAMEDATA,
 		ZVARTYPEID_CHEATS,
 		ZVARTYPEID_FILESYSTEM,
+		ZVARTYPEID_SUBSCREENDATA,
+		ZVARTYPEID_FILE,
 		ZVARTYPEID_CLASS_END,
 
 		ZVARTYPEID_END = ZVARTYPEID_CLASS_END
@@ -219,6 +221,8 @@ namespace ZScript
 		static DataTypeClassConst CSPRITEDATA;
 		static DataTypeClassConst CTUNES;
 		static DataTypeClassConst CWARPRING;
+		static DataTypeClassConst CSUBSCREENDATA;
+		static DataTypeClassConst CFILE;
 		//Class: Var Types
 		static DataTypeClass BITMAP;
 		static DataTypeClass CHEATS;
@@ -245,6 +249,8 @@ namespace ZScript
 		static DataTypeClass SPRITEDATA;
 		static DataTypeClass TUNES;
 		static DataTypeClass WARPRING;
+		static DataTypeClass SUBSCREENDATA;
+		static DataTypeClass FILE;
 	};
 
 	bool operator==(DataType const&, DataType const&);
@@ -436,6 +442,8 @@ namespace ZScript
 			idDMap,
 			idItemSprite,
 			idUntyped,
+			idSubscreenData,
+			idComboData,
 			
 			idEnd
 		};
@@ -456,8 +464,10 @@ namespace ZScript
 		static ScriptType const link;
 		static ScriptType const dmapdata;
 		static ScriptType const screendata;
-		static ScriptType const ScriptType::itemsprite;
-		static ScriptType const ScriptType::untyped;
+		static ScriptType const itemsprite;
+		static ScriptType const untyped;
+		static ScriptType const subscreendata;
+		static ScriptType const combodata;
 
 	private:
 		ScriptType(Id id) : id_(id) {}

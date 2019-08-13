@@ -349,6 +349,8 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
     case ZVARTYPEID_GAMEDATA: return &GamedataSymbols::getInst();
     case ZVARTYPEID_CHEATS: return &CheatsSymbols::getInst();
 	case ZVARTYPEID_FILESYSTEM: return &FileSystemSymbols::getInst();
+	case ZVARTYPEID_SUBSCREENDATA: return &SubscreenDataSymbols::getInst();
+	case ZVARTYPEID_FILE: return &FileSymbols::getInst();
     default: return NULL;
     }
 }
@@ -12277,7 +12279,6 @@ FileSystemSymbols FileSystemSymbols::singleton = FileSystemSymbols();
 
 static AccessorTable FileSystemTable[] =
 {
-//	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	{ "DirExists",              ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             0,                                    2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
@@ -12307,5 +12308,47 @@ void FileSystemSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
+}
+
+FileSymbols FileSymbols::singleton = FileSymbols();
+
+static AccessorTable FileTable[] =
+{
+//	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
+//	{ "DirExists",              ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             0,                                    2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+FileSymbols::FileSymbols()
+{
+    table = FileTable;
+    refVar = REFFILE;
+}
+
+void FileSymbols::generateCode()
+{
+	//
+}
+
+SubscreenDataSymbols SubscreenDataSymbols::singleton = SubscreenDataSymbols();
+
+static AccessorTable SubscreenDataTable[] =
+{
+//	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
+//	{ "DirExists",              ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             0,                                    2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+SubscreenDataSymbols::SubscreenDataSymbols()
+{
+    table = SubscreenDataTable;
+    refVar = REFSUBSCREEN;
+}
+
+void SubscreenDataSymbols::generateCode()
+{
+	//
 }
 

@@ -2680,7 +2680,7 @@ enum ASM_DEFINE
 #define REFNPC               0x0892
 #define REFLWPNCLASS         0x0893
 #define REFNPCCLASS          0x0894
-//#define REFSUBSCREEN         0x0895 //Not implemented
+#define REFSUBSCREEN         0x0895
 #define REFEWPN              0x0896
 #define REFEWPNCLASS         0x0897
 

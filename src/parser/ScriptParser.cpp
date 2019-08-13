@@ -337,6 +337,18 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 					new OSetRegister(new VarArgument(EXP2),
 							new VarArgument(REFITEM)));
 			}
+			else if (type == ScriptType::subscreendata)
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							new VarArgument(REFSUBSCREEN)));
+			}
+			else if (type == ScriptType::combodata)
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							new VarArgument(REFCOMBODATA)));
+			}
 			/* Do we want these here--ever? -Z
 			else if (type == ScriptType::link )
 			{

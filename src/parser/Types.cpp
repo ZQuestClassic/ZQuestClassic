@@ -170,6 +170,8 @@ DataTypeClassConst DataType::CSHOPDATA(ZCLASSID_SHOPDATA, "const ShopData");
 DataTypeClassConst DataType::CSPRITEDATA(ZCLASSID_SPRITEDATA, "const SpriteData");
 DataTypeClassConst DataType::CTUNES(ZCLASSID_TUNES, "const Tunes");
 DataTypeClassConst DataType::CWARPRING(ZCLASSID_WARPRING, "const WarpRing");
+DataTypeClassConst DataType::CSUBSCREENDATA(ZCLASSID_SUBSCREENDATA, "const SubscreenData");
+DataTypeClassConst DataType::CFILE(ZCLASSID_FILE, "const File");
 //Class: Var Types
 DataTypeClass DataType::BITMAP(ZCLASSID_BITMAP, "Bitmap", &CBITMAP);
 DataTypeClass DataType::CHEATS(ZCLASSID_CHEATS, "Cheats", &CCHEATS);
@@ -196,6 +198,8 @@ DataTypeClass DataType::SHOPDATA(ZCLASSID_SHOPDATA, "ShopData", &CSHOPDATA);
 DataTypeClass DataType::SPRITEDATA(ZCLASSID_SPRITEDATA, "SpriteData", &CSPRITEDATA);
 DataTypeClass DataType::TUNES(ZCLASSID_TUNES, "Tunes", &CTUNES);
 DataTypeClass DataType::WARPRING(ZCLASSID_WARPRING, "WarpRing", &CWARPRING);
+DataTypeClass DataType::SUBSCREENDATA(ZCLASSID_SUBSCREENDATA, "SubscreenData", &CSUBSCREENDATA);
+DataTypeClass DataType::FILE(ZCLASSID_FILE, "File", &CFILE);
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -232,6 +236,8 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_AUDIO: return &AUDIO;
 		case ZVARTYPEID_COMBOS: return &COMBOS;
 		case ZVARTYPEID_SPRITEDATA: return &SPRITEDATA;
+		case ZVARTYPEID_SUBSCREENDATA: return &SUBSCREENDATA;
+		case ZVARTYPEID_FILE: return &FILE;
 		case ZVARTYPEID_GRAPHICS: return &GRAPHICS;
 		case ZVARTYPEID_BITMAP: return &BITMAP;
 		case ZVARTYPEID_TEXT: return &TEXT;
@@ -274,6 +280,8 @@ DataTypeClass const* DataType::getClass(int classId)
 		case ZCLASSID_AUDIO: return &AUDIO;
 		case ZCLASSID_COMBOS: return &COMBOS;
 		case ZCLASSID_SPRITEDATA: return &SPRITEDATA;
+		case ZCLASSID_SUBSCREENDATA: return &SUBSCREENDATA;
+		case ZCLASSID_FILE: return &FILE;
 		case ZCLASSID_GRAPHICS: return &GRAPHICS;
 		case ZCLASSID_BITMAP: return &BITMAP;
 		case ZCLASSID_TEXT: return &TEXT;
@@ -609,6 +617,8 @@ ScriptType const ScriptType::screendata(idScreen);
 ScriptType const ScriptType::dmapdata(idDMap);
 ScriptType const ScriptType::itemsprite(idItemSprite);
 ScriptType const ScriptType::untyped(idUntyped);
+ScriptType const ScriptType::subscreendata(idSubscreenData);
+ScriptType const ScriptType::combodata(idComboData);
 
 string const& ScriptType::getName() const
 {

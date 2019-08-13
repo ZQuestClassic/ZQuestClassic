@@ -140,6 +140,7 @@ link	TOKEN( LINK );
 hero	TOKEN( LINK );
 itemsprite	TOKEN( ITEMSPRITE );
 file	TOKEN( FILE );
+subscreendata	TOKEN( SUBSCREENDATA );
 
  /* Syntax */
 ","		TOKEN( COMMA );

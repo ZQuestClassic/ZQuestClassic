@@ -7849,6 +7849,8 @@ case BITMAPHEIGHT:
     case REFPALCYCLE: ret = ri->palcycleref; break;
     case REFGAMEDATA: ret = ri->gamedataref; break;
     case REFCHEATS: ret = ri->cheatsref; break;
+    case REFFILE: ret = ri->fileref; break;
+    case REFSUBSCREEN: ret = ri->subscreenref; break;
    
         
     case SP:

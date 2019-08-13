@@ -150,6 +150,7 @@ extern YYLTYPE noloc;
 %token LINK
 %token ITEMSPRITE
 %token FILE
+%token SUBSCREENDATA
 
  // Syntax
 %token COMMA
@@ -466,6 +467,8 @@ DataType : ZCONST DataType {
 	| RGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
 	| SHOP {$$ = new ASTDataType(DataType::SHOPDATA, @$);}
 	| SPRITE {$$ = new ASTDataType(DataType::SPRITEDATA, @$);}
+	| FILE {$$ = new ASTDataType(DataType::FILE, @$);}
+	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
 	//Typedef types
@@ -643,6 +646,8 @@ Script_Type :
 	| LINK {$$ = new ASTScriptType(ScriptType::link, @$);}
 	| ITEMSPRITE {$$ = new ASTScriptType(ScriptType::itemsprite, @$);}
 	| UNTYPED {$$ = new ASTScriptType(ScriptType::untyped, @$);}
+	| SUBSCREENDATA {$$ = new ASTScriptType(ScriptType::subscreendata, @$);}
+	| COMBO {$$ = new ASTScriptType(ScriptType::combodata, @$);}
 	| IDENTIFIER {
 		ASTString* name = static_cast<ASTString*>($1);
 		$$ = new ASTScriptType(name->getValue(), @$);

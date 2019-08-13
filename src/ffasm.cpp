@@ -1441,6 +1441,7 @@ script_variable variable_list[]=
 	
 	{"COMBODATAID", COMBODATAID, 0, 0 },
 	{"REFFILE", REFFILE, 0, 0 },
+	{"REFSUBSCREEN", REFSUBSCREEN, 0, 0 },
 	//{"MAPDATAID", MAPDATAID, 0, 0 },
 	//{"MAPDATAID", MAPDATAID, 0, 0 },
 	

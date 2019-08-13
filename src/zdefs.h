@@ -1819,7 +1819,7 @@ public:
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
-	dword fileref;
+	dword fileref, subscreenref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -1833,7 +1833,7 @@ public:
 		dropsetref = 0, pondref = 0, warpringref = 0, doorsref = 0, zcoloursref = 0, rgbref = 0, 
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
-		fileref = 0;
+		fileref = 0, subscreenref = 0;
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
     }
@@ -1861,6 +1861,7 @@ public:
 		doorsref = rhs.doorsref, zcoloursref = rhs.zcoloursref, rgbref = rhs.rgbref, 
 		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
 		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
+		fileref = rhs.fileref, subscreenref = rhs.subscreenref;
         memcpy(d, rhs.d, 8 * sizeof(long));
         memcpy(a, rhs.a, 2 * sizeof(long));
         return *this;

@@ -580,6 +580,33 @@ private:
     void generateCode();
 };
 
+class FileSymbols : public LibrarySymbols
+{
+public:
+    static FileSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static FileSymbols singleton;
+    FileSymbols();
+    void generateCode();
+};
+
+class SubscreenDataSymbols : public LibrarySymbols
+{
+public:
+    static SubscreenDataSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static SubscreenDataSymbols singleton;
+    SubscreenDataSymbols();
+    void generateCode();
+};
 
 #endif
 
