@@ -1518,7 +1518,7 @@ of iterations is known at compile-time.
 	typedef old_type new_type;
 
 	[example--
-		typedef ffc object; //Allows you to declare object vars that are typed to ffc. 
+		typedef ffc object; //Allows you to declare object vars that are typed to ffc. 		
 
 		typedef const int DEFINE;
 		//Allows you to use the token DEFINE to declare constant ints. 
@@ -1530,7 +1530,7 @@ of iterations is known at compile-time.
 // Script Typedef //
 ////////////////////
 
-You may also typedef script tokens, creating your own types that resolve into existing script types.
+	You may also typedef script tokens, creating your own types that resolve into existing script types.
 
 	e.g. script typedef hero villain;
 	
