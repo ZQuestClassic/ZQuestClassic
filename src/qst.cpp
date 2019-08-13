@@ -2754,6 +2754,8 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
 	{
+		//Compatibility: Setting the hero's action to rafting was previously disallowed, though legal for scripts to attempt.
+		set_bit(quest_rules, qr_DISALLOW_SETTING_RAFTING, 1);
 		//Compatibility: The calculation for when to loop an animation did not factor in ASkipY correctly, resulting in
 		//animations ending earlier than they should.
 		set_bit(quest_rules, qr_BROKEN_ASKIP_Y_FRAMES, 1);
