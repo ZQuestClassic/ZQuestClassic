@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 29
-Document Revision: 4th August, 2019
+Document Revision: 13th August, 2019
 
 
 ////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ xor_eq 		: 	Equivalent to 	^=
 xor_equal 	: 	Equivalent to 	^=
 and_eq 		: 	Equivalent to 	&=
 and_equal 	: 	Equivalent to 	&=
-
+	
 
 ///////////////////////
 /// Basic Datatypes ///
@@ -126,12 +126,8 @@ char32		-214748, 214748
 			
 			foo("str\n"); 	//Will call: foo(char32)
 			foo(16);	//Will call: foo(int);
-	
-///////////////////
-// New Datatypes //
-///////////////////
 
-	untyped : A special datatype that can be cast to and from any other type.
+untyped : A special datatype that can be cast to and from any other type.
 	This has no distinct type of its own.
 	
 	Example:
@@ -152,6 +148,41 @@ char32		-214748, 214748
 		untyped b = a; //b == 1
 		int c = b; //c == 1
 
+
+///////////////////////
+// Complex Datatypes //
+///////////////////////
+
+	ffc:
+		Used to create a pointer to one of the 32 freeform combo objects on the current
+		screen, and to access its members. You cannot create ffcs.
+		
+	npc: 
+		Used to create a pointer to an npc object. 
+		You may either load a current (valid) npc on the current screen to the pointer, or create
+		a new npc on the screen using this pointer.
+		The maximum number of npc objects is defined in std.zh, but you may have multiple pointers
+		directed at a single object in memory.
+		Use this to access npc varibles, arrays, and functions. 
+		
+	eweapon:
+	lweapon:
+		Used to create a pointer to a weapon object. 
+		Use eweapon for enemy weapons, and lweapon for player weapons.
+		You may either load a current (valid) weapon on the current screen to the pointer, or create
+		a new weapon on the screen using this pointer.
+		The maximum number of weapon objects (per type) is defined in std.zh, but you may have multiple pointers
+		directed at a single object in memory.
+		Use this to access lweapon and eweaopon varibles, arrays, and functions. 
+		
+	item: 
+		Used to create a pointer to an item object. 
+		You may either load a current (valid) item on the current screen to the pointer, or create
+		a new item on the screen using this pointer.
+		The maximum number of item objects is defined in std.zh, but you may have multiple pointers
+		directed at a single object in memory.
+		Use this to access item varibles, arrays, and functions. 
+	
 	bitmap:
 		Used to create user bitmaps, similar to the old 2.50 Render Target bitmaps,
 		but with custom sizing.
@@ -209,6 +240,108 @@ char32		-214748, 214748
 		(Planned) Access to cheat code information.
 	file : t/b/a
 		(Planned_ OBJECT TYPE for working with raw files (e.g. ASCII/ANSI text files.
+	
+		
+//////////////////////
+// Enumerated Lists //
+//////////////////////
+
+You can now define enumerated lists of constant values using the
+standard C-style syntax of:
+
+	enum { A, B, C, D = 10, E, F, G = 100, H, I = B };
+
+	In this declaration, A == 0, B == 1, C == 2, D == 10, 
+		E == 11, F == 12, G == 100, H == 101, and I == 1
+		
+		
+You can also define a C style enumerated list with an identifier. 
+This act defines a pseudo-datatype, with assignable values limited to
+the values in the enumerated list.
+
+	enum actiontype { none, walk, attack };
+	
+	Now, you can declare 'actiontype' as a datatype.
+	
+	actiontype act;
+	
+	If you wish to assign a value to it, the value must be validated
+	from the enumeration:
+		act = walk; //Legal
+		act = 7; //Error
+		
+	You can explicit cast values to these types to circumnavigate the
+	restrictions.
+		act = <actiontype>7; //this is legal. 
+		
+	voiod foo(actiontype action)
+	{
+		actiontype newaction = action; 
+	}
+	You can only pass legal values in the actiontype enum to the parameter of this function.
+
+	
+///////////////////////
+/// Type Specifiers ///
+///////////////////////
+
+const TYPE
+
+If you declare a type constant, one of two things occurs:
+	If the ASSIGNED VALUE is also constant at compile time, then the value of the constant is converted to
+	a literal during compilation.
+	
+	e.g.
+	const int A = 5; 
+	const int B = A; //A is constant at compile time
+	int arr[B]; //B is sized to 5 during compilation.
+	
+	Such a declaration uses no stack space/registers.
+	
+If the type is NOT constant at compile time, the declaration is treated as a normal variable/array of its type,
+	however, its value cannot be modified during runtime.
+	
+	e.g.
+	const int hpcap = Link->MaxHP; //not constant at compile time, but the calue of hpcap
+		is read-only.
+	const char32[]="A String"; //not constant at compile time (true const string isn't available, nor is const array).
+		You cannot modify this during runtime.
+	void foo(const bool a, const int b)
+	{
+		a = false; //illegal to write to a
+		b = 64; //cannot write to b
+	}
+	
+	This can be useful if you wish to pass params without the risk of code modifying them, especially
+	when passing a pointer by reference.
+
+This type specifier can be applied to ALL datatypes, including enum-specified types.
+
+
+/////////////////////	
+// Datatype Arrays //
+/////////////////////
+
+It is legal to create an array of any legal datatype, including complex datatypes.
+You may specify an explicit array size, or use an array initialiser to set its size implicitely.
+
+Formats
+TYPE IDENTIFIER[SIZE];
+TYPE IDENTIFIER[SIZE] = { INITILISERS };
+
+	SIZE may be any constant expression.
+
+TYPE IDENTIFIER[] = { INITIALISERS };
+TYPE IDENTIFIER[A,B]; //Size is A*B
+TYPE IDENTIFIER[A,B] = { INITILISERS }; //Size is A*B
+
+char32 arrays may be initialised with a string:
+
+char32 IDENTIFIER[SIZE] = "string"; //Explicit size.
+char32 IDENTIFIER[] = "string"; //Sized implicitely to number of characters +1 for NULL termination.
+
+	Explicitely-sized string arrays must be sized to the length + 1 to include a NULL terminator.
+
 
 //////////////
 // Bugfixes //
@@ -1068,37 +1201,6 @@ You may now explicitly cast a value, using a type in angle braces.
 
 	f = <ffc>2;
 
-//////////////////////
-// Enumerated Lists //
-//////////////////////
-
-You can now define enumerated lists of constant values using the
-standard C-style syntax of:
-
-	enum { A, B, C, D = 10, E, F, G = 100, H, I = B };
-
-	In this declaration, A == 0, B == 1, C == 2, D == 10, 
-		E == 11, F == 12, G == 100, H == 101, and I == 1
-		
-		
-You can also define a C style enumerated list with an identifier. 
-This act defines a pseudo-datatype, with assignable values limited to
-the values in the enumerated list.
-
-	enum actiontype { none, walk, attack };
-	
-	Now, you can declare 'actiontype' as a datatype.
-	
-	actiontype act;
-	
-	If you wish to assign a value to it, the value must be validated
-	from the enumeration:
-		act = walk; //Legal
-		act = 7; //Error
-		
-	You can explicit cast values to these types to circumnavigate the
-	restrictions.
-		act = <actiontype>7; //this is legal. 
 
 ////////////////////
 // Comment Blocks //
