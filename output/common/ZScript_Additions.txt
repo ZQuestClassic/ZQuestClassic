@@ -1524,6 +1524,17 @@ of iterations is known at compile-time.
 		//Allows you to use the token DEFINE to declare constant ints. 
 		
 	--end example]
+	
+	
+////////////////////
+// Script Typedef //
+////////////////////
+
+You may also typedef script tokens, creating your own types that resolve into existing script types.
+
+	e.g. script typedef hero villain;
+	
+	You may now declare the script type 'villain script', that resolves into the normal 'hero script' type.
 
 
 ///////////////////////////////
