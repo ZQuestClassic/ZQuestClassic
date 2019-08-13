@@ -982,6 +982,41 @@ It is now possible to permit item scripts to run for more than one frame.
 	reasons.
 
 
+/////////////////////////
+/// Subscreen Scripts ///
+/////////////////////////
+
+NOT IMPLEMENTED!
+
+TOKEN(s):		subscreendata script
+POINTER: 		subscreendata
+InitD:			Yes, [8]
+InitD Labels:		No
+InitA:			No
+Multiple Frames:	Yes
+Waitdraw Support:	Undecided
+
+To be added in a future spec. Will run on subscreens, set in the Subscreen Editor via a script subscreen object.
+
+
+/////////////////////
+/// Combo Scripts ///
+/////////////////////
+
+NOT IMPLEMENTED!
+
+TOKEN(s):		combodata script
+POINTER: 		combodata
+InitD:			Yes, [t/b/d]
+InitD Labels:		No
+InitA:			No
+Multiple Frames:	Yes
+Waitdraw Support:	Undecided
+
+To be added in a future spec. Will run on combos, set by in the Combo Editor.
+
+
+
 
 
 ///////////////////////////
