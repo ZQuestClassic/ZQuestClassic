@@ -240,6 +240,7 @@ untyped : A special datatype that can be cast to and from any other type.
 		(Planned) Access to cheat code information.
 	file : t/b/a
 		(Planned_ OBJECT TYPE for working with raw files (e.g. ASCII/ANSI text files.
+	subscreendata: t/b/a
 	
 		
 //////////////////////
@@ -1530,7 +1531,7 @@ of iterations is known at compile-time.
 // Script Typedef //
 ////////////////////
 
-	You may also typedef script tokens, creating your own types that resolve into existing script types.
+	 You may also typedef script tokens, creating your own types that resolve into existing script types.
 
 	e.g. script typedef hero villain;
 	
