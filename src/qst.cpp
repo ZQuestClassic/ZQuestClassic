@@ -2759,6 +2759,8 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//Compatibility: The calculation for when to loop an animation did not factor in ASkipY correctly, resulting in
 		//animations ending earlier than they should.
 		set_bit(quest_rules, qr_BROKEN_ASKIP_Y_FRAMES, 1);
+		//Enemies would ignore solidity on the top half of combos
+		set_bit(quest_rules, qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, 1);
 	}
     if ( tempheader.zelda_version < 0x255 )
     {
