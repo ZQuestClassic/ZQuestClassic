@@ -245,11 +245,13 @@ void RegistrationVisitor::caseDataTypeDef(ASTDataTypeDef& host, void* param)
 	DataType const& type = host.type->resolve(*scope, this);
 	if(!scope->addDataType(host.name, &type, &host))
 	{
-		DataType const& originalType = *lookupDataType(*scope, host.name);
-		if (originalType != type)
+		ASTExprIdentifier* temp = new ASTExprIdentifier(host.name, host.location);
+		DataType const* originalType = lookupDataType(*scope, *temp, this, true);
+		if (breakRecursion(host) || !originalType || (*originalType != type))
 			handleError(
 				CompileError::RedefDataType(
-					&host, host.name, originalType.getName()));
+					&host, host.name));
+		delete temp;
 		return;
 	}
 	doRegister(host);
@@ -260,13 +262,16 @@ void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void
 	if(!host.type)
 	{
 		//Don't allow use of a name that already exists
-		if(DataType const* existingType = lookupDataType(*scope, host.name))
+		ASTExprIdentifier* temp = new ASTExprIdentifier(host.name, host.location);
+		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
 		{
 			handleError(
 				CompileError::RedefDataType(
-					&host, host.name, existingType->getName()));
+					&host, host.name));
+			delete temp;
 			return;
 		}
+		delete temp;
 		
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);

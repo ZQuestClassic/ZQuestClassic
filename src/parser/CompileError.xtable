@@ -82,7 +82,7 @@ X(	DuplicateUsing,				P,	A,	E,	STR,	VOID,	"Namespace %s is already being used!"	
 X(	TooManyVar,				P,	A,	E,	STR,	VOID,	"There are too many vars/consts named %s. Check your 'using' statements."				)
 X(	HeaderGuardErr,			P,	A,	E,	STR,	VOID,	"Duplicate file for filename %s!"				)
 X(	HeaderGuardWarn,		P,	A,	W,	STR,	STR,	"Duplicate file for filename %s. %s this instance."				)
-X(	RedefDataType,				T,	A,	W,	STR,	STR,	"Data Type %s has already been defined as %s."    			)
+X(	RedefDataType,				T,	A,	W,	STR,	VOID,	"Data Type %s has already been defined"    			)
 X(	ConstAlreadyConstant,				T,	A,	E,	STR,	VOID,	"DataType '%s' is already constant, or cannot be made constant."				)
 X(	ConstantBadSize,				T,	A,	E,	STR,	VOID,	"Invalid constant size. Constant must be %s."				)
 X(	BadFuncModifiers,				T,	A,	E,	STR,	VOID,	"Invalid function modifiers.%s"				)
@@ -91,5 +91,6 @@ X(	NoUsingMatch,				P,	A,	E,	STR,	VOID,	"'using' found no matches for the namesp
 X(	RegistrationRecursion,				R,	A,	W,	INT,	VOID,	"Registration passed recursion limit %d. May cause other errors."				)
 X(	GlobalVarFuncCall,				R,	A,	E,	VOID,	VOID,	"Global variable initializers cannot contain function calls"				)
 X(	NoArrayGlobalVar,				R,	A,	E,	VOID,	VOID,	"Arrays cannot be used in global variable initializers!"				)
+X(	TooManyType,				P,	A,	E,	STR,	VOID,	"There are too many types named %s. Check your 'using' statements."				)
 
 #undef STR

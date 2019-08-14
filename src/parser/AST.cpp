@@ -2013,7 +2013,7 @@ void ASTDataType::execute(ASTVisitor& visitor, void* param)
 DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler)
 {
 	
-	DataType* resolved = type->resolve(scope);
+	DataType* resolved = type->resolve(scope, errorHandler);
 	if(resolved && constant_ && !wasResolved)
 	{
 		string name = resolved->getName();
