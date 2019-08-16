@@ -5154,6 +5154,31 @@ int OnSaveZCConfig()
 	else return D_O_K;
 }
 
+int OnnClearQuestDir()
+{
+	if(jwin_alert3(
+			"Clear Current Directory Cache", 
+			"Are you sure that you wish to clear the current cached directory?", 
+			"This will default the current directory to the ROOT for this instance of ZC Player!",
+			NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		lfont) == 1)	
+	{
+		set_config_string("zeldadx","win_qst_dir","");
+		flush_config_file();
+		strcpy(qstdir,get_config_string("zeldadx","win_qst_dir",""));
+		//strcpy(filepath,get_config_string("zeldadx","win_qst_dir",""));
+		//save_game_configs();
+		return D_O_K;
+	}
+	else return D_O_K;
+}
+
 int onDebugConsole()
 {
 	if ( !zconsole ) {
@@ -8122,10 +8147,12 @@ static MENU misc_menu[] =
     { (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
     { (char *)"Save ZC Configuration",           OnSaveZCConfig,           NULL,                      0, NULL },
-     { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
+    { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
      { (char *)"Show ZASM Debugger",           onConsoleZASM,           NULL,                      0, NULL },
      { (char *)"Show ZScript Debugger",           onConsoleZScript,           NULL,                      0, NULL },
-    { NULL,                                 NULL,                    NULL,                      0, NULL }
+    { (char *)"Clear Directory Cache",           OnnClearQuestDir,           NULL,                      0, NULL },
+     
+     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
 static MENU refill_menu[] =
