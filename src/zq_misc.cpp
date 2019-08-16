@@ -1349,6 +1349,7 @@ int onClearQuestFilepath()
 		lfont) == 1)	
 	{
 		ZQ_ClearQuestPath();
+		save_config_file();
 		return D_O_K;
 	}
 	else return D_O_K;	

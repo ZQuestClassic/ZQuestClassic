@@ -27493,8 +27493,10 @@ void clear_tooltip()
 void ZQ_ClearQuestPath(){
 	//last_quest_name = "";
 	//SetAllegroString last_quest_name ""
-	set_config_string("zquest",last_quest_name,NULL);
-	strcpy(filepath,get_config_string("zquest",last_quest_name,""));
+	set_config_string("zquest","win_last_quest",NULL);
+	strcpy(filepath,get_config_string("zquest","win_last_quest",""));
+	
+	
 	
 }
 
