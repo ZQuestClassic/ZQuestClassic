@@ -11894,7 +11894,7 @@ int onCatchall()
         return D_O_K;
     }
     
-    if(data_menu[13].flags==D_DISABLED)
+    if(room_menu[3].flags==D_DISABLED)
     {
         return D_O_K;
     }
@@ -25962,13 +25962,13 @@ int main(int argc,char **argv)
         {
             static char ca_menu_str[40];
             sprintf(ca_menu_str,"%s\tA",catchall_string[Map.CurrScr()->room]);
-            data_menu[13].text=ca_menu_str;
-            data_menu[13].flags=commands[cmdCatchall].flags=0;
+            room_menu[3].text=ca_menu_str;
+            room_menu[3].flags=commands[cmdCatchall].flags=0;
         }
         else
         {
-            data_menu[13].text=(char *)"Catch All\tA";
-            data_menu[13].flags=commands[cmdCatchall].flags=D_DISABLED;
+            room_menu[3].text=(char *)"Catch All\tA";
+            room_menu[3].flags=commands[cmdCatchall].flags=D_DISABLED;
         }
         
         file_menu[2].flags =
