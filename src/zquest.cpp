@@ -833,7 +833,7 @@ static MENU data_menu[] =
     { (char *)"&Doors\tF6",                 onDoors,                   NULL,                     0,            NULL   },
     { (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Room ",                   NULL,                      room_menu,                0,            NULL   },
+    { (char *)"Room Data",                   NULL,                      room_menu,                0,            NULL   },
     
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
