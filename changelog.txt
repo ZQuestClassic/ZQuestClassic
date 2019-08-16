@@ -2,6 +2,53 @@
 
 //Alpha 29
 
+Fix room type text change occurring on wrong menu entry (enemies, not catchall).
+	( ZoriaRPG, 16th August, 2019 )
+
+The following changes were made over a period of several weeks in independent branches, and merged together on 14th August, 2019:
+
+Merge: 2.55-largeEnemy-Solidity 
+	Attempt fix: Large enemy solidity checks
+	Attempt fix: Large enemy solidity checks (ef2d352)
+	Merge pull request #433 from ArmageddonGames/2.55 8780f30
+	Fix: Normal size enemies use old m_walkflag behavior 18c1c3b
+	Merge branch '2.55-largeEnemy-Solidity' 3fd8483
+	Revert: Some new walkflag stuff 60977ff
+	Merge pull request #434 from ArmageddonGames/2.55 8df0884
+	Fix: Broken top-half solidity, large enemy stuff 8486308
+Fix: Handle diagonal movement checks for large enemies	
+	( Venrob, 6th->14th August, 2019; merged 14th August, 2019 )
+	
+Merge: venrob/2.55-tint-getter
+	Add getTint(int color) function to get the tint sum from the array it is stored in
+	Add enum for accessing the indexes of the array
+	Commit: 93f5fbe
+	(Found this branch from a while ago.... not totally complete, but, draft PR'ing so it isn't forgotten forever.)
+	( Venrob, Merged 14th August, 2019 )
+	
+Merge: 2.55-typedefScoperes 
+	Parser: Allow scoperes of types
+	Commit: a0ae879
+	Array literal change: (int[5]){} -> <int[5]>{}
+	Types can be scoperes accessed now.
+	Script Types have NOT yet been changed!
+	Known minor error- will use local type automatically even if there are conflicting types in 'using'd namespaces. Fix priority: Very Minor
+	( Venrob, 2nd August->14thAugust, 2019; Merged 14th August, 2019 )
+	
+Merge: 2.55-allowRaftingAction
+	Feat: Allow `Hero->Action = LA_RAFTING`
+	Commit: 6431d52
+	Only allowed if there is a raft flag ahead
+Add new script and data types:
+	Datatypes: 'file', 'subscreendata'
+	Scripttypes: 'combodata', 'subscreendata'
+	Types do nothing yet, but are implemented. Script types have their `this` set to the datatype of the same name.
+	( Venrob, Merged 13th August 2019 )
+	
+Fix: Add compat QR for allowing rafting to preserve old behavior; commit: 4b2de97
+Fix: Handle diagonal movement checks for large enemies
+	( Venrob, 12th August 2019 )
+
 Pruned `Quest->Rules->Scripts`, and associated data, as it is unused/hidden anyway.
 Added a TABPANEL to `Quest->Rules->Backwards Compatibility`
 Added `qr_BROKEN_ASKIP_Y_FRAMES` ("Broken ASkipY Animation Frames") to compat rules, now that there is space
