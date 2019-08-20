@@ -1990,7 +1990,10 @@ script_variable variable_list[]=
 	{ "LINKOTILE",		LINKOTILE,        0,             0 },
 	{ "LINKOFLIP",		LINKOFLIP,        0,             0 },
 	{ "ITEMSPRITEINITD",		ITEMSPRITEINITD,        0,             0 },
+	
 	{ "ZSCRIPTVERSION",		ZSCRIPTVERSION,        0,             0 },
+	{ "REFFILE",		REFFILE,        0,             0 },
+	{ "LINKCLIMBING",		LINKCLIMBING,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
