@@ -2851,6 +2851,11 @@ int FireSound;
 
 bool Gravity;
  * If set true (the default), the hero falls in sideview gravity.
+
+bool Climbing;
+ * Returns as 'true' when the hero is climbing a sideview ladder
+ * Setting to 'false' will let go of the ladder, and setting 'true' will grab the ladder
+ * While 'true', gravity does not affect the hero
  
 int Scale;
  * The scale factor for this sprited object. 

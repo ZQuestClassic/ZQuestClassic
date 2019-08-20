@@ -1762,6 +1762,7 @@ string VarArgument::toString()
 	case ZSCRIPTVERSION: return "ZSCRIPTVERSION";
 	case REFFILE: return "REFFILE";
 	case REFSUBSCREEN: return "REFSUBSCREEN";
+	case LINKCLIMBING: return "LINKCLIMBING";
 	
 	
     default:

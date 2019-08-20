@@ -49,9 +49,6 @@ void screen_combo_modify_postroutine(mapscr *s, int pos);
 // Find the IDs of enemies spawned by combos and flags. Called once on loading a quest.
 void identifyCFEnemies();
 
-// Let's make sure this check is consistent, shall we?
-#define ON_SIDEPLATFORM (_walkflag(x+4,y+16,0) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)))
-
 /**********************************/
 /*******  Enemy Base Class  *******/
 /**********************************/
@@ -207,6 +204,7 @@ public:
     void tiledir_big(int ndir, bool fourdir);
     // Enemies that cannot ever be penetrated by weapons
     bool cannotpenetrate();
+	bool isOnSideviewPlatform(); //This handles large enemies, too!
     
     virtual bool ignore_msg_freeze()
     {

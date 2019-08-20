@@ -2433,6 +2433,10 @@ long get_register(const long arg)
     case LINKBIGHITBOX:
 	ret=Link.getBigHitbox()?10000:0;
 	break;
+	
+	case LINKCLIMBING:
+		ret = Link.getOnSideviewLadder()?10000:0;
+		break;
     
     
 ///----------------------------------------------------------------------------------------------------//
@@ -8555,6 +8559,10 @@ void set_register(const long arg, const long value)
         case LINKBIGHITBOX:
 	    Link.setBigHitbox((value/10000)?1:0);
 	break;
+	
+	case LINKCLIMBING:
+		Link.setOnSideviewLadder(value!=0?true:false);
+		break;
 ///----------------------------------------------------------------------------------------------------//
 //Input States
     case INPUTSTART:

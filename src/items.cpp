@@ -104,19 +104,16 @@ bool item::animate(int)
 		( obeys_gravity ) //if the user set item->Gravity = false, let it float. -Z
 	    )
             {
-                y+=fall/100;
-                
-                if((fall/100)==0 && fall>0)
-                    fall*=(fall>0 ? 2 : 0.5); // That oughta do something about the floatiness.
-                    
-                if(fall <= (int)zinit.terminalv)
-                {
-                    fall += zinit.gravity;
-                }
+				item_fall(x, y, fall);
             }
             else if(!can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
             {
-                fall = -fall/2; // LA key bounce.
+				if(fall!=0)
+				{
+					y-=int(y)%8; //Fix coords
+					fall = 0;
+				}
+                //fall = -fall/2; // LA key bounce. //Is this even working? Doesn't appear to be. -V
             }
         }
         else

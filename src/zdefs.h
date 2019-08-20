@@ -603,10 +603,8 @@ enum
 	//155
 	mfDROPLKEY, 	mfDROPCOMPASS, 	mfDROPMAP, 	mfDROPBOSSKEY, mfSPAWNNPC, 
 	//160
-	mfSWITCHHOOK, 	mf161,
-    
-    
-    mf162, mf163, mf164, mf165, mf166, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
+	mfSWITCHHOOK, 	mfSIDEVIEWLADDER, mfSIDEVIEWPLATFORM,
+    mf163, mf164, mf165, mf166, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
     mf175, mf176, mf177, mf178, mf179, mf180, mf181, mf182, mf183, mf184, mf185, mf186, mf187, 
     mf188, mf189, mf190, mf191, mf192, mf193, mf194, mf195, mf196, mf197, mf198, mf199, mf200,
     mf201, mf202, mf203, mf204, mf205, mf206, mf207, mf208, mf209, mf210, mf211, mf212, mf213,
@@ -867,6 +865,11 @@ enum
 	//23
 	qr_BROKEN_ASKIP_Y_FRAMES /* Compatibility */,
 	qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY /* Compatibility */,
+	qr_SIDEVIEWLADDER_FACEUP,
+	qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS,
+	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS,
+	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK,
+	qr_DOWN_DOESNT_GRAB_LADDERS,
 	
 	
 	//ZScript Parser //room for 20 of these
