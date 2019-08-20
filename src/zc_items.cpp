@@ -52,13 +52,13 @@ bool addfairy(fix x, fix y, int misc3, int id)
 bool can_drop(fix x, fix y)
 {
     return !(_walkflag(x,y+16,0) ||
-		(isSVLadder(x+4,y+16) && !isSVLadder(x+4,y+15)) ||
-		(isSVLadder(x+12,y+16) && !isSVLadder(x+12,y+15)));
+		((!get_bit(quest_rules, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && int(y)%16==0) &&
+		((checkSVLadderPlatform(x+4,y+16)) || (checkSVLadderPlatform(x+12,y+16)))));
 }
 
 void item_fall(fix& x, fix& y, fix& fall)
 {
-	if(!isSVLadder(x+4,y+15) && isSVLadder(x+4,y+(fall/100)+15))
+	if(!get_bit(quest_rules, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && checkSVLadderPlatform(x+4,y+(fall/100)+15))
 	{
 		y+=fall/100;
 		y-=int(y)%16; //Fix to top of ladder

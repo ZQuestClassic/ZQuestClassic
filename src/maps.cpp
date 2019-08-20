@@ -798,6 +798,26 @@ bool isSVLadder(int x, int y)
 		(s2->sflag[combo] == mfSIDEVIEWLADDER) || (combobuf[s2->data[combo]].flag == mfSIDEVIEWLADDER);
 }
 
+bool isSVPlatform(int x, int y)
+{
+	if(x<0 || x>255 || y<0 || y>175)
+        return false;
+	
+    mapscr *s1, *s2;
+    s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:tmpscr;
+    s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:tmpscr;
+	
+    int combo = COMBOPOS(x,y);
+    return (tmpscr->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[tmpscr->data[combo]].flag == mfSIDEVIEWPLATFORM) ||
+		(s1->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[s1->data[combo]].flag == mfSIDEVIEWPLATFORM) ||
+		(s2->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[s2->data[combo]].flag == mfSIDEVIEWPLATFORM);
+}
+
+bool checkSVLadderPlatform(int x, int y)
+{
+	return isSVPlatform(x,y) || (isSVLadder(x,y) && !isSVLadder(x,y-16));
+}
+
 bool isstepable(int combo)                                  //can use ladder on it
 {
     return (combo_class_buf[combobuf[combo].type].ladder_pass!=0);

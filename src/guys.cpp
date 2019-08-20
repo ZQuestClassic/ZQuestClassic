@@ -52,6 +52,7 @@ void playLevelMusic();
 // If an enemy is this far out of the playing field, just remove it.
 #define OUTOFBOUNDS ((int)y>((tmpscr->flags7&fSIDEVIEW && canfall(id))?192:352) || y<-176 || x<-256 || x > 512)
 #define NEWOUTOFBOUNDS ((int)y>32767 || y<-32767 || x<-32767 || x > 32767)
+#define IGNORE_SIDEVIEW_PLATFORMS (editorflags & ENEMY_FLAG14)
 
 namespace
 {
@@ -542,17 +543,18 @@ bool enemy::animate(int index)
         {
             if(!isOnSideviewPlatform())
             {
-				bool willHitSVLadder = false;
+				bool willHitSVPlatform = false;
 				int usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH)?hxsz:16;
+				int usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hysz:16;
 				for(int nx = x+4; nx < x+usewid; nx+=16)
 				{
-					if(isSVLadder(x+4,y+(fall/100)+((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hysz:16)-1) && !isSVLadder(x+4,y+((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hysz:16)-1))
+					if(fall > 0 && !IGNORE_SIDEVIEW_PLATFORMS && checkSVLadderPlatform(x+4,y+(fall/100)+usehei-1) && (((int(y)+(int(fall)/100)+usehei-1)&0xF0)!=((int(y)+usehei-1)&0xF0)))
 					{
-						willHitSVLadder = true;
+						willHitSVPlatform = true;
 						break;
 					}
 				}
-				if(willHitSVLadder)
+				if(willHitSVPlatform)
 				{
 					y+=fall/100;
 					y-=int(y)%16; //Fix to top of SV Ladder
@@ -759,8 +761,9 @@ bool enemy::isOnSideviewPlatform()
 	for(int nx = x+4; nx < x + usewid; nx+=16)
 	{
 		if(_walkflag(nx,y+usehei,0)) return true;
-		if(isSVLadder(nx,y+usehei) && !isSVLadder(nx,y+usehei-1)) return true;
-		if(isSVLadder(nx+8,y+usehei) && !isSVLadder(nx+8,y+usehei-1)) return true;
+		if(IGNORE_SIDEVIEW_PLATFORMS || ((int(y)+usehei)%16)!=0) continue;
+		if(checkSVLadderPlatform(nx,y+usehei)) return true;
+		if(checkSVLadderPlatform(nx+8,y+usehei)) return true;
 	}
 	return false;
 }
