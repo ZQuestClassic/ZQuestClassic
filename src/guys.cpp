@@ -540,12 +540,30 @@ bool enemy::animate(int index)
     {
         if(tmpscr->flags7&fSIDEVIEW)
         {
-            if(!ON_SIDEPLATFORM)
+            if(!isOnSideviewPlatform())
             {
-                y+=fall/100;
-                
-                if(fall <= (int)zinit.terminalv)
-                    fall += zinit.gravity;
+				bool willHitSVLadder = false;
+				int usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH)?hxsz:16;
+				for(int nx = x+4; nx < x+usewid; nx+=16)
+				{
+					if(isSVLadder(x+4,y+(fall/100)+((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hysz:16)-1) && !isSVLadder(x+4,y+((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hysz:16)-1))
+					{
+						willHitSVLadder = true;
+						break;
+					}
+				}
+				if(willHitSVLadder)
+				{
+					y+=fall/100;
+					y-=int(y)%16; //Fix to top of SV Ladder
+					fall = 0;
+				}
+				else
+				{
+					y+=fall/100;
+					if(fall <= (int)zinit.terminalv)
+						fall += zinit.gravity;
+				}
             }
             else
             {
@@ -733,6 +751,19 @@ bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int inpu
 	}
 }
 
+bool enemy::isOnSideviewPlatform()
+{
+	int usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
+	int usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
+	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true; //Bottom of the map
+	for(int nx = x+4; nx < x + usewid; nx+=16)
+	{
+		if(_walkflag(nx,y+usehei,0)) return true;
+		if(isSVLadder(nx,y+usehei) && !isSVLadder(nx,y+usehei-1)) return true;
+		if(isSVLadder(nx+8,y+usehei) && !isSVLadder(nx+8,y+usehei-1)) return true;
+	}
+	return false;
+}
 
 // Stops playing the given sound only if there are no enemies left to play it
 void enemy::stop_bgsfx(int index)
@@ -759,7 +790,7 @@ void enemy::death_sfx()
 
 void enemy::move(fix dx,fix dy)
 {
-    if(!watch && (!(tmpscr->flags7&fSIDEVIEW) || ON_SIDEPLATFORM || !enemycanfall(id)))
+    if(!watch && (!(tmpscr->flags7&fSIDEVIEW) || isOnSideviewPlatform() || !enemycanfall(id)))
     {
         x+=dx;
         y+=dy;
@@ -768,7 +799,7 @@ void enemy::move(fix dx,fix dy)
 
 void enemy::move(fix s)
 {
-    if(!watch && (!(tmpscr->flags7&fSIDEVIEW) || ON_SIDEPLATFORM || !enemycanfall(id)))
+    if(!watch && (!(tmpscr->flags7&fSIDEVIEW) || isOnSideviewPlatform() || !enemycanfall(id)))
         sprite::move(s);
 }
 
@@ -9587,7 +9618,7 @@ void eStalfos::vire_hop()
         
         //z=0;
         //if we're not in the middle of a jump or if we can't complete the current jump in the current direction
-        if(clk2<=0 || !canmove(dir,(fix)1,spw_floater) || (tmpscr->flags7&fSIDEVIEW && ON_SIDEPLATFORM))
+        if(clk2<=0 || !canmove(dir,(fix)1,spw_floater) || (tmpscr->flags7&fSIDEVIEW && isOnSideviewPlatform()))
             newdir(rate,homing,dmisc9==e9tPOLSVOICE ? spw_floater : spw_none);
             
         if(clk2<=0)

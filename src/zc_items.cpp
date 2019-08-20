@@ -51,7 +51,31 @@ bool addfairy(fix x, fix y, int misc3, int id)
 
 bool can_drop(fix x, fix y)
 {
-    return !_walkflag(x,y+16,0);
+    return !(_walkflag(x,y+16,0) ||
+		(isSVLadder(x+4,y+16) && !isSVLadder(x+4,y+15)) ||
+		(isSVLadder(x+12,y+16) && !isSVLadder(x+12,y+15)));
+}
+
+void item_fall(fix& x, fix& y, fix& fall)
+{
+	if(!isSVLadder(x+4,y+15) && isSVLadder(x+4,y+(fall/100)+15))
+	{
+		y+=fall/100;
+		y-=int(y)%16; //Fix to top of ladder
+		fall = 0;
+	}
+	else
+	{
+		y+=fall/100;
+		
+		if((fall/100)==0 && fall>0)
+			fall*=(fall>0 ? 2 : 0.5); // That oughta do something about the floatiness.
+			
+		if(fall <= (int)zinit.terminalv)
+		{
+			fall += zinit.gravity;
+		}
+	}
 }
 
 int select_dropitem(int item_set, int x, int y)

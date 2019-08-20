@@ -994,7 +994,8 @@ void LinkClass::init()
     magicitem = nayruitem = -1;
 	last_lens_id = 0; //Should be -1 (-Z)
 	misc_internal_link_flags = 0;
-	last_cane_of_byrna_item_id = -1; 
+	last_cane_of_byrna_item_id = -1;
+	on_sideview_ladder = false;
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -4391,15 +4392,28 @@ bool LinkClass::animate(int)
     
     if(stomping)
         stomping = false;
-        
+	
+	if(getOnSideviewLadder())
+	{
+		if(!canSideviewLadder() || jumping || fall!=0)
+		{
+			setOnSideviewLadder(false);
+		}
+	}
+	
     if(isSideview() && obeys_gravity)  // Sideview gravity
     {
-        // Fall, unless on a ladder, rafting, using the hookshot, drowning or cheating.
-        if(!(toogam && Up()) && !drownclk && action!=rafting && !pull_link && !((ladderx || laddery) && fall>0))
+        // Fall, unless on a ladder, sideview ladder, rafting, using the hookshot, drowning or cheating.
+        if(!(toogam && Up()) && !drownclk && action!=rafting && !pull_link && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
         {
             int ydiff = fall/(spins && fall<0 ? 200:100);
             falling_oldy = y; // Stomp Boots-related variable
             y+=ydiff;
+			if(!isSVLadder(x+4,falling_oldy+15) && isSVLadder(x+4,y+15))
+			{
+				ydiff -= int(y)%16;
+				y -= int(y)%16;
+			}
             hs_starty+=ydiff;
             
             for(int j=0; j<chainlinks.Count(); j++)
@@ -4419,11 +4433,11 @@ bool LinkClass::animate(int)
         }
         
         // Stop hovering/falling if you land on something.
-        if(ON_SIDEPLATFORM && !(pull_link && dir==down) && action!=rafting)
+        if((ON_SIDEPLATFORM(x,y) || getOnSideviewLadder())  && !(pull_link && dir==down) && action!=rafting)
         {
             stop_item_sfx(itype_hoverboots);
             fall = hoverclk = jumping = 0;
-            y-=(int)y%8; //fix position
+            if(!getOnSideviewLadder()) y-=(int)y%8; //fix position
             
             if(y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN))  // Landed on the bottommost screen.
                 y = 160;
@@ -5541,7 +5555,7 @@ bool LinkClass::startwpn(int itemid)
         
     case itype_rocs:
     {
-        if(!inlikelike && z==0 && charging==0 && !(isSideview() && !ON_SIDEPLATFORM && !ladderx && !laddery) && hoverclk==0)
+        if(!inlikelike && z==0 && charging==0 && !(isSideview() && !ON_SIDEPLATFORM(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0)
         {
             if(!checkmagiccost(itemid))
                 return false;
@@ -5551,6 +5565,8 @@ bool LinkClass::startwpn(int itemid)
 				fall -= itemsbuf[itemid].power;
 			else
 				fall -= FEATHERJUMP*(itemsbuf[itemid].power+2);
+			
+			setOnSideviewLadder(false);
             
             // Reset the ladder, unless on an unwalkable combo
             if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0)))
@@ -6236,7 +6252,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_dinsfire:
-        if(z!=0 || (isSideview() && !ON_SIDEPLATFORM))
+        if(z!=0 || (isSideview() && !ON_SIDEPLATFORM(x,y)))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -6248,7 +6264,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_faroreswind:
-        if(z!=0 || (isSideview() && !ON_SIDEPLATFORM))
+        if(z!=0 || (isSideview() && !ON_SIDEPLATFORM(x,y)))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -6260,7 +6276,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_nayruslove:
-        if(z!=0 || (isSideview() && !ON_SIDEPLATFORM))
+        if(z!=0 || (isSideview() && !ON_SIDEPLATFORM(x,y)))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -7293,6 +7309,15 @@ void LinkClass::movelink()
         did_scripta=false;
     }
     
+	if(action!=swimming && !getOnSideviewLadder())
+	{
+		if((DrunkUp() && canSideviewLadder())
+			|| DrunkDown() && canSideviewLadder(true))
+		{
+			setOnSideviewLadder(true);
+		}
+	}
+	
     int wx=x;
     int wy=y;
     
@@ -7717,7 +7742,7 @@ void LinkClass::movelink()
                 }
                 
                 //walkable if Ladder can be placed or is already placed vertically
-                if(isSideview() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)))
+                if(isSideview() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder())
                 {
                     walkable=false;
                 }
@@ -7885,7 +7910,7 @@ void LinkClass::movelink()
                 }
                 
                 //bool walkable;
-                if(isSideview() && !toogam)
+                if(isSideview() && !toogam && !getOnSideviewLadder())
                 {
                     walkable=false;
                 }
@@ -8100,7 +8125,7 @@ void LinkClass::movelink()
                 
                 int s=shiftdir;
                 
-                if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || isSideview())
+                if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideview() && !getOnSideviewLadder()))
                 {
                     shiftdir=-1;
                 }
@@ -8267,7 +8292,7 @@ void LinkClass::movelink()
                 
                 int s=shiftdir;
                 
-                if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || isSideview())
+                if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideview() && !getOnSideviewLadder()))
                 {
                     shiftdir=-1;
                 }
@@ -8739,7 +8764,7 @@ void LinkClass::move(int d2)
     int z3skip=0;
     int z3diagskip=0;
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
-                     (isSideview() && ON_SIDEPLATFORM && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
+                     (isSideview() && (ON_SIDEPLATFORM(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
     bool is_swimming = (action == swimming);
     
@@ -8977,12 +9002,12 @@ void LinkClass::move(int d2)
             switch(d2)
             {
             case up:
-                if(!isSideview() || (ladderx && laddery && ladderdir==up)) dy-=ystep;
+                if(!isSideview() || (ladderx && laddery && ladderdir==up) || getOnSideviewLadder()) dy-=ystep;
                 
                 break;
                 
             case down:
-                if(!isSideview() || (ladderx && laddery && ladderdir==up)) dy+=ystep;
+                if(!isSideview() || (ladderx && laddery && ladderdir==up) || getOnSideviewLadder()) dy+=ystep;
                 
                 break;
                 
@@ -9007,7 +9032,7 @@ void LinkClass::move(int d2)
         linkstep();
         
         //ack... don't walk if in midair! -DD
-        if(charging==0 && spins==0 && z==0 && !(isSideview() && !ON_SIDEPLATFORM))
+        if(charging==0 && spins==0 && z==0 && !(isSideview() && !ON_SIDEPLATFORM(x,y) && !getOnSideviewLadder()))
 	{
             action=walking; FFCore.setLinkAction(walking);
 	}
@@ -9507,7 +9532,7 @@ void LinkClass::checkpushblock()
         if(int(x)&15) earlyReturn=true;
         
     // if(y<16) return;
-    if(isSideview() && !ON_SIDEPLATFORM) return;
+    if(isSideview() && !ON_SIDEPLATFORM(x,y)) return;
     
     int bx = int(x)&0xF0;
     int by = (int(y)&0xF0);
@@ -17491,7 +17516,7 @@ bool LinkClass::can_deploy_ladder()
     bool ladderallowed = ((!get_bit(quest_rules,qr_LADDERANYWHERE) && tmpscr->flags&fLADDER) || isdungeon()
                           || (get_bit(quest_rules,qr_LADDERANYWHERE) && !(tmpscr->flags&fLADDER)));
     return (current_item_id(itype_ladder)>-1 && ladderallowed && !ilswim && z==0 &&
-            (!isSideview() || ON_SIDEPLATFORM));
+            (!isSideview() || ON_SIDEPLATFORM(x,y)));
 }
 
 void LinkClass::reset_ladder()
@@ -17518,7 +17543,7 @@ void LinkClass::check_conveyor()
         deltax=combo_class_buf[ctype].conveyor_x_speed;
         deltay=combo_class_buf[ctype].conveyor_y_speed;
         
-        if((deltax==0&&deltay==0)&&(isSideview() && ON_SIDEPLATFORM))
+        if((deltax==0&&deltay==0)&&(isSideview() && ON_SIDEPLATFORM(x,y)))
         {
             ctype=(combobuf[MAPCOMBO(x+8,y+16)].type);
             deltax=combo_class_buf[ctype].conveyor_x_speed;
@@ -17750,6 +17775,33 @@ int LinkClass::getLastLensID(){
 
 void LinkClass::setLastLensID(int p_item){
 	last_lens_id = p_item;
+}
+
+bool LinkClass::getOnSideviewLadder()
+{
+	return on_sideview_ladder;
+}
+
+void LinkClass::setOnSideviewLadder(bool val)
+{
+	if(val)
+	{
+		fall = hoverclk = jumping = 0;
+	}
+	on_sideview_ladder = val;
+}
+
+bool LinkClass::canSideviewLadder(bool down)
+{
+	if(!isSideview()) return false;
+	//Are you presently able to climb a sideview ladder?
+	//x+4 / +12 are the offsets used for detecting a platform below you in sideview
+	//y+7 checks if you could be grabbing one partially above you; i.e. maybe jumping up to it
+	//y+15 checks if you are on one at all. This is necessary so you don't just fall off before reaching the top.
+	//y+16 check is for going down onto a ladder you are standing on.
+	return isSVLadder(x+4,y+7) || isSVLadder(x+12,y+7)
+		|| isSVLadder(x+4,y+15) || isSVLadder(x+12,y+15)
+		|| (down && (isSVLadder(x+4,y+16) || isSVLadder(x+12,y+16)));
 }
 
 void LinkClass::execute(LinkClass::WalkflagInfo info)

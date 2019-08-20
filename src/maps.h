@@ -41,6 +41,7 @@ void unsetmapflag(int flag = 32);
 bool getmapflag(int flag = 32); // 32 = mBELOW
 int WARPCODE(int dmap,int scr,int dw);
 void update_combo_cycling();
+bool isSVLadder(int x, int y);
 bool iswater(int combo);
 bool iswater_type(int type);
 bool isGrassType(int type);

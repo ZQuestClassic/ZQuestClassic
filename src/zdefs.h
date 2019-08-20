@@ -603,7 +603,7 @@ enum
 	//155
 	mfDROPLKEY, 	mfDROPCOMPASS, 	mfDROPMAP, 	mfDROPBOSSKEY, mfSPAWNNPC, 
 	//160
-	mfSWITCHHOOK, 	mf161,
+	mfSWITCHHOOK, 	mfSIDEVIEWLADDER,
     
     
     mf162, mf163, mf164, mf165, mf166, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,

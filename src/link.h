@@ -251,7 +251,8 @@ public:
 	int last_lens_id;// The item ID of the last Lens of Truth type item used
     
 	long misc_internal_link_flags;// Flags to hold data temporarily for misc handling
-	int last_cane_of_byrna_item_id; 
+	int last_cane_of_byrna_item_id;
+	bool on_sideview_ladder;
     // Methods below here.
     void explode(int type);
     int getTileModifier();
@@ -458,6 +459,9 @@ public:
 	int getLastLensID();	
 	void setLastLensID(int p_item);
 	void cleanupByrna();
+	bool getOnSideviewLadder();
+	void setOnSideviewLadder(bool val);
+	bool canSideviewLadder(bool down = false);
 };
 
 bool isRaftFlag(int flag);

@@ -783,6 +783,21 @@ bool iswater(int combo)
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
 }
 
+bool isSVLadder(int x, int y)
+{
+	if(x<0 || x>255 || y<0 || y>175)
+        return false;
+	
+    mapscr *s1, *s2;
+    s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:tmpscr;
+    s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:tmpscr;
+	
+    int combo = COMBOPOS(x,y);
+    return (tmpscr->sflag[combo] == mfSIDEVIEWLADDER) || (combobuf[tmpscr->data[combo]].flag == mfSIDEVIEWLADDER) ||
+		(s1->sflag[combo] == mfSIDEVIEWLADDER) || (combobuf[s1->data[combo]].flag == mfSIDEVIEWLADDER) ||
+		(s2->sflag[combo] == mfSIDEVIEWLADDER) || (combobuf[s2->data[combo]].flag == mfSIDEVIEWLADDER);
+}
+
 bool isstepable(int combo)                                  //can use ladder on it
 {
     return (combo_class_buf[combobuf[combo].type].ladder_pass!=0);
