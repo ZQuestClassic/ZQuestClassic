@@ -867,6 +867,7 @@ enum
 	//23
 	qr_BROKEN_ASKIP_Y_FRAMES /* Compatibility */,
 	qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY /* Compatibility */,
+	qr_SIDEVIEWLADDER_FACEUP,
 	
 	
 	//ZScript Parser //room for 20 of these

@@ -4399,6 +4399,10 @@ bool LinkClass::animate(int)
 		{
 			setOnSideviewLadder(false);
 		}
+		else if(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up)
+		{
+			setDir(up);
+		}
 	}
 	
     if(isSideview() && obeys_gravity)  // Sideview gravity
@@ -5461,6 +5465,19 @@ bool LinkClass::animate(int)
 	}
 	
     }
+	
+	if(getOnSideviewLadder())
+	{
+		if(!canSideviewLadder() || jumping || fall!=0)
+		{
+			setOnSideviewLadder(false);
+		}
+		else if(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up)
+		{
+			setDir(up);
+		}
+	}
+	
     return false;
 }
 

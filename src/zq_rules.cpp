@@ -118,12 +118,30 @@ int onAnimationRules()
     return D_O_K;
 }
 
+static int comborules1_list[] =
+{
+    6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,-1
+};
+
+static int comborules2_list[] =
+{
+    22,-1
+};
+
+static TABPANEL comborules_tabs[] =
+{
+    // (text)
+    { (char *)" 1 ",     D_SELECTED, comborules1_list, 0, NULL },
+    { (char *)" 2 ",     0,          comborules2_list, 0, NULL },
+    { NULL,              0,          NULL,            0, NULL }
+};
+
 static DIALOG comborules_dlg[] =
 {
     /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
     { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Combos", NULL, NULL },
     { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    { jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) comborules_tabs, NULL, (void *)comborules_dlg },
     // 3
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
@@ -134,20 +152,24 @@ static DIALOG comborules_dlg[] =
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Smart Screen Scrolling", NULL, NULL },
     { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Can't Push Blocks Onto Unwalkable Combos", NULL, NULL },
     { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Push Blocks Don't Move When Bumped", NULL, NULL },
-    { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Burn Flags Are Triggered Instantly", NULL, NULL },
+    // 10
+	{ jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Burn Flags Are Triggered Instantly", NULL, NULL },
     { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams", NULL, NULL },
     { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirrors Reflect Scripted Whirlwinds", NULL, NULL },
     { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combo Cycling On Layers", NULL, NULL },
     { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Full Priority Damage Combos", NULL, NULL },
-    { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Warps Ignore Arrival X/Y Position When Setting Continue Screen", NULL, NULL },
+    // 15
+	{ jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Warps Ignore Arrival X/Y Position When Setting Continue Screen", NULL, NULL },
     { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Warp Return Points Only", NULL, NULL },
     { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scrolling Warps Don't Set The Continue Point", NULL, NULL },
     { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Old-Style Warp Detection (NES Movement Only)", NULL, NULL },
     { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Damage Combos Work On Layers 1 And 2", NULL, NULL },
-    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hookshot Grab Combos Work On Layers 1 And 2", NULL, NULL },
+    // 20
+	{ jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hookshot Grab Combos Work On Layers 1 And 2", NULL, NULL },
     // { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Changing DMaps Doesn't Set The Continue Point", NULL, NULL },
-    { d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    // { d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
     { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Mirror and Weapon Interaction", NULL, NULL },
+    { jwin_check_proc,      10, 33+10, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Face Up on Sideview Ladders", NULL, NULL },
   
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -157,7 +179,7 @@ static int comborules[] =
     qr_DROWN, qr_SMARTSCREENSCROLL, qr_SOLIDBLK, qr_HESITANTPUSHBLOCKS, qr_INSTABURNFLAGS,
     qr_SWORDMIRROR, qr_WHIRLWINDMIRROR, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI,
     qr_WARPSIGNOREARRIVALPOINT, qr_NOARRIVALPOINT, qr_NOSCROLLCONTINUE, qr_OLDSTYLEWARP,
-    qr_DMGCOMBOLAYERFIX, qr_HOOKSHOTLAYERFIX, qr_OLDMIRRORCOMBOS, -1
+    qr_DMGCOMBOLAYERFIX, qr_HOOKSHOTLAYERFIX, qr_OLDMIRRORCOMBOS, qr_SIDEVIEWLADDER_FACEUP, -1
 };
 
 int onComboRules()
