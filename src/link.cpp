@@ -88,7 +88,8 @@ const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 static inline bool platform_fallthrough()
 {
-	return (getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS));
+	return (getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
+		|| (Link.jumping < 0 && getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
 }
 
 static inline bool on_sideview_solid(int x, int y, bool ignoreFallthrough = false)
@@ -4409,7 +4410,7 @@ bool LinkClass::animate(int)
 	
 	if(getOnSideviewLadder())
 	{
-		if(!canSideviewLadder() || jumping || fall!=0)
+		if(!canSideviewLadder() || jumping<0 || fall!=0)
 		{
 			setOnSideviewLadder(false);
 		}
@@ -4419,198 +4420,239 @@ bool LinkClass::animate(int)
 		}
 	}
 	
-    if(isSideview() && obeys_gravity)  // Sideview gravity
-    {
-        // Fall, unless on a ladder, sideview ladder, rafting, using the hookshot, drowning or cheating.
-        if(!(toogam && Up()) && !drownclk && action!=rafting && !pull_link && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
-        {
-            int ydiff = fall/(spins && fall<0 ? 200:100);
-            falling_oldy = y; // Stomp Boots-related variable
-			if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((int(y)+ydiff+15)&0xF0)!=((int(y)+15)&0xF0)) && !platform_fallthrough())
-			{
-				ydiff -= (int(y)+ydiff)%16;
-			}
-            y+=ydiff;
-            hs_starty+=ydiff;
-            
-            for(int j=0; j<chainlinks.Count(); j++)
-            {
-                chainlinks.spr(j)->y+=ydiff;
-            }
-            
-            if(Lwpns.idFirst(wHookshot)>-1)
-            {
-                Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=ydiff;
-            }
-            
-            if(Lwpns.idFirst(wHSHandle)>-1)
-            {
-                Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=ydiff;
-            }
-        }
-        
+	if(isSideview() && obeys_gravity)  // Sideview gravity
+	{
 		//Handle falling through a platform
 		if((int(y)%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid(x,y)))
 		{
 			y+=1; //Fall down a pixel instantly, through the platform.
+			if(fall < 0) fall = 0;
+			if(jumping < 0) jumping = 0;
 		}
-        // Stop hovering/falling if you land on something.
-        if((on_sideview_solid(x,y) || getOnSideviewLadder())  && !(pull_link && dir==down) && action!=rafting)
-        {
-            stop_item_sfx(itype_hoverboots);
-            fall = hoverclk = jumping = 0;
-            if(!getOnSideviewLadder()) y-=(int)y%8; //fix position
-            
-            if(y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN))  // Landed on the bottommost screen.
-                y = 160;
-        }
-        // Stop hovering if you press down.
-        else if((hoverclk || ladderx || laddery) && DrunkDown())
-        {
-            stop_item_sfx(itype_hoverboots);
-            hoverclk = 0;
-            reset_ladder();
-            fall = zinit.gravity;
-        }
-        // Continue falling.
-        else if(fall <= (int)zinit.terminalv)
-        {
-            if(fall != 0 || hoverclk)
-                jumping++;
-                
-            // Bump head if: hit a solid combo from beneath, or hit a solid combo in the screen above this one.
-            if((_walkflag(x+4,y-(bigHitbox?9:1),0)
-                || (y<=(bigHitbox?9:1) &&
-                // Extra checks if Smart Screen Scrolling is enabled
-                 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
-                                               !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up))))))
-                    && fall < 0)
-            {
-                fall = 0; // Bumped his head
-                
-                // ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
-                if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
+		//Unless using old collision, run this check BEFORE moving Hero, to prevent clipping into the ceiling.
+		if(!get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON))
 		{
-			checkdamagecombos(x+4, x+12, y-1, y-1);
+			if((_walkflag(x+4,y+(bigHitbox?(fall/100):(fall/100)+8),1) || _walkflag(x+12,y+(bigHitbox?(fall/100):(fall/100)+8),1)
+				|| ((y+(fall/100)<=0) &&
+				// Extra checks if Smart Screen Scrolling is enabled
+				 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
+											   !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up))))))
+					&& fall < 0)
+			{
+				fall = jumping = 0; // Bumped his head
+				y -= int(y)%8; //fix coords
+				// ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
+				if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
+				{
+					checkdamagecombos(x+4, x+12, y-1, y-1);
+				}
+			}
 		}
-            }
-            
-            if(hoverclk)
-            {
-                if(hoverclk > 0)
-                {
-                    hoverclk--;
-                }
-                
-                if(!hoverclk && !ladderx && !laddery)
-                {
-                    fall += zinit.gravity;
-                }
-            }
-            else if(fall+int(zinit.gravity) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery)
-            {
-                fall = jumping = 0;
-                int itemid = current_item_id(itype_hoverboots);
-                hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
-                
-                if(itemsbuf[itemid].wpn)
-                    decorations.add(new dHover(x, y, dHOVER, 0));
-                    
-                sfx(itemsbuf[itemid].usesound,pan(int(x)));
-            }
-            else if(!ladderx && !laddery && !getOnSideviewLadder())
-            {
-                fall += zinit.gravity;
-            }
-        }
-    }
-    else // Topdown gravity
-    {
-        z-=fall/(spins && fall>0 ? 200:100);
-        
-        if(z>0)
-        {
-            switch(action)
-            {
-            case swimming:
-	    {
-                diveclk=0;
-                action=walking; FFCore.setLinkAction(walking);
-		    
-                break;
-	    }
-            case waterhold1:
-	    {
-                action=landhold1; FFCore.setLinkAction(landhold1);
-                break;
-	    }
-                
-            case waterhold2:
-	    {
-                action=landhold2; FFCore.setLinkAction(landhold2);
-                break;
-	    }
-                
-            default:
-                break;
-            }
-        }
-        
-        for(int j=0; j<chainlinks.Count(); j++)
-        {
-            chainlinks.spr(j)->z=z;
-        }
-        
-        if(Lwpns.idFirst(wHookshot)>-1)
-        {
-            Lwpns.spr(Lwpns.idFirst(wHookshot))->z=z;
-        }
-        
-        if(Lwpns.idFirst(wHSHandle)>-1)
-        {
-            Lwpns.spr(Lwpns.idFirst(wHSHandle))->z=z;
-        }
-        
-        if(z<=0)
-        {
-            if(fall > 0)
-            {
-                if((iswater(MAPCOMBO(x,y+8)) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
-                    sfx(WAV_ZN1SPLASH,int(x));
-                    
-                stomping = true;
-            }
-            
-            z = fall = jumping = hoverclk = 0;
-        }
-        else if(fall <= (int)zinit.terminalv)
-        {
-            if(fall != 0 || hoverclk)
-                jumping++;
-                
-            if(hoverclk)
-            {
-                if(hoverclk > 0)
-                {
-                    hoverclk--;
-                }
-                
-                if(!hoverclk)
-                {
-                    fall += zinit.gravity;
-                }
-            }
-            else if(fall+(int)zinit.gravity > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots))
-            {
-                fall = 0;
-                int itemid = current_item_id(itype_hoverboots);
-                hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
-                decorations.add(new dHover(x, y, dHOVER, 0));
-                sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(int(x)));
-            }
-            else fall += zinit.gravity;
-        }
-    }
+		// Fall, unless on a ladder, sideview ladder, rafting, using the hookshot, drowning or cheating.
+		if(!(toogam && Up()) && !drownclk && action!=rafting && !pull_link && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
+		{
+			int ydiff = fall/(spins && fall<0 ? 200:100);
+			falling_oldy = y; // Stomp Boots-related variable
+			if(fall > 0 && checkSVLadderPlatform(x+4,y+ydiff+15) && (((int(y)+ydiff+15)&0xF0)!=((int(y)+15)&0xF0)) && !platform_fallthrough())
+			{
+				ydiff -= (int(y)+ydiff)%16;
+			}
+			y+=ydiff;
+			hs_starty+=ydiff;
+			
+			for(int j=0; j<chainlinks.Count(); j++)
+			{
+				chainlinks.spr(j)->y+=ydiff;
+			}
+			
+			if(Lwpns.idFirst(wHookshot)>-1)
+			{
+				Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=ydiff;
+			}
+			
+			if(Lwpns.idFirst(wHSHandle)>-1)
+			{
+				Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=ydiff;
+			}
+		}
+		// Stop hovering/falling if you land on something.
+		if((on_sideview_solid(x,y) || getOnSideviewLadder())  && !(pull_link && dir==down) && action!=rafting)
+		{
+			stop_item_sfx(itype_hoverboots);
+			fall = hoverclk = jumping = 0;
+			if(!getOnSideviewLadder()) y-=(int)y%8; //fix position
+			
+			if(y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN))  // Landed on the bottommost screen.
+				y = 160;
+		}
+		// Stop hovering if you press down.
+		else if((hoverclk || ladderx || laddery) && DrunkDown())
+		{
+			stop_item_sfx(itype_hoverboots);
+			hoverclk = 0;
+			reset_ladder();
+			fall = zinit.gravity;
+		}
+		// Continue falling.
+		else if(fall <= (int)zinit.terminalv)
+		{
+			if(fall != 0 || hoverclk)
+				jumping++;
+				
+			// Bump head if: hit a solid combo from beneath, or hit a solid combo in the screen above this one.
+			if(get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON))
+			{
+				if((_walkflag(x+4,y-(bigHitbox?9:1),0)
+					|| (y<=(bigHitbox?9:1) &&
+					// Extra checks if Smart Screen Scrolling is enabled
+					 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
+												   !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up))))))
+						&& fall < 0)
+				{
+					fall = jumping = 0; // Bumped his head
+					
+					// ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
+					if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
+					{
+						checkdamagecombos(x+4, x+12, y-1, y-1);
+					}
+				}
+			}
+			else
+			{
+				if((_walkflag(x+4,y+(bigHitbox?-1:7),1) || _walkflag(x+12,y+(bigHitbox?-1:7),1)
+					|| ((y<=0) &&
+					// Extra checks if Smart Screen Scrolling is enabled
+					 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
+												   !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up))))))
+						&& fall < 0)
+				{
+					fall = jumping = 0; // Bumped his head
+					y -= int(y)%8; //fix coords
+					// ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
+					if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
+					{
+						checkdamagecombos(x+4, x+12, y-1, y-1);
+					}
+				}
+			}
+			
+			if(hoverclk)
+			{
+				if(hoverclk > 0)
+				{
+					hoverclk--;
+				}
+				
+				if(!hoverclk && !ladderx && !laddery)
+				{
+					fall += zinit.gravity;
+				}
+			}
+			else if(fall+int(zinit.gravity) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery)
+			{
+				fall = jumping = 0;
+				int itemid = current_item_id(itype_hoverboots);
+				hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
+				
+				if(itemsbuf[itemid].wpn)
+					decorations.add(new dHover(x, y, dHOVER, 0));
+					
+				sfx(itemsbuf[itemid].usesound,pan(int(x)));
+			}
+			else if(!ladderx && !laddery && !getOnSideviewLadder())
+			{
+				fall += zinit.gravity;
+			}
+		}
+	}
+	else // Topdown gravity
+	{
+		z-=fall/(spins && fall>0 ? 200:100);
+		
+		if(z>0)
+		{
+			switch(action)
+			{
+				case swimming:
+				{
+					diveclk=0;
+					action=walking; FFCore.setLinkAction(walking);
+				
+					break;
+				}
+				case waterhold1:
+				{
+					action=landhold1; FFCore.setLinkAction(landhold1);
+					break;
+				}
+					
+				case waterhold2:
+				{
+					action=landhold2; FFCore.setLinkAction(landhold2);
+					break;
+				}
+				
+				default:
+					break;
+			}
+		}
+		
+		for(int j=0; j<chainlinks.Count(); j++)
+		{
+			chainlinks.spr(j)->z=z;
+		}
+		
+		if(Lwpns.idFirst(wHookshot)>-1)
+		{
+			Lwpns.spr(Lwpns.idFirst(wHookshot))->z=z;
+		}
+		
+		if(Lwpns.idFirst(wHSHandle)>-1)
+		{
+			Lwpns.spr(Lwpns.idFirst(wHSHandle))->z=z;
+		}
+		
+		if(z<=0)
+		{
+			if(fall > 0)
+			{
+				if((iswater(MAPCOMBO(x,y+8)) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
+					sfx(WAV_ZN1SPLASH,int(x));
+					
+				stomping = true;
+			}
+			
+			z = fall = jumping = hoverclk = 0;
+		}
+		else if(fall <= (int)zinit.terminalv)
+		{
+			if(fall != 0 || hoverclk)
+				jumping++;
+				
+			if(hoverclk)
+			{
+				if(hoverclk > 0)
+				{
+					hoverclk--;
+				}
+				
+				if(!hoverclk)
+				{
+					fall += zinit.gravity;
+				}
+			}
+			else if(fall+(int)zinit.gravity > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots))
+			{
+				fall = 0;
+				int itemid = current_item_id(itype_hoverboots);
+				hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
+				decorations.add(new dHover(x, y, dHOVER, 0));
+				sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(int(x)));
+			}
+			else fall += zinit.gravity;
+		}
+	}
     
     if(drunkclk)
     {
@@ -5486,7 +5528,7 @@ bool LinkClass::animate(int)
 	
 	if(getOnSideviewLadder())
 	{
-		if(!canSideviewLadder() || jumping || fall!=0)
+		if(!canSideviewLadder() || jumping<0 || fall!=0)
 		{
 			setOnSideviewLadder(false);
 		}
@@ -5597,9 +5639,9 @@ bool LinkClass::startwpn(int itemid)
                 
             paymagiccost(itemid);
 			if(itemsbuf[itemid].flags & ITEM_FLAG1)
-				fall -= itemsbuf[itemid].power;
+				setFall(fall - itemsbuf[itemid].power);
 			else
-				fall -= FEATHERJUMP*(itemsbuf[itemid].power+2);
+				setFall(fall - FEATHERJUMP*(itemsbuf[itemid].power+2));
 			
 			setOnSideviewLadder(false);
             
@@ -17850,6 +17892,7 @@ void LinkClass::setOnSideviewLadder(bool val)
 bool LinkClass::canSideviewLadder(bool down)
 {
 	if(!isSideview()) return false;
+	if(jumping < 0) return false;
 	if(down && get_bit(quest_rules, qr_DOWN_DOESNT_GRAB_LADDERS))
 	{
 		bool onSolid = on_sideview_solid(x,y,true);
@@ -17857,10 +17900,10 @@ bool LinkClass::canSideviewLadder(bool down)
 	}
 	//Are you presently able to climb a sideview ladder?
 	//x+4 / +12 are the offsets used for detecting a platform below you in sideview
-	//y+7 checks if you could be grabbing one partially above you; i.e. maybe jumping up to it
+	//y+0 checks your top-half for large hitbox; y+8 for small
 	//y+15 checks if you are on one at all. This is necessary so you don't just fall off before reaching the top.
 	//y+16 check is for going down onto a ladder you are standing on.
-	return isSVLadder(x+4,y+7) || isSVLadder(x+12,y+7)
+	return (isSVLadder(x+4,y+(bigHitbox?0:8)) || isSVLadder(x+12,y+(bigHitbox?0:8)))
 		|| isSVLadder(x+4,y+15) || isSVLadder(x+12,y+15)
 		|| (down && (isSVLadder(x+4,y+16) || isSVLadder(x+12,y+16)));
 }
