@@ -17900,10 +17900,10 @@ bool LinkClass::canSideviewLadder(bool down)
 	}
 	//Are you presently able to climb a sideview ladder?
 	//x+4 / +12 are the offsets used for detecting a platform below you in sideview
-	//y+7 checks if you could be grabbing one partially above you; i.e. maybe jumping up to it
+	//y+0 checks your top-half for large hitbox; y+8 for small
 	//y+15 checks if you are on one at all. This is necessary so you don't just fall off before reaching the top.
 	//y+16 check is for going down onto a ladder you are standing on.
-	return isSVLadder(x+4,y+7) || isSVLadder(x+12,y+7)
+	return (isSVLadder(x+4,y+(bigHitbox?0:8)) || isSVLadder(x+12,y+(bigHitbox?0:8)))
 		|| isSVLadder(x+4,y+15) || isSVLadder(x+12,y+15)
 		|| (down && (isSVLadder(x+4,y+16) || isSVLadder(x+12,y+16)));
 }
