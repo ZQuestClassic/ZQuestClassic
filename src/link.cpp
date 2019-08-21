@@ -4432,7 +4432,7 @@ bool LinkClass::animate(int)
 		//Unless using old collision, run this check BEFORE moving Hero, to prevent clipping into the ceiling.
 		if(!get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON))
 		{
-			if((_walkflag(x+4,y+(bigHitbox?(fall/100):(fall/100)+8),1) || _walkflag(x+12,y+(bigHitbox?(fall/100):(fall/100)+8),1)
+			if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1)
 				|| ((y+(fall/100)<=0) &&
 				// Extra checks if Smart Screen Scrolling is enabled
 				 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
@@ -4520,7 +4520,7 @@ bool LinkClass::animate(int)
 			}
 			else
 			{
-				if((_walkflag(x+4,y+(bigHitbox?-1:7),1) || _walkflag(x+12,y+(bigHitbox?-1:7),1)
+				if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?-1:7),1) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?-1:7),1)
 					|| ((y<=0) &&
 					// Extra checks if Smart Screen Scrolling is enabled
 					 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
