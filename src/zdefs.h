@@ -108,7 +108,7 @@
 #define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 29"                    //version of the program as presented in text
 #define IS_BETA             -29                         //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        29
-#define DATE_STR            "20th August, 2019, 10:47 PM EST"
+#define DATE_STR            "21st August, 2019, 15:40 GMT"
 #define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 29"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
@@ -1816,11 +1816,12 @@ public:
     
     byte ffcref, idata; //current object pointers
     dword itemref, guyref, lwpn, ewpn;
-	dword mapsref, screenref, npcdataref, bitmapref, spritesref, combosref, dmapsref, zmsgref, shopsref, untypedref;
+	dword mapsref, screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
-	dword fileref, subscreenref;
+	dword fileref, subscreenref, comboidref;
+	int combosref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -1835,6 +1836,7 @@ public:
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
 		fileref = 0, subscreenref = 0;
+		comboidref = 0;
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
     }
