@@ -84,7 +84,7 @@ extern sprite_list particles;
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
-#define CANFORCEFACEUP (action==walking || action==none)
+#define CANFORCEFACEUP (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
 
 static inline bool platform_fallthrough()
 {
@@ -4414,7 +4414,7 @@ bool LinkClass::animate(int)
 		{
 			setOnSideviewLadder(false);
 		}
-		else if(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && CANFORCEFACEUP)
+		else if(CANFORCEFACEUP)
 		{
 			setDir(up);
 		}
@@ -5532,7 +5532,7 @@ bool LinkClass::animate(int)
 		{
 			setOnSideviewLadder(false);
 		}
-		else if(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && CANFORCEFACEUP)
+		else if(CANFORCEFACEUP)
 		{
 			setDir(up);
 		}
@@ -6329,7 +6329,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_dinsfire:
-        if(z!=0 || (isSideview() && !on_sideview_solid(x,y)))
+        if(z!=0 || (isSideview() && !(on_sideview_solid(x,y) || getOnSideviewLadder())))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -6341,7 +6341,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_faroreswind:
-        if(z!=0 || (isSideview() && !on_sideview_solid(x,y)))
+        if(z!=0 || (isSideview() && !(on_sideview_solid(x,y) || getOnSideviewLadder())))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -6353,7 +6353,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_nayruslove:
-        if(z!=0 || (isSideview() && !on_sideview_solid(x,y)))
+        if(z!=0 || (isSideview() && !(on_sideview_solid(x,y) || getOnSideviewLadder())))
             return false;
             
         if(!checkmagiccost(itemid))
