@@ -1,7 +1,40 @@
 //2.55 Changes
 
-//Alpha 29
+//Alpha 30
 
+//Alpha 29
+Feat: Hero->Climbing
+	ZScript access to 'Link.(s/g)etOnSideviewLadder()'
+	Also, the docs to go with.
+Feat: Sideview Platforms, some QRs for Platforms/Ladders 
+	Added rules:
+	qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS - As it says, items fall through ladders and platforms
+	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS - Pressing down will make you fall through platforms
+	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK - The above rule will respect Drunk when checking for Down
+	qr_DOWN_DOESNT_GRAB_LADDERS - Down will only grab ladders if you are not in mid-air
+	Enemy BFlag - Ignore Sideview Ladders/Platforms - As it says, enemies fall through ladders and platforms
+
+	Fixed Always Face Up on Sideview Ladders rule:
+	Can swing sword/etc in any direction regardless of rule, as in LA.
+
+Feat: QR for Always Face Up on Sideview Ladders 
+	If enabled, 'Hero->Dir' will be forced to 'Up' while grabbed onto a sideview ladder.
+Added Sideview Ladders
+	Flag 161 is now 'mfSIDEVIEWLADDER', GUI name '161 Sideview Ladder'
+	This flag, placed or inherent, on layers 0, 1, or 2, will function as a sideview ladder.
+	Enemies, Items, and Hero can walk atop the top ladder.
+	-If multiple ladders are stacked vertically, only the TOP one can be walked on.
+	-The combos used for this should be NON-SOLID.
+	Additionally, Hero can CLIMB the ladder. Pressing down while standing on top of one,
+		or pressing up/down anywhere on the ladder, will grab it. While climbing on the ladder, you
+		can go in any direction, though if you walk off of the flag, you will stop holding on.
+	Using the Roc's Feather, or script-setting 'Hero->Jump', will detach you from the ladder, and perform a jump.
+	Also, fixed a minor issue with large sideview enemies, so that they properly can walk.
+	( Venrob, 20th August, 2019 )
+
+Feat: Add 'Clear Directory Cache' menu option to ZC Player
+Fix: ZQuest, Clear Quest Path
+Change menu label: 'Screen>>>Room' to 'Screen>>>Room Data'
 Fix room type text change occurring on wrong menu entry (enemies, not catchall).
 	( ZoriaRPG, 16th August, 2019 )
 

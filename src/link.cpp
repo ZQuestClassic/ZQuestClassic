@@ -84,7 +84,7 @@ extern sprite_list particles;
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
-#define CANFORCEFACEUP (action==walking || action==none)
+#define CANFORCEFACEUP (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
 
 static inline bool platform_fallthrough()
 {
@@ -4414,7 +4414,7 @@ bool LinkClass::animate(int)
 		{
 			setOnSideviewLadder(false);
 		}
-		else if(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && CANFORCEFACEUP)
+		else if(CANFORCEFACEUP)
 		{
 			setDir(up);
 		}
@@ -4432,7 +4432,7 @@ bool LinkClass::animate(int)
 		//Unless using old collision, run this check BEFORE moving Hero, to prevent clipping into the ceiling.
 		if(!get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON))
 		{
-			if((_walkflag(x+4,y+(bigHitbox?(fall/100):(fall/100)+8),1) || _walkflag(x+12,y+(bigHitbox?(fall/100):(fall/100)+8),1)
+			if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1)
 				|| ((y+(fall/100)<=0) &&
 				// Extra checks if Smart Screen Scrolling is enabled
 				 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
@@ -4520,7 +4520,7 @@ bool LinkClass::animate(int)
 			}
 			else
 			{
-				if((_walkflag(x+4,y+(bigHitbox?-1:7),1) || _walkflag(x+12,y+(bigHitbox?-1:7),1)
+				if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?-1:7),1) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?-1:7),1)
 					|| ((y<=0) &&
 					// Extra checks if Smart Screen Scrolling is enabled
 					 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
@@ -5532,7 +5532,7 @@ bool LinkClass::animate(int)
 		{
 			setOnSideviewLadder(false);
 		}
-		else if(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && CANFORCEFACEUP)
+		else if(CANFORCEFACEUP)
 		{
 			setDir(up);
 		}
@@ -6329,7 +6329,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_dinsfire:
-        if(z!=0 || (isSideview() && !on_sideview_solid(x,y)))
+        if(z!=0 || (isSideview() && !(on_sideview_solid(x,y) || getOnSideviewLadder())))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -6341,7 +6341,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_faroreswind:
-        if(z!=0 || (isSideview() && !on_sideview_solid(x,y)))
+        if(z!=0 || (isSideview() && !(on_sideview_solid(x,y) || getOnSideviewLadder())))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -6353,7 +6353,7 @@ bool LinkClass::startwpn(int itemid)
         break;
         
     case itype_nayruslove:
-        if(z!=0 || (isSideview() && !on_sideview_solid(x,y)))
+        if(z!=0 || (isSideview() && !(on_sideview_solid(x,y) || getOnSideviewLadder())))
             return false;
             
         if(!checkmagiccost(itemid))
@@ -7401,6 +7401,20 @@ void LinkClass::movelink()
 	
     int wx=x;
     int wy=y;
+    if((action==none || action==walking) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
+	{
+		if((xoff==0)||diagonalMovement)
+		{
+			if(DrunkUp()) dir=up;
+			if(DrunkDown()) dir=down;
+		}
+		
+		if((yoff==0)||diagonalMovement)
+		{
+			if(DrunkLeft()) dir=left;
+			if(DrunkRight()) dir=right;
+		}
+	}
     
     switch(dir)
     {
@@ -7535,21 +7549,20 @@ void LinkClass::movelink()
     
     if(attackclk || action==attacking)
     {
-		if(getOnSideviewLadder() && attackclk==0)
+		
+		if((attackclk==0) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 		{
-            if((xoff==0)||diagonalMovement)
-            {
-                if(DrunkUp()) dir=up;
-                
-                if(DrunkDown()) dir=down;
-            }
-            
-            if((yoff==0)||diagonalMovement)
-            {
-                if(DrunkLeft()) dir=left;
-                
-                if(DrunkRight()) dir=right;
-            }
+			if((xoff==0)||diagonalMovement)
+			{
+				if(DrunkUp()) dir=up;
+				if(DrunkDown()) dir=down;
+			}
+			
+			if((yoff==0)||diagonalMovement)
+			{
+				if(DrunkLeft()) dir=left;
+				if(DrunkRight()) dir=right;
+			}
 		}
 		
         bool attacked = doattack();
