@@ -2761,6 +2761,8 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules, qr_BROKEN_ASKIP_Y_FRAMES, 1);
 		//Enemies would ignore solidity on the top half of combos
 		set_bit(quest_rules, qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, 1);
+		//Ceiling collison was a bit wonky, including hitting your head before you are near the ceiling or clipping into it slightly.
+		set_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON, 1);
 	}
     if ( tempheader.zelda_version < 0x255 )
     {
