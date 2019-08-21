@@ -7401,6 +7401,20 @@ void LinkClass::movelink()
 	
     int wx=x;
     int wy=y;
+    if((action==none || action==walking) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
+	{
+		if((xoff==0)||diagonalMovement)
+		{
+			if(DrunkUp()) dir=up;
+			if(DrunkDown()) dir=down;
+		}
+		
+		if((yoff==0)||diagonalMovement)
+		{
+			if(DrunkLeft()) dir=left;
+			if(DrunkRight()) dir=right;
+		}
+	}
     
     switch(dir)
     {
@@ -7535,21 +7549,20 @@ void LinkClass::movelink()
     
     if(attackclk || action==attacking)
     {
-		if(getOnSideviewLadder() && attackclk==0)
+		
+		if((attackclk==0) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 		{
-            if((xoff==0)||diagonalMovement)
-            {
-                if(DrunkUp()) dir=up;
-                
-                if(DrunkDown()) dir=down;
-            }
-            
-            if((yoff==0)||diagonalMovement)
-            {
-                if(DrunkLeft()) dir=left;
-                
-                if(DrunkRight()) dir=right;
-            }
+			if((xoff==0)||diagonalMovement)
+			{
+				if(DrunkUp()) dir=up;
+				if(DrunkDown()) dir=down;
+			}
+			
+			if((yoff==0)||diagonalMovement)
+			{
+				if(DrunkLeft()) dir=left;
+				if(DrunkRight()) dir=right;
+			}
 		}
 		
         bool attacked = doattack();
