@@ -369,6 +369,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     scripttile = -1;
     scriptflip = -1;
     do_animation = 1;
+	immortal = false;
     
     // If they forgot the invisibility flag, here's another failsafe:
     if(o_tile==0 && family!=eeSPINTILE)
@@ -491,6 +492,11 @@ enemy::~enemy()
 // Handles the death animation and returns true when enemy is finished.
 bool enemy::Dead(int index)
 {
+	if(immortal)
+	{
+		dying = false;
+		return false;
+	}
     if(dying)
     {
         --clk2;
@@ -603,7 +609,7 @@ bool enemy::animate(int index)
     if(ceiling && z<=0)
         ceiling = false;
         
-    if(!dying && hp<=0)
+    if(!dying && (hp<=0 && !immortal))
     {
         if(itemguy && (hasitem&2)!=0)
         {
@@ -3109,7 +3115,7 @@ hitclock:
     }
     }
     
-    if(((wpnId==wBrang) || (get_bit(quest_rules,qr_NOFLASHDEATH))) && hp<=0)
+    if(((wpnId==wBrang) || (get_bit(quest_rules,qr_NOFLASHDEATH))) && (hp<=0 && !immortal))
     {
         fading=fade_blue_poof;
     }
@@ -4170,7 +4176,7 @@ void enemy::newdir_8(int newrate,int newhoming,int special)
 // sclk: first byte is clk, second byte is dir
 bool enemy::slide()
 {
-    if(sclk==0 || hp<=0)
+    if(sclk==0 || (hp<=0 && !immortal))
         return false;
         
     if((sclk&255)==16 && !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0))
@@ -4282,7 +4288,7 @@ bool enemy::slide()
 
 bool enemy::can_slide()
 {
-    if(sclk==0 || hp<=0)
+    if(sclk==0 || (hp<=0 && !immortal))
         return false;
         
     if((sclk&255)==16 && !canmove(sclk>>8,(fix)12,0))
@@ -4295,7 +4301,7 @@ bool enemy::can_slide()
 
 bool enemy::fslide()
 {
-    if(sclk==0 || hp<=0)
+    if(sclk==0 || (hp<=0 && !immortal))
         return false;
         
     if((sclk&255)==16 && !canmove(sclk>>8,(fix)12,spw_floater))
@@ -8865,7 +8871,7 @@ bool eStalfos::animate(int index)
             haslink=false;
         }
         
-        if(dmisc9==e9tROPE && dmisc2==e2tBOMBCHU && !fired && hp<=0 && hp>-1000 && wpn>wEnemyWeapons)
+        if(dmisc9==e9tROPE && dmisc2==e2tBOMBCHU && !fired && (hp<=0 && !immortal) && hp>-1000 && wpn>wEnemyWeapons)
         {
             hp=-1000;
 //        weapon *ew=new weapon(x,y,z, ewBomb, 0, d->wdp, dir);
@@ -8912,7 +8918,7 @@ bool eStalfos::animate(int index)
     //vire split
     //2.10 checked !fslide(), but nothing uses that now anyway. -Z
     //Perhaps the problem occurs when vires die because they have < 0 HP, in this check?
-    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() && (sclk&255)<=1))  //Split into enemies
+    else if(((hp<=0 && !immortal) && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() && (sclk&255)<=1))  //Split into enemies
     {
         stop_bgsfx(index);
         int kids = guys.Count();
@@ -8944,7 +8950,7 @@ bool eStalfos::animate(int index)
         return true;
     }
     /*
-    else if((dmisc2==e2tSPLITHIT && hp<=0 &&!slide()))  //Possible vires fix; or could cause goodness knows what. -Z
+    else if((dmisc2==e2tSPLITHIT && (hp<=0 && !immortal) &&!slide()))  //Possible vires fix; or could cause goodness knows what. -Z
     {
         stop_bgsfx(index);
         int kids = guys.Count();
@@ -13023,7 +13029,7 @@ bool eGleeok::animate(int index)
         }
     }
     
-    if(hp<=0)
+    if((hp<=0 && !immortal))
     {
         for(int i=0; i<misc; i++)
             ((enemy*)guys.spr(index+i+1))->misc = -2;             // give the signal to disappear

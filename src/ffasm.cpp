@@ -1994,6 +1994,7 @@ script_variable variable_list[]=
 	{ "ZSCRIPTVERSION",		ZSCRIPTVERSION,        0,             0 },
 	{ "REFFILE",		REFFILE,        0,             0 },
 	{ "LINKCLIMBING",		LINKCLIMBING,        0,             0 },
+	{ "NPCIMMORTAL",		NPCIMMORTAL,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
