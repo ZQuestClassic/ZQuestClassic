@@ -244,6 +244,7 @@ protected:
     // base drawing function to be used by all derived classes instead of
     // sprite::draw()
     virtual void draw(BITMAP *dest);
+    virtual void drawzcboss(BITMAP *dest);
     virtual void old_draw(BITMAP *dest);
     // similar to the overblock function--can do up to a 32x32 sprite
     void drawblock(BITMAP *dest,int mask);

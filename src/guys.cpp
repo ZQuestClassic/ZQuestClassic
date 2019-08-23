@@ -3548,6 +3548,80 @@ void enemy::draw(BITMAP *dest)
 
 }
 
+//old zc bosses
+void enemy::drawzcboss(BITMAP *dest)
+{
+    if(dont_draw())
+        return;
+        
+    int cshold=cs;
+    
+    if(dying)
+    {
+        if(clk2>=19)
+        {
+            if(!(clk2&2))
+                sprite::drawzcboss(dest);
+                
+            return;
+        }
+        
+        flip = 0;
+        tile = wpnsbuf[iwDeath].tile;
+        
+        if(BSZ)
+            tile += zc_min((15-clk2)/3,4);
+        else if(clk2>6 && clk2<=12)
+            ++tile;
+            
+        /* trying to get more death frames here
+          if(wpnsbuf[wid].frames)
+          {
+          if(++clk2 >= wpnsbuf[wid].speed)
+          {
+          clk2 = 0;
+          if(++aframe >= wpnsbuf[wid].frames)
+          aframe = 0;
+          }
+          tile = wpnsbuf[wid].tile + aframe;
+          }
+          */
+        
+        if(BSZ || fading==fade_blue_poof)
+            cs = wpnsbuf[iwDeath].csets&15;
+        else
+            cs = (((clk2+5)>>1)&3)+6;
+    }
+    else if(hclk>0)
+    {
+        if(family==eeGANON)
+            cs=(((hclk-1)>>1)&3)+6;
+        else if(hclk<33 && !get_bit(quest_rules,qr_ENEMIESFLICKER))
+            cs=(((hclk-1)>>1)&3)+6;
+    }
+    
+    if((tmpscr->flags3&fINVISROOM) &&
+            !(current_item(itype_amulet)) &&
+            !(get_bit(quest_rules,qr_LENSSEESENEMIES) &&
+              lensclk) && family!=eeGANON)
+    {
+        sprite::drawcloaked(dest);
+    }
+    else
+    {
+        if(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER))
+        {
+            if((frame&1)==1)
+                sprite::drawzcboss(dest);
+        }
+        else
+            sprite::drawzcboss(dest);
+    }
+    
+    cs=cshold;
+}
+
+
 // similar to the overblock function--can do up to a 32x32 sprite
 //will this play nicely with scripttile, solely using the modifications in sprite::draw()?
 void enemy::drawblock(BITMAP *dest,int mask)
