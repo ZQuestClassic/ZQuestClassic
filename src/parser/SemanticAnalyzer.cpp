@@ -180,7 +180,7 @@ void SemanticAnalyzer::caseStmtIf(ASTStmtIf& host, void*)
     RecursiveVisitor::caseStmtIf(host);
     if (breakRecursion(host)) return;
 
-	checkCast(*host.condition->getReadType(scope, this), DataType::BOOL, &host);
+	checkCast(*host.condition->getReadType(scope, this), DataType::UNTYPED, &host);
 }
 
 void SemanticAnalyzer::caseStmtIfElse(ASTStmtIfElse& host, void*)
@@ -188,7 +188,7 @@ void SemanticAnalyzer::caseStmtIfElse(ASTStmtIfElse& host, void*)
     RecursiveVisitor::caseStmtIfElse(host);
     if (breakRecursion(host)) return;
 
-	checkCast(*host.condition->getReadType(scope, this), DataType::BOOL, &host);
+	checkCast(*host.condition->getReadType(scope, this), DataType::UNTYPED, &host);
 }
 
 void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void*)
@@ -207,7 +207,7 @@ void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 	scope = scope->getParent();
     if (breakRecursion(host)) return;
 
-	checkCast(*host.test->getReadType(scope, this), DataType::BOOL, &host);
+	checkCast(*host.test->getReadType(scope, this), DataType::UNTYPED, &host);
 }
 
 void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
@@ -215,7 +215,7 @@ void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
 	RecursiveVisitor::caseStmtWhile(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.test->getReadType(scope, this), DataType::BOOL, &host);
+	checkCast(*host.test->getReadType(scope, this), DataType::UNTYPED, &host);
 }
 
 void SemanticAnalyzer::caseStmtReturn(ASTStmtReturn& host, void*)
@@ -1138,7 +1138,7 @@ void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
 {
 	visit(host.left.get());
 	if (breakRecursion(host)) return;
-	checkCast(*host.left->getReadType(scope, this), DataType::BOOL, &host);
+	checkCast(*host.left->getReadType(scope, this), DataType::UNTYPED, &host);
 	if (breakRecursion(host)) return;
 	
 	visit(host.middle.get());
