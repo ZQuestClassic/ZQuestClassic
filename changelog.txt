@@ -2,10 +2,86 @@
 
 //Alpha 30
 
+Fixed two polymorphism oversights:
+	Added ePatra::defendNew() and ePatraBS::DefendNew()
+	as virtual class functions.
+	Patras weren't using the newe defend system, and were instead
+	calling the old ::defend() function, and getting improper ret
+	values. This caused the core to be vulnerable prior to killing 1
+	the orbiting rings, and this should fix that issue.
+
+	Fixed Dodongo showing rubbish tiles on death.
+	Fixed Gleeok body not flashing on hit,
+	Fixed Gohma leaving legs behind on death,
+	Probably fixed Ganon flash issue.
+	( ZoriaRPG, 23rd August, 2019 )
+	
+Parser: Allow pointer types to be used in conditionals
+	if(), unless(), while(), until(), for()'s test, and Ternary's condition,
+	now all accept Untyped input, so that pointers can be read to check
+	if they have been initialized (similar to how '!' already does this)
+Fix: Items ignore script frame-change 
+	Items with 0 frames set in their itemdata when they were created would
+	ignore all further changes to their frame number.
+	Compat QR
+Fix: Hardcoded black UI Elements
+	"Preview Text", from pressing "X"
+	Small mode bottom-panel text
+Fix: 'npc->ScriptFlip' missing '/10000'
+	( Venrob, 23rd August, 2019 )
+	
+Feat: Weapons live 1 frame longer (qr) 
+	qr_WEAPONS_EXTRA_FRAME -> "Weapons Live One Extra Frame With WDS_DEAD"
+	With this rule on, weapons get their own "last_hurrah" style life extension.
+	This means that scripts can read '->DeadState==WDS_DEAD' as true for one frame,
+		instead of it never being true.
+	This allows for weapon death effects to occur easily from their scripts.
+Feat: npc->Immortal 
+	An NPC with this script-only flag set true will NOT die when it's HP falls below 0.
+	This can allow scripts to revive it, or run death effects, as they wish.
+	( Venrob, 22nd August, 2019 )
+	
+Fix: Spells on Sideview Ladders 
+	Whoops, spells wouldn't cast while climbing!
+	Also cleaned up the 'CANFORCEFACEUP' macro
+Fix: 'Always Face Up' on ladders, conflict with weapons 
+	Only swords were apparently working with my fix. This new fix should allow ALL weapons
+	to be fired in ANY dir, despite you being facing up, so long as you have the dir held
+	when you press the weapon button.
+Fix: Bumping head uses bigHitbox with 4-way movement 	
+	For some reason, 4-way movement treats Hero as if BigHitbox=true in sideview,
+	regardless of if it is or not. This makes this consistent, and can be fixed
+	with a SINGLE compat-rule later, in both locations, instead of needing 2.
+Fix: Hitbox size for sideview ladders 
+	Slightly altered the calculations for grabbing ladders, and accounted for
+	bigHitbox. Now, Hero can hold onto a ladder with any part of him that would
+	be applicable for solidity checks, and ONLY those parts.
+	This fixes some minor weirdness with certain combo arrangements.
+Feat/Fix: Sideview Platforms Down+Jump falling, Ceiling Collision
+	QR: "Press 'Down+Jump' to Fall Through Sideview Platforms"
+This enables falling through platforms by using the Roc's Feather
+	while holding "Down".
+
+Fix sideview ceiling collision. There were ALL SORTS of issues,
+	including clipping slightly into the ceiling,
+	and bumping your head too early.
+	-Use compat rule "Old Sideview Ceiling Collision" to disable this fix.
+	Auto-enabled for old quests.
+Chore: Mark Off-Grid flag "(WIP)" 
+	( Venrob, 21st August, 2919 )
+	
+Update refInfo + Timestamps, adding comboidref to refInfo for combo script functions
+	such as X(), Y(), Layer(), Position(), and ID().
+	( ZoriaRPG, 21st August, 2019 )
+	
 //Alpha 29
+Fix: Incorrect flag in Classic and Default Module for Scripted Hookshot
+	to bundle with final A29 build.
+	( Venrob, and ZoriaRPG )
 Feat: Hero->Climbing
 	ZScript access to 'Link.(s/g)etOnSideviewLadder()'
 	Also, the docs to go with.
+Feat: Sideview Ladders and Platforms
 Feat: Sideview Platforms, some QRs for Platforms/Ladders 
 	Added rules:
 	qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS - As it says, items fall through ladders and platforms
