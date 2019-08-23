@@ -3746,12 +3746,12 @@ void drawpanel(int pnl)
             set_clip_rect(menu1,panel[0].x,panel[0].y,panel[0].x+panel[0].w-5,panel[0].y+46);
             extract_name(filepath,name,FILENAME8__);
             textprintf_disabled(menu1,pfont,panel[0].x+1,panel[0].y+3,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"File:");
-            textprintf_ex(menu1,pfont,panel[0].x+1,panel[0].y+13,vc(0),-1,"%s",shortname);
+            textprintf_ex(menu1,pfont,panel[0].x+1,panel[0].y+13,jwin_pal[jcTEXTFG],-1,"%s",shortname);
             textprintf_disabled(menu1,pfont,panel[0].x+1,panel[0].y+24,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Combo:");
-            textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Combo: "),panel[0].y+24,vc(0),-1,"%d",Combo);
+            textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Combo: "),panel[0].y+24,jwin_pal[jcTEXTFG],-1,"%d",Combo);
             textprintf_disabled(menu1,pfont,panel[0].x+1,panel[0].y+34,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Type:");
-//        textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Type: "),panel[0].y+34,vc(0),-1,"%s",combotype_string[combobuf[Combo].type]);
-            textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Type: "),panel[0].y+34,vc(0),-1,"%s",combo_class_buf[combobuf[Combo].type].name);
+//        textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Type: "),panel[0].y+34,jwin_pal[jcTEXTFG],-1,"%s",combotype_string[combobuf[Combo].type]);
+            textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Type: "),panel[0].y+34,jwin_pal[jcTEXTFG],-1,"%s",combo_class_buf[combobuf[Combo].type].name);
             textprintf_centre_disabled(menu1,spfont,panel[0].x+panel[0].w-76,panel[0].y+3,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Combo");
             jwin_draw_frame(menu1,panel[0].x+panel[0].w-86,panel[0].y+9,20, 20, FR_DEEP);
             put_combo(menu1,panel[0].x+panel[0].w-84,panel[0].y+11,Combo,CSet,0,0);
@@ -26435,21 +26435,21 @@ void do_animations()
 void do_previewtext()
 {
     //Put in help areas
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+3,vc(0),-1,"%s",help_list[help_pos]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+8+3,vc(0),-1,"%s",help_list[help_pos+1]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+16+3,vc(0),-1,"%s",help_list[help_pos+2]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+24+3,vc(0),-1,"%s",help_list[help_pos+3]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+32+3,vc(0),-1,"%s",help_list[help_pos+4]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+8+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+1]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+16+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+2]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+24+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+3]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+32+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+4]);
     
     if(!is_large) return;
     
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+40+3,vc(0),-1,"%s",help_list[help_pos+5]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+48+3,vc(0),-1,"%s",help_list[help_pos+6]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+56+3,vc(0),-1,"%s",help_list[help_pos+7]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+64+3,vc(0),-1,"%s",help_list[help_pos+8]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+72+3,vc(0),-1,"%s",help_list[help_pos+9]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+81+3,vc(0),-1,"%s",help_list[help_pos+10]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+90+3,vc(0),-1,"%s",help_list[help_pos+11]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+40+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+5]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+48+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+6]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+56+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+7]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+64+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+8]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+72+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+9]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+81+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+10]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+90+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+11]);
 }
 
 
