@@ -103,6 +103,8 @@ public:
    
     long dialogue_str; //WIll be set in spawn flags. 
     long editorflags; //Enemy editor flags 1 to 16
+	
+	bool immortal;
     
     int getScriptUID();
     void setScriptUID(int new_id);

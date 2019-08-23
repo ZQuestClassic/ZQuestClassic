@@ -96,6 +96,7 @@ public:
     //Used only by ffscript! No not make readable by scripts!
     byte ScriptGenerated; //Used to permit creating LinkClass weapons, or other weapon types that the engine does not control.
     byte isLWeapon;
+	bool weapon_dying_frame; //a last_hurrah for weapons -V
     
     
     weapon(weapon const &other);

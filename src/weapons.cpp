@@ -250,7 +250,8 @@ weapon::weapon(weapon const & other):
     magiccosttimer(other.magiccosttimer),
     ScriptGenerated(other.ScriptGenerated),
     isLWeapon(other.isLWeapon),
-	linkedItem(other.linkedItem)
+	linkedItem(other.linkedItem),
+	weapon_dying_frame(other.weapon_dying_frame)
     
 	
 	//End Weapon editor non-arrays. 
@@ -445,6 +446,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     useweapon = usedefence = 0;
     weaprange = weapduration = 0;
     script_wrote_otile = 0;
+	weapon_dying_frame = false;
     if ( Parentitem > -1 )
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
@@ -2370,12 +2372,12 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			if ( Dead() )
+			/*if ( Dead() )
 			{
 				doscript = 0;
 				weaponscript = 0;
 			}
-			else
+			else*/
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
@@ -2389,12 +2391,12 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			if ( Dead() )
+			/*if ( Dead() )
 			{
 				doscript = 0;
 				weaponscript = 0;
 			}
-			else
+			else*/
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
@@ -2413,12 +2415,12 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			if ( Dead() )
+			/*if ( Dead() )
 			{
 				doscript = 0;
 				weaponscript = 0;
 			}
-			else
+			else*/
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
@@ -2444,12 +2446,12 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			if ( Dead() )
+			/*if ( Dead() )
 			{
 				doscript = 0;
 				weaponscript = 0;
 			}
-			else
+			else*/
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
@@ -2473,12 +2475,12 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 ) 
 		{
-			if ( dead != -1 )
+			/*if ( dead != -1 )
 			{
 				doscript = 0;
 				weaponscript = 0;
 			}
-			else
+			else*/
 			{
                             //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
                             //FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
@@ -2492,12 +2494,12 @@ void weapon::runscript(int index)
                 
 		if ( doscript && weaponscript > 0 ) 
 		{
-			if ( Dead() )
+			/*if ( Dead() )
 			{
 				doscript = 0;
 				weaponscript = 0;
 			}
-			else
+			else*/
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
@@ -2527,12 +2529,12 @@ void weapon::runscript(int index)
 		//:Weapon Only
 		if ( doscript && weaponscript > 0 ) 
 		{
-			if ( Dead() )
+			/*if ( Dead() )
 			{
 				doscript = 0;
 				weaponscript = 0;
 			}
-			else
+			else*/
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
@@ -2546,12 +2548,12 @@ void weapon::runscript(int index)
 	    {
 		if ( doscript && weaponscript > 0 && ScriptGenerated ) 
 		{
-			if ( Dead() )
+			/*if ( Dead() )
 			{
 				doscript = 0;
 				weaponscript = 0;
 			}
-			else
+			else*/
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 				//FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
@@ -4774,7 +4776,13 @@ mirrors:
             
             if(dead>0)
                 --dead;
-                
+            
+			if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
+			{
+				weapon_dying_frame = true;
+				return false;
+			}
+			
             return dead==0;
         }
         if ( id == wRefFireball && ScriptGenerated && doscript )
@@ -5078,6 +5086,11 @@ mirrors:
         --dead;
     }
     
+	if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
+	{
+		weapon_dying_frame = true;
+		return false;
+	}
     return dead==0;
 }
 
@@ -5249,12 +5262,12 @@ bool weapon::animateandrunscript(int ii)
         }
         if ( doscript && weaponscript > 0 ) 
         {
-                if ( Dead() )
+                /*if ( Dead() )
                 {
                         doscript = 0;
                         weaponscript = 0;
                 }
-                else
+                else*/
                 {
                         int w_index = -1; //Give the script the correct index! -Z
                         for(word i = 0; i < Lwpns.Count(); i++)
@@ -5520,12 +5533,12 @@ bool weapon::animateandrunscript(int ii)
         }
         if ( doscript && weaponscript > 0 ) 
         {
-                if ( Dead() )
+                /*if ( Dead() )
                 {
                         doscript = 0;
                         weaponscript = 0;
                 }
-                else
+                else*/
                 {
                         int w_index = -1; //Give the script the correct index! -Z
                         for(word i = 0; i < Lwpns.Count(); i++)
@@ -5666,12 +5679,12 @@ bool weapon::animateandrunscript(int ii)
         }
         if ( doscript && weaponscript > 0 ) 
         {
-                if ( Dead() )
+                /*if ( Dead() )
                 {
                         doscript = 0;
                         weaponscript = 0;
                 }
-                else
+                else*/
                 {
                         int w_index = -1; //Give the script the correct index! -Z
                         for(word i = 0; i < Lwpns.Count(); i++)
@@ -5875,12 +5888,12 @@ bool weapon::animateandrunscript(int ii)
         
         if ( doscript && weaponscript > 0 ) 
         {
-                if ( Dead() )
+                /*if ( Dead() )
                 {
                         doscript = 0;
                         weaponscript = 0;
                 }
-                else
+                else*/
                 {
                         int w_index = -1; //Give the script the correct index! -Z
                         for(word i = 0; i < Lwpns.Count(); i++)
@@ -5950,12 +5963,12 @@ bool weapon::animateandrunscript(int ii)
         }
         if ( doscript && weaponscript > 0 ) 
         {
-                if ( dead != -1 )
+                /*if ( dead != -1 )
                 {
                         doscript = 0;
                         weaponscript = 0;
                 }
-                else
+                else*/
                 {
                         int w_index = -1; //Give the script the correct index! -Z
                         for(word i = 0; i < Lwpns.Count(); i++)
@@ -6139,12 +6152,12 @@ bool weapon::animateandrunscript(int ii)
         //call before the sfx
         if ( doscript && weaponscript > 0 ) 
         {
-                if ( Dead() )
+                /*if ( Dead() )
                 {
                         doscript = 0;
                         weaponscript = 0;
                 }
-                else
+                else*/
                 {
                         int w_index = -1; //Give the script the correct index! -Z
                         for(word i = 0; i < Lwpns.Count(); i++)
@@ -6761,12 +6774,12 @@ mirrors:
         //:Weapon Only
         if ( doscript && weaponscript > 0 && (id == wMagic || id == wRefMagic) ) 
         {
-                if ( Dead() )
+                /*if ( Dead() )
                 {
                         doscript = 0;
                         weaponscript = 0;
                 }
-                else
+                else*/
                 {
                         int w_index = -1; //Give the script the correct index! -Z
                         for(word i = 0; i < Lwpns.Count(); i++)
@@ -6921,12 +6934,12 @@ mirrors:
         
         if ( doscript && weaponscript > 0 && id == wRefFireball) 
         {
-                if ( Dead() )
+                /*if ( Dead() )
                 {
                         doscript = 0;
                         weaponscript = 0;
                 }
-                else
+                else*/
                 {
                         int w_index = -1; //Give the script the correct index! -Z
                         for(word i = 0; i < Lwpns.Count(); i++)
@@ -7490,7 +7503,7 @@ bool weapon::hit(sprite *s)
     if(id==ewBrang && misc)
         return false;
         
-    return (dead!=-1&&dead!=-10) ? false : sprite::hit(s);
+    return (Dead()&&dead!=-10) ? false : sprite::hit(s);
 }
 
 bool weapon::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
@@ -7500,7 +7513,7 @@ bool weapon::hit(int tx,int ty,int tz,int txsz2,int tysz2,int tzsz2)
     if(id==ewBrang && misc)
         return false;
         
-    return (dead!=-1&&dead!=-10) ? false : sprite::hit(tx,ty,tz,txsz2,tysz2,tzsz2);
+    return (Dead()&&dead!=-10) ? false : sprite::hit(tx,ty,tz,txsz2,tysz2,tzsz2);
 }
 
 void weapon::update_weapon_frame(int change, int orig)
@@ -7799,7 +7812,7 @@ void weapon::draw(BITMAP *dest)
         if(frames==0 && do_animation)
             flip ^= o_flip;
             
-        if((dead!=-1) && !BSZ && do_animation)
+        if(Dead() && !BSZ && do_animation)
             tile = temp1;//wpnsbuf[wFIRE].tile;
             
         break;
@@ -7927,6 +7940,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int usesprite, int Dir, int step, int pr
     step=0;
     doscript = 0;
     weaponscript = 0;
+	weapon_dying_frame = false;
 }
 
 /*** end of weapons.cpp ***/

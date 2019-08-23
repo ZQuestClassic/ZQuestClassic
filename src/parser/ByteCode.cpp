@@ -1763,6 +1763,7 @@ string VarArgument::toString()
 	case REFFILE: return "REFFILE";
 	case REFSUBSCREEN: return "REFSUBSCREEN";
 	case LINKCLIMBING: return "LINKCLIMBING";
+	case NPCIMMORTAL: return "NPCIMMORTAL";
 	
 	
     default:

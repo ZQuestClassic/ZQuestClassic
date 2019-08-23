@@ -3754,6 +3754,13 @@ long get_register(const long arg)
             ret = (long(GuyH::getNPC()->scale) * 100.0);
             
         break;
+	
+	case NPCIMMORTAL:
+        if(GuyH::loadNPC(ri->guyref, "npc->Immortal") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = GuyH::getNPC()->immortal ? 10000 : 0;
+		break;
         
     case NPCSTEP:
         if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
@@ -10402,6 +10409,13 @@ void set_register(const long arg, const long value)
         }
     }
     break;
+	
+	case NPCIMMORTAL:
+        if(GuyH::loadNPC(ri->guyref, "npc->Immortal") == SH::_NoError)
+		{
+            GuyH::getNPC()->immortal = (value ? true : false);
+		}
+		break;
     
     case NPCY:
     {
