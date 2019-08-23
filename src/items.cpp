@@ -165,7 +165,7 @@ bool item::animate(int)
         }
     }
     
-    if(anim)
+    if(get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0))
     {
         int spd = o_speed;
         

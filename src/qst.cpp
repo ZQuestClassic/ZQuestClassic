@@ -2763,6 +2763,8 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules, qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, 1);
 		//Ceiling collison was a bit wonky, including hitting your head before you are near the ceiling or clipping into it slightly.
 		set_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON, 1);
+		//If an itemdata had a 'frames' of 0, items created of that data would ignore all changes to 'frames'
+		set_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES, 1);
 	}
     if ( tempheader.zelda_version < 0x255 )
     {
