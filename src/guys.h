@@ -736,6 +736,7 @@ public:
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
     virtual int defend(int wpnId, int *power, int edef);
+    virtual int defendNew(int wpnId, int *power, int edef);
 };
 
 // segment class
@@ -757,6 +758,7 @@ public:
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
     virtual int defend(int wpnId, int *power, int edef);
+    virtual int defendNew(int wpnId, int *power, int edef);
 };
 
 // segment class

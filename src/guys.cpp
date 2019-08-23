@@ -13829,6 +13829,16 @@ int ePatra::defend(int wpnId, int *power, int edef)
     return ret;
 }
 
+int ePatra::defendNew(int wpnId, int *power, int edef)
+{
+    int ret = enemy::defendNew(wpnId, power, edef);
+    
+    if(ret < 0 && (flycnt||flycnt2))
+        return 0;
+        
+    return ret;
+}
+
 esPatra::esPatra(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     //cs=8;
@@ -14159,6 +14169,16 @@ void ePatraBS::draw(BITMAP *dest)
 int ePatraBS::defend(int wpnId, int *power, int edef)
 {
     int ret = enemy::defend(wpnId, power, edef);
+    
+    if(ret < 0 && (flycnt||flycnt2))
+        return 0;
+        
+    return ret;
+}
+
+int ePatraBS::defendNew(int wpnId, int *power, int edef)
+{
+    int ret = enemy::defendNew(wpnId, power, edef);
     
     if(ret < 0 && (flycnt||flycnt2))
         return 0;
