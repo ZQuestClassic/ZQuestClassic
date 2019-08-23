@@ -10650,10 +10650,8 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     case NPCSCRIPTFLIP:
     {
-        long tile = value / 10000;
-        
         if(GuyH::loadNPC(ri->guyref, "npc->ScriptFlip") == SH::_NoError )
-            GuyH::getNPC()->scriptflip = vbound(value, -1, 127);
+            GuyH::getNPC()->scriptflip = vbound(value/10000, -1, 127);
     }
     break;
     
