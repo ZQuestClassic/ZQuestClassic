@@ -2639,6 +2639,12 @@ bool Knockback(int time, int dir);
  * Attempt to knock an enemy back.
  * 'time' is the number of frames to knock back. Enemies are knocked back at 4 pixels per frame.
  * If 'time' is not a multiple of 4, it will be truncated, to prevent enemies being misaligned from the grid.
+ * Returns true if it was successful, or false if it fails.
+ * Will fail if:
+ *     The enemy cannot move in that direction
+ *     The enemy is already mid-knockback
+ *     The enemy is dead
+ *     'bool npc->NoKnockback;' was set true for this enemy
 
 void Remove(); 
  * Instantly kills an npc
