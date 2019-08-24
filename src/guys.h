@@ -106,6 +106,7 @@ public:
 	
 	bool immortal;
 	bool noKnockback;
+	byte knockbackSpeed;
     
     int getScriptUID();
     void setScriptUID(int new_id);

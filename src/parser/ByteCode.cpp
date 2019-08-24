@@ -1765,6 +1765,7 @@ string VarArgument::toString()
 	case LINKCLIMBING: return "LINKCLIMBING";
 	case NPCIMMORTAL: return "NPCIMMORTAL";
 	case NPCNOKNOCKBACK: return "NPCNOKNOCKBACK";
+	case NPCKNOCKBACKSPEED: return "NPCKNOCKBACKSPEED";
 	
 	
     default:

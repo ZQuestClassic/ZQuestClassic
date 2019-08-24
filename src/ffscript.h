@@ -3635,11 +3635,12 @@ enum ASM_DEFINE
 #define LINKCLIMBING		0x136F
 #define NPCIMMORTAL		0x1370
 #define NPCNOKNOCKBACK		0x1371
+#define NPCKNOCKBACKSPEED		0x1372
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1372
+#define NUMVARIABLES         	0x1373
 
 // Script types
 

@@ -372,6 +372,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     do_animation = 1;
 	immortal = false;
 	noKnockback = false;
+	knockbackSpeed = 4; //default speed
     
     // If they forgot the invisibility flag, here's another failsafe:
     if(o_tile==0 && family!=eeSPINTILE)
@@ -4252,9 +4253,9 @@ void enemy::newdir_8(int newrate,int newhoming,int special)
 // sclk: first byte is clk, second byte is dir
 bool enemy::slide()
 {
-    if(sclk==0 || (hp<=0 && !immortal))
-        return false;
-        
+	if(sclk==0 || (hp<=0 && !immortal))
+		return false;
+		
 	if(noKnockback)
 	{
 		if(OFFGRID_ENEMY || (sclk%4)==0) //If stopping mid-knockback, only do so on-grid for gridlocked enemies
@@ -4263,124 +4264,134 @@ bool enemy::slide()
 			return false;
 		}
 	}
-    if((sclk&255)==16 && !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0))
-    {
-        sclk=0;
-        return false;
-    }
-    
-    --sclk;
-    
-    switch(sclk>>8)
-    {
-	    case up:
-	    {
-		if(y<=(dmisc2==e2tSPLITHIT ? 0 : 16)) //vires
+	if((sclk&255)==16 && (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0) : !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0,0,0,15,15)))
+	{
+		sclk=0;
+		return false;
+	}
+	
+	--sclk;
+	
+	switch(sclk>>8)
+	{
+		case up:
 		{
-		    sclk=0;
-		    return false;
+		if(y<=(dmisc2==e2tSPLITHIT ? 0 : (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION)?16:0))) //vires
+		{
+			sclk=0;
+			return false;
 		}
 		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
 		
 		break;
-	    }
-	    case down:
-	    {
+		}
+		case down:
+		{
 		if(y>=(dmisc2==e2tSPLITHIT ? 150 : 160)) //was 160 --changed for vires bug. 
 		{
-		    sclk=0;
-		    return false;
+			sclk=0;
+			return false;
 		}
 		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
 		
 		break;
-	    }
-	    case left:
-	    {
-		if(x<=(dmisc2==e2tSPLITHIT ? 0 : 16))
+		}
+		case left:
 		{
-		    sclk=0;
-		    return false;
+		if(x<=(dmisc2==e2tSPLITHIT ? 0 : (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION)?16:0)))
+		{
+			sclk=0;
+			return false;
 		}
 		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; }
 		
 		break;
-	    }
-	    case right:
-	    {
+		}
+		case right:
+		{
 		if(x>=(dmisc2==e2tSPLITHIT ? 255 : 240)) //vires
 		{
-		    sclk=0;
-		    return false;
+			sclk=0;
+			return false;
 		}
 		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
 		break;
-	    }
-    }
-    
-    switch(sclk>>8)
-    {
-    case up:
-        y-=4;
-        break;
-        
-    case down:
-        y+=4;
-        break;
-        
-    case left:
-        x-=4;
-        break;
-        
-    case right:
-        x+=4;
-        break;
-    }
-    
-    if(!canmove(sclk>>8,(fix)0,0))
-    {
-        switch(sclk>>8)
-        {
-        case up:
-        case down:
-            if((int(y)&15) > 7)
-                y=(int(y)&0xF0)+16;
-            else
-                y=(int(y)&0xF0);
-                
-            break;
-            
-        case left:
-        case right:
-            if((int(x)&15) > 7)
-                x=(int(x)&0xF0)+16;
-            else
-                x=(int(x)&0xF0);
-                
-            break;
-        }
-        
-        sclk=0;
-        clk3=0;
-    }
-    
-    if((sclk&255)==0)
-        sclk=0;
-        
-    return true;
+		}
+	}
+	
+	int move = knockbackSpeed;
+	while(move>0)
+	{
+		int thismove = zc_min(8, move);
+		move -= thismove;
+		switch(sclk>>8)
+		{
+		case up:
+			y-=thismove;
+			break;
+			
+		case down:
+			y+=thismove;
+			break;
+			
+		case left:
+			x-=thismove;
+			break;
+			
+		case right:
+			x+=thismove;
+			break;
+		}
+		if(!canmove(sclk>>8,(fix)0,0))
+		{
+			switch(sclk>>8)
+			{
+			case up:
+			case down:
+				if(y < 0)
+					y = 0;
+				else if((int(y)&15) > 7)
+					y=(int(y)&0xF0)+16;
+				else
+					y=(int(y)&0xF0);
+					
+				break;
+				
+			case left:
+			case right:
+				if(x < 0)
+					x = 0;
+				else if((int(x)&15) > 7)
+					x=(int(x)&0xF0)+16;
+				else
+					x=(int(x)&0xF0);
+					
+				break;
+			}
+			
+			sclk=0;
+			clk3=0;
+			break;
+		}
+	}
+	
+	if((sclk&255)==0)
+		sclk=0;
+		
+	return true;
 }
 
 bool enemy::can_slide()
 {
-    if(sclk==0 || (hp<=0 && !immortal))
-        return false;
-        
-    if((sclk&255)==16 && !canmove(sclk>>8,(fix)12,0))
-    {
-        return false;
-    }
-    
-    return true;
+	if(sclk==0 || (hp<=0 && !immortal))
+		return false;
+		
+	if((sclk&255)==16 && (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0) : !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0)))
+	{
+		return false;
+	}
+	
+	return true;
 }
 
 bool enemy::fslide()
@@ -4491,8 +4502,8 @@ bool enemy::knockback(int time, int dir)
 {
 	if(noKnockback) return false;
 	if(sclk!=0 || (hp<=0 && !immortal)) return false; //No knocking back dying enemies, or enemies already mid-knockback
-	if(!canmove(dir,(fix)12,0)) return false; //from can_slide(); collision check
-	if(!OFFGRID_ENEMY) time &= ~3; //Lock to grid; multiple of 16 pixels, 4 pixels per clk value
+	if((get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(dir,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0) : !canmove(dir,(fix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0))) return false; //from can_slide(); collision check
+	//if(!OFFGRID_ENEMY) time &= ~3; //Lock to grid; multiple of 16 pixels, 4 pixels per clk value
 	sclk = (time&0xFF) | ((dir&0xFF)<<8);
 	return true;
 }

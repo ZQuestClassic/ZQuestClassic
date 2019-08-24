@@ -3768,6 +3768,13 @@ long get_register(const long arg)
         else
             ret = GuyH::getNPC()->noKnockback ? 10000 : 0;
 		break;
+	
+	case NPCKNOCKBACKSPEED:
+        if(GuyH::loadNPC(ri->guyref, "npc->KnockbackSpeed") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = GuyH::getNPC()->knockbackSpeed * 10000;
+		break;
         
     case NPCSTEP:
         if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
@@ -10425,9 +10432,16 @@ void set_register(const long arg, const long value)
 		break;
 	
 	case NPCNOKNOCKBACK:
-       if(GuyH::loadNPC(ri->guyref, "npc->NoKnockback") == SH::_NoError)
+        if(GuyH::loadNPC(ri->guyref, "npc->NoKnockback") == SH::_NoError)
 		{
             GuyH::getNPC()->noKnockback = (value ? true : false);
+		}
+		break;
+	
+	case NPCKNOCKBACKSPEED:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoKnockback") == SH::_NoError)
+		{
+            GuyH::getNPC()->knockbackSpeed = vbound(value/10000, 0, 255);
 		}
 		break;
     
