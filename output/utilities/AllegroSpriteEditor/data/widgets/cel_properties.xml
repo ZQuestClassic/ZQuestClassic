@@ -1,0 +1,26 @@
+<!-- ASE - Allegro Sprite Editor -->
+<!-- Copyright (C) 2001-2010 by David Capello -->
+<jinete>
+<window text="Cel Properties" name="cel_properties">
+  <grid columns="2">
+    <label text="Frame:" />
+    <label name="frame" />
+
+    <label text="Position: " />
+    <label name="pos" readonly="true" tooltip="X axis, Y axis" />
+
+    <label text="Dimension:" />
+    <label name="size" readonly="true" tooltip="Width x Height (Memory size)" />
+
+    <label text="Opacity:" />
+    <slider min="0" max="255" name="opacity" cell_align="horizontal" width="128" />
+
+    <separator horizontal="true" cell_hspan="2" />
+
+    <box horizontal="true" homogeneous="true" cell_hspan="2" cell_align="right">
+      <button text="&amp;OK" name="ok" magnetic="true" minwidth="60" />
+      <button text="&amp;Cancel" />
+    </box>
+  </grid>
+</window>
+</jinete>

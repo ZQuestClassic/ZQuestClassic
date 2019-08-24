@@ -1,0 +1,57 @@
+<!-- ASE - Allegro Sprite Editor -->
+<!-- Copyright (C) 2001-2009 by David Capello -->
+<jinete>
+<window text="Tools Configuration" name="configure_tool">
+  <box vertical>
+    <box horizontal expansive>
+      <box vertical>
+        <separator text="General:" horizontal left />
+        <check text="Filled" name="filled" />
+	<box horizontal childspacing="0">
+            <check text="Tiled" name="tiled" />
+            <check text="x" name="tiled_x" />
+            <check text="y" name="tiled_y" />
+	</box>
+	<check text="Onionskin" name="onionskin" />
+        <separator text="Grid:" horizontal left />
+        <check text="Snap to Grid" name="use_grid" />
+        <check text="View Grid" name="view_grid" />
+        <button text="Set &Grid" name="set_grid" />
+        <separator text="Cursor:" horizontal left />
+	<box name="cursor_color_box" /><!-- custom widget -->
+      </box>
+      <box vertical expansive>
+        <separator text="Brush:" horizontal left />
+        <box horizontal>
+          <box vertical homogeneous>
+            <label text="Size:" />
+            <label text="Angle:" />
+          </box>
+          <box vertical homogeneous expansive>
+            <slider min=1 max=32 name="brush_size" minwidth="128" />
+            <slider min=0 max=180 name="brush_angle" />
+          </box>
+          <box vertical homogeneous>
+	    <box name="brush_type_box" /><!-- custom widget -->
+	    <box name="brush_mode_box" /><!-- custom widget -->
+          </box>
+	  <box name="brush_preview_box" /><!-- custom widget -->
+        </box>
+	<separator text="Opacity:" horizontal left />
+        <slider min=0 max=255 name="glass_dirty" />
+        <separator text="Spray:" horizontal left />
+	<box horizontal>
+	  <box vertical homogeneous>
+	    <label text="Spray Width:" />
+	    <label text="Air Speed:" />
+	  </box>
+	  <box vertical homogeneous expansive>
+	    <slider min=1 max=32 name="spray_width" />
+	    <slider min=1 max=100 name="air_speed" />
+	  </box>
+	</box>
+      </box>
+    </box>
+  </box>
+</window>
+</jinete>

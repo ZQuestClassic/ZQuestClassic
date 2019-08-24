@@ -1,0 +1,15 @@
+<!-- ASE - Allegro Sprite Editor -->
+<!-- Copyright (C) 2001-2009 by David Capello -->
+<jinete>
+<window text="Play FLI/FLC" name="play_fli">
+  <box vertical>
+    <check text="Loop" name="loop" />
+    <check text="Fullscreen" name="fullscreen" />
+    <button text="&Open" name="button_open" />
+    <box horizontal homogeneous expansive>
+      <button text="&Play" name="button_play" magnetic />
+      <button text="&Close" />
+    </box>
+  </box>
+</window>
+</jinete>
