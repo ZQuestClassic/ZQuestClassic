@@ -2,7 +2,8 @@
 /// Third-Party Utilities ///
 /////////////////////////////
 
-The following third-party (add-on) utilities are now bundled with C 2.55:
+The following third-party (add-on) utilities are now bundled 
+with ZC 2.55 (starting in Alpha 30, 24th August, 2019):
 
 ///////////////////////
 /// Allegro Grabber ///
