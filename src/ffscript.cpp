@@ -3761,6 +3761,13 @@ long get_register(const long arg)
         else
             ret = GuyH::getNPC()->immortal ? 10000 : 0;
 		break;
+	
+	case NPCNOKNOCKBACK:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoKnockback") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = GuyH::getNPC()->noKnockback ? 10000 : 0;
+		break;
         
     case NPCSTEP:
         if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
@@ -10414,6 +10421,13 @@ void set_register(const long arg, const long value)
         if(GuyH::loadNPC(ri->guyref, "npc->Immortal") == SH::_NoError)
 		{
             GuyH::getNPC()->immortal = (value ? true : false);
+		}
+		break;
+	
+	case NPCNOKNOCKBACK:
+       if(GuyH::loadNPC(ri->guyref, "npc->NoKnockback") == SH::_NoError)
+		{
+            GuyH::getNPC()->noKnockback = (value ? true : false);
 		}
 		break;
     
@@ -20437,6 +20451,10 @@ int run_script(const byte type, const word script, const long i)
 		case NPCHITWITH:
 		    FFCore.do_npc_simulate_hit(false);
 		    break;
+			
+		case NPCKNOCKBACK:
+			FFCore.do_npc_knockback(false);
+			break;
 		
 		case NPCGETINITDLABEL:
 		    FFCore.get_npcdata_initd_label(false);
@@ -25321,6 +25339,18 @@ void FFScript::do_npc_simulate_hit(const bool v)
 	set_register(sarg1, ( ishit ? 10000 : 0));
 }
 
+void FFScript::do_npc_knockback(const bool v)
+{
+	long time = SH::get_arg(sarg1, v) / 10000;
+	long dir = SH::get_arg(sarg2, v) / 10000;
+	bool ret = false;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->Knockback()") == SH::_NoError)
+	{
+		ret = GuyH::getNPC()->knockback(time, dir);
+	}
+	set_register(sarg1, ( ret ? 10000 : 0));
+}
 
 void FFScript::do_npc_add(const bool v)
 {
@@ -27010,6 +27040,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "BMPDRAWTILECLOAKEDR",                0,   0,   0,   0},
     { "DRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
     { "BMPDRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+    { "NPCKNOCKBACK",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

@@ -53,6 +53,7 @@ void playLevelMusic();
 #define OUTOFBOUNDS ((int)y>((tmpscr->flags7&fSIDEVIEW && canfall(id))?192:352) || y<-176 || x<-256 || x > 512)
 #define NEWOUTOFBOUNDS ((int)y>32767 || y<-32767 || x<-32767 || x > 32767)
 #define IGNORE_SIDEVIEW_PLATFORMS (editorflags & ENEMY_FLAG14)
+#define OFFGRID_ENEMY (editorflags & ENEMY_FLAG15)
 
 namespace
 {
@@ -370,6 +371,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     scriptflip = -1;
     do_animation = 1;
 	immortal = false;
+	noKnockback = false;
     
     // If they forgot the invisibility flag, here's another failsafe:
     if(o_tile==0 && family!=eeSPINTILE)
@@ -3825,7 +3827,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 	int useyoffs = (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? hyofs : 0;
 	int usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
 	int usehei = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hysz : 16;
-	bool offgrid = editorflags & ENEMY_FLAG15;
+	bool offgrid = OFFGRID_ENEMY;
 	if(!offgrid)
 	{
 		//Enemies smaller than 1-tile must act as 1-tile large, if off-grid movement is disabled.
@@ -4253,6 +4255,14 @@ bool enemy::slide()
     if(sclk==0 || (hp<=0 && !immortal))
         return false;
         
+	if(noKnockback)
+	{
+		if(OFFGRID_ENEMY || (sclk%4)==0) //If stopping mid-knockback, only do so on-grid for gridlocked enemies
+		{
+			sclk = 0;
+			return false;
+		}
+	}
     if((sclk&255)==16 && !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0))
     {
         sclk=0;
@@ -4477,6 +4487,15 @@ bool enemy::fslide()
     return true;
 }
 
+bool enemy::knockback(int time, int dir)
+{
+	if(noKnockback) return false;
+	if(sclk!=0 || (hp<=0 && !immortal)) return false; //No knocking back dying enemies, or enemies already mid-knockback
+	if(!canmove(dir,(fix)12,0)) return false; //from can_slide(); collision check
+	if(!OFFGRID_ENEMY) time &= ~3; //Lock to grid; multiple of 16 pixels, 4 pixels per clk value
+	sclk = (time&0xFF) | ((dir&0xFF)<<8);
+	return true;
+}
 // changes enemy's direction, checking restrictions
 // rate:   0 = no random changes, 16 = always random change
 // homing: 0 = none, 256 = always

@@ -105,6 +105,7 @@ public:
     long editorflags; //Enemy editor flags 1 to 16
 	
 	bool immortal;
+	bool noKnockback;
     
     int getScriptUID();
     void setScriptUID(int new_id);
@@ -154,6 +155,7 @@ public:
     bool slide();
     bool can_slide();
     bool fslide();
+	bool knockback(int time, int dir); //ZScript access
     // changes enemy's direction, checking restrictions
     // rate:   0 = no random changes, 16 = always random change
     // homing: 0 = none, 256 = always

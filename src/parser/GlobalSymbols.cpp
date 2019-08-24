@@ -6447,6 +6447,9 @@ static AccessorTable npcTable[] =
 	{ "setScale",               ZVARTYPEID_VOID,          SETTER,       NPCSCALE,             1,             0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getImmortal",            ZVARTYPEID_BOOL,          GETTER,       NPCIMMORTAL,          1,             0,                                    1,           {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setImmortal",            ZVARTYPEID_VOID,          SETTER,       NPCIMMORTAL,          1,             0,                                    2,           {  ZVARTYPEID_NPC,           ZVARTYPEID_BOOL,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getNoKnockback",         ZVARTYPEID_BOOL,          GETTER,       NPCNOKNOCKBACK,       1,             0,                                    1,           {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setNoKnockback",         ZVARTYPEID_VOID,          SETTER,       NPCNOKNOCKBACK,       1,             0,                                    2,           {  ZVARTYPEID_NPC,           ZVARTYPEID_BOOL,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Knockback",              ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             0,                                    3,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -6842,6 +6845,21 @@ void NPCSymbols::generateCode()
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 		code.push_back(new ONPCHitWith(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//bool Knockback(int time, int dir)
+	{
+		Function* function = getFunction("Knockback", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCKnockback(new VarArgument(EXP1), new VarArgument(EXP2)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}

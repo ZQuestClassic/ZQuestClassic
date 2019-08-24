@@ -2606,6 +2606,10 @@ bool Gravity;
  * Some npcs have this set true by default, others are false by default,
  * based on the npc family.
 
+bool NoKnockback;
+ * 'false' by default.
+ * If this is set to 'true', the npc will ignore all knockback.
+
 int Scale;
  * The scale factor for this sprited object. 
  * A scale of 0 and a scale of 1 are identical.
@@ -2626,7 +2630,15 @@ bool CanSlide();
  * Checks if the npc can be knocked back
 	
 bool Slide(); 
- * Engine knockback
+ * Run Engine knockback (Only does anything if a knockback is in-progress)
+ * This is automatically called for most engine enemy types
+ * Calling this from enemy types such as 'Other' will allow them to recieve knockback
+ * This is called as a part of scripted walking functions, such as 'ConstantWalk()', automatically.
+
+bool Knockback(int time, int dir);
+ * Attempt to knock an enemy back.
+ * 'time' is the number of frames to knock back. Enemies are knocked back at 4 pixels per frame.
+ * If 'time' is not a multiple of 4, it will be truncated, to prevent enemies being misaligned from the grid.
 
 void Remove(); 
  * Instantly kills an npc

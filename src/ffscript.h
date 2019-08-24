@@ -517,6 +517,7 @@ long npc_collision();
 long npc_linedup();
 void do_npc_link_in_range(const bool v);
 void do_npc_simulate_hit(const bool v);
+void do_npc_knockback(const bool v);
 void do_npc_add(const bool v);
 void do_npc_canmove(const bool v);
 void get_npcdata_initd_label(const bool v);
@@ -2400,9 +2401,10 @@ enum ASM_DEFINE
 	BMPDRAWTILECLOAKEDR,
 	DRAWCOMBOCLOAKEDR,
 	BMPDRAWCOMBOCLOAKEDR,
+	NPCKNOCKBACK,
 
 
-	NUMCOMMANDS           //0x0162
+	NUMCOMMANDS           //0x0163
 };
 
 
@@ -3632,11 +3634,12 @@ enum ASM_DEFINE
 #define REFFILE			0x136E
 #define LINKCLIMBING		0x136F
 #define NPCIMMORTAL		0x1370
+#define NPCNOKNOCKBACK		0x1371
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1371
+#define NUMVARIABLES         	0x1372
 
 // Script types
 
