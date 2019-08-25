@@ -2606,13 +2606,17 @@ bool Gravity;
  * Some npcs have this set true by default, others are false by default,
  * based on the npc family.
 
-bool NoKnockback;
+bool NoSlide;
  * 'false' by default.
- * If this is set to 'true', the npc will ignore all knockback.
+ * If this is set to 'true', the npc will ignore engine knockback.
 
-int KnockbackSpeed;
+bool NoScriptKnockback;
+ * 'false' by default.
+ * If this is set to 'true', the npc will ignore script knockback via 'npc->Knockback()'
+
+int SlideSpeed;
  * 4 by default
- * The number of pixels per frame this NPC will move during knockback
+ * The number of pixels per frame this NPC will move during ENGINE knockback
  * Range: 0 to 255
 
 int Scale;
@@ -2632,17 +2636,19 @@ bool isDead();
  * Returns if the NPC is dead, or dying
 
 bool CanSlide();
- * Checks if the npc can be knocked back
+ * Unimplemented
 	
-bool Slide(); 
+int Slide();
  * Run Engine knockback (Only does anything if a knockback is in-progress)
  * This is automatically called for most engine enemy types
  * Calling this from enemy types such as 'Other' will allow them to recieve knockback
  * This is called as a part of scripted walking functions, such as 'ConstantWalk()', automatically.
+ * Return: 0 if no knockback occurred, 1 if scripted knockback ('->Knockback()') occurred, 2 if engine knockback occurred.
 
-bool Knockback(int time, int dir);
+bool Knockback(int time, int dir, int speed);
  * Attempt to knock an enemy back.
- * 'time' is the number of frames to knock back. 'npc->KnockbackSpeed' controls how many pixels per frame the npc will move.
+ * 'time' is the number of frames to knock back.
+ * 'speed' is how many pixels per frame the npc will move.
  * Returns true if it was successful, or false if it fails.
  * Will fail if:
  *     The enemy cannot move in that direction

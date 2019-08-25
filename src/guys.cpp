@@ -371,8 +371,6 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     scriptflip = -1;
     do_animation = 1;
 	immortal = false;
-	noKnockback = false;
-	knockbackSpeed = 4; //default speed
     
     // If they forgot the invisibility flag, here's another failsafe:
     if(o_tile==0 && family!=eeSPINTILE)
@@ -596,6 +594,8 @@ bool enemy::animate(int index)
         }
     }
     
+	runKnockback(); //scripted knockback handling
+	
     // clk is incremented here
     if(++clk >= frate)
         clk=0;
@@ -3928,16 +3928,16 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 		{
 			dx = dx2+s;
 			dy = dy1-s;
-			int tries_x = usewid/8;
+			int tries_x = usewid/(offgrid ? 8 : 16);
 			for ( ; tries_x > 0; --tries_x )
 			{
-				int tries_y = usehei/8;
+				int tries_y = usehei/(offgrid ? 8 : 16);
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
 					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
 					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
-					try_y += 8;
+					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
@@ -3946,18 +3946,18 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
 					     !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
 				}
-				try_x += 8;
+				try_x += (offgrid ? 8 : 16);
 			}
 			if(!ok) break;
 			if((usewid%16)>0) //Uneven width
 			{
-				int tries_y = usehei/8;
+				int tries_y = usehei/(offgrid ? 8 : 16);
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
 					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
 					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
-					try_y += 8;
+					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
@@ -3974,16 +3974,16 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 		{
 			dx = dx2+s;
 			dx = dy2+s;
-			int tries_x = usewid/8;
+			int tries_x = usewid/(offgrid ? 8 : 16);
 			for ( ; tries_x > 0; --tries_x )
 			{
-				int tries_y = usehei/8;
+				int tries_y = usehei/(offgrid ? 8 : 16);
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
 					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
 					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
-					try_y += 8;
+					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
@@ -3992,18 +3992,18 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
 					     !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
 				}
-				try_x += 8;
+				try_x += (offgrid ? 8 : 16);
 			}
 			if(!ok) break;
 			if((usewid%16)>0) //Uneven width
 			{
-				int tries_y = usehei/8;
+				int tries_y = usehei/(offgrid ? 8 : 16);
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
 					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
 					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
-					try_y += 8;
+					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
@@ -4020,16 +4020,16 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 		{
 			dx = dx1-s;
 			dy = dy2+s;
-			int tries_x = usewid/8;
+			int tries_x = usewid/(offgrid ? 8 : 16);
 			for ( ; tries_x > 0; --tries_x )
 			{
-				int tries_y = usehei/8;
+				int tries_y = usehei/(offgrid ? 8 : 16);
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
 					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
 					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
-					try_y += 8;
+					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
@@ -4038,18 +4038,18 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
 					     !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
 				}
-				try_x += 8;
+				try_x += (offgrid ? 8 : 16);
 			}
 			if(!ok) break;
 			if((usewid%16)>0) //Uneven width
 			{
-				int tries_y = usehei/8;
+				int tries_y = usehei/(offgrid ? 8 : 16);
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
 					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
 					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
-					try_y += 8;
+					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
@@ -4066,16 +4066,16 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 		{
 			dx = dx1-s;
 			dy = dy1-s;
-			int tries_x = usewid/8;
+			int tries_x = usewid/(offgrid ? 8 : 16);
 			for ( ; tries_x > 0; --tries_x )
 			{
-				int tries_y = usehei/8;
+				int tries_y = usehei/(offgrid ? 8 : 16);
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
 					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+try_x, y+useyoffs+try_y) &&
 					!flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+try_y, special);
-					try_y += 8;
+					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
@@ -4084,18 +4084,18 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 					ok = !m_walkflag(x+usexoffs+try_x,y+useyoffs+dy+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) && !m_walkflag(x+usexoffs+dx+try_x,y+useyoffs+sv+usehei-1,special,ndir, x+usexoffs+try_x, y+useyoffs+usehei-1) &&
 					     !flyerblocked(x+usexoffs+try_x,y+useyoffs+dy+usehei-1, special) && !flyerblocked(x+usexoffs+dx+try_x,y+useyoffs+8+usehei-1, special);
 				}
-				try_x += 8;
+				try_x += (offgrid ? 8 : 16);
 			}
 			if(!ok) break;
 			if((usewid%16)>0) //Uneven width
 			{
-				int tries_y = usehei/8;
+				int tries_y = usehei/(offgrid ? 8 : 16);
 				try_y = 0;
 				for ( ; tries_y > 0; --tries_y )
 				{
 					ok = !m_walkflag(x+usexoffs+usewid-1,y+useyoffs+dy+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) && !m_walkflag(x+usexoffs+dx+usewid-1,y+useyoffs+sv+try_y,special,ndir, x+usexoffs+usewid-1, y+useyoffs+try_y) &&
 					!flyerblocked(x+usexoffs+usewid-1,y+useyoffs+dy+try_y, special) && !flyerblocked(x+usexoffs+dx+usewid-1,y+useyoffs+8+try_y, special);
-					try_y += 8;
+					try_y += (offgrid ? 8 : 16);
 					if (!ok) break;
 				}
 				if (!ok) break;
@@ -4251,23 +4251,31 @@ void enemy::newdir_8(int newrate,int newhoming,int special)
 // sclk: first byte is clk, second byte is dir
 // makes the enemy slide backwards when hit
 // sclk: first byte is clk, second byte is dir
-bool enemy::slide()
+int enemy::slide()
 {
-	if(sclk==0 || (hp<=0 && !immortal))
-		return false;
-		
-	if(noKnockback)
+	if(script_knockback_clk!=0) //scripted knockback
 	{
-		if(OFFGRID_ENEMY || (sclk%4)==0) //If stopping mid-knockback, only do so on-grid for gridlocked enemies
+		sclk = 0;
+		return 1; //scripted knockback ran
+	}
+	if(sclk==0 || (hp<=0 && !immortal))
+		return 0;
+		
+	if(knockbackflags & FLAG_NOSLIDE)
+	{
+		sclk = 0;
+		if(!OFFGRID_ENEMY)
 		{
-			sclk = 0;
-			return false;
+			//Fix to grid
+			x = (int(x)+8)-((int(x)+8)%16);
+			y = (int(y)+8)-((int(y)+8)%16);
 		}
+		return 0;
 	}
 	if((sclk&255)==16 && (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0) : !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0,0,0,15,15)))
 	{
 		sclk=0;
-		return false;
+		return 0;
 	}
 	
 	--sclk;
@@ -4279,9 +4287,9 @@ bool enemy::slide()
 		if(y<=(dmisc2==e2tSPLITHIT ? 0 : (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION)?16:0))) //vires
 		{
 			sclk=0;
-			return false;
+			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return 0; } //vires
 		
 		break;
 		}
@@ -4290,9 +4298,9 @@ bool enemy::slide()
 		if(y>=(dmisc2==e2tSPLITHIT ? 150 : 160)) //was 160 --changed for vires bug. 
 		{
 			sclk=0;
-			return false;
+			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return 0; } //vires
 		
 		break;
 		}
@@ -4301,9 +4309,9 @@ bool enemy::slide()
 		if(x<=(dmisc2==e2tSPLITHIT ? 0 : (get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION)?16:0)))
 		{
 			sclk=0;
-			return false;
+			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; }
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return 0; }
 		
 		break;
 		}
@@ -4312,9 +4320,9 @@ bool enemy::slide()
 		if(x>=(dmisc2==e2tSPLITHIT ? 255 : 240)) //vires
 		{
 			sclk=0;
-			return false;
+			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return 0; } //vires
 		break;
 		}
 	}
@@ -4378,7 +4386,7 @@ bool enemy::slide()
 	if((sclk&255)==0)
 		sclk=0;
 		
-	return true;
+	return 2;
 }
 
 bool enemy::can_slide()
@@ -4498,14 +4506,97 @@ bool enemy::fslide()
     return true;
 }
 
-bool enemy::knockback(int time, int dir)
+bool enemy::knockback(int time, int dir, int speed)
 {
-	if(noKnockback) return false;
-	if(sclk!=0 || (hp<=0 && !immortal)) return false; //No knocking back dying enemies, or enemies already mid-knockback
-	if((get_bit(quest_rules,qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(dir,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0) : !canmove(dir,(fix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0))) return false; //from can_slide(); collision check
-	//if(!OFFGRID_ENEMY) time &= ~3; //Lock to grid; multiple of 16 pixels, 4 pixels per clk value
-	sclk = (time&0xFF) | ((dir&0xFF)<<8);
-	return true;
+	if((hp<=0 && !immortal)) return false; //No knocking back dead/mid-knockback enemies
+	if(!canmove(dir,(fix)speed,0,0,0,15,15)) return false; //from slide(); collision check
+	bool ret = sprite::knockback(time, dir, speed);
+	if(ret) sclk = 0; //kill engine knockback if interrupted
+	return ret;
+}
+
+bool enemy::runKnockback()
+{
+	if((script_knockback_clk&0xFF)==0)
+	{
+		script_knockback_clk = 0;
+		return false;
+	}
+	if(knockbackflags & FLAG_NOSCRIPTKNOCKBACK)
+	{
+		return false;
+	}
+	int move = script_knockback_speed;
+	int kb_dir = script_knockback_clk>>8;
+	--script_knockback_clk;
+	while(move>0)
+	{
+		int thismove = zc_min(8, move);
+		move -= thismove;
+		switch(kb_dir)
+		{
+			case r_up:
+			case l_up:
+			case up:
+				y-=thismove;
+				break;
+				
+			case r_down:
+			case l_down:
+			case down:
+				y+=thismove;
+				break;
+		}
+		switch(kb_dir)
+		{
+			case l_up:
+			case l_down:
+			case left:
+				x-=thismove;
+				break;
+			
+			case r_up:
+			case r_down:
+			case right:
+				x+=thismove;
+				break;
+		}
+		if(!canmove(kb_dir,(fix)0,0))
+		{
+			script_knockback_clk=0;
+			clk3=0;
+			//Fix to grid
+			switch(kb_dir)
+			{
+				case up:
+				case down:
+					break;
+				default:
+					if(x < 0)
+						x = 0;
+					else if((int(x)&15) > 7)
+						x=(int(x)&0xF0)+16;
+					else
+						x=(int(x)&0xF0);
+					break;
+			}
+			switch(kb_dir)
+			{
+				case left:
+				case right:
+					break;
+				default:
+					if(y < 0)
+						y = 0;
+					else if((int(y)&15) > 7)
+						y=(int(y)&0xF0)+16;
+					else
+						y=(int(y)&0xF0);
+					break;
+			}
+			break;
+		}
+	}
 }
 // changes enemy's direction, checking restrictions
 // rate:   0 = no random changes, 16 = always random change

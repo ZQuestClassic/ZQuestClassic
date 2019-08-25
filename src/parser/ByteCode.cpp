@@ -1764,8 +1764,9 @@ string VarArgument::toString()
 	case REFSUBSCREEN: return "REFSUBSCREEN";
 	case LINKCLIMBING: return "LINKCLIMBING";
 	case NPCIMMORTAL: return "NPCIMMORTAL";
-	case NPCNOKNOCKBACK: return "NPCNOKNOCKBACK";
+	case NPCNOSLIDE: return "NPCNOSLIDE";
 	case NPCKNOCKBACKSPEED: return "NPCKNOCKBACKSPEED";
+	case NPCNOSCRIPTKB: return "NPCNOSCRIPTKB";
 	
 	
     default:

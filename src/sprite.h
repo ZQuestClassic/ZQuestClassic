@@ -111,6 +111,12 @@ public:
     int rotation;
     int scale; 
     byte obeys_gravity;
+	byte knockbackflags;
+#define FLAG_NOSLIDE 0x01
+#define FLAG_NOSCRIPTKNOCKBACK 0x02
+	byte knockbackSpeed;
+	int script_knockback_clk;
+	int script_knockback_speed;
     
     sprite();
     sprite(sprite const & other);
@@ -137,6 +143,8 @@ public:
     virtual int hitdir(int tx,int ty,int txsz,int tysz,int dir);
     virtual void move(fix dx,fix dy);
     virtual void move(fix s);
+	virtual bool knockback(int time, int dir, int speed);
+	virtual bool runKnockback();
     void explode(int mode);
     //void explode(int type);
 };
