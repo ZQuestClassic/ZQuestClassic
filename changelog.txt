@@ -2,6 +2,70 @@
 
 //Alpha 30
 
+Refactor: npc->Knockback()
+	Now scripted knockback is entirely separated from engine knockback, no longer
+		tied at all to 'enemy::slide()'. It also can go in 8 dirs,
+		and takes a 'speed' parameter.
+	Changed ZScript access:
+	removed bool NoKnockback;
+	added bool NoSlide; - no engine knockback
+	added bool NoScriptKnockback; - prevent ->Knockback() calls
+	param update: bool Knockback(int time, int dir, int speed);
+	removed int KnockbackSpeed;
+	added int SlideSpeed; - speed for engine knockback
+	return update: bool Slide(); -> int Slide(); (0 for none, 1 for scripted, 2 for engine)
+
+	TODO: Diagonal knockback will dead-halt when hitting a wall,
+		instead of carrying momentum in the other direction.
+	i.e. Up-Right hits right wall, does not continue moving up
+	( Venrob, 25th August, 2019 )
+
+Added 'Utilities' with thtree third-party add-ons. 
+	The following third-party (add-on) utilities are now bundled with ZC 2.55:
+
+	///////////////////////
+	/// Allegro Grabber ///
+	///////////////////////
+	Used to edit Module Datafiles (e.g. qst.dat).
+
+
+	///////////////////////////
+	/// Allegro Font Editor ///
+	///////////////////////////
+	Used to create, or edit Allegro 4 Bitmap Fonts, used in
+	the Module Fonts Datafile (e.g. fonts.dat).
+
+
+	/////////////////////////////
+	/// Allegro Sprite Editor ///
+	/////////////////////////////
+	An enhanced utility for editing sprite sheets used by ZQuest.
+	This allows editing full tile pages with six levels of oom,
+	operating on more than one tile at a time, while preserving
+	the Quest palettes of the image, in a variety of formats.
+	( ZoriaRPG, 24th August, 2019 )
+	
+	
+Feat+Fix: 'npc->KnockbackSpeed', knockback collision checks 
+	Added 'npc->KnockbackSpeed', representing the number of pixels per frame
+		an enemy being knocked back will move. Range 0-255 (byte)
+	Fixed some collision issues with knockback; most notably being unable to knock enemies
+		into the upper row or leftmost column (regardless of qr_NOBORDER).
+	-This is revertable via 'qr_OLD_ENEMY_KNOCKBACK_COLLISION'
+		-> "Old Enemy Knockback Collision", a compat rule
+	Modified a section of how knockback words based on 'KnockbackSpeed';
+		an enemy will perform a solidity check for every 8 pixels it moves,
+		to prevent clipping into/through walls at high speeds.
+	-Perhaps something similar could be adapted to prevent high step enemies from
+		walking through walls?
+Feat: 'npc->NoKnockback' and 'npc->Knockback()' 
+	'bool npc->NoKnockback', if set true, prevents knockback.
+	'npc->Knockback(int time, int dir)' will knock an enemy back.
+	Both have some sanity checks for keeping enemies on-grid.
+	( Venrob, 24th August 2019 )
+
+It also has many other sprite animation/creation features.
+
 Fixed two polymorphism oversights:
 	Added ePatra::defendNew() and ePatraBS::DefendNew()
 	as virtual class functions.
