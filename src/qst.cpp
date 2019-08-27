@@ -2765,6 +2765,8 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON, 1);
 		//If an itemdata had a 'frames' of 0, items created of that data would ignore all changes to 'frames'
 		set_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES, 1);
+		//Collision used some odd calculations before, and enemies could not be hit back into the top row or left column
+		set_bit(quest_rules, qr_OLD_ENEMY_KNOCKBACK_COLLISION, 1);
 	}
     if ( tempheader.zelda_version < 0x255 )
     {

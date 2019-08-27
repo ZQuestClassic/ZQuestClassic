@@ -619,7 +619,7 @@ static int compatrules1_list[] =
 
 static int compatrules2_list[] =
 {
-	22, 23, 24, 25, 26, 27, -1
+	22, 23, 24, 25, 26, 27, 28, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -637,6 +637,7 @@ static int compatrules[] =
    qr_PEAHATCLOCKVULN, qr_OFFSCREENWEAPONS, qr_ITEMPICKUPSETSBELOW, qr_OLDSIDEVIEWSPIKES,
    qr_OLDINFMAGIC, qr_BITMAPOFFSETFIX, qr_OLDSPRITEDRAWS, qr_OLD_F6, qr_BROKEN_ASKIP_Y_FRAMES,
    qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, qr_OLD_SIDEVIEW_CEILING_COLLISON, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
+   qr_OLD_ENEMY_KNOCKBACK_COLLISION,
    -1 
 };
 
@@ -680,6 +681,7 @@ static DIALOG compatrules_dlg[] =
 	{ jwin_check_proc,      10, 13+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Enemies Clip Through Top-Half Partial Solids", NULL, NULL },
 	{ jwin_check_proc,      10, 13+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Sideview Ceiling Collision", NULL, NULL },
 	{ jwin_check_proc,      10, 13+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Items set to 0 AFrames ignore AFrame changes", NULL, NULL },
+	{ jwin_check_proc,      10, 13+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Enemy Knockback Collision", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };
 

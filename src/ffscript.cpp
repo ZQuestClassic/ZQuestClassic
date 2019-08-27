@@ -3761,6 +3761,27 @@ long get_register(const long arg)
         else
             ret = GuyH::getNPC()->immortal ? 10000 : 0;
 		break;
+	
+	case NPCNOSLIDE:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoSlide") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = (GuyH::getNPC()->knockbackflags & FLAG_NOSLIDE) ? 10000 : 0;
+		break;
+	
+	case NPCNOSCRIPTKB:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoScriptKnockback") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = (GuyH::getNPC()->knockbackflags & FLAG_NOSCRIPTKNOCKBACK) ? 10000 : 0;
+		break;
+	
+	case NPCKNOCKBACKSPEED:
+        if(GuyH::loadNPC(ri->guyref, "npc->SlideSpeed") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = GuyH::getNPC()->knockbackSpeed * 10000;
+		break;
         
     case NPCSTEP:
         if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
@@ -10414,6 +10435,41 @@ void set_register(const long arg, const long value)
         if(GuyH::loadNPC(ri->guyref, "npc->Immortal") == SH::_NoError)
 		{
             GuyH::getNPC()->immortal = (value ? true : false);
+		}
+		break;
+	
+	case NPCNOSLIDE:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoSlide") == SH::_NoError)
+		{
+			if(value)
+			{
+				GuyH::getNPC()->knockbackflags |= FLAG_NOSLIDE;
+			}
+			else
+			{
+				GuyH::getNPC()->knockbackflags &= ~FLAG_NOSLIDE;
+			}
+		}
+		break;
+	
+	case NPCNOSCRIPTKB:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoScriptKnockback") == SH::_NoError)
+		{
+			if(value)
+			{
+				GuyH::getNPC()->knockbackflags |= FLAG_NOSCRIPTKNOCKBACK;
+			}
+			else
+			{
+				GuyH::getNPC()->knockbackflags &= ~FLAG_NOSCRIPTKNOCKBACK;
+			}
+		}
+		break;
+	
+	case NPCKNOCKBACKSPEED:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoKnockback") == SH::_NoError)
+		{
+            GuyH::getNPC()->knockbackSpeed = vbound(value/10000, 0, 255);
 		}
 		break;
     
@@ -20437,6 +20493,10 @@ int run_script(const byte type, const word script, const long i)
 		case NPCHITWITH:
 		    FFCore.do_npc_simulate_hit(false);
 		    break;
+			
+		case NPCKNOCKBACK:
+			FFCore.do_npc_knockback(false);
+			break;
 		
 		case NPCGETINITDLABEL:
 		    FFCore.get_npcdata_initd_label(false);
@@ -24825,7 +24885,7 @@ void FFScript::do_slidenpc()
 	{
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		//bool candoit = e->slide();
-		set_register(sarg1, ((GuyH::getNPC()->slide()) ? 10000 : 0));
+		set_register(sarg1, ((GuyH::getNPC()->slide())*10000));
 	}
 	else set_register(sarg1, -10000);
 }
@@ -25321,6 +25381,20 @@ void FFScript::do_npc_simulate_hit(const bool v)
 	set_register(sarg1, ( ishit ? 10000 : 0));
 }
 
+void FFScript::do_npc_knockback(const bool v)
+{
+	long time = SH::get_arg(sarg1, v) / 10000;
+	long dir = SH::get_arg(sarg2, v) / 10000;
+	long spd = vbound(ri->d[0] / 10000, 0, 255);
+	//Z_scripterrlog("Knockback: time %d,dir %d,spd %d\n",time,dir,spd);
+	bool ret = false;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->Knockback()") == SH::_NoError)
+	{
+		ret = GuyH::getNPC()->knockback(time, dir, spd);
+	}
+	set_register(sarg1, ( ret ? 10000 : 0));
+}
 
 void FFScript::do_npc_add(const bool v)
 {
@@ -27010,6 +27084,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "BMPDRAWTILECLOAKEDR",                0,   0,   0,   0},
     { "DRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
     { "BMPDRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+    { "NPCKNOCKBACK",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

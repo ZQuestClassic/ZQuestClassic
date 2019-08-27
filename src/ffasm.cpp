@@ -902,6 +902,7 @@ script_command command_list[NUMCOMMANDS+1]=
     { "BMPDRAWTILECLOAKEDR",                0,   0,   0,   0},
     { "DRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
     { "BMPDRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+    { "NPCKNOCKBACK",                2,   0,   0,   0},
 	
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
@@ -1995,6 +1996,9 @@ script_variable variable_list[]=
 	{ "REFFILE",		REFFILE,        0,             0 },
 	{ "LINKCLIMBING",		LINKCLIMBING,        0,             0 },
 	{ "NPCIMMORTAL",		NPCIMMORTAL,        0,             0 },
+	{ "NPCNOSLIDE",		NPCNOSLIDE,        0,             0 },
+	{ "NPCKNOCKBACKSPEED",		NPCKNOCKBACKSPEED,        0,             0 },
+	{ "NPCNOSCRIPTKB",		NPCNOSCRIPTKB,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -1147,8 +1147,11 @@
 #define REFSUBSCREEN			1077
 #define LINKCLIMBING		1078
 #define NPCIMMORTAL		1079
+#define NPCNOSLIDE		1080
+#define NPCKNOCKBACKSPEED		1081
+#define NPCNOSCRIPTKB		1082
 
-#define LAST_BYTECODE 		1080
+#define LAST_BYTECODE 		1083
 
 //END OF BYTECODE
 
@@ -7712,6 +7715,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new ONPCHitWith(a->clone());
+		}
+	};
+	class ONPCKnockback : public BinaryOpcode
+	{
+	public:
+		ONPCKnockback(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ONPCKnockback(a->clone(),b->clone());
 		}
 	};
 	class OGetNPCDataName : public UnaryOpcode

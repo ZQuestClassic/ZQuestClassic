@@ -1764,6 +1764,9 @@ string VarArgument::toString()
 	case REFSUBSCREEN: return "REFSUBSCREEN";
 	case LINKCLIMBING: return "LINKCLIMBING";
 	case NPCIMMORTAL: return "NPCIMMORTAL";
+	case NPCNOSLIDE: return "NPCNOSLIDE";
+	case NPCKNOCKBACKSPEED: return "NPCKNOCKBACKSPEED";
+	case NPCNOSCRIPTKB: return "NPCNOSCRIPTKB";
 	
 	
     default:
@@ -4561,6 +4564,10 @@ string ONPCCanMove::toString()
 string ONPCHitWith::toString()
 {
     return "NPCHITWITH " + getArgument()->toString();
+}
+string ONPCKnockback::toString()
+{
+    return "NPCKNOCKBACK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OGetNPCDataName::toString()

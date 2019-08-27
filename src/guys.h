@@ -105,6 +105,7 @@ public:
     long editorflags; //Enemy editor flags 1 to 16
 	
 	bool immortal;
+	bool noSlide;
     
     int getScriptUID();
     void setScriptUID(int new_id);
@@ -151,9 +152,11 @@ public:
     void newdir_8(int rate,int homing, int special);
     // makes the enemy slide backwards when hit
     // sclk: first byte is clk, second byte is dir
-    bool slide();
+    int slide();
     bool can_slide();
     bool fslide();
+	virtual bool knockback(int time, int dir, int speed);
+	virtual bool runKnockback();
     // changes enemy's direction, checking restrictions
     // rate:   0 = no random changes, 16 = always random change
     // homing: 0 = none, 256 = always

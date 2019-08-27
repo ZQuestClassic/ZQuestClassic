@@ -123,6 +123,10 @@ sprite::sprite()
     rotation = 0;
     scale = 0;
     obeys_gravity = 0;
+	knockbackflags = 0;
+	knockbackSpeed = 4; //default speed
+	script_knockback_clk = 0;
+	script_knockback_speed = 0;
     for ( int q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
@@ -188,6 +192,10 @@ scripttile(other.scripttile),
 scriptflip(other.scriptflip),
 rotation(other.rotation),
 obeys_gravity(other.obeys_gravity),
+knockbackflags(other.knockbackflags),
+knockbackSpeed(other.knockbackSpeed),
+script_knockback_clk(other.script_knockback_clk),
+script_knockback_speed(other.script_knockback_speed),
 scale(other.scale),
 do_animation(other.do_animation)
 
@@ -277,6 +285,10 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     scriptflip = -1;
     rotation = 0;
     obeys_gravity = 0;
+	knockbackflags = 0;
+	knockbackSpeed = 4; //default speed
+	script_knockback_clk = 0;
+	script_knockback_speed = 0;
     scale = 0;
     do_animation = 1;
     drawstyle=0;
@@ -460,6 +472,18 @@ void sprite::move(fix s)
     }
 }
 
+bool sprite::knockback(int time, int dir, int speed)
+{
+	if(knockbackflags & FLAG_NOSCRIPTKNOCKBACK) return false;
+	script_knockback_clk = (time&0xFF) | ((dir&0xFF)<<8);
+	script_knockback_speed = speed;
+	return true;
+}
+
+bool sprite::runKnockback()
+{
+	return false; //Virtual; must be overridden for each class, for proper collision checking.
+}
 //Drawing with scripttile and scriptflip
  //sprite::draw() before adding scripttile and scriptflip
 
