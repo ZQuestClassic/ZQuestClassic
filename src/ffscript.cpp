@@ -851,6 +851,7 @@ extern std::map<int, std::pair<string, string> > itemspritemap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
+PALETTE tempblackpal; //Used for storing the palette while fading to black
 
 FFScript ffengine;
 
@@ -19923,8 +19924,25 @@ int run_script(const byte type, const word script, const long i)
 			FFScript::do_zapout();
 			break;
 		case OPENWIPE:
+		{
 			FFScript::do_openscreen();
 			break;
+		}
+		case CLOSEWIPE:
+		{
+			FFScript::do_closescreen();
+			break;
+		}
+		case OPENWIPESHAPE:
+		{
+			FFScript::do_openscreenshape();
+			break;
+		}
+		case CLOSEWIPESHAPE:
+		{
+			FFScript::do_closescreenshape();
+			break;
+		}
 		
 		//Monochrome
 		case GREYSCALEON:
@@ -21548,6 +21566,27 @@ void FFScript::do_zapout()
 void FFScript::do_zapin(){ zapin(); }
 
 void FFScript::do_openscreen() { openscreen(); }
+void FFScript::do_closescreen() { closescreen(); }
+void FFScript::do_openscreenshape()
+{
+	int shape = get_register(sarg1) / 10000;
+	if(shape < 0 || shape >= bosMAX)
+	{
+		Z_scripterrlog("Invalid shape passed to %s! Valid range %d to %d. Using 'Circle' shape.\n", "Screen->OpeningWipe(int)", 0, bosMAX-1);
+		shape = bosCIRCLE;
+	}
+	openscreen(shape);
+}
+void FFScript::do_closescreenshape()
+{
+	int shape = get_register(sarg1) / 10000;
+	if(shape < 0 || shape >= bosMAX)
+	{
+		Z_scripterrlog("Invalid shape passed to %s! Valid range %d to %d. Using 'Circle' shape.\n", "Screen->ClosingWipe(int)", 0, bosMAX-1);
+		shape = bosCIRCLE;
+	}
+	closescreen(shape);
+}
 void FFScript::do_wavyin() { wavyin(); }
 void FFScript::do_wavyout() { wavyout(false); }
 
@@ -23252,11 +23291,19 @@ void FFScript::runF6Engine()
 	{
 		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF)
 		{
+			//Incase this was called mid-another script, store ref data
+			long tsarg1 = sarg1;
+			long tsarg2 = sarg2;
+			refInfo *tri = ri;
+			ffscript *tcurscript = curscript;
+			//
 			clear_bitmap(script_menu_buf);
 			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
 			int openingwipe = black_opening_count;
+			int openingshape = black_opening_shape;
 			black_opening_count = 0; //No opening wipe during F6 menu
+			if(black_opening_shape==bosFADEBLACK) black_fade(0);
 			GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
 			{
@@ -23277,8 +23324,20 @@ void FFScript::runF6Engine()
 			}
 			script_drawing_commands.Clear();
 			GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
-			//
+			//Restore opening wipe
 			black_opening_count = openingwipe;
+			black_opening_shape = openingshape;
+			if(openingshape == bosFADEBLACK)
+			{
+				refreshTints();
+				memcpy(tempblackpal, RAMpal, PAL_SIZE*sizeof(RGB));
+			}
+			//Restore script refinfo
+			sarg1 = tsarg1;
+			sarg2 = tsarg2;
+			ri = tri;
+			curscript = tcurscript;
+			//
 		}
 		if(!Quit)
 		{
@@ -23302,7 +23361,7 @@ void FFScript::runOnDeathEngine()
 		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
 		if(link_waitdraw)
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
 			link_waitdraw = false;
 		}
 		//Draw
@@ -27085,6 +27144,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "DRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
     { "BMPDRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
     { "NPCKNOCKBACK",                2,   0,   0,   0},
+    { "CLOSEWIPE",                0,   0,   0,   0},
+    { "OPENWIPESHAPE",                1,   0,   0,   0},
+    { "CLOSEWIPESHAPE",                1,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

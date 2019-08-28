@@ -148,7 +148,7 @@ bool DrunkrPbtn();
 
 int after_time();
 
-enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosMAX};
+enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
 
 void go();
 void comeback();
@@ -169,9 +169,11 @@ void wavyout(bool showlink);
 void wavyin();
 void blackscr(int fcnt,bool showsubscr);
 void black_opening(BITMAP *dest,int x,int y,int a,int max_a);
-void close_black_opening(int x, int y, bool wait);
-void open_black_opening(int x, int y, bool wait);
-void openscreen();
+void black_fade(int fadeamnt);
+void close_black_opening(int x, int y, bool wait, int shape = -1);
+void open_black_opening(int x, int y, bool wait, int shape = -1);
+void openscreen(int shape = -1);
+void closescreen(int shape = -1);
 int  TriforceCount();
 
 bool item_disabled(int item);

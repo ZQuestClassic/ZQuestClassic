@@ -206,6 +206,7 @@ void shiftColour(int rshift, int gshift, int bshift, int base);
 void doClearTint();
 void restoreTint();
 void restoreMonoPreset();
+void refreshTints();
 
 void doGFXMonohue(int _r, int _g, int _b, bool m);
 void doTint(int _r, int _g, int _b);

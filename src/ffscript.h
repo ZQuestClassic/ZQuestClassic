@@ -828,6 +828,9 @@ static void clear_global_stack(const byte i);
 static void do_zapout();
 static void do_zapin();
 static void do_openscreen();
+static void do_closescreen();
+static void do_openscreenshape();
+static void do_closescreenshape();
 static void do_wavyin();
 static void do_wavyout();
 static void do_triggersecret(const bool v);
@@ -1460,6 +1463,7 @@ extern refInfo screenScriptData;
 extern word g_doscript;
 extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
+extern PALETTE tempblackpal;
 
 long get_register(const long arg);
 int run_script(const byte type, const word script, const long i = -1); //Global scripts don't need 'i'
@@ -2402,9 +2406,12 @@ enum ASM_DEFINE
 	DRAWCOMBOCLOAKEDR,
 	BMPDRAWCOMBOCLOAKEDR,
 	NPCKNOCKBACK,
+	CLOSEWIPE,
+	OPENWIPESHAPE,
+	CLOSEWIPESHAPE,
 
 
-	NUMCOMMANDS           //0x0163
+	NUMCOMMANDS           //0x0166
 };
 
 

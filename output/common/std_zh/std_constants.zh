@@ -1,5 +1,5 @@
 // std_constants.zh
-// 4th August, 2019 for ZC 2.55 Alpha 29
+// 28th August, 2019 for ZC 2.55 Alpha 30
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -2790,3 +2790,9 @@ enum {
 	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
 	//35
 	susptLAST };
+
+enum openingWipeShape
+{
+	WIPE_CIRCLE, WIPE_OVAL, WIPE_TRIANGLE,
+	WIPE_SMAS, WIPE_FADEBLACK, WIPE_MAX
+};

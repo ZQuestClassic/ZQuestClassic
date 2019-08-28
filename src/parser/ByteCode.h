@@ -4097,6 +4097,37 @@ namespace ZScript
 		}
 	};
 
+	class OCloseWipe : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OCloseWipe();
+		}
+	};
+
+	class OOpenWipeShape : public UnaryOpcode
+	{
+	public:
+		OOpenWipeShape(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OOpenWipeShape(a->clone());
+		}
+	};
+	
+	class OCloseWipeShape : public UnaryOpcode
+	{
+	public:
+		OCloseWipeShape(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OCloseWipeShape(a->clone());
+		}
+	};
 
 	class OGetFFCPointer : public UnaryOpcode
 	{
