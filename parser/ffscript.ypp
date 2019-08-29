@@ -1,0 +1,217 @@
+/*
+ Parser for the scripting language compiler. Inteded for use with Flex and Bison;
+ use this file to generate y.tab.cpp
+
+command: bison -b y -v -d ffscript.ypp
+
+*/
+
+/* declarations */
+%{
+#include <stdlib.h>
+#include <stdio.h>
+#include "ScriptParser.h"
+#define YYINCLUDED_STDLIB_H
+extern int yydebug;
+extern int yylineno;
+extern char* yytext;
+extern int yylex(void);
+void yyerror(const char* s);
+
+%}
+%expect 1
+%start Init
+
+%token SCRIPT
+%token FLOAT
+%token FOR
+%token BOOL
+%token VOID
+%token IF
+%token ELSE
+%token RETURN
+%token IMPORT
+
+
+%token ASSIGN
+%token SEMICOLON
+%token COMMA
+%token LBRACKET
+%token RBRACKET
+%token LPAREN
+%token RPAREN
+%token DOT
+%token LBRACE
+%token RBRACE
+
+%token NUMBER
+%token IDENTIFIER
+%token QUOTEDSTRING
+
+%left AND OR
+%left NOT
+%left LE LT GE GT EQ NE
+%left PLUS MINUS
+%left TIMES DIVIDE
+
+
+%%
+
+Init : Prog {}
+	|
+	;
+
+Prog : GlobalStmt Prog {}
+	| GlobalStmt {}
+	;
+
+GlobalStmt : Script {}
+	| Import {}
+	| FuncDecl {}
+	;
+
+Script : SCRIPT IDENTIFIER ScriptBlock { }
+	;
+
+Import : IMPORT QUOTEDSTRING	{}
+	;
+
+ScriptBlock : LBRACE ScriptStmtList RBRACE {}
+	| LBRACE RBRACE {}
+	;
+
+ScriptStmtList : ScriptStmt ScriptStmtList {}
+	| ScriptStmt {}
+	;
+
+ScriptStmt : VarDecl SEMICOLON {}
+	| FuncDecl {}
+	;
+
+VarDecl : Type IDENTIFIER {}
+	;
+
+Type : FLOAT {}
+	| BOOL {}
+	| VOID {}
+	;
+
+FuncDecl : Type IDENTIFIER LPAREN ParamList RPAREN Block {}
+	| Type IDENTIFIER LPAREN RPAREN Block {}
+	;
+
+ParamList : VarDecl COMMA ParamList {}
+	| VarDecl {}
+	;
+
+Block : LBRACE StmtList RBRACE  {}
+	| LBRACE RBRACE {}
+	;
+
+StmtList : Stmt StmtList {}
+	| Stmt {}
+	;
+
+Stmt : VarDecl SEMICOLON {}
+	| AssignStmt SEMICOLON {}
+	| DotExpr SEMICOLON {}
+	| ForStmt {}
+	| IfStmt {}
+	| ReturnStmt SEMICOLON {}
+	;
+
+StmtNoSemi : VarDecl {}
+	| AssignStmt {}
+	| DotExpr {}
+	| ForStmt {}
+	| IfStmt {}
+	| ReturnStmt {}
+	;
+
+AssignStmt : LVal ASSIGN Expr {}
+	;
+
+LVal : VarDecl {}
+	| DotExpr {}
+	;
+
+DotExpr : Factor DOT IDENTIFIER {}
+	| Factor {}
+	; 
+
+Expr : Expr LogOp Expr2 {}
+	| Expr2 {}
+	;
+
+LogOp : AND {}
+	| OR {}
+	;
+
+Expr2 : Expr2 RelOp Expr3 {}
+	| Expr3 {}
+	;
+
+RelOp : GT {}
+	| GE {}
+	| LT {}
+	| LE {}
+	| EQ {}
+	| NE {}
+	;
+
+Expr3 : Expr3 AddOp Expr4 {}
+	| Expr4 {}
+	;
+
+AddOp : PLUS {}
+	| MINUS {}
+	;
+
+Expr4 : Expr4 MultOp Expr5 {}
+	| Expr5 {}
+	;
+
+MultOp : TIMES {}
+	| DIVIDE {}
+	;
+
+Expr5 : NOT DotExpr {}
+	| DotExpr {}
+	;
+
+Factor : LPAREN Expr RPAREN {}
+	| IDENTIFIER {}
+	| NUMBER {}
+	| FuncCall {}
+	;
+
+FuncCall : IDENTIFIER LPAREN ExprList RPAREN {}
+	| IDENTIFIER LPAREN RPAREN {}
+	;
+
+ExprList : Expr COMMA ExprList {}
+	| Expr {}
+	;
+
+ForStmt : FOR LPAREN Stmt Expr SEMICOLON StmtNoSemi RPAREN StmtOrBlock {}
+	;
+
+StmtOrBlock : Stmt {}
+	| Block {}
+	;
+
+IfStmt : IF LPAREN Expr RPAREN StmtOrBlock {}
+	| IF LPAREN Expr RPAREN StmtOrBlock ELSE StmtOrBlock {}
+	;
+
+ReturnStmt : RETURN Expr {}
+	| RETURN {}
+	;
+
+%%
+
+/*        programs */
+		
+void yyerror(const char *s) {
+    fprintf(stderr, "line %d: %s, on token %s\n", yylineno, s, yytext);
+}

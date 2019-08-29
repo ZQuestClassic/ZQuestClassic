@@ -2753,6 +2753,7 @@ void openshutters()
 
 void loadscr(int tmp,int scr,int ldir)
 {
+  
   //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
   for (word x=0; x<animated_combos; x++)
   {
@@ -2761,10 +2762,12 @@ void loadscr(int tmp,int scr,int ldir)
       animated_combo_table4[x][1]=0;
     }
   }
+  
 
   mapscr ffscr = tmpscr[tmp];
 
   tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
+  
 
   if(tmp==0)
   {
@@ -2801,6 +2804,7 @@ void loadscr(int tmp,int scr,int ldir)
       }
     }
   }
+  
 
   if (tmp==0)
   {
@@ -2816,6 +2820,7 @@ void loadscr(int tmp,int scr,int ldir)
       }
     }
   }
+  
   if(!isdungeon()||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM)
   {
     if(game->maps[(currmap<<7)+scr]&mSECRET)               // if special stuff done before
@@ -2824,6 +2829,7 @@ void loadscr(int tmp,int scr,int ldir)
       hidden_entrance(tmp,false);
     }
   }
+  
 
   if(game->maps[(currmap<<7)+scr]&mLOCKBLOCK)              // if special stuff done before
   {
@@ -2849,7 +2855,7 @@ void loadscr(int tmp,int scr,int ldir)
   {
     remove_bosschests(tmp,false);
   }
-
+  
   // check doors
   if(isdungeon())
   {
@@ -2904,6 +2910,7 @@ void loadscr(int tmp,int scr,int ldir)
     }
   }
 
+
   for(int i=0; i<176; ++i)
   {
     int c=tmpscr[tmp].data[i];
@@ -2915,7 +2922,7 @@ void loadscr(int tmp,int scr,int ldir)
   }
   for (int j=0; j<6; ++j)
   {
-    if (tmpscr[tmp].layermap>0)
+    if (tmpscr[tmp].layermap[j]>0)
     {
       mapscr *layerscreen=TheMaps+((tmpscr[tmp].layermap[j]-1)*MAPSCRS)+tmpscr[tmp].layerscreen[j];
       for(int i=0; i<176; ++i)

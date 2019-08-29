@@ -225,6 +225,16 @@
 			<File
 				RelativePath=".\zsys.cpp">
 			</File>
+			<Filter
+				Name="parser"
+				Filter="">
+				<File
+					RelativePath=".\parser\lex.yy.cpp">
+				</File>
+				<File
+					RelativePath=".\parser\y.tab.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"

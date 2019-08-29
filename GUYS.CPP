@@ -3374,7 +3374,7 @@ bool eTrap::animate(int index)
       dir=left;
     }
     int d=lined_up(15,true);
-    if (((d<left) && (id==eTRAP_H)) ||
+    if (((d<left || d > right) && (id==eTRAP_H)) ||
           ((d>down) && (id==eTRAP_V)) ||
           ((d>right) && (id==eTRAP)) ||
           ((d<l_up) && (id==eTRAP_DIAGONAL)) ||
@@ -4016,13 +4016,13 @@ bool eSpinTile::animate(int index)
   {
     return Dead();
   }
-  z=16;
-  if (misc<128)
+  z=24;
+  if (misc<96)
   {
-    z=(misc>>3);
+    z=(misc>>2);
   }
   ++misc;
-  if (misc==192)
+  if (misc==128)
   {
     double ddir=atan2(double((Link.y)-y),double(Link.x-x));
     angular=true;
@@ -4036,23 +4036,24 @@ bool eSpinTile::animate(int index)
 void eSpinTile::draw(BITMAP *dest)
 {
   update_enemy_frame();
-  if (misc>=192)
+  if (misc>=128)
   {
     tile+=4;
   }
   y-=z;
+  yofs+=2;
   enemy::draw(dest);
+  yofs-=2;
   y+=z;
 }
 
 void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
 {
-  int tempy=yofs;
   flip = 0;
   shadowtile = wpnsbuf[iwShadow].tile+(clk%4);
   yofs+=4;
   enemy::drawshadow(dest, translucent);
-  yofs=tempy;
+  yofs-=4;
 }
 
 int eSpinTile::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
@@ -5425,13 +5426,13 @@ bool eWizzrobe::animate(int index)
         else if (id==eSUMMONER)
         {
           int kids = guys.Count();
-          int newguys=(rand()%3)+1;
-          bool summoned=false;
-          for (int i=0; i<newguys; i++)
+          if (kids<200)
           {
-            int id2=random_layer_enemy();
-            if (id2>0)
+            int newguys=(rand()%3)+1;
+            bool summoned=false;
+            for (int i=0; i<newguys; i++)
             {
+              int id2=vbound(random_layer_enemy(),eSTART,eMAXGUYS-1);
               int x2=0;
               int y2=0;
               for (int k=0; k<20; ++k)
@@ -5447,10 +5448,10 @@ bool eWizzrobe::animate(int index)
                 }
               }
             }
-          }
-          if (summoned)
-          {
-            sfx(WAV_FIRE,pan(int(x)));
+            if (summoned)
+            {
+              sfx(WAV_FIRE,pan(int(x)));
+            }
           }
         }
         break;

@@ -1,0 +1,71 @@
+/*
+ use this file to generate lex.yy.c
+command: flex -B -olex.yy.cpp fscript.lpp
+*/
+
+%option yylineno
+%option noyywrap
+%option never-interactive
+WS	[ \t\n\r]
+
+%{
+#include <stdlib.h>
+#include "ScriptParser.h"
+#include "y.tab.hpp"
+
+
+%}
+
+%%
+
+script                    { return SCRIPT; }
+float				  { return FLOAT; }
+for				  { return FOR; }
+bool				  { return BOOL; }
+void				  { return VOID; }
+if				  { return IF; }
+else				  { return ELSE; }
+return			  { return RETURN; }
+import			  { return IMPORT; }
+
+
+\<=			{ return LE; }
+\<			{ return LT; }
+\>=			{ return GE; }
+\>			{ return GT; }
+\==			{ return EQ; }
+\!=			{ return NE; }
+\=			{ return ASSIGN; }
+\;			{ return SEMICOLON; }
+\,			{ return COMMA; }
+\[			{ return LBRACKET; }
+\]			{ return RBRACKET; }
+\(			{ return LPAREN; }
+\)			{ return RPAREN; }
+\.                { return DOT; }
+\+			{ return PLUS; }
+\-                { return MINUS; }
+\*			{ return TIMES; }
+\/\/.*            { ; }
+\/                { return DIVIDE; }
+\{                { return LBRACE; }
+\}                { return RBRACE; }
+\&\&			{ return AND; }
+\|\|			{ return OR; }
+\!			{ return NOT; }
+
+
+[a-zA-Z]([_a-zA-Z]|[0-9])*	{
+						yylval = new ASTString(yytext);
+						return IDENTIFIER; 
+					}
+
+([0-9]+) | [0-9]*\.[0-9]*[1-9] { yylval = new ASTFloat(atof(yytext)); return NUMBER; }
+
+\"[^\"]+\"				{ yylval = new ASTString(yytext); return QUOTEDSTRING; }
+
+{WS}					{ ; }
+
+
+.		{fprintf(stderr, "Scanner: lexical error '%s'.\n", yytext); }
+%%

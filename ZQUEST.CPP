@@ -13053,6 +13053,9 @@ bool ffcheck(char *arg)
 	return true;
 }
 			
+char labels[1000][80];
+int lines[1000];
+int numlines;
 
 int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script, int com)
 {
@@ -13161,7 +13164,18 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script,
 	else if(strcmp(combuf,"GOTO")==0)
 	{
 		ffscripts[script][com].command = GOTO;
-		ffscripts[script][com].arg1 = atoi(arg1buf)-1;
+		bool nomatch = true;
+		for(int i=0;i<numlines;i++)
+		{
+			if(strcmp(arg1buf,labels[i])==0)
+			{
+				ffscripts[script][com].arg1 = lines[i];
+				nomatch = false;
+				i=numlines;
+			}
+		}
+		if(nomatch)
+			ffscripts[script][com].arg1 = atoi(arg1buf)-1;
 		ffscripts[script][com].arg2 = 0;
 	}
 	else if(strcmp(combuf,"CHECKTRIG")==0)
@@ -13179,24 +13193,68 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script,
 	else if(strcmp(combuf,"GOTOTRUE")==0)
 	{
 		ffscripts[script][com].command = GOTOTRUE;
+		bool nomatch = true;
+		for(int i=0;i<numlines;i++)
+		{
+			if(strcmp(arg1buf,labels[i])==0)
+			{
+				ffscripts[script][com].arg1 = lines[i];
+				nomatch = false;
+				i=numlines;
+			}
+		}
+		if(nomatch)
 		ffscripts[script][com].arg1 = atoi(arg1buf)-1;
 		ffscripts[script][com].arg2 = 0;
 	}
 	else if(strcmp(combuf,"GOTOFALSE")==0)
 	{
 		ffscripts[script][com].command = GOTOFALSE;
+		bool nomatch = true;
+		for(int i=0;i<numlines;i++)
+		{
+			if(strcmp(arg1buf,labels[i])==0)
+			{
+				ffscripts[script][com].arg1 = lines[i];
+				nomatch = false;
+				i=numlines;
+			}
+		}
+		if(nomatch)
 		ffscripts[script][com].arg1 = atoi(arg1buf)-1;
 		ffscripts[script][com].arg2 = 0;
 	}
 	else if(strcmp(combuf,"GOTOMORE")==0)
 	{
 		ffscripts[script][com].command = GOTOMORE;
+		bool nomatch = true;
+		for(int i=0;i<numlines;i++)
+		{
+			if(strcmp(arg1buf,labels[i])==0)
+			{
+				ffscripts[script][com].arg1 = lines[i];
+				nomatch = false;
+				i=numlines;
+			}
+		}
+		if(nomatch)
 		ffscripts[script][com].arg1 = atoi(arg1buf)-1;
 		ffscripts[script][com].arg2 = 0;
 	}
 	else if(strcmp(combuf,"GOTOLESS")==0)
 	{
 		ffscripts[script][com].command = GOTOLESS;
+		bool nomatch = true;
+		for(int i=0;i<numlines;i++)
+		{
+			if(strcmp(arg1buf,labels[i])==0)
+			{
+				ffscripts[script][com].arg1 = lines[i];
+				nomatch = false;
+				i=numlines;
+			}
+		}
+		if(nomatch)
 		ffscripts[script][com].arg1 = atoi(arg1buf)-1;
 		ffscripts[script][com].arg2 = 0;
 	}
@@ -13256,6 +13314,51 @@ int parse_script(int script)
   char *arg1buf = new char[0x100];
   char *arg2buf = new char[0x100];
   bool stop=false;
+  numlines = 0;
+  for(int i=0;i<1000;i++)
+  {
+	  buffer[0]=0;
+      for(int j=0;j<0x400;j++)
+      {
+        char temp;
+        temp = getc(fscript);
+        if(feof(fscript)) {stop=true; j=0x400; ungetc(temp,fscript);}
+        else
+        {
+          ungetc(temp,fscript);
+          buffer[j] = getc(fscript);
+          if(buffer[j] == ';' || buffer[j] == '\n' || buffer[j] == 13)
+          {
+            if(buffer[j] == '\n')
+            {
+              buffer[j] = '\0';
+              j=0x400;
+            }
+            else
+            {
+              while(getc(fscript)!='\n');
+              buffer[j] = '\0';
+                j=0x400;
+            }
+          }
+        }
+      }
+	  int k=0;
+	  if(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
+	  {
+        while(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0') 
+		{
+			labels[numlines][k] = buffer[k];
+			k++;
+		}
+		labels[numlines][k] = '\0';
+		lines[numlines] = i;
+		numlines++;
+	  }
+  }
+
+  fseek(fscript, 0, SEEK_SET);
+  stop = false;
 
   for(int i=0;i<1000;i++)
   {
@@ -13302,22 +13405,23 @@ int parse_script(int script)
         }
       }
       int k=0, l=0;
-      while(buffer[k] == ' ' && buffer[k] != '\0')  k++;
-      while(buffer[k] != ' ' && buffer[k] != '\0')
+	  while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') k++;
+      while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0')  k++;
+      while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0')
       {
         combuf[l] = buffer[k]; k++; l++;
       }
       combuf[l] = '\0';
       l=0;
-      while(buffer[k] == ' ' && buffer[k] != '\0') k++;
-      while(buffer[k] != ',' && buffer[k] != '\0')
+      while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0') k++;
+      while(buffer[k] != ',' && buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0')
       {
         arg1buf[l] = buffer[k]; k++; l++;
       }
       arg1buf[l] = '\0';
       l=0;
-      while((buffer[k] == ' ' || buffer[k] == ',') && buffer[k] != '\0') k++;
-      while(buffer[k] != ' ' && buffer[k] != '\0')
+      while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++;
+      while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0')
       {
         arg2buf[l] = buffer[k]; k++; l++;
       }
@@ -13326,12 +13430,19 @@ int parse_script(int script)
       {
         char buf[80],name[13];
         extract_name(temppath,name,FILENAME8_3);
-        sprintf(buf,"Unable to parse instruction %d from script %s",i,name);
+        sprintf(buf,"Unable to parse instruction %d\n from script %s",i,name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
         stop=true;
         ffscripts[script][0].command = 0xFFFF;
-      }
+	  }
     }
+  }
+  if(!stop)
+  {
+    char buf[80],name[13];
+    extract_name(temppath,name,FILENAME8_3);
+    sprintf(buf,"Script %s has been parsed",name);
+    jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
   }
   delete [] buffer;
   delete [] combuf;
