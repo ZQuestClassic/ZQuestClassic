@@ -23,6 +23,7 @@
 #include "gamedata.h"
 #include "zc_init.h"
 #include "zquest.h"
+#include "init.h"
 
 #ifdef ALLEGRO_DOS
 #include <unistd.h>
@@ -5128,6 +5129,12 @@ int onHeartBeep()
 
 int onTriforce()
 {
+  for (int i=0; i<4; ++i)
+  {
+    init_tabs[i].flags&=~D_SELECTED;
+  }
+  init_tabs[3].flags=D_SELECTED;
+  return onCheatConsole();
   triforce_dlg[0].dp2=lfont;
   for(int i=1; i<=8; i++)
     triforce_dlg[i].flags = (game->lvlitems[i] & liTRIFORCE) ? D_SELECTED : 0;
@@ -5147,6 +5154,12 @@ bool rc = false;
 
 int onEquipment()
 {
+  for (int i=0; i<4; ++i)
+  {
+    init_tabs[i].flags&=~D_SELECTED;
+  }
+  init_tabs[0].flags=D_SELECTED;
+  return onCheatConsole();
   equip_dlg[0].dp2=lfont;
   for(int i=0; i<4; i++)
     equip_dlg[i+5].flags = (game->items[itype_sword]&(1<<i)) ? D_SELECTED : 0;
@@ -5252,6 +5265,12 @@ int onEquipment()
 
 int onItems()
 {
+  for (int i=0; i<4; ++i)
+  {
+    init_tabs[i].flags&=~D_SELECTED;
+  }
+  init_tabs[1].flags=D_SELECTED;
+  return onCheatConsole();
   char bombstring[5], sbombstring[5];
   sprintf(bombstring, "%d", game->items[itype_bomb]);
   sprintf(sbombstring, "%d", game->items[itype_sbomb]);
@@ -5686,7 +5705,7 @@ static MENU cheat_menu[] =
   { "No walls\tF11",        onNoWalls,   NULL },
   { "Quick Movement\tq",    onGoFast,    NULL },
   { "Goto Location\tg",     onGoTo,      NULL },
-  { "Cheat Console",        onCheatConsole,     NULL },
+//  { "Cheat Console",        onCheatConsole,     NULL },
   { NULL }
 };
 

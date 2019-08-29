@@ -8770,12 +8770,12 @@ void getitem(int id)
     }
     break;
     case iFairyStill:
-      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.stationary_fairy_heart_percent?(get_gamedata_maxlife(game)*zinit.stationary_fairy_hearts/100):(get_gamedata_life(game)+(zinit.stationary_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
-      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.stationary_fairy_magic_percent?(get_gamedata_maxmagic(game)*zinit.stationary_fairy_magic/100):(get_gamedata_magic(game)+(zinit.stationary_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
+      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.stationary_fairy_heart_percent?(get_gamedata_maxlife(game)*(zinit.stationary_fairy_hearts/100)):(get_gamedata_life(game)+(zinit.stationary_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
+      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.stationary_fairy_magic_percent?(get_gamedata_maxmagic(game)*(zinit.stationary_fairy_magic/100)):(get_gamedata_magic(game)+(zinit.stationary_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
       break;
     case iFairyMoving:
-      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.moving_fairy_heart_percent?(get_gamedata_maxlife(game)*zinit.moving_fairy_hearts/100):(get_gamedata_life(game)+(zinit.moving_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
-      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.moving_fairy_magic_percent?(get_gamedata_maxmagic(game)*zinit.moving_fairy_magic/100):(get_gamedata_magic(game)+(zinit.moving_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
+      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.moving_fairy_heart_percent?(get_gamedata_maxlife(game)*(zinit.moving_fairy_hearts/100)):(get_gamedata_life(game)+(zinit.moving_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
+      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.moving_fairy_magic_percent?(get_gamedata_maxmagic(game)*(zinit.moving_fairy_magic/100)):(get_gamedata_magic(game)+(zinit.moving_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
       break;
     case iAmulet:
     if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
@@ -9217,13 +9217,13 @@ bool LinkClass::refill()
   int refill_magic_stop=get_gamedata_maxlife(game);
   if (refill_why==REFILL_BPOTION)
   {
-    refill_heart_stop=min(get_gamedata_life(game)+(zinit.blue_potion_heart_percent?(get_gamedata_maxlife(game)*zinit.blue_potion_hearts/100):(get_gamedata_life(game)+(zinit.blue_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
-    refill_heart_stop=min(get_gamedata_life(game)+(zinit.blue_potion_magic_percent?(get_gamedata_maxlife(game)*zinit.blue_potion_magic/100):(get_gamedata_life(game)+(zinit.blue_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
+    refill_heart_stop=min(get_gamedata_life(game)+(zinit.blue_potion_heart_percent?(get_gamedata_maxlife(game)*(zinit.blue_potion_hearts/100)):(get_gamedata_life(game)+(zinit.blue_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
+    refill_magic_stop=min(get_gamedata_life(game)+(zinit.blue_potion_magic_percent?(get_gamedata_maxlife(game)*(zinit.blue_potion_magic/100)):(get_gamedata_life(game)+(zinit.blue_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
   }
   else if (refill_why==REFILL_RPOTION)
   {
-    refill_heart_stop=min(get_gamedata_life(game)+(zinit.red_potion_heart_percent?(get_gamedata_maxlife(game)*zinit.red_potion_hearts/100):(get_gamedata_life(game)+(zinit.red_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
-    refill_heart_stop=min(get_gamedata_life(game)+(zinit.red_potion_magic_percent?(get_gamedata_maxlife(game)*zinit.red_potion_magic/100):(get_gamedata_life(game)+(zinit.red_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
+    refill_heart_stop=min(get_gamedata_life(game)+(zinit.red_potion_heart_percent?(get_gamedata_maxlife(game)*(zinit.red_potion_hearts/100)):(get_gamedata_life(game)+(zinit.red_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
+    refill_magic_stop=min(get_gamedata_life(game)+(zinit.red_potion_magic_percent?(get_gamedata_maxlife(game)*(zinit.red_potion_magic/100)):(get_gamedata_life(game)+(zinit.red_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
   }
   if(refillclk%speed == 0)
   {

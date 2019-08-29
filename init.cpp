@@ -303,7 +303,7 @@ static TABPANEL init_dmap_items_200s_tabs[] =
   { NULL }
 };
 
-static TABPANEL init_tabs[] =
+TABPANEL init_tabs[] =
 {
   // (text)
   { "Equipment",       D_SELECTED, init_equipment_list },

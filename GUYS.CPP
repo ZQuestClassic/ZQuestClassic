@@ -2934,7 +2934,7 @@ bool eGel::animate(int index)
     {
       case 0:
         halting_walk(d->rate, d->homing, spw_none, d->hrate, ((rand()&7)<<3)+2);
-        if((id>>12)!=eGEL&&clk2==1)
+        if((id&0xFFF)!=eGEL&&clk2==1)
         {
           addEwpn(x,y,d->weapon,0,d->wdp,-1);
           sfx(WAV_FIRE,pan(int(x)));
@@ -3026,7 +3026,7 @@ bool eZol::animate(int index)
   else
   {
     halting_walk(d->rate, d->homing, spw_none, d->hrate, (rand()&7)<<4);
-    if((id>>12)!=eZOL&&clk2==1)
+    if(id==eFZOL&&clk2==1)
     {
       addEwpn(x,y,d->weapon,0,d->wdp,-1);
       sfx(WAV_FIRE,pan(int(x)));
@@ -3082,7 +3082,7 @@ bool eGelTrib::animate(int index)
     {
       case 0:
         halting_walk(d->rate, d->homing, spw_none, d->hrate, ((rand()&7)<<3)+2);
-        if(id==eFGELTRIB&&clk2==1)
+        if((id&0xFFF)!=eGELTRIB&&clk2==1)
         {
           addEwpn(x,y,ewFireTrail,0,4*DAMAGE_MULTIPLIER,-1);
           sfx(WAV_FIRE,pan(int(x)));
@@ -4281,6 +4281,29 @@ eRope::eRope(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eRope::animate(int index)
 {
+  if(id==eBOMBCHU)
+  {
+    if (charging&&LinkInRange(16))
+    {
+      hp=-1000;
+      weapon *ew=new weapon(x,y, wSBomb, 0, d->wdp*4, dir);
+      Ewpns.add(ew);
+      ew->step=0;
+      ew->clk=48;
+      charging=false;
+    }
+    else
+    {
+      if(hp<=0&&hp>-1000)
+      {
+        hp=-1000;
+        weapon *ew=new weapon(x,y, wBomb, 0, d->wdp, dir);
+        Ewpns.add(ew);
+        ew->step=0;
+        ew->clk=48;
+      }
+    }
+  }
   if(dying)
     return Dead();
   charge_attack();
@@ -4308,17 +4331,6 @@ void eRope::charge_attack()
         step=1.5;
       }
       else newdir(4,0,0);
-    }
-    else
-    {
-      if((id==eBOMBCHU)&&LinkInRange(16))
-      {
-        weapon *ew=new weapon(x,y, d->weapon, 0, d->wdp, dir);
-        Ewpns.add(ew);
-        ew->step=0;
-        ew->clk=48;
-        hp=-1000;
-      }
     }
     if(!canmove(dir))
     {

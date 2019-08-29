@@ -13027,6 +13027,33 @@ int set_argument(char *argbuf, int script, int com, int argument)
 	return 1;
 }
 
+bool ffcheck(char *arg)
+{
+
+	for(int i=0;i<0x100;i++)
+	{
+		if(arg[i]!='\0')
+		{
+			if(i==0) 
+			{
+				if(arg[i]!='-' && arg[i]!='.' && !(arg[i] >= 48 && arg[i] <=57))
+					return false;
+			}
+			else
+			{
+				if(arg[i]!='.' && !(arg[i] >= 48 && arg[i] <=57))
+					return false;
+			}
+		}
+		else
+		{
+			i=0x100;
+		}
+	}
+	return true;
+}
+			
+
 int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script, int com)
 {
 	if(strcmp(combuf,"SETR")==0)
@@ -13042,6 +13069,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script,
 		ffscripts[script][com].command = SETV;
 		if(!set_argument(arg1buf, script, com, 0))
 			return 0;
+		if(!ffcheck(arg2buf)) return 0;
 		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
 	}
 	else if(strcmp(combuf,"ADDR")==0)
@@ -13057,6 +13085,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script,
 		ffscripts[script][com].command = ADDV;
 		if(!set_argument(arg1buf, script, com, 0))
 			return 0;
+		if(!ffcheck(arg2buf)) return 0;
 		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
 	}
 	else if(strcmp(combuf,"SUBR")==0)
@@ -13072,6 +13101,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script,
 		ffscripts[script][com].command = SUBV;
 		if(!set_argument(arg1buf, script, com, 0))
 			return 0;
+		if(!ffcheck(arg2buf)) return 0;
 		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
 	}
 	else if(strcmp(combuf,"MULTR")==0)
@@ -13087,6 +13117,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script,
 		ffscripts[script][com].command = MULTV;
 		if(!set_argument(arg1buf, script, com, 0))
 			return 0;
+		if(!ffcheck(arg2buf)) return 0;
 		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
 	}
 	else if(strcmp(combuf,"DIVR")==0)
@@ -13102,6 +13133,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script,
 		ffscripts[script][com].command = DIVV;
 		if(!set_argument(arg1buf, script, com, 0))
 			return 0;
+		if(!ffcheck(arg2buf)) return 0;
 		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
 	}
 	else if(strcmp(combuf,"COMPARER")==0)
@@ -13117,6 +13149,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script,
 		ffscripts[script][com].command = COMPAREV;
 		if(!set_argument(arg1buf, script, com, 0))
 			return 0;
+		if(!ffcheck(arg2buf)) return 0;
 		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
 	}
 	else if(strcmp(combuf,"WAITFRAME")==0)

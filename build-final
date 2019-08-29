@@ -1,0 +1,17 @@
+#!/bin/bash
+# Let's get this bad boy.. 
+# Welcome to the Mac OS X installer script for Zelda Classic
+
+# start with the normal build.
+cp -R ZQuest\ Editor.app ZQuest\ Editor.app.bak
+cp -R Zelda\ Classic.app Zelda\ Classic.app.bak
+hdiutil create -type SPARSE -size 20m -fs HFS -volname ZC -attach ZC.dmg
+sleep 3
+echo "Please Wait while your files are being copied"
+mv -v ZQuest\ Editor.app /Volumes/ZC/ZQuest\ Editor.app
+mv -v Zelda\ Classic.app /Volumes/ZC/Zelda\ Classic.app
+hdiutil detach /Volumes/ZC/
+hdiutil convert ZC.dmg.sparseimage -format UDRO -o ZC-N.dmg
+rm -Rf ZC.dmg.sparseimage
+mv ZQuest\ Editor.app.bak ZQuest\ Editor.app
+mv Zelda\ Classic.app.bak Zelda\ Classic.app

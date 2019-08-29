@@ -233,9 +233,9 @@ void do_add(int script, word *pc, int i, bool v)
 		case YD2:
 			tmpscr->ffydelta2[i]+=temp; break;
 		case LX:
-			Link.setX(Link.getX()+temp/10000); break;
+			Link.setX((int)Link.getX()+(temp/10000)); break;
 		case LY:
-			Link.setY(Link.getX()+temp/10000); break;
+			Link.setY((int)Link.getY()+(temp/10000)); break;
 		default:
 			for(int k=0;k<176;k++)
 			{
@@ -354,9 +354,9 @@ void do_sub(int script, word *pc, int i, bool v)
 		case YD2:
 			tmpscr->ffydelta2[i]-=temp; break;
 		case LX:
-			Link.setX(Link.getX()-(temp/10000)); break;
+			Link.setX((int)Link.getX()-(temp/10000)); break;
 		case LY:
-			Link.setY(Link.getX()-(temp/10000)); break;
+			Link.setY((int)Link.getY()-(temp/10000)); break;
 		default:
 			for(int k=0;k<176;k++)
 			{
@@ -475,9 +475,9 @@ void do_mult(int script, word *pc, int i, bool v)
 		case YD2:
 			tmpscr->ffydelta2[i]*=temp; break;
 		case LX:
-			Link.setX(Link.getX()*(temp/10000)); break;
+			Link.setX((int)Link.getX()*(temp/10000)); break;
 		case LY:
-			Link.setY(Link.getX()*(temp/10000)); break;
+			Link.setY((int)Link.getY()*(temp/10000)); break;
 		default:
 			for(int k=0;k<176;k++)
 			{
@@ -596,9 +596,9 @@ void do_div(int script, word *pc, int i, bool v)
 		case YD2:
 			tmpscr->ffydelta2[i]/=temp; break;
 		case LX:
-			Link.setX(Link.getX()/(temp/10000)); break;
+			Link.setX((int)Link.getX()/(temp/10000)); break;
 		case LY:
-			Link.setY(Link.getX()/(temp/10000)); break;
+			Link.setY((int)Link.getY()/(temp/10000)); break;
 		default:
 			for(int k=0;k<176;k++)
 			{

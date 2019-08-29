@@ -1980,13 +1980,13 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
             {
               if(layer1->ffflags[i]&ffTRANS)
               {
-  //                overtiletranslucent16(dest, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((int)layer1->ffx[i])+(k*16), ((int)layer1->ffy[i])+(j*16)+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
-                overcombotranslucent(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i], 128);
+                  overtiletranslucent16(framebuf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
+  //              overcombotranslucent(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i], 128);
               }
               else
               {
-  //                overtile16(dest, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((int)layer1->ffx[i])+(k*16), ((int)layer1->ffy[i])+(j*16)+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
-                  overcombo(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i]);
+                  overtile16(framebuf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
+  //                overcombo(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i]);
               }
             }
           }
@@ -2250,13 +2250,13 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
             {
               if(layer1->ffflags[i]&ffTRANS)
               {
-  //                overtiletranslucent16(dest, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((int)layer1->ffx[i])+(k*16), ((int)layer1->ffy[i])+(j*16)+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
-                overcombotranslucent(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i], 128);
+                  overtiletranslucent16(framebuf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
+  //              overcombotranslucent(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i], 128);
               }
               else
               {
-  //                overtile16(dest, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((int)layer1->ffx[i])+(k*16), ((int)layer1->ffy[i])+(j*16)+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
-                  overcombo(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i]);
+                  overtile16(framebuf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
+  //                overcombo(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i]);
               }
             }
           }
