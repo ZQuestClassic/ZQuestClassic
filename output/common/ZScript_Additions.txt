@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 30
-Document Revision: 25th August, 2019
+Document for: 2.55, Alpha 31
+Document Revision: 29th August, 2019
 
 
 ////////////////////////////////////////////////////
@@ -2069,6 +2069,11 @@ int GetPointer(bool *ptr[]);
 ////////////////
 ///  Screen  ///
 ////////////////
+
+int GetRenderTarget();
+ * Returns the present drawing render target ID.
+ * Use in conjunction with SetRenderTarget(int) to cache the present RT, 
+ * set a new one, draw, then reset it to its prior value.
 
 bool LayerInvisible[7]; 
  * If true, the current layer is visible. 
