@@ -1,7 +1,11 @@
 //2.55 Changes
 
 //Alpha 31
-
+Added int Screen->GetRenderTarget();
+	( ZoriaRPG, 29th August, 2019 )
+	
+Docs: Add Version Semantics & Logic Diagrams for future version planning.
+	( ZoriaRPG, 27th August, 2019 )
 
 //Alpha 30
 Refactor: npc->Knockback()

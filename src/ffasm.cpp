@@ -2002,6 +2002,7 @@ script_variable variable_list[]=
 	{ "NPCNOSLIDE",		NPCNOSLIDE,        0,             0 },
 	{ "NPCKNOCKBACKSPEED",		NPCKNOCKBACKSPEED,        0,             0 },
 	{ "NPCNOSCRIPTKB",		NPCNOSCRIPTKB,        0,             0 },
+	{ "GETRENDERTARGET",		GETRENDERTARGET,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

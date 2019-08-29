@@ -1827,7 +1827,7 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
 		}
 		else if(black_opening_count>0)
 		{
-			black_fade(63-zc_min(black_opening_count,63));
+			black_fade(63-zc_max(black_opening_count-3,0));
 		}
 		else black_fade(0);
 		return; //no blitting from tmp_scr!
