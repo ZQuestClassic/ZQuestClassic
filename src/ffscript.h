@@ -395,7 +395,7 @@ enum ASM_DEFINE
 #define UNUSED47             0x0272
 #define UNUSED48             0x0273
 #define UNUSED49             0x0274
-#define UNUSED50             0x0275
+#define GETRENDERTARGET             0x0275
 #define UNUSED51             0x0276
 #define UNUSED52             0x0277
 #define UNUSED53             0x0278

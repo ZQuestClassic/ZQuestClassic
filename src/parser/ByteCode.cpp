@@ -1003,6 +1003,9 @@ string VarArgument::toString()
         
     case UNDERCSET:
         return "UNDERCSET";
+    
+    case GETRENDERTARGET:
+        return "GETRENDERTARGET";
         
     default:
     {

@@ -1,6 +1,8 @@
 ChangeLog for 2.53.0 
 
 //Release 3
+Added int GetRenderTarget()
+	( ZoriaRPG, 29th August, 2019 )
 Added epilepsyFlashReductionto bomb palette flashes.
 Added an Epilepsy Flash Protection option to the Settings menu,
 	and to zc.cfg.

@@ -2858,6 +2858,10 @@ long get_register(const long arg)
         ret=(items.Count())*10000;
         break;
         
+    case GETRENDERTARGET:
+        ret=(zscriptDrawingRenderTarget->GetCurrentRenderTarget())*10000;
+        break;
+    
     case ITEMEXTEND:
         if(0!=(s=checkItem(ri->itemref)))
         {

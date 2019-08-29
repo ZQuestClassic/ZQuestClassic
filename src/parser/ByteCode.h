@@ -360,6 +360,7 @@ using namespace std;
 #define DMAPOFFSET			332 //512 of these
 #define DMAPMAP				333 //512 of these
 //#define FFDD			    309 //8 of these
+#define GETRENDERTARGET		1083 //From 2.55, ported to 2.53R3/2.53.1
 
 class LiteralArgument;
 class VarArgument;
