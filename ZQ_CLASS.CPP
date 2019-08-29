@@ -2529,10 +2529,30 @@ void zmap::scroll(int dir)
   {
     switch(dir)
     {
-      case up:    if(currscr>15)  setCurrScr(currscr-16); break;
-      case down:  if(currscr<MAPSCRS-16) setCurrScr(currscr+16); break;
-      case left:  if(currscr&15)  setCurrScr(currscr-1);  break;
-      case right: if((currscr&15)<15 && currscr<MAPSCRS-1) setCurrScr(currscr+1); break;
+      case up:
+        if(currscr>15)
+        {
+          setCurrScr(currscr-16);
+        }
+        break;
+      case down:
+        if(currscr<MAPSCRS-16)
+        {
+          setCurrScr(currscr+16);
+        }
+        break;
+      case left:
+        if(currscr&15)
+        {
+          setCurrScr(currscr-1);
+        }
+        break;
+      case right:
+        if((currscr&15)<15 && currscr<MAPSCRS-1)
+        {
+          setCurrScr(currscr+1);
+        }
+        break;
     }
   }
 }
@@ -3640,7 +3660,7 @@ bool load_tiles(char *path, int starttile)
   }
   if(section_id==ID_TILES)
   {
-    if (readtiles(f, NULL, ZELDA_VERSION, VERSION_BUILD, starttile, NEWMAXTILES-starttile, false, true)==0)
+    if (readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, starttile, NEWMAXTILES-starttile, false, true)==0)
     {
       pack_fclose(f);
       return true;
@@ -3697,7 +3717,7 @@ bool load_zgp(char *path)
   }
   if(section_id==ID_TILES)
   {
-    if (readtiles(f, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)!=0)
+    if (readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)!=0)
     {
       pack_fclose(f);
       init_tiles(true, &header);
@@ -4220,7 +4240,7 @@ extern BITMAP *map;
 int init_quest()
 {
   char buf[2048];
-  load_quest("qst.dat#DAT_NESQST",true);
+  load_quest("qst.dat#DAT_NESQST",true,true);
   sprintf(buf,"ZQuest - Untitled Quest");
   set_window_title(buf);
   zinit.last_map = 0;
@@ -4386,15 +4406,17 @@ int reverse_string(char* str)
 
 
 
-bool quest_access(char *filename, bool compressed)
+bool quest_access(char *filename, zquestheader *hdr, bool compressed)
 {
   char hash_string[33];
   if (!compressed)
   {
     return true;
   }
-  if((get_debug() && (!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])))|| is_null_pwd_hash(header.pwd_hash))
+  if((get_debug() && (!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])))|| is_null_pwd_hash(hdr->pwd_hash))
+  {
     return true;
+  }
 
   char pwd[256];
   char prompt[256]="";
@@ -4426,7 +4448,7 @@ bool quest_access(char *filename, bool compressed)
         pwd_len=30;
       }
       pfread(password, pwd_len, fp,true);
-      gotfromkey=check_questpwd(&header, password);
+      gotfromkey=check_questpwd(hdr, password);
       memset(password,0,256);
       memset(pwd,0,256);
     }
@@ -4441,7 +4463,7 @@ bool quest_access(char *filename, bool compressed)
   md5_context ctx;
   unsigned char md5sum[16];
   char response[33];
-  memcpy(md5sum, header.pwd_hash, 16);
+  memcpy(md5sum, hdr->pwd_hash, 16);
   for(int i=0; i<200; ++i)
   {
     for(int j=0; j<16; ++j)
@@ -4464,9 +4486,7 @@ bool quest_access(char *filename, bool compressed)
   }
   pwd_dlg[6].dp=prompt;
   zc_popup_dialog(pwd_dlg,6);
-  //  get-questpwd(&header, pwd);
-  //  bool ret = strcmp(pwd,prompt)==0;
-  bool ret=check_questpwd(&header, prompt);
+  bool ret=check_questpwd(hdr, prompt);
   if (!ret)
   {
     ret=(strcmp(response,prompt)==0);
@@ -4477,38 +4497,43 @@ bool quest_access(char *filename, bool compressed)
 }
 
 // wrapper to reinitialize everything on an error
-int load_quest(char *filename, bool compressed)
+int load_quest(char *filename, bool compressed, bool encrypted)
 {
   char buf[2048];
-  if(compressed) packfile_password(datapwd);
-  int ret=loadquest(filename,&header,&misc,customMIDIs,true,compressed);
+  if(encrypted) packfile_password(datapwd);
+  byte skip_flags[4];
+  for (int i=0; i<4; ++i)
+  {
+    skip_flags[i]=0;
+  }
+  int ret=loadquest(filename,&header,&misc,customMIDIs,true,compressed,encrypted,true,skip_flags);
   packfile_password(NULL);
 
   if(ret!=qe_OK)
   {
     init_quest();
   }
-  else if(!quest_access(filename, compressed))
+  else if(!quest_access(filename, &header, compressed))
+  {
+    init_quest();
+    ret=qe_pwd;
+  }
+  else
+  {
+    Map.setCurrMap(vbound(Map.getCurrMap(),0,map_count-1));
+    refresh(rALL);
+    refresh_pal();
+    if(map != NULL)
     {
-      init_quest();
-      ret=qe_pwd;
+      destroy_bitmap(map);
+      map=NULL;
     }
-    else
+    sprintf(buf,"ZQuest - [%s]", get_filename(filename));
+    if (compressed)
     {
-      Map.setCurrMap(vbound(Map.getCurrMap(),0,map_count-1));
-      refresh(rALL);
-      refresh_pal();
-	  if(map != NULL)
-	  {
-		destroy_bitmap(map);
-		map=NULL;
-	  }
-      sprintf(buf,"ZQuest - [%s]", get_filename(filename));
-      if (compressed)
-      {
-        set_window_title(buf);
-      }
+      set_window_title(buf);
     }
+  }
   return ret;
 }
 
@@ -6552,7 +6577,7 @@ int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_
   dword section_version=V_TILES;
   dword section_cversion=CV_TILES;
   //  dword section_size=0;
-  tiles_used = count_tiles()-start_tile;
+  tiles_used = count_tiles(newtilebuf)-start_tile;
   tiles_used = min(tiles_used, max_tiles);
   tiles_used = min(tiles_used, NEWMAXTILES);
   dword section_size = sizeof(word) + (int)tiles_used * (int)tilesize(tf4Bit);
@@ -6580,7 +6605,7 @@ int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_
   }
 
   //finally...  section data
-  tiles_used=count_tiles()-start_tile;
+  tiles_used=count_tiles(newtilebuf)-start_tile;
   tiles_used=min(tiles_used, max_tiles);
   tiles_used=min(tiles_used, NEWMAXTILES);
   if(!p_iputw(tiles_used,f))
@@ -9844,7 +9869,7 @@ int writetiles_210(PACKFILE *f, word version, word build, word start_tile, word 
   dword section_version=V_TILES_210;
   dword section_cversion=CV_TILES_210;
 //  dword section_size=0;
-  tiles_used = count_tiles()-start_tile;
+  tiles_used = count_tiles(newtilebuf)-start_tile;
   tiles_used = min(tiles_used, max_tiles);
   tiles_used = min(tiles_used, NEWMAXTILES);
   dword section_size = sizeof(word)
@@ -9873,7 +9898,7 @@ int writetiles_210(PACKFILE *f, word version, word build, word start_tile, word 
   }
 
   //finally...  section data
-  tiles_used=count_tiles()-start_tile;
+  tiles_used=count_tiles(newtilebuf)-start_tile;
   tiles_used=min(tiles_used, max_tiles);
   tiles_used=min(tiles_used, NEWMAXTILES);
   if(!p_iputw(tiles_used,f))

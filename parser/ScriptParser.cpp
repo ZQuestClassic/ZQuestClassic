@@ -90,6 +90,78 @@ ASTScript::~ASTScript()
 	delete type;
 }
 
+pair<string, string> ASTFloat::parseValue()
+{
+	string f = getValue();
+	string intpart;
+	string fpart;
+	switch(getType())
+	{
+	case TYPE_DECIMAL:
+		{
+			bool founddot = false;
+			for(unsigned int i=0; i<f.size(); i++)
+			{
+				if(f.at(i) == '.')
+				{
+					intpart = f.substr(0, i);
+					fpart = f.substr(i+1,f.size()-i-1);
+					founddot = true;
+					break;
+				}
+			}
+			if(!founddot)
+			{
+				intpart = f;
+				fpart = "";
+			}
+			break;
+		}
+	case TYPE_HEX:
+		{
+			//trim off the "0x"
+			f = f.substr(2,f.size()-2);
+			//parse the hex
+			long val=0;
+			for(unsigned int i=0; i<f.size(); i++)
+			{
+				char d = f.at(i);
+				val*=16;
+				if('0' <= d && d <= '9')
+					val+=(d-'0');
+				else if ('A' <= d && d <= 'F')
+					val+=(10+d-'A');
+				else
+					val+=(10+d-'a');
+			}
+			char temp[60];
+			sprintf(temp, "%ld", val);
+			intpart = temp;
+			fpart = "";
+			break;
+		}
+	case TYPE_BINARY:
+		{
+			//trim off the 'b'
+			f = f.substr(0,f.size()-1);
+			long val=0;
+			for(unsigned int i=0; i<f.size();i++)
+			{
+				char b = f.at(i);
+				val<<=1;
+				val+=b-'0';
+			}
+			char temp[60];
+			sprintf(temp, "%ld", val);
+			intpart = temp;
+			fpart = "";
+			break;
+		}
+	}
+	return pair<string,string>(intpart, fpart);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////
 void Clone::caseDefault(void *param)
 {
@@ -104,7 +176,7 @@ void Clone::caseProgram(ASTProgram &host, void *param)
 }
 void Clone::caseFloat(ASTFloat &host, void *param)
 {
-	result = new ASTFloat(host.getValue().c_str(),host.getLocation());
+	result = new ASTFloat(host.getValue().c_str(),host.getType(),host.getLocation());
 }
 void Clone::caseString(ASTString &host, void *param)
 {
@@ -125,6 +197,11 @@ void Clone::caseDeclList(ASTDeclList &host, void *param)
 void Clone::caseImportDecl(ASTImportDecl &host, void *param)
 {
 	result = new ASTImportDecl(host.getFilename(),host.getLocation());
+}
+void Clone::caseConstDecl(ASTConstDecl &host, void *param)
+{
+	host.getValue()->execute(*this,param);
+	result = new ASTConstDecl(host.getName(),(ASTFloat *)result,host.getLocation());
 }
 void Clone::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
@@ -480,7 +557,7 @@ void Clone::caseExprArrow(ASTExprArrow &host, void *param)
 	if(host.getIndex())
 	{
 		host.getIndex()->execute(*this,param);
-        ((ASTExprArrow *)result)->setIndex((ASTExpr *)result);
+        arrow->setIndex((ASTExpr *)result);
 	}
 	result = arrow;
 }
@@ -540,6 +617,16 @@ void Clone::caseStmtWhile(ASTStmtWhile &host, void *param)
 	host.getStmt()->execute(*this,param);
 	result = new ASTStmtWhile(cond, (ASTStmt *)result, host.getLocation());
 }
+
+void Clone::caseStmtBreak(ASTStmtBreak &host, void *param)
+{
+	result = new ASTStmtBreak(host.getLocation());
+}
+
+void Clone::caseStmtContinue(ASTStmtContinue &host, void *param)
+{
+	result = new ASTStmtContinue(host.getLocation());
+}
 ////////////////////////////////////////////////////////////////////////////////
 void GetImports::caseDefault(void *param) 
 {
@@ -568,6 +655,38 @@ void GetImports::caseDeclList(ASTDeclList &host, void *param)
 	}
 }
 void GetImports::caseProgram(ASTProgram &host, void *param)
+{
+	host.getDeclarations()->execute(*this,NULL);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void GetConsts::caseDefault(void *param) 
+{
+	if(param != NULL)
+		*(bool *)param = false;
+}
+void GetConsts::caseConstDecl(ASTConstDecl &host, void *param)
+{
+	if(param != NULL)
+		*(bool *)param = true;
+}
+void GetConsts::caseDeclList(ASTDeclList &host, void *param)
+{
+	list<ASTDecl *> &l = host.getDeclarations();
+	for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
+	{
+		bool isconst;
+		(*it)->execute(*this, &isconst);
+		if(isconst)
+		{
+			result.push_back((ASTConstDecl *)*it);
+			it=l.erase(it);
+		}
+		else
+			it++;
+	}
+}
+void GetConsts::caseProgram(ASTProgram &host, void *param)
 {
 	host.getDeclarations()->execute(*this,NULL);
 }
@@ -922,6 +1041,9 @@ void BuildFunctionSymbols::caseExprArrow(ASTExprArrow &host, void *param)
 {
 	//recur on the name
 	host.getLVal()->execute(*this,param);
+	//recur on the index, if it exists
+	if(host.getIndex())
+		host.getIndex()->execute(*this,param);
 	//wait for type-checking to do rest of work
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -980,6 +1102,8 @@ ScriptsData * compile(char *filename)
 	box_eol();
 #endif
 	IntermediateData *id = ScriptParser::generateOCode(fd);
+	if(id == NULL)
+		return NULL;
 #ifndef SCRIPTPARSER_COMPILE
 	box_out("Pass 6: Assembling");
 	box_eol();
@@ -1016,30 +1140,6 @@ string ScriptParser::trimQuotes(string quoteds)
 	return rval;
 }
 
-pair<string, string> ScriptParser::parseFloat(string f)
-{
-	string intpart;
-	string fpart;
-	bool founddot = false;
-	for(unsigned int i=0; i<f.size(); i++)
-	{
-		if(f.at(i) == '.')
-		{
-			intpart = f.substr(0, i);
-						
-			fpart = f.substr(i+1,f.size()-i-1);
-			founddot = true;
-			break;
-		}
-	}
-	if(!founddot)
-	{
-		intpart = f;
-		fpart = "";
-	}
-	return pair<string,string>(intpart, fpart);
-}
-
 bool ScriptParser::preprocess(AST *theAST, int reclimit)
 {
 	if(reclimit == 0)
@@ -1065,16 +1165,52 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit)
 		AST *recAST = resAST;
 		if(!preprocess(recAST, reclimit-1))
 		{
+			for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)
+			{
+				delete *it2;
+			}
 			delete recAST;
 			return false;
 		}
 		MergeASTs temp;
 		theAST->execute(temp, recAST);
 	}
+	for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)
+	{
+		delete *it2;
+	}
 	//check that there are no more stupidly placed imports in the file
 	CheckForExtraneousImports c;
 	theAST->execute(c, NULL);
-	return c.isOK();
+	if(!c.isOK())
+		return false;
+	//get the constants
+	GetConsts gc;
+	theAST->execute(gc,NULL);
+	vector<ASTConstDecl *> consts = gc.getResult();
+	map<string, long> constants;
+	bool failure = false;
+	for(vector<ASTConstDecl *>::iterator it = consts.begin(); it != consts.end(); it++)
+	{
+		map<string, long>::iterator find = constants.find((*it)->getName());
+		if(find != constants.end())
+		{
+			printErrorMsg(*it, CONSTREDEF, (*it)->getName());
+			failure=true;
+		}
+		else
+		{
+			pair<string,string> parts = (*it)->getValue()->parseValue();
+			pair<long,bool> val = ScriptParser::parseLong(parts);
+			if(!val.second)
+			{
+				printErrorMsg(*it, CONSTTRUNC, (*it)->getValue()->getValue());
+			}
+			constants[(*it)->getName()]=val.first;
+		}
+		delete *it;
+	}
+	return !failure;
 }
 
 SymbolData *ScriptParser::buildSymbolTable(AST *theAST)
@@ -1084,8 +1220,6 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST)
 	Scope *globalScope = new Scope(NULL);
 	bool failure = false;
 	//ADD LIBRARY FUNCTIONS TO THE GLOBAL SCOPE HERE
-	//t->putFuncDecl etc
-	//globalScope->getFuncSymbols().addFunction("Rand", TYPE_FLOAT, vector<int>());
 	GlobalSymbols::getInst().addSymbolsToScope(globalScope, t);
 	FFCSymbols::getInst().addSymbolsToScope(globalScope,t);
 	ItemSymbols::getInst().addSymbolsToScope(globalScope,t);
@@ -1401,6 +1535,7 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
 
 IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 {
+	bool failure = false;
 	vector<ASTFuncDecl *> funcs = fdata->functions;
 	vector<ASTVarDecl *> globals = fdata->globalVars;
 	map<string, int> runsymbols = fdata->scriptRunSymbols;
@@ -1473,6 +1608,10 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 		oc.stackframe = NULL;
 		BuildOpcodes bo;
 		(*it)->execute(bo, &oc);
+		if(!bo.isOK())
+		{
+			failure = true;
+		}
 		vector<Opcode *> code = bo.getResult();
 		for(vector<Opcode *>::iterator it2 = code.begin(); it2!= code.end(); it2++)
 		{
@@ -1552,6 +1691,8 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 		oc.stackframe = &sf;
 		BuildOpcodes bo;
 		(*it)->execute(bo, &oc);
+		if(!bo.isOK())
+			failure = true;
 		vector<Opcode *> code = bo.getResult();
 		for(vector<Opcode *>::iterator it2 = code.begin(); it2 != code.end(); it2++)
 		{
@@ -1590,6 +1731,24 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 		rval->scriptTypes[it->first] = scripttypes[it->first];
 	}
 	delete symbols; //and so long to our beloved ;) symbol table
+
+	if(failure)
+	{
+		//delete all kinds of crap if there was a problem :-/
+		for(map<int, vector<Opcode *> >::iterator it = rval->funcs.begin(); it != rval->funcs.end(); it++)
+		{
+			for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+			{
+				delete *it2;
+			}
+		}
+		for(vector<Opcode *>::iterator it = rval->globalsInit.begin(); it != rval->globalsInit.end(); it++)
+		{
+			delete *it;
+		}
+		delete rval;
+		return NULL;
+	}
 	return rval;
 }
 
@@ -1709,6 +1868,38 @@ vector<Opcode *> ScriptParser::assembleOne(vector<Opcode *> script, map<int, vec
 	return rval;
 }
 
+pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
+{
+	pair<long, bool> rval;
+	rval.second=true;
+	if(parts.second.size() > 4)
+	{
+		rval.second = false;
+		parts.second = parts.second.substr(0,4);
+	}
+	if(parts.first.size() > 4)
+	{
+		rval.second = false;
+		parts.first = parts.first.substr(0,4);
+	}
+	long intval = ((long)(atoi(parts.first.c_str())))*10000;
+	//add fractional part; tricky!
+	int fpart = 0;
+	while(parts.second.length() < 4)
+		parts.second = parts.second + "0";
+	for(unsigned int i=0; i<4; i++)
+	{
+		fpart*=10;
+		char tmp[2];
+		tmp[0] = parts.second.at(i);
+		tmp[1] = 0;
+		fpart += atoi(tmp);
+	}
+	intval += fpart;
+	rval.first = intval;
+	return rval;
+}
+
 int StackFrame::getOffset(int vid)
 {
 	map<int, int>::iterator it = stackoffset.find(vid);
@@ -1719,4 +1910,28 @@ int StackFrame::getOffset(int vid)
 		return 0;
 	}
 	return stackoffset[vid];
+}
+
+int SymbolTable::getVarType(AST *obj)
+{
+	map<AST *, int>::iterator it = astToID.find(obj);
+	if(it == astToID.end())
+	{
+		box_out("Internal Error: Can't find the AST ID!");
+		box_eol();
+		return -1;
+	}
+	return getVarType(it->second);
+}
+
+int SymbolTable::getVarType(int varID)
+{
+	map<int, int>::iterator it = varTypes.find(varID);
+	if(it == varTypes.end())
+	{
+		box_out("Internal Error: Can't find the variable type!");
+		box_eol();
+		return -1;
+	}
+	return it->second;
 }

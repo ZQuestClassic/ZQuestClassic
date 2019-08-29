@@ -417,7 +417,7 @@ void EditboxModel::paste()
 	if(isReadonly())
 		return;
 	CursorPos cp = findCursor();
-	int offset = Unicode::indexToOffset(getBuffer(), cp.index);
+	int offset = Unicode::indexToOffset(getBuffer(), getCursor().getPosition());
 	buffer = buffer.substr(0,offset) + clipboard + buffer.substr(offset, buffer.size()-offset);
 	//nevermind, THIS is the ultimate annoying
 	//break up the lines int he clipboard

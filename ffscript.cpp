@@ -51,7 +51,7 @@ long get_arg(long arg, byte i)
   switch(script_type)
   {
     case SCRIPT_FFC:
-	  ffc = &(tmpscr->ffcref[i]);
+      ffc = &(tmpscr->ffcref[i]);
       itemref = &(tmpscr->itemref[i]);
       iclass = &(tmpscr->itemclass[i]);
       lwpn = &(tmpscr->lwpnref[i]);
@@ -72,7 +72,7 @@ long get_arg(long arg, byte i)
       break;
     case SCRIPT_ITEM:
       ffc = &(items.spr(i)->ffcref);
-	  itemref = &(items.spr(i)->itemref);
+      itemref = &(items.spr(i)->itemref);
       iclass = &(items.spr(i)->itemclass);
       lwpn = &(items.spr(i)->lwpnref);
       ewpn = &(items.spr(i)->ewpnref);
@@ -132,18 +132,18 @@ long get_arg(long arg, byte i)
       ret=tmpscr->ffxdelta2[*ffc]; break;
     case YD2:
       ret=tmpscr->ffydelta2[*ffc]; break;
-	case FFFLAGSD:
-	  ret=((tmpscr->ffflags[*ffc]>>((*(d[0]))/10000))&1)?10000:0; break;
+    case FFFLAGSD:
+      ret=((tmpscr->ffflags[*ffc]>>((*(d[0]))/10000))&1)?10000:0; break;
     case FFCWIDTH:
-	  ret=((tmpscr->ffwidth[*ffc]&63)+1)*10000;
-	case FFCHEIGHT:
-	  ret=((tmpscr->ffheight[*ffc]&63)+1)*10000;
+      ret=((tmpscr->ffwidth[*ffc]&63)+1)*10000;
+    case FFCHEIGHT:
+      ret=((tmpscr->ffheight[*ffc]&63)+1)*10000;
     case FFTWIDTH:
-	  ret=((tmpscr->ffwidth[*ffc]>>6)+1)*10000;
-	case FFTHEIGHT:
-	  ret=((tmpscr->ffheight[*ffc]>>6)+1)*10000;
-	case FFLINK:
-	  ret=(tmpscr->fflink[*ffc])*10000;
+      ret=((tmpscr->ffwidth[*ffc]>>6)+1)*10000;
+    case FFTHEIGHT:
+      ret=((tmpscr->ffheight[*ffc]>>6)+1)*10000;
+    case FFLINK:
+      ret=(tmpscr->fflink[*ffc])*10000;
     case LINKX:
       ret=(int)(Link.getX())*10000; break;
     case LINKY:
@@ -160,24 +160,24 @@ long get_arg(long arg, byte i)
       ret=(int)(get_gamedata_maxmagic())*10000; break;
     case LINKACTION:
       ret=(int)(Link.getAction())*10000; break;
-    case INPUTSENABLED:
-      ret=inputs_enabled?10000:0; break;
-    case FORCEDUP:
-      ret=forced_command[forced_up]?10000:0; break;
-    case FORCEDDOWN:
-      ret=forced_command[forced_down]?10000:0; break;
-    case FORCEDLEFT:
-      ret=forced_command[forced_left]?10000:0; break;
-    case FORCEDRIGHT:
-      ret=forced_command[forced_right]?10000:0; break;
-    case FORCEDA:
-      ret=forced_command[forced_a]?10000:0; break;
-    case FORCEDB:
-      ret=forced_command[forced_b]?10000:0; break;
-    case FORCEDL:
-      ret=forced_command[forced_l]?10000:0; break;
-    case FORCEDR:
-      ret=forced_command[forced_r]?10000:0; break;
+    case INPUTSTART:
+      ret=control_state[6]?10000:0; break;
+    case INPUTUP:
+      ret=control_state[0]?10000:0; break;
+    case INPUTDOWN:
+      ret=control_state[1]?10000:0; break;
+    case INPUTLEFT:
+      ret=control_state[2]?10000:0; break;
+    case INPUTRIGHT:
+      ret=control_state[3]?10000:0; break;
+    case INPUTA:
+      ret=control_state[4]?10000:0; break;
+    case INPUTB:
+      ret=control_state[5]?10000:0; break;
+    case INPUTL:
+      ret=control_state[7]?10000:0; break;
+    case INPUTR:
+      ret=control_state[8]?10000:0; break;
     case ITEMX:
       ret=((int)items.spr(*itemref)->x)*10000; break;
     case ITEMY:
@@ -382,9 +382,9 @@ long get_arg(long arg, byte i)
       ret=game->lvlkeys[(*(d[0]))/10000]*10000; break;
     case GAMEMAPFLAGD:
       ret=((game->maps[mi]>>((*(d[0]))/10000))&1)?10000:0; break;
-	case GAMEMAPFLAGDD:
+    case GAMEMAPFLAGDD:
       ret=((game->maps[*(d[0])/10000]>>((*(d[1]))/10000))&1)?10000:0; break;
-	case GAMEGUYCOUNTD:
+    case GAMEGUYCOUNTD:
       ret=game->guys[*(d[0])/10000]*10000; break;
     case CURMAP:
       ret=currmap; break;
@@ -422,30 +422,12 @@ long get_arg(long arg, byte i)
       ret=(*guyref)*10000; break;
     case REFNPCCLASS:
       ret=(*gclass)*10000; break;
-    case GETA:
-      ret=(key[Akey]||joybtn(Abtn))?10000:0; break;
-    case GETB:
-      ret=(key[Bkey]||joybtn(Bbtn))?10000:0; break;
-    case GETL:
-      ret=(key[Lkey]||joybtn(Lbtn))?10000:0; break;
-    case GETR:
-      ret=(key[Rkey]||joybtn(Rbtn))?10000:0; break;
-    case GETUP:
-      ret=(key[DUkey]||joy[0].stick[0].axis[1].d1)?10000:0; break;
-    case GETDOWN:
-      ret=(key[DDkey]||joy[0].stick[0].axis[1].d2)?10000:0; break;
-    case GETLEFT:
-      ret=(key[DLkey]||joy[0].stick[0].axis[0].d1)?10000:0; break;
-    case GETRIGHT:
-      ret=(key[DRkey]||joy[0].stick[0].axis[0].d2)?10000:0; break;
-	case GETSTART:
-	  ret=(key[Skey]||joybtn(Sbtn))?10000:0;
-	case SDD:
-		ret=game->screen_d[di][*(d[0])/10000];
-	case GDD:
-		ret=game->global_d[*(d[0])/10000];
-	case SDDD:
-		ret=game->screen_d[*(d[0])/10000][*(d[1])/10000];
+    case SDD:
+      ret=game->screen_d[di][*(d[0])/10000];
+    case GDD:
+      ret=game->global_d[*(d[0])/10000];
+    case SDDD:
+      ret=game->screen_d[*(d[0])/10000][*(d[1])/10000];
     case SP:
       ret = (*sp)*10000; break;
     default:
@@ -520,7 +502,7 @@ void set_variable(long arg, byte i, long value)
       break;
     case SCRIPT_ITEM:
       ffc = &(items.spr(i)->ffcref);
-	  itemref = &(items.spr(i)->itemref);
+      itemref = &(items.spr(i)->itemref);
       iclass = &(items.spr(i)->itemclass);
       lwpn = &(items.spr(i)->lwpnref);
       ewpn = &(items.spr(i)->ewpnref);
@@ -581,17 +563,17 @@ void set_variable(long arg, byte i, long value)
     case YD2:
       tmpscr->ffydelta2[*ffc]=value; break;
     case FFFLAGSD:
-	  (value/10000)?tmpscr->ffflags[*ffc]|=((value/10000)?1:0)<<((*(d[0]))/10000):tmpscr->ffflags[*ffc]&=~(((value/10000)?1:0)<<((*(d[0]))/10000)); break;
+    (value/10000)?tmpscr->ffflags[*ffc]|=((value/10000)?1:0)<<((*(d[0]))/10000):tmpscr->ffflags[*ffc]&=~(((value/10000)?1:0)<<((*(d[0]))/10000)); break;
     case FFCWIDTH:
-	  tmpscr->ffwidth[*ffc]|=((value/10000)-1)&63;
-	case FFCHEIGHT:
-	  tmpscr->ffheight[*ffc]|=((value/10000)-1)&63;
+    tmpscr->ffwidth[*ffc]|=((value/10000)-1)&63;
+    case FFCHEIGHT:
+      tmpscr->ffheight[*ffc]|=((value/10000)-1)&63;
     case FFTWIDTH:
-	  tmpscr->ffwidth[*ffc]|=(((value/10000)-1)&3)<<6;
-	case FFTHEIGHT:
-	  tmpscr->ffheight[*ffc]|=(((value/10000)-1)&3)<<6;
-	case FFLINK:
-	  (tmpscr->fflink[*ffc])=vbound(value/10000,1,32);
+      tmpscr->ffwidth[*ffc]|=(((value/10000)-1)&3)<<6;
+    case FFTHEIGHT:
+      tmpscr->ffheight[*ffc]|=(((value/10000)-1)&3)<<6;
+    case FFLINK:
+      (tmpscr->fflink[*ffc])=vbound(value/10000,1,32);
     case LINKX:
       Link.setX(value/10000); break;
     case LINKY:
@@ -608,24 +590,24 @@ void set_variable(long arg, byte i, long value)
       set_gamedata_maxmagic(value/10000); break;
     case LINKACTION:
       Link.setAction((actiontype)(value/10000)); break;
-    case INPUTSENABLED:
-      inputs_enabled=((value/10000)!=0)?true:false; break;
-    case FORCEDUP:
-      forced_command[forced_up]=((value/10000)!=0)?true:false; break;
-    case FORCEDDOWN:
-      forced_command[forced_down]=((value/10000)!=0)?true:false; break;
-    case FORCEDLEFT:
-      forced_command[forced_left]=((value/10000)!=0)?true:false; break;
-    case FORCEDRIGHT:
-      forced_command[forced_right]=((value/10000)!=0)?true:false; break;
-    case FORCEDA:
-      forced_command[forced_a]=((value/10000)!=0)?true:false; break;
-    case FORCEDB:
-      forced_command[forced_b]=((value/10000)!=0)?true:false; break;
-    case FORCEDL:
-      forced_command[forced_l]=((value/10000)!=0)?true:false; break;
-    case FORCEDR:
-      forced_command[forced_r]=((value/10000)!=0)?true:false; break;
+    case INPUTSTART:
+      control_state[6]=((value/10000)!=0)?true:false; break;
+    case INPUTUP:
+      control_state[0]=((value/10000)!=0)?true:false; break;
+    case INPUTDOWN:
+      control_state[1]=((value/10000)!=0)?true:false; break;
+    case INPUTLEFT:
+      control_state[2]=((value/10000)!=0)?true:false; break;
+    case INPUTRIGHT:
+      control_state[3]=((value/10000)!=0)?true:false; break;
+    case INPUTA:
+      control_state[4]=((value/10000)!=0)?true:false; break;
+    case INPUTB:
+      control_state[5]=((value/10000)!=0)?true:false; break;
+    case INPUTL:
+      control_state[7]=((value/10000)!=0)?true:false; break;
+    case INPUTR:
+      control_state[8]=((value/10000)!=0)?true:false; break;
     case ITEMX:
       (items.spr(*itemref)->x)=(fix)(value/10000); break;
     case ITEMY:
@@ -843,17 +825,17 @@ void set_variable(long arg, byte i, long value)
     case COMBOSD:
       combobuf[tmpscr->data[(*(d[0]))/10000]].walk=(value/10000)&15; break;
     case REFFFC:
-	 *ffc = value/10000; break;
-	case REFITEM:
-     *itemref = value/10000; break;
+      *ffc = value/10000; break;
+    case REFITEM:
+      *itemref = value/10000; break;
     case REFITEMCLASS:
       *iclass = value/10000; break;
-	case SDD:
-	  game->screen_d[di][*(d[0])/10000]=value;
-	case GDD:
-	  game->global_d[*(d[0])/10000]=value;
+    case SDD:
+      game->screen_d[di][*(d[0])/10000]=value;
+    case GDD:
+      game->global_d[*(d[0])/10000]=value;
     case SDDD:
-	  game->screen_d[*(d[0])/10000][*(d[1])/10000]=value;
+      game->screen_d[*(d[0])/10000][*(d[1])/10000]=value;
     case SP:
       *sp = value/10000; break;
     default:
@@ -1031,8 +1013,8 @@ void do_div(int script, word *pc, byte i, bool v)
   {
     temp=get_arg(*arg2,i);
   }
-  temp = temp/10000.0;
   temp2=get_arg(*arg1,i);
+  temp = temp/10000.0;
   set_variable(*arg1,i,(long)(temp2/temp));
 }
 
@@ -1825,7 +1807,7 @@ void do_trace(int script, word *pc, byte i, bool v)
   {
     temp=get_arg(*arg1,i);
   }
-  al_trace("%ld.%04ld\n", temp/10000, temp%10000);
+  al_trace("%ld.%04d\n", temp/10000, abs(temp)%10000);
 }
 
 void do_tracenl(int script, word *pc, byte i, bool v)
@@ -1855,7 +1837,7 @@ int run_script(int script, byte i, int stype)
     arg2 = &(ffscripts[script][*pc].arg2);
     ffs = &(tmpscr->ffscript[i]);
     sflag = &(tmpscr->scriptflag[i]);
-	tmpscr->ffcref[i]=i;
+  tmpscr->ffcref[i]=i;
     break;
   case SCRIPT_ITEM:
     pc = &(items.spr(i)->pc);
@@ -1864,7 +1846,7 @@ int run_script(int script, byte i, int stype)
     arg2 = &(itemscripts[script][*pc].arg2);
     ffs = &(items.spr(i)->doscript);
     sflag = &(items.spr(i)->scriptflag);
-	items.spr(i)->itemref = i;
+  items.spr(i)->itemref = i;
     break;
   case SCRIPT_GLOBAL:
     pc = &g_pc;
@@ -1881,11 +1863,11 @@ int run_script(int script, byte i, int stype)
   while(*ffs != 0 && (*command!=0xFFFF)&&(*command!=WAITFRAME))
   {
     if(key[KEY_ALT]&&key[KEY_F4])
-	{
-		quit_game();
-		exit(101);
-	}
-	switch(*command)
+  {
+    quit_game();
+    exit(101);
+  }
+  switch(*command)
     {
       case SETV:
         do_set(script, pc, i, true); break;
@@ -1918,18 +1900,22 @@ int run_script(int script, byte i, int stype)
       case WARP:
         tmpscr->sidewarpdmap[0] = *arg1;
         tmpscr->sidewarpscr[0] = *arg2;
+		tmpscr->sidewarptype[0] = wtIWARP;
         Link.ffwarp = true; break;
-	  case WARPR:
+    case WARPR:
         tmpscr->sidewarpdmap[0] = get_arg(*arg1,i);
         tmpscr->sidewarpscr[0] = get_arg(*arg2,i);
+		tmpscr->sidewarptype[0] = wtIWARP;
         Link.ffwarp = true; break;
-	  case PITWARP:
+    case PITWARP:
         tmpscr->sidewarpdmap[0] = *arg1;
         tmpscr->sidewarpscr[0] = *arg2;
+		tmpscr->sidewarptype[0] = wtIWARP;
         Link.ffwarp = true; Link.ffpit=true; break;
-	  case PITWARPR:
+    case PITWARPR:
         tmpscr->sidewarpdmap[0] = get_arg(*arg1,i);
         tmpscr->sidewarpscr[0] = get_arg(*arg2,i);
+		tmpscr->sidewarptype[0] = wtIWARP;
         Link.ffwarp = true; Link.ffpit=true; break;
       case COMPAREV:
         do_comp(script, pc, i, true); break;
@@ -2159,7 +2145,7 @@ void write_stack(int script, byte i, int sp, long value)
   switch(script_type)
   {
     case SCRIPT_FFC:
-      st = &(tmpscr->stack[i]);
+      st = &(ffstack[i]);
       ffs = &(tmpscr->ffscript[i]);
       break;
     case SCRIPT_ITEM:
@@ -2189,7 +2175,7 @@ int read_stack(int script, byte i, int sp)
   switch(script_type)
   {
     case SCRIPT_FFC:
-      st = &(tmpscr->stack[i]);
+      st = &(ffstack[i]);
       ffs = &(tmpscr->ffscript[i]);
       break;
     case SCRIPT_ITEM:

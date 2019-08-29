@@ -55,12 +55,6 @@ extern LinkClass Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
 //extern movingblock mblock2; //mblock[4]?
-bool inputs_enabled=true;
-bool forced_command[max_forced_commands]=
-{
-  false, false, false, false, false, false, false, false
-};
-
 //extern int db;
 
 static char *ZC_str = "Zelda Classic";
@@ -1322,13 +1316,6 @@ void open_black_opening(int x, int y, bool wait)
   {
     for(int i=0; i<66; i++)
     {
-      /*if (FrameSkip)
-        {
-        logic_counter=0;
-        while(logic_counter==0)
-        {
-        }
-        }*/
       drawit=true;
       draw_screen(tmpscr, 0, 0);
       put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
@@ -1418,7 +1405,37 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
 
 bool item_disabled(int item_type, int item)                 //is this item disabled?
 {
-  return false;
+  switch (item_type)
+  {
+    case itype_sword:
+	case itype_brang:
+	case itype_arrow:
+	case itype_candle:
+	case itype_whistle:
+	case itype_bait:
+	case itype_letter:
+	case itype_potion:
+	case itype_wand:
+	case itype_bow:
+	case itype_hookshot:
+	case itype_lens:
+	case itype_hammer:
+	case itype_dinsfire:
+	case itype_faroreswind:
+	case itype_nayruslove:
+	case itype_bomb:
+	case itype_sbomb:
+	case itype_cbyrna:
+	case itype_magic:
+	return (game->items_off[item_type]>0);
+    break;
+    
+    // case itype_key:
+    // return (get_gamedata_keys(game)>0);
+
+	default:
+	return false;
+  }
 }
 
 bool can_use_item(int item_type, int item)                  //can Link use this item?
@@ -3163,6 +3180,7 @@ void updatescr()
     textprintf_ex(screen,font,0,SCREEN_H-8,254,BLACK,"%-6d (%s)", idle_count, time_str_long(idle_count));
   }
 
+  if(panorama!=NULL) destroy_bitmap(panorama);
 
   ++framecnt;
 }
@@ -3953,12 +3971,6 @@ int onVsync()
 int onFrameSkip()
 {
   FrameSkip = !FrameSkip;
-  /*if (FrameSkip) {
-    logic_counter=0;
-    install_int_ex(update_logic_counter, BPS_TO_TIMER(60));
-    } else {
-    remove_int(update_logic_counter);
-    }*/
   return D_O_K;
 }
 
@@ -6963,38 +6975,47 @@ int next_press_btn()
 static bool rButton(bool(proc)(),bool &flag)
 {
   if(!proc())
-    flag=false;
-  else if(!flag)
-    {
-      flag=true;
-      return true;
-    }
-    return false;
-}
-
-bool check_inputs_enabled()
-{
-  if (inputs_enabled==true)
   {
-    for (int command=forced_up; command<max_forced_commands; ++command)
-    {
-      forced_command[command]=false;
-    }
+    flag=false;
   }
-  return inputs_enabled;
+  else if(!flag)
+  {
+    flag=true;
+    return true;
+  }
+  return false;
 }
 
-bool Up()     { return check_inputs_enabled()?(key[DUkey]||joy[0].stick[0].axis[1].d1):forced_command[forced_up]; }
-bool Down()   { return check_inputs_enabled()?(key[DDkey]||joy[0].stick[0].axis[1].d2):forced_command[forced_down]; }
-bool Left()   { return check_inputs_enabled()?(key[DLkey]||joy[0].stick[0].axis[0].d1):forced_command[forced_left]; }
-bool Right()  { return check_inputs_enabled()?(key[DRkey]||joy[0].stick[0].axis[0].d2):forced_command[forced_right]; }
-bool cAbtn()  { return check_inputs_enabled()?(key[Akey]||joybtn(Abtn)):forced_command[forced_a]; }
-bool cBbtn()  { return check_inputs_enabled()?(key[Bkey]||joybtn(Bbtn)):forced_command[forced_b]; }
-bool cSbtn()  { return check_inputs_enabled()?(key[Skey]||joybtn(Sbtn)):false; }
+bool control_state[10]=
+{
+  false, false, false, false, false, false, false, false, false, false
+};
+
+void load_control_state()
+{
+  control_state[0]=key[DUkey]||joy[0].stick[0].axis[1].d1;
+  control_state[1]=key[DDkey]||joy[0].stick[0].axis[1].d2;
+  control_state[2]=key[DLkey]||joy[0].stick[0].axis[0].d1;
+  control_state[3]=key[DRkey]||joy[0].stick[0].axis[0].d2;
+  control_state[4]=key[Akey]||joybtn(Abtn);
+  control_state[5]=key[Bkey]||joybtn(Bbtn);
+  control_state[6]=key[Skey]||joybtn(Sbtn);
+  control_state[7]=key[Lkey]||joybtn(Lbtn);
+  control_state[8]=key[Rkey]||joybtn(Rbtn);
+  control_state[9]=key[Pkey]||joybtn(Pbtn);
+}
+
+bool Up()     { return control_state[0]; }
+bool Down()   { return control_state[1]; }
+bool Left()   { return control_state[2]; }
+bool Right()  { return control_state[3]; }
+bool cAbtn()  { return control_state[4]; }
+bool cBbtn()  { return control_state[5]; }
+bool cSbtn()  { return control_state[6]; }
+bool cLbtn()  { return control_state[7]; }
+bool cRbtn()  { return control_state[8]; }
+bool cPbtn()  { return control_state[9]; }
 bool cMbtn()  { return key[KEY_ESC]||joybtn(Mbtn); }
-bool cLbtn()  { return check_inputs_enabled()?(key[Lkey]||joybtn(Lbtn)):forced_command[forced_l]; }
-bool cRbtn()  { return check_inputs_enabled()?(key[Rkey]||joybtn(Rbtn)):forced_command[forced_r]; }
-bool cPbtn()  { return check_inputs_enabled()?(key[Pkey]||joybtn(Pbtn)):false; }
 
 bool rUp()    { return rButton(Up,Udown); }
 bool rDown()  { return rButton(Down,Ddown); }

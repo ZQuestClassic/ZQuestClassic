@@ -36,6 +36,9 @@ ffc					{doLines(); return FFC;}
 itemclass			{doLines(); return ITEMCLASS;}
 item				{doLines(); return ITEM;}
 global				{doLines(); return GLOBAL;}
+break				{doLines(); return BREAK;}
+continue			{doLines(); return CONTINUE;}
+const				{doLines(); return CONST;}
 
 \-\>		{ doLines(); return ARROW;}
 \<\<		{ doLines(); return LSHIFT; }
@@ -79,7 +82,11 @@ global				{doLines(); return GLOBAL;}
 						return IDENTIFIER; 
 					}
 
-([0-9]*\.?[0-9]+) 		{ doLines();yylval = new ASTFloat(yytext, yylloc); return NUMBER; }
+([0-9]*\.?[0-9]+) 		{ doLines();yylval = new ASTFloat(yytext, ASTFloat::TYPE_DECIMAL, yylloc); return NUMBER; }
+
+(0x[0-9a-fA-F]+)		{ doLines();yylval = new ASTFloat(yytext, ASTFloat::TYPE_HEX, yylloc); return NUMBER; }
+
+([0-1]+b)				{ doLines();yylval = new ASTFloat(yytext, ASTFloat::TYPE_BINARY, yylloc); return NUMBER; }
 
 
 \"[^\"]+\"				{ doLines();yylval = new ASTString(yytext, yylloc); return QUOTEDSTRING; }

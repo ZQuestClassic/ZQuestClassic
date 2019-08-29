@@ -499,7 +499,7 @@ int onOpen()
   if(!getname("Load Quest File (.qst)","qst",filepath,true))
     return D_O_K;
 
-  int ret = load_quest(temppath, true);
+  int ret = load_quest(temppath, true, true);
   if(!ret)
   {
     strcpy(filepath,temppath);
@@ -532,7 +532,7 @@ int onRevert()
 
   if (filepath[0]!=0)
   {
-    int ret = load_quest(filepath, true);
+    int ret = load_quest(filepath, true, true);
     if(!ret)
     {
       saved = true;
@@ -925,7 +925,7 @@ int onImport_ZQT()
     return D_O_K;
   saved=false;
   // usetiles=true;
-  if(load_quest(temppath,true))
+  if(load_quest(temppath,true, false))
   {
     char buf[80],name[13];
     extract_name(temppath,name,FILENAME8_3);
@@ -968,7 +968,7 @@ int onImport_UnencodedQuest()
     return D_O_K;
   saved=false;
   // usetiles=true;
-  if(load_quest(temppath,false))
+  if(load_quest(temppath,false,false))
   {
     char buf[80],name[13];
     extract_name(temppath,name,FILENAME8_3);

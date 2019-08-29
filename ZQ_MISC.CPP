@@ -25,10 +25,10 @@ extern int prv_mode;
 extern void dopreview();
 
 
-char *imgstr[6] =
+char *imgstr[ftMAX] =
 {
   "Not loaded", "Binary/ROM", "Image", "ZC Tiles",
-  "ZC Tiles", "ZC Tiles"
+  "ZC Tiles", "ZC Tiles", "ZC Tiles", "ZC Tiles"
 };
 
 int filetype(char *path)
@@ -42,11 +42,13 @@ int filetype(char *path)
 
   for (int i=0; i<ssfmtMAX; ++i)
   {
-    if(stricmp(ext,snapshotformat_str[SnapshotFormat][1])==0) return ftBMP;
+    if(stricmp(ext,snapshotformat_str[i][1])==0) return ftBMP;
   }
   if(stricmp(ext,"til")==0) return ftTIL;
   if(stricmp(ext,"zgp")==0) return ftZGP;
   if(stricmp(ext,"qsu")==0) return ftQSU;
+  if(stricmp(ext,"zqt")==0) return ftZQT;
+  if(stricmp(ext,"qst")==0) return ftQST;
   if(stricmp(ext,"dat")==0) return 0;
   if(stricmp(ext,"htm")==0) return 0;
   if(stricmp(ext,"html")==0) return 0;
@@ -59,7 +61,7 @@ void load_mice()
 {
   for(int i=0; i<MOUSE_BMP_MAX; i++)
   {
-    for(int j=0; j<3; j++)
+    for(int j=0; j<4; j++)
     {
       mouse_bmp[i][j] = create_bitmap_ex(8,16,16);
       blit((BITMAP*)zcdata[BMP_MOUSE].dat,mouse_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
@@ -377,7 +379,7 @@ char *combotype_string[MAXCOMBOTYPES] =
   "No Enemies", "Block Arrow (Wooden)", "Block Arrow (Wood+Silver)", "Block Arrow (All)", "Block Brang (Wooden)",
   "Block Brang (Wood+Magic)", "Block Brang (All)", "Block Sword Beam", "Block All", "Block Fireball",
   "Damage (8 hearts)", "Damage (16 hearts)", "Damage (32 hearts)", "FF Combo Attr. Change", "Spinning Tile (Immediate)", "Spinning Tile (Random)",
-  "Screen Freeze", "Screen Freeze (FFCs Animate)", "Ice", "Slash->Next", "Slash->Next (Item)", "Bush->Next (Item)"
+  "Screen Freeze", "Screen Freeze (FFCs Animate)", "Unused", "Slash->Next", "Slash->Next (Item)", "Bush->Next (Item)"
 };
 
 char *flag_string[MAXFLAGS] =
@@ -479,7 +481,7 @@ char *flag_string[MAXFLAGS] =
   "94 Singular",
   "95 Singular(+16-31)",
   "96 No Enemies",
-  "97 Ice"
+  "97 Unused"
 };
 
 // eMAXGUYS is defined in zdefs.h

@@ -83,6 +83,7 @@
 
 #include <math.h>
 #include "zc_alleg.h"
+#include <string.h>
 
 #define ZELDA_VERSION       0x0211                          //version of the program
 #define VERSION_BUILD       13                              //build number of this version
@@ -100,7 +101,7 @@
 #define QSTDAT_VERSION        0x0211                        //version of qst.dat
 #define QSTDAT_BUILD          0                             //build of qst.dat
 #define ZQUESTDAT_VERSION     0x0211                        //version of zquest.dat
-#define ZQUESTDAT_BUILD       9                             //build of zquest.dat
+#define ZQUESTDAT_BUILD       13                            //build of zquest.dat
 
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_MAX};
 
@@ -551,7 +552,7 @@ enum
   qr_NODIVING, qr_LAYER12UNDERCAVE, qr_NOSCROLLCONTINUE, qr_SMARTSCREENSCROLL,
   qr_RINGAFFECTDAMAGE, qr_ALLOW10RUPEEDROPS, qr_TRAPPOSFIX, qr_TEMPCANDLELIGHT,
   //12
-  qr_REDPOTIONONCE, qr_OLDSTYLEWARP,
+  qr_REDPOTIONONCE, qr_OLDSTYLEWARP, qr_NOBORDER,qr_OLDTRIBBLES,
   
   qr_MAX
 };
@@ -744,9 +745,9 @@ enum
   aNONE, aFLIP, aFLIPSLOW, a2FRM, a2FRMSLOW, aOCTO, aTEK, aLEV, aWALK, aZORA, aNEWZORA, aGHINI,
   aARMOS, aROPE, aWALLM, aNEWWALLM, aDWALK, aVIRE, a3FRM, aWIZZ, aAQUA,
   aDONGO, aMANHAN, aGLEEOK, aDIG, aGHOMA, aLANM, a2FRMPOS, a4FRM4EYE,
-  a4FRM8EYE, a4FRM4DIRF, a4FRM4DIR, a4FRM8DIR, aARMOS4, a4FRMPOS4DIR, a4FRMPOS8DIR,
+  a4FRM8EYE, a4FRM4DIRF, a4FRM4DIR, a4FRM8DIRF, aARMOS4, a4FRMPOS4DIR, a4FRMPOS8DIR,
   a4FRM3TRAP, a4FRM8DIRB, aNEWTEK, aNEWPOLV, a2FRM4DIR, aNEWLEV, aNEWDWALK,
-  aNEWWIZZ, aNEWDONGO, aDONGOBS, a4FRMPOS8DIRF, a4FRMPOS4DIRF, a4FRMNODIR, aGANON
+  aNEWWIZZ, aNEWDONGO, aDONGOBS, a4FRMPOS8DIRF, a4FRMPOS4DIRF, a4FRMNODIR, aGANON, a2FRMB
 };
 
 // enemy patters
@@ -861,19 +862,19 @@ typedef struct item_drop_object
 
 //FF combo flags
 
-#define ffOVERLAY		0x00000001
-#define ffTRANS			0x00000002
-#define ffSOLID			0x00000004
-#define ffCARRYOVER		0x00000008
-#define ffSTATIONARY	0x00000010
+#define ffOVERLAY       0x00000001
+#define ffTRANS         0x00000002
+#define ffSOLID         0x00000004
+#define ffCARRYOVER     0x00000008
+#define ffSTATIONARY    0x00000010
 
 //FF combo changer flags
 
-#define ffSWAPNEXT		0x80000000
-#define ffSWAPPREV		0x40000000
+#define ffSWAPNEXT      0x80000000
+#define ffSWAPPREV      0x40000000
 #define ffCHANGENEXT    0x20000000
-#define ffCHANGEPREV	0x10000000 
-#define ffCHANGETHIS	0x08000000
+#define ffCHANGEPREV    0x10000000 
+#define ffCHANGETHIS    0x08000000
 
 typedef struct guydata
 {
@@ -987,7 +988,7 @@ typedef struct mapscr
   word pc[32];
   dword scriptflag[32];
   byte sp[32]; //stack pointer
-  long stack[32][256]; //stacks
+  //long stack[32][256]; //stacks
   byte itemref[32];
   byte ffcref[32];
   byte itemclass[32];
@@ -1365,7 +1366,7 @@ typedef struct emusic
   char filename[256];
 } emusic;
 
-enum
+enum // used for gamedata ITEMS
 {
   itype_sword, itype_brang, itype_arrow, itype_candle, itype_whistle,
   itype_bait, itype_letter, itype_potion, itype_wand, itype_ring,
@@ -1431,6 +1432,7 @@ typedef struct gamedata
   byte  /*_wlevel,*/_cheat;
   //24
   byte  items[MAXITEMS];
+  byte  items_off[MAXITEMS];
   //280
   word _maxcounter[32];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
   word _counter[32];

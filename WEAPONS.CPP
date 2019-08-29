@@ -379,7 +379,11 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
       }
       break;
     case ewFlame:
-      LOADGFX(ewFLAME);
+	case ewFlame2:
+		if(id==ewFlame)
+			LOADGFX(ewFLAME);
+		else
+			LOADGFX(ewFLAME2);
       if (dir==255)
       {
         step=2;
@@ -502,13 +506,15 @@ bool weapon::clip()
 {
   int c[4];
   int d=isdungeon();
+  int nb1 = get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
+  int nb2 = get_bit(quest_rules,qr_NOBORDER) ? 8 : 0;
 
   if(id>wEnemyWeapons && id!=ewBrang)
   {
-    c[0] = d?32:16;
-    c[1] = d?128:144;
-    c[2] = d?32:16;
-    c[3] = d?208:224;
+    c[0] = d?32:(16-nb1);
+    c[1] = d?128:(144+nb1);
+    c[2] = d?32:(16-nb1);
+    c[3] = d?208:(224+nb1);
   }
   else if (id==wHookshot||id==wHSChain)
     {
@@ -535,26 +541,26 @@ bool weapon::clip()
 
   if(id==ewFlame)
   {
-    c[0] = d?32:16;
-    c[1] = d?128:144;
-    c[2] = d?32:16;
-    c[3] = d?208:224;
+    c[0] = d?32:(16-nb1);
+    c[1] = d?128:(144+nb1);
+    c[2] = d?32:(16-nb1);
+    c[3] = d?208:(224+nb1);
   }
 
   if(id==ewFireTrail)
   {
-    c[0] = d?32:16;
-    c[1] = d?128:144;
-    c[2] = d?32:16;
-    c[3] = d?208:224;
+    c[0] = d?32:(16-nb1);
+    c[1] = d?128:(144+nb1);
+    c[2] = d?32:(16-nb1);
+    c[3] = d?208:(224+nb1);
   }
 
   if(id==ewWind)
   {
-    c[0] = d?32:16;
-    c[1] = d?128:144;
-    c[2] = d?32:16;
-    c[3] = d?208:224;
+    c[0] = d?32:(16-nb1);
+    c[1] = d?128:(144+nb1);
+    c[2] = d?32:(16-nb1);
+    c[3] = d?208:(224+nb1);
   }
 
   if(x < c[2])
@@ -572,10 +578,10 @@ bool weapon::clip()
 
   if(id>wEnemyWeapons)
   {
-    if((x<8 && dir==left)
-       || (y<8 && dir==up)
-       || (x>232 && dir==right)
-       || (y>168 && dir==down))
+    if((x<(8-nb2) && dir==left)
+       || (y<(8-nb2) && dir==up)
+       || (x>(232+nb2) && dir==right)
+       || (y>(168+nb2) && dir==down))
       return true;
   }
 
@@ -687,6 +693,10 @@ bool weapon::animate(int index)
         sfx(WAV_BOMB,pan(int(x)));
         hxofs=hyofs=-8;
         hxsz=hysz=32;
+      }
+      if(clk==65)
+      {
+        hxofs=1000;
       }
       if(id<wEnemyWeapons)
       {

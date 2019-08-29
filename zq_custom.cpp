@@ -21,6 +21,7 @@
 #include <string.h>
 
 extern int ex;
+extern void reset_itembuf(itemdata *item, int id);
 
 int d_cstile_proc(int msg,DIALOG *d,int c)
 {
@@ -71,56 +72,60 @@ static int itemdata_gfx_list[] =
 static int itemdata_action_list[] =
 {
   // dialog control number
-  18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, -1
+  18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, -1
 };
 
 static TABPANEL itemdata_tabs[] =
 {
   // (text)
   { "GFX",       D_SELECTED,   itemdata_gfx_list },
-  { "Action",       0,           itemdata_action_list },
+  { "Action",    0,            itemdata_action_list },
   { NULL }
 };
 
 static DIALOG itemdata_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,     55,   40,   220,  193,  vc(14),  vc(1),  0,       D_EXIT,     0,             0,       NULL },
-  { jwin_tab_proc,     57,  65,  216,  135,   0,       0,      0,       0,             0,       0,       (void *) itemdata_tabs, NULL, (void *)itemdata_dlg },
-  { d_cstile_proc,     198,  84,   20,   20,   vc(11),  vc(1),  0,       0,          0,             6,       NULL },
-  { jwin_button_proc,  90,   206,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,  170,  206,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { jwin_button_proc,  202,  140,  53,   21,   vc(14),  vc(1),  't',     D_EXIT,     0,             0,       (void *) "&Test" },
-  { jwin_check_proc,   198,  109,   65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Flash " },
-  { jwin_check_proc,   198,  120,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "2-Hand" },
-  { jwin_text_proc,    61,   88,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Flash CSet:" },
-  { jwin_text_proc,    61,   106,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Frames:" },
-  { jwin_text_proc,    61,   124,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Speed:" },
-  { jwin_text_proc,    61,   142,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Initial Delay:" },
-  { jwin_text_proc,    61,   160,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Link Tile Modification:" },
-  { jwin_edit_proc,    160,  84,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
+  { jwin_win_proc,      53,   40,  224,  193,   vc(14),  vc(1),  0,       D_EXIT,     0,             0,       NULL },
+  { jwin_tab_proc,      57,   65,  216,  135,   0,       0,      0,       0,          0,             0,       (void *) itemdata_tabs, NULL, (void *)itemdata_dlg },
+  { d_cstile_proc,     198,   84,   20,   20,   vc(11),  vc(1),  0,       0,          0,             6,       NULL },
+  { jwin_button_proc,   90,  206,   61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
+  { jwin_button_proc,  170,  206,   61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
+  { jwin_button_proc,  202,  140,   53,   21,   vc(14),  vc(1),  't',     D_EXIT,     0,             0,       (void *) "&Test" },
+  { jwin_check_proc,   198,  109,   65,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Flash " },
+  { jwin_check_proc,   198,  120,   65,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "2-Hand" },
+  { jwin_text_proc,     61,   88,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Flash CSet:" },
+  { jwin_text_proc,     61,  106,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Frames:" },
+  { jwin_text_proc,     61,  124,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Speed:" },
+  { jwin_text_proc,     61,  142,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Initial Delay:" },
+  { jwin_text_proc,     61,  160,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Link Tile Modification:" },
+  { jwin_edit_proc,    160,   84,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
   { jwin_edit_proc,    160,  102,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  120,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  138,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  156,  35,   16,   vc(12),  vc(1),  0,       0,          6,             0,       NULL },
+  { jwin_edit_proc,    160,  120,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,    160,  138,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,    160,  156,   35,   16,   vc(12),  vc(1),  0,       0,          6,             0,       NULL },
   //18
-  { jwin_check_proc,   61,  174,   130,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Keep Item When Collected" },
-  { jwin_text_proc,    61,   88,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Class Number:" },
-  { jwin_text_proc,    61,   106,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Class Level:" },
-  { jwin_text_proc,    61,   124,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Increase Amount:" },
-  { jwin_text_proc,    61,   142,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Counter Reference:" },
-  { jwin_text_proc,    61,   160,  60,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Full Max:" },
-  { jwin_text_proc,    160,   160,  60,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "+Max:" },
+  { jwin_check_proc,    61,  174,  130,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Keep Item When Collected" },
+  { jwin_text_proc,     61,   88,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Class Number:" },
+  { jwin_text_proc,     61,  106,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Class Level:" },
+  { jwin_text_proc,     61,  124,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Increase Amount:" },
+  { jwin_text_proc,     61,  142,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Counter Reference:" },
+  { jwin_text_proc,     61,  160,   60,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Full Max:" },
+  { jwin_text_proc,    160,  160,   60,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "+Max:" },
   //25
-  { jwin_edit_proc,    160,  84,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,    160,   84,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
   { jwin_edit_proc,    160,  102,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  120,  35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
-  { jwin_edit_proc,    160,  138,  35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,    121,  156,  35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
-  { jwin_edit_proc,    220,  156,  35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
-  { jwin_check_proc,   200,  124,   60,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "DCounter" },
+  { jwin_edit_proc,    160,  120,   35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
+  { jwin_edit_proc,    160,  138,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
+  { jwin_edit_proc,    121,  156,   35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
+  //30
+  { jwin_edit_proc,    220,  156,   35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
+  { jwin_check_proc,   200,  124,   60,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "DCounter" },
+  { jwin_button_proc,  200,	 174,	61,	  21,	vc(14),  vc(1),	 0,		  D_EXIT,	  0,			 0,		  (void *) "Defaults" },
   { NULL }
 };
+
+
 
 void test_item(itemdata test)
 {
@@ -258,14 +263,31 @@ void edit_itemdata(int index)
       sprintf(fmx,"%d",itemsbuf[index].max);
       sprintf(max,"%d",itemsbuf[index].setmax);
     }
+	if(ret==32)
+	{
+		reset_itembuf(&test, index);
+		sprintf(cls,"%d",itemsbuf[index].family);
+		sprintf(cll,"%d",itemsbuf[index].fam_type);
+		sprintf(amt,"%d",itemsbuf[index].amount&0x4000?-(itemsbuf[index].amount&0x3FFF):itemsbuf[index].amount&0x3FFF);
+		sprintf(cnt,"%d",itemsbuf[index].count);
+		sprintf(fmx,"%d",itemsbuf[index].max);
+		sprintf(max,"%d",itemsbuf[index].setmax);
+		itemdata_dlg[25].dp = cls;
+		itemdata_dlg[26].dp = cll;
+		itemdata_dlg[27].dp = amt;
+		itemdata_dlg[28].dp = cnt;
+		itemdata_dlg[29].dp = fmx;
+		itemdata_dlg[30].dp = max;
+	}
 
-  } while(ret==5);
+  } while(ret==5 || ret==32);
 
   if(ret==3)
   {
     itemsbuf[index] = test;
     saved = false;
   }
+  
 }
 
 int onCustomItems()

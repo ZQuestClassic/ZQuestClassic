@@ -26,7 +26,7 @@ extern byte unpackbuf[UNPACKSIZE];
 extern char *tileformat_string[tfMax];
 
 void register_blank_tiles();
-word count_tiles();
+word count_tiles(tiledata *buf);
 word count_combos();
 void setup_combo_animations();
 void reset_combo_animation(int c);
@@ -36,12 +36,12 @@ void reset_combo_animation2(int c);
 void reset_combo_animations2();
 void animate_combos();
 bool isonline(float x1, float y1, float x2, float y2, float x3, float y3);
-void clear_tile(word tile);
-void clear_tiles();
-//void unpack_tile(int tile);
-void unpack_tile(int tile, int flip, bool force);
+void clear_tile(tiledata *buf, word tile);
+void clear_tiles(tiledata *buf);
+void unpack_tile(tiledata *buf, int tile, int flip, bool force);
 
-void pack_tile(byte *src,int tile);
+void pack_tile(tiledata *buf, byte *src,int tile);
+void pack_tiledata(byte *dest, byte *src, byte format);
 void pack_tiles(byte *buf);
 int rotate_value(int flip);
 

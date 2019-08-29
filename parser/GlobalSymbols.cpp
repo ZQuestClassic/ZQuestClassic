@@ -4,6 +4,8 @@
 #include "../zsyssimple.h"
 #include <assert.h>
 
+const int radsperdeg = 572958;
+
 void LibrarySymbols::addSymbolsToScope(Scope *scope, SymbolTable *t)
 {
 	//waste an ID, OH WELL
@@ -196,6 +198,9 @@ static AccessorTable GlobalTable[] = {
 	{"Sin",			ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT,-1} },
 	{"Cos",			ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT,-1} },
 	{"Tan",			ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT,-1} },
+	{"RadianSin",	ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT,-1} },
+	{"RadianCos",	ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT,-1} },
+	{"RadianTan",	ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT,-1} },
 	{"Max",			ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
 	{"Min",			ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
 	{"Pow",			ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
@@ -279,6 +284,20 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
 		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
 		rval[label]=code;
 	}
+	//int RadianSin(int val)
+	{
+		id = memberids["RadianSin"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OMultImmediate(new VarArgument(EXP2), new LiteralArgument(radsperdeg)));
+		code.push_back(new OSinRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
 	//int Cos(int val)
 	{
 		id = memberids["Cos"];
@@ -292,6 +311,20 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
 		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
 		rval[label]=code;
 	}
+	//int RadianCos(int val)
+	{
+		id = memberids["RadianCos"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OMultImmediate(new VarArgument(EXP2), new LiteralArgument(radsperdeg)));
+		code.push_back(new OCosRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
 	//int Tan(int val)
 	{
 		id = memberids["Tan"];
@@ -300,6 +333,20 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OPopRegister(new VarArgument(EXP2));
 		first->setLabel(label);
 		code.push_back(first);
+		code.push_back(new OTanRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
+	//int RadianTan(int val)
+	{
+		id = memberids["RadianTan"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OMultImmediate(new VarArgument(EXP2), new LiteralArgument(radsperdeg)));
 		code.push_back(new OTanRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
@@ -504,33 +551,24 @@ static AccessorTable LinkSTable[] = {
 	{"setAction",	ScriptParser::TYPE_VOID,	SETTER,		LINKACTION,1,{ScriptParser::TYPE_LINK, ScriptParser::TYPE_FLOAT, -1} },
 	{"Warp",		ScriptParser::TYPE_VOID,	FUNCTION,	0,		1,	{ScriptParser::TYPE_LINK,ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
 	{"PitWarp",		ScriptParser::TYPE_VOID,	FUNCTION,	0,		1,	{ScriptParser::TYPE_LINK,ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"getInputsEnabled",ScriptParser::TYPE_BOOL,GETTER,	INPUTSENABLED,1,{ScriptParser::TYPE_LINK, -1} },
-	{"setInputsEnabled",ScriptParser::TYPE_VOID,SETTER,		INPUTSENABLED,1,{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
-	{"getForcedUp",	ScriptParser::TYPE_BOOL,	GETTER,		FORCEDUP,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setForcedUp", ScriptParser::TYPE_BOOL,	SETTER,		FORCEDUP,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
-	{"getForcedDown",ScriptParser::TYPE_BOOL,	GETTER,		FORCEDDOWN,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setForcedDown",ScriptParser::TYPE_BOOL,	SETTER,		FORCEDDOWN,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
-	{"getForcedLeft",ScriptParser::TYPE_BOOL,	GETTER,		FORCEDLEFT,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setForcedLeft", ScriptParser::TYPE_BOOL,	SETTER,		FORCEDLEFT,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
-	{"getForcedRight",ScriptParser::TYPE_BOOL,	GETTER,		FORCEDRIGHT,1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setForcedRight", ScriptParser::TYPE_BOOL,	SETTER,		FORCEDRIGHT,1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
-	{"getForcedA",	ScriptParser::TYPE_BOOL,	GETTER,		FORCEDA,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setForcedA",	ScriptParser::TYPE_BOOL,	SETTER,		FORCEDA,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
-	{"getForcedB",	ScriptParser::TYPE_BOOL,	GETTER,		FORCEDB,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setForcedB",	ScriptParser::TYPE_BOOL,	SETTER,		FORCEDB,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
-	{"getForcedL",	ScriptParser::TYPE_BOOL,	GETTER,		FORCEDL,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setForcedL",	ScriptParser::TYPE_BOOL,	SETTER,		FORCEDL,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
-	{"getForcedR",	ScriptParser::TYPE_BOOL,	GETTER,		FORCEDR,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setForcedR",	ScriptParser::TYPE_BOOL,	SETTER,		FORCEDR,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
-	{"APressed",	ScriptParser::TYPE_BOOL,	GETTER,		GETA,		1,	{ScriptParser::TYPE_LINK, -1} },
-	{"BPressed",	ScriptParser::TYPE_BOOL,	GETTER,		GETB,		1,	{ScriptParser::TYPE_LINK, -1} },
-	{"LPressed",	ScriptParser::TYPE_BOOL,	GETTER,		GETL,		1,	{ScriptParser::TYPE_LINK, -1} },
-	{"RPressed",	ScriptParser::TYPE_BOOL,	GETTER,		GETR,		1,	{ScriptParser::TYPE_LINK, -1} },
-	{"UpPressed",	ScriptParser::TYPE_BOOL,	GETTER,		GETUP,		1,	{ScriptParser::TYPE_LINK, -1} },
-	{"DownPressed",	ScriptParser::TYPE_BOOL,	GETTER,		GETDOWN,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"LeftPressed",	ScriptParser::TYPE_BOOL,	GETTER,		GETLEFT,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"RightPressed",ScriptParser::TYPE_BOOL,	GETTER,		GETRIGHT,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"StartPressed",ScriptParser::TYPE_BOOL,	GETTER,		GETSTART,	1,	{ScriptParser::TYPE_LINK, -1} },
+	{"getInputStart",ScriptParser::TYPE_BOOL,GETTER,	INPUTSTART,1,{ScriptParser::TYPE_LINK, -1} },
+	{"setInputStart",ScriptParser::TYPE_VOID,SETTER,		INPUTSTART,1,{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"getInputUp",	ScriptParser::TYPE_BOOL,	GETTER,		INPUTUP,	1,	{ScriptParser::TYPE_LINK, -1} },
+	{"setInputUp", ScriptParser::TYPE_BOOL,	SETTER,		INPUTUP,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"getInputDown",ScriptParser::TYPE_BOOL,	GETTER,		INPUTDOWN,	1,	{ScriptParser::TYPE_LINK, -1} },
+	{"setInputDown",ScriptParser::TYPE_BOOL,	SETTER,		INPUTDOWN,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"getInputLeft",ScriptParser::TYPE_BOOL,	GETTER,		INPUTLEFT,	1,	{ScriptParser::TYPE_LINK, -1} },
+	{"setInputLeft", ScriptParser::TYPE_BOOL,	SETTER,		INPUTLEFT,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"getInputRight",ScriptParser::TYPE_BOOL,	GETTER,		INPUTRIGHT,1,	{ScriptParser::TYPE_LINK, -1} },
+	{"setInputRight", ScriptParser::TYPE_BOOL,	SETTER,		INPUTRIGHT,1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"getInputA",	ScriptParser::TYPE_BOOL,	GETTER,		INPUTA,	1,	{ScriptParser::TYPE_LINK, -1} },
+	{"setInputA",	ScriptParser::TYPE_BOOL,	SETTER,		INPUTA,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"getInputB",	ScriptParser::TYPE_BOOL,	GETTER,		INPUTB,	1,	{ScriptParser::TYPE_LINK, -1} },
+	{"setInputB",	ScriptParser::TYPE_BOOL,	SETTER,		INPUTB,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"getInputL",	ScriptParser::TYPE_BOOL,	GETTER,		INPUTL,	1,	{ScriptParser::TYPE_LINK, -1} },
+	{"setInputL",	ScriptParser::TYPE_BOOL,	SETTER,		INPUTL,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"getInputR",	ScriptParser::TYPE_BOOL,	GETTER,		INPUTR,	1,	{ScriptParser::TYPE_LINK, -1} },
+	{"setInputR",	ScriptParser::TYPE_BOOL,	SETTER,		INPUTR,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
 	{""},
 };
 

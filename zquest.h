@@ -46,7 +46,7 @@ enum
   m_menucount
 };
 
-enum {MOUSE_BMP_NORMAL=0, MOUSE_BMP_POINT_BOX, MOUSE_BMP_FLAG, MOUSE_BMP_BOX, MOUSE_BMP_SWORD, MOUSE_BMP_POTION, MOUSE_BMP_WAND, MOUSE_BMP_LENS, MOUSE_BMP_GLOVE, MOUSE_BMP_HOOKSHOT, MOUSE_BMP_BLANK, MOUSE_BMP_MAX};
+enum {MOUSE_BMP_NORMAL=0, MOUSE_BMP_POINT_BOX, MOUSE_BMP_FLAG, MOUSE_BMP_BOX, MOUSE_BMP_SWORD, MOUSE_BMP_POTION, MOUSE_BMP_WAND, MOUSE_BMP_LENS, MOUSE_BMP_GLOVE, MOUSE_BMP_HOOKSHOT, MOUSE_BMP_WAND2, MOUSE_BMP_BLANK, MOUSE_BMP_MAX};
 enum {ICON_BMP_ITEM=0, ICON_BMP_WARP, ICON_BMP_WARPDEST, ICON_BMP_FLAG, ICON_BMP_RETURN_A, ICON_BMP_RETURN_B, ICON_BMP_RETURN_C, ICON_BMP_RETURN_D, ICON_BMP_MAX};
 
 
@@ -83,13 +83,13 @@ extern COLOR_MAP trans_table;
 extern char *datafile_str;
 extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
-extern FONT *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
+extern FONT *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
             *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font;
-extern BITMAP *menu1,*menu3, *mapscreenbmp, *combo_bmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][3], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
+extern BITMAP *menu1,*menu3, *mapscreenbmp, *combo_bmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
-extern tiledata *newtilebuf;
+extern tiledata *newtilebuf, *grabtilebuf;
 extern newcombo *combobuf;
 extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;

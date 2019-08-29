@@ -67,7 +67,6 @@ bool trip=false;
 void update_logic_counter()
 {
   ++logic_counter;
-  if(logic_counter==5) --logic_counter;
 } END_OF_FUNCTION(update_logic_counter)
 
   int onHelp()
@@ -99,12 +98,12 @@ COLOR_MAP trans_table;
 
 BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen;
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
-FONT       *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
+FONT       *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
            *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font;
 PALETTE    RAMpal;
 byte       *colordata, *trashbuf;
 //byte       *tilebuf;
-tiledata   *newtilebuf;
+tiledata   *newtilebuf, *grabtilebuf;
 newcombo   *combobuf;
 itemdata   *itemsbuf;
 wpndata    *wpnsbuf;
@@ -248,6 +247,9 @@ DoorComboSet *DoorComboSets;
 dmap         *DMaps;
 miscQdata    QMisc;
 mapscr       *TheMaps;
+byte	     *quest_file;
+dword		 quest_map_pos[MAPSCRS*MAXMAPS2];
+long		ffstack[32][256];
 
 char     *qstpath=NULL;
 char     *qstdir=NULL;
@@ -556,7 +558,12 @@ int load_quest(gamedata *g, bool report)
   }
 
   packfile_password(datapwd);
-  int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true);
+  byte skip_flags[4];
+  for (int i=0; i<4; ++i)
+  {
+    skip_flags[i]=0;
+  }
+  int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags);
   packfile_password(NULL);
 
   /*
@@ -809,7 +816,7 @@ int init_game()
     //    game->items[itype_wallet]=(1<<(zinit.wallet-1));
     game->items[itype_wallet]=zinit.wallet;
     set_gamedata_sbombs(game, zinit.super_bombs);
-	set_gamedata_maxcounter(game, zinit.max_bombs>>2, 6);
+  set_gamedata_maxcounter(game, zinit.max_bombs>>2, 6);
     set_gamedata_HCpieces(game, zinit.hcp);
     set_gamedata_rupies(game, zinit.rupies);
     if (zinit.letter>0)
@@ -904,11 +911,12 @@ int init_game()
       game->items[itype_hammer]=zinit.hammer;
     }
 
-	if(zinit.quiver>0)
-	{
-		game->items[itype_quiver]=zinit.quiver;
-	}
-
+  if(zinit.quiver>0)
+  {
+    game->items[itype_quiver]=zinit.quiver;
+  }
+  
+  for (int i=0; i<MAXITEMS; i++) game->items_off[i]=0;
 
     for (int i=0; i<MAXLEVELS; i++)
     {
@@ -932,8 +940,8 @@ int init_game()
     set_gamedata_maxarrows(game, zinit.max_arrows);
     computeMaxArrows();
 
-	set_gamedata_maxcounter(game, zinit.max_rupees, 1);
-	set_gamedata_maxcounter(game, zinit.max_keys, 5);
+  set_gamedata_maxcounter(game, zinit.max_rupees, 1);
+  set_gamedata_maxcounter(game, zinit.max_keys, 5);
 
   }
 
@@ -1026,7 +1034,28 @@ int init_game()
   global_lwpn=0;
   global_ewpn=0;
   global_guy=0;
-  run_script(0, 0, SCRIPT_GLOBAL); 
+  run_script(0, 0, SCRIPT_GLOBAL);
+  for(int i=0;i<8;i++)
+  {
+    g_d[i]=0;
+  }
+  for(int i=0;i<256;i++)
+  {
+    g_stack[i]=0;
+  }
+  g_scriptflag=0;
+  g_pc=0;
+  g_sp=0;
+  g_doscript=1;
+  global_itemclass=0;
+  global_ewpnclass=0;
+  global_lwpnclass=0;
+  global_guyclass=0;
+  global_ffc=0;
+  global_item=0;
+  global_lwpn=0;
+  global_ewpn=0;
+  global_guy=0;
 
   return 0;
 }
@@ -1123,6 +1152,27 @@ int cont_game()
     newscr_clk=frame;
     activated_timed_warp=false;
   }
+  for(int i=0;i<8;i++)
+  {
+    g_d[i]=0;
+  }
+  for(int i=0;i<256;i++)
+  {
+    g_stack[i]=0;
+  }
+  g_scriptflag=0;
+  g_pc=0;
+  g_sp=0;
+  g_doscript=1;
+  global_itemclass=0;
+  global_ewpnclass=0;
+  global_lwpnclass=0;
+  global_guyclass=0;
+  global_ffc=0;
+  global_item=0;
+  global_lwpn=0;
+  global_ewpn=0;
+  global_guy=0;
   return 0;
 }
 
@@ -1255,7 +1305,6 @@ void show_details()
     {
 //      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d",items.spr(i)->id);
 //      textprintf_ex(framebuf,font,160,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %3d",((weapon*)Ewpns.spr(i))->id, ((weapon*)Ewpns.spr(i))->tile, ((weapon*)Ewpns.spr(i))->aframe, wpnsbuf[((weapon*)Ewpns.spr(i))->id].frames);
-      textprintf_ex(framebuf,font,100,16,WHITE,BLACK,"%5d %5d",int(Link.getSlideX()*1000), int(Link.getSlideY()*1000));
 //      textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %3d %3d %3d",(int)((enemy*)guys.spr(i))->x, (int)((enemy*)guys.spr(i))->y, ((enemy*)guys.spr(i))->hxofs, ((enemy*)guys.spr(i))->hyofs, ((enemy*)guys.spr(i))->hxsz, ((enemy*)guys.spr(i))->hysz);//,dirstr[((enemy*)guys.spr(i))->dir]);//, dirstr[((enemy*)guys.spr(i))->clk3]);
     }
 
@@ -1349,7 +1398,7 @@ void do_magic_casting()
         {
           ltile+=item_tile_mod(shieldModify);
         }
-        unpack_tile(ltile, lflip, true);
+        unpack_tile(newtilebuf, ltile, lflip, true);
         memcpy(linktilebuf, unpackbuf, 256);
         tempx=Link.getX();
         tempy=Link.getY();
@@ -1615,36 +1664,19 @@ void game_loop()
   bool freezeff = false;
   for(int i=0;i<176;i++)
   {
-	  if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
-	  if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
+    if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
+    if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
   }
   animate_combos();
+  load_control_state();
+  
   if(!freezeff)
+  {
     update_freeform_combos();
+  }
   if(!freeze)
   {
-    for(int i=0;i<8;i++)
-  {
-    g_d[i]=0;
-  }
-  for(int i=0;i<256;i++)
-  {
-    g_stack[i]=0;
-  }
-  g_scriptflag=0;
-  g_pc=0;
-  g_sp=0;
-  g_doscript=1;
-  global_itemclass=0;
-  global_ewpnclass=0;
-  global_lwpnclass=0;
-  global_guyclass=0;
-  global_ffc=0;
-  global_item=0;
-  global_lwpn=0;
-  global_ewpn=0;
-  global_guy=0;
-  run_script(1, 0, SCRIPT_GLOBAL); 
+    run_script(1, 0, SCRIPT_GLOBAL); 
 
     mblock2.animate(0);
     items.animate();
@@ -1659,7 +1691,9 @@ void game_loop()
       if(Link.animate(0))
       {
         if(!Quit)
+        {
           Quit=qGAMEOVER;
+        }
         return;
       }
       checklink=false;
@@ -1692,7 +1726,9 @@ void game_loop()
   }
 
   if(!freeze)
+  {
     putintro();
+  }
 
   if (dmapmsgclk>0)
   {
@@ -1727,13 +1763,13 @@ void game_loop()
     {
       putmsg();
     }
-  domoney();
-  domagic();
-  if(lensclk)
-  {
-    draw_lens_over();
-    --lensclk;
-  }
+    domoney();
+    domagic();
+    if(lensclk)
+    {
+      draw_lens_over();
+      --lensclk;
+    }
   }
 
   //  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int(rand()%16)));
@@ -2112,6 +2148,7 @@ int main(int argc, char* argv[])
   mfont = (FONT*)fontsdata[FONT_MATRIX].dat;
   ztfont = (FONT*)fontsdata[FONT_ZTIME].dat;
   sfont = (FONT*)fontsdata[FONT_6x6].dat;
+  sfont2 = (FONT*)fontsdata[FONT_6x4].dat;
   spfont = (FONT*)fontsdata[FONT_6xPROP].dat;
   ssfont1 = (FONT*)fontsdata[FONT_SUBSCREEN1].dat;
   ssfont2 = (FONT*)fontsdata[FONT_SUBSCREEN2].dat;
@@ -2147,38 +2184,38 @@ int main(int argc, char* argv[])
   for(int i=0;i<512;i++)
   {
     ffscripts[i] = new ffscript[1];
-	ffscripts[i][0].command = 0xFFFF;
+    ffscripts[i][0].command = 0xFFFF;
   }
   for(int i=0;i<256;i++)
-    {
-	  itemscripts[i] = new ffscript[1];
-	  itemscripts[i][0].command = 0xFFFF;
-    }
-	for(int i=0;i<256;i++)
-    {
-	  guyscripts[i] = new ffscript[1];
-	  guyscripts[i][0].command = 0xFFFF;
-    }
-	for(int i=0;i<256;i++)
-    {
-	  wpnscripts[i] = new ffscript[1];
-	  wpnscripts[i][0].command = 0xFFFF;
-    }
-	for(int i=0;i<256;i++)
-    {
-	  screenscripts[i] = new ffscript[1];
-	  screenscripts[i][0].command = 0xFFFF;
-    }
-	for(int i=0;i<3;i++)
-    {
-	  globalscripts[i] = new ffscript[1];
-	  globalscripts[i][0].command = 0xFFFF;
-    }
-	for(int i=0;i<3;i++)
-    {
-	  linkscripts[i] = new ffscript[1];
-	  linkscripts[i][0].command = 0xFFFF;
-    }
+  {
+    itemscripts[i] = new ffscript[1];
+    itemscripts[i][0].command = 0xFFFF;
+  }
+  for(int i=0;i<256;i++)
+  {
+    guyscripts[i] = new ffscript[1];
+    guyscripts[i][0].command = 0xFFFF;
+  }
+  for(int i=0;i<256;i++)
+  {
+    wpnscripts[i] = new ffscript[1];
+    wpnscripts[i][0].command = 0xFFFF;
+  }
+  for(int i=0;i<256;i++)
+  {
+    screenscripts[i] = new ffscript[1];
+    screenscripts[i][0].command = 0xFFFF;
+  }
+  for(int i=0;i<3;i++)
+  {
+    globalscripts[i] = new ffscript[1];
+    globalscripts[i][0].command = 0xFFFF;
+  }
+  for(int i=0;i<3;i++)
+  {
+    linkscripts[i] = new ffscript[1];
+    linkscripts[i][0].command = 0xFFFF;
+  }
 
   // load saved games
   Z_message("Loading saved games... ");
@@ -2249,28 +2286,28 @@ int main(int argc, char* argv[])
     tempmode = GFX_AUTODETECT_FULLSCREEN;
   }
   else if(used_switch(argc,argv,"-windowed"))
-    {
-      al_trace("Used switch: -windowed\n");
-      tempmode=GFX_AUTODETECT_WINDOWED;
-    }
+  {
+    al_trace("Used switch: -windowed\n");
+    tempmode=GFX_AUTODETECT_WINDOWED;
+  }
 
-    if(!game_vid_mode(tempmode,250))
+  if(!game_vid_mode(tempmode,250))
+  {
+    if (tempmode==GFX_AUTODETECT_FULLSCREEN&&resx==320&&resy==240&&sbig==0)
     {
-      if (tempmode==GFX_AUTODETECT_FULLSCREEN&&resx==320&&resy==240&&sbig==0)
-      {
-        sbig=1;
-        resx=640;
-        resy=480;
-        if(!game_vid_mode(tempmode,250))
-        {
-          Z_error(allegro_error);
-        }
-      }
-      else
+      sbig=1;
+      resx=640;
+      resy=480;
+      if(!game_vid_mode(tempmode,250))
       {
         Z_error(allegro_error);
       }
     }
+    else
+    {
+      Z_error(allegro_error);
+    }
+  }
 
   real_screen=screen;
 
@@ -2347,41 +2384,12 @@ int main(int argc, char* argv[])
     load_save=0;
     //    packfile_password(NULL);
     setup_combo_animations();
-	setup_combo_animations2();
+  setup_combo_animations2();
     while(!Quit)
     {
-      /*if (FrameSkip)
-        {
-        while(logic_counter>0)
-        {
-        --logic_counter;
-        }
-        while(logic_counter==0)
-        {
-        }
-        while(logic_counter>0)
-        {
-        --logic_counter;
-        drawit=false;
-
-        game_loop();
-        //          advanceframe();
-        }
-        drawit=true;
-        game_loop();
-        advanceframe();
-        //while(logic_counter==0)
-        //{
-        //}
-        }
-        else
-        {*/
-      //--logic_counter;
       drawit=true;
       game_loop();
       advanceframe();
-
-      //}
     }
     tmpscr->flags3=0;
     Playing=Paused=false;
@@ -2389,16 +2397,6 @@ int main(int argc, char* argv[])
     {
       case qQUIT:
       case qGAMEOVER:
-      {
-        Link.setDontDraw(false);
-        show_subscreen_dmap_dots=true;
-        show_subscreen_numbers=true;
-        show_subscreen_items=true;
-        show_subscreen_life=true;
-        if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
-        skipcont = 0;
-      } break;
-      case qWON:
       {
         Link.setDontDraw(false);
         show_subscreen_dmap_dots=true;
@@ -2422,6 +2420,38 @@ int main(int argc, char* argv[])
          global_lwpnclass=0;
          global_guyclass=0;
          global_ffc=0;
+        global_item=0;
+        global_lwpn=0;
+        global_ewpn=0;
+        global_guy=0;
+        run_script(2, 0, SCRIPT_GLOBAL); 
+        if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
+        skipcont = 0;
+      } break;
+      case qWON:
+      {
+        Link.setDontDraw(false);
+        show_subscreen_dmap_dots=true;
+        show_subscreen_numbers=true;
+        show_subscreen_items=true;
+        show_subscreen_life=true;
+        for(int i=0;i<8;i++)
+        {
+          g_d[i]=0;
+        }
+        for(int i=0;i<256;i++)
+        {
+          g_stack[i]=0;
+        }
+        g_scriptflag=0;
+        g_pc=0;
+        g_sp=0;
+        g_doscript=1;
+        global_itemclass=0;
+        global_ewpnclass=0;
+        global_lwpnclass=0;
+        global_guyclass=0;
+        global_ffc=0;
         global_item=0;
         global_lwpn=0;
         global_ewpn=0;
@@ -2504,29 +2534,29 @@ void quit_game()
     if(ffscripts[i]!=NULL) delete [] ffscripts[i];
   }
   for(int i=0;i<256;i++)
-    {
-	  if(itemscripts[i]!=NULL) delete [] itemscripts[i];
-    }
-	for(int i=0;i<256;i++)
-    {
-	  if(guyscripts[i]!=NULL) delete [] guyscripts[i];
-    }
-	for(int i=0;i<256;i++)
-    {
-	  if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
-    }
-	for(int i=0;i<256;i++)
-    {
-	  if(screenscripts[i]!=NULL) delete [] screenscripts[i];
-    }
-	for(int i=0;i<3;i++)
-    {
-	  if(globalscripts[i]!=NULL) delete [] globalscripts[i];
-    }
-	for(int i=0;i<3;i++)
-    {
-	  if(linkscripts[i]!=NULL) delete [] linkscripts[i];
-    }
+  {
+    if(itemscripts[i]!=NULL) delete [] itemscripts[i];
+  }
+  for(int i=0;i<256;i++)
+  {
+    if(guyscripts[i]!=NULL) delete [] guyscripts[i];
+  }
+  for(int i=0;i<256;i++)
+  {
+    if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+  }
+  for(int i=0;i<256;i++)
+  {
+    if(screenscripts[i]!=NULL) delete [] screenscripts[i];
+  }
+  for(int i=0;i<3;i++)
+  {
+    if(globalscripts[i]!=NULL) delete [] globalscripts[i];
+  }
+  for(int i=0;i<3;i++)
+  {
+    if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+  }
   //  dumb_exit();
   Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
   Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");

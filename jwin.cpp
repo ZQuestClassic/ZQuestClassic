@@ -121,56 +121,49 @@ void jwin_draw_frame(BITMAP *dest,int x,int y,int w,int h,int style)
   switch(style)
   {
     case FR_BOX:
-    c1 = jcLIGHT;
-    c2 = jcMEDLT;
-    c3 = jcMEDDARK;
-    c4 = jcDARK;
-    break;
-
+      c1 = jcLIGHT;
+      c2 = jcMEDLT;
+      c3 = jcMEDDARK;
+      c4 = jcDARK;
+      break;
     case FR_INV:
-    c1 = jcDARK;
-    c2 = jcMEDDARK;
-    c3 = jcMEDLT;
-    c4 = jcLIGHT;
-    break;
-
+      c1 = jcDARK;
+      c2 = jcMEDDARK;
+      c3 = jcMEDLT;
+      c4 = jcLIGHT;
+      break;
     case FR_DEEP:
-    c1 = jcMEDDARK;
-    c2 = jcDARK;
-    c3 = jcMEDLT;
-    c4 = jcLIGHT;
-    break;
-
+      c1 = jcMEDDARK;
+      c2 = jcDARK;
+      c3 = jcMEDLT;
+      c4 = jcLIGHT;
+      break;
     case FR_DARK:
-    c1 = jcDARK;
-    c2 = jcMEDDARK;
-    c3 = jcMEDDARK;
-    c4 = jcDARK;
-    break;
-
+      c1 = jcDARK;
+      c2 = jcMEDDARK;
+      c3 = jcMEDDARK;
+      c4 = jcDARK;
+      break;
     case FR_ETCHED:
-    c1 = jcMEDDARK;
-    c2 = jcLIGHT;
-    c3 = jcMEDDARK;
-    c4 = jcLIGHT;
-    break;
-
+      c1 = jcMEDDARK;
+      c2 = jcLIGHT;
+      c3 = jcMEDDARK;
+      c4 = jcLIGHT;
+      break;
     case FR_MEDDARK:
-    c1 = jcMEDDARK;
-    c2 = jcBOX;
-    c3 = jcBOX;
-    c4 = jcMEDDARK;
-    break;
-
+      c1 = jcMEDDARK;
+      c2 = jcBOX;
+      c3 = jcBOX;
+      c4 = jcMEDDARK;
+      break;
     case FR_WIN:
     default:
-    c1 = jcMEDLT;
-    c2 = jcLIGHT;
-    c3 = jcMEDDARK;
-    c4 = jcDARK;
-    break;
+      c1 = jcMEDLT;
+      c2 = jcLIGHT;
+      c3 = jcMEDDARK;
+      c4 = jcDARK;
+      break;
   }
-
   _allegro_hline(dest, x, y  , x+w-2, scheme[c1]);
   _allegro_vline(dest, x, y+1, y+h-2, scheme[c1]);
 
@@ -705,12 +698,12 @@ void jwin_draw_text_button(BITMAP *dest, int x, int y, int w, int h, char *str, 
   if(flags & D_SELECTED)
     jwin_draw_button(dest, x, y, w, h, 2, 0);
   else if( !(flags & D_GOTFOCUS) )
-      jwin_draw_button(dest, x, y, w, h, 0, 0);
-    else
-    {
-      rect(dest, x, y, x+w-1, y+h-1, scheme[jcDARK]);
-      jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
-    }
+    jwin_draw_button(dest, x, y, w, h, 0, 0);
+  else
+  {
+    rect(dest, x, y, x+w-1, y+h-1, scheme[jcDARK]);
+    jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
+  }
 
   if( !(flags & D_DISABLED) )
     gui_textout_ex(dest, str, x+w/2+g, y+h/2-text_height(font)/2+g, scheme[jcBOXFG], -1, TRUE);

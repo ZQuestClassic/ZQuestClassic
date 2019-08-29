@@ -313,6 +313,8 @@ void sprite::drawcloaked(BITMAP* dest)
 
 void sprite::drawshadow(BITMAP* dest,bool translucent)
 {
+  int shadowcs = wpnsbuf[iwShadow].csets & 0xFFFF;
+  int shadowflip = wpnsbuf[iwShadow].misc & 0xFF;
   if (shadowtile==0)
   {
     return;
@@ -326,13 +328,13 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
   {
     if (translucent)
     {
-      overtiletranslucent16(dest,shadowtile,sx,sy,cs,flip,128);
+      overtiletranslucent16(dest,shadowtile,sx,sy,shadowcs,shadowflip,128);
     }
     else
     {
       if (frame&1)
       {
-        overtile16(dest,shadowtile,sx,sy,cs,flip);
+        overtile16(dest,shadowtile,sx,sy,shadowcs,shadowflip);
       }
     }
   }

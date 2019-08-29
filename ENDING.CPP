@@ -28,8 +28,8 @@ extern int draw_screen_clip_rect_x1;
 extern int draw_screen_clip_rect_x2;
 extern int draw_screen_clip_rect_y1;
 extern int draw_screen_clip_rect_y2;
-extern bool draw_screen_clip_rect_show_link;
-extern bool draw_screen_clip_rect_show_guys;
+//extern bool draw_screen_clip_rect_show_link;
+//extern bool draw_screen_clip_rect_show_guys;
 
 void noproc() {}
 
@@ -143,8 +143,8 @@ void ending()
   draw_screen_clip_rect_x2=255;
   draw_screen_clip_rect_y1=0;
   draw_screen_clip_rect_y2=223;
-  draw_screen_clip_rect_show_link=true;
-  draw_screen_clip_rect_show_guys=false;
+  //draw_screen_clip_rect_show_link=true;
+  //draw_screen_clip_rect_show_guys=false;
 
   for(int f=0; f<365; f++)
   {
@@ -169,7 +169,7 @@ void ending()
       //TODO::
       draw_screen_clip_rect_x1+=8;
       draw_screen_clip_rect_x2-=8;
-      draw_screen_clip_rect_show_guys=true;
+      //draw_screen_clip_rect_show_guys=true;
     }
     draw_screen(tmpscr, 0, 0);
     advanceframe();
@@ -178,7 +178,7 @@ void ending()
 
   draw_screen_clip_rect_x1=0;
   draw_screen_clip_rect_x2=255;
-  draw_screen_clip_rect_show_guys=false;
+  //draw_screen_clip_rect_show_guys=false;
 
   char tmpmsg[6][25];
 

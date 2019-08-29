@@ -57,8 +57,8 @@ INLINE int bit(int val,int b)
   return (val>>b)&1;
 }
 
-enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU };
-extern char *imgstr[6];
+enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU, ftZQT, ftQST, ftMAX };
+extern char *imgstr[ftMAX];
 extern char ns_string[3];
 extern char *old_item_string[OLDITEMCNT];
 extern char *old_weapon_string[OLDWPNCNT];

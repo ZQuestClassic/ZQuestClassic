@@ -80,8 +80,8 @@ public:
 	static FunctionData *typeCheck(SymbolData *sdata);
 	static IntermediateData *generateOCode(FunctionData *fdata);
 	static ScriptsData *assemble(IntermediateData *id);
-	static pair<string, string> parseFloat(string f);
 	static void resetState() {vid=0;fid=0;gid=1;lid=0;}
+	static pair<long,bool> parseLong(pair<string,string> parts);
 	static string printType(int type) {
 		switch(type)
 		{

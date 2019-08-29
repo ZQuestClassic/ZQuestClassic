@@ -748,34 +748,14 @@ void TypeCheck::caseExprDecrement(ASTExprDecrement &host, void *param)
 }
 void TypeCheck::caseNumConstant(ASTNumConstant &host, void *param)
 {
-	string floatval = host.getValue()->getValue();
-	pair<string, string> parts = ScriptParser::parseFloat(floatval);
-	if(parts.second.size() > 4)
-	{
-		printErrorMsg(&host, CONSTTRUNC, floatval);
-		parts.second = parts.second.substr(0,4);
-	}
-	if(parts.first.size() > 4)
-	{
-		printErrorMsg(&host, CONSTTRUNC, floatval);
-		parts.first = parts.first.substr(0,4);
-	}
 	host.setType(ScriptParser::TYPE_FLOAT);
-	int intval = atoi(parts.first.c_str())*10000;
-	//add fractional part; tricky!
-	int fpart = 0;
-	while(parts.second.length() < 4)
-		parts.second = parts.second + "0";
-	for(unsigned int i=0; i<4; i++)
+	pair<string,string> parts = host.getValue()->parseValue();
+	pair<long, bool> val = ScriptParser::parseLong(parts);
+	if(!val.second)
 	{
-		fpart*=10;
-		char tmp[2];
-		tmp[0] = parts.second.at(i);
-		tmp[1] = 0;
-		fpart += atoi(tmp);
+		printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
 	}
-	intval += fpart;
-	host.setIntValue(intval);
+	host.setIntValue(val.second);
 }
 
 void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
@@ -788,7 +768,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 	bool isdotexpr;
 	IsDotExpr temp;
 	host.getName()->execute(temp, &isdotexpr);
-
+	
 	//if this is a simple function, we already have what we need
 	//otherwise we need the type of the thing being arrowed
 	if(!isdotexpr)
@@ -984,7 +964,8 @@ void TypeCheck::caseStmtAssign(ASTStmtAssign &host, void *param)
 void TypeCheck::caseExprDot(ASTExprDot &host, void *param)
 {
 	SymbolTable *st = ((pair<SymbolTable *, int> *)param)->first;
-	host.setType(st->getVarType(&host));
+	int type  = st->getVarType(&host);
+	host.setType(type);
 }
 
 void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)

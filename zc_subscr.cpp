@@ -92,6 +92,7 @@ void dosubscr_new(miscQdata *misc)
 //  put_passive_subscr(scrollbuf,misc,0,174,showtime,true);
   do
   {
+    load_control_state();
     int pos = Bpos;
 
     if(rUp())         selectBwpn(0, -1);
@@ -246,6 +247,7 @@ void dosubscr(miscQdata *misc)
   put_passive_subscr(scrollbuf,misc,0,174,showtime,true);
   do
   {
+    load_control_state();
     int pos = Bpos;
 
     if(rUp())         selectBwpn(0, -1);

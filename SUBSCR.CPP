@@ -4023,6 +4023,7 @@ void put_passive_subscr(BITMAP *dest,miscQdata *misc,int x,int y,bool showtime,b
   if (no_subscreen())
   {
     clear_to_color(subscr,0);
+	destroy_bitmap(subscr);
     return;
   }
   show_custom_subscreen(subscr, misc, current_subscreen_passive, 0, 0, showtime, pulled_down);

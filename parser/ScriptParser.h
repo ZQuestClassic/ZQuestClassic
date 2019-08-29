@@ -19,6 +19,7 @@ int go(const char *f);
 
 class ASTScript;
 class ASTImportDecl;
+class ASTConstDecl;
 class ASTFuncDecl;
 class ASTFloat;
 class ASTString;
@@ -76,6 +77,8 @@ class ASTExprModulo;
 class ASTExprBitNot;
 class ASTExprIncrement;
 class ASTExprDecrement;
+class ASTStmtBreak;
+class ASTStmtContinue;
 
 class ASTVisitor
 {
@@ -86,6 +89,7 @@ public:
 	virtual void caseString(ASTString &host, void *param) {caseDefault(param);}
 	virtual void caseDeclList(ASTDeclList &host, void *param) {caseDefault(param);}
 	virtual void caseImportDecl(ASTImportDecl &host, void *param) {caseDefault(param);}
+	virtual void caseConstDecl(ASTConstDecl &host, void *param) {caseDefault(param);}
 	virtual void caseFuncDecl(ASTFuncDecl &host, void *param) {caseDefault(param);}
 	virtual void caseTypeFloat(ASTTypeFloat &host, void *param) {caseDefault(param);}
 	virtual void caseTypeBool(ASTTypeBool &host, void *param) {caseDefault(param);}
@@ -134,6 +138,8 @@ public:
 	virtual void caseExprIncrement(ASTExprIncrement &host, void *param) {caseDefault(param);}
 	virtual void caseExprDecrement(ASTExprDecrement &host, void *param) {caseDefault(param);}
 	virtual void caseExprModulo(ASTExprModulo &host, void *param) {caseDefault(param);}
+	virtual void caseStmtBreak(ASTStmtBreak &host, void *param) {caseDefault(param);}
+	virtual void caseStmtContinue(ASTStmtContinue &host, void *param) {caseDefault(param);}
 	virtual ~ASTVisitor() {}
 };
 
@@ -195,16 +201,21 @@ private:
 class ASTFloat : public AST
 {
 public:
-	ASTFloat(const char * value, LocationData loc) : AST(loc) {
+	ASTFloat(const char * value, int type, LocationData loc) : AST(loc), type(type) {
 		val = string(value);
 	}
 	string getValue() {return val;}
-
+	pair<string,string> parseValue();
+	int getType() {return type;}
 	void execute(ASTVisitor &visitor, void *param)
 	{
 		visitor.caseFloat(*this, param);
 	}
+	const static int TYPE_DECIMAL=0;
+	const static int TYPE_BINARY=1;
+	const static int TYPE_HEX=2;
 private:
+	int type;
 	string val;
 };
 
@@ -262,6 +273,22 @@ public:
 	}
 private:
 	string filename;
+};
+
+class ASTConstDecl : public ASTDecl
+{
+public:
+	ASTConstDecl(string name, ASTFloat *val, LocationData loc) : ASTDecl(loc), name(name), val(val) {}
+	string getName() {return name;}
+	ASTFloat *getValue() {return val;}
+	~ASTConstDecl() {delete val;}
+	void execute(ASTVisitor &visitor, void *param)
+	{
+		visitor.caseConstDecl(*this,param);
+	}
+private:
+	string name;
+	ASTFloat *val;
 };
 
 class ASTFuncDecl : public ASTDecl
@@ -407,14 +434,14 @@ class ASTExpr : public ASTStmt
 public:
 	ASTExpr(LocationData loc) : ASTStmt(loc), hasval(false), intval(0), type(-1) {}
 	virtual ~ASTExpr() {}
-	int getIntValue() {return intval;}
+	long getIntValue() {return intval;}
 	bool hasIntValue() {return hasval;}
 	int getType() {return type;}
-	void setIntValue(int val) {hasval = true; intval=val;}
+	void setIntValue(long val) {hasval = true; intval=val;}
 	void setType(int t) {type=t;}
 private:
 	bool hasval;
-	int intval;
+	long intval;
 	int type;
 };
 
@@ -819,7 +846,8 @@ class ASTExprArrow : public ASTExpr
 public:
 	ASTExprArrow(ASTExpr *lval, string rval, LocationData loc) : ASTExpr(loc), lval(lval), rval(rval), index(NULL) {}
 	string getName() {return rval;}
-	ASTExpr *getLVal() {return lval; if(index) delete index;}
+	ASTExpr *getLVal() {return lval;}
+	~ASTExprArrow() {delete lval; if(index) delete index;}
 	void execute(ASTVisitor &visitor, void *param)
 	{
 		visitor.caseExprArrow(*this,param);
@@ -908,6 +936,26 @@ private:
 	ASTExpr *retval;
 };
 
+class ASTStmtBreak : public ASTStmt
+{
+public:
+	ASTStmtBreak(LocationData loc) : ASTStmt(loc) {}
+	void execute(ASTVisitor &visitor, void *param)
+	{
+		visitor.caseStmtBreak(*this,param);
+	}
+};
+
+class ASTStmtContinue : public ASTStmt
+{
+public:
+	ASTStmtContinue(LocationData loc) : ASTStmt(loc) {}
+	void execute(ASTVisitor &visitor, void *param)
+	{
+		visitor.caseStmtContinue(*this, param);
+	}
+};
+
 class ASTStmtEmpty : public ASTStmt
 {
 public:
@@ -962,6 +1010,7 @@ public:
 	virtual void caseString(ASTString &host, void *param);
 	virtual void caseDeclList(ASTDeclList &host, void *param);
 	virtual void caseImportDecl(ASTImportDecl &host, void *param);
+	virtual void caseConstDecl(ASTConstDecl &host, void *param);
 	virtual void caseFuncDecl(ASTFuncDecl &host, void *param);
 	virtual void caseTypeFloat(ASTTypeFloat &host, void *param);
 	virtual void caseTypeBool(ASTTypeBool &host, void *param);
@@ -1010,6 +1059,8 @@ public:
 	virtual void caseExprBitNot(ASTExprBitNot &host, void *param);
 	virtual void caseExprIncrement(ASTExprIncrement &host, void *param);
 	virtual void caseExprDecrement(ASTExprDecrement &host, void *param);
+	virtual void caseStmtBreak(ASTStmtBreak &host, void *param);
+	virtual void caseStmtContinue(ASTStmtContinue &host, void *param);
 
 	AST *getResult() {return result;}
 private:
@@ -1239,6 +1290,19 @@ private:
 	vector<ASTImportDecl *> result;
 };
 
+class GetConsts : public ASTVisitor
+{
+public:
+	GetConsts() : result() {}
+	virtual void caseDefault(void *param);
+	virtual void caseDeclList(ASTDeclList &host, void *param);
+	virtual void caseProgram(ASTProgram &host, void *param);
+	virtual void caseConstDecl(ASTConstDecl &host, void *param);
+	vector<ASTConstDecl *> &getResult() {return result;}
+private:
+	vector<ASTConstDecl *> result;
+};
+
 class GetGlobalFuncs : public ASTVisitor
 {
 public:
@@ -1388,14 +1452,14 @@ class SymbolTable
 {
 public:
 	SymbolTable() : varTypes(), funcTypes(), astToID(), funcParams() {}
-	int getVarType(int varID) {return varTypes[varID];}
+	int getVarType(int varID);
 	int getFuncType(int funcID) {return funcTypes[funcID];}
 	void putVar(int ID, int type) {varTypes[ID]=type;}
 	void putFunc(int ID, int type);
 	void putFuncDecl(int ID, vector<int> params) {funcParams[ID]=params;}
 	void putAST(AST *obj, int ID);
 	void putAmbiguousFunc(AST *func, vector<int> possibleIDs) {astToAmbiguousFuncIDs[func]=possibleIDs;}
-	int getVarType(AST *obj) {return getVarType(astToID[obj]);}
+	int getVarType(AST *obj);
 	int getFuncType(AST *obj);
 	vector<int> getFuncParams(int funcID) {return funcParams[funcID];}
 	vector<int> getAmbiguousFuncs(AST *func) {return astToAmbiguousFuncIDs[func];}

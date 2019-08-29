@@ -88,8 +88,9 @@ bool can_do_clock()
 bool m_walkflag(int x,int y,int special)
 {
   int yg = (special==spw_floater)?8:0;
+  int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
 
-  if(x<16 || y<16-yg || x>=240 || y>=160)
+  if(x<16-nb || y<max(16-yg-nb,0) || x>=240+nb || y>=160+nb)
     return true;
 
   if(isdungeon() || special==spw_wizzrobe)
@@ -679,7 +680,6 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
     return;
   }
 
-  int cshold=cs;
   if(dying)
   {
     return;
@@ -693,7 +693,6 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
   {
     sprite::drawshadow(dest,translucent);
   }
-  cs=cshold;
 }
 
 void enemy::masked_draw(BITMAP *dest,int mx,int my,int mw,int mh)
@@ -1468,9 +1467,7 @@ void enemy::update_enemy_frame()
 {
   int f4=clk/(frate/4);
   int f2=clk/(frate/(get_bit(quest_rules,qr_NEWENEMYTILES)?4:2));
-
   tile = o_tile;
-
   switch(anim)
   {
     case aDONGO:
@@ -1911,6 +1908,11 @@ void enemy::update_enemy_frame()
       tile += (1-f2);
     }
     break;
+	case a2FRMB:
+	{
+		tile+= 2*(1-f2);
+	}
+	break;
     case a2FRMSLOW:
     {
       tile += (1-(f2>>1));
@@ -1950,7 +1952,7 @@ void enemy::update_enemy_frame()
       tile+=f2;
     }
     break;
-    case a4FRM8DIR:
+    case a4FRM8DIRF:
     {
       tiledir(dir);
       if (clk2>0)                                             //stopped to fire
@@ -1967,15 +1969,8 @@ void enemy::update_enemy_frame()
     case a4FRM8DIRB:
     {
       tiledir_big(dir);
-      if (clk2>0)                                             //stopped to fire
-      {
-        tile+=160;
-        if (clk2<17)                                          //firing
-        {
-          tile+=320;
-        }
-      }
-      tile+=f2;
+     
+      tile+=2*f2;
     }
     break;
     case aOCTO:
@@ -2671,10 +2666,11 @@ bool eTektite::animate(int index)
 //        step+=(d->misc3/100.0);
         step+=(dmisc3/100.0);
       }
-      if(x<=16)  clk3=right;
-      if(x>=224) clk3=left;
+	  int nb=get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
+      if(x<=16-nb)  clk3=right;
+      if(x>=224+nb) clk3=left;
       x += (clk3==left) ? -1 : 1;
-      if((--clk2<=0 && y>=16) || y>=144)
+      if((--clk2<=0 && y>=16-nb) || y>=144+nb)
       {
 //        if(rand()%d->misc2)                                 //land and wait
         if(rand()%dmisc2)                                 //land and wait
@@ -2830,7 +2826,7 @@ int ePeahat::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 //    if(!(d->flags & guy_bhit))
     if(!(flags & guy_bhit))
     {
-      if (current_item(itype_brang,true)==3)
+      //if (current_item(itype_brang,true)==3)
       {
         stunclk=160;
         clk2=0;
@@ -3239,8 +3235,16 @@ bool eGelTrib::animate(int index)
   if (clk4==256)
   {
     int kids = guys.Count();
-    int id2=(id==eFGELTRIB?eFZOLTRIB:eZOLTRIB);
-    guys.add(new eZolTrib((fix)x,(fix)y,id2,-21));
+	if(get_bit(quest_rules, qr_OLDTRIBBLES))
+	{
+		int id2=(id==eFGELTRIB?eFZOL:eZOL);
+		guys.add(new eZol((fix)x,(fix)y,id2,-21));
+	}
+	else
+	{
+		int id2=(id==eFGELTRIB?eFZOLTRIB:eZOLTRIB);
+		guys.add(new eZolTrib((fix)x,(fix)y,id2,-21));
+	}
     ((enemy*)guys.spr(kids))->count_enemy = count_enemy;
     return true;
   }
@@ -4625,7 +4629,14 @@ bool eKeeseTrib::animate(int index)
       int kids = guys.Count();
       //        guys.add(new eVire(x,y,eVIRE,-24));
       //        keesetribgrow(x, y);
-      guys.add(new eVireTrib((fix)x,(fix)y,eVIRETRIB,-24));
+	  if(get_bit(quest_rules, qr_OLDTRIBBLES))
+	  {
+		guys.add(new eVire((fix)x,(fix)y,eVIRE,-24));
+	  }
+	  else
+	  {
+		guys.add(new eVireTrib((fix)x,(fix)y,eVIRETRIB,-24));
+	  }
       ((enemy*)guys.spr(kids))->count_enemy = count_enemy;
       return true;
     }
@@ -8384,6 +8395,7 @@ bool ePatraBS::animate(int index)
       {
         ((enemy*)guys.spr(i))->o_tile=o_tile+1;
       }
+	  ((enemy*)guys.spr(i))->cs = cs+1;
     }
     if(((enemy*)guys.spr(i))->hp <= 0)
     {
@@ -10274,10 +10286,10 @@ void check_collisions()
               {
                 if(((item*)items.spr(j))->clk2 >= 32)
                 {
-				  if(itemsbuf[items.spr(j)->id].collect_script)
-				  {
-			        run_script(itemsbuf[items.spr(j)->id].collect_script, j, SCRIPT_ITEM);
-				  }
+                  if(itemsbuf[items.spr(j)->id].collect_script)
+                  {
+                      run_script(itemsbuf[items.spr(j)->id].collect_script, j, SCRIPT_ITEM);
+                  }
                   getitem(items.spr(j)->id);
                   items.del(j);
                   --j;

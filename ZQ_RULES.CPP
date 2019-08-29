@@ -223,8 +223,8 @@ static DIALOG rules_dlg[] =
 
   { jwin_check_proc,      10,   43,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Red Potion Disappears When Used" },
   { jwin_check_proc,      10,   53,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Use Old-Style Warp Detection" },
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },
+  { jwin_check_proc,      10,   63,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Invisible Border on Non-Dungeon Dmaps" },
+  { jwin_check_proc,      10,   73,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "1.90-Style Tribbles"},
 
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },

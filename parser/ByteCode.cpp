@@ -1,5 +1,6 @@
 #include "ByteCode.h"
 #include "ScriptParser.h"
+#include "ParseError.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
@@ -60,24 +61,24 @@ string VarArgument::toString()
 		return "LINKMAXMP";
 	case LINKACTION:
 		return "LINKACTION";
-	case INPUTSENABLED:
-		return "INPUTSENABLED";
-	case FORCEDUP:
-		return "FORCEDUP";
-	case FORCEDDOWN:
-		return "FORCEDDOWN";
-	case FORCEDLEFT:
-		return "FORCEDLEFT";
-	case FORCEDRIGHT:
-		return "FORCEDRIGHT";
-	case FORCEDA:
-		return "FORCEDA";
-	case FORCEDB:
-		return "FORCEDB";
-	case FORCEDL:
-		return "FORCEDL";
-	case FORCEDR:
-		return "FORCEDR";
+	case INPUTSTART:
+		return "INPUTSTART";
+	case INPUTUP:
+		return "INPUTUP";
+	case INPUTDOWN:
+		return "INPUTDOWN";
+	case INPUTLEFT:
+		return "INPUTLEFT";
+	case INPUTRIGHT:
+		return "INPUTRIGHT";
+	case INPUTA:
+		return "INPUTA";
+	case INPUTB:
+		return "INPUTB";
+	case INPUTL:
+		return "INPUTL";
+	case INPUTR:
+		return "INPUTR";
 	case SDD:
 		return "SDD";
 	case COMBODD:
@@ -136,24 +137,6 @@ string VarArgument::toString()
 		return "ICLASSCOUNTER";
 	case REFITEMCLASS:
 		return "REFITEMCLASS";
-	case GETA:
-		return "GETA";
-	case GETB:
-		return "GETB";
-	case GETL:
-		return "GETL";
-	case GETR:
-		return "GETR";
-	case GETUP:
-		return "GETUP";
-	case GETDOWN:
-		return "GETDOWN";
-	case GETLEFT:
-		return "GETLEFT";
-	case GETRIGHT:
-		return "GETRIGHT";
-	case GETSTART:
-		return "GETSTART";
 	case COMBOID:
 		return "COMBOID";
 	case COMBOTD:
@@ -551,6 +534,9 @@ void BuildOpcodes::caseDefault(void *param)
 void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
 	returnlabelid = ScriptParser::getUniqueLabelID();
+	continuelabelid = -1;
+	breaklabelid = -1;
+	failure = false;
 	host.getBlock()->execute(*this,param);
 }
 
@@ -1206,6 +1192,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	host.getPrecondition()->execute(*this,param);
 	int loopstart = ScriptParser::getUniqueLabelID();
 	int loopend = ScriptParser::getUniqueLabelID();
+	int loopincr = ScriptParser::getUniqueLabelID();
 	//nop
 	Opcode *next = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
 	next->setLabel(loopstart);
@@ -1215,8 +1202,19 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 	result.push_back(new OGotoTrueImmediate(new LabelArgument(loopend)));
 	//run the loop body
+	//save the old break and continue values
+	int oldbreak = breaklabelid;
+	int oldcontinue = continuelabelid;
+	breaklabelid = loopend;
+	continuelabelid = loopincr;
 	host.getStmt()->execute(*this,param);
+	breaklabelid = oldbreak;
+	continuelabelid = oldcontinue;
 	//run the increment
+	//nop
+	next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+	next->setLabel(loopincr);
+	result.push_back(next);
 	host.getIncrement()->execute(*this,param);
 	result.push_back(new OGotoImmediate(new LabelArgument(loopstart)));
 	//nop
@@ -1252,7 +1250,13 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 	host.getCond()->execute(*this,param);
 	result.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 	result.push_back(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+	int oldbreak = breaklabelid;
+	int oldcontinue = continuelabelid;
+	breaklabelid = endlabel;
+	continuelabelid = startlabel;
 	host.getStmt()->execute(*this,param);
+	breaklabelid = oldbreak;
+	continuelabelid = oldcontinue;
 	result.push_back(new OGotoImmediate(new LabelArgument(startlabel)));
 	//nop to end while
 	Opcode *end = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
@@ -1304,6 +1308,28 @@ void BuildOpcodes::caseNumConstant(ASTNumConstant &host, void *param)
 void BuildOpcodes::caseBoolConstant(ASTBoolConstant &host, void *param)
 {
 	result.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
+}
+
+void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *param)
+{
+	if(breaklabelid == -1)
+	{
+		printErrorMsg(&host, BREAKBAD);
+		failure = true;
+		return;
+	}
+	result.push_back(new OGotoImmediate(new LabelArgument(breaklabelid)));
+}
+
+void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *param)
+{
+	if(continuelabelid == -1)
+	{
+		printErrorMsg(&host, CONTINUEBAD);
+		failure = true;
+		return;
+	}
+	result.push_back(new OGotoImmediate(new LabelArgument(continuelabelid)));
 }
 /////////////////////////////////////////////////////////////////////////////////
 void LValBOHelper::caseDefault(void *param)

@@ -1,7 +1,7 @@
-C=g++
+CC=g++
 LD=ld
 AR=ar
-ARFLAGS += -r -v -s libgme.a
+ARFLAGS += libgme.a
 RANLIB = ranlib
 CXXFLAGS +=
 OBJS= Blip_Buffer.o Classic_Emu.o Dual_Resampler.o Effects_Buffer.o Fir_Resampler.o Gb_Apu.o Gb_Cpu.o Gb_Oscs.o Gbs_Emu.o Gym_Emu.o Gzip_File.o Multi_Buffer.o Music_Emu.o Nes_Apu.o Nes_Cpu.o Nes_Fme7_Apu.o Nes_Namco_Apu.o Nes_Oscs.o Nes_Vrc6_Apu.o Nsf_Emu.o Sms_Apu.o Snes_Spc.o Spc_Cpu.o Spc_Dsp.o Spc_Emu.o Vgm_Emu.o Vgm_Emu_Impl.o Ym2413_Emu.o Ym2612_Emu.o abstract_file.o
@@ -14,7 +14,7 @@ all: gme
 	$(CC) -c $(CXXFLAGS) $< -o $@
  
 gme: $(OBJS)
-	$(AR) $(ARFLAGS) $(HDRS) $(OBJS)
+	$(AR) $(ARFLAGS) $(OBJS)
 	$(RANLIB) libgme.a
  
 .PHONY: clean

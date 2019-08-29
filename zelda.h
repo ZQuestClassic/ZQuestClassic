@@ -193,12 +193,12 @@ extern COLOR_MAP trans_table;
 extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen;
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
-extern FONT     *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
+extern FONT     *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
                 *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font;
 extern PALETTE  RAMpal;
 extern byte     *colordata;
 //extern byte     *tilebuf;
-extern tiledata *newtilebuf;
+extern tiledata *newtilebuf, *grabtilebuf;
 extern newcombo *combobuf;
 extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;
@@ -320,6 +320,8 @@ extern DoorComboSet *DoorComboSets;
 extern dmap         *DMaps;
 extern miscQdata    QMisc;
 extern mapscr       *TheMaps;
+extern byte			*quest_file;
+extern long		    ffstack[32][256];
 
 /**********************************/
 /*********** Misc Data ************/

@@ -66,8 +66,11 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="2"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_ZQUEST_SCALE_"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
+				RuntimeTypeInfo="FALSE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"

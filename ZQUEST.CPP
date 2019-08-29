@@ -204,12 +204,12 @@ COLOR_MAP trans_table;
 char *datafile_str;
 DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
 MIDI *song=NULL;
-FONT       *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
+FONT       *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
            *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font;
-BITMAP *menu1, *menu3, *mapscreenbmp, *combo_bmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][3], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
+BITMAP *menu1, *menu3, *mapscreenbmp, *combo_bmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen;//*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
-tiledata *newtilebuf;
+tiledata *newtilebuf, *grabtilebuf;
 newcombo *combobuf;
 itemdata *itemsbuf;
 wpndata  *wpnsbuf;
@@ -334,6 +334,7 @@ byte         music_flags[MUSICFLAGS_SIZE];
 word         map_count;
 miscQdata    misc;
 mapscr       *TheMaps;
+byte         *quest_file;
 dmap         *DMaps;
 MsgStr       *MsgStrings;
 //DoorComboSet *DoorComboSets;
@@ -1406,6 +1407,10 @@ int onIncMap()
   int m=Map.getCurrMap();
   int oldcolor=Map.getcolor();
   Map.setCurrMap(m+1>=map_count?0:m+1);
+  if (m!=Map.getCurrMap())
+  {
+    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+  }
   int newcolor=Map.getcolor();
   if (newcolor!=oldcolor)
   {
@@ -1420,6 +1425,10 @@ int onDecMap()
   int m=Map.getCurrMap();
   int oldcolor=Map.getcolor();
   Map.setCurrMap((m-1<0)?map_count-1:min(m-1,map_count-1));
+  if (m!=Map.getCurrMap())
+  {
+    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+  }
   int newcolor=Map.getcolor();
   if (newcolor!=oldcolor)
   {
@@ -1515,86 +1524,105 @@ int on14() { saved=false; Map.setcolor(14); refresh(rSCRMAP); return D_O_K; }
 
 int onLeft()
 {
+  int tempcurrscr=Map.getCurrScr();
   if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
   {
     Map.scroll(2);
+    if (tempcurrscr!=Map.getCurrScr())
+    {
+      memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    }
     refresh(rALL);
   }
   else if ((First>0)&&(draw_mode!=dm_alias))
-    {
-      First-=1;
-      refresh(rCOMBOS);
-    }
-    else if ((combo_alistpos>0)&&(draw_mode==dm_alias))
-      {
-        combo_alistpos-=1;
-        refresh(rCOMBOS);
-      }
-      clear_keybuf();
+  {
+    First-=1;
+    refresh(rCOMBOS);
+  }
+  else if ((combo_alistpos>0)&&(draw_mode==dm_alias))
+  {
+    combo_alistpos-=1;
+    refresh(rCOMBOS);
+  }
+  clear_keybuf();
   return D_O_K;
 }
 
 int onRight()
 {
+  int tempcurrscr=Map.getCurrScr();
   if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
   {
     Map.scroll(3);
+    if (tempcurrscr!=Map.getCurrScr())
+    {
+      memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    }
     refresh(rALL);
-
   }
   else if ((First<(MAXCOMBOS-(combolist_w*combolist_h)))&&(draw_mode!=dm_alias))
-    {
-      First+=1;
-      refresh(rCOMBOS);
-    }
-    else if ((combo_alistpos<(MAXCOMBOALIASES-(combolist_w*combolist_h)))&&(draw_mode==dm_alias))
-      {
-        combo_alistpos+=1;
-        refresh(rCOMBOS);
-      }
-      clear_keybuf();
+  {
+    First+=1;
+    refresh(rCOMBOS);
+  }
+  else if ((combo_alistpos<(MAXCOMBOALIASES-(combolist_w*combolist_h)))&&(draw_mode==dm_alias))
+  {
+    combo_alistpos+=1;
+    refresh(rCOMBOS);
+  }
+  clear_keybuf();
   return D_O_K;
 }
 
 int onUp()
 {
+  int tempcurrscr=Map.getCurrScr();
   if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
   {
     Map.scroll(0);
+    if (tempcurrscr!=Map.getCurrScr())
+    {
+      memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    }
     refresh(rALL);
   }
   else if((First>0)&&(draw_mode!=dm_alias))
-    {
-      First-=min(First,combolist_w);
-      refresh(rCOMBOS);
-    }
-    else if((combo_alistpos>0)&&(draw_mode==dm_alias))
-      {
-        combo_alistpos-=min(combo_alistpos,combolist_w);
-        refresh(rCOMBOS);
-      }
-      clear_keybuf();
+  {
+    First-=min(First,combolist_w);
+    refresh(rCOMBOS);
+  }
+  else if((combo_alistpos>0)&&(draw_mode==dm_alias))
+  {
+    combo_alistpos-=min(combo_alistpos,combolist_w);
+    refresh(rCOMBOS);
+  }
+  clear_keybuf();
   return D_O_K;
 }
 
 int onDown()
 {
+  int tempcurrscr=Map.getCurrScr();
   if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
   {
     Map.scroll(1);
+    if (tempcurrscr!=Map.getCurrScr())
+    {
+      memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    }
     refresh(rALL);
   }
   else if((First<(MAXCOMBOS-(combolist_w*combolist_h)))&&(draw_mode!=dm_alias))
-    {
-      First+=min((MAXCOMBOS-combolist_w)-First,combolist_w);
-      refresh(rCOMBOS);
-    }
-    else if((combo_alistpos<(MAXCOMBOALIASES-(combolist_w*combolist_ha)))&&(draw_mode==dm_alias))
-      {
-        combo_alistpos+=min((MAXCOMBOALIASES-combolist_w)-combo_alistpos,combolist_w);
-        refresh(rCOMBOS);
-      }
-      clear_keybuf();
+  {
+    First+=min((MAXCOMBOS-combolist_w)-First,combolist_w);
+    refresh(rCOMBOS);
+  }
+  else if((combo_alistpos<(MAXCOMBOALIASES-(combolist_w*combolist_ha)))&&(draw_mode==dm_alias))
+  {
+    combo_alistpos+=min((MAXCOMBOALIASES-combolist_w)-combo_alistpos,combolist_w);
+    refresh(rCOMBOS);
+  }
+  clear_keybuf();
   return D_O_K;
 }
 
@@ -1607,30 +1635,30 @@ int onPgUp()
     refresh(rMENU);
   }
   else if((First>0)&&(draw_mode!=dm_alias))
+  {
+    if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
-      if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-      {
-        First-=min(First,256);
-      }
-      else
-      {
-        First-=min(First,(combolist_w*combolist_h));
-      }
-      refresh(rCOMBOS);
+      First-=min(First,256);
     }
-    else if((combo_alistpos>0)&&(draw_mode==dm_alias))
-      {
-        if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-        {
-          combo_alistpos=0;
-        }
-        else
-        {
-          combo_alistpos-=min(combo_alistpos,(combolist_w*combolist_ha));
-        }
-        refresh(rCOMBOS);
-      }
-      return D_O_K;
+    else
+    {
+      First-=min(First,(combolist_w*combolist_h));
+    }
+    refresh(rCOMBOS);
+  }
+  else if((combo_alistpos>0)&&(draw_mode==dm_alias))
+  {
+    if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+    {
+      combo_alistpos=0;
+    }
+    else
+    {
+      combo_alistpos-=min(combo_alistpos,(combolist_w*combolist_ha));
+    }
+    refresh(rCOMBOS);
+  }
+  return D_O_K;
 }
 
 int onPgDn()
@@ -1642,31 +1670,31 @@ int onPgDn()
     refresh(rMENU);
   }
   else if((First<(MAXCOMBOS-(combolist_w*combolist_h)))&&(draw_mode!=dm_alias))
+  {
+    if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
-      if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-      {
-        First+=min((MAXCOMBOS-256)-First,256);
-      }
-      else
-      {
-        First+=min((MAXCOMBOS-(combolist_w*combolist_h))-First,(combolist_w*combolist_h));
-      }
-      refresh(rCOMBOS);
+      First+=min((MAXCOMBOS-256)-First,256);
     }
-    else if((combo_alistpos<(MAXCOMBOALIASES-(combolist_w*combolist_ha)))&&(draw_mode==dm_alias))
-      {
-        if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-        {
-          //combo_apos+=min((MAXCOMBOALIASES-256)-combo_apos,256);
-          combo_alistpos=MAXCOMBOALIASES-(combolist_w*combolist_ha);
-        }
-        else
-        {
-          combo_alistpos+=min((MAXCOMBOALIASES-(combolist_w*combolist_ha))-combo_alistpos,(combolist_w*combolist_ha));
-        }
-        refresh(rCOMBOS);
-      }
-      return D_O_K;
+    else
+    {
+      First+=min((MAXCOMBOS-(combolist_w*combolist_h))-First,(combolist_w*combolist_h));
+    }
+    refresh(rCOMBOS);
+  }
+  else if((combo_alistpos<(MAXCOMBOALIASES-(combolist_w*combolist_ha)))&&(draw_mode==dm_alias))
+  {
+    if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+    {
+      //combo_apos+=min((MAXCOMBOALIASES-256)-combo_apos,256);
+      combo_alistpos=MAXCOMBOALIASES-(combolist_w*combolist_ha);
+    }
+    else
+    {
+      combo_alistpos+=min((MAXCOMBOALIASES-(combolist_w*combolist_ha))-combo_alistpos,(combolist_w*combolist_ha));
+    }
+    refresh(rCOMBOS);
+  }
+  return D_O_K;
 }
 
 int onPlus()
@@ -6587,7 +6615,14 @@ int onGotoMap()
 {
   int ret = select_data("Goto Map",Map.getCurrMap(),gotomaplist,lfont);
   if(ret >= 0)
+  {
+    int m=Map.getCurrMap();
     Map.setCurrMap(ret);
+    if (m!=Map.getCurrMap())
+    {
+      memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    }
+  }
   refresh(rALL);
   return D_O_K;
 }
@@ -8033,6 +8068,13 @@ static int editdmap_subscreenmaps_list[] =
   6, -1
 };
 
+/*static int editdmap_disableitems_list[] =
+{
+  // dialog control number
+  101,102,103,104,105, 106, -1
+};
+*/
+
 static TABPANEL editdmap_tabs[] =
 {
   // (text)
@@ -8040,6 +8082,7 @@ static TABPANEL editdmap_tabs[] =
   { "Appearance",     0,          editdmap_appearance_list },
   { "Music",          0,          editdmap_music_list },
   { "Subscreen Maps", 0,          editdmap_subscreenmaps_list },
+  // unfinished { "Disable",  	  0 , 		  editdmap_disableitems_list },
   { NULL }
 };
 
@@ -8205,6 +8248,14 @@ static DIALOG editdmap_dlg[] =
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL },
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL },
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL },
+  // 100
+  /*{ jwin_text_proc,       16,   84,   48,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Disabled Items:" },
+  { jwin_abclist_proc,       16,   100,   120,  100,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL },
+  { jwin_abclist_proc,       181,   100,   120,  100,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL },
+  { jwin_text_proc,       181,   84,   48,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "All Items:" },
+  { jwin_button_proc,     150,   120,  20,   20,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  13,      0,     0,             0,       (void *) "->" },
+  { jwin_button_proc,     150,   160,  20,   20,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  13,      0,     0,             0,       (void *) "<-" },
+  */
   { NULL }
 };
 
@@ -8285,7 +8336,11 @@ void editdmap(int index)
   zcmusic_unload_file(tempdmapzcmusic);
   editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
   editdmap_dlg[89].d1=vbound(DMaps[index].tmusictrack,0,dmap_tracks-1);
-
+  editdmap_dlg[102].dp = (void*)itemlist;
+  editdmap_dlg[102].d1 = 0;
+  editdmap_dlg[103].dp = (void*)itemlist;
+  editdmap_dlg[103].d1 = 0;
+  
   int ret=-1;
   while (ret!=0&&ret!=1&&ret!=2)
   {
@@ -13238,12 +13293,13 @@ char *gscriptlist2(int index, int *list_size)
 static DIALOG compile_dlg[] =
 {
 	//						x		y		w		h		fg		bg		key	flags	d1	d2	dp	
-	{ jwin_win_proc,		0,		0,		156,	118,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile Script" },
-	{ jwin_button_proc,		87,		89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel" },
-	{ jwin_button_proc,		8,		60,		61,		21,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Edit" },
-	{ jwin_button_proc,		8,		89,		71,		21,		vc(14), vc(1),	0,	D_EXIT,	0,	0,	(void *) "Load From File" },
+	{ jwin_win_proc,		0,		0,		200,	118,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile Script" },
+	{ jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel" },
+	{ jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Edit" },
+	{ jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	0,	D_EXIT,	0,	0,	(void *) "Import" },
 	{ jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes },
-	{ jwin_button_proc,		77,		55,		71,		26,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile!" },
+	{ jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile!" },
+	{ jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Export" },
 	{ NULL }
 };
 
@@ -13364,7 +13420,7 @@ static DIALOG edit_zscript_dlg[] =
 void doEditZScript(int bg,int fg)
 {
 	string old = zScript;
-	EditboxModel *em = new EditboxModel(zScript, new EditboxNoWrapView(&edit_zscript_dlg[2],font,fg,bg));
+	EditboxModel *em = new EditboxModel(zScript, new EditboxScriptView(&edit_zscript_dlg[2],sfont2,fg,bg,BasicEditboxView::HSTYLE_EOTEXT));
 	edit_zscript_dlg[2].dp = em;
   edit_zscript_dlg[0].dp2= lfont;
   edit_zscript_dlg[2].bg = bg;
@@ -13441,6 +13497,28 @@ int onCompileScript()
 				}	
 				fclose(zscript);
 				saved=false;
+				break;
+			}
+		case 6:
+			//Export
+			{
+				if(!getname("Save ZScript (.z)", "z", datapath,false))
+					break;
+				if(exists(temppath))
+				{
+					if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
+						break;
+				}
+				FILE *zscript = fopen(temppath,"w");
+				if(!zscript)
+				{
+					jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					break;
+				}
+				int written = fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
+				if(written != (int)zScript.size())
+					jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				fclose(zscript);
 				break;
 			}
 		case 5:
@@ -14524,7 +14602,7 @@ static DIALOG help_dlg[] =
 
 void doHelp(int bg,int fg)
 {
-  help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],font,fg,bg),true);
+	help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
   help_dlg[0].dp2= lfont;
   help_dlg[2].bg = bg;
   zc_popup_dialog(help_dlg,2);
@@ -14534,7 +14612,7 @@ void doHelp(int bg,int fg)
 int onHelp()
 {
   restore_mouse();
-  doHelp(vc(4),vc(0));
+  doHelp(vc(15),vc(0));
   return D_O_K;
 }
 
@@ -15401,6 +15479,7 @@ int main(int argc,char **argv)
   mfont = (FONT*)fontsdata[FONT_MATRIX].dat;
   ztfont = (FONT*)fontsdata[FONT_ZTIME].dat;
   sfont = (FONT*)fontsdata[FONT_6x6].dat;
+  sfont2 = (FONT*)fontsdata[FONT_6x4].dat;
   spfont = (FONT*)fontsdata[FONT_6xPROP].dat;
   ssfont1 = (FONT*)fontsdata[FONT_SUBSCREEN1].dat;
   ssfont2 = (FONT*)fontsdata[FONT_SUBSCREEN2].dat;
@@ -15462,7 +15541,6 @@ int main(int argc,char **argv)
   }	
   fclose(hb);
   
-  //XXX
   helpbuf[helpsize]=0;
   helpstr = helpbuf;
   Z_message("OK\n");                                      // loading data files...
@@ -16086,7 +16164,7 @@ int main(int argc,char **argv)
   if(argc>1 && argv[1][0]!='-')
   {
     replace_extension(temppath,argv[1],"qst",2047);
-    if(load_quest(temppath,true)==0)
+    if(load_quest(temppath,true,true)==0)
     {
       strcpy(filepath,temppath);
       refresh(rALL);
@@ -16094,7 +16172,7 @@ int main(int argc,char **argv)
   }
   else if (OpenLastQuest&&exists(filepath)&&!used_switch(argc,argv,"-new"))
     {
-      if(load_quest(filepath,true)==0)
+      if(load_quest(filepath,true,true)==0)
       {
         refresh(rALL);
       }

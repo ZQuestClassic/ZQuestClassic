@@ -63,7 +63,6 @@ class LinkClass : public sprite
   int warpx,warpy,holdclk,holditem,attack,swordclk,didstuff,blowcnt;
   byte skipstep,lstep,hopclk,diveclk,whirlwind;
   byte hitdir,ladderdir,lastdir[3],ladderstart;
-  fix slide_x, slide_y;
   int stepoutindex, stepoutwr;
   int shiftdir;
   int sdir;
@@ -78,7 +77,6 @@ class LinkClass : public sprite
   bool dontdraw;
   void movelink();
   void move(int d);
-  void slide();
   void hitlink(int hit);
   int  nextcombo(int cx,int cy,int cdir);
   int  nextflag(int cx,int cy,int cdir, bool comboflag);
@@ -130,7 +128,7 @@ class LinkClass : public sprite
   void check_pound_block(int bx, int by);
   void check_conveyor();
   bool check_cheat_warp();
-
+ 
 public:
 
   int DrunkClock();
@@ -151,8 +149,6 @@ public:
   void beatlikelike();
   fix  getX();
   fix  getY();
-  fix  getSlideX();
-  fix  getSlideY();
   fix  getXOfs();
   fix  getYOfs();
   void setXOfs(int newxofs);

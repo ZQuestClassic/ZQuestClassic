@@ -45,42 +45,45 @@
      ITEM = 271,
      ITEMCLASS = 272,
      GLOBAL = 273,
-     ASSIGN = 274,
-     SEMICOLON = 275,
-     COMMA = 276,
-     LBRACKET = 277,
-     RBRACKET = 278,
-     LPAREN = 279,
-     RPAREN = 280,
-     DOT = 281,
-     LBRACE = 282,
-     RBRACE = 283,
-     ARROW = 284,
-     NUMBER = 285,
-     IDENTIFIER = 286,
-     QUOTEDSTRING = 287,
-     RSHIFT = 288,
-     LSHIFT = 289,
-     BITXOR = 290,
-     BITOR = 291,
-     BITAND = 292,
-     OR = 293,
-     AND = 294,
-     BITNOT = 295,
-     NOT = 296,
-     DECREMENT = 297,
-     INCREMENT = 298,
-     NE = 299,
-     EQ = 300,
-     GT = 301,
-     GE = 302,
-     LT = 303,
-     LE = 304,
-     MINUS = 305,
-     PLUS = 306,
-     DIVIDE = 307,
-     TIMES = 308,
-     MODULO = 309
+     BREAK = 274,
+     CONTINUE = 275,
+     CONST = 276,
+     ASSIGN = 277,
+     SEMICOLON = 278,
+     COMMA = 279,
+     LBRACKET = 280,
+     RBRACKET = 281,
+     LPAREN = 282,
+     RPAREN = 283,
+     DOT = 284,
+     LBRACE = 285,
+     RBRACE = 286,
+     ARROW = 287,
+     NUMBER = 288,
+     IDENTIFIER = 289,
+     QUOTEDSTRING = 290,
+     RSHIFT = 291,
+     LSHIFT = 292,
+     BITXOR = 293,
+     BITOR = 294,
+     BITAND = 295,
+     OR = 296,
+     AND = 297,
+     BITNOT = 298,
+     NOT = 299,
+     DECREMENT = 300,
+     INCREMENT = 301,
+     NE = 302,
+     EQ = 303,
+     GT = 304,
+     GE = 305,
+     LT = 306,
+     LE = 307,
+     MINUS = 308,
+     PLUS = 309,
+     DIVIDE = 310,
+     TIMES = 311,
+     MODULO = 312
    };
 #endif
 /* Tokens.  */
@@ -100,42 +103,45 @@
 #define ITEM 271
 #define ITEMCLASS 272
 #define GLOBAL 273
-#define ASSIGN 274
-#define SEMICOLON 275
-#define COMMA 276
-#define LBRACKET 277
-#define RBRACKET 278
-#define LPAREN 279
-#define RPAREN 280
-#define DOT 281
-#define LBRACE 282
-#define RBRACE 283
-#define ARROW 284
-#define NUMBER 285
-#define IDENTIFIER 286
-#define QUOTEDSTRING 287
-#define RSHIFT 288
-#define LSHIFT 289
-#define BITXOR 290
-#define BITOR 291
-#define BITAND 292
-#define OR 293
-#define AND 294
-#define BITNOT 295
-#define NOT 296
-#define DECREMENT 297
-#define INCREMENT 298
-#define NE 299
-#define EQ 300
-#define GT 301
-#define GE 302
-#define LT 303
-#define LE 304
-#define MINUS 305
-#define PLUS 306
-#define DIVIDE 307
-#define TIMES 308
-#define MODULO 309
+#define BREAK 274
+#define CONTINUE 275
+#define CONST 276
+#define ASSIGN 277
+#define SEMICOLON 278
+#define COMMA 279
+#define LBRACKET 280
+#define RBRACKET 281
+#define LPAREN 282
+#define RPAREN 283
+#define DOT 284
+#define LBRACE 285
+#define RBRACE 286
+#define ARROW 287
+#define NUMBER 288
+#define IDENTIFIER 289
+#define QUOTEDSTRING 290
+#define RSHIFT 291
+#define LSHIFT 292
+#define BITXOR 293
+#define BITOR 294
+#define BITAND 295
+#define OR 296
+#define AND 297
+#define BITNOT 298
+#define NOT 299
+#define DECREMENT 300
+#define INCREMENT 301
+#define NE 302
+#define EQ 303
+#define GT 304
+#define GE 305
+#define LT 306
+#define LE 307
+#define MINUS 308
+#define PLUS 309
+#define DIVIDE 310
+#define TIMES 311
+#define MODULO 312
 
 
 

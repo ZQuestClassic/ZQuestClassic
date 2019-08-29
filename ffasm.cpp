@@ -7,11 +7,15 @@
 #include "zquest.h"
 #include "zsys.h"
 
-extern char *datapath, *temppath;
+#ifdef ALLEGRO_MACOSX
+#define strnicmp strncasecmp
+#endif
 
 #ifdef ALLEGRO_LINUX
 #define strnicmp strncasecmp
 #endif
+
+extern char *datapath, *temppath;
 
 script_command command_list[NUMCOMMANDS]=
 {
@@ -141,15 +145,15 @@ script_variable variable_list[]=
   { "COMBOD",            COMBOD(0),          176,             3 },
   { "COMBOC",            COMBOC(0),          176,             3 },
   { "COMBOF",            COMBOF(0),          176,             3 },
-  { "INPUTSENABLED",     INPUTSENABLED,        0,             0 },
-  { "FORCEDUP",          FORCEDUP,             0,             0 },
-  { "FORCEDDOWN",        FORCEDDOWN,           0,             0 },
-  { "FORCEDLEFT",        FORCEDLEFT,           0,             0 },
-  { "FORCEDRIGHT",       FORCEDRIGHT,          0,             0 },
-  { "FORCEDA",           FORCEDA,              0,             0 },
-  { "FORCEDB",           FORCEDB,              0,             0 },
-  { "FORCEDL",           FORCEDL,              0,             0 },
-  { "FORCEDR",           FORCEDR,              0,             0 },
+  { "INPUTSTART",        INPUTSTART,           0,             0 },
+  { "INPUTUP",           INPUTUP,              0,             0 },
+  { "INPUTDOWN",         INPUTDOWN,            0,             0 },
+  { "INPUTLEFT",         INPUTLEFT,            0,             0 },
+  { "INPUTRIGHT",        INPUTRIGHT,           0,             0 },
+  { "INPUTA",            INPUTA,               0,             0 },
+  { "INPUTB",            INPUTB,               0,             0 },
+  { "INPUTL",            INPUTL,               0,             0 },
+  { "INPUTR",            INPUTR,               0,             0 },
   { "LINKX",             LINKX,                0,             0 },
   { "LINKY",             LINKY,                0,             0 },
   { "LINKDIR",           LINKDIR,              0,             0 },
@@ -312,15 +316,6 @@ script_variable variable_list[]=
   { "EWPNOTILE",         EWPNOTILE,            0,             0 },
   { "EWPNOCSET",         EWPNOCSET,            0,             0 },
   { "NPCEXTEND",         NPCEXTEND,            0,             0 },
-  { "GETA",              GETA,                 0,             0 },
-  { "GETB",              GETB,                 0,             0 },
-  { "GETL",              GETL,                 0,             0 },
-  { "GETR",              GETR,                 0,             0 },
-  { "GETLEFT",           GETLEFT,              0,             0 },
-  { "GETRIGHT",          GETRIGHT,             0,             0 },
-  { "GETUP",             GETUP,                0,             0 },
-  { "GETDOWN",           GETDOWN,              0,             0 },
-  { "GETSTART",          GETSTART,             0,             0 },
   { "SP",                SP,                   0,             0 },
   { " ",                -1,                    0,             0 }
 };

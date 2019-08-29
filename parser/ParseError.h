@@ -36,4 +36,7 @@ void printErrorMsg(AST *offender, int errorID, string param=string());
 #define TOOMANYRUN 30
 #define INDEXNOTINT 31 //DEPRECATED
 #define SCRIPTBADTYPE 32
+#define BREAKBAD 33
+#define CONTINUEBAD 34
+#define CONSTREDEF 35
 #endif

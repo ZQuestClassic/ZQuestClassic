@@ -116,6 +116,15 @@ void printErrorMsg(AST *offender, int errorID, string param)
 	case SCRIPTBADTYPE:
 		oss << "Error S32: Script " << param << " is of illegal type.";
 		break;
+	case BREAKBAD:
+		oss << "Error G33: Break must lie inside of an enclosing for or while loop.";
+		break;
+	case CONTINUEBAD:
+		oss << "Error G34: Continue must lie inside of an enclosing for or while loop.";
+		break;
+	case CONSTREDEF:
+		oss << "Error P35: There is already a constant with name " << param << " defined.";
+		break;
 	default:
 		oss << "FATAL FATAL ERROR I0: bad internal error code (lol)" ;
 		assert(false);

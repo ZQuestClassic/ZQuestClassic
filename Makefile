@@ -1,5 +1,4 @@
 -include makefile.inc
-#ZC Makefile 
 
 AUDIO_LIBS = -lgme -lalogg -lalmp3 -laldmb -ldumb
 IMAGE_LIBS = -ljpgal -lldpng -lpng -lz

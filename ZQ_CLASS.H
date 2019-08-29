@@ -157,9 +157,9 @@ void init_msgstrs();
 bool setMapCount2(int c, bool reload);
 int init_quest();
 void set_questpwd(char *pwd, bool use_keyfile);
-bool quest_access(char *filename);
+bool quest_access(char *filename, zquestheader *hdr, bool compressed);
 bool write_midi(MIDI *m,PACKFILE *f);
-int load_quest(char *filename, bool compressed);
+int load_quest(char *filename, bool compressed, bool encrypted);
 int save_unencoded_quest(char *filename, bool compressed);
 int save_quest(char *filename, bool version_210);
 

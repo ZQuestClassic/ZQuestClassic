@@ -456,6 +456,7 @@ static void NES_titlescreen()
   ALLOFF();
   do
   {
+    load_control_state();
     mainscreen(f);
     storyscreen(f);
     treasures(f);
@@ -580,6 +581,7 @@ static void DX_titlescreen()
 
   do
   {
+    load_control_state();
     DX_mainscreen(f);
     storyscreen(f);
     treasures(f);
@@ -1977,6 +1979,7 @@ static int game_details(int file)
   while(!Quit)
   {
     advanceframe();
+    load_control_state();
     if(rBbtn())
     {
       blit(scrollbuf,framebuf,0,0,0,0,256,224);
@@ -2055,6 +2058,7 @@ static void select_game()
 
   do
   {
+    load_control_state();
     sfxdat=1;
     blit(scrollbuf,framebuf,0,0,0,0,256,224);
     list_saves();
@@ -2273,6 +2277,7 @@ void game_over(int type)
   bool done=false;
   do
   {
+    load_control_state();
     if(f==-1)
     {
       if(rUp())   { sfx(WAV_CHINK); pos=(pos==0)?2:pos-1; if(type) {if(pos==1) pos--;} }

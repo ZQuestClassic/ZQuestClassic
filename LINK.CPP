@@ -26,13 +26,7 @@ extern int draw_screen_clip_rect_x1;
 extern int draw_screen_clip_rect_x2;
 extern int draw_screen_clip_rect_y1;
 extern int draw_screen_clip_rect_y2;
-extern bool draw_screen_clip_rect_show_link;
-fix slide_x_max=fix(2);
-fix slide_x_min=fix(-2);
-fix slide_y_max=fix(2);
-fix slide_y_min=fix(-2);
-fix slide_x_interval=fix(1)/8;
-fix slide_y_interval=fix(1)/8;
+//extern bool draw_screen_clip_rect_show_link;
 extern short ffposx[32];
 extern short ffposy[32];
 extern long ffprvx[32];
@@ -77,8 +71,6 @@ void LinkClass::unfreeze() { if(action==freeze) action=none; }
 void LinkClass::beatlikelike() { inlikelike=false; }
 fix  LinkClass::getX()   { return x; }
 fix  LinkClass::getY()   { return y; }
-fix  LinkClass::getSlideX()   { return slide_x; }
-fix  LinkClass::getSlideY()   { return slide_y; }
 fix  LinkClass::getXOfs() { return xofs; }
 fix  LinkClass::getYOfs() { return yofs; }
 void LinkClass::setXOfs(int newxofs) { xofs=newxofs; }
@@ -195,8 +187,6 @@ void LinkClass::init()
   hopclk=diveclk=0;
   conveyor_flags=0;
   drunkclk=0;
-  slide_x=0;
-  slide_y=0;
   drawstyle=3;
   ffwarp = false;
   stepoutindex=0;
@@ -927,10 +917,10 @@ void LinkClass::checkstab()
           if(items.spr(j)->hit(wx,wy,wxsz,wysz) || (attack==wWand && items.spr(j)->hit(x,y-8,16,24))
              || (attack==wHammer && items.spr(j)->hit(x,y-8,16,24)))
           {
-		    if(itemsbuf[items.spr(j)->id].collect_script)
-			{
-			  run_script(itemsbuf[items.spr(j)->id].collect_script, j, SCRIPT_ITEM);
-			}
+            if(itemsbuf[items.spr(j)->id].collect_script)
+            {
+              run_script(itemsbuf[items.spr(j)->id].collect_script, j, SCRIPT_ITEM);
+            }
             getitem(items.spr(j)->id);
             items.del(j);
             for(int i=0; i<Lwpns.Count(); i++)
@@ -2995,12 +2985,13 @@ bool LinkClass::can_attack()
     return false;
   }
   int r = (isdungeon()) ? 16 : 0;
+  int r2 = get_bit(quest_rules, qr_NOBORDER) ? 0 : 8;
   switch(dir)
   {
     case up:
-    case down:  return !( y<(8+r) || y>(152-r) );
+    case down:  return !( y<(r2+r) || y>(160-r-r2) );
     case left:
-    case right: return !( x<(8+r) || x>(232-r) );
+    case right: return !( x<(r2+r) || x>(240-r-r2) );
   }
   return true;
 }
@@ -3366,8 +3357,6 @@ void LinkClass::movelink()
   int push=pushing;
   pushing=0;
 
-  slide();
-  
   if(diveclk>0)
   {
     --diveclk;
@@ -3544,17 +3533,14 @@ void LinkClass::movelink()
             move(up);
             if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
             {
-              slide_y=max(slide_y_min,slide_y-(2*slide_y_interval));
             }
             else
             {
-              slide_y=slide_y_min;
             }
           }
           else
           {
             action=none;
-            slide_y=0;
           }
         }
         else if(!walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up))
@@ -3562,17 +3548,14 @@ void LinkClass::movelink()
           move(up);
           if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
           {
-            slide_y=max(slide_y_min,slide_y-(2*slide_y_interval));
           }
           else
           {
-            slide_y=slide_y_min;
           }
         }
         else
         {
           action=none;
-          slide_y=0;
         }
         return;
       }
@@ -3585,17 +3568,14 @@ void LinkClass::movelink()
             move(down);
             if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
             {
-              slide_y=min(slide_y_max,slide_y+(2*slide_y_interval));
             }
             else
             {
-              slide_y=slide_y_max;
             }
           }
           else
           {
             action=none;
-            slide_y=0;
           }
         }
         else if(!walkflag(x,y+15+int(lsteps[int(y)&7]),2,down))
@@ -3603,17 +3583,14 @@ void LinkClass::movelink()
           move(down);
           if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
           {
-            slide_y=min(slide_y_max,slide_y+(2*slide_y_interval));
           }
           else
           {
-            slide_y=slide_y_max;
           }
         }
         else
         {
           action=none;
-          slide_y=0;
         }
         return;
       }
@@ -3624,17 +3601,14 @@ void LinkClass::movelink()
           move(left);
           if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
           {
-            slide_x=max(slide_x_min,slide_x-(2*slide_x_interval));
           }
           else
           {
-            slide_x=slide_x_min;
           }
         }
         else
         {
           action=none;
-          slide_x=0;
         }
         return;
       }
@@ -3645,17 +3619,14 @@ void LinkClass::movelink()
           move(right);
           if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
           {
-            slide_x=min(slide_x_max,slide_x+(2*slide_x_interval));
           }
           else
           {
-            slide_x=slide_x_max;
           }
         }
         else
         {
           action=none;
-          slide_x=0;
         }
         return;
       }
@@ -3680,11 +3651,9 @@ void LinkClass::movelink()
         {
           if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
           {
-            slide_y=max(slide_y_min,slide_y-(2*slide_y_interval));
           }
           else
           {
-            slide_y=slide_y_min;
           }
         }
         break;
@@ -3697,11 +3666,9 @@ void LinkClass::movelink()
         {
           if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
           {
-            slide_y=min(slide_y_max,slide_y+(2*slide_y_interval));
           }
           else
           {
-            slide_y=slide_y_max;
           }
         }
         break;
@@ -3714,11 +3681,9 @@ void LinkClass::movelink()
         {
           if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
           {
-            slide_x=max(slide_x_min,slide_x-(2*slide_x_interval));
           }
           else
           {
-            slide_x=slide_x_min;
           }
         }
         break;
@@ -3731,11 +3696,9 @@ void LinkClass::movelink()
         {
           if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
           {
-            slide_x=min(slide_x_max,slide_x+(2*slide_x_interval));
           }
           else
           {
-            slide_x=slide_x_max;
           }
         }
         break;
@@ -4494,45 +4457,6 @@ LEFTRIGHT:
 
 }
 
-void LinkClass::slide()
-{
-  if(inlikelike)
-  {
-    slide_x=0;
-    slide_y=0;
-    return;
-  }
-
-  if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
-  {
-    sprite::move(slide_x,slide_y);
-    if (slide_x<0)
-    {
-      slide_x+=slide_x_interval;
-    }
-    else if (slide_x>0)
-    {
-      slide_x-=slide_x_interval;
-    }
-    if (slide_y<0)
-    {
-      slide_y+=slide_y_interval;
-    }
-    else if (slide_y>0)
-    {
-      slide_y-=slide_y_interval;
-    }
-    if (slide_x>-slide_x_interval&&slide_x<slide_x_interval)
-    {
-      slide_x=0;
-    }
-    if (slide_y>-slide_y_interval&&slide_y<slide_y_interval)
-    {
-      slide_y=0;
-    }
-  }
-}
-
 void LinkClass::move(int d)
 {
   if(inlikelike)
@@ -4662,8 +4586,6 @@ void LinkClass::move(int d)
   }
   if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
   {
-    dx=dx*abs(slide_x)/slide_x_max;
-    dy=dy*abs(slide_y)/slide_y_max;
   }
   sprite::move((fix)dx,(fix)dy);
 }
@@ -6049,7 +5971,7 @@ void LinkClass::checkspecial2(int *ls)
       int stype = COMBOTYPE(x+j,y+i);
       if(stype==cSWARPA)
       {
-        if(tmpscr->flags5&fDIRECTSWARP)
+	    if(tmpscr->flags5&fDIRECTSWARP)
         {
           didpit=true;
           pitx=x;pity=y;
@@ -6060,7 +5982,7 @@ void LinkClass::checkspecial2(int *ls)
       }
       if(stype==cSWARPB)
       {
-        if(tmpscr->flags5&fDIRECTSWARP)
+	    if(tmpscr->flags5&fDIRECTSWARP)
         {
           didpit=true;
           pitx=x;
@@ -6200,7 +6122,7 @@ void LinkClass::checkspecial2(int *ls)
 
   for(int i=0;i<4;i++)
   {
-    if(types[i]==cCAVE) index=0;
+	if(types[i]==cCAVE){index=0;}
     else if(types[i]==cCAVEB) {types[i]=cCAVE; index=1;}
     else if(types[i]==cCAVEC) {types[i]=cCAVE; index=2;}
     else if(types[i]==cCAVED) {types[i]=cCAVE; index=3;}
@@ -6210,13 +6132,13 @@ void LinkClass::checkspecial2(int *ls)
     else if(types[i]==cPITC) {types[i]=cPIT; index=2;}
     else if(types[i]==cPITD) {types[i]=cPIT; index=3;}
   
-    if(types[i]==cSTAIR) index=0;
+	if(types[i]==cSTAIR) {index=0;}
     else if(types[i]==cSTAIRB) {types[i]=cSTAIR; index=1;}
     else if(types[i]==cSTAIRC) {types[i]=cSTAIR; index=2;}
     else if(types[i]==cSTAIRD) {types[i]=cSTAIR; index=3;}
     else if(types[i]==cSTAIRR) {types[i]=cSTAIR; index=rand()%4;}
   
-    if(types[i]==cCAVE2) index=0;
+	if(types[i]==cCAVE2) {index=0;}
     else if(types[i]==cCAVE2B) {types[i]=cCAVE2; index=1;}
     else if(types[i]==cCAVE2C) {types[i]=cCAVE2; index=2;}
     else if(types[i]==cCAVE2D) {types[i]=cCAVE2; index=3;}
@@ -7405,14 +7327,6 @@ void LinkClass::walkdown() //entering cave
 
   for(int i=0; i<64; i++)
   {
-    /*if (FrameSkip)
-      {
-      logic_counter=0;
-      while(logic_counter==0)
-      {
-      }
-      drawit=true;
-      }*/
     linkstep();
     if((i&3)==3)
       ++y;
@@ -7449,14 +7363,6 @@ void LinkClass::walkdown2() //exiting cave 2
 
   for(int i=0; i<64; i++)
   {
-    /*if (FrameSkip)
-      {
-      logic_counter=0;
-      while(logic_counter==0)
-      {
-      }
-      drawit=true;
-      }*/
     linkstep();
     if((i&3)==3)
       ++y;
@@ -7494,14 +7400,6 @@ void LinkClass::walkup() //exiting cave
 
   for(int i=0; i<64; i++)
   {
-    /*if (FrameSkip)
-      {
-      logic_counter=0;
-      while(logic_counter==0)
-      {
-      }
-      drawit=true;
-      }*/
     linkstep();
     if((i&3)==0)
       --y;
@@ -7541,14 +7439,6 @@ void LinkClass::walkup2() //entering cave2
 
   for(int i=0; i<64; i++)
   {
-    /*if (FrameSkip)
-      {
-      logic_counter=0;
-      while(logic_counter==0)
-      {
-      }
-      drawit=true;
-      }*/
     linkstep();
     if((i&3)==0)
       --y;
@@ -9449,7 +9339,7 @@ void getdraggeditem(int j)
 {
   if(itemsbuf[items.spr(j)->id].collect_script)
   {
-	run_script(itemsbuf[items.spr(j)->id].collect_script, j, SCRIPT_ITEM);
+    run_script(itemsbuf[items.spr(j)->id].collect_script, j, SCRIPT_ITEM);
   }
   getitem(items.spr(j)->id);
   items.del(j);
@@ -9461,9 +9351,9 @@ void getdraggeditem(int j)
       w->dragging=-1;
     }
     else if (w->dragging>j)
-      {
-        w->dragging-=1;
-      }
+    {
+      w->dragging-=1;
+    }
   }
 }
 
@@ -9546,7 +9436,7 @@ void LinkClass::checkitems()
 
   if(itemsbuf[id].collect_script)
   {
-	run_script(itemsbuf[id].collect_script, index, SCRIPT_ITEM);
+    run_script(itemsbuf[id].collect_script, index, SCRIPT_ITEM);
   }
   getitem(id);
 
@@ -9852,13 +9742,12 @@ void LinkClass::getTriforce(int id)
       draw_screen_clip_rect_x2=255-curtain_x;
       draw_screen_clip_rect_y1=0;
       draw_screen_clip_rect_y2=223;
-      draw_screen_clip_rect_show_link=true;
+      //draw_screen_clip_rect_show_link=true;
       //draw_screen(tmpscr, 0, 0);
     }
 
     draw_screen(tmpscr, 0, 0);
     put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
-
     advanceframe();
     ++f;
   } while((f<408)||(midi_pos > 0));
@@ -9868,7 +9757,7 @@ void LinkClass::getTriforce(int id)
   draw_screen_clip_rect_x2=255;
   draw_screen_clip_rect_y1=0;
   draw_screen_clip_rect_y2=223;
-  draw_screen_clip_rect_show_link=true;
+  //draw_screen_clip_rect_show_link=true;
   sdir=dir; dowarp(1,0); //side warp
 }
 

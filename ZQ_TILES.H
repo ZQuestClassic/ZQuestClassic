@@ -18,6 +18,8 @@
 /*********************************/
 /*****    Tiles & Combos    ******/
 /*********************************/
+extern byte cset_reduce_table[PAL_SIZE];
+void calc_cset_reduce_table(PALETTE pal, int cs);
 
 int d_combo_proc(int msg,DIALOG *d,int c);
 void go_tiles();
@@ -48,7 +50,7 @@ void tile_floodfill(int tile,int x,int y,byte c);
 //extern int c1;
 //extern int c2;
 //extern int bgc;
-enum { t_pen, t_brush, t_recolor, t_eyedropper, t_move, t_select, t_max };
+enum { t_pen, t_brush, t_recolor, t_eyedropper, t_move, t_select, t_wand, t_max };
 //extern int tool;
 //extern int tool_cur;
 //extern int drawing;
@@ -71,10 +73,10 @@ void edit_tile(int tile,int flip,int &cs);
 //extern PALETTE imagepal;
 
 void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs);
-void draw_grab_scr(int tile,int cs,byte *newtile,int bg,int white,int txt, int width, int height);
+void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white,int width, int height, byte *newformat);
 void load_imagebuf();
-void leech_tiles(tiledata *dest,int start);
-void grab(byte *dest,byte *def, int width, int height);
+bool leech_tiles(tiledata *dest,int start,int cs);
+void grab(byte (*dest)[256],byte *def, int width, int height, int oformat, byte *newformat);
 void grab_tile(int tile,int &cs);
 void draw_tiles(int first,int cs);
 int tile_col(int tile);
@@ -83,7 +85,7 @@ int tile_page(int tile);
 int tile_page_row(int tile);
 void tile_info_0(int tile,int tile2,int cs,int copy,int copycnt,int page,bool rect_sel);
 void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int copy,int page);
-void reset_tile(int t, int format);
+void reset_tile(tiledata *buf, int t, int format);
 bool copy_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool move);
 void copy_combos(int &tile,int &tile2,int &copy,int &copycnt, bool masscopy);
 void move_combos(int &tile,int &tile2,int &copy,int &copycnt);

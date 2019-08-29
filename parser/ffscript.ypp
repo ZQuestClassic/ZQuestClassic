@@ -44,6 +44,9 @@ extern YYLTYPE noloc;
 %token ITEM
 %token ITEMCLASS
 %token GLOBAL
+%token BREAK
+%token CONTINUE
+%token CONST
 
 %token ASSIGN
 %token SEMICOLON
@@ -89,7 +92,13 @@ Prog : GlobalStmt Prog {ASTDeclList *list = (ASTDeclList *)$2;
 GlobalStmt : Script {$$ = $1;}
 	| Import {$$ = $1;}
 	| FuncDecl {$$ = $1;}
+	| ConstDecl {$$ = $1;}
 	;
+	
+ConstDecl : CONST FLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
+															ASTFloat *val = (ASTFloat *)$5;
+															$$ = new ASTConstDecl(name->getValue(), val,@1);
+															delete name;}
 
 Script : ScriptType SCRIPT IDENTIFIER ScriptBlock {ASTType *type = (ASTType *)$1;
 								   ASTString *name = (ASTString *)$3;
@@ -193,6 +202,8 @@ Stmt : VarDecl SEMICOLON {$$ = $1;}
 	| WhileStmt {$$ = $1;}
 	| SEMICOLON {$$ = new ASTStmtEmpty(@1);}
 	| Expr SEMICOLON {$$=$1;}
+	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@1);}
+	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@1);}
 	;
 
 StmtNoSemi : VarDecl {$$ = $1;}
@@ -204,6 +215,8 @@ StmtNoSemi : VarDecl {$$ = $1;}
 	| WhileStmt {$$ = $1;}
 	| {$$ = new ASTStmtEmpty(noloc);}
 	| Expr {$$=$1;}
+	| BREAK {$$ = new ASTStmtBreak(@1);}
+	| CONTINUE {$$ = new ASTStmtContinue(@1);}
 	;
 
 AssignStmt : LVal ASSIGN Expr {$$ = new ASTStmtAssign((ASTStmt *)$1, (ASTExpr *)$3,@1);}

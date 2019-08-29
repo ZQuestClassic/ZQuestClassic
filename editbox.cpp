@@ -195,7 +195,10 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 					ret = D_USED_CHAR;
 					break;
 				}
-
+				ret = D_O_K;
+				break;
+			case KEY_ESC:
+				return D_EXIT;
 			}
 			//selection post-processing
 			if (key[KEY_LSHIFT]||key[KEY_RSHIFT])

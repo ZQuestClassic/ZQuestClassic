@@ -13,10 +13,6 @@
 #define _ZC_SYS_H_
 
 #include "zdefs.h"
-extern bool inputs_enabled;
-enum { forced_up, forced_down, forced_left, forced_right, forced_a, forced_b, forced_l, forced_r, max_forced_commands };
-extern bool forced_command[max_forced_commands];
-
 extern MENU the_menu[];
 
 bool game_vid_mode(int mode,int wait);
@@ -49,6 +45,10 @@ int  next_press_btn();
 bool joybtn(int b);
 bool ReadKey(int k);
 void eat_buttons();
+
+extern bool control_state[10];
+
+void load_control_state();
 
 bool Up();
 bool Down();

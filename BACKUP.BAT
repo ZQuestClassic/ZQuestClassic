@@ -7,5 +7,5 @@ copy *.cpp %1
 copy Makefile %1
 copy makefile.inc %1
 copy parser\*.* %1\parser
-del parser\*.o
+del %1\parser\*.o
 

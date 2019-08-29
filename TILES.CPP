@@ -36,12 +36,12 @@ extern fix  LinkModifiedY();
 
 byte unpackbuf[UNPACKSIZE];
 
-bool isblanktile(int i)
+bool isblanktile(tiledata *buf, int i)
 {
   //  byte *tilestart=tilebuf+(i*128);
-  byte *tilestart=newtilebuf[i].data;
+  byte *tilestart=buf[i].data;
   qword *di=(qword*)tilestart;
-  int parts=tilesize(newtilebuf[i].format)>>3;
+  int parts=tilesize(buf[i].format)>>3;
   for (int j=0; j<parts; ++j, ++di)
   {
     if (*di!=0)
@@ -85,16 +85,16 @@ void register_blank_tile_quarters(int tile)
 
 void register_blank_tiles()
 {
-  int tiles_used=count_tiles();
+  int tiles_used=count_tiles(newtilebuf);
   for (int i=0; i<tiles_used; ++i)
   {
     register_blank_tile_quarters(i);
-    blank_tile_table[i]=isblanktile(i);
+    blank_tile_table[i]=isblanktile(newtilebuf, i);
   }
 }
 
 //returns the number of tiles
-word count_tiles()
+word count_tiles(tiledata *buf)
 {
   word tiles_used;
   //  bool used;
@@ -112,7 +112,7 @@ word count_tiles()
       break;
       }
       */
-    if(!isblanktile(tiles_used-1))
+    if(!isblanktile(buf, tiles_used-1))
     {
       break;
     }
@@ -280,52 +280,52 @@ bool isonline(float x1, float y1, float x2, float y2, float x3, float y3)
   return (y3 == (slope*x3)+intercept) && x3>min(x1,x2) && x3<max(x1,x2) && y3>min(y1,y2) && y3<max(y1,y2) ;
 }
 //clears a tile
-void clear_tile(word tile)
+void clear_tile(tiledata *buf, word tile)
 {
-  newtilebuf[tile].format=tf4Bit;
-  if (newtilebuf[tile].data!=NULL)
+  buf[tile].format=tf4Bit;
+  if (buf[tile].data!=NULL)
   {
-    free(newtilebuf[tile].data);
-    newtilebuf[tile].data = NULL;
+    free(buf[tile].data);
+    buf[tile].data = NULL;
   }
-  newtilebuf[tile].data=(byte *)malloc(tilesize(newtilebuf[tile].format));
-  if (newtilebuf[tile].data==NULL)
+  buf[tile].data=(byte *)malloc(tilesize(buf[tile].format));
+  if (buf[tile].data==NULL)
   {
     Z_error("Unable to initialize tile #%d.\n", tile);
     exit(1);
   }
-  memset(newtilebuf[tile].data,0,tilesize(newtilebuf[tile].format));
+  memset(buf[tile].data,0,tilesize(buf[tile].format));
 }
 
 //clears the tile buffer
-void clear_tiles()
+void clear_tiles(tiledata *buf)
 {
   for(word i=0; i<NEWMAXTILES; ++i)
   {
-    clear_tile(i);
+    clear_tile(buf,i);
   }
 }
 
 // unpacks from tilebuf to unpackbuf
-void unpack_tile(int tile, int flip, bool force)
+void unpack_tile(tiledata *buf, int tile, int flip, bool force)
 {
   static byte *si, *di;
-  static byte *oldnewtilebuf=newtilebuf[tile].data;
+  static byte *oldnewtilebuf=buf[tile].data;
   static int i, j, oldtile=-5, oldflip=-5;
-  if (tile==oldtile&&(flip&5)==(oldflip&5)&&oldnewtilebuf==newtilebuf[tile].data&&!force)
+  if (tile==oldtile&&(flip&5)==(oldflip&5)&&oldnewtilebuf==buf[tile].data&&!force)
   {
     return;
   }
   oldtile=tile;
   oldflip=flip;
-  oldnewtilebuf=newtilebuf[tile].data;
+  oldnewtilebuf=buf[tile].data;
   switch (flip&5)
   {
     case 1:  //horizontal
-    si = newtilebuf[tile].data+tilesize(newtilebuf[tile].format);
+    si = buf[tile].data+tilesize(buf[tile].format);
     for(i=15; i>=0; --i)
     {
-      switch(newtilebuf[tile].format)
+      switch(buf[tile].format)
       {
         case tf4Bit:
         di=unpackbuf + (i<<4) - 1;
@@ -353,10 +353,10 @@ void unpack_tile(int tile, int flip, bool force)
     }
     break;
     case 4:  //rotated
-    si = newtilebuf[tile].data+tilesize(newtilebuf[tile].format);
+    si = buf[tile].data+tilesize(buf[tile].format);
     for(i=15; i>=0; --i)
     {
-      switch(newtilebuf[tile].format)
+      switch(buf[tile].format)
       {
         case tf4Bit:
         di=unpackbuf + 271 - i; //256 + 15 - i
@@ -394,10 +394,10 @@ void unpack_tile(int tile, int flip, bool force)
     }
     break;
     case 5:  //rotated and horizontal
-    si = newtilebuf[tile].data+tilesize(newtilebuf[tile].format);
+    si = buf[tile].data+tilesize(buf[tile].format);
     for(i=15; i>=0; --i)
     {
-      switch(newtilebuf[tile].format)
+      switch(buf[tile].format)
       {
         case tf4Bit:
         di=unpackbuf + 256 + i;
@@ -435,8 +435,8 @@ void unpack_tile(int tile, int flip, bool force)
     }
     break;
     default: //none or invalid
-    si = newtilebuf[tile].data+tilesize(newtilebuf[tile].format);
-    switch(newtilebuf[tile].format)
+    si = buf[tile].data+tilesize(buf[tile].format);
+    switch(buf[tile].format)
     {
       case tf4Bit:
       di = unpackbuf + 256;
@@ -466,11 +466,16 @@ void unpack_tile(int tile, int flip, bool force)
 }
 
 // packs from src[256] to tilebuf
-void pack_tile(byte *src,int tile)
+void pack_tile(tiledata *buf, byte *src,int tile)
 {
-  byte *di = newtilebuf[tile].data;
+  pack_tiledata(buf[tile].data, src, buf[tile].format);
+}
 
-  switch(newtilebuf[tile].format)
+void pack_tiledata(byte *dest, byte *src, byte format)
+{
+  byte *di = dest;
+
+  switch(format)
   {
     case tf4Bit:
     for(int si=0; si<256; si+=2)
@@ -533,7 +538,7 @@ void puttiletranslucent8(BITMAP* dest,int tile,int x,int y,int cset,int flip,int
   }
   cset &= 15;
   cset <<= CSET_SHFT;
-  unpack_tile(tile>>2, 0, false);
+  unpack_tile(newtilebuf, tile>>2, 0, false);
   byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
   if (flip&1) //horizontal
   {
@@ -620,7 +625,7 @@ void overtiletranslucent8(BITMAP* dest,int tile,int x,int y,int cset,int flip,in
   }
   cset &= 15;
   cset <<= CSET_SHFT;
-  unpack_tile(tile>>2, 0, false);
+  unpack_tile(newtilebuf, tile>>2, 0, false);
   byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
   if (flip&1)
   {
@@ -713,7 +718,7 @@ void puttiletranslucent16(BITMAP* dest,int tile,int x,int y,int cset,int flip,in
   }
   cset &= 15;
   cset <<= CSET_SHFT;
-  unpack_tile(tile, 0, false);
+  unpack_tile(newtilebuf, tile, 0, false);
   byte *si = unpackbuf;
   byte *di;
   if(flip&1)
@@ -820,7 +825,7 @@ void overtiletranslucent16(BITMAP* dest,int tile,int x,int y,int cset,int flip,i
   }
   cset &= 15;
   cset <<= CSET_SHFT;
-  unpack_tile(tile, 0, false);
+  unpack_tile(newtilebuf, tile, 0, false);
   byte *si = unpackbuf;
   byte *di;
   if(flip&1)
@@ -932,7 +937,7 @@ void overtilecloaked16(BITMAP* dest,int tile,int x,int y,int flip)
     return;
   }
 
-  unpack_tile(tile, 0, false);
+  unpack_tile(newtilebuf, tile, 0, false);
   byte *si = unpackbuf;
   byte *di;
   if(flip&1)
@@ -1345,7 +1350,7 @@ void puttile8(BITMAP* dest,int tile,int x,int y,int cset,int flip)
   cset &= 15;
   cset <<= CSET_SHFT;
   dword lcset = (cset<<24)+(cset<<16)+(cset<<8)+cset;
-  unpack_tile(tile>>2, 0, false);
+  unpack_tile(newtilebuf, tile>>2, 0, false);
 
   //  to go to 24-bit color, do this kind of thing...
   //  ((long *)bmp->line[y])[x] = color;
@@ -1423,7 +1428,7 @@ void oldputtile8(BITMAP* dest,int tile,int x,int y,int cset,int flip)
   }
   cset &= 15;
   cset <<= CSET_SHFT;
-  unpack_tile(tile>>2, 0, false);
+  unpack_tile(newtilebuf, tile>>2, 0, false);
   byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
   if (flip&1)
   {
@@ -1509,7 +1514,7 @@ void overtile8(BITMAP* dest,int tile,int x,int y,int cset,int flip)
   }
   cset &= 15;
   cset <<= CSET_SHFT;
-  unpack_tile(tile>>2, 0, false);
+  unpack_tile(newtilebuf, tile>>2, 0, false);
   byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
   if (flip&1)
   {
@@ -1604,7 +1609,7 @@ void puttile16(BITMAP* dest,int tile,int x,int y,int cset,int flip) //fixed
   cset &= 15;
   cset <<= CSET_SHFT;
 
-  unpack_tile(tile, flip&5, false);
+  unpack_tile(newtilebuf, tile, flip&5, false);
 
   switch(flip&2)
   {
@@ -1706,7 +1711,7 @@ void oldputtile16(BITMAP* dest,int tile,int x,int y,int cset,int flip) //fixed
 
   cset &= 15;
   cset <<= CSET_SHFT;
-  unpack_tile(tile, flip&5, false);
+  unpack_tile(newtilebuf, tile, flip&5, false);
   byte *si = unpackbuf;
   byte *di;
 
@@ -1804,7 +1809,7 @@ void overtile16(BITMAP* dest,int tile,int x,int y,int cset,int flip) //fixed
 
   cset &= 15;
   cset <<= CSET_SHFT;
-  unpack_tile(tile, flip&5, false);
+  unpack_tile(newtilebuf, tile, flip&5, false);
   byte *si = unpackbuf;
   byte *di;
 

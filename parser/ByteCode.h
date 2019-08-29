@@ -45,15 +45,15 @@ using namespace std;
 #define LINKMAXHP 25
 #define LINKMAXMP 26
 #define LINKACTION 27
-#define INPUTSENABLED 28
-#define FORCEDUP 29
-#define FORCEDDOWN 30
-#define FORCEDLEFT 31
-#define FORCEDRIGHT 32
-#define FORCEDA 33
-#define FORCEDB 34
-#define FORCEDL 35
-#define FORCEDR 36
+#define INPUTSTART 28
+#define INPUTUP 29
+#define INPUTDOWN 30
+#define INPUTLEFT 31
+#define INPUTRIGHT 32
+#define INPUTA 33
+#define INPUTB 34
+#define INPUTL 35
+#define INPUTR 36
 #define SDD 37 // 8 of these
 #define COMBODD 38 //176 of these
 #define COMBOCD 39 //176 of these
@@ -83,15 +83,15 @@ using namespace std;
 #define ITEMCLASSSETGAME 63
 #define ITEMCLASSCOUNTER 64
 #define REFITEMCLASS 65
-#define GETA 66
-#define GETB 67
-#define GETL 68
-#define GETR 69
-#define GETUP 70
-#define GETDOWN 71
-#define GETLEFT 72
-#define GETRIGHT 73
-#define GETSTART 74
+//#define GETA 66
+//#define GETB 67
+//#define GETL 68
+//#define GETR 69
+//#define GETUP 70
+//#define GETDOWN 71
+//#define GETLEFT 72
+//#define GETRIGHT 73
+//#define GETSTART 74
 #define COMBOID 75
 #define COMBOTD 76
 #define COMBOSD 77
@@ -711,11 +711,18 @@ public:
 	virtual void caseExprBitNot(ASTExprBitNot &host, void *param);
 	virtual void caseExprIncrement(ASTExprIncrement &host, void *param);
 	virtual void caseExprDecrement(ASTExprDecrement &host, void *param);
+	virtual void caseStmtBreak(ASTStmtBreak &host, void *param);
+	virtual void caseStmtContinue(ASTStmtContinue &host, void *param);
 	vector<Opcode *> getResult() {return result;}
 	int getReturnLabelID() {return returnlabelid;}
+	BuildOpcodes() : failure(true) {}
+	bool isOK() {return !failure;}
 private:
 	vector<Opcode *> result;
 	int returnlabelid;
+	int continuelabelid;
+	int breaklabelid;
+	bool failure;
 };
 
 class CountStackSymbols : public RecursiveVisitor

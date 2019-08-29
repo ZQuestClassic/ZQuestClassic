@@ -71,7 +71,6 @@ void item::draw(BITMAP *dest)
 {
   if(pickup&ipNODRAW)
     return;
-
   if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1)
   {
     if(clk2>32 || (clk2&2)==0 || id==iFairyMoving || id==iFairyStill)

@@ -163,8 +163,8 @@ struct CharPos
 class BasicEditboxView : public EditboxView
 {
 public:
-	BasicEditboxView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor) : EditboxView(host, textfont), 
-		view_x(0), view_y(0), fgcolor(fgcolor), bgcolor(bgcolor) {}
+	BasicEditboxView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor, int highlight_style) : EditboxView(host, textfont), 
+		view_x(0), view_y(0), fgcolor(fgcolor), bgcolor(bgcolor), hstyle(highlight_style) {}
 	~BasicEditboxView();
 	void ensureCursorOnScreen();
 	void scrollUp();
@@ -175,6 +175,8 @@ public:
 	bool mouseClick(int x, int y);
 	bool mouseDrag(int x, int y);
 	bool mouseRelease(int x, int y);
+	const static int HSTYLE_EOLINE = 0;
+	const static int HSTYLE_EOTEXT = 1; 
 protected:
 	void createStripBitmap(list<LineData>::iterator it, int width);
 	virtual void drawExtraComponents()=0;
@@ -192,12 +194,13 @@ protected:
 	CharPos findCharacter(int x, int y);
 	int fgcolor;
 	int bgcolor;
+	int hstyle;
 };
 
 class EditboxVScrollView : public BasicEditboxView
 {
 public:
-	EditboxVScrollView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor) : BasicEditboxView(host, textfont, fgcolor, bgcolor), sbarpattern(NULL) {}
+	EditboxVScrollView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor, int highlight_style=HSTYLE_EOLINE) : BasicEditboxView(host, textfont, fgcolor, bgcolor, highlight_style), sbarpattern(NULL) {}
 	
 	~EditboxVScrollView();
 	bool mouseClick(int x, int y);
@@ -226,7 +229,7 @@ private:
 class EditboxWordWrapView : public EditboxVScrollView
 {
 public:
-	EditboxWordWrapView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor) : EditboxVScrollView(host, textfont, fgcolor, bgcolor) {}
+	EditboxWordWrapView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor, int highlight_style=HSTYLE_EOLINE) : EditboxVScrollView(host, textfont, fgcolor, bgcolor,highlight_style) {}
 protected:
 	void layoutPage();
 };
@@ -234,7 +237,7 @@ protected:
 class EditboxNoWrapView : public EditboxVScrollView
 {
 public:
-	EditboxNoWrapView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor) : EditboxVScrollView(host, textfont, fgcolor, bgcolor) {}
+	EditboxNoWrapView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor, int highlight_style=HSTYLE_EOLINE) : EditboxVScrollView(host, textfont, fgcolor, bgcolor, highlight_style) {}
 	void init();
 protected:
 	void layoutPage();
@@ -242,17 +245,29 @@ protected:
 	bool mouseDragOther(int x, int y);
 	bool mouseRelease(int x, int y);
 	bool mouseClickOther(int x, int y);
+	int leftarrow_y;
+	int rightarrow_y;
 private:
 	int leftarrow_x;
-	int leftarrow_y;
 	int leftarrow_state;
 	int rightarrow_x;
-	int rightarrow_y;
 	int rightarrow_state;
 	int hbaroff;
 	int hbarlen;
 	int hbarstate;
 	int hbarstartx;
+};
+
+class EditboxScriptView : public EditboxNoWrapView
+{
+public:
+	EditboxScriptView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor, int highlight_style=HSTYLE_EOLINE) : EditboxNoWrapView(host, textfont, fgcolor, bgcolor, highlight_style), linetext(NULL) {}
+	void init();
+	~EditboxScriptView();
+protected:
+	void drawExtraComponents();
+private:
+	BITMAP *linetext;
 };
 
 #endif

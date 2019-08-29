@@ -43,8 +43,8 @@ int draw_screen_clip_rect_x1=0;
 int draw_screen_clip_rect_x2=255;
 int draw_screen_clip_rect_y1=0;
 int draw_screen_clip_rect_y2=223;
-bool draw_screen_clip_rect_show_link=true;
-bool draw_screen_clip_rect_show_guys=false;
+//bool draw_screen_clip_rect_show_link=true;
+//bool draw_screen_clip_rect_show_guys=false;
 bool checktrigger=false;
 
 void clear_dmap(byte i)
@@ -1937,6 +1937,8 @@ void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen
 
 void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
 {
+	clear_bitmap(framebuf);
+	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2); 
   int cmby2=0;
   int pcounter;
 
@@ -2156,10 +2158,10 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
   {
     if (!Link.isSwimming())
     {
-      if (draw_screen_clip_rect_show_link==true)
+      /*if (draw_screen_clip_rect_show_link==true)
       {
         set_clip_rect(framebuf, 0, 0, 255, 223);
-      }
+      }*/
       decorations.draw2(framebuf,true);
       Link.draw(framebuf);
       decorations.draw(framebuf,true);
@@ -2361,7 +2363,8 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     }
   }
 
-  if (draw_screen_clip_rect_x1>0||draw_screen_clip_rect_y1>0||draw_screen_clip_rect_x2<255||draw_screen_clip_rect_y2<223)
+  set_clip_rect(framebuf,0,0,255,223);
+  /*if (draw_screen_clip_rect_x1>0||draw_screen_clip_rect_y1>0||draw_screen_clip_rect_x2<255||draw_screen_clip_rect_y2<223)
   {
     rectfill(scrollbuf, 0,0, 255,223, 0);
     if(drawguys && draw_screen_clip_rect_show_guys)
@@ -2409,7 +2412,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     if(draw_screen_clip_rect_x2<255) blit( scrollbuf, framebuf, draw_screen_clip_rect_x2+1, 0,                          draw_screen_clip_rect_x2+1, 0,                          255-draw_screen_clip_rect_x2,                        224                          );
     if(draw_screen_clip_rect_y1)     blit( scrollbuf, framebuf, draw_screen_clip_rect_x1,   0,                          draw_screen_clip_rect_x1,   0,                          draw_screen_clip_rect_x2-draw_screen_clip_rect_x1+1, draw_screen_clip_rect_y1     );
     if(draw_screen_clip_rect_y2<223) blit( scrollbuf, framebuf, draw_screen_clip_rect_x1,   draw_screen_clip_rect_y2+1, draw_screen_clip_rect_x1,   draw_screen_clip_rect_y2+1, draw_screen_clip_rect_x2-draw_screen_clip_rect_x1+1, 223-draw_screen_clip_rect_y1 );
-  }
+  }*/
   put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, false);
 }
 
@@ -2834,6 +2837,15 @@ void loadscr(int tmp,int scr,int ldir)
   mapscr ffscr = tmpscr[tmp];
 
   tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
+
+  for(int i=0; i<32; i++)
+  {
+    if(!(ffscr.ffflags[i]&ffCARRYOVER)||ffscr.flags5&fNOFFCARRYOVER)
+    for(int j=0; j<256; j++)
+	{
+	  ffstack[i][j] = 0;
+	}
+  }
 
   if(tmp==0)
   {

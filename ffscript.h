@@ -133,15 +133,15 @@ enum
 
 //0x00227-0X022F aren't used?
 //n=0-175, so if n=175, then ((0x0019)+((n)*3))=0x00226
-#define INPUTSENABLED     0x0227
-#define FORCEDUP          0x0228
-#define FORCEDDOWN        0x0229
-#define FORCEDLEFT        0x022A
-#define FORCEDRIGHT       0x022B
-#define FORCEDA           0x022C
-#define FORCEDB           0x022D
-#define FORCEDL           0x022E
-#define FORCEDR           0x022F
+#define INPUTSTART        0x0227
+#define INPUTUP           0x0228
+#define INPUTDOWN         0x0229
+#define INPUTLEFT         0x022A
+#define INPUTRIGHT        0x022B
+#define INPUTA            0x022C
+#define INPUTB            0x022D
+#define INPUTL            0x022E
+#define INPUTR            0x022F
 
 #define LINKX             0x0230
 #define LINKY             0x0231
@@ -418,15 +418,15 @@ enum
 #define EWPNOTILE          0x08AC
 #define EWPNOCSET          0x08AD
 
-#define GETA               0x08AE
-#define GETB               0x08AF
-#define GETL               0x08B0
-#define GETR               0x08B1
-#define GETLEFT            0x08B2
-#define GETRIGHT           0x08B3
-#define GETUP              0x08B4
-#define GETDOWN            0x08B5
-#define GETSTART		   0x08B6
+//#define GETA               0x08AE
+//#define GETB               0x08AF
+//#define GETL               0x08B0
+//#define GETR               0x08B1
+//#define GETLEFT            0x08B2
+//#define GETRIGHT           0x08B3
+//#define GETUP              0x08B4
+//#define GETDOWN            0x08B5
+//#define GETSTART           0x08B6
 
 #define COMBOSD			   0x08B7
 #define GAMEMAPFLAGDD      0x08B8

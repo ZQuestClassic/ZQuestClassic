@@ -35,6 +35,8 @@ enum {selection_mode_normal, selection_mode_add, selection_mode_subtract, select
 BITMAP *selecting_pattern;
 int selecting_x1, selecting_x2, selecting_y1, selecting_y2;
 
+BITMAP *intersection_pattern;
+
 /*********************************/
 /*****    Tiles & Combos    ******/
 /*********************************/
@@ -164,7 +166,7 @@ bool has_selection()
   {
     for(int j=1; j<17; ++j)
     {
-      if (selection_grid)
+      if (selection_grid[i][j])
       {
         return true;
       }
@@ -195,6 +197,97 @@ void draw_selection_outline(BITMAP *dest, int x, int y, int scale)
   //  selection_anchor=(selection_anchor+1)%64;
 }
 
+bool is_selecting()
+{
+  return (selecting_x1>-1&&selecting_x2>-1&&selecting_y1>-1&&selecting_y2>-1);
+}
+
+void draw_selecting_outline(BITMAP *dest, int x, int y, int scale)
+{
+  int x1=min(selecting_x1,selecting_x2);
+  int x2=max(selecting_x1,selecting_x2);
+  int y1=min(selecting_y1,selecting_y2);
+  int y2=max(selecting_y1,selecting_y2);
+  
+//  rect(dest, x+(x1*scale), y+(y1*scale), x+((x2+1)*scale), y+((y2+1)*scale), 255);
+  for(int i=1; i<18; ++i)
+  {
+    for(int j=1; j<18; ++j)
+    {
+      drawing_mode(DRAW_MODE_COPY_PATTERN, selecting_pattern, selection_anchor>>3, 0);
+      if (((j>=y1+1)&&(j<=y2+1))&&((i==x1+1)||(i==x2+2)))
+      {
+        if(selection_grid[i-1][j]!=selection_grid[i][j])
+        {
+          drawing_mode(DRAW_MODE_COPY_PATTERN, intersection_pattern, selection_anchor>>3, 0);
+        }
+        _allegro_vline(dest, x+((i-1)*scale), y+((j-1)*scale), y+(j*scale), 255);
+      }
+      if (((i>=x1+1)&&(i<=x2+1))&&((j==y1+1)||(j==y2+2)))
+      {
+        if(selection_grid[i][j-1]!=selection_grid[i][j])
+        {
+          drawing_mode(DRAW_MODE_COPY_PATTERN, intersection_pattern, selection_anchor>>3, 0);
+        }
+        _allegro_hline(dest, x+((i-1)*scale), y+((j-1)*scale), x+(i*scale), 255);
+      }
+    }
+  }
+  drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+  //  selection_anchor=(selection_anchor+1)%64;
+}
+
+void add_color_to_selection(int color)
+{
+  for(int i=1; i<17; ++i)
+  {
+    for(int j=1; j<17; ++j)
+    {
+      if(unpackbuf[((j-1)<<4)+(i-1)]==color)
+      {
+        selection_grid[i][j]=1;
+      }
+    }
+  }
+}
+
+void remove_color_from_selection(int color)
+{
+  for(int i=1; i<17; ++i)
+  {
+    for(int j=1; j<17; ++j)
+    {
+      if(unpackbuf[((j-1)<<4)+(i-1)]==color)
+      {
+        selection_grid[i][j]=0;
+      }
+    }
+  }
+}
+
+void intersect_color_with_selection(int color)
+{
+  for(int i=1; i<17; ++i)
+  {
+    for(int j=1; j<17; ++j)
+    {
+      if((unpackbuf[((j-1)<<4)+(i-1)]==color)&&(selection_grid[i][j]==1))
+      {
+        selection_grid[i][j]=1;
+      }
+      else
+      {
+        selection_grid[i][j]=0;
+      }
+    }
+  }
+}
+
+bool is_in_selection(int x, int y)
+{
+  return (!has_selection()||(selection_grid[x+1][y+1]!=0));
+}
+
 void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m)
 {
   //  rectfill(dest,x,y,x+(16*m),y+(16*m),gridmode==gm_light?jwin_pal[jcMEDLT]:jwin_pal[jcDARK]);
@@ -206,7 +299,7 @@ void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m)
     cset=0;
   }
 
-  unpack_tile(tile, 0, false);
+  unpack_tile(newtilebuf, tile, 0, false);
   byte *si = unpackbuf;
 
   for(int cy=0; cy<16; cy++)
@@ -223,10 +316,17 @@ void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m)
       ++si;
     }
   }
-  if (has_selection())
+  if (has_selection()||is_selecting())
   {
     selection_anchor=(selection_anchor+1)%64;
-    draw_selection_outline(dest, x, y, m);
+    if (has_selection()||is_selecting())
+    {
+      draw_selection_outline(dest, x, y, m);
+    }
+    if (is_selecting())
+    {
+      draw_selecting_outline(dest, x, y, m);
+    }
   }
 }
 
@@ -432,31 +532,40 @@ byte tf_u;
 
 void tile_floodfill_rec(int x,int y)
 {
-  while(x>0 && (unpackbuf[(y<<4)+x-1] == tf_u))
-    --x;
-
-  while(x<=15 && (unpackbuf[(y<<4)+x] == tf_u))
+  if (is_in_selection(x,y))
   {
-    unpackbuf[(y<<4)+x] = tf_c;
-
-    if(y>0 && (unpackbuf[((y-1)<<4)+x] == tf_u))
-      tile_floodfill_rec(x,y-1);
-
-    if(y<15 && (unpackbuf[((y+1)<<4)+x] == tf_u))
-      tile_floodfill_rec(x,y+1);
-
-    ++x;
+    while(x>0 && (unpackbuf[(y<<4)+x-1] == tf_u))
+      --x;
+  
+    while(x<=15 && (unpackbuf[(y<<4)+x] == tf_u))
+    {
+      if (is_in_selection(x,y))
+      {
+        unpackbuf[(y<<4)+x] = tf_c;
+      }
+  
+      if(y>0 && (unpackbuf[((y-1)<<4)+x] == tf_u))
+        tile_floodfill_rec(x,y-1);
+  
+      if(y<15 && (unpackbuf[((y+1)<<4)+x] == tf_u))
+        tile_floodfill_rec(x,y+1);
+  
+      ++x;
+    }
   }
 }
 
 void tile_floodfill(int tile,int x,int y,byte c)
 {
-  unpack_tile(tile, 0, false);
-  tf_c = c;
-  tf_u = unpackbuf[(y<<4)+x];
-  if(tf_u != tf_c)
-    tile_floodfill_rec(x,y);
-  pack_tile(unpackbuf,tile);
+  if (is_in_selection(x,y))
+  {
+    unpack_tile(newtilebuf, tile, 0, false);
+    tf_c = c;
+    tf_u = unpackbuf[(y<<4)+x];
+    if(tf_u != tf_c)
+      tile_floodfill_rec(x,y);
+    pack_tile(newtilebuf,unpackbuf,tile);
+  }
 }
 
 //***************** tile editor  stuff *****************
@@ -464,42 +573,55 @@ void tile_floodfill(int tile,int x,int y,byte c)
 int c1=1;
 int c2=0;
 //int bgc=dvc(4+5);
-int bgc=vc(1);
+//int bgc=vc(1);
 //enum { t_pen, t_brush, t_recolor, t_select };
 int tool = t_pen;
 int old_tool = -1;
 int tool_cur = -1;
+int select_mode = 0;
 int drawing=0;
 
-int tool_buttons_left=45, tool_buttons_top=27;
+int tool_buttons_left=22, tool_buttons_top=29, tool_buttons_columns=2;
 
 void update_tool_cursor()
 {
+  int type=0;
+  if (has_selection())
+  {
+    switch(tool)
+    {
+      case t_select:
+      case t_wand:
+        type+=select_mode;
+        break;
+    }
+  }
+  
   if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158)) //inside the zoomed tile window
   {
     if(tool_cur==-1)
     {
-      set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
+      set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][type]);
       switch(tool)
       {
         case t_brush:
-        set_mouse_sprite_focus(1, 14);
-        break;
+          set_mouse_sprite_focus(1, 14);
+          break;
         case t_move:
-        set_mouse_sprite_focus(8, 8);
-        break;
+          set_mouse_sprite_focus(8, 8);
+          break;
         default:
-        set_mouse_sprite_focus(1, 1);
-        break;
+          set_mouse_sprite_focus(1, 1);
+          break;
       }
     }
     tool_cur=tool;
   }
   else if(tool_cur != -1)
-    {
-      set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-      tool_cur = -1;
-    }
+  {
+    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+    tool_cur = -1;
+  }
 }
 
 void draw_edit_scr(int tile,int flip,int cs,byte *oldtile)
@@ -587,8 +709,11 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile)
   //tool buttons
   for (int i=MOUSE_BMP_SWORD; i<MOUSE_BMP_BLANK; i++)
   {
-    jwin_draw_button(screen2,tool_buttons_left,tool_buttons_top+((i-MOUSE_BMP_SWORD)*23),22,22,tool==(i-MOUSE_BMP_SWORD)?2:0,0);
-    masked_blit(mouse_bmp[i][0],screen2,0,0,tool_buttons_left+3+(tool==(i-MOUSE_BMP_SWORD)?1:0),tool_buttons_top+3+((i-MOUSE_BMP_SWORD)*23)+(tool==(i-MOUSE_BMP_SWORD)?1:0),16,16);
+    int column=tool_buttons_columns*(i-MOUSE_BMP_SWORD)/(MOUSE_BMP_BLANK-MOUSE_BMP_SWORD+1);
+    int rows=(MOUSE_BMP_BLANK-MOUSE_BMP_SWORD+2)/tool_buttons_columns;
+    int row=(i-MOUSE_BMP_SWORD)-(column*rows);
+    jwin_draw_button(screen2,tool_buttons_left+(column*23),tool_buttons_top+(row*23),22,22,tool==(i-MOUSE_BMP_SWORD)?2:0,0);
+    masked_blit(mouse_bmp[i][0],screen2,0,0,tool_buttons_left+(column*23)+3+(tool==(i-MOUSE_BMP_SWORD)?1:0),tool_buttons_top+3+(row*23)+(tool==(i-MOUSE_BMP_SWORD)?1:0),16,16);
   }
 
   //coordinates
@@ -598,7 +723,7 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile)
     int temp_y=(gui_mouse_y()-32)/8;
     textprintf_ex(screen2,font,224,136,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"x: %d",temp_x);
     textprintf_ex(screen2,font,264,136,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"y: %d",temp_y);
-    unpack_tile(tile, 0, false);
+    unpack_tile(newtilebuf, tile, 0, false);
     byte *si = unpackbuf;
     si+=(temp_y*16+temp_x);
     get_palette(tpal);
@@ -637,7 +762,7 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
   {
     if (!rect_sel || ((tile_col(temptile)>=left) && (tile_col(temptile)<=left+columns-1)))
     {
-      unpack_tile(temptile, 0, false);
+      unpack_tile(newtilebuf, temptile, 0, false);
 
       if(flip&1)
       {
@@ -660,14 +785,14 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
         }
       }
 
-      pack_tile(unpackbuf,temptile);
+      pack_tile(newtilebuf,unpackbuf,temptile);
     }
   }
 }
 
 void rotate_tile(int tile, bool backward)
 {
-  unpack_tile(tile, 0, false);
+  unpack_tile(newtilebuf, tile, 0, false);
   byte tempunpackbuf[256];
   byte tempx, tempy;
   for (tempx=0; tempx<16; tempx++)
@@ -684,7 +809,7 @@ void rotate_tile(int tile, bool backward)
       }
     }
   }
-  pack_tile(tempunpackbuf,tile);
+  pack_tile(newtilebuf,tempunpackbuf,tile);
 }
 
 static int undocount=128;
@@ -701,7 +826,7 @@ void wrap_tile(int tile, int vertical, int horizontal, bool clear)
   {
     return;
   }
-  unpack_tile(tile, 0, true);
+  unpack_tile(newtilebuf, tile, 0, true);
 
   //vertical
   if (vertical)
@@ -738,7 +863,7 @@ void wrap_tile(int tile, int vertical, int horizontal, bool clear)
       }
     }
   }
-  pack_tile(buf,tile);
+  pack_tile(newtilebuf,buf,tile);
 }
 
 void clear_selection_grid()
@@ -766,6 +891,8 @@ void invert_selection_grid()
 void edit_tile(int tile,int flip,int &cs)
 {
   undocount = tilesize(newtilebuf[tile].format);
+  clear_selection_grid();
+  selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
 
   PALETTE tpal;
   byte oldtile[256];
@@ -803,9 +930,6 @@ void edit_tile(int tile,int flip,int &cs)
   int prev_x=-1, prev_y=-1;
 
 
-  clear_selection_grid();
-  selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
-
 
   byte selection_pattern_source[8][8]=
   {
@@ -821,6 +945,7 @@ void edit_tile(int tile,int flip,int &cs)
 
   byte selecting_pattern_source[8][8]=
   {
+    {1, 1, 0, 0, 0, 0, 1, 1},
     {1, 0, 0, 0, 0, 1, 1, 1},
     {0, 0, 0, 0, 1, 1, 1, 1},
     {0, 0, 0, 1, 1, 1, 1, 0},
@@ -828,7 +953,18 @@ void edit_tile(int tile,int flip,int &cs)
     {0, 1, 1, 1, 1, 0, 0, 0},
     {1, 1, 1, 1, 0, 0, 0, 0},
     {1, 1, 1, 0, 0, 0, 0, 1},
-    {1, 1, 0, 0, 0, 0, 1, 1},
+  };
+
+  byte intersection_pattern_source[8][8]=
+  {
+    {0, 0, 1, 1, 0, 0, 1, 1},
+    {0, 1, 1, 0, 0, 1, 1, 0},
+    {1, 1, 0, 0, 1, 1, 0, 0},
+    {1, 0, 0, 1, 1, 0, 0, 1},
+    {0, 0, 1, 1, 0, 0, 1, 1},
+    {0, 1, 1, 0, 0, 1, 1, 0},
+    {1, 1, 0, 0, 1, 1, 0, 0},
+    {1, 0, 0, 1, 1, 0, 0, 1},
   };
 
   selection_pattern=create_bitmap_ex(8, 8, 8);
@@ -851,11 +987,22 @@ void edit_tile(int tile,int flip,int &cs)
     }
   }
 
+  intersection_pattern=create_bitmap_ex(8, 8, 8);
+  for (int x=0; x<8; ++x)
+  {
+    for (int y=0; y<8; ++y)
+    {
+      //      rectfill(selection_pattern, x<<2, y<<2, (x<<2)+3, (y<<2)+3, (((x^y)&1)==0)?vc(15):vc(0));
+      intersection_pattern->line[y][x]=intersection_pattern_source[x][y]?vc(0):vc(15);
+    }
+  }
+
 
   do
   {
     rest(4);
     bool redraw=false;
+    bool did_wand_select=false;
 
     if(keypressed())
     {
@@ -864,6 +1011,7 @@ void edit_tile(int tile,int flip,int &cs)
         case KEY_ENTER_PAD:
         case KEY_ENTER: done=2; break;
         case KEY_ESC:   done=1; break;
+        case KEY_A:     clear_selection_grid(); invert_selection_grid(); redraw=true; break;
         case KEY_D:     clear_selection_grid(); redraw=true; break;
         case KEY_I:     invert_selection_grid(); redraw=true; break;
         case KEY_H:     flip^=1; normalize(tile,tile,0,flip); flip=0; redraw=true; break;
@@ -881,7 +1029,7 @@ void edit_tile(int tile,int flip,int &cs)
           {
             undotile[i]=newtilebuf[tile].data[i];
           }
-          unpack_tile(tile, 0, false);
+          unpack_tile(newtilebuf, tile, 0, false);
           for (int i=0; i<256; i++)
           {
             if (unpackbuf[i]==c1)
@@ -893,7 +1041,7 @@ void edit_tile(int tile,int flip,int &cs)
                 unpackbuf[i]=c1;
               }
           }
-          pack_tile(unpackbuf,tile);
+          pack_tile(newtilebuf, unpackbuf,tile);
         }
         swap(c1,c2);
         redraw=true;
@@ -997,12 +1145,95 @@ void edit_tile(int tile,int flip,int &cs)
         zq_set_mouse_range(80,32,206,158);
       }
       else if (bdown&&!gui_mouse_b()) //released the mouse button
-        {
-          zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
-        }
+      {
+        zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
+      }
     }
 
-    if(key[KEY_ALT] || key[KEY_ALTGR])
+    if (!gui_mouse_b())
+    {
+      if(is_selecting())
+      {
+        int x1=min(selecting_x1,selecting_x2);
+        int x2=max(selecting_x1,selecting_x2);
+        int y1=min(selecting_y1,selecting_y2);
+        int y2=max(selecting_y1,selecting_y2);
+        if (select_mode==0)
+        {
+          clear_selection_grid();
+        }
+        for (int x=x1; x<=x2; ++x)
+        {
+          for (int y=y1; y<=y2; ++y)
+          {
+            selection_grid[x+1][y+1]=((select_mode<2)?(1):(((select_mode==2)?(0):(selection_grid[x+1][y+1]))));
+          }
+        }
+        if (select_mode==3)
+        {
+          for (int y=0; y<16; ++y)
+          {
+            for (int x=0; x<x1; ++x)
+            {
+              selection_grid[x+1][y+1]=0;
+            }
+            for (int x=x2+1; x<16; ++x)
+            {
+              selection_grid[x+1][y+1]=0;
+            }
+          }
+          for (int x=x1; x<=x2; ++x)
+          {
+            for (int y=0; y<y1; ++y)
+            {
+              selection_grid[x+1][y+1]=0;
+            }
+            for (int y=y2+1; y<16; ++y)
+            {
+              selection_grid[x+1][y+1]=0;
+            }
+          }
+        }
+      }
+      selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
+      did_wand_select=false;
+    }
+    bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
+    bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+
+    if (tool==t_select||tool==t_wand)
+    {
+      if (!drawing)
+      {
+        int type=0;
+        if (has_selection())
+        {
+          switch(tool)
+          {
+            case t_select:
+            case t_wand:
+              if (shift)
+              {
+                type+=1;
+              }
+              if (alt)
+              {
+                type+=2;
+              }
+              break;
+          }
+        }
+        if (type!=select_mode)
+        {
+          select_mode=type;
+          if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158)) //inside the zoomed tile window
+          {
+            set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][type]);
+          }
+        }
+      }
+    }
+    else if(alt)
     {
       if (old_tool==-1)
       {
@@ -1098,7 +1329,11 @@ void edit_tile(int tile,int flip,int &cs)
 
       for(int i=0; i<t_max; i++)
       {
-        if(isinRect(gui_mouse_x(),gui_mouse_y(),tool_buttons_left,(i*23)+tool_buttons_top,tool_buttons_left+21,(i*23)+tool_buttons_top+21))
+        int column=tool_buttons_columns*i/(t_max+1);
+        int rows=(t_max+2)/tool_buttons_columns;
+        int row=i-(column*rows);
+//        if(isinRect(gui_mouse_x(),gui_mouse_y(),tool_buttons_left,(i*23)+tool_buttons_top,tool_buttons_left+21,(i*23)+tool_buttons_top+21))
+        if(isinRect(gui_mouse_x(),gui_mouse_y(),tool_buttons_left+(column*23),tool_buttons_top+(row*23),tool_buttons_left+(column*23)+21,tool_buttons_top+(row*23)+21))
         {
           tool=i;
           redraw=true;
@@ -1170,7 +1405,6 @@ void edit_tile(int tile,int flip,int &cs)
         }
       }
     }
-
     if(drawing && isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
     {
       int x=(gui_mouse_x()-80)>>3;
@@ -1179,59 +1413,95 @@ void edit_tile(int tile,int flip,int &cs)
       switch(tool)
       {
         case t_pen:
-        if(flip&1) x=15-x;
-        if(flip&2) y=15-y;
-        unpack_tile(tile, 0, false);
-        unpackbuf[((y<<4)+x)]=(drawing==1)?c1:c2;
-        pack_tile(unpackbuf,tile);
-        break;
-
-        case t_brush:
-        tile_floodfill(tile,x,y,(drawing==1)?c1:c2);
-        drawing=0;
-        break;
-
-        case t_recolor:
-        unpack_tile(tile, 0, false);
-        tf_u = unpackbuf[(y<<4)+x];
-
-        for(int i=0; i<256; i++)
-        {
-          if(unpackbuf[i]==tf_u)
+          if(flip&1) x=15-x;
+          if(flip&2) y=15-y;
+          if (is_in_selection(x,y))
           {
-            unpackbuf[i]=(drawing==1)?c1:c2;
+            unpack_tile(newtilebuf, tile, 0, false);
+            unpackbuf[((y<<4)+x)]=(drawing==1)?c1:c2;
+            pack_tile(newtilebuf, unpackbuf,tile);
           }
-        }
-
-        pack_tile(unpackbuf,tile);
-        drawing=0;
-        break;
-
+          break;
+        case t_brush:
+          if (is_in_selection(x,y))
+          {
+            tile_floodfill(tile,x,y,(drawing==1)?c1:c2);
+            drawing=0;
+          }
+          break;
+        case t_recolor:
+          if (is_in_selection(x,y))
+          {
+            unpack_tile(newtilebuf, tile, 0, false);
+            tf_u = unpackbuf[(y<<4)+x];
+            for(int i=0; i<256; i++)
+            {
+              if (is_in_selection(i&15,i>>4))
+              {
+                if(unpackbuf[i]==tf_u)
+                {
+                  unpackbuf[i]=(drawing==1)?c1:c2;
+                }
+              }
+            }
+            pack_tile(newtilebuf, unpackbuf,tile);
+            drawing=0;
+          }
+          break;
         case t_eyedropper:
-        unpack_tile(tile, 0, false);
-        if (gui_mouse_b()&1)
-        {
-          c1=unpackbuf[((y<<4)+x)];
-        }
-        if (gui_mouse_b()&2)
-        {
-          c2=unpackbuf[((y<<4)+x)];
-        }
-        break;
-        case t_move:
-        if ((prev_x!=x)||(prev_y!=y))
-        {
-          wrap_tile(tile, y-move_origin_y, x-move_origin_x, drawing==2);
-          prev_x=x;
-          prev_y=y;
-        }
-        break;
+          unpack_tile(newtilebuf, tile, 0, false);
+          if (gui_mouse_b()&1)
+          {
+            c1=unpackbuf[((y<<4)+x)];
+          }
+          if (gui_mouse_b()&2)
+          {
+            c2=unpackbuf[((y<<4)+x)];
+          }
+          break;
+          case t_move:
+          if ((prev_x!=x)||(prev_y!=y))
+          {
+            wrap_tile(tile, y-move_origin_y, x-move_origin_x, drawing==2);
+            prev_x=x;
+            prev_y=y;
+          }
+          break;
         case t_select:
-        if(flip&1) x=15-x;
-        if(flip&2) y=15-y;
-        selection_grid[x+1][y+1]=drawing==1?1:0;
-        break;
-
+          if(flip&1) x=15-x;
+          if(flip&2) y=15-y;
+          if(selecting_x1==-1||selecting_y1==-1)
+          {
+            selecting_x1=x;
+            selecting_y1=y;
+          }
+          else
+          {
+            selecting_x2=x;
+            selecting_y2=y;
+          }
+          break;
+        case t_wand:
+          if(flip&1) x=15-x;
+          if(flip&2) y=15-y;
+          switch(select_mode)
+          {
+            case 0:
+              clear_selection_grid();
+              add_color_to_selection(unpackbuf[((y<<4)+x)]);
+              break;
+            case 1:
+              add_color_to_selection(unpackbuf[((y<<4)+x)]);
+              break;
+            case 2:
+              remove_color_from_selection(unpackbuf[((y<<4)+x)]);
+              break;
+            case 3:
+              intersect_color_with_selection(unpackbuf[((y<<4)+x)]);
+              break;
+          }
+          drawing=0;
+          break;
       }
       redraw=true;
     }
@@ -1337,6 +1607,7 @@ void edit_tile(int tile,int flip,int &cs)
 
 void *imagebuf=NULL;
 long imagesize=0;
+long tilecount=0;
 int  imagetype=0;
 int imagex,imagey,selx,sely;
 int bp=4,grabmode=16,romofs=0,romtilemode=0, romtilecols=8;
@@ -1409,6 +1680,7 @@ int bestfit_cset_color(int cs, int r, int g, int b)
 
   return bestfit;
 }
+
 
 byte cset_reduce_table[PAL_SIZE];
 
@@ -1527,54 +1799,66 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
   }
 }
 
-void draw_grab_scr(int tile,int cs,byte *newtile,int bg,int white,int txt, int width, int height)
+char *file_type[ftMAX]=
 {
-  clear_to_color(screen2,bg);
+  "None", "BIN", "BMP", "TIL", "ZGP", "QSU", "ZQT", "QST"
+};
+
+void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width, int height, byte *newformat)
+{
+  //clear_to_color(screen2,bg);
+  rectfill(screen2, 0, 0, 319, 159, black);
+  jwin_draw_win(screen2, 0, 160, 320, 80, FR_WIN);
+
   // text_mode(-1);
   int tileromcolumns=20;
-
   switch(imagetype)
   {
     case ftBMP:
-    if (!reduce)
-    {
-      blit((BITMAP*)imagebuf,screen2,imagex<<4,imagey<<4,0,0,320,160);
-    }
-    else
-    {
-      for (int y=0; y<160; y++)
+      if (!reduce)
       {
-        for (int x=0; x<320; x++)
+        blit((BITMAP*)imagebuf,screen2,imagex<<4,imagey<<4,0,0,320,160);
+      }
+      else
+      {
+        int maxy=min(160,((BITMAP*)imagebuf)->h);
+        int maxx=min(320,((BITMAP*)imagebuf)->w);
+  
+        for (int y=0; y<maxy; y++)
         {
-          if ((imagex<<4)+x>=((BITMAP*)imagebuf)->w)
+          if ((imagey<<4)+y>=((BITMAP*)imagebuf)->h)
           {
             break;
           }
-          screen2->line[y][x]=(cset_reduce_table[((BITMAP*)imagebuf)->line[(imagey<<4)+y][(imagex<<4)+x]])+(cs<<4);
-        }
-        if ((imagey<<4)+y>=((BITMAP*)imagebuf)->h)
-        {
-          break;
+          for (int x=0; x<maxx; x++)
+          {
+            if ((imagex<<4)+x>=((BITMAP*)imagebuf)->w)
+            {
+              break;
+            }
+            screen2->line[y][x]=(cset_reduce_table[((BITMAP*)imagebuf)->line[(imagey<<4)+y][(imagex<<4)+x]])+(cs<<4);
+          }
         }
       }
-
-    }
-    //   draw_button(screen2,140,192,56,16,"Pal",dvc(4+5),vc(14));
-    draw_button(screen2,140,192,61,21,"Pal",vc(1),vc(14),0,true);
-    break;
+      draw_button(screen2,141,190,61,20,"Pal",vc(1),vc(14),0,true);
+      break;
 
     case ftZGP:
+    case ftQST:
+    case ftZQT:
     case ftQSU:
     case ftTIL:
     {
       tiledata *hold = newtilebuf;
-      newtilebuf = (tiledata*)imagebuf;
+      newtilebuf = grabtilebuf;
       //fixme
       int t=imagey*TILES_PER_ROW;
       for(int i=0; i<200; i++)                              // 10 rows, down to y=160
       {
-        if(t<<7 <= imagesize-128)
+        if(t <= tilecount)
+        {
           puttile16(screen2,t,(i%TILES_PER_ROW)<<4,(i/TILES_PER_ROW)<<4,cs,0);
+        }
         ++t;
       }
       newtilebuf = hold;
@@ -1693,10 +1977,36 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int bg,int white,int txt, int w
     break;
   }
 
-  swap(newtile,newtilebuf[0].data);
+  //swap(newtile,newtilebuf[0].data);
+  tiledata hold;
+  hold.format = newtilebuf[0].format;
+  hold.data = (byte *)malloc(tilesize(hold.format));
+  memcpy(hold.data, newtilebuf[0].data, tilesize(hold.format));
+
+  newtilebuf[0].format=newformat[0];
+  if(newtilebuf[0].data!=NULL)
+  {
+    free(newtilebuf[0].data);
+  }
+  newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
+  for(int i=0;i<tilesize(newtilebuf[0].format);i++)
+  {
+    newtilebuf[0].data[i]=newtile[i];
+  }
   puttile16(screen2,0,208,168,cs,0);
   overtile16(screen2,0,232,168,cs,0);
-  swap(newtile,newtilebuf[0].data);
+  //swap(newtile,newtilebuf[0].data);
+  newtilebuf[0].format=hold.format;
+  if(newtilebuf[0].data!=NULL)
+  {
+    free(newtilebuf[0].data);
+  }
+  newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
+  for(int i=0;i<newtilebuf[0].format*128;i++)
+  {
+    newtilebuf[0].data[i]=hold.data[i];
+  }
+  free(hold.data);
 
   puttile16(screen2,tile,208,192,cs,0);
   overtile16(screen2,tile,232,192,cs,0);
@@ -1712,43 +2022,48 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int bg,int white,int txt, int w
   // rect(screen2,207,191,224,208,dvc(7*2));
   // rect(screen2,231,191,248,208,dvc(7*2));
 
+/*
   rect(screen2,183,167,200,184,vc(14));
   rect(screen2,207,167,224,184,vc(14));
   rect(screen2,231,167,248,184,vc(14));
   rect(screen2,207,191,224,208,vc(14));
   rect(screen2,231,191,248,208,vc(14));
+*/
+  jwin_draw_frame(screen2,182,166,20,20,FR_DEEP);
+  jwin_draw_frame(screen2,206,166,20,20,FR_DEEP);
+  jwin_draw_frame(screen2,230,166,20,20,FR_DEEP);
+  jwin_draw_frame(screen2,206,190,20,20,FR_DEEP);
+  jwin_draw_frame(screen2,230,190,20,20,FR_DEEP);
 
   switch(imagetype)
   {
-    case 0:     textprintf_ex(screen2,font,8,216,txt,-1,"%s",imgstr[imagetype]); break;
-    case ftBMP: textprintf_ex(screen2,font,8,216,txt,-1,"%s  %dx%d",imgstr[imagetype],((BITMAP*)imagebuf)->w,((BITMAP*)imagebuf)->h); break;
+    case 0:     textprintf_ex(screen2,font,8,216,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",imgstr[imagetype]); break;
+    case ftBMP: textprintf_ex(screen2,font,8,216,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %dx%d",imgstr[imagetype],((BITMAP*)imagebuf)->w,((BITMAP*)imagebuf)->h); break;
     case ftZGP:
+    case ftQST:
+    case ftZQT:
     case ftQSU:
     case ftTIL:
-    case ftBIN: textprintf_ex(screen2,font,8,216,txt,-1,"%s  %ld KB",imgstr[imagetype],imagesize>>10); break;
+    case ftBIN: textprintf_ex(screen2,font,8,216,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %ld KB",imgstr[imagetype],imagesize>>10); break;
   }
 
-  textprintf_ex(screen2,font,8,168,txt,-1,"sel: %d %d",selx,sely);
-  textprintf_ex(screen2,font,8,176,txt,-1,"pos: %d %d",imagex,imagey);
-  textprintf_ex(screen2,font,8,192,txt,-1,"cset: %d",cs);
-  textprintf_ex(screen2,font,8,200,txt,-1,"step: %d",grabmode);
+  textprintf_ex(screen2,font,8,168,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sel: %d %d",selx,sely);
+  textprintf_ex(screen2,font,8,176,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"pos: %d %d",imagex,imagey);
+  textprintf_ex(screen2,font,8,192,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"cset: %d",cs);
+  textprintf_ex(screen2,font,8,200,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"step: %d",grabmode);
   if(imagetype==ftBIN)
   {
-    textprintf_ex(screen2,font,104,192,txt,-1,"bp:  %d%s",bp,nesmode?" (NES)":"");
-    textprintf_ex(screen2,font,104,200,txt,-1,"ofs: %Xh",romofs);
-    textprintf_ex(screen2,font,104,208,txt,-1,"m: %d",romtilemode);
+    textprintf_ex(screen2,font,104,192,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"bp:  %d%s",bp,nesmode?" (NES)":"");
+    textprintf_ex(screen2,font,104,200,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"ofs: %Xh",romofs);
+    textprintf_ex(screen2,font,104,208,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"m: %d",romtilemode);
   }
 
-  textprintf_ex(screen2,font,8,224,txt,-1,"%s",imagepath);
-  rectfill(screen2,256,224,319,231,bg);
-  // draw_button(screen2,260,168,56,16,"OK",dvc(4+5),vc(14));
-  // draw_button(screen2,260,192,56,16,"Cancel",dvc(4+5),vc(14));
-  // draw_button(screen2,260,216,56,16,"File",dvc(4+5),vc(14));
-  // draw_button(screen2,120,168,56,16,"Leech",dvc(4+5),vc(14));
-  draw_button(screen2,260,168,61,21,"OK",vc(1),vc(14),0,true);
-  draw_button(screen2,260,192,61,21,"Cancel",vc(1),vc(14),0,true);
-  draw_button(screen2,260,216,61,21,"File",vc(1),vc(14),0,true);
-  draw_button(screen2,120,168,61,21,"Leech",vc(1),vc(14),0,true);
+  textprintf_ex(screen2,font,8,224,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",imagepath);
+//  rectfill(screen2,256,224,319,231,black);
+  draw_button(screen2,255,168,61,20,"OK",vc(1),vc(14),0,true);
+  draw_button(screen2,255,192,61,20,"Cancel",vc(1),vc(14),0,true);
+  draw_button(screen2,255,216,61,20,"File",vc(1),vc(14),0,true);
+  draw_button(screen2,117,166,61,20,"Leech",vc(1),vc(14),0,true);
 
   vsync();
   scare_mouse();
@@ -1773,12 +2088,28 @@ extern void return_RAMpal_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 void load_imagebuf()
 {
   PACKFILE *f;
+  bool compressed=false;
+  bool encrypted=false;
+  tiledata *hold=newtilebuf;
+  zquestheader tempheader;
   if(imagebuf)
   {
-    if(imagetype==ftBMP)
-      destroy_bitmap((BITMAP*)imagebuf);
-    else
-      free(imagebuf);
+    switch (imagetype)
+    {
+      case ftBMP:
+        destroy_bitmap((BITMAP*)imagebuf);
+        break;
+      case ftZGP:
+      case ftQST:
+      case ftZQT:
+      case ftQSU:
+      case ftTIL:
+        clear_tiles(grabtilebuf);
+        break;
+      case ftBIN:
+        free(imagebuf);
+        break;
+    }
     imagebuf=NULL;
   }
 
@@ -1787,196 +2118,154 @@ void load_imagebuf()
   imagetype=filetype(imagepath);
 
   dword section_id;
-  short version;
-  byte build;
-  word combos_used;
-  word tiles_used;
+  dword section_version;
+  dword section_cversion;
 
   switch(imagetype)
   {
     case ftBMP:
-    imagebuf = load_bitmap(imagepath,imagepal);
-
-    create_rgb_table(&rgb_table, imagepal, NULL);
-    rgb_map = &rgb_table;
-    create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
-
-
-    if(!imagebuf)
-      imagetype=0;
-    break;
-
-    case ftBIN:
-    imagesize = file_size(imagepath);
-    if(imagesize)
-    {
-      imagebuf = malloc(imagesize);
-      if(!readfile(imagepath,imagebuf,imagesize))
+      imagebuf = load_bitmap(imagepath,imagepal);
+      imagesize = file_size(imagepath);
+      tilecount=0;
+      create_rgb_table(&rgb_table, imagepal, NULL);
+      rgb_map = &rgb_table;
+      create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
+      if(!imagebuf)
       {
-        free(imagebuf);
-        imagesize=0;
         imagetype=0;
       }
-    }
-    break;
-
-    case ftTIL:
-    {
-      f = pack_fopen(imagepath,F_READ);
-      if(!p_mgetl(&section_id,f,true))
-        goto error;
-      if(section_id!=ID_TILES)
-        goto error;
-      if(!p_igetw(&version,f,true))
-        goto error;
-      if(!p_getc(&build,f,true))
-        goto error;
-      if(!p_igetw(&tiles_used,f,true))
-        goto error;
-      imagesize = tiles_used<<7;
-      imagesize = 5000<<7;
-      imagebuf = malloc(dword(dword(tilesize(tf4Bit))*dword(tiles_used)));
-      for (dword i=0; i<tiles_used; ++i)
+      break;
+    case ftBIN:
+      imagesize = file_size(imagepath);
+      tilecount=0;
+      if(imagesize)
       {
-        if(!pfread(((char*)imagebuf)+dword(tilesize(tf4Bit)*i),tilesize(tf4Bit),f,true))
+        imagebuf = malloc(imagesize);
+        if(!readfile(imagepath,imagebuf,imagesize))
         {
           free(imagebuf);
           imagesize=0;
           imagetype=0;
+        }
+      }
+      break;
+    case ftTIL:
+      imagesize = file_size(imagepath);
+      f = pack_fopen(imagepath,F_READ);
+      if (!f)
+      {
+        goto error;
+      }
+      if(!p_mgetl(&section_id,f,true))
+      {
+        goto error;
+      }
+      if(section_id==ID_TILES)
+      {
+        if (readtiles(f, grabtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)==0)
+        {
           goto error;
         }
       }
-      /*
-        tiledata* temptilebuf=newtilebuf;
-        newtilebuf=NULL;
-        memset(newtilebuf, 0, NEWMAXTILES*sizeof(tiledata));
-        int t=0;
-        for (int i=0; i<NEWMAXTILES; ++i)
-        {
-        clear_tile(i);
-        }
-        imagesize=0;
-        if(!load_tiles(imagepath, 0))
-        {
-        goto error;
-        }
-        t=count_tiles();
-        for (int i=0; i<t; ++i)
-        {
-        imagesize+=tilesize(newtilebuf[i].format);
-        }
-        (tiledata*)imagebuf=newtilebuf;
-        */
    error:
       pack_fclose(f);
-      if(imagetype==ftTIL && imagesize==TILEBUF_SIZE)
-        pack_tiles((byte*)imagebuf);
-      imagesize=tiles_used*128;
-      //        newtilebuf=temptilebuf;
-    }
-    break;
+      tilecount=count_tiles(grabtilebuf);
+      break;
 
     case ftZGP:
-    imagesize = file_size(imagepath);
-
-    //open the file
-    f=pack_fopen(imagepath,F_READ);
-    if(!f)
-      goto error2;
-
-    //read the version and make sure it worked
-    if(!p_igetw(&version,f,true))
-      goto error2;
-
-    //read the build and make sure it worked
-    if(!p_getc(&build,f,true))
-      goto error2;
-
-    //read the tile info and make sure it worked
-    if(!p_igetw(&tiles_used,f,true))
-      goto error2;
-    imagebuf = malloc(dword(dword(tilesize(tf4Bit))*dword(tiles_used)));
-    for (dword i=0; i<tiles_used; ++i)
-    {
-      if(!pfread(((char*)imagebuf)+dword(tilesize(tf4Bit)*i),tilesize(tf4Bit),f,true))
+      imagesize = file_size(imagepath);
+      f=pack_fopen(imagepath,F_READ);
+      if(!f)
       {
-        free(imagebuf);
-        imagesize=0;
-        imagetype=0;
         goto error2;
       }
-    }
-    imagesize=tiles_used*128;
-
-    //yay!  it worked!  close the file and say everything was ok.
- error2:
-    pack_fclose(f);
-
-    break;
-
-    case ftQSU:
-    imagesize = file_size(imagepath);
-
-    f = pack_fopen(imagepath,F_READ);
-
-    zquestheader tmpheader;
-    if(!f)
-      goto error3;
-    if(readheader(f, &tmpheader, true))
-    {
-      goto error3;
-    }
-    pack_fseek(f, sizeof(MsgStr)*MAXMSGS);
-    pack_fseek(f, sizeof(dmap)*MAXDMAPS);
-    pack_fseek(f, sizeof(miscQdata));
-    pack_fseek(f, sizeof(itemdata)*MAXITEMS);
-    pack_fseek(f, sizeof(wpndata)*MAXWPNS);
-    pack_fseek(f, sizeof(mapscr)*MAPSCRS*map_count);
-    if(!p_igetw(&combos_used,f,true))
-    {
-      goto error3;
-    }
-    pack_fseek(f, sizeof(newcombo)*combos_used);
-    pack_fseek(f, newpsTOTAL);
-
-    //      if(tmpheader.dat_flags[ZQ_TILES])
-    if(1)
-    {
-      if(!p_igetw(&tiles_used,f,true))
-        goto error3;
-      imagebuf = malloc(dword(dword(tilesize(tf4Bit))*dword(tiles_used)));
-      for (dword i=0; i<tiles_used; ++i)
+      if(!p_mgetl(&section_id,f,true))
       {
-        if(!pfread(((char*)imagebuf)+dword(tilesize(tf4Bit)*i),tilesize(tf4Bit),f,true))
+        goto error2;
+      }
+      if(section_id!=ID_GRAPHICSPACK)
+      {
+        goto error2;
+      }
+      //section version info
+      if(!p_igetw(&section_version,f,true))
+      {
+        goto error2;
+      }
+      if(!p_igetw(&section_cversion,f,true))
+      {
+        goto error2;
+      }
+      //tiles
+      if(!p_mgetl(&section_id,f,true))
+      {
+        goto error2;
+      }
+      if(section_id==ID_TILES)
+      {
+        if (readtiles(f, grabtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)!=0)
         {
-          free(imagebuf);
-          imagesize=0;
-          imagetype=0;
-          goto error3;
+          goto error2;
         }
       }
-      imagesize=tiles_used*128;
-    }
+    error2:
+      pack_fclose(f);
+      tilecount=count_tiles(grabtilebuf);
+      break;
 
- error3:
-    pack_fclose(f);
-    return;
-
-    break;
+    case ftQST:
+      encrypted=true;
+    case ftZQT:
+      compressed=true;
+    case ftQSU:
+      imagesize = file_size(imagepath);
+      newtilebuf=grabtilebuf;
+      byte skip_flags[4];
+      for (int i=0; i<32; ++i)
+      {
+        set_bit(skip_flags,i,1);
+      }
+      set_bit(skip_flags,skip_tiles,0);
+      set_bit(skip_flags,skip_header,0);
+      if(encrypted) packfile_password(datapwd);
+      loadquest(imagepath,&tempheader,&misc,customMIDIs,false,compressed,encrypted,true,skip_flags);
+      if (encrypted&&compressed)
+      {
+        if(!quest_access(imagepath, &tempheader, compressed))
+        {
+          imagetype=0;
+          imagesize=0;
+          clear_tiles(grabtilebuf);
+          chop_path(imagepath);
+        }
+      }
+      packfile_password(NULL);
+      newtilebuf=hold;
+      tilecount=count_tiles(grabtilebuf);
+      break;
   }
 }
 
 static char bitstrbuf[32];
+bool leeching_from_tiles=false;
 
 char *bitlist(int index, int *list_size)
 {
+  int imported=2;
   if(index>=0)
   {
-    bound(index,0,1);
-    sprintf(bitstrbuf,"%d",4<<index);
+    bound(index,0,leeching_from_tiles?2:1);
+    if (index==imported)
+    {
+      sprintf(bitstrbuf,"Imported");
+    }
+    else
+    {
+      sprintf(bitstrbuf,"%d",4<<index);
+    }
     return bitstrbuf;
   }
-  *list_size=2;
+  *list_size=leeching_from_tiles?3:2;
   return NULL;
 }
 
@@ -2028,11 +2317,14 @@ static DIALOG leech_dlg[] =
   { NULL }
 };
 
-void leech_tiles(tiledata *dest,int start)
+bool leech_tiles(tiledata *dest,int start,int cs)
 {
+  bool shift=true; // fix this!
+  int cst=0;
   int currtile=start;
   int height=0, width=0;
   byte *testtile = new byte[tilesize(tf32Bit)];
+  byte imported_format;
   char updatestring[6];
   bool canadd;
   bool temp_canadd;
@@ -2043,7 +2335,7 @@ void leech_tiles(tiledata *dest,int start)
     0,0,0,0
   };
   BITMAP *status;
-  status = create_bitmap_ex(8,240,120);
+  status = create_bitmap_ex(8,240,140);
   clear_bitmap(status);
   sprintf(updatestring, "%d", LeechUpdate);
   leech_dlg[0].dp2=lfont;
@@ -2072,10 +2364,10 @@ void leech_tiles(tiledata *dest,int start)
   if (ret==2)
   {
     delete[] testtile;
-    return;
+    return false;
   }
-
   int cdepth=leech_dlg[31].d1+1;
+  int newformat=0;
   LeechUpdate=atoi(updatestring);
   LeechUpdateTiles=(leech_dlg[7].flags&D_SELECTED)?1:0;
 
@@ -2092,19 +2384,25 @@ void leech_tiles(tiledata *dest,int start)
 
   OnlyCheckNewTilesForDuplicates=leech_dlg[10].flags&D_SELECTED?1:0;
 
+  leeching_from_tiles=false;
   switch(imagetype)
   {
-    case ftBIN: break;
+    case ftBIN:
+      width=imagesize/128;
+      height=1;
+      break;
     case ftZGP:
+    case ftQST:
+    case ftZQT:
     case ftQSU:
     case ftTIL:
-    width=imagesize/128;
-    height=1;
-    cdepth=1;
+      leeching_from_tiles=true;
+      width=count_tiles(grabtilebuf);
+      height=1;
     break;
     case ftBMP:
-    width=((((BITMAP*)imagebuf)->w)+15)/16;
-    height=((((BITMAP*)imagebuf)->h)+15)/16;
+      width=((((BITMAP*)imagebuf)->w)+15)/16;
+      height=((((BITMAP*)imagebuf)->h)+15)/16;
     break;
   }
 
@@ -2113,7 +2411,7 @@ void leech_tiles(tiledata *dest,int start)
     if(jwin_alert("Confirm Truncation","Too many tiles.","Truncation may occur.",NULL,"&OK","&Cancel",'o','c',lfont)==2)
     {
       delete[] testtile;
-      return;
+      return false;
     }
   }
 
@@ -2126,21 +2424,34 @@ void leech_tiles(tiledata *dest,int start)
     {
       if ((((ty*width)+tx)%LeechUpdate)==0)                 //update status
       {
-        //        rectfill(status,0,0,239,119,dvc(4+5));
-        rectfill(status,0,0,239,119,vc(1));
-        rect(status,0,0,239,119,vc(15));
-        textprintf_centre_ex(status,font,120,2,vc(14),-1,"Status");
-        textprintf_centre_ex(status,font,120,14,vc(7),-1,"Checking %d of %d",((ty*width)+tx), (width*height));
-        textprintf_centre_ex(status,font,120,24,vc(7),-1,"%d tiles imported",currtile-start);
-        textprintf_centre_ex(status,font,120,36,vc(12),-1,"Duplicates");
-        textprintf_centre_ex(status,font,120,46,vc(7),-1,"%d/%d found/discarded",total_duplicates_found, total_duplicates_discarded);
-        textprintf_centre_ex(status,font,120,66,vc(7),-1,"%d normal %s",duplicates_found[0],((DuplicateAction[0]<2)?"found":"discarded"));
-        textprintf_centre_ex(status,font,120,76,vc(7),-1,"%d flipped (h) %s",duplicates_found[1],((DuplicateAction[1]<2)?"found":"discarded"));
-        textprintf_centre_ex(status,font,120,86,vc(7),-1,"%d flipped (v) %s",duplicates_found[2],((DuplicateAction[2]<2)?"found":"discarded"));
-        textprintf_centre_ex(status,font,120,96,vc(7),-1,"%d flipped (hv) %s",duplicates_found[3],((DuplicateAction[3]<2)?"found":"discarded"));
-        textprintf_centre_ex(status,font,120,108,vc(7),-1,"Press any key to stop.");
+        FONT *oldfont = font;
+        static BITMAP *tbar = create_bitmap_ex(8,240-6, 18);
+        static bool created_tbar=false;
+        jwin_draw_win(status, 0, 0, 240, 140, FR_WIN);
+        if (created_tbar)
+        {
+          blit(tbar, status, 0, 0, 3, 3, 240-6, 18);
+        }
+        else
+        {
+          font = lfont;
+          jwin_draw_titlebar(tbar, 0, 0, 240-6, 18, "Leech Status", false);
+          font = oldfont;
+          created_tbar=true;
+          blit(tbar, status, 0, 0, 3, 3, SCREEN_W-6, 18);
+        }
+        textprintf_centre_ex(status,font,120,24,jwin_pal[jcTEXTFG],-1,"Checking %d of %d",((ty*width)+tx), (width*height));
+        textprintf_centre_ex(status,font,120,34,jwin_pal[jcTEXTFG],-1,"%d tiles imported",currtile-start);
+        jwin_draw_frame(status, 40, 49, 160, 70, FR_ETCHED);
+        textprintf_centre_ex(status,font,120,46,jwin_pal[jcTEXTFG],jwin_pal[jcBOX]," Duplicates ");
+        textprintf_centre_ex(status,font,120,56,jwin_pal[jcTEXTFG],-1,"%d/%d found/discarded",total_duplicates_found, total_duplicates_discarded);
+        textprintf_centre_ex(status,font,120,76,jwin_pal[jcTEXTFG],-1,"%d normal %s",duplicates_found[0],((DuplicateAction[0]<2)?"found":"discarded"));
+        textprintf_centre_ex(status,font,120,86,jwin_pal[jcTEXTFG],-1,"%d flipped (h) %s",duplicates_found[1],((DuplicateAction[1]<2)?"found":"discarded"));
+        textprintf_centre_ex(status,font,120,96,jwin_pal[jcTEXTFG],-1,"%d flipped (v) %s",duplicates_found[2],((DuplicateAction[2]<2)?"found":"discarded"));
+        textprintf_centre_ex(status,font,120,106,jwin_pal[jcTEXTFG],-1,"%d flipped (hv) %s",duplicates_found[3],((DuplicateAction[3]<2)?"found":"discarded"));
+        textprintf_centre_ex(status,font,120,128,jwin_pal[jcTEXTFG],-1,"Press any key to stop.");
         scare_mouse();
-        blit(status,screen,0, 0, 40, 60-36, 240, 120);
+        blit(status,screen,0, 0, 40, 20, 240, 140);
         unscare_mouse();
         SCRFIX();
       }
@@ -2148,131 +2459,176 @@ void leech_tiles(tiledata *dest,int start)
       if (currtile>=NEWMAXTILES)                            //if we've maxed out on our tiles...
       {
         delete[] testtile;
-        return;
+        return true;
       }
       switch(imagetype)
       {
         case ftBIN: break;
         case ftZGP:
+        case ftQST:
+        case ftZQT:
         case ftQSU:
         case ftTIL:
-        for(int y=0; y<16; y++)                           //snag a tile
-        {
-          for(int x=0; x<8; x++)
-          {
-            testtile[(y*8)+x]=((byte*)imagebuf)[(tx*128)+(y*8)+x];
-          }
-        }
-        break;
-        case ftBMP:
-        for(int y=0; y<16; y++)                           //snag a tile
-        {
-          for(int x=0; x<16; x+=2)
-          {
+            memset(testtile, 0, tilesize(tf32Bit));
+            imported_format=grabtilebuf[tx].format;
             switch(cdepth)
             {
-              case tf4Bit:
-              testtile[(y*8)+(x/2)]=
-                (getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y)&15)+
-                ((getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y)&15)<<4);
-              break;
-              case tf8Bit:
-              testtile[(y*16)+x]=getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y);
-              testtile[(y*16)+x+1]=getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y);
-              break;
+              case 1:  //4-bit
+                newformat=tf4Bit;
+                switch(imported_format)
+                {
+                  case tf4Bit:
+                    memcpy(testtile,grabtilebuf[tx].data,tilesize(imported_format));
+                    break;
+                  case tf8Bit:
+                    for(int y=0; y<16; y++)                           //snag a tile
+                    {
+                      for(int x=0; x<16; x+=2)
+                      {
+                        testtile[(y*8)+(x/2)]=
+                          (grabtilebuf[tx].data[y*16+x]&15)+
+                          ((grabtilebuf[tx].data[y*16+x+1]&15)<<4);
+                      }
+                    }
+                    break;
+                }
+                break;
+              case 2:  //8-bit
+                newformat=tf8Bit;
+                switch(imported_format)
+                {
+                  case tf4Bit:
+                    unpack_tile(grabtilebuf, tx, 0, true);
+                    cst = cs&15;
+                    cst <<= CSET_SHFT;
+                    for(int i=0;i<256;i++)
+                    {
+                      if (!shift||unpackbuf[i]!=0)
+                      {
+                        unpackbuf[i]+=cst;
+                      }
+                    }
+                    pack_tiledata(testtile, unpackbuf, tf8Bit);
+                    break;
+                  case tf8Bit:
+                    memcpy(testtile,grabtilebuf[tx].data,tilesize(imported_format));
+                    break;
+                }
+                break;
+              case 3:  //original tile's bit depth
+                newformat=imported_format;
+                memcpy(testtile,grabtilebuf[tx].data,tilesize(imported_format));
+                break;
+            }
+            break;
+        case ftBMP:
+          newformat=cdepth;
+          for(int y=0; y<16; y++)                           //snag a tile
+          {
+            for(int x=0; x<16; x+=2)
+            {
+              switch(cdepth)
+              {
+                case tf4Bit:
+                  testtile[(y*8)+(x/2)]=
+                    (getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y)&15)+
+                    ((getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y)&15)<<4);
+                  break;
+                case tf8Bit:
+                  testtile[(y*16)+x]=getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y);
+                  testtile[(y*16)+x+1]=getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y);
+                  break;
+              }
             }
           }
-        }
-        break;
+          break;
       }
 
-      if (DuplicateAction[0]+DuplicateAction[1]
-          +DuplicateAction[2]+DuplicateAction[3]>0)
+      if (DuplicateAction[0]+DuplicateAction[1]+DuplicateAction[2]+DuplicateAction[3]>0)
       {
         temp_canadd=true;
         //check all tiles before this one
         for (int checktile=((OnlyCheckNewTilesForDuplicates!=0)?start:0); ((temp_canadd==true)&&(checktile<currtile)); checktile++)
         {
-          for (int flipping=0; ((temp_canadd==true)&&(flipping<4)); flipping++)
+          for (int flipping=0; ((temp_canadd==true)&&(flipping<4)); ++flipping)
           {
             if (DuplicateAction[flipping]>0)
             {
               if (keypressed())
               {
                 delete[] testtile;
-                return;
+                return true;
               }
-              duplicate=true;
-              switch (flipping)
+              duplicate=(newformat==imported_format);
+              if (duplicate)
               {
-                case 0:                                     //normal
-                                                            //check tile
-                if (dest[checktile].data!=NULL)
+                switch (flipping)
                 {
-                  for(int y=0; ((duplicate==true)&&(y<16)); y++)
-                  {
-                    for(int x=0; ((duplicate==true)&&(x<16)); x+=2-cdepth+1)
+                  case 0:                                     //normal
+                    if (dest[checktile].data!=NULL)
                     {
-                      //                        if ((dest[(checktile*128)+(y*8)+(x/2)])!=(testtile[(y*8)+(x/2)]))
-                      if ((dest[checktile].data[(y*8*cdepth)+(x/(2-cdepth+1))])!=cdepth==1?(testtile[(y*8)+(x/2)]):(testtile[(y*16)+x]))
+                      for(int y=0; ((duplicate==true)&&(y<16)); y++)
                       {
-                        duplicate=false;
+                        for(int x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
+                        {
+                          //                        if ((dest[(checktile*128)+(y*8)+(x/2)])!=(testtile[(y*8)+(x/2)]))
+                          if ((dest[checktile].data[(y*8*newformat)+(x/(3-newformat))])!=(newformat==tf4Bit?(testtile[(y*8)+(x/2)]):(testtile[(y*16)+x])))
+                          {
+                            duplicate=false;
+                          }
+                        }
                       }
                     }
-                  }
-                }
-                break;
-                case 1:                                     //horizontal
-                                                            //check tile
-                if (dest[checktile].data!=NULL)
-                {
-                  for(int y=0; ((duplicate==true)&&(y<16)); y++)
-                  {
-                    for(int x=0; ((duplicate==true)&&(x<16)); x+=2-cdepth+1)
+                    break;
+                  case 1:                                     //horizontal
+                    if (dest[checktile].data!=NULL)
                     {
-                      //                        if ((dest[(checktile*128)+(y*8)+((14-x)/2)])!=(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)))
-                      if ((dest[checktile].data[(y*8*cdepth)+(14+(cdepth-1)-x)/(2-cdepth+1)])!=cdepth==1?(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)):(testtile[(y*16)+x]))
+                      for(int y=0; ((duplicate==true)&&(y<16)); y++)
                       {
-                        duplicate=false;
+                        for(int x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
+                        {
+                          //                        if ((dest[(checktile*128)+(y*8)+((14-x)/2)])!=(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)))
+                          if ((dest[checktile].data[(y*8*newformat)+(14+(newformat-1)-x)/(3-newformat)])!=(newformat==tf4Bit?(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)):(testtile[(y*16)+x])))
+                          {
+                            duplicate=false;
+                          }
+                        }
                       }
                     }
-                  }
-                }
-                break;
-                case 2:                                     //vertical
-                                                            //check tile
-                if (dest[checktile].data!=NULL)
-                {
-                  for(int y=0; ((duplicate==true)&&(y<16)); y++)
-                  {
-                    for(int x=0; ((duplicate==true)&&(x<16)); x+=2-cdepth+1)
+                    break;
+                  case 2:                                     //vertical
+                    if (dest[checktile].data!=NULL)
                     {
-                      //                      if ((dest[(checktile*128)+((15-y)*8)+(x/2)])!=(testtile[(y*8)+(x/2)]))
-                      if ((dest[checktile].data[((15-y)*8*cdepth)+(x/(2-cdepth+1))])!=cdepth==1?(testtile[(y*8)+(x/2)]):(testtile[(y*16)+x]))
+                      for(int y=0; ((duplicate==true)&&(y<16)); y++)
                       {
-                        duplicate=false;
+                        for(int x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
+                        {
+                          //                      if ((dest[(checktile*128)+((15-y)*8)+(x/2)])!=(testtile[(y*8)+(x/2)]))
+                          if ((dest[checktile].data[((15-y)*8*newformat)+(x/(3-newformat))])!=(newformat==tf4Bit?(testtile[(y*8)+(x/2)]):(testtile[(y*16)+x])))
+                          {
+                            duplicate=false;
+                          }
+                        }
                       }
                     }
-                  }
-                }
-                break;
-                case 3:                                     //both
-                                                            //check tile
-                if (dest[checktile].data!=NULL)
-                {
-                  for(int y=0; ((duplicate==true)&&(y<16)); y++)
-                  {
-                    for(int x=0; ((duplicate==true)&&(x<16)); x+=2-cdepth+1)
+                    break;
+                  case 3:                                     //both
+                    if (dest[checktile].data!=NULL)
                     {
-                      //                      if ((dest[(checktile*128)+((15-y)*8)+((14-x)/2)])!=(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)))
-                      if ((dest[checktile].data[((15-y)*8*cdepth)+((14+(cdepth-1)-x)/(2-cdepth+1))])!=cdepth==tf4Bit?(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)):testtile[(y*16)+x])
+                      for(int y=0; ((duplicate==true)&&(y<16)); y++)
                       {
-                        duplicate=false;
+                        for(int x=0; ((duplicate==true)&&(x<16)); x+=3-newformat)
+                        {
+                          //                      if ((dest[(checktile*128)+((15-y)*8)+((14-x)/2)])!=(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)))
+                          if ((dest[checktile].data[((15-y)*8*newformat)+((14+(newformat-1)-x)/(3-newformat))])!=(newformat==tf4Bit?(((testtile[(y*8)+(x/2)]&15)<<4)+((testtile[(y*8)+(x/2)]>>4)&15)):testtile[(y*16)+x]))
+                          {
+                            duplicate=false;
+                          }
+                        }
                       }
                     }
-                  }
+                    break;
                 }
-                break;
               }
               if (duplicate==true)
               {
@@ -2290,7 +2646,8 @@ void leech_tiles(tiledata *dest,int start)
         }
       }
 
-      dest[currtile].format=cdepth;
+//      dest[currtile].format=(cdepth==3?imported_format:cdepth);
+      dest[currtile].format=newformat;
       if (dest[currtile].data!=NULL)
       {
         free(dest[currtile].data);
@@ -2318,14 +2675,18 @@ void leech_tiles(tiledata *dest,int start)
   }
   destroy_bitmap(status);
   delete[] testtile;
-  return;
+  return true;
 }
 
-void grab(byte *dest,byte *def, int width, int height)
+void grab(byte (*dest)[256],byte *def, int width, int height, int oformat, byte *newformat)
 {
+  byte format=tf4Bit;
+  int stile = ((imagey*TILES_PER_ROW)+imagex)+(((sely/16)*TILES_PER_ROW)+(selx/16));
   switch(imagetype)
   {
     case ftZGP:
+    case ftQST:
+    case ftZQT:
     case ftQSU:
     case ftTIL:
     case ftBIN:
@@ -2334,32 +2695,158 @@ void grab(byte *dest,byte *def, int width, int height)
     {
       for (int tx=0; tx<width; tx++)
       {
+        format=tf4Bit;
+        switch (imagetype)
+        {
+          case ftZGP:
+          case ftQST:
+          case ftZQT:
+          case ftQSU:
+          case ftTIL:
+            format=grabtilebuf[stile+((ty*TILES_PER_ROW)+tx)].format;
+            break;
+        }
         for(int y=0; y<16; y++)
         {
           for(int x=0; x<16; x+=2)
           {
             if(y<8 && x<8 && grabmask&1)
             {
-              dest[(((ty*TILES_PER_ROW)+tx)*128)+(y*8)+(x/2)]=def[(((ty*TILES_PER_ROW)+tx)*128)+(y*8)+(x/2)];
+			  switch(oformat)
+			  {
+			  case tf4Bit:
+			      {
+				    switch(format)
+					{
+					case tf4Bit:
+                      dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)]; break;
+					case tf8Bit:
+					  dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
+					  dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4; break;
+					}
+				  }
+				  break;
+			  case tf8Bit:
+				  {
+				    switch(format)
+					{
+					case tf4Bit:
+					  dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4); break;
+					case tf8Bit:
+			          dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
+				      dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)]; break;
+					}
+				  }
+				  break;
+			  }
             }
             else if(y<8 && x>7 && grabmask&2)
+            {
+              switch(oformat)
+			  {
+			  case tf4Bit:
+			      {
+				    switch(format)
+					{
+					case tf4Bit:
+                      dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)]; break;
+					case tf8Bit:
+					  dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
+					  dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4; break;
+					}
+				  }
+				  break;
+			  case tf8Bit:
+				  {
+				    switch(format)
+					{
+					case tf4Bit:
+					  dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4); break;
+					case tf8Bit:
+			          dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
+				      dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)]; break;
+					}
+				  }
+				  break;
+			  }
+            }
+            else if(y>7 && x<8 && grabmask&4)
+            {
+              switch(oformat)
+			  {
+			  case tf4Bit:
+			      {
+				    switch(format)
+					{
+					case tf4Bit:
+                      dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)]; break;
+					case tf8Bit:
+					  dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
+					  dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4; break;
+					}
+				  }
+				  break;
+			  case tf8Bit:
+				  {
+				    switch(format)
+					{
+					case tf4Bit:
+					  dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4); break;
+					case tf8Bit:
+			          dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
+				      dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)]; break;
+					}
+				  }
+				  break;
+			  }
+            }
+            else if(y>7 && x>7 && grabmask&8)
+            {
+              switch(oformat)
+			  {
+			  case tf4Bit:
+			      {
+				    switch(format)
+					{
+					case tf4Bit:
+                      dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)]; break;
+					case tf8Bit:
+					  dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
+					  dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4; break;
+					}
+				  }
+				  break;
+			  case tf8Bit:
+				  {
+				    switch(format)
+					{
+					case tf4Bit:
+					  dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4); break;
+					case tf8Bit:
+			          dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
+				      dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)]; break;
+					}
+				  }
+				  break;
+			  }
+            }
+            else
+            {
+              switch (format)
               {
-                dest[(((ty*TILES_PER_ROW)+tx)*128)+(y*8)+(x/2)]=def[(((ty*TILES_PER_ROW)+tx)*128)+(y*8)+(x/2)];
+                case tf8Bit:
+                  dest[(ty*TILES_PER_ROW)+tx][(y*16)+x]=getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely);
+                  dest[(ty*TILES_PER_ROW)+tx][(y*16)+x+1]=getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely);
+				  newformat[(ty*TILES_PER_ROW)+tx] = tf8Bit;
+                  //al_trace("Tile %d is 8-bit\n", (ty*TILES_PER_ROW)+tx);
+                  break;
+                case tf4Bit:
+                default:
+                  dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely)&15)+((getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely)&15)<<4);
+				  newformat[(ty*TILES_PER_ROW)+tx] = tf4Bit;
+                  break;
               }
-              else if(y>7 && x<8 && grabmask&4)
-                {
-                  dest[(((ty*TILES_PER_ROW)+tx)*128)+(y*8)+(x/2)]=def[(((ty*TILES_PER_ROW)+tx)*128)+(y*8)+(x/2)];
-                }
-                else if(y>7 && x>7 && grabmask&8)
-                  {
-                    dest[(((ty*TILES_PER_ROW)+tx)*128)+(y*8)+(x/2)]=def[(((ty*TILES_PER_ROW)+tx)*128)+(y*8)+(x/2)];
-                  }
-                  else
-                  {
-                    dest[(((ty*TILES_PER_ROW)+tx)*128)+(y*8)+(x/2)]=
-                      (getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely)&15)+
-                      ((getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely)&15) << 4);
-                  }
+            }
           }
         }
       }
@@ -2367,15 +2854,22 @@ void grab(byte *dest,byte *def, int width, int height)
     break;
 
     default:
-    for(int i=0; i<128*200; i++)
-      dest[i]=0;
+    for(int i=0; i<200; i++)
+	{
+	  for(int j=0; j<256; j++)
+	  {
+        dest[i][j]=0;
+	  }
+	  newformat[i] = tf4Bit;
+	}
     break;
   }
 }
 
 void grab_tile(int tile,int &cs)
 {
-  byte newtile[128*200];
+  byte newtile[200][256];
+  byte newformat[200];
 
   static EXT_LIST list[] =
   {
@@ -2385,6 +2879,8 @@ void grab_tile(int tile,int &cs)
     { "JPEG Image (*.jpg, *.jpeg)", "jpg,jpeg" },
     { "ZC Tile Export (*.til)", "til" },
     { "ZC Quest Template (*.zqt)", "zqt" },
+    { "ZC Quest (*.qst)", "qst" },
+    { "ZC Graphics Pack (*.zgp)", "zgp" },
     { "ZC Unencoded Quest (*.qsu)", "qsu" },
     { "NES ROM Image (*.nes)", "nes" },
     { "SNES ROM Image (*.smc)", "smc" },
@@ -2400,7 +2896,7 @@ void grab_tile(int tile,int &cs)
   int done=0;
   int pal=0;
   int f=0;
-  int black=bgc,white=vc(15);
+  int black=vc(0),white=vc(15);
   int selwidth=1, selheight=1;
   int selx2, sely2;
   bool xreversed=false, yreversed=false;
@@ -2414,9 +2910,9 @@ void grab_tile(int tile,int &cs)
     load_imagebuf();
 
   calc_cset_reduce_table(imagepal, cs);
-  draw_grab_scr(tile,cs,newtile,black,white,vc(11), selwidth, selheight);
-  grab(newtile,newtilebuf[tile].data, selwidth, selheight);
-  draw_grab_scr(tile,cs,newtile,black,white,vc(11), selwidth, selheight);
+  draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
+  grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
+  draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
   while(gui_mouse_b());
 
   do
@@ -2461,8 +2957,8 @@ void grab_tile(int tile,int &cs)
 
       if(imagex<0) imagex=0;
       if(imagey<0) imagey=0;
-      draw_grab_scr(tile,cs,newtile,black,white,pal?white:vc(11), selwidth, selheight);
-      grab(newtile,newtilebuf[tile].data, selwidth, selheight);
+      draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
+      grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
     }
 
     //boogie!
@@ -2514,62 +3010,62 @@ void grab_tile(int tile,int &cs)
             }
           }
           //         grab(newtile,tilebuf+(tile<<7), 1, 1);
-          grab(newtile,newtilebuf[tile].data, selwidth, selheight);
-          draw_grab_scr(tile,cs,newtile,black,white,pal?white:vc(11), selwidth, selheight);
+          grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
+          draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
         }
       }
       else if(isinRect(gui_mouse_x(),gui_mouse_y(),260,168,321,189))
+      {
+        if(do_button(255,168,61,20,"OK",vc(1),vc(14),true))
+          done=2;
+      }
+      else if(isinRect(gui_mouse_x(),gui_mouse_y(),120,168,181,189))
+      {
+        if(do_button(117,166,61,20,"Leech",vc(1),vc(14),true))
         {
-          if(do_button(260,168,61,21,"OK",vc(1),vc(14),true))
-            done=2;
+          doleech=true;
         }
-        else if(isinRect(gui_mouse_x(),gui_mouse_y(),120,168,181,189))
-          {
-            if(do_button(120,168,61,21,"Leech",vc(1),vc(14),true))
-            {
-              doleech=true;
-            }
-          }
-          else if(isinRect(gui_mouse_x(),gui_mouse_y(),260,192,321,213))
-            {
-              if(do_button(260,192,61,21,"Cancel",vc(1),vc(14),true))
-                done=1;
-            }
-            else if(isinRect(gui_mouse_x(),gui_mouse_y(),260,216,321,237))
-              {
-                if(do_button(260,216,61,21,"File",vc(1),vc(14),true))
-                {
-                  dofile=true;
-                }
-              }
-              else if(imagetype==ftBMP && isinRect(gui_mouse_x(),gui_mouse_y(),140,192,201,213))
-                {
-                  if(do_button(140,192,61,21,"Pal",vc(1),vc(14),true))
-                  {
-                    dopal=true;
-                  }
-                }
-                else if(isinRect(gui_mouse_x(),gui_mouse_y(),184,168,191,175))
-                  {
-                    regrab=true; grabmask^=1;
-                  }
-                  else if(isinRect(gui_mouse_x(),gui_mouse_y(),192,168,199,175))
-                    {
-                      regrab=true; grabmask^=2;
-                    }
-                    else if(isinRect(gui_mouse_x(),gui_mouse_y(),184,176,191,183))
-                      {
-                        regrab=true; grabmask^=4;
-                      }
-                      else if(isinRect(gui_mouse_x(),gui_mouse_y(),192,176,199,183))
-                        {
-                          regrab=true; grabmask^=8;
-                        }
+      }
+      else if(isinRect(gui_mouse_x(),gui_mouse_y(),260,192,321,213))
+      {
+        if(do_button(255,192,61,20,"Cancel",vc(1),vc(14),true))
+          done=1;
+      }
+      else if(isinRect(gui_mouse_x(),gui_mouse_y(),260,216,321,237))
+      {
+        if(do_button(255,216,61,20,"File",vc(1),vc(14),true))
+        {
+          dofile=true;
+        }
+      }
+      else if(imagetype==ftBMP && isinRect(gui_mouse_x(),gui_mouse_y(),140,192,201,213))
+      {
+        if(do_button(141,194,61,20,"Pal",vc(1),vc(14),true))
+        {
+          dopal=true;
+        }
+      }
+      else if(isinRect(gui_mouse_x(),gui_mouse_y(),184,168,191,175))
+      {
+        regrab=true; grabmask^=1;
+      }
+      else if(isinRect(gui_mouse_x(),gui_mouse_y(),192,168,199,175))
+      {
+        regrab=true; grabmask^=2;
+      }
+      else if(isinRect(gui_mouse_x(),gui_mouse_y(),184,176,191,183))
+      {
+        regrab=true; grabmask^=4;
+      }
+      else if(isinRect(gui_mouse_x(),gui_mouse_y(),192,176,199,183))
+      {
+        regrab=true; grabmask^=8;
+      }
 
-                        if(regrab)
+      if(regrab)
       {
         //       grab(newtile,tilebuf+(tile<<7), 1, 1);
-        grab(newtile,newtilebuf[tile].data, selwidth, selheight);
+        grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
         redraw=true;
       }
     }
@@ -2585,21 +3081,30 @@ void grab_tile(int tile,int &cs)
         set_palette(RAMpal);
         pal=0;
         white=vc(15);
-        black=bgc;
+        black=vc(0);
         strcpy(imagepath,temppath);
         load_imagebuf();
-        draw_grab_scr(tile,cs,newtile,black,white,vc(11), selwidth, selheight);
+        draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
         //           grab(newtile,tilebuf+(tile<<7), 1, 1);
-        grab(newtile,newtilebuf[tile].data, selwidth, selheight);
+        grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
       }
+      while (key[KEY_ESC]);
+      clear_keybuf();
       dofile=false;
       redraw=true;
     }
     if(doleech)
     {
-      leech_tiles(newtilebuf,tile);
-      //fixme
-      done=1;
+      if (leech_tiles(newtilebuf,tile,cs))
+      {
+        done=1;
+      }
+      else
+      {
+        while (key[KEY_ESC]);
+        clear_keybuf();
+        redraw=true;
+      }
       doleech=false;
     }
     if(dopal)
@@ -2630,7 +3135,7 @@ void grab_tile(int tile,int &cs)
       else
       {
         white=vc(15);
-        black=bgc;
+        black=vc(0);
 
         memcpy(jwin_pal, jwin_pal2, sizeof(int)*jcMAX);
         gui_bg_color=jwin_pal[jcBOX];
@@ -2646,7 +3151,7 @@ void grab_tile(int tile,int &cs)
 
     if(redraw)
     {
-      draw_grab_scr(tile,cs,newtile,black,white,pal?white:vc(11), selwidth, selheight);
+      draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
     }
     else
     {
@@ -2690,7 +3195,7 @@ void grab_tile(int tile,int &cs)
       for (int x=0; x<selwidth; x++)
       {
         word temptile=tile+((TILES_PER_ROW*y)+x);
-        newtilebuf[temptile].format=tf4Bit;
+        newtilebuf[temptile].format=newformat[(TILES_PER_ROW*y)+x];
         if (newtilebuf[temptile].data!=NULL)
         {
           free(newtilebuf[temptile].data);
@@ -2700,9 +3205,9 @@ void grab_tile(int tile,int &cs)
         {
           Z_error("Unable to initialize tile #%d.\n", temptile);
         }
-        for(int i=0; i<128; i++)
+        for(int i=0; i<128*newtilebuf[temptile].format; i++)
         {
-          newtilebuf[temptile].data[i] = newtile[(((TILES_PER_ROW*y)+x)*128)+i];
+          newtilebuf[temptile].data[i] = newtile[(TILES_PER_ROW*y)+x][i];
         }
       }
     }
@@ -2837,21 +3342,21 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
   SCRFIX();
 }
 
-void reset_tile(int t, int format=1)
+void reset_tile(tiledata *buf, int t, int format=1)
 {
-  newtilebuf[t].format=format;
-  if (newtilebuf[t].data!=NULL)
+  buf[t].format=format;
+  if (buf[t].data!=NULL)
   {
-    free(newtilebuf[t].data);
+    free(buf[t].data);
   }
-  newtilebuf[t].data=(byte *)malloc(tilesize(newtilebuf[t].format));
-  if (newtilebuf[t].data==NULL)
+  buf[t].data=(byte *)malloc(tilesize(buf[t].format));
+  if (buf[t].data==NULL)
   {
     Z_error("Unable to initialize tile #%d.\n", t);
   }
-  for(int i=0; i<tilesize(newtilebuf[t].format); i++)
+  for(int i=0; i<tilesize(buf[t].format); i++)
   {
-    newtilebuf[t].data[i]=0;
+    buf[t].data[i]=0;
   }
 }
 
@@ -4362,7 +4867,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
       {
         int dt=(dest_first+((r*TILES_PER_ROW)+c));
         int st=(src_first+((r*TILES_PER_ROW)+c));
-        reset_tile(dt, newundotilebuf[st].format);
+        reset_tile(newtilebuf, dt, newundotilebuf[st].format);
         for(int i=0; i<tilesize(newundotilebuf[st].format); i++)
         {
           newtilebuf[dt].data[i]=newundotilebuf[st].data[i];
@@ -4370,7 +4875,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         if (move)
         {
           if(((st%TILES_PER_ROW)<(dest_first%TILES_PER_ROW)||(st%TILES_PER_ROW)>((dest_first+cols-1)%TILES_PER_ROW))||(st<dest_first||st>(dest_first+((rows-1)*TILES_PER_ROW)+(cols-1))))
-            reset_tile(st);
+            reset_tile(newtilebuf, st);
         }
       }
     }
@@ -4381,7 +4886,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
     {
       int dt=(dest_first+c);
       int st=(src_first+c);
-      reset_tile(dt, newundotilebuf[st].format);
+      reset_tile(newtilebuf, dt, newundotilebuf[st].format);
       for(int i=0; i<tilesize(newundotilebuf[st].format); i++)
       {
         newtilebuf[dt].data[i]=newundotilebuf[st].data[i];
@@ -4389,7 +4894,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
       if (move)
       {
         if(st<dest_first||st>(dest_first+c-1))
-          reset_tile(st);
+          reset_tile(newtilebuf, st);
       }
     }
   }
@@ -4762,7 +5267,7 @@ void delete_tiles(int &tile,int &tile2,bool rect_sel)
       if (!rect_sel ||
           ((tile_col(t)>=tile_col(firsttile)) &&
            (tile_col(t)<=tile_col(lasttile))))
-        reset_tile(t);
+        reset_tile(newtilebuf, t);
       tile=tile2=min(tile,tile2);
     saved=false;
   }
@@ -4773,11 +5278,11 @@ void overlay_tile(int dest,int src,bool backwards)
   byte buf[256];
   go_tiles();
 
-  unpack_tile(dest, 0, false);
+  unpack_tile(newtilebuf, dest, 0, false);
   for(int i=0; i<256; i++)
     buf[i] = unpackbuf[i];
 
-  unpack_tile(src, 0, false);
+  unpack_tile(newtilebuf, src, 0, false);
   for(int i=0; i<256; i++)
   {
     if(backwards)
@@ -4796,7 +5301,7 @@ void overlay_tile(int dest,int src,bool backwards)
     }
   }
 
-  pack_tile(buf,dest);
+  pack_tile(newtilebuf, buf,dest);
   saved=false;
 }
 
@@ -4805,14 +5310,14 @@ void mass_overlay_tile(int dest1, int dest2, int src, bool backwards, bool rect_
 	byte buf[256];
 	go_tiles();
 	
-	unpack_tile(src, 0, false);
+	unpack_tile(newtilebuf, src, 0, false);
 	for(int i=0; i<256; i++)
     buf[i] = unpackbuf[i];
 	
 	if (!rect_sel) {
 		for ( int d=dest1; d <= dest2; ++d)
 		{	
-			unpack_tile(d, 0, false);
+			unpack_tile(newtilebuf, d, 0, false);
 			for(int i=0; i<256; i++)
 			{
 				if(!backwards)
@@ -4830,7 +5335,7 @@ void mass_overlay_tile(int dest1, int dest2, int src, bool backwards, bool rect_
 			      }
 			    }
 			}
-			pack_tile(buf,d);
+			pack_tile(newtilebuf, buf,d);
 		}
 	}
 	else {
@@ -4838,7 +5343,7 @@ void mass_overlay_tile(int dest1, int dest2, int src, bool backwards, bool rect_
 		for (int j=cmin; j<=cmax; ++j) {
 			for (int k=rmin; k<=rmax; ++k) {
 				d=j+TILES_PER_ROW*k;
-				unpack_tile(d, 0, false);
+				unpack_tile(newtilebuf, d, 0, false);
 			for(int i=0; i<256; i++)
 			{
 				if(!backwards)
@@ -4856,7 +5361,7 @@ void mass_overlay_tile(int dest1, int dest2, int src, bool backwards, bool rect_
 			      }
 			    }
 			}
-			pack_tile(buf,d);
+			pack_tile(newtilebuf, buf,d);
 		}
 		}
 	}
@@ -4872,25 +5377,63 @@ void sel_tile(int &tile, int &tile2, int &first, int type, int s)
   first = tile - (tile%TILES_PER_PAGE);
 }
 
-void convert_tile(int t, int bp, int cs, bool shift)
+void convert_tile(int t, int bp, int cs, bool shift, bool alt)
 {
-  if (bp==tf8Bit)
+  int cst;
+  switch(bp)
   {
-    if(newtilebuf[t].format==tf4Bit)
-    {
-      unpack_tile(t, 0, true);
-      int cst = cs&15;
-      cst <<= CSET_SHFT;
-      for(int i=0;i<256;i++)
+    case tf4Bit:
+      switch(newtilebuf[t].format)
       {
-        if (!shift||unpackbuf[i]!=0)
-        {
-          unpackbuf[i]+=cst;
-        }
+        case tf4Bit:
+          //already in the right format
+          break;
+        case tf8Bit:
+          unpack_tile(newtilebuf, t, 0, true);
+          if (alt) //reduce
+          {
+            for(int i=0;i<256;i++)
+            {
+              if (!shift||unpackbuf[i]!=0)
+              {
+                unpackbuf[i]=(cset_reduce_table[unpackbuf[i]]);
+              }
+            }
+          }
+          else //truncate
+          {
+            for(int i=0;i<256;i++)
+            {
+              unpackbuf[i]&=15;
+            }
+          }
+          reset_tile(newtilebuf, t, tf4Bit);
+          pack_tile(newtilebuf, unpackbuf, t);
+          break;
       }
-      reset_tile(t, tf8Bit);
-      pack_tile(unpackbuf, t);
-    }
+      break;
+    case tf8Bit:
+      switch(newtilebuf[t].format)
+      {
+        case tf4Bit:
+          unpack_tile(newtilebuf, t, 0, true);
+          cst = cs&15;
+          cst <<= CSET_SHFT;
+          for(int i=0;i<256;i++)
+          {
+            if (!shift||unpackbuf[i]!=0)
+            {
+              unpackbuf[i]+=cst;
+            }
+          }
+          reset_tile(newtilebuf, t, tf8Bit);
+          pack_tile(newtilebuf, unpackbuf, t);
+          break;
+        case tf8Bit:
+          //already in the right format
+          break;
+      }
+      break;
   }
 }
 
@@ -5374,11 +5917,21 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
         break;
         case KEY_B:
         {
-          if(jwin_alert("Convert Tile?","Do you want to convert the selected tile(s) to 8-bit color?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+          char buf[80];
+          bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+          bool control=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+          bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
+          sprintf(buf, "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",control?4:8);
+          if(jwin_alert("Convert Tile?",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
           {
             go_tiles();
             saved=false;
-            bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+            if (control)
+            {
+              memset(cset_reduce_table, 0, 256);
+              memset(col_diff,0,3*128);
+              calc_cset_reduce_table(RAMpal, cs);
+            }
             if (rect_sel)
             {
               int top=tile_row(min(tile, tile2));
@@ -5390,7 +5943,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
                 for (int c=left; c<left+columns; ++c)
                 {
                   int t=r*TILES_PER_ROW+c;
-                  convert_tile(t, tf8Bit, cs, shift);
+                  convert_tile(t, control?tf4Bit:tf8Bit, cs, shift, alt);
                 }
               }
             }
@@ -5398,7 +5951,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
             {
               for (int t=min(tile,tile2); t<=max(tile,tile2); ++t)
               {
-                convert_tile(t, tf8Bit, cs, shift);
+                convert_tile(t, control?tf4Bit:tf8Bit, cs, shift, alt);
               }
             }
           }
@@ -6120,6 +6673,7 @@ int combo_screen()
         }
         else
         {
+          cs = (cs<11)  ? cs+1:0;
           redraw=true;
         }
         break;
