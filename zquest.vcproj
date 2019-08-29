@@ -72,7 +72,7 @@
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="FALSE"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"/>
 			<Tool
@@ -241,7 +241,16 @@
 				Name="compiler"
 				Filter="">
 				<File
+					RelativePath=".\parser\AST.cpp">
+				</File>
+				<File
+					RelativePath=".\parser\BuildVisitors.cpp">
+				</File>
+				<File
 					RelativePath=".\parser\ByteCode.cpp">
+				</File>
+				<File
+					RelativePath=".\parser\DataStructs.cpp">
 				</File>
 				<File
 					RelativePath=".\parser\ffscript.lpp">
@@ -259,13 +268,16 @@
 					RelativePath=".\parser\ParseError.cpp">
 				</File>
 				<File
-					RelativePath=".\parser\Scope.cpp">
-				</File>
-				<File
 					RelativePath=".\parser\ScriptParser.cpp">
 				</File>
 				<File
+					RelativePath=".\parser\SymbolVisitors.cpp">
+				</File>
+				<File
 					RelativePath=".\parser\TypeChecker.cpp">
+				</File>
+				<File
+					RelativePath=".\parser\UtilVisitors.cpp">
 				</File>
 				<File
 					RelativePath=".\parser\y.tab.cpp">
@@ -460,13 +472,22 @@
 				Name="Compiler"
 				Filter="">
 				<File
+					RelativePath=".\parser\AST.h">
+				</File>
+				<File
 					RelativePath=".\parser\bisontypes.h">
+				</File>
+				<File
+					RelativePath=".\parser\BuildVisitors.h">
 				</File>
 				<File
 					RelativePath=".\parser\ByteCode.h">
 				</File>
 				<File
 					RelativePath=".\parser\Compiler.h">
+				</File>
+				<File
+					RelativePath=".\parser\DataStructs.h">
 				</File>
 				<File
 					RelativePath=".\parser\GlobalSymbols.h">
@@ -478,10 +499,13 @@
 					RelativePath=".\parser\ScriptParser.h">
 				</File>
 				<File
+					RelativePath=".\parser\SymbolVisitors.h">
+				</File>
+				<File
 					RelativePath=".\parser\TypeChecker.h">
 				</File>
 				<File
-					RelativePath=".\parser\unistd.h">
+					RelativePath=".\parser\UtilVisitors.h">
 				</File>
 				<File
 					RelativePath=".\parser\y.tab.hpp">
@@ -492,6 +516,9 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath=".\std.zh">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -10,7 +10,10 @@ typedef pair<pair<TypeCheck *, pair<SymbolTable *, int> *>, int *> GLVT ;
 
 void GetLValType::caseDefault(void *param)
 {
-	assert(false);
+  //these are here to bypass compiler warnings about unused arguments
+  param=param;
+  
+  assert(false);
 }
 
 void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
@@ -61,23 +64,30 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
 
 	default:
 		p->first.first->fail();
-		printErrorMsg(&host, ARROWNOTPOINTER, NULL);
+		printErrorMsg(&host, ARROWNOTPOINTER);
 		return;
 	}
-	if(fidparam.first == -1 || fidparam.second.size() != (isIndexed ? 3 : 2) || fidparam.second[0] != type)
+	if(fidparam.first == -1 || (int)fidparam.second.size() != (isIndexed ? 3 : 2) || fidparam.second[0] != type)
 	{
 		printErrorMsg(&host, ARROWNOVAR, host.getName() + (isIndexed ? "[]" : ""));
 		p->first.first->fail();
 		return;
 	}
 	p->first.second->first->putAST(&host, fidparam.first);
-	*(p->second) = fidparam.second[1];
+	*(p->second) = fidparam.second[(isIndexed ? 2 : 1)];
 }
 
 void GetLValType::caseExprDot(ASTExprDot &host, void *param)
 {
 	GLVT *p = (GLVT *)param;
 	host.execute(*(p->first.first), p->first.second);
+	int vid = p->first.second->first->getID(&host);
+	if(vid == -1)
+	{
+		printErrorMsg(&host, LVALCONST, host.getName());
+		p->first.first->fail();
+		return;
+	}
 	*(p->second) = p->first.second->first->getVarType(&host);
 }
 
@@ -195,12 +205,18 @@ bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
 
 void TypeCheck::caseDefault(void *param)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  param=param;
 }
 
 void TypeCheck::caseVarDecl(ASTVarDecl &host, void *param)
 {
-	
+  //these are here to bypass compiler warnings about unused arguments
+  void *temp;
+  temp=&host;
+  param=param;
 }
+
 void TypeCheck::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
 {
 	SymbolTable * st = ((pair<SymbolTable *, int> *)param)->first;
@@ -712,7 +728,8 @@ void TypeCheck::caseExprIncrement(ASTExprIncrement &host, void *param)
 	}
 	GetLValType glvt;
 	host.getOperand()->execute(glvt, &p);
-
+	if(failure)
+		return;
 	if(!standardCheck(ScriptParser::TYPE_FLOAT, *p.second, &host))
 	{
 		failure = true;
@@ -738,7 +755,8 @@ void TypeCheck::caseExprDecrement(ASTExprDecrement &host, void *param)
 	}
 	GetLValType glvt;
 	host.getOperand()->execute(glvt, &p);
-
+	if(failure)
+		return;
 	if(!standardCheck(ScriptParser::TYPE_FLOAT, *p.second, &host))
 	{
 		failure = true;
@@ -746,8 +764,12 @@ void TypeCheck::caseExprDecrement(ASTExprDecrement &host, void *param)
 	}
 	host.setType(ScriptParser::TYPE_FLOAT);
 }
+
 void TypeCheck::caseNumConstant(ASTNumConstant &host, void *param)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  param=param;
+
 	host.setType(ScriptParser::TYPE_FLOAT);
 	pair<string,string> parts = host.getValue()->parseValue();
 	pair<long, bool> val = ScriptParser::parseLong(parts);
@@ -755,7 +777,7 @@ void TypeCheck::caseNumConstant(ASTNumConstant &host, void *param)
 	{
 		printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
 	}
-	host.setIntValue(val.second);
+	host.setIntValue(val.first);
 }
 
 void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
@@ -937,6 +959,9 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 
 void TypeCheck::caseBoolConstant(ASTBoolConstant &host, void *param)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  param=param;
+
 	host.setType(ScriptParser::TYPE_BOOL);
 	host.setIntValue(host.getValue() ? 1 : 0);
 }
@@ -964,8 +989,13 @@ void TypeCheck::caseStmtAssign(ASTStmtAssign &host, void *param)
 void TypeCheck::caseExprDot(ASTExprDot &host, void *param)
 {
 	SymbolTable *st = ((pair<SymbolTable *, int> *)param)->first;
-	int type  = st->getVarType(&host);
-	host.setType(type);
+	if(st->isConstant(host.getName()))
+		host.setType(ScriptParser::TYPE_FLOAT);
+	else
+	{
+		int type  = st->getVarType(&host);
+		host.setType(type);
+	}
 }
 
 void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
@@ -1031,7 +1061,7 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
 		return;
 	}
 	
-	if(fidparam.first == -1 || fidparam.second.size() != (isIndexed ? 2 : 1) || fidparam.second[0] != type)
+	if(fidparam.first == -1 || (int)fidparam.second.size() != (isIndexed ? 2 : 1) || fidparam.second[0] != type)
 	{
 		failure = true;
 		printErrorMsg(&host, ARROWNOVAR, host.getName() + (isIndexed ? "[]" : ""));

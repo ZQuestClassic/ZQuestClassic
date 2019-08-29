@@ -6,6 +6,9 @@
 #include "ffasm.h"
 #include "zquest.h"
 #include "zsys.h"
+#ifdef ALLEGRO_MACOSX
+#define strnicmp strncasecmp
+#endif
 
 #ifdef ALLEGRO_MACOSX
 #define strnicmp strncasecmp
@@ -162,6 +165,7 @@ script_variable variable_list[]=
   { "LINKMAXHP",         LINKMAXHP,            0,             0 },
   { "LINKMAXMP",         LINKMAXMP,            0,             0 },
   { "LINKACTION",        LINKACTION,           0,             0 },
+  { "LINKITEMD",		 LINKITEMD,			   0,			  0 },
   /*{ "WPNX",              WPNX,                 0,             0 },
   { "WPNY",              WPNY,                 0,             0 },
   { "WPNDIR",            WPNDIR,               0,             0 },

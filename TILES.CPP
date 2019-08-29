@@ -524,6 +524,8 @@ int rotate_value(int flip)
 
 void puttiletranslucent8(BITMAP* dest,int tile,int x,int y,int cset,int flip,int opacity)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  opacity=opacity;
 
   if(x<-7 || y<-7)
     return;
@@ -607,6 +609,9 @@ void puttiletranslucent8(BITMAP* dest,int tile,int x,int y,int cset,int flip,int
 
 void overtiletranslucent8(BITMAP* dest,int tile,int x,int y,int cset,int flip,int opacity)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  opacity=opacity;
+
   if(x<-7 || y<-7)
     return;
   if(y > dest->h)
@@ -700,6 +705,9 @@ void overtiletranslucent8(BITMAP* dest,int tile,int x,int y,int cset,int flip,in
 
 void puttiletranslucent16(BITMAP* dest,int tile,int x,int y,int cset,int flip,int opacity)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  opacity=opacity;
+
   if(x<-15 || y<-15)
     return;
   if(y > dest->h)
@@ -802,6 +810,9 @@ void puttiletranslucent16(BITMAP* dest,int tile,int x,int y,int cset,int flip,in
 
 void overtiletranslucent16(BITMAP* dest,int tile,int x,int y,int cset,int flip,int opacity)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  opacity=opacity;
+
   if(x<-15 || y<-15)
     return;
   if(y > dest->h)

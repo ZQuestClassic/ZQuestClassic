@@ -17,4 +17,5 @@ int d_line_proc(int msg, DIALOG *d, int c);
 int d_maxbombsedit_proc(int msg,DIALOG *d,int c);
 extern DIALOG init_dlg[];
 extern TABPANEL init_tabs[];
+int doInit(zinitdata *zinit);
 #endif

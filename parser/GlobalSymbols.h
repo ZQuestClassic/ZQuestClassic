@@ -1,12 +1,21 @@
 #ifndef GLOBALSYMBOLS_H
 #define GLOBALSYMBOLS_H
 
+#include "DataStructs.h"
+#include <string>
+#include <map>
+#include <vector>
+
+using std::string;
+using std::map;
+using std::vector;
+
 class Scope;
 class SymbolTable;
 
-const static int SETTER = 0;
-const static int GETTER = 1;
-const static int FUNCTION = 2;
+static const int SETTER = 0;
+static const int GETTER = 1;
+static const int FUNCTION = 2;
 
 struct AccessorTable
 {

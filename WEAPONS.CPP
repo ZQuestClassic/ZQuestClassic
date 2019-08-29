@@ -437,7 +437,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
           break;
         case pMESSAGEMORE:
           LOADGFX(iwMore);
-          break;
+		  break;
         case pNAYRUSLOVEROCKET1:
           LOADGFX(wNAYRUSLOVE1A);
           step = 4;
@@ -505,30 +505,30 @@ bool weapon::Dead() { return dead!=-1; }
 bool weapon::clip()
 {
   int c[4];
-  int d=isdungeon();
+  int d2=isdungeon();
   int nb1 = get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
   int nb2 = get_bit(quest_rules,qr_NOBORDER) ? 8 : 0;
 
   if(id>wEnemyWeapons && id!=ewBrang)
   {
-    c[0] = d?32:(16-nb1);
-    c[1] = d?128:(144+nb1);
-    c[2] = d?32:(16-nb1);
-    c[3] = d?208:(224+nb1);
+    c[0] = d2?32:(16-nb1);
+    c[1] = d2?128:(144+nb1);
+    c[2] = d2?32:(16-nb1);
+    c[3] = d2?208:(224+nb1);
   }
   else if (id==wHookshot||id==wHSChain)
     {
-      c[0] = d?8:0;
-      c[1] = d?152:160;
-      c[2] = d?8:0;
-      c[3] = d?248:256;
+      c[0] = d2?8:0;
+      c[1] = d2?152:160;
+      c[2] = d2?8:0;
+      c[3] = d2?248:256;
     }
     else
     {
-      c[0] = d?18:2;
-      c[1] = d?144:160;
-      c[2] = d?20:4;
-      c[3] = d?220:236;
+      c[0] = d2?18:2;
+      c[1] = d2?144:160;
+      c[2] = d2?20:4;
+      c[3] = d2?220:236;
     }
 
   if(id>=wSSparkle && id<=wFSparkle)
@@ -541,26 +541,26 @@ bool weapon::clip()
 
   if(id==ewFlame)
   {
-    c[0] = d?32:(16-nb1);
-    c[1] = d?128:(144+nb1);
-    c[2] = d?32:(16-nb1);
-    c[3] = d?208:(224+nb1);
+    c[0] = d2?32:(16-nb1);
+    c[1] = d2?128:(144+nb1);
+    c[2] = d2?32:(16-nb1);
+    c[3] = d2?208:(224+nb1);
   }
 
   if(id==ewFireTrail)
   {
-    c[0] = d?32:(16-nb1);
-    c[1] = d?128:(144+nb1);
-    c[2] = d?32:(16-nb1);
-    c[3] = d?208:(224+nb1);
+    c[0] = d2?32:(16-nb1);
+    c[1] = d2?128:(144+nb1);
+    c[2] = d2?32:(16-nb1);
+    c[3] = d2?208:(224+nb1);
   }
 
   if(id==ewWind)
   {
-    c[0] = d?32:(16-nb1);
-    c[1] = d?128:(144+nb1);
-    c[2] = d?32:(16-nb1);
-    c[3] = d?208:(224+nb1);
+    c[0] = d2?32:(16-nb1);
+    c[1] = d2?128:(144+nb1);
+    c[2] = d2?32:(16-nb1);
+    c[3] = d2?208:(224+nb1);
   }
 
   if(x < c[2])
@@ -593,6 +593,9 @@ bool weapon::clip()
 
 bool weapon::animate(int index)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  index=index;
+
   // do special timing stuff
   bool hooked=false;
   //static PALETTE temppal;
@@ -633,190 +636,193 @@ bool weapon::animate(int index)
     }
 
     case wFire:
-      if((type<2)||(type>2))                                //candles and Din's fire
-      {
-        if(clk==32)
-        {
-          step=0;
-          lighting(1,dir);
-        }
-        if(clk==94)
-        {
-          dead=1;
-          findentrance(x,y,mfBCANDLE,true);
-          if (type>0)
-          {
-            findentrance(x,y,mfRCANDLE,true);
-          }
-          if (type>2)
-          {
-            findentrance(x,y,mfWANDFIRE,true);
-            findentrance(x,y,mfDINSFIRE,true);
-          }
-          if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
-          {
-            lighting(2,dir);
-          }
-        }
-      }                                                     //wand fire
-      else
-      {
-        if(clk==1)
-        {
-          lighting(1,dir);
-        }
-        if(clk==80)
-        {
-          dead=1;
-          findentrance(x,y,mfBCANDLE,true);
-          findentrance(x,y,mfRCANDLE,true);
-          findentrance(x,y,mfWANDFIRE,true);
-          if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
-          {
-            lighting(2,dir);
-          }
-        }
-      }
-      break;
-
+		{
+			if((type<2)||(type>2))                                //candles and Din's fire
+			{
+				if(clk==32)
+				{
+					step=0;
+					lighting(1,dir);
+				}
+				if(clk==94)
+				{
+					dead=1;
+					findentrance(x,y,mfBCANDLE,true);
+					if (type>0)
+					{
+						findentrance(x,y,mfRCANDLE,true);
+					}
+					if (type>2)
+					{
+						findentrance(x,y,mfWANDFIRE,true);
+						findentrance(x,y,mfDINSFIRE,true);
+					}
+					if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+					{
+						lighting(2,dir);
+					}
+				}
+			}                                                     //wand fire
+			else
+			{
+				if(clk==1)
+				{
+					lighting(1,dir);
+				}
+				if(clk==80)
+				{
+					dead=1;
+					findentrance(x,y,mfBCANDLE,true);
+					findentrance(x,y,mfRCANDLE,true);
+					findentrance(x,y,mfWANDFIRE,true);
+					if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+					{
+						lighting(2,dir);
+					}
+				}
+			}
+			break;
+		}
     case wLitBomb:
     case wBomb:
     case ewLitBomb:
     case ewBomb:
-      if(clk==48&&step==0)
-      {
-        id = (id<wEnemyWeapons?wBomb:ewBomb);
-        hxofs=1000;
-      }
-      if(clk==49&&(id==wBomb||id==ewBomb))
-      {
-        sfx(WAV_BOMB,pan(int(x)));
-        hxofs=hyofs=-8;
-        hxsz=hysz=32;
-      }
-      if(clk==65)
-      {
-        hxofs=1000;
-      }
-      if(id<wEnemyWeapons)
-      {
-        if(clk==49)
-        {
-          findentrance(x,y,mfBOMB,true);
-          findentrance(x,y,mfSTRIKE,true);
-        }
-        if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
-        {
-          usebombpal=true;
-          if(clk==50 || clk==55)
-          {
-            usebombpal=true;
-            memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
-            //grayscale entire screen
-            if(get_bit(quest_rules,qr_FADE))
-            {
-              for(int i=CSET(0); i < CSET(15); i++)
-              {
-                int g = min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
-                g = (g >> 1) + 32;
-                RAMpal[i] = _RGB(g,g,g);
-              }
-            }
-            else
-            {
-              // this is awkward. NES Z1 converts colors based on the global
-              // NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-              for(int i=CSET(0); i < CSET(15); i++)
-              {
-                RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-              }
-            }
-            refreshpal = true;
-          }
-          if(clk==54 || clk==59)
-          {
-            // undo grayscale
-            usebombpal=false;
-            memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
-            refreshpal = true;
-          }
-        }
-        if(clk==80)
-        {
-          bombdoor(x,y);
-        }
-      }
-      if(clk==84)
-      {
-        if (step==0)
-        {
-          dead=1;
-        }
-      }
-      break;
-
+		{
+			if(clk==48&&step==0)
+			{
+				id = (id<wEnemyWeapons?wBomb:ewBomb);
+				hxofs=1000;
+			}
+			if(clk==49&&(id==wBomb||id==ewBomb))
+			{
+				sfx(WAV_BOMB,pan(int(x)));
+				hxofs=hyofs=-8;
+				hxsz=hysz=32;
+			}
+			if(clk==81)
+			{
+				hxofs=1000;
+			}
+			if(id<wEnemyWeapons)
+			{
+				if(clk==49)
+				{
+					findentrance(x,y,mfBOMB,true);
+					findentrance(x,y,mfSTRIKE,true);
+				}
+				if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
+				{
+					usebombpal=true;
+					if(clk==50 || clk==55)
+					{
+						usebombpal=true;
+						memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
+						//grayscale entire screen
+						if(get_bit(quest_rules,qr_FADE))
+						{
+							for(int i=CSET(0); i < CSET(15); i++)
+							{
+								int g = min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+								g = (g >> 1) + 32;
+								RAMpal[i] = _RGB(g,g,g);
+							}
+						}
+						else
+						{
+							// this is awkward. NES Z1 converts colors based on the global
+							// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+							for(int i=CSET(0); i < CSET(15); i++)
+							{
+								RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+							}
+						}
+						refreshpal = true;
+					}
+					if(clk==54 || clk==59)
+					{
+						// undo grayscale
+						usebombpal=false;
+						memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+						refreshpal = true;
+					}
+				}
+				if(clk==80)
+				{
+					bombdoor(x,y);
+				}
+			}
+			if(clk==84)
+			{
+				if (step==0)
+				{
+					dead=1;
+				}
+			}
+			break;
+		}
     case wArrow:
-      if (dead>0)
-      {
-        break;
-      }
-      if (findentrance(x,y,mfSTRIKE,true))
-      {
-        dead=4;
-      }
-      if (findentrance(x,y,mfARROW,true))
-      {
-        dead=4;
-      }
-      if (current_item(itype_arrow,true)>1)
-      {
-        if (findentrance(x,y,mfSARROW,true))
-        {
-          dead=4;
-        }
-      }
-      if (current_item(itype_arrow,true)==3)
-      {
-        if (findentrance(x,y,mfGARROW,true))
-        {
-          dead=4;
-        }
-      }
-      //     if ((get_bit(quest_rules,qr_SASPARKLES+current_item(itype_arrow,true)-2)) && (current_item(itype_arrow,true)>=2)) {
-      //       if (!(clk%(16>>(current_item(itype_arrow,true))))) {
-      if ((get_bit(quest_rules,qr_SASPARKLES+type-2)) && (type>=2))
-      {
-        if (!(clk%(16>>type)))
-        {
-          arrow_x=x;
-          arrow_y=y;
-          add_asparkle=type-1;
-        }
-      }
-      if (hitcombo(x,y,cBLOCKALL))
-      {
-        dead=4;
-      }
-      if (hitcombo(x,y,cBLOCKARROW3))
-      {
-        dead=4;
-      }
-      if(current_item(itype_arrow,true)<3)
-      {
-        if (hitcombo(x,y,cBLOCKARROW2))
-        {
-          dead=4;
-        }
-      }
-      if(current_item(itype_arrow,true)==1)
-      {
-        if (hitcombo(x,y,cBLOCKARROW1))
-        {
-          dead=4;
-        }
-      }
-      break;
-
+		{
+			if (dead>0)
+			{
+				break;
+			}
+			if (findentrance(x,y,mfSTRIKE,true))
+			{
+				dead=4;
+			}
+			if (findentrance(x,y,mfARROW,true))
+			{
+				dead=4;
+			}
+			if (current_item(itype_arrow,true)>1)
+			{
+				if (findentrance(x,y,mfSARROW,true))
+				{
+					dead=4;
+				}
+			}
+			if (current_item(itype_arrow,true)==3)
+			{
+				if (findentrance(x,y,mfGARROW,true))
+				{
+					dead=4;
+				}
+			}
+			//     if ((get_bit(quest_rules,qr_SASPARKLES+current_item(itype_arrow,true)-2)) && (current_item(itype_arrow,true)>=2)) {
+			//       if (!(clk%(16>>(current_item(itype_arrow,true))))) {
+			if ((get_bit(quest_rules,qr_SASPARKLES+type-2)) && (type>=2))
+			{
+				if (!(clk%(16>>type)))
+				{
+					arrow_x=x;
+					arrow_y=y;
+					add_asparkle=type-1;
+				}
+			}
+			if (hitcombo(x,y,cBLOCKALL))
+			{
+				dead=4;
+			}
+			if (hitcombo(x,y,cBLOCKARROW3))
+			{
+				dead=4;
+			}
+			if(current_item(itype_arrow,true)<3)
+			{
+				if (hitcombo(x,y,cBLOCKARROW2))
+				{
+					dead=4;
+				}
+			}
+			if(current_item(itype_arrow,true)==1)
+			{
+				if (hitcombo(x,y,cBLOCKARROW1))
+				{
+					dead=4;
+				}
+			}
+			break;
+		}
     case wSSparkle:
       if(clk>=(((wpnsbuf[wSSPARKLE].frames) * (wpnsbuf[wSSPARKLE].speed))-1))
       {
@@ -849,85 +855,86 @@ bool weapon::animate(int index)
     case ewSBomb:
     case wLitSBomb:
     case wSBomb:
-      if(clk==48&&step==0)
-      {
-        id = (id<wEnemyWeapons?wSBomb:ewSBomb);
-        hxofs=1000;
-      }
-      if(clk==49&&(id==wSBomb||id==ewSBomb))
-      {
-        sfx(WAV_BOMB,pan(int(x)));
-        hxofs=hyofs=-16;
-        hxsz=hysz=48;
-      }
-      if (id<wEnemyWeapons)
-      {
-        if(clk==49)
-        {
-          for (int tx=-8; tx<=8; tx+=16)
-          {
-            for (int ty=-16; ty<=16; ty+=32)
-            {
-              findentrance(x+tx,y+ty,mfBOMB,true);
-              findentrance(x+tx,y+ty,mfSBOMB,true);
-              findentrance(x+tx,y+ty,mfSTRIKE,true);
-            }
-          }
-          for (int tx=-16; tx<=16; tx+=16)
-          {
-            findentrance(x+tx,y,mfBOMB,true);
-            findentrance(x+tx,y,mfSBOMB,true);
-            findentrance(x+tx,y,mfSTRIKE,true);
-          }
-        }
-        if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
-        {
-          if(clk==50 || clk==55)
-          {
-            memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
-            //grayscale entire screen
-            if(get_bit(quest_rules,qr_FADE))
-            {
-              for(int i=CSET(0); i < CSET(15); i++)
-              {
-                int g = min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
-                g = (g >> 1) + 32;
-                //g = ((g - 32) >> 1) + 32;
-                RAMpal[i] = _RGB(g,g,g);
-              }
-            }
-            else
-            {
-              // this is awkward. NES Z1 converts colors based on the global
-              // NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-              for(int i=CSET(0); i < CSET(15); i++)
-              {
-                RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-              }
-            }
-            refreshpal = true;
-          }
-          if(clk==54 || clk==59)
-          {
-            // undo grayscale
-            memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
-            refreshpal = true;
-          }
-        }
-        if(clk==80)
-        {
-          bombdoor(x,y);
-        }
-      }
-      if(clk==84)
-      {
-        if (step==0)
-        {
-          dead=1;
-        }
-      }
-      break;
-
+		{
+			if(clk==48&&step==0)
+			{
+				id = (id<wEnemyWeapons?wSBomb:ewSBomb);
+				hxofs=1000;
+			}
+			if(clk==49&&(id==wSBomb||id==ewSBomb))
+			{
+				sfx(WAV_BOMB,pan(int(x)));
+				hxofs=hyofs=-16;
+				hxsz=hysz=48;
+			}
+			if (id<wEnemyWeapons)
+			{
+				if(clk==49)
+				{
+					for (int tx=-8; tx<=8; tx+=16)
+					{
+						for (int ty=-16; ty<=16; ty+=32)
+						{
+							findentrance(x+tx,y+ty,mfBOMB,true);
+							findentrance(x+tx,y+ty,mfSBOMB,true);
+							findentrance(x+tx,y+ty,mfSTRIKE,true);
+						}
+					}
+					for (int tx=-16; tx<=16; tx+=16)
+					{
+						findentrance(x+tx,y,mfBOMB,true);
+						findentrance(x+tx,y,mfSBOMB,true);
+						findentrance(x+tx,y,mfSTRIKE,true);
+					}
+				}
+				if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
+				{
+					if(clk==50 || clk==55)
+					{
+						memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
+						//grayscale entire screen
+						if(get_bit(quest_rules,qr_FADE))
+						{
+							for(int i=CSET(0); i < CSET(15); i++)
+							{
+								int g = min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+								g = (g >> 1) + 32;
+								//g = ((g - 32) >> 1) + 32;
+								RAMpal[i] = _RGB(g,g,g);
+							}
+						}
+						else
+						{
+							// this is awkward. NES Z1 converts colors based on the global
+							// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+							for(int i=CSET(0); i < CSET(15); i++)
+							{
+								RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+							}
+						}
+						refreshpal = true;
+					}
+					if(clk==54 || clk==59)
+					{
+						// undo grayscale
+						memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+						refreshpal = true;
+					}
+				}
+				if(clk==80)
+				{
+					bombdoor(x,y);
+				}
+			}
+			if(clk==84)
+			{
+				if (step==0)
+				{
+					dead=1;
+				}
+			}
+			break;
+		}
     case wBait:
       if(clk==16*2*24)
       {
@@ -936,225 +943,227 @@ bool weapon::animate(int index)
       break;
 
     case wBrang:
-      for (int i=0; i<current_item(itype_brang,true); i++)
+		{
+			for (int i=0; i<current_item(itype_brang,true); i++)
       {
         if (findentrance(x,y,mfBRANG+i,true)) dead=1;
       }
-      if (findentrance(x,y,mfSTRIKE,true)) dead=1;
-      if (hitcombo(x,y,cBLOCKALL))
-      {
-        dead=1;
-      }
-      if (hitcombo(x,y,cBLOCKBRANG3))
-      {
-        dead=1;
-      }
-      if(current_item(itype_brang,true)<3)
-      {
-        if (hitcombo(x,y,cBLOCKBRANG2))
-        {
-          dead=1;
-        }
-      }
-      if(current_item(itype_brang,true)==1)
-      {
-        if (hitcombo(x,y,cBLOCKBRANG1))
-        {
-          dead=1;
-        }
-      }
-      ++clk2;
-      if(clk2==36)
-      {
-        misc=1;
-      }
-      if(clk2>18 && clk2<52)
-      {
-        step=1;
-      }
-      else if(misc)
-      {
-        step=2;
-      }
-      else
-      {
-        step=3;
-      }
+			if (findentrance(x,y,mfSTRIKE,true)) dead=1;
+			if (hitcombo(x,y,cBLOCKALL))
+			{
+				dead=1;
+			}
+			if (hitcombo(x,y,cBLOCKBRANG3))
+			{
+				dead=1;
+			}
+			if(current_item(itype_brang,true)<3)
+			{
+				if (hitcombo(x,y,cBLOCKBRANG2))
+				{
+					dead=1;
+				}
+			}
+			if(current_item(itype_brang,true)==1)
+			{
+				if (hitcombo(x,y,cBLOCKBRANG1))
+				{
+					dead=1;
+				}
+			}
+			++clk2;
+			if(clk2==36)
+			{
+				misc=1;
+			}
+			if(clk2>18 && clk2<52)
+			{
+				step=1;
+			}
+			else if(misc)
+			{
+				step=2;
+			}
+			else
+			{
+				step=3;
+			}
   
-      if(clk==0)                                            // delay a frame
-      {
-        ++clk;
-        sfx(WAV_BRANG,pan(int(x)),true);
-        return false;
-      }
+			if(clk==0)                                            // delay a frame
+			{
+				++clk;
+				sfx(WAV_BRANG,pan(int(x)),true);
+				return false;
+			}
   
-      if(clk==1)                                            // then check directional input
-      {
-        if(Up())
-        {
-          dir=up;
-          if(Left())  dir=l_up;
-          if(Right()) dir=r_up;
-        }
-        else if(Down())
-        {
-          dir=down;
-          if(Left())  dir=l_down;
-          if(Right()) dir=r_down;
-        }
-        else if(Left())
-        {
-          dir=left;
-        }
-        else if(Right())
-        {
-          dir=right;
-        }
-      }
+			if(clk==1)                                            // then check directional input
+			{	
+				if(Up())
+				{
+					dir=up;
+					if(Left())  dir=l_up;
+					if(Right()) dir=r_up;
+				}
+				else if(Down())
+				{
+					dir=down;
+					if(Left())  dir=l_down;
+					if(Right()) dir=r_down;
+				}
+				else if(Left())
+				{
+					dir=left;
+				}
+				else if(Right())
+				{
+					dir=right;
+				}
+			}
   
-      if(dead==1)
-      {
-        dead=-1;
-        misc=1;
-      }
+			if(dead==1)
+			{
+				dead=-1;
+				misc=1;
+			}
+	  
+			if(misc==1)                                           // returning
+			{
+				if(abs(LinkY()-y)<7 && abs(LinkX()-x)<7)
+				{
+					CatchBrang();
+					stop_sfx(WAV_BRANG);
+					if (current_item(itype_brang,true)>1)
+					{
+						if (dummy_bool[0])
+						{
+							add_grenade(x,y,current_item(itype_brang,true)>2);
+							dummy_bool[0]=false;
+						}
+					}
+					return true;
+				}
+				seekLink();
+			}
   
-      if(misc==1)                                           // returning
-      {
-        if(abs(LinkY()-y)<7 && abs(LinkX()-x)<7)
-        {
-          CatchBrang();
-          stop_sfx(WAV_BRANG);
-          if (current_item(itype_brang,true)>1)
-          {
-            if (dummy_bool[0])
-            {
-              add_grenade(x,y,current_item(itype_brang,true)>2);
-              dummy_bool[0]=false;
-            }
-          }
-          return true;
-        }
-        seekLink();
-      }
+			adjust_sfx(WAV_BRANG,pan(int(x)),true);
   
-      adjust_sfx(WAV_BRANG,pan(int(x)),true);
+			if ((get_bit(quest_rules,qr_MBSPARKLES+type-2)) && (type>=2))
+			{
+				if (!(clk%(16>>type)))
+				{
+					brang_x=x-3;
+					brang_y=y-3;
+					add_bsparkle=type-1;
+				}
+			}
   
-      if ((get_bit(quest_rules,qr_MBSPARKLES+type-2)) && (type>=2))
-      {
-        if (!(clk%(16>>type)))
-        {
-          brang_x=x-3;
-          brang_y=y-3;
-          add_bsparkle=type-1;
-        }
-      }
-  
-      break;
-
+			break;
+		}
     case wHookshot:
-      if (misc==0)
-      {
-        int maxlength=16*((current_item(itype_hookshot, true)==2)?zinit.longshot_length:zinit.hookshot_length);
-        if((abs(LinkX()-x)>maxlength)||(abs(LinkY()-y)>maxlength))
-        {
-          dead=1;
-        }
-        if (findentrance(x,y,mfSTRIKE,true)) dead=1;
-        if (findentrance(x,y,mfHOOKSHOT,true)) dead=1;
-  
-        if (dir==up)
-        {
-          if ((combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB))
-          {
-            hooked=true;
-          }
-          if (!hooked && _walkflag(x+2,y+7,1) && !isstepable(MAPCOMBO(int(x+2),int(y+7))) && combobuf[MAPCOMBO(x+2,y+7)].type!=cHOOKSHOTONLY)
-          {
-            dead=1;
-          }
-        }
-  
-        if (dir==down)
-        {
-          if ((combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB))
-          {
-            hooked=true;
-          }
-          if (!hooked && _walkflag(x+12,y+12,1) && !isstepable(MAPCOMBO(int(x+12),int(y+12))) && combobuf[MAPCOMBO(x+12,y+12)].type!=cHOOKSHOTONLY)
-          {
-            dead=1;
-          }
-        }
-  
-        if (dir==left)
-        {
-          if ((combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB))
-          {
-            hooked=true;
-          }
-          if (!hooked && _walkflag(x+6,y+13,1) && !isstepable(MAPCOMBO(int(x+6),int(y+13))) && combobuf[MAPCOMBO(x+6,y+13)].type!=cHOOKSHOTONLY)
-          {
-            dead=1;
-          }
-        }
-  
-        if (dir==right)
-        {
-          if ((combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB))
-          {
-            hooked=true;
-          }
-          if (!hooked && _walkflag(x+9,y+13,1) && !isstepable(MAPCOMBO(int(x+9),int(y+13))) && combobuf[MAPCOMBO(x+9,y+13)].type!=cHOOKSHOTONLY)
-          {
-            dead=1;
-          }
-        }
-      }
-  
-      if (hooked==true)
-      {
-        misc=1;
-        pull_link=true;
-        step=0;
-      }
-      ++clk2;
-      if(clk==0)                                            // delay a frame
-      {
-        ++clk;
-        sfx(WAV_HOOKSHOT,pan(int(x)),true);
-        return false;
-      }
-  
-      if(dead==1)
-      {
-        dead=-1;
-        misc=1;
-      }
-  
-      if(misc==1)                                           // returning
-      {
-        if(abs(LinkY()-y)<9 && abs(LinkX()-x)<9)
-        {
-          hookshot_used=false;
-          if (pull_link)
-          {
-            hs_fix=true;
-          }
-          pull_link=false;
-          CatchBrang();
-          stop_sfx(WAV_HOOKSHOT);
-          if (dragging!=-1)
-          {
-            getdraggeditem(dragging);
-          }
-          return true;
-        }
-        seekLink();
-      }
-  
-      adjust_sfx(WAV_HOOKSHOT,pan(int(x)),true);
-      break;
+		{
+			if (misc==0)
+			{
+				int maxlength=16*((current_item(itype_hookshot, true)==2)?zinit.longshot_length:zinit.hookshot_length);
+				if((abs(LinkX()-x)>maxlength)||(abs(LinkY()-y)>maxlength))
+				{
+					dead=1;
+				}
+				if (findentrance(x,y,mfSTRIKE,true)) dead=1;
+				if (findentrance(x,y,mfHOOKSHOT,true)) dead=1;
 
+				if (dir==up)
+				{
+					if ((combobuf[MAPCOMBO(x+2,y+7)].type==cHSGRAB))
+					{
+						hooked=true;
+					}
+					if (!hooked && _walkflag(x+2,y+7,1) && !isstepable(MAPCOMBO(int(x+2),int(y+7))) && combobuf[MAPCOMBO(x+2,y+7)].type!=cHOOKSHOTONLY)
+					{
+						dead=1;
+					}
+				}
+
+				if (dir==down)
+				{
+					if ((combobuf[MAPCOMBO(x+12,y+12)].type==cHSGRAB))
+					{
+						hooked=true;
+					}
+					if (!hooked && _walkflag(x+12,y+12,1) && !isstepable(MAPCOMBO(int(x+12),int(y+12))) && combobuf[MAPCOMBO(x+12,y+12)].type!=cHOOKSHOTONLY)
+					{
+						dead=1;
+					}
+				}
+
+				if (dir==left)
+				{
+					if ((combobuf[MAPCOMBO(x+6,y+13)].type==cHSGRAB))
+					{
+						hooked=true;
+					}
+					if (!hooked && _walkflag(x+6,y+13,1) && !isstepable(MAPCOMBO(int(x+6),int(y+13))) && combobuf[MAPCOMBO(x+6,y+13)].type!=cHOOKSHOTONLY)
+					{
+						dead=1;
+					}
+				}
+
+				if (dir==right)
+				{
+					if ((combobuf[MAPCOMBO(x+9,y+13)].type==cHSGRAB))
+					{
+						hooked=true;
+					}
+					if (!hooked && _walkflag(x+9,y+13,1) && !isstepable(MAPCOMBO(int(x+9),int(y+13))) && combobuf[MAPCOMBO(x+9,y+13)].type!=cHOOKSHOTONLY)
+					{
+						dead=1;
+					}
+				}
+			}
+
+			if (hooked==true)
+			{
+				misc=1;
+				pull_link=true;
+				step=0;
+			}
+			++clk2;
+			if(clk==0)                                            // delay a frame
+			{
+				++clk;
+				sfx(WAV_HOOKSHOT,pan(int(x)),true);
+				return false;
+			}
+
+			if(dead==1)
+			{
+				dead=-1;
+				misc=1;
+			}
+
+			if(misc==1)                                           // returning
+			{
+				if(abs(LinkY()-y)<9 && abs(LinkX()-x)<9)
+				{
+					hookshot_used=false;
+					if (pull_link)
+					{
+						hs_fix=true;
+					}
+					pull_link=false;
+					CatchBrang();
+					stop_sfx(WAV_HOOKSHOT);
+					if (dragging!=-1)
+					{
+						getdraggeditem(dragging);
+					}
+					return true;
+				}
+				seekLink();
+			}
+
+			adjust_sfx(WAV_HOOKSHOT,pan(int(x)),true);
+			break;
+}
     case wHSHandle:
       if(hookshot_used==false) { dead=0; }
       break;
@@ -1390,11 +1399,11 @@ bool weapon::animate(int index)
       //     if ((id==wRefFireball)&&(dummy_bool[0])) { //homing
       //       seekEnemy(-1);
       //     } else {
-      if ((id==ewFireball)&&(!(clk%8)&&0))                  //homing (remove &&0 to activate)
+      /*if ((id==ewFireball)&&(!(clk%8)&&0))                  //homing (remove &&0 to activate)
       {
         seekLink();
       }
-      else
+      else*/
       {
         switch(misc)
         {
@@ -1744,21 +1753,13 @@ void weapon::draw(BITMAP *dest)
     if(++clk2 >= o_speed)
     {
       clk2 = 0;
-      if(frames>1)
+      if(frames>1 && ++aframe >= frames)
       {
-        ++tile;
-        if(++aframe >= frames)
-        {
-          aframe = 0;
-          tile-=frames;
-        }
+        aframe = 0;
       }
     }
-    //shnarf
-    //     tile = wpnsbuf[wid].tile + aframe + (((!angular)&&(dir&2))?wpnsbuf[wid].frames:0);
-//    tile = wpnsbuf[wid].tile + aframe;
+    tile = o_tile+aframe;
   }
-
   // do special case stuff
   switch(id)
   {
@@ -1768,16 +1769,16 @@ void weapon::draw(BITMAP *dest)
       // draw the beam thingies
       int ofs=23-dead;
       int f = frame&3;
-      int type = o_type;
+      int type2 = o_type;
       tile = o_tile+2;
-      if(type)
+      if(type2)
         cs = o_cset>>4;
-      if(type==3 && (f&2))
+      if(type2==3 && (f&2))
         ++tile;
-      if(!type || f==0 || (type>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs,cs,0);
-      if(!type || f==2 || (type>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs,cs,1);
-      if(!type || f==1 || (type>1 && f==2)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset+2+ofs,cs,2);
-      if(!type || f==3 || (type>1 && f==0)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset+2+ofs,cs,3);
+      if(!type2 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs,cs,0);
+      if(!type2 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs,cs,1);
+      if(!type2 || f==1 || (type2>1 && f==2)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset+2+ofs,cs,2);
+      if(!type2 || f==3 || (type2>1 && f==0)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset+2+ofs,cs,3);
     } return;                                               // don't draw sword
 
     case wBomb:

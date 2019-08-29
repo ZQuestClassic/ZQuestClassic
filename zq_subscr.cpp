@@ -61,6 +61,9 @@ char *colortypelist(int index, int *list_size)
 
 int d_cs_color_proc(int msg,DIALOG *d,int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  c=c;
+
   int w=(d->w-4)/16;
   switch(msg)
   {
@@ -94,6 +97,9 @@ int d_cs_color_proc(int msg,DIALOG *d,int c)
 
 int d_sys_color_proc(int msg,DIALOG *d,int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  c=c;
+
   int w=(d->w-4)/17;
   switch(msg)
   {
@@ -480,10 +486,10 @@ static int ssop_attributes_list[] =
 static TABPANEL sso_properties_tabs[] =
 {
   // (text)
-  { "Location",    D_SELECTED,  ssop_location_list },
-  { "Color",       0,           ssop_color_list },
-  { "Attributes",  0,           ssop_attributes_list },
-  { NULL }
+  { "Location",    D_SELECTED,  ssop_location_list,   0, NULL },
+  { "Color",       0,           ssop_color_list,      0, NULL },
+  { "Attributes",  0,           ssop_attributes_list, 0, NULL },
+  { NULL,          0,           NULL,                 0, NULL }
 };
 
 DIALOG *sso_properties_dlg;
@@ -853,11 +859,11 @@ void insert_cset(DIALOG *d, subscreen_object *tempsso, int ct)
 static DIALOG sso_raw_data_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,     60-12,   40,   200+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,      (void *) "Raw Data" },
-  { d_dummy_proc,      160,  47,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { jwin_textbox_proc,       72-12,   60+4,   176+24+1,  92+4,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,      NULL },
-  { jwin_button_proc,     130,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { NULL }
+  { jwin_win_proc,     60-12,   40,   200+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,      (void *) "Raw Data", NULL, NULL },
+  { d_dummy_proc,      160,  47,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_textbox_proc,       72-12,   60+4,   176+24+1,  92+4,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,      NULL, NULL, NULL },
+  { jwin_button_proc,     130,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 
@@ -878,265 +884,265 @@ int sso_raw_data(subscreen_object *tempsso)
 static DIALOG sso_master_properties_dlg[] =
 {
   // (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,          0,    0,   320,    240,  vc(0),              vc(11),           0,       D_EXIT,     0,             0,       (void *) "Invalid Object Properties" },
-  { jwin_button_proc,      90,  215,    61,     21,  vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     170,  215,    61,     21,  vc(0),              vc(11),           27,      D_EXIT,     0,             0,       (void *) "Cancel" },
+  { jwin_win_proc,          0,    0,   320,    240,  vc(0),              vc(11),           0,       D_EXIT,     0,             0,       (void *) "Invalid Object Properties", NULL, NULL },
+  { jwin_button_proc,      90,  215,    61,     21,  vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     170,  215,    61,     21,  vc(0),              vc(11),           27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
   { jwin_tab_proc,          4,   25,   312,    185,  0,                  0,                0,       0,          0,             0,       (void *) sso_properties_tabs, NULL, (void *)sso_properties_dlg },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 5
-  { jwin_text_proc,         8,   49,   186,     16,  0,                  0,                0,       0,          0,             0,       (void *) "Display:" },
-  { jwin_droplist_proc,    45,   45,   150,     16,  0,                  0,                0,       0,          0,             0,       (void *) displaylist },
-  { jwin_text_proc,         8,   67,   186,     16,  0,                  0,                0,       0,          0,             0,       (void *) "X:" },
-  { jwin_edit_proc,        23,   63,    31,     16,  0,                  0,                0,       0,          4,             0,       NULL },
-  { jwin_text_proc,         8,   85,   186,     16,  0,                  0,                0,       0,          0,             0,       (void *) "Y:" },
+  { jwin_text_proc,         8,   49,   186,     16,  0,                  0,                0,       0,          0,             0,       (void *) "Display:", NULL, NULL },
+  { jwin_droplist_proc,    45,   45,   150,     16,  0,                  0,                0,       0,          0,             0,       (void *) displaylist, NULL, NULL },
+  { jwin_text_proc,         8,   67,   186,     16,  0,                  0,                0,       0,          0,             0,       (void *) "X:", NULL, NULL },
+  { jwin_edit_proc,        23,   63,    31,     16,  0,                  0,                0,       0,          4,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,         8,   85,   186,     16,  0,                  0,                0,       0,          0,             0,       (void *) "Y:", NULL, NULL },
   // 10
-  { jwin_edit_proc,        23,   81,    31,     16,  0,                  0,                0,       0,          4,             0,       NULL },
-  { jwin_text_proc,        68,   67,   186,     16,  0,                  0,                0,       0,          0,             0,       (void *) "W:" },
-  { jwin_edit_proc,        83,   63,    26,     16,  0,                  0,                0,       0,          3,             0,       NULL },
-  { jwin_text_proc,        68,   85,   186,     16,  0,                  0,                0,       0,          0,             0,       (void *) "H:" },
-  { jwin_edit_proc,        83,   81,    26,     16,  0,                  0,                0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,        23,   81,    31,     16,  0,                  0,                0,       0,          4,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,        68,   67,   186,     16,  0,                  0,                0,       0,          0,             0,       (void *) "W:", NULL, NULL },
+  { jwin_edit_proc,        83,   63,    26,     16,  0,                  0,                0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,        68,   85,   186,     16,  0,                  0,                0,       0,          0,             0,       (void *) "H:", NULL, NULL },
+  { jwin_edit_proc,        83,   81,    26,     16,  0,                  0,                0,       0,          3,             0,       NULL, NULL, NULL },
   // 15
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 20
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 25
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 30
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 35
-  { jwin_frame_proc,        8,   48,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL },
-  { jwin_text_proc,        12,   45,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Foreground Color " },
-  { jwin_text_proc,        16,   59,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:" },
-  { d_ctl_proc,            46,   55,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist },
-  { jwin_text_proc,        16,   77,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:" },
+  { jwin_frame_proc,        8,   48,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL, NULL, NULL },
+  { jwin_text_proc,        12,   45,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Foreground Color ", NULL, NULL },
+  { jwin_text_proc,        16,   59,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:", NULL, NULL },
+  { d_ctl_proc,            46,   55,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist, NULL, NULL },
+  { jwin_text_proc,        16,   77,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:", NULL, NULL },
   // 40
-  { jwin_droplist_proc,    46,   73,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist },
+  { jwin_droplist_proc,    46,   73,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist, NULL, NULL },
 
-  { jwin_frame_proc,        8,  103,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL },
-  { jwin_text_proc,        12,  100,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Background Color " },
-  { jwin_text_proc,        16,  114,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:" },
-  { d_ctl_proc,            46,  110,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist },
+  { jwin_frame_proc,        8,  103,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL, NULL, NULL },
+  { jwin_text_proc,        12,  100,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Background Color ", NULL, NULL },
+  { jwin_text_proc,        16,  114,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:", NULL, NULL },
+  { d_ctl_proc,            46,  110,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist, NULL, NULL },
   // 45
-  { jwin_text_proc,        16,  132,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:" },
-  { jwin_droplist_proc,    46,  128,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist },
+  { jwin_text_proc,        16,  132,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:", NULL, NULL },
+  { jwin_droplist_proc,    46,  128,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist, NULL, NULL },
 
-  { jwin_frame_proc,        8,  158,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL },
-  { jwin_text_proc,        12,  155,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Shadow Color " },
-  { jwin_text_proc,        16,  169,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:" },
+  { jwin_frame_proc,        8,  158,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL, NULL, NULL },
+  { jwin_text_proc,        12,  155,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Shadow Color ", NULL, NULL },
+  { jwin_text_proc,        16,  169,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:", NULL, NULL },
   // 50
-  { d_ctl_proc,            46,  165,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist },
-  { jwin_text_proc,        16,  187,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:" },
-  { jwin_droplist_proc,    46,  183,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist },
+  { d_ctl_proc,            46,  165,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist, NULL, NULL },
+  { jwin_text_proc,        16,  187,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:", NULL, NULL },
+  { jwin_droplist_proc,    46,  183,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist, NULL, NULL },
 
-  { jwin_frame_proc,      168,   48,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL },
-  { jwin_text_proc,       172,   45,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Foreground Color " },
+  { jwin_frame_proc,      168,   48,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL, NULL, NULL },
+  { jwin_text_proc,       172,   45,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Foreground Color ", NULL, NULL },
   // 55
-  { jwin_text_proc,       176,   59,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:" },
-  { d_ctl_proc,           206,   55,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist },
-  { jwin_text_proc,       176,   77,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:" },
-  { jwin_droplist_proc,   206,   73,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist },
+  { jwin_text_proc,       176,   59,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:", NULL, NULL },
+  { d_ctl_proc,           206,   55,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist, NULL, NULL },
+  { jwin_text_proc,       176,   77,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:", NULL, NULL },
+  { jwin_droplist_proc,   206,   73,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist, NULL, NULL },
 
-  { jwin_frame_proc,      168,  103,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL },
+  { jwin_frame_proc,      168,  103,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL, NULL, NULL },
   // 60
-  { jwin_text_proc,       172,  100,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Background Color " },
-  { jwin_text_proc,       176,  114,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:" },
-  { d_ctl_proc,           206,  110,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist },
-  { jwin_text_proc,       176,  132,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:" },
-  { jwin_droplist_proc,   206,  128,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist },
+  { jwin_text_proc,       172,  100,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Background Color ", NULL, NULL },
+  { jwin_text_proc,       176,  114,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:", NULL, NULL },
+  { d_ctl_proc,           206,  110,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist, NULL, NULL },
+  { jwin_text_proc,       176,  132,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:", NULL, NULL },
+  { jwin_droplist_proc,   206,  128,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist, NULL, NULL },
 
   // 65
-  { jwin_frame_proc,      168,  158,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL },
-  { jwin_text_proc,       172,  155,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Shadow Color " },
-  { jwin_text_proc,       176,  169,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:" },
-  { d_ctl_proc,           206,  165,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist },
-  { jwin_text_proc,       176,  187,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:" },
+  { jwin_frame_proc,      168,  158,   144,     48,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL, NULL, NULL },
+  { jwin_text_proc,       172,  155,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Shadow Color ", NULL, NULL },
+  { jwin_text_proc,       176,  169,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Type:", NULL, NULL },
+  { d_ctl_proc,           206,  165,    88,     16,  0,                  0,                0,       0,          0,             0,       (void *) colortypelist, NULL, NULL },
+  { jwin_text_proc,       176,  187,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Color:", NULL, NULL },
   // 70
-  { jwin_droplist_proc,   206,  183,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { jwin_droplist_proc,   206,  183,    98,     16,  0,                  0,                0,       0,          0,             0,       (void *) misccolorlist, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 75
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 80
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 85
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 90
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { jwin_ctext_proc,      160,  122,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED, 0,             0,       (void *) "Part of Attributes" },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_ctext_proc,      160,  122,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED, 0,             0,       (void *) "Part of Attributes", NULL, NULL },
   // 95
-  { d_box_proc,             8,   45,   156,    122,  vc(4),                  vc(4),                0,       0,          0,             0,       NULL },
-	{ jwin_text_proc,         8,   45,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "TILE" },
-  { jwin_frame_proc,        8,   51,    20,     20,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL },
-  { d_maptile_proc,        10,   53,    16,     16,  0,                  0,                0,       0,          0,             0,       NULL },
-	{ jwin_text_proc,       128,   45,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "TILE" },
+  { d_box_proc,             8,   45,   156,    122,  vc(4),                  vc(4),                0,       0,          0,             0,       NULL, NULL, NULL },
+	{ jwin_text_proc,         8,   45,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "TILE", NULL, NULL },
+  { jwin_frame_proc,        8,   51,    20,     20,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_maptile_proc,        10,   53,    16,     16,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+	{ jwin_text_proc,       128,   45,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "TILE", NULL, NULL },
   // 100
-  { jwin_frame_proc,      128,   51,    36,     52,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL },
-  { d_maptile_proc,       130,   53,    32,     48,  0,                  0,                0,       0,          0,             0,       NULL },
-  { jwin_check_proc,      166,  109,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Overlay" },
-  { jwin_check_proc,      166,  119,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Transparent" },
-  { jwin_tflpcheck_proc,  166,  129,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Large Pieces" },
+  { jwin_frame_proc,      128,   51,    36,     52,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_maptile_proc,       130,   53,    32,     48,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,      166,  109,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Overlay", NULL, NULL },
+  { jwin_check_proc,      166,  119,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Transparent", NULL, NULL },
+  { jwin_tflpcheck_proc,  166,  129,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Large Pieces", NULL, NULL },
   // 105
-  { jwin_text_proc,       166,   55,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Frames:" },
-  { jwin_text_proc,       166,   73,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Speed:" },
-  { jwin_text_proc,       166,   91,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Delay:" },
-  { jwin_edit_proc,       215,   51,    35,     16,  vc(12),             vc(1),            0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,       215,   69,    35,     16,  vc(12),             vc(1),            0,       0,          3,             0,       NULL },
+  { jwin_text_proc,       166,   55,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Frames:", NULL, NULL },
+  { jwin_text_proc,       166,   73,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Speed:", NULL, NULL },
+  { jwin_text_proc,       166,   91,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Delay:", NULL, NULL },
+  { jwin_edit_proc,       215,   51,    35,     16,  vc(12),             vc(1),            0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,       215,   69,    35,     16,  vc(12),             vc(1),            0,       0,          3,             0,       NULL, NULL, NULL },
   // 110
-  { jwin_edit_proc,       215,   87,    35,     16,  vc(12),             vc(1),            0,       0,          3,             0,       NULL },
-  { jwin_text_proc,         8,   79,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Special Tile:" },
-  { d_stilelist_proc,      65,   75,    92,     16,  0,                  0,                0,       0,          0,             0,       (void *) spectilelist },
-  { jwin_text_proc,         8,   97,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Offset:" },
-  { jwin_edit_proc,        65,   93,    69,     16,  0,                  0,                0,       0,          0,             0,       NULL },
+  { jwin_edit_proc,       215,   87,    35,     16,  vc(12),             vc(1),            0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,         8,   79,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Special Tile:", NULL, NULL },
+  { d_stilelist_proc,      65,   75,    92,     16,  0,                  0,                0,       0,          0,             0,       (void *) spectilelist, NULL, NULL },
+  { jwin_text_proc,         8,   97,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Offset:", NULL, NULL },
+  { jwin_edit_proc,        65,   93,    69,     16,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 115
-  { jwin_text_proc,         8,   55,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Font:" },
-  { jwin_text_proc,         8,   73,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Style:" },
-  { jwin_text_proc,         8,   91,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Alignment:" },
-  { jwin_text_proc,         8,  105,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Text:" },
-  { jwin_fontdrop_proc,    55,   51,    99,     16,  0,                  0,                0,       0,          0,             0,       (void *) ssfontlist },
+  { jwin_text_proc,         8,   55,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Font:", NULL, NULL },
+  { jwin_text_proc,         8,   73,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Style:", NULL, NULL },
+  { jwin_text_proc,         8,   91,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Alignment:", NULL, NULL },
+  { jwin_text_proc,         8,  105,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Text:", NULL, NULL },
+  { jwin_fontdrop_proc,    55,   51,    99,     16,  0,                  0,                0,       0,          0,             0,       (void *) ssfontlist, NULL, NULL },
   // 120
-  { jwin_droplist_proc,    55,   69,    99,     16,  0,                  0,                0,       0,          0,             0,       (void *) shadowstylelist },
-  { jwin_droplist_proc,    55,   87,    99,     16,  0,                  0,                0,       0,          0,             0,       (void *) alignmentlist },
-  { jwin_edit_proc,         8,  115,   146,     16,  0,                  0,                0,       0,          255,           0,       NULL },
-  { jwin_text_proc,       166,   55,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Wrapping:" },
-  { jwin_text_proc,       166,   73,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Tab Size:" },
+  { jwin_droplist_proc,    55,   69,    99,     16,  0,                  0,                0,       0,          0,             0,       (void *) shadowstylelist, NULL, NULL },
+  { jwin_droplist_proc,    55,   87,    99,     16,  0,                  0,                0,       0,          0,             0,       (void *) alignmentlist, NULL, NULL },
+  { jwin_edit_proc,         8,  115,   146,     16,  0,                  0,                0,       0,          255,           0,       NULL, NULL, NULL },
+  { jwin_text_proc,       166,   55,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Wrapping:", NULL, NULL },
+  { jwin_text_proc,       166,   73,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Tab Size:", NULL, NULL },
   // 125
-  { jwin_droplist_proc,   212,   51,    83,     16,  0,                  0,                0,       0,          0,             0,       (void *) wrappinglist },
-  { jwin_edit_proc,       212,   69,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL },
-  { jwin_text_proc,         8,   55,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Item Class:" },
-  { jwin_text_proc,         8,   73,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Position:" },
-  { jwin_text_proc,         8,   91,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up Select:" },
+  { jwin_droplist_proc,   212,   51,    83,     16,  0,                  0,                0,       0,          0,             0,       (void *) wrappinglist, NULL, NULL },
+  { jwin_edit_proc,       212,   69,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,         8,   55,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Item Class:", NULL, NULL },
+  { jwin_text_proc,         8,   73,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Position:", NULL, NULL },
+  { jwin_text_proc,         8,   91,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up Select:", NULL, NULL },
   // 130
-  { jwin_text_proc,         8,  109,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down Select:" },
-  { jwin_text_proc,         8,  127,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left Select:" },
-  { jwin_text_proc,         8,  145,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right Select:" },
-  { jwin_droplist_proc,    68,   51,   101,     16,  0,                  0,                0,       0,          0,             0,       (void *) itemclasslist },
-  { jwin_edit_proc,        68,   69,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL },
+  { jwin_text_proc,         8,  109,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down Select:", NULL, NULL },
+  { jwin_text_proc,         8,  127,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left Select:", NULL, NULL },
+  { jwin_text_proc,         8,  145,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right Select:", NULL, NULL },
+  { jwin_droplist_proc,    68,   51,   101,     16,  0,                  0,                0,       0,          0,             0,       (void *) itemclasslist, NULL, NULL },
+  { jwin_edit_proc,        68,   69,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL, NULL, NULL },
   // 135
-  { jwin_edit_proc,        68,   87,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,        68,  105,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,        68,  123,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,        68,  141,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL },
-  { jwin_check_proc,       68,  159,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Invisible" },
+  { jwin_edit_proc,        68,   87,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,        68,  105,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,        68,  123,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,        68,  141,    83,     16,  0,                  0,                0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,       68,  159,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Invisible", NULL, NULL },
   // 140
-  { jwin_check_proc,      166,  139,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show Compass" },
-  { jwin_check_proc,      166,  149,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Large" },
-	{ jwin_ctext_proc,       18,   45,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "NOT" },
-	{ jwin_ctext_proc,       18,   51,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "LAST" },
-  { jwin_frame_proc,        8,   57,    20,     20,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL },
+  { jwin_check_proc,      166,  139,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show Compass", NULL, NULL },
+  { jwin_check_proc,      166,  149,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Large", NULL, NULL },
+	{ jwin_ctext_proc,       18,   45,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "NOT", NULL, NULL },
+	{ jwin_ctext_proc,       18,   51,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "LAST", NULL, NULL },
+  { jwin_frame_proc,        8,   57,    20,     20,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
   // 145
-  { d_qtile_proc,          10,   59,    16,     16,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-	{ jwin_ctext_proc,       56,   51,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "LAST" },
-  { jwin_frame_proc,       46,   57,    20,     20,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL },
-  { d_qtile_proc,          48,   59,    16,     16,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_qtile_proc,          10,   59,    16,     16,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+	{ jwin_ctext_proc,       56,   51,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "LAST", NULL, NULL },
+  { jwin_frame_proc,       46,   57,    20,     20,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_qtile_proc,          48,   59,    16,     16,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 150
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-	{ jwin_ctext_proc,       18,  101,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "CAP" },
-  { jwin_frame_proc,        8,  107,    20,     20,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL },
-  { d_qtile_proc,          10,  109,    16,     16,  0,                  0,                0,       0,          0,             0,       NULL },
-	{ jwin_ctext_proc,       56,   95,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "AFTER" },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+	{ jwin_ctext_proc,       18,  101,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "CAP", NULL, NULL },
+  { jwin_frame_proc,        8,  107,    20,     20,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_qtile_proc,          10,  109,    16,     16,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+	{ jwin_ctext_proc,       56,   95,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "AFTER", NULL, NULL },
   // 155
-	{ jwin_ctext_proc,       56,  101,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "CAP" },
-  { jwin_frame_proc,       46,  107,    20,     20,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL },
-  { d_qtile_proc,          48,  109,    16,     16,  0,                  0,                0,       0,          0,             0,       NULL },
-  { jwin_check_proc,        8,   78,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Mod" },
-  { jwin_check_proc,       46,   78,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Mod" },
+	{ jwin_ctext_proc,       56,  101,    70,     36,  0,                  0,                0,       D_DISABLED, 0,             0,       (void *) "CAP", NULL, NULL },
+  { jwin_frame_proc,       46,  107,    20,     20,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_qtile_proc,          48,  109,    16,     16,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,        8,   78,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Mod", NULL, NULL },
+  { jwin_check_proc,       46,   78,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Mod", NULL, NULL },
   // 160
-  { jwin_check_proc,        8,  128,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Mod" },
-  { jwin_check_proc,       46,  128,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Mod" },
-  { jwin_text_proc,       166,  109,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Show:" },
-  { jwin_droplist_proc,   215,  105,    68,     16,  0,                  0,                0,       0,          0,             0,       (void *) gaugeshowlist },
-  { jwin_text_proc,       166,  133,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Container:" },
+  { jwin_check_proc,        8,  128,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Mod", NULL, NULL },
+  { jwin_check_proc,       46,  128,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Mod", NULL, NULL },
+  { jwin_text_proc,       166,  109,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Show:", NULL, NULL },
+  { jwin_droplist_proc,   215,  105,    68,     16,  0,                  0,                0,       0,          0,             0,       (void *) gaugeshowlist, NULL, NULL },
+  { jwin_text_proc,       166,  133,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Container:", NULL, NULL },
   // 165
-  { jwin_edit_proc,       215,  129,    35,     16,  vc(12),             vc(1),            0,       0,          3,             0,       NULL },
-  { jwin_check_proc,      166,  147,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Unique Last" },
-  { jwin_text_proc,       166,   91,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Infinite:" },
-  { jwin_edit_proc,       204,   87,   107,     16,  0,                  0,                0,       0,          1,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { jwin_edit_proc,       215,  129,    35,     16,  vc(12),             vc(1),            0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,      166,  147,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Unique Last", NULL, NULL },
+  { jwin_text_proc,       166,   91,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Infinite:", NULL, NULL },
+  { jwin_edit_proc,       204,   87,   107,     16,  0,                  0,                0,       0,          1,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 170
-  { jwin_ctext_proc,      160,  122,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED, 0,             0,       (void *) "Part of Attributes" },
-  { jwin_check_proc,        8,   51,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show 1" },
-  { jwin_check_proc,        8,   63,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show 2" },
-  { jwin_check_proc,        8,   75,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show 3" },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { jwin_ctext_proc,      160,  122,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED, 0,             0,       (void *) "Part of Attributes", NULL, NULL },
+  { jwin_check_proc,        8,   51,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show 1", NULL, NULL },
+  { jwin_check_proc,        8,   63,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show 2", NULL, NULL },
+  { jwin_check_proc,        8,   75,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show 3", NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 175
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 180
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 185
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 190
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 195
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 200
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 205
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 210
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { NULL }
+  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 void replacedp(DIALOG &d, const char *newdp)
@@ -3741,14 +3747,17 @@ int onShowHideGrid();
 
 static MENU subscreen_rc_menu[] =
 {
-  { "Properties ",    NULL,  NULL },
-  { "Inspect ",       NULL,  NULL },
-  { NULL }
+  { "Properties ",    NULL,  NULL, 0, NULL },
+  { "Inspect ",       NULL,  NULL, 0, NULL },
+  { NULL,             NULL,  NULL, 0, NULL }
 };
 
 
 int d_subscreen_proc(int msg,DIALOG *d,int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  c=c;
+
   switch(msg)
   {
     case MSG_CLICK:
@@ -4942,153 +4951,153 @@ int onActivePassive();
 
 static MENU ss_arrange_menu[] =
 {
-  { "Bring to Front",       onBringToFront,          NULL },
-  { "Bring Forward",        onBringForward,          NULL },
-  { "Send Backward",        onSendBackward,          NULL },
-  { "Send to Back",         onSendToBack,            NULL },
-  { "Reverse",              onReverseArrangement,    NULL },
-  { NULL }
+  { "Bring to Front",       onBringToFront,          NULL, 0, NULL },
+  { "Bring Forward",        onBringForward,          NULL, 0, NULL },
+  { "Send Backward",        onSendBackward,          NULL, 0, NULL },
+  { "Send to Back",         onSendToBack,            NULL, 0, NULL },
+  { "Reverse",              onReverseArrangement,    NULL, 0, NULL },
+  { NULL,                   NULL,                    NULL, 0, NULL }
 };
 
 static MENU ss_grid_snap_menu[] =
 {
-  { "Left Edges",           onGridSnapLeft,          NULL },
-  { "Horizontal Centers",   onGridSnapCenter,        NULL },
-  { "Right Edges",          onGridSnapRight,         NULL },
-  { "",                     NULL,                    NULL },
-  { "Top Edges",            onGridSnapTop,           NULL },
-  { "Vertical Centers",     onGridSnapMiddle,        NULL },
-  { "Bottom Edges",         onGridSnapBottom,        NULL },
-  { NULL }
+  { "Left Edges",           onGridSnapLeft,          NULL, 0, NULL },
+  { "Horizontal Centers",   onGridSnapCenter,        NULL, 0, NULL },
+  { "Right Edges",          onGridSnapRight,         NULL, 0, NULL },
+  { "",                     NULL,                    NULL, 0, NULL },
+  { "Top Edges",            onGridSnapTop,           NULL, 0, NULL },
+  { "Vertical Centers",     onGridSnapMiddle,        NULL, 0, NULL },
+  { "Bottom Edges",         onGridSnapBottom,        NULL, 0, NULL },
+  { NULL,                   NULL,                    NULL, 0, NULL }
 };
 
 static MENU ss_align_menu[] =
 {
-  { "Left Edges",           onAlignLeft,             NULL },
-  { "Horizontal Centers",   onAlignCenter,           NULL },
-  { "Right Edges",          onAlignRight,            NULL },
-  { "",                     NULL,                    NULL },
-  { "Top Edges",            onAlignTop,              NULL },
-  { "Vertical Centers",     onAlignMiddle,           NULL },
-  { "Bottom Edges",         onAlignBottom,           NULL },
-  { "",                     NULL,                    NULL },
-  { "To Grid",              NULL,                    ss_grid_snap_menu },
-  { NULL }
+  { "Left Edges",           onAlignLeft,             NULL, 0, NULL },
+  { "Horizontal Centers",   onAlignCenter,           NULL, 0, NULL },
+  { "Right Edges",          onAlignRight,            NULL, 0, NULL },
+  { "",                     NULL,                    NULL, 0, NULL },
+  { "Top Edges",            onAlignTop,              NULL, 0, NULL },
+  { "Vertical Centers",     onAlignMiddle,           NULL, 0, NULL },
+  { "Bottom Edges",         onAlignBottom,           NULL, 0, NULL },
+  { "",                     NULL,                    NULL, 0, NULL },
+  { "To Grid",              NULL,                    ss_grid_snap_menu, 0, NULL },
+  { NULL,                   NULL,                    NULL, 0, NULL }
 };
 
 static MENU ss_distribute_menu[] =
 {
-  { "Left Edges",           onDistributeLeft,             NULL },
-  { "Horizontal Centers",   onDistributeCenter,           NULL },
-  { "Right Edges",          onDistributeRight,            NULL },
-  { "",                     NULL,                         NULL },
-  { "Top Edges",            onDistributeTop,              NULL },
-  { "Vertical Centers",     onDistributeMiddle,           NULL },
-  { "Bottom Edges",         onDistributeBottom,           NULL },
-  { NULL }
+  { "Left Edges",           onDistributeLeft,             NULL, 0, NULL },
+  { "Horizontal Centers",   onDistributeCenter,           NULL, 0, NULL },
+  { "Right Edges",          onDistributeRight,            NULL, 0, NULL },
+  { "",                     NULL,                         NULL, 0, NULL },
+  { "Top Edges",            onDistributeTop,              NULL, 0, NULL },
+  { "Vertical Centers",     onDistributeMiddle,           NULL, 0, NULL },
+  { "Bottom Edges",         onDistributeBottom,           NULL, 0, NULL },
+  { NULL,                   NULL,                         NULL, 0, NULL }
 };
 
 static MENU ss_edit_menu[] =
 {
-  { "&New\tIns",           onNewSubscreenObject,                 NULL },
-  { "&Delete\tDel",        onDeleteSubscreenObject,              NULL },
-  { "",                    NULL,                                 NULL },
-  { "&Duplicate",          onDuplicateSubscreenObject,           NULL },
-  { "",                    NULL,                                 NULL },
-  { "&Properties",         onSubscreenObjectProperties,          NULL },
-  { "",                    NULL,                                 NULL },
-  { "&Arrange",            NULL,                                 ss_arrange_menu },
-  { "Al&ign",              NULL,                                 ss_align_menu },
-  { "Dis&tribute",         NULL,                                 ss_distribute_menu },
-  { "",                    NULL,                                 NULL },
-  { "Switch Active/Passive",              onActivePassive,                      NULL },
-  { "",                    NULL,                                 NULL },
-  { "&Take Snapshot\tZ",   onSnapshot,                           NULL },
-  { "",                    NULL,                                 NULL },
-  { "E&xport as Code\tX",  onExport_Subscreen_Code,              NULL },
-  { NULL }
+  { "&New\tIns",           onNewSubscreenObject,                 NULL, 0, NULL },
+  { "&Delete\tDel",        onDeleteSubscreenObject,              NULL, 0, NULL },
+  { "",                    NULL,                                 NULL, 0, NULL },
+  { "&Duplicate",          onDuplicateSubscreenObject,           NULL, 0, NULL },
+  { "",                    NULL,                                 NULL, 0, NULL },
+  { "&Properties",         onSubscreenObjectProperties,          NULL, 0, NULL },
+  { "",                    NULL,                                 NULL, 0, NULL },
+  { "&Arrange",            NULL,                                 ss_arrange_menu, 0, NULL },
+  { "Al&ign",              NULL,                                 ss_align_menu, 0, NULL },
+  { "Dis&tribute",         NULL,                                 ss_distribute_menu, 0, NULL },
+  { "",                    NULL,                                 NULL, 0, NULL },
+  { "Switch Active/Passive",              onActivePassive,                      NULL, 0, NULL },
+  { "",                    NULL,                                 NULL, 0, NULL },
+  { "&Take Snapshot\tZ",   onSnapshot,                           NULL, 0, NULL },
+  { "",                    NULL,                                 NULL, 0, NULL },
+  { "E&xport as Code\tX",  onExport_Subscreen_Code,              NULL, 0, NULL },
+  { NULL,                  NULL,                                 NULL, 0, NULL }
 };
 
 static MENU ss_grid_menu[] =
 {
-  { "&Edit",                      onEditGrid,                    NULL },
-  { "&Show",                      onShowHideGrid,                NULL },
-  { NULL }
+  { "&Edit",                      onEditGrid,                    NULL, 0, NULL },
+  { "&Show",                      onShowHideGrid,                NULL, 0, NULL },
+  { NULL,                         NULL,                          NULL, 0, NULL }
 };
 
 static MENU ss_selection_menu[] =
 {
-  { "&Add to Selection\tA",       onAddToSelection,                 NULL },
-  { "&Remove from Selection\tR",  onRemoveFromSelection,            NULL },
-  { "&Invert Selection\tI",       onInvertSelection,                NULL },
-  { "&Clear Selection\tC",        onClearSelection,                 NULL },
-  { "",                           NULL,                             NULL },
-  { "&Options",                   onSelectionOptions,               NULL },
-  { NULL }
+  { "&Add to Selection\tA",       onAddToSelection,                 NULL, 0, NULL },
+  { "&Remove from Selection\tR",  onRemoveFromSelection,            NULL, 0, NULL },
+  { "&Invert Selection\tI",       onInvertSelection,                NULL, 0, NULL },
+  { "&Clear Selection\tC",        onClearSelection,                 NULL, 0, NULL },
+  { "",                           NULL,                             NULL, 0, NULL },
+  { "&Options",                   onSelectionOptions,               NULL, 0, NULL },
+  { NULL,                         NULL,                             NULL, 0, NULL }
 };
 
 static MENU subscreen_menu[] =
 {
-  { "&Edit",               NULL,                                 ss_edit_menu },
-  { "&Grid",               NULL,                                 ss_grid_menu },
-  { "&Selection",          NULL,                                 ss_selection_menu },
-  { NULL }
+  { "&Edit",               NULL,                                 ss_edit_menu, 0, NULL },
+  { "&Grid",               NULL,                                 ss_grid_menu, 0, NULL },
+  { "&Selection",          NULL,                                 ss_selection_menu, 0, NULL },
+  { NULL,                  NULL,                                 NULL, 0, NULL }
 };
 
 
 static DIALOG subscreen_dlg[] =
 {
   // (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,        0,    0,      320,    240,  vc(0),              vc(11),           0,       D_EXIT,     0,             0,       (void *) "Subscreen Editor" },
-  { jwin_button_proc,     192,  215,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     255,  215,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { jwin_frame_proc,      4,    37,     260,    172,  0,                  0,                0,       0,          FR_DEEP,       0,       NULL },
-  { d_subscreen_proc,     6,    39,     256,    168,  0,                  0,                0,       0,          0,             0,       NULL },
+  { jwin_win_proc,        0,    0,      320,    240,  vc(0),              vc(11),           0,       D_EXIT,     0,             0,       (void *) "Subscreen Editor", NULL, NULL },
+  { jwin_button_proc,     192,  215,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     255,  215,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { jwin_frame_proc,      4,    37,     260,    172,  0,                  0,                0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_subscreen_proc,     6,    39,     256,    168,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
   // 5
-  { d_box_proc,           11,   211,    181,    8,    0,                  0,                0,       0,          0,             0,       NULL },
-  { jwin_text_proc,       11,   211,    181,    16,   0,                  0,                0,       0,          0,             0,       NULL },
-  { jwin_text_proc,       4,    225,    30,     16,   0,                  0,                0,       0,          0,             0,       (void *) "Name:" },
-  { jwin_edit_proc,       34,   221,    155,    16,   0,                  0,                0,       0,          64,            0,       NULL },
+  { d_box_proc,           11,   211,    181,    8,    0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       11,   211,    181,    16,   0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       4,    225,    30,     16,   0,                  0,                0,       0,          0,             0,       (void *) "Name:", NULL, NULL },
+  { jwin_edit_proc,       34,   221,    155,    16,   0,                  0,                0,       0,          64,            0,       NULL, NULL, NULL },
 
-  { d_ssup_btn_proc,      284,  23,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x88" },
-  { d_ssdn_btn_proc,      284,  53,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x89" },
-  { d_sslt_btn_proc,      269,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8A" },
-  { d_ssrt_btn_proc,      299,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8B" },
+  { d_ssup_btn_proc,      284,  23,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x88", NULL, NULL },
+  { d_ssdn_btn_proc,      284,  53,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x89", NULL, NULL },
+  { d_sslt_btn_proc,      269,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8A", NULL, NULL },
+  { d_ssrt_btn_proc,      299,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8B", NULL, NULL },
 
-  { d_ssup_btn2_proc,     284,  70,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x88" },
-  { d_ssdn_btn2_proc,     284,  100,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x89" },
-  { d_sslt_btn2_proc,     269,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8A" },
-  { d_ssrt_btn2_proc,     299,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8B" },
+  { d_ssup_btn2_proc,     284,  70,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x88", NULL, NULL },
+  { d_ssdn_btn2_proc,     284,  100,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x89", NULL, NULL },
+  { d_sslt_btn2_proc,     269,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8A", NULL, NULL },
+  { d_ssrt_btn2_proc,     299,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8B", NULL, NULL },
 
-  { d_ssup_btn3_proc,     284,  117,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x98" },
-  { d_ssdn_btn3_proc,     284,  147,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x99" },
-  { d_sslt_btn3_proc,     269,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x9A" },
-  { d_ssrt_btn3_proc,     299,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x9B" },
+  { d_ssup_btn3_proc,     284,  117,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x98", NULL, NULL },
+  { d_ssdn_btn3_proc,     284,  147,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x99", NULL, NULL },
+  { d_sslt_btn3_proc,     269,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x9A", NULL, NULL },
+  { d_ssrt_btn3_proc,     299,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x9B", NULL, NULL },
 
-  { d_ssup_btn4_proc,     284,  164,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x88" },
-  { d_ssdn_btn4_proc,     284,  194,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x89" },
-  { d_sslt_btn4_proc,     269,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8A" },
-  { d_ssrt_btn4_proc,     299,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8B" },
+  { d_ssup_btn4_proc,     284,  164,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x88", NULL, NULL },
+  { d_ssdn_btn4_proc,     284,  194,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x89", NULL, NULL },
+  { d_sslt_btn4_proc,     269,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8A", NULL, NULL },
+  { d_ssrt_btn4_proc,     299,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "\x8B", NULL, NULL },
 
-  { jwin_menu_proc,       4,    23,     0,      13,    0,                 0,                0,       0,          0,             0,       (void *) subscreen_menu },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_UP,        0,       (void *) onSSUp },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DOWN,      0,       (void *) onSSDown },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_LEFT,      0,       (void *) onSSLeft },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_RIGHT,     0,       (void *) onSSRight },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_PGUP,      0,       (void *) onSSPgUp },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_PGDN,      0,       (void *) onSSPgDn },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'a',     0,          0,             0,       (void *) onAddToSelection },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'r',     0,          0,             0,       (void *) onRemoveFromSelection },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'i',     0,          0,             0,       (void *) onInvertSelection },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'c',     0,          0,             0,       (void *) onClearSelection },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_INSERT,    0,       (void *) onNewSubscreenObject },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DEL,       0,       (void *) onDeleteSubscreenObject },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'd',     0,          0,             0,       (void *) onDuplicateSubscreenObject },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'e',     0,          0,             0,       (void *) onSubscreenObjectProperties },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'z',     0,          0,             0,       (void *) onSnapshot },
-  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'x',     0,          0,             0,       (void *) onExport_Subscreen_Code },
-  { d_vsync_proc,         0,     0,     0,       0,    0,                 0,                0,       0,          0,             0,       NULL },
-  { NULL }
+  { jwin_menu_proc,       4,    23,     0,      13,    0,                 0,                0,       0,          0,             0,       (void *) subscreen_menu, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_UP,        0,       (void *) onSSUp, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DOWN,      0,       (void *) onSSDown, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_LEFT,      0,       (void *) onSSLeft, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_RIGHT,     0,       (void *) onSSRight, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_PGUP,      0,       (void *) onSSPgUp, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_PGDN,      0,       (void *) onSSPgDn, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'a',     0,          0,             0,       (void *) onAddToSelection, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'r',     0,          0,             0,       (void *) onRemoveFromSelection, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'i',     0,          0,             0,       (void *) onInvertSelection, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'c',     0,          0,             0,       (void *) onClearSelection, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_INSERT,    0,       (void *) onNewSubscreenObject, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DEL,       0,       (void *) onDeleteSubscreenObject, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'd',     0,          0,             0,       (void *) onDuplicateSubscreenObject, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'e',     0,          0,             0,       (void *) onSubscreenObjectProperties, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'z',     0,          0,             0,       (void *) onSnapshot, NULL, NULL },
+  { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'x',     0,          0,             0,       (void *) onExport_Subscreen_Code, NULL, NULL },
+  { d_vsync_proc,         0,     0,     0,       0,    0,                 0,                0,       0,          0,             0,       NULL, NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int onActivePassive()
@@ -5128,38 +5137,38 @@ char *colorlist(int index, int *list_size)
 static DIALOG grid_dlg[] =
 {
   // (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,        0,    0,      158,    120,  vc(0),              vc(11),           0,       D_EXIT,     0,             0,       (void *) "Edit Grid Properties" },
-  { jwin_button_proc,     18,    95,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     81,    95,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { jwin_text_proc,       6,     29,    186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "X Size:" },
-  { jwin_edit_proc,       42,    25,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL },
+  { jwin_win_proc,        0,    0,      158,    120,  vc(0),              vc(11),           0,       D_EXIT,     0,             0,       (void *) "Edit Grid Properties", NULL, NULL },
+  { jwin_button_proc,     18,    95,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     81,    95,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { jwin_text_proc,       6,     29,    186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "X Size:", NULL, NULL },
+  { jwin_edit_proc,       42,    25,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL, NULL, NULL },
   // 5
-  { jwin_text_proc,       6,     49,    186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "Y Size:" },
-  { jwin_edit_proc,       42,    45,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL },
-  { jwin_text_proc,       78,    29,    186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "X Offset:" },
-  { jwin_edit_proc,       126,   25,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL },
-  { jwin_text_proc,       78,    49,    186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "Y Offset:" },
+  { jwin_text_proc,       6,     49,    186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "Y Size:", NULL, NULL },
+  { jwin_edit_proc,       42,    45,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       78,    29,    186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "X Offset:", NULL, NULL },
+  { jwin_edit_proc,       126,   25,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       78,    49,    186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "Y Offset:", NULL, NULL },
   // 10
-  { jwin_edit_proc,       126,   45,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL },
-  { jwin_text_proc,       6,     69,    186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "Color:" },
-  { jwin_droplist_proc,   36,    65,    116,    16,   0,                  0,                0,       0,          0,             0,       (void *) colorlist },
-  { NULL }
+  { jwin_edit_proc,       126,   45,     26,    16,   0,                  0,                0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       6,     69,    186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "Color:", NULL, NULL },
+  { jwin_droplist_proc,   36,    65,    116,    16,   0,                  0,                0,       0,          0,             0,       (void *) colorlist, NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 static DIALOG sel_options_dlg[] =
 {
   // (dialog proc)       (x)    (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,        0,     0,    225,   120,   vc(0),              vc(11),           0,       D_EXIT,     0,             0,       (void *) "Selection Options" },
-  { jwin_button_proc,     51,    95,    61,    21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,    114,    95,    61,    21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { jwin_frame_proc,       6,    28,   213,    51,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL },
-  { jwin_text_proc,       10,    25,    48,     8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Selection Outlines " },
+  { jwin_win_proc,        0,     0,    225,   120,   vc(0),              vc(11),           0,       D_EXIT,     0,             0,       (void *) "Selection Options", NULL, NULL },
+  { jwin_button_proc,     51,    95,    61,    21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,    114,    95,    61,    21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { jwin_frame_proc,       6,    28,   213,    51,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,     0,       NULL, NULL, NULL },
+  { jwin_text_proc,       10,    25,    48,     8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) " Selection Outlines ", NULL, NULL },
   // 5
-  { jwin_text_proc,       14,    41,   186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "Primary Color:" },
-  { jwin_droplist_proc,   94,    37,   116,    16,   0,                  0,                0,       0,          0,             0,       (void *) colorlist },
-  { jwin_text_proc,       14,    61,   186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "Secondary Color:" },
-  { jwin_droplist_proc,   94,    57,   116,    16,   0,                  0,                0,       0,          0,             0,       (void *) colorlist },
-  { NULL }
+  { jwin_text_proc,       14,    41,   186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "Primary Color:", NULL, NULL },
+  { jwin_droplist_proc,   94,    37,   116,    16,   0,                  0,                0,       0,          0,             0,       (void *) colorlist, NULL, NULL },
+  { jwin_text_proc,       14,    61,   186,    16,   0,                  0,                0,       0,          0,             0,       (void *) "Secondary Color:", NULL, NULL },
+  { jwin_droplist_proc,   94,    57,   116,    16,   0,                  0,                0,       0,          0,             0,       (void *) colorlist, NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 char *sso_str[ssoMAX]=
@@ -5231,12 +5240,12 @@ char *ssolist(int index, int *list_size)
 static DIALOG ssolist_dlg[] =
 {
   // (dialog proc)      (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,        0,    0,   255,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Select Object Type" },
-  { d_dummy_proc,         0,    0,     0,   8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { jwin_abclist_proc,    4,   24,   247,  95,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       (void *) ssolist },
-  { jwin_button_proc,    65,  123,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,   128,  123,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { NULL }
+  { jwin_win_proc,        0,    0,   255,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Select Object Type", NULL, NULL },
+  { d_dummy_proc,         0,    0,     0,   8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_abclist_proc,    4,   24,   247,  95,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       (void *) ssolist, NULL, NULL },
+  { jwin_button_proc,    65,  123,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,   128,  123,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int onNewSubscreenObject()
@@ -5428,6 +5437,9 @@ typedef struct dist_obj
 
 void distribute_objects(subscreen_group *tempss, bool *selection, int distribute_type)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  selection=selection;
+
 //  jwin_alert("Error","This feature","not yet available.",NULL,"OK",NULL,13,27,lfont);
 //  return;
   int count=0;
@@ -5984,19 +5996,19 @@ void edit_subscreen()
   else
   {
     reset_subscreen(css);
-    int i;
-    for(i=0;i<MAXSUBSCREENITEMS;i++)
+    int j;
+    for(j=0;j<MAXSUBSCREENITEMS;j++)
     {
-      memcpy(&css->objects[i],&tempss.objects[i],sizeof(subscreen_object));
-      switch(tempss.objects[i].type)
+      memcpy(&css->objects[j],&tempss.objects[j],sizeof(subscreen_object));
+      switch(tempss.objects[j].type)
       {
         case ssoTEXT:
         case ssoTEXTBOX:
         case ssoCURRENTITEMTEXT:
         case ssoCURRENTITEMCLASSTEXT:
-          css->objects[i].dp1 = NULL;
-          css->objects[i].dp1 = new char[strlen((char*)tempss.objects[i].dp1)+1];
-          strcpy((char*)css->objects[i].dp1,(char*)tempss.objects[i].dp1);
+          css->objects[j].dp1 = NULL;
+          css->objects[j].dp1 = new char[strlen((char*)tempss.objects[j].dp1)+1];
+          strcpy((char*)css->objects[j].dp1,(char*)tempss.objects[j].dp1);
           break;
         default:
           break;
@@ -6105,15 +6117,15 @@ int sstype_drop_proc(int msg,DIALOG *d,int c)
 static DIALOG sstemplatelist_dlg[] =
 {
   // (dialog proc)         (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,          0,    0,   265,  87,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "New Subscreen" },
-  { d_dummy_proc,         112,    7,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { jwin_text_proc,         4,   28,     8,   8,   0,                  0,                0,       0,          0,             0,       (void *) "Type:" },
-  { jwin_text_proc,         4,   46,     8,   8,   0,                  0,                0,       0,          0,             0,       (void *) "Template:" },
-  { sstype_drop_proc,      33,   24,    72,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,         0,     0,             0,       (void *) activepassivelist },
-  { jwin_droplist_proc,    50,   42,   211,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,         0,     0,             0,       (void *) activelist },
-  { jwin_button_proc,      61,   62,    61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     142,   62,    61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { NULL }
+  { jwin_win_proc,          0,    0,   265,  87,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "New Subscreen", NULL, NULL },
+  { d_dummy_proc,         112,    7,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,         4,   28,     8,   8,   0,                  0,                0,       0,          0,             0,       (void *) "Type:", NULL, NULL },
+  { jwin_text_proc,         4,   46,     8,   8,   0,                  0,                0,       0,          0,             0,       (void *) "Template:", NULL, NULL },
+  { sstype_drop_proc,      33,   24,    72,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,         0,     0,             0,       (void *) activepassivelist, NULL, NULL },
+  { jwin_droplist_proc,    50,   42,   211,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,         0,     0,             0,       (void *) activelist, NULL, NULL },
+  { jwin_button_proc,      61,   62,    61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     142,   62,    61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 bool show_new_ss=true;
@@ -6196,12 +6208,12 @@ char *subscreenlist_b(int index, int *list_size)
 DIALOG sslist_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,     0,   0,   234,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Select Subscreen" },
-  { d_dummy_proc,      0,   0,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { jwin_abclist_proc,    12,   24,   211,  95,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       (void *) subscreenlist },
-  { jwin_button_proc,     47,   123,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Edit" },
-  { jwin_button_proc,     127,  123,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Done" },
-  { NULL }
+  { jwin_win_proc,     0,   0,   234,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Select Subscreen", NULL, NULL },
+  { d_dummy_proc,      0,   0,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_abclist_proc,    12,   24,   211,  95,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       (void *) subscreenlist, NULL, NULL },
+  { jwin_button_proc,     47,   123,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Edit", NULL, NULL },
+  { jwin_button_proc,     127,  123,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Done", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int onEditSubscreens()

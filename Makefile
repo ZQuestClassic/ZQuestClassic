@@ -7,7 +7,7 @@ IMAGE_LIBS = -ljpgal -lldpng -lpng -lz
 #OPTS = -O3
 #COMPRESS = 1
 
-CFLAG = -pedantic -Wno-long-long -Wall
+CFLAG = -pedantic -Wno-long-long -Wall -W -Wshadow -Wpointer-arith
 
 ifdef COMPILE_FOR_WIN
   ALLEG_LIB = -lalleg
@@ -71,11 +71,11 @@ endif
 ZELDA_EXE = $(ZELDA_PREFIX)$(PLATEXT)$(EXEEXT)
 ZQUEST_EXE = $(ZQUEST_PREFIX)$(PLATEXT)$(EXEEXT)
 
-ZELDA_OBJECTS = aglogo$(PLATEXT).o colors$(PLATEXT).o debug$(PLATEXT).o decorations$(PLATEXT).o defdata$(PLATEXT).o editbox$(PLATEXT).o ending$(PLATEXT).o ffscript$(PLATEXT).o gamedata$(PLATEXT).o gui$(PLATEXT).o guys$(PLATEXT).o init$(PLATEXT).o items$(PLATEXT).o jwin$(PLATEXT).o jwinfsel$(PLATEXT).o link$(PLATEXT).o load_gif$(PLATEXT).o maps$(PLATEXT).o matrix$(PLATEXT).o md5$(PLATEXT).o midi$(PLATEXT).o pal$(PLATEXT).o particles$(PLATEXT).o qst$(PLATEXT).o save_gif$(PLATEXT).o sprite$(PLATEXT).o subscr$(PLATEXT).o tab_ctl$(PLATEXT).o tiles$(PLATEXT).o title$(PLATEXT).o weapons$(PLATEXT).o zc_custom$(PLATEXT).o zc_init$(PLATEXT).o zc_items$(PLATEXT).o zc_sprite$(PLATEXT).o zc_subscr$(PLATEXT).o zc_sys$(PLATEXT).o zcmusic$(PLATEXT).o zelda$(PLATEXT).o zsys$(PLATEXT).o $(ZC_ICON) EditboxModel$(PLATEXT).o EditboxView$(PLATEXT).o
+ZELDA_OBJECTS = aglogo$(PLATEXT).o colors$(PLATEXT).o debug$(PLATEXT).o decorations$(PLATEXT).o defdata$(PLATEXT).o editbox$(PLATEXT).o EditboxModel$(PLATEXT).o EditboxView$(PLATEXT).o ending$(PLATEXT).o ffscript$(PLATEXT).o gamedata$(PLATEXT).o gui$(PLATEXT).o guys$(PLATEXT).o init$(PLATEXT).o items$(PLATEXT).o jwin$(PLATEXT).o jwinfsel$(PLATEXT).o link$(PLATEXT).o load_gif$(PLATEXT).o maps$(PLATEXT).o matrix$(PLATEXT).o md5$(PLATEXT).o midi$(PLATEXT).o pal$(PLATEXT).o particles$(PLATEXT).o qst$(PLATEXT).o save_gif$(PLATEXT).o sprite$(PLATEXT).o subscr$(PLATEXT).o tab_ctl$(PLATEXT).o tiles$(PLATEXT).o title$(PLATEXT).o weapons$(PLATEXT).o zc_custom$(PLATEXT).o zc_init$(PLATEXT).o zc_items$(PLATEXT).o zc_sprite$(PLATEXT).o zc_subscr$(PLATEXT).o zc_sys$(PLATEXT).o zcmusic$(PLATEXT).o zelda$(PLATEXT).o zsys$(PLATEXT).o $(ZC_ICON)
 ifdef COMPILE_FOR_DOS
-	ZQUEST_OBJECTS = colors$(PLATEXT).o defdata$(PLATEXT).o editbox$(PLATEXT).o gamedata$(PLATEXT).o gui$(PLATEXT).o init$(PLATEXT).o items$(PLATEXT).o jwin$(PLATEXT).o jwinfsel$(PLATEXT).o load_gif$(PLATEXT).o md5$(PLATEXT).o midi$(PLATEXT).o particles$(PLATEXT).o qst$(PLATEXT).o save_gif$(PLATEXT).o sprite$(PLATEXT).o subscr$(PLATEXT).o tab_ctl$(PLATEXT).o tiles$(PLATEXT).o zc_custom$(PLATEXT).o zcmusic$(PLATEXT).o zcmusicd$(PLATEXT).o zq_class$(PLATEXT).o zq_cset$(PLATEXT).o zq_custom$(PLATEXT).o zq_doors$(PLATEXT).o zq_files$(PLATEXT).o zq_items$(PLATEXT).o zq_init$(PLATEXT).o zq_misc$(PLATEXT).o zq_rules$(PLATEXT).o zq_sprite$(PLATEXT).o zq_subscr$(PLATEXT).o zq_tiles$(PLATEXT).o zquest$(PLATEXT).o zsys$(PLATEXT).o ffasm$(PLATEXT).o parser/ScriptParser$(PLATEXT).o parser/ParseError$(PLATEXT).o parser/GlobalSymbols$(PLATEXT).o parser/ByteCode$(PLATEXT).o parser/y.tab$(PLATEXT).o parser/TypeChecker$(PLATEXT).o parser/lex.yy$(PLATEXT).o parser/Scope$(PLATEXT).o
+	ZQUEST_OBJECTS = colors$(PLATEXT).o defdata$(PLATEXT).o editbox$(PLATEXT).o EditboxModel$(PLATEXT).o EditboxView$(PLATEXT).o gamedata$(PLATEXT).o gui$(PLATEXT).o init$(PLATEXT).o items$(PLATEXT).o jwin$(PLATEXT).o jwinfsel$(PLATEXT).o load_gif$(PLATEXT).o md5$(PLATEXT).o midi$(PLATEXT).o particles$(PLATEXT).o qst$(PLATEXT).o save_gif$(PLATEXT).o sprite$(PLATEXT).o subscr$(PLATEXT).o tab_ctl$(PLATEXT).o tiles$(PLATEXT).o zc_custom$(PLATEXT).o zcmusic$(PLATEXT).o zcmusicd$(PLATEXT).o zq_class$(PLATEXT).o zq_cset$(PLATEXT).o zq_custom$(PLATEXT).o zq_doors$(PLATEXT).o zq_files$(PLATEXT).o zq_items$(PLATEXT).o zq_init$(PLATEXT).o zq_misc$(PLATEXT).o zq_rules$(PLATEXT).o zq_sprite$(PLATEXT).o zq_subscr$(PLATEXT).o zq_tiles$(PLATEXT).o zquest$(PLATEXT).o zsys$(PLATEXT).o ffasm$(PLATEXT).o parser/AST$(PLATEXT).o parser/BuildVisitors$(PLATEXT).o parser/ByteCode$(PLATEXT).o parser/DataStructs$(PLATEXT).o parser/GlobalSymbols$(PLATEXT).o parser/lex.yy$(PLATEXT).o parser/ParseError$(PLATEXT).o parser/ScriptParser$(PLATEXT).o parser/SymbolVisitors$(PLATEXT).o parser/TypeChecker$(PLATEXT).o parser/UtilVisitors$(PLATEXT).o parser/y.tab$(PLATEXT).o $(ZQ_ICON)
 else
-	ZQUEST_OBJECTS = colors$(PLATEXT).o defdata$(PLATEXT).o editbox-zq$(PLATEXT).o gamedata$(PLATEXT).o gui$(PLATEXT).o init$(PLATEXT).o items$(PLATEXT).o jwin-zq$(PLATEXT).o jwinfsel-zq$(PLATEXT).o load_gif$(PLATEXT).o md5$(PLATEXT).o midi$(PLATEXT).o particles$(PLATEXT).o qst$(PLATEXT).o save_gif$(PLATEXT).o sprite$(PLATEXT).o subscr$(PLATEXT).o tab_ctl-zq$(PLATEXT).o tiles$(PLATEXT).o zc_custom$(PLATEXT).o zcmusic$(PLATEXT).o zcmusicd$(PLATEXT).o zq_class$(PLATEXT).o zq_cset-zq$(PLATEXT).o zq_custom$(PLATEXT).o zq_doors$(PLATEXT).o zq_files$(PLATEXT).o zq_items$(PLATEXT).o zq_init$(PLATEXT).o zq_misc$(PLATEXT).o zq_rules$(PLATEXT).o zq_sprite$(PLATEXT).o zq_subscr$(PLATEXT).o zq_tiles$(PLATEXT).o zqscale$(PLATEXT).o zquest$(PLATEXT).o zsys-zq$(PLATEXT).o ffasm$(PLATEXT).o parser/ScriptParser$(PLATEXT).o parser/ParseError$(PLATEXT).o parser/GlobalSymbols$(PLATEXT).o parser/ByteCode$(PLATEXT).o parser/y.tab$(PLATEXT).o parser/TypeChecker$(PLATEXT).o parser/lex.yy$(PLATEXT).o parser/Scope$(PLATEXT).o EditboxModel$(PLATEXT).o EditboxView$(PLATEXT).o
+	ZQUEST_OBJECTS = colors$(PLATEXT).o defdata$(PLATEXT).o editbox-zq$(PLATEXT).o EditboxModel$(PLATEXT).o EditboxView$(PLATEXT).o gamedata$(PLATEXT).o gui$(PLATEXT).o init$(PLATEXT).o items$(PLATEXT).o jwin-zq$(PLATEXT).o jwinfsel-zq$(PLATEXT).o load_gif$(PLATEXT).o md5$(PLATEXT).o midi$(PLATEXT).o particles$(PLATEXT).o qst$(PLATEXT).o save_gif$(PLATEXT).o sprite$(PLATEXT).o subscr$(PLATEXT).o tab_ctl-zq$(PLATEXT).o tiles$(PLATEXT).o zc_custom$(PLATEXT).o zcmusic$(PLATEXT).o zcmusicd$(PLATEXT).o zq_class$(PLATEXT).o zq_cset-zq$(PLATEXT).o zq_custom$(PLATEXT).o zq_doors$(PLATEXT).o zq_files$(PLATEXT).o zq_items$(PLATEXT).o zq_init$(PLATEXT).o zq_misc$(PLATEXT).o zq_rules$(PLATEXT).o zq_sprite$(PLATEXT).o zq_subscr$(PLATEXT).o zq_tiles$(PLATEXT).o zqscale$(PLATEXT).o zquest$(PLATEXT).o zsys-zq$(PLATEXT).o ffasm$(PLATEXT).o parser/AST$(PLATEXT).o parser/BuildVisitors$(PLATEXT).o parser/ByteCode$(PLATEXT).o parser/DataStructs$(PLATEXT).o parser/GlobalSymbols$(PLATEXT).o parser/lex.yy$(PLATEXT).o parser/ParseError$(PLATEXT).o parser/ScriptParser$(PLATEXT).o parser/SymbolVisitors$(PLATEXT).o parser/TypeChecker$(PLATEXT).o parser/UtilVisitors$(PLATEXT).o parser/y.tab$(PLATEXT).o $(ZQ_ICON)
 endif
 
 .PHONY: default veryclean clean all msg dos win windows linux gp2x test done
@@ -201,22 +201,30 @@ ffscript$(PLATEXT).o:ffscript.cpp ffscript.h zelda.h link.h
 	$(CC) $(OPTS) $(CFLAG) -c ffscript.cpp -o ffscript$(PLATEXT).o $(SFLAG) $(WINFLAG)
 ffasm$(PLATEXT).o:ffasm.cpp ffasm.h
 	$(CC) $(OPTS) $(CFLAG) -c ffasm.cpp -o ffasm$(PLATEXT).o $(SFLAG) $(WINFLAG)	
-parser/GlobalSymbols$(PLATEXT).o:parser/GlobalSymbols.cpp parser/GlobalSymbols.h parser/ScriptParser.h parser/ByteCode.h
-	$(CC) $(OPTS) $(CFLAG) -c parser/GlobalSymbols.cpp -o parser/GlobalSymbols$(PLATEXT).o $(SFLAG) $(WINFLAG)
-parser/ByteCode$(PLATEXT).o:parser/ByteCode.cpp parser/ByteCode.h parser/ScriptParser.h
+parser/ByteCode$(PLATEXT).o:parser/ByteCode.cpp parser/ByteCode.h parser/DataStructs.h parser/ParseError.h zsyssimple.h
 	$(CC) $(OPTS) $(CFLAG) -c parser/ByteCode.cpp -o parser/ByteCode$(PLATEXT).o $(SFLAG) $(WINFLAG)
-parser/y.tab$(PLATEXT).o:parser/y.tab.cpp parser/y.tab.hpp parser/ScriptParser.h
-	$(CC) $(OPTS) $(CFLAG) -c parser/y.tab.cpp -o parser/y.tab$(PLATEXT).o $(SFLAG) $(WINFLAG)
-parser/TypeChecker$(PLATEXT).o:parser/TypeChecker.cpp parser/TypeChecker.h parser/ParseError.h parser/GlobalSymbols.h
-	$(CC) $(OPTS) $(CFLAG) -c parser/TypeChecker.cpp -o parser/TypeChecker$(PLATEXT).o $(SFLAG) $(WINFLAG)
-parser/ScriptParser$(PLATEXT).o:parser/ScriptParser.cpp parser/ScriptParser.h parser/ParseError.h parser/y.tab.hpp parser/TypeChecker.h parser/GlobalSymbols.h parser/ByteCode.h
-	$(CC) $(OPTS) $(CFLAG) -c parser/ScriptParser.cpp -o parser/ScriptParser$(PLATEXT).o $(SFLAG) $(WINFLAG)
-parser/ParseError$(PLATEXT).o:parser/ParseError.cpp parser/ParseError.h parser/ScriptParser.h
-	$(CC) $(OPTS) $(CFLAG) -c parser/ParseError.cpp -o parser/ParseError$(PLATEXT).o $(SFLAG) $(WINFLAG)
-parser/lex.yy$(PLATEXT).o:parser/lex.yy.cpp parser/y.tab.hpp parser/ScriptParser.h
+parser/GlobalSymbols$(PLATEXT).o:parser/GlobalSymbols.cpp parser/GlobalSymbols.h parser/ByteCode.h zsyssimple.h
+	$(CC) $(OPTS) $(CFLAG) -c parser/GlobalSymbols.cpp -o parser/GlobalSymbols$(PLATEXT).o $(SFLAG) $(WINFLAG)
+parser/lex.yy$(PLATEXT).o:parser/lex.yy.cpp parser/AST.h
 	$(CC) $(OPTS) $(CFLAG) -c parser/lex.yy.cpp -o parser/lex.yy$(PLATEXT).o $(SFLAG) $(WINFLAG)
-parser/Scope$(PLATEXT).o:parser/Scope.cpp parser/ScriptParser.h
-	$(CC) $(OPTS) $(CFLAG) -c parser/Scope.cpp -o parser/Scope$(PLATEXT).o $(SFLAG) $(WINFLAG)
+parser/ParseError$(PLATEXT).o:parser/ParseError.cpp parser/ParseError.h zsyssimple.h
+	$(CC) $(OPTS) $(CFLAG) -c parser/ParseError.cpp -o parser/ParseError$(PLATEXT).o $(SFLAG) $(WINFLAG)
+parser/ScriptParser$(PLATEXT).o:parser/ScriptParser.cpp parser/ParseError.h parser/y.tab.hpp parser/TypeChecker.h parser/GlobalSymbols.h parser/ByteCode.h parser/DataStructs.h parser/SymbolVisitors.h parser/UtilVisitors.h parser/AST.h parser/BuildVisitors.h zsyssimple.h
+	$(CC) $(OPTS) $(CFLAG) -c parser/ScriptParser.cpp -o parser/ScriptParser$(PLATEXT).o $(SFLAG) $(WINFLAG)
+parser/TypeChecker$(PLATEXT).o:parser/TypeChecker.cpp parser/TypeChecker.h parser/ParseError.h parser/GlobalSymbols.h zsyssimple.h
+	$(CC) $(OPTS) $(CFLAG) -c parser/TypeChecker.cpp -o parser/TypeChecker$(PLATEXT).o $(SFLAG) $(WINFLAG)
+parser/y.tab$(PLATEXT).o:parser/y.tab.cpp parser/AST.h
+	$(CC) $(OPTS) $(CFLAG) -c parser/y.tab.cpp -o parser/y.tab$(PLATEXT).o $(SFLAG) $(WINFLAG)
+parser/AST$(PLATEXT).o:parser/AST.cpp parser/AST.h
+	$(CC) $(OPTS) $(CFLAG) -c parser/AST.cpp -o parser/AST$(PLATEXT).o $(SFLAG) $(WINFLAG)
+parser/UtilVisitors$(PLATEXT).o:parser/UtilVisitors.h parser/ParseError.h zsyssimple.h
+	$(CC) $(OPTS) $(CFLAG) -c parser/UtilVisitors.cpp -o parser/UtilVisitors$(PLATEXT).o $(SFLAG) $(WINFLAG)
+parser/SymbolVisitors$(PLATEXT).o:parser/SymbolVisitors.cpp parser/SymbolVisitors.h parser/DataStructs.h parser/UtilVisitors.h parser/ParseError.h
+	$(CC) $(OPTS) $(CFLAG) -c parser/SymbolVisitors.cpp -o parser/SymbolVisitors$(PLATEXT).o $(SFLAG) $(WINFLAG)
+parser/DataStructs$(PLATEXT).o:parser/DataStructs.cpp parser/DataStructs.h zsyssimple.h
+	$(CC) $(OPTS) $(CFLAG) -c parser/DataStructs.cpp -o parser/DataStructs$(PLATEXT).o $(SFLAG) $(WINFLAG)
+parser/BuildVisitors$(PLATEXT).o:parser/BuildVisitors.cpp parser/BuildVisitors.h parser/ParseError.h
+	$(CC) $(OPTS) $(CFLAG) -c parser/BuildVisitors.cpp -o parser/BuildVisitors$(PLATEXT).o $(SFLAG) $(WINFLAG)
 font$(PLATEXT).o: font.c font.h zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c font.cpp -o font$(PLATEXT).o $(SFLAG) $(WINFLAG)
 gamedata$(PLATEXT).o: gamedata.cpp zc_alleg.h zdefs.h

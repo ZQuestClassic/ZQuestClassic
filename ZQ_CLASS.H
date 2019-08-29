@@ -169,7 +169,7 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
 
 bool load_pals(char *path, int startcset);
 bool save_pals(char *path);
-int writecolordata(PACKFILE *f, miscQdata *misc, word version, word build, word start_cset, word max_csets);
+int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets);
 
 bool load_combos(char *path, int startcombo);
 bool save_combos(char *path);
@@ -195,14 +195,14 @@ bool save_zqt(char *path);
 
 void center_zq_class_dialogs();
 
-int writeitems(PACKFILE *f, zquestheader *header);
-int writeweapons(PACKFILE *f, zquestheader *header);
-int writemisccolors(PACKFILE *f, zquestheader *header, miscQdata *misc);
-int writegameicons(PACKFILE *f, zquestheader *header, miscQdata *misc);
-int writedoorcombosets(PACKFILE *f, zquestheader *header);
-int write_one_subscreen(PACKFILE *f, zquestheader *header, int i);
-int writeffscript(PACKFILE *f, zquestheader *header, bool keepdata);
-int write_one_ffscript(PACKFILE *f, zquestheader *header, int i, ffscript **script);
+int writeitems(PACKFILE *f, zquestheader *Header);
+int writeweapons(PACKFILE *f, zquestheader *Header);
+int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
+int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
+int writedoorcombosets(PACKFILE *f, zquestheader *Header);
+int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i);
+int writeffscript(PACKFILE *f, zquestheader *Header, bool keepdata);
+int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **script);
 
 #define ZELDA_VERSION_210       0x0210                          //version of the program
 #define VERSION_BUILD_210       0                               //build number of this version

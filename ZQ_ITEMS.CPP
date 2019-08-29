@@ -20,16 +20,29 @@
 
 void movefairy(fix &x,fix &y,int misc)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  x=x;
+  y=y;
+  misc=misc;
+
   return;
 }
 
 void killfairy(int misc)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  misc=misc;
+
   return;
 }
 
 void addfairy(fix x, fix y, int id)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  x=x;
+  y=y;
+  id=id;
+
   return;
 }
 

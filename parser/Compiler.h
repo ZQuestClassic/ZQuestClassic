@@ -2,7 +2,7 @@
 #define COMPILER_H
 
 #ifndef __GTHREAD_HIDE_WIN32API                             
-#define __GTHREAD_HIDE_WIN32API 
+#define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
 #include <map>
@@ -36,7 +36,7 @@ public:
 		dup->setLabel(label);
 		return dup;
 	}
-	virtual void execute(ArgumentVisitor &host, void *param) {}
+	virtual void execute(ArgumentVisitor &host, void *param) { void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/ }
 protected:
 	virtual Opcode *clone()=0;
 private:
@@ -65,18 +65,18 @@ public:
 	static int getUniqueFuncID() {return fid++;}
 	static int getUniqueLabelID() {return lid++;}
 	static int getUniqueGlobalID() {return gid++;}
-	const static int TYPE_FLOAT = 0;
-	const static int TYPE_BOOL = 1;
-	const static int TYPE_VOID = 2;
-	const static int TYPE_FFC = 3;
-	const static int TYPE_LINK = 4;
-	const static int TYPE_SCREEN = 5;
-	const static int TYPE_GLOBAL = 6;
-	const static int TYPE_ITEM = 7;
-	const static int TYPE_ITEMCLASS = 8;
-	const static int TYPE_GAME = 9;
-	static bool preprocess(AST *theAST, int reclevel);
-	static SymbolData *buildSymbolTable(AST *theAST);
+	static const int TYPE_FLOAT = 0;
+	static const int TYPE_BOOL = 1;
+	static const int TYPE_VOID = 2;
+	static const int TYPE_FFC = 3;
+	static const int TYPE_LINK = 4;
+	static const int TYPE_SCREEN = 5;
+	static const int TYPE_GLOBAL = 6;
+	static const int TYPE_ITEM = 7;
+	static const int TYPE_ITEMCLASS = 8;
+	static const int TYPE_GAME = 9;
+	static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
+	static SymbolData *buildSymbolTable(AST *theAST, std::map<string, long> *constants);
 	static FunctionData *typeCheck(SymbolData *sdata);
 	static IntermediateData *generateOCode(FunctionData *fdata);
 	static ScriptsData *assemble(IntermediateData *id);

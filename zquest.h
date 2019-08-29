@@ -31,10 +31,6 @@
 //#define ed15 253
 //#define FLASH 243
 
-#ifdef ALLEGRO_MACOSX
-extern bool midi_strict;
-#endif 
-
 extern bool cancelgetnum;
 
 extern bool disable_saving, OverwriteProtection;
@@ -285,7 +281,7 @@ int onTemplates();
 
 extern BITMAP *pic;
 extern PALETTE picpal;
-extern int  px,py,pblack,pwhite;
+extern int  pblack,pwhite;
 extern double scale;
 extern bool vp_showpal, vp_showsize, vp_center;
 

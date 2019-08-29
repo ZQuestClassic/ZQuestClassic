@@ -127,6 +127,7 @@ int d_tab_proc(int msg, DIALOG *d, int c)
   int selected=0;
   int counter=0;
   ASSERT(d);
+  (void) c;
   if(d->dp==NULL)
   {
     return 0;

@@ -86,7 +86,7 @@
 #include <string.h>
 
 #define ZELDA_VERSION       0x0211                          //version of the program
-#define VERSION_BUILD       13                              //build number of this version
+#define VERSION_BUILD       14                              //build number of this version
 #define IS_BETA             1                               //is this a beta?
 #define DATE_STR            "January 1, 2006"
 
@@ -181,11 +181,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS          1
 #define V_ICONS           1
 #define V_GRAPHICSPACK    1
-#define V_INITDATA        9
+#define V_INITDATA        10
 #define V_GUYS            3
 #define V_MIDIS           1
 #define V_CHEATS          1
-#define V_SAVEGAME        4
+#define V_SAVEGAME        5
 #define V_COMBOALIASES    1
 #define V_LINKSPRITES     2
 #define V_SUBSCREEN       2
@@ -205,14 +205,14 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_HEADER         3
 #define CV_RULES          1
 #define CV_STRINGS        1
-#define CV_MISC           3
+#define CV_MISC           4
 #define CV_TILES          1
 #define CV_COMBOS         1
 #define CV_CSETS          1
 #define CV_MAPS           9
 #define CV_DMAPS          1
 #define CV_DOORS          1
-#define CV_ITEMS          1
+#define CV_ITEMS          2
 #define CV_WEAPONS        1
 #define CV_COLORS         1
 #define CV_ICONS          1
@@ -617,7 +617,7 @@ enum                                                        // value matters bec
   iQuiverL2, iQuiverL3, i1BombAmmo, i4BombAmmo, i8BombAmmo,
   i30BombAmmo, iBombBag, iBombBagL2, iBombBagL3,
   iLevelKey, iSelectB, i10Rupies, i100Rupies, iCByrna, iLongshot,
-  i90,
+  iLetterUsed,i90,
   iMax=256
 };
 
@@ -910,6 +910,7 @@ typedef struct mapscr
   word str;
   byte room;
   byte item;
+  byte hasitem;
   byte tilewarptype[4];
   word door_combo_set;
   byte warpreturnx[4];
@@ -1211,6 +1212,8 @@ typedef struct dmap
   int emusic;
   //byte padding;
   //204
+  byte disableditems[iMax];
+  // 460
 } dmap;
 
 #define MAXCOMBOALIASES 256
@@ -1229,6 +1232,7 @@ typedef struct combo_alias
 typedef struct shoptype
 {
   byte item[3];
+  byte hasitem[3];
   byte d1;
   word price[3];
   //10
@@ -1379,6 +1383,7 @@ enum // used for gamedata ITEMS
   itype_quiver, itype_lkey, itype_cbyrna, 
   itype_rupee, itype_arrowammo, itype_fairy, itype_magic, itype_heart,
   itype_heartcontainer, itype_heartpiece, itype_killem, itype_bombammo, itype_bombbag,
+  itype_last,
   itype_max=255
 };
 
@@ -1414,7 +1419,7 @@ enum {i_cbyrna=1, imax_cbyrna};
 enum {i_rupee=1, i_5rupee, i_10rupee, i_20rupee, i_50rupee, i_100rupee, i_200rupee, imax_rupee};
 enum {i_arrowa=1, i_5arrowa, i_10arrowa, i_30arrowa, imax_arrowa};
 enum {i_bomba=1, i_4bomba, i_8bomba, i_30bomba, imax_bomba};
-enum {i_bombbag1=1, i_bombbag2, i_bombbag3, imax_bombbag}; 
+enum {i_bombbag1=1, i_bombbag2, i_bombbag3, imax_bombbag};
 
 //enum {i_clock=1, imax_clock};
 
@@ -1431,7 +1436,7 @@ typedef struct gamedata
   //byte  _keys,_maxbombs,
   byte  /*_wlevel,*/_cheat;
   //24
-  byte  items[MAXITEMS];
+  bool  item[MAXITEMS];
   byte  items_off[MAXITEMS];
   //280
   word _maxcounter[32];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
@@ -1498,7 +1503,7 @@ enum
 
 typedef struct zinitdata
 {
-  byte raft, ladder, book, key, flippers, boots;
+  /*byte raft, ladder, book, key, flippers, boots;
   byte ring, sword, shield, wallet, bracelet, amulet, bow;
   byte quiver;
   byte more_eq[32];
@@ -1506,7 +1511,9 @@ typedef struct zinitdata
   byte candle, boomerang, arrow, potion, whistle, bombs, super_bombs;
   byte wand, letter, lens, hookshot, bait, hammer, dins_fire, farores_wind;
   byte nayrus_love, cloak, cbyrna;
-  byte more_items[32];
+  byte more_items[32];*/
+  byte bombs, super_bombs;
+  bool items[256];
   //94
   byte hc, start_heart, cont_heart, hcp, max_bombs, keys;
   byte arrows, max_arrows;
@@ -1616,7 +1623,7 @@ INLINE bool pfread(void *p,long n,PACKFILE *f,bool keepdata)
   }
   else
   {
-    bool success=(pack_fseek(f,n)==0);
+    success=(pack_fseek(f,n)==0);
     if (success)
     {
       readsize+=n;
@@ -1753,6 +1760,40 @@ INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
 	return result;
 }
 
+INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
+{
+	if(!f) return false;
+#ifdef NEWALLEGRO
+  if (f->normal.flags&PACKFILE_FLAG_WRITE) return false;    //must not be writing to file
+#else
+  if (f->flags&PACKFILE_FLAG_WRITE) return false;           //must not be writing to file
+#endif
+  if (pack_feof(f))
+  {
+    return false;
+  }
+  byte tempfloat[sizeof(float)];
+  if(!pfread(tempfloat,sizeof(float),f,true))
+	  return false;
+  if(keepdata)
+  {
+	memset(p, 0,sizeof(float));
+#ifdef ALLEGRO_MACOSX
+	for(int i=0; i<(int)sizeof(float); i++)
+	{
+		((byte *)p)[i] = tempfloat[i]; 
+	}
+#else
+	for(int i=0; i<(int)sizeof(float); i++)
+	{
+		((byte *)p)[sizeof(float)-i-1] = tempfloat[i];
+	}
+#endif
+  }
+  readsize += sizeof(float);
+  return true;
+}
+
 INLINE bool p_iputl(long c,PACKFILE *f)
 {
   if (!f) return false;
@@ -1869,6 +1910,18 @@ INLINE bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2)
 }
 
 INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
+
+
+//some methods for dealing with items
+void removeItemsOfFamily(gamedata *g, itemdata *items, int family);
+void removeItemsOfFamily(zinitdata *i, itemdata *items, int family);
+int getHighestLevelOfFamily(zinitdata *source, itemdata *items, int family);
+int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family);
+void downgradeItemOfFamily(gamedata *g, itemdata *items, int family);
+int getItemID(itemdata *items, int family, int level);
+void addOldStyleFamily(zinitdata *dest, itemdata *items, int family, char levels);
+int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family);
+
 #endif                                                      //_ZDEFS_H_
 
 #define NUMSCRIPTFFC 512
@@ -1878,3 +1931,4 @@ INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 #define NUMSCRIPTGLOBAL 3
 #define NUMSCRIPTLINK 3
 #define NUMSCRIPTSCREEN 256
+

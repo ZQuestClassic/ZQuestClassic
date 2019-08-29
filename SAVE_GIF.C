@@ -71,7 +71,7 @@ void output(BUFFER *b, int bit_size, int code, PACKFILE *f)
 
   /* pack the code into the buffer */
   shift = b->bit_pos;
-  do
+  for(;;)
   {
     if(shift >= 0)
     {
@@ -106,7 +106,7 @@ void output(BUFFER *b, int bit_size, int code, PACKFILE *f)
       b->bit_pos = bit_size + shift;
       break;
     }
-  } while(TRUE);
+  }
 }
 
 int save_gif(const char *filename, BITMAP *bmp, const RGB *pal)
@@ -117,7 +117,7 @@ int save_gif(const char *filename, BITMAP *bmp, const RGB *pal)
   int prefix;
   int input_pos = 0;
   int c;                                                    /* current character */
-  int empty_string;
+  int empty_str;
   BUFFER buffer;
   short *speed_buffer;
 
@@ -164,7 +164,7 @@ int save_gif(const char *filename, BITMAP *bmp, const RGB *pal)
     //    string_table[i].new_str = -1;
     string_table[i].new_str = 255;
   }
-  empty_string = (1 << bpp) + 2;
+  empty_str = (1 << bpp) + 2;
 
   prefix = -1;
 
@@ -178,7 +178,7 @@ int save_gif(const char *filename, BITMAP *bmp, const RGB *pal)
   speed_buffer = (short*)malloc(256 * 4096 * 2);
   clear_speed_buffer(speed_buffer);
 
-  while(TRUE)
+  for(;;)
   {
     if((c = getpixel(bmp, input_pos % bmp->w, input_pos / bmp->w)) == EOF)
     {
@@ -201,25 +201,25 @@ int save_gif(const char *filename, BITMAP *bmp, const RGB *pal)
     else
     {
       /* add prefix + c to string table */
-      string_table[empty_string].base = prefix;
-      string_table[empty_string].new_str = c;
+      string_table[empty_str].base = prefix;
+      string_table[empty_str].new_str = c;
 
       /*if(prefix < 512) */
-      speed_buffer[prefix * 256 + c] = empty_string;
+      speed_buffer[prefix * 256 + c] = empty_str;
 
-      empty_string ++;
+      empty_str ++;
 
       /* output code for prefix */
       output(&buffer, bit_size, prefix, f);
 
-      if(empty_string == (1 << bit_size) + 1)
+      if(empty_str == (1 << bit_size) + 1)
         bit_size ++;
 
       /* make sure string table doesn't overflow */
-      if(empty_string == 4095)
+      if(empty_str == 4095)
       {
         output(&buffer, bit_size, 1 << bpp, f);             /* clear code */
-        empty_string = (1 << bpp) + 2;
+        empty_str = (1 << bpp) + 2;
         bit_size = bpp + 1;
 
         clear_speed_buffer(speed_buffer);

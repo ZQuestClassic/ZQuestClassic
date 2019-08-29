@@ -1,5 +1,5 @@
 #ifndef __GTHREAD_HIDE_WIN32API                             
-#define __GTHREAD_HIDE_WIN32API 
+#define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
 #include <assert.h>
@@ -22,9 +22,9 @@ void EditboxView::update()
   layoutPage();
 }
 
-void EditboxView::initialize(EditboxModel *model)
+void EditboxView::initialize(EditboxModel *new_model)
 {
-  this->model = model;
+  model = new_model;
   //add a "ghost newline" to the buffer if necessary
 
   string nl = "";
@@ -269,7 +269,7 @@ void BasicEditboxView::draw()
   if(model->getCursor().isVisible())
   {
     CursorPos cp = model->findCursor();
-    int textheight = text_height(textfont);
+    //int textheight = text_height(textfont);
     int cursory = cp.lineno*text_height(textfont);
   //GAH, too many damn coordinate offsets :-/
     vline(dbuf, area_xstart-host->x+cp.x-view_x-1, area_ystart-host->y+cursory-view_y-1, area_ystart-host->y+cursory-view_y+textheight, fgcolor);
@@ -309,16 +309,16 @@ void BasicEditboxView::draw()
 	  it++;
       for(int line = selstart.lineno+1; line < selend.lineno; line++,it++)
       {
-		   int endx;
-			if(hstyle == HSTYLE_EOLINE)
-			{
-				endx= area_xstart-host->x+area_width;
-			}
-			else
-			{
-				endx = area_xstart-host->x+it->strip->w;
-			}
-        invertRectangle(area_xstart-host->x, area_ystart-host->y-view_y+line*textheight, endx, area_ystart-host->y-view_y+(line+1)*textheight-1);
+		    int endx2;
+        if(hstyle == HSTYLE_EOLINE)
+        {
+          endx2=area_xstart-host->x+area_width;
+        }
+        else
+        {
+          endx2 = area_xstart-host->x+it->strip->w;
+        }
+        invertRectangle(area_xstart-host->x, area_ystart-host->y-view_y+line*textheight, endx2, area_ystart-host->y-view_y+(line+1)*textheight-1);
       }
       //do the last line
       endx = area_xstart-host->x+selend.x-view_x;
@@ -375,6 +375,7 @@ bool BasicEditboxView::mouseDrag(int x, int y)
 
 bool BasicEditboxView::mouseRelease(int x, int y)
 {
+  x=x; y=y; //these are here to bypass compiler warnings about unused arguments
   model->getSelection().doneSelection();
   return false;
 }
@@ -559,7 +560,6 @@ bool EditboxVScrollView::mouseDrag(int x, int  y)
     }
     return mouseDragOther(x,y);
   }
-  return false;
 }
 
 bool EditboxVScrollView::mouseRelease(int x, int y)
@@ -642,10 +642,10 @@ void EditboxWordWrapView::layoutPage()
 	totalwidth=0;
     //efficiency opportunity
 	int length = Unicode::getLength(it->line);
-	for(int i=0; i< length;i++)
-    {
-      totalwidth += Unicode::getCharWidth(Unicode::getCharAtIndex(it->line,i),textfont);
-    }
+	for(int j=0; j<length; j++)
+  {
+    totalwidth += Unicode::getCharWidth(Unicode::getCharAtIndex(it->line,j),textfont);
+  }
   createStripBitmap(it, totalwidth);
   (*it).dirtyflag = false;
   }
@@ -739,6 +739,7 @@ bool EditboxNoWrapView::mouseRelease(int x, int y)
 
 bool EditboxNoWrapView::mouseDragOther(int x, int y)
 {
+  x=x; y=y; //these are here to bypass compiler warnings about unused arguments
   //maybe pressing arrow, or sliding?
   if(leftarrow_state == 1)
     {

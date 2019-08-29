@@ -135,10 +135,16 @@ static void mainscreen(int f)
     blit(scrollbuf,framebuf,0,0,0,0,256,224);
     char tbuf[80];
     sprintf(tbuf, " 1986 NINTENDO");
+#ifdef _MSC_VER
+#pragma warning(disable:4310)
+#endif
     tbuf[0]=(char)0xBB;
     textout_ex(framebuf,zfont,tbuf,104,128,13,-1);
     sprintf(tbuf, " 2006 AG");
     tbuf[0]=(char)0xBC;
+#ifdef _MSC_VER
+#pragma warning(default:4310)
+#endif
     textout_ex(framebuf,zfont,tbuf,104,136,13,-1);
   }
   if(f<554+192+10)
@@ -616,7 +622,7 @@ static void DX_titlescreen()
 /****  Game Selection Screens  *****/
 /***********************************/
 
-void computeMaxArrowsSave(gamedata *g)
+/*void computeMaxArrowsSave(gamedata *g)
 {
 	int temp=0;
 	if(g->items[itype_quiver]&1) temp=1;
@@ -631,7 +637,7 @@ void computeMaxArrowsSave(gamedata *g)
 	case 1:
 		set_gamedata_maxcounter(game,max(get_gamedata_maxcounter(game,3),30),3);
 	}
-}
+}*/
 
 // first the game saving & loading system
 
@@ -640,7 +646,7 @@ extern char *SAVE_FILE;
 
 int readsaves(gamedata *savedata, PACKFILE *f)
 {
-  word item_count;
+  //word item_count;
   word qstpath_len;
   word save_count;
   char name[9];
@@ -669,7 +675,11 @@ int readsaves(gamedata *savedata, PACKFILE *f)
   {
     return 3;
   }
-
+  if(section_version < 5)
+  {
+	  //Currently unsupported
+	  return 1;
+  }
   //section size
   if(!p_igetl(&section_size,f,true))
   {
@@ -754,7 +764,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
       return 17;
     }
     set_gamedata_cheat(&savedata[i], tempbyte);
-    if(!p_igetw(&item_count,f,true))
+    /*if(!p_igetw(&item_count,f,true))
     {
       return 18;
     }
@@ -764,8 +774,15 @@ int readsaves(gamedata *savedata, PACKFILE *f)
       {
         return 19;
       }
-    }
-	if(section_version<3)
+    }*/
+	char temp;
+	for(int j=0; j<256;j++)
+	{
+		if(!p_getc(&temp, f, true))
+			return 18;
+		savedata[i].item[j] = (temp != 0);
+	}
+	/*if(section_version<3)
 	{
 	  set_gamedata_counter(&savedata[i], savedata[i].items[itype_bomb], 2);
 	  set_gamedata_counter(&savedata[i], savedata[i].items[itype_sbomb], 2);
@@ -780,7 +797,7 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 	  set_gamedata_maxcounter(&savedata[i], temp, 1);
 	  set_gamedata_maxcounter(&savedata[i], 0, 3);
 	  computeMaxArrowsSave(&savedata[i]);
-	}
+	}*/
     if(!pfread(savedata[i].version,sizeof(savedata[i].version),f,true))
     {
       return 20;
@@ -1092,7 +1109,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
     return 4;
   }
 
-  word item_count=iMax;
+  //word item_count=iMax;
   word qstpath_len=0;
 
   if(!p_iputw(MAXSAVES,f))
@@ -1150,14 +1167,19 @@ int writesaves(gamedata *savedata, PACKFILE *f)
     {
       return 17;
     }
-    if(!p_iputw(item_count,f))
+    /*if(!p_iputw(item_count,f))
     {
       return 18;
-    }
-    if(!pfwrite(savedata[i].items,item_count,f))
+    }*/
+	for(int j=0; j<MAXITEMS; j++)
+	{
+		if(!p_putc(savedata[i].item[j] ? 1 : 0,f))
+			return 18;
+	}
+    /*if(!pfwrite(savedata[i].items,item_count,f))
     {
       return 19;
-    }
+    }*/
     if(!pfwrite(savedata[i].version,sizeof(savedata[i].version),f))
     {
       return 20;
@@ -1330,7 +1352,13 @@ void load_game_icon(gamedata *g)
 {
   //  int i = vbound(g->items[itype_ring],0,3);
   //  int i = high_flag(g->items[itype_ring],itype_ring,true);
-  int i = high_item(imax_ring, itype_ring, true, g->items[itype_ring], true);
+  //int i = high_item(imax_ring, itype_ring, true, g->items[itype_ring], true);
+  int maxringid = getHighestLevelOfFamily(g, itemsbuf, itype_ring);
+  int i=0;
+  if(maxringid != -1)
+  {
+	  i = itemsbuf[maxringid].fam_type;
+  }
   int t=0;
   if (get_gamedata_quest(g) >= 1 && get_gamedata_quest(g) <=3)
   {
@@ -1661,11 +1689,15 @@ static bool register_name()
     if(load_quest(saves+s))
     {
       set_gamedata_maxlife(&saves[s], zinit.hc*HP_PER_HEART);
-      saves[s].items[itype_ring]=0;
-      if (zinit.ring)
+      //saves[s].items[itype_ring]=0;
+	  removeItemsOfFamily(&saves[s], itemsbuf, itype_ring);
+      /*if (zinit.ring)
       {
         saves[s].items[itype_ring]=(1<<(min(zinit.ring,3)-1));
-      }
+      }*/
+	  int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+	  if(maxringid != -1)
+		  getitem(maxringid, true);
       ringcolor();
       //      set_gamedata_maxbombs(&saves[s], zinit.max_bombs);
       selectscreen();                                       // refresh palette
@@ -1729,17 +1761,17 @@ static bool delete_save(int file)
 
 DIALOG gamemode_dlg[] =
 {
-  // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,     40,   44,   240,  160,  0,       0,      0,       D_EXIT,     0,             0,       (void *) "Select Custom Quest" },
+  // (dialog proc)      (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)     (d1)           (d2)     (dp)                            (dp2)  (dp3)
+  { jwin_win_proc,       40,   44,  240,  160,   0,       0,       0,       D_EXIT,     0,             0,       (void *) "Select Custom Quest", NULL,  NULL },
   // 1
-  { jwin_button_proc,  205,  76,   61,   21,   0,       0,      'b',     D_EXIT,     0,             0,       (void *) "&Browse" },
-  { jwin_textbox_proc, 55,   78,   140,  16,   0,       0,      0,       0,          0,             0,       NULL },
-  { jwin_text_proc,       76,   106,  64,   8,    vc(0),   vc(11), 0,       0,          0,             0,       (void *) "Info:" },
-  { jwin_textbox_proc, 76,   118,  168,  40,   0,       0,      0,       0,          0,             0,       NULL },
+  { jwin_button_proc,   205,   76,   61,   21,   0,       0,       'b',     D_EXIT,     0,             0,       (void *) "&Browse",             NULL,  NULL },
+  { jwin_textbox_proc,   55,   78,  140,   16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
+  { jwin_text_proc,      76,  106,   64,    8,   vc(0),   vc(11),  0,       0,          0,             0,       (void *) "Info:",               NULL,  NULL },
+  { jwin_textbox_proc,   76,  118,  168,   40,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
   // 5
-  { jwin_button_proc,  90,   171,  61,   21,   0,       0,      'k',     D_EXIT,     0,             0,       (void *) "O&K" },
-  { jwin_button_proc,  170,  171,  61,   21,   0,       0,      27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { NULL }
+  { jwin_button_proc,    90,  171,   61,   21,   0,       0,       'k',     D_EXIT,     0,             0,       (void *) "O&K",                 NULL,  NULL },
+  { jwin_button_proc,   170,  171,   61,   21,   0,       0,       27,      D_EXIT,     0,             0,       (void *) "Cancel",              NULL,  NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 
@@ -1884,7 +1916,7 @@ static int custom_game()
     static EXT_LIST list[] =
     {
       { "ZC Quests (*.qst)", "qst" },
-      { NULL }
+      { NULL,                NULL }
     };
 
     strcpy(path, qstpath);
@@ -2025,7 +2057,11 @@ static int game_details(int file)
         packfile_password(NULL);
         //        set_gamedata_maxbombs(&saves[file], zinit.max_bombs);
         set_gamedata_maxlife(&saves[file], zinit.hc*HP_PER_HEART);
-        saves[file].items[itype_ring]=(1<<(zinit.ring-1)); ringcolor();
+        //saves[file].items[itype_ring]=(1<<(zinit.ring-1)); 
+		int maxringid = getHighestLevelOfFamily(&zinit, itemsbuf, itype_ring);
+		if(maxringid != -1)
+			getitem(maxringid, true);
+		ringcolor();
         load_game_icon(saves+file);
         //      packfile_password(NULL);
         selectscreen();
@@ -2179,7 +2215,6 @@ static void select_game()
 
 void titlescreen(int lsave)
 {
-
   int q=Quit;
 
   Quit=0;
@@ -2275,6 +2310,7 @@ void game_over(int type)
   //  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
   int htile = 2;
   bool done=false;
+  do load_control_state(); while(rSbtn());
   do
   {
     load_control_state();
@@ -2358,6 +2394,7 @@ void save_game(bool savepoint, int type)
     textout_ex(framebuf,zfont,"QUIT",88,120,QMisc.colors.text,-1);
     do
     {
+		load_control_state();
       if(f==-1)
       {
         if(rUp())   { sfx(WAV_CHINK); pos=(pos==0)?2:pos-1; }

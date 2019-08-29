@@ -96,6 +96,11 @@ static char updir[1024];
 
 static int fs_dummy_proc(int msg, DIALOG *d, int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  msg=msg;
+  d=d;
+  c=c;
+
   return D_O_K;
 }
 
@@ -331,19 +336,20 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
 
     return D_O_K;
   }
+  int allegro_lfn = ALLEGRO_LFN; //removes compiler warning
 
   if (msg == MSG_UCHAR)
   {
     if ((c >= 'a') && (c <= 'z'))
     {
-      if (!ALLEGRO_LFN)
+      if (!allegro_lfn)
         c = utoupper(c);
     }
     else if (c == '/')
       {
         c = OTHER_PATH_SEPARATOR;
       }
-      else if (ALLEGRO_LFN)
+      else if (allegro_lfn)
         {
           if ((c > 127) || (c < 32))
             return D_O_K;
@@ -678,7 +684,7 @@ static void parse_extension_string(AL_CONST char *ext)
     /* Record a pointer to the beginning of the token. */
     fext_p[i++] = p;
 
-  } while ((p = ustrtok_r(NULL, ext_tokens, &last)));
+  } while ((p = ustrtok_r(NULL, ext_tokens, &last))!=NULL);
 
   /* This is the meaningful size now. */
   fext_size = i;
@@ -696,10 +702,10 @@ static void parse_extension_string(AL_CONST char *ext)
     usetc(attrb_char+c, 0);
 
     /* Scan the string. */
-    while ((c = utolower(ugetx(&attrb_p))))
+    while ((c = utolower(ugetx(&attrb_p)))!=0)
     {
       p = attrb_char;
-      for (i = 0; (c2 = ugetx(&p)); i++)
+      for (i = 0; (c2 = ugetx(&p))!=0; i++)
       {
         if (c == c2)
         {

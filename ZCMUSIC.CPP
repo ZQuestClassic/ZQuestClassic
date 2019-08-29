@@ -68,7 +68,7 @@ typedef struct GMEFILE : public ZCMUSICBASE
 } GMEFILE;
 
 #ifndef __GTHREAD_HIDE_WIN32API                             
-#define __GTHREAD_HIDE_WIN32API 
+#define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 #include <vector>
 static std::vector<ZCMUSIC*> playlist;                      //yeah, I'm too lazy to do it myself
@@ -622,20 +622,20 @@ MP3FILE *load_mp3_file(char *filename)
   char *data = new char[(zcmusic_bufsz_private*512)];
   int len;
 
-  if (!(p = (MP3FILE *)malloc(sizeof(MP3FILE))))
+  if ((p = (MP3FILE *)malloc(sizeof(MP3FILE)))==NULL)
     goto error;
-  if (!(f = pack_fopen(filename, F_READ)))
+  if ((f = pack_fopen(filename, F_READ))==NULL)
     goto error;
   if ((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
     goto error;
   if (len < (zcmusic_bufsz_private*512))
   {
-    if (!(s = almp3_create_mp3stream(data, len, TRUE)))
+    if ((s = almp3_create_mp3stream(data, len, TRUE))==NULL)
       goto error;
   }
   else
   {
-    if (!(s = almp3_create_mp3stream(data, (zcmusic_bufsz_private*512), FALSE)))
+    if ((s = almp3_create_mp3stream(data, (zcmusic_bufsz_private*512), FALSE))==NULL)
       goto error;
   }
   p->f = f;
@@ -757,11 +757,11 @@ OGGFILE *load_ogg_file(char *filename)
   char *data = new char[(zcmusic_bufsz_private*512)];
   int len;
 
-  if (!(p = (OGGFILE *)malloc(sizeof(OGGFILE))))
+  if ((p = (OGGFILE *)malloc(sizeof(OGGFILE)))==NULL)
   {
     goto error;
   }
-  if (!(f = pack_fopen(filename, F_READ)))
+  if ((f = pack_fopen(filename, F_READ))==NULL)
   {
     goto error;
   }
@@ -771,14 +771,14 @@ OGGFILE *load_ogg_file(char *filename)
   }
   if (len < (zcmusic_bufsz_private*512))
   {
-    if (!(s = alogg_create_oggstream(data, len, TRUE)))
+    if ((s = alogg_create_oggstream(data, len, TRUE))==NULL)
     {
       goto error;
     }
   }
   else
   {
-    if (!(s = alogg_create_oggstream(data, (zcmusic_bufsz_private*512), FALSE)))
+    if ((s = alogg_create_oggstream(data, (zcmusic_bufsz_private*512), FALSE))==NULL)
     {
       goto error;
     }

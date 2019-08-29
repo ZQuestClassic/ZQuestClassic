@@ -184,7 +184,7 @@ BITMAP *load_gif(const char *filename, RGB *pal)
     if(depth)
       pack_fseek(f, (1 << depth) * 3);
 
-    do
+  for(;;)
   {
     i = pack_getc(f);
     if (i == EOF)
@@ -247,7 +247,7 @@ BITMAP *load_gif(const char *filename, RGB *pal)
       output_string();
       old = code;
 
-      while(TRUE)
+      for(;;)
       {
         get_code();
 
@@ -358,8 +358,8 @@ BITMAP *load_gif(const char *filename, RGB *pal)
 
       return bmp;
     }
-  } while(TRUE);
+  }
 
   /* this is never executed but DJGPP complains if you leave it out */
-  return NULL;
+  //return NULL;//UNREACHABLE
 }

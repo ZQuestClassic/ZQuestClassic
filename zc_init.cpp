@@ -21,6 +21,8 @@
 #include "zsys.h"
 #include "zquest.h"
 #include "gamedata.h"
+#include "link.h"
+#include "zc_init.h"
 
 /*
   extern FONT *lfont;
@@ -31,528 +33,133 @@
 int dmap_list_size=0;
 bool dmap_list_zero=false;
 
-extern gamedata *game;
 int onCheatConsole()
 {
-  init_dlg[0].dp2=lfont;
   char init_title[80];
-  sprintf(init_title, "Initialization Data");
+  sprintf(init_title, "Current Data");
   init_dlg[0].dp=init_title;
-  init_dlg[1655].proc=d_dummy_proc;
-  init_dlg[1656].proc=d_dummy_proc;
-  char *hptitle="HP (hearts):";
-  init_dlg[1658].dp=hptitle;
-  init_dlg[1659].proc=d_dummy_proc;
-  init_dlg[1663].x=init_dlg[0].x+72;
-  init_dlg[1664].proc=d_dummy_proc;
-  init_dlg[1667].proc=d_dummy_proc;
-  init_dlg[1694].proc=d_dummy_proc;
-  init_dlg[1695].proc=d_dummy_proc;
-  init_dlg[1696].proc=d_dummy_proc;
-  init_dlg[1697].proc=d_dummy_proc;
+  zinitdata *zinit2 = copyIntoZinit(game);
 
-  // equipment
-  for(int i=0; i<4; i++)
-  {
-    init_dlg[i+7].flags = game->items[itype_sword]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<3; i++)
-  {
-    init_dlg[i+13].flags = game->items[itype_shield]&(1<<i) ? D_SELECTED : 0;
-  }
-  init_dlg[13].flags |= D_DISABLED;
-  for(int i=0; i<3; i++)
-  {
-    init_dlg[i+18].flags = game->items[itype_ring]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<2; i++)
-  {
-    init_dlg[i+23].flags = game->items[itype_bracelet]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<2; i++)
-  {
-    init_dlg[i+27].flags = game->items[itype_amulet]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<2; i++)
-  {
-    init_dlg[i+31].flags = game->items[itype_wallet]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<2; i++)
-  {
-    init_dlg[i+35].flags = game->items[itype_bow]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+39].flags = game->items[itype_raft]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+40].flags = game->items[itype_ladder]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+41].flags = game->items[itype_book]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+42].flags = game->items[itype_magickey]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+43].flags = game->items[itype_flippers]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+44].flags = game->items[itype_boots]&(1<<i) ? D_SELECTED : 0;
-  }
+  //modify some entries
+  init_dlg[1658].dp = (void *)"Current HP (hearts):";
+  init_dlg[1659].flags |= D_DISABLED;
+  init_dlg[1667].flags |= D_DISABLED;
+  init_dlg[1664].flags |= D_DISABLED;
+  init_dlg[1664].dp = (void *)"";
 
-  // items
-  char bombstring[5];
-  char maxbombstring[5];
-  char sbombstring[5];
-  char maxsbombstring[5];
-  char arrowstring[5];
-  char maxarrowstring[5];
-  sprintf(bombstring, "%d", get_gamedata_bombs(game));
-  sprintf(maxbombstring, "%d", get_gamedata_maxbombs(game));
-  sprintf(sbombstring, "%d", get_gamedata_sbombs(game));
-  sprintf(maxsbombstring, "%d", get_gamedata_maxbombs(game)/4);
-  sprintf(arrowstring, "%d", get_gamedata_arrows(game));
-  sprintf(maxarrowstring, "%d", get_gamedata_maxarrows(game));
-  for(int i=0; i<3; i++)
-  {
-    init_dlg[i+67].flags = game->items[itype_brang]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<3; i++)
-  {
-    init_dlg[i+72].flags = game->items[itype_arrow]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<3; i++)
-  {
-    init_dlg[i+77].flags = (game->items[itype_potion]==i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+82].flags = game->items[itype_whistle]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+85].flags = game->items[itype_hammer]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<2; i++)
-  {
-    init_dlg[i+88].flags = game->items[itype_hookshot]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<2; i++)
-  {
-    init_dlg[i+92].flags = game->items[itype_candle]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+96].flags = game->items[itype_bait]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+97].flags = game->items[itype_letter]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+98].flags = game->items[itype_wand]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+99].flags = game->items[itype_lens]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+100].flags = game->items[itype_dinsfire]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+101].flags = game->items[itype_faroreswind]&(1<<i) ? D_SELECTED : 0;
-  }
-  for(int i=0; i<1; i++)
-  {
-    init_dlg[i+102].flags = game->items[itype_nayruslove]&(1<<i) ? D_SELECTED : 0;
-  }
-    for(int i=0; i<1; i++)
-  {
-    init_dlg[i+1693].flags = game->items[itype_cbyrna]&(1<<i) ? D_SELECTED : 0;
-  }
-  init_dlg[109].dp=bombstring;
-  init_dlg[110].dp=maxbombstring;
-  init_dlg[115].dp=sbombstring;
-  init_dlg[116].dp=maxsbombstring;
-  init_dlg[119].dp=arrowstring;
-  init_dlg[120].dp=maxarrowstring;
-
-  // dmap items
-
-  char key_list[256][4];
-  for(int i=0; i<256; i++)
-  {
-    init_dlg[i+631].flags  = game->lvlitems[i]&liMAP ? D_SELECTED : 0;
-    init_dlg[i+887].flags  = game->lvlitems[i]&liCOMPASS ? D_SELECTED : 0;
-    init_dlg[i+1143].flags = game->lvlitems[i]&liBOSSKEY ? D_SELECTED : 0;
-    sprintf(key_list[i], "%d", game->lvlkeys[i]);
-    //sprintf(key_list[i], "%d", 0);
-    init_dlg[i+1399].dp = key_list[i];
-  }
-
-  // misc
-  //  dmap_list_size=MAXDMAPS;
-  //  dmap_list_zero=true;
-  //  init_dlg[1656].d1 = zinit.start_dmap;
-  char tempbuf[5];
-  char hcstring[5];
-  char sheartstring[5];
-  char cheartstring[5];
-  char keystring[5];
-  char rupiestring[5];
-  char magicstring[5];
-  char maxmagicstring[5];
-
-  sprintf(tempbuf, "0");
-  sprintf(hcstring, "%d", get_gamedata_maxlife(game)/HP_PER_HEART);
-  sprintf(sheartstring, "%d", (get_gamedata_life(game)+(HP_PER_HEART/2)-1)/HP_PER_HEART);
-  //  sprintf(cheartstring, "%d", zinit.cont_heart);
-  sprintf(keystring, "%d", get_gamedata_keys(game));
-  sprintf(rupiestring, "%d", get_gamedata_rupies(game));
-  sprintf(magicstring, "%d", get_gamedata_magic(game)/MAGICPERBLOCK);
-  sprintf(maxmagicstring, "%d", get_gamedata_maxmagic(game)/MAGICPERBLOCK);
-
-  init_dlg[1662].dp=hcstring;
-  init_dlg[1663].dp=sheartstring;
-  init_dlg[1664].dp=cheartstring;
-  init_dlg[1665].dp=keystring;
-  init_dlg[1666].dp=rupiestring;
-  //  init_dlg[1667].flags = get_bit(zinit.misc,idM_CONTPERCENT) ? D_SELECTED : 0;
-
-  for (int i=0; i<4; i++)
-  {
-    init_dlg[i+1670].flags=0;
-  }
-  init_dlg[get_gamedata_HCpieces(game)+1670].flags=D_SELECTED;
-
-  for(int i=0; i<8; i++)
-  {
-    init_dlg[1676+i].flags = game->lvlitems[i+1]&liTRIFORCE ? D_SELECTED : 0;
-  }
-
-
-  init_dlg[1684].flags = get_gamedata_canslash(game) ? D_SELECTED : 0;
-  init_dlg[1689].dp=magicstring;
-  init_dlg[1690].dp=maxmagicstring;
-  init_dlg[1691].flags = get_gamedata_magicdrainrate(game) ? D_SELECTED : 0;
-
-  int ret = zc_popup_dialog(init_dlg,1);
-  if (ret==2)
-  {
-
-    /*
-      zinit.=0;
-      for(int i=0; i<; i++)
-      {
-      if(init_dlg[i+].flags & D_SELECTED)
-      {
-      zinit.|=(1<<i);
-      }
-      }
-      */
-
-    game->items[itype_sword]=0;
-    for(int i=0; i<4; i++)
-    {
-      if(init_dlg[i+7].flags & D_SELECTED)
-      {
-        game->items[itype_sword]|=(1<<i);
-      }
-    }
-    game->items[itype_shield]=0;
-    for(int i=0; i<3; i++)
-    {
-      if(init_dlg[i+13].flags & D_SELECTED)
-      {
-        game->items[itype_shield]|=(1<<i);
-      }
-    }
-    game->items[itype_ring]=0;
-    for(int i=0; i<3; i++)
-    {
-      if(init_dlg[i+18].flags & D_SELECTED)
-      {
-        game->items[itype_ring]|=(1<<i);
-      }
-    }
-    game->items[itype_bracelet]=0;
-    for(int i=0; i<2; i++)
-    {
-      if(init_dlg[i+23].flags & D_SELECTED)
-      {
-        game->items[itype_bracelet]|=(1<<i);
-      }
-    }
-    game->items[itype_amulet]=0;
-    for(int i=0; i<2; i++)
-    {
-      if(init_dlg[i+27].flags & D_SELECTED)
-      {
-        game->items[itype_amulet]|=(1<<i);
-      }
-    }
-    game->items[itype_wallet]=0;
-    for(int i=0; i<2; i++)
-    {
-      if(init_dlg[i+31].flags & D_SELECTED)
-      {
-        game->items[itype_wallet]|=(1<<i);
-      }
-    }
-    game->items[itype_bow]=0;
-    for(int i=0; i<2; i++)
-    {
-      if(init_dlg[i+35].flags & D_SELECTED)
-      {
-        game->items[itype_bow]|=(1<<i);
-      }
-    }
-    game->items[itype_raft]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+39].flags & D_SELECTED)
-      {
-        game->items[itype_raft]|=(1<<i);
-      }
-    }
-    game->items[itype_ladder]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+40].flags & D_SELECTED)
-      {
-        game->items[itype_ladder]|=(1<<i);
-      }
-    }
-    game->items[itype_book]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+41].flags & D_SELECTED)
-      {
-        game->items[itype_book]|=(1<<i);
-      }
-    }
-    game->items[itype_magickey]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+42].flags & D_SELECTED)
-      {
-        game->items[itype_magickey]|=(1<<i);
-      }
-    }
-    game->items[itype_flippers]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+43].flags & D_SELECTED)
-      {
-        game->items[itype_flippers]|=(1<<i);
-      }
-    }
-    game->items[itype_boots]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+44].flags & D_SELECTED)
-      {
-        game->items[itype_boots]|=(1<<i);
-      }
-    }
-
-
-    // items
-    game->items[itype_brang]=0;
-    for(int i=0; i<3; i++)
-    {
-      if(init_dlg[i+67].flags & D_SELECTED)
-      {
-        game->items[itype_brang]|=(1<<i);
-      }
-    }
-    game->items[itype_arrow]=0;
-    for(int i=0; i<3; i++)
-    {
-      if(init_dlg[i+72].flags & D_SELECTED)
-      {
-        game->items[itype_arrow]|=(1<<i);
-      }
-    }
-    game->items[itype_potion]=0;
-    for(int i=0; i<3; i++)
-    {
-      if(init_dlg[i+77].flags & D_SELECTED)
-      {
-        game->items[itype_potion]=i;
-      }
-    }
-    game->items[itype_whistle]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+82].flags & D_SELECTED)
-      {
-        game->items[itype_whistle]|=(1<<i);
-      }
-    }
-    game->items[itype_hammer]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+85].flags & D_SELECTED)
-      {
-        game->items[itype_hammer]|=(1<<i);
-      }
-    }
-    game->items[itype_hookshot]=0;
-    for(int i=0; i<2; i++)
-    {
-      if(init_dlg[i+88].flags & D_SELECTED)
-      {
-        game->items[itype_hookshot]|=(1<<i);
-      }
-    }
-    game->items[itype_candle]=0;
-    for(int i=0; i<2; i++)
-    {
-      if(init_dlg[i+92].flags & D_SELECTED)
-      {
-        game->items[itype_candle]|=(1<<i);
-      }
-    }
-    game->items[itype_bait]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+96].flags & D_SELECTED)
-      {
-        game->items[itype_bait]|=(1<<i);
-      }
-    }
-    game->items[itype_letter]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+97].flags & D_SELECTED)
-      {
-        game->items[itype_letter]|=(1<<i);
-      }
-    }
-    game->items[itype_wand]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+98].flags & D_SELECTED)
-      {
-        game->items[itype_wand]|=(1<<i);
-      }
-    }
-    game->items[itype_lens]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+99].flags & D_SELECTED)
-      {
-        game->items[itype_lens]|=(1<<i);
-      }
-    }
-    game->items[itype_dinsfire]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+100].flags & D_SELECTED)
-      {
-        game->items[itype_dinsfire]|=(1<<i);
-      }
-    }
-    game->items[itype_faroreswind]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+101].flags & D_SELECTED)
-      {
-        game->items[itype_faroreswind]|=(1<<i);
-      }
-    }
-    game->items[itype_nayruslove]=0;
-    for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+102].flags & D_SELECTED)
-      {
-        game->items[itype_nayruslove]|=(1<<i);
-      }
-    }
-	   for(int i=0; i<1; i++)
-    {
-      if(init_dlg[i+1693].flags & D_SELECTED)
-      {
-        game->items[itype_cbyrna]|=(1<<i);
-      }
-    }
-    set_gamedata_bombs(game,atoi(bombstring));
-    set_gamedata_maxbombs(game,atoi(maxbombstring));
-    set_gamedata_sbombs(game,atoi(sbombstring));
-    set_gamedata_arrows(game,atoi(arrowstring));
-    set_gamedata_maxarrows(game,atoi(maxarrowstring));
-
-    // dmap items
-    for (int i=0; i<MAXLEVELS; ++i)
-    {
-      game->lvlitems[i]&=~liMAP;
-      game->lvlitems[i]&=~liCOMPASS;
-      game->lvlitems[i]&=~liBOSSKEY;
-      game->lvlitems[i]|=init_dlg[i+631].flags&D_SELECTED?liMAP:0;
-      game->lvlitems[i]|=init_dlg[i+887].flags&D_SELECTED?liCOMPASS:0;
-      game->lvlitems[i]|=init_dlg[i+1143].flags&D_SELECTED?liBOSSKEY:0;
-	  int numkeys=atoi(key_list[i]);
-	  if(numkeys>255) numkeys=255;
-	  if(numkeys<0) numkeys=0;
-      game->lvlkeys[i]=numkeys;
-    }
-
-
-    // misc
-    //zinit.start_dmap = init_dlg[1656].d1;
-    set_gamedata_maxlife(game,min(atoi(hcstring),get_bit(quest_rules,qr_24HC)?24:16)*HP_PER_HEART);
-    set_gamedata_life(game, min(atoi(sheartstring)*HP_PER_HEART,get_gamedata_maxlife(game)));
-    /*
-      set_bit(zinit.misc,idM_CONTPERCENT,init_dlg[1667].flags);
-      if (get_bit(zinit.misc,idM_CONTPERCENT))
-      {
-      zinit.cont_heart = min(atoi(cheartstring),100);
-      }
-      else
-      {
-      zinit.cont_heart = min(atoi(cheartstring),zinit.hc);
-      }
-      */
-    set_gamedata_keys(game,atoi(keystring));
-    set_gamedata_rupies(game,atoi(rupiestring));
-
-    set_gamedata_HCpieces(game,0);
-    for(int i=0; i<4; i++)
-    {
-      if(init_dlg[i+1670].flags & D_SELECTED)
-      {
-        set_gamedata_HCpieces(game,i);
-      }
-    }
-
-    // triforce
-    for(int i=0; i<8; i++)
-    {
-      game->lvlitems[i+1]&=~liTRIFORCE;
-      game->lvlitems[i+1]|=init_dlg[1676+i].flags&D_SELECTED?liTRIFORCE:0;
-    }
-
-
-    set_gamedata_canslash(game,init_dlg[1684].flags&D_SELECTED?1:0);
-    set_gamedata_maxmagic(game,min(atoi(maxmagicstring),8)*MAGICPERBLOCK);
-    set_gamedata_magic(game,min(atoi(magicstring)*MAGICPERBLOCK,get_gamedata_maxmagic(game)));
-    set_gamedata_magicdrainrate(game, init_dlg[1691].flags&D_SELECTED?1:0);
-  }
-  return D_O_K;
+  int rval = doInit(zinit2);
+  resetItems(game, zinit2);
+  //some special values to reset
+  set_gamedata_life(game, zinit2->start_heart*HP_PER_HEART);
+  delete zinit2;
+  return rval;
 }
 
 
 void center_zq_init_dialog()
 {
   jwin_center_dialog(init_dlg);
+}
+
+void onInitOK()
+{
+}
+
+zinitdata *copyIntoZinit(gamedata *gdata)
+{
+	zinitdata *zinit2 = new zinitdata;
+  //populate it
+  zinit2->hc = get_gamedata_maxlife()/HP_PER_HEART;
+  zinit2->bombs = get_gamedata_bombs();
+  zinit2->keys = get_gamedata_keys();
+  zinit2->max_bombs = get_gamedata_maxbombs(gdata);
+  zinit2->super_bombs = get_gamedata_sbombs();
+  zinit2->max_bombs = get_gamedata_maxcounter(gdata,6)<<2;
+  zinit2->hcp = get_gamedata_HCpieces();
+  zinit2->rupies = get_gamedata_rupies();
+  for(int i=0; i<MAXLEVELS; i++)
+  {
+    set_bit(zinit2->map, i, (gdata->lvlitems[i] & liMAP) ? 1 : 0);
+    set_bit(zinit2->compass, i, (gdata->lvlitems[i] & liCOMPASS) ? 1 : 0);
+    set_bit(zinit2->boss_key, i, (gdata->lvlitems[i] & liBOSSKEY) ? 1 : 0);
+    zinit2->level_keys[i] = gdata->lvlkeys[i];
+  }
+  for(int i=0; i<8; i++)
+  {
+    set_bit(&zinit2->triforce,i,(gdata->lvlitems[i+1]&liTRIFORCE) ? 1 : 0);
+  }
+  zinit2->max_magic = get_gamedata_maxmagic()/MAGICPERBLOCK;
+  zinit2->magic = get_gamedata_magic()/MAGICPERBLOCK;
+  set_bit(zinit2->misc, idM_DOUBLEMAGIC, (get_gamedata_magicdrainrate()==1) ? 1 : 0);
+  set_bit(zinit2->misc, idM_CANSLASH, get_gamedata_canslash(gdata));
+  
+  zinit2->arrows = get_gamedata_arrows();
+  zinit2->max_arrows = get_gamedata_maxarrows(gdata);
+
+  zinit2->max_rupees = get_gamedata_maxcounter(gdata, 1);
+  zinit2->max_keys = get_gamedata_maxcounter(gdata, 5);
+  
+  zinit2->start_heart = get_gamedata_life()/HP_PER_HEART;
+     
+  //now set up the items!
+  for(int i=0; i<MAXITEMS; i++)
+  {
+    zinit2->items[i] = gdata->item[i];
+  }
+  return zinit2;
+}
+
+void resetItems(gamedata *gamed)
+{
+	zinitdata *z = copyIntoZinit(gamed);
+	resetItems(gamed, z);
+	delete z;
+}
+
+void resetItems(gamedata *game2, zinitdata *zinit2)
+{
+  //First set up the counters
+    set_gamedata_maxlife(game2, min(zinit2->hc,get_bit(quest_rules,qr_24HC)?24:16)*HP_PER_HEART);
+    set_gamedata_bombs(game2, zinit2->bombs);
+    set_gamedata_keys(game2, zinit2->keys);
+    set_gamedata_maxbombs(game2, zinit2->max_bombs);
+    set_gamedata_sbombs(game2, zinit2->super_bombs);
+    set_gamedata_maxcounter(game2, zinit2->max_bombs>>2, 6);
+    set_gamedata_HCpieces(game2, zinit2->hcp);
+    set_gamedata_rupies(game2, zinit2->rupies);
+
+  for (int i=0; i<MAXITEMS; i++) game2->items_off[i]=0;
+
+    for (int i=0; i<MAXLEVELS; i++)
+    {
+      game2->lvlitems[i]=0;
+      game2->lvlitems[i]|=get_bit(zinit2->map,i)?liMAP:0;
+      game2->lvlitems[i]|=get_bit(zinit2->compass,i)?liCOMPASS:0;
+      game2->lvlitems[i]|=get_bit(zinit2->boss_key,i)?liBOSSKEY:0;
+      game2->lvlkeys[i]=zinit2->level_keys[i];
+    }
+
+    for (int i=0; i<8; i++)
+    {
+      game2->lvlitems[i+1]|=get_bit(&zinit2->triforce,i)?liTRIFORCE:0;
+    }
+    set_gamedata_maxmagic(game2, min(zinit2->max_magic,8)*MAGICPERBLOCK);
+    set_gamedata_magic(game2, min(zinit2->magic,zinit2->max_magic)*MAGICPERBLOCK);
+    set_gamedata_magicdrainrate(game2, get_bit(zinit2->misc,idM_DOUBLEMAGIC)?1:2);
+    set_gamedata_canslash(game2, get_bit(zinit2->misc,idM_CANSLASH)?1:0);
+
+    set_gamedata_arrows(game2, zinit2->arrows);
+    set_gamedata_maxarrows(game2, zinit2->max_arrows);
+    
+  set_gamedata_maxcounter(game2, zinit2->max_rupees, 1);
+  set_gamedata_maxcounter(game2, zinit2->max_keys, 5);
+    
+  //now set up the items!
+  for(int i=0; i<MAXITEMS; i++)
+  {
+    if(zinit2->items[i])
+    {
+      getitem(i,true);
+    }
+  }
 }

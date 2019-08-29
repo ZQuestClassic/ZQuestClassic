@@ -78,6 +78,7 @@ dBushLeaves::dBushLeaves(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 
 bool dBushLeaves::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   return (clk++>=24);
 }
 
@@ -137,6 +138,7 @@ dFlowerClippings::dFlowerClippings(fix X,fix Y,int Id,int Clk) : decoration(X,Y,
 
 bool dFlowerClippings::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   return (clk++>=24);
 }
 
@@ -175,6 +177,7 @@ dGrassClippings::dGrassClippings(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id
 
 bool dGrassClippings::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   return (clk++>=12);
 }
 
@@ -208,6 +211,7 @@ dHammerSmack::dHammerSmack(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 
 bool dHammerSmack::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   return (clk++>=12);
 }
 
@@ -231,6 +235,7 @@ dTallGrass::dTallGrass(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 
 bool dTallGrass::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   return ((COMBOTYPE(LinkX(),LinkY()+15)!=cTALLGRASS)||
           (COMBOTYPE(LinkX()+15,LinkY()+15)!=cTALLGRASS));
 }
@@ -260,6 +265,7 @@ dRipples::dRipples(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 
 bool dRipples::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   clk++;
   return ((COMBOTYPE(LinkX(),LinkY()+15)!=cSHALLOWWATER)||
           (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER));
@@ -283,6 +289,7 @@ dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y,int Id,int Clk) : decoration(X,
 
 bool dNayrusLoveShield::animate(int index)
 {
+  index=index;  //this is here to bypass compiler warnings about unused arguments
   clk++;
   return LinkNayrusLoveShieldClk()<=0;
 }
@@ -298,16 +305,16 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
   int fb=(misc==0?iwNayrusLoveShieldFront:iwNayrusLoveShieldBack);
   int t=wpnsbuf[fb].tile;
   int fr=wpnsbuf[fb].frames;
-  int sp=wpnsbuf[fb].speed;
+  int spd=wpnsbuf[fb].speed;
   cs=wpnsbuf[fb].csets&15; flip=0;
   if (((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&((!get_bit(quest_rules,qr_FLICKERINGNAYRUSLOVESHIELD))||((misc==1)?(frame&1):(!(frame&1)))))
   {
     drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVESHIELD)?1:0;
     x=LinkX()-8; y=LinkY()-8;
     tile=t;
-    if (fr>0&&sp>0)
+    if (fr>0&&spd>0)
     {
-      tile+=((clk/sp)%fr);
+      tile+=((clk/spd)%fr);
     }
     decoration::draw(dest);
     x+=16; tile+=fr;

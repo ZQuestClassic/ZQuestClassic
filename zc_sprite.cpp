@@ -55,10 +55,10 @@ void sprite::check_conveyor()
   }
 }
 
-void movingblock::push(fix bx,fix by,int d,int f)
+void movingblock::push(fix bx,fix by,int d2,int f)
 {
   trigger=false;
-  endx=x=bx; endy=y=by; dir=d; oldflag=f;
+  endx=x=bx; endy=y=by; dir=d2; oldflag=f;
   word *di = &(tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]);
   byte *ci = &(tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]);
   //   bcombo = ((*di)&0xFF)+(tmpscr->cpage<<8);
@@ -76,6 +76,9 @@ void movingblock::push(fix bx,fix by,int d,int f)
 
 bool movingblock::animate(int index)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  index=index;
+
   if(clk<=0)
     return false;
 

@@ -460,10 +460,16 @@ void ending()
   packfile_password(NULL);
   set_gamedata_maxlife(game, zinit.hc*HP_PER_HEART);
   load_game_icon(game);
-  game->items[itype_ring]=0;
-  if (zinit.ring)
+  //game->items[itype_ring]=0;
+  removeItemsOfFamily(game, itemsbuf, itype_ring);
+  int maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
+  /*if (zinit.ring)
   {
     game->items[itype_ring]=(1<<(min(zinit.ring,3)-1));
+  }*/
+  if(maxring != -1)
+  {
+	  getitem(maxring,true);
   }
   ringcolor();
   saves[currgame] = *game;

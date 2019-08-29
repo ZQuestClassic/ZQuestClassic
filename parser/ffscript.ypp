@@ -10,7 +10,8 @@ command: bison -b y -v -d ffscript.ypp
 %{
 #include <stdlib.h>
 #include <stdio.h>
-#include "ScriptParser.h"
+#include "AST.h"
+#include "UtilVisitors.h"
 #include "../zsyssimple.h"
 #define YYINCLUDED_STDLIB_H
 extern int yydebug;
@@ -23,6 +24,14 @@ extern void resetLexer();
 void yyerror(const char* s);
 string curfilename;
 extern YYLTYPE noloc;
+
+#define SHORTCUT(x,d1,d3,dd,l1,l2) ASTExpr *lval = (ASTExpr *)d1; \
+					Clone c; \
+					lval->execute(c,NULL); \
+					x *rhs = new x(l2); \
+					rhs->setFirstOperand((ASTExpr *)c.getResult()); \
+					rhs->setSecondOperand((ASTExpr *)d3); \
+					dd = new ASTStmtAssign(lval, rhs, l1);
 %}
 %expect 1
 %error-verbose
@@ -47,6 +56,7 @@ extern YYLTYPE noloc;
 %token BREAK
 %token CONTINUE
 %token CONST
+%token DO
 
 %token ASSIGN
 %token SEMICOLON
@@ -61,6 +71,18 @@ extern YYLTYPE noloc;
 %token ARROW
 
 %token NUMBER
+%token PLUSASSIGN
+%token MINUSASSIGN
+%token TIMESASSIGN
+%token DIVIDEASSIGN
+%token ANDASSIGN
+%token ORASSIGN
+%token BITANDASSIGN
+%token BITORASSIGN
+%token BITXORASSIGN
+%token MODULOASSIGN
+%token LSHIFTASSIGN
+%token RSHIFTASSIGN
 %token IDENTIFIER
 %token QUOTEDSTRING
 
@@ -78,15 +100,12 @@ extern YYLTYPE noloc;
 %%
 
 Init : Prog {resAST = new ASTProgram((ASTDeclList *)$1, @1);}
-	| {resAST = new ASTProgram(new ASTDeclList(noloc),noloc);}
 	;
 
-Prog : GlobalStmt Prog {ASTDeclList *list = (ASTDeclList *)$2;
-				list->addDeclaration((ASTDecl *)$1);
+Prog : Prog GlobalStmt {ASTDeclList *list = (ASTDeclList *)$1;
+				list->addDeclaration((ASTDecl *)$2);
 				$$ = list;}
-	| GlobalStmt {ASTDeclList *list = new ASTDeclList(@1);
-			  list->addDeclaration((ASTDecl *)$1);
-			  $$=list;}
+	| {$$ = new ASTDeclList(noloc);}
 	;
 
 GlobalStmt : Script {$$ = $1;}
@@ -183,8 +202,8 @@ Block : LBRACE StmtList RBRACE  {$$=$2;}
 	| LBRACE RBRACE {$$ = new ASTBlock(@1);}
 	;
 
-StmtList : Stmt StmtList {ASTBlock *block = (ASTBlock *)$2;
-				  ASTStmt *stmt = (ASTStmt *)$1;
+StmtList : StmtList Stmt {ASTBlock *block = (ASTBlock *)$1;
+				  ASTStmt *stmt = (ASTStmt *)$2;
 				  block->addStatement(stmt);
 				  $$ = block;}
 	| Stmt {ASTBlock *block = new ASTBlock(@1);
@@ -195,11 +214,13 @@ StmtList : Stmt StmtList {ASTBlock *block = (ASTBlock *)$2;
 
 Stmt : VarDecl SEMICOLON {$$ = $1;}
 	| AssignStmt SEMICOLON {$$ = $1;}
+	| ShortcutAssignStmt SEMICOLON {$$=$1;}
 	| ForStmt {$$ = $1;}
 	| IfStmt {$$ = $1;}
 	| Block {$$ = $1;}
 	| ReturnStmt SEMICOLON {$$ = $1;}
 	| WhileStmt {$$ = $1;}
+	| DoStmt {$$ = $1;}
 	| SEMICOLON {$$ = new ASTStmtEmpty(@1);}
 	| Expr SEMICOLON {$$=$1;}
 	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@1);}
@@ -208,16 +229,33 @@ Stmt : VarDecl SEMICOLON {$$ = $1;}
 
 StmtNoSemi : VarDecl {$$ = $1;}
 	| AssignStmt {$$ = $1;}
+	| ShortcutAssignStmt {$$=$1;}
 	| ForStmt {$$ = $1;}
 	| IfStmt {$$ = $1;}
 	| Block {$$ = $1;}
 	| ReturnStmt {$$ = $1;}
 	| WhileStmt {$$ = $1;}
+	| DoStmt {$$ = $1;}
 	| {$$ = new ASTStmtEmpty(noloc);}
 	| Expr {$$=$1;}
 	| BREAK {$$ = new ASTStmtBreak(@1);}
 	| CONTINUE {$$ = new ASTStmtContinue(@1);}
 	;
+	
+ShortcutAssignStmt : DotExpr PLUSASSIGN Expr {SHORTCUT(ASTExprPlus,$1,$3,$$,@1,@2) }
+				   | DotExpr MINUSASSIGN Expr {SHORTCUT(ASTExprMinus,$1,$3,$$,@1,@2) }
+				   | DotExpr TIMESASSIGN Expr {SHORTCUT(ASTExprTimes,$1,$3,$$,@1,@2) }
+				   | DotExpr DIVIDEASSIGN Expr {SHORTCUT(ASTExprDivide,$1,$3,$$,@1,@2) }
+				   | DotExpr ANDASSIGN Expr {SHORTCUT(ASTExprAnd,$1,$3,$$,@1,@2) }
+				   | DotExpr ORASSIGN Expr {SHORTCUT(ASTExprOr,$1,$3,$$,@1,@2) }
+				   | DotExpr BITANDASSIGN Expr {SHORTCUT(ASTExprBitAnd,$1,$3,$$,@1,@2) }
+				   | DotExpr BITORASSIGN Expr {SHORTCUT(ASTExprBitOr,$1,$3,$$,@1,@2) }
+				   | DotExpr BITXORASSIGN Expr {SHORTCUT(ASTExprBitXor,$1,$3,$$,@1,@2) }
+				   | DotExpr LSHIFTASSIGN Expr {SHORTCUT(ASTExprLShift,$1,$3,$$,@1,@2) }
+				   | DotExpr RSHIFTASSIGN Expr {SHORTCUT(ASTExprRShift,$1,$3,$$,@1,@2) }
+				   | DotExpr MODULOASSIGN Expr {SHORTCUT(ASTExprModulo,$1,$3,$$,@1,@2) }
+				   ;
+											  
 
 AssignStmt : LVal ASSIGN Expr {$$ = new ASTStmtAssign((ASTStmt *)$1, (ASTExpr *)$3,@1);}
 	;
@@ -412,6 +450,10 @@ ForStmt : FOR LPAREN StmtNoSemi SEMICOLON Expr SEMICOLON StmtNoSemi RPAREN Stmt 
 WhileStmt : WHILE LPAREN Expr RPAREN Stmt {ASTExpr *cond = (ASTExpr *)$3;
 										   ASTStmt *stmt = (ASTStmt *)$5;
 										   $$ = new ASTStmtWhile(cond,stmt,@1);}
+
+DoStmt : DO Stmt WHILE LPAREN Expr RPAREN {ASTExpr *cond = (ASTExpr *)$5;
+										   ASTStmt *stmt = (ASTStmt *)$2;
+										   $$ = new ASTStmtDo(cond,stmt,@1);}
 
 IfStmt : IF LPAREN Expr RPAREN Stmt {ASTExpr *cond = (ASTExpr *)$3;
 							  ASTStmt *stmt = (ASTStmt *)$5;

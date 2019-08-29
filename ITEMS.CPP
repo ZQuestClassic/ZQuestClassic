@@ -28,6 +28,9 @@ item::~item()
 
 bool item::animate(int index)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  index=index;
+
   if((++clk)>=0x8000)
     clk=0x7000;
   if(flash)
@@ -133,10 +136,10 @@ item::item(fix X,fix Y,int i,int p,int c) : sprite()
     misc = ++fairy_cnt;
     addfairy(x, y, misc);
   }
-  for(int i=0;i<8;i++)
+  for(int j=0;j<8;j++)
   {
-    if(i<2) a[i]=itemsbuf[id].initiala[i]*10000;
-    d[i]=itemsbuf[id].initiald[i];
+    if(j<2) a[j]=itemsbuf[id].initiala[j]*10000;
+    d[i]=itemsbuf[id].initiald[j];
   }
 }
 
@@ -166,4 +169,152 @@ void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int 
   aframe=temp.aframe;
 }
 
-/*** end of sprite.cc ***/
+//some methods for dealing with items
+void removeItemsOfFamily(gamedata *g, itemdata *items, int family)
+{
+	for(int i=0; i<MAXITEMS; i++)
+	{
+		if(items[i].family == family)
+			g->item[i]=false;
+	}
+}
+
+void removeItemsOfFamily(zinitdata *z, itemdata *items, int family)
+{
+	for(int i=0; i<MAXITEMS; i++)
+	{
+		if(items[i].family == family)
+			z->items[i]=false;
+	}
+}
+
+int getHighestLevelOfFamily(zinitdata *source, itemdata *items, int family)
+{
+	int result = -1;
+	int highestlevel = -1;
+	for(int i=0; i<MAXITEMS; i++)
+	{
+		if(items[i].family == family && source->items[i])
+		{
+			if(items[i].fam_type >= highestlevel)
+			{
+				highestlevel = items[i].fam_type;
+				result=i;
+			}
+		}
+	}
+	return result;
+}
+
+int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family)
+{
+	int result = -1;
+	int highestlevel = -1;
+	for(int i=0; i<MAXITEMS; i++)
+	{
+		if(items[i].family == family && source->item[i])
+		{
+			if(items[i].fam_type >= highestlevel)
+			{
+				highestlevel = items[i].fam_type;
+				result=i;
+			}
+		}
+	}
+	return result;
+}
+
+void downgradeItemOfFamily(gamedata *g, itemdata *items, int family)
+{
+	int maxitem = getHighestLevelOfFamily(g, items, family);
+	if(maxitem != -1)
+	{
+		g->item[maxitem]=false;
+	}
+}
+
+int getItemID(itemdata *items, int family, int level)
+{
+	for(int i=0; i<MAXITEMS; i++)
+	{
+		if(items[i].family == family && items[i].fam_type == level)
+			return i;
+	}
+	return -1;
+}
+
+void addOldStyleFamily(zinitdata *dest, itemdata *items, int family, char levels)
+{
+	for(int i=0; i<8;i++)
+	{
+		if(levels & (1<<i))
+		{
+			int id = getItemID(items, family, i);
+			if(id != -1)
+				dest->items[id]=true;
+		}
+	}
+}
+
+int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family)
+{
+	int rval=0;
+	for(int i=0; i<MAXITEMS; i++)
+	{
+		if(items[i].family == family && source->items[i])
+		{
+			if(items[i].fam_type > 0)
+				rval |= 1<<(items[i].fam_type-1);
+		}
+	}
+	return rval;
+}
+
+char *old_item_string[OLDITEMCNT] =
+{
+  "Rupee (1)", "Rupee (5)", "Heart", "Bomb (Normal)", "Clock",
+  "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Shield 1 (Magic)", "Key (Normal)",
+  "Candle 1 (Blue)", "Candle 2 (Red)", "Letter", "Arrow 1 (Wooden)", "Arrow 2 (Silver)",
+  "Bow 1 (Short)", "Bait", "Ring 1 (Blue)", "Ring 2 (Red)", "Bracelet 1",
+  "Triforce (Fragment)", "Map", "Compass", "Boomerang 1 (Wooden)", "Boomerang 2 (Magic)",
+  "Wand", "Raft", "Ladder", "Heart Container", "Potion 1 (Blue)",
+  "Potion 2 (Red)", "Whistle", "Magic Book", "Key (Magic)", "Fairy (Moving)",
+  "Boomerang 3 (Fire)", "Sword 4 (Master)", "Shield 2 (Mirror)", "Rupee (20)", "Rupee (50)",
+  "Rupee (200)", "Wallet 1 (500)", "Wallet 2 (999)", "Dust Pile",
+  "Triforce (Whole)", "Selection (1)", "Misc 1", "Misc 2", "Bomb (Super)","Heart Container Piece",
+  "Amulet 1", "Flippers", "Hookshot 1 (Short)", "Lens of Truth", "Hammer", "Boots",
+  "Bracelet 2", "Arrow 3 (Golden)", "Magic Container", "Magic Jar 1 (Small)",
+  "Magic Jar 2 (Large)", "Ring 3 (Golden)", "Kill All Enemies", "Amulet 2",
+  "Din's Fire", "Farore's Wind", "Nayru's Love", "Key (Boss)", "Bow 2 (Long)", "Fairy (Stationary)",
+  "Arrow Ammunition (1)", "Arrow Ammunition (5)", "Arrow Ammunition (10)", "Arrow Ammunition (30)",
+  "Quiver 1 (Small)", "Quiver 2 (Medium)", "Quiver 3 (Large)", "Bomb Ammunition (1)", "Bomb Ammunition (4)", "Bomb Ammunition (8)", "Bomb Ammunition (30)",
+  "Bomb Bag 1 (Small)", "Bomb Bag 2 (Medium)", "Bomb Bag 3 (Large)", "Key (Level Specific)", "Selection (2)", "Rupee (10)", "Rupee (100)", "Cane of Byrna",
+  "Hookshot 2 (Long)", "Letter (used)"
+};
+
+char *item_string[ITEMCNT];
+
+char *old_weapon_string[OLDWPNCNT] =
+{
+  "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Sword 4 (Master)",
+  "Boomerang 1 (Wooden)", "Boomerang 2 (Magic)", "Boomerang 3 (Fire)", "Bomb (Normal)",
+  "Bomb (Super)", "Explosion (Normal)", "Arrow 1 (Wooden)", "Arrow 2 (Silver)", "Flame", "Whirlwind",
+  "Bait", "Wand", "Magic", "Fireball", "Rock", "Arrow (Enemy)", "Sword (Enemy)",
+  "Magic (Enemy)", "MISC: Spawn", "MISC: Death", "MISC: <unused>", "Hammer",
+  "Hookshot 1 (Short) Head", "Hookshot 1 (Short) Chain (Horizontal)", "Hookshot 1 (Short) Handle", "MISC: Arrow 2 (Silver) Sparkle",
+  "MISC: Arrow 3 (Golden) Sparkle", "MISC: Boomerang 2 (Magic) Sparkle", "MISC: Boomerang 3 (Fire) Sparkle",
+  "MISC: Hammer Impact", "Arrow 3 (Golden)", "Fire (Enemy)", "Whirlwind (Enemy)", "MISC: Magic Meter",
+  "Din's Fire (Rising)", "Din's Fire (Falling)","Din's Fire Trail (Rising)", "Din's Fire Trail (Falling)", "Hookshot 1 (Short) Chain (Vertical)", "MISC: More...",
+  "MISC: Boss Marker", "MISC: Link Slash", "Sword 1 (Wooden) Slash",
+  "Sword 2 (White) Slash", "Sword 3 (Magic) Slash", "Sword 4 (Master) Slash", "MISC: Shadow (Small)",
+  "MISC: Shadow (Large)", "MISC: Bush Leaves", "MISC: Flower Clippings",
+  "MISC: Grass Clippings", "MISC: Tall Grass", "MISC: Ripples", "MISC: <unused>",
+  "Nayru's Love (Left)", "Nayru's Love (Left, Returning)","Nayru's Love Trail (Left)", "Nayru's Love Trail (Left, Returning)",
+  "Nayru's Love (Right)", "Nayru's Love (Right, Returning)","Nayru's Love Trail (Right)", "Nayru's Love Trail (Right, Returning)",
+  "Nayru's Love Shield (Front)", "Nayru's Love Shield (Back)", "MISC: Subscreen Vine", "Cane of Byrna", "Cane of Byrna (Slash)",
+  "Hookshot 2 (Long) Head", "Hookshot 2 (Long) Chain (Horizontal)", "Hookshot 2 (Long) Handle", "Hookshot 2 (Long) Chain (Vertical)", 
+  "Explosion (Super)", "Bomb (Enemy, Normal)", "Bomb (Enemy, Super)", "Explosion (Enemy, Normal)",  "Explosion (Enemy, Super)",
+  "Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy)", "Ice Magic (Enemy)"
+};
+
+char *weapon_string[WPNCNT];

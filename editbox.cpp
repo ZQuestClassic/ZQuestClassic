@@ -147,8 +147,8 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 			case KEY_TAB:
 				{
 					model->clear();
-					int c = Unicode::getCharAtOffset(uconvert_ascii("\t",NULL),0);
-					model->getCursor().insertChar(c);
+					int ch = Unicode::getCharAtOffset(uconvert_ascii("\t",NULL),0);
+					model->getCursor().insertChar(ch);
 					ret = D_USED_CHAR;
 					break;
 				}

@@ -39,6 +39,7 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
+#include "zc_init.h"
 
 
 ZCMUSIC *zcmusic = NULL;
@@ -77,11 +78,20 @@ void update_logic_counter()
 }
 int d_dropdmaplist_proc(int msg,DIALOG *d,int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  msg=msg;
+  d=d;
+  c=c;
+
   return D_O_K;
 }
 
 char *dmaplist(int index, int *list_size)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  index=index;
+  list_size=list_size;
+
   return NULL;
 }
 int startdmapxy[6] = {0,0,0,0,0,0};
@@ -96,7 +106,7 @@ bool triplebuffer_not_available=false;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2;
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
            *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font;
@@ -322,54 +332,9 @@ bool bad_version(int version)
   return false;
 }
 
-char *old_item_string[OLDITEMCNT] =
-{
-  "Rupee (1)", "Rupee (5)", "Heart", "Bomb (Normal)", "Clock",
-  "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Shield 1 (Magic)", "Key (Normal)",
-  "Candle 1 (Blue)", "Candle 2 (Red)", "Letter", "Arrow 1 (Wooden)", "Arrow 2 (Silver)",
-  "Bow 1 (Short)", "Bait", "Ring 1 (Blue)", "Ring 2 (Red)", "Bracelet 1",
-  "Triforce (Fragment)", "Map", "Compass", "Boomerang 1 (Wooden)", "Boomerang 2 (Magic)",
-  "Wand", "Raft", "Ladder", "Heart Container", "Potion 1 (Blue)",
-  "Potion 2 (Red)", "Whistle", "Magic Book", "Key (Magic)", "Fairy (Moving)",
-  "Boomerang 3 (Fire)", "Sword 4 (Master)", "Shield 2 (Mirror)", "Rupee (20)", "Rupee (50)",
-  "Rupee (200)", "Wallet 1 (500)", "Wallet 2 (999)", "Dust Pile",
-  "Triforce (Whole)", "Selection (1)", "Misc 1", "Misc 2", "Bomb (Super)","Heart Container Piece",
-  "Amulet 1", "Flippers", "Hookshot 1 (Short)", "Lens of Truth", "Hammer", "Boots",
-  "Bracelet 2", "Arrow 3 (Golden)", "Magic Container", "Magic Jar 1 (Small)",
-  "Magic Jar 2 (Large)", "Ring 3 (Golden)", "Kill All Enemies", "Amulet 2",
-  "Din's Fire", "Farore's Wind", "Nayru's Love", "Key (Boss)", "Bow 2 (Long)", "Fairy (Stationary)",
-  "Arrow Ammunition (1)", "Arrow Ammunition (5)", "Arrow Ammunition (10)", "Arrow Ammunition (30)",
-  "Quiver 1 (Small)", "Quiver 2 (Medium)", "Quiver 3 (Large)", "Bomb Ammunition (1)", "Bomb Ammunition (4)", "Bomb Ammunition (8)", "Bomb Ammunition (30)",
-  "Bomb Bag 1 (Small)", "Bomb Bag 2 (Medium)", "Bomb Bag 3 (Large)", "Key (Level Specific)", "Selection (2)", "Rupee (10)", "Rupee (100)", "Cane of Byrna",
-  "Hookshot 2 (Long)"
-};
+extern char *weapon_string[];
+extern char *item_string[];
 
-char *item_string[ITEMCNT];
-
-char *old_weapon_string[OLDWPNCNT] =
-{
-  "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Sword 4 (Master)",
-  "Boomerang 1 (Wooden)", "Boomerang 2 (Magic)", "Boomerang 3 (Fire)", "Bomb (Normal)",
-  "Bomb (Super)", "Explosion (Normal)", "Arrow 1 (Wooden)", "Arrow 2 (Silver)", "Flame", "Whirlwind",
-  "Bait", "Wand", "Magic", "Fireball", "Rock", "Arrow (Enemy)", "Sword (Enemy)",
-  "Magic (Enemy)", "MISC: Spawn", "MISC: Death", "MISC: <unused>", "Hammer",
-  "Hookshot 1 (Short) Head", "Hookshot 1 (Short) Chain (Horizontal)", "Hookshot 1 (Short) Handle", "MISC: Arrow 2 (Silver) Sparkle",
-  "MISC: Arrow 3 (Golden) Sparkle", "MISC: Boomerang 2 (Magic) Sparkle", "MISC: Boomerang 3 (Fire) Sparkle",
-  "MISC: Hammer Impact", "Arrow 3 (Golden)", "Fire (Enemy)", "Whirlwind (Enemy)", "MISC: Magic Meter",
-  "Din's Fire (Rising)", "Din's Fire (Falling)","Din's Fire Trail (Rising)", "Din's Fire Trail (Falling)", "Hookshot 1 (Short) Chain (Vertical)", "MISC: More...",
-  "MISC: Boss Marker", "MISC: Link Slash", "Sword 1 (Wooden) Slash",
-  "Sword 2 (White) Slash", "Sword 3 (Magic) Slash", "Sword 4 (Master) Slash", "MISC: Shadow (Small)",
-  "MISC: Shadow (Large)", "MISC: Bush Leaves", "MISC: Flower Clippings",
-  "MISC: Grass Clippings", "MISC: Tall Grass", "MISC: Ripples", "MISC: <unused>",
-  "Nayru's Love (Left)", "Nayru's Love (Left, Returning)","Nayru's Love Trail (Left)", "Nayru's Love Trail (Left, Returning)",
-  "Nayru's Love (Right)", "Nayru's Love (Right, Returning)","Nayru's Love Trail (Right)", "Nayru's Love Trail (Right, Returning)",
-  "Nayru's Love Shield (Front)", "Nayru's Love Shield (Back)", "MISC: Subscreen Vine", "Cane of Byrna", "Cane of Byrna (Slash)",
-  "Hookshot 2 (Long) Head", "Hookshot 2 (Long) Chain (Horizontal)", "Hookshot 2 (Long) Handle", "Hookshot 2 (Long) Chain (Vertical)", 
-  "Explosion (Super)", "Bomb (Enemy, Normal)", "Bomb (Enemy, Super)", "Explosion (Enemy, Normal)",  "Explosion (Enemy, Super)",
-  "Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy)", "Ice Magic (Enemy)"
-};
-
-char *weapon_string[WPNCNT];
 
 /**********************************/
 /******* Other Source Files *******/
@@ -772,177 +737,7 @@ int init_game()
 
   if (!get_gamedata_hasplayed(game))
   {
-    set_gamedata_maxlife(game, min(zinit.hc,get_bit(quest_rules,qr_24HC)?24:16)*HP_PER_HEART);
-    if (zinit.sword>0)
-    {
-      //      game->items[itype_sword]=(1<<(zinit.sword-1));
-      game->items[itype_sword]=zinit.sword;
-    }
-    if (zinit.boomerang>0)
-    {
-      //      game->items[itype_brang]=(1<<(zinit.boomerang-1));
-      game->items[itype_brang]=zinit.boomerang;
-    }
-    set_gamedata_bombs(game, zinit.bombs);
-    if (zinit.arrow>0)
-    {
-      //      game->items[itype_arrow]=(1<<(zinit.arrow-1));
-      game->items[itype_arrow]=zinit.arrow;
-    }
-    if (zinit.candle>0)
-
-    {
-      //      game->items[itype_candle]=(1<<(zinit.candle-1));
-      game->items[itype_candle]=zinit.candle;
-    }
-    if (zinit.whistle>0)
-    {
-      //      game->items[itype_whistle]=(1<<(zinit.whistle-1));
-      game->items[itype_whistle]=zinit.whistle;
-    }
-    if (zinit.potion>0)
-    {
-      //      game->items[itype_potion]=(1<<(zinit.potion-1));
-      game->items[itype_potion]=zinit.potion;
-    }
-    if (zinit.ring>0)
-    {
-      //      game->items[itype_ring]=(1<<(zinit.ring-1));
-      game->items[itype_ring]=zinit.ring;
-      ringcolor();
-    }
-    set_gamedata_keys(game, zinit.keys);
-    set_gamedata_maxbombs(game, zinit.max_bombs);
-    //    game->items[itype_wallet]=(1<<(zinit.wallet-1));
-    game->items[itype_wallet]=zinit.wallet;
-    set_gamedata_sbombs(game, zinit.super_bombs);
-  set_gamedata_maxcounter(game, zinit.max_bombs>>2, 6);
-    set_gamedata_HCpieces(game, zinit.hcp);
-    set_gamedata_rupies(game, zinit.rupies);
-    if (zinit.letter>0)
-    {
-      //      game->items[itype_letter]=(1<<(zinit.letter-1));
-      game->items[itype_letter]=zinit.letter;
-    }
-    if (zinit.bait)
-    {
-      //      game->items[itype_bait]=(1<<(zinit.bait-1));
-      game->items[itype_bait]=zinit.bait;
-    }
-    if (zinit.wand)
-    {
-      //      game->items[itype_wand]=(1<<(zinit.wand-1));
-      game->items[itype_wand]=zinit.wand;
-    }
-    if (zinit.dins_fire)
-    {
-      //      game->items[itype_dinsfire]=(1<<(i_dinsfire-1));
-      game->items[itype_dinsfire]=i_dinsfire;
-    }
-    if (zinit.farores_wind)
-    {
-      //      game->items[itype_faroreswind]=(1<<(i_faroreswind-1));
-      game->items[itype_faroreswind]=i_faroreswind;
-    }
-    if (zinit.nayrus_love)
-    {
-      //      game->items[itype_nayruslove]=(1<<(i_nayruslove-1));
-      game->items[itype_nayruslove]=i_nayruslove;
-    }
-    if (zinit.bracelet>0)
-    {
-      //      game->items[itype_bracelet]=(1<<(i_bracelet1-1));
-      game->items[itype_bracelet]=zinit.bracelet;
-    }
-    if (zinit.bow>0)
-    {
-      game->items[itype_bow]=zinit.bow;
-    }
-    if (zinit.shield>0)
-    {
-      game->items[itype_shield]=zinit.shield;
-    }
-
-    if (zinit.raft>0)
-    {
-      game->items[itype_raft]=zinit.raft;
-    }
-    if (zinit.ladder>0)
-    {
-      game->items[itype_ladder]=zinit.ladder;
-    }
-    if (zinit.book>0)
-    {
-      game->items[itype_book]=zinit.book;
-    }
-    if (zinit.key>0)
-    {
-      game->items[itype_magickey]=zinit.key;
-    }
-    if (zinit.amulet>0)
-    {
-      //      game->items[itype_amulet]=(1<<(zinit.amulet-1));
-      game->items[itype_amulet]=zinit.amulet;
-    }
-    if (zinit.flippers>0)
-    {
-      //      game->items[itype_flippers]=(1<<(zinit.flippers-1));
-      game->items[itype_flippers]=zinit.flippers;
-    }
-    if (zinit.boots>0)
-    {
-      //      game->items[itype_boots]=(1<<(zinit.boots-1));
-      game->items[itype_boots]=zinit.boots;
-    }
-
-    if (zinit.hookshot>0)
-    {
-      //      game->items[itype_hookshot]=(1<<(zinit.hookshot-1));
-      game->items[itype_hookshot]=zinit.hookshot;
-    }
-    if (zinit.lens>0)
-    {
-      //      game->items[itype_lens]=(1<<(zinit.lens-1));
-      game->items[itype_lens]=zinit.lens;
-    }
-    if (zinit.hammer>0)
-    {
-      //      game->items[itype_hammer]=(1<<(zinit.hammer-1));
-      game->items[itype_hammer]=zinit.hammer;
-    }
-
-  if(zinit.quiver>0)
-  {
-    game->items[itype_quiver]=zinit.quiver;
-  }
-  
-  for (int i=0; i<MAXITEMS; i++) game->items_off[i]=0;
-
-    for (int i=0; i<MAXLEVELS; i++)
-    {
-      game->lvlitems[i]=0;
-      game->lvlitems[i]|=get_bit(zinit.map,i)?liMAP:0;
-      game->lvlitems[i]|=get_bit(zinit.compass,i)?liCOMPASS:0;
-      game->lvlitems[i]|=get_bit(zinit.boss_key,i)?liBOSSKEY:0;
-      game->lvlkeys[i]=zinit.level_keys[i];
-    }
-
-    for (int i=0; i<8; i++)
-    {
-      game->lvlitems[i+1]|=get_bit(&zinit.triforce,i)?liTRIFORCE:0;
-    }
-    set_gamedata_maxmagic(game, min(zinit.max_magic,8)*MAGICPERBLOCK);
-    set_gamedata_magic(game, min(zinit.magic,zinit.max_magic)*MAGICPERBLOCK);
-    set_gamedata_magicdrainrate(game, get_bit(zinit.misc,idM_DOUBLEMAGIC)?1:2);
-    set_gamedata_canslash(game, get_bit(zinit.misc,idM_CANSLASH)?1:0);
-
-    set_gamedata_arrows(game, zinit.arrows);
-    set_gamedata_maxarrows(game, zinit.max_arrows);
-    computeMaxArrows();
-
-  set_gamedata_maxcounter(game, zinit.max_rupees, 1);
-  set_gamedata_maxcounter(game, zinit.max_keys, 5);
-
+		resetItems(game,&zinit);
   }
 
   for (int x=0; x<4; x++)
@@ -2013,6 +1808,8 @@ int main(int argc, char* argv[])
     set_color_depth(8);
   }
   framebuf  = create_bitmap_ex(8,256,224);
+  temp_buf  = create_bitmap_ex(8,256,224);
+  temp_buf2 = create_bitmap_ex(8,256,224);
   scrollbuf = create_bitmap_ex(8,512,406);
   screen2   = create_bitmap_ex(8,320,240);
   tmp_scr   = create_bitmap_ex(8,320,240);
@@ -2368,7 +2165,7 @@ int main(int argc, char* argv[])
   // play the game
   fix_menu();
   reset_items(true, &QHeader);
-
+  
   Quit = fast_start ? qQUIT : qRESET;
 
   rgb_map = &rgb_table;

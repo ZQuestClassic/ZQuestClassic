@@ -1,4 +1,3 @@
-#include "ScriptParser.h"
 #include "ParseError.h"
 #include "y.tab.hpp"
 #include "TypeChecker.h"
@@ -8,1045 +7,16 @@
 #include <iostream>
 #include <assert.h>
 #include <string>
+#include "DataStructs.h"
+#include "SymbolVisitors.h"
+#include "UtilVisitors.h"
+#include "AST.h"
+#include "BuildVisitors.h"
 using namespace std;
 //#define PARSER_DEBUG
 
 AST *resAST;
 
-ASTProgram::~ASTProgram() {delete decls;}
-
-ASTDeclList::~ASTDeclList() 
-{
-	list<ASTDecl *>::iterator it;
-	for(it = decls.begin(); it != decls.end(); it++)
-	{
-		delete *it;
-	}
-	decls.clear();
-}
-
-void ASTDeclList::addDeclaration(ASTDecl *newdecl)
-{
-	decls.push_front(newdecl);
-}
-
-ASTFuncDecl::~ASTFuncDecl()
-{
-	delete rettype;
-	delete block;
-	list<ASTVarDecl *>::iterator it;
-	for(it = params.begin(); it != params.end(); it++)
-	{
-		delete *it;
-	}
-	params.clear();
-}
-
-void ASTFuncDecl::addParam(ASTVarDecl *param)
-{
-	params.push_front(param);
-}
-
-ASTVarDecl::~ASTVarDecl()
-{
-	delete type;
-}
-
-ASTVarDeclInitializer::~ASTVarDeclInitializer()
-{
-	delete initial;
-}
-
-
-ASTFuncCall::~ASTFuncCall()
-{
-	list<ASTExpr *>::iterator it;
-	for(it = params.begin(); it != params.end(); it++)
-	{
-		delete *it;
-	}
-	params.clear();
-	delete name;
-}
-
-void ASTBlock::addStatement(ASTStmt *stmt)
-{
-	statements.push_front(stmt);
-}
-
-ASTBlock::~ASTBlock()
-{
-	list<ASTStmt *>::iterator it;
-	for(it=statements.begin(); it != statements.end(); it++)
-	{
-		delete *it;
-	}
-	statements.clear();
-}
-
-ASTScript::~ASTScript()
-{
-	delete sblock;
-	delete type;
-}
-
-pair<string, string> ASTFloat::parseValue()
-{
-	string f = getValue();
-	string intpart;
-	string fpart;
-	switch(getType())
-	{
-	case TYPE_DECIMAL:
-		{
-			bool founddot = false;
-			for(unsigned int i=0; i<f.size(); i++)
-			{
-				if(f.at(i) == '.')
-				{
-					intpart = f.substr(0, i);
-					fpart = f.substr(i+1,f.size()-i-1);
-					founddot = true;
-					break;
-				}
-			}
-			if(!founddot)
-			{
-				intpart = f;
-				fpart = "";
-			}
-			break;
-		}
-	case TYPE_HEX:
-		{
-			//trim off the "0x"
-			f = f.substr(2,f.size()-2);
-			//parse the hex
-			long val=0;
-			for(unsigned int i=0; i<f.size(); i++)
-			{
-				char d = f.at(i);
-				val*=16;
-				if('0' <= d && d <= '9')
-					val+=(d-'0');
-				else if ('A' <= d && d <= 'F')
-					val+=(10+d-'A');
-				else
-					val+=(10+d-'a');
-			}
-			char temp[60];
-			sprintf(temp, "%ld", val);
-			intpart = temp;
-			fpart = "";
-			break;
-		}
-	case TYPE_BINARY:
-		{
-			//trim off the 'b'
-			f = f.substr(0,f.size()-1);
-			long val=0;
-			for(unsigned int i=0; i<f.size();i++)
-			{
-				char b = f.at(i);
-				val<<=1;
-				val+=b-'0';
-			}
-			char temp[60];
-			sprintf(temp, "%ld", val);
-			intpart = temp;
-			fpart = "";
-			break;
-		}
-	}
-	return pair<string,string>(intpart, fpart);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-void Clone::caseDefault(void *param)
-{
-	//unreachable
-	assert(false);
-}
-	
-void Clone::caseProgram(ASTProgram &host, void *param)
-{
-	host.getDeclarations()->execute(*this,param);
-	result = new ASTProgram((ASTDeclList *)result, host.getLocation());
-}
-void Clone::caseFloat(ASTFloat &host, void *param)
-{
-	result = new ASTFloat(host.getValue().c_str(),host.getType(),host.getLocation());
-}
-void Clone::caseString(ASTString &host, void *param)
-{
-	result = new ASTString(host.getValue().c_str(),host.getLocation());
-}
-void Clone::caseDeclList(ASTDeclList &host, void *param)
-{
-	ASTDeclList *dl = new ASTDeclList(host.getLocation());
-	list<ASTDecl *> decls = host.getDeclarations();
-	list<ASTDecl *>::reverse_iterator it;
-	for(it = decls.rbegin(); it != decls.rend(); it++)
-	{
-		(*it)->execute(*this,param);
-		dl->addDeclaration((ASTDecl *)result);
-	}
-	result = dl;
-}
-void Clone::caseImportDecl(ASTImportDecl &host, void *param)
-{
-	result = new ASTImportDecl(host.getFilename(),host.getLocation());
-}
-void Clone::caseConstDecl(ASTConstDecl &host, void *param)
-{
-	host.getValue()->execute(*this,param);
-	result = new ASTConstDecl(host.getName(),(ASTFloat *)result,host.getLocation());
-}
-void Clone::caseFuncDecl(ASTFuncDecl &host, void *param)
-{
-	ASTFuncDecl *af = new ASTFuncDecl(host.getLocation());
-	host.getReturnType()->execute(*this,param);
-	ASTType *rettype = (ASTType *)result;
-	host.getBlock()->execute(*this,param);
-	ASTBlock *block = (ASTBlock *)result;
-	af->setName(host.getName());
-	af->setBlock(block);
-	af->setReturnType(rettype);
-	list<ASTVarDecl *> params = host.getParams();
-	list<ASTVarDecl *>::reverse_iterator it;
-	for(it = params.rbegin(); it != params.rend(); it++)
-	{
-		(*it)->execute(*this,param);
-		af->addParam((ASTVarDecl *)result);
-	}
-	result = af;
-}
-void Clone::caseTypeFloat(ASTTypeFloat &host, void *param)
-{
-	result = new ASTTypeFloat(host.getLocation());
-}
-void Clone::caseTypeBool(ASTTypeBool &host, void *param)
-{
-	result = new ASTTypeBool(host.getLocation());
-}
-void Clone::caseTypeVoid(ASTTypeVoid &host, void *param)
-{
-	result = new ASTTypeVoid(host.getLocation());
-}
-void Clone::caseTypeFFC(ASTTypeFFC &host, void *param)
-{
-	result = new ASTTypeFFC(host.getLocation());
-}
-void Clone::caseTypeGlobal(ASTTypeGlobal &host, void *param)
-{
-	result = new ASTTypeGlobal(host.getLocation());
-}
-void Clone::caseTypeItem(ASTTypeItem &host, void *param)
-{
-	result = new ASTTypeItem(host.getLocation());
-}
-void Clone::caseTypeItemclass(ASTTypeItemclass &host, void *param)
-{
-	result = new ASTTypeItemclass(host.getLocation());
-}
-void Clone::caseVarDecl(ASTVarDecl &host, void *param)
-{
-	host.getType()->execute(*this,param);
-	ASTType *t = (ASTType *)result;
-	result = new ASTVarDecl(t,host.getName(), host.getLocation());
-}
-void Clone::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
-{
-	host.getType()->execute(*this,param);
-	ASTType *t = (ASTType *)result;
-	host.getInitializer()->execute(*this,param);
-	ASTExpr *e = (ASTExpr *)result;
-	result = new ASTVarDeclInitializer(t,host.getName(),e, host.getLocation());
-}
-void Clone::caseExprAnd(ASTExprAnd &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprAnd *res = new ASTExprAnd(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}
-void Clone::caseExprOr(ASTExprOr &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprOr *res = new ASTExprOr(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprGT(ASTExprGT &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprGT *res = new ASTExprGT(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprGE(ASTExprGE &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprGE *res = new ASTExprGE(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprLT(ASTExprLT &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprLT *res = new ASTExprLT(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprLE(ASTExprLE &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprLE *res = new ASTExprLE(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprEQ(ASTExprEQ &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprEQ *res = new ASTExprEQ(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprNE(ASTExprNE &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprNE *res = new ASTExprNE(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprPlus(ASTExprPlus &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprPlus *res = new ASTExprPlus(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprMinus(ASTExprMinus &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprMinus *res = new ASTExprMinus(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprTimes(ASTExprTimes &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprTimes *res = new ASTExprTimes(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprDivide(ASTExprDivide &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprDivide *res = new ASTExprDivide(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprBitOr(ASTExprBitOr &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprBitOr *res = new ASTExprBitOr(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprBitXor(ASTExprBitXor &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprBitXor *res = new ASTExprBitXor(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprBitAnd(ASTExprBitAnd &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprBitAnd *res = new ASTExprBitAnd(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprLShift(ASTExprLShift &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprLShift *res = new ASTExprLShift(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprRShift(ASTExprRShift &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprRShift *res = new ASTExprRShift(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprModulo(ASTExprModulo &host, void *param)
-{
-	host.getFirstOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	host.getSecondOperand()->execute(*this,param);
-	ASTExpr *s = (ASTExpr *)result;
-	ASTExprModulo *res = new ASTExprModulo(host.getLocation());
-	res->setFirstOperand(f);
-	res->setSecondOperand(s);
-	result = res;
-}	
-void Clone::caseExprNot(ASTExprNot &host, void *param)
-{
-	host.getOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	ASTExprNot *res = new ASTExprNot(host.getLocation());
-	res->setOperand(f);
-	result = res;
-}	
-void Clone::caseExprNegate(ASTExprNegate &host, void *param)
-{
-	host.getOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	ASTExprNegate *res = new ASTExprNegate(host.getLocation());
-	res->setOperand(f);
-	result = res;
-}	
-void Clone::caseExprBitNot(ASTExprBitNot &host, void *param)
-{
-	host.getOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	ASTExprBitNot *res = new ASTExprBitNot(host.getLocation());
-	res->setOperand(f);
-	result = res;
-}	
-void Clone::caseExprIncrement(ASTExprIncrement &host, void *param)
-{
-	host.getOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	ASTExprIncrement *res = new ASTExprIncrement(host.getLocation());
-	res->setOperand(f);
-	result = res;
-}	
-void Clone::caseExprDecrement(ASTExprDecrement&host, void *param)
-{
-	host.getOperand()->execute(*this,param);
-	ASTExpr *f = (ASTExpr *)result;
-	ASTExprDecrement *res = new ASTExprDecrement(host.getLocation());
-	res->setOperand(f);
-	result = res;
-}	
-void Clone::caseNumConstant(ASTNumConstant &host, void *param)
-{
-	host.getValue()->execute(*this,param);
-	ASTFloat *f = (ASTFloat *)result;
-	result = new ASTNumConstant(f, host.getLocation());
-}
-void Clone::caseFuncCall(ASTFuncCall &host, void *param)
-{
-	ASTFuncCall *fc = new ASTFuncCall(host.getLocation());
-	fc->setName(fc->getName());
-	list<ASTExpr *> params = fc->getParams();
-	list<ASTExpr *>::reverse_iterator it;
-	for(it = params.rbegin(); it != params.rend(); it++)
-	{
-		(*it)->execute(*this,param);
-		fc->addParam((ASTExpr *)result);
-	}
-	result = fc;
-}
-void Clone::caseBoolConstant(ASTBoolConstant &host, void *param)
-{
-	result = new ASTBoolConstant(host.getValue(),host.getLocation());
-}
-void Clone::caseBlock(ASTBlock &host, void *param)
-{
-	ASTBlock *b = new ASTBlock(host.getLocation());
-	list<ASTStmt *> stmts = host.getStatements();
-	list<ASTStmt *>::reverse_iterator it;
-	for(it = stmts.rbegin(); it != stmts.rend(); it++)
-	{
-		(*it)->execute(*this,param);
-		b->addStatement((ASTStmt *)result);
-	}
-	result = b;
-}
-void Clone::caseStmtAssign(ASTStmtAssign &host, void *param)
-{
-	host.getLVal()->execute(*this,param);
-	ASTExpr *left = (ASTExpr *)result;
-	host.getRVal()->execute(*this,param);
-	ASTExpr *right = (ASTExpr *)result;
-	result = new ASTStmtAssign(left,right,host.getLocation());
-}
-void Clone::caseExprDot(ASTExprDot &host, void *param)
-{
-	result = new ASTExprDot(host.getNamespace(),host.getName(),host.getLocation());
-}
-
-void Clone::caseExprArrow(ASTExprArrow &host, void *param)
-{
-	host.getLVal()->execute(*this,param);
-	ASTExprArrow *arrow = new ASTExprArrow((ASTExpr *)result, host.getName(), host.getLocation());
-	if(host.getIndex())
-	{
-		host.getIndex()->execute(*this,param);
-        arrow->setIndex((ASTExpr *)result);
-	}
-	result = arrow;
-}
-void Clone::caseStmtFor(ASTStmtFor &host, void *param)
-{
-	host.getStmt()->execute(*this,param);
-	ASTBlock *block = (ASTBlock *)result;
-	host.getPrecondition()->execute(*this,param);
-	ASTStmt *prec = (ASTStmt *)result;
-	host.getTerminationCondition()->execute(*this,param);
-	ASTExpr *cond = (ASTExpr *)result;
-	host.getIncrement()->execute(*this,param);
-	ASTStmt *incr = (ASTStmt *)result;
-	result = new ASTStmtFor(prec,cond,incr,block,host.getLocation());
-}
-void Clone::caseStmtIf(ASTStmtIf &host, void *param)
-{
-	host.getCondition()->execute(*this,param);
-	ASTExpr *cond = (ASTExpr *)result;
-	host.getStmt()->execute(*this,param);
-	result = new ASTStmtIf(cond, (ASTBlock *)result,host.getLocation());
-}
-void Clone::caseStmtIfElse(ASTStmtIfElse &host, void *param)
-{
-	host.getCondition()->execute(*this,param);
-	ASTExpr *cond = (ASTExpr *)result;
-	host.getStmt()->execute(*this,param);
-	ASTBlock *block =(ASTBlock *)result;
-	host.getElseStmt()->execute(*this,param);
-	result = new ASTStmtIfElse(cond, block, (ASTBlock *)result,host.getLocation());
-}
-void Clone::caseStmtReturn(ASTStmtReturn &host, void *param)
-{
-	result = new ASTStmtReturn(host.getLocation());
-}
-void Clone::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
-{
-	host.getReturnValue()->execute(*this,param);
-	result = new ASTStmtReturnVal((ASTExpr *)result,host.getLocation());
-}
-void Clone::caseStmtEmpty(ASTStmtEmpty &host, void *param)
-{
-	result = new ASTStmtEmpty(host.getLocation());
-}
-void Clone::caseScript(ASTScript &host, void *param)
-{
-	host.getType()->execute(*this,param);
-	ASTType *type = (ASTType *)result;
-	host.getScriptBlock()->execute(*this,param);
-	result = new ASTScript(type, host.getName(), (ASTDeclList *)result, host.getLocation());
-}
-
-void Clone::caseStmtWhile(ASTStmtWhile &host, void *param)
-{
-	host.getCond()->execute(*this,param);
-	ASTExpr *cond = (ASTExpr *)result;
-	host.getStmt()->execute(*this,param);
-	result = new ASTStmtWhile(cond, (ASTStmt *)result, host.getLocation());
-}
-
-void Clone::caseStmtBreak(ASTStmtBreak &host, void *param)
-{
-	result = new ASTStmtBreak(host.getLocation());
-}
-
-void Clone::caseStmtContinue(ASTStmtContinue &host, void *param)
-{
-	result = new ASTStmtContinue(host.getLocation());
-}
-////////////////////////////////////////////////////////////////////////////////
-void GetImports::caseDefault(void *param) 
-{
-	if(param != NULL)
-		*(bool *)param = false;
-}
-void GetImports::caseImportDecl(ASTImportDecl &host, void *param)
-{
-	if(param != NULL)
-		*(bool *)param = true;
-}
-void GetImports::caseDeclList(ASTDeclList &host, void *param)
-{
-	list<ASTDecl *> &l = host.getDeclarations();
-	for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
-	{
-		bool isimport;
-		(*it)->execute(*this, &isimport);
-		if(isimport)
-		{
-			result.push_back((ASTImportDecl *)*it);
-			it=l.erase(it);
-		}
-		else
-			it++;
-	}
-}
-void GetImports::caseProgram(ASTProgram &host, void *param)
-{
-	host.getDeclarations()->execute(*this,NULL);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void GetConsts::caseDefault(void *param) 
-{
-	if(param != NULL)
-		*(bool *)param = false;
-}
-void GetConsts::caseConstDecl(ASTConstDecl &host, void *param)
-{
-	if(param != NULL)
-		*(bool *)param = true;
-}
-void GetConsts::caseDeclList(ASTDeclList &host, void *param)
-{
-	list<ASTDecl *> &l = host.getDeclarations();
-	for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
-	{
-		bool isconst;
-		(*it)->execute(*this, &isconst);
-		if(isconst)
-		{
-			result.push_back((ASTConstDecl *)*it);
-			it=l.erase(it);
-		}
-		else
-			it++;
-	}
-}
-void GetConsts::caseProgram(ASTProgram &host, void *param)
-{
-	host.getDeclarations()->execute(*this,NULL);
-}
-
-void GetGlobalFuncs::caseDefault(void *param) 
-{
-	if(param != NULL)
-		*(bool *)param = false;
-}
-void GetGlobalFuncs::caseFuncDecl(ASTFuncDecl &host, void *param)
-{
-	if(param != NULL)
-		*(bool *)param = true;
-}
-void GetGlobalFuncs::caseDeclList(ASTDeclList &host, void *param)
-{
-	list<ASTDecl *> &l = host.getDeclarations();
-	for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
-	{
-		bool isfuncdecl;
-		(*it)->execute(*this, &isfuncdecl);
-		if(isfuncdecl)
-		{
-			result.push_back((ASTFuncDecl *)*it);
-			it=l.erase(it);
-		}
-		else
-			it++;
-	}
-}
-void GetGlobalFuncs::caseProgram(ASTProgram &host, void *param)
-{
-	host.getDeclarations()->execute(*this,NULL);
-}
-
-void GetScripts::caseDefault(void *param)
-{
-	//there should be nothing left in here now
-	assert(false);
-}
-
-void GetScripts::caseProgram(ASTProgram &host, void *param)
-{
-	host.getDeclarations()->execute(*this,param);
-}
-
-void GetScripts::caseDeclList(ASTDeclList &host, void *param)
-{
-	list<ASTDecl *> &l = host.getDeclarations();
-	for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
-	{
-		(*it)->execute(*this, param);
-		result.push_back((ASTScript *)*it);
-		it=l.erase(it);
-	}
-}
-
-void GetScripts::caseScript(ASTScript &host, void *param) {}
-
-void MergeASTs::caseDefault(void *param)
-{
-	cerr << "Something BAD BROKEN in the parser code!" << endl;
-	assert(false);
-}
-
-void MergeASTs::caseProgram(ASTProgram &host, void *param)
-{
-	assert(param);
-	ASTProgram *other = (ASTProgram *)param;
-	list<ASTDecl *> &decls = other->getDeclarations()->getDeclarations();
-	for(list<ASTDecl *>::iterator it = decls.begin(); it != decls.end();)
-	{
-		host.getDeclarations()->addDeclaration((*it));
-		it = decls.erase(it);
-	}
-	delete other;
-}
-
-void CheckForExtraneousImports::caseDefault(void *param)
-{
-}
-
-void CheckForExtraneousImports::caseImportDecl(ASTImportDecl &host, void *param)
-{
-	ok = false;
-	printErrorMsg(&host, IMPORTBADSCOPE);
-}
-
-void ExtractType::caseDefault(void *param)
-{
-	//unreachable
-	assert(false);
-}
-
-void ExtractType::caseTypeBool(ASTTypeBool &host, void *param)
-{
-	*(int *)param = ScriptParser::TYPE_BOOL;
-}
-
-void ExtractType::caseTypeFloat(ASTTypeFloat &host, void *param)
-{
-	*(int *)param = ScriptParser::TYPE_FLOAT;
-}
-
-void ExtractType::caseTypeVoid(ASTTypeVoid &host, void *param)
-{
-	*(int *)param = ScriptParser::TYPE_VOID;
-}
-
-void ExtractType::caseTypeFFC(ASTTypeFFC &host, void *param)
-{
-	*(int *)param = ScriptParser::TYPE_FFC;
-}
-void ExtractType::caseTypeGlobal(ASTTypeGlobal &host, void *param)
-{
-	*(int *)param = ScriptParser::TYPE_GLOBAL;
-}
-void ExtractType::caseTypeItem(ASTTypeItem &host, void *param)
-{
-	*(int *)param = ScriptParser::TYPE_ITEM;
-}
-
-void ExtractType::caseTypeItemclass(ASTTypeItemclass &host, void *param)
-{
-	*(int *)param = ScriptParser::TYPE_ITEMCLASS;
-}
-
-void BuildScriptSymbols::caseDefault(void *param)
-{
-	//unreachable
-	assert(false);
-}
-
-void BuildScriptSymbols::caseScript(ASTScript &host,void *param)
-{
-	list<ASTDecl *> ad = host.getScriptBlock()->getDeclarations();
-	for(list<ASTDecl *>::iterator it = ad.begin(); it != ad.end(); it++)
-	{
-		(*it)->execute(*this,param);
-	}
-}
-
-void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
-{
-	pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	string name = host.getName();
-	vector<int> params;
-	list<ASTVarDecl *> vds = host.getParams();
-	for(list<ASTVarDecl *>::iterator it = vds.begin(); it != vds.end(); it++)
-	{
-		int type;
-		ExtractType temp;
-		(*it)->getType()->execute(temp, &type);
-		params.push_back(type);
-		if(type == ScriptParser::TYPE_VOID)
-		{
-			failure=true;
-			printErrorMsg(&host, FUNCTIONVOIDPARAM, name);
-		}
-	}
-	int rettype;
-	ExtractType temp;
-	host.getReturnType()->execute(temp, &rettype);
-	int id = p->first->getFuncSymbols().addFunction(name,rettype,params);
-	if(id == -1)
-	{
-		failure = true;
-		printErrorMsg(&host, FUNCTIONREDEF, name);
-		return;
-	}
-	p->second->putAST(&host, id);
-	p->second->putFunc(id, rettype);
-	p->second->putFuncDecl(id, params);
-}
-
-void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
-{
-	pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	string name = host.getName();
-	int type;
-	ExtractType temp;
-	host.getType()->execute(temp, &type);
-	if(type == ScriptParser::TYPE_VOID)
-	{
-		failure = true;
-		printErrorMsg(&host, VOIDVAR, name);
-	}
-	if(type == ScriptParser::TYPE_FFC || type == ScriptParser::TYPE_ITEM
-		|| type == ScriptParser::TYPE_ITEMCLASS)
-	{
-		failure = true;
-		printErrorMsg(&host, REFVAR, name);
-	}
-	//var is always visible
-	int id = p->first->getVarSymbols().addVariable(name, type);
-	if(id == -1)
-	{
-		failure = true;
-		printErrorMsg(&host, VARREDEF, name);
-		return;
-	}
-	p->second->putAST(&host, id);
-	p->second->putVar(id, type);
-}
-
-void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
-{
-	pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	//push in the scope
-	Scope *subscope = new Scope(p->first);
-	pair<Scope *, SymbolTable *> newparam = pair<Scope *, SymbolTable *>(subscope,p->second);
-	//add the params
-	list<ASTVarDecl *> vars = host.getParams();
-	for(list<ASTVarDecl *>::iterator it = vars.begin(); it != vars.end(); it++)
-	{
-		string name = (*it)->getName();
-		int type;
-		ExtractType temp;
-		(*it)->getType()->execute(temp, &type);
-		int id = p->first->getVarSymbols().addVariable(name,type);
-		if(id == -1)
-		{
-			printErrorMsg(*it, VARREDEF, name);
-			failure = true;
-			delete subscope;
-			return;
-		}
-		p->second->putVar(id, type);
-		p->second->putAST(*it, id);
-	}
-	//shortcut the block
-	list<ASTStmt *> stmts = host.getBlock()->getStatements();
-	for(list<ASTStmt *>::iterator it = stmts.begin(); it != stmts.end(); it++)
-	{
-		(*it)->execute(*this, &newparam);
-	}
-	delete subscope;
-}
-
-void BuildFunctionSymbols::caseVarDecl(ASTVarDecl &host, void *param)
-{
-	pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	string name = host.getName();
-	int type;
-	ExtractType temp;
-	host.getType()->execute(temp, &type);
-	int id = p->first->getVarSymbols().addVariable(name, type);
-	if(id == -1)
-	{
-		printErrorMsg(&host, VARREDEF, name);
-		failure = true;
-		return;
-	}
-	p->second->putAST(&host, id);
-	p->second->putVar(id, type);
-}
-
-void BuildFunctionSymbols::caseBlock(ASTBlock &host, void *param)
-{
-	//push in  a new scope
-	pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	Scope *newscope = new Scope(p->first);
-	pair<Scope *, SymbolTable *> *newparam = new pair<Scope *, SymbolTable *>(newscope, p->second);
-	list<ASTStmt *> stmts = host.getStatements();
-	for(list<ASTStmt *>::iterator it = stmts.begin(); it != stmts.end(); it++)
-	{
-		(*it)->execute(*this, newparam);
-	}
-	delete newparam;
-	delete newscope;
-}
-
-void BuildFunctionSymbols::caseStmtFor(ASTStmtFor &host, void *param)
-{
-	//push in new scope
-	//in accordance with C++ scoping
-	pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	Scope *newscope = new Scope(p->first);
-	pair<Scope *, SymbolTable *> *newparam = new pair<Scope *, SymbolTable *>(newscope, p->second);
-	host.getPrecondition()->execute(*this, newparam);
-	host.getTerminationCondition()->execute(*this, newparam);
-	host.getIncrement()->execute(*this, newparam);
-	ASTStmt * stmt = host.getStmt();
-	
-	stmt->execute(*this,newparam);
-	delete newparam;
-	delete newscope;
-}
-
-void BuildFunctionSymbols::caseFuncCall(ASTFuncCall &host, void *param)
-{
-	pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	ASTExpr *ident = host.getName();
-	//ident could be a dotexpr, or an arrow exp.
-	//if an arrow exp, it is not my problem right now
-	bool isdot = false;
-	IsDotExpr temp;
-	ident->execute(temp, &isdot);
-	if(!isdot)
-	{
-		//recur to get any dotexprs inside
-		ident->execute(*this,param);
-	}
-	else
-	{
-		//resolve the possible functions
-		ASTExprDot *dotname = (ASTExprDot *)host.getName();
-		string name = dotname->getName();
-		string nspace = dotname->getNamespace();
-		vector<int> possibleFuncs = p->first->getFuncsInScope(nspace, name);
-		if(possibleFuncs.size() == 0)
-		{
-			string fullname;
-			if(nspace == "")
-				fullname=name;
-			else
-				fullname = nspace + "." + name;
-			printErrorMsg(&host, FUNCUNDECLARED, fullname);
-			failure = true;
-			return;
-		}
-		p->second->putAmbiguousFunc(&host, possibleFuncs);
-	}
-	
-	for(list<ASTExpr *>::iterator it = host.getParams().begin(); it != host.getParams().end(); it++)
-	{
-		(*it)->execute(*this,param);
-	}
-}
-
-void BuildFunctionSymbols::caseExprDot(ASTExprDot &host, void *param)
-{
-	pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	string name = host.getName();
-	string nspace = host.getNamespace();
-	int id = p->first->getVarInScope(nspace, name);
-	if(id == -1)
-	{
-		string fullname;
-		if(nspace == "")
-			fullname=name;
-		else
-			fullname = nspace + "." + name;
-		printErrorMsg(&host, VARUNDECLARED, fullname);
-		failure = true;
-		return;
-	}
-	p->second->putAST(&host, id);
-}
-
-void BuildFunctionSymbols::caseExprArrow(ASTExprArrow &host, void *param)
-{
-	//recur on the name
-	host.getLVal()->execute(*this,param);
-	//recur on the index, if it exists
-	if(host.getIndex())
-		host.getIndex()->execute(*this,param);
-	//wait for type-checking to do rest of work
-}
-////////////////////////////////////////////////////////////////////////////////
 ScriptsData * compile(char *filename);
 
 #ifdef PARSER_DEBUG
@@ -1075,16 +45,18 @@ ScriptsData * compile(char *filename)
 	box_out("Pass 2: Preprocessing");
 	box_eol();
 #endif
-	if(!ScriptParser::preprocess(theAST, RECURSIONLIMIT))
+	map<string, long> *consts = new map<string,long>();
+	if(!ScriptParser::preprocess(theAST, RECURSIONLIMIT,consts))
 	{
 		delete theAST;
+		delete consts;
 		return NULL;
 	}
 #ifndef SCRIPTPARSER_COMPILE
 	box_out("Pass 3: Building symbol tables");
 	box_eol();
 #endif
-	SymbolData *d = ScriptParser::buildSymbolTable(theAST);
+	SymbolData *d = ScriptParser::buildSymbolTable(theAST,consts);
 	if(d==NULL)
 	{
 		return NULL;
@@ -1140,7 +112,7 @@ string ScriptParser::trimQuotes(string quoteds)
 	return rval;
 }
 
-bool ScriptParser::preprocess(AST *theAST, int reclimit)
+bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *constants)
 {
 	if(reclimit == 0)
 	{
@@ -1163,7 +135,7 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit)
 			return false;
 		}
 		AST *recAST = resAST;
-		if(!preprocess(recAST, reclimit-1))
+		if(!preprocess(recAST, reclimit-1,constants))
 		{
 			for(vector<ASTImportDecl *>::iterator it2 = imports.begin(); it2 != imports.end(); it2++)
 			{
@@ -1188,12 +160,11 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit)
 	GetConsts gc;
 	theAST->execute(gc,NULL);
 	vector<ASTConstDecl *> consts = gc.getResult();
-	map<string, long> constants;
 	bool failure = false;
 	for(vector<ASTConstDecl *>::iterator it = consts.begin(); it != consts.end(); it++)
 	{
-		map<string, long>::iterator find = constants.find((*it)->getName());
-		if(find != constants.end())
+		map<string, long>::iterator find = constants->find((*it)->getName());
+		if(find != constants->end())
 		{
 			printErrorMsg(*it, CONSTREDEF, (*it)->getName());
 			failure=true;
@@ -1206,17 +177,21 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit)
 			{
 				printErrorMsg(*it, CONSTTRUNC, (*it)->getValue()->getValue());
 			}
-			constants[(*it)->getName()]=val.first;
+			(*constants)[(*it)->getName()]=val.first;
 		}
 		delete *it;
 	}
-	return !failure;
+	if(failure)
+	{
+		return false;
+	}
+	return true;
 }
 
-SymbolData *ScriptParser::buildSymbolTable(AST *theAST)
+SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *constants)
 {
 	SymbolData *rval = new SymbolData();
-	SymbolTable *t = new SymbolTable();
+	SymbolTable *t = new SymbolTable(constants);
 	Scope *globalScope = new Scope(NULL);
 	bool failure = false;
 	//ADD LIBRARY FUNCTIONS TO THE GLOBAL SCOPE HERE
@@ -1301,22 +276,22 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST)
 			continue;
 		}
 		//add the "this" pointer
-		int vid = subscope->getVarSymbols().addVariable("this", scripttype);
-		t->putVar(vid, scripttype);
-		rval->thisPtr[*it]=vid;
-		//t->addGlobalPointer(vid);
+		int vid2 = subscope->getVarSymbols().addVariable("this", scripttype);
+		t->putVar(vid2, scripttype);
+		rval->thisPtr[*it]=vid2;
+		//t->addGlobalPointer(vid2);
 		//add a Link global variable
-		vid = subscope->getVarSymbols().addVariable("Link", ScriptParser::TYPE_LINK);
-		t->putVar(vid, ScriptParser::TYPE_LINK);
-		t->addGlobalPointer(vid);
+		vid2 = subscope->getVarSymbols().addVariable("Link", ScriptParser::TYPE_LINK);
+		t->putVar(vid2, ScriptParser::TYPE_LINK);
+		t->addGlobalPointer(vid2);
 		//add a Screen global variable
-		vid = subscope->getVarSymbols().addVariable("Screen", ScriptParser::TYPE_SCREEN);
-		t->putVar(vid, ScriptParser::TYPE_SCREEN);
-		t->addGlobalPointer(vid);
+		vid2 = subscope->getVarSymbols().addVariable("Screen", ScriptParser::TYPE_SCREEN);
+		t->putVar(vid2, ScriptParser::TYPE_SCREEN);
+		t->addGlobalPointer(vid2);
 		//add a Game global variable
-		vid = subscope->getVarSymbols().addVariable("Game", ScriptParser::TYPE_GAME);
-		t->putVar(vid, ScriptParser::TYPE_GAME);
-		t->addGlobalPointer(vid);
+		vid2 = subscope->getVarSymbols().addVariable("Game", ScriptParser::TYPE_GAME);
+		t->putVar(vid2, ScriptParser::TYPE_GAME);
+		t->addGlobalPointer(vid2);
 
 		pair<Scope *, SymbolTable *> param(subscope, t);
 		BuildScriptSymbols bss;
@@ -1547,8 +522,8 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 	LinkTable lt;
 	for(vector<ASTVarDecl *>::iterator it = globals.begin(); it != globals.end(); it++)
 	{
-		int vid = symbols->getID(*it);
-		lt.addGlobalVar(vid);
+		int vid2 = symbols->getID(*it);
+		lt.addGlobalVar(vid2);
 	}
 	//and add the this pointers
 	for(vector<int>::iterator it = symbols->getGlobalPointers().begin(); it != symbols->getGlobalPointers().end(); it++)
@@ -1557,8 +532,8 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 	}
 	for(vector<ASTFuncDecl *>::iterator it = funcs.begin(); it != funcs.end(); it++)
 	{
-		int fid = symbols->getID(*it);
-		lt.functionToLabel(fid);
+		int fid2 = symbols->getID(*it);
+		lt.functionToLabel(fid2);
 	}
 	//we now have labels for the functions and ids for the global variables.
 	//we can now generate the code to intialize the globals
@@ -1642,7 +617,12 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 		(*it)->execute(temp, &param);
 		int offset = 0;
 		StackFrame sf;
-		
+		//if this is a run, there is the this pointer
+		if(isarun)
+		{
+			sf.addToFrame(thisptr[scriptname], offset);
+			offset+=10000;
+		}
 		//the params are now the first elements of this list
 		//so assign them depths in reverse order
 		for(vector<int>::reverse_iterator it2 = stackvars.rbegin(); it2 != stackvars.rend(); it2++)
@@ -1650,12 +630,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 			sf.addToFrame(*it2, offset);
 			offset+=10000;
 		}
-		//if this is a run, there is the this pointer
-		if(isarun)
-		{
-			sf.addToFrame(thisptr[scriptname], offset);
-			offset+=10000;
-		}
+		
 		//start of the function
 		Opcode *first = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
 		first->setLabel(lt.functionToLabel(symbols->getID(*it)));
@@ -1775,21 +750,21 @@ ScriptsData *ScriptParser::assemble(IntermediateData *id)
 	rval->theScripts["~Init"] = assembleOne(ginit, funcs,0);
 	rval->scriptTypes["~Init"] = ScriptParser::TYPE_GLOBAL;
 
-	for(map<string, int>::iterator it = scripts.begin(); it != scripts.end(); it++)
+	for(map<string, int>::iterator it2 = scripts.begin(); it2 != scripts.end(); it2++)
 	{
-		vector<Opcode *> code = funcs[it->second];
-		rval->theScripts[it->first] = assembleOne(code,funcs,numparams[it->first]);
-		rval->scriptTypes[it->first] = scripttypes[it->first];
+		vector<Opcode *> code = funcs[it2->second];
+		rval->theScripts[it2->first] = assembleOne(code,funcs,numparams[it2->first]);
+		rval->scriptTypes[it2->first] = scripttypes[it2->first];
 	}
-	for(vector<Opcode *>::iterator it = ginit.begin(); it != ginit.end(); it++)
+	for(vector<Opcode *>::iterator it2 = ginit.begin(); it2 != ginit.end(); it2++)
 	{
-		delete *it;
+		delete *it2;
 	}
-	for(map<int, vector<Opcode *> >::iterator it = funcs.begin(); it != funcs.end(); it++)
+	for(map<int, vector<Opcode *> >::iterator it2 = funcs.begin(); it2 != funcs.end(); it2++)
 	{
-		for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+		for(vector<Opcode *>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3++)
 		{
-			delete *it2;
+			delete *it3;
 		}
 	}
 	return rval;
@@ -1898,40 +873,4 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	intval += fpart;
 	rval.first = intval;
 	return rval;
-}
-
-int StackFrame::getOffset(int vid)
-{
-	map<int, int>::iterator it = stackoffset.find(vid);
-	if(it == stackoffset.end())
-	{
-		box_out("Internal Error: Can't find variable stack offset!");
-		box_eol();
-		return 0;
-	}
-	return stackoffset[vid];
-}
-
-int SymbolTable::getVarType(AST *obj)
-{
-	map<AST *, int>::iterator it = astToID.find(obj);
-	if(it == astToID.end())
-	{
-		box_out("Internal Error: Can't find the AST ID!");
-		box_eol();
-		return -1;
-	}
-	return getVarType(it->second);
-}
-
-int SymbolTable::getVarType(int varID)
-{
-	map<int, int>::iterator it = varTypes.find(varID);
-	if(it == varTypes.end())
-	{
-		box_out("Internal Error: Can't find the variable type!");
-		box_eol();
-		return -1;
-	}
-	return it->second;
 }

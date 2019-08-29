@@ -81,13 +81,17 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
 sprite::~sprite() {}
 void sprite::draw2(BITMAP* dest)                            // top layer for special needs
 {
+  //these are here to bypass compiler warnings about unused arguments
+  dest=dest;
 }
 
 void sprite::drawcloaked2(BITMAP* dest)                     // top layer for special needs
 {
+  //these are here to bypass compiler warnings about unused arguments
+  dest=dest;
 }
 
-bool sprite::animate(int index) { ++c_clk; return false; }
+bool sprite::animate(int index) { index=index; /*these are here to bypass compiler warnings about unused arguments*/ ++c_clk; return false; }
 int sprite::real_x(fix fx)
 {
   int rx=fx.v>>16;
@@ -133,13 +137,13 @@ bool sprite::hit(int tx,int ty,int txsz,int tysz)
           && ty<y+hyofs+hysz);
 }
 
-int sprite::hitdir(int tx,int ty,int txsz,int tysz,int dir)
+int sprite::hitdir(int tx,int ty,int txsz,int tysz,int dir2)
 {
   int cx1=x+hxofs+(hxsz>>1);
   int cy1=y+hyofs+(hysz>>1);
   int cx2=tx+(txsz>>1);
   int cy2=ty+(tysz>>1);
-  if(dir>=left && abs(cy1-cy2)<=8)
+  if(dir2>=left && abs(cy1-cy2)<=8)
     return (cx2-cx1<0)?left:right;
   return (cy2-cy1<0)?up:down;
 }
@@ -240,7 +244,7 @@ void sprite::draw(BITMAP* dest)
   else
   {
     int t  = wpnsbuf[iwSpawn].tile;
-    int cs = wpnsbuf[iwSpawn].csets&15;
+    int cs2 = wpnsbuf[iwSpawn].csets&15;
     if(BSZ)
     {
       if(clk>=-10) ++t;
@@ -251,7 +255,7 @@ void sprite::draw(BITMAP* dest)
       if(clk>=-12) ++t;
       if(clk>=-6) ++t;
     }
-    overtile16(dest,t,sx,sy,cs,0);
+    overtile16(dest,t,sx,sy,cs2,0);
   }
 
   if(get_debug() && key[KEY_O] && !is_zquest())
@@ -293,7 +297,7 @@ void sprite::drawcloaked(BITMAP* dest)
   else
   {
     int t  = wpnsbuf[iwSpawn].tile;
-    int cs = wpnsbuf[iwSpawn].csets&15;
+    int cs2 = wpnsbuf[iwSpawn].csets&15;
     if(BSZ)
     {
       if(clk>=-10) ++t;
@@ -304,7 +308,7 @@ void sprite::drawcloaked(BITMAP* dest)
       if(clk>=-12) ++t;
       if(clk>=-6) ++t;
     }
-    overtile16(dest,t,x,sy,cs,0);
+    overtile16(dest,t,x,sy,cs2,0);
   }
 
   if(get_debug() && key[KEY_O])

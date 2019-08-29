@@ -22,7 +22,7 @@ void Z_init_sound();
 void load_game_configs();
 void save_game_configs();
 
-void draw_lens_under();
+void draw_lens_under(BITMAP *dest);
 void draw_lens_over();
 void fix_menu();
 void f_Quit(int type);
@@ -128,7 +128,7 @@ int  TriforceCount();
 bool item_disabled(int item_type, int item);
 bool can_use_item(int item_type, int item);
 bool has_item(int item_type, int item);
-int high_item(int jmax, int item_type, bool consecutive, int itemcluster, bool usecluster);
+//int high_item(int jmax, int item_type, bool consecutive, int itemcluster, bool usecluster);
 int current_item(int item_type, bool consecutive);
 int high_flag(int i, int item_type, bool consecutive);
 int item_tile_mod(bool);
@@ -161,6 +161,6 @@ void zc_putpixel(int layer, int x, int y, int cset, int color, int timer);
 extern bool midi_strict;
 #endif
 #ifdef ALLEGRO_MACOSX
-extern bool midi_strict;
+extern int midi_strict;
 #endif
 #endif                                                      // _ZC_SYS_H_

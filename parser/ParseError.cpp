@@ -1,4 +1,3 @@
-#include "ScriptParser.h"
 #include "ParseError.h"
 #include "../zsyssimple.h"
 #include <assert.h>
@@ -124,6 +123,9 @@ void printErrorMsg(AST *offender, int errorID, string param)
 		break;
 	case CONSTREDEF:
 		oss << "Error P35: There is already a constant with name " << param << " defined.";
+		break;
+	case LVALCONST:
+		oss << "Error T36: Cannot change the value of constant variable " << param << ".";
 		break;
 	default:
 		oss << "FATAL FATAL ERROR I0: bad internal error code (lol)" ;

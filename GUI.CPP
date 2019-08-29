@@ -85,6 +85,9 @@ int PopUp_dialog(DIALOG *d,int f)
 
 int popup_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  buffer=buffer;
+
   BITMAP *bmp;
   int ret;
 
@@ -127,12 +130,12 @@ int PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int f)
   return ret;
 }
 
-int update_dialog_through_bitmap (BITMAP* buffer, DIALOG_PLAYER *player)
+int update_dialog_through_bitmap (BITMAP* buffer, DIALOG_PLAYER *the_player)
 {
   BITMAP* orig_screen = screen;
   int result;
   screen = buffer;
-  result = update_dialog(player);
+  result = update_dialog(the_player);
   screen = orig_screen;
   blit(buffer, screen, 0, 0, 0, 0, screen->w, screen->h);
   position_mouse_z(0);

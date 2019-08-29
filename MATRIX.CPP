@@ -65,7 +65,7 @@ void Matrix(int speed, int density, int mousedelay)
 
   InitMatrix();
 
-  while(true)
+  for(;;)
   {
     waitvsync();
 
@@ -103,10 +103,10 @@ void Matrix(int speed, int density, int mousedelay)
 
 static void InitMatrix()
 {
-  RGB c_blck = {0,0,0};
-  RGB c_lgrn = {0,255,0};
-  RGB c_mgrn = {0,170,0};
-  RGB c_dgrn = {0,85,0};
+  RGB c_blck = {0,0,0,0};
+  RGB c_lgrn = {0,255,0,0};
+  RGB c_mgrn = {0,170,0,0};
+  RGB c_dgrn = {0,85,0,0};
 
   set_color(BLACK, &c_blck);
   set_color(LIGHT_GREEN, &c_lgrn);

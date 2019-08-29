@@ -139,6 +139,9 @@ void loadfadepal(int dataset)
 
 void fade(int level,bool blackall,bool fromblack,bool total)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  total=total;
+
   logic_counter=0;
   drawit=true;
   int cx = fromblack ? 30 : 0;
@@ -159,11 +162,11 @@ void fade(int level,bool blackall,bool fromblack,bool total)
 
       loadlvlpal(level);
       byte *si = colordata + CSET(level*pdLEVEL+poFADE1)*3;
-      for(int i=0; i<16; i++)
+      for(int j=0; j<16; ++j)
       {
         int light = si[0]+si[1]+si[2];
         si+=3;
-        fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+i,CSET(2)+i);
+        fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+j,CSET(2)+j);
       }
       fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
       refreshpal=true;
@@ -178,8 +181,8 @@ void fade(int level,bool blackall,bool fromblack,bool total)
         case 30:
         if(blackall)
         {
-          for(int i=0; i<pdFADE*16; i++)
-            RAMpal[CSET(2)+i]=black_palette[0];
+          for(int j=0; j<pdFADE*16; j++)
+            RAMpal[CSET(2)+j]=black_palette[0];
           refreshpal=true;
         } else
           loadfadepal(level*pdLEVEL+poFADE3);

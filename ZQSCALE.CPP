@@ -16,6 +16,104 @@ int zqwin_scale = 1;
 
 bool zqwin_set_scale(int scale, bool defer = false);
 
+void clip_and_stretch_blit(BITMAP *src, BITMAP *dest, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, bool masked=false) 
+{
+	//clip source and destination aarrgh
+
+	//compute the scale factors. These must be preserved.
+	double scalew = ((double)sw)/((double)dw);
+	double scaleh = ((double)sh)/((double)dw);
+	//clip the source
+	if(sx < 0)
+	{
+		sw+=sx;
+		dw+=(int)(sx*scalew);
+		sx=0;
+	}
+	if(sy<0)
+	{
+		sh+=sy;
+		dh+=(int)(sy*scaleh);
+		sy=0;
+	}
+	if(sx + sw > src->w)
+	{
+		int neww = src->w-sx;
+		int difw = neww-sw;
+		sw = neww;
+		dw += (int)(difw*scalew);
+	}
+	if(sy+sh > src->h)
+	{
+		int newh = src->h-sy;
+		int difh = newh-sh;
+		sh = newh;
+		dh += (int)(difh*scaleh);
+	}
+	//clip the destination
+	if(dx < 0)
+	{
+		dw+=dx;
+		sw+=(int)(dx/scalew);
+		dx=0;
+	}
+	if(dy < 0)
+	{
+		dh+=dy;
+		sh+=(int)(dy/scaleh);
+		dy=0;
+	}
+	if(dx+dw > dest->w)
+	{
+		int neww = dest->w-dx;
+		int difw = neww-dw;
+		dw = neww;
+		sw += (int)(difw/scalew);
+	}
+	if(dy+dh > dest->h)
+	{
+		int newh = dest->h-dy;
+		int difh = newh-dh;
+		dh = newh;
+		sh += (int)(difh/scaleh);
+	}
+	if(sw<0 || sh < 0 || dw < 0 || dh < 0)
+		return;
+	if(masked)
+		masked_stretch_blit(src, dest, sx, sy, sw, sh, dx, dy, dw, dh);
+	else
+		stretch_blit(src, dest, sx, sy, sw, sh, dx, dy, dw, dh);
+}
+
+void clip_and_stretch_sprite(BITMAP *dest, BITMAP *src, int x, int y, int w, int h)
+{
+	clip_and_stretch_blit(src, dest, 0, 0, src->w, src->h, x, y, w, h,true);
+}
+
+void clip_and_rectfill(BITMAP *dest, int x1, int y1, int x2, int y2, int color)
+{
+	if(x1 >= dest->w || x2 < 0 || y1 >= dest->h || y2 < 0)
+		return;
+	if(x1<0)
+	{
+		x1=0;
+	}
+	if(y1<0)
+	{
+		y1=0;
+	}
+	if(x2>dest->w)
+	{
+		x2 = dest->w;
+	}
+	if(y2>dest->h)
+	{
+		y2 = dest->h;
+	}
+	rectfill(dest,x1,y1,x2,y2,color);
+}
+
+
 
 void zq_set_mouse_range(int x1, int y1, int x2, int y2)
 {
@@ -82,7 +180,7 @@ void zqwin_putpixel(struct BITMAP *bmp, int x, int y, int color)
     }
     }
     */
-  rectfill(orig_screen, x*zqwin_scale, y*zqwin_scale, (((x+1)*zqwin_scale)-1), (((y+1)*zqwin_scale)-1), color);
+  clip_and_rectfill(orig_screen, x*zqwin_scale, y*zqwin_scale, (((x+1)*zqwin_scale)-1), (((y+1)*zqwin_scale)-1), color);
   return;
 }
 
@@ -99,7 +197,7 @@ void zqwin_vline(struct BITMAP *bmp, int x, int y1, int y2, int color)
     _allegro_vline(orig_screen, x*zqwin_scale+i, y1*zqwin_scale, (y2+1)*zqwin_scale-1, color);
     }
     */
-  rectfill(orig_screen, x*zqwin_scale, y1*zqwin_scale, (((x+1)*zqwin_scale)-1), (((y2+1)*zqwin_scale)-1), color);
+  clip_and_rectfill(orig_screen, x*zqwin_scale, y1*zqwin_scale, (((x+1)*zqwin_scale)-1), (((y2+1)*zqwin_scale)-1), color);
   return;
 }
 
@@ -116,7 +214,7 @@ void zqwin_hline(struct BITMAP *bmp, int x1, int y, int x2, int color)
     _allegro_hline(orig_screen, x1*zqwin_scale, y*zqwin_scale+i, (x2+1)*zqwin_scale-1, color);
     }
     */
-  rectfill(orig_screen, x1*zqwin_scale, y*zqwin_scale, (((x2+1)*zqwin_scale)-1), (((y+1)*zqwin_scale)-1), color);
+  clip_and_rectfill(orig_screen, x1*zqwin_scale, y*zqwin_scale, (((x2+1)*zqwin_scale)-1), (((y+1)*zqwin_scale)-1), color);
   return;
 }
 
@@ -136,7 +234,7 @@ void zqwin_hfill(struct BITMAP *bmp, int x1, int y, int x2, int color)
 
 void line_helper(BITMAP *bmp, int x, int y, int d)
 {
-  rectfill(bmp, x*zqwin_scale, y*zqwin_scale, (((x+1)*zqwin_scale)-1), (((y+1)*zqwin_scale)-1), d);
+  clip_and_rectfill(bmp, x*zqwin_scale, y*zqwin_scale, (((x+1)*zqwin_scale)-1), (((y+1)*zqwin_scale)-1), d);
 }
 
 void zqwin_line(struct BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
@@ -165,7 +263,7 @@ void zqwin_rectfill(struct BITMAP *bmp, int x1, int y1, int x2, int y2, int colo
   int dy = offset_y(bmp);
   y1 += dy;
   y2 += dy;
-  rectfill(orig_screen, x1*zqwin_scale, y1*zqwin_scale, (x2+1)*zqwin_scale-1, (y2+1)*zqwin_scale-1, color);
+  clip_and_rectfill(orig_screen, x1*zqwin_scale, y1*zqwin_scale, (x2+1)*zqwin_scale-1, (y2+1)*zqwin_scale-1, color);
   return;
 }
 
@@ -174,7 +272,9 @@ void zqwin_draw_sprite(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y)
   orig_vtable->draw_sprite(bmp, sprite, x, y);
   x += offset_x(bmp);
   y += offset_y(bmp);
-  stretch_sprite(orig_screen, sprite, x*zqwin_scale, y*zqwin_scale, sprite->w*zqwin_scale, sprite->h*zqwin_scale);
+  //this method crashes on OS X if we try to blit outside the destination sprite.
+  //do some manual clipping
+  clip_and_stretch_sprite(orig_screen, sprite, x*zqwin_scale, y*zqwin_scale, sprite->w*zqwin_scale, sprite->h*zqwin_scale);
   return;
 }
 
@@ -183,21 +283,21 @@ void zqwin_draw_256_sprite(struct BITMAP *bmp, struct BITMAP *sprite, int x, int
   orig_vtable->draw_256_sprite(bmp, sprite, x, y);
   x += offset_x(bmp);
   y += offset_y(bmp);
-  stretch_sprite(orig_screen, sprite, x*zqwin_scale, y*zqwin_scale, sprite->w*zqwin_scale, sprite->h*zqwin_scale);
+  clip_and_stretch_sprite(orig_screen, sprite, x*zqwin_scale, y*zqwin_scale, sprite->w*zqwin_scale, sprite->h*zqwin_scale);
   return;
 }
 
 void zqwin_draw_character(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int color, int bg)
 {
   orig_vtable->draw_character(bmp,sprite,x,y,color,bg);
-  stretch_blit(bmp, orig_screen, x, y, sprite->w, sprite->h, (x+offset_x(bmp))*zqwin_scale, (y+offset_y(bmp))*zqwin_scale, sprite->w*zqwin_scale, sprite->h*zqwin_scale);
+  clip_and_stretch_blit(bmp, orig_screen, x, y, sprite->w, sprite->h, (x+offset_x(bmp))*zqwin_scale, (y+offset_y(bmp))*zqwin_scale, sprite->w*zqwin_scale, sprite->h*zqwin_scale);
   return;
 }
 
 void zqwin_draw_glyph(struct BITMAP *bmp, AL_CONST struct FONT_GLYPH *glyph, int x, int y, int color, int bg)
 {
   orig_vtable->draw_glyph(bmp,glyph,x,y,color,bg);
-  stretch_blit(bmp, orig_screen, x, y, glyph->w, glyph->h, (x+offset_x(bmp))*zqwin_scale, (y+offset_y(bmp))*zqwin_scale, glyph->w*zqwin_scale, glyph->h*zqwin_scale);
+  clip_and_stretch_blit(bmp, orig_screen, x, y, glyph->w, glyph->h, (x+offset_x(bmp))*zqwin_scale, (y+offset_y(bmp))*zqwin_scale, glyph->w*zqwin_scale, glyph->h*zqwin_scale);
   return;
 }
 
@@ -206,7 +306,7 @@ void zqwin_blit_from_memory(struct BITMAP *source, struct BITMAP *dest, int sour
   orig_vtable->blit_from_memory(source,dest,source_x,source_y,dest_x,dest_y,width,height);
   if(is_same_bitmap(dest, proxy_screen))
   {
-    stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
+    clip_and_stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
   }
   return;
 }
@@ -216,7 +316,7 @@ void zqwin_blit_to_memory(struct BITMAP *source, struct BITMAP *dest, int source
   orig_vtable->blit_to_memory(source,dest,source_x,source_y,dest_x,dest_y,width,height);
   if(is_same_bitmap(dest, proxy_screen))
   {
-    stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
+    clip_and_stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
   }
   return;
 }
@@ -226,7 +326,7 @@ void zqwin_blit_from_system(struct BITMAP *source, struct BITMAP *dest, int sour
   orig_vtable->blit_from_system(source,dest,source_x,source_y,dest_x,dest_y,width,height);
   if(is_same_bitmap(dest, proxy_screen))
   {
-    stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
+    clip_and_stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
   }
   return;
 }
@@ -236,7 +336,7 @@ void zqwin_blit_to_system(struct BITMAP *source, struct BITMAP *dest, int source
   orig_vtable->blit_to_system(source,dest,source_x,source_y,dest_x,dest_y,width,height);
   if(is_same_bitmap(dest, proxy_screen))
   {
-    stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
+    clip_and_stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
   }
   return;
 }
@@ -282,17 +382,17 @@ void zqwin_blit_to_self(struct BITMAP *source, struct BITMAP *dest, int source_x
           }
           orig_vtable->blit_to_self(proxy_screen, tmp, mx, my, 0, 0, mw, mh);
         //orig_vtable->draw_256_sprite(proxy_screen, mouse_sprite, mx, my);
-        stretch_blit(proxy_screen, orig_screen, l_x, l_y, l_w, l_h, l_x*zqwin_scale, l_y*zqwin_scale, l_w*zqwin_scale, l_h*zqwin_scale);
+        clip_and_stretch_blit(proxy_screen, orig_screen, l_x, l_y, l_w, l_h, l_x*zqwin_scale, l_y*zqwin_scale, l_w*zqwin_scale, l_h*zqwin_scale);
         orig_vtable->blit_to_self(tmp, proxy_screen, 0, 0, mx, my, mw, mh);
       }
       else
       {
-        stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, x1*zqwin_scale, y1*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
+        clip_and_stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, x1*zqwin_scale, y1*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
       }
     }
     else
     {
-      stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, x1*zqwin_scale, y1*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
+     clip_and_stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, x1*zqwin_scale, y1*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
     }
   }
   return;
@@ -303,7 +403,7 @@ void zqwin_blit_to_self_forward(struct BITMAP *source, struct BITMAP *dest, int 
   orig_vtable->blit_to_self_forward(source,dest,source_x,source_y,dest_x,dest_y,width,height);
   if(is_same_bitmap(dest, proxy_screen))
   {
-    stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
+    clip_and_stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
   }
   return;
 }
@@ -313,7 +413,7 @@ void zqwin_blit_to_self_backward(struct BITMAP *source, struct BITMAP *dest, int
   orig_vtable->blit_to_self_backward(source,dest,source_x,source_y,dest_x,dest_y,width,height);
   if(is_same_bitmap(dest, proxy_screen))
   {
-    stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
+    clip_and_stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
   }
   return;
 }
@@ -323,7 +423,7 @@ void zqwin_blit_between_formats(struct BITMAP *source, struct BITMAP *dest, int 
   orig_vtable->blit_between_formats(source,dest,source_x,source_y,dest_x,dest_y,width,height);
   if(is_same_bitmap(dest, proxy_screen))
   {
-    stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
+    clip_and_stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
   }
   return;
 }
@@ -333,7 +433,7 @@ void zqwin_masked_blit(struct BITMAP *source, struct BITMAP *dest, int source_x,
   orig_vtable->masked_blit(source,dest,source_x,source_y,dest_x,dest_y,width,height);
   if(is_same_bitmap(dest, proxy_screen))
   {
-    stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
+    clip_and_stretch_blit(dest, orig_screen, dest_x, dest_y, width, height, (dest_x+offset_x(dest))*zqwin_scale, (dest_y+offset_y(dest))*zqwin_scale, width*zqwin_scale, height*zqwin_scale);
   }
   return;
 }
@@ -391,6 +491,10 @@ bool is_windowed_mode(int mode)
 
 int zqwin_set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  v_w=v_w;
+  v_h=v_h;
+
   int failed = 0;
 
   bool wasProxied = (screen == proxy_screen) && (proxy_screen != NULL);

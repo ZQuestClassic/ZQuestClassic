@@ -13,7 +13,7 @@
 /************************/
 
 #ifndef __GTHREAD_HIDE_WIN32API                             
-#define __GTHREAD_HIDE_WIN32API 
+#define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
 #include <string.h>
@@ -694,13 +694,15 @@ void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
 
 void over_combo_translucent(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int opacity)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  flags=flags;
+
   /*
     newcombo c = combobuf[cmbdat];
 
     if(c.tile)
     overtile16(dest,c.tile,x,y,cset,c.flip);
     */
-  newcombo c = combobuf[cmbdat];
   overcombotranslucent(dest,x,y,cmbdat,cset,opacity);
   /* moved to put_walkflags
     for(int i=0; i<4; i++) {
@@ -714,6 +716,9 @@ void over_combo_translucent(BITMAP *dest,int x,int y,word cmbdat,int cset,int fl
 
 void over_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  flags=flags;
+
   /*
     newcombo c = combobuf[cmbdat];
 
@@ -723,7 +728,6 @@ void over_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags)
 
     //  over_combo_translucent(dest,x,y,cmbdat,cset,flags,255);
     */
-  newcombo c = combobuf[cmbdat];
   overcombo(dest,x,y,cmbdat,cset);
 
   /* moved to put_walkflags
@@ -823,6 +827,9 @@ void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,boo
 
 void zmap::over_door(BITMAP *dest,int pos,int side,int xofs,int yofs,bool ignorepos)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  ignorepos=ignorepos;
+
   int x=((pos&15)<<4)+xofs;
   int y=(pos&0xF0)+yofs;
   mapscr *doorscreen=(prv_mode?get_prvscr():screens+currscr);
@@ -1423,11 +1430,11 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 	          //overcombo(framebuf,(int)layer->ffx[i],(int)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
 		      for(int j=0;j<(layer->ffheight[i]>>6)+1;j++)
 		      {
-		        for(int k=0;k<(layer->ffwidth[i]>>6)+1;k++)
+		        for(int l=0;l<(layer->ffwidth[i]>>6)+1;l++)
 			    {
 			      if(layer->ffflags[i]&ffTRANS)
-			        overtiletranslucent16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(k), (layer->ffx[i]/10000)+(k*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
-			      else overtile16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(k), (layer->ffx[i]/10000)+(k*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
+			        overtiletranslucent16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(l), (layer->ffx[i]/10000)+(l*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
+			      else overtile16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(l), (layer->ffx[i]/10000)+(l*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
 			    }
 		      }
 		    }
@@ -1567,7 +1574,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     break;
   }
 
-  if((layer->item) && !(flags&cNOITEM))
+  if((layer->hasitem != 0) && !(flags&cNOITEM))
   {
     frame=0;
     putitem2(dest,layer->itemx+x,layer->itemy+y,layer->item,lens_hint_item[layer->item][0],lens_hint_item[layer->item][1], 0);
@@ -1661,11 +1668,11 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 	          //overcombo(framebuf,(int)layer->ffx[i],(int)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
 		      for(int j=0;j<(layer->ffheight[i]>>6)+1;j++)
 		      {
-		        for(int k=0;k<(layer->ffwidth[i]>>6)+1;k++)
+		        for(int l=0;l<(layer->ffwidth[i]>>6)+1;l++)
 			    {
 			      if(layer->ffflags[i]&ffTRANS)
-			        overtiletranslucent16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(k), (layer->ffx[i]/10000)+(k*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
-			      else overtile16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(k), (layer->ffx[i]/10000)+(k*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
+			        overtiletranslucent16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(l), (layer->ffx[i]/10000)+(l*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
+			      else overtile16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(l), (layer->ffx[i]/10000)+(l*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
 			    }
 		      }
 		    }
@@ -2855,6 +2862,7 @@ void zmap::PasteScreenData()
 	screens[currscr].flags9 = copymapscr.flags9;
 	screens[currscr].flags10 = copymapscr.flags10;
 	screens[currscr].item = copymapscr.item;
+	screens[currscr].hasitem = copymapscr.hasitem;
 	screens[currscr].itemx = copymapscr.itemx;
 	screens[currscr].itemy = copymapscr.itemy;
 	screens[currscr].nextmap = copymapscr.nextmap;
@@ -3459,6 +3467,9 @@ bool save_msgstrs(char *path)
 
 bool load_msgstrs(char *path, int startstring)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  startstring=startstring;
+
   dword section_id;
   PACKFILE *f = pack_fopen(path,F_READ);
   if (!f)
@@ -4150,9 +4161,9 @@ bool setMapCount2(int c, bool reload)
   pack_fclose(f);
 
   free(TheMaps);
-  if(!(TheMaps=(mapscr*)malloc(sizeof(mapscr)*MAPSCRS*c)))
+  if((TheMaps=(mapscr*)malloc(sizeof(mapscr)*MAPSCRS*c))==NULL)
   {
-    if(!(TheMaps=(mapscr*)malloc(sizeof(mapscr)*MAPSCRS*oldmapcount)))
+    if((TheMaps=(mapscr*)malloc(sizeof(mapscr)*MAPSCRS*oldmapcount))==NULL)
     {
       jwin_alert("Error","There was a memory leak.","ZQuest will now close.",NULL,"O&K",NULL,'k',0,lfont);
       exit(1);
@@ -4341,6 +4352,9 @@ int init_quest()
 
 void set_questpwd(char *pwd, bool use_keyfile)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  use_keyfile=use_keyfile;
+
   memset(header.password,0,256);
   strcpy(header.password,pwd);
   header.dirty_password=true;
@@ -4363,23 +4377,22 @@ bool is_null_pwd_hash(unsigned char *pwd_hash)
   return (memcmp(md5sum,pwd_hash,16)==0);
 }
 
-
 static DIALOG pwd_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-  { jwin_win_proc,        0,   0,  224+22+1,   88+10+1,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Requires Authorization" },
-  { jwin_text_proc,       16,   28,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "File name:" },
+  { jwin_win_proc,        0,   0,  224+22+1,   88+10+1,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Requires Authorization", NULL, NULL },
+  { jwin_text_proc,       16,   28,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "File name:", NULL, NULL },
   // 2 (filename)
-  { jwin_text_proc,       72,  28, 128,   8,    vc(11),  vc(1),  0,       0,          24,            0,       NULL },
-  { jwin_text_proc,       16, 38, 0, 8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Challenge:" },
+  { jwin_text_proc,       72,  28, 128,   8,    vc(11),  vc(1),  0,       0,          24,            0,       NULL, NULL, NULL },
+  { jwin_text_proc,       16, 38, 0, 8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Challenge:", NULL, NULL },
   // 4 (challenge hash)
-  { jwin_text_proc,       72, 38, 0, 8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { jwin_text_proc,       16,  42+10,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Password:" },
+  { jwin_text_proc,       72, 38, 0, 8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       16,  42+10,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Password:", NULL, NULL },
   // 6 (password)
-  { jwin_edit_proc,       72,  38+10,  120+39,   16,    vc(12),  vc(1),  0,       0,          255,            0,       NULL },
-  { jwin_button_proc,     42,   62+10,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     122,  62+10,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { NULL }
+  { jwin_edit_proc,       72,  38+10,  120+39,   16,    vc(12),  vc(1),  0,       0,          255,            0,       NULL, NULL, NULL },
+  { jwin_button_proc,     42,   62+10,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     122,  62+10,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { NULL,                 0,    0,      0,    0,    0,       0,      0,       0,          0,             0,       NULL, NULL, NULL }
 };
 
 int reverse_string(char* str)
@@ -4556,7 +4569,7 @@ bool write_midi(MIDI *m,PACKFILE *f)
   return true;
 }
 
-int writeheader(PACKFILE *f, zquestheader *header)
+int writeheader(PACKFILE *f, zquestheader *Header)
 {
   dword section_id=ID_HEADER;
   dword section_version=V_HEADER;
@@ -4564,7 +4577,7 @@ int writeheader(PACKFILE *f, zquestheader *header)
   dword section_size=22+18+131+20+2048+1;                    //+29;
 
   //file header string
-  if(!pfwrite(header->id_str,sizeof(header->id_str),f))
+  if(!pfwrite(Header->id_str,sizeof(Header->id_str),f))
   {
     return 1;
   }
@@ -4592,61 +4605,61 @@ int writeheader(PACKFILE *f, zquestheader *header)
   }
 
   //finally...  section data
-  if(!p_iputw(header->zelda_version,f))
+  if(!p_iputw(Header->zelda_version,f))
   {
     return 6;
   }
-  if(!p_putc(header->build,f))
+  if(!p_putc(Header->build,f))
   {
     return 7;
   }
   /*
-    if(!pfwrite(header->password,sizeof(header->password),f))
+    if(!pfwrite(Header->password,sizeof(Header->password),f))
     {
     return 8;
     }
-    if(!p_iputw(header->pwdkey,f))
+    if(!p_iputw(Header->pwdkey,f))
     {
     return 9;
     }
     */
-  if(!pfwrite(header->pwd_hash,sizeof(header->pwd_hash),f))
+  if(!pfwrite(Header->pwd_hash,sizeof(Header->pwd_hash),f))
   {
     return 8;
   }
-  if(!p_iputw(header->internal,f))
+  if(!p_iputw(Header->internal,f))
   {
     return 10;
   }
-  if(!p_putc(header->quest_number,f))
+  if(!p_putc(Header->quest_number,f))
   {
     return 11;
   }
-  if(!pfwrite(header->version,sizeof(header->version),f))
+  if(!pfwrite(Header->version,sizeof(Header->version),f))
   {
     return 12;
   }
-  if(!pfwrite(header->minver,sizeof(header->minver),f))
+  if(!pfwrite(Header->minver,sizeof(Header->minver),f))
   {
     return 13;
   }
-  if(!pfwrite(header->title,sizeof(header->title),f))
+  if(!pfwrite(Header->title,sizeof(Header->title),f))
   {
     return 14;
   }
-  if(!pfwrite(header->author,sizeof(header->author),f))
+  if(!pfwrite(Header->author,sizeof(Header->author),f))
   {
     return 15;
   }
-  if(!p_putc(header->use_keyfile,f))
+  if(!p_putc(Header->use_keyfile,f))
   {
     return 16;
   }
-  if(!pfwrite(header->data_flags,sizeof(header->data_flags),f))
+  if(!pfwrite(Header->data_flags,sizeof(Header->data_flags),f))
   {
     return 17;
   }
-  if(!pfwrite(header->templatepath,sizeof(header->templatepath),f))
+  if(!pfwrite(Header->templatepath,sizeof(Header->templatepath),f))
   {
     return 19;
   }
@@ -4660,24 +4673,27 @@ int writeheader(PACKFILE *f, zquestheader *header)
     if(!pfwrite(midi_flags,sizeof(midi_flags),f)){
     return 18;
     }
-    if(!pfwrite(header->foo,sizeof(header->foo),f)){
+    if(!pfwrite(Header->foo,sizeof(Header->foo),f)){
     return 21;
     }
-    if(!pfwrite(header->foo2,sizeof(header->foo2),f)){
+    if(!pfwrite(Header->foo2,sizeof(Header->foo2),f)){
     return 22;
     }
-    if(!p_putc(header->old_str_count,f)){
+    if(!p_putc(Header->old_str_count,f)){
     return 23;
     }
-    if(!p_putc(header->old_options,f)){
+    if(!p_putc(Header->old_options,f)){
     return 24;
     }
     */
   return 0;
 }
 
-int writerules(PACKFILE *f, zquestheader *header)
+int writerules(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_RULES;
   dword section_version=V_RULES;
   dword section_cversion=CV_RULES;
@@ -4714,8 +4730,11 @@ int writerules(PACKFILE *f, zquestheader *header)
 }
 
 
-int writedoorcombosets(PACKFILE *f, zquestheader *header)
+int writedoorcombosets(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_DOORS;
   dword section_version=V_DOORS;
   dword section_cversion=CV_DOORS;
@@ -4943,6 +4962,10 @@ int writedoorcombosets(PACKFILE *f, zquestheader *header)
 
 int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_dmaps)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+
   word dmap_count=count_dmaps();
   dword section_id=ID_DMAPS;
   dword section_version=V_DMAPS;
@@ -5087,8 +5110,11 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
   return 0;
 }
 
-int writemisccolors(PACKFILE *f, zquestheader *header, miscQdata *misc)
+int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_COLORS;
   dword section_version=V_COLORS;
   dword section_cversion=CV_COLORS;
@@ -5119,115 +5145,115 @@ int writemisccolors(PACKFILE *f, zquestheader *header, miscQdata *misc)
 
   writesize=0;
 
-  if(!p_putc(misc->colors.text,f))
+  if(!p_putc(Misc->colors.text,f))
   {
     return 5;
   }
-  if(!p_putc(misc->colors.caption,f))
+  if(!p_putc(Misc->colors.caption,f))
   {
     return 6;
   }
-  if(!p_putc(misc->colors.overw_bg,f))
+  if(!p_putc(Misc->colors.overw_bg,f))
   {
     return 7;
   }
-  if(!p_putc(misc->colors.dngn_bg,f))
+  if(!p_putc(Misc->colors.dngn_bg,f))
   {
     return 8;
   }
-  if(!p_putc(misc->colors.dngn_fg,f))
+  if(!p_putc(Misc->colors.dngn_fg,f))
   {
     return 9;
   }
-  if(!p_putc(misc->colors.cave_fg,f))
+  if(!p_putc(Misc->colors.cave_fg,f))
   {
     return 10;
   }
-  if(!p_putc(misc->colors.bs_dk,f))
+  if(!p_putc(Misc->colors.bs_dk,f))
   {
     return 11;
   }
-  if(!p_putc(misc->colors.bs_goal,f))
+  if(!p_putc(Misc->colors.bs_goal,f))
   {
     return 12;
   }
-  if(!p_putc(misc->colors.compass_lt,f))
+  if(!p_putc(Misc->colors.compass_lt,f))
   {
     return 13;
   }
-  if(!p_putc(misc->colors.compass_dk,f))
+  if(!p_putc(Misc->colors.compass_dk,f))
   {
     return 14;
   }
-  if(!p_putc(misc->colors.subscr_bg,f))
+  if(!p_putc(Misc->colors.subscr_bg,f))
   {
     return 15;
   }
-  if(!p_putc(misc->colors.triframe_color,f))
+  if(!p_putc(Misc->colors.triframe_color,f))
   {
     return 16;
   }
-  if(!p_putc(misc->colors.link_dot,f))
+  if(!p_putc(Misc->colors.link_dot,f))
   {
     return 17;
   }
-  if(!p_putc(misc->colors.bmap_bg,f))
+  if(!p_putc(Misc->colors.bmap_bg,f))
   {
     return 18;
   }
-  if(!p_putc(misc->colors.bmap_fg,f))
+  if(!p_putc(Misc->colors.bmap_fg,f))
   {
     return 19;
   }
-  if(!p_putc(misc->colors.triforce_cset,f))
+  if(!p_putc(Misc->colors.triforce_cset,f))
   {
     return 20;
   }
-  if(!p_putc(misc->colors.triframe_cset,f))
+  if(!p_putc(Misc->colors.triframe_cset,f))
   {
     return 21;
   }
-  if(!p_putc(misc->colors.overworld_map_cset,f))
+  if(!p_putc(Misc->colors.overworld_map_cset,f))
   {
     return 22;
   }
-  if(!p_putc(misc->colors.dungeon_map_cset,f))
+  if(!p_putc(Misc->colors.dungeon_map_cset,f))
   {
     return 23;
   }
-  if(!p_putc(misc->colors.blueframe_cset,f))
+  if(!p_putc(Misc->colors.blueframe_cset,f))
   {
     return 24;
   }
-  if(!p_iputw(misc->colors.triforce_tile,f))
+  if(!p_iputw(Misc->colors.triforce_tile,f))
   {
     return 25;
   }
-  if(!p_iputw(misc->colors.triframe_tile,f))
+  if(!p_iputw(Misc->colors.triframe_tile,f))
   {
     return 26;
   }
-  if(!p_iputw(misc->colors.overworld_map_tile,f))
+  if(!p_iputw(Misc->colors.overworld_map_tile,f))
   {
     return 27;
   }
-  if(!p_iputw(misc->colors.dungeon_map_tile,f))
+  if(!p_iputw(Misc->colors.dungeon_map_tile,f))
   {
     return 28;
   }
-  if(!p_iputw(misc->colors.blueframe_tile,f))
+  if(!p_iputw(Misc->colors.blueframe_tile,f))
   {
     return 29;
   }
-  if(!p_iputw(misc->colors.HCpieces_tile,f))
+  if(!p_iputw(Misc->colors.HCpieces_tile,f))
   {
     return 30;
   }
-  if(!p_putc(misc->colors.HCpieces_cset,f))
+  if(!p_putc(Misc->colors.HCpieces_cset,f))
   {
     return 31;
   }
-  if(!p_putc(misc->colors.subscr_shadow,f))
+  if(!p_putc(Misc->colors.subscr_shadow,f))
   {
     return 32;
   }
@@ -5235,8 +5261,11 @@ int writemisccolors(PACKFILE *f, zquestheader *header, miscQdata *misc)
   return 0;
 }
 
-int writegameicons(PACKFILE *f, zquestheader *header, miscQdata *misc)
+int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_ICONS;
   dword section_version=V_ICONS;
   dword section_cversion=CV_ICONS;
@@ -5267,7 +5296,7 @@ int writegameicons(PACKFILE *f, zquestheader *header, miscQdata *misc)
 
   for (int i=0; i<4; i++)
   {
-    if(!p_iputw(misc->icons[i],f))
+    if(!p_iputw(Misc->icons[i],f))
     {
       return 5;
     }
@@ -5276,15 +5305,18 @@ int writegameicons(PACKFILE *f, zquestheader *header, miscQdata *misc)
   return 0;
 }
 
-int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
+int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_MISC;
   dword section_version=V_MISC;
   dword section_cversion=CV_MISC;
-  word shops=count_shops(misc);
-  word infos=count_infos(misc);
-  word warprings=count_warprings(misc);
-  word windwarps=count_windwarps(misc);
+  word shops=count_shops(Misc);
+  word infos=count_infos(Misc);
+  word warprings=count_warprings(Misc);
+  word windwarps=count_windwarps(Misc);
   word triforces=8;
   //  dword section_size=0;
   dword section_size = sizeof(word) + shops * 3 * (sizeof(char) + sizeof(word))
@@ -5329,18 +5361,25 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
   {
     for (int j=0; j<3; j++)
     {
-      if(!p_putc(misc->shop[i].item[j],f))
+	  if(!p_putc(Misc->shop[i].item[j],f))
       {
         return 6;
       }
     }
     for (int j=0; j<3; j++)
     {
-      if(!p_iputw(misc->shop[i].price[j],f))
+      if(!p_iputw(Misc->shop[i].price[j],f))
       {
         return 7;
       }
     }
+	for (int j=0; j<3; j++)
+	{
+		if(!p_putc(Misc->shop[i].hasitem[j],f))
+		{
+			return 7;
+		}
+	}
   }
 
   //infos
@@ -5352,14 +5391,14 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
   {
     for (int j=0; j<3; j++)
     {
-      if(!p_iputw(misc->info[i].str[j],f))
+      if(!p_iputw(Misc->info[i].str[j],f))
       {
         return 9;
       }
     }
     for (int j=0; j<3; j++)
     {
-      if(!p_iputw(misc->info[i].price[j],f))
+      if(!p_iputw(Misc->info[i].price[j],f))
       {
         return 10;
       }
@@ -5375,19 +5414,19 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
   {
     for (int j=0; j<8; j++)
     {
-      if(!p_putc(misc->warp[i].dmap[j],f))
+      if(!p_putc(Misc->warp[i].dmap[j],f))
       {
         return 12;
       }
     }
     for (int j=0; j<8; j++)
     {
-      if(!p_putc(misc->warp[i].scr[j],f))
+      if(!p_putc(Misc->warp[i].scr[j],f))
       {
         return 13;
       }
     }
-    if(!p_putc(misc->warp[i].size,f))
+    if(!p_putc(Misc->warp[i].size,f))
     {
       return 14;
     }
@@ -5400,11 +5439,11 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
   }
   for (int i=0; i<windwarps; i++)
   {
-    if(!p_putc(misc->wind[i].dmap,f))
+    if(!p_putc(Misc->wind[i].dmap,f))
     {
       return 16;
     }
-    if(!p_putc(misc->wind[i].scr,f))
+    if(!p_putc(Misc->wind[i].scr,f))
     {
       return 17;
     }
@@ -5413,7 +5452,7 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
   //triforce pieces
   for (int i=0; i<triforces; i++)
   {
-    if(!p_putc(misc->triforce[i],f))
+    if(!p_putc(Misc->triforce[i],f))
     {
       return 18;
     }
@@ -5422,116 +5461,116 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
 /*
   //misc color data
   {                                                         //this brace is here to make it easier to fold all the color data code
-    if(!p_putc(misc->colors.text,f))
+    if(!p_putc(Misc->colors.text,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.caption,f))
+    if(!p_putc(Misc->colors.caption,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.overw_bg,f))
+    if(!p_putc(Misc->colors.overw_bg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.dngn_bg,f))
+    if(!p_putc(Misc->colors.dngn_bg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.dngn_fg,f))
+    if(!p_putc(Misc->colors.dngn_fg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.cave_fg,f))
+    if(!p_putc(Misc->colors.cave_fg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.bs_dk,f))
+    if(!p_putc(Misc->colors.bs_dk,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.bs_goal,f))
+    if(!p_putc(Misc->colors.bs_goal,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.compass_lt,f))
+    if(!p_putc(Misc->colors.compass_lt,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.compass_dk,f))
+    if(!p_putc(Misc->colors.compass_dk,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.subscr_bg,f))
+    if(!p_putc(Misc->colors.subscr_bg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.triframe_color,f))
+    if(!p_putc(Misc->colors.triframe_color,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.link_dot,f))
+    if(!p_putc(Misc->colors.link_dot,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.bmap_bg,f))
+    if(!p_putc(Misc->colors.bmap_bg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.bmap_fg,f))
+    if(!p_putc(Misc->colors.bmap_fg,f))
     {
       return qe_invalid;
     }
 
-    if(!p_putc(misc->colors.triforce_cset,f))
+    if(!p_putc(Misc->colors.triforce_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.triframe_cset,f))
+    if(!p_putc(Misc->colors.triframe_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.overworld_map_cset,f))
+    if(!p_putc(Misc->colors.overworld_map_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.dungeon_map_cset,f))
+    if(!p_putc(Misc->colors.dungeon_map_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.blueframe_cset,f))
+    if(!p_putc(Misc->colors.blueframe_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.triforce_tile,f))
+    if(!p_iputw(Misc->colors.triforce_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.triframe_tile,f))
+    if(!p_iputw(Misc->colors.triframe_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.overworld_map_tile,f))
+    if(!p_iputw(Misc->colors.overworld_map_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.dungeon_map_tile,f))
+    if(!p_iputw(Misc->colors.dungeon_map_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.blueframe_tile,f))
+    if(!p_iputw(Misc->colors.blueframe_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.HCpieces_tile,f))
+    if(!p_iputw(Misc->colors.HCpieces_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.HCpieces_cset,f))
+    if(!p_putc(Misc->colors.HCpieces_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.subscr_shadow,f))
+    if(!p_putc(Misc->colors.subscr_shadow,f))
     {
       return qe_invalid;
     }
@@ -5540,7 +5579,7 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
   //save game icons
   for (int i=0; i<4; i++)
   {
-    if(!p_iputw(misc->icons[i],f))
+    if(!p_iputw(Misc->icons[i],f))
     {
       return qe_invalid;
     }
@@ -5548,7 +5587,7 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
 */
 
   //end string
-  if(!p_iputw(misc->endstring,f))
+  if(!p_iputw(Misc->endstring,f))
   {
     return 19;
   }
@@ -5556,8 +5595,11 @@ int writemisc(PACKFILE *f, zquestheader *header, miscQdata *misc)
   return 0;
 }
 
-int writeitems(PACKFILE *f, zquestheader *header)
+int writeitems(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_ITEMS;
   dword section_version=V_ITEMS;
   dword section_cversion=CV_ITEMS;
@@ -5689,8 +5731,11 @@ int writeitems(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writeweapons(PACKFILE *f, zquestheader *header)
+int writeweapons(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_WEAPONS;
   dword section_version=V_WEAPONS;
   dword section_cversion=CV_WEAPONS;
@@ -5765,8 +5810,11 @@ int writeweapons(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writemaps(PACKFILE *f, zquestheader *header)
+int writemaps(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_MAPS;
   dword section_version=V_MAPS;
   dword section_cversion=CV_MAPS;
@@ -5834,6 +5882,8 @@ int writemaps(PACKFILE *f, zquestheader *header)
       {
         return qe_invalid;
       }
+	  if(!p_putc(TheMaps[scr].hasitem, f))
+		  return qe_invalid;
       for(int k=0;k<4;k++)
       {
         if(!p_putc(TheMaps[scr].tilewarptype[k],f))
@@ -6260,6 +6310,10 @@ int writemaps(PACKFILE *f, zquestheader *header)
 
 int writecombos(PACKFILE *f, word version, word build, word start_combo, word max_combos)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+
   word combos_used;
   dword section_id=ID_COMBOS;
   dword section_version=V_COMBOS;
@@ -6371,6 +6425,10 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 
 int writecomboaliases(PACKFILE *f, word version, word build)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+
   dword section_id=ID_COMBOALIASES;
   dword section_version=V_COMBOALIASES;
   dword section_cversion=CV_COMBOALIASES;
@@ -6445,13 +6503,19 @@ int writecomboaliases(PACKFILE *f, word version, word build)
   return 0;
 }
 
-int writecolordata(PACKFILE *f, miscQdata *misc, word version, word build, word start_cset, word max_csets)
+int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+  start_cset=start_cset;
+  max_csets=max_csets;
+
   dword section_id=ID_CSETS;
   dword section_version=V_CSETS;
   dword section_cversion=CV_CSETS;
   //  dword section_size=0;
-  int palcycles = count_palcycles(misc);
+  int palcycles = count_palcycles(Misc);
   dword section_size = newpsTOTAL
     + MAXLEVELS * PALNAMESIZE
     + sizeof(word) + palcycles * 9;
@@ -6496,21 +6560,21 @@ int writecolordata(PACKFILE *f, miscQdata *misc, word version, word build, word 
   {
     for (int j=0; j<3; j++)
     {
-      if(!p_putc(misc->cycles[i][j].first,f))
+      if(!p_putc(Misc->cycles[i][j].first,f))
       {
         return 16;
       }
     }
     for (int j=0; j<3; j++)
     {
-      if(!p_putc(misc->cycles[i][j].count,f))
+      if(!p_putc(Misc->cycles[i][j].count,f))
       {
         return 17;
       }
     }
     for (int j=0; j<3; j++)
     {
-      if(!p_putc(misc->cycles[i][j].speed,f))
+      if(!p_putc(Misc->cycles[i][j].speed,f))
       {
         return 18;
       }
@@ -6521,6 +6585,12 @@ int writecolordata(PACKFILE *f, miscQdata *misc, word version, word build, word 
 
 int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word max_msgstrs)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+  start_msgstr=start_msgstr;
+  max_msgstrs=max_msgstrs;
+
   dword section_id=ID_STRINGS;
   dword section_version=V_STRINGS;
   dword section_cversion=CV_STRINGS;
@@ -6572,6 +6642,10 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
 
 int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_tiles)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+
   word tiles_used;
   dword section_id=ID_TILES;
   dword section_version=V_TILES;
@@ -6627,8 +6701,11 @@ int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_
   return 0;
 }
 
-int writemidis(PACKFILE *f, zquestheader *header)
+int writemidis(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_MIDIS;
   dword section_version=V_MIDIS;
   dword section_cversion=CV_MIDIS;
@@ -6710,14 +6787,14 @@ int writemidis(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writecheats(PACKFILE *f, zquestheader *header)
+int writecheats(PACKFILE *f, zquestheader *Header)
 {
   dword section_id=ID_CHEATS;
   dword section_version=V_CHEATS;
   dword section_cversion=CV_CHEATS;
   //  dword section_size=0;
   dword section_size = sizeof(char);
-  if(header->data_flags[ZQ_CHEATS2])
+  if(Header->data_flags[ZQ_CHEATS2])
     section_size += sizeof(long) + sizeof(zcheats.codes);
 
   //section id
@@ -6743,12 +6820,12 @@ int writecheats(PACKFILE *f, zquestheader *header)
   }
 
   //finally...  section data
-  if(!p_putc(header->data_flags[ZQ_CHEATS2],f))
+  if(!p_putc(Header->data_flags[ZQ_CHEATS2],f))
   {
     return 5;
   }
 
-  if(header->data_flags[ZQ_CHEATS2])
+  if(Header->data_flags[ZQ_CHEATS2])
   {
     if(!p_iputl(zcheats.flags,f))
     {
@@ -6763,8 +6840,11 @@ int writecheats(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writeguys(PACKFILE *f, zquestheader *header)
+int writeguys(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_GUYS;
   dword section_version=V_GUYS;
   dword section_cversion=CV_GUYS;
@@ -6802,8 +6882,11 @@ int writeguys(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writelinksprites(PACKFILE *f, zquestheader *header)
+int writelinksprites(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_LINKSPRITES;
   dword section_version=V_LINKSPRITES;
   dword section_cversion=CV_LINKSPRITES;
@@ -6983,7 +7066,7 @@ int writelinksprites(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writesubscreens(PACKFILE *f, zquestheader *header)
+int writesubscreens(PACKFILE *f, zquestheader *Header)
 {
   dword section_id=ID_SUBSCREEN;
   dword section_version=V_SUBSCREEN;
@@ -7015,140 +7098,143 @@ int writesubscreens(PACKFILE *f, zquestheader *header)
 
   for(int i=0;i<MAXCUSTOMSUBSCREENS;i++)
   {
-    int ret = write_one_subscreen(f, header, i);
+    int ret = write_one_subscreen(f, Header, i);
 	if(ret!=0) return ret;
   }
   return 0;
 }
 
-int write_one_subscreen(PACKFILE *f, zquestheader *header, int i)
+int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
 {
-    int numsub = 0;
-    if(!pfwrite(custom_subscreen[i].name, 64,f))
-    {
-      return 28;
-    }
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
+  int numsub = 0;
+  if(!pfwrite(custom_subscreen[i].name, 64,f))
+  {
+    return 28;
+  }
 	if(!p_putc(custom_subscreen[i].ss_type,f))
 	{
 	  return 29;
 	}
-    for(int k=0;(k<MAXSUBSCREENITEMS&&(custom_subscreen[i].objects[k].type != ssoNULL));k++)
-    {
-      numsub++;
-    }
+  for(int k=0;(k<MAXSUBSCREENITEMS&&(custom_subscreen[i].objects[k].type != ssoNULL));k++)
+  {
+    numsub++;
+  }
 	if(!p_putc(numsub,f))
+  {
+    return 4;
+  }
+  for(int j=0;(j<MAXSUBSCREENITEMS&&j<numsub);j++)
+  {
+    if(!p_putc(custom_subscreen[i].objects[j].type, f))
     {
-      return 4;
+      return 5;
     }
-    for(int j=0;(j<MAXSUBSCREENITEMS&&j<numsub);j++)
+    if(!p_putc(custom_subscreen[i].objects[j].pos, f))
     {
-      if(!p_putc(custom_subscreen[i].objects[j].type, f))
-      {
-        return 5;
-      }
-      if(!p_putc(custom_subscreen[i].objects[j].pos, f))
-      {
-        return 6;
-      }
-      if(!p_iputw(custom_subscreen[i].objects[j].x, f))
-      {
-        return 7;
-      }
-      if(!p_iputw(custom_subscreen[i].objects[j].y, f))
-      {
-        return 8;
-      }
-      if(!p_iputw(custom_subscreen[i].objects[j].w, f))
-      {
-        return 9;
-      }
-      if(!p_iputw(custom_subscreen[i].objects[j].h, f))
-      {
-        return 10;
-      }
-      if(!p_putc(custom_subscreen[i].objects[j].colortype1, f))
-      {
-        return 11;
-      }
-      if(!p_iputw(custom_subscreen[i].objects[j].color1, f))
-      {
-        return 12;
-      }
-      if(!p_putc(custom_subscreen[i].objects[j].colortype2, f))
-      {
-        return 13;
-      }
-      if(!p_iputw(custom_subscreen[i].objects[j].color2, f))
-      {
-        return 14;
-      }
-      if(!p_putc(custom_subscreen[i].objects[j].colortype3, f))
-      {
-        return 15;
-      }
-      if(!p_iputw(custom_subscreen[i].objects[j].color3, f))
-      {
-        return 16;
-      }
-      if(!p_iputl(custom_subscreen[i].objects[j].d1, f))
-      {
-        return 17;
-      }
-      if(!p_iputl(custom_subscreen[i].objects[j].d2, f))
-      {
-        return 18;
-      }
-      if(!p_iputl(custom_subscreen[i].objects[j].d3, f))
-      {
-        return 19;
-      }
-      if(!p_iputl(custom_subscreen[i].objects[j].d4, f))
-      {
-        return 20;
-      }
-      if(!p_iputl(custom_subscreen[i].objects[j].d5, f))
-      {
-        return 21;
-      }
-      if(!p_iputl(custom_subscreen[i].objects[j].d6, f))
-      {
-        return 22;
-      }
-      if(!p_iputl(custom_subscreen[i].objects[j].d7, f))
-      {
-        return 23;
-      }
-      if(!p_iputl(custom_subscreen[i].objects[j].d8, f))
-      {
-        return 24;
-      }
-      if(!p_iputl(custom_subscreen[i].objects[j].d9, f))
-      {
-        return 25;
-      }
-      if(!p_iputl(custom_subscreen[i].objects[j].d10, f))
-      {
-        return 26;
-      }
+      return 6;
+    }
+    if(!p_iputw(custom_subscreen[i].objects[j].x, f))
+    {
+      return 7;
+    }
+    if(!p_iputw(custom_subscreen[i].objects[j].y, f))
+    {
+      return 8;
+    }
+    if(!p_iputw(custom_subscreen[i].objects[j].w, f))
+    {
+      return 9;
+    }
+    if(!p_iputw(custom_subscreen[i].objects[j].h, f))
+    {
+      return 10;
+    }
+    if(!p_putc(custom_subscreen[i].objects[j].colortype1, f))
+    {
+      return 11;
+    }
+    if(!p_iputw(custom_subscreen[i].objects[j].color1, f))
+    {
+      return 12;
+    }
+    if(!p_putc(custom_subscreen[i].objects[j].colortype2, f))
+    {
+      return 13;
+    }
+    if(!p_iputw(custom_subscreen[i].objects[j].color2, f))
+    {
+      return 14;
+    }
+    if(!p_putc(custom_subscreen[i].objects[j].colortype3, f))
+    {
+      return 15;
+    }
+    if(!p_iputw(custom_subscreen[i].objects[j].color3, f))
+    {
+      return 16;
+    }
+    if(!p_iputl(custom_subscreen[i].objects[j].d1, f))
+    {
+      return 17;
+    }
+    if(!p_iputl(custom_subscreen[i].objects[j].d2, f))
+    {
+      return 18;
+    }
+    if(!p_iputl(custom_subscreen[i].objects[j].d3, f))
+    {
+      return 19;
+    }
+    if(!p_iputl(custom_subscreen[i].objects[j].d4, f))
+    {
+      return 20;
+    }
+    if(!p_iputl(custom_subscreen[i].objects[j].d5, f))
+    {
+      return 21;
+    }
+    if(!p_iputl(custom_subscreen[i].objects[j].d6, f))
+    {
+      return 22;
+    }
+    if(!p_iputl(custom_subscreen[i].objects[j].d7, f))
+    {
+      return 23;
+    }
+    if(!p_iputl(custom_subscreen[i].objects[j].d8, f))
+    {
+      return 24;
+    }
+    if(!p_iputl(custom_subscreen[i].objects[j].d9, f))
+    {
+      return 25;
+    }
+    if(!p_iputl(custom_subscreen[i].objects[j].d10, f))
+    {
+      return 26;
+    }
 	  if(!p_putc(custom_subscreen[i].objects[j].speed, f))
 	  {
 	    return 27;
 	  }
-	    if(!p_putc(custom_subscreen[i].objects[j].delay, f))
+    if(!p_putc(custom_subscreen[i].objects[j].delay, f))
 	  {
 	    return 28;
 	  }
-	    if(!p_iputw(custom_subscreen[i].objects[j].frame, f))
+    if(!p_iputw(custom_subscreen[i].objects[j].frame, f))
 	  {
 	    return 29;
 	  }
 	  
-      switch(custom_subscreen[i].objects[j].type)
-      {
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoCURRENTITEMTEXT:
-        case ssoCURRENTITEMCLASSTEXT:
+    switch(custom_subscreen[i].objects[j].type)
+    {
+      case ssoTEXT:
+      case ssoTEXTBOX:
+      case ssoCURRENTITEMTEXT:
+      case ssoCURRENTITEMCLASSTEXT:
         if(custom_subscreen[i].objects[j].dp1 != NULL)
         {
           if(strlen((char*)custom_subscreen[i].objects[j].dp1))
@@ -7178,13 +7264,13 @@ int write_one_subscreen(PACKFILE *f, zquestheader *header, int i)
           }
         }
         break;
-        default:
+      default:
         if(!p_putc(0, f))
         {
           return 27;
         }
-      }
     }
+  }
   return 0;
 }
 
@@ -7196,7 +7282,7 @@ extern ffscript *globalscripts[3];
 extern ffscript *linkscripts[3];
 extern ffscript *screenscripts[256];
 
-int writeffscript(PACKFILE *f, zquestheader *header)
+int writeffscript(PACKFILE *f, zquestheader *Header)
 {
   dword section_id=ID_FFSCRIPT;
   dword section_version=V_FFSCRIPT;
@@ -7230,37 +7316,37 @@ int writeffscript(PACKFILE *f, zquestheader *header)
 
   for(int i=0;i<512;i++)
   {
-    int ret = write_one_ffscript(f, header, i, &ffscripts[i]);
+    int ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
 	if(ret!=0) return ret;
   }
   for(int i=0;i<256;i++)
   {
-    int ret = write_one_ffscript(f, header, i, &itemscripts[i]);
+    int ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
 	if(ret!=0) return ret;
   }
   for(int i=0;i<256;i++)
   {
-    int ret = write_one_ffscript(f, header, i, &guyscripts[i]);
+    int ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
 	if(ret!=0) return ret;
   }
   for(int i=0;i<256;i++)
   {
-    int ret = write_one_ffscript(f, header, i, &wpnscripts[i]);
+    int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
 	if(ret!=0) return ret;
   }
   for(int i=0;i<256;i++)
   {
-    int ret = write_one_ffscript(f, header, i, &screenscripts[i]);
+    int ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
 	if(ret!=0) return ret;
   }
   for(int i=0;i<3;i++)
   {
-    int ret = write_one_ffscript(f, header, i, &globalscripts[i]);
+    int ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
 	if(ret!=0) return ret;
   }
   for(int i=0;i<3;i++)
   {
-    int ret = write_one_ffscript(f, header, i, &linkscripts[i]);
+    int ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
 	if(ret!=0) return ret;
   }
   if(!p_iputl(zScript.size(), f))
@@ -7340,8 +7426,12 @@ int writeffscript(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int write_one_ffscript(PACKFILE *f, zquestheader *header, int i, ffscript **script)
+int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **script)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+  i=i;
+
 	int num_commands;
 	for(int j=0;;j++)
 	{
@@ -7382,8 +7472,11 @@ int write_one_ffscript(PACKFILE *f, zquestheader *header, int i, ffscript **scri
 
 extern SAMPLE customsfxdata[WAV_COUNT];
 
-int writesfx(PACKFILE *f, zquestheader *header)
+int writesfx(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_SFX;
   dword section_version=V_SFX;
   dword section_cversion=CV_SFX;
@@ -7454,8 +7547,11 @@ int writesfx(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writeinitdata(PACKFILE *f, zquestheader *header)
+int writeinitdata(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_INITDATA;
   dword section_version=V_INITDATA;
   dword section_cversion=CV_INITDATA;
@@ -7489,7 +7585,13 @@ int writeinitdata(PACKFILE *f, zquestheader *header)
   }
 
   //finally...  section data
-  if(!p_putc(zinit.raft,f))
+  //write the new items
+  for(int i=0; i<MAXITEMS; i++)
+  {
+	  if(!p_putc(zinit.items[i] ? 1 : 0, f))
+		  return 5;
+  }
+  /*if(!p_putc(zinit.raft,f))
   {
     return 5;
   }
@@ -7561,7 +7663,8 @@ int writeinitdata(PACKFILE *f, zquestheader *header)
   if(!p_putc(zinit.whistle,f))
   {
     return 22;
-  }
+  }*/
+  //bomb counter RANDOMLY in the middle of items :-/
   if(!p_putc(zinit.bombs,f))
   {
     return 23;
@@ -7570,6 +7673,7 @@ int writeinitdata(PACKFILE *f, zquestheader *header)
   {
     return 24;
   }
+  /*
   if(!p_putc(zinit.wand,f))
   {
     return 25;
@@ -7610,7 +7714,7 @@ int writeinitdata(PACKFILE *f, zquestheader *header)
   if(!p_putc(zinit.cloak,f))
   {
     return 34;
-  }
+  }*/
   if(!p_putc(zinit.hc,f))
   {
     return 35;
@@ -7803,10 +7907,10 @@ int writeinitdata(PACKFILE *f, zquestheader *header)
   {
     return 76;
   }
-  if(!p_putc(zinit.quiver,f))
+  /*if(!p_putc(zinit.quiver,f))
   {
 	  return 77;
-  }
+  }*/
   if(!p_putc(zinit.stationary_fairy_hearts,f))
   {
     return 78;
@@ -8422,7 +8526,7 @@ void zmap::prv_secrets(bool high16only)
 
 //foogle
 
-int writeheader_210(PACKFILE *f, zquestheader *header)
+int writeheader_210(PACKFILE *f, zquestheader *Header)
 {
   dword section_id=ID_HEADER;
   dword section_version=V_HEADER_210;
@@ -8430,7 +8534,7 @@ int writeheader_210(PACKFILE *f, zquestheader *header)
   dword section_size=38+18+131+20+280+1;                    //+29;
 
   //file header string
-  if(!pfwrite(header->id_str,sizeof(header->id_str),f))
+  if(!pfwrite(Header->id_str,sizeof(Header->id_str),f))
   {
     return 1;
   }
@@ -8458,11 +8562,11 @@ int writeheader_210(PACKFILE *f, zquestheader *header)
   }
 
   //finally...  section data
-  if(!p_iputw(header->zelda_version,f))
+  if(!p_iputw(Header->zelda_version,f))
   {
     return 6;
   }
-  if(!p_putc(header->build,f))
+  if(!p_putc(Header->build,f))
   {
     return 7;
   }
@@ -8471,44 +8575,44 @@ int writeheader_210(PACKFILE *f, zquestheader *header)
   {
     return 8;
   }
-//  if(!p_iputw(header->pwdkey,f))
+//  if(!p_iputw(Header->pwdkey,f))
   if(!p_iputw(0,f))
   {
     return 9;
   }
-  if(!p_iputw(header->internal,f))
+  if(!p_iputw(Header->internal,f))
   {
     return 10;
   }
-  if(!p_putc(header->quest_number,f))
+  if(!p_putc(Header->quest_number,f))
   {
     return 11;
   }
-  if(!pfwrite(header->version,sizeof(header->version),f))
+  if(!pfwrite(Header->version,sizeof(Header->version),f))
   {
     return 12;
   }
-  if(!pfwrite(header->minver,sizeof(header->minver),f))
+  if(!pfwrite(Header->minver,sizeof(Header->minver),f))
   {
     return 13;
   }
-  if(!pfwrite(header->title,sizeof(header->title),f))
+  if(!pfwrite(Header->title,sizeof(Header->title),f))
   {
     return 14;
   }
-  if(!pfwrite(header->author,sizeof(header->author),f))
+  if(!pfwrite(Header->author,sizeof(Header->author),f))
   {
     return 15;
   }
-  if(!p_putc(header->use_keyfile,f))
+  if(!p_putc(Header->use_keyfile,f))
   {
     return 16;
   }
-  if(!pfwrite(header->data_flags,sizeof(header->data_flags),f))
+  if(!pfwrite(Header->data_flags,sizeof(Header->data_flags),f))
   {
     return 17;
   }
-  if(!pfwrite(header->templatepath,280,f))
+  if(!pfwrite(Header->templatepath,280,f))
   {
     return 19;
   }
@@ -8522,16 +8626,16 @@ int writeheader_210(PACKFILE *f, zquestheader *header)
     if(!pfwrite(midi_flags,sizeof(midi_flags),f)){
       return 18;
     }
-    if(!pfwrite(header->foo,sizeof(header->foo),f)){
+    if(!pfwrite(Header->foo,sizeof(Header->foo),f)){
       return 21;
     }
-    if(!pfwrite(header->foo2,sizeof(header->foo2),f)){
+    if(!pfwrite(Header->foo2,sizeof(Header->foo2),f)){
       return 22;
     }
-    if(!p_putc(header->old_str_count,f)){
+    if(!p_putc(Header->old_str_count,f)){
   return 23;
   }
-  if(!p_putc(header->old_options,f)){
+  if(!p_putc(Header->old_options,f)){
   return 24;
   }
   */
@@ -8539,8 +8643,11 @@ int writeheader_210(PACKFILE *f, zquestheader *header)
 }
 
 
-int writerules_210(PACKFILE *f, zquestheader *header)
+int writerules_210(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_RULES;
   dword section_version=V_RULES_210;
   dword section_cversion=CV_RULES_210;
@@ -8577,8 +8684,11 @@ int writerules_210(PACKFILE *f, zquestheader *header)
 }
 
 
-int writedoorcombosets_210(PACKFILE *f, zquestheader *header)
+int writedoorcombosets_210(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_DOORS;
   dword section_version=V_DOORS_210;
   dword section_cversion=CV_DOORS_210;
@@ -8806,6 +8916,10 @@ int writedoorcombosets_210(PACKFILE *f, zquestheader *header)
 
 int writedmaps_210(PACKFILE *f, word version, word build, word start_dmap, word max_dmaps)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+
   word dmap_count=count_dmaps();
   dword section_id=ID_DMAPS;
   dword section_version=V_DMAPS_210;
@@ -8938,15 +9052,18 @@ int writedmaps_210(PACKFILE *f, word version, word build, word start_dmap, word 
   return 0;
 }
 
-int writemisc_210(PACKFILE *f, zquestheader *header, miscQdata *misc)
+int writemisc_210(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_MISC;
   dword section_version=V_MISC_210;
   dword section_cversion=CV_MISC_210;
-  word shops=count_shops(misc);
-  word infos=count_infos(misc);
-  word warprings=count_warprings(misc);
-  word windwarps=count_windwarps(misc);
+  word shops=count_shops(Misc);
+  word infos=count_infos(Misc);
+  word warprings=count_warprings(Misc);
+  word windwarps=count_windwarps(Misc);
   word triforces=8;
 //  dword section_size=0;
   dword section_size = sizeof(word) + shops * 3 * (sizeof(char) + sizeof(word))
@@ -8993,14 +9110,17 @@ int writemisc_210(PACKFILE *f, zquestheader *header, miscQdata *misc)
   {
     for (int j=0; j<3; j++)
     {
-      if(!p_putc(misc->shop[i].item[j],f))
+		int temp = Misc->shop[i].item[j];
+		if(Misc->shop[i].hasitem[j] == 0)
+			temp=0;
+      if(!p_putc(temp,f))
       {
         return qe_invalid;
       }
     }
     for (int j=0; j<3; j++)
     {
-      if(!p_iputw(misc->shop[i].price[j],f))
+      if(!p_iputw(Misc->shop[i].price[j],f))
       {
         return qe_invalid;
       }
@@ -9016,14 +9136,14 @@ int writemisc_210(PACKFILE *f, zquestheader *header, miscQdata *misc)
   {
     for (int j=0; j<3; j++)
     {
-      if(!p_iputw(misc->info[i].str[j],f))
+      if(!p_iputw(Misc->info[i].str[j],f))
       {
         return qe_invalid;
       }
     }
     for (int j=0; j<3; j++)
     {
-      if(!p_iputw(misc->info[i].price[j],f))
+      if(!p_iputw(Misc->info[i].price[j],f))
       {
         return qe_invalid;
       }
@@ -9039,19 +9159,19 @@ int writemisc_210(PACKFILE *f, zquestheader *header, miscQdata *misc)
   {
     for (int j=0; j<8; j++)
     {
-      if(!p_putc(misc->warp[i].dmap[j],f))
+      if(!p_putc(Misc->warp[i].dmap[j],f))
       {
         return qe_invalid;
       }
     }
     for (int j=0; j<8; j++)
     {
-      if(!p_putc(misc->warp[i].scr[j],f))
+      if(!p_putc(Misc->warp[i].scr[j],f))
       {
         return qe_invalid;
       }
     }
-    if(!p_putc(misc->warp[i].size,f))
+    if(!p_putc(Misc->warp[i].size,f))
     {
       return qe_invalid;
     }
@@ -9065,11 +9185,11 @@ int writemisc_210(PACKFILE *f, zquestheader *header, miscQdata *misc)
   }
   for (int i=0; i<windwarps; i++)
   {
-    if(!p_putc(misc->wind[i].dmap,f))
+    if(!p_putc(Misc->wind[i].dmap,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->wind[i].scr,f))
+    if(!p_putc(Misc->wind[i].scr,f))
     {
       return qe_invalid;
     }
@@ -9078,7 +9198,7 @@ int writemisc_210(PACKFILE *f, zquestheader *header, miscQdata *misc)
   //triforce pieces
   for (int i=0; i<triforces; i++)
   {
-    if(!p_putc(misc->triforce[i],f))
+    if(!p_putc(Misc->triforce[i],f))
     {
       return qe_invalid;
     }
@@ -9086,112 +9206,112 @@ int writemisc_210(PACKFILE *f, zquestheader *header, miscQdata *misc)
 
   //misc color data
   {                                                         //this brace is here to make it easier to fold all the color data code
-    if(!p_putc(misc->colors.text,f))
+    if(!p_putc(Misc->colors.text,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.caption,f))
+    if(!p_putc(Misc->colors.caption,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.overw_bg,f))
+    if(!p_putc(Misc->colors.overw_bg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.dngn_bg,f))
+    if(!p_putc(Misc->colors.dngn_bg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.dngn_fg,f))
+    if(!p_putc(Misc->colors.dngn_fg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.cave_fg,f))
+    if(!p_putc(Misc->colors.cave_fg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.bs_dk,f))
+    if(!p_putc(Misc->colors.bs_dk,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.bs_goal,f))
+    if(!p_putc(Misc->colors.bs_goal,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.compass_lt,f))
+    if(!p_putc(Misc->colors.compass_lt,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.compass_dk,f))
+    if(!p_putc(Misc->colors.compass_dk,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.subscr_bg,f))
+    if(!p_putc(Misc->colors.subscr_bg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.triframe_color,f))
+    if(!p_putc(Misc->colors.triframe_color,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.link_dot,f))
+    if(!p_putc(Misc->colors.link_dot,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.bmap_bg,f))
+    if(!p_putc(Misc->colors.bmap_bg,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.bmap_fg,f))
+    if(!p_putc(Misc->colors.bmap_fg,f))
     {
       return qe_invalid;
     }
 
-    if(!p_putc(misc->colors.triforce_cset,f))
+    if(!p_putc(Misc->colors.triforce_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.triframe_cset,f))
+    if(!p_putc(Misc->colors.triframe_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.overworld_map_cset,f))
+    if(!p_putc(Misc->colors.overworld_map_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.dungeon_map_cset,f))
+    if(!p_putc(Misc->colors.dungeon_map_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.blueframe_cset,f))
+    if(!p_putc(Misc->colors.blueframe_cset,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.triforce_tile,f))
+    if(!p_iputw(Misc->colors.triforce_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.triframe_tile,f))
+    if(!p_iputw(Misc->colors.triframe_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.overworld_map_tile,f))
+    if(!p_iputw(Misc->colors.overworld_map_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.dungeon_map_tile,f))
+    if(!p_iputw(Misc->colors.dungeon_map_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.blueframe_tile,f))
+    if(!p_iputw(Misc->colors.blueframe_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(misc->colors.HCpieces_tile,f))
+    if(!p_iputw(Misc->colors.HCpieces_tile,f))
     {
       return qe_invalid;
     }
-    if(!p_putc(misc->colors.HCpieces_cset,f))
+    if(!p_putc(Misc->colors.HCpieces_cset,f))
     {
       return qe_invalid;
     }
@@ -9200,14 +9320,14 @@ int writemisc_210(PACKFILE *f, zquestheader *header, miscQdata *misc)
   //save game icons
   for (int i=0; i<4; i++)
   {
-    if(!p_iputw(misc->icons[i],f))
+    if(!p_iputw(Misc->icons[i],f))
     {
       return qe_invalid;
     }
   }
 
   //end string
-  if(!p_iputw(misc->endstring,f))
+  if(!p_iputw(Misc->endstring,f))
   {
     return qe_invalid;
   }
@@ -9215,8 +9335,11 @@ int writemisc_210(PACKFILE *f, zquestheader *header, miscQdata *misc)
   return 0;
 }
 
-int writeitems_210(PACKFILE *f, zquestheader *header)
+int writeitems_210(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_ITEMS;
   dword section_version=V_ITEMS_210;
   dword section_cversion=CV_ITEMS_210;
@@ -9286,8 +9409,11 @@ int writeitems_210(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writeweapons_210(PACKFILE *f, zquestheader *header)
+int writeweapons_210(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_WEAPONS;
   dword section_version=V_WEAPONS_210;
   dword section_cversion=CV_WEAPONS_210;
@@ -9354,8 +9480,11 @@ int writeweapons_210(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writemaps_210(PACKFILE *f, zquestheader *header)
+int writemaps_210(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_MAPS;
   dword section_version=V_MAPS_210;
   dword section_cversion=CV_MAPS_210;
@@ -9419,8 +9548,10 @@ int writemaps_210(PACKFILE *f, zquestheader *header)
       {
         return qe_invalid;
       }
-
-      if(!p_putc(TheMaps[scr].item,f))
+	  int temp = TheMaps[scr].item;
+	  if(TheMaps[scr].hasitem == 0)
+		  temp=0;
+      if(!p_putc(temp,f))
       {
         return qe_invalid;
       }
@@ -9654,6 +9785,10 @@ int writemaps_210(PACKFILE *f, zquestheader *header)
 
 int writecombos_210(PACKFILE *f, word version, word build, word start_combo, word max_combos)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+
   word combos_used;
   dword section_id=ID_COMBOS;
   dword section_version=V_COMBOS_210;
@@ -9737,13 +9872,19 @@ int writecombos_210(PACKFILE *f, word version, word build, word start_combo, wor
   return 0;
 }
 
-int writecolordata_210(PACKFILE *f, miscQdata *misc, word version, word build, word start_cset, word max_csets)
+int writecolordata_210(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+  start_cset=start_cset;
+  max_csets=max_csets;
+
   dword section_id=ID_CSETS;
   dword section_version=V_CSETS_210;
   dword section_cversion=CV_CSETS_210;
 //  dword section_size=0;
-  int palcycles = count_palcycles(misc);
+  int palcycles = count_palcycles(Misc);
   dword section_size = newpsTOTAL
                      + MAXLEVELS * PALNAMESIZE
                      + sizeof(word) + palcycles * 9;
@@ -9788,21 +9929,21 @@ int writecolordata_210(PACKFILE *f, miscQdata *misc, word version, word build, w
   {
     for (int j=0; j<3; j++)
     {
-      if(!p_putc(misc->cycles[i][j].first,f))
+      if(!p_putc(Misc->cycles[i][j].first,f))
       {
         return 16;
       }
     }
     for (int j=0; j<3; j++)
     {
-      if(!p_putc(misc->cycles[i][j].count,f))
+      if(!p_putc(Misc->cycles[i][j].count,f))
       {
         return 17;
       }
     }
     for (int j=0; j<3; j++)
     {
-      if(!p_putc(misc->cycles[i][j].speed,f))
+      if(!p_putc(Misc->cycles[i][j].speed,f))
       {
         return 18;
       }
@@ -9813,6 +9954,12 @@ int writecolordata_210(PACKFILE *f, miscQdata *misc, word version, word build, w
 
 int writestrings_210(PACKFILE *f, word version, word build, word start_msgstr, word max_msgstrs)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+  start_msgstr=start_msgstr;
+  max_msgstrs=max_msgstrs;
+
   dword section_id=ID_STRINGS;
   dword section_version=V_STRINGS_210;
   dword section_cversion=CV_STRINGS_210;
@@ -9864,6 +10011,10 @@ int writestrings_210(PACKFILE *f, word version, word build, word start_msgstr, w
 
 int writetiles_210(PACKFILE *f, word version, word build, word start_tile, word max_tiles)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  version=version;
+  build=build;
+
   word tiles_used;
   dword section_id=ID_TILES;
   dword section_version=V_TILES_210;
@@ -9917,8 +10068,11 @@ int writetiles_210(PACKFILE *f, word version, word build, word start_tile, word 
   return 0;
 }
 
-int writemidis_210(PACKFILE *f, zquestheader *header)
+int writemidis_210(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_MIDIS;
   dword section_version=V_MIDIS_210;
   dword section_cversion=CV_MIDIS_210;
@@ -10000,14 +10154,14 @@ int writemidis_210(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writecheats_210(PACKFILE *f, zquestheader *header)
+int writecheats_210(PACKFILE *f, zquestheader *Header)
 {
   dword section_id=ID_CHEATS;
   dword section_version=V_CHEATS_210;
   dword section_cversion=CV_CHEATS_210;
 //  dword section_size=0;
   dword section_size = sizeof(char);
-  if(header->data_flags[ZQ_CHEATS2])
+  if(Header->data_flags[ZQ_CHEATS2])
     section_size += sizeof(long) + sizeof(zcheats.codes);
 
   //section id
@@ -10033,12 +10187,12 @@ int writecheats_210(PACKFILE *f, zquestheader *header)
   }
 
   //finally...  section data
-  if(!p_putc(header->data_flags[ZQ_CHEATS2],f))
+  if(!p_putc(Header->data_flags[ZQ_CHEATS2],f))
   {
     return 5;
   }
 
-  if(header->data_flags[ZQ_CHEATS2])
+  if(Header->data_flags[ZQ_CHEATS2])
   {
     if(!p_iputl(zcheats.flags,f))
     {
@@ -10053,8 +10207,11 @@ int writecheats_210(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writeguys_210(PACKFILE *f, zquestheader *header)
+int writeguys_210(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_GUYS;
   dword section_version=V_GUYS_210;
   dword section_cversion=CV_GUYS_210;
@@ -10090,8 +10247,11 @@ int writeguys_210(PACKFILE *f, zquestheader *header)
   return 0;
 }
 
-int writeinitdata_210(PACKFILE *f, zquestheader *header)
+int writeinitdata_210(PACKFILE *f, zquestheader *Header)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Header=Header;
+
   dword section_id=ID_INITDATA;
   dword section_version=V_INITDATA_210;
   dword section_cversion=CV_INITDATA_210;
@@ -10124,76 +10284,77 @@ int writeinitdata_210(PACKFILE *f, zquestheader *header)
   }
 
   //finally...  section data
-  if(!p_putc(zinit.raft,f))
+  //GAH more old item code :( :( :(
+  if(!p_putc(zinit.items[iRaft] ? 1 : 0,f))
   {
     return 5;
   }
-  if(!p_putc(zinit.ladder,f))
+  if(!p_putc(zinit.items[iRaft] ? 1 : 0,f))
   {
     return 6;
   }
-  if(!p_putc(zinit.book,f))
+  if(!p_putc(zinit.items[iBook] ? 1 : 0,f))
   {
     return 7;
   }
-  if(!p_putc(zinit.key,f))
+  if(!p_putc(zinit.items[iMKey] ? 1 : 0,f))
   {
     return 8;
   }
-  if(!p_putc(zinit.flippers,f))
+  if(!p_putc(zinit.items[iFlippers] ? 1 : 0,f))
   {
     return 9;
   }
-  if(!p_putc(zinit.boots,f))
+  if(!p_putc(zinit.items[iBoots] ? 1 : 0,f))
   {
     return 10;
   }
-  if(!p_putc(zinit.ring,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_ring),f))
   {
     return 11;
   }
-  if(!p_putc(zinit.sword,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_sword),f))
   {
     return 12;
   }
-  if(!p_putc(zinit.shield,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_shield),f))
   {
     return 13;
   }
-  if(!p_putc(zinit.wallet,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_wallet),f))
   {
     return 14;
   }
-  if(!p_putc(zinit.bracelet,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_bracelet),f))
   {
     return 15;
   }
-  if(!p_putc(zinit.amulet,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_amulet),f))
   {
     return 16;
   }
-  if(!p_putc(zinit.bow,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_bow),f))
   {
     return 17;
   }
-  if(!p_putc(zinit.candle,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_candle),f))
   {
     return 18;
   }
-  if(!p_putc(zinit.boomerang,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_brang),f))
   {
     return 19;
   }
-  if(!p_putc(zinit.arrow,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_arrow),f))
   {
     return 20;
   }
 
-  if(!p_putc(zinit.potion,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_potion),f))
   {
     return 21;
   }
-  if(!p_putc(zinit.whistle,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_whistle),f))
   {
     return 22;
   }
@@ -10205,44 +10366,46 @@ int writeinitdata_210(PACKFILE *f, zquestheader *header)
   {
     return 24;
   }
-  if(!p_putc(zinit.wand,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_wand),f))
   {
     return 25;
   }
-  if(!p_putc(zinit.letter,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_letter),f))
 
   {
     return 26;
   }
-  if(!p_putc(zinit.lens,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_lens),f))
   {
     return 27;
   }
-  if(!p_putc(zinit.hookshot,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_hookshot),f))
   {
     return 28;
   }
-  if(!p_putc(zinit.bait,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_bait),f))
   {
     return 29;
   }
-  if(!p_putc(zinit.hammer,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_hammer),f))
   {
     return 30;
   }
-  if(!p_putc(zinit.dins_fire,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_dinsfire),f))
   {
     return 31;
   }
-  if(!p_putc(zinit.farores_wind,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_faroreswind),f))
   {
     return 32;
   }
-  if(!p_putc(zinit.nayrus_love,f))
+  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_nayruslove),f))
   {
     return 33;
   }
-  if(!p_putc(zinit.cloak,f))
+  //WTF is this cloak?
+  //if(!p_putc(zinit.cloak,f))
+  if(!p_putc(0,f))
   {
     return 34;
   }
@@ -10545,4 +10708,3 @@ int save_unencoded_quest_210(char *filename, bool compressed)
 
   return 0;
 }
-

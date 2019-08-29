@@ -13,4 +13,7 @@
 
 int onCheatConsole();
 void center_zq_init_dialog();
+void resetItems(gamedata *data, zinitdata *zinit);
+zinitdata *copyIntoZinit(gamedata *src);
+void resetItems(gamedata *game);
 #endif

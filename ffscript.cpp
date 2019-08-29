@@ -3,9 +3,18 @@
 #include "link.h"
 #include "guys.h"
 #include "gamedata.h"
+#include "zc_init.h"
 
 #include <string.h>
 #include <math.h>
+#include <string>
+
+#undef  max
+#undef  min
+#define max(a,b)  ((a)>(b)?(a):(b))
+#define min(a,b)  ((a)<(b)?(a):(b))
+
+using std::string;
 
 extern LinkClass Link;
 enemy *script_npc;
@@ -47,6 +56,7 @@ long get_arg(long arg, byte i)
 
   guyref=lwpn=ewpn=0;
   global=linkref=scr=0; //to get gcc to stop complaining aout unused variables
+  ffc=itemref=iclass=lclass=eclass=gclass=sp=NULL;
   
   switch(script_type)
   {
@@ -160,6 +170,8 @@ long get_arg(long arg, byte i)
       ret=(int)(get_gamedata_maxmagic())*10000; break;
     case LINKACTION:
       ret=(int)(Link.getAction())*10000; break;
+	case LINKITEMD:
+		ret = game->item[(*d[0])/10000] ? 10000 : 0;
     case INPUTSTART:
       ret=control_state[6]?10000:0; break;
     case INPUTUP:
@@ -375,7 +387,7 @@ long get_arg(long arg, byte i)
     case GAMEGENERICD:
       ret=get_gamedata_generic(game, (*(d[0]))/10000)*10000; break;
     case GAMEITEMSD:
-      ret=game->items[(*(d[0]))/10000]*10000; break;
+	  ret=(game->item[(*(d[0]))/10000] ? 10000 : 0); break;
     case GAMELITEMSD:
       ret=game->lvlitems[(*(d[0]))/10000]*10000; break;
     case GAMELKEYSD:
@@ -451,7 +463,7 @@ long get_arg(long arg, byte i)
       {
         if(arg==GD(k)) { ret=game->global_d[k]; break; }
         if(arg==GAMEGENERIC(k)) { ret=get_gamedata_generic(game, k)*10000; break; }
-        if(arg==GAMEITEMS(k)) { ret=game->items[k]*10000; break; }
+		if(arg==GAMEITEMS(k)) { ret=(game->item[k] ? 10000 : 0); break; }
         if(arg==GAMELITEMS(k)) { ret=game->lvlitems[k]*10000; break; }
         if(arg==GAMELKEYS(k)) { ret=game->lvlkeys[k]*10000; break; }
       }
@@ -477,6 +489,7 @@ void set_variable(long arg, byte i, long value)
 
   guyref=lwpn=ewpn=0;
   global=linkref=scr=0; //to get gcc to stop complaining aout unused variables
+  ffc=itemref=iclass=sp=NULL;
   
   switch(script_type)
   {
@@ -590,6 +603,10 @@ void set_variable(long arg, byte i, long value)
       set_gamedata_maxmagic(value/10000); break;
     case LINKACTION:
       Link.setAction((actiontype)(value/10000)); break;
+	case LINKITEMD:
+		game->item[(*d[0])/10000] = (value == 0) ? false : true;
+		resetItems(game);
+		break;
     case INPUTSTART:
       control_state[6]=((value/10000)!=0)?true:false; break;
     case INPUTUP:
@@ -663,7 +680,7 @@ void set_variable(long arg, byte i, long value)
     case LWPNANGLE:
       ((weapon*)(Lwpns.spr(*lwpn)))->angle=value/10000;
     case LWPNANGULAR:
-      ((weapon*)(Lwpns.spr(*lwpn)))->angular=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->angular=(value/10000) != 0;
     case LWPNDRAWTYPE:
       ((weapon*)(Lwpns.spr(*lwpn)))->drawstyle=value/10000;
     case LWPNPOWER:
@@ -705,7 +722,7 @@ void set_variable(long arg, byte i, long value)
     case EWPNANGLE:
       ((weapon*)(Ewpns.spr(*ewpn)))->angle=value/10000;
     case EWPNANGULAR:
-      ((weapon*)(Ewpns.spr(*ewpn)))->angular=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->angular=(value/10000)!=0;
     case EWPNDRAWTYPE:
       ((weapon*)(Ewpns.spr(*ewpn)))->drawstyle=value/10000;
     case EWPNPOWER:
@@ -801,7 +818,7 @@ void set_variable(long arg, byte i, long value)
     case GAMEGENERICD:
       set_gamedata_generic(game, value/10000, (*(d[0]))/10000); break;
     case GAMEITEMSD:
-      game->items[(*(d[0]))/10000]=value/10000; break;
+      game->item[(*(d[0]))/10000]= (value!=0); break;
     case GAMELITEMSD:
       game->lvlitems[(*(d[0]))/10000]=value/10000; break;
     case GAMELKEYSD:
@@ -831,11 +848,11 @@ void set_variable(long arg, byte i, long value)
     case REFITEMCLASS:
       *iclass = value/10000; break;
     case SDD:
-      game->screen_d[di][*(d[0])/10000]=value;
+      game->screen_d[di][*(d[0])/10000]=value; break;
     case GDD:
-      game->global_d[*(d[0])/10000]=value;
+      game->global_d[*(d[0])/10000]=value; break;
     case SDDD:
-      game->screen_d[*(d[0])/10000][*(d[1])/10000]=value;
+      game->screen_d[*(d[0])/10000][*(d[1])/10000]=value; break;
     case SP:
       *sp = value/10000; break;
     default:
@@ -859,7 +876,7 @@ void set_variable(long arg, byte i, long value)
       {
         if(arg==GD(k)) { game->global_d[k]=value; break; }
         if(arg==GAMEGENERIC(k)) { set_gamedata_generic(game, value/10000, k); break; }
-        if(arg==GAMEITEMS(k)) { game->items[k]=value/10000; break; }
+        if(arg==GAMEITEMS(k)) { game->item[k]= (value!=0); break; }
         if(arg==GAMELITEMS(k)) { game->lvlitems[k]=value/10000; break; }
         if(arg==GAMELKEYS(k)) { game->lvlkeys[k]=value/10000; break; }
       }
@@ -875,12 +892,16 @@ void set_variable(long arg, byte i, long value)
 
 void do_set(int script, word *pc, byte i, bool v)
 {
-  ////long arg1;
-  ////long arg2;
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
+  //long arg1;
+  //long arg2;
   long temp;
 
-  ////arg1 = ffscripts[script][*pc].arg1;
-  ////arg2 = ffscripts[script][*pc].arg2;
+  //arg1 = ffscripts[script][*pc].arg1;
+  //arg2 = ffscripts[script][*pc].arg2;
 
   if(v)
   {
@@ -895,12 +916,16 @@ void do_set(int script, word *pc, byte i, bool v)
 
 void do_trig(int script, word *pc, byte i, bool v, int type)
 {
-  ////long arg1;
-  ////long arg2;
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
+  //long arg1;
+  //long arg2;
   long temp;
 
-  ////arg1 = ffscripts[script][*pc].arg1;
-  ////arg2 = ffscripts[script][*pc].arg2;
+  //arg1 = ffscripts[script][*pc].arg1;
+  //arg2 = ffscripts[script][*pc].arg2;
 
   if(v)
   {
@@ -930,6 +955,10 @@ void do_trig(int script, word *pc, byte i, bool v, int type)
 
 void do_add(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -952,7 +981,11 @@ void do_add(int script, word *pc, byte i, bool v)
 
 void do_sub(int script, word *pc, byte i, bool v)
 {
-  ////long arg1;
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
+  //long arg1;
   //long arg2;
   long temp;
   long temp2;
@@ -974,6 +1007,10 @@ void do_sub(int script, word *pc, byte i, bool v)
 
 void do_mult(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   double temp;
@@ -997,6 +1034,10 @@ void do_mult(int script, word *pc, byte i, bool v)
 
 void do_div(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   double temp;
@@ -1020,6 +1061,10 @@ void do_div(int script, word *pc, byte i, bool v)
 
 void do_mod(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1044,11 +1089,15 @@ void do_mod(int script, word *pc, byte i, bool v)
 
 void do_comp(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
   long temp2;
-  dword *scriptflag;
+  dword *scriptflag=NULL;
 
   ////arg1 = ffscripts[script][*pc].arg1;
   //arg2 = ffscripts[script][*pc].arg2;
@@ -1082,6 +1131,10 @@ void do_comp(int script, word *pc, byte i, bool v)
 
 void do_loada(int script, word *pc, byte i, int a)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1116,6 +1169,10 @@ void do_loada(int script, word *pc, byte i, int a)
 
 void do_seta(int script, word *pc, byte i, int a)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1150,6 +1207,11 @@ void do_seta(int script, word *pc, byte i, int a)
 
 void do_abs(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+  v=v;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1163,6 +1225,10 @@ void do_abs(int script, word *pc, byte i, bool v)
 
 void do_min(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1185,6 +1251,10 @@ void do_min(int script, word *pc, byte i, bool v)
 
 void do_max(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1208,6 +1278,10 @@ void do_max(int script, word *pc, byte i, bool v)
 
 void do_rnd(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1230,6 +1304,10 @@ void do_rnd(int script, word *pc, byte i, bool v)
 
 void do_factorial(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   long temp;
   long temp2;
@@ -1258,6 +1336,10 @@ void do_factorial(int script, word *pc, byte i, bool v)
 
 void do_power(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   double temp;
@@ -1281,6 +1363,10 @@ void do_power(int script, word *pc, byte i, bool v)
 
 void do_ipower(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   double temp;
@@ -1304,6 +1390,10 @@ void do_ipower(int script, word *pc, byte i, bool v)
 
 void do_and(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1327,6 +1417,10 @@ void do_and(int script, word *pc, byte i, bool v)
 
 void do_or(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1350,6 +1444,10 @@ void do_or(int script, word *pc, byte i, bool v)
 
 void do_xor(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1373,6 +1471,10 @@ void do_xor(int script, word *pc, byte i, bool v)
 
 void do_nand(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1396,6 +1498,10 @@ void do_nand(int script, word *pc, byte i, bool v)
 
 void do_nor(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1419,6 +1525,10 @@ void do_nor(int script, word *pc, byte i, bool v)
 
 void do_xnor(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1442,6 +1552,10 @@ void do_xnor(int script, word *pc, byte i, bool v)
 
 void do_not(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   long temp;
 
@@ -1461,6 +1575,10 @@ void do_not(int script, word *pc, byte i, bool v)
 
 void do_lshift(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1484,6 +1602,10 @@ void do_lshift(int script, word *pc, byte i, bool v)
 
 void do_rshift(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   long temp;
@@ -1507,6 +1629,10 @@ void do_rshift(int script, word *pc, byte i, bool v)
 
 void do_sqroot(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
   //long arg1;
   //long arg2;
   double temp;
@@ -1527,8 +1653,10 @@ void do_sqroot(int script, word *pc, byte i, bool v)
 }
 
 void do_push(int script, word *pc, byte i, bool v) {
-  //long //arg1 = ffscripts[script][*pc].arg1;
-  byte *sp;
+  //these are here to bypass compiler warnings about unused arguments
+  pc=pc;
+
+  byte *sp=NULL;
   switch(script_type)
   {
   case SCRIPT_FFC:
@@ -1551,8 +1679,11 @@ void do_push(int script, word *pc, byte i, bool v) {
 }
 
 void do_pop(int script, word *pc, byte i, bool v) {
-  //long //arg1 = ffscripts[script][*pc].arg1;
-  byte *sp;
+  //these are here to bypass compiler warnings about unused arguments
+  pc=pc;
+  v=v;
+
+  byte *sp=NULL;
   switch(script_type)
   {
   case SCRIPT_FFC:
@@ -1571,6 +1702,11 @@ void do_pop(int script, word *pc, byte i, bool v) {
 }
 
 void do_loadi(int script, word *pc, byte i, bool v) {
+  //these are here to bypass compiler warnings about unused arguments
+  pc=pc;
+  v=v;
+
+
   //long //arg1 = ffscripts[script][*pc].arg1;
   //long //arg2 = ffscripts[script][*pc].arg2;
   long sp = get_arg(*arg2,i)/10000;
@@ -1579,6 +1715,11 @@ void do_loadi(int script, word *pc, byte i, bool v) {
 }
 
 void do_storei(int script, word *pc, byte i, bool v) {
+  //these are here to bypass compiler warnings about unused arguments
+  pc=pc;
+  v=v;
+
+
   //long //arg1 = ffscripts[script][*pc].arg1;
   //long //arg2 = ffscripts[script][*pc].arg2;
   long sp = get_arg(*arg2,i)/10000;
@@ -1586,11 +1727,15 @@ void do_storei(int script, word *pc, byte i, bool v) {
   write_stack(script,i,sp,val);
 }
 
-void do_enqueue(int script, word *pc, byte i, bool v) {}
-void do_dequeue(int script, word *pc, byte i, bool v) {}
+void do_enqueue(int script, word *pc, byte i, bool v) {script=script; pc=pc; i=i; v=v; /*these are here to bypass compiler warnings about unused arguments*/}
+void do_dequeue(int script, word *pc, byte i, bool v) {script=script; pc=pc; i=i; v=v; /*these are here to bypass compiler warnings about unused arguments*/}
 
 void do_sfx(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+  
   //long arg1;
   long temp;
 
@@ -1607,66 +1752,30 @@ void do_sfx(int script, word *pc, byte i, bool v)
   sfx(temp);
 }
 
-void do_loadweapon(int script, word *pc, byte i, bool v)
+void do_loadweapon(int, word *, byte, bool)
 {
-  return;
-  //long arg1;
-  long temp;
-
-  ////arg1 = ffscripts[script][*pc].arg1;
-
-  if(v)
-  {
-    temp = *arg1;
-  }
-  else
-  {
-    temp=get_arg(*arg1,i)/10000;
-  }
-  script_weapon=(weapon*)Ewpns.spr(temp);
+  return; //why is this here?
+ 
 }
 
-void do_loaditem(int script, word *pc, byte i, bool v)
+void do_loaditem(int, word *, byte, bool)
 {
-  return;
-  //long arg1;
-  long temp;
+  return; //why is this here?
+ }
 
-  ////arg1 = ffscripts[script][*pc].arg1;
-
-  if(v)
-  {
-    temp = *arg1;
-  }
-  else
-  {
-    temp=get_arg(*arg1,i)/10000;
-  }
-  script_item=(item*)items.spr(temp);
-}
-
-void do_loadnpc(int script, word *pc, byte i, bool v)
+void do_loadnpc(int, word *, byte, bool)
 {
-  return;
-  //long arg1;
-  long temp;
 
-  ////arg1 = ffscripts[script][*pc].arg1;
-
-  if(v)
-  {
-    temp = *arg1;
-  }
-  else
-  {
-    temp=get_arg(*arg1,i)/10000;
-  }
-  script_npc=(enemy*)guys.spr(temp);
+  return; //why is this here?
 }
 
 void do_createlweapon(int script, word *pc, byte i, bool v)
 {
-  byte *wpnref;
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+  
+  byte *wpnref=NULL;
   switch(script_type)
   {
   case SCRIPT_FFC:
@@ -1698,7 +1807,11 @@ void do_createlweapon(int script, word *pc, byte i, bool v)
 
 void do_createeweapon(int script, word *pc, byte i, bool v)
 {
-  byte *wpnref;
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+  
+  byte *wpnref=NULL;
   switch(script_type)
   {
   case SCRIPT_FFC:
@@ -1730,7 +1843,11 @@ void do_createeweapon(int script, word *pc, byte i, bool v)
 
 void do_createitem(int script, word *pc, byte i, bool v)
 {
-  byte *itemref;
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+  
+  byte *itemref=NULL;
   switch(script_type)
   {
   case SCRIPT_FFC:
@@ -1746,7 +1863,7 @@ void do_createitem(int script, word *pc, byte i, bool v)
   //long arg1;
   long temp;
 
-  ////arg1 = ffscripts[script][*pc].arg1;
+  //arg1 = ffscripts[script][*pc].arg1;
 
   if(v)
   {
@@ -1762,7 +1879,11 @@ void do_createitem(int script, word *pc, byte i, bool v)
 
 void do_createnpc(int script, word *pc, byte i, bool v)
 {
-  byte *guyref;
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
+  byte *guyref=NULL;
   switch(script_type)
   {
   case SCRIPT_FFC:
@@ -1794,6 +1915,10 @@ void do_createnpc(int script, word *pc, byte i, bool v)
 
 void do_trace(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+  
   //long arg1;
   long temp;
 
@@ -1807,11 +1932,22 @@ void do_trace(int script, word *pc, byte i, bool v)
   {
     temp=get_arg(*arg1,i);
   }
-  al_trace("%ld.%04d\n", temp/10000, abs(temp)%10000);
+  //I've HAD IT with this motherfucking fixed-point output code
+  char tmp[100];
+  sprintf(tmp,(temp < 0 ? "%06ld" : "%05ld"), temp);
+  string s = tmp;
+  s = s.substr(0, s.size()-4) + "." + s.substr(s.size()-4,4);
+  al_trace("%s\n", s.c_str());
 }
 
 void do_tracenl(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+  i=i;
+  v=v;
+  
   al_trace("\n");
 }
 
@@ -1824,9 +1960,9 @@ int run_script(int script, byte i, int stype)
   //long arg1=0;
   //long arg2=0;
   //arg1=arg2; //to avoid unused variables warnings
-  word *pc;
-  word *ffs;
-  dword *sflag;
+  word *pc=NULL;
+  word *ffs=NULL;
+  dword *sflag=NULL;
   script_type = stype;
   switch(script_type)
   {
@@ -2140,8 +2276,8 @@ int ffscript_engine()
 
 void write_stack(int script, byte i, int sp, long value)
 {
-  long (*st)[256];
-  word *ffs;
+  long (*st)[256] = NULL;
+  word *ffs=NULL;
   switch(script_type)
   {
     case SCRIPT_FFC:
@@ -2170,8 +2306,8 @@ void write_stack(int script, byte i, int sp, long value)
 
 int read_stack(int script, byte i, int sp)
 {
-  long (*st)[256];
-  word *ffs;
+  long (*st)[256]=NULL;
+  word *ffs=NULL;
   switch(script_type)
   {
     case SCRIPT_FFC:

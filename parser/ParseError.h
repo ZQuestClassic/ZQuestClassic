@@ -1,6 +1,11 @@
 #ifndef PARSEERROR_H
 #define PARSEERROR_H
 
+#include "AST.h"
+#include <string>
+
+using std::string;
+
 void printErrorMsg(AST *offender, int errorID, string param=string());
 
 #define CANTOPENSOURCE 0
@@ -39,4 +44,5 @@ void printErrorMsg(AST *offender, int errorID, string param=string());
 #define BREAKBAD 33
 #define CONTINUEBAD 34
 #define CONSTREDEF 35
+#define LVALCONST 36
 #endif

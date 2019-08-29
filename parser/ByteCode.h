@@ -1,7 +1,10 @@
 #ifndef BYTECODE_H
 #define BYTECODE_H
 
-#include "ScriptParser.h"
+//#include "ScriptParser.h"
+#include "AST.h"
+#include "UtilVisitors.h"
+#include "DataStructs.h"
 #include "Compiler.h"
 #include "../zsyssimple.h"
 
@@ -122,6 +125,7 @@ using namespace std;
 #define FFCWIDTH 102
 #define FFCHEIGHT 103
 #define FFLINK 104
+#define LINKITEMD 105
 
 class LiteralArgument;
 class VarArgument;
@@ -131,10 +135,10 @@ class GlobalArgument;
 class ArgumentVisitor
 {
 public:
-	virtual void caseLiteral(LiteralArgument &host, void *param) {}
-	virtual void caseVar(VarArgument &host, void *param) {}
-	virtual void caseLabel(LabelArgument &host, void *param) {}
-	virtual void caseGlobal(GlobalArgument &host, void *param) {}
+	virtual void caseLiteral(LiteralArgument &host, void *param) {void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/}
+	virtual void caseVar(VarArgument &host, void *param) {void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/}
+	virtual void caseLabel(LabelArgument &host, void *param) {void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/}
+	virtual void caseGlobal(GlobalArgument &host, void *param) {void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/}
 	virtual ~ArgumentVisitor() {}
 };
 
@@ -150,7 +154,7 @@ public:
 class LiteralArgument : public Argument
 {
 public:
-	LiteralArgument(int value) : value(value) {}
+	LiteralArgument(long Value) : value(Value) {}
 	string toString();
 	void execute(ArgumentVisitor &host, void *param)
 	{
@@ -158,13 +162,13 @@ public:
 	}
 	Argument *clone() {return new LiteralArgument(value);}
 private:
-	int value;
+	long value;
 };
 
 class VarArgument : public Argument
 {
 public:
-	VarArgument(int ID) : ID(ID) {}
+	VarArgument(int id) : ID(id) {}
 	string toString();
 	void execute(ArgumentVisitor &host, void *param)
 	{
@@ -178,7 +182,7 @@ private:
 class GlobalArgument : public Argument
 {
 public:
-	GlobalArgument(int ID) : ID(ID) {}
+	GlobalArgument(int id) : ID(id) {}
 	string toString();
 	void execute(ArgumentVisitor &host, void *param)
 	{
@@ -192,7 +196,7 @@ private:
 class LabelArgument : public Argument
 {
 public:
-	LabelArgument(int ID) : ID(ID), haslineno(false) {}
+	LabelArgument(int id) : ID(id), haslineno(false) {}
 	string toString();
 	void execute(ArgumentVisitor &host, void *param)
 	{
@@ -210,7 +214,7 @@ private:
 class UnaryOpcode : public Opcode
 {
 public:
-	UnaryOpcode(Argument *a) : a(a) {}
+	UnaryOpcode(Argument *A) : a(A) {}
 	~UnaryOpcode() {delete a;}
 	Argument *getArgument() {return a;}
 	void execute(ArgumentVisitor &host, void *param)
@@ -224,7 +228,7 @@ protected:
 class BinaryOpcode : public Opcode
 {
 public:
-	BinaryOpcode(Argument *a, Argument *b) : a(a), b(b) {}
+	BinaryOpcode(Argument *A, Argument *B) : a(A), b(B) {}
 	~BinaryOpcode() {delete a; delete b;}
 	Argument *getFirstArgument() {return a;}
 	Argument *getSecondArgument() {return b;}
@@ -241,7 +245,7 @@ protected:
 class OSetImmediate : public BinaryOpcode
 {
 public:
-	OSetImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OSetImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OSetImmediate(a->clone(),b->clone());}
 };
@@ -249,7 +253,7 @@ public:
 class OSetRegister : public BinaryOpcode
 {
 public:
-	OSetRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OSetRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OSetRegister(a->clone(),b->clone());}
 };
@@ -257,7 +261,7 @@ public:
 class OAddImmediate : public BinaryOpcode
 {
 public:
-	OAddImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OAddImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OAddImmediate(a->clone(),b->clone());}
 };
@@ -265,7 +269,7 @@ public:
 class OAddRegister : public BinaryOpcode
 {
 public:
-	OAddRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OAddRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OAddRegister(a->clone(),b->clone());}
 };
@@ -273,7 +277,7 @@ public:
 class OSubImmediate : public BinaryOpcode
 {
 public:
-	OSubImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OSubImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OSubImmediate(a->clone(),b->clone());}
 };
@@ -281,7 +285,7 @@ public:
 class OSubRegister : public BinaryOpcode
 {
 public:
-	OSubRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OSubRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OSubRegister(a->clone(),b->clone());}
 };
@@ -289,7 +293,7 @@ public:
 class OMultImmediate : public BinaryOpcode
 {
 public:
-	OMultImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OMultImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OMultImmediate(a->clone(),b->clone());}
 };
@@ -297,7 +301,7 @@ public:
 class OMultRegister : public BinaryOpcode
 {
 public:
-	OMultRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OMultRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OMultRegister(a->clone(),b->clone());}
 };
@@ -305,7 +309,7 @@ public:
 class ODivImmediate : public BinaryOpcode
 {
 public:
-	ODivImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	ODivImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new ODivImmediate(a->clone(),b->clone());}
 };
@@ -313,7 +317,7 @@ public:
 class ODivRegister : public BinaryOpcode
 {
 public:
-	ODivRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	ODivRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new ODivRegister(a->clone(),b->clone());}
 };
@@ -321,7 +325,7 @@ public:
 class OCompareImmediate : public BinaryOpcode
 {
 public:
-	OCompareImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OCompareImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OCompareImmediate(a->clone(),b->clone());}
 };
@@ -329,7 +333,7 @@ public:
 class OCompareRegister : public BinaryOpcode
 {
 public:
-	OCompareRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OCompareRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OCompareRegister(a->clone(),b->clone());}
 };
@@ -344,7 +348,7 @@ public:
 class OGotoImmediate : public UnaryOpcode
 {
 public:
-	OGotoImmediate(Argument *a) : UnaryOpcode(a) {}
+	OGotoImmediate(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OGotoImmediate(a->clone());}
 };
@@ -352,7 +356,7 @@ public:
 class OGotoTrueImmediate: public UnaryOpcode
 {
 public:
-	OGotoTrueImmediate(Argument *a) : UnaryOpcode(a) {}
+	OGotoTrueImmediate(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OGotoTrueImmediate(a->clone());}
 };
@@ -360,7 +364,7 @@ public:
 class OGotoFalseImmediate: public UnaryOpcode
 {
 public:
-	OGotoFalseImmediate(Argument *a) : UnaryOpcode(a) {}
+	OGotoFalseImmediate(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OGotoFalseImmediate(a->clone());}
 };
@@ -368,7 +372,7 @@ public:
 class OGotoMoreImmediate : public UnaryOpcode
 {
 public:
-	OGotoMoreImmediate(Argument *a) : UnaryOpcode(a) {}
+	OGotoMoreImmediate(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OGotoMoreImmediate(a->clone());}
 };
@@ -376,7 +380,7 @@ public:
 class OGotoLessImmediate : public UnaryOpcode
 {
 public:
-	OGotoLessImmediate(Argument *a) : UnaryOpcode(a) {}
+	OGotoLessImmediate(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OGotoLessImmediate(a->clone());}
 };
@@ -384,7 +388,7 @@ public:
 class OPushRegister : public UnaryOpcode
 {
 public:
-	OPushRegister(Argument *a) : UnaryOpcode(a) {}
+	OPushRegister(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OPushRegister(a->clone());}
 };
@@ -392,7 +396,7 @@ public:
 class OPopRegister : public UnaryOpcode
 {
 public:
-	OPopRegister(Argument *a) : UnaryOpcode(a) {}
+	OPopRegister(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OPopRegister(a->clone());}
 };
@@ -400,7 +404,7 @@ public:
 class OLoadIndirect : public BinaryOpcode
 {
 public:
-	OLoadIndirect(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OLoadIndirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OLoadIndirect(a->clone(),b->clone());}
 };
@@ -408,7 +412,7 @@ public:
 class OStoreIndirect : public BinaryOpcode
 {
 public:
-	OStoreIndirect(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OStoreIndirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OStoreIndirect(a->clone(),b->clone());}
 };
@@ -423,7 +427,7 @@ public:
 class OGotoRegister : public UnaryOpcode
 {
 public:
-	OGotoRegister(Argument *a) : UnaryOpcode(a) {}
+	OGotoRegister(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OGotoRegister(a->clone());}
 };
@@ -431,7 +435,7 @@ public:
 class OTraceRegister : public UnaryOpcode
 {
 public:
-	OTraceRegister(Argument *a) : UnaryOpcode(a) {}
+	OTraceRegister(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OTraceRegister(a->clone());}
 };
@@ -439,7 +443,7 @@ public:
 class OAndImmediate : public BinaryOpcode
 {
 public:
-	OAndImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OAndImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OAndImmediate(a->clone(),b->clone());}
 };
@@ -447,7 +451,7 @@ public:
 class OAndRegister : public BinaryOpcode
 {
 public:
-	OAndRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OAndRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OAndRegister(a->clone(),b->clone());}
 };
@@ -455,7 +459,7 @@ public:
 class OOrImmediate : public BinaryOpcode
 {
 public:
-    OOrImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+    OOrImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OOrImmediate(a->clone(),b->clone());}
 };
@@ -463,7 +467,7 @@ public:
 class OOrRegister : public BinaryOpcode
 {
 public:
-	OOrRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OOrRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OOrRegister(a->clone(),b->clone());}
 };
@@ -471,7 +475,7 @@ public:
 class OXorImmediate : public BinaryOpcode
 {
 public:
-	OXorImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OXorImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OXorImmediate(a->clone(), b->clone());}
 };
@@ -479,7 +483,7 @@ public:
 class OXorRegister : public BinaryOpcode
 {
 public:
-	OXorRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OXorRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OXorRegister(a->clone(), b->clone());}
 };
@@ -487,7 +491,7 @@ public:
 class ONot : public UnaryOpcode
 {
 public:
-	ONot(Argument *a) : UnaryOpcode(a) {}
+	ONot(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new ONot(a->clone());}
 };
@@ -495,7 +499,7 @@ public:
 class OLShiftImmediate : public BinaryOpcode
 {
 public:
-	OLShiftImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OLShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OLShiftImmediate(a->clone(), b->clone());}
 };
@@ -503,7 +507,7 @@ public:
 class OLShiftRegister : public BinaryOpcode
 {
 public:
-	OLShiftRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OLShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OLShiftRegister(a->clone(), b->clone());}
 };
@@ -511,7 +515,7 @@ public:
 class ORShiftImmediate : public BinaryOpcode
 {
 public:
-	ORShiftImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	ORShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new ORShiftImmediate(a->clone(), b->clone());}
 };
@@ -519,7 +523,7 @@ public:
 class ORShiftRegister : public BinaryOpcode
 {
 public:
-	ORShiftRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	ORShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new ORShiftRegister(a->clone(), b->clone());}
 };
@@ -527,7 +531,7 @@ public:
 class OModuloImmediate : public BinaryOpcode
 {
 public:
-	OModuloImmediate(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OModuloImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OModuloImmediate(a->clone(), b->clone());}
 };
@@ -535,7 +539,7 @@ public:
 class OModuloRegister : public BinaryOpcode
 {
 public:
-	OModuloRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OModuloRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OModuloRegister(a->clone(), b->clone());}
 };
@@ -543,7 +547,7 @@ public:
 class OSinRegister : public BinaryOpcode
 {
 public:
-	OSinRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OSinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OSinRegister(a->clone(), b->clone());}
 };
@@ -551,7 +555,7 @@ public:
 class OCosRegister : public BinaryOpcode
 {
 public:
-	OCosRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OCosRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OCosRegister(a->clone(), b->clone());}
 };
@@ -559,7 +563,7 @@ public:
 class OTanRegister : public BinaryOpcode
 {
 public:
-	OTanRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OTanRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OTanRegister(a->clone(), b->clone());}
 };
@@ -567,7 +571,7 @@ public:
 class OMaxRegister : public BinaryOpcode
 {
 public:
-	OMaxRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OMaxRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OMaxRegister(a->clone(), b->clone());}
 };
@@ -575,7 +579,7 @@ public:
 class OMinRegister : public BinaryOpcode
 {
 public:
-	OMinRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OMinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OMinRegister(a->clone(), b->clone());}
 };
@@ -583,7 +587,7 @@ public:
 class OPowRegister : public BinaryOpcode
 {
 public:
-	OPowRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OPowRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OPowRegister(a->clone(), b->clone());}
 };
@@ -591,7 +595,7 @@ public:
 class OInvPowRegister : public BinaryOpcode
 {
 public:
-	OInvPowRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OInvPowRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OInvPowRegister(a->clone(), b->clone());}
 };
@@ -599,7 +603,7 @@ public:
 class OFactorial : public UnaryOpcode
 {
 public:
-	OFactorial(Argument *a) : UnaryOpcode(a) {}
+	OFactorial(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OFactorial(a->clone());}
 };
@@ -607,7 +611,7 @@ public:
 class OAbsRegister : public UnaryOpcode
 {
 public:
-	OAbsRegister(Argument *a) : UnaryOpcode(a) {}
+	OAbsRegister(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OAbsRegister(a->clone());}
 };
@@ -622,7 +626,7 @@ public:
 class ORandRegister : public BinaryOpcode
 {
 public:
-	ORandRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	ORandRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new ORandRegister(a->clone(), b->clone());}
 };
@@ -630,7 +634,7 @@ public:
 class OSqrtRegister : public BinaryOpcode
 {
 public:
-	OSqrtRegister(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OSqrtRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OSqrtRegister(a->clone(),b->clone());}
 };
@@ -638,7 +642,7 @@ public:
 class OWarp : public BinaryOpcode
 {
 public:
-	OWarp(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OWarp(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OWarp(a->clone(), b->clone());}
 };
@@ -646,7 +650,7 @@ public:
 class OPitWarp : public BinaryOpcode
 {
 public:
-	OPitWarp(Argument *a, Argument *b) : BinaryOpcode(a,b) {}
+	OPitWarp(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OPitWarp(a->clone(), b->clone());}
 };
@@ -654,7 +658,7 @@ public:
 class OCreateItemRegister : public UnaryOpcode
 {
 public:
-	OCreateItemRegister(Argument *a) : UnaryOpcode(a) {}
+	OCreateItemRegister(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OCreateItemRegister(a->clone());}
 };
@@ -662,123 +666,9 @@ public:
 class OPlaySoundRegister : public UnaryOpcode
 {
 public:
-	OPlaySoundRegister(Argument *a) : UnaryOpcode(a) {}
+	OPlaySoundRegister(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OPlaySoundRegister(a->clone());}
-};
-
-///////////////////////////////////////////////////////////////////////////////////
-class BuildOpcodes : public RecursiveVisitor
-{
-public:
-	virtual void caseDefault(void *param);
-	virtual void caseFuncDecl(ASTFuncDecl &host, void *param);
-	virtual void caseVarDecl(ASTVarDecl &host, void *param);
-	virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
-	virtual void caseExprAnd(ASTExprAnd &host, void *param);
-	virtual void caseExprOr(ASTExprOr &host, void *param);
-	virtual void caseExprGT(ASTExprGT &host, void *param);
-	virtual void caseExprGE(ASTExprGE &host, void *param);
-	virtual void caseExprLT(ASTExprLT &host, void *param);
-	virtual void caseExprLE(ASTExprLE &host, void *param);
-	virtual void caseExprEQ(ASTExprEQ &host, void *param);
-	virtual void caseExprNE(ASTExprNE &host, void *param);
-	virtual void caseExprPlus(ASTExprPlus &host, void *param);
-	virtual void caseExprMinus(ASTExprMinus &host, void *param);
-	virtual void caseExprTimes(ASTExprTimes &host, void *param);
-	virtual void caseExprDivide(ASTExprDivide &host, void *param);
-	virtual void caseExprNot(ASTExprNot &host, void *param);
-	virtual void caseExprNegate(ASTExprNegate &host, void *param);
-	virtual void caseFuncCall(ASTFuncCall &host, void *param);
-	virtual void caseStmtAssign(ASTStmtAssign &host, void *param);
-	virtual void caseExprDot(ASTExprDot &host, void *param);
-	virtual void caseExprArrow(ASTExprArrow &host, void *param);
-	virtual void caseStmtFor(ASTStmtFor &host, void *param);
-	virtual void caseStmtIf(ASTStmtIf &host, void *param);
-	virtual void caseStmtIfElse(ASTStmtIfElse &host, void *param);
-	virtual void caseStmtReturn(ASTStmtReturn &host, void *param);
-	virtual void caseStmtReturnVal(ASTStmtReturnVal &host, void *param);
-	virtual void caseStmtEmpty(ASTStmtEmpty &host, void *param);
-	virtual void caseNumConstant(ASTNumConstant &host, void *param);
-	virtual void caseBoolConstant(ASTBoolConstant &host, void *param);
-	virtual void caseStmtWhile(ASTStmtWhile &host, void *param);
-	virtual void caseExprBitOr(ASTExprBitOr &host, void *param);
-	virtual void caseExprBitXor(ASTExprBitXor &host, void *param);
-	virtual void caseExprBitAnd(ASTExprBitAnd &host, void *param);
-	virtual void caseExprLShift(ASTExprLShift &host, void *param);
-	virtual void caseExprRShift(ASTExprRShift &host, void *param);
-	virtual void caseExprModulo(ASTExprModulo &host, void *param);
-	virtual void caseExprBitNot(ASTExprBitNot &host, void *param);
-	virtual void caseExprIncrement(ASTExprIncrement &host, void *param);
-	virtual void caseExprDecrement(ASTExprDecrement &host, void *param);
-	virtual void caseStmtBreak(ASTStmtBreak &host, void *param);
-	virtual void caseStmtContinue(ASTStmtContinue &host, void *param);
-	vector<Opcode *> getResult() {return result;}
-	int getReturnLabelID() {return returnlabelid;}
-	BuildOpcodes() : failure(true) {}
-	bool isOK() {return !failure;}
-private:
-	vector<Opcode *> result;
-	int returnlabelid;
-	int continuelabelid;
-	int breaklabelid;
-	bool failure;
-};
-
-class CountStackSymbols : public RecursiveVisitor
-{
-public:
-	virtual void caseDefault(void *param) {}
-	virtual void caseVarDecl(ASTVarDecl &host, void *param)
-	{
-		pair<vector<int> *, SymbolTable *> *p = (pair<vector<int> *, SymbolTable *> *)param;
-		int vid = p->second->getID(&host);
-		p->first->push_back(vid);
-	}
-	virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
-	{
-		caseVarDecl(host, param);
-	}
-};
-
-class LValBOHelper : public ASTVisitor
-{
-public:
-	virtual void caseDefault(void *param);
-	virtual void caseExprDot(ASTExprDot &host, void *param);
-	virtual void caseExprArrow(ASTExprArrow &host, void *param);
-	virtual void caseVarDecl(ASTVarDecl &host, void *param);
-	vector<Opcode *> getResult() {return result;}
-private:
-	vector<Opcode *> result;
-};
-
-class GetLabels : public ArgumentVisitor
-{
-public:
-	void caseLabel(LabelArgument &host, void *param)
-	{
-		map<int,bool> *labels = (map<int,bool> *)param;
-		(*labels)[host.getID()] = true;
-	}
-};
-
-class SetLabels : public ArgumentVisitor
-{
-public:
-	void caseLabel(LabelArgument &host, void *param)
-	{
-		map<int, int> *labels = (map<int, int> *)param;
-		int lineno = (*labels)[host.getID()];
-		if(lineno==0)
-		{
-			char temp[200];
-			sprintf(temp,"Internal error: couldn't find function label %d", host.getID());
-			box_out(temp);
-			box_eol();
-		}
-		host.setLineNo(lineno);
-	}
 };
 
 #endif

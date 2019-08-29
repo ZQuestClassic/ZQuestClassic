@@ -307,6 +307,8 @@ bool enemy::Dead(int index)
 // the guys sprite list; index is the enemy's index in the list.
 bool enemy::animate(int index)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  index=index;
 
   int nx = real_x(x);
   int ny = real_y(y);
@@ -787,14 +789,14 @@ bool enemy::canmove(int ndir)
 }
 
 // 8-directional
-void enemy::newdir_8(int rate,int special,int dx1,int dy1,int dx2,int dy2)
+void enemy::newdir_8(int newrate,int special,int dx1,int dy1,int dx2,int dy2)
 {
   int ndir=0;
   // can move straight, check if it wants to turn
   if(canmove(dir,step,special,dx1,dy1,dx2,dy2))
   {
     int r=rand();
-    if(rate>0 && !(r%rate))
+    if(newrate>0 && !(r%newrate))
     {
       ndir = ((dir+((r&64)?-1:1))&7)+8;
       if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
@@ -837,9 +839,9 @@ ok:
   y.v&=0xFFFF0000;
 }
 
-void enemy::newdir_8(int rate,int special)
+void enemy::newdir_8(int newrate,int special)
 {
-  newdir_8(rate,special,0,-8,15,15);
+  newdir_8(newrate,special,0,-8,15,15);
 }
 
 // makes the enemy slide backwards when hit
@@ -937,9 +939,9 @@ bool enemy::fslide()
 // rate:   0 = no random changes, 16 = always random change
 // homing: 0 = none, 256 = always
 // grumble 0 = none, 4 = strongest appetite
-void enemy::newdir(int rate,int homing,int special)
+void enemy::newdir(int newrate,int newhoming,int special)
 {
-  int ndir;
+  int ndir=-1;
   if(grumble && (rand()&3)<grumble)
     //  for super bait
     //    if(1)
@@ -966,7 +968,7 @@ void enemy::newdir(int rate,int homing,int special)
       }
     }
   }
-  if((rand()&255)<homing)
+  if((rand()&255)<newhoming)
   {
     ndir = lined_up(8,false);
     if(ndir>=0 && canmove(ndir,special))
@@ -980,7 +982,7 @@ void enemy::newdir(int rate,int homing,int special)
   for( ; i<32; i++)
   {
     int r=rand();
-    if((r&15)<rate)
+    if((r&15)<newrate)
       ndir=(r>>4)&3;
     else
       ndir=dir;
@@ -1008,21 +1010,21 @@ void enemy::newdir()
 
 fix enemy::distance_left()
 {
-  int a=x.v>>16;
-  int b=y.v>>16;
+  int a2=x.v>>16;
+  int b2=y.v>>16;
 
   switch(dir)
   {
-    case up:    return (fix)(b&0xF);
-    case down:  return (fix)(16-(b&0xF));
-    case left:  return (fix)(a&0xF);
-    case right: return (fix)(16-(a&0xF));
+    case up:    return (fix)(b2&0xF);
+    case down:  return (fix)(16-(b2&0xF));
+    case left:  return (fix)(a2&0xF);
+    case right: return (fix)(16-(a2&0xF));
   }
   return (fix)0;
 }
 
 // keeps walking around
-void enemy::constant_walk(int rate,int homing,int special)
+void enemy::constant_walk(int newrate,int newhoming,int special)
 {
   if(slide())
     return;
@@ -1031,7 +1033,7 @@ void enemy::constant_walk(int rate,int homing,int special)
   if(clk3<=0)
   {
     fix_coords();
-    newdir(rate,homing,special);
+    newdir(newrate,newhoming,special);
     clk3=int(16.0/step);
   }
   else if(scored)
@@ -1048,13 +1050,13 @@ void enemy::constant_walk()
   constant_walk(4,0,spw_none);
 }
 
-int enemy::pos(int x,int y)
+int enemy::pos(int newx,int newy)
 {
-  return (y<<8)+x;
+  return (newy<<8)+newx;
 }
 
 // for variable step rates
-void enemy::variable_walk(int rate,int homing,int special)
+void enemy::variable_walk(int newrate,int newhoming,int special)
 {
   if(slide())
     return;
@@ -1063,14 +1065,14 @@ void enemy::variable_walk(int rate,int homing,int special)
   if((int(x)&15)==0 && (int(y)&15)==0 && clk3!=pos(x,y))
   {
     fix_coords();
-    newdir(rate,homing,special);
+    newdir(newrate,newhoming,special);
     clk3=pos(x,y);
   }
   move(step);
 }
 
 // pauses for a while after it makes a complete move (to a new square)
-void enemy::halting_walk(int rate,int homing,int special,int hrate, int haltcnt)
+void enemy::halting_walk(int newrate,int newhoming,int special,int newhrate, int haltcnt)
 {
   if(sclk && clk2)
   {
@@ -1088,13 +1090,13 @@ void enemy::halting_walk(int rate,int homing,int special,int hrate, int haltcnt)
   if(clk3<=0)
   {
     fix_coords();
-    newdir(rate,homing,special);
+    newdir(newrate,newhoming,special);
     clk3=int(16.0/step);
     if(clk2<0)
     {
       clk2=0;
     }
-    else if((rand()&15)<hrate)
+    else if((rand()&15)<newhrate)
     {
       clk2=haltcnt;
       return;
@@ -1111,13 +1113,13 @@ void enemy::halting_walk(int rate,int homing,int special,int hrate, int haltcnt)
 }
 
 // 8-directional movement, aligns to 8 pixels
-void enemy::constant_walk_8(int rate,int special)
+void enemy::constant_walk_8(int newrate,int special)
 {
   if(clk<0 || dying || stunclk || watch)
     return;
   if(clk3<=0)
   {
-    newdir_8(rate,special);
+    newdir_8(newrate,special);
     clk3=int(8.0/step);
   }
   --clk3;
@@ -1125,7 +1127,7 @@ void enemy::constant_walk_8(int rate,int special)
 }
 
 // 8-directional movement, no alignment
-void enemy::variable_walk_8(int rate,int newclk,int special)
+void enemy::variable_walk_8(int newrate,int newclk,int special)
 {
   if(clk<0 || dying || stunclk || watch)
     return;
@@ -1133,7 +1135,7 @@ void enemy::variable_walk_8(int rate,int newclk,int special)
     clk3=0;
   if(clk3<=0)
   {
-    newdir_8(rate,special);
+    newdir_8(newrate,special);
     clk3=newclk;
   }
   --clk3;
@@ -1141,7 +1143,7 @@ void enemy::variable_walk_8(int rate,int newclk,int special)
 }
 
 // same as above but with variable enemy size
-void enemy::variable_walk_8(int rate,int newclk,int special,int dx1,int dy1,int dx2,int dy2)
+void enemy::variable_walk_8(int newrate,int newclk,int special,int dx1,int dy1,int dx2,int dy2)
 {
   if(clk<0 || dying || stunclk || watch)
     return;
@@ -1149,7 +1151,7 @@ void enemy::variable_walk_8(int rate,int newclk,int special,int dx1,int dy1,int 
     clk3=0;
   if(clk3<=0)
   {
-    newdir_8(rate,special,dx1,dy1,dx2,dy2);
+    newdir_8(newrate,special,dx1,dy1,dx2,dy2);
     clk3=newclk;
   }
   --clk3;
@@ -1163,7 +1165,7 @@ void enemy::variable_walk_8(int rate,int newclk,int special,int dx1,int dy1,int 
 // p is pause count
 // g is graduality :)
 
-void enemy::floater_walk(int rate,int newclk,fix ms,fix ss,int s,int p, int g)
+void enemy::floater_walk(int newrate,int newclk,fix ms,fix ss,int s,int p, int g)
 {
   ++clk2;
   switch(movestatus)
@@ -1212,12 +1214,12 @@ void enemy::floater_walk(int rate,int newclk,fix ms,fix ss,int s,int p, int g)
     }
     break;
   }
-  variable_walk_8(movestatus==2?rate:0,newclk,spw_floater);
+  variable_walk_8(movestatus==2?newrate:0,newclk,spw_floater);
 }
 
-void enemy::floater_walk(int rate,int newclk,fix s)
+void enemy::floater_walk(int newrate,int newclk,fix s)
 {
-  floater_walk(rate,newclk,s,(fix)0.125,3,80,32);
+  floater_walk(newrate,newclk,s,(fix)0.125,3,80,32);
 }
 
 // Checks if enemy is lined up with Link. If so, returns direction Link is
@@ -1288,16 +1290,16 @@ void enemy::place_on_axis(bool floater)
 {
   int lx=min(max(int(Link.getX())&0xF0,32),208);
   int ly=min(max(int(Link.getY())&0xF0,32),128);
-  int pos=rand()%23;
+  int pos2=rand()%23;
   int tried=0;
   bool last_resort,placed=false;
 
   do
   {
-    if(pos<14)
-    { x=(pos<<4)+16; y=ly; }
+    if(pos2<14)
+    { x=(pos2<<4)+16; y=ly; }
     else
-    { x=lx; y=((pos-14)<<4)+16; }
+    { x=lx; y=((pos2-14)<<4)+16; }
 
     if(x<32 || y<32 || x>=224 || y>=144)
       last_resort=false;
@@ -1316,7 +1318,7 @@ void enemy::place_on_axis(bool floater)
     if(!placed && tried>=22 && last_resort)
       placed=true;
     ++tried;
-    pos=(pos+3)%23;
+    pos2=(pos2+3)%23;
   } while(!placed);
 
   if(y==ly)
@@ -2202,7 +2204,7 @@ void enemy::update_enemy_frame()
     break;
     case aLEV:
     {
-      bool f4 = ((clk/5)&1);
+      f4 = ((clk/5)&1);
       switch(misc)
       {
         case -1:
@@ -2413,6 +2415,9 @@ void removearmos(int ax,int ay)
 
 eArmos::eArmos(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Clk=Clk;
+
   //nets+680;
   //    tile = d->tile + (rand()&1); // wth?
   fromstatue=true;
@@ -2761,6 +2766,8 @@ bool eItemFairy::animate(int index)
 
 void eItemFairy::draw(BITMAP *dest)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  dest=dest;
 }
 
 ePeahat::ePeahat(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -2804,6 +2811,10 @@ void ePeahat::draw(BITMAP *dest)
 
 int ePeahat::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+
   if(dying || clk<0 || hclk>0)
     return 0;
   if(superman && !(wpnId==wSBomb && superman==2)            // vulnerable to super bombs
@@ -2909,12 +2920,12 @@ bool eLeever::animate(int index)
           {
             break;
           }
-          int d=rand()&1;
+          int d2=rand()&1;
           if(LinkDir()>=left)
           {
-            d+=2;
+            d2+=2;
           }
-          if(canplace(d) || canplace(d^1))
+          if(canplace(d2) || canplace(d2^1))
           {
             misc=1;
             clk2=0;
@@ -3473,19 +3484,19 @@ bool eTrap::animate(int index)
     {
       dir=left;
     }
-    int d=lined_up(15,true);
-    if (((d<left || d > right) && (id==eTRAP_H)) ||
-          ((d>down) && (id==eTRAP_V)) ||
-          ((d>right) && (id==eTRAP)) ||
-          ((d<l_up) && (id==eTRAP_DIAGONAL)) ||
-          ((d!=r_up) && (d!=l_down) && (id==eTRAP_SLASH_LOS)) ||
-          ((d!=l_up) && (d!=r_down) && (id==eTRAP_BACKSLASH_LOS)))
+    int d2=lined_up(15,true);
+    if (((d2<left || d2 > right) && (id==eTRAP_H)) ||
+          ((d2>down) && (id==eTRAP_V)) ||
+          ((d2>right) && (id==eTRAP)) ||
+          ((d2<l_up) && (id==eTRAP_DIAGONAL)) ||
+          ((d2!=r_up) && (d2!=l_down) && (id==eTRAP_SLASH_LOS)) ||
+          ((d2!=l_up) && (d2!=r_down) && (id==eTRAP_BACKSLASH_LOS)))
     {
-      d=-1;
+      d2=-1;
     }
-    if(d!=-1 && trapmove(d))
+    if(d2!=-1 && trapmove(d2))
     {
-      dir=d;
+      dir=d2;
       misc=1;
       clk2=(dir==down)?3:0;
     }
@@ -3646,6 +3657,13 @@ void eTrap::draw(BITMAP *dest)
 
 int eTrap::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnId=wpnId;
+  power=power;
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   return 0;
 }
 
@@ -3754,6 +3772,13 @@ void eTrap2::draw(BITMAP *dest)
 
 int eTrap2::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnId=wpnId;
+  power=power;
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   return 0;
 }
 
@@ -3852,6 +3877,13 @@ void eRock::draw(BITMAP *dest)
 
 int eRock::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnId=wpnId;
+  power=power;
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   return 0;
 }
 
@@ -3959,6 +3991,13 @@ void eBoulder::draw(BITMAP *dest)
 
 int eBoulder::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnId=wpnId;
+  power=power;
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   return 0;
 }
 
@@ -3977,6 +4016,9 @@ eProjectile::eProjectile(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eProjectile::animate(int index)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  index=index;
+
   double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
   if ((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
   {
@@ -4023,6 +4065,8 @@ bool eProjectile::animate(int index)
 
 void eProjectile::draw(BITMAP *dest)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  dest=dest;
 }
 
 eTrigger::eTrigger(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -4032,6 +4076,8 @@ eTrigger::eTrigger(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 void eTrigger::draw(BITMAP *dest)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  dest=dest;
 }
 
 eNPC::eNPC(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -4108,6 +4154,13 @@ void eNPC::draw(BITMAP *dest)
 
 int eNPC::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnId=wpnId;
+  power=power;
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   return 0;
 }
 
@@ -4169,11 +4222,21 @@ void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
 
 int eSpinTile::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnId=wpnId;
+  power=power;
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   return 0;
 }
 
 eZora::eZora(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Clk=Clk;
+
   mainguy=false;
   count_enemy=false;
   if(iswater(tmpscr->data[(((int)y&0xF0)+((int)x>>4))]) &&
@@ -4248,22 +4311,22 @@ bool eZora::animate(int index)
     case 0:                                                 // reposition him
     {
       int t=0;
-      int pos=rand()%160 + 16;
+      int pos2=rand()%160 + 16;
       bool placed=false;
       while(!placed && t<160)
       {
-        if(iswater(tmpscr->data[pos]) && (pos&15)>0 && (pos&15)<15)
+        if(iswater(tmpscr->data[pos2]) && (pos2&15)>0 && (pos2&15)<15)
         {
-          x=(pos&15)<<4;
-          y=pos&0xF0;
+          x=(pos2&15)<<4;
+          y=pos2&0xF0;
           hp=guysbuf[id].hp;                             // refill life each time
           hxofs=1000;                                       // avoid hit detection
           stunclk=0;
           placed=true;
         }
-        pos+=19;
-        if(pos>=176)
-          pos-=160;
+        pos2+=19;
+        if(pos2>=176)
+          pos2-=160;
         ++t;
       }
       if(!placed || whistleclk>=88)                         // can't place him, he's gone
@@ -4778,6 +4841,11 @@ void ePolsVoice::draw(BITMAP *dest)
 
 int ePolsVoice::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   if(dying || clk<0 || hclk>0 || superman)
     return 0;
 
@@ -4885,7 +4953,9 @@ bool eLikeLike::animate(int index)
   {
     ++clk2;
     if(clk2==95)
-      game->items[itype_shield] &= ~i_largeshield;
+	{
+		game->item[iMShield] = false;
+	}
     if((clk&0x18)==8)                                       // stop its animation on the middle frame
       --clk;
   }
@@ -5098,10 +5168,10 @@ bool eOctorok::animate(int index)
   return enemy::animate(index);
 }
 
-void eOctorok::drawshadow(BITMAP *dest,bool translucent)
+void eOctorok::drawshadow(BITMAP *,bool)
 {
   return;
-  int tempy=yofs;
+  /*int tempy=yofs;
   int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
     (clk/(frate/4)):((clk>=(frate>>1))?1:0);
   flip = 0;
@@ -5109,7 +5179,7 @@ void eOctorok::drawshadow(BITMAP *dest,bool translucent)
   yofs+=8;
   yofs+=ground_y-y;
   enemy::drawshadow(dest,translucent);
-  yofs=tempy;
+  yofs=tempy;*/
 }
 
 
@@ -5800,6 +5870,11 @@ void eWizzrobe::draw(BITMAP *dest)
 
 int eWizzrobe::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   if(dying || clk<0 || hclk>0 || superman)
     return 0;
 
@@ -5915,6 +5990,9 @@ void eDodongo::draw(BITMAP *dest)
 
 int eDodongo::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnDir=wpnDir;
+
   if(dying || clk<0 || clk2>0 || superman)
     return 0;
 
@@ -6027,6 +6105,9 @@ void eDodongo2::draw(BITMAP *dest)
 
 int eDodongo2::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnDir=wpnDir;
+
   if(dying || clk<0 || clk2>0 || superman)
     return 0;
 
@@ -6120,6 +6201,10 @@ void eDodongo2::death_sfx()
 
 eAquamentus::eAquamentus(fix X,fix Y,int Id,int Clk) : enemy((fix)176,(fix)64,Id,Clk)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  X=X;
+  Y=Y;
+
   if (id==eLAQUAM)
   {
     x=64;
@@ -6169,10 +6254,10 @@ bool eAquamentus::animate(int index)
   }
   if(!((clk+1)&63))
   {
-    int d=(rand()%3)+1;
-    if(d>=left)
+    int d2=(rand()%3)+1;
+    if(d2>=left)
     {
-      dir=d;
+      dir=d2;
     }
     if (id==eLAQUAM)
     {
@@ -6263,6 +6348,11 @@ bool eAquamentus::hit(weapon *w)
 
 int eAquamentus::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   if(dying || clk<0 || hclk>0 || superman)
     return 0;
   switch(wpnId)
@@ -6302,6 +6392,11 @@ void eAquamentus::death_sfx()
 
 eGohma::eGohma(fix X,fix Y,int Id,int Clk) : enemy((fix)128,(fix)48,Id,0)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  X=X;
+  Y=Y;
+  Clk=Clk;
+
   hxofs=-16;
   hxsz=48;
   yofs=playing_field_offset+1;
@@ -6438,6 +6533,9 @@ void eGohma::draw(BITMAP *dest)
 
 int eGohma::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpny=wpny;
+
   if(dying || clk<0 || hclk>0 || superman)
     return 0;
   switch(wpnId)
@@ -6638,6 +6736,12 @@ void eBigDig::draw(BITMAP *dest)
 
 int eBigDig::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  power=power;
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   if(wpnId==wWhistle && misc==0)
     misc=1;
   return 0;
@@ -6727,6 +6831,11 @@ bool eGanon::animate(int index)
 
 int eGanon::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   switch(misc)
   {
     case 0:
@@ -7187,6 +7296,9 @@ void esLanmola::draw(BITMAP *dest)
 
 eManhandla::eManhandla(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,0)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  Clk=Clk;
+
   superman=1;
   dir=(rand()&7)+8;
   armcnt=((id==eMANHAN)?4:8);
@@ -7307,6 +7419,12 @@ void eManhandla::death_sfx()
 
 int eManhandla::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  power=power;
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   if(dying)
     return 0;
   switch(wpnId)
@@ -7452,6 +7570,11 @@ bool esManhandla::animate(int index)
 
 int esManhandla::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   if(dying || hclk>0)
     return 0;
   switch(wpnId)
@@ -7510,6 +7633,10 @@ void esManhandla::draw(BITMAP *dest)
 
 eGleeok::eGleeok(fix X,fix Y,int Id,int Clk) : enemy((fix)120,(fix)48,Id,Clk)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  X=X;
+  Y=Y;
+
   flameclk=0;
   misc=clk;                                                 // total head count
   clk3=clk;                                                 // live head count
@@ -7612,6 +7739,13 @@ bool eGleeok::animate(int index)
 
 int eGleeok::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnId=wpnId;
+  power=power;
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   return 0;
 }
 
@@ -7857,6 +7991,11 @@ bool esGleeok::animate(int index)
 
 int esGleeok::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   if(clk<0 || hclk>0 || superman)
     return 0;
   switch(wpnId)
@@ -7936,6 +8075,10 @@ void esGleeok::draw2(BITMAP *dest)
 
 ePatra::ePatra(fix X,fix Y,int Id,int Clk) : enemy((fix)128,(fix)48,Id,Clk)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  X=X;
+  Y=Y;
+
   adjusted=false;
   dir=(rand()&7)+8;
   step=0.25;
@@ -8021,34 +8164,34 @@ bool ePatra::animate(int index)
     }
     else
     {
-      int pos = ((enemy*)guys.spr(i))->misc;
-      double a = (clk2-pos*10.5)*PI/42;
+      int pos2 = ((enemy*)guys.spr(i))->misc;
+      double a2 = (clk2-pos2*10.5)*PI/42;
 
       if(id==ePATRA1||id==ePATRAL2||id==ePATRAL3)
       {
         //maybe playing_field_offset here?
         if(loopcnt>0)
         {
-          guys.spr(i)->x =  cos(a+PI/2)*56*size - sin(pos*PI/4)*28*size;
-          guys.spr(i)->y = -sin(a+PI/2)*56*size + cos(pos*PI/4)*28*size;
+          guys.spr(i)->x =  cos(a2+PI/2)*56*size - sin(pos2*PI/4)*28*size;
+          guys.spr(i)->y = -sin(a2+PI/2)*56*size + cos(pos2*PI/4)*28*size;
         }
         else
         {
-          guys.spr(i)->x =  cos(a+PI/2)*28*size;
-          guys.spr(i)->y = -sin(a+PI/2)*28*size;
+          guys.spr(i)->x =  cos(a2+PI/2)*28*size;
+          guys.spr(i)->y = -sin(a2+PI/2)*28*size;
         }
         temp_x=guys.spr(i)->x;
         temp_y=guys.spr(i)->y;
       }
       else
       {
-        circle_x =  cos(a+PI/2)*42;
-        circle_y = -sin(a+PI/2)*42;
+        circle_x =  cos(a2+PI/2)*42;
+        circle_y = -sin(a2+PI/2)*42;
 
         if(loopcnt>0)
         {
-          guys.spr(i)->x =  cos(a+PI/2)*42;
-          guys.spr(i)->y = (-sin(a+PI/2)-cos(pos*PI/4))*21;
+          guys.spr(i)->x =  cos(a2+PI/2)*42;
+          guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI/4))*21;
         }
         else
         {
@@ -8064,34 +8207,33 @@ bool ePatra::animate(int index)
         guys.spr(i)->dir=l_down;
       }
       else if ((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
-        {
-          guys.spr(i)->dir=left;
-        }
-        else if ((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
-          {
-            guys.spr(i)->dir=l_up;
-          }
-          else if ((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
-            {
-              guys.spr(i)->dir=up;
-            }
-            else if ((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
-              {
-                guys.spr(i)->dir=r_up;
-              }
-              else if ((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
-                {
-                  guys.spr(i)->dir=right;
-                }
-                else if ((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
-                  {
-
-                    guys.spr(i)->dir=r_down;
-                  }
-                  else
-                  {
-                    guys.spr(i)->dir=down;
-                  }
+      {
+        guys.spr(i)->dir=left;
+      }
+      else if ((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
+      {
+        guys.spr(i)->dir=l_up;
+      }
+      else if ((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
+      {
+        guys.spr(i)->dir=up;
+      }
+      else if ((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
+      {
+        guys.spr(i)->dir=r_up;
+      }
+      else if ((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
+      {
+        guys.spr(i)->dir=right;
+      }
+      else if ((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
+      {
+        guys.spr(i)->dir=r_down;
+      }
+      else
+      {
+        guys.spr(i)->dir=down;
+      }
       guys.spr(i)->x += x;
       guys.spr(i)->y += y;
     }
@@ -8157,18 +8299,18 @@ bool ePatra::animate(int index)
             addEwpn(guys.spr(i)->x,guys.spr(i)->y,wpn,1,wdp,0);
           }
         }
-        int pos = ((enemy*)guys.spr(i))->misc;
-        double a = ((clk2-pos*10.5)*PI/(42));
+        int pos2 = ((enemy*)guys.spr(i))->misc;
+        double a2 = ((clk2-pos2*10.5)*PI/(42));
 
         if(loopcnt>0)
         {
-          guys.spr(i)->x =  cos(a+PI/2)*56*size - sin(pos*PI/4)*28*size;
-          guys.spr(i)->y = -sin(a+PI/2)*56*size + cos(pos*PI/4)*28*size;
+          guys.spr(i)->x =  cos(a2+PI/2)*56*size - sin(pos2*PI/4)*28*size;
+          guys.spr(i)->y = -sin(a2+PI/2)*56*size + cos(pos2*PI/4)*28*size;
         }
         else
         {
-          guys.spr(i)->x =  cos(a+PI/2)*28*size;
-          guys.spr(i)->y = -sin(a+PI/2)*28*size;
+          guys.spr(i)->x =  cos(a2+PI/2)*28*size;
+          guys.spr(i)->y = -sin(a2+PI/2)*28*size;
         }
 
         temp_x=guys.spr(i)->x;
@@ -8227,6 +8369,11 @@ void ePatra::draw(BITMAP *dest)
 
 int ePatra::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   if(clk<0 || hclk>0 || superman)
     return 0;
   switch(wpnId)
@@ -8286,6 +8433,11 @@ bool esPatra::animate(int index)
 
 int esPatra::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   if(clk<0 || hclk>0 || superman)
     return 0;
   switch(wpnId)
@@ -8354,6 +8506,10 @@ void esPatra::draw(BITMAP *dest)
 
 ePatraBS::ePatraBS(fix X,fix Y,int Id,int Clk) : enemy((fix)128,(fix)48,Id,Clk)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  X=X;
+  Y=Y;
+
   adjusted=false;
   dir=(rand()&7)+8;
   step=0.25;
@@ -8407,15 +8563,15 @@ bool ePatraBS::animate(int index)
     }
     else
     {
-      int pos = ((enemy*)guys.spr(i))->misc;
-      double a = (clk2-pos*15)*PI/45;
-      temp_x =  cos(a+PI/2)*45;
-      temp_y = -sin(a+PI/2)*45;
+      int pos2 = ((enemy*)guys.spr(i))->misc;
+      double a2 = (clk2-pos2*15)*PI/45;
+      temp_x =  cos(a2+PI/2)*45;
+      temp_y = -sin(a2+PI/2)*45;
 
       if(loopcnt>0)
       {
-        guys.spr(i)->x =  cos(a+PI/2)*45;
-        guys.spr(i)->y = (-sin(a+PI/2)-cos(pos*PI/3))*22.5;
+        guys.spr(i)->x =  cos(a2+PI/2)*45;
+        guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI/3))*22.5;
       }
       else
       {
@@ -8428,33 +8584,33 @@ bool ePatraBS::animate(int index)
         guys.spr(i)->dir=l_down;
       }
       else if ((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
-        {
-          guys.spr(i)->dir=left;
-        }
-        else if ((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
-          {
-            guys.spr(i)->dir=l_up;
-          }
-          else if ((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
-            {
-              guys.spr(i)->dir=up;
-            }
-            else if ((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
-              {
-                guys.spr(i)->dir=r_up;
-              }
-              else if ((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
-                {
-                  guys.spr(i)->dir=right;
-                }
-                else if ((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
-                  {
-                    guys.spr(i)->dir=r_down;
-                  }
-                  else
-                  {
-                    guys.spr(i)->dir=down;
-                  }
+      {
+        guys.spr(i)->dir=left;
+      }
+      else if ((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
+      {
+        guys.spr(i)->dir=l_up;
+      }
+      else if ((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
+      {
+        guys.spr(i)->dir=up;
+      }
+      else if ((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
+      {
+        guys.spr(i)->dir=r_up;
+      }
+      else if ((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
+      {
+        guys.spr(i)->dir=right;
+      }
+      else if ((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
+      {
+        guys.spr(i)->dir=r_down;
+      }
+      else
+      {
+        guys.spr(i)->dir=down;
+      }
       guys.spr(i)->x += x;
       guys.spr(i)->y += y;
     }
@@ -8546,6 +8702,11 @@ void ePatraBS::draw(BITMAP *dest)
 
 int ePatraBS::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+
   if(clk<0 || hclk>0 || superman)
     return 0;
   switch(wpnId)
@@ -8604,6 +8765,11 @@ bool esPatraBS::animate(int index)
 
 int esPatraBS::takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  wpnx=wpnx;
+  wpny=wpny;
+  wpnDir=wpnDir;
+  
   if(clk<0 || hclk>0 || superman)
     return 0;
   switch(wpnId)
@@ -9158,9 +9324,9 @@ void loadguys()
   if(currscr<128)
   {
     Item=tmpscr->item;
-    if(getmapflag())
-      Item=0;
-    if(Item)
+    /*if(getmapflag())
+      Item=0;*/
+	if(!getmapflag() && (tmpscr->hasitem != 0))
     {
       if(tmpscr->flags&fITEM)
         hasitem=1;
@@ -9612,7 +9778,7 @@ void loadenemies()
   {
     if(dlevel==0) return;
     for(int i=0; i<4; i++)
-      addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i]?tmpscr->enemy[i]:eKEESE1,-14-i);
+      addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i]?tmpscr->enemy[i]:(int)eKEESE1,-14-i);
     return;
   }
 
@@ -9944,7 +10110,8 @@ void setupscreen()
     break;
 
     case rP_SHOP:                                           // potion shop
-    if(!(game->items[itype_letter]&i_letter_used))
+    //if(!(game->items[itype_letter]&i_letter_used))
+	if(!game->item[iLetterUsed])
     {
       str=0;
       break;
@@ -9961,7 +10128,7 @@ void setupscreen()
       //count and align the stuff
       for(int i=0; i<3; ++i)
       {
-        if (QMisc.shop[tmpscr[t].catchall].item[count])
+        if (QMisc.shop[tmpscr[t].catchall].hasitem[count] != 0)
         {
           ++count;
         }
@@ -10350,11 +10517,11 @@ void roaming_item()
     }                                                       //are not. Defer to LinkClass::checkspecial().
 
     int Item=tmpscr->item;
-    if(getmapflag())
+    /*if(getmapflag())
     {
       Item=0;
-    }
-    if(Item)
+    }*/
+    if(!getmapflag() && (tmpscr->hasitem != 0))
     {
       itemindex=items.Count();
       additem(0,0,Item,ipENEMY+ipONETIME+ipBIGRANGE

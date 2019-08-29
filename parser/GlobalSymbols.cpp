@@ -1,4 +1,3 @@
-#include "ScriptParser.h"
 #include "GlobalSymbols.h"
 #include "ByteCode.h"
 #include "../zsyssimple.h"
@@ -208,7 +207,7 @@ static AccessorTable GlobalTable[] = {
 	{"Factorial",	ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT, -1} },
 	{"Abs",			ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT, -1} },
 	{"Sqrt",		ScriptParser::TYPE_FLOAT,	FUNCTION,	0,	1,	{ScriptParser::TYPE_FLOAT, -1} },
-	{""}
+  { "",                     -1,                              -1,            -1,                -1,   { -1,                         -1,                          -1,                          -1,                          -1 } }
 };
 
 GlobalSymbols::GlobalSymbols()
@@ -484,7 +483,7 @@ static AccessorTable FFCTable[] = {
 	{"setEffectHeight",ScriptParser::TYPE_VOID, SETTER,		FFCHEIGHT,1,{ScriptParser::TYPE_FFC, ScriptParser::TYPE_FLOAT, -1} },
 	{"getLink",		ScriptParser::TYPE_FLOAT,	GETTER,		FFLINK,	1,	{ScriptParser::TYPE_FFC, -1} },
 	{"setLink",		ScriptParser::TYPE_VOID,	SETTER,		FFLINK,	1,	{ScriptParser::TYPE_FFC, ScriptParser::TYPE_FLOAT, -1} },
-	{""}
+  { "",                     -1,                              -1,            -1,                -1,   { -1,                         -1,                          -1,                          -1,                          -1 } }
 };
 
 FFCSymbols::FFCSymbols()
@@ -554,22 +553,24 @@ static AccessorTable LinkSTable[] = {
 	{"getInputStart",ScriptParser::TYPE_BOOL,GETTER,	INPUTSTART,1,{ScriptParser::TYPE_LINK, -1} },
 	{"setInputStart",ScriptParser::TYPE_VOID,SETTER,		INPUTSTART,1,{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
 	{"getInputUp",	ScriptParser::TYPE_BOOL,	GETTER,		INPUTUP,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setInputUp", ScriptParser::TYPE_BOOL,	SETTER,		INPUTUP,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"setInputUp", ScriptParser::TYPE_VOID,	SETTER,		INPUTUP,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
 	{"getInputDown",ScriptParser::TYPE_BOOL,	GETTER,		INPUTDOWN,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setInputDown",ScriptParser::TYPE_BOOL,	SETTER,		INPUTDOWN,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"setInputDown",ScriptParser::TYPE_VOID,	SETTER,		INPUTDOWN,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
 	{"getInputLeft",ScriptParser::TYPE_BOOL,	GETTER,		INPUTLEFT,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setInputLeft", ScriptParser::TYPE_BOOL,	SETTER,		INPUTLEFT,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"setInputLeft", ScriptParser::TYPE_VOID,	SETTER,		INPUTLEFT,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
 	{"getInputRight",ScriptParser::TYPE_BOOL,	GETTER,		INPUTRIGHT,1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setInputRight", ScriptParser::TYPE_BOOL,	SETTER,		INPUTRIGHT,1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"setInputRight", ScriptParser::TYPE_VOID,	SETTER,		INPUTRIGHT,1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
 	{"getInputA",	ScriptParser::TYPE_BOOL,	GETTER,		INPUTA,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setInputA",	ScriptParser::TYPE_BOOL,	SETTER,		INPUTA,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"setInputA",	ScriptParser::TYPE_VOID,	SETTER,		INPUTA,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
 	{"getInputB",	ScriptParser::TYPE_BOOL,	GETTER,		INPUTB,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setInputB",	ScriptParser::TYPE_BOOL,	SETTER,		INPUTB,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"setInputB",	ScriptParser::TYPE_VOID,	SETTER,		INPUTB,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
 	{"getInputL",	ScriptParser::TYPE_BOOL,	GETTER,		INPUTL,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setInputL",	ScriptParser::TYPE_BOOL,	SETTER,		INPUTL,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"setInputL",	ScriptParser::TYPE_VOID,	SETTER,		INPUTL,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
 	{"getInputR",	ScriptParser::TYPE_BOOL,	GETTER,		INPUTR,	1,	{ScriptParser::TYPE_LINK, -1} },
-	{"setInputR",	ScriptParser::TYPE_BOOL,	SETTER,		INPUTR,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
-	{""},
+	{"setInputR",	ScriptParser::TYPE_VOID,	SETTER,		INPUTR,	1,	{ScriptParser::TYPE_LINK, ScriptParser::TYPE_BOOL, -1} },
+	{"getItem[]",	ScriptParser::TYPE_BOOL,	GETTER,		LINKITEMD,256,{ScriptParser::TYPE_LINK, ScriptParser::TYPE_FLOAT, -1} },
+	{"setItem[]",	ScriptParser::TYPE_VOID,	SETTER,		LINKITEMD,256,{ScriptParser::TYPE_LINK, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_BOOL, -1} },
+  { "",                     -1,                              -1,            -1,                -1,   { -1,                         -1,                          -1,                          -1,                          -1 } }
 };
 
 LinkSymbols::LinkSymbols()
@@ -641,7 +642,7 @@ static AccessorTable ScreenTable[] = {
 	{"LoadItem",	ScriptParser::TYPE_ITEM,	FUNCTION,	0,			1,	{ScriptParser::TYPE_SCREEN, ScriptParser::TYPE_FLOAT, -1} },
 	{"CreateItem",	ScriptParser::TYPE_ITEM,	FUNCTION,	0,			1,	{ScriptParser::TYPE_SCREEN,	ScriptParser::TYPE_FLOAT, -1} },
 	{"LoadFFC",		ScriptParser::TYPE_FFC,		FUNCTION,	0,			1,	{ScriptParser::TYPE_SCREEN,	ScriptParser::TYPE_FLOAT, -1} },
-	{""}
+  { "",                     -1,                              -1,            -1,                -1,   { -1,                         -1,                          -1,                          -1,                          -1 } }
 };
 
 
@@ -741,7 +742,7 @@ static AccessorTable itemTable[] = {
 	{"setFlip",		ScriptParser::TYPE_VOID,	SETTER,		ITEMFLIP,	1,	{ScriptParser::TYPE_ITEM, ScriptParser::TYPE_FLOAT, -1} },
 	{"getExtend",	ScriptParser::TYPE_FLOAT,	GETTER,		ITEMEXTEND,	1,	{ScriptParser::TYPE_ITEM, -1} },
 	{"setExtend",	ScriptParser::TYPE_VOID,	SETTER,		ITEMEXTEND,	1,	{ScriptParser::TYPE_ITEM, ScriptParser::TYPE_FLOAT, -1} },
-	{""}
+  { "",                     -1,                              -1,            -1,                -1,   { -1,                         -1,                          -1,                          -1,                          -1 } }
 };
 
 ItemSymbols::ItemSymbols() {
@@ -752,21 +753,21 @@ ItemSymbols::ItemSymbols() {
 ItemclassSymbols ItemclassSymbols::singleton = ItemclassSymbols();
 
 static AccessorTable itemclassTable[] = {
-	{"getFamily",	ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSFAMILY,	1,	{ScriptParser::TYPE_ITEMCLASS, -1} },
-	{"setFamily",	ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSFAMILY,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1} },
-	{"getFamilyType",ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSFAMTYPE,	1,	{ScriptParser::TYPE_ITEMCLASS, -1} },
-	{"setFamilyType",ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSFAMTYPE,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1} },
-	{"getAmount",	ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSAMOUNT,	1,	{ScriptParser::TYPE_ITEMCLASS, -1} },
-	{"setAmount",	ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSAMOUNT,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1} },
-	{"getMax",		ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSMAX,		1,	{ScriptParser::TYPE_ITEMCLASS, -1} },
-	{"setMax",		ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSMAX,		1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1} },
-	{"getMaxIncrement",	ScriptParser::TYPE_FLOAT,GETTER,	ITEMCLASSSETMAX,	1,	{ScriptParser::TYPE_ITEMCLASS, -1} },
-	{"setMaxIncrement",	ScriptParser::TYPE_VOID,SETTER,		ITEMCLASSSETMAX,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1} },
-	{"getKeep",		ScriptParser::TYPE_BOOL,	GETTER,		ITEMCLASSSETGAME,	1,	{ScriptParser::TYPE_ITEMCLASS, -1} },
-	{"setKeep",		ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSSETGAME,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_BOOL, -1} },
-	{"getCounter",	ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSCOUNTER,	1,	{ScriptParser::TYPE_ITEMCLASS, -1} },
-	{"setCounter",	ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSCOUNTER,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1} },
-	{""}
+	{"getFamily",	ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSFAMILY,	1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
+	{"setFamily",	ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSFAMILY,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1, -1} },
+	{"getFamilyType",ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSFAMTYPE,	1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
+	{"setFamilyType",ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSFAMTYPE,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1, -1} },
+	{"getAmount",	ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSAMOUNT,	1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
+	{"setAmount",	ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSAMOUNT,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1, -1} },
+	{"getMax",		ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSMAX,		1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
+	{"setMax",		ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSMAX,		1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1, -1} },
+	{"getMaxIncrement",	ScriptParser::TYPE_FLOAT,GETTER,	ITEMCLASSSETMAX,	1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
+	{"setMaxIncrement",	ScriptParser::TYPE_VOID,SETTER,		ITEMCLASSSETMAX,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1, -1} },
+	{"getKeep",		ScriptParser::TYPE_BOOL,	GETTER,		ITEMCLASSSETGAME,	1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
+	{"setKeep",		ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSSETGAME,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_BOOL, -1, -1} },
+	{"getCounter",	ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSCOUNTER,	1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
+	{"setCounter",	ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSCOUNTER,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1, -1} },
+  { "",                     -1,                              -1,            -1,                -1,   { -1,                         -1,                          -1,                          -1,                          -1 } }
 };
 
 ItemclassSymbols::ItemclassSymbols() {
@@ -777,48 +778,48 @@ ItemclassSymbols::ItemclassSymbols() {
 GameSymbols GameSymbols::singleton = GameSymbols();
 
 static AccessorTable gameTable[] = {
-	{"GetCurScreen",	ScriptParser::TYPE_FLOAT,	GETTER,		CURSCR,		1,	{ScriptParser::TYPE_GAME, -1} },
-	{"GetCurMap",		ScriptParser::TYPE_FLOAT,	GETTER,		CURMAP,		1,	{ScriptParser::TYPE_GAME, -1} },
-	{"GetCurDMap",		ScriptParser::TYPE_FLOAT,	GETTER,		CURDMAP,	1,	{ScriptParser::TYPE_GAME, -1} },
-	{"getNumDeaths",	ScriptParser::TYPE_FLOAT,	GETTER,		GAMEDEATHS,	1,	{ScriptParser::TYPE_GAME, -1} },
-	{"setNumDeaths",	ScriptParser::TYPE_VOID,	SETTER,		GAMEDEATHS,	1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"getCheat",		ScriptParser::TYPE_FLOAT,	GETTER,		GAMECHEAT,	1,	{ScriptParser::TYPE_GAME, -1} },
-	{"setCheat",		ScriptParser::TYPE_VOID,	SETTER,		GAMECHEAT,	1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"getTime",			ScriptParser::TYPE_FLOAT,	GETTER,		GAMETIME,	1,	{ScriptParser::TYPE_GAME, -1} },
-	{"setTime",			ScriptParser::TYPE_VOID,	SETTER,		GAMETIME,	1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"getHasPlayed",	ScriptParser::TYPE_BOOL,	GETTER,		GAMEHASPLAYED,1,{ScriptParser::TYPE_GAME, -1} },
-	{"setHasPlayed",	ScriptParser::TYPE_VOID,	SETTER,		GAMEHASPLAYED,1,{ScriptParser::TYPE_GAME, ScriptParser::TYPE_BOOL, -1} },
-	{"getTimeValid",	ScriptParser::TYPE_BOOL,	GETTER,		GAMETIMEVALID,1,{ScriptParser::TYPE_GAME, -1} },
-	{"setTimeValid",	ScriptParser::TYPE_VOID,	SETTER,		GAMETIMEVALID,1,{ScriptParser::TYPE_GAME, ScriptParser::TYPE_BOOL, -1} },
-	{"getGuyCount[]",	ScriptParser::TYPE_FLOAT,	GETTER,		GAMEGUYCOUNT,2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"setGuyCount[]",	ScriptParser::TYPE_VOID,	SETTER,		GAMEGUYCOUNT,2, {ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"getContinueScreen",ScriptParser::TYPE_FLOAT,	GETTER,		GAMECONTSCR,1,	{ScriptParser::TYPE_GAME, -1} },
-	{"setContinueScreen",ScriptParser::TYPE_VOID,	SETTER,		GAMECONTSCR,1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"getContinueDMap",	ScriptParser::TYPE_FLOAT,	GETTER,		GAMECONTDMAP,1,	{ScriptParser::TYPE_GAME, -1} },
-	{"setContinueDMap",	ScriptParser::TYPE_VOID,	SETTER,		GAMECONTDMAP,1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"getCounter[]",	ScriptParser::TYPE_FLOAT,	GETTER,		GAMECOUNTERD,2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"setCounter[]",	ScriptParser::TYPE_VOID,	SETTER,		GAMECOUNTERD,2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"getMCounter[]",	ScriptParser::TYPE_FLOAT,	GETTER,		GAMEMCOUNTERD,2,{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"setMCounter[]",	ScriptParser::TYPE_VOID,	SETTER,		GAMEMCOUNTERD,2,{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"getDCounter[]",	ScriptParser::TYPE_FLOAT,	GETTER,		GAMEDCOUNTERD,2,{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"setDCounter[]",	ScriptParser::TYPE_VOID,	SETTER,		GAMEDCOUNTERD,2,{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"getGeneric[]",	ScriptParser::TYPE_FLOAT,	GETTER,		GAMEGENERICD,2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"setGeneric[]",	ScriptParser::TYPE_VOID,	SETTER,		GAMEGENERICD,2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"getItems[]",		ScriptParser::TYPE_FLOAT,	GETTER,		GAMEITEMSD,	2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"setItems[]",		ScriptParser::TYPE_VOID,	SETTER,		GAMEITEMSD,	2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"getLItems[]",		ScriptParser::TYPE_FLOAT,	GETTER,		GAMELITEMSD,2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"setLItems[]",		ScriptParser::TYPE_VOID,	SETTER,		GAMELITEMSD,2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"getLKeys[]",		ScriptParser::TYPE_FLOAT,	GETTER,		GAMELKEYSD,	2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"setLKeys[]",		ScriptParser::TYPE_VOID,	SETTER,		GAMELKEYSD,	2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"getCurMapFlag[]",	ScriptParser::TYPE_FLOAT,	GETTER,		GAMEMAPFLAGD,2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"setCurMapFlag[]",	ScriptParser::TYPE_VOID,	SETTER,		GAMEMAPFLAGD,2,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"GetMapFlag",		ScriptParser::TYPE_FLOAT,	FUNCTION,	0,			1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"SetMapFlag",		ScriptParser::TYPE_VOID,	FUNCTION,	0,			1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"GetScreenD",		ScriptParser::TYPE_FLOAT,	FUNCTION,	0,			1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"SetScreenD",		ScriptParser::TYPE_VOID,	FUNCTION,	0,			1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
-	{"LoadItemClass",	ScriptParser::TYPE_ITEMCLASS,FUNCTION,	0,			1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{"PlaySound",		ScriptParser::TYPE_VOID,	FUNCTION,	0,			1,	{ScriptParser::TYPE_GAME, ScriptParser::TYPE_FLOAT, -1} },
-	{""}
+  { "GetCurScreen",         ScriptParser::TYPE_FLOAT,        GETTER,        CURSCR,            1,    { ScriptParser::TYPE_GAME,    -1,                          -1,                          -1,                          -1 } },   
+  { "GetCurMap",            ScriptParser::TYPE_FLOAT,        GETTER,        CURMAP,            1,    { ScriptParser::TYPE_GAME,    -1,                          -1,                          -1,                          -1 } },   
+  { "GetCurDMap",           ScriptParser::TYPE_FLOAT,        GETTER,        CURDMAP,           1,    { ScriptParser::TYPE_GAME,    -1,                          -1,                          -1,                          -1 } },   
+  { "getNumDeaths",         ScriptParser::TYPE_FLOAT,        GETTER,        GAMEDEATHS,        1,    { ScriptParser::TYPE_GAME,    -1,                          -1,                          -1,                          -1 } },   
+  { "setNumDeaths",         ScriptParser::TYPE_VOID,         SETTER,        GAMEDEATHS,        1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "getCheat",             ScriptParser::TYPE_FLOAT,        GETTER,        GAMECHEAT,         1,    { ScriptParser::TYPE_GAME,    -1,                          -1,                          -1,                          -1 } },   
+  { "setCheat",             ScriptParser::TYPE_VOID,         SETTER,        GAMECHEAT,         1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "getTime",              ScriptParser::TYPE_FLOAT,        GETTER,        GAMETIME,          1,    { ScriptParser::TYPE_GAME,    -1,                          -1,                          -1,                          -1 } },   
+  { "setTime",              ScriptParser::TYPE_VOID,         SETTER,        GAMETIME,          1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "getHasPlayed",         ScriptParser::TYPE_BOOL,         GETTER,        GAMEHASPLAYED,     1,    { ScriptParser::TYPE_GAME,    -1,                          -1,                          -1,                          -1 } },   
+  { "setHasPlayed",         ScriptParser::TYPE_VOID,         SETTER,        GAMEHASPLAYED,     1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_BOOL,     -1,                          -1,                          -1 } },   
+  { "getTimeValid",         ScriptParser::TYPE_BOOL,         GETTER,        GAMETIMEVALID,     1,    { ScriptParser::TYPE_GAME,    -1,                          -1,                          -1,                          -1 } },   
+  { "setTimeValid",         ScriptParser::TYPE_VOID,         SETTER,        GAMETIMEVALID,     1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_BOOL,     -1,                          -1,                          -1 } },   
+  { "getGuyCount[]",        ScriptParser::TYPE_FLOAT,        GETTER,        GAMEGUYCOUNT,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "setGuyCount[]",        ScriptParser::TYPE_VOID,         SETTER,        GAMEGUYCOUNT,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "getContinueScreen",    ScriptParser::TYPE_FLOAT,        GETTER,        GAMECONTSCR,       1,    { ScriptParser::TYPE_GAME,    -1,                          -1,                          -1,                          -1 } },   
+  { "setContinueScreen",    ScriptParser::TYPE_VOID,         SETTER,        GAMECONTSCR,       1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "getContinueDMap",      ScriptParser::TYPE_FLOAT,        GETTER,        GAMECONTDMAP,      1,    { ScriptParser::TYPE_GAME,    -1,                          -1,                          -1,                          -1 } },   
+  { "setContinueDMap",      ScriptParser::TYPE_VOID,         SETTER,        GAMECONTDMAP,      1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "getCounter[]",         ScriptParser::TYPE_FLOAT,        GETTER,        GAMECOUNTERD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "setCounter[]",         ScriptParser::TYPE_VOID,         SETTER,        GAMECOUNTERD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "getMCounter[]",        ScriptParser::TYPE_FLOAT,        GETTER,        GAMEMCOUNTERD,     2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "setMCounter[]",        ScriptParser::TYPE_VOID,         SETTER,        GAMEMCOUNTERD,     2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "getDCounter[]",        ScriptParser::TYPE_FLOAT,        GETTER,        GAMEDCOUNTERD,     2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "setDCounter[]",        ScriptParser::TYPE_VOID,         SETTER,        GAMEDCOUNTERD,     2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "getGeneric[]",         ScriptParser::TYPE_FLOAT,        GETTER,        GAMEGENERICD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "setGeneric[]",         ScriptParser::TYPE_VOID,         SETTER,        GAMEGENERICD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "getItems[]",           ScriptParser::TYPE_FLOAT,        GETTER,        GAMEITEMSD,        2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "setItems[]",           ScriptParser::TYPE_VOID,         SETTER,        GAMEITEMSD,        2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "getLItems[]",          ScriptParser::TYPE_FLOAT,        GETTER,        GAMELITEMSD,       2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "setLItems[]",          ScriptParser::TYPE_VOID,         SETTER,        GAMELITEMSD,       2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "getLKeys[]",           ScriptParser::TYPE_FLOAT,        GETTER,        GAMELKEYSD,        2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "setLKeys[]",           ScriptParser::TYPE_VOID,         SETTER,        GAMELKEYSD,        2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "getCurMapFlag[]",      ScriptParser::TYPE_FLOAT,        GETTER,        GAMEMAPFLAGD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "setCurMapFlag[]",      ScriptParser::TYPE_VOID,         SETTER,        GAMEMAPFLAGD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "GetMapFlag",           ScriptParser::TYPE_FLOAT,        FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "SetMapFlag",           ScriptParser::TYPE_VOID,         FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1 } },   
+  { "GetScreenD",           ScriptParser::TYPE_FLOAT,        FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "SetScreenD",           ScriptParser::TYPE_VOID,         FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1 } },   
+  { "LoadItemClass",        ScriptParser::TYPE_ITEMCLASS,    FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "PlaySound",            ScriptParser::TYPE_VOID,         FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "",                     -1,                              -1,            -1,                -1,   { -1,                         -1,                          -1,                          -1,                          -1 } }
 };
 
 GameSymbols::GameSymbols() {

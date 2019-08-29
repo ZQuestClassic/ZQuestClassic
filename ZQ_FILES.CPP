@@ -45,17 +45,17 @@ void init_qts()
 static DIALOG editqt_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-  { jwin_win_proc,     32,   68,   257,  102,   vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Quest Template Editor" },
-  { d_dummy_proc,      160,  72,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { jwin_button_proc,     50,   140,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Load" },
-  { jwin_button_proc,     130,  140,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     210,  140,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { jwin_text_proc,       44,   103,   40,  8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Name:" },
-  { jwin_edit_proc,       77,   99,   200,    16,      vc(12),  vc(1),  0,       0,          30,             0,       NULL },
-  { jwin_text_proc,       44,   118,  112,  8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Template File:" },
-  { jwin_text_proc,       44,   128,  233,  8,    vc(13),  vc(1),  0,       D_DISABLED,          0,             0,       NULL },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       (void *) onHelp },
-  { NULL }
+  { jwin_win_proc,     32,   68,   257,  102,   vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Quest Template Editor", NULL, NULL },
+  { d_dummy_proc,      160,  72,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_button_proc,     50,   140,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Load", NULL, NULL },
+  { jwin_button_proc,     130,  140,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     210,  140,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { jwin_text_proc,       44,   103,   40,  8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Name:", NULL, NULL },
+  { jwin_edit_proc,       77,   99,   200,    16,      vc(12),  vc(1),  0,       0,          30,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       44,   118,  112,  8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Template File:", NULL, NULL },
+  { jwin_text_proc,       44,   128,  233,  8,    vc(13),  vc(1),  0,       D_DISABLED,          0,             0,       NULL, NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       (void *) onHelp, NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 void edit_qt()                                              //this is used to set the quest template for the current quest
@@ -169,16 +169,16 @@ char *qtlist(int index, int *list_size)
 static DIALOG qtlist_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,     8,   40,   303,  149,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Pick Quest Template" },
-  { d_dummy_proc,      160,  47,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { jwin_list_proc,    13,   66,   271,  87,   jwin_pal[jcBOXFG],  jwin_pal[jcLIGHT],  0,       D_EXIT,     0,             0,       (void *) qtlist },
-  { jwin_button_proc,     286,   60+24,  21,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "\x88" },
-  { jwin_button_proc,     286,   137-24,  21,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "\x89" },
-  { jwin_button_proc,     38,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Edit" },
-  { jwin_button_proc,     118,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     198,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_DEL,       0,       (void *) qtlist_del },
-  { NULL }
+  { jwin_win_proc,     8,   40,   303,  149,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Pick Quest Template", NULL, NULL },
+  { d_dummy_proc,      160,  47,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_list_proc,    13,   66,   271,  87,   jwin_pal[jcBOXFG],  jwin_pal[jcLIGHT],  0,       D_EXIT,     0,             0,       (void *) qtlist, NULL, NULL },
+  { jwin_button_proc,     286,   60+24,  21,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "\x88", NULL, NULL },
+  { jwin_button_proc,     286,   137-24,  21,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "\x89", NULL, NULL },
+  { jwin_button_proc,     38,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Edit", NULL, NULL },
+  { jwin_button_proc,     118,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     198,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_DEL,       0,       (void *) qtlist_del, NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int qtlist_del()
@@ -560,14 +560,14 @@ int onRevert()
 static DIALOG import_map_bias_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc, 80,   80-8,   160+1,  64+20+1,   vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Select Import Bias" },
-  { d_dummy_proc,      160,  88-8,     0,       8,   vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { jwin_button_proc,     90,   120+10,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     170,  120+10,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { jwin_radio_proc,      130, 104-8,   96+1,    8+1,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Total Copy" },
-  { jwin_radio_proc,      130, 114-8,  120+1,    8+1,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Prefer Original" },
-  { jwin_radio_proc,      130, 124-8,  104+1,    8+1,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Prefer Import" },
-  { NULL }
+  { jwin_win_proc, 80,   80-8,   160+1,  64+20+1,   vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Select Import Bias", NULL, NULL },
+  { d_dummy_proc,      160,  88-8,     0,       8,   vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_button_proc,     90,   120+10,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     170,  120+10,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { jwin_radio_proc,      130, 104-8,   96+1,    8+1,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Total Copy", NULL, NULL },
+  { jwin_radio_proc,      130, 114-8,  120+1,    8+1,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Prefer Original", NULL, NULL },
+  { jwin_radio_proc,      130, 124-8,  104+1,    8+1,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Prefer Import", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int get_import_map_bias()

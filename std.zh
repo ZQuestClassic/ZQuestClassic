@@ -1,0 +1,224 @@
+//Sound effect IDs. To be used for PlaySound().
+const int SFX_ARROW 	= 1;
+const int SFX_BEAM	= 2;
+const int SFX_BOMB	= 3;
+const int SFX_BRANG	= 4;
+const int SFX_CHIME	= 5;
+const int SFX_CLINK	= 6;
+const int SFX_CLEARED	= 7;
+const int SFX_DODONGO	= 8;
+const int SFX_DOOR	= 9;
+const int SFX_EDEAD	= 10;
+const int SFX_EHIT	= 11;
+const int SFX_ER	= 12;
+const int SFX_FIRE	= 13;
+const int SFX_GANON	= 14;
+const int SFX_GASP	= 15;
+const int SFX_HAMMER	= 16;
+const int SFX_HOOKSHOT	= 17;
+const int SFX_MSG	= 18;
+const int SFX_OUCH	= 19;
+const int SFX_PICKUP	= 20;
+const int SFX_PLACE	= 21;
+const int SFX_PLINK	= 22;
+const int SFX_REFILL	= 23;
+const int SFX_ROAR	= 24;
+const int SFX_SCALE	= 25;
+const int SFX_SEA	= 26;
+const int SFX_SECRET	= 27;
+const int SFX_SPIRAL	= 28;
+const int SFX_STAIRS	= 29;
+const int SFX_SWORD	= 30;
+const int SFX_VADER	= 31;
+const int SFX_WAND	= 32;
+const int SFX_WHISTLE	= 33;
+const int SFX_ZELDA	= 34;
+
+//Item class ids.
+const int IC_SWORD		= 0;
+const int IC_BRANG		= 1;
+const int IC_ARROW		= 2;
+const int IC_CANDLE		= 3;
+const int IC_WHISTLE		= 4;
+const int IC_BAIT		= 5;
+const int IC_LETTER		= 6;
+const int IC_POTION		= 7;
+const int IC_WAND		= 8;
+const int IC_RING		= 9;
+const int IC_WALLET		= 10;
+const int IC_AMULET		= 11;
+const int IC_SHIELD		= 12;
+const int IC_BOW		= 13;
+const int IC_RAFT		= 14;
+const int IC_LADDER		= 15;
+const int IC_BOOK		= 16;
+const int IC_MAGICKEY		= 17;
+const int IC_BRACELET		= 18;
+const int IC_FLIPPERS		= 19;
+const int IC_BOOTS		= 20;
+const int IC_HOOKSHOT		= 21;
+const int IC_LENS		= 22;
+const int IC_HAMMER		= 23;
+const int IC_DINSFIRE		= 24;
+const int IC_FARORESWIND	= 25;
+const int IC_NAYRUSLOVE		= 26;
+const int IC_BOMB		= 27;
+const int IC_SBOMB		= 28;
+const int IC_CLOCK		= 29;
+const int IC_KEY		= 30;
+const int IC_MAGICCONTAINER	= 31;
+const int IC_TRIFORCEPIECE	= 32;
+const int IC_MAP		= 33;
+const int IC_COMPASS		= 34;
+const int IC_BOSSKEY		= 35;
+const int IC_QUIVER		= 36;
+const int IC_LKEY		= 37;
+const int IC_CBYRNA		= 38;
+const int IC_RUPEE		= 39;
+const int IC_ARROWAMMO		= 40;
+const int IC_FAIRY		= 41;
+const int IC_MAGIC		= 42;
+const int IC_HEART		= 43;
+const int IC_HEARTCONTAINER	= 44;
+const int IC_HEARTPIECE		= 45;
+const int IC_KILLEM		= 46;
+const int IC_BOMBAMMO		= 47;
+const int IC_BOMBBAG		= 48;
+
+//Item IDs. Use with CreateItem().
+//These are DEFAULT values, and may not be correct for custom quests which 
+//have overridden item action data.
+const int I_RUPEE1		= 0;
+const int I_RUPEE5		= 1;
+const int I_HEART		= 2;
+const int I_BOMB		= 3;
+const int I_CLOCK		= 4;
+const int I_SWORD		= 5;
+const int I_WSWORD		= 6;
+const int I_MSWORD		= 7;
+const int I_SHIELD		= 8;
+const int I_KEY			= 9;
+const int I_BCANDLE		= 10;
+const int I_RCANDLE		= 11;
+const int I_LETTER		= 12;
+const int I_ARROW		= 13;
+const int I_SARROW		= 14;
+const int I_BOW			= 15;
+const int I_BAIT		= 16;
+const int I_BRING		= 17;
+const int I_RRING		= 18;
+const int I_BRACELET		= 19;
+const int I_TRIFORCE		= 20;
+const int I_MAP			= 21;
+const int I_COMPASS		= 22;
+const int I_BRANG		= 23;
+const int I_MBRANG		= 24;
+const int I_WAND		= 25;
+const int I_RAFT		= 26;
+const int I_LADDER		= 27;
+const int I_HEARTC		= 28;
+const int I_BPOTION		= 29;
+const int I_RPOTION		= 30;
+const int I_WHISTLE		= 31;
+const int I_BOOK		= 32;
+const int I_MKEY		= 33;
+const int I_FAIRY		= 34;
+const int I_FBRANG		= 35;
+const int I_XSWORD		= 36;
+const int I_MSHIELD		= 37;
+const int I_RUPEE20		= 38;
+const int I_RUPEE50		= 39;
+const int I_RUPEE200		= 40;
+const int I_WALLET500		= 41;
+const int I_WALLET999		= 42;
+const int I_PILE		= 43;
+const int I_BIGTRI		= 44;
+const int I_SELECTA		= 45;
+const int I_MISC1		= 46;
+const int I_MISC2		= 47;
+const int I_SBOMB		= 48;
+const int I_HCPIECE		= 49;
+const int I_AMULET		= 50;
+const int I_FLIPPERS		= 51;
+const int I_HOOKSHOT		= 52;
+const int I_LENS		= 53;
+const int I_HAMMER		= 54;
+const int I_BOOTS		= 55;
+const int I_BRACELET2		= 56;
+const int I_GARROW		= 57;
+const int I_MAGICC		= 58;
+const int I_SMAGIC		= 59;
+const int I_LMAGIC		= 60;
+const int I_GRING		= 61;
+const int I_KILLALL		= 62;
+const int I_AMULET2		= 63;
+const int I_DINSFIRE		= 64;
+const int I_FARORESWIND		= 65;
+const int I_NAYRUSLOVE		= 66;
+const int I_BOSSKEY		= 67;
+const int I_BOW2		= 68;
+const int I_FAIRYSTILL		= 69;
+const int I_ARROW1		= 70;
+const int I_ARROW5		= 71;
+const int I_ARROW10		= 72;
+const int I_ARROW30		= 73;
+const int I_QUIVER		= 74;
+const int I_QUIVER2		= 75;
+const int I_QUIVER3		= 76;
+const int I_BOMB1		= 77;
+const int I_BOMB4		= 78;
+const int I_BOMB8		= 79;
+const int I_BOMB30		= 80;
+const int I_BOMBBAG		= 81;
+const int I_BOMBBAG2		= 82;
+const int I_BOMBBAG3		= 83;
+const int I_LEVELKEY		= 84;
+const int I_SELECTB		= 85;
+const int I_RUPEE10		= 86;
+const int I_RUPEE100		= 87;
+const int I_CBYRNA		= 88;
+const int I_LONGSHOT		= 89;
+const int I_LETTERUSED		= 90;
+
+//Link actions
+const int LA_NONE		= 0;
+const int LA_WALKING		= 1;
+const int LA_ATTACKING		= 2;
+const int LA_FROZEN		= 3;
+const int LA_HOLD1LAND		= 4;
+const int LA_HOLD2LAND		= 5;
+const int LA_RAFTING		= 6;
+const int LA_GOTHURTLAND	= 7;
+const int LA_INWIND		= 8;
+const int LA_SCROLLING		= 9;
+const int LA_WINNING		= 10;
+const int LA_SWIMMING		= 11;
+const int LA_HOPPING		= 12;
+const int LA_GOTHURTWATER	= 13;
+const int LA_HOLD1WATER		= 14;
+const int LA_HOLD2WATER		= 15;
+const int LA_CASTING		= 16;
+const int LA_CLIMBCOVERTOP	= 17;
+const int LA_CLIMBCOVERBOTTOM	= 18;
+const int LA_DYING		= 19;
+
+//some utility routines
+int Floor(int x) {
+	if(x < 0)
+		return (x-.9999)<<0;
+	return x<<0;
+}
+
+int Ceiling(int x) {
+	if(x < 0)
+		return x<<0;
+	return (x+.9999)<<0;
+}
+
+int Div(int x, int y) {
+	return (x/y)<<0;
+}
+
+int ComboAt(int x, int y) {
+ return (y & 240)+(x>>4);
+}

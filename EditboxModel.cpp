@@ -1,5 +1,5 @@
 #ifndef __GTHREAD_HIDE_WIN32API                             
-#define __GTHREAD_HIDE_WIN32API 
+#define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
 #include <assert.h>
@@ -96,18 +96,18 @@ void Unicode::textout_ex_nonstupid(BITMAP *bmp, FONT *f, string &s, int x, int y
 			continue;
 		if(c == '\t')
 		{
-			int offset = 0;
+			int temp_offset = 0;
 			for(int i=0; i<TABSIZE; i++)
 			{
-				int width = usetc(temp+offset, ' ');
-				offset+=width;
+				int temp_width = usetc(temp+temp_offset, ' ');
+				temp_offset+=temp_width;
 			}
-			usetc(temp+offset,0);
+			usetc(temp+temp_offset,0);
 		}
 		else
 		{
-			int width = usetc(temp,c);
-			usetc(temp+width,0);
+			int temp_width = usetc(temp,c);
+			usetc(temp+temp_width,0);
 		}
 		newstring += temp;
 	}
@@ -122,7 +122,7 @@ int Unicode::getIndexOfWidth(string &s, int x, FONT *f)
 	int lastwidth=0;
 	const char *buf = s.c_str();
 	int c;
-	for(index=0; true; index++)
+	for(index=0; ; index++)
 	{
 		int width = Unicode::getCharWidth(buf, offset);
 		c = Unicode::getCharAtOffset(buf, offset);
@@ -303,11 +303,11 @@ CursorPos EditboxModel::findIndex(int totalindex)
 	int offinline = totalindex-curindex+rval.it->numchars;
 	rval.lineno = lineno;
 	rval.index = offinline;
-	string &s = rval.it->line;
+	string &str = rval.it->line;
 	rval.x = 0;
 	for(int i=0; i<offinline; i++)
 	{
-		int c = Unicode::getCharAtIndex(s,i);
+		int c = Unicode::getCharAtIndex(str,i);
 		rval.x += Unicode::getCharWidth(c,view->getFont());
 	}
 	return rval;
@@ -440,9 +440,9 @@ void EditboxModel::paste()
 	getLines().insert(it, therestline);
 	for(list<LineData>::reverse_iterator toiit = toinsert.rbegin(); toiit != toinsert.rend(); toiit++)
 	{
-		list<LineData>::iterator it = cp.it;
-		it++;
-		getLines().insert(it, *toiit);
+		list<LineData>::iterator iter = cp.it;
+		iter++;
+		getLines().insert(iter, *toiit);
 	}
 	it = cp.it;
 	it++;
@@ -462,15 +462,15 @@ void EditboxModel::paste()
 void EditboxModel::makeLines(list<LineData> &target, string &source)
 {
   target.clear();
-  string &s = source;
-  const char *buf = s.c_str();
+  string &str = source;
+  const char *buf = str.c_str();
   int startoffset = 0;
   int startindex = 0;
   int endindex = 0;
   int lineno;
   lineno=0;
   int endoffset;
-  for(endoffset = 0; endoffset != int(s.size()); endindex++)
+  for(endoffset = 0; endoffset != int(str.size()); endindex++)
   {
     int width = Unicode::getCharWidth(buf, endoffset);
     int c = Unicode::getCharAtOffset(buf, endoffset);
@@ -480,7 +480,7 @@ void EditboxModel::makeLines(list<LineData> &target, string &source)
       endoffset+=width;
       endindex++;
       LineData ld;
-      ld.line = s.substr(startoffset, endoffset-startoffset);
+      ld.line = str.substr(startoffset, endoffset-startoffset);
       ld.numchars = endindex-startindex;
       ld.newlineterminated = true;
       ld.dirtyflag = true;
@@ -495,7 +495,7 @@ void EditboxModel::makeLines(list<LineData> &target, string &source)
   if(endoffset != startoffset)
   {
 	  LineData ld;
-	  ld.line = s.substr(startoffset, endoffset-startoffset);
+	  ld.line = str.substr(startoffset, endoffset-startoffset);
 	  ld.numchars = endindex-startindex;
 	  ld.newlineterminated = false;
 	  ld.dirtyflag = true;

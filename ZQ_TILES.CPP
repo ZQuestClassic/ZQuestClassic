@@ -175,7 +175,7 @@ bool has_selection()
   return false;
 }
 
-void draw_selection_outline(BITMAP *dest, int x, int y, int scale)
+void draw_selection_outline(BITMAP *dest, int x, int y, int scale2)
 {
   drawing_mode(DRAW_MODE_COPY_PATTERN, selection_pattern, selection_anchor>>3, 0);
   for(int i=1; i<18; ++i)
@@ -185,11 +185,11 @@ void draw_selection_outline(BITMAP *dest, int x, int y, int scale)
       //  zoomtile16(screen2,tile,79,31,cs,flip,8);
       if(selection_grid[i-1][j]!=selection_grid[i][j])
       {
-        _allegro_vline(dest, x+((i-1)*scale), y+((j-1)*scale), y+(j*scale), 255);
+        _allegro_vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
       }
       if(selection_grid[i][j-1]!=selection_grid[i][j])
       {
-        _allegro_hline(dest, x+((i-1)*scale), y+((j-1)*scale), x+(i*scale), 255);
+        _allegro_hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
       }
     }
   }
@@ -202,14 +202,14 @@ bool is_selecting()
   return (selecting_x1>-1&&selecting_x2>-1&&selecting_y1>-1&&selecting_y2>-1);
 }
 
-void draw_selecting_outline(BITMAP *dest, int x, int y, int scale)
+void draw_selecting_outline(BITMAP *dest, int x, int y, int scale2)
 {
   int x1=min(selecting_x1,selecting_x2);
   int x2=max(selecting_x1,selecting_x2);
   int y1=min(selecting_y1,selecting_y2);
   int y2=max(selecting_y1,selecting_y2);
   
-//  rect(dest, x+(x1*scale), y+(y1*scale), x+((x2+1)*scale), y+((y2+1)*scale), 255);
+//  rect(dest, x+(x1*scale2), y+(y1*scale2), x+((x2+1)*scale2), y+((y2+1)*scale2), 255);
   for(int i=1; i<18; ++i)
   {
     for(int j=1; j<18; ++j)
@@ -221,7 +221,7 @@ void draw_selecting_outline(BITMAP *dest, int x, int y, int scale)
         {
           drawing_mode(DRAW_MODE_COPY_PATTERN, intersection_pattern, selection_anchor>>3, 0);
         }
-        _allegro_vline(dest, x+((i-1)*scale), y+((j-1)*scale), y+(j*scale), 255);
+        _allegro_vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
       }
       if (((i>=x1+1)&&(i<=x2+1))&&((j==y1+1)||(j==y2+2)))
       {
@@ -229,7 +229,7 @@ void draw_selecting_outline(BITMAP *dest, int x, int y, int scale)
         {
           drawing_mode(DRAW_MODE_COPY_PATTERN, intersection_pattern, selection_anchor>>3, 0);
         }
-        _allegro_hline(dest, x+((i-1)*scale), y+((j-1)*scale), x+(i*scale), 255);
+        _allegro_hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
       }
     }
   }
@@ -423,6 +423,10 @@ bool do_button_reset(int x,int y,int w,int h,char *text,int bg,int fg,bool jwin)
 
 void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg, int value)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  bg=bg;
+  fg=fg;
+
   int r, center;
   for (int k=0; k<7; k++)
   {
@@ -475,6 +479,10 @@ void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value)
 
 void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg, bool value)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  bg=bg;
+  fg=fg;
+
   //  rect(dest,x, y, x+8, y+8, fg);
   //  line(dest,x+1,y+1,x+7,y+7,value?fg:bg);
   //  line(dest,x+1,y+7,x+7,y+1,value?fg:bg);
@@ -2079,6 +2087,9 @@ COLOR_MAP imagepal_table;
 
 extern void return_RAMpal_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  x=x;
+
   rgb->r = pal[y].r;
   rgb->g = pal[y].g;
   rgb->b = pal[y].b;
@@ -2272,49 +2283,49 @@ char *bitlist(int index, int *list_size)
 static DIALOG leech_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-  { jwin_win_proc,       8,    20-4,   303+1,  216-42+1,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,      (void *) "Leech Options" },
-  { d_dummy_proc,      160,  27-4,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
+  { jwin_win_proc,       8,    20-4,   303+1,  216-42+1,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,      (void *) "Leech Options", NULL, NULL },
+  { d_dummy_proc,      160,  27-4,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
   // 2
-  { jwin_button_proc,     180,  210-42-4,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { jwin_button_proc,     80,   210-42-4,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp },
+  { jwin_button_proc,     180,  210-42-4,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { jwin_button_proc,     80,   210-42-4,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp, NULL, NULL },
   // 5
-  { jwin_text_proc,       14,   49-4,  176,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Update Status Every:  " },
-  { jwin_edit_proc,      114,   45-4,   36,   16,    vc(12),  vc(1),  0,       0,          5,             0,       NULL },
-  { jwin_radio_proc,     155,   49-4,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Tiles" },
-  { jwin_radio_proc,     200,   49-4,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Seconds" },
+  { jwin_text_proc,       14,   49-4,  176,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Update Status Every:  ", NULL, NULL },
+  { jwin_edit_proc,      114,   45-4,   36,   16,    vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
+  { jwin_radio_proc,     155,   49-4,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Tiles", NULL, NULL },
+  { jwin_radio_proc,     200,   49-4,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Seconds", NULL, NULL },
   //9
-  { jwin_frame_proc,      14,   63-2,   176+70,  50+30,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,             0,       NULL },
-  { jwin_text_proc,       14+8, 60-2,   80,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) " Duplicates " },
+  { jwin_frame_proc,      14,   63-2,   176+70,  50+30,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       14+8, 60-2,   80,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) " Duplicates ", NULL, NULL },
 
-  { jwin_check_proc,       20,   70,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0,       (void *) "Only check new tiles" },
-  { jwin_text_proc,       20,   90,   72,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Normal:" },
-  { jwin_text_proc,       20,  100,   72,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Horizontal Flip:" },
-  { jwin_text_proc,       20,  110,   72,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Vertical Flip:" },
-  { jwin_text_proc,       20,  120,   72,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Horizontal/Vertical Flip:" },
+  { jwin_check_proc,       20,   70,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0,       (void *) "Only check new tiles", NULL, NULL },
+  { jwin_text_proc,       20,   90,   72,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Normal:", NULL, NULL },
+  { jwin_text_proc,       20,  100,   72,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Horizontal Flip:", NULL, NULL },
+  { jwin_text_proc,       20,  110,   72,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Vertical Flip:", NULL, NULL },
+  { jwin_text_proc,       20,  120,   72,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Horizontal/Vertical Flip:", NULL, NULL },
   //16
-  { jwin_radio_proc,      144,  90,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL },
-  { jwin_radio_proc,      184,  90,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL },
-  { jwin_radio_proc,      224,  90,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL },
+  { jwin_radio_proc,      144,  90,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+  { jwin_radio_proc,      184,  90,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+  { jwin_radio_proc,      224,  90,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
 
-  { jwin_radio_proc,      144, 100,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_radio_proc,      184, 100,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_radio_proc,      224, 100,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          2,             0,       NULL },
+  { jwin_radio_proc,      144, 100,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_radio_proc,      184, 100,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_radio_proc,      224, 100,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
 
-  { jwin_radio_proc,      144, 110,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_radio_proc,      184, 110,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_radio_proc,      224, 110,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_radio_proc,      144, 110,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_radio_proc,      184, 110,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_radio_proc,      224, 110,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
 
-  { jwin_radio_proc,      144, 120,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          4,             0,       NULL },
-  { jwin_radio_proc,      184, 120,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          4,             0,       NULL },
-  { jwin_radio_proc,      224, 120,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          4,             0,       NULL },
+  { jwin_radio_proc,      144, 120,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
+  { jwin_radio_proc,      184, 120,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
+  { jwin_radio_proc,      224, 120,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
 
-  { jwin_ctext_proc,      144+4,  80,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Ignore" },
-  { jwin_ctext_proc,      184+4,  80,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Check" },
-  { jwin_ctext_proc,      224+4,  80,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Discard" },
-  { jwin_droplist_proc,   76,   145,   80,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0,       (void *) bitlist },
-  { jwin_text_proc,       14,   149,  60,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Color Depth: " },
-  { NULL }
+  { jwin_ctext_proc,      144+4,  80,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Ignore", NULL, NULL },
+  { jwin_ctext_proc,      184+4,  80,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Check", NULL, NULL },
+  { jwin_ctext_proc,      224+4,  80,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Discard", NULL, NULL },
+  { jwin_droplist_proc,   76,   145,   80,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0,       (void *) bitlist, NULL, NULL },
+  { jwin_text_proc,       14,   149,  60,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Color Depth: ", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 bool leech_tiles(tiledata *dest,int start,int cs)
@@ -2324,7 +2335,7 @@ bool leech_tiles(tiledata *dest,int start,int cs)
   int currtile=start;
   int height=0, width=0;
   byte *testtile = new byte[tilesize(tf32Bit)];
-  byte imported_format;
+  byte imported_format=0;
   char updatestring[6];
   bool canadd;
   bool temp_canadd;
@@ -2886,7 +2897,7 @@ void grab_tile(int tile,int &cs)
     { "SNES ROM Image (*.smc)", "smc" },
     { "Gameboy ROM Image (*.gb)", "gb" },
     { "Gameboy Advanced ROM Image (*.gba)", "gba" },
-    { NULL }
+    { NULL, NULL }
   };
 
 
@@ -3362,13 +3373,13 @@ void reset_tile(tiledata *buf, int t, int format=1)
 
 static MENU select_tile_rc_menu[] =
 {
-  { "Copy",    NULL,  NULL },
-  { "Paste",   NULL,  NULL },
-  { "Delete",  NULL,  NULL },
-  { "" },
-  { "Edit",    NULL,  NULL },
-  { "Grab",    NULL,  NULL },
-  { NULL }
+  { "Copy",    NULL,  NULL, 0, NULL },
+  { "Paste",   NULL,  NULL, 0, NULL },
+  { "Delete",  NULL,  NULL, 0, NULL },
+  { "",        NULL,  NULL, 0, NULL },
+  { "Edit",    NULL,  NULL, 0, NULL },
+  { "Grab",    NULL,  NULL, 0, NULL },
+  { NULL,      NULL,  NULL, 0, NULL }
 };
 
 //returns the column the tile is in
@@ -3526,14 +3537,14 @@ int move_intersection_rr(int check_left, int check_top, int check_width, int che
 static DIALOG tile_move_list_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,      0,   0,   254,  178,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,      NULL },
-  { jwin_ctext_proc,   127,  24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "" },
-  { jwin_ctext_proc,   127,  34,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "" },
-  { jwin_ctext_proc,   127,  44,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "" },
-  { jwin_textbox_proc,  12,   54,   231,  96,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,      NULL },
-  { jwin_button_proc,   57,   153,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,  137,   153,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { NULL }
+  { jwin_win_proc,      0,   0,   254,  178,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,      NULL, NULL, NULL },
+  { jwin_ctext_proc,   127,  24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "", NULL, NULL },
+  { jwin_ctext_proc,   127,  34,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "", NULL, NULL },
+  { jwin_ctext_proc,   127,  44,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "", NULL, NULL },
+  { jwin_textbox_proc,  12,   54,   231,  96,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,      NULL, NULL, NULL },
+  { jwin_button_proc,   57,   153,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,  137,   153,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 
@@ -4067,7 +4078,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         found=false;
         flood=false;
         build_biw_list();
-        bool BSZ=get_bit(quest_rules,qr_BSZELDA)!=0;
+        bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
         for(int u=0; u<wMAX; u++)
         {
           move_weapons_list[u]=false;
@@ -4092,13 +4103,13 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
             case wBRANG:
             case wMBRANG:
             case wFBRANG:
-            m=BSZ?1:3;
+            m=BSZ2?1:3;
             break;
             case wBOOM:
             case wSBOOM:
             m=2;
             case iwDeath:
-            m=BSZ?4:2;
+            m=BSZ2?4:2;
             case iwSpawn:
             m=3;
             default:
@@ -4273,15 +4284,15 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         tile_move_list_text[0]=0;
         found=false;
         flood=false;
-        bool BSZ=(zinit.subscreen>2);
+        bool BSZ2=(zinit.subscreen>2);
         map_styles_items[0].tile=misc.colors.blueframe_tile;
         map_styles_items[1].tile=misc.colors.HCpieces_tile;
         map_styles_items[2].tile=misc.colors.triforce_tile;
-        map_styles_items[2].width=BSZ?2:1;
-        map_styles_items[2].height=BSZ?3:1;
+        map_styles_items[2].width=BSZ2?2:1;
+        map_styles_items[2].height=BSZ2?3:1;
         map_styles_items[3].tile=misc.colors.triframe_tile;
-        map_styles_items[3].width=BSZ?7:6;
-        map_styles_items[3].height=BSZ?7:3;
+        map_styles_items[3].width=BSZ2?7:6;
+        map_styles_items[3].height=BSZ2?7:3;
         map_styles_items[4].tile=misc.colors.overworld_map_tile;
         map_styles_items[5].tile=misc.colors.dungeon_map_tile;
         for(int u=0; u<6; u++)
@@ -4455,15 +4466,15 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         tile_move_list_text[0]=0;
         found=false;
         flood=false;
-        bool BSZ=(zinit.subscreen>2);
+        bool BSZ2=(zinit.subscreen>2);
         for(int t=0; t<MAXDMAPS; t++)
         {
           dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
           dmap_map_items[1].tile=DMaps[t].minimap_2_tile;
           dmap_map_items[2].tile=DMaps[t].largemap_1_tile;
-          dmap_map_items[2].width=BSZ?7:9;
+          dmap_map_items[2].width=BSZ2?7:9;
           dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
-          dmap_map_items[3].width=BSZ?7:9;
+          dmap_map_items[3].width=BSZ2?7:9;
 
           for(int u=0; u<4; u++)
           {
@@ -4868,9 +4879,9 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         int dt=(dest_first+((r*TILES_PER_ROW)+c));
         int st=(src_first+((r*TILES_PER_ROW)+c));
         reset_tile(newtilebuf, dt, newundotilebuf[st].format);
-        for(int i=0; i<tilesize(newundotilebuf[st].format); i++)
+        for(int j=0; j<tilesize(newundotilebuf[st].format); j++)
         {
-          newtilebuf[dt].data[i]=newundotilebuf[st].data[i];
+          newtilebuf[dt].data[j]=newundotilebuf[st].data[j];
         }
         if (move)
         {
@@ -4887,9 +4898,9 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
       int dt=(dest_first+c);
       int st=(src_first+c);
       reset_tile(newtilebuf, dt, newundotilebuf[st].format);
-      for(int i=0; i<tilesize(newundotilebuf[st].format); i++)
+      for(int j=0; j<tilesize(newundotilebuf[st].format); j++)
       {
-        newtilebuf[dt].data[i]=newundotilebuf[st].data[i];
+        newtilebuf[dt].data[j]=newundotilebuf[st].data[j];
       }
       if (move)
       {
@@ -5377,10 +5388,10 @@ void sel_tile(int &tile, int &tile2, int &first, int type, int s)
   first = tile - (tile%TILES_PER_PAGE);
 }
 
-void convert_tile(int t, int bp, int cs, bool shift, bool alt)
+void convert_tile(int t, int bp2, int cs, bool shift, bool alt)
 {
   int cst;
-  switch(bp)
+  switch(bp2)
   {
     case tf4Bit:
       switch(newtilebuf[t].format)
@@ -5934,13 +5945,13 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
             }
             if (rect_sel)
             {
-              int top=tile_row(min(tile, tile2));
-              int left=min(tile_col(tile), tile_col(tile2));
-              int rows=tile_row(max(tile, tile2))-top+1;
-              int columns=max(tile_col(tile), tile_col(tile2))-left+1;
-              for (int r=top; r<top+rows; ++r)
+              int top2=tile_row(min(tile, tile2));
+              int left2=min(tile_col(tile), tile_col(tile2));
+              int rows2=tile_row(max(tile, tile2))-top+1;
+              int columns2=max(tile_col(tile), tile_col(tile2))-left+1;
+              for (int r=top2; r<top2+rows2; ++r)
               {
-                for (int c=left; c<left+columns; ++c)
+                for (int c=left2; c<left2+columns2; ++c)
                 {
                   int t=r*TILES_PER_ROW+c;
                   convert_tile(t, control?tf4Bit:tf8Bit, cs, shift, alt);
@@ -6555,18 +6566,18 @@ int select_combo_2(int &tile,int &cs)
 static DIALOG advpaste_dialog[] =
 {
 	/* (dialog proc)     (x)   (y)    (w)   (h)    (fg)      (bg)     (key)    (flags)       (d1)           (d2)      (dp) */
-	{ jwin_win_proc,         0,    0,   200,  161,   vc(14),   vc(1),       0,     D_EXIT,       0,             0,        (void *) "Advanced Paste" },
-	{ jwin_button_proc,     27,   130,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       (void *) "O&K" },
-	{ jwin_button_proc,     112,  130,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
+	{ jwin_win_proc,         0,    0,   200,  161,   vc(14),   vc(1),       0,     D_EXIT,       0,             0,        (void *) "Advanced Paste", NULL, NULL },
+	{ jwin_button_proc,     27,   130,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       (void *) "O&K", NULL, NULL },
+	{ jwin_button_proc,     112,  130,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
 	
-	{ jwin_check_proc,		10,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Tile"},
-	{ jwin_check_proc,		10,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Cset2"},
-	{ jwin_check_proc,		10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Walkability"},
-	{ jwin_check_proc,		10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Animation"},		
-	{ jwin_check_proc,		10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Type"},	
-	{ jwin_check_proc,		10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Inherent Flag"},	
+	{ jwin_check_proc,		10,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Tile", NULL, NULL },
+	{ jwin_check_proc,		10,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Cset2", NULL, NULL },
+	{ jwin_check_proc,		10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Walkability", NULL, NULL },
+	{ jwin_check_proc,		10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Animation", NULL, NULL },		
+	{ jwin_check_proc,		10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Type", NULL, NULL },	
+	{ jwin_check_proc,		10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Inherent Flag", NULL, NULL },	
 	
-	{NULL}
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int advpaste(int tile, int tile2, int copy)
@@ -7045,6 +7056,10 @@ int edit_combo_cset;
 
 int d_ctile_proc(int msg,DIALOG *d,int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  d=d;
+  c=c;
+
   if (msg==MSG_CLICK)
   {
     int t=curr_combo.tile;
@@ -7061,6 +7076,9 @@ int d_ctile_proc(int msg,DIALOG *d,int c)
 
 int d_combo_loader(int msg,DIALOG *d,int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  c=c;
+
   if(msg==MSG_DRAW)
   {
     newcombo *hold = combobuf;
@@ -7129,52 +7147,52 @@ int click_d_combo_proc();
 static DIALOG combo_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-  { jwin_win_proc,     54,   21,   241,  184,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Edit Combo" },
-  { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'h',     0,          0,             0,       (void *) onCmb_dlg_h },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'v',     0,          0,             0,       (void *) onCmb_dlg_v },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'r',     0,          0,             0,       (void *) onCmb_dlg_r },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      't',     0,          0,             0,       (void *) click_d_ctile_proc},
+  { jwin_win_proc,     54,   21,   241,  184,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Edit Combo", NULL, NULL },
+  { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp, NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'h',     0,          0,             0,       (void *) onCmb_dlg_h, NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'v',     0,          0,             0,       (void *) onCmb_dlg_v, NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'r',     0,          0,             0,       (void *) onCmb_dlg_r, NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      't',     0,          0,             0,       (void *) click_d_ctile_proc, NULL, NULL },
   // 8
-  { d_combo_loader,    60,   48,   0,    0,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL },
-  { jwin_frame_proc,   158,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL },
-  { d_bitmap_proc,     160,  48,   16,   16,   0,       0,      0,       0,          0,             0,       NULL },
-  { d_ctile_proc,      160,  48,   16,   16,   0,       0,      0,       0,          0,             0,       NULL },
-  { jwin_numedit_proc, 102+5,  68,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
+  { d_combo_loader,    60,   48,   0,    0,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_frame_proc,   158,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_bitmap_proc,     160,  48,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_ctile_proc,      160,  48,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_numedit_proc, 102+5,  68,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
   // 13
-  { jwin_frame_proc,   190,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL },
-  { d_wflag_proc,      192,  48,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL },
-  { d_wflag_proc,      192,  56,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL },
-  { d_wflag_proc,      200,  48,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL },
-  { d_wflag_proc,      200,  56,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL },
+  { jwin_frame_proc,   190,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_wflag_proc,      192,  48,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+  { d_wflag_proc,      192,  56,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+  { d_wflag_proc,      200,  48,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+  { d_wflag_proc,      200,  56,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
   // 188
-  { jwin_frame_proc,   222,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL },
-  { d_wflag_proc,      224,  48,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL },
-  { d_wflag_proc,      232,  48,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL },
-  { d_wflag_proc,      224,  56,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL },
-  { d_wflag_proc,      232,  56,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL },
+  { jwin_frame_proc,   222,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_wflag_proc,      224,  48,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+  { d_wflag_proc,      232,  48,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+  { d_wflag_proc,      224,  56,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
+  { d_wflag_proc,      232,  56,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
   // 23
-  { jwin_text_proc,       60,   126,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) "Type:" },
-  { jwin_droplist_proc,   89,   122,  200,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL },
-  { jwin_text_proc,       60,   90,   72,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.Frames:" },
-  { jwin_text_proc,       60,   108,   64,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.Speed:" },
-  { jwin_numedit_proc,   102+5,  86,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_numedit_proc,   102+5,  104,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_text_proc,       192,  71,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) "Next:" },
+  { jwin_text_proc,       60,   126,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) "Type:", NULL, NULL },
+  { jwin_droplist_proc,   89,   122,  200,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       60,   90,   72,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.Frames:", NULL, NULL },
+  { jwin_text_proc,       60,   108,   64,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.Speed:", NULL, NULL },
+  { jwin_numedit_proc,   102+5,  86,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_numedit_proc,   102+5,  104,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       192,  71,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) "Next:", NULL, NULL },
   // 30
-  { jwin_frame_proc,   190,  79,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL },
-  { d_combo_proc,      192,  81,   16,   16,   0,       0,      0,       0,          0,             0,       NULL },
-  { jwin_text_proc,       60,   144,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) "Flag:" },
-  { jwin_droplist_proc,   89,   140,  200,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) flaglist },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'n',     0,          0,             0,       (void *) click_d_combo_proc},
-  { jwin_text_proc,       140,   108,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.SkipX:" },
-  { jwin_numedit_proc,   180,  104,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_text_proc,       210,   108,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.SkipY:" },
-  { jwin_numedit_proc,   250,  104,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_check_proc,       60,   160,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0,       (void *) "Refresh Animation on Room Entry" },
-  { NULL }
+  { jwin_frame_proc,   190,  79,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_combo_proc,      192,  81,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       60,   144,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) "Flag:", NULL, NULL },
+  { jwin_droplist_proc,   89,   140,  200,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) flaglist, NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'n',     0,          0,             0,       (void *) click_d_combo_proc, NULL, NULL },
+  { jwin_text_proc,       140,   108,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.SkipX:", NULL, NULL },
+  { jwin_numedit_proc,   180,  104,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,       210,   108,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.SkipY:", NULL, NULL },
+  { jwin_numedit_proc,   250,  104,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,       60,   160,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0,       (void *) "Refresh Animation on Room Entry", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int click_d_combo_proc()
@@ -7384,6 +7402,9 @@ void edit_combo(int c,bool freshen,int cs)
 
 int d_itile_proc(int msg,DIALOG *d,int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  c=c;
+
   switch(msg)
   {
     case MSG_CLICK:
@@ -7413,15 +7434,15 @@ int d_itile_proc(int msg,DIALOG *d,int c)
 static DIALOG icon_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-  { jwin_win_proc, 80,   80,   160,  84,   vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Game Icons" },
-  { d_dummy_proc,      160,  88,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { d_itile_proc,      108+3,  108,  20,   20,   0,       0,      0,       0,          0,             6,       NULL },
-  { d_itile_proc,      138-1,  108,  20,   20,   0,       0,      0,       0,          0,             7,       NULL },
-  { d_itile_proc,      168-5,  108,  20,   20,   0,       0,      0,       0,          0,             8,       NULL },
-  { d_itile_proc,      198-9,  108,  20,   20,   0,       0,      0,       0,          0,             9,       NULL },
-  { jwin_button_proc,     90,   136,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     170,  136,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { NULL }
+  { jwin_win_proc, 80,   80,   160,  84,   vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Game Icons", NULL, NULL },
+  { d_dummy_proc,      160,  88,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_itile_proc,      108+3,  108,  20,   20,   0,       0,      0,       0,          0,             6,       NULL, NULL, NULL },
+  { d_itile_proc,      138-1,  108,  20,   20,   0,       0,      0,       0,          0,             7,       NULL, NULL, NULL },
+  { d_itile_proc,      168-5,  108,  20,   20,   0,       0,      0,       0,          0,             8,       NULL, NULL, NULL },
+  { d_itile_proc,      198-9,  108,  20,   20,   0,       0,      0,       0,          0,             9,       NULL, NULL, NULL },
+  { jwin_button_proc,     90,   136,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     170,  136,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int onIcons()
@@ -7466,11 +7487,14 @@ void center_zq_tiles_dialogs()
 
 int d_combo_proc(int msg,DIALOG *d,int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  c=c;
+
   switch(msg)
   {
     case MSG_CLICK:
     {
-      int c;
+      int combo2;
       int cs;
 	  if(key[KEY_LSHIFT])
 	  {
@@ -7521,11 +7545,11 @@ int d_combo_proc(int msg,DIALOG *d,int c)
       }
       else if (gui_mouse_b()&1||nextcombo_fake_click==1) //left mouse button
       {
-        c=d->d1;
+        combo2=d->d1;
         cs=d->fg;
-        if(select_combo_2(c, cs))
+        if(select_combo_2(combo2, cs))
         {
-          d->d1=c;
+          d->d1=combo2;
           d->fg=cs;
         }
         return D_REDRAW;

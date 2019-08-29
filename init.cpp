@@ -7,40 +7,72 @@
 //  Main code for the quest editor.
 //
 //--------------------------------------------------------
-/*
-  #include "zquest.h"
-  #include "zdefs.h"
-  */
+
+#ifndef __GTHREAD_HIDE_WIN32API                             
+#define __GTHREAD_HIDE_WIN32API 1
+#endif                            //prevent indirectly including windows.h
+
+#include <map>
+#include <vector>
+#include <algorithm>
+
 #include <stdio.h>
 
 #include "zc_alleg.h"
 #include "jwin.h"
+#include "zdefs.h"
+#include "zsys.h"
+#include "gui.h"
 
 #define vc(x)  ((x)+224)                                    // offset to 'VGA color' x (row 14)
+
+using namespace std;
+
 extern int jwin_pal[jcMAX];
+extern FONT *sfont2;
+extern FONT *lfont;
+extern FONT *pfont;
+extern itemdata *itemsbuf;
+extern byte quest_rules[20];
+extern char *item_string[];
 
 void initPopulate(int i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,
                   void *dp, void *dp2 = NULL, void *dp3 = NULL);
 
-/*
-  extern FONT *lfont;
-  extern int jwin_pal[jcMAX];
-  extern bool saved;
+static const int endEquipField = 33;
 
-  extern int dmap_list_size;
-  extern bool dmap_list_zero;
-  */
+void doFamily(int family, zinitdata *data);
+int jwin_initlist_proc(int msg,DIALOG *d,int c);
+
+class Family
+{
+public:
+	Family(int fam, int lvl, int id) : family(fam), level(lvl), itemid(id) {}
+	int family;
+	int level;
+	int itemid;
+	bool operator<(const Family &other) const
+	{
+		return level < other.level;
+	}
+};
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
 extern char *dmaplist(int index, int *list_size);
 extern int onHelp();
 extern int startdmapxy[6];
+extern void onInitOK();
 
+static map<int, vector<Family> > families;
 
+static map<int, char *> famnames;
 
 int d_line_proc(int msg, DIALOG *d, int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  c=c;
+
   if (msg==MSG_DRAW)
   {
     int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
@@ -252,65 +284,65 @@ static int init_misc_list[] =
 static TABPANEL init_dmap_items_hundreds_tabs[] =
 {
   // (text)
-  { "000",          D_SELECTED, init_dmap_items_000s_list },
-  { "100",          0,          init_dmap_items_100s_list },
-  { "200",          0,          init_dmap_items_200s_list },
-  { NULL }
+  { "000",             D_SELECTED,   init_dmap_items_000s_list,    0, NULL },
+  { "100",             0,            init_dmap_items_100s_list,    0, NULL },
+  { "200",             0,            init_dmap_items_200s_list,    0, NULL },
+  { NULL,              0,            0,                            0, NULL }
 };
 
 
 static TABPANEL init_dmap_items_000s_tabs[] =
 {
   // (text)
-  { "00",          D_SELECTED, init_dmap_items_0_00s_list },
-  { "10",          0,          init_dmap_items_0_10s_list },
-  { "20",          0,          init_dmap_items_0_20s_list },
-  { "30",          0,          init_dmap_items_0_30s_list },
-  { "40",          0,          init_dmap_items_0_40s_list },
-  { "50",          0,          init_dmap_items_0_50s_list },
-  { "60",          0,          init_dmap_items_0_60s_list },
-  { "70",          0,          init_dmap_items_0_70s_list },
-  { "80",          0,          init_dmap_items_0_80s_list },
-  { "90",          0,          init_dmap_items_0_90s_list },
-  { NULL }
+  { "00",              D_SELECTED,   init_dmap_items_0_00s_list,   0, NULL },
+  { "10",              0,            init_dmap_items_0_10s_list,   0, NULL },
+  { "20",              0,            init_dmap_items_0_20s_list,   0, NULL },
+  { "30",              0,            init_dmap_items_0_30s_list,   0, NULL },
+  { "40",              0,            init_dmap_items_0_40s_list,   0, NULL },
+  { "50",              0,            init_dmap_items_0_50s_list,   0, NULL },
+  { "60",              0,            init_dmap_items_0_60s_list,   0, NULL },
+  { "70",              0,            init_dmap_items_0_70s_list,   0, NULL },
+  { "80",              0,            init_dmap_items_0_80s_list,   0, NULL },
+  { "90",              0,            init_dmap_items_0_90s_list,   0, NULL },
+  { NULL,              0,            0,                            0, NULL }
 };
 
 static TABPANEL init_dmap_items_100s_tabs[] =
 {
   // (text)
-  { "00",          D_SELECTED, init_dmap_items_1_00s_list },
-  { "10",          0,          init_dmap_items_1_10s_list },
-  { "20",          0,          init_dmap_items_1_20s_list },
-  { "30",          0,          init_dmap_items_1_30s_list },
-  { "40",          0,          init_dmap_items_1_40s_list },
-  { "50",          0,          init_dmap_items_1_50s_list },
-  { "60",          0,          init_dmap_items_1_60s_list },
-  { "70",          0,          init_dmap_items_1_70s_list },
-  { "80",          0,          init_dmap_items_1_80s_list },
-  { "90",          0,          init_dmap_items_1_90s_list },
-  { NULL }
+  { "00",              D_SELECTED,   init_dmap_items_1_00s_list,   0, NULL },
+  { "10",              0,            init_dmap_items_1_10s_list,   0, NULL },
+  { "20",              0,            init_dmap_items_1_20s_list,   0, NULL },
+  { "30",              0,            init_dmap_items_1_30s_list,   0, NULL },
+  { "40",              0,            init_dmap_items_1_40s_list,   0, NULL },
+  { "50",              0,            init_dmap_items_1_50s_list,   0, NULL },
+  { "60",              0,            init_dmap_items_1_60s_list,   0, NULL },
+  { "70",              0,            init_dmap_items_1_70s_list,   0, NULL },
+  { "80",              0,            init_dmap_items_1_80s_list,   0, NULL },
+  { "90",              0,            init_dmap_items_1_90s_list,   0, NULL },
+  { NULL,              0,            0,                            0, NULL }
 };
 
 static TABPANEL init_dmap_items_200s_tabs[] =
 {
   // (text)
-  { "00",          D_SELECTED, init_dmap_items_2_00s_list },
-  { "10",          0,          init_dmap_items_2_10s_list },
-  { "20",          0,          init_dmap_items_2_20s_list },
-  { "30",          0,          init_dmap_items_2_30s_list },
-  { "40",          0,          init_dmap_items_2_40s_list },
-  { "50",          0,          init_dmap_items_2_50s_list },
-  { NULL }
+  { "00",              D_SELECTED,   init_dmap_items_2_00s_list,   0, NULL },
+  { "10",              0,            init_dmap_items_2_10s_list,   0, NULL },
+  { "20",              0,            init_dmap_items_2_20s_list,   0, NULL },
+  { "30",              0,            init_dmap_items_2_30s_list,   0, NULL },
+  { "40",              0,            init_dmap_items_2_40s_list,   0, NULL },
+  { "50",              0,            init_dmap_items_2_50s_list,   0, NULL },
+  { NULL,              0,            0,                            0, NULL }
 };
 
 TABPANEL init_tabs[] =
 {
   // (text)
-  { "Equipment",       D_SELECTED, init_equipment_list },
-  { "Items",           0,          init_items_list },
-  { "Level Items",      0,          init_dmap_items_list },
-  { "Misc",            0,          init_misc_list },
-  { NULL }
+  { "Equipment",       D_SELECTED,   init_equipment_list,          0, NULL },
+  { "Items",           0,            init_items_list,              0, NULL },
+  { "Level Items",     0,            init_dmap_items_list,         0, NULL },
+  { "Misc",            0,            init_misc_list,               0, NULL },
+  { NULL,              0,            0,                            0, NULL }
 };
 
 //int startdmapxy[6] = {188-68,131-93,188-68,111-93,188-68,120-93};
@@ -344,1980 +376,24 @@ char *walkstylelist(int index, int *list_size)
 
 
 
-DIALOG init_dlg[1753];/* =
-                        {
-                        // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-                        //{ jwin_win_proc,     13,   3,   296,  234,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Initialization Data" },
-                        { jwin_button_proc,     200,  212,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-                        { jwin_button_proc,     60,   212,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-                        { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp },
-                        { jwin_tab_proc,        19, 28, 284,  178,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) init_tabs, NULL, (void *)init_dlg },
-                        // 5(Equipment)
-                        { jwin_frame_proc,    27,    53,   58,   50,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     31,    50,   40,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Sword " },
-                        { jwin_check_proc,    35,    60,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Wooden" },
-                        { jwin_check_proc,    35,    70,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "White " },
-                        { jwin_check_proc,    35,    80,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Magic " },
-                        { jwin_check_proc,    35,    90,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Master" },
-                        // 11
-                        { jwin_frame_proc,    27,   107,   55,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     31,   104,   48,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Shield " },
-                        { jwin_check_proc,    35,   114,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" },
-                        { jwin_check_proc,    35,   124,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Magic" },
-                        { jwin_check_proc,    35,   134,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Mirror" },
-                        // 16
-                        { jwin_frame_proc,    27,   151,   46,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     31,   148,   48,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Ring " },
-                        { jwin_check_proc,    35,   158,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Blue" },
-                        { jwin_check_proc,    35,   168,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Red" },
-                        { jwin_check_proc,    35,   178,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Gold" },
-                        // 21
-                        { jwin_frame_proc,    93,    53,   60,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     97,    50,   64,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Bracelet " },
-                        { jwin_check_proc,   102,    60,   72,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Level 1" },
-                        { jwin_check_proc,   102,    70,   72,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Level 2" },
-                        // 25
-                        { jwin_frame_proc,   157,    53,   60,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,    161,    50,   48,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Amulet " },
-                        { jwin_check_proc,   165,    60,   72,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Level 1" },
-                        { jwin_check_proc,   165,    70,   72,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Level 2" },
-                        // 29
-                        { jwin_frame_proc,    93,   102,   54,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     97,    99,   48,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Wallet " },
-                        { jwin_check_proc,   101,   109,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" },
-                        { jwin_check_proc,   101,   119,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Large" },
-                        // 33
-                        { jwin_frame_proc,   163,   102,   54,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,    167,    99,   24,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Bow " },
-                        { jwin_check_proc,   171,   109,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" },
-                        { jwin_check_proc,   171,   119,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Large" },
-                        // 37
-                        { jwin_frame_proc,   225,    53,   70,   70,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,    229,    50,   40,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Other " },
-                        { jwin_check_proc,   233,    60,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Raft" },
-                        { jwin_check_proc,   233,    70,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Ladder" },
-                        { jwin_check_proc,   233,    80,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Book" },
-                        { jwin_check_proc,   233,    90,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Magic Key" },
-                        { jwin_check_proc,   233,   100,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Flippers" },
-                        { jwin_check_proc,   233,   110,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Boots" },
-                        // 45
-                        { jwin_frame_proc,    80,   151,   56,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     84,   148,   24,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Quiver " },
-                        { jwin_check_proc,    88,   158,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" },
-                        { jwin_check_proc,    88,   168,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Medium" },
-                        { jwin_check_proc,    88,   178,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Large" },
-                        // 49
-                        { jwin_frame_proc,   142,   151,   58,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,    146,   148,   24,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Bomb Bag " },
-                        { jwin_check_proc,   150,   158,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" },
-                        { jwin_check_proc,   150,   168,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Medium" },
-                        { jwin_check_proc,   150,   178,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Large" },
-                        // 53
-                        { jwin_frame_proc,   206,   151,   89,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,    210,   148,   24,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Super Bomb Bag " },
-                        { jwin_check_proc,   214,   158,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" },
-                        { jwin_check_proc,   214,   178,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Medium" },
-                        { jwin_check_proc,   214,   168,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Large" },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        // 65 (Items)
-                        { jwin_frame_proc,    27,    53,   64,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     31,    50,   64,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Boomerang " },
-                        { jwin_check_proc,    35,    60,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Wooden" },
-                        { jwin_check_proc,    35,    70,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Magic" },
-                        { jwin_check_proc,    35,    80,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Fire" },
-                        // 70
-                        { jwin_frame_proc,   163,   138,  131,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,    167,   135,  121,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Arrow " },
-                        { jwin_check_proc,   171,   145,  137,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Wooden" },
-                        { jwin_check_proc,   171,   155,  137,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Silver" },
-                        { jwin_check_proc,   171,   165,  137,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Golden" },
-                        // 75
-                        { jwin_frame_proc,    27,    97,   48,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     31,    94,   48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Potion " },
-                        { jwin_radio_proc,    35,   104,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "None" },
-                        { jwin_radio_proc,    35,   114,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Blue" },
-                        { jwin_radio_proc,    35,   124,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Red" },
-                        // 80
-                        { jwin_frame_proc,    93,    53,   67,   20,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     97,    50,   48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Whistle " },
-                        { jwin_check_proc,   101,    60,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Recorder" },
-                        // 83
-                        { jwin_frame_proc,   155,    87,   50,   20,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,    159,    84,   48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Hammer " },
-                        { jwin_check_proc,   163,    94,   72,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" },
-                        // 86
-                        { jwin_frame_proc,    95,   77,    57,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     99,   74,    48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Hookshot " },
-                        { jwin_check_proc,   103,   84,    56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Short" },
-                        { jwin_check_proc,   103,   94,    56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Long" },
-                        // 90
-                        { jwin_frame_proc,   162,   53,   45,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,    166,   50,   48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Candle " },
-                        { jwin_check_proc,   170,   60,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Blue" },
-                        { jwin_check_proc,   170,   70,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Red" },
-                        // 94
-                        { jwin_frame_proc,   209,    53,   86,   80,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,    213,    50,   80,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Other " },
-                        { jwin_check_proc,   217,    60,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Bait  " },
-                        { jwin_check_proc,   217,    70,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Letter" },
-                        { jwin_check_proc,   217,    80,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Wand  " },
-                        { jwin_check_proc,   217,    90,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Lens  " },
-                        { jwin_check_proc,   217,   100,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Din's Fire" },
-                        { jwin_check_proc,   217,   110,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Farore's Wind" },
-                        { jwin_check_proc,   217,   120,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Nayru's Love" },
-                        // 103
-                        { jwin_frame_proc,    76,   111,   86,   91,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     80,   108,  113,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Bombs " },
-                        // 105
-                        { jwin_frame_proc,    80,   121,   78,   37,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     84,   118,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Normal " },
-                        { jwin_ctext_proc,    99,   128,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Start" },
-                        { jwin_ctext_proc,   140,   128,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Max" },
-                        // 109
-                        { jwin_edit_proc,     88,  138,   21,   16,       0,       0,    0,       0,           2,        0,     NULL },
-                        { d_maxbombsedit_proc, 129, 138,  21,   16,       0,       0,    0,       0,           2,        0,     NULL },
-                        { jwin_frame_proc,    80,   161,  78,   37,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL },
-                        { jwin_text_proc,     84,   159,  73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Super " },
-                        { jwin_ctext_proc,    99,   169,  73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Start" },
-                        { jwin_ctext_proc,   140,   169,  73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Max" },
-                        // 115
-                        { jwin_edit_proc,     88,  179,   21,   16,       0,       0,    0,       0,           2,        0,     NULL },
-                        { jwin_edit_proc,    129,  179,   21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        // 117
-                        { jwin_ctext_proc,   235,   145,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Start" },
-                        { jwin_ctext_proc,   276,   145,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Max" },
-                        { jwin_edit_proc,    224,   155,   21,   16,       0,       0,    0,       0,           2,        0,     NULL },
-                        { jwin_edit_proc,    265,   155,   21,   16,       0,       0,    0,       0,           2,        0,     NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
+DIALOG init_dlg[1753];
 
-                        // 137
-                        { jwin_tab_proc,        25, 50, 272,  150,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) init_dmap_items_hundreds_tabs, NULL, (void *)init_dlg },
-                        { jwin_tab_proc,        31, 72, 260,  128,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) init_dmap_items_000s_tabs, NULL, (void *)init_dlg },
-                        { jwin_tab_proc,        31, 72, 260,  128,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) init_dmap_items_100s_tabs, NULL, (void *)init_dlg },
-                        { jwin_tab_proc,        31, 72, 260,  128,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) init_dmap_items_200s_tabs, NULL, (void *)init_dlg },
-
-                        // 141
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-                        { jwin_vline_proc,      160, 94,  40,   96,       0,       0,    0,       0,           0,        0,     NULL },
-
-                        // 167
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      80,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-                        { jwin_ctext_proc,      209, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "M" },
-
-                        // 219
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      92,  94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-                        { jwin_ctext_proc,      221, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "C" },
-
-
-
-                        // 271
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      105, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-                        { jwin_ctext_proc,      234, 94,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "B" },
-
-
-
-                        // 323
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      124, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-                        { jwin_ctext_proc,      253, 94,  48,    9,   vc(0),  vc(11),    0,       D_DISABLED,           0,        0,     (void *) "K" },
-
-
-
-                        // 375
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "0" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "1" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "2" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "3" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "4" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "5" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "6" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "7" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "8" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "9" },
-                        // 385
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "10" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "11" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "12" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "13" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "14" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "15" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "16" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "17" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "18" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "19" },
-                        // 395
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "20" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "21" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "22" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "23" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "24" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "25" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "26" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "27" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "28" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "29" },
-                        // 405
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "30" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "31" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "32" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "33" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "34" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "35" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "36" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "37" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "38" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "39" },
-                        // 415
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "40" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "41" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "42" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "43" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "44" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "45" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "46" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "47" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "48" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "49" },
-                        // 425
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "50" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "51" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "52" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "53" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "54" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "55" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "56" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "57" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "58" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "59" },
-                        // 435
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "60" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "61" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "62" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "63" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "64" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "65" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "66" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "67" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "68" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "69" },
-                        // 445
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "70" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "71" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "72" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "73" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "74" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "75" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "76" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "77" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "78" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "79" },
-                        // 455
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "80" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "81" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "82" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "83" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "84" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "85" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "86" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "87" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "88" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "89" },
-                        // 465
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "90" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "91" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "92" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "93" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "94" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "95" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "96" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "97" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "98" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "99" },
-                        // 475
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "100" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "101" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "102" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "103" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "104" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "105" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "106" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "107" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "108" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "109" },
-                        // 485
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "110" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "111" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "112" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "113" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "114" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "115" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "116" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "117" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "118" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "119" },
-                        // 495
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "120" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "121" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "122" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "123" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "124" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "125" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "126" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "127" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "128" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "129" },
-                        // 505
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "130" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "131" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "132" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "133" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "134" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "135" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "136" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "137" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "138" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "139" },
-                        // 515
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "140" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "141" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "142" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "143" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "144" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "145" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "146" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "147" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "148" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "149" },
-                        // 525
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "150" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "151" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "152" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "153" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "154" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "155" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "156" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "157" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "158" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "159" },
-                        // 535
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "160" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "161" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "162" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "163" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "164" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "165" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "166" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "167" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "168" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "169" },
-                        // 545
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "170" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "171" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "172" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "173" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "174" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "175" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "176" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "177" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "178" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "179" },
-                        // 555
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "180" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "181" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "182" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "183" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "184" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "185" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "186" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "187" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "188" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "189" },
-                        // 565
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "190" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "191" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "192" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "193" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "194" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "195" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "196" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "197" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "198" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "199" },
-                        // 575
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "200" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "201" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "202" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "203" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "204" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "205" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "206" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "207" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "208" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "209" },
-                        // 585
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "210" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "211" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "212" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "213" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "214" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "215" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "216" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "217" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "218" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "219" },
-                        // 595
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "220" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "221" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "222" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "223" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "224" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "225" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "226" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "227" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "228" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "229" },
-                        // 605
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "230" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "231" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "232" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "233" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "234" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "235" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "236" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "237" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "238" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "239" },
-                        // 615
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "240" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "241" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "242" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "243" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "244" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "245" },
-                        { jwin_rtext_proc,      181, 124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "246" },
-                        { jwin_rtext_proc,      181, 142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "247" },
-                        { jwin_rtext_proc,      181, 160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "248" },
-                        { jwin_rtext_proc,      181, 178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "249" },
-                        // 625
-                        { jwin_rtext_proc,      52,  106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "250" },
-                        { jwin_rtext_proc,      52,  124,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "251" },
-                        { jwin_rtext_proc,      52,  142,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "252" },
-                        { jwin_rtext_proc,      52,  160,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "253" },
-                        { jwin_rtext_proc,      52,  178,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "254" },
-                        { jwin_rtext_proc,      181, 106,  48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "255" },
-
-
-
-                        // 631
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 641
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 651
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 661
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 671
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 681
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 691
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 701
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 711
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 721
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 731
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 741
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 751
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 761
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 771
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 781
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 791
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 801
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 811
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 821
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 831
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 841
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 851
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 861
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 871
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 881
-                        { jwin_check_proc,      75,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      75,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      204, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-
-
-
-                        // 887
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 897
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 907
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 917
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 927
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 937
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 947
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 957
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 967
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 977
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 987
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 997
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1007
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1017
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1027
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1037
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1047
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1057
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1067
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1077
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1087
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1097
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1107
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1117
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1127
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1137
-                        { jwin_check_proc,      88,  106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      88,  178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      217, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-
-
-
-
-                        // 1143
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1153
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1163
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1173
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1183
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1193
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1203
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1213
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1223
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1233
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1243
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1253
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1263
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1273
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1283
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1293
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1303
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1313
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1323
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1333
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1343
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1353
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1363
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1373
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1383
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        // 1393
-                        { jwin_check_proc,      101, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 124,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 142,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 160,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      101, 178,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-                        { jwin_check_proc,      230, 106,  64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     NULL },
-
-
-
-
-
-                        //1399
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1409
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1419
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1429
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1439
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1449
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1459
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1469
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1479
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1489
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1499
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1509
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1519
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1529
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1539
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1549
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1559
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1569
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1579
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1589
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1599
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1609
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1619
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1629
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1639
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1649
-                        { jwin_edit_proc,       114, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 120, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 138, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 156, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       114, 174, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        { jwin_edit_proc,       243, 102, 21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL },
-                        //1655
-                        { jwin_text_proc,        25,  54,   128,   8,    vc(15),  vc(1),  0,       0,          0,             0,        (void *) "Starting DMap: " },
-                        { d_dropdmaplist_proc,   94,  50,   180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) dmaplist, NULL, startdmapxy },
-
-                        //1657
-                        { jwin_text_proc,       25,   72,  144,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Heart Containers:" },
-                        { jwin_text_proc,       25,   90,  176,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Starting HP (hearts):" },
-                        { jwin_text_proc,       25,  108,  104,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Continue HP:" },
-                        { jwin_text_proc,       25,  126,   48,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Keys:" },
-                        { jwin_text_proc,       93,  126,   64,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Rupies:" },
-
-                        //1662
-                        { jwin_edit_proc,      108,   68,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-                        { jwin_edit_proc,      125,   86,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-                        { jwin_edit_proc,       84,  104,   21,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-                        { jwin_edit_proc,       53,  122,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-                        { jwin_edit_proc,      128,  122,   21,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-                        { jwin_check_proc,     107,  108,   25,    9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "%" },
-                        //1668
-                        { jwin_frame_proc,     164,   71,   40,   50,    0,       0,      0,       0,          FR_ETCHED,     0,       NULL },
-                        { jwin_text_proc,      168,   68,   40,    8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) " HCP's " },
-                        { jwin_radio_proc,     168,   78,   25,    9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "0" },
-                        { jwin_radio_proc,     168,   88,   25,    9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "1" },
-                        { jwin_radio_proc,     168,   98,   25,    9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "2" },
-                        { jwin_radio_proc,     168,  108,   25,    9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "3" },
-                        //1674
-                        { jwin_frame_proc,     221,   71,   62,  50,    0,       0,      0,       0,           FR_ETCHED,     0,       NULL },
-                        { jwin_text_proc,      225,   68,    0,   8,    vc(15),  vc(1),  0,       0,           0,             0,       (void *) " Triforce " },
-                        { jwin_check_proc,     229,   78,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "1" },
-                        { jwin_check_proc,     229,   88,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "2" },
-                        { jwin_check_proc,     229,   98,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "3" },
-                        { jwin_check_proc,     229,  108,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "4" },
-                        { jwin_check_proc,     259,   78,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "5" },
-                        { jwin_check_proc,     259,   88,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "6" },
-                        { jwin_check_proc,     259,   98,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "7" },
-                        { jwin_check_proc,     259,  108,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "8" },
-                        //1684
-                        { jwin_check_proc,      25,  142,   17,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "Slash" },
-                        { jwin_frame_proc,     186,  125,   78,  50,    0,       0,      0,       0,           FR_ETCHED,     0,       NULL },
-                        { jwin_text_proc,      190,  122,  113,   9,    vc(0),   vc(11), 0,       0,           0,             0,       (void *) " Magic " },
-                        { jwin_ctext_proc,     205,  132,   73,   9,    vc(0),   vc(11), 0,       0,           0,             0,       (void *) "Start" },
-                        { jwin_ctext_proc,     246,  132,   73,   9,    vc(0),   vc(11), 0,       0,           0,             0,       (void *) "Max" },
-                        { jwin_edit_proc,      194,  142,   21,  16,    0,       0,      0,       0,           2,             0,       NULL },
-                        { jwin_edit_proc,      235,  142,   21,  16,    0,       0,      0,       0,           2,             0,       NULL },
-                        { jwin_check_proc,     194,  162,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "Double" },
-                        //1692
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-                        { d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL },
-
-                        //1752
-                        { NULL }
-                        };*/
-
-void initPopulate(int i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,
-                  void *dp, void *dp2, void *dp3)
+void initPopulate(int i, DIALOG_PROC Proc, int X, int Y, int W, int H, int FG, int BG, int Key, int Flags, int D1, int D2, void *DP, void *DP2, void *DP3)
 {
-  init_dlg[i].proc = proc;
-  init_dlg[i].x = x;
-  init_dlg[i].y = y;
-  init_dlg[i].w = w;
-  init_dlg[i].h = h;
-  init_dlg[i].fg = fg;
-  init_dlg[i].bg = bg;
-  init_dlg[i].key = key;
-  init_dlg[i].flags = flags;
-  init_dlg[i].d1 = d1;
-  init_dlg[i].d2 = d2;
-  init_dlg[i].dp = dp;
-  init_dlg[i].dp2 = dp2;
-  init_dlg[i].dp3 = dp3;
+  init_dlg[i].proc = Proc;
+  init_dlg[i].x = X;
+  init_dlg[i].y = Y;
+  init_dlg[i].w = W;
+  init_dlg[i].h = H;
+  init_dlg[i].fg = FG;
+  init_dlg[i].bg = BG;
+  init_dlg[i].key = Key;
+  init_dlg[i].flags = Flags;
+  init_dlg[i].d1 = D1;
+  init_dlg[i].d2 = D2;
+  init_dlg[i].dp = DP;
+  init_dlg[i].dp2 = DP2;
+  init_dlg[i].dp3 = DP3;
 }
 
 void PopulateInitDialog()
@@ -2330,145 +406,145 @@ void PopulateInitDialog()
   initPopulate(i, d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp ); i++;
   initPopulate(i, jwin_tab_proc,        19, 28, 284,  178,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) init_tabs, NULL, (void *)init_dlg ); i++;
   // 5(Equipment)
-  initPopulate(i, jwin_frame_proc,    27,    53,   58,   50,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     31,    50,   40,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Sword " ); i++;
-  initPopulate(i, jwin_check_proc,    35,    60,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Wooden" ); i++;
-  initPopulate(i, jwin_check_proc,    35,    70,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "White " ); i++;
-  initPopulate(i, jwin_check_proc,    35,    80,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Magic " ); i++;
-  initPopulate(i, jwin_check_proc,    35,    90,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Master" ); i++;
+  initPopulate(i, d_dummy_proc,  31,    50,   108,   150,       jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],    0,    0,   0,        0,     NULL ); i++;
+  initPopulate(i, jwin_frame_proc,    140,    50,   155,  150,   vc(0),  vc(11),    0,       0,           FR_ETCHED,        0,     NULL ); i++;
+  initPopulate(i, jwin_check_proc,    145,    60,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "1"); i++;
+  initPopulate(i, jwin_check_proc,    145,    70,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "2" ); i++;
+  initPopulate(i, jwin_check_proc,    145,    80,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "3" ); i++;
+  initPopulate(i, jwin_check_proc,    145,    90,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "4" ); i++;
   // 11
-  initPopulate(i, jwin_frame_proc,    27,   107,   55,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     31,   104,   48,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Shield " ); i++;
-  initPopulate(i, jwin_check_proc,    35,   114,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" ); i++;
-  initPopulate(i, jwin_check_proc,    35,   124,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Magic" ); i++;
-  initPopulate(i, jwin_check_proc,    35,   134,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Mirror" ); i++;
+  initPopulate(i, jwin_check_proc,    145,   100,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "5" ); i++;
+  initPopulate(i, jwin_check_proc,    145,   110,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "6" ); i++;
+  initPopulate(i, jwin_check_proc,    145,   120,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "7" ); i++;
+  initPopulate(i, jwin_check_proc,    145,   130,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "8" ); i++;
+  initPopulate(i, jwin_check_proc,    145,   140,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "9" ); i++;
   // 16
-  initPopulate(i, jwin_frame_proc,    27,   151,   46,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     31,   148,   48,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Ring " ); i++;
-  initPopulate(i, jwin_check_proc,    35,   158,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Blue" ); i++;
-  initPopulate(i, jwin_check_proc,    35,   168,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Red" ); i++;
-  initPopulate(i, jwin_check_proc,    35,   178,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Gold" ); i++;
+  initPopulate(i, jwin_check_proc,    145,   150,   74,    9,   vc(0),  vc(11),    0,       0,			 1,        0,     (void *) "10" ); i++;
+  initPopulate(i, jwin_check_proc,    145,   160,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "11" ); i++;
+  initPopulate(i, jwin_check_proc,    145,   170,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "12" ); i++;
+  initPopulate(i, jwin_check_proc,    145,   180,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "13" ); i++;
+  initPopulate(i, jwin_check_proc,    220,   60,    74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "14" ); i++;
   // 21
-  initPopulate(i, jwin_frame_proc,    93,    53,   60,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     97,    50,   64,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Bracelet " ); i++;
-  initPopulate(i, jwin_check_proc,   102,    60,   72,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Level 1" ); i++;
-  initPopulate(i, jwin_check_proc,   102,    70,   72,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Level 2" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    70,   74,    9,   vc(0),  vc(11),    0,       0,			 1,        0,     (void *) "15" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    80,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "16" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    90,   74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "17" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    100,  74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "18" ); i++;
   // 25
-  initPopulate(i, jwin_frame_proc,   157,    53,   60,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,    161,    50,   48,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Amulet " ); i++;
-  initPopulate(i, jwin_check_proc,   165,    60,   72,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Level 1" ); i++;
-  initPopulate(i, jwin_check_proc,   165,    70,   72,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Level 2" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    110,  74,    9,   vc(0),  vc(11),    0,       0,			 1,        0,     (void *) "19" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    120,  74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "20" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    130,  74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "21" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    140,  74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "22" ); i++;
   // 29
-  initPopulate(i, jwin_frame_proc,    93,   102,   54,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     97,    99,   48,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Wallet " ); i++;
-  initPopulate(i, jwin_check_proc,   101,   109,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" ); i++;
-  initPopulate(i, jwin_check_proc,   101,   119,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Large" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    150,  74,    9,   vc(0),  vc(11),    0,       0,			  1,        0,     (void *) "23" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    160,  74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "24" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    170,  74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "25" ); i++;
+  initPopulate(i, jwin_check_proc,    220,    180,  74,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "26" ); i++;
   // 33
-  initPopulate(i, jwin_frame_proc,   163,   102,   54,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,    167,    99,   24,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Bow " ); i++;
-  initPopulate(i, jwin_check_proc,   171,   109,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" ); i++;
-  initPopulate(i, jwin_check_proc,   171,   119,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Large" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 37
-  initPopulate(i, jwin_frame_proc,   225,    53,   70,   70,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,    229,    50,   40,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Other " ); i++;
-  initPopulate(i, jwin_check_proc,   233,    60,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Raft" ); i++;
-  initPopulate(i, jwin_check_proc,   233,    70,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Ladder" ); i++;
-  initPopulate(i, jwin_check_proc,   233,    80,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Book" ); i++;
-  initPopulate(i, jwin_check_proc,   233,    90,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Magic Key" ); i++;
-  initPopulate(i, jwin_check_proc,   233,   100,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Flippers" ); i++;
-  initPopulate(i, jwin_check_proc,   233,   110,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Boots" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 45
-  initPopulate(i, jwin_frame_proc,    80,   151,   56,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     84,   148,   24,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Quiver " ); i++;
-  initPopulate(i, jwin_check_proc,    88,   158,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" ); i++;
-  initPopulate(i, jwin_check_proc,    88,   168,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Medium" ); i++;
-  initPopulate(i, jwin_check_proc,    88,   178,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Large" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 49
-  initPopulate(i, jwin_frame_proc,   142,   151,   58,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,    146,   148,   24,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Bomb Bag " ); i++;
-  initPopulate(i, jwin_check_proc,   150,   158,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" ); i++;
-  initPopulate(i, jwin_check_proc,   150,   168,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Medium" ); i++;
-  initPopulate(i, jwin_check_proc,   150,   178,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Large" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 53
-  initPopulate(i, jwin_frame_proc,   206,   151,   89,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,    210,   148,   24,    8,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Super Bomb Bag " ); i++;
-  initPopulate(i, jwin_check_proc,   214,   158,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" ); i++;
-  initPopulate(i, jwin_check_proc,   214,   168,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Medium" ); i++;
-  initPopulate(i, jwin_check_proc,   214,   178,   56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Large" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 65 (Items)
-  initPopulate(i, jwin_frame_proc,    27,    53,   64,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     31,    50,   64,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Boomerang " ); i++;
-  initPopulate(i, jwin_check_proc,    35,    60,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Wooden" ); i++;
-  initPopulate(i, jwin_check_proc,    35,    70,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Magic" ); i++;
-  initPopulate(i, jwin_check_proc,    35,    80,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Fire" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 70
-  initPopulate(i, jwin_frame_proc,   163,   138,  131,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,    167,   135,  121,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Arrow " ); i++;
-  initPopulate(i, jwin_check_proc,   171,   145,  137,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Wooden" ); i++;
-  initPopulate(i, jwin_check_proc,   171,   155,  137,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Silver" ); i++;
-  initPopulate(i, jwin_check_proc,   171,   165,  137,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Golden" ); i++;
+  initPopulate(i, jwin_frame_proc,      163,   53,  86,     40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
+  initPopulate(i, jwin_text_proc,       167,   50, 121,      9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Arrow " ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 75
-  initPopulate(i, jwin_frame_proc,    27,    97,   48,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     31,    94,   48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Potion " ); i++;
-  initPopulate(i, jwin_radio_proc,    35,   104,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "None" ); i++;
-  initPopulate(i, jwin_radio_proc,    35,   114,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Blue" ); i++;
-  initPopulate(i, jwin_radio_proc,    35,   124,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Red" ); i++;
+  initPopulate(i, jwin_frame_proc,    27,    53,   48,   40,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
+  initPopulate(i, jwin_text_proc,     31,    50,   48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Potion " ); i++;
+  initPopulate(i, jwin_radio_proc,    35,    60,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "None" ); i++;
+  initPopulate(i, jwin_radio_proc,    35,    70,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Blue" ); i++;
+  initPopulate(i, jwin_radio_proc,    35,    80,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Red" ); i++;
   // 80
-  initPopulate(i, jwin_frame_proc,    93,    53,   67,   20,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     97,    50,   48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Whistle " ); i++;
-  initPopulate(i, jwin_check_proc,   101,    60,   80,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Recorder" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 83
-  initPopulate(i, jwin_frame_proc,   155,    87,   50,   20,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,    159,    84,   48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Hammer " ); i++;
-  initPopulate(i, jwin_check_proc,   163,    94,   72,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Small" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 86
-  initPopulate(i, jwin_frame_proc,    95,   77,    57,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     99,   74,    48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Hookshot " ); i++;
-  initPopulate(i, jwin_check_proc,   103,   84,    56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Short" ); i++;
-  initPopulate(i, jwin_check_proc,   103,   94,    56,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Long" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 90
-  initPopulate(i, jwin_frame_proc,   162,   53,   45,   30,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,    166,   50,   48,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Candle " ); i++;
-  initPopulate(i, jwin_check_proc,   170,   60,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Blue" ); i++;
-  initPopulate(i, jwin_check_proc,   170,   70,   48,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Red" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 94
-  initPopulate(i, jwin_frame_proc,   209,    53,   86,   80,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,    213,    50,   80,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Other " ); i++;
-  initPopulate(i, jwin_check_proc,   217,    60,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Bait  " ); i++;
-  initPopulate(i, jwin_check_proc,   217,    70,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Letter" ); i++;
-  initPopulate(i, jwin_check_proc,   217,    80,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Wand  " ); i++;
-  initPopulate(i, jwin_check_proc,   217,    90,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Lens  " ); i++;
-  initPopulate(i, jwin_check_proc,   217,   100,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Din's Fire" ); i++;
-  initPopulate(i, jwin_check_proc,   217,   110,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Farore's Wind" ); i++;
-  initPopulate(i, jwin_check_proc,   217,   120,   64,    9,   vc(0),  vc(11),    0,       0,           1,        0,     (void *) "Nayru's Love" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   // 103
-  initPopulate(i, jwin_frame_proc,    76,   111,   86,   91,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     80,   108,  113,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Bombs " ); i++;
+  initPopulate(i, jwin_frame_proc,    76,   53,   86,   91,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
+  initPopulate(i, jwin_text_proc,     80,   50,  113,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Bombs " ); i++;
   // 105
-  initPopulate(i, jwin_frame_proc,    80,   121,   78,   37,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     84,   118,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Normal " ); i++;
-  initPopulate(i, jwin_ctext_proc,    99,   128,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Start" ); i++;
-  initPopulate(i, jwin_ctext_proc,   140,   128,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Max" ); i++;
+  initPopulate(i, jwin_frame_proc,    80,   63,   78,   37,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
+  initPopulate(i, jwin_text_proc,     84,   60,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Normal " ); i++;
+  initPopulate(i, jwin_ctext_proc,    99,   70,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Start" ); i++;
+  initPopulate(i, jwin_ctext_proc,   140,   70,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Max" ); i++;
   // 109
-  initPopulate(i, jwin_edit_proc,     88,  138,   21,   16,       0,       0,    0,       0,           2,        0,     NULL ); i++;
-  initPopulate(i, d_maxbombsedit_proc, 129, 138,  21,   16,       0,       0,    0,       0,           2,        0,     NULL ); i++;
-  initPopulate(i, jwin_frame_proc,    80,   161,  78,   37,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_text_proc,     84,   159,  73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Super " ); i++;
-  initPopulate(i, jwin_ctext_proc,    99,   169,  73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Start" ); i++;
-  initPopulate(i, jwin_ctext_proc,   140,   169,  73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Max" ); i++;
+  initPopulate(i, jwin_edit_proc,     88,  80,   21,   16,       0,       0,    0,       0,           2,        0,     NULL ); i++;
+  initPopulate(i, d_maxbombsedit_proc, 129, 80,  21,   16,       0,       0,    0,       0,           2,        0,     NULL ); i++;
+  initPopulate(i, jwin_frame_proc,    80,   103,  78,   37,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
+  initPopulate(i, jwin_text_proc,     84,   101,  73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) " Super " ); i++;
+  initPopulate(i, jwin_ctext_proc,    99,   111,  73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Start" ); i++;
+  initPopulate(i, jwin_ctext_proc,   140,   111,  73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Max" ); i++;
   // 115
-  initPopulate(i, jwin_edit_proc,     88,  179,   21,   16,       0,       0,    0,       0,           2,        0,     NULL ); i++;
-  initPopulate(i, jwin_edit_proc,    129,  179,   21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL ); i++;
+  initPopulate(i, jwin_edit_proc,     88,  121,   21,   16,       0,       0,    0,       0,           2,        0,     NULL ); i++;
+  initPopulate(i, jwin_edit_proc,    129,  121,   21,   16,       0,       0,    0,       D_DISABLED,  2,        0,     NULL ); i++;
   // 117
-  initPopulate(i, jwin_ctext_proc,   235,   145,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Start" ); i++;
-  initPopulate(i, jwin_ctext_proc,   276,   145,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Max" ); i++;
-  initPopulate(i, jwin_edit_proc,    224,   155,   21,   16,       0,       0,    0,       0,           2,        0,     NULL ); i++;
-  initPopulate(i, jwin_edit_proc,    265,   155,   21,   16,       0,       0,    0,       0,           2,        0,     NULL ); i++;
+  initPopulate(i, jwin_ctext_proc,   182,    60,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Start" ); i++;
+  initPopulate(i, jwin_ctext_proc,   223,    60,   73,    9,   vc(0),  vc(11),    0,       0,           0,        0,     (void *) "Max" ); i++;
+  initPopulate(i, jwin_edit_proc,    171,    70,   21,   16,       0,       0,    0,       0,           2,        0,     NULL ); i++;
+  initPopulate(i, jwin_edit_proc,    212,    70,   21,   16,       0,       0,    0,       0,           2,        0,     NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
@@ -4214,8 +2290,8 @@ void PopulateInitDialog()
   initPopulate(i, jwin_check_proc,     194,  162,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "Double" ); i++;
   //1692
 
-  initPopulate(i, jwin_frame_proc,       163,   181,  131,   20,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
-  initPopulate(i, jwin_check_proc,       169,   186,   64,    9,   vc(0),  vc(11),    0,       0,          1,             0,     (void *) "Cane of Byrna" ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, jwin_text_proc,       80,  144,   64,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Max Rupies:" ); i++;
   initPopulate(i, jwin_edit_proc,      128,  140,   21,   16,    vc(12),  vc(1),  0,       0,          5,             0,       NULL ); i++;
   initPopulate(i, jwin_text_proc,       80,  162,   64,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Max Keys:" ); i++;
@@ -4278,3 +2354,340 @@ void PopulateInitDialog()
   //1752
   init_dlg[1752].proc = NULL;
 }
+
+const char *itype_names[] = { "Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
+"Baits", "Letters", "Potions", "Wands", "Rings", "Wallets", "Amulets", "Shields", "Bows", "Rafts",
+"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", "Boots", "Hookshots", "Lenses", "Hammers",
+"Din's Fires", "Farore's Winds", "Nayru's Loves", "Bombs", "Super Bombs", "Clocks", "Keys", "Magic Containers",
+"Triforce Pieces", "Maps", "Compasses", "Boss Keys", "Quivers", "Level Keys", "Canes of Byrna",
+"Rupees", "Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", "Heart Pieces", "Kill All Enemies",
+"Bomb Ammo", "Bomb Bags"
+};
+
+const char *familylist(int index, int *list_size);
+
+int doInit(zinitdata *zinit)
+{
+	for(int i=0; i<MAXITEMS; i++)
+	{
+		int family = itemsbuf[i].family;
+		if(family == 0xFF || itemsbuf[i].set_gamedata == 0)
+			continue;
+		map<int,vector<Family> >::iterator it = families.find(family);
+		if(it == families.end())
+			families[family] = vector<Family>();
+		families[family].push_back(Family(family, itemsbuf[i].fam_type,i));
+	}
+	//family map has been populated, now sort
+	for(map<int, vector<Family> >::iterator it = families.begin(); it != families.end(); it++)
+		sort(it->second.begin(), it->second.end());
+
+
+	init_dlg[0].dp2=lfont;
+
+	init_dlg[5].proc = jwin_initlist_proc;
+	init_dlg[5].dp = (void *)familylist;
+	init_dlg[5].d1 = -1;
+
+	zinitdata tempdata;
+	memcpy(&tempdata, zinit,sizeof(zinitdata));
+
+	int oldselection;
+	pair<int *, zinitdata *> p(&oldselection,&tempdata);
+	init_dlg[5].dp3 = &p;
+	if(families.size() == 0)
+	{
+		doFamily(-1, &tempdata);
+		oldselection = -1;
+	}
+	else
+	{
+		doFamily(families.begin()->second[0].family,&tempdata);
+		oldselection = 0;
+	}
+
+	//special case: potions :(
+
+	for(int i=0; i<3; i++)
+	{
+		init_dlg[i+77].flags = 0;
+	}
+
+	int id = getHighestLevelOfFamily(zinit,itemsbuf,itype_potion);
+	if(id == -1)
+		init_dlg[77].flags = D_SELECTED;
+	else
+	{
+		int lvl = itemsbuf[id].fam_type;
+		if(lvl > 0 && lvl < 3)
+			init_dlg[77+lvl].flags = D_SELECTED;
+		else
+			init_dlg[77].flags = D_SELECTED;
+	}
+
+	// items
+	char bombstring[5];
+	char maxbombstring[5];
+	char sbombstring[5];
+	char maxsbombstring[5];
+	char arrowstring[5];
+	char maxarrowstring[5];
+	sprintf(bombstring, "%d", zinit->bombs);
+	sprintf(maxbombstring, "%d", zinit->max_bombs);
+	sprintf(sbombstring, "%d", zinit->super_bombs);
+	sprintf(maxsbombstring, "%d", zinit->max_bombs/4);
+	sprintf(arrowstring, "%d", zinit->arrows);
+	sprintf(maxarrowstring, "%d", zinit->max_arrows);
+
+	init_dlg[109].dp=bombstring;
+	init_dlg[110].dp=maxbombstring;
+	init_dlg[115].dp=sbombstring;
+	init_dlg[116].dp=maxsbombstring;
+	init_dlg[119].dp=arrowstring;
+	init_dlg[120].dp=maxarrowstring;
+
+	// dmap items
+
+	char key_list[256][4];
+	for(int i=0; i<256; i++)
+	{
+		init_dlg[i+631].flags  = get_bit(zinit->map,i) ? D_SELECTED : 0;
+		init_dlg[i+887].flags  = get_bit(zinit->compass,i) ? D_SELECTED : 0;
+		init_dlg[i+1143].flags = get_bit(zinit->boss_key,i) ? D_SELECTED : 0;
+		sprintf(key_list[i], "%d", zinit->level_keys[i]);
+		//sprintf(key_list[i], "%d", 0);
+		init_dlg[i+1399].dp = key_list[i];
+	}
+
+	// misc
+	char tempbuf[5];
+	char hcstring[5];
+	char sheartstring[5];
+	char cheartstring[5];
+	char keystring[5];
+	char rupiestring[5];
+	char magicstring[5];
+	char maxmagicstring[5];
+	char maxrupeestring[8];
+	char maxkeystring[8];
+
+	sprintf(tempbuf, "0");
+	sprintf(hcstring, "%d", zinit->hc);
+	sprintf(sheartstring, "%d", zinit->start_heart);
+	sprintf(cheartstring, "%d", zinit->cont_heart);
+	sprintf(keystring, "%d", zinit->keys);
+	sprintf(rupiestring, "%d", zinit->rupies);
+	sprintf(magicstring, "%d", zinit->magic);
+	sprintf(maxmagicstring, "%d", zinit->max_magic);
+
+	init_dlg[1662].dp=hcstring;
+	init_dlg[1663].dp=sheartstring;
+	init_dlg[1664].dp=cheartstring;
+	init_dlg[1665].dp=keystring;
+	init_dlg[1666].dp=rupiestring;
+	init_dlg[1667].flags = get_bit(zinit->misc,idM_CONTPERCENT) ? D_SELECTED : 0;
+
+	for (int i=0; i<4; i++)
+	{
+		init_dlg[i+1670].flags=0;
+	}
+	init_dlg[zinit->hcp+1670].flags=D_SELECTED;
+
+	for(int i=0; i<8; i++)
+	{
+		init_dlg[1676+i].flags = get_bit(&zinit->triforce,i) ? D_SELECTED : 0;
+	}
+
+
+	init_dlg[1684].flags = get_bit(zinit->misc,idM_CANSLASH) ? D_SELECTED : 0;
+	init_dlg[1689].dp=magicstring;
+	init_dlg[1690].dp=maxmagicstring;
+	init_dlg[1691].flags = get_bit(zinit->misc,idM_DOUBLEMAGIC) ? D_SELECTED : 0;
+
+	sprintf(maxrupeestring, "%d", zinit->max_rupees);
+	sprintf(maxkeystring, "%d", zinit->max_keys);
+
+
+	init_dlg[1695].dp=maxrupeestring;
+	init_dlg[1697].dp=maxkeystring;
+
+	int ret = zc_popup_dialog(init_dlg,1);
+	if (ret==2)
+	{
+
+		//save old selection
+		if(oldselection != -1)
+		{
+			map<int, vector<Family> >::iterator it = families.begin();
+			for(int i=0; i<oldselection;i++)
+				it++;
+			vector<Family> &f = it->second;
+			vector<Family>::iterator it2 = f.begin();
+			for(int j=7; it2 != f.end() && j<endEquipField; it2++,j++)
+			{
+				tempdata.items[it2->itemid] = (init_dlg[j].flags == D_SELECTED);
+			}
+		}
+		memcpy(zinit, &tempdata, sizeof(zinitdata));
+		zinit->bombs=atoi(bombstring);
+		zinit->max_bombs=atoi(maxbombstring);
+		zinit->super_bombs=atoi(sbombstring);
+		zinit->arrows=atoi(arrowstring);
+		zinit->max_arrows=atoi(maxarrowstring);
+
+		// dmap items
+		for(int i=0; i<256; i++)
+		{
+			set_bit(zinit->map,i,init_dlg[i+631].flags);
+			set_bit(zinit->compass,i,init_dlg[i+887].flags);
+			set_bit(zinit->boss_key,i,init_dlg[i+1143].flags);
+			int numkeys=atoi(key_list[i]);
+			if(numkeys>255) numkeys=255;
+			if(numkeys<0) numkeys=0;
+			zinit->level_keys[i]=numkeys;
+		}
+
+
+		// misc
+		zinit->start_dmap = init_dlg[1656].d1;
+		zinit->hc = min(atoi(hcstring),get_bit(quest_rules,qr_24HC)?24:16);
+		zinit->start_heart = min(atoi(sheartstring),zinit->hc);
+		set_bit(zinit->misc,idM_CONTPERCENT,init_dlg[1667].flags);
+		if (get_bit(zinit->misc,idM_CONTPERCENT))
+		{
+			zinit->cont_heart = min(atoi(cheartstring),100);
+		}
+		else
+		{
+			zinit->cont_heart = min(atoi(cheartstring),zinit->hc);
+		}
+		zinit->keys = atoi(keystring);
+		zinit->rupies = atoi(rupiestring);
+
+		zinit->hcp=0;
+		for(int i=0; i<4; i++)
+		{
+			if(init_dlg[i+1670].flags & D_SELECTED)
+			{
+				zinit->hcp=i;
+			}
+		}
+
+		//potions
+		removeItemsOfFamily(zinit,itemsbuf,itype_potion);
+		for(int i=1; i<3; i++)
+		{
+			if(init_dlg[i+77].flags & D_SELECTED)
+			{
+				int potionID = getItemID(itemsbuf, itype_potion,i);
+				if(potionID != -1)
+					zinit->items[potionID] = true;
+			}
+		}
+
+		// triforce
+		for(int i=0; i<8; i++)
+		{
+			set_bit(&zinit->triforce,i,init_dlg[1676+i].flags);
+		}
+
+
+		set_bit(zinit->misc,idM_CANSLASH,init_dlg[1684].flags);
+		zinit->max_magic = min(atoi(maxmagicstring),8);
+		zinit->magic = min(atoi(magicstring),zinit->max_magic);
+		set_bit(zinit->misc,idM_DOUBLEMAGIC,init_dlg[1691].flags);
+		zinit->max_rupees = vbound(atoi(maxrupeestring), 0, 0xFFFF);
+		zinit->max_keys = vbound(atoi(maxkeystring), 0, 0xFFFF);
+		onInitOK();
+	}
+	for(map<int, char *>::iterator it = famnames.begin(); it != famnames.end(); it++)
+		delete[] it->second;
+	famnames.clear();
+	families.clear();
+	return D_O_K;
+}
+
+
+const char *familylist(int index, int *list_size)
+{
+  if(index<0)
+  {
+	*list_size = families.size();
+    return NULL;
+  }
+  map<int, vector<Family> >::iterator it = families.begin();
+  for(int i=0; i<index;i++)
+	  it++;
+  int family = it->second[0].family;
+  //int family = families[index][0].family;
+  if(family < itype_last)
+  {
+	const char *name = itype_names[family];
+	return name;
+  }
+  map<int, char *>::iterator it2 = famnames.find(family);
+  if(it2 == famnames.end())
+  {
+	  char *name = new char[100];
+	  sprintf(name, "(New Family %d)", family);
+	  famnames[family]=name;
+  }
+  return famnames[family];
+}
+
+void doFamily(int family, zinitdata *data)
+{
+	if(family == -1)
+	{
+		for(int i=7; i<endEquipField; i++)
+		{
+			init_dlg[i].proc = d_dummy_proc;
+		}
+		return;
+	}
+	vector<Family> &f = families[family];
+	vector<Family>::iterator it = f.begin();
+	int i;
+	for(i=7; i < endEquipField && it != f.end(); i++, it++)
+	{
+		init_dlg[i].proc = jwin_checkfont_proc;
+		init_dlg[i].dp2 = pfont;
+		init_dlg[i].dp = (void *)item_string[it->itemid];
+		init_dlg[i].flags = data->items[it->itemid] ? D_SELECTED : 0;
+	}
+	for(; i<endEquipField; i++)
+		init_dlg[i].proc = d_dummy_proc;
+}
+
+int jwin_initlist_proc(int msg,DIALOG *d,int c)
+{
+	int rval = jwin_abclist_proc(msg, d, c);
+	pair<int *, zinitdata *> *p = (pair<int *, zinitdata *> *)(d->dp3);
+	int *oldselection = p->first;
+	if(*oldselection != d->d1 && d->d1 != -1)
+	{
+		//save old selection
+		if(*oldselection != -1)
+		{
+			map<int, vector<Family> >::iterator it = families.begin();
+			for(int i=0; i<*oldselection;i++)
+				it++;
+			vector<Family> &f = it->second;
+			vector<Family>::iterator it2 = f.begin();
+			for(int j=7; it2 != f.end() && j<endEquipField; it2++,j++)
+			{
+				p->second->items[it2->itemid] = (init_dlg[j].flags == D_SELECTED);
+			}
+		}
+		*(p->first) = d->d1;
+		map<int, vector<Family> >::iterator it = families.begin();
+		for(int i=0; i<d->d1;i++)
+			it++;
+		doFamily(it->second[0].family, p->second);
+		scare_mouse();
+		broadcast_dialog_message(MSG_DRAW, 0);
+		unscare_mouse();
+	}
+	return rval;
+}
+

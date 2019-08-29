@@ -17,6 +17,7 @@
 #include "zquest.h"
 #include "items.h"
 #include "zsys.h"
+#include <string.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -25,6 +26,9 @@ extern void reset_itembuf(itemdata *item, int id);
 
 int d_cstile_proc(int msg,DIALOG *d,int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  c=c;
+
   switch(msg)
   {
     case MSG_CLICK:
@@ -78,51 +82,51 @@ static int itemdata_action_list[] =
 static TABPANEL itemdata_tabs[] =
 {
   // (text)
-  { "GFX",       D_SELECTED,   itemdata_gfx_list },
-  { "Action",    0,            itemdata_action_list },
-  { NULL }
+  { "GFX",       D_SELECTED,   itemdata_gfx_list, 0, NULL },
+  { "Action",    0,            itemdata_action_list, 0, NULL },
+  { NULL,        0,            NULL,                 0, NULL }
 };
 
 static DIALOG itemdata_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,      53,   40,  224,  193,   vc(14),  vc(1),  0,       D_EXIT,     0,             0,       NULL },
+  { jwin_win_proc,      53,   40,  224,  193,   vc(14),  vc(1),  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
   { jwin_tab_proc,      57,   65,  216,  135,   0,       0,      0,       0,          0,             0,       (void *) itemdata_tabs, NULL, (void *)itemdata_dlg },
-  { d_cstile_proc,     198,   84,   20,   20,   vc(11),  vc(1),  0,       0,          0,             6,       NULL },
-  { jwin_button_proc,   90,  206,   61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,  170,  206,   61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { jwin_button_proc,  202,  140,   53,   21,   vc(14),  vc(1),  't',     D_EXIT,     0,             0,       (void *) "&Test" },
-  { jwin_check_proc,   198,  109,   65,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Flash " },
-  { jwin_check_proc,   198,  120,   65,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "2-Hand" },
-  { jwin_text_proc,     61,   88,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Flash CSet:" },
-  { jwin_text_proc,     61,  106,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Frames:" },
-  { jwin_text_proc,     61,  124,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Speed:" },
-  { jwin_text_proc,     61,  142,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Initial Delay:" },
-  { jwin_text_proc,     61,  160,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Link Tile Modification:" },
-  { jwin_edit_proc,    160,   84,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,    160,  102,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  120,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  138,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  156,   35,   16,   vc(12),  vc(1),  0,       0,          6,             0,       NULL },
+  { d_cstile_proc,     198,   84,   20,   20,   vc(11),  vc(1),  0,       0,          0,             6,       NULL, NULL, NULL },
+  { jwin_button_proc,   90,  206,   61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,  170,  206,   61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { jwin_button_proc,  202,  140,   53,   21,   vc(14),  vc(1),  't',     D_EXIT,     0,             0,       (void *) "&Test", NULL, NULL },
+  { jwin_check_proc,   198,  109,   65,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Flash ", NULL, NULL },
+  { jwin_check_proc,   198,  120,   65,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "2-Hand", NULL, NULL },
+  { jwin_text_proc,     61,   88,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Flash CSet:", NULL, NULL },
+  { jwin_text_proc,     61,  106,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Frames:", NULL, NULL },
+  { jwin_text_proc,     61,  124,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Speed:", NULL, NULL },
+  { jwin_text_proc,     61,  142,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Initial Delay:", NULL, NULL },
+  { jwin_text_proc,     61,  160,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Link Tile Modification:", NULL, NULL },
+  { jwin_edit_proc,    160,   84,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    160,  102,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    160,  120,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    160,  138,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    160,  156,   35,   16,   vc(12),  vc(1),  0,       0,          6,             0,       NULL, NULL, NULL },
   //18
-  { jwin_check_proc,    61,  174,  130,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Keep Item When Collected" },
-  { jwin_text_proc,     61,   88,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Class Number:" },
-  { jwin_text_proc,     61,  106,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Class Level:" },
-  { jwin_text_proc,     61,  124,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Increase Amount:" },
-  { jwin_text_proc,     61,  142,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Counter Reference:" },
-  { jwin_text_proc,     61,  160,   60,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Full Max:" },
-  { jwin_text_proc,    160,  160,   60,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "+Max:" },
+  { jwin_check_proc,    61,  174,  130,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Keep Item When Collected", NULL, NULL },
+  { jwin_text_proc,     61,   88,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Class Number:", NULL, NULL },
+  { jwin_text_proc,     61,  106,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Class Level:", NULL, NULL },
+  { jwin_text_proc,     61,  124,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Increase Amount:", NULL, NULL },
+  { jwin_text_proc,     61,  142,   96,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Counter Reference:", NULL, NULL },
+  { jwin_text_proc,     61,  160,   60,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Full Max:", NULL, NULL },
+  { jwin_text_proc,    160,  160,   60,    8,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "+Max:", NULL, NULL },
   //25
-  { jwin_edit_proc,    160,   84,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  102,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  120,   35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
-  { jwin_edit_proc,    160,  138,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,    121,  156,   35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
+  { jwin_edit_proc,    160,   84,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    160,  102,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    160,  120,   35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    160,  138,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    121,  156,   35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
   //30
-  { jwin_edit_proc,    220,  156,   35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
-  { jwin_check_proc,   200,  124,   60,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "DCounter" },
-  { jwin_button_proc,  200,	 174,	61,	  21,	vc(14),  vc(1),	 0,		  D_EXIT,	  0,			 0,		  (void *) "Defaults" },
-  { NULL }
+  { jwin_edit_proc,    220,  156,   35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,   200,  124,   60,    9,   vc(14),  vc(1),  0,       0,          1,             0,       (void *) "DCounter", NULL, NULL },
+  { jwin_button_proc,  200,	 174,	61,	  21,	vc(14),  vc(1),	 0,		  D_EXIT,	  0,			 0,		  (void *) "Defaults", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 
@@ -145,7 +149,7 @@ void test_item(itemdata test)
 
   frame=0;
   jwin_draw_frame(screen,150,110,20,20,FR_DEEP);
-  while(1)
+  for(;;)
   {
     ++frame;
     clear_bitmap(buf);
@@ -317,24 +321,24 @@ int onCustomItems()
 static DIALOG wpndata_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,     55,   40,   210,  143,  vc(14),  vc(1),  0,       D_EXIT,     0,             0,       NULL },
-  { d_dummy_proc,      160,  68,   0,    8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { d_cstile_proc,     198,  64,   20,   20,   vc(11),  vc(1),  0,       0,          0,             6,       NULL },
-  { jwin_button_proc,  90,   156,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,  170,  156,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { jwin_check_proc,   198,  89,   65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Auto-flash" },
-  { jwin_check_proc,   198,  100,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "2P Flash" },
-  { jwin_check_proc,   198,  111,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "H-Flip" },
-  { jwin_check_proc,   198,  122,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "V-Flip" },
-  { jwin_text_proc,    61,   68,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Flash CSet:" },
-  { jwin_text_proc,    61,   86,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Frames:" },
-  { jwin_text_proc,    61,   104,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Speed:" },
-  { jwin_text_proc,    61,   122,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Miscellaneous Type:" },
-  { jwin_edit_proc,    160,  64,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,    160,  82,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  100,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  118,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { NULL }
+  { jwin_win_proc,     55,   40,   210,  143,  vc(14),  vc(1),  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
+  { d_dummy_proc,      160,  68,   0,    8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_cstile_proc,     198,  64,   20,   20,   vc(11),  vc(1),  0,       0,          0,             6,       NULL, NULL, NULL },
+  { jwin_button_proc,  90,   156,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,  170,  156,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { jwin_check_proc,   198,  89,   65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Auto-flash", NULL, NULL },
+  { jwin_check_proc,   198,  100,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "2P Flash", NULL, NULL },
+  { jwin_check_proc,   198,  111,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "H-Flip", NULL, NULL },
+  { jwin_check_proc,   198,  122,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "V-Flip", NULL, NULL },
+  { jwin_text_proc,    61,   68,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Flash CSet:", NULL, NULL },
+  { jwin_text_proc,    61,   86,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Frames:", NULL, NULL },
+  { jwin_text_proc,    61,   104,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Speed:", NULL, NULL },
+  { jwin_text_proc,    61,   122,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Miscellaneous Type:", NULL, NULL },
+  { jwin_edit_proc,    160,  64,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    160,  82,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    160,  100,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,    160,  118,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 
@@ -417,6 +421,9 @@ int onCustomGuys()
 
 int d_ltile_proc(int msg,DIALOG *d,int c)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  c=c;
+
   //d1=dir
   //d2=type (determines how to animate)
   //fg=cset (6)
@@ -995,13 +1002,13 @@ static int linktile_land_cast_list[] =
 static TABPANEL linktile_land_tabs[] =
 {
   // (text)
-  { "Walk",       D_SELECTED,  linktile_land_walk_list },
-  { "Slash",      0,           linktile_land_slash_list },
-  { "Stab",       0,           linktile_land_stab_list },
-  { "Pound",      0,           linktile_land_pound_list },
-  { "Hold",       0,           linktile_land_hold_list },
-  { "Cast",       0,           linktile_land_cast_list },
-  { NULL }
+  { "Walk",       D_SELECTED,  linktile_land_walk_list, 0, NULL },
+  { "Slash",      0,           linktile_land_slash_list, 0, NULL },
+  { "Stab",       0,           linktile_land_stab_list, 0, NULL },
+  { "Pound",      0,           linktile_land_pound_list, 0, NULL },
+  { "Hold",       0,           linktile_land_hold_list, 0, NULL },
+  { "Cast",       0,           linktile_land_cast_list, 0, NULL },
+  { NULL,         0,           NULL,                   0, NULL }
 };
 
 static int linktile_water_float_list[] =
@@ -1031,11 +1038,11 @@ static int linktile_water_hold_list[] =
 static TABPANEL linktile_water_tabs[] =
 {
   // (text)
-  { "Float",      D_SELECTED,  linktile_water_float_list },
-  { "Swim",       0,           linktile_water_swim_list },
-  { "Dive",       0,           linktile_water_dive_list },
-  { "Hold",       0,           linktile_water_hold_list },
-  { NULL }
+  { "Float",      D_SELECTED,  linktile_water_float_list, 0, NULL },
+  { "Swim",       0,           linktile_water_swim_list, 0, NULL },
+  { "Dive",       0,           linktile_water_dive_list, 0, NULL },
+  { "Hold",       0,           linktile_water_hold_list, 0, NULL },
+  { NULL,         0,           NULL,                     0, NULL }
 };
 
 static int linktile_land_list[] =
@@ -1053,9 +1060,9 @@ static int linktile_water_list[] =
 static TABPANEL linktile_tabs[] =
 {
   // (text)
-  { "Land",       D_SELECTED,   linktile_land_list },
-  { "Water",       0,           linktile_water_list },
-  { NULL }
+  { "Land",       D_SELECTED,   linktile_land_list, 0, NULL },
+  { "Water",      0,            linktile_water_list, 0, NULL },
+  { NULL,         0,            NULL,                0, NULL }
 };
 
 char *animationstyles[]= { "Original", "BS-Zelda", "Zelda 3" };
@@ -1085,108 +1092,108 @@ int jwin_as_droplist_proc(int msg,DIALOG *d,int c)
 static DIALOG linktile_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,     0,   0,   320,    240,  vc(14),  vc(1),  0,       D_EXIT,      0,             0,       (void *) "Link Sprites" },
-  { d_vsync_proc,         0,   0,    0,    0,   0,       0,      0,       0,          0,             0,       NULL },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp },
-  { jwin_button_proc,     90,  215,   61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     170, 215,   61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
+  { jwin_win_proc,     0,   0,   320,    240,  vc(14),  vc(1),  0,       D_EXIT,      0,             0,       (void *) "Link Sprites", NULL, NULL },
+  { d_vsync_proc,         0,   0,    0,    0,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp, NULL, NULL },
+  { jwin_button_proc,     90,  215,   61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     170, 215,   61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
   // 5
-  { jwin_check_proc,   217, 200,   0,   9,   vc(14),   vc(1),  0,                             0,         1,            0,       (void *) "Large Link Hit Box" },
+  { jwin_check_proc,   217, 200,   0,   9,   vc(14),   vc(1),  0,                             0,         1,            0,       (void *) "Large Link Hit Box", NULL, NULL },
 
-  { jwin_text_proc,      4,  201,   16+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Animation Style:" },
-  { jwin_as_droplist_proc, 77,  197,   78,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) animationstylelist },
+  { jwin_text_proc,      4,  201,   16+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Animation Style:", NULL, NULL },
+  { jwin_as_droplist_proc, 77,  197,   78,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) animationstylelist, NULL, NULL },
 
   { jwin_tab_proc,     4,  25,  312,  152,   0,       0,      0,       0,             0,       0,       (void *) linktile_tabs, NULL, (void *)linktile_dlg },
   // 9
   { jwin_tab_proc,     7,  46,  305,  127,   0,       0,      0,       0,             0,       0,       (void *) linktile_land_tabs, NULL, (void *)linktile_dlg },
   { jwin_tab_proc,     7,  46,  305,  127,   0,       0,      0,       0,             0,       0,       (void *) linktile_water_tabs, NULL, (void *)linktile_dlg },
   // 11 (walk sprite titles)
-  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up" },
-  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down" },
-  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left" },
-  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right" },
+  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up", NULL, NULL },
+  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down", NULL, NULL },
+  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left", NULL, NULL },
+  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right", NULL, NULL },
   // 15 (walk sprites)
-  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_walk,       NULL },
-  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_walk,       NULL },
-  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_walk,       NULL },
-  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_walk,       NULL },
+  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_walk,       NULL, NULL, NULL },
+  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_walk,       NULL, NULL, NULL },
+  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_walk,       NULL, NULL, NULL },
+  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_walk,       NULL, NULL, NULL },
   // 19 (slash spritetitles)
-  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up" },
-  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down" },
-  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left" },
-  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right" },
+  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up", NULL, NULL },
+  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down", NULL, NULL },
+  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left", NULL, NULL },
+  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right", NULL, NULL },
   // 23 (slash sprites)
-  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_slash,      NULL },
-  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_slash,      NULL },
-  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_slash,      NULL },
-  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_slash,      NULL },
+  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_slash,      NULL, NULL, NULL },
+  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_slash,      NULL, NULL, NULL },
+  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_slash,      NULL, NULL, NULL },
+  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_slash,      NULL, NULL, NULL },
   // 27 (stab sprite titles)
-  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up" },
-  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down" },
-  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left" },
-  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right" },
+  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up", NULL, NULL },
+  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down", NULL, NULL },
+  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left", NULL, NULL },
+  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right", NULL, NULL },
   // 31 (stab sprites)
-  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_stab,       NULL },
-  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_stab,       NULL },
-  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_stab,       NULL },
-  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_stab,       NULL },
+  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_stab,       NULL, NULL, NULL },
+  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_stab,       NULL, NULL, NULL },
+  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_stab,       NULL, NULL, NULL },
+  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_stab,       NULL, NULL, NULL },
   // 35 (pound sprite titles)
-  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up" },
-  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down" },
-  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left" },
-  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right" },
+  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up", NULL, NULL },
+  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down", NULL, NULL },
+  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left", NULL, NULL },
+  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right", NULL, NULL },
   // 39 (pound sprites)
-  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_pound,      NULL },
-  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_pound,      NULL },
-  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_pound,      NULL },
-  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_pound,      NULL },
+  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_pound,      NULL, NULL, NULL },
+  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_pound,      NULL, NULL, NULL },
+  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_pound,      NULL, NULL, NULL },
+  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_pound,      NULL, NULL, NULL },
   // 43 (hold sprite titles)
-  { jwin_rtext_proc,    67,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "One Hand" },
-  { jwin_rtext_proc,    67, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Two Hands" },
+  { jwin_rtext_proc,    67,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "One Hand", NULL, NULL },
+  { jwin_rtext_proc,    67, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Two Hands", NULL, NULL },
   // 45 (hold sprites)
-  { d_ltile_proc,       70,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_landhold1,      NULL },
-  { d_ltile_proc,       70, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_landhold2,      NULL },
+  { d_ltile_proc,       70,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_landhold1,      NULL, NULL, NULL },
+  { d_ltile_proc,       70, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_landhold2,      NULL, NULL, NULL },
   // 47 (casting sprites)
-  { d_ltile_proc,       70,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_cast,      NULL },
+  { d_ltile_proc,       70,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_cast,      NULL, NULL, NULL },
 
   // 48 (float sprite titles)
-  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up" },
-  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down" },
-  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left" },
-  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right" },
+  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up", NULL, NULL },
+  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down", NULL, NULL },
+  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left", NULL, NULL },
+  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right", NULL, NULL },
   // 52 (float sprites)
-  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_float,       NULL },
-  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_float,       NULL },
-  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_float,       NULL },
-  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_float,       NULL },
+  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_float,       NULL, NULL, NULL },
+  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_float,       NULL, NULL, NULL },
+  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_float,       NULL, NULL, NULL },
+  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_float,       NULL, NULL, NULL },
   // 56 (swim sprite titles)
-  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up" },
-  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down" },
-  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left" },
-  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right" },
+  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up", NULL, NULL },
+  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down", NULL, NULL },
+  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left", NULL, NULL },
+  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right", NULL, NULL },
   // 60 (swim sprites)
-  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_swim,        NULL },
-  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_swim,        NULL },
-  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_swim,        NULL },
-  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_swim,        NULL },
+  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_swim,        NULL, NULL, NULL },
+  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_swim,        NULL, NULL, NULL },
+  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_swim,        NULL, NULL, NULL },
+  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_swim,        NULL, NULL, NULL },
   // 64 (dive sprite titles)
-  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up" },
-  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down" },
-  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left" },
-  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right" },
+  { jwin_rtext_proc,    33,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Up", NULL, NULL },
+  { jwin_rtext_proc,   101,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Down", NULL, NULL },
+  { jwin_rtext_proc,    33, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Left", NULL, NULL },
+  { jwin_rtext_proc,   101, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Right", NULL, NULL },
   // 68 (dive sprites)
-  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_dive,       NULL },
-  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_dive,       NULL },
-  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_dive,       NULL },
-  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_dive,       NULL },
+  { d_ltile_proc,       36,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_dive,       NULL, NULL, NULL },
+  { d_ltile_proc,      104,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        down,             ls_dive,       NULL, NULL, NULL },
+  { d_ltile_proc,       36, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_dive,       NULL, NULL, NULL },
+  { d_ltile_proc,      104, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,       right,             ls_dive,       NULL, NULL, NULL },
   // 72 (hold sprite titles)
-  { jwin_rtext_proc,    67,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "One Hand" },
-  { jwin_rtext_proc,    67, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Two Hands" },
+  { jwin_rtext_proc,    67,  96,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "One Hand", NULL, NULL },
+  { jwin_rtext_proc,    67, 134,   32,    8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Two Hands", NULL, NULL },
   // 74 (hold sprites)
-  { d_ltile_proc,       70,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_waterhold1,      NULL },
-  { d_ltile_proc,       70, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_waterhold2,      NULL },
-  { jwin_check_proc,   217, 186,   0,   9,   vc(14),   vc(1),  0,                             0,         1,            0,       (void *) "Z3-style Movement" },
-  { NULL }
+  { d_ltile_proc,       70,  74,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,          up,             ls_waterhold1,      NULL, NULL, NULL },
+  { d_ltile_proc,       70, 112,   36,   36,   6,       jwin_pal[jcBOX],      0,       0,        left,             ls_waterhold2,      NULL, NULL, NULL },
+  { jwin_check_proc,   217, 186,   0,   9,   vc(14),   vc(1),  0,                             0,         1,            0,       (void *) "Z3-style Movement", NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 

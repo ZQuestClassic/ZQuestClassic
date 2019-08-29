@@ -353,7 +353,7 @@ void update_combo_cycling()
       int cs=tmpscr->cset[i];
       if (combobuf[c].type==cSPINTILE1)
       {
-        addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+        addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
       }
     }
   }
@@ -372,8 +372,8 @@ void update_combo_cycling()
       int c=tmpscr->data[i];
       int cs=tmpscr->cset[i];
       if (combobuf[c].type==cSPINTILE1)
-      {
-        addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+      { 
+        addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table2[c][1]+max(1,combobuf[c].frames));
       }
     }
   }
@@ -393,7 +393,7 @@ void update_combo_cycling()
         int cs=tmpscr->ffcset[i];
         if (combobuf[c].type==cSPINTILE1)
         {
-          addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+          addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
         }
       }
   }
@@ -413,7 +413,7 @@ void update_combo_cycling()
         int cs=tmpscr->ffcset[i];
         if (combobuf[c].type==cSPINTILE1)
         {
-          addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+          addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table2[c][1]+max(1,combobuf[c].frames));
         }
       }
   }
@@ -438,7 +438,7 @@ void update_combo_cycling()
           int cs=(tmpscr2+j)->cset[i];
           if (combobuf[c].type==cSPINTILE1)
           {
-            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
           }
         }
       }
@@ -457,7 +457,7 @@ void update_combo_cycling()
           int cs=(tmpscr2+j)->cset[i];
           if (combobuf[c].type==cSPINTILE1)
           {
-            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table2[c][1]+max(1,combobuf[c].frames));
           }
         }
       }
@@ -508,6 +508,9 @@ bool hiddenstair(int tmp,bool redraw)                       // tmp = index of tm
 
 bool remove_lockblocks(int tmp,bool redraw)                 // tmp = index of tmpscr[]
 {
+  //these are here to bypass compiler warnings about unused arguments
+  redraw=redraw;
+
   mapscr *s = tmpscr + tmp;
   mapscr *t = tmpscr2;
   bool didit=false;
@@ -538,6 +541,9 @@ bool remove_lockblocks(int tmp,bool redraw)                 // tmp = index of tm
 
 bool remove_bosslockblocks(int tmp,bool redraw)             // tmp = index of tmpscr[]
 {
+  //these are here to bypass compiler warnings about unused arguments
+  redraw=redraw;
+
   mapscr *s = tmpscr + tmp;
   mapscr *t = tmpscr2;
   bool didit=false;
@@ -568,6 +574,9 @@ bool remove_bosslockblocks(int tmp,bool redraw)             // tmp = index of tm
 
 bool remove_chests(int tmp,bool redraw)                 // tmp = index of tmpscr[]
 {
+  //these are here to bypass compiler warnings about unused arguments
+  redraw=redraw;
+
   mapscr *s = tmpscr + tmp;
   mapscr *t = tmpscr2;
   bool didit=false;
@@ -598,6 +607,9 @@ bool remove_chests(int tmp,bool redraw)                 // tmp = index of tmpscr
 
 bool remove_lockedchests(int tmp,bool redraw)                 // tmp = index of tmpscr[]
 {
+  //these are here to bypass compiler warnings about unused arguments
+  redraw=redraw;
+
   mapscr *s = tmpscr + tmp;
   mapscr *t = tmpscr2;
   bool didit=false;
@@ -628,6 +640,9 @@ bool remove_lockedchests(int tmp,bool redraw)                 // tmp = index of 
 
 bool remove_bosschests(int tmp,bool redraw)                 // tmp = index of tmpscr[]
 {
+  //these are here to bypass compiler warnings about unused arguments
+  redraw=redraw;
+
   mapscr *s = tmpscr + tmp;
   mapscr *t = tmpscr2;
   bool didit=false;
@@ -766,6 +781,9 @@ bool findtrigger(int scombo, bool ff)
 
 void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  refresh=refresh;
+
   mapscr *s = tmpscr + tmp;
   mapscr *t = tmpscr2;
   int ft=0;
@@ -883,7 +901,7 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
           int cs=s->cset[i];
           if (combobuf[c].type==cSPINTILE1)
           {
-            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
           }
         }
       }
@@ -995,7 +1013,7 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
             int cs=t[j].cset[i];
             if (combobuf[c].type==cSPINTILE1)
             {
-              addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+              addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
             }
           }
         }
@@ -1685,12 +1703,11 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
   {
     return;
   }
-  int i;
   static int mf;
   switch (type)
   {
     case -2:                                                //push blocks
-    for (i=0; i<176; i++)
+    for (int i=0; i<176; i++)
     {
       mf=layer->sflag[i];
       if (mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED ||
@@ -1710,7 +1727,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
     }
     break;
     case -1:                                                //over combo
-    for (i=0; i<176; i++)
+    for (int i=0; i<176; i++)
     {
       if (combobuf[layer->data[i]].type==cOVERHEAD)
       {
@@ -1739,7 +1756,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
           if (layer->layeropacity[type]==255)
           {
-            for (i=0; i<176; i++)
+            for (int i=0; i<176; i++)
             {
               overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
             }
@@ -1757,14 +1774,14 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
           if (layer->layeropacity[type]==255)
           {
-            for (i=0; i<176; i++)
+            for (int i=0; i<176; i++)
             {
               overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
             }
           }
           else
           {
-            for (i=0; i<176; i++)
+            for (int i=0; i<176; i++)
             {
               overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
             }
@@ -1782,7 +1799,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
           if (layer->layeropacity[type]==255)
           {
-            for (i=0; i<176; i++)
+            for (int i=0; i<176; i++)
             {
 			  if(layer->flags7&fLAYER2BG)
 			    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
@@ -1804,7 +1821,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
           if (layer->layeropacity[type]==255)
           {
-            for (i=0; i<176; i++)
+            for (int i=0; i<176; i++)
             {
 			  if(layer->flags7&fLAYER2BG)
 				putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
@@ -1813,7 +1830,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
           }
           else
           {
-            for (i=0; i<176; i++)
+            for (int i=0; i<176; i++)
             {
 			  if(layer->flags7&fLAYER2BG)
 				putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
@@ -1833,7 +1850,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
           if (layer->layeropacity[type]==255)
           {
-            for (i=0; i<176; i++)
+            for (int i=0; i<176; i++)
             {
 			  if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
 			    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
@@ -1855,7 +1872,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
           if (layer->layeropacity[type]==255)
           {
-            for (i=0; i<176; i++)
+            for (int i=0; i<176; i++)
             {
 			  if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
 				putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
@@ -1864,7 +1881,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
           }
           else
           {
-            for (i=0; i<176; i++)
+            for (int i=0; i<176; i++)
             {
 			  if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
 				putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
@@ -1937,8 +1954,23 @@ void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen
 
 void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
 {
+	//1. Draw some layers onto temp_buf
+	//2. Blit those layers onto framebuf with clipping
+	//3. Draw some sprites onto temp_buf2
+	//4. Blit temp_buf2 onto temp_buf and framebuf, without clipping
+	//5. Draw some layers onto temp_buf
+	//6. Blit temp_buf onto framebuf with clipping
+	//7. Clear temp_buf2 and draw some flying sprites onto temp_buf2
+	//8. Blit temp_buf2 onto framebuf and temp_buf, without clipping
+	//9. Draw some layers onto temp_buf
+	//10. Blit temp_buf onto framebuf with clipping
+	//11. Clear temp_buf2 and draw some text on it
+	//12. Blit temp_buf2 onto framebuf without clipping
+	//good lord.
 	clear_bitmap(framebuf);
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2); 
+	clear_bitmap(temp_buf);
+	clear_bitmap(temp_buf2);
   int cmby2=0;
   int pcounter;
 
@@ -1977,12 +2009,13 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     putscr(scrollbuf,x2,y2,layer2);
   }
   putscr(scrollbuf,x1,y1,layer1);
-  blit(scrollbuf,framebuf,0,0,0,playing_field_offset,256,168);
+  blit(scrollbuf,temp_buf,0,0,0,playing_field_offset,256,168);
+
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==-3)
     {
-      particles.spr(pcounter)->draw(framebuf);
+      particles.spr(pcounter)->draw(temp_buf);
       //particles.del(pcounter);
     }
   }
@@ -1998,31 +2031,31 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
         {
           cmby2=-16;
         }
-        decorations.draw2(framebuf,true);
-      Link.draw(framebuf);
-      decorations.draw(framebuf,true);
-      overcombo(framebuf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2));
-      putcombo (framebuf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ));
+        decorations.draw2(temp_buf,true);
+      Link.draw(temp_buf);
+      decorations.draw(temp_buf,true);
+      overcombo(temp_buf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2));
+      putcombo (temp_buf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ));
       if(int(Link.getX())&15)
       {
-        overcombo(framebuf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2));
-        putcombo (framebuf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ));
+        overcombo(temp_buf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2));
+        putcombo (temp_buf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ));
       }
     }
   }
   
   if (layer2!=NULL)
   {
-    do_layer(framebuf,0, layer2, x2, y2, 3);
-    if(!(layer2->flags7&fLAYER2BG)) do_layer(framebuf,1, layer2, x2, y2, 3);
-    do_layer(framebuf,-2, layer2, x2, y2, 3);
+    do_layer(temp_buf,0, layer2, x2, y2, 3);
+    if(!(layer2->flags7&fLAYER2BG)) do_layer(temp_buf,1, layer2, x2, y2, 3);
+    do_layer(temp_buf,-2, layer2, x2, y2, 3);
   }
-  do_layer(framebuf,0, layer1, x1, y1, 2);
+  do_layer(temp_buf,0, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==0)
     {
-      particles.spr(pcounter)->draw(framebuf);
+      particles.spr(pcounter)->draw(temp_buf);
       //particles.del(pcounter);
     }
   }
@@ -2041,13 +2074,11 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
             {
               if(layer1->ffflags[i]&ffTRANS)
               {
-                  overtiletranslucent16(framebuf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
-  //              overcombotranslucent(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i], 128);
+                  overtiletranslucent16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
               }
               else
               {
-                  overtile16(framebuf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
-  //                overcombo(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i]);
+                  overtile16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
               }
             }
           }
@@ -2057,12 +2088,12 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
   }
   if(!(layer1->flags7&fLAYER2BG))
   {
-    do_layer(framebuf,1, layer1, x1, y1, 2);
+    do_layer(temp_buf,1, layer1, x1, y1, 2);
     for (pcounter=0;pcounter<particles.Count();pcounter++)
     {
       if (((particle*)particles.spr(pcounter))->layer==1)
       {
-        particles.spr(pcounter)->draw(framebuf);
+        particles.spr(pcounter)->draw(temp_buf);
         //particles.del(pcounter);
       }
     }
@@ -2079,51 +2110,44 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
         {
           cmby2=-16;
         }
-        decorations.draw2(framebuf,true);
-      Link.draw(framebuf);
-      decorations.draw(framebuf,true);
-      overcombo(framebuf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2));
-      putcombo (framebuf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ));
+        decorations.draw2(temp_buf,true);
+      Link.draw(temp_buf);
+      decorations.draw(temp_buf,true);
+      overcombo(temp_buf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2));
+      putcombo (temp_buf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ));
       if(int(Link.getX())&15)
       {
-        overcombo(framebuf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2));
-        putcombo (framebuf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ));
+        overcombo(temp_buf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2));
+        putcombo (temp_buf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ));
       }
     }
   }
-  do_layer(framebuf,-2, layer1, x1, y1, 2);
+  do_layer(temp_buf,-2, layer1, x1, y1, 2);
 
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==-2)
     {
-      particles.spr(pcounter)->draw(framebuf);
+      particles.spr(pcounter)->draw(temp_buf);
       //particles.del(pcounter);
     }
   }
   if(lensclk || (get_debug() && key[KEY_L]))
   {
-    draw_lens_under();
+    draw_lens_under(temp_buf);
   }
 
-  if(!(msgdisplaybuf->clip))
-  {
-    masked_blit(msgdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
-  }
-  if(!(pricesdisplaybuf->clip))
-  {
-    masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
-  }
-
+  blit(temp_buf, framebuf, 0, 0, 0, 0, 255, 223);
+  
   if ((Link.getAction()!=climbcovertop)&&(Link.getAction()!=climbcoverbottom))
   {
-    Link.draw_under(framebuf);
-    mblock2.draw(framebuf);
+    Link.draw_under(temp_buf2);
+    mblock2.draw(temp_buf2);
     if (Link.isSwimming())
     {
-      decorations.draw2(framebuf,true);
-      Link.draw(framebuf);
-      decorations.draw(framebuf,true);
+      decorations.draw2(temp_buf2,true);
+      Link.draw(temp_buf2);
+      decorations.draw(temp_buf2,true);
     }
   }
   if(drawguys)
@@ -2132,39 +2156,35 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     {
       if (get_bit(quest_rules,qr_SHADOWS)&&((!get_bit(quest_rules,qr_SHADOWSFLICKER))||(get_bit(quest_rules,qr_SHADOWSFLICKER)&&(frame&1))))
       {
-        guys.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS) != 0,true);
+        guys.drawshadow(temp_buf2,get_bit(quest_rules,qr_TRANSSHADOWS) != 0,true);
       }
-      guys.draw(framebuf,true);
-      chainlinks.draw(framebuf,true);
-      Lwpns.draw(framebuf,true);
-      Ewpns.draw(framebuf,true);
-      items.draw(framebuf,true);
+      guys.draw(temp_buf2,true);
+      chainlinks.draw(temp_buf2,true);
+      Lwpns.draw(temp_buf2,true);
+      Ewpns.draw(temp_buf2,true);
+      items.draw(temp_buf2,true);
     }
     else
     {
       if (get_bit(quest_rules,qr_SHADOWS)&&((!get_bit(quest_rules,qr_SHADOWSFLICKER))||(get_bit(quest_rules,qr_SHADOWSFLICKER)&&(frame&1))))
       {
-        guys.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
+        guys.drawshadow(temp_buf2,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
       }
-      items.draw(framebuf,false);
-      chainlinks.draw(framebuf,false);
-      Lwpns.draw(framebuf,false);
-      guys.draw(framebuf,false);
-      Ewpns.draw(framebuf,false);
+      items.draw(temp_buf2,false);
+      chainlinks.draw(temp_buf2,false);
+      Lwpns.draw(temp_buf2,false);
+      guys.draw(temp_buf2,false);
+      Ewpns.draw(temp_buf2,false);
     }
-    guys.draw2(framebuf,true);
+    guys.draw2(temp_buf2,true);
   }
   if ((Link.getAction()!=climbcovertop)&& (Link.getAction()!=climbcoverbottom))
   {
     if (!Link.isSwimming())
     {
-      /*if (draw_screen_clip_rect_show_link==true)
-      {
-        set_clip_rect(framebuf, 0, 0, 255, 223);
-      }*/
-      decorations.draw2(framebuf,true);
-      Link.draw(framebuf);
-      decorations.draw(framebuf,true);
+      decorations.draw2(temp_buf2,true);
+      Link.draw(temp_buf2);
+      decorations.draw(temp_buf2,true);
     }
   }
 
@@ -2175,124 +2195,89 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     {
       if(((eLikeLike*)guys.spr(i))->haslink)
       {
-        guys.spr(i)->draw(framebuf);
+        guys.spr(i)->draw(temp_buf2);
       }
     }
     if(guys.spr(i)->id == eWALLM)
     {
       if(((eWallM*)guys.spr(i))->haslink)
       {
-        guys.spr(i)->draw(framebuf);
+        guys.spr(i)->draw(temp_buf2);
       }
     }
   }
+  set_clip_rect(framebuf,0,0,255,223); 
+  masked_blit(temp_buf2, framebuf, 0, 0, 0, 0, 255, 223);
+  masked_blit(temp_buf2, temp_buf, 0, 0, 0, 0, 255, 223);
+  clear_bitmap(temp_buf2);
 
   if (layer2!=NULL)
   {
-    if(!(layer2->flags7&fLAYER3BG)) do_layer(framebuf,2, layer2, x2, y2, 3);
-    do_layer(framebuf,3, layer2, x2, y2, 3);
-    do_layer(framebuf,-1, layer2, x2, y2, 3);
+    if(!(layer2->flags7&fLAYER3BG)) do_layer(temp_buf,2, layer2, x2, y2, 3);
+    do_layer(temp_buf,3, layer2, x2, y2, 3);
+    do_layer(temp_buf,-1, layer2, x2, y2, 3);
   }
 
-
-  //at this point save screen for messages comparison later
-  //but only if the next layer group will draw to the screen
-  //and we actually have messages
-  if ((tmpscr->layermap[2]!=0 || tmpscr->layermap[3]!=0 || overheadcombos(tmpscr))
-      && (!(msgdisplaybuf->clip) || !(pricesdisplaybuf->clip)))
-  {
-    blit(framebuf,scrollbuf,0,playing_field_offset,0,0,256,168);
-  }
 
   if(!(layer1->flags7&fLAYER3BG))
   {
-    do_layer(framebuf,2, layer1, x1, y1, 2);
+    do_layer(temp_buf,2, layer1, x1, y1, 2);
     for (pcounter=0;pcounter<particles.Count();pcounter++)
     {
       if (((particle*)particles.spr(pcounter))->layer==2)
       {
-        particles.spr(pcounter)->draw(framebuf);
+        particles.spr(pcounter)->draw(temp_buf);
         //particles.del(pcounter);
       }
     }
   }
-  do_layer(framebuf,3, layer1, x1, y1, 2);
+  do_layer(temp_buf,3, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==3)
     {
-      particles.spr(pcounter)->draw(framebuf);
+      particles.spr(pcounter)->draw(temp_buf);
       //particles.del(pcounter);
     }
   }
-  do_layer(framebuf,-1, layer1, x1, y1, 2);
+  do_layer(temp_buf,-1, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==-1)
     {
-      particles.spr(pcounter)->draw(framebuf);
+      particles.spr(pcounter)->draw(temp_buf);
       //particles.del(pcounter);
     }
   }
 
-  //before drawing fliers, compare messages to saved screen.
-  //pixels in the framebuf which don't match the saved screen
-  //are redrawn from the message bitmaps.
-  //the screen was saved *after* sprites were drawn, so sprites will
-  //only be covered by layers, not by messages.
-  //(though messages appear on top of all layers now, so they
-  // *can* cover sprites that are under layers. got that ;-P )
-  if ((tmpscr->layermap[2]!=0 || tmpscr->layermap[3]!=0 || overheadcombos(tmpscr))
-      && (!(msgdisplaybuf->clip) || !(pricesdisplaybuf->clip)))
-  {
-    for(int y=0; y<168; y++)
-    {
-      for(int x=0; x<256; x++)
-      {
-        int c0 = scrollbuf->line[y][x];
-        int c1 = framebuf->line[y+playing_field_offset][x];
-        int c2 = msgdisplaybuf->line[y][x];
-        int c3 = pricesdisplaybuf->line[y][x];
-
-        if (c3 && (c0 != c1))
-        {
-          framebuf->line[y+playing_field_offset][x] = c3;
-        }
-        else if (c2 && (c0 != c1))
-          {
-            framebuf->line[y+playing_field_offset][x] = c2;
-          }
-      }
-    }
-  }
-
+  set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2); 
+  blit(temp_buf, framebuf, 0, 0, 0, 0, 255, 223);
+  
   for(int i=0; i<guys.Count(); i++)
   {
     if(isflier(guys.spr(i)->id))
     {
-      guys.spr(i)->draw(framebuf);
+      guys.spr(i)->draw(temp_buf2);
     }
   }
+	
+  set_clip_rect(framebuf,0,0,255,223); 
+  masked_blit(temp_buf2, framebuf, 0, 0, 0, 0, 255, 223);
+  masked_blit(temp_buf2, temp_buf, 0, 0, 0, 0, 255, 223);
+  clear_bitmap(temp_buf2);
+
   if (layer2!=NULL)
   {
-    do_layer(framebuf,4, layer2, x2, y2, 3);
-    do_layer(framebuf,5, layer2, x2, y2, 3);
+    do_layer(temp_buf,4, layer2, x2, y2, 3);
+    do_layer(temp_buf,5, layer2, x2, y2, 3);
   }
 
-  //at this point save screen for messages comparison later
-  //but only if the next layer group will draw to the screen
-  if ((tmpscr->layermap[4]!=0 || tmpscr->layermap[5]!=0)
-      && (!(msgdisplaybuf->clip) || !(pricesdisplaybuf->clip)))
-  {
-    blit(framebuf,scrollbuf,0,playing_field_offset,0,0,256,168);
-  }
-
-  do_layer(framebuf,4, layer1, x1, y1, 2);
+  do_layer(temp_buf,4, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==4)
     {
-      particles.spr(pcounter)->draw(framebuf);
+      particles.spr(pcounter)->draw(temp_buf);
       //particles.del(pcounter);
     }
   }
@@ -2311,13 +2296,11 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
             {
               if(layer1->ffflags[i]&ffTRANS)
               {
-                  overtiletranslucent16(framebuf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
-  //              overcombotranslucent(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i], 128);
+                  overtiletranslucent16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
               }
               else
               {
-                  overtile16(framebuf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
-  //                overcombo(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i]);
+                  overtile16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
               }
             }
           }
@@ -2325,94 +2308,30 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
       }
     }
   }
-  do_layer(framebuf,5, layer1, x1, y1, 2);
+  do_layer(temp_buf,5, layer1, x1, y1, 2);
   for (pcounter=0;pcounter<particles.Count();pcounter++)
   {
     if (((particle*)particles.spr(pcounter))->layer==5)
     {
-      particles.spr(pcounter)->draw(framebuf);
+      particles.spr(pcounter)->draw(temp_buf);
       //particles.del(pcounter);
     }
   }
-  //particles.clear();
 
-  //before clipping, compare messages to saved screen.
-  //pixels in the framebuf which don't match the saved screen
-  //are redrawn from the message bitmaps
-  if ((tmpscr->layermap[4]!=0 || tmpscr->layermap[5]!=0)
-      && (!(msgdisplaybuf->clip) || !(pricesdisplaybuf->clip)))
+  set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2); 
+  blit(temp_buf, framebuf, 0, 0, 0, 0, 255, 223);
+  
+  if(!(msgdisplaybuf->clip))
   {
-    for(int y=0; y<168; y++)
-    {
-      for(int x=0; x<256; x++)
-      {
-        int c0 = scrollbuf->line[y][x];
-        int c1 = framebuf->line[y+playing_field_offset][x];
-        int c2 = msgdisplaybuf->line[y][x];
-        int c3 = pricesdisplaybuf->line[y][x];
-
-        if (c3 && (c0 != c1))
-        {
-          framebuf->line[y+playing_field_offset][x] = c3;
-        }
-        else if (c2 && (c0 != c1))
-          {
-            framebuf->line[y+playing_field_offset][x] = c2;
-          }
-      }
-    }
+    masked_blit(msgdisplaybuf,temp_buf2,0,0,0,playing_field_offset,256,168);
   }
-
-  set_clip_rect(framebuf,0,0,255,223);
-  /*if (draw_screen_clip_rect_x1>0||draw_screen_clip_rect_y1>0||draw_screen_clip_rect_x2<255||draw_screen_clip_rect_y2<223)
+  if(!(pricesdisplaybuf->clip))
   {
-    rectfill(scrollbuf, 0,0, 255,223, 0);
-    if(drawguys && draw_screen_clip_rect_show_guys)
-    {
-      guys.draw(scrollbuf,true);
-      guys.draw2(scrollbuf,true);
-    }
-    if (draw_screen_clip_rect_show_link==true)
-    {
-      decorations.draw2(scrollbuf,true);
-      Link.draw(scrollbuf);
-      decorations.draw(scrollbuf,true);
-    }
-    if(drawguys && draw_screen_clip_rect_show_guys)
-    {
-      // draw likelike over Link
-      if(draw_screen_clip_rect_show_link)
-        for(int i=0; i<guys.Count(); i++)
-        {
-          if(guys.spr(i)->id == eLIKE)
-          {
-            if(((eLikeLike*)guys.spr(i))->haslink)
-            {
-              guys.spr(i)->draw(framebuf);
-            }
-          }
-          else if(guys.spr(i)->id == eWALLM)
-            {
-              if(((eWallM*)guys.spr(i))->haslink)
-              {
-                guys.spr(i)->draw(framebuf);
-              }
-            }
-        }
-
-      for(int i=0; i<guys.Count(); i++)
-      {
-        if(isflier(guys.spr(i)->id))
-        {
-          guys.spr(i)->draw(scrollbuf);
-        }
-      }
-    }
-    if(draw_screen_clip_rect_x1)     blit( scrollbuf, framebuf, 0,                          0,                          0,                          0,                          draw_screen_clip_rect_x1,                            224                          );
-    if(draw_screen_clip_rect_x2<255) blit( scrollbuf, framebuf, draw_screen_clip_rect_x2+1, 0,                          draw_screen_clip_rect_x2+1, 0,                          255-draw_screen_clip_rect_x2,                        224                          );
-    if(draw_screen_clip_rect_y1)     blit( scrollbuf, framebuf, draw_screen_clip_rect_x1,   0,                          draw_screen_clip_rect_x1,   0,                          draw_screen_clip_rect_x2-draw_screen_clip_rect_x1+1, draw_screen_clip_rect_y1     );
-    if(draw_screen_clip_rect_y2<223) blit( scrollbuf, framebuf, draw_screen_clip_rect_x1,   draw_screen_clip_rect_y2+1, draw_screen_clip_rect_x1,   draw_screen_clip_rect_y2+1, draw_screen_clip_rect_x2-draw_screen_clip_rect_x1+1, 223-draw_screen_clip_rect_y1 );
-  }*/
+    masked_blit(pricesdisplaybuf,temp_buf2,0,0,0,playing_field_offset,256,168);
+  }
+  
+  masked_blit(temp_buf2, framebuf, 0, 0, 0,0,255, 233);
+  set_clip_rect(framebuf,0,0,255,223);
   put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, false);
 }
 
@@ -2838,15 +2757,6 @@ void loadscr(int tmp,int scr,int ldir)
 
   tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
 
-  for(int i=0; i<32; i++)
-  {
-    if(!(ffscr.ffflags[i]&ffCARRYOVER)||ffscr.flags5&fNOFFCARRYOVER)
-    for(int j=0; j<256; j++)
-	{
-	  ffstack[i][j] = 0;
-	}
-  }
-
   if(tmp==0)
   {
     for(int i=0;i<32;i++)
@@ -2878,7 +2788,16 @@ void loadscr(int tmp,int scr,int ldir)
 		tmpscr[tmp].pc[i] = ffscr.pc[i];
         tmpscr[tmp].scriptflag[i] = ffscr.scriptflag[i];
 		tmpscr[tmp].ffcref[i] = ffscr.ffcref[i];
+		tmpscr[tmp].sp[i] = ffscr.sp[i];
+		
       }
+	  else
+	  {
+		   for(int j=0; j<256; j++)
+			{
+				ffstack[i][j] = 0;
+			}
+	  }
     }
   }
   
@@ -2994,7 +2913,7 @@ void loadscr(int tmp,int scr,int ldir)
     int cs=tmpscr[tmp].cset[i];
     if (combobuf[c].type==cSPINTILE1)
     {
-      addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+      addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
     }
   }
   for (int j=0; j<6; ++j)
@@ -3008,7 +2927,7 @@ void loadscr(int tmp,int scr,int ldir)
         int cs=layerscreen->cset[i];
         if (combobuf[c].type==cSPINTILE1)
         {
-          addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+          addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
         }
       }
     }
@@ -3017,6 +2936,9 @@ void loadscr(int tmp,int scr,int ldir)
 
 void loadscr2(int tmp,int scr,int ldir)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  ldir=ldir;
+
   //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
   for (word x=0; x<animated_combos; x++)
   {
@@ -3132,34 +3054,34 @@ void loadscr2(int tmp,int scr,int ldir)
   }
 }
 
-void putscr(BITMAP* dest,int x,int y,mapscr* screen)
+void putscr(BITMAP* dest,int x,int y, mapscr* scrn)
 {
-  if(screen->valid==0||!show_layer_0)
+  if(scrn->valid==0||!show_layer_0)
   {
     rectfill(dest,x,y,x+255,y+175,0);
     return;
   }
   for(int i=0; i<176; i++)
   {
-    if(screen->flags7&fLAYER2BG||screen->flags7&fLAYER3BG)
-	  overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,screen->data[i],screen->cset[i]);
-    else putcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,screen->data[i],screen->cset[i]);
+    if(scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG)
+	  overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
+    else putcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
   }
 
-  if(screen->door[0]==dBOMBED)
+  if(scrn->door[0]==dBOMBED)
   {
     over_door(0,39,up);
   }
-  if(screen->door[1]==dBOMBED)
+  if(scrn->door[1]==dBOMBED)
   {
     over_door(0,135,down);
   }
-  if(screen->door[2]==dBOMBED)
+  if(scrn->door[2]==dBOMBED)
   {
     over_door(0,66,left);
   }
 
-  if(screen->door[3]==dBOMBED)
+  if(scrn->door[3]==dBOMBED)
   {
     over_door(0,77,right);
   }
@@ -3434,6 +3356,7 @@ void ViewMap()
 
   do
   {
+	load_control_state();
     int step = int(16.0/scales[sc]);
     step = (step>>1) + (step&1);
     bool r = cRbtn();

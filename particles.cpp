@@ -24,6 +24,9 @@ particle::~particle()
 
 bool particle::animate(int index)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  index=index;
+
   if (timer>0)
   {
     --timer;

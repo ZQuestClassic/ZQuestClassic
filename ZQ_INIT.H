@@ -13,4 +13,5 @@
 
 int onInit();
 void center_zq_init_dialog();
+const char *familylist(int index, int *list_size);
 #endif

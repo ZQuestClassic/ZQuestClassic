@@ -410,7 +410,7 @@ static int rand_007(int method)
   return (CX << 16) + BX;
 }
 
-void encode_007(byte *buf, dword size, dword key, word *check1, word *check2, int method)
+void encode_007(byte *buf, dword size, dword key2, word *check1, word *check2, int method)
 {
   dword i;
   byte *p;
@@ -427,7 +427,7 @@ void encode_007(byte *buf, dword size, dword key, word *check1, word *check2, in
   }
 
   p = buf;
-  seed = key;
+  seed = key2;
   for(i=0; i<size; i+=2)
   {
     byte q = rand_007(method);
@@ -441,14 +441,14 @@ void encode_007(byte *buf, dword size, dword key, word *check1, word *check2, in
   }
 }
 
-bool decode_007(byte *buf, dword size, dword key, word check1, word check2, int method)
+bool decode_007(byte *buf, dword size, dword key2, word check1, word check2, int method)
 {
   dword i;
   word c1 = 0, c2 = 0;
   byte *p;
 
   p = buf;
-  seed = key;
+  seed = key2;
   for(i=0; i<size; i+=2)
   {
     unsigned char q = rand_007(method);
@@ -478,13 +478,13 @@ bool decode_007(byte *buf, dword size, dword key, word check1, word check2, int 
 //   1 - srcfile not opened
 //   2 - destfile not opened
 //
-int encode_file_007(char *srcfile, char *destfile, int key, char *header, int method)
+int encode_file_007(char *srcfile, char *destfile, int key2, char *header, int method)
 {
   FILE *src, *dest;
   int tog = 0, c, r=0;
   short c1 = 0, c2 = 0;
 
-  seed = key;
+  seed = key2;
   src = fopen(srcfile, "rb");
   if(!src)
     return 1;
@@ -504,11 +504,11 @@ int encode_file_007(char *srcfile, char *destfile, int key, char *header, int me
   }
 
   // write the key, XORed with MASK
-  key ^= enc_mask[method];
-  fputc(key>>24, dest);
-  fputc((key>>16)&255, dest);
-  fputc((key>>8)&255, dest);
-  fputc(key&255, dest);
+  key2 ^= enc_mask[method];
+  fputc(key2>>24, dest);
+  fputc((key2>>16)&255, dest);
+  fputc((key2>>8)&255, dest);
+  fputc(key2&255, dest);
 
   // encode the data
   while((c=fgetc(src)) != EOF)

@@ -1,7 +1,7 @@
 #ifndef TYPECHECKER_H
 #define TYPECHECKER_H
 
-#include "ScriptParser.h"
+#include "UtilVisitors.h"
 
 class TypeCheck : public RecursiveVisitor
 {

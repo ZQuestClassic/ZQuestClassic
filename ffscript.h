@@ -153,7 +153,7 @@ enum
 #define LINKACTION        0x0237
 
 //0x0238-0x0258 are reserved for future Link variables
-#define UNUSED8B          0x0238
+#define LINKITEMD         0x0238
 #define UNUSED9           0x0239
 #define UNUSED10          0x023A
 #define UNUSED11          0x023B

@@ -10,7 +10,7 @@ WS	[ \t\n\r]
 
 %{
 #include <stdlib.h>
-#include "ScriptParser.h"
+#include "AST.h"
 #include "../zsyssimple.h"
 #include "y.tab.hpp"
 YYLTYPE noloc = {0,0,0,0};
@@ -39,17 +39,30 @@ global				{doLines(); return GLOBAL;}
 break				{doLines(); return BREAK;}
 continue			{doLines(); return CONTINUE;}
 const				{doLines(); return CONST;}
+do					{doLines(); return DO;}
 
 \-\>		{ doLines(); return ARROW;}
+\<\<=		{ doLines(); return LSHIFTASSIGN; }
+\>\>=		{ doLines(); return RSHIFTASSIGN; }
 \<\<		{ doLines(); return LSHIFT; }
 \>\>		{ doLines(); return RSHIFT; }
 \<=			{ doLines();return LE; }
 \<			{ doLines();return LT; }
 \>=			{ doLines();return GE; }
 \>			{ doLines();return GT; }
-\==			{ doLines();return EQ; }
+==			{ doLines();return EQ; }
 \!=			{ doLines();return NE; }
 \=			{ doLines();return ASSIGN; }
+\+=			{ doLines();return PLUSASSIGN; }
+\-=			{ doLines();return MINUSASSIGN; }
+\*=			{ doLines();return TIMESASSIGN; }
+\/=			{ doLines();return DIVIDEASSIGN; }
+\&\&=		{ doLines();return ANDASSIGN; }
+\|\|=		{ doLines();return ORASSIGN; }
+\&=			{ doLines();return BITANDASSIGN; }
+\|=			{ doLines();return BITORASSIGN; }
+\^=			{ doLines();return BITXORASSIGN; }
+\%=			{ doLines();return MODULOASSIGN; }
 \;			{ doLines();return SEMICOLON; }
 \,			{ doLines();return COMMA; }
 \[			{ doLines();return LBRACKET; }

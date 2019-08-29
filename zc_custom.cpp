@@ -156,6 +156,9 @@ void setlinktile(int tile, int flip, int extend, int state, int dir)
 
 void linktile(int *tile, int *flip, int state, int dir, int style)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  style=style;
+
   switch (state)
   {
     case ls_float:

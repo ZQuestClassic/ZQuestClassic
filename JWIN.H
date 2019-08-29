@@ -102,6 +102,7 @@ extern "C"
   int jwin_droplist_proc(int msg, DIALOG *d, int c);
   int jwin_abclist_proc(int msg, DIALOG *d, int c);
   int jwin_check_proc(int msg, DIALOG *d, int c);
+  int jwin_checkfont_proc(int msg, DIALOG *d, int c);
   int jwin_radio_proc(int msg, DIALOG *d, int c);
   int jwin_tab_proc(int msg, DIALOG *d, int c);
   int jwin_hline_proc(int msg, DIALOG *d, int c);
