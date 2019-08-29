@@ -128,7 +128,7 @@ npc script Guardian
 			//Draw laser beam
 			if ( beam->isValid() )
 			{
-				Screen->Line(std::weapons::laser:::LAYER, laserStartX, laserStartY, CenterX(beam), CenterY(beam), laserColour, 1, 0, 0, 0, std::weapons::laser::OPACITY);
+				Screen->Line(std::weapons::laser::LAYER, laserStartX, laserStartY, CenterX(beam), CenterY(beam), laserColour, 1, 0, 0, 0, std::weapons::laser::OPACITY);
 			}
  
 			Waitframe();
