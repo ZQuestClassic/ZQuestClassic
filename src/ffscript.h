@@ -2513,7 +2513,7 @@ enum ASM_DEFINE
 #define LWPNRANGE             0x0272
 #define LWPNPARENT             0x0273
 #define LWPNLEVEL             0x0274
-#define UNUSED50             0x0275
+#define GETRENDERTARGET             0x0275
 #define UNUSED51             0x0276
 #define UNUSED52             0x0277
 #define UNUSED53             0x0278
@@ -3637,12 +3637,11 @@ enum ASM_DEFINE
 #define NPCNOSLIDE		0x1371
 #define NPCKNOCKBACKSPEED		0x1372
 #define NPCNOSCRIPTKB		0x1373
-#define GETRENDERTARGET		0x1374
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1375
+#define NUMVARIABLES         	0x1374
 
 // Script types
 
