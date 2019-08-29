@@ -6474,11 +6474,11 @@ char *nextmaplist(int index, int *list_size)
 {
   if(index>=0)
   {
-    bound(index,0,map_count-1);
-    sprintf(number_str_buf,"%3d",index+1);
+    bound(index,0,map_count);
+    sprintf(number_str_buf,"%3d",index);
     return number_str_buf;
   }
-  *list_size = map_count;
+  *list_size = map_count+1;
   return NULL;
 }
 
@@ -12698,7 +12698,7 @@ static DIALOG ffcombo_dlg[] =
 	{ jwin_text_proc,       6+10,  101+20,   70,    36,   0,        0,       0,       0,          0,             0,       (void *) "Y Speed:" },
 	{ jwin_text_proc,       6+10,  119+20,   70,    36,   0,        0,       0,       0,          0,             0,       (void *) "X Accel:" },
 	{ jwin_text_proc,       6+10,  137+20,   70,    36,   0,        0,       0,       0,          0,             0,       (void *) "Y Accel:" },
-	{ jwin_text_proc,       6+10,  155+20,   70,    36,   0,        0,       0,       0,          0,             0,       (void *) "A. Delay:" },
+	{ jwin_text_proc,       6+10,  155+20,   70,    12,   0,        0,       0,       0,          0,             0,       (void *) "A. Delay:" },
 	// 15
 	{ jwin_droplist_proc,  50+10,   25+20,   60,    16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],   0,       0,          1,             0,       (void *) fflinklist },
   { jwin_edit_proc,      50+10,   43+20,   56,    16,   vc(12),   vc(1),   0,       0,          9,             0,       NULL },
@@ -12745,7 +12745,7 @@ static DIALOG ffcombo_dlg[] =
 	{ jwin_check_proc,      6+10,  105+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Chng Next" },
 	{ jwin_check_proc,      6+10,  115+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Chng Prev" },
 	{ jwin_check_proc,      70+10,  85+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Chng to This" },
-	{ jwin_text_proc,       112+10,  151+20,   70,    36,   0,        0,       0,       0,          0,             0,       (void *) "Script:" },
+	{ jwin_text_proc,       112+10,  151+20,   70,    12,   0,        0,       0,       0,          0,             0,       (void *) "Script:" },
 	{ jwin_droplist_proc,  156+10,   151+20,   60,    16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],   0,       0,          1,             0,       (void *) ffscriptlist },
 	{ NULL }
 };
@@ -12866,7 +12866,9 @@ long ffparse(char *string)
   ptr2+=4;
   *ptr2=0;
   
-  ret+=atoi(ptr);
+  if(ret<0)
+	  ret-=atoi(ptr);
+  else ret+=atoi(ptr);
 
   return ret;
 }
@@ -13430,7 +13432,7 @@ int parse_script(int script)
       {
         char buf[80],name[13];
         extract_name(temppath,name,FILENAME8_3);
-        sprintf(buf,"Unable to parse instruction %d\n from script %s",i,name);
+        sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
         stop=true;
         ffscripts[script][0].command = 0xFFFF;

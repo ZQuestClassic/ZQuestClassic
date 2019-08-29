@@ -380,6 +380,10 @@ void enemy::leave_item()
       {
         current_chance=0;
       }
+	  if ((get_bit(quest_rules,qr_NOCLOCKS))&&(current_item==iClock))
+	  {
+		current_chance=0;
+      }
     }
     total_chance+=current_chance;
   }
@@ -3894,6 +3898,10 @@ bool eProjectile::animate(int index)
   {
     dir=left;
   }
+  if(d->weapon==ewFireball)
+  {
+    dir=0;
+  }
   if(++clk>80)
   {
     unsigned r=rand();
@@ -4420,7 +4428,7 @@ eVire::eVire(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eVire::animate(int index)
 {
-  if(dying)
+  if(dying);
 //  if(hp>0 && hp<guysbuf[eVIRE].hp && !fslide())
   if(hp>0 && hp<guysbuf[id].hp && !fslide())
   {

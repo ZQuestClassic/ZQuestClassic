@@ -2202,6 +2202,10 @@ void draw_textbox(BITMAP *dest, int x, int y, int w, int h, FONT *tempfont, char
       /* print the line end */
       y1 += text_height(tempfont);
     }
+	else
+	{
+	  scanned += uwidth(scanned);
+	}
     printed = scanned;
 
     /* check if we are at the end of the string */

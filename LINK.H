@@ -63,6 +63,7 @@ class LinkClass : public sprite
   int warpx,warpy,holdclk,holditem,attack,swordclk,didstuff,blowcnt;
   byte skipstep,lstep,hopclk,diveclk,whirlwind;
   byte hitdir,ladderdir,lastdir[3],ladderstart;
+  int stepoutindex, stepoutwr;
   int shiftdir;
   int sdir;
   int holddir;

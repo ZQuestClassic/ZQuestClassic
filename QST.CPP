@@ -2704,6 +2704,18 @@ int readdmaps(PACKFILE *f, zquestheader *header, word version, word build, word 
       memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
     }
   }
+  /*if (zinit.subscreen!=ssdtMAX) //not using custom subscreens
+  {
+    if(keepdata)
+    {
+      for (int i=0; i<MAXDMAPS; ++i)
+      {
+        int type=DMaps[i].type&dmfTYPE;
+        DMaps[i].active_subscreen=(type == dmOVERW || type == dmBSOVERW)?0:1;
+        DMaps[i].passive_subscreen=(get_bit(quest_rules,qr_ENABLEMAGIC))?0:1;
+      }
+    }
+  }*/
   return 0;
 }
 
@@ -3877,12 +3889,20 @@ int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata)
 int read_one_subscreen(PACKFILE *f, zquestheader *header, bool keepdata, int i, word s_version, word s_cversion)
 {
     int numsub=0;
+	byte temp_ss=0;
     subscreen_object *temp_sub = new subscreen_object;
     char tempname[64];
     if(!pfread(tempname,64,f,keepdata))
     {
       return qe_invalid;
     }
+	if(s_version > 1)
+	{
+	  if(!p_getc(&temp_ss,f,keepdata))
+	  {
+	    return qe_invalid;
+	  }
+	}
 	char tmp;
     if(!p_getc(&tmp,f,keepdata))
     {
@@ -4076,6 +4096,7 @@ int read_one_subscreen(PACKFILE *f, zquestheader *header, bool keepdata, int i, 
             break;
         }
         sprintf(custom_subscreen[i].name, tempname);
+		custom_subscreen[i].ss_type = temp_ss;
       }
       if(deletets) delete[] (char *)temp_sub->dp1;
     }
@@ -7503,6 +7524,12 @@ int loadquest(char *filename, zquestheader *header, miscQdata *misc, zcmidi *mid
     box_out("okay.");
     box_eol();
     setupsubscreens();
+    for (int i=0; i<MAXDMAPS; ++i)
+    {
+      int type=DMaps[i].type&dmfTYPE;
+      DMaps[i].active_subscreen=(type == dmOVERW || type == dmBSOVERW)?0:1;
+      DMaps[i].passive_subscreen=(get_bit(quest_rules,qr_ENABLEMAGIC))?0:1;
+    }
 
     //link sprites
     box_out("Reading Custom Link Sprite Data...");

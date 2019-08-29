@@ -372,7 +372,7 @@ void do_mult(int script, word *pc, int i, bool v)
 {
 	long arg1;
 	long arg2;
-	long temp;
+	double temp;
 
 	arg1 = ffscripts[script][*pc].arg1;
 	arg2 = ffscripts[script][*pc].arg2;
@@ -434,6 +434,7 @@ void do_mult(int script, word *pc, int i, bool v)
 			break;
 		}
 	}
+	temp=temp/10000.0;
 	switch(arg1)
 		{
 		case D0:
@@ -457,11 +458,11 @@ void do_mult(int script, word *pc, int i, bool v)
 		case A2:
 			tmpscr->a2[i]*=temp; break;
 		case DATA:
-			tmpscr->ffdata[i]*=(temp/10000); break;
+			tmpscr->ffdata[i]*=(temp); break;
 		case FCSET:
-			tmpscr->ffcset[i]*=(temp/10000); break;
+			tmpscr->ffcset[i]*=(temp); break;
 		case DELAY:
-			tmpscr->ffdelay[i]*=(temp/10000); break;
+			tmpscr->ffdelay[i]*=(temp); break;
 		case FX:
 			tmpscr->ffx[i]*=temp; break;
 		case FY:
@@ -475,15 +476,15 @@ void do_mult(int script, word *pc, int i, bool v)
 		case YD2:
 			tmpscr->ffydelta2[i]*=temp; break;
 		case LX:
-			Link.setX((int)Link.getX()*(temp/10000)); break;
+			Link.setX((int)Link.getX()*(temp)); break;
 		case LY:
-			Link.setY((int)Link.getY()*(temp/10000)); break;
+			Link.setY((int)Link.getY()*(temp)); break;
 		default:
 			for(int k=0;k<176;k++)
 			{
-				if(arg1==COMBOD(k)) tmpscr->data[k]*=(temp/10000);
-				if(arg1==COMBOC(k)) tmpscr->cset[k]*=(temp/10000);
-				if(arg1==COMBOF(k)) tmpscr->sflag[k]*=(temp/10000);
+				if(arg1==COMBOD(k)) tmpscr->data[k]*=(temp);
+				if(arg1==COMBOC(k)) tmpscr->cset[k]*=(temp);
+				if(arg1==COMBOF(k)) tmpscr->sflag[k]*=(temp);
 			}
 			break;
 		}
@@ -493,7 +494,7 @@ void do_div(int script, word *pc, int i, bool v)
 {
 	long arg1;
 	long arg2;
-	long temp;
+	double temp;
 
 	arg1 = ffscripts[script][*pc].arg1;
 	arg2 = ffscripts[script][*pc].arg2;
@@ -555,6 +556,7 @@ void do_div(int script, word *pc, int i, bool v)
 			break;
 		}
 	}
+	temp = temp/10000.0;
 	switch(arg1)
 		{
 		case D0:
@@ -578,11 +580,11 @@ void do_div(int script, word *pc, int i, bool v)
 		case A2:
 			tmpscr->a2[i]/=temp; break;
 		case DATA:
-			tmpscr->ffdata[i]/=(temp/10000); break;
+			tmpscr->ffdata[i]/=(temp); break;
 		case FCSET:
-			tmpscr->ffcset[i]/=(temp/10000); break;
+			tmpscr->ffcset[i]/=(temp); break;
 		case DELAY:
-			tmpscr->ffdelay[i]/=(temp/10000); break;
+			tmpscr->ffdelay[i]/=(temp); break;
 		case FX:
 			tmpscr->ffx[i]/=temp; break;
 		case FY:
@@ -596,15 +598,15 @@ void do_div(int script, word *pc, int i, bool v)
 		case YD2:
 			tmpscr->ffydelta2[i]/=temp; break;
 		case LX:
-			Link.setX((int)Link.getX()/(temp/10000)); break;
+			Link.setX((int)Link.getX()/(temp)); break;
 		case LY:
-			Link.setY((int)Link.getY()/(temp/10000)); break;
+			Link.setY((int)Link.getY()/(temp)); break;
 		default:
 			for(int k=0;k<176;k++)
 			{
-				if(arg1==COMBOD(k)) tmpscr->data[k]/=(temp/10000);
-				if(arg1==COMBOC(k)) tmpscr->cset[k]/=(temp/10000);
-				if(arg1==COMBOF(k)) tmpscr->sflag[k]/=(temp/10000);
+				if(arg1==COMBOD(k)) tmpscr->data[k]/=(temp);
+				if(arg1==COMBOC(k)) tmpscr->cset[k]/=(temp);
+				if(arg1==COMBOF(k)) tmpscr->sflag[k]/=(temp);
 			}
 			break;
 		}
@@ -745,8 +747,8 @@ void do_loada(int script, word *pc, int i, int a)
 	arg1 = ffscripts[script][*pc].arg1;
 	arg2 = ffscripts[script][*pc].arg2;
 
-	if(a) j = tmpscr->a2[i]/10000;
-	else j = tmpscr->a1[i]/10000;
+	if(a) j = (tmpscr->a2[i]/10000)-1;
+	else j = (tmpscr->a1[i]/10000)-1;
 
 		switch(arg2)
 		{
@@ -850,8 +852,8 @@ void do_seta(int script, word *pc, int i, int a)
 	arg1 = ffscripts[script][*pc].arg1;
 	arg2 = ffscripts[script][*pc].arg2;
 
-	if(a) j = tmpscr->a2[i]/10000;
-	else j = tmpscr->a1[i]/10000;
+	if(a) j = (tmpscr->a2[i]/10000)-1;
+	else j = (tmpscr->a1[i]/10000)-1;
 
 		switch(arg2)
 		{

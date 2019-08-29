@@ -186,7 +186,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SAVEGAME        1
 #define V_COMBOALIASES    1
 #define V_LINKSPRITES     2
-#define V_SUBSCREEN       1
+#define V_SUBSCREEN       2
 #define V_ITEMDROPSET     1
 #define V_FFSCRIPT	      1
 
@@ -965,8 +965,8 @@ typedef struct mapscr
   long d5[32];
   long d6[32];
   long d7[32];
-  byte a1[32];
-  byte a2[32];
+  long a1[32];
+  long a2[32];
   word pc[32];
   dword scriptflag[32];
 

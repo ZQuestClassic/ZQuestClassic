@@ -188,6 +188,8 @@ void LinkClass::init()
   drunkclk=0;
   drawstyle=3;
   ffwarp = false;
+  stepoutindex=0;
+  stepoutwr=0;
 }
 
 void LinkClass::draw_under(BITMAP* dest)
@@ -1795,7 +1797,10 @@ void LinkClass::checkhit()
   ctypea=max(ctype1, ctype2);
   ctypeb=max(ctype3, ctype4);
   int ctyped = max(ctypea,ctypeb);
-  int ctype = max(ctypec,ctyped);
+  int ctype = ctypec;
+
+  if((ctyped>=cDAMAGE1&&ctyped<=cDAMAGE4)||(ctyped>=cDAMAGE5&&ctyped<=cDAMAGE7))
+	  ctype = ctyped;
 
   int damage=0xFF;
   bool global_ring = (get_bit(quest_rules,qr_RINGAFFECTDAMAGE) != 0);
@@ -2507,6 +2512,9 @@ bool LinkClass::animate(int index)
   return false;
 }
 
+int potion_life=0;
+int potion_magic=0;
+
 bool LinkClass::startwpn(int wpn)                           // an item index
 {
   if((dir==up && y<24) || (dir==down && y>128) ||
@@ -2541,6 +2549,8 @@ bool LinkClass::startwpn(int wpn)                           // an item index
     refill_what=REFILL_ALL;
     refill_why=((wpn&0xFFF)==iBPotion?REFILL_BPOTION:REFILL_RPOTION);
     StartRefill();
+	potion_life = get_gamedata_life(game);
+	potion_magic = get_gamedata_magic(game);
     while(refill())
     {
       put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
@@ -4818,10 +4828,10 @@ void LinkClass::checkpushblock()
   {
     switch(dir)
     {
-      case up:    if(_walkflag(bx,by-8,2))    doit=false; break;
-      case down:  if(_walkflag(bx,by+24,2))   doit=false; break;
-      case left:  if(_walkflag(bx-16,by+8,2)) doit=false; break;
-      case right: if(_walkflag(bx+16,by+8,2)) doit=false; break;
+      case up:    if(_walkflag(bx,by-8,2)&&!(MAPFLAG(bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx,by-8)==mfBLOCKHOLE))    doit=false; break;
+      case down:  if(_walkflag(bx,by+24,2)&&!(MAPFLAG(bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG(bx,by+24)==mfBLOCKHOLE))   doit=false; break;
+      case left:  if(_walkflag(bx-16,by+8,2)&&!(MAPFLAG(bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx-16,by+8)==mfBLOCKHOLE)) doit=false; break;
+      case right: if(_walkflag(bx+16,by+8,2)&&!(MAPFLAG(bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG(bx+16,by+8)==mfBLOCKHOLE)) doit=false; break;
     }
   }
 
@@ -6441,6 +6451,8 @@ bool LinkClass::dowarp(int type, int index)
       stepforward(get_bit(quest_rules,qr_LTTPWALK)?16:18, false);
       newscr_clk=frame;
       activated_timed_warp=false;
+	  stepoutindex=index;
+	  stepoutwr=wrindex;
     } break;
 
     case wtEXIT: // entrance/exit
@@ -7166,10 +7178,10 @@ void LinkClass::stepout()
   ringcolor();
   if(currscr==129 && x!=warpx)
   {
-    currdmap=tmpscr[1].tilewarpdmap[0];
+    currdmap=tmpscr[1].tilewarpdmap[stepoutindex];
     currmap=DMaps[currdmap].map;
     dlevel=DMaps[currdmap].level;
-    homescr=tmpscr[1].tilewarpscr[0]+DMaps[currdmap].xoff;
+    homescr=tmpscr[1].tilewarpscr[stepoutindex]+DMaps[currdmap].xoff;
   }
   currscr=homescr;
   loadscr(0,currscr,255);                                   // bogus direction
@@ -7208,8 +7220,16 @@ void LinkClass::stepout()
       loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
     }
   }
-  x = tmpscr->warpreturnx[0];
-  y = tmpscr->warpreturny[0];
+  if(currscr==129 && x!=warpx)
+  {
+    x = tmpscr->warpreturnx[stepoutwr];
+    y = tmpscr->warpreturny[stepoutwr];
+  }
+  else
+  {
+    x = tmpscr->warpreturnx[0];
+    y = tmpscr->warpreturny[0];
+  }
   if (didpit)
   {
     didpit=false;
@@ -8770,12 +8790,12 @@ void getitem(int id)
     }
     break;
     case iFairyStill:
-      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.stationary_fairy_heart_percent?(get_gamedata_maxlife(game)*(zinit.stationary_fairy_hearts/100)):(get_gamedata_life(game)+(zinit.stationary_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
-      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.stationary_fairy_magic_percent?(get_gamedata_maxmagic(game)*(zinit.stationary_fairy_magic/100)):(get_gamedata_magic(game)+(zinit.stationary_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
+      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.stationary_fairy_heart_percent?(get_gamedata_maxlife(game)*(zinit.stationary_fairy_hearts/100.0)):((zinit.stationary_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
+      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.stationary_fairy_magic_percent?(get_gamedata_maxmagic(game)*(zinit.stationary_fairy_magic/100.0)):((zinit.stationary_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
       break;
     case iFairyMoving:
-      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.moving_fairy_heart_percent?(get_gamedata_maxlife(game)*(zinit.moving_fairy_hearts/100)):(get_gamedata_life(game)+(zinit.moving_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
-      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.moving_fairy_magic_percent?(get_gamedata_maxmagic(game)*(zinit.moving_fairy_magic/100)):(get_gamedata_magic(game)+(zinit.moving_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
+      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.moving_fairy_heart_percent?(get_gamedata_maxlife(game)*(zinit.moving_fairy_hearts/100.0)):((zinit.moving_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
+      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.moving_fairy_magic_percent?(get_gamedata_maxmagic(game)*(zinit.moving_fairy_magic/100.0)):((zinit.moving_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
       break;
     case iAmulet:
     if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
@@ -9214,16 +9234,16 @@ bool LinkClass::refill()
   ++refillclk;
   int speed = get_bit(quest_rules,qr_FASTFILL) ? 6 : 22;
   int refill_heart_stop=get_gamedata_maxlife(game);
-  int refill_magic_stop=get_gamedata_maxlife(game);
+  int refill_magic_stop=get_gamedata_maxmagic(game);
   if (refill_why==REFILL_BPOTION)
   {
-    refill_heart_stop=min(get_gamedata_life(game)+(zinit.blue_potion_heart_percent?(get_gamedata_maxlife(game)*(zinit.blue_potion_hearts/100)):(get_gamedata_life(game)+(zinit.blue_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
-    refill_magic_stop=min(get_gamedata_life(game)+(zinit.blue_potion_magic_percent?(get_gamedata_maxlife(game)*(zinit.blue_potion_magic/100)):(get_gamedata_life(game)+(zinit.blue_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
+    refill_heart_stop=min(potion_life+(zinit.blue_potion_heart_percent?(get_gamedata_maxlife(game)*(zinit.blue_potion_hearts/100.0)):((zinit.blue_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
+    refill_magic_stop=min(potion_magic+(zinit.blue_potion_magic_percent?(get_gamedata_maxmagic(game)*(zinit.blue_potion_magic/100.0)):((zinit.blue_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
   }
   else if (refill_why==REFILL_RPOTION)
   {
-    refill_heart_stop=min(get_gamedata_life(game)+(zinit.red_potion_heart_percent?(get_gamedata_maxlife(game)*(zinit.red_potion_hearts/100)):(get_gamedata_life(game)+(zinit.red_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
-    refill_magic_stop=min(get_gamedata_life(game)+(zinit.red_potion_magic_percent?(get_gamedata_maxlife(game)*(zinit.red_potion_magic/100)):(get_gamedata_life(game)+(zinit.red_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
+    refill_heart_stop=min(potion_life+(zinit.red_potion_heart_percent?(get_gamedata_maxlife(game)*(zinit.red_potion_hearts/100.0)):((zinit.red_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
+    refill_magic_stop=min(potion_magic+(zinit.red_potion_magic_percent?(get_gamedata_maxmagic(game)*(zinit.red_potion_magic/100.0)):((zinit.red_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
   }
   if(refillclk%speed == 0)
   {

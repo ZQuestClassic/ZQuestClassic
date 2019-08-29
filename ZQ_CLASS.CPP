@@ -1400,26 +1400,26 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
       }*/
       for(int i=31;i>=0;i--)
       {
-        if (layer->ffdata[i])
-        {
-          if(!(layer->ffflags[i]&ffOVERLAY))
-          {
-            for(int j=0;j<(layer->ffheight[i]>>6)+1;j++)
-            {
-              for(int k=0;k<(layer->ffwidth[i]>>6)+1;k++)
-              {
-                if(layer->ffflags[i]&ffTRANS)
-                {
-                  overcombotranslucent(dest, ((layer->ffx[i]+(k*16))/10000), ((layer->ffy[i]+(j*16))/10000), layer->ffdata[i]+(j*20)+(k), layer->ffcset[i], 128);
-                }
-                else
-                {
-                  overcombo(dest, ((layer->ffx[i]+(k*16))/10000), ((layer->ffy[i]+(j*16))/10000), layer->ffdata[i]+(j*20)+(k), layer->ffcset[i]);
-                }
-              }
-            }
-          }
-        }
+	    if(layer->ffdata[i])
+	    {
+	      int c=combobuf[layer->ffdata[i]].type;
+	      if(c!=cCHANGE)
+	      {
+		    if(!(layer->ffflags[i]&ffOVERLAY))
+		    {
+	          //overcombo(framebuf,(int)layer->ffx[i],(int)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
+		      for(int j=0;j<(layer->ffheight[i]>>6)+1;j++)
+		      {
+		        for(int k=0;k<(layer->ffwidth[i]>>6)+1;k++)
+			    {
+			      if(layer->ffflags[i]&ffTRANS)
+			        overtiletranslucent16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(k), (layer->ffx[i]/10000)+(k*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
+			      else overtile16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(k), (layer->ffx[i]/10000)+(k*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
+			    }
+		      }
+		    }
+	      }
+	    }
       }
     }
   }
@@ -1637,28 +1637,28 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
       }
     }*/
     for(int i=31;i>=0;i--)
-    {
-      if (layer->ffdata[i])
       {
-        if(layer->ffflags[i]&ffOVERLAY)
-        {
-          for(int j=0;j<(layer->ffheight[i]>>6)+1;j++)
-          {
-            for(int k=0;k<(layer->ffwidth[i]>>6)+1;k++)
-            {
-              if(layer->ffflags[i]&ffTRANS)
-              {
-                overcombotranslucent(dest, ((layer->ffx[i]+(k*16))/10000), ((layer->ffy[i]+(j*16))/10000), layer->ffdata[i]+(j*20)+(k), layer->ffcset[i], 128);
-              }
-              else
-              {
-                overcombo(dest, ((layer->ffx[i]+(k*16))/10000), ((layer->ffy[i]+(j*16))/10000), layer->ffdata[i]+(j*20)+(k), layer->ffcset[i]);
-              }
-            }
-          }
-        }
+	    if(layer->ffdata[i])
+	    {
+	      int c=combobuf[layer->ffdata[i]].type;
+	      if(c!=cCHANGE)
+	      {
+		    if(layer->ffflags[i]&ffOVERLAY)
+		    {
+	          //overcombo(framebuf,(int)layer->ffx[i],(int)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
+		      for(int j=0;j<(layer->ffheight[i]>>6)+1;j++)
+		      {
+		        for(int k=0;k<(layer->ffwidth[i]>>6)+1;k++)
+			    {
+			      if(layer->ffflags[i]&ffTRANS)
+			        overtiletranslucent16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(k), (layer->ffx[i]/10000)+(k*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
+			      else overtile16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(k), (layer->ffx[i]/10000)+(k*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
+			    }
+		      }
+		    }
+	      }
+	    }
       }
-    }
 	}
 	if(k==5)
 	{
@@ -6827,6 +6827,10 @@ int write_one_subscreen(PACKFILE *f, zquestheader *header, int i)
     {
       return 28;
     }
+	if(!p_putc(custom_subscreen[i].ss_type,f))
+	{
+	  return 29;
+	}
     for(int k=0;(k<MAXSUBSCREENITEMS&&(custom_subscreen[i].objects[k].type != ssoNULL));k++)
     {
       numsub++;

@@ -1088,9 +1088,9 @@ static DIALOG sso_master_properties_dlg[] =
   { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
   // 170
   { jwin_ctext_proc,      160,  122,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED, 0,             0,       (void *) "Part of Attributes" },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
-  { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
+  { jwin_check_proc,        8,   51,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show 1" },
+  { jwin_check_proc,        8,   63,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show 2" },
+  { jwin_check_proc,        8,   75,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0,       (void *) "Show 3" },
   { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
   // 175
   { d_dummy_proc,           0,    0,     0,      0,  0,                  0,                0,       0,          0,             0,       NULL },
@@ -2074,50 +2074,97 @@ int sso_properties(subscreen_object *tempsso)
 
     case ssoMINIMAP:
     {
-      for (int i=11; i<=93; ++i)
+      for (int i=11; i<=34; ++i)
       {
         dummy_dialog_proc(sso_properties_dlg+i);
       }
-      for (int i=95; i<=138; ++i)
+	  for (int i=53; i<=170; ++i)
+	  {
+	    dummy_dialog_proc(sso_properties_dlg+i);
+	  }
+      for (int i=174; i<=210; ++i)
       {
         dummy_dialog_proc(sso_properties_dlg+i);
       }
-      for (int i=140; i<=210; ++i)
+      /*for (int i=140; i<=210; ++i)
       {
         dummy_dialog_proc(sso_properties_dlg+i);
-      }
-      char no_prop[80];
+      }*/
+	  char t_color_caption[80];
+      char s_color_caption[80];
+      char b_color_caption[80];
+	  char show1[80];
+	  char show2[80];
+	  char show3[80];
+      sprintf(t_color_caption, " Link Color ");
+      sprintf(s_color_caption, " C. Blink Color ");
+      sprintf(b_color_caption, " C. Const Color ");
+	  sprintf(show1, " Show Map ");
+      sprintf(show2, " Show Link ");
+	  sprintf(show3, " Show Compass ");
       sprintf(x_str, "%d", tempsso->x);
       sprintf(y_str, "%d", tempsso->y);
-      sprintf(no_prop, "No Properties Available");
       /*sso_properties_dlg[8].dp=x_str;
       sso_properties_dlg[10].dp=y_str;
       sso_properties_dlg[94].dp=no_prop;*/
 	  replacedp(sso_properties_dlg[8],x_str);
 	  replacedp(sso_properties_dlg[10],y_str);
-	  replacedp(sso_properties_dlg[94],no_prop);
+	  replacedp(sso_properties_dlg[36],t_color_caption);
+	  replacedp(sso_properties_dlg[42],s_color_caption);
+	  replacedp(sso_properties_dlg[48],b_color_caption);
+	  replacedp(sso_properties_dlg[171],show1);
+	  replacedp(sso_properties_dlg[172],show2);
+	  replacedp(sso_properties_dlg[173],show3);
+
+      extract_colortype(sso_properties_dlg+38, tempsso, 1);
+      sso_properties_dlg[40].d1=tempsso->color1;
+      update_ctl_proc(sso_properties_dlg+40, sso_properties_dlg[38].d1);
+
+      extract_colortype(sso_properties_dlg+44, tempsso, 2);
+      sso_properties_dlg[46].d1=tempsso->color2;
+      update_ctl_proc(sso_properties_dlg+46, sso_properties_dlg[44].d1);
+
+      extract_colortype(sso_properties_dlg+50, tempsso, 3);
+      sso_properties_dlg[52].d1=tempsso->color3;
+      update_ctl_proc(sso_properties_dlg+52, sso_properties_dlg[50].d1);
+
+	  sso_properties_dlg[171].flags=tempsso->d1?D_SELECTED:0;
+	  sso_properties_dlg[172].flags=tempsso->d2?D_SELECTED:0;
+	  sso_properties_dlg[173].flags=tempsso->d3?D_SELECTED:0;
     }
     break;
 
     case ssoLARGEMAP:
     {
-      for (int i=11; i<=93; ++i)
+      for (int i=11; i<=34; ++i)
       {
         dummy_dialog_proc(sso_properties_dlg+i);
       }
-      for (int i=95; i<=138; ++i)
+      for (int i=47; i<=138; ++i)
       {
         dummy_dialog_proc(sso_properties_dlg+i);
       }
-      for (int i=140; i<=210; ++i)
+      for (int i=140; i<=170; ++i)
       {
         dummy_dialog_proc(sso_properties_dlg+i);
       }
-      char no_prop[80];
-      char bs_style[80];
+      for (int i=174; i<=210; ++i)
+      {
+        dummy_dialog_proc(sso_properties_dlg+i);
+      }
+	  char t_color_caption[80];
+      char s_color_caption[80];
+	  char show1[80];
+	  char show2[80];
+	  char show3[80];
+	  char bs_style[80];
+      sprintf(t_color_caption, " Room Color ");
+      sprintf(s_color_caption, " Link Color ");
+	  sprintf(show1, " Show Map ");
+      sprintf(show2, " Show Rooms ");
+	  sprintf(show3, " Show Link ");
       sprintf(x_str, "%d", tempsso->x);
       sprintf(y_str, "%d", tempsso->y);
-      sprintf(no_prop, "No Properties Available");
       sprintf(bs_style, "Large");
       /*sso_properties_dlg[8].dp=x_str;
       sso_properties_dlg[10].dp=y_str;
@@ -2125,8 +2172,25 @@ int sso_properties(subscreen_object *tempsso)
       sso_properties_dlg[139].dp=bs_style;*/
 	  replacedp(sso_properties_dlg[8],x_str);
 	  replacedp(sso_properties_dlg[10],y_str);
-	  replacedp(sso_properties_dlg[94],no_prop);
 	  replacedp(sso_properties_dlg[139],bs_style);
+	  replacedp(sso_properties_dlg[36],t_color_caption);
+	  replacedp(sso_properties_dlg[42],s_color_caption);
+	  replacedp(sso_properties_dlg[171],show1);
+	  replacedp(sso_properties_dlg[172],show2);
+	  replacedp(sso_properties_dlg[173],show3);
+
+      extract_colortype(sso_properties_dlg+38, tempsso, 1);
+      sso_properties_dlg[40].d1=tempsso->color1;
+      update_ctl_proc(sso_properties_dlg+40, sso_properties_dlg[38].d1);
+
+      extract_colortype(sso_properties_dlg+44, tempsso, 2);
+      sso_properties_dlg[46].d1=tempsso->color2;
+      update_ctl_proc(sso_properties_dlg+46, sso_properties_dlg[44].d1);
+
+	  sso_properties_dlg[171].flags=tempsso->d1?D_SELECTED:0;
+	  sso_properties_dlg[172].flags=tempsso->d2?D_SELECTED:0;
+	  sso_properties_dlg[173].flags=tempsso->d3?D_SELECTED:0;
+
       sso_properties_dlg[139].flags=tempsso->d10?D_SELECTED:0;
     }
     break;
@@ -3190,6 +3254,19 @@ int sso_properties(subscreen_object *tempsso)
     {
       tempsso->x=atoi(x_str);
       tempsso->y=atoi(y_str);
+
+	  insert_colortype(sso_properties_dlg+38, tempsso, 1);
+      tempsso->color1=sso_properties_dlg[40].d1;
+
+      insert_colortype(sso_properties_dlg+44, tempsso, 2);
+      tempsso->color2=sso_properties_dlg[46].d1;
+
+      insert_colortype(sso_properties_dlg+50, tempsso, 3);
+      tempsso->color3=sso_properties_dlg[52].d1;
+
+      tempsso->d1=(sso_properties_dlg[171].flags&D_SELECTED)?1:0;
+      tempsso->d2=(sso_properties_dlg[172].flags&D_SELECTED)?1:0;
+      tempsso->d3=(sso_properties_dlg[173].flags&D_SELECTED)?1:0;
     }
     break;
 
@@ -3197,6 +3274,15 @@ int sso_properties(subscreen_object *tempsso)
     {
       tempsso->x=atoi(x_str);
       tempsso->y=atoi(y_str);
+	  insert_colortype(sso_properties_dlg+38, tempsso, 1);
+      tempsso->color1=sso_properties_dlg[40].d1;
+
+      insert_colortype(sso_properties_dlg+44, tempsso, 2);
+      tempsso->color2=sso_properties_dlg[46].d1;
+
+      tempsso->d1=(sso_properties_dlg[171].flags&D_SELECTED)?1:0;
+      tempsso->d2=(sso_properties_dlg[172].flags&D_SELECTED)?1:0;
+      tempsso->d3=(sso_properties_dlg[173].flags&D_SELECTED)?1:0;
       tempsso->d10=(sso_properties_dlg[139].flags&D_SELECTED)?1:0;
     }
     break;
@@ -4852,7 +4938,7 @@ int onExport_Subscreen_Code()
   return D_O_K;
 }
 
-
+int onActivePassive();
 
 static MENU ss_arrange_menu[] =
 {
@@ -4915,6 +5001,8 @@ static MENU ss_edit_menu[] =
   { "Al&ign",              NULL,                                 ss_align_menu },
   { "Dis&tribute",         NULL,                                 ss_distribute_menu },
   { "",                    NULL,                                 NULL },
+  { "Switch Active/Passive",              onActivePassive,                      NULL },
+  { "",                    NULL,                                 NULL },
   { "&Take Snapshot\tZ",   onSnapshot,                           NULL },
   { "",                    NULL,                                 NULL },
   { "E&xport as Code\tX",  onExport_Subscreen_Code,              NULL },
@@ -4946,7 +5034,6 @@ static MENU subscreen_menu[] =
   { "&Selection",          NULL,                                 ss_selection_menu },
   { NULL }
 };
-
 
 static DIALOG subscreen_dlg[] =
 {
@@ -5002,6 +5089,23 @@ static DIALOG subscreen_dlg[] =
   { d_vsync_proc,         0,     0,     0,       0,    0,                 0,                0,       0,          0,             0,       NULL },
   { NULL }
 };
+
+int onActivePassive()
+{
+  if(css->ss_type == sstACTIVE)
+  {
+    css->ss_type = sstPASSIVE;
+	subscreen_dlg[3].h=60;
+    subscreen_dlg[4].h=56;
+  }
+  else if(css->ss_type == sstPASSIVE)
+  {
+    css->ss_type = sstACTIVE;
+	subscreen_dlg[3].h=172;
+	subscreen_dlg[4].h=168;
+  }
+  return D_REDRAW;
+}
 
 
 char *color_str[16] =
@@ -6165,8 +6269,20 @@ int onEditSubscreens()
                     break;
                 }
               }
-              css->ss_type=sstACTIVE;
-              sprintf(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
+			  if (sstemplatelist_dlg[4].d1==0)
+			  {
+                css->ss_type=sstACTIVE;
+                sprintf(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
+				subscreen_dlg[3].h=172;
+				subscreen_dlg[4].h=168;
+			  }
+			  else
+			  {
+			    css->ss_type=sstPASSIVE;
+                sprintf(css->name, passivesubscrtype_str[sstemplatelist_dlg[5].d1]);
+				subscreen_dlg[3].h=60;
+                subscreen_dlg[4].h=56;
+			  }
             }
             else //Z3
             {
@@ -6199,8 +6315,21 @@ int onEditSubscreens()
                     break;
                 }
               }
-              css->ss_type=sstACTIVE;
-              sprintf(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
+              if (sstemplatelist_dlg[4].d1==0)
+			  {
+                css->ss_type=sstACTIVE;
+                sprintf(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
+				subscreen_dlg[3].h=172;
+				subscreen_dlg[4].h=168;
+
+			  }
+			  else
+			  {
+			    css->ss_type=sstPASSIVE;
+                sprintf(css->name, passivesubscrtype_str[sstemplatelist_dlg[5].d1]);
+				subscreen_dlg[3].h=60;
+                subscreen_dlg[4].h=56;
+			  }
             }
           }
           else
