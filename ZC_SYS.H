@@ -13,6 +13,9 @@
 #define _ZC_SYS_H_
 
 #include "zdefs.h"
+extern bool inputs_enabled;
+enum { forced_up, forced_down, forced_left, forced_right, forced_a, forced_b, forced_l, forced_r, max_forced_commands };
+extern bool forced_command[max_forced_commands];
 
 extern MENU the_menu[];
 

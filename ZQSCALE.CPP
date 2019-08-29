@@ -344,6 +344,20 @@ void zqwin_clear_to_color(struct BITMAP *bitmap, int color)
   clear_to_color(orig_screen, color);
   return;
 }
+#include <stdio.h>
+void zqwin_set_clip(struct BITMAP *bitmap)
+{
+	if(is_same_bitmap(bitmap, proxy_screen))
+	{
+		int dx = offset_x(bitmap);
+		int dy = offset_y(bitmap);
+		orig_screen->cl = (bitmap->cl+dx)*zqwin_scale;
+		orig_screen->cr = (bitmap->cr+dx+1)*zqwin_scale-1;
+		orig_screen->ct = (bitmap->ct+dy)*zqwin_scale;
+		orig_screen->cb = (bitmap->cb+dy+1)*zqwin_scale-1;
+	}
+	return;
+}
 
 
 bool is_windowed_mode(int mode)
@@ -455,6 +469,7 @@ bool zqwin_set_scale(int scale, bool defer)
     //FILL IT IN
     proxy_vtable->acquire = zqwin_acquire;
     proxy_vtable->release = zqwin_release;
+	proxy_vtable->set_clip = zqwin_set_clip;
     if(proxy_vtable->putpixel) proxy_vtable->putpixel = zqwin_putpixel;
     if(proxy_vtable->vline) proxy_vtable->vline = zqwin_vline;
     if(proxy_vtable->hline) proxy_vtable->hline = zqwin_hline;

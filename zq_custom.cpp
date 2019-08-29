@@ -18,6 +18,7 @@
 #include "items.h"
 #include "zsys.h"
 #include <stdio.h>
+#include <string.h>
 
 extern int ex;
 
@@ -61,27 +62,63 @@ int d_cstile_proc(int msg,DIALOG *d,int c)
 /******  onCustomItems  ******/
 /*****************************/
 
+static int itemdata_gfx_list[] =
+{
+  // dialog control number
+  2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, -1
+};
+
+static int itemdata_action_list[] =
+{
+  // dialog control number
+  18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, -1
+};
+
+static TABPANEL itemdata_tabs[] =
+{
+  // (text)
+  { "GFX",       D_SELECTED,   itemdata_gfx_list },
+  { "Action",       0,           itemdata_action_list },
+  { NULL }
+};
+
 static DIALOG itemdata_dlg[] =
 {
   // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc,     55,   40,   210,  143,  vc(14),  vc(1),  0,       D_EXIT,     0,             0,       NULL },
-  { d_dummy_proc,      160,  68,   0,    8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { d_cstile_proc,     198,  64,   20,   20,   vc(11),  vc(1),  0,       0,          0,             6,       NULL },
-  { jwin_button_proc,  90,   156,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,  170,  156,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
-  { jwin_button_proc,  202,  120,  53,   21,   vc(14),  vc(1),  't',     D_EXIT,     0,             0,       (void *) "&Test" },
-  { jwin_check_proc,   198,  89,   65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Flash " },
-  { jwin_check_proc,   198,  100,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "2-Hand" },
-  { jwin_text_proc,    61,   68,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Flash CSet:" },
-  { jwin_text_proc,    61,   86,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Frames:" },
-  { jwin_text_proc,    61,   104,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Speed:" },
-  { jwin_text_proc,    61,   122,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Initial Delay:" },
-  { jwin_text_proc,    61,   140,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Link Tile Modification:" },
-  { jwin_edit_proc,    160,  64,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,    160,  82,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  100,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  118,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
-  { jwin_edit_proc,    160,  136,  35,   16,   vc(12),  vc(1),  0,       0,          6,             0,       NULL },
+  { jwin_win_proc,     55,   40,   220,  193,  vc(14),  vc(1),  0,       D_EXIT,     0,             0,       NULL },
+  { jwin_tab_proc,     57,  65,  216,  135,   0,       0,      0,       0,             0,       0,       (void *) itemdata_tabs, NULL, (void *)itemdata_dlg },
+  { d_cstile_proc,     198,  84,   20,   20,   vc(11),  vc(1),  0,       0,          0,             6,       NULL },
+  { jwin_button_proc,  90,   206,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
+  { jwin_button_proc,  170,  206,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
+  { jwin_button_proc,  202,  140,  53,   21,   vc(14),  vc(1),  't',     D_EXIT,     0,             0,       (void *) "&Test" },
+  { jwin_check_proc,   198,  109,   65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Flash " },
+  { jwin_check_proc,   198,  120,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "2-Hand" },
+  { jwin_text_proc,    61,   88,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Flash CSet:" },
+  { jwin_text_proc,    61,   106,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Frames:" },
+  { jwin_text_proc,    61,   124,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Animation Speed:" },
+  { jwin_text_proc,    61,   142,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Initial Delay:" },
+  { jwin_text_proc,    61,   160,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Link Tile Modification:" },
+  { jwin_edit_proc,    160,  84,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
+  { jwin_edit_proc,    160,  102,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,    160,  120,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,    160,  138,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,    160,  156,  35,   16,   vc(12),  vc(1),  0,       0,          6,             0,       NULL },
+  //18
+  { jwin_check_proc,   61,  174,   130,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Keep Item When Collected" },
+  { jwin_text_proc,    61,   88,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Class Number:" },
+  { jwin_text_proc,    61,   106,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Class Level:" },
+  { jwin_text_proc,    61,   124,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Increase Amount:" },
+  { jwin_text_proc,    61,   142,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Counter Reference:" },
+  { jwin_text_proc,    61,   160,  60,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Full Max:" },
+  { jwin_text_proc,    160,   160,  60,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "+Max:" },
+  //25
+  { jwin_edit_proc,    160,  84,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,    160,  102,   35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,    160,  120,  35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
+  { jwin_edit_proc,    160,  138,  35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
+  { jwin_edit_proc,    121,  156,  35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
+  { jwin_edit_proc,    220,  156,  35,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL },
+  { jwin_check_proc,   200,  124,   60,   9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "DCounter" },
   { NULL }
 };
 
@@ -133,6 +170,7 @@ void test_item(itemdata test)
 void edit_itemdata(int index)
 {
   char frm[8], spd[8], fcs[8], dly[8], ltm[8];
+  char cls[8], cll[8], cnt[8], amt[8], fmx[8], max[8];
 
   itemdata_dlg[0].dp = item_string[index];
   itemdata_dlg[0].dp2 = lfont;
@@ -141,6 +179,9 @@ void edit_itemdata(int index)
 
   itemdata_dlg[6].flags = (itemsbuf[index].misc&1) ? D_SELECTED : 0;
   itemdata_dlg[7].flags = (itemsbuf[index].misc&2) ? D_SELECTED : 0;
+
+  itemdata_dlg[18].flags = (itemsbuf[index].set_gamedata) ? D_SELECTED : 0;
+  itemdata_dlg[31].flags = (itemsbuf[index].amount & 0x8000)  ? D_SELECTED : 0;
 
   sprintf(fcs,"%d",itemsbuf[index].csets>>4);
   sprintf(frm,"%d",itemsbuf[index].frames);
@@ -153,8 +194,23 @@ void edit_itemdata(int index)
   itemdata_dlg[16].dp = dly;
   itemdata_dlg[17].dp = ltm;
 
+  sprintf(cls,"%d",itemsbuf[index].family);
+  sprintf(cll,"%d",itemsbuf[index].fam_type);
+  sprintf(amt,"%d",itemsbuf[index].amount&0x4000?-(itemsbuf[index].amount&0x3FFF):itemsbuf[index].amount&0x3FFF);
+  sprintf(cnt,"%d",itemsbuf[index].count);
+  sprintf(fmx,"%d",itemsbuf[index].max);
+  sprintf(max,"%d",itemsbuf[index].setmax);
+  itemdata_dlg[25].dp = cls;
+  itemdata_dlg[26].dp = cll;
+  itemdata_dlg[27].dp = amt;
+  itemdata_dlg[28].dp = cnt;
+  itemdata_dlg[29].dp = fmx;
+  itemdata_dlg[30].dp = max;
+
   int ret;
   itemdata test;
+  memset(&test, 0, sizeof(itemdata));
+  test.playsound = 25;
 
   do
   {
@@ -164,16 +220,27 @@ void edit_itemdata(int index)
     test.csets = itemdata_dlg[2].d2;
 
     test.misc  = 0;
+	test.set_gamedata = 0;
     if(itemdata_dlg[6].flags & D_SELECTED)
       test.misc |= 1;
     if(itemdata_dlg[7].flags & D_SELECTED)
       test.misc |= 2;
+	if(itemdata_dlg[18].flags & D_SELECTED)
+	  test.set_gamedata = 1;
 
     test.csets  |= (atoi(fcs)&15)<<4;
     test.frames = min(atoi(frm),255);
     test.speed  = min(atoi(spd),255);
     test.delay  = min(atoi(dly),255);
     test.ltm    = max(min(atol(ltm),NEWMAXTILES-1),0-(NEWMAXTILES-1));
+
+	test.family = vbound(atoi(cls), 0, 255);
+	test.fam_type = vbound(atoi(cll), 1, 8);
+	test.count = vbound(atoi(cnt), -1, 31);
+	test.amount = atoi(amt)<0?-(vbound(atoi(amt), -0x3FFF, 0))|0x4000:vbound(atoi(amt), 0, 0x3FFF);
+	test.amount |= (itemdata_dlg[31].flags & D_SELECTED) ? 0x8000 : 0;
+	test.setmax = atoi(max);
+	test.max = atoi(fmx);
 
     if(ret==5)
     {
@@ -183,6 +250,13 @@ void edit_itemdata(int index)
       sprintf(spd,"%d",test.speed);
       sprintf(dly,"%d",test.delay);
       sprintf(ltm,"%ld",test.ltm);
+
+	  sprintf(cls,"%d",itemsbuf[index].family);
+      sprintf(cll,"%d",itemsbuf[index].fam_type);
+      sprintf(amt,"%d",itemsbuf[index].amount&0x4000?-(itemsbuf[index].amount&0x3FFF):itemsbuf[index].amount&0x3FFF);
+      sprintf(cnt,"%d",itemsbuf[index].count);
+      sprintf(fmx,"%d",itemsbuf[index].max);
+      sprintf(max,"%d",itemsbuf[index].setmax);
     }
 
   } while(ret==5);

@@ -46,6 +46,10 @@ int onCheatConsole()
   init_dlg[1663].x=init_dlg[0].x+72;
   init_dlg[1664].proc=d_dummy_proc;
   init_dlg[1667].proc=d_dummy_proc;
+  init_dlg[1694].proc=d_dummy_proc;
+  init_dlg[1695].proc=d_dummy_proc;
+  init_dlg[1696].proc=d_dummy_proc;
+  init_dlg[1697].proc=d_dummy_proc;
 
   // equipment
   for(int i=0; i<4; i++)
@@ -109,7 +113,7 @@ int onCheatConsole()
   char maxsbombstring[5];
   char arrowstring[5];
   char maxarrowstring[5];
-  sprintf(bombstring, "%d", game->items[itype_bomb]);
+  sprintf(bombstring, "%d", get_gamedata_bombs(game));
   sprintf(maxbombstring, "%d", get_gamedata_maxbombs(game));
   sprintf(sbombstring, "%d", get_gamedata_sbombs(game));
   sprintf(maxsbombstring, "%d", get_gamedata_maxbombs(game)/4);
@@ -165,11 +169,11 @@ int onCheatConsole()
   }
   for(int i=0; i<1; i++)
   {
-    init_dlg[i+111].flags = game->items[itype_faroreswind]&(1<<i) ? D_SELECTED : 0;
+    init_dlg[i+101].flags = game->items[itype_faroreswind]&(1<<i) ? D_SELECTED : 0;
   }
   for(int i=0; i<1; i++)
   {
-    init_dlg[i+112].flags = game->items[itype_nayruslove]&(1<<i) ? D_SELECTED : 0;
+    init_dlg[i+102].flags = game->items[itype_nayruslove]&(1<<i) ? D_SELECTED : 0;
   }
     for(int i=0; i<1; i++)
   {

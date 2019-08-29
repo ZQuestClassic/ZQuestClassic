@@ -85,7 +85,7 @@
 #include "zc_alleg.h"
 
 #define ZELDA_VERSION       0x0211                          //version of the program
-#define VERSION_BUILD       12                              //build number of this version
+#define VERSION_BUILD       13                              //build number of this version
 #define IS_BETA             1                               //is this a beta?
 #define DATE_STR            "January 1, 2006"
 
@@ -93,8 +93,8 @@
 
 #define ZELDADAT_VERSION      0x0211                        //version of zelda.dat
 #define ZELDADAT_BUILD        4                             //build of zelda.dat
-#define SFXDAT_VERSION        0x0210                        //version of sfx.dat
-#define SFXDAT_BUILD          0                             //build of sfx.dat
+#define SFXDAT_VERSION        0x0211                        //version of sfx.dat
+#define SFXDAT_BUILD          13                            //build of sfx.dat
 #define FONTSDAT_VERSION      0x0211                        //version of fonts.dat
 #define FONTSDAT_BUILD        12                            //build of fonts.dat
 #define QSTDAT_VERSION        0x0211                        //version of qst.dat
@@ -162,6 +162,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_SUBSCREEN      ZC_ID('S','U','B','S')              //quest header
 #define ID_ITEMDROPSET    ZC_ID('D','R','O','P')              //quest header
 #define ID_FFSCRIPT       ZC_ID('F','F','S','C')              //quest header
+#define ID_SFX			  ZC_ID('S','F','X',' ')			  //sfx data
 
 //Version number of the different section types
 #define V_HEADER          3
@@ -169,26 +170,27 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         1
 #define V_MISC            3
 #define V_TILES           1
-#define V_COMBOS          4
+#define V_COMBOS          6
 #define V_CSETS           1
-#define V_MAPS            10
+#define V_MAPS            11
 #define V_DMAPS           2
 #define V_DOORS           1
-#define V_ITEMS           1
-#define V_WEAPONS         2
+#define V_ITEMS           2
+#define V_WEAPONS         3
 #define V_COLORS          1
 #define V_ICONS           1
 #define V_GRAPHICSPACK    1
-#define V_INITDATA        7
+#define V_INITDATA        9
 #define V_GUYS            3
 #define V_MIDIS           1
 #define V_CHEATS          1
-#define V_SAVEGAME        1
+#define V_SAVEGAME        4
 #define V_COMBOALIASES    1
 #define V_LINKSPRITES     2
 #define V_SUBSCREEN       2
 #define V_ITEMDROPSET     1
-#define V_FFSCRIPT	      1
+#define V_FFSCRIPT	      4
+#define V_SFX             1
 
 /*
   * Compatible version number of the different section types
@@ -224,6 +226,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_SUBSCREEN      2
 #define CV_ITEMDROPSET    1
 #define CV_FFSCRIPT       1
+#define CV_SFX            1
 
 extern int curr_tb_page;
 extern bool triplebuffer_not_available;
@@ -275,6 +278,7 @@ extern int readsize, writesize;
 #define ZQ_MIDIS2       1                                   //4 bytes
 #define ZQ_CHEATS2       5
 #define ZQ_MAXDATA      20
+#define WAV_COUNT       128
 
 #define MAXSCREENS 128
 #define MAXCUSTOMMIDIS192b177 32                                  // uses bit string for midi flags, so 32 bytes
@@ -475,7 +479,7 @@ enum
   mfMSWORD, mfXSWORD, mfSWORDBEAM, mfWSWORDBEAM, mfMSWORDBEAM,
   mfXSWORDBEAM, mfHOOKSHOT, mfWAND, mfHAMMER, mfSTRIKE, mfBLOCKHOLE,
   mfMAGICFAIRY, mfALLFAIRY, mfSINGLE, mfSINGLE16, 
-  mfNOENEMY, mfMAX, mfPUSHED
+  mfNOENEMY, mfICE, mfMAX, mfPUSHED
 };
 
 // combo types
@@ -502,6 +506,7 @@ enum
   cSTEP, cSTEPSAME, cSTEPALL, cSTEPCOPY, cNOENEMY, cBLOCKARROW1, cBLOCKARROW2,
   cBLOCKARROW3, cBLOCKBRANG1, cBLOCKBRANG2, cBLOCKBRANG3, cBLOCKSBEAM, cBLOCKALL,
   cBLOCKFIREBALL, cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE, cSPINTILE1, cSPINTILE2,
+  cSCREENFREEZE, cSCREENFREEZEFF, cICE, cSLASHNEXT, cSLASHNEXTITEM, cBUSHNEXT,
   cMAX
 };
 
@@ -546,7 +551,7 @@ enum
   qr_NODIVING, qr_LAYER12UNDERCAVE, qr_NOSCROLLCONTINUE, qr_SMARTSCREENSCROLL,
   qr_RINGAFFECTDAMAGE, qr_ALLOW10RUPEEDROPS, qr_TRAPPOSFIX, qr_TEMPCANDLELIGHT,
   //12
-  qr_REDPOTIONONCE,
+  qr_REDPOTIONONCE, qr_OLDSTYLEWARP,
   
   qr_MAX
 };
@@ -611,7 +616,8 @@ enum                                                        // value matters bec
   iQuiverL2, iQuiverL3, i1BombAmmo, i4BombAmmo, i8BombAmmo,
   i30BombAmmo, iBombBag, iBombBagL2, iBombBagL3,
   iLevelKey, iSelectB, i10Rupies, i100Rupies, iCByrna, iLongshot,
-  iMax
+  i90,
+  iMax=256
 };
 
 // item sets
@@ -637,7 +643,7 @@ enum
   wNAYRUSLOVE2A, wNAYRUSLOVE2B, wNAYRUSLOVES2A, wNAYRUSLOVES2B,
   iwNayrusLoveShieldFront, iwNayrusLoveShieldBack, iwSubscreenVine, wCBYRNA, wCBYRNASLASH,
   wLSHEAD, wLSCHAIN_H, wLSHANDLE, wLSCHAIN_V, wSBOOM, ewBOMB, ewSBOMB,
-  ewBOOM, ewSBOOM, ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, wMAX
+  ewBOOM, ewSBOOM, ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, w84, wMAX=256
 };
 
 // weapon types in game engine
@@ -748,6 +754,11 @@ enum { pRANDOM, pSIDES };
 
 enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
+#define OLDITEMCNT i90
+#define OLDWPNCNT  w84
+#define ITEMCNT   iMax
+#define WPNCNT    wMAX
+
 typedef struct tiledata
 {
   byte format;
@@ -763,7 +774,19 @@ typedef struct itemdata
   byte speed;                                               // animation speed
   byte delay;                                               // extra delay factor (-1) for first frame
   long ltm;                                                 // Link Tile Modifier
+  byte family;												// What family the item is in
+  byte fam_type;											// What type in this family the item is
+  byte set_gamedata;										// Whether this item sets the corresponding gamedata value or not
+  word script;												// Which script the item is using
+  char count;
+  word amount;
+  short setmax;
+  word max;
+  byte playsound;
+  word collect_script;
 //  byte exp[10];                                             // not used
+  long initiald[8];
+  byte initiala[2];
 } itemdata;
 
 typedef struct wpndata
@@ -774,6 +797,8 @@ typedef struct wpndata
   byte frames;                                              // animation frame count
   byte speed;                                               // animation speed
   byte type;                                                // used by certain weapons
+//  byte wpn_type;
+//  word script;
 //  byte exp;                                                 // not used
 } wpndata;
 
@@ -957,18 +982,38 @@ typedef struct mapscr
   byte ffheight[32];
   byte fflink[32];
   word ffscript[32];
-  long d0[32];
-  long d1[32];
-  long d2[32];
-  long d3[32];
-  long d4[32];
-  long d5[32];
-  long d6[32];
-  long d7[32];
-  long a1[32];
-  long a2[32];
+  long d[32][8];
+  long a[32][2];
   word pc[32];
   dword scriptflag[32];
+  byte sp[32]; //stack pointer
+  long stack[32][256]; //stacks
+  byte itemref[32];
+  byte ffcref[32];
+  byte itemclass[32];
+  byte lwpnref[32];
+  byte lwpnclass[32];
+  byte ewpnref[32];
+  byte ewpnclass[32];
+  byte guyref[32];
+  byte guyclass[32];
+  long map_stack[256];
+  long map_d[8];
+  word map_pc;
+  dword map_scriptflag;
+  byte map_sp;
+  byte map_itemref;
+  byte map_itemclass;
+  byte map_lwpnref;
+  byte map_lwpnclass;
+  byte map_ewpnref;
+  byte map_ewpnclass;
+  byte map_guyref;
+  byte map_guyclass;
+  byte map_ffcref;
+  word script_entry;
+  word script_occupancy;
+  word script_exit;
 
   // for importing older quests...
   byte old_cpage;
@@ -1011,7 +1056,9 @@ typedef struct newcombo
   byte flag;
   byte skipanim;
   word nexttimer;
-  byte expansion[7];
+  byte skipanimy;
+  byte freshanim;
+  byte expansion[6];
   //24
 } newcombo;
 
@@ -1328,7 +1375,10 @@ enum
   itype_dinsfire, itype_faroreswind, itype_nayruslove, itype_bomb,
   itype_sbomb, itype_clock, itype_key, itype_magiccontainer,
   itype_triforcepiece, itype_map, itype_compass, itype_bosskey,
-  itype_quiver, itype_lkey, itype_cbyrna, itype_max
+  itype_quiver, itype_lkey, itype_cbyrna, 
+  itype_rupee, itype_arrowammo, itype_fairy, itype_magic, itype_heart,
+  itype_heartcontainer, itype_heartpiece, itype_killem, itype_bombammo, itype_bombbag,
+  itype_max=255
 };
 
 enum {i_sword=1, i_wsword, i_msword, i_xsword, imax_sword};
@@ -1360,6 +1410,11 @@ enum {i_faroreswind=1, imax_faroreswind};
 enum {i_nayruslove=1, imax_nayruslove};
 enum {i_quiver=1, i_quiverl2, i_quiverl3, imax_quiver};
 enum {i_cbyrna=1, imax_cbyrna};
+enum {i_rupee=1, i_5rupee, i_10rupee, i_20rupee, i_50rupee, i_100rupee, i_200rupee, imax_rupee};
+enum {i_arrowa=1, i_5arrowa, i_10arrowa, i_30arrowa, imax_arrowa};
+enum {i_bomba=1, i_4bomba, i_8bomba, i_30bomba, imax_bomba};
+enum {i_bombbag1=1, i_bombbag2, i_bombbag3, imax_bombbag}; 
+
 //enum {i_clock=1, imax_clock};
 
 typedef struct gamedata
@@ -1367,14 +1422,19 @@ typedef struct gamedata
   char  _name[9];
   byte  _quest;
   //10
-  word _life,_maxlife;
-  short _drupy;
-  word _rupies,_arrows,_maxarrows,_deaths;
+  //word _life,_maxlife;
+  //short _drupy;
+  //word _rupies,_arrows,_maxarrows,
+  word _deaths;
   //20
-  byte  _keys,_maxbombs,_wlevel,_cheat;
+  //byte  _keys,_maxbombs,
+  byte  /*_wlevel,*/_cheat;
   //24
   byte  items[MAXITEMS];
   //280
+  word _maxcounter[32];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
+  word _counter[32];
+  short _dcounter[32];
 
   char  version[9];
   char  title[65];
@@ -1387,14 +1447,15 @@ typedef struct gamedata
   byte  _timevalid;
   byte  lvlitems[256];
   byte  lvlkeys[256];
-  byte  _HCpieces;
+  //byte  _HCpieces;
   byte  _continue_scrn;
   byte  _continue_dmap;
   //620
-  word  _maxmagic, _magic;
-  short _dmagic;
-  byte  _magicdrainrate;
-  byte  _canslash;                                           //Link slashes instead of stabs.
+  /*word  _maxmagic, _magic;
+  short _dmagic;*/
+  //byte  _magicdrainrate;
+  //byte  _canslash;                                           //Link slashes instead of stabs.
+  byte _generic[256];	// Generic gamedata. 0 - Heart pieces, 1- magicdrainrate, 2-canslash, 3-wlevel
                                                              //byte  padding[2];
                                                              //636
   byte  visited[MAXDMAPS];
@@ -1408,6 +1469,8 @@ typedef struct gamedata
   char  qstpath[2048];
   byte  icon[128];
   byte  pal[48];
+  long  screen_d[MAXDMAPS*64][8];                           // script-controlled screen variables
+  long  global_d[256];                                      // script-controlled global variables
   //115456 (260)
 } gamedata;
 
@@ -1498,6 +1561,8 @@ typedef struct zinitdata
   int ss_bbox_2_color;
   int ss_flags;
   byte subscreen_style;
+  byte usecustomsfx;
+  word max_rupees, max_keys;
 } zinitdata;
 
 
@@ -1804,3 +1869,10 @@ INLINE bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2)
 INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 #endif                                                      //_ZDEFS_H_
 
+#define NUMSCRIPTFFC 512
+#define NUMSCRIPTITEM 256
+#define NUMSCRIPTGUYS 256
+#define NUMSCRIPTWEAPONS 256
+#define NUMSCRIPTGLOBAL 3
+#define NUMSCRIPTLINK 3
+#define NUMSCRIPTSCREEN 256

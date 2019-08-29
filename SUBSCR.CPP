@@ -3837,7 +3837,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
 
 void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, bool usex, int textstyle, int digits, char idigit)
 {
-  int yofs = can_use_item(itype_sbomb,1) ? 8 : 0;
+  int yofs = get_gamedata_sbombs() ? 8 : 0;
 
   //88, 16
   overtile8(dest,5,x,y,1,0);
@@ -3846,12 +3846,12 @@ void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int 
 
   putxnum(dest,x+8,y,get_gamedata_rupies(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
   putxnum(dest,x+8,y+16-yofs,get_gamedata_keys()+get_gamedata_lkeys(),tempfont,color,shadowcolor,bgcolor, textstyle,usex,digits,current_item(itype_magickey,true)>=i_magickey,idigit);
-  putxnum(dest,x+8,y+24-yofs,current_item(itype_bomb, true),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
+  putxnum(dest,x+8,y+24-yofs,get_gamedata_bombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
 
-  if(can_use_item(itype_sbomb,1))
+  if(get_gamedata_sbombs())
   {
     overtile8(dest,13,x,y+24,1,0);
-    putxnum(dest,x+8,y+24,current_item(itype_sbomb, true),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
+    putxnum(dest,x+8,y+24,get_gamedata_sbombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
   }
 }
 
@@ -4446,7 +4446,7 @@ void load_Sitems(miscQdata *misc)
       Sitems.add(new item((fix)0,(fix)0,iFBrang,0,0));
     }
   }
-  if(current_item(itype_bomb,true))
+  if(get_gamedata_bombs())
   {
     Sitems.add(new item((fix)0,(fix)0,iBombs,0,0));
   }
@@ -4507,7 +4507,7 @@ void load_Sitems(miscQdata *misc)
       Sitems.add(new item((fix)0,(fix)0,iHookshot,0,0));
     }
   }
-  if(current_item(itype_sbomb,true))
+  if(get_gamedata_sbombs())
   {
     Sitems.add(new item((fix)0,(fix)0,iSBomb,0,0));
   }

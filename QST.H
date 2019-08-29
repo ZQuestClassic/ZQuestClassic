@@ -120,7 +120,8 @@ int readinitdata(PACKFILE *f, zquestheader *header, bool keepdata);
 int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata);
 int read_one_subscreen(PACKFILE *f, zquestheader *header, bool keepdata, int i, word s_version, word s_cversion);
 int readffscript(PACKFILE *f, zquestheader *header, bool keepdata);
-int read_one_ffscript(PACKFILE *f, zquestheader *header, bool keepdata, int i, word s_version, word s_cversion);
+int read_one_ffscript(PACKFILE *f, zquestheader *header, bool keepdata, int i, word s_version, word s_cversion, ffscript **script);
+int readsfx(PACKFILE *f, zquestheader *header, bool keepdata);
 
 
 int get_version_and_build(PACKFILE *f, word *version, word *build);
@@ -155,5 +156,7 @@ INLINE int skipdmaps(PACKFILE *f, zquestheader *header, word version, word build
 void reset_subscreen(subscreen_group *tempss);
 void reset_subscreens();
 int setupsubscreens();
+void setupsfx();
+void reset_itembuf(itemdata *item, int id);
 
 #endif                                                      // _ZC_QST_H_

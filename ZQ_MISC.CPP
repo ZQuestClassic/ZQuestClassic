@@ -275,7 +275,7 @@ void refresh_pal()
 
 char ns_string[3];
 
-char *item_string[ITEMCNT] =
+char *old_item_string[OLDITEMCNT] =
 {
   "Rupee (1)", "Rupee (5)", "Heart", "Bomb (Normal)", "Clock",
   "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Shield 1 (Magic)", "Key (Normal)",
@@ -297,7 +297,9 @@ char *item_string[ITEMCNT] =
   "Hookshot 2 (Long)"
 };
 
-char *weapon_string[WPNCNT] =
+char *item_string[ITEMCNT];
+
+char *old_weapon_string[OLDWPNCNT] =
 {
   "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Sword 4 (Master)",
   "Boomerang 1 (Wooden)", "Boomerang 2 (Magic)", "Boomerang 3 (Fire)", "Bomb (Normal)",
@@ -319,6 +321,8 @@ char *weapon_string[WPNCNT] =
   "Explosion (Super)", "Bomb (Enemy, Normal)", "Bomb (Enemy, Super)", "Explosion (Enemy, Normal)",  "Explosion (Enemy, Super)",
   "Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy)", "Ice Magic (Enemy)"
 };
+
+char *weapon_string[WPNCNT];
 
 char *roomtype_string[MAXROOMTYPES] =
 {
@@ -372,7 +376,8 @@ char *combotype_string[MAXCOMBOTYPES] =
   "Trigger (Sens. Temp)", "Trigger (Sens. Perm)", "Step->Next", "Step->Next (Same)", "Step->Next (All)", "Step->Next (Copycat)",
   "No Enemies", "Block Arrow (Wooden)", "Block Arrow (Wood+Silver)", "Block Arrow (All)", "Block Brang (Wooden)",
   "Block Brang (Wood+Magic)", "Block Brang (All)", "Block Sword Beam", "Block All", "Block Fireball",
-  "Damage (8 hearts)", "Damage (16 hearts)", "Damage (32 hearts)", "FF Combo Attr. Change", "Spinning Tile (Immediate)", "Spinning Tile (Random)"
+  "Damage (8 hearts)", "Damage (16 hearts)", "Damage (32 hearts)", "FF Combo Attr. Change", "Spinning Tile (Immediate)", "Spinning Tile (Random)",
+  "Screen Freeze", "Screen Freeze (FFCs Animate)", "Ice", "Slash->Next", "Slash->Next (Item)", "Bush->Next (Item)"
 };
 
 char *flag_string[MAXFLAGS] =
@@ -473,7 +478,8 @@ char *flag_string[MAXFLAGS] =
   "93 Fairy (All)",
   "94 Singular",
   "95 Singular(+16-31)",
-  "96 No Enemies"
+  "96 No Enemies",
+  "97 Ice"
 };
 
 // eMAXGUYS is defined in zdefs.h

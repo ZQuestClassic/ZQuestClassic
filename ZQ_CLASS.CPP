@@ -12,6 +12,14 @@
 /****** ZMAP class ******/
 /************************/
 
+#ifndef __GTHREAD_HIDE_WIN32API                             
+#define __GTHREAD_HIDE_WIN32API 
+#endif                            //prevent indirectly including windows.h
+
+#include <string.h>
+#include <string>
+#include <map>
+
 #include "gui.h"
 #include "zq_class.h"
 #include "zq_misc.h"
@@ -29,14 +37,17 @@
 #include "zc_custom.h"
 #include "subscr.h"
 #include "zq_subscr.h"
-#include <string.h>
-
+using std::string;
+using std::pair;
 #define EPSILON 0.01 // Define your own tolerance
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 
 //const char zqsheader[30]="Zelda Classic String Table\n\x01";
 
-
+extern string zScript;
+extern std::map<int, pair<string, string> > ffcmap;
+extern std::map<int, pair<string, string> > globalmap;
+extern std::map<int, pair<string, string> > itemmap;
 zmap Map;
 int prv_mode=0;
 short ffposx[32]={-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
@@ -240,6 +251,7 @@ void zmap::setCurrMap(int index)
   {
     can_undo=false;
   }
+  reset_combo_animations2();
 }
 
 int zmap:: getCurrScr()        { return currscr; }
@@ -270,6 +282,7 @@ void zmap::setCurrScr(int scr)
   {
     can_undo=false;
   }
+  reset_combo_animations2();
 }
 
 void zmap::setcolor(int c)
@@ -1636,7 +1649,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
           over_combo(dest,(int)layer->ffx[i]+x,(int)layer->ffy[i]+y,layer->ffdata[i],layer->ffcset[i],flags);
       }
     }*/
-    for(int i=31;i>=0;i--)
+      for(int i=31;i>=0;i--)
       {
 	    if(layer->ffdata[i])
 	    {
@@ -1669,7 +1682,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 	      int c=combobuf[layer->ffdata[i]].type;
 	      if(c==cCHANGE)
 	      {
-		    putpixel(dest,(int)layer->ffx[i]+x,(int)layer->ffy[i]+y,vc(rand()%16));
+		    putpixel(dest,(layer->ffx[i]/10000)+x,(layer->ffy[i]/10000)+y,vc(rand()%16));
 		  }
 		}
 	  }
@@ -3022,6 +3035,20 @@ void zmap::update_combo_cycling()
     }
   }
 
+  for (int i=0; i<176; i++)
+  {
+    x=prvscr.data[i];
+    y=animated_combo_table2[x][0];
+    //time to restart
+    if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
+        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+        (combobuf[x].nextcombo!=0))
+    {
+      prvscr.data[i]=combobuf[x].nextcombo;
+      prvscr.cset[i]=combobuf[x].nextcset;
+    }
+  }
+
   for(int i=0;i<32;i++)
   {
 	  x=prvscr.ffdata[i];
@@ -3029,6 +3056,20 @@ void zmap::update_combo_cycling()
 	  //time to restart
 	  if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+        (combobuf[x].nextcombo!=0))
+      {
+        prvscr.ffdata[i]=combobuf[x].nextcombo;
+        prvscr.ffcset[i]=combobuf[x].nextcset;
+      }
+  }
+
+  for(int i=0;i<32;i++)
+  {
+	  x=prvscr.ffdata[i];
+	  y=animated_combo_table2[x][0];
+	  //time to restart
+	  if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
+        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
       {
         prvscr.ffdata[i]=combobuf[x].nextcombo;
@@ -3047,6 +3088,19 @@ void zmap::update_combo_cycling()
         //time to restart
         if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
             (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+            (combobuf[x].nextcombo!=0))
+        {
+          (prvlayers[j]).data[i]=combobuf[x].nextcombo;
+          (prvlayers[j]).cset[i]=combobuf[x].nextcset;
+        }
+      }
+	  for (int i=0; i<176; i++)
+      {
+        x=(prvlayers[j]).data[i];
+        y=animated_combo_table2[x][0];
+        //time to restart
+        if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
+            (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
             (combobuf[x].nextcombo!=0))
         {
           (prvlayers[j]).data[i]=combobuf[x].nextcombo;
@@ -3513,6 +3567,7 @@ bool save_combos(char *path)
   }
 
   reset_combo_animations();
+  reset_combo_animations2();
   if (writecombos(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS)==0)
   {
     pack_fclose(f);
@@ -3805,6 +3860,7 @@ bool load_zgp(char *path)
   //yay!  it worked!  close the file and say everything was ok.
   loadlvlpal(Color);
   setup_combo_animations();
+  setup_combo_animations2();
   pack_fclose(f);
   return true;
 }
@@ -3814,6 +3870,7 @@ bool save_zgp(char *path)
 //  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 //  return false;
   reset_combo_animations();
+  reset_combo_animations2();
 
   //open the file
   PACKFILE *f=pack_fopen(path,F_WRITE);
@@ -3910,6 +3967,7 @@ bool save_subscreen(char *path, bool *cancel)
 //  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 //  return false;
   reset_combo_animations();
+  reset_combo_animations2();
   *cancel = false;
 
   int ret;
@@ -5509,6 +5567,14 @@ int writeitems(PACKFILE *f, zquestheader *header)
     return 5;
   }
 
+  for(int i=0; i<iMax; i++)
+  {
+	if(!pfwrite(item_string[i], 64, f))
+	{
+	  return 5;
+	}
+  }
+
   for (int i=0; i<iMax; i++)
   {
     if(!p_iputw(itemsbuf[i].tile,f))
@@ -5540,6 +5606,60 @@ int writeitems(PACKFILE *f, zquestheader *header)
     {
       return 12;
     }
+	if(!p_putc(itemsbuf[i].family,f))
+	{
+	  return 13;
+	}
+	if(!p_putc(itemsbuf[i].fam_type,f))
+	{
+	  return 14;
+	}
+	if(!p_putc(itemsbuf[i].set_gamedata,f))
+	{
+	  return 15;
+	}
+	if(!p_iputw(itemsbuf[i].script,f))
+	{
+	  return 16;
+	}
+	if(!p_putc(itemsbuf[i].count,f))
+	{
+	  return 17;
+	}
+	if(!p_iputw(itemsbuf[i].amount,f))
+	{
+	  return 18;
+	}
+	if(!p_iputw(itemsbuf[i].collect_script,f))
+	{
+	  return 19;
+	}
+	if(!p_iputw(itemsbuf[i].setmax,f))
+	{
+	  return 21;
+	}
+	if(!p_iputw(itemsbuf[i].max,f))
+	{
+	  return 22;
+	}
+	if(!p_putc(itemsbuf[i].playsound,f))
+	{
+	  return 23;
+	}
+	for(int j=0;j<8;j++)
+	{
+	  if(!p_iputl(itemsbuf[i].initiald[j],f))
+      {
+	    return 24;
+      }
+	}
+	for(int j=0;j<2;j++)
+	{
+	  if(!p_putc(itemsbuf[i].initiala[j],f))
+      {
+        return 25;
+      }
+	}
   }
   return 0;
 }
@@ -5579,6 +5699,14 @@ int writeweapons(PACKFILE *f, zquestheader *header)
   if(!p_iputw(wMAX,f))
   {
     return 5;
+  }
+
+  for(int i=0; i<wMAX; i++)
+  {
+	if(!pfwrite(weapon_string[i], 64, f))
+	{
+	  return 5;
+	}
   }
 
   for (int i=0; i<wMAX; i++)
@@ -6002,62 +6130,102 @@ int writemaps(PACKFILE *f, zquestheader *header)
 	  {
 	    if((TheMaps[scr].numff>>k)&1)
 		{
-	    if(!p_iputw(TheMaps[scr].ffdata[k],f))
-		{
-		  return qe_invalid;
-		}
-		if(!p_putc(TheMaps[scr].ffcset[k],f))
-		{
-		  return qe_invalid;
-		}
-		if(!p_iputw(TheMaps[scr].ffdelay[k],f))
-		{
-		  return qe_invalid;
-		}
-		if(!pfwrite(&TheMaps[scr].ffx[k],4,f))
-		{
-		  return qe_invalid;
-		}
-		if(!pfwrite(&TheMaps[scr].ffy[k],4,f))
-		{
-		  return qe_invalid;
-		}
-		if(!pfwrite(&TheMaps[scr].ffxdelta[k],4,f))
-		{
-		  return qe_invalid;
-		}
-		if(!pfwrite(&TheMaps[scr].ffydelta[k],4,f))
-		{
-		  return qe_invalid;
-		}
-		if(!pfwrite(&TheMaps[scr].ffxdelta2[k],4,f))
-		{
-		  return qe_invalid;
-		}
-		if(!pfwrite(&TheMaps[scr].ffydelta2[k],4,f))
-		{
-		  return qe_invalid;
-		}
-		if(!p_putc(TheMaps[scr].fflink[k],f))
-		{
-		  return qe_invalid;
-		}
-		if(!p_putc(TheMaps[scr].ffwidth[k],f))
-		{
-		  return qe_invalid;
-		}
-		if(!p_putc(TheMaps[scr].ffheight[k],f))
-		{
-		  return qe_invalid;
-		}
-		if(!p_iputl(TheMaps[scr].ffflags[k],f))
-		{
-		  return qe_invalid;
-		}
-		if(!p_iputw(TheMaps[scr].ffscript[k],f))
-		{
-		  return qe_invalid;
-		}
+	      if(!p_iputw(TheMaps[scr].ffdata[k],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_putc(TheMaps[scr].ffcset[k],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputw(TheMaps[scr].ffdelay[k],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!pfwrite(&TheMaps[scr].ffx[k],4,f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!pfwrite(&TheMaps[scr].ffy[k],4,f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!pfwrite(&TheMaps[scr].ffxdelta[k],4,f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!pfwrite(&TheMaps[scr].ffydelta[k],4,f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!pfwrite(&TheMaps[scr].ffxdelta2[k],4,f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!pfwrite(&TheMaps[scr].ffydelta2[k],4,f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_putc(TheMaps[scr].fflink[k],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_putc(TheMaps[scr].ffwidth[k],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_putc(TheMaps[scr].ffheight[k],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputl(TheMaps[scr].ffflags[k],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputw(TheMaps[scr].ffscript[k],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputl(TheMaps[scr].d[k][0],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputl(TheMaps[scr].d[k][1],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputl(TheMaps[scr].d[k][2],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputl(TheMaps[scr].d[k][3],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputl(TheMaps[scr].d[k][4],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputl(TheMaps[scr].d[k][5],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputl(TheMaps[scr].d[k][6],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_iputl(TheMaps[scr].d[k][7],f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_putc(TheMaps[scr].a[k][0]/10000,f))
+		  {
+		    return qe_invalid;
+		  }
+		  if(!p_putc(TheMaps[scr].a[k][1]/10000,f))
+		  {
+		    return qe_invalid;
+		  }
 		}
 	  }
     }
@@ -6162,6 +6330,14 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 	if(!p_iputw(combobuf[i].nexttimer,f))
     {
       return 17;
+    }
+	if(!p_putc(combobuf[i].skipanimy,f))
+    {
+      return 18;
+    }
+	if(!p_putc(combobuf[i].freshanim,f))
+    {
+      return 19;
     }
   }
 
@@ -6987,7 +7163,13 @@ int write_one_subscreen(PACKFILE *f, zquestheader *header, int i)
   return 0;
 }
 
-extern ffscript ffscripts[256][1000];
+extern ffscript *ffscripts[512];
+extern ffscript *itemscripts[256];
+extern ffscript *guyscripts[256];
+extern ffscript *wpnscripts[256];
+extern ffscript *globalscripts[3];
+extern ffscript *linkscripts[3];
+extern ffscript *screenscripts[256];
 
 int writeffscript(PACKFILE *f, zquestheader *header)
 {
@@ -7021,39 +7203,230 @@ int writeffscript(PACKFILE *f, zquestheader *header)
     return 4;
   }
 
+  for(int i=0;i<512;i++)
+  {
+    int ret = write_one_ffscript(f, header, i, &ffscripts[i]);
+	if(ret!=0) return ret;
+  }
   for(int i=0;i<256;i++)
   {
-    int ret = write_one_ffscript(f, header, i);
+    int ret = write_one_ffscript(f, header, i, &itemscripts[i]);
 	if(ret!=0) return ret;
+  }
+  for(int i=0;i<256;i++)
+  {
+    int ret = write_one_ffscript(f, header, i, &guyscripts[i]);
+	if(ret!=0) return ret;
+  }
+  for(int i=0;i<256;i++)
+  {
+    int ret = write_one_ffscript(f, header, i, &wpnscripts[i]);
+	if(ret!=0) return ret;
+  }
+  for(int i=0;i<256;i++)
+  {
+    int ret = write_one_ffscript(f, header, i, &screenscripts[i]);
+	if(ret!=0) return ret;
+  }
+  for(int i=0;i<3;i++)
+  {
+    int ret = write_one_ffscript(f, header, i, &globalscripts[i]);
+	if(ret!=0) return ret;
+  }
+  for(int i=0;i<3;i++)
+  {
+    int ret = write_one_ffscript(f, header, i, &linkscripts[i]);
+	if(ret!=0) return ret;
+  }
+  if(!p_iputl(zScript.size(), f))
+  {
+	  return 2001;
+  }
+  if(!pfwrite((void *)zScript.c_str(), zScript.size(), f))
+  {
+	  return 2002;
+  }
+  word numffcbindings=0;
+  for(std::map<int, pair<string, string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+  {
+	  if(it->second.second != "")
+		  numffcbindings++;
+  }
+  if(!p_iputw(numffcbindings, f))
+  {
+	  return 2003;
+  }
+  for(std::map<int, pair<string, string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+  {
+	  if(it->second.second != "")
+	  {
+		  if(!p_iputw(it->first,f))
+			  return 2004;
+		  if(!p_iputl(it->second.second.size(), f))
+			  return 2005;
+		  if(!pfwrite((void *)it->second.second.c_str(), it->second.second.size(),f))
+			  return 2006;
+	  }
+  }
+  word numglobalbindings=0;
+  for(std::map<int, pair<string, string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+  {
+	  if(it->second.second != "")
+		  numglobalbindings++;
+  }
+  if(!p_iputw(numglobalbindings, f))
+  {
+	  return 2007;
+  }
+  for(std::map<int, pair<string, string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+  {
+	  if(it->second.second != "")
+	  {
+		  if(!p_iputw(it->first,f))
+			  return 2008;
+		  if(!p_iputl(it->second.second.size(), f))
+			  return 2009;
+		  if(!pfwrite((void *)it->second.second.c_str(), it->second.second.size(),f))
+			  return 2010;
+	  }
+  }
+  word numitembindings=0;
+  for(std::map<int, pair<string, string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+  {
+	  if(it->second.second != "")
+		  numitembindings++;
+  }
+  if(!p_iputw(numitembindings, f))
+  {
+	  return 2011;
+  }
+  for(std::map<int, pair<string, string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+  {
+	  if(it->second.second != "")
+	  {
+		  if(!p_iputw(it->first,f))
+			  return 2012;
+		  if(!p_iputl(it->second.second.size(), f))
+			  return 2013;
+		  if(!pfwrite((void *)it->second.second.c_str(), it->second.second.size(),f))
+			  return 2014;
+	  }
   }
   return 0;
 }
 
-int write_one_ffscript(PACKFILE *f, zquestheader *header, int i)
+int write_one_ffscript(PACKFILE *f, zquestheader *header, int i, ffscript **script)
 {
-	for(int j=0;j<1000;j++)
+	int num_commands;
+	for(int j=0;;j++)
 	{
-		if(!p_iputw(ffscripts[i][j].command,f))
+	  if((*script)[j].command==0xFFFF)
+	  {
+	    num_commands = j+1;
+		break;
+	  }
+	}
+	if(!p_iputl(num_commands,f))
+	{
+	  return 6;
+	}
+	for(int j=0;j<num_commands;j++)
+	{
+		if(!p_iputw((*script)[j].command,f))
 		{
-			return 6;
+			return 7;
 		}
-		if(ffscripts[i][j].command==0xFFFF)
+		if((*script)[j].command==0xFFFF)
 		{
-			j=1000;
+			break;
 		}
 		else
 		{
-			if(!p_iputl(ffscripts[i][j].arg1,f))
-			{
-				return 7;
-			}
-			if(!p_iputl(ffscripts[i][j].arg2,f))
+			if(!p_iputl((*script)[j].arg1,f))
 			{
 				return 8;
+			}
+			if(!p_iputl((*script)[j].arg2,f))
+			{
+				return 9;
 			}
 		}
 	}
 	return 0;
+}
+
+extern SAMPLE customsfxdata[WAV_COUNT];
+
+int writesfx(PACKFILE *f, zquestheader *header)
+{
+  dword section_id=ID_SFX;
+  dword section_version=V_SFX;
+  dword section_cversion=CV_SFX;
+  dword section_size=0;
+
+  //section id
+  if(!p_mputl(section_id,f))
+  {
+    return 1;
+  }
+
+  //section version info
+  if(!p_iputw(section_version,f))
+  {
+    return 2;
+  }
+
+  if(!p_iputw(section_cversion,f))
+  {
+    return 3;
+  }
+
+  //section size
+  if(!p_iputl(section_size,f))
+  {
+    return 4;
+  }
+
+  for(int i=1;i<WAV_COUNT;i++)
+  {
+    if(!p_iputl(customsfxdata[i].bits,f))
+	{
+		return 5;
+	}
+	if(!p_iputl(customsfxdata[i].stereo,f))
+	{
+		return 6;
+	}
+	if(!p_iputl(customsfxdata[i].freq,f))
+	{
+		return 7;
+	}
+	if(!p_iputl(customsfxdata[i].priority,f))
+	{
+		return 8;
+	}
+	if(!p_iputl(customsfxdata[i].len,f))
+	{
+		return 9;
+	}
+	if(!p_iputl(customsfxdata[i].loop_start,f))
+	{
+		return 10;
+	}
+	if(!p_iputl(customsfxdata[i].loop_end,f))
+	{
+		return 11;
+	}
+	if(!p_iputl(customsfxdata[i].param,f))
+	{
+		return 12;
+	}
+	if(!pfwrite(customsfxdata[i].data, (customsfxdata[i].bits==8?1:2)*customsfxdata[i].len,f))
+	{
+		return 13;
+	}
+  }
+  return 0;
 }
 
 int writeinitdata(PACKFILE *f, zquestheader *header)
@@ -7066,6 +7439,7 @@ int writeinitdata(PACKFILE *f, zquestheader *header)
 
   zinit.last_map=Map.getCurrMap();
   zinit.last_screen=Map.getCurrScr();
+  zinit.usecustomsfx=1;
 
   //section id
   if(!p_mputl(section_id,f))
@@ -7468,13 +7842,25 @@ int writeinitdata(PACKFILE *f, zquestheader *header)
   {
     return 92;
   }
-
+  if(!p_putc(zinit.usecustomsfx,f))
+  {
+    return 93;
+  }
+  if(!p_iputw(zinit.max_rupees,f))
+  {
+    return 94;
+  }
+  if(!p_iputw(zinit.max_keys,f))
+  {
+    return 95;
+  }
   return 0;
 }
 
 int save_unencoded_quest(char *filename, bool compressed)
 {
   reset_combo_animations();
+  reset_combo_animations2();
   strcpy(header.id_str,QH_NEWIDSTR);
   header.zelda_version = ZELDA_VERSION;
   header.internal = INTERNAL_VERSION;
@@ -7678,6 +8064,14 @@ int save_unencoded_quest(char *filename, bool compressed)
   if (writeffscript(f,&header)!=0)
   {
     return 23;
+  }
+  box_out("okay.");
+  box_eol();
+
+  box_out("Writing SFX Data...");
+  if (writesfx(f,&header)!=0)
+  {
+    return 24;
   }
   box_out("okay.");
   box_eol();
@@ -9961,6 +10355,7 @@ int writeinitdata_210(PACKFILE *f, zquestheader *header)
 int save_unencoded_quest_210(char *filename, bool compressed)
 {
   reset_combo_animations();
+  reset_combo_animations2();
   strcpy(header.id_str,QH_NEWIDSTR);
   header.zelda_version = ZELDA_VERSION_210;
   header.internal = INTERNAL_VERSION;

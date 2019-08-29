@@ -1,27 +1,11 @@
 #ifndef __GTHREAD_HIDE_WIN32API                             
-#define __GTHREAD_HIDE_WIN32API 1
+#define __GTHREAD_HIDE_WIN32API 
 #endif                            //prevent indirectly including windows.h
 
 #include <assert.h>
 
 #include "EditboxNew.h"
 #include "zc_alleg.h"
-#include "jwin.h"
-#include "zdefs.h"
-#include "editbox.h"
-#include "gui.h"
-
-extern FONT *lfont;
-extern FONT *pfont;
-
-static DIALOG help_dlg[] =
-{
-  { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0,        (void *) "ZQuest Help", NULL, NULL },
-  { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-  { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC,  (void *) close_dlg, NULL, NULL },
-  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
 
 int Unicode::indexToOffset(string &s, int i)
 {
@@ -112,18 +96,18 @@ void Unicode::textout_ex_nonstupid(BITMAP *bmp, FONT *f, string &s, int x, int y
 			continue;
 		if(c == '\t')
 		{
-			int temp_offset = 0;
+			int offset = 0;
 			for(int i=0; i<TABSIZE; i++)
 			{
-				int temp_width = usetc(temp+temp_offset, ' ');
-				temp_offset+=temp_width;
+				int width = usetc(temp+offset, ' ');
+				offset+=width;
 			}
-			usetc(temp+temp_offset,0);
+			usetc(temp+offset,0);
 		}
 		else
 		{
-			int temp_width = usetc(temp,c);
-			usetc(temp+temp_width,0);
+			int width = usetc(temp,c);
+			usetc(temp+width,0);
 		}
 		newstring += temp;
 	}
@@ -138,7 +122,7 @@ int Unicode::getIndexOfWidth(string &s, int x, FONT *f)
 	int lastwidth=0;
 	const char *buf = s.c_str();
 	int c;
-	for(index=0; ; index++)
+	for(index=0; true; index++)
 	{
 		int width = Unicode::getCharWidth(buf, offset);
 		c = Unicode::getCharAtOffset(buf, offset);
@@ -319,11 +303,11 @@ CursorPos EditboxModel::findIndex(int totalindex)
 	int offinline = totalindex-curindex+rval.it->numchars;
 	rval.lineno = lineno;
 	rval.index = offinline;
-	string &str = rval.it->line;
+	string &s = rval.it->line;
 	rval.x = 0;
 	for(int i=0; i<offinline; i++)
 	{
-		int c = Unicode::getCharAtIndex(str,i);
+		int c = Unicode::getCharAtIndex(s,i);
 		rval.x += Unicode::getCharWidth(c,view->getFont());
 	}
 	return rval;
@@ -433,7 +417,7 @@ void EditboxModel::paste()
 	if(isReadonly())
 		return;
 	CursorPos cp = findCursor();
-	int offset = Unicode::indexToOffset(getBuffer(), getCursor().getPosition());
+	int offset = Unicode::indexToOffset(getBuffer(), cp.index);
 	buffer = buffer.substr(0,offset) + clipboard + buffer.substr(offset, buffer.size()-offset);
 	//nevermind, THIS is the ultimate annoying
 	//break up the lines int he clipboard
@@ -456,9 +440,9 @@ void EditboxModel::paste()
 	getLines().insert(it, therestline);
 	for(list<LineData>::reverse_iterator toiit = toinsert.rbegin(); toiit != toinsert.rend(); toiit++)
 	{
-		list<LineData>::iterator iter = cp.it;
-		iter++;
-		getLines().insert(iter, *toiit);
+		list<LineData>::iterator it = cp.it;
+		it++;
+		getLines().insert(it, *toiit);
 	}
 	it = cp.it;
 	it++;
@@ -478,15 +462,15 @@ void EditboxModel::paste()
 void EditboxModel::makeLines(list<LineData> &target, string &source)
 {
   target.clear();
-  string &str = source;
-  const char *buf = str.c_str();
+  string &s = source;
+  const char *buf = s.c_str();
   int startoffset = 0;
   int startindex = 0;
   int endindex = 0;
   int lineno;
   lineno=0;
   int endoffset;
-  for(endoffset = 0; endoffset != int(str.size()); endindex++)
+  for(endoffset = 0; endoffset != int(s.size()); endindex++)
   {
     int width = Unicode::getCharWidth(buf, endoffset);
     int c = Unicode::getCharAtOffset(buf, endoffset);
@@ -496,7 +480,7 @@ void EditboxModel::makeLines(list<LineData> &target, string &source)
       endoffset+=width;
       endindex++;
       LineData ld;
-      ld.line = str.substr(startoffset, endoffset-startoffset);
+      ld.line = s.substr(startoffset, endoffset-startoffset);
       ld.numchars = endindex-startindex;
       ld.newlineterminated = true;
       ld.dirtyflag = true;
@@ -511,36 +495,11 @@ void EditboxModel::makeLines(list<LineData> &target, string &source)
   if(endoffset != startoffset)
   {
 	  LineData ld;
-	  ld.line = str.substr(startoffset, endoffset-startoffset);
+	  ld.line = s.substr(startoffset, endoffset-startoffset);
 	  ld.numchars = endindex-startindex;
 	  ld.newlineterminated = false;
 	  ld.dirtyflag = true;
 	  ld.strip = NULL;
 	  target.push_back(ld);
   }
-}
-
-void EditboxModel::doHelp()
-{
-	string helpstr = "";
-	if(!helpfile)
-		return;
-	FILE *hb = fopen(helpfile, "r");
-  if(!hb)
-  {
-    return;
-  }
-  char c = fgetc(hb);
-  while(!feof(hb))
-  {
-		helpstr+=c;
-		c = fgetc(hb);
-  }	
-  fclose(hb);
-  
-  help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],pfont,view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-  help_dlg[0].dp2= lfont;
-  help_dlg[2].bg = view->getDialog()->bg;
-  zc_popup_dialog(help_dlg,2);
-  delete (EditboxModel*)(help_dlg[2].dp);
 }

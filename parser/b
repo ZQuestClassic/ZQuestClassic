@@ -1,0 +1,5 @@
+script bar for 0{
+bool c ;
+float a = 1;
+void run() {}
+}

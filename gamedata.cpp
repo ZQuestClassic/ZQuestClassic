@@ -38,91 +38,163 @@ void change_gamedata_quest(gamedata *g, short q)
   return;
 }
 
+word get_gamedata_counter(gamedata *g, byte c)
+{
+  return g->_counter[c];
+}
+
+void set_gamedata_counter(gamedata *g, word change, byte c)
+{
+  g->_counter[c]=change;
+  return;
+}
+
+void change_gamedata_counter(gamedata *g, short change, byte c)
+{
+  g->_counter[c]+=change;
+  return;
+}
+
+word get_gamedata_maxcounter(gamedata *g, byte c)
+{
+  return g->_maxcounter[c];
+}
+
+void set_gamedata_maxcounter(gamedata *g, word change, byte c)
+{
+  g->_maxcounter[c]=change;
+  return;
+}
+
+void change_gamedata_maxcounter(gamedata *g, short change, byte c)
+{
+  g->_maxcounter[c]+=change;
+  return;
+}
+
+short get_gamedata_dcounter(gamedata *g, byte c)
+{
+  return g->_dcounter[c];
+}
+
+void set_gamedata_dcounter(gamedata *g, short change, byte c)
+{
+  g->_dcounter[c]=change;
+  return;
+}
+
+void change_gamedata_dcounter(gamedata *g, short change, byte c)
+{
+  g->_dcounter[c]+=change;
+  return;
+}
+
+short get_gamedata_generic(gamedata *g, byte c)
+{
+  return g->_generic[c];
+}
+
+void set_gamedata_generic(gamedata *g, byte change, byte c)
+{
+  g->_generic[c]=change;
+  return;
+}
+
+void change_gamedata_generic(gamedata *g, short change, byte c)
+{
+  g->_generic[c]+=change;
+  return;
+}
+
 word get_gamedata_life(gamedata *g)
 {
-  return g->_life;
+  return get_gamedata_counter(g, 0);
 }
 void set_gamedata_life(gamedata *g, word l)
 {
-  g->_life=l;
+  set_gamedata_counter(g, l, 0);
+  set_gamedata_dcounter(g, l, 0);
   return;
 }
 void change_gamedata_life(gamedata *g, short l)
 {
-  g->_life+=l;
+  change_gamedata_counter(g, l, 0);
+  change_gamedata_dcounter(g, l, 0);
   return;
 }
 
 word get_gamedata_maxlife(gamedata *g)
 {
-  return g->_maxlife;
+  return get_gamedata_maxcounter(g, 0);
 }
 void set_gamedata_maxlife(gamedata *g, word m)
 {
-  g->_maxlife=m;
+  set_gamedata_maxcounter(g, m, 0);
   return;
 }
 void change_gamedata_maxlife(gamedata *g, short m)
 {
-  g->_maxlife+=m;
+  change_gamedata_maxcounter(g, m, 0);
   return;
 }
 
 short get_gamedata_drupy(gamedata *g)
 {
-  return g->_drupy;
+  return get_gamedata_dcounter(g, 1);
 }
 void set_gamedata_drupy(gamedata *g, short d)
 {
-  g->_drupy=d;
+  set_gamedata_dcounter(g, d, 1);
   return;
 }
 void change_gamedata_drupy(gamedata *g, short d)
 {
-  g->_drupy+=d;
+  change_gamedata_dcounter(g, d, 1);
   return;
 }
 
 word get_gamedata_rupies(gamedata *g)
 {
-  return g->_rupies;
+  return get_gamedata_counter(g, 1);
 }
 void set_gamedata_rupies(gamedata *g, word r)
 {
-  g->_rupies=r;
+  set_gamedata_counter(g, r, 1);
   return;
 }
 void change_gamedata_rupies(gamedata *g, short r)
 {
-  g->_rupies+=r;
+  change_gamedata_counter(g, r, 1);
   return;
 }
 
 word get_gamedata_maxarrows(gamedata *g)
 {
-  return g->_maxarrows;
+  return get_gamedata_maxcounter(g, 3);
 }
 void set_gamedata_maxarrows(gamedata *g, word a)
 {
-  g->_maxarrows=a;
+  set_gamedata_maxcounter(g, a, 3);
 }
 void change_gamedata_maxarrows(gamedata *g, short a)
 {
-  g->_maxarrows+=a;
+  change_gamedata_maxcounter(g, a, 3);
   return;
 }
 
 word get_gamedata_arrows(gamedata *g)
 {
-  return g->_arrows;
+  return get_gamedata_counter(g, 3);
 }
 void set_gamedata_arrows(gamedata *g, word a)
 {
-	g->_arrows=a;
+  set_gamedata_counter(g, a, 3);
+  set_gamedata_dcounter(g, a, 3);
 }
 void change_gamedata_arrows(gamedata *g, short a)
 {
-  g->_arrows+=a;
+  change_gamedata_counter(g, a, 3);
+  change_gamedata_dcounter(g, a, 3);
   return;
 }
 
@@ -143,76 +215,84 @@ void change_gamedata_deaths(gamedata *g, short d)
 
 byte get_gamedata_keys(gamedata *g)
 {
-  return g->_keys;
+  return get_gamedata_counter(g, 5);
 }
 void set_gamedata_keys(gamedata *g, byte k)
 {
-  g->_keys=k;
+  set_gamedata_counter(g, k, 5);
+  set_gamedata_dcounter(g, k, 5);
   return;
 }
 void change_gamedata_keys(gamedata *g, short k)
 {
-  g->_keys+=k;
+  change_gamedata_counter(g, k, 5);
+  change_gamedata_dcounter(g, k, 5);
   return;
 }
 
 byte get_gamedata_bombs(gamedata *g)
 {
-  return g->items[itype_bomb];
+  return get_gamedata_counter(g, 2);
 }
 void set_gamedata_bombs(gamedata *g, byte k)
 {
-  g->items[itype_bomb]=k;
+  set_gamedata_counter(g, k, 2);
+  set_gamedata_dcounter(g, k, 2);
   return;
 }
 void change_gamedata_bombs(gamedata *g, short k)
 {
-  g->items[itype_bomb]+=k;
+  change_gamedata_counter(g, k, 2);
+  change_gamedata_dcounter(g, k, 2);
   return;
 }
 
 byte get_gamedata_maxbombs(gamedata *g)
 {
-  return g->_maxbombs;
+  return get_gamedata_maxcounter(g, 2);
 }
 void set_gamedata_maxbombs(gamedata *g, byte b)
 {
-  g->_maxbombs=b;
+  set_gamedata_maxcounter(g, b, 2);
+  set_gamedata_maxcounter(g,b>>2,6);
   return;
 }
 void change_gamedata_maxbombs(gamedata *g, short b)
 {
-  g->_maxbombs+=b;
+  change_gamedata_maxcounter(g, b, 2);
+  change_gamedata_maxcounter(g,b>>2,6);
   return;
 }
 
 byte get_gamedata_sbombs(gamedata *g)
 {
-  return g->items[itype_sbomb];
+  return get_gamedata_counter(g, 6);
 }
 void set_gamedata_sbombs(gamedata *g, byte k)
 {
-  g->items[itype_sbomb]=k;
+  set_gamedata_counter(g, k, 6);
+  set_gamedata_dcounter(g, k, 6);
   return;
 }
 void change_gamedata_sbombs(gamedata *g, short k)
 {
-  g->items[itype_sbomb]+=k;
+  change_gamedata_counter(g, k, 6);
+  change_gamedata_dcounter(g, k, 6);
   return;
 }
 
 byte get_gamedata_wlevel(gamedata *g)
 {
-  return g->_wlevel;
+  return get_gamedata_generic(g, 3);
 }
 void set_gamedata_wlevel(gamedata *g, byte l)
 {
-  g->_wlevel=l;
+  set_gamedata_generic(g, l, 3);
   return;
 }
 void change_gamedata_wlevel(gamedata *g, short l)
 {
-  g->_wlevel+=l;
+  change_gamedata_generic(g, l, 3);
   return;
 }
 
@@ -278,16 +358,16 @@ void change_gamedata_timevalid(gamedata *g, short t)
 
 byte get_gamedata_HCpieces(gamedata *g)
 {
-  return g->_HCpieces;
+  return get_gamedata_generic(g, 0);
 }
 void set_gamedata_HCpieces(gamedata *g, byte p)
 {
-  g->_HCpieces=p;
+  set_gamedata_generic(g, p, 0);
   return;
 }
 void change_gamedata_HCpieces(gamedata *g, short p)
 {
-  g->_HCpieces+=p;
+  change_gamedata_generic(g, p, 0);
   return;
 }
 
@@ -321,78 +401,79 @@ void change_gamedata_continue_dmap(gamedata *g, short d)
   return;
 }
 
+
 word get_gamedata_maxmagic(gamedata *g)
 {
-  return g->_maxmagic;
+  return get_gamedata_maxcounter(g, 4);
 }
 void set_gamedata_maxmagic(gamedata *g, word m)
 {
-  g->_maxmagic=m;
+  set_gamedata_maxcounter(g, m, 4);
   return;
 }
 void change_gamedata_maxmagic(gamedata *g, short m)
 {
-  g->_maxmagic+=m;
+  change_gamedata_maxcounter(g, m, 4);
   return;
 }
 
 word get_gamedata_magic(gamedata *g)
 {
-  return g->_magic;
+  return get_gamedata_counter(g, 4);
 }
 void set_gamedata_magic(gamedata *g, word m)
 {
-  g->_magic=m;
+  set_gamedata_counter(g, m, 4);
   return;
 }
 void change_gamedata_magic(gamedata *g, short m)
 {
-  g->_magic+=m;
+  change_gamedata_counter(g, m, 4);
   return;
 }
 
 short get_gamedata_dmagic(gamedata *g)
 {
-  return g->_dmagic;
+  return get_gamedata_dcounter(g, 4);
 }
 void set_gamedata_dmagic(gamedata *g, short d)
 {
-  g->_dmagic=d;
+  set_gamedata_dcounter(g, d, 4);
   return;
 }
 void change_gamedata_dmagic(gamedata *g, short d)
 {
-  g->_dmagic+=d;
+  change_gamedata_dcounter(g, d, 4);
   return;
 }
 
 byte get_gamedata_magicdrainrate(gamedata *g)
 {
-  return g->_magicdrainrate;
+  return get_gamedata_generic(g, 1);
 }
 void set_gamedata_magicdrainrate(gamedata *g, byte r)
 {
-  g->_magicdrainrate=r;
+  set_gamedata_generic(g, r, 1);
   return;
 }
 void change_gamedata_magicdrainrate(gamedata *g, short r)
 {
-  g->_magicdrainrate+=r;
+  change_gamedata_generic(g, (char)r, 1);
   return;
 }
 
 byte get_gamedata_canslash(gamedata *g)
 {
-  return g->_canslash;
+  return get_gamedata_generic(g, 2);
 }
 void set_gamedata_canslash(gamedata *g, byte s)
 {
-  g->_canslash=s;
+  set_gamedata_generic(g, s, 2);
   return;
 }
 void change_gamedata_canslash(gamedata *g, short s)
 {
-  g->_canslash+=s;
+  change_gamedata_generic(g, s, 2);
   return;
 }
 

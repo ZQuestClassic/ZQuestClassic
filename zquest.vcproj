@@ -121,7 +121,16 @@
 				RelativePath=".\defdata.cpp">
 			</File>
 			<File
-				RelativePath=".\editbox.c">
+				RelativePath=".\editbox.cpp">
+			</File>
+			<File
+				RelativePath=".\EditboxModel.cpp">
+			</File>
+			<File
+				RelativePath=".\EditboxView.cpp">
+			</File>
+			<File
+				RelativePath=".\ffasm.cpp">
 			</File>
 			<File
 				RelativePath=".\gamedata.cpp">
@@ -226,10 +235,34 @@
 				RelativePath=".\zsys.cpp">
 			</File>
 			<Filter
-				Name="parser"
+				Name="compiler"
 				Filter="">
 				<File
+					RelativePath=".\parser\ByteCode.cpp">
+				</File>
+				<File
+					RelativePath=".\parser\ffscript.lpp">
+				</File>
+				<File
+					RelativePath=".\parser\ffscript.ypp">
+				</File>
+				<File
+					RelativePath=".\parser\GlobalSymbols.cpp">
+				</File>
+				<File
 					RelativePath=".\parser\lex.yy.cpp">
+				</File>
+				<File
+					RelativePath=".\parser\ParseError.cpp">
+				</File>
+				<File
+					RelativePath=".\parser\Scope.cpp">
+				</File>
+				<File
+					RelativePath=".\parser\ScriptParser.cpp">
+				</File>
+				<File
+					RelativePath=".\parser\TypeChecker.cpp">
 				</File>
 				<File
 					RelativePath=".\parser\y.tab.cpp">
@@ -256,10 +289,10 @@
 				RelativePath=".\defdata.h">
 			</File>
 			<File
-				RelativePath=".\eb_intern.h">
+				RelativePath=".\editbox.h">
 			</File>
 			<File
-				RelativePath=".\editbox.h">
+				RelativePath=".\EditboxNew.h">
 			</File>
 			<File
 				RelativePath=".\ending.h">
@@ -417,6 +450,40 @@
 			<File
 				RelativePath=".\zsys.h">
 			</File>
+			<File
+				RelativePath=".\zsyssimple.h">
+			</File>
+			<Filter
+				Name="Compiler"
+				Filter="">
+				<File
+					RelativePath=".\parser\bisontypes.h">
+				</File>
+				<File
+					RelativePath=".\parser\ByteCode.h">
+				</File>
+				<File
+					RelativePath=".\parser\Compiler.h">
+				</File>
+				<File
+					RelativePath=".\parser\GlobalSymbols.h">
+				</File>
+				<File
+					RelativePath=".\parser\ParseError.h">
+				</File>
+				<File
+					RelativePath=".\parser\ScriptParser.h">
+				</File>
+				<File
+					RelativePath=".\parser\TypeChecker.h">
+				</File>
+				<File
+					RelativePath=".\parser\unistd.h">
+				</File>
+				<File
+					RelativePath=".\parser\y.tab.hpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

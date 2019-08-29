@@ -38,32 +38,49 @@
      ELSE = 264,
      RETURN = 265,
      IMPORT = 266,
-     ASSIGN = 267,
-     SEMICOLON = 268,
-     COMMA = 269,
-     LBRACKET = 270,
-     RBRACKET = 271,
-     LPAREN = 272,
-     RPAREN = 273,
-     DOT = 274,
-     LBRACE = 275,
-     RBRACE = 276,
-     NUMBER = 277,
-     IDENTIFIER = 278,
-     QUOTEDSTRING = 279,
-     OR = 280,
-     AND = 281,
-     NOT = 282,
-     NE = 283,
-     EQ = 284,
-     GT = 285,
-     GE = 286,
-     LT = 287,
-     LE = 288,
-     MINUS = 289,
-     PLUS = 290,
-     DIVIDE = 291,
-     TIMES = 292
+     TRUE = 267,
+     FALSE = 268,
+     WHILE = 269,
+     FFC = 270,
+     ITEM = 271,
+     ITEMCLASS = 272,
+     GLOBAL = 273,
+     ASSIGN = 274,
+     SEMICOLON = 275,
+     COMMA = 276,
+     LBRACKET = 277,
+     RBRACKET = 278,
+     LPAREN = 279,
+     RPAREN = 280,
+     DOT = 281,
+     LBRACE = 282,
+     RBRACE = 283,
+     ARROW = 284,
+     NUMBER = 285,
+     IDENTIFIER = 286,
+     QUOTEDSTRING = 287,
+     RSHIFT = 288,
+     LSHIFT = 289,
+     BITXOR = 290,
+     BITOR = 291,
+     BITAND = 292,
+     OR = 293,
+     AND = 294,
+     BITNOT = 295,
+     NOT = 296,
+     DECREMENT = 297,
+     INCREMENT = 298,
+     NE = 299,
+     EQ = 300,
+     GT = 301,
+     GE = 302,
+     LT = 303,
+     LE = 304,
+     MINUS = 305,
+     PLUS = 306,
+     DIVIDE = 307,
+     TIMES = 308,
+     MODULO = 309
    };
 #endif
 /* Tokens.  */
@@ -76,32 +93,49 @@
 #define ELSE 264
 #define RETURN 265
 #define IMPORT 266
-#define ASSIGN 267
-#define SEMICOLON 268
-#define COMMA 269
-#define LBRACKET 270
-#define RBRACKET 271
-#define LPAREN 272
-#define RPAREN 273
-#define DOT 274
-#define LBRACE 275
-#define RBRACE 276
-#define NUMBER 277
-#define IDENTIFIER 278
-#define QUOTEDSTRING 279
-#define OR 280
-#define AND 281
-#define NOT 282
-#define NE 283
-#define EQ 284
-#define GT 285
-#define GE 286
-#define LT 287
-#define LE 288
-#define MINUS 289
-#define PLUS 290
-#define DIVIDE 291
-#define TIMES 292
+#define TRUE 267
+#define FALSE 268
+#define WHILE 269
+#define FFC 270
+#define ITEM 271
+#define ITEMCLASS 272
+#define GLOBAL 273
+#define ASSIGN 274
+#define SEMICOLON 275
+#define COMMA 276
+#define LBRACKET 277
+#define RBRACKET 278
+#define LPAREN 279
+#define RPAREN 280
+#define DOT 281
+#define LBRACE 282
+#define RBRACE 283
+#define ARROW 284
+#define NUMBER 285
+#define IDENTIFIER 286
+#define QUOTEDSTRING 287
+#define RSHIFT 288
+#define LSHIFT 289
+#define BITXOR 290
+#define BITOR 291
+#define BITAND 292
+#define OR 293
+#define AND 294
+#define BITNOT 295
+#define NOT 296
+#define DECREMENT 297
+#define INCREMENT 298
+#define NE 299
+#define EQ 300
+#define GT 301
+#define GE 302
+#define LT 303
+#define LE 304
+#define MINUS 305
+#define PLUS 306
+#define DIVIDE 307
+#define TIMES 308
+#define MODULO 309
 
 
 
@@ -115,5 +149,19 @@ typedef int YYSTYPE;
 
 extern YYSTYPE yylval;
 
+#if ! defined (YYLTYPE) && ! defined (YYLTYPE_IS_DECLARED)
+typedef struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+} YYLTYPE;
+# define yyltype YYLTYPE /* obsolescent; will be withdrawn */
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
+extern YYLTYPE yylloc;
 
 

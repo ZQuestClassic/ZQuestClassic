@@ -19,6 +19,18 @@ byte get_gamedata_quest(gamedata *g);
 void set_gamedata_quest(gamedata *g, byte q);
 void change_gamedata_quest(gamedata *g, short q);
 
+word get_gamedata_counter(gamedata *g, byte c);
+void set_gamedata_counter(gamedata *g, word change, byte c);
+void change_gamedata_counter(gamedata *g, short change, byte c);
+
+word get_gamedata_maxcounter(gamedata *g, byte c);
+void set_gamedata_maxcounter(gamedata *g, word change, byte c);
+void change_gamedata_maxcounter(gamedata *g, short change, byte c);
+
+short get_gamedata_dcounter(gamedata *g, byte c);
+void set_gamedata_dcounter(gamedata *g, short change, byte c);
+void change_gamedata_dcounter(gamedata *g, short change, byte c);
+
 word get_gamedata_life(gamedata *g);
 void set_gamedata_life(gamedata *g, word l);
 void change_gamedata_life(gamedata *g, short l);
@@ -114,6 +126,10 @@ void change_gamedata_magicdrainrate(gamedata *g, short r);
 byte get_gamedata_canslash(gamedata *g);
 void set_gamedata_canslash(gamedata *g, byte s);
 void change_gamedata_canslash(gamedata *g, short s);
+
+short get_gamedata_generic(gamedata *g, byte c);
+void set_gamedata_generic(gamedata *g, byte change, byte c);
+void change_gamedata_generic(gamedata *g, short change, byte c);
 
 #endif
 /*** end of gamedata.h ***/

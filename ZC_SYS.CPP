@@ -55,6 +55,11 @@ extern LinkClass Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
 //extern movingblock mblock2; //mblock[4]?
+bool inputs_enabled=true;
+bool forced_command[max_forced_commands]=
+{
+  false, false, false, false, false, false, false, false
+};
 
 //extern int db;
 
@@ -146,6 +151,7 @@ void load_game_configs()
   heart_beep = get_config_int(cfg_sect,"heart_beep",1)!=0;
   gui_colorset = get_config_int(cfg_sect,"gui_colorset",0);
   midi_strict = get_config_int(cfg_sect,"strict_midi",1);
+  sfxdat = get_config_int(cfg_sect,"use_sfx_dat",1);
 
 }
 
@@ -197,6 +203,7 @@ void save_game_configs()
   set_config_int(cfg_sect,"heart_beep",heart_beep);
   set_config_int(cfg_sect,"gui_colorset",gui_colorset);
   set_config_int(cfg_sect,"strict_midi",midi_strict);
+  set_config_int(cfg_sect,"use_sfx_dat",sfxdat);
 }
 
 //----------------------------------------------------------------
@@ -1992,7 +1999,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_bomb, true);
+  ret=get_gamedata_bombs(game);
   switch(ret)
   {
     case 0: ret=0; break;
@@ -2000,7 +2007,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_sbomb, true);
+  ret=get_gamedata_sbombs(game);
   switch(ret)
   {
     case 0: ret=0; break;
@@ -3109,7 +3116,7 @@ void updatescr()
       stretch_blit(nosubscr?panorama:framebuf,scanlinesbmp,0,0,256,224,0,0    ,512,448);
       for (int i=0; i<224; ++i)
       {
-        _allegro_hline(scanlinesbmp, 0, i*2+1, 512, 0);
+        _allegro_hline(scanlinesbmp, 0, i*2+1, 512, BLACK);
       }
       blit(scanlinesbmp,target,0,0,scrx+32-128,scry+8-112,512,448);
 
@@ -5272,8 +5279,8 @@ int onItems()
   init_tabs[1].flags=D_SELECTED;
   return onCheatConsole();
   char bombstring[5], sbombstring[5];
-  sprintf(bombstring, "%d", game->items[itype_bomb]);
-  sprintf(sbombstring, "%d", game->items[itype_sbomb]);
+  sprintf(bombstring, "%d", get_gamedata_bombs(game));
+  sprintf(sbombstring, "%d", get_gamedata_sbombs(game));
   items_dlg[0].dp2=lfont;
   //items_dlg[27].flags = D_DISABLED;
   for(int i=0; i<3; i++)
@@ -5369,8 +5376,8 @@ int onItems()
 	for(int i=0; i<1; i++)
       if(items_dlg[i+45].flags & D_SELECTED)
         game->items[itype_cbyrna]|=(1<<i);	
-      game->items[itype_bomb]=atoi(bombstring);
-    game->items[itype_sbomb]=atoi(sbombstring);
+      set_gamedata_bombs(game, atoi(bombstring));
+    set_gamedata_sbombs(game, atoi(sbombstring));
     load_Sitems(&QMisc);
   }
 
@@ -5430,7 +5437,7 @@ int onRupies()
 int onMaxBombs()
 {
   set_gamedata_maxbombs(game, vbound(getnumber("Max Bombs",get_gamedata_maxbombs(game)),8,99));
-  game->items[itype_bomb] = get_gamedata_maxbombs(game);
+  set_gamedata_bombs(game, get_gamedata_maxbombs(game));
   return D_O_K;
 }
 
@@ -5506,8 +5513,8 @@ int onCheatRupies()
 
 int onCheatBombs()
 {
-  game->items[itype_bomb] = get_gamedata_maxbombs(game);
-  game->items[itype_sbomb] = get_gamedata_maxbombs(game) >> 2;
+  set_gamedata_bombs(game, get_gamedata_maxbombs(game));
+  set_gamedata_sbombs(game, get_gamedata_maxcounter(game,6));
   return D_O_K;
 }
 
@@ -6773,7 +6780,12 @@ bool sfx_init(int index)
 
   if(sfx_voice[index]==-1)
   {
-    sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[index].dat);
+    if(sfxdat)
+	  if(index<35)
+        sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[index].dat);
+	  else sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[35].dat);
+	else
+	  sfx_voice[index]=allocate_voice(&customsfxdata[index]);
   }
 
   return sfx_voice[index] != -1;
@@ -6960,17 +6972,29 @@ static bool rButton(bool(proc)(),bool &flag)
     return false;
 }
 
-bool Up()     { return key[DUkey]||joy[0].stick[0].axis[1].d1; }
-bool Down()   { return key[DDkey]||joy[0].stick[0].axis[1].d2; }
-bool Left()   { return key[DLkey]||joy[0].stick[0].axis[0].d1; }
-bool Right()  { return key[DRkey]||joy[0].stick[0].axis[0].d2; }
-bool cAbtn()  { return key[Akey]||joybtn(Abtn); }
-bool cBbtn()  { return key[Bkey]||joybtn(Bbtn); }
-bool cSbtn()  { return key[Skey]||joybtn(Sbtn); }
+bool check_inputs_enabled()
+{
+  if (inputs_enabled==true)
+  {
+    for (int command=forced_up; command<max_forced_commands; ++command)
+    {
+      forced_command[command]=false;
+    }
+  }
+  return inputs_enabled;
+}
+
+bool Up()     { return check_inputs_enabled()?(key[DUkey]||joy[0].stick[0].axis[1].d1):forced_command[forced_up]; }
+bool Down()   { return check_inputs_enabled()?(key[DDkey]||joy[0].stick[0].axis[1].d2):forced_command[forced_down]; }
+bool Left()   { return check_inputs_enabled()?(key[DLkey]||joy[0].stick[0].axis[0].d1):forced_command[forced_left]; }
+bool Right()  { return check_inputs_enabled()?(key[DRkey]||joy[0].stick[0].axis[0].d2):forced_command[forced_right]; }
+bool cAbtn()  { return check_inputs_enabled()?(key[Akey]||joybtn(Abtn)):forced_command[forced_a]; }
+bool cBbtn()  { return check_inputs_enabled()?(key[Bkey]||joybtn(Bbtn)):forced_command[forced_b]; }
+bool cSbtn()  { return check_inputs_enabled()?(key[Skey]||joybtn(Sbtn)):false; }
 bool cMbtn()  { return key[KEY_ESC]||joybtn(Mbtn); }
-bool cLbtn()  { return key[Lkey]||joybtn(Lbtn); }
-bool cRbtn()  { return key[Rkey]||joybtn(Rbtn); }
-bool cPbtn()  { return key[Pkey]||joybtn(Pbtn); }
+bool cLbtn()  { return check_inputs_enabled()?(key[Lkey]||joybtn(Lbtn)):forced_command[forced_l]; }
+bool cRbtn()  { return check_inputs_enabled()?(key[Rkey]||joybtn(Rbtn)):forced_command[forced_r]; }
+bool cPbtn()  { return check_inputs_enabled()?(key[Pkey]||joybtn(Pbtn)):false; }
 
 bool rUp()    { return rButton(Up,Udown); }
 bool rDown()  { return rButton(Down,Ddown); }

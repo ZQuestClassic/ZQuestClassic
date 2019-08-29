@@ -4897,6 +4897,7 @@ void convert_tile(int t, int bp, int cs, bool shift)
 int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
 {
   reset_combo_animations();
+  reset_combo_animations2();
   bound(tile,0,NEWMAXTILES-1);
   ex=exnow;
   int done=0;
@@ -5584,6 +5585,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
   comeback();
   register_blank_tiles();
   setup_combo_animations();
+  setup_combo_animations2();
   return done-1;
 }
 
@@ -5772,6 +5774,7 @@ word ctable[MAXCOMBOS];
 int select_combo_2(int &tile,int &cs)
 {
   reset_combo_animations();
+  reset_combo_animations2();
   // static int tile=0;
   int page=tile>>8;
   int tile2=tile;
@@ -5992,12 +5995,58 @@ int select_combo_2(int &tile,int &cs)
   while(gui_mouse_b());
   comeback();
   setup_combo_animations();
+  setup_combo_animations2();
   return done-1;
+}
+
+static DIALOG advpaste_dialog[] =
+{
+	/* (dialog proc)     (x)   (y)    (w)   (h)    (fg)      (bg)     (key)    (flags)       (d1)           (d2)      (dp) */
+	{ jwin_win_proc,         0,    0,   200,  161,   vc(14),   vc(1),       0,     D_EXIT,       0,             0,        (void *) "Advanced Paste" },
+	{ jwin_button_proc,     27,   130,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       (void *) "O&K" },
+	{ jwin_button_proc,     112,  130,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
+	
+	{ jwin_check_proc,		10,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Tile"},
+	{ jwin_check_proc,		10,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Cset2"},
+	{ jwin_check_proc,		10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Walkability"},
+	{ jwin_check_proc,		10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Animation"},		
+	{ jwin_check_proc,		10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Type"},	
+	{ jwin_check_proc,		10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Inherent Flag"},	
+	
+	{NULL}
+};
+
+int advpaste(int tile, int tile2, int copy)
+{
+	int ret = zc_popup_dialog(advpaste_dialog,-1);
+	if (ret!=1) return ret;
+	
+	// save original in case it's in paste range
+	newcombo combo=combobuf[copy];
+	
+	for(int i=min(tile,tile2);i<=max(tile,tile2);++i)
+	{
+		if (advpaste_dialog[3].flags & D_SELECTED)  // tile
+			{ combobuf[i].tile=combo.tile; combobuf[i].flip=combo.flip; }
+		if (advpaste_dialog[4].flags & D_SELECTED)  // cset2
+			{ combobuf[i].csets=combo.csets;}
+		if (advpaste_dialog[5].flags & D_SELECTED)  // walk
+			{ combobuf[i].csets=combo.csets;}
+		if (advpaste_dialog[6].flags & D_SELECTED)  // anim
+			{ combobuf[i].frames=combo.frames; combobuf[i].speed=combo.speed; combobuf[i].nextcombo=combo.nextcombo;combobuf[i].nextcset=combo.nextcset;combobuf[i].skipanim=combo.skipanim;combobuf[i].nexttimer=combo.nexttimer;combobuf[i].skipanimy=combo.skipanimy;}
+		if (advpaste_dialog[7].flags & D_SELECTED)  // type
+			{ combobuf[i].type=combo.type;}
+		if (advpaste_dialog[8].flags & D_SELECTED)  // flag
+			{ combobuf[i].flag=combo.flag;}
+	}
+	
+	return ret;
 }
 
 int combo_screen()
 {
   reset_combo_animations();
+  reset_combo_animations2();
   static int tile=0;
   static int page=0;
   int tile2=tile;
@@ -6071,7 +6120,6 @@ int combo_screen()
         }
         else
         {
-          cs = (cs<11) ? cs+1:0;
           redraw=true;
         }
         break;
@@ -6109,7 +6157,7 @@ int combo_screen()
           page=(min(choosepage,COMBO_PAGES-1));  tile=tile2=(page<<8)+(tile&0xFF); redraw=true; break;
         }
         case KEY_U:     comeback_combos(); redraw=true; break;
-        case KEY_E:     go_combos();  edit_combo(tile,false,cs); redraw=true; setup_combo_animations(); break;
+        case KEY_E:     go_combos();  edit_combo(tile,false,cs); redraw=true; setup_combo_animations(); setup_combo_animations2(); break;
         case KEY_C:     go_combos(); copy=min(tile,tile2); copycnt=abs(tile-tile2)+1; redraw=true; break;
 
         case KEY_H:     for(int i=min(tile,tile2); i<=max(tile,tile2); i++)
@@ -6139,12 +6187,20 @@ int combo_screen()
             swap(combobuf[copy+i],combobuf[tile+i]);
           saved=false;
           setup_combo_animations();
+		  setup_combo_animations2();
         }
         redraw=true;
         copy=-1;
         break;
 
         case KEY_V:     
+		if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] && copy != -1)
+		{
+			if (advpaste(tile, tile2, copy)==1)
+				{saved=false; redraw=true; copy=-1;}
+			break;
+		}
+		
 		masscopy=(key[KEY_LSHIFT] || key[KEY_RSHIFT])?1:0;
 		if(copy==-1)
         {
@@ -6164,6 +6220,7 @@ int combo_screen()
           go_combos();
           copy_combos(tile,tile2,copy,copycnt,masscopy);
           setup_combo_animations();
+		  setup_combo_animations2();
           saved=false;
         }
         redraw=true;
@@ -6187,6 +6244,7 @@ int combo_screen()
 			copy=-1;
 			tile2=tile=z;
 			setup_combo_animations();
+			setup_combo_animations2();
 			redraw=true;
 			saved=false;
 		}
@@ -6208,6 +6266,7 @@ int combo_screen()
             redraw=true;
             saved=false;
             setup_combo_animations();
+			setup_combo_animations2();
           }
         } break;
       }
@@ -6271,6 +6330,7 @@ int combo_screen()
               edit_combo(tile,false,cs);
               redraw=true;
               setup_combo_animations();
+			  setup_combo_animations2();
             }
           }
           tile_clicked=t;
@@ -6414,6 +6474,7 @@ int combo_screen()
   while(gui_mouse_b());
   comeback();
   setup_combo_animations();
+  setup_combo_animations2();
   return done-1;
 }
 
@@ -6514,9 +6575,9 @@ int click_d_combo_proc();
 static DIALOG combo_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-  { jwin_win_proc,     54,   21,   241,  164,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Edit Combo" },
-  { jwin_button_proc,     105,  160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,     185,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
+  { jwin_win_proc,     54,   21,   241,  184,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Edit Combo" },
+  { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
+  { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
   { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp },
   { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'h',     0,          0,             0,       (void *) onCmb_dlg_h },
   { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'v',     0,          0,             0,       (void *) onCmb_dlg_v },
@@ -6554,8 +6615,11 @@ static DIALOG combo_dlg[] =
   { jwin_text_proc,       60,   144,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) "Flag:" },
   { jwin_droplist_proc,   89,   140,  200,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) flaglist },
   { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'n',     0,          0,             0,       (void *) click_d_combo_proc},
-  { jwin_text_proc,       140,   108,   64,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.Skip:" },
-  { jwin_numedit_proc,   187,  104,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
+  { jwin_text_proc,       140,   108,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.SkipX:" },
+  { jwin_numedit_proc,   180,  104,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
+  { jwin_text_proc,       210,   108,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.SkipY:" },
+  { jwin_numedit_proc,   250,  104,   26,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL },
+  { jwin_check_proc,       60,   160,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0,       (void *) "Refresh Animation on Room Entry" },
   { NULL }
 };
 
@@ -6650,6 +6714,7 @@ void edit_combo(int c,bool freshen,int cs)
     build_bict_list();
   }
   reset_combo_animations();
+  reset_combo_animations2();
 
   curr_combo = combobuf[c];
 
@@ -6657,6 +6722,7 @@ void edit_combo(int c,bool freshen,int cs)
   char frm[8];
   char spd[8];
   char skip[8];
+  char skipy[8];
 
   char csets = curr_combo.csets & 15;
 
@@ -6670,6 +6736,7 @@ void edit_combo(int c,bool freshen,int cs)
   sprintf(frm,"%d",curr_combo.frames);
   sprintf(spd,"%d",curr_combo.speed);
   sprintf(skip,"%d",curr_combo.skipanim);
+  sprintf(skipy,"%d",curr_combo.skipanimy);
   combo_dlg[12].dp = cset_str;
 
   for(int i=0; i<4; i++)
@@ -6687,6 +6754,9 @@ void edit_combo(int c,bool freshen,int cs)
   combo_dlg[31].fg = curr_combo.nextcset;
   combo_dlg[33].d1 = curr_combo.flag;
   combo_dlg[36].dp = skip;
+  combo_dlg[38].dp = skipy;
+
+  combo_dlg[39].flags = curr_combo.freshanim ? D_SELECTED : 0;
 
   int index=0;
 
@@ -6739,10 +6809,13 @@ void edit_combo(int c,bool freshen,int cs)
     curr_combo.frames = atoi(frm);
     curr_combo.speed = atoi(spd);
 	curr_combo.skipanim = max(0,atoi(skip));
+	curr_combo.skipanimy = max(0,atoi(skipy));
     curr_combo.type = bict[combo_dlg[24].d1].i;
     curr_combo.nextcombo = combo_dlg[31].d1;
     curr_combo.nextcset = combo_dlg[31].fg;
     curr_combo.flag = combo_dlg[33].d1;
+
+	curr_combo.freshanim = combo_dlg[39].flags & D_SELECTED ? 1 : 0;
     combobuf[c] = curr_combo;
   }
 
@@ -6752,6 +6825,7 @@ void edit_combo(int c,bool freshen,int cs)
   }
 
   setup_combo_animations();
+  setup_combo_animations2();
 }
 
 int d_itile_proc(int msg,DIALOG *d,int c)

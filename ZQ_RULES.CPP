@@ -190,7 +190,7 @@ static DIALOG rules_dlg[] =
   { jwin_check_proc,      10,  123,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Bomb Explosions Don't Flash Palette" },
   { jwin_check_proc,      10,  133,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Transparent Nayru's Love Shield" },
   { jwin_check_proc,      10,  143,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Nayru's Love Shield Flickers" },
-  { jwin_check_proc,      10,  153,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Transparent Nayre's Love Rocket" },
+  { jwin_check_proc,      10,  153,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Transparent Nayru's Love Rocket" },
 
   { jwin_check_proc,      10,  163,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Nayru's Love Rocket Flickers" },
   { jwin_check_proc,      10,  173,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Combo Cycling On Layers" },
@@ -222,7 +222,7 @@ static DIALOG rules_dlg[] =
   { jwin_check_proc,      10,  193,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Dark Rooms Stay Lit Only While Fire Is On Screen" },
 
   { jwin_check_proc,      10,   43,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Red Potion Disappears When Used" },
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },
+  { jwin_check_proc,      10,   53,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Use Old-Style Warp Detection" },
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL },
 

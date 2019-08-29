@@ -202,6 +202,8 @@ int onInit()
   char rupiestring[5];
   char magicstring[5];
   char maxmagicstring[5];
+  char maxrupeestring[8];
+  char maxkeystring[8];
 
   sprintf(tempbuf, "0");
   sprintf(hcstring, "%d", zinit.hc);
@@ -235,6 +237,13 @@ int onInit()
   init_dlg[1689].dp=magicstring;
   init_dlg[1690].dp=maxmagicstring;
   init_dlg[1691].flags = get_bit(zinit.misc,idM_DOUBLEMAGIC) ? D_SELECTED : 0;
+
+  sprintf(maxrupeestring, "%d", zinit.max_rupees);
+  sprintf(maxkeystring, "%d", zinit.max_keys);
+
+
+  init_dlg[1695].dp=maxrupeestring;
+  init_dlg[1697].dp=maxkeystring;
 
   int ret = zc_popup_dialog(init_dlg,1);
   if (ret==2)
@@ -543,6 +552,8 @@ int onInit()
     zinit.max_magic = min(atoi(maxmagicstring),8);
     zinit.magic = min(atoi(magicstring),zinit.max_magic);
     set_bit(zinit.misc,idM_DOUBLEMAGIC,init_dlg[1691].flags);
+	zinit.max_rupees = vbound(atoi(maxrupeestring), 0, 0xFFFF);
+    zinit.max_keys = vbound(atoi(maxkeystring), 0, 0xFFFF);
   }
   return D_O_K;
 }

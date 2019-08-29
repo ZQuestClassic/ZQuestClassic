@@ -48,6 +48,24 @@ public:
   bool dummy_bool[10];
   int drawstyle;                                          //0=normal, 1=translucent, 2=cloaked
   int extend;
+  // Scripting additions
+  long d[8];
+  long a[2];
+  byte ffcref;
+  byte itemref;
+  byte guyref;
+  byte lwpnref;
+  byte ewpnref;
+  long stack[256];
+  byte sp;
+  word pc;
+  dword scriptflag;
+  word doscript;
+  byte itemclass;
+  byte guyclass;
+  byte lwpnclass;
+  byte ewpnclass;
+
 
   sprite();
   sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs);

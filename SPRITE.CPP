@@ -35,6 +35,21 @@ sprite::sprite()
   angular=canfreeze=false;
   drawstyle=0;
   extend=0;
+  for(int i=0;i<8;i++)
+  {
+    if(i<2) a[i]=0;
+    d[i]=0;
+  }
+  scriptflag=0;
+  pc=0;
+  sp=0;
+  for(int i=0;i<256;i++)
+  {
+	stack[i]=0;
+  }
+  ffcref=0;
+  doscript=1;
+  itemclass=0;
 }
 
 sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
@@ -46,6 +61,21 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
   dir=down;
   angular=canfreeze=false;
   extend=0;
+  for(int i=0;i<8;i++)
+  {
+    if(i<2) a[i]=0;
+    d[i]=0;
+  }
+  scriptflag=0;
+  pc=0;
+  sp=0;
+  for(int i=0;i<256;i++)
+  {
+	stack[i]=0;
+  }
+  ffcref=0;
+  doscript=1;
+  itemclass=0;
 }
 
 sprite::~sprite() {}

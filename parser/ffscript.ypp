@@ -11,15 +11,21 @@ command: bison -b y -v -d ffscript.ypp
 #include <stdlib.h>
 #include <stdio.h>
 #include "ScriptParser.h"
+#include "../zsyssimple.h"
 #define YYINCLUDED_STDLIB_H
 extern int yydebug;
 extern int yylineno;
 extern char* yytext;
 extern int yylex(void);
+extern FILE *yyin;
+extern AST *resAST;
+extern void resetLexer();
 void yyerror(const char* s);
-
+string curfilename;
+extern YYLTYPE noloc;
 %}
 %expect 1
+%error-verbose
 %start Init
 
 %token SCRIPT
@@ -31,7 +37,13 @@ void yyerror(const char* s);
 %token ELSE
 %token RETURN
 %token IMPORT
-
+%token TRUE
+%token FALSE
+%token WHILE
+%token FFC
+%token ITEM
+%token ITEMCLASS
+%token GLOBAL
 
 %token ASSIGN
 %token SEMICOLON
@@ -43,169 +55,362 @@ void yyerror(const char* s);
 %token DOT
 %token LBRACE
 %token RBRACE
+%token ARROW
 
 %token NUMBER
 %token IDENTIFIER
 %token QUOTEDSTRING
 
+%left LSHIFT RSHIFT
+%left BITAND BITOR BITXOR
 %left AND OR
-%left NOT
+%left NOT BITNOT
+%left INCREMENT DECREMENT
 %left LE LT GE GT EQ NE
 %left PLUS MINUS
 %left TIMES DIVIDE
+%left MODULO
 
 
 %%
 
-Init : Prog {}
-	|
+Init : Prog {resAST = new ASTProgram((ASTDeclList *)$1, @1);}
+	| {resAST = new ASTProgram(new ASTDeclList(noloc),noloc);}
 	;
 
-Prog : GlobalStmt Prog {}
-	| GlobalStmt {}
+Prog : GlobalStmt Prog {ASTDeclList *list = (ASTDeclList *)$2;
+				list->addDeclaration((ASTDecl *)$1);
+				$$ = list;}
+	| GlobalStmt {ASTDeclList *list = new ASTDeclList(@1);
+			  list->addDeclaration((ASTDecl *)$1);
+			  $$=list;}
 	;
 
-GlobalStmt : Script {}
-	| Import {}
-	| FuncDecl {}
+GlobalStmt : Script {$$ = $1;}
+	| Import {$$ = $1;}
+	| FuncDecl {$$ = $1;}
 	;
 
-Script : SCRIPT IDENTIFIER ScriptBlock { }
+Script : ScriptType SCRIPT IDENTIFIER ScriptBlock {ASTType *type = (ASTType *)$1;
+								   ASTString *name = (ASTString *)$3;
+								   ASTDeclList *sblock = (ASTDeclList *)$4;
+								   $$ = new ASTScript(type, name->getValue(), sblock,@1);
+								   delete name;}
+	;
+	
+ScriptType : Type {$$ = $1;}
+		   | GLOBAL {$$ = new ASTTypeGlobal(@1);}
+		   ;
+
+Import : IMPORT QUOTEDSTRING	{ASTString *str = (ASTString *)$2;
+					 $$ = new ASTImportDecl(str->getValue(),@1);
+					 delete str;}
 	;
 
-Import : IMPORT QUOTEDSTRING	{}
+ScriptBlock : LBRACE ScriptStmtList RBRACE {$$ = $2;}
+	| LBRACE RBRACE {$$ = new ASTDeclList(@1);}
 	;
 
-ScriptBlock : LBRACE ScriptStmtList RBRACE {}
-	| LBRACE RBRACE {}
+ScriptStmtList : ScriptStmt ScriptStmtList {ASTDeclList *dl = (ASTDeclList *)$2;
+							  dl->addDeclaration((ASTDecl *)$1);
+							  $$ = dl;}
+	| ScriptStmt {ASTDeclList *dl = new ASTDeclList(@1);
+			  dl->addDeclaration((ASTDecl *)$1);
+			  $$ = dl;}
 	;
 
-ScriptStmtList : ScriptStmt ScriptStmtList {}
-	| ScriptStmt {}
+ScriptStmt : VarDecl SEMICOLON {$$ = $1;}
+	| VarDecl ASSIGN Expr SEMICOLON {ASTVarDecl *vd = (ASTVarDecl *)$1;
+						   Clone c;
+						   vd->getType()->execute(c,NULL);
+						   $$ = new ASTVarDeclInitializer((ASTType *)c.getResult(), vd->getName(), (ASTExpr *)$3,@1);
+						   delete vd;}
+	| FuncDecl {$$ = $1;}
 	;
 
-ScriptStmt : VarDecl SEMICOLON {}
-	| FuncDecl {}
+VarDecl : Type IDENTIFIER {ASTType *type = (ASTType *)$1;
+				   ASTString *name = (ASTString *)$2;
+				   $$ = new ASTVarDecl(type, name->getValue(),@1);
+				   delete name;}
 	;
 
-VarDecl : Type IDENTIFIER {}
+Type : FLOAT {$$ = new ASTTypeFloat(@1);}
+	| BOOL {$$ = new ASTTypeBool(@1);}
+	| VOID {$$ = new ASTTypeVoid(@1);}
+	| FFC {$$ = new ASTTypeFFC(@1);}
+	| ITEM {$$ = new ASTTypeItem(@1);}
+	| ITEMCLASS {$$ = new ASTTypeItemclass(@1);}
 	;
 
-Type : FLOAT {}
-	| BOOL {}
-	| VOID {}
+FuncDecl : Type IDENTIFIER LPAREN ParamList RPAREN Block {ASTFuncDecl *fd = (ASTFuncDecl *)$4;
+									    ASTType *rettype = (ASTType *)$1;
+									    ASTString *name = (ASTString *)$2;
+									    ASTBlock *block = (ASTBlock *)$6;
+									    fd->setName(name->getValue());
+									    delete name;
+									    fd->setReturnType(rettype);
+									    fd->setBlock(block);
+									    $$=fd;}
+	| Type IDENTIFIER LPAREN RPAREN Block {ASTFuncDecl *fd = new ASTFuncDecl(@1);
+							   ASTType *rettype = (ASTType *)$1;
+							   ASTString *name = (ASTString *)$2;
+							   ASTBlock *block = (ASTBlock *)$5;
+							   fd->setName(name->getValue());
+							   delete name;
+							   fd->setReturnType(rettype);
+							   fd->setBlock(block);
+							   $$=fd;}
 	;
 
-FuncDecl : Type IDENTIFIER LPAREN ParamList RPAREN Block {}
-	| Type IDENTIFIER LPAREN RPAREN Block {}
+ParamList : VarDecl COMMA ParamList {ASTFuncDecl *fd = (ASTFuncDecl *)$3;
+						 fd->addParam((ASTVarDecl *)$1);
+						 $$=fd;}
+	| VarDecl {ASTFuncDecl *fd = new ASTFuncDecl(@1);
+		     fd->addParam((ASTVarDecl *)$1);
+		     $$=fd;}
 	;
 
-ParamList : VarDecl COMMA ParamList {}
-	| VarDecl {}
+Block : LBRACE StmtList RBRACE  {$$=$2;}
+	| LBRACE RBRACE {$$ = new ASTBlock(@1);}
 	;
 
-Block : LBRACE StmtList RBRACE  {}
-	| LBRACE RBRACE {}
+StmtList : Stmt StmtList {ASTBlock *block = (ASTBlock *)$2;
+				  ASTStmt *stmt = (ASTStmt *)$1;
+				  block->addStatement(stmt);
+				  $$ = block;}
+	| Stmt {ASTBlock *block = new ASTBlock(@1);
+		  ASTStmt *stmt = (ASTStmt *)$1;
+		  block->addStatement(stmt);
+		  $$ = block;}
 	;
 
-StmtList : Stmt StmtList {}
-	| Stmt {}
+Stmt : VarDecl SEMICOLON {$$ = $1;}
+	| AssignStmt SEMICOLON {$$ = $1;}
+	| ForStmt {$$ = $1;}
+	| IfStmt {$$ = $1;}
+	| Block {$$ = $1;}
+	| ReturnStmt SEMICOLON {$$ = $1;}
+	| WhileStmt {$$ = $1;}
+	| SEMICOLON {$$ = new ASTStmtEmpty(@1);}
+	| Expr SEMICOLON {$$=$1;}
 	;
 
-Stmt : VarDecl SEMICOLON {}
-	| AssignStmt SEMICOLON {}
-	| DotExpr SEMICOLON {}
-	| ForStmt {}
-	| IfStmt {}
-	| ReturnStmt SEMICOLON {}
+StmtNoSemi : VarDecl {$$ = $1;}
+	| AssignStmt {$$ = $1;}
+	| ForStmt {$$ = $1;}
+	| IfStmt {$$ = $1;}
+	| Block {$$ = $1;}
+	| ReturnStmt {$$ = $1;}
+	| WhileStmt {$$ = $1;}
+	| {$$ = new ASTStmtEmpty(noloc);}
+	| Expr {$$=$1;}
 	;
 
-StmtNoSemi : VarDecl {}
-	| AssignStmt {}
-	| DotExpr {}
-	| ForStmt {}
-	| IfStmt {}
-	| ReturnStmt {}
+AssignStmt : LVal ASSIGN Expr {$$ = new ASTStmtAssign((ASTStmt *)$1, (ASTExpr *)$3,@1);}
 	;
 
-AssignStmt : LVal ASSIGN Expr {}
+LVal : VarDecl {$$ = $1;}
+	| DotExpr {$$ = $1;}
 	;
 
-LVal : VarDecl {}
-	| DotExpr {}
-	;
-
-DotExpr : Factor DOT IDENTIFIER {}
-	| Factor {}
+DotExpr : IDENTIFIER DOT IDENTIFIER {ASTString *lval = (ASTString *)$1;
+						 ASTString *rval = (ASTString *)$3;
+						 $$ = new ASTExprDot(lval->getValue(), rval->getValue(),@1);
+						 delete lval; delete rval;}
+	| IDENTIFIER {ASTString *rval = (ASTString *)$1;
+				  $$ = new ASTExprDot("", rval->getValue(),@1);
+				  delete rval;}
+	| DotExpr ARROW IDENTIFIER {ASTExpr *id = (ASTExpr *)$1;
+								ASTString *rval = (ASTString *)$3;
+								$$ = new ASTExprArrow(id, rval->getValue(), @1);
+								delete rval;}
+	| DotExpr ARROW IDENTIFIER LBRACKET Expr RBRACKET {ASTExpr *id = (ASTExpr *)$1;
+											       	   ASTString *rval = (ASTString *)$3;
+													   ASTExpr *num = (ASTExpr *)$5;
+													   ASTExprArrow *res = new ASTExprArrow(id, rval->getValue(), @1);
+													   res->setIndex(num);
+													   $$ = res;}
 	; 
 
-Expr : Expr LogOp Expr2 {}
-	| Expr2 {}
+Expr : Expr OR Expr15 {ASTLogExpr *e = new ASTExprOr(@2);
+				 ASTExpr *left = (ASTExpr *)$1;
+				 ASTExpr *right = (ASTExpr *)$3;
+				 e->setFirstOperand(left);
+				 e->setSecondOperand(right);
+				 $$=e;}
+	| Expr15 {$$=$1;}
+	;
+	
+Expr15 : Expr15 AND Expr16 {ASTLogExpr *e = new ASTExprAnd(@2);
+				 ASTExpr *left = (ASTExpr *)$1;
+				 ASTExpr *right = (ASTExpr *)$3;
+				 e->setFirstOperand(left);
+				 e->setSecondOperand(right);
+				 $$=e;}
+	| Expr16 {$$=$1;}
 	;
 
-LogOp : AND {}
-	| OR {}
+Expr16 : Expr16 BITOR Expr17 {ASTBitExpr *e = new ASTExprBitOr(@2);
+							  ASTExpr *left = (ASTExpr *)$1;
+							  ASTExpr *right = (ASTExpr *)$3;
+							  e->setFirstOperand(left);
+							  e->setSecondOperand(right);
+							  $$=e;}
+	| Expr17 {$$=$1;}
+	;
+	
+Expr17 : Expr17 BITXOR Expr18 {ASTBitExpr *e = new ASTExprBitXor(@2);
+							   ASTExpr *left = (ASTExpr *)$1;
+							   ASTExpr *right = (ASTExpr *)$3;
+							   e->setFirstOperand(left);
+							   e->setSecondOperand(right);
+							   $$=e;}
+	| Expr18 {$$ = $1;}
+	;
+	
+Expr18 : Expr18 BITAND Expr2 {ASTBitExpr *e = new ASTExprBitAnd(@2);
+							   ASTExpr *left = (ASTExpr *)$1;
+							   ASTExpr *right = (ASTExpr *)$3;
+							   e->setFirstOperand(left);
+							   e->setSecondOperand(right);
+							   $$=e;}
+	| Expr2 {$$=$1;}
 	;
 
-Expr2 : Expr2 RelOp Expr3 {}
-	| Expr3 {}
+Expr2 : Expr2 RelOp Expr25 {ASTRelExpr *e = (ASTRelExpr *)$2;
+				   ASTExpr *left = (ASTExpr *)$1;
+				   ASTExpr *right = (ASTExpr *)$3;
+				   e->setFirstOperand(left);
+				   e->setSecondOperand(right);
+				   $$=e;}
+	| Expr25 {$$ = $1;}
+	;
+	
+Expr25 : Expr25 ShiftOp Expr3 {ASTShiftExpr *e = (ASTShiftExpr *)$2;
+							   ASTExpr *left = (ASTExpr *)$1;
+							   ASTExpr *right = (ASTExpr *)$3;
+							   e->setFirstOperand(left);
+							   e->setSecondOperand(right);
+							   $$=e;}
+	| Expr3 {$$=$1;}
+	;
+	
+ShiftOp : LSHIFT {$$ = new ASTExprLShift(@1);}
+		| RSHIFT {$$ = new ASTExprRShift(@1);}
+		;
+
+RelOp : GT {$$ = new ASTExprGT(@1);}
+	| GE {$$ = new ASTExprGE(@1);}
+	| LT {$$ = new ASTExprLT(@1);}
+	| LE {$$ = new ASTExprLE(@1);}
+	| EQ {$$ = new ASTExprEQ(@1);}
+	| NE {$$ = new ASTExprNE(@1);}
 	;
 
-RelOp : GT {}
-	| GE {}
-	| LT {}
-	| LE {}
-	| EQ {}
-	| NE {}
+Expr3 : Expr3 AddOp Expr4 {ASTAddExpr *e = (ASTAddExpr *)$2;
+				   ASTExpr *left = (ASTExpr *)$1;
+				   ASTExpr *right = (ASTExpr *)$3;
+				   e->setFirstOperand(left);
+				   e->setSecondOperand(right);
+				   $$=e;}
+	| Expr4 {$$ = $1;}
 	;
 
-Expr3 : Expr3 AddOp Expr4 {}
-	| Expr4 {}
+AddOp : PLUS {$$ = new ASTExprPlus(@1);}
+	| MINUS {$$ = new ASTExprMinus(@1);}
 	;
 
-AddOp : PLUS {}
-	| MINUS {}
+Expr4 : Expr4 MultOp Expr5 {ASTMultExpr *e = (ASTMultExpr *)$2;
+				    ASTExpr *left = (ASTExpr *)$1;
+				    ASTExpr *right = (ASTExpr *)$3;
+				    e->setFirstOperand(left);
+				    e->setSecondOperand(right);
+				    $$=e;}
+	| Expr5 {$$=$1;}
 	;
 
-Expr4 : Expr4 MultOp Expr5 {}
-	| Expr5 {}
+MultOp : TIMES {$$ = new ASTExprTimes(@1);}
+	| DIVIDE {$$ = new ASTExprDivide(@1);}
+	| MODULO {$$ = new ASTExprModulo(@1);}
 	;
 
-MultOp : TIMES {}
-	| DIVIDE {}
+Expr5 : NOT Expr5 {ASTUnaryExpr *e = new ASTExprNot(@1);
+			 ASTExpr *op = (ASTExpr *)$2;
+			 e->setOperand(op);
+			 $$=e;}
+	| MINUS Expr5 {ASTUnaryExpr *e = new ASTExprNegate(@1);
+			   ASTExpr *op = (ASTExpr *)$2;
+			   e->setOperand(op);
+			   $$=e;}
+	| BITNOT Expr5 {ASTUnaryExpr *e = new ASTExprBitNot(@1);
+					ASTExpr *op = (ASTExpr *)$2;
+					e->setOperand(op);
+					$$=e;}
+	| Factor {$$=$1;}
 	;
 
-Expr5 : NOT DotExpr {}
-	| DotExpr {}
+Factor : LPAREN Expr RPAREN {$$=$2;}
+	| DotExpr {$$ = $1;}
+	| DotExpr INCREMENT {ASTUnaryExpr *e = new ASTExprIncrement(@2);
+						 ASTExpr *op = (ASTExpr *)$1;
+						 e->setOperand(op);
+						 $$=e;}
+	| DotExpr DECREMENT {ASTUnaryExpr *e = new ASTExprDecrement(@2);
+						 ASTExpr *op = (ASTExpr *)$1;
+						 e->setOperand(op);
+						 $$=e;}
+	| NUMBER {ASTFloat *val = (ASTFloat *)$1;
+		    $$ = new ASTNumConstant(val,@1);}
+	| BoolConstant {$$ = $1;}
+	| FuncCall {$$=$1;}
 	;
 
-Factor : LPAREN Expr RPAREN {}
-	| IDENTIFIER {}
-	| NUMBER {}
-	| FuncCall {}
+BoolConstant : TRUE {$$ = new ASTBoolConstant(true,@1);}
+		 | FALSE {$$ = new ASTBoolConstant(false,@1);}
+		 ; 
+
+FuncCall : DotExpr LPAREN ExprList RPAREN {ASTFuncCall *fc = (ASTFuncCall *)$3;
+							    ASTExpr *name = (ASTExpr *)$1;
+							    fc->setName(name);
+							    $$=fc;}
+	| DotExpr LPAREN RPAREN {ASTFuncCall *fc = new ASTFuncCall(@1);
+					    ASTExpr *name = (ASTExpr *)$1;
+					    fc->setName(name);
+					    $$=fc;}
 	;
 
-FuncCall : IDENTIFIER LPAREN ExprList RPAREN {}
-	| IDENTIFIER LPAREN RPAREN {}
+ExprList : Expr COMMA ExprList {ASTFuncCall *fc = (ASTFuncCall *)$3;
+					  ASTExpr *e = (ASTExpr *)$1;
+					  fc->addParam(e);
+					  $$ = fc;}
+	| Expr {ASTFuncCall *fc = new ASTFuncCall(@1);
+		  ASTExpr *e = (ASTExpr *)$1;
+		  fc->addParam(e);
+		  $$ = fc;}
 	;
 
-ExprList : Expr COMMA ExprList {}
-	| Expr {}
+ForStmt : FOR LPAREN StmtNoSemi SEMICOLON Expr SEMICOLON StmtNoSemi RPAREN Stmt {ASTStmt *prec = (ASTStmt *)$3;
+												ASTExpr *term = (ASTExpr *)$5;
+												ASTStmt *incr = (ASTExpr *)$7;
+												ASTStmt *stmt = (ASTStmt *)$9;
+												$$ = new ASTStmtFor(prec,term,incr,stmt,@1);}
+	;
+	
+WhileStmt : WHILE LPAREN Expr RPAREN Stmt {ASTExpr *cond = (ASTExpr *)$3;
+										   ASTStmt *stmt = (ASTStmt *)$5;
+										   $$ = new ASTStmtWhile(cond,stmt,@1);}
+
+IfStmt : IF LPAREN Expr RPAREN Stmt {ASTExpr *cond = (ASTExpr *)$3;
+							  ASTStmt *stmt = (ASTStmt *)$5;
+							  $$ = new ASTStmtIf(cond,stmt,@1);}
+	| IF LPAREN Expr RPAREN Stmt ELSE Stmt {ASTExpr *cond = (ASTExpr *)$3;
+										ASTStmt *ifstmt = (ASTStmt *)$5;
+										ASTStmt *elsestmt = (ASTStmt *)$7;
+										$$ = new ASTStmtIfElse(cond,ifstmt,elsestmt,@1);}
 	;
 
-ForStmt : FOR LPAREN Stmt Expr SEMICOLON StmtNoSemi RPAREN StmtOrBlock {}
-	;
-
-StmtOrBlock : Stmt {}
-	| Block {}
-	;
-
-IfStmt : IF LPAREN Expr RPAREN StmtOrBlock {}
-	| IF LPAREN Expr RPAREN StmtOrBlock ELSE StmtOrBlock {}
-	;
-
-ReturnStmt : RETURN Expr {}
-	| RETURN {}
+ReturnStmt : RETURN Expr {$$ = new ASTStmtReturnVal((ASTExpr *)$2,@1);}
+	| RETURN {$$ = new ASTStmtReturn(@1);}
 	;
 
 %%
@@ -213,5 +418,25 @@ ReturnStmt : RETURN Expr {}
 /*        programs */
 		
 void yyerror(const char *s) {
-    fprintf(stderr, "line %d: %s, on token %s\n", yylineno, s, yytext);
+	char temp[512];
+    sprintf(temp, "line %d: %s, on token %s", yylineno, s, yytext);
+    box_out(temp);
+    box_eol();
+}
+
+int go(const char *f)
+{
+yyin = NULL;
+resetLexer();
+yyin = fopen(f, "r");
+if(!yyin)
+{
+	box_out("Can't open input file");
+	box_eol();
+	return -1;
+}
+	curfilename = string(f);
+	int result = yyparse();
+	fclose(yyin);
+	return result;
 }

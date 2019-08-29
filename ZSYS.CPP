@@ -13,6 +13,9 @@
 #include <string.h>
 #include "zc_alleg.h"
 #include <allegro/internal/aintern.h>
+#include <string>
+
+using std::string;
 
 #ifdef ALLEGRO_DOS
 #include <conio.h>
@@ -938,15 +941,29 @@ void box_start(int style, char *title, FONT *title_font, FONT *message_font, boo
 }
 
 /* outputs text to the progress message */
-void box_out(char *msg)
+void box_out(const char *msg)
 {
+	string remainder = "";
+	string temp(msg);
   if (box_active)
   {
     scare_mouse();
+	//do primitive text wrapping
+	unsigned int i;
+	for(i=0; i<temp.size(); i++)
+	{
+		int length = text_length(box_message_font,temp.substr(0,i).c_str());
+		if(length > box_r-box_l-16)
+		{
+			i = max(i-1,0);
+			break;
+		}
+	}
     set_clip_rect(screen, box_l+8, box_t+1, box_r-8, box_b-1);
-    textout_ex(screen, box_message_font, msg, box_l+8+box_x, box_t+(box_y+1)*box_message_height, gui_fg_color, gui_bg_color);
+    textout_ex(screen, box_message_font, temp.substr(0,i).c_str(), box_l+8+box_x, box_t+(box_y+1)*box_message_height, gui_fg_color, gui_bg_color);
     set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
     unscare_mouse();
+	remainder = temp.substr(i,temp.size()-i);
   }
   if (box_log)
   {
@@ -954,6 +971,14 @@ void box_out(char *msg)
   }
   box_x += text_length(box_message_font, msg);
   box_msg_pos+=strlen(msg);
+  if(remainder != "")
+	{
+		bool oldlog = box_log;
+		box_log = false;
+		box_eol();
+		box_out(remainder.c_str());
+		box_log = oldlog;	
+	}
 }
 
 /* remembers the current x position */

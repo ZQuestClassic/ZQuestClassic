@@ -182,6 +182,9 @@ extern newcombo     *undocombobuf;
 extern word animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
 extern word animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
 extern word animated_combos;
+extern word animated_combo_table2[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
+extern word animated_combo_table24[MAXCOMBOS][2];            //[0]=combo, [1]=clock
+extern word animated_combos2;
 extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of blank tiles
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
 
@@ -382,6 +385,8 @@ int onSecretF();
 int onSecretCombo();
 int onUnderCombo();
 int onImportFFScript();
+int onImportGScript();
+int onCompileScript();
 
 typedef struct item_struct
 {
@@ -540,6 +545,7 @@ void editdmap(int index);
 //int selectdmapxy[6] = {164-74,108+8+24,164,80+44+24,164,90+44+24};
 
 int onDmaps();
+int onEditSFX();
 
 /************************************/
 /**********  onDoorCombos  **********/

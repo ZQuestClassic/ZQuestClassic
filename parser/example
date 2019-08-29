@@ -1,0 +1,28 @@
+//this is a global function which is usable by all scripts
+int distancesq(int a, int b)
+{
+//arbitrary C expressions with appropriate precendence are supported.
+//the current supported operators are + - * / && || ! = == !=
+   return a*a+b*b;
+}
+
+//declares a script named "foo" with script id 0
+script foo for 0
+{
+//this is a globally accessible variable which can be read using "foo.count" syntax
+   int count;
+//all scripts must implement this method
+   void run()
+   {
+   //for loops and if statements are implemented
+   for(float i=0; i<5; i=i+.1)
+     for(float j=0; j<5; j=j+.1)
+       if(distancesq(i,j) < 5)
+         pluscount();
+   }
+//but I can declare other methods do. Other scripts can invoke this method by using "foo.pluscount()" notation
+   void pluscount()
+   {
+      count++;
+   }
+}

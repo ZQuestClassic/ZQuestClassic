@@ -19,6 +19,7 @@
 #include "gamedata.h"
 #include "zc_custom.h"
 #include "title.h"
+#include "ffscript.h"
 #include <stdio.h>
 
 extern int draw_screen_clip_rect_x1;
@@ -26,7 +27,12 @@ extern int draw_screen_clip_rect_x2;
 extern int draw_screen_clip_rect_y1;
 extern int draw_screen_clip_rect_y2;
 extern bool draw_screen_clip_rect_show_link;
-
+fix slide_x_max=fix(2);
+fix slide_x_min=fix(-2);
+fix slide_y_max=fix(2);
+fix slide_y_min=fix(-2);
+fix slide_x_interval=fix(1)/8;
+fix slide_y_interval=fix(1)/8;
 extern short ffposx[32];
 extern short ffposy[32];
 extern long ffprvx[32];
@@ -71,6 +77,8 @@ void LinkClass::unfreeze() { if(action==freeze) action=none; }
 void LinkClass::beatlikelike() { inlikelike=false; }
 fix  LinkClass::getX()   { return x; }
 fix  LinkClass::getY()   { return y; }
+fix  LinkClass::getSlideX()   { return slide_x; }
+fix  LinkClass::getSlideY()   { return slide_y; }
 fix  LinkClass::getXOfs() { return xofs; }
 fix  LinkClass::getYOfs() { return yofs; }
 void LinkClass::setXOfs(int newxofs) { xofs=newxofs; }
@@ -122,6 +130,7 @@ void LinkClass::Catch()
 bool LinkClass::getClock() { return superman; }
 void LinkClass::setClock(bool state) { superman=state; }
 int  LinkClass::getAction() { return action; }
+void LinkClass::setAction(actiontype new_action) { action=new_action; }
 bool LinkClass::isDiving() { return (diveclk>30); }
 bool LinkClass::isSwimming()
 {
@@ -186,10 +195,13 @@ void LinkClass::init()
   hopclk=diveclk=0;
   conveyor_flags=0;
   drunkclk=0;
+  slide_x=0;
+  slide_y=0;
   drawstyle=3;
   ffwarp = false;
   stepoutindex=0;
   stepoutwr=0;
+  ffpit = false;
 }
 
 void LinkClass::draw_under(BITMAP* dest)
@@ -915,6 +927,10 @@ void LinkClass::checkstab()
           if(items.spr(j)->hit(wx,wy,wxsz,wysz) || (attack==wWand && items.spr(j)->hit(x,y-8,16,24))
              || (attack==wHammer && items.spr(j)->hit(x,y-8,16,24)))
           {
+		    if(itemsbuf[items.spr(j)->id].collect_script)
+			{
+			  run_script(itemsbuf[items.spr(j)->id].collect_script, j, SCRIPT_ITEM);
+			}
             getitem(items.spr(j)->id);
             items.del(j);
             for(int i=0; i<Lwpns.Count(); i++)
@@ -1093,7 +1109,8 @@ void LinkClass::check_slash_block(int bx, int by)
   int i = (bx>>4) + by;
 
   if(type!=cSLASH && type!=cSLASHITEM && type!=cBUSH && type!=cFLOWERS &&
-     type!=cTALLGRASS && (flag<mfSWORD || flag>mfXSWORD) &&
+     type!=cTALLGRASS && type!=cSLASHNEXT && type!=cSLASHNEXTITEM && type!=cBUSHNEXT &&
+	 (flag<mfSWORD || flag>mfXSWORD) &&
      flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE
 	 && (flag3<mfSWORD || flag3>mfXSWORD) && flag3!=mfSTRIKE)
     return;
@@ -1166,9 +1183,16 @@ void LinkClass::check_slash_block(int bx, int by)
   }
   else
   {
-    s->data[i] = s->undercombo;
-    s->cset[i] = s->undercset;
-    s->sflag[i] = 0;
+    if(type==cSLASHNEXT || type==cSLASHNEXTITEM || type==cBUSHNEXT)
+	{
+	  s->data[i]++;
+	}
+	else
+	{
+      s->data[i] = s->undercombo;
+      s->cset[i] = s->undercset;
+      s->sflag[i] = 0;
+	}
     set_bit(screengrid,i,1);
     //    pausenow=true;
   }
@@ -1181,7 +1205,7 @@ void LinkClass::check_slash_block(int bx, int by)
       sfx(WAV_SECRET);
     }
   }
-  else if (type==cSLASHITEM||type==cBUSH||type==cFLOWERS||type==cTALLGRASS)
+  else if (type==cSLASHITEM||type==cBUSH||type==cFLOWERS||type==cTALLGRASS||type==cSLASHNEXTITEM||type==cBUSHNEXT)
   {
     int it=-1;
     int r=rand()%100;
@@ -1197,6 +1221,9 @@ void LinkClass::check_slash_block(int bx, int by)
   switch (type)
   {
     case cBUSH:
+    decorations.add(new dBushLeaves((fix)bx, (fix)by, dBUSHLEAVES, 0));
+    break;
+	case cBUSHNEXT:
     decorations.add(new dBushLeaves((fix)bx, (fix)by, dBUSHLEAVES, 0));
     break;
     case cFLOWERS:
@@ -2379,21 +2406,20 @@ bool LinkClass::animate(int index)
   awarp=false;
   for(int i=0;i<32;i++)
   {
-
     int ind=0;
     if(!awarp)
     {
       if(combobuf[tmpscr->ffdata[i]].type==cAWARPA)
-      {awarp=true; ind=0;}
+        {awarp=true; ind=0;}
       else if(combobuf[tmpscr->ffdata[i]].type==cAWARPB)
         {awarp=true; ind=1;}
-        else if(combobuf[tmpscr->ffdata[i]].type==cAWARPC)
-          {awarp=true; ind=2;}
-          else if(combobuf[tmpscr->ffdata[i]].type==cAWARPD)
-            {awarp=true; ind=3;}
-            else if(combobuf[tmpscr->ffdata[i]].type==cAWARPR)
-              {awarp=true; ind=rand()%4;}
-              if(awarp)
+      else if(combobuf[tmpscr->ffdata[i]].type==cAWARPC)
+        {awarp=true; ind=2;}
+      else if(combobuf[tmpscr->ffdata[i]].type==cAWARPD)
+        {awarp=true; ind=3;}
+      else if(combobuf[tmpscr->ffdata[i]].type==cAWARPR)
+        {awarp=true; ind=rand()%4;}
+      if(awarp)
       {
         if(tmpscr->flags5&fDIRECTAWARP)
         {
@@ -2409,8 +2435,15 @@ bool LinkClass::animate(int index)
 
   if(ffwarp)
   {
-	  ffwarp=false;
-	  dowarp(1,0);
+    if(ffpit)
+	{
+	  ffpit=false;
+	  didpit=true;
+      pitx=x;
+      pity=y;
+	}
+	ffwarp=false;
+	dowarp(1,0);
   }
 
   // walk through bombed doors and fake walls
@@ -2619,7 +2652,7 @@ bool LinkClass::startwpn(int wpn)                           // an item index
         return false;
       }
       if(!get_debug())
-        --game->items[itype_bomb];
+        change_gamedata_bombs(game, -1);
       selectBwpn(8,8);
       if (isdungeon())
       {
@@ -2634,7 +2667,7 @@ bool LinkClass::startwpn(int wpn)                           // an item index
       if(Lwpns.idCount(wLitSBomb))
         return false;
       if(!get_debug())
-        --game->items[itype_sbomb];
+        change_gamedata_sbombs(game, -1);
       selectBwpn(8,8);
       Lwpns.add(new weapon((fix)wx,(fix)wy,wSBomb,0,16*DAMAGE_MULTIPLIER,dir));
       sfx(WAV_PLACE,pan(wx));
@@ -3333,21 +3366,23 @@ void LinkClass::movelink()
   int push=pushing;
   pushing=0;
 
+  slide();
+  
   if(diveclk>0)
   {
     --diveclk;
   }
   else if(action==swimming)
+  {
+    bool global_diving=(get_bit(quest_rules,qr_NODIVING) != 0);
+    bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
+    if(DrunkrAbtn()&&(global_diving==screen_diving))
     {
-      bool global_diving=(get_bit(quest_rules,qr_NODIVING) != 0);
-      bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
-      if(DrunkrAbtn()&&(global_diving==screen_diving))
-      {
-        diveclk=80;
-      }
+      diveclk=80;
     }
+  }
 
-    if(action==rafting)
+  if(action==rafting)
   {
     do_rafting();
     if(action==rafting)
@@ -3434,40 +3469,40 @@ void LinkClass::movelink()
       */
   }
   else if(can_attack() && itemclk==0 && DrunkrBbtn())
+  {
+    if(Bwpn==iWand)
     {
-      if(Bwpn==iWand)
+      action=attacking;
+      attack=wWand;
+      attackclk=0;
+    }
+    //    else if(Bwpn==iHammer)
+    else if((Bwpn==iHammer)&&!(action==attacking && attack==wHammer))
+    {
+      action=attacking;
+      attack=wHammer;
+      attackclk=0;
+    }
+    else if(startwpn(Bwpn))
+    {
+      if (action==casting)
+      {
+        return;
+      }
+      else
       {
         action=attacking;
-        attack=wWand;
         attackclk=0;
-      }
-      //    else if(Bwpn==iHammer)
-      else if((Bwpn==iHammer)&&!(action==attacking && attack==wHammer))
+        attack=none;
+        if(Bwpn==iBrang || Bwpn==iMBrang || Bwpn==iFBrang)
         {
-          action=attacking;
-          attack=wHammer;
-          attackclk=0;
+          attack=wBrang;
         }
-        else if(startwpn(Bwpn))
-          {
-            if (action==casting)
-            {
-              return;
-            }
-            else
-            {
-              action=attacking;
-              attackclk=0;
-              attack=none;
-              if(Bwpn==iBrang || Bwpn==iMBrang || Bwpn==iFBrang)
-              {
-                attack=wBrang;
-              }
-            }
-          }
+      }
     }
+  }
 
-    if(attackclk || action==attacking)
+  if(attackclk || action==attacking)
   {
     if(!inlikelike && attackclk>4 && (attackclk&3)==0)
     {
@@ -3500,24 +3535,6 @@ void LinkClass::movelink()
 
     if(!(get_bit(quest_rules, qr_LTTPWALK)))
     {
-      //if (xoff||yoff)
-      //{
-
-      /*if(get_bit(quest_rules, qr_LTTPWALK))
-        {
-        if(dir==up)
-        {
-        if(int(x)&7)
-        {
-        if(!walkflag(x, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1, 2, up))
-        {
-        if(!walkflag(x+8, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1, 2, up))
-        {
-        if(walkflag(x+15, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1, 2, up))
-        {
-        if(shift==1)*/
-
-
       if(dir==up&&yoff)
       {
         if(int(x)&8)
@@ -3525,20 +3542,38 @@ void LinkClass::movelink()
           if(!walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up))
           {
             move(up);
+            if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
+            {
+              slide_y=max(slide_y_min,slide_y-(2*slide_y_interval));
+            }
+            else
+            {
+              slide_y=slide_y_min;
+            }
           }
           else
           {
             action=none;
+            slide_y=0;
           }
         }
         else if(!walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up))
+        {
+          move(up);
+          if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
           {
-            move(up);
+            slide_y=max(slide_y_min,slide_y-(2*slide_y_interval));
           }
           else
           {
-            action=none;
+            slide_y=slide_y_min;
           }
+        }
+        else
+        {
+          action=none;
+          slide_y=0;
+        }
         return;
       }
       if(dir==down&&yoff)
@@ -3548,20 +3583,38 @@ void LinkClass::movelink()
           if(!walkflag(x,y+15+int(lsteps[int(y)&7]),2,down))
           {
             move(down);
+            if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
+            {
+              slide_y=min(slide_y_max,slide_y+(2*slide_y_interval));
+            }
+            else
+            {
+              slide_y=slide_y_max;
+            }
           }
           else
           {
             action=none;
+            slide_y=0;
           }
         }
         else if(!walkflag(x,y+15+int(lsteps[int(y)&7]),2,down))
+        {
+          move(down);
+          if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
           {
-            move(down);
+            slide_y=min(slide_y_max,slide_y+(2*slide_y_interval));
           }
           else
           {
-            action=none;
+            slide_y=slide_y_max;
           }
+        }
+        else
+        {
+          action=none;
+          slide_y=0;
+        }
         return;
       }
       if(dir==left&&xoff)
@@ -3569,10 +3622,19 @@ void LinkClass::movelink()
         if(!walkflag(x-int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left)&&!walkflag(x-int(lsteps[int(x)&7]),y+8,1,left))
         {
           move(left);
+          if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
+          {
+            slide_x=max(slide_x_min,slide_x-(2*slide_x_interval));
+          }
+          else
+          {
+            slide_x=slide_x_min;
+          }
         }
         else
         {
           action=none;
+          slide_x=0;
         }
         return;
       }
@@ -3581,16 +3643,23 @@ void LinkClass::movelink()
         if(!walkflag(x+15+int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right)&&!walkflag(x+15+int(lsteps[int(x)&7]),y+8,1,right))
         {
           move(right);
+          if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
+          {
+            slide_x=min(slide_x_max,slide_x+(2*slide_x_interval));
+          }
+          else
+          {
+            slide_x=slide_x_max;
+          }
         }
         else
         {
           action=none;
+          slide_x=0;
         }
         return;
       }
     }
-    //return;
-    //}
   }
 
   if((action!=swimming)&&(action!=casting))
@@ -3603,52 +3672,123 @@ void LinkClass::movelink()
     switch(holddir)
     {
       case up:
-      if(!Up()) holddir=-1; break;
+        if(!Up())
+        {
+          holddir=-1;
+        }
+        else
+        {
+          if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
+          {
+            slide_y=max(slide_y_min,slide_y-(2*slide_y_interval));
+          }
+          else
+          {
+            slide_y=slide_y_min;
+          }
+        }
+        break;
       case down:
-      if(!Down()) holddir=-1; break;
+        if(!Down())
+        {
+          holddir=-1;
+        }
+        else
+        {
+          if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
+          {
+            slide_y=min(slide_y_max,slide_y+(2*slide_y_interval));
+          }
+          else
+          {
+            slide_y=slide_y_max;
+          }
+        }
+        break;
       case left:
-      if(!Left()) holddir=-1; break;
+        if(!Left())
+        {
+          holddir=-1;
+        }
+        else
+        {
+          if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
+          {
+            slide_x=max(slide_x_min,slide_x-(2*slide_x_interval));
+          }
+          else
+          {
+            slide_x=slide_x_min;
+          }
+        }
+        break;
       case right:
-      if(!Right()) holddir=-1; break;
+        if(!Right())
+        {
+          holddir=-1;
+        }
+        else
+        {
+          if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
+          {
+            slide_x=min(slide_x_max,slide_x+(2*slide_x_interval));
+          }
+          else
+          {
+            slide_x=slide_x_max;
+          }
+        }
+        break;
       default:
       break;
     }
 
     if(DrunkUp()&&(holddir==-1||holddir==up))
     {
-
       if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM))
       {
-
       }
       else
       {
-
         dir=up;
         holddir=up;
-
-
         if(DrunkRight()&&shiftdir!=left)
         {
           shiftdir=right;
         }
         else if(DrunkLeft()&&shiftdir!=right)
-          {
-            shiftdir=left;
-          }
-          else shiftdir=-1;
+        {
+          shiftdir=left;
+        }
+        else
+        {
+          shiftdir=-1;
+        }
 
         //bool walkable;
-        if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,2,up)||(int(x)&7?walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,1,up):0)) {
-          if(z3step==2) {
+        if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,2,up)||(int(x)&7?walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,1,up):0))
+        {
+          if(z3step==2)
+          {
             z3step=1;
             if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,2,up)||(int(x)&7?walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,1,up):0))
+            {
               walkable = false;
-            else walkable=true;
+            }
+            else
+            {
+              walkable=true;
+            }
           }
-          else walkable=false;
+          else
+          {
+            walkable=false;
+          }
         }
-        else walkable = true;
+        else
+        {
+          walkable = true;
+        }
 
         int s=shiftdir;
         if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
@@ -3688,28 +3828,25 @@ void LinkClass::movelink()
             else if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up)&&
                     !walkflag(x+7,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up)&&
                     !walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+            {
+              sprite::move((fix)1,(fix)0);
+            }
+            else if(shiftdir==-1)
+            {
+              pushing=push+1;
+              if(action!=swimming)
               {
-                sprite::move((fix)1,(fix)0);
+                //linkstep();
+                //if(++link_count > 16)
+                //link_count=0;
               }
-              else if(shiftdir==-1)
-                {
-                  pushing=push+1;
-                  if(action!=swimming)
-                  {
-                    //linkstep();
-                    //if(++link_count > 16)
-                    //link_count=0;
-                  }
-                }
-                z3step=2;
+            }
+            z3step=2;
           }
           else
           {
             if(action!=swimming)
             {
-              //linkstep();
-              //if(++link_count > 16)
-              //link_count=0;
             }
             z3step=2;
           }
@@ -3720,38 +3857,50 @@ void LinkClass::movelink()
 
     if(DrunkDown()&&(holddir==-1||holddir==down))
     {
-
       if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM))
       {
       }
       else
       {
-
         dir=down;
         holddir=down;
-
-
         if(DrunkRight()&&shiftdir!=left)
         {
           shiftdir=right;
         }
         else if(DrunkLeft()&&shiftdir!=right)
-          {
-            shiftdir=left;
-          }
-          else shiftdir=-1;
+        {
+          shiftdir=left;
+        }
+        else
+        {
+          shiftdir=-1;
+        }
 
         //bool walkable;
-        if(walkflag(x,y+15+z3step,2,down)||(int(x)&7?walkflag(x+16,y+15+z3step,1,down):0)) {
-          if(z3step==2) {
+        if(walkflag(x,y+15+z3step,2,down)||(int(x)&7?walkflag(x+16,y+15+z3step,1,down):0))
+        {
+          if(z3step==2)
+          {
             z3step=1;
             if(walkflag(x,y+15+z3step,2,down)||(int(x)&7?walkflag(x+16,y+15+z3step,1,down):0))
+            {
               walkable = false;
-            else walkable=true;
+            }
+            else
+            {
+              walkable=true;
+            }
           }
-          else walkable=false;
+          else
+          {
+            walkable=false;
+          }
         }
-        else walkable = true;
+        else
+        {
+          walkable = true;
+        }
 
         int s=shiftdir;
         if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
@@ -3760,20 +3909,34 @@ void LinkClass::movelink()
         }
         else
         {
-          if(s==left) {
+          if(s==left)
+          {
             if(walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-1,y+15,1,left))
+            {
               shiftdir=-1;
-            else if(walkable)
-                if(walkflag(x-1,y+16,1,left))
-                  shiftdir=-1;
-          }
-          else if(s==right) {
-              if(walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+16,y+15,1,right))
-                shiftdir=-1;
-              else if(walkable)
-                  if(walkflag(x+16,y+16,1,right))
-                    shiftdir=-1;
             }
+            else if(walkable)
+            {
+              if(walkflag(x-1,y+16,1,left))
+              {
+                shiftdir=-1;
+              }
+            }
+          }
+          else if(s==right)
+          {
+            if(walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+16,y+15,1,right))
+            {
+              shiftdir=-1;
+            }
+            else if(walkable)
+            {
+              if(walkflag(x+16,y+16,1,right))
+              {
+                shiftdir=-1;
+              }
+            }
+          }
         }
         move(down);
         shiftdir=s;
@@ -3791,28 +3954,22 @@ void LinkClass::movelink()
             else if(walkflag(x,y+15+1,1,down)&&
                     !walkflag(x+7,y+15+1,1,down)&&
                     !walkflag(x+15,y+15+1,1,down))
+            {
+              sprite::move((fix)1,(fix)0);
+            }
+            else if(shiftdir==-1)
+            {
+              pushing=push+1;
+              if(action!=swimming)
               {
-                sprite::move((fix)1,(fix)0);
               }
-              else if(shiftdir==-1)
-                {
-                  pushing=push+1;
-                  if(action!=swimming)
-                  {
-                    //linkstep();
-                    //if(++link_count > 16)
-                    //link_count=0;
-                  }
-                }
-                z3step=2;
+            }
+            z3step=2;
           }
           else
           {
             if(action!=swimming)
             {
-              //linkstep();
-              //if(++link_count > 16)
-              //link_count=0;
             }
             z3step=2;
           }
@@ -3823,7 +3980,6 @@ void LinkClass::movelink()
 
     if(DrunkLeft()&&(holddir==-1||holddir==left))
     {
-
       if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
       {
       }
@@ -3831,29 +3987,43 @@ void LinkClass::movelink()
       {
         dir=left;
         holddir=left;
-
-
         if(DrunkUp()&&shiftdir!=down)
         {
           shiftdir=up;
         }
         else if(DrunkDown()&&shiftdir!=up)
-          {
-            shiftdir=down;
-          }
-          else shiftdir=-1;
+        {
+          shiftdir=down;
+        }
+        else
+        {
+          shiftdir=-1;
+        }
 
         //bool walkable;
-        if(walkflag(x-z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-z3step,y+8,1,left)||(int(y)&7?walkflag(x-z3step,y+16,1,left):0)) {
-          if(z3step==2) {
+        if(walkflag(x-z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-z3step,y+8,1,left)||(int(y)&7?walkflag(x-z3step,y+16,1,left):0))
+        {
+          if(z3step==2)
+          {
             z3step=1;
             if(walkflag(x-z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-z3step,y+8,1,left)||(int(y)&7?walkflag(x-z3step,y+16,1,left):0))
+            {
               walkable = false;
-            else walkable=true;
+            }
+            else
+            {
+              walkable=true;
+            }
           }
-          else walkable=false;
+          else
+          {
+            walkable=false;
+          }
         }
-        else walkable = true;
+        else
+        {
+          walkable = true;
+        }
 
         int s=shiftdir;
         if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM))
@@ -3862,27 +4032,42 @@ void LinkClass::movelink()
         }
         else
         {
-          if(s==up) {
+          if(s==up)
+          {
             if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,2,up)||walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+            {
               shiftdir=-1;
-            else if(walkable)
-                if(walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
-                  shiftdir=-1;
-          }
-          else if(s==down) {
-              if(walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down))
-                shiftdir=-1;
-              else if(walkable)
-                  if(walkflag(x-1,y+16,1,down))
-                    shiftdir=-1;
             }
+            else if(walkable)
+            {
+              if(walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+              {
+                shiftdir=-1;
+              }
+            }
+          }
+          else if(s==down)
+          {
+            if(walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down))
+            {
+              shiftdir=-1;
+            }
+            else if(walkable)
+            {
+              if(walkflag(x-1,y+16,1,down))
+              {
+                shiftdir=-1;
+              }
+            }
+          }
         }
         move(left);
         shiftdir=s;
 
         if(!walkable)
         {
-          if(shiftdir==-1) {
+          if(shiftdir==-1)
+          {
             int v1=get_bit(quest_rules,qr_LTTPCOLLISION)?0:8;
             int v2=get_bit(quest_rules,qr_LTTPCOLLISION)?8:12;
             if(!walkflag(x-1,y+v1,1,left)&&
@@ -3894,28 +4079,22 @@ void LinkClass::movelink()
             else if(walkflag(x-1,y+v1,1,left)&&
                     !walkflag(x-1,y+v2-1,1,left)&&
                     !walkflag(x-1,y+15,1,left))
+            {
+              sprite::move((fix)0,(fix)1);
+            }
+            else if(shiftdir==-1)
+            {
+              pushing=push+1;
+              if(action!=swimming)
               {
-                sprite::move((fix)0,(fix)1);
               }
-              else if(shiftdir==-1)
-                {
-                  pushing=push+1;
-                  if(action!=swimming)
-                  {
-                    //linkstep();
-                    //if(++link_count > 16)
-                    //link_count=0;
-                  }
-                }
-                z3step=2;
+            }
+            z3step=2;
           }
           else
           {
             if(action!=swimming)
             {
-              //linkstep();
-              //if(++link_count > 16)
-              //link_count=0;
             }
             z3step=2;
           }
@@ -3926,38 +4105,50 @@ void LinkClass::movelink()
 
     if(DrunkRight()&&(holddir==-1||holddir==right))
     {
-
       if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
       {
       }
       else
       {
-
         dir=right;
         holddir=right;
-
-
         if(DrunkUp()&&shiftdir!=down)
         {
           shiftdir=up;
         }
         else if(DrunkDown()&&shiftdir!=up)
-          {
-            shiftdir=down;
-          }
-          else shiftdir=-1;
+        {
+          shiftdir=down;
+        }
+        else
+        {
+          shiftdir=-1;
+        }
 
         //bool walkable;
-        if(walkflag(x+15+z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right)||(int(y)&7?walkflag(x+15+z3step,y+16,1,right):0)) {
-          if(z3step==2) {
+        if(walkflag(x+15+z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right)||(int(y)&7?walkflag(x+15+z3step,y+16,1,right):0))
+        {
+          if(z3step==2)
+          {
             z3step=1;
             if(walkflag(x+15+z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right)||(int(y)&7?walkflag(x+15+z3step,y+16,1,right):0))
+            {
               walkable = false;
-            else walkable=true;
+            }
+            else
+            {
+              walkable=true;
+            }
           }
-          else walkable=false;
+          else
+          {
+            walkable=false;
+          }
         }
-        else walkable = true;
+        else
+        {
+          walkable = true;
+        }
 
         int s=shiftdir;
         if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM))
@@ -3966,20 +4157,34 @@ void LinkClass::movelink()
         }
         else
         {
-          if(s==up) {
+          if(s==up)
+          {
             if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,2,up)||walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+            {
               shiftdir=-1;
-            else if(walkable)
-                if(walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
-                  shiftdir=-1;
-          }
-          else if(s==down) {
-              if(walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down))
-                shiftdir=-1;
-              else if(walkable)
-                  if(walkflag(x+16,y+16,1,down))
-                    shiftdir=-1;
             }
+            else if(walkable)
+            {
+              if(walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+              {
+                shiftdir=-1;
+              }
+            }
+          }
+          else if(s==down)
+          {
+            if(walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down))
+            {
+              shiftdir=-1;
+            }
+            else if(walkable)
+            {
+              if(walkflag(x+16,y+16,1,down))
+              {
+                shiftdir=-1;
+              }
+            }
+          }
         }
         move(right);
         shiftdir=s;
@@ -3999,28 +4204,22 @@ void LinkClass::movelink()
             else if(walkflag(x+16,y+v1,1,right)&&
                     !walkflag(x+16,y+v2-1,1,right)&&
                     !walkflag(x+16,y+15,1,right))
+            {
+              sprite::move((fix)0,(fix)1);
+            }
+            else //if(shiftdir==-1)
+            {
+              pushing=push+1; z3step=2;
+              if(action!=swimming)
               {
-                sprite::move((fix)0,(fix)1);
               }
-              else //if(shiftdir==-1)
-              {
-                pushing=push+1; z3step=2;
-                if(action!=swimming)
-                {
-                  //linkstep();
-                  //if(++link_count > 16)
-                  //link_count=0;
-                }
-              }
+            }
             z3step=2;
           }
           else
           {
             if(action!=swimming)
             {
-              //linkstep();
-              //if(++link_count > 16)
-              //link_count=0;
             }
             z3step=2;
           }
@@ -4138,9 +4337,9 @@ void LinkClass::movelink()
         if(xoff>2&&xoff<6)
           move(dir);
         else if(xoff>=6)
-            move(right);
-          else if(xoff>=1)
-              move(left);
+          move(right);
+        else if(xoff>=1)
+          move(left);
       }
       else
       {
@@ -4149,9 +4348,9 @@ void LinkClass::movelink()
           move(right);
         }
         else if(xoff<4)
-          {
-            move(left);
-          }
+        {
+          move(left);
+        }
       }
     }
     else
@@ -4203,13 +4402,13 @@ LEFTRIGHT:
           move(dir);
         }
         else if(yoff>=6)
-          {
-            move(down);
-          }
-          else if(yoff>=1)
-            {
-              move(up);
-            }
+        {
+          move(down);
+        }
+        else if(yoff>=1)
+        {
+          move(up);
+        }
       }
       else
       {
@@ -4218,9 +4417,9 @@ LEFTRIGHT:
           move(down);
         }
         else if(yoff<4)
-          {
-            move(up);
-          }
+        {
+          move(up);
+        }
       }
     }
     else
@@ -4230,15 +4429,15 @@ LEFTRIGHT:
         move(left);
       }
       else if( !DrunkUp() && !DrunkDown() )
+      {
+        pushing=push+1;
+        dir=left;
+        if(action!=swimming)
         {
-          pushing=push+1;
-          dir=left;
-          if(action!=swimming)
-          {
-            linkstep();
-          }
-          return;
+          linkstep();
         }
+        return;
+      }
     }
     return;
   }
@@ -4254,13 +4453,13 @@ LEFTRIGHT:
           move(dir);
         }
         else if(yoff>=6)
-          {
-            move(down);
-          }
-          else if(yoff>=1)
-            {
-              move(up);
-            }
+        {
+          move(down);
+        }
+        else if(yoff>=1)
+        {
+          move(up);
+        }
       }
       else
       {
@@ -4269,9 +4468,9 @@ LEFTRIGHT:
           move(down);
         }
         else if(yoff<4)
-          {
-            move(up);
-          }
+        {
+          move(up);
+        }
       }
     }
     else
@@ -4281,18 +4480,57 @@ LEFTRIGHT:
         move(right);
       }
       else if( !DrunkUp() && !DrunkDown() )
+      {
+        pushing=push+1;
+        dir=right;
+        if(action!=swimming)
         {
-          pushing=push+1;
-          dir=right;
-          if(action!=swimming)
-          {
-            linkstep();
-          }
-          return;
+          linkstep();
         }
+        return;
+      }
     }
   }
 
+}
+
+void LinkClass::slide()
+{
+  if(inlikelike)
+  {
+    slide_x=0;
+    slide_y=0;
+    return;
+  }
+
+  if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
+  {
+    sprite::move(slide_x,slide_y);
+    if (slide_x<0)
+    {
+      slide_x+=slide_x_interval;
+    }
+    else if (slide_x>0)
+    {
+      slide_x-=slide_x_interval;
+    }
+    if (slide_y<0)
+    {
+      slide_y+=slide_y_interval;
+    }
+    else if (slide_y>0)
+    {
+      slide_y-=slide_y_interval;
+    }
+    if (slide_x>-slide_x_interval&&slide_x<slide_x_interval)
+    {
+      slide_x=0;
+    }
+    if (slide_y>-slide_y_interval&&slide_y<slide_y_interval)
+    {
+      slide_y=0;
+    }
+  }
 }
 
 void LinkClass::move(int d)
@@ -4421,6 +4659,11 @@ void LinkClass::move(int d)
     action=walking;
     if(++link_count > 16)
       link_count=0;
+  }
+  if(COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE)
+  {
+    dx=dx*abs(slide_x)/slide_x_max;
+    dy=dy*abs(slide_y)/slide_y_max;
   }
   sprite::move((fix)dx,(fix)dy);
 }
@@ -5644,8 +5887,157 @@ void LinkClass::checkspecial()
   }
 }
 
+void LinkClass::checkspecial3()
+{
+  if(toogam) return;
+
+  // check if he's standing on a warp he just came out of
+  if((int(y)&0xF8)==warpy)
+    if(x==warpx)
+      return;
+  warpy=255;
+
+  // check alignment for the rest of these
+  if(int(y)&7)
+    return;
+  if(int(x)&7)
+    return;
+
+  int flag = MAPFLAG(x,y);
+  int type = COMBOTYPE(x,y);
+
+  if(flag==mfFAIRY)
+  {
+    fairycircle(REFILL_LIFE);
+    return;
+  }
+
+  if(flag==mfZELDA)
+  {
+    saved_Zelda();
+    return;
+  }
+
+  if(int(x)&15)
+  {
+    if((COMBOTYPE(x,y)!=COMBOTYPE(x+8,y))&&
+      (COMBOTYPE(x,y)!=cPIT)&&(COMBOTYPE(x+8,y)!=cPIT))
+      return;
+    if (COMBOTYPE(x+8,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPIT)
+    {
+      type=cPIT;
+    }
+  }
+
+  if(int(y)&15)
+  {
+    if((COMBOTYPE(x,y)!=COMBOTYPE(x,y+8))&&
+      (COMBOTYPE(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))!=cPIT)&&(COMBOTYPE(x,y+8)!=cPIT))
+      return;
+    if ((COMBOTYPE(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPIT)||((COMBOTYPE(x,y+8)==cPIT)))
+    {
+      type=cPIT;
+    }
+  }
+
+  if(type==cTRIGNOFLAG || type==cTRIGFLAG)
+  {
+    if(type==cTRIGFLAG && !isdungeon())
+    {
+      setmapflag(mSECRET);
+      hidden_entrance(0,true,false);
+    }
+    else
+      hidden_entrance(0,true,true);
+  }
+
+  if(type!=cCAVE && type!=cCAVE2 && type!=cSTAIR &&
+    type!=cPIT && type!=cSWIMWARP && type!=cRESET &&
+    !(type==cDIVEWARP && diveclk>30))
+  {
+    switch(flag)
+    {
+      case mfDIVE_ITEM:
+        if(diveclk>30 && !getmapflag())
+        {
+          additem(x, y, tmpscr->catchall,
+            ipONETIME + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+          if(!nosecretsounds)
+          {
+            sfx(WAV_SECRET);
+          }
+        }
+        return;
+
+      case mfRAFT:
+      case mfRAFT_BRANCH:
+        if((current_item(itype_raft, true)>=i_raft) && action!=rafting && action!=swimhit
+          && action!=gothit && type==cDOCK)
+        {
+          if((isRaftFlag(nextflag(x,y,dir,false))))
+          {
+            action=rafting;
+            if(!nosecretsounds)
+            {
+              sfx(WAV_SECRET);
+            }
+          }
+        }
+        return;
+
+      default:
+        return;
+    }
+  }
+
+  draw_screen(tmpscr, 0, 0);
+  advanceframe();
+
+  if(type==cCAVE)
+  {
+    music_stop();
+    walkdown();
+  } else if(type==cCAVE2)
+  {
+    music_stop();
+    walkup2();
+  }
+
+  if (type==cPIT)
+  {
+    didpit=true;
+    pitx=x;
+    pity=y;
+  }
+
+  if(dlevel==0 && currscr==129 && type==cSTAIR)
+  {
+    // "take any road you want"
+    int dw = x<112 ? 1 : (x>136 ? 3 : 2);
+    int code = WARPCODE(currdmap,homescr,dw);
+    if(code!=-1)
+    {
+      currdmap = code>>8;
+      dlevel  = DMaps[currdmap].level;
+      currmap = DMaps[currdmap].map;
+      homescr = (code&0xFF) + DMaps[currdmap].xoff;
+      if(!isdungeon())
+        setmapflag(mSECRET);
+    }
+    exitcave();
+    return;
+  }
+  dowarp(0,0);
+}
+
+
 void LinkClass::checkspecial2(int *ls)
 {
+  if(get_bit(quest_rules,qr_OLDSTYLEWARP))
+  {
+    checkspecial3();
+	return;
+  }
   if(toogam) return;
   bool didstrig = false;
 
@@ -5737,9 +6129,9 @@ void LinkClass::checkspecial2(int *ls)
   }
 
   // check if he's standing on a warp he just came out of
-  if((int(y)&0xF8)==warpy)
+  if(((int)y>=warpy-8&&(int)y<=warpy+7)&&warpy!=0)
   {
-    if(x==warpx)
+    if(((int)x>=warpx-8&&(int)x<=warpx+7)&&warpx!=0)
     {
       return;
     }
@@ -6056,6 +6448,7 @@ void LinkClass::checkspecial2(int *ls)
     {
       tmpscr->data[((ty+8)&0xF0)+((tx+8)>>4)]++;
       reset_combo_animation(tmpscr->data[((ty+8)&0xF0)+((tx+8)>>4)]);
+      reset_combo_animation2(tmpscr->data[((ty+8)&0xF0)+((tx+8)>>4)]);
     }
 
     if(COMBOTYPE(tx+8,ty+8)==cSTEPSAME)
@@ -6067,6 +6460,7 @@ void LinkClass::checkspecial2(int *ls)
         {
           tmpscr->data[k]++;
           reset_combo_animation(tmpscr->data[k]);
+		  reset_combo_animation2(tmpscr->data[k]);
         }
       }
     }
@@ -6084,6 +6478,7 @@ void LinkClass::checkspecial2(int *ls)
         {
           tmpscr->data[k]++;
           reset_combo_animation(tmpscr->data[k]);
+		  reset_combo_animation2(tmpscr->data[k]);
         }
       }
     }
@@ -7220,7 +7615,7 @@ void LinkClass::stepout()
       loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
     }
   }
-  if(currscr==129 && x!=warpx)
+  /*if(currscr==129 && x!=warpx)
   {
     x = tmpscr->warpreturnx[stepoutwr];
     y = tmpscr->warpreturny[stepoutwr];
@@ -7229,7 +7624,9 @@ void LinkClass::stepout()
   {
     x = tmpscr->warpreturnx[0];
     y = tmpscr->warpreturny[0];
-  }
+  }*/
+  x = tmpscr->warpreturnx[stepoutwr];
+  y = tmpscr->warpreturny[stepoutwr];
   if (didpit)
   {
     didpit=false;
@@ -8011,7 +8408,7 @@ int Bweapon(int pos)
     }
     break;
     case ssiBOMB:
-    if(current_item(itype_bomb,true))
+    if(get_gamedata_bombs(game))
     {
       return iBombs;
     }
@@ -8100,7 +8497,7 @@ int Bweapon(int pos)
     }
     break;
     case ssiSBOMB:
-    if(current_item(itype_sbomb,true))
+    if(get_gamedata_sbombs(game))
     {
       return iSBomb;
     }
@@ -8266,7 +8663,8 @@ void dospecialmoney(int index)
     change_gamedata_drupy(game, -abs(tmpscr[tmp].catchall));
     setmapflag();
     change_gamedata_maxbombs(game, 4);
-    game->items[itype_bomb]=get_gamedata_maxbombs(game);
+    set_gamedata_bombs(game, get_gamedata_maxbombs(game));
+	change_gamedata_maxcounter(game, 1, 6);
     ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
     fadeclk=66;
     msgstr=0;
@@ -8326,22 +8724,66 @@ void dospecialmoney(int index)
 
 void computeMaxArrows(void)
 {
-	switch(game->items[itype_quiver])
+	int temp=0;
+	if(game->items[itype_quiver]&1) temp=1;
+	if(game->items[itype_quiver]&2) temp=2;
+	if(game->items[itype_quiver]&4) temp=3;
+	switch(temp)
 	{
 	case 3:
-		set_gamedata_maxarrows(game,max(get_gamedata_maxarrows(game),99));
+		set_gamedata_maxcounter(game,max(get_gamedata_maxcounter(game,3),99),3);
 	case 2:
-		set_gamedata_maxarrows(game,max(get_gamedata_maxarrows(game),60));
+		set_gamedata_maxcounter(game,max(get_gamedata_maxcounter(game,3),60),3);
 	case 1:
-		set_gamedata_maxarrows(game,max(get_gamedata_maxarrows(game),30));
+		set_gamedata_maxcounter(game,max(get_gamedata_maxcounter(game,3),30),3);
 	}
 }
 
-void getitem(int id)
+void getitem(int id, bool nosound)
 {
+  if(itemsbuf[id].family!=0xFF)
+  {
+    if(itemsbuf[id].fam_type)
+	{
+	  if(itemsbuf[id].set_gamedata)
+	  {
+	    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+        {
+          if (current_item(itemsbuf[id].family,true)<itemsbuf[id].fam_type)
+          {
+            game->items[itemsbuf[id].family]=(1<<(itemsbuf[id].fam_type-1));
+          }
+		}
+        else
+        {
+          game->items[itemsbuf[id].family]|=(1<<(itemsbuf[id].fam_type-1));
+        }
+	  }
+    }
+	if(itemsbuf[id].count!=-1)
+	{
+	  if(itemsbuf[id].setmax)
+	  {
+	    int max = get_gamedata_maxcounter(game, itemsbuf[id].count);
+		if(max<itemsbuf[id].max) max=itemsbuf[id].max;
+	    set_gamedata_maxcounter(game, min(get_gamedata_maxcounter(game, itemsbuf[id].count)+itemsbuf[id].setmax,max), itemsbuf[id].count);
+	  }
+	  if(itemsbuf[id].amount&0x3FFF)
+	  {
+	    if(itemsbuf[id].amount&0x8000)
+		  set_gamedata_dcounter(game, get_gamedata_dcounter(game,itemsbuf[id].count)+((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF), itemsbuf[id].count);
+		else set_gamedata_counter(game, min(get_gamedata_counter(game,itemsbuf[id].count)+((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF),get_gamedata_maxcounter(game,itemsbuf[id].count)), itemsbuf[id].count);
+	  }
+	}
+  }
+  if(itemsbuf[id].playsound&&!nosound)
+  {
+    sfx(itemsbuf[id].playsound);
+  }
+	    
   switch(id)
   {
-    case iRupy:         change_gamedata_drupy(game, 1);  break;
+    /*case iRupy:         change_gamedata_drupy(game, 1);  break;
     case i5Rupies:      change_gamedata_drupy(game, 5);  break;
 	case i10Rupies:     change_gamedata_drupy(game, 10); break;
     case i20Rupies:     change_gamedata_drupy(game, 20); break;
@@ -8408,7 +8850,7 @@ void getitem(int id)
     }
     //set_gamedata_maxarrows(game,max(get_gamedata_maxarrows(game),99));
 	computeMaxArrows();
-    break;
+    break;*/
     case iClock:
     {
       setClock(watch=true);
@@ -8418,7 +8860,7 @@ void getitem(int id)
         clockclk=0;
       }
     } break;
-    case iSword:
+    /*case iSword:
     if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
     {
       if (current_item(itype_sword,true)<i_sword)
@@ -8470,9 +8912,9 @@ void getitem(int id)
       game->items[itype_sword]|=(1<<(i_xsword-1));
     }
     break;
-    case iKey:          if(get_gamedata_keys(game)<255) change_gamedata_keys(game, 1); break;
+    case iKey:          if(get_gamedata_keys(game)<255) change_gamedata_keys(game, 1); break;*/
     case iLevelKey:		if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++; break;
-    case iBCandle:
+    /*case iBCandle:
     if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
     {
       if (current_item(itype_candle,true)<i_bcandle)
@@ -8536,9 +8978,9 @@ void getitem(int id)
     {
       game->items[itype_arrow]|=(1<<(i_garrow-1));
     }
-    break;
+    break;*/
     case iBRing:
-    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    /*if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
     {
       if (current_item(itype_ring,true)<i_bring)
       {
@@ -8548,14 +8990,14 @@ void getitem(int id)
     else
     {
       game->items[itype_ring]|=(1<<(i_bring-1));
-    }
+    }*/
     if(currscr<128 || dlevel)
     {
       ringcolor();
     }
     break;
     case iRRing:
-    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    /*if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
     {
       if (current_item(itype_ring,true)<i_rring)
       {
@@ -8565,14 +9007,14 @@ void getitem(int id)
     else
     {
       game->items[itype_ring]|=(1<<(i_rring-1));
-    }
+    }*/
     if(currscr<128 || dlevel)
     {
       ringcolor();
     }
     break;
     case iGRing:
-    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    /*if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
     {
       if (current_item(itype_ring,true)<i_gring)
       {
@@ -8582,13 +9024,13 @@ void getitem(int id)
     else
     {
       game->items[itype_ring]|=(1<<(i_gring-1));
-    }
+    }*/
     if(currscr<128 || dlevel)
     {
       ringcolor();
     }
     break;
-    case iBrang:
+    /*case iBrang:
     if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
     {
       if (current_item(itype_brang,true)<i_wbrang)
@@ -8626,10 +9068,10 @@ void getitem(int id)
     {
       game->items[itype_brang]|=(1<<(i_fbrang-1));
     }
-    break;
+    break;*/
     case iBPotion:      game->items[itype_potion]=min(current_item(itype_potion,true)+1,2); break;
     case iRPotion:      game->items[itype_potion]=2; break;
-    case iBracelet:
+    /*case iBracelet:
     if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
     {
       if (current_item(itype_bracelet,true)<i_bracelet1)
@@ -8745,11 +9187,11 @@ void getitem(int id)
     {
       game->items[itype_magickey]|=(1<<(i_magickey-1));
     }
-    break;
+    break;*/
     case iMap:          game->lvlitems[dlevel]|=liMAP; break;
     case iCompass:      game->lvlitems[dlevel]|=liCOMPASS; break;
     case iBossKey:      game->lvlitems[dlevel]|=liBOSSKEY; break;
-    case iLetter:
+    /*case iLetter:
     if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
     {
       if (current_item(itype_letter,true)<i_letter)
@@ -8788,16 +9230,16 @@ void getitem(int id)
     {
       game->items[itype_whistle]|=(1<<(i_recorder-1));
     }
-    break;
+    break;*/
     case iFairyStill:
-      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.stationary_fairy_heart_percent?(get_gamedata_maxlife(game)*(zinit.stationary_fairy_hearts/100.0)):((zinit.stationary_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
-      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.stationary_fairy_magic_percent?(get_gamedata_maxmagic(game)*(zinit.stationary_fairy_magic/100.0)):((zinit.stationary_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
+      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.stationary_fairy_heart_percent?(int)(get_gamedata_maxlife(game)*(zinit.stationary_fairy_hearts/100.0)):((zinit.stationary_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
+      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.stationary_fairy_magic_percent?(int)(get_gamedata_maxmagic(game)*(zinit.stationary_fairy_magic/100.0)):((zinit.stationary_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
       break;
     case iFairyMoving:
-      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.moving_fairy_heart_percent?(get_gamedata_maxlife(game)*(zinit.moving_fairy_hearts/100.0)):((zinit.moving_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
-      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.moving_fairy_magic_percent?(get_gamedata_maxmagic(game)*(zinit.moving_fairy_magic/100.0)):((zinit.moving_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
+      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.moving_fairy_heart_percent?(int)(get_gamedata_maxlife(game)*(zinit.moving_fairy_hearts/100.0)):((zinit.moving_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
+      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.moving_fairy_magic_percent?(int)(get_gamedata_maxmagic(game)*(zinit.moving_fairy_magic/100.0)):((zinit.moving_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
       break;
-    case iAmulet:
+    /*case iAmulet:
     if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
     {
       if (current_item(itype_amulet,true)<i_amulet1)
@@ -8921,21 +9363,22 @@ void getitem(int id)
       change_gamedata_maxmagic(game, MAGICPERBLOCK);
 
     case iSMagic:       change_gamedata_dmagic(game, MAGICPERBLOCK); break;
-    case iLMagic:       set_gamedata_dmagic(game, MAGICPERBLOCK<<3); break;
+    case iLMagic:       set_gamedata_dmagic(game, MAGICPERBLOCK<<3); break;*/
 
     case iHCPiece:
     change_gamedata_HCpieces(game, 1);
     if(get_gamedata_HCpieces(game)<4)
       break;
     set_gamedata_HCpieces(game, 0);
+	getitem(iHeartC, true); break;
     // fall through
-    case iHeartC:
+    /*case iHeartC:
     if(get_gamedata_maxlife(game) < (get_bit(quest_rules,qr_24HC) ? 24*HP_PER_HEART : 16*HP_PER_HEART))
       change_gamedata_maxlife(game, HP_PER_HEART);
     // fall through
-    case iHeart:        set_gamedata_life(game, min(get_gamedata_life(game)+HP_PER_HEART,get_gamedata_maxlife(game))); break;
+    case iHeart:        set_gamedata_life(game, min(get_gamedata_life(game)+HP_PER_HEART,get_gamedata_maxlife(game))); break;*/
     case iKillAll:      kill_em_all(); break;
-    case iDinsFire:
+    /*case iDinsFire:
     if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
     {
       if (current_item(itype_dinsfire,true)<i_dinsfire)
@@ -8973,13 +9416,13 @@ void getitem(int id)
     {
       game->items[itype_nayruslove]|=(1<<(i_nayruslove-1));
     }
-    break;
+    break;*/
   }
 
   selectBwpn(0,0);
   selectAwpn(0);
 
-  switch(id)
+  /*switch(id)
   {
     case iRupy:
     case i5Rupies:
@@ -8999,11 +9442,15 @@ void getitem(int id)
     break;
     default:
     sfx(WAV_SCALE);
-  }
+  }*/
 }
 
 void getdraggeditem(int j)
 {
+  if(itemsbuf[items.spr(j)->id].collect_script)
+  {
+	run_script(itemsbuf[items.spr(j)->id].collect_script, j, SCRIPT_ITEM);
+  }
   getitem(items.spr(j)->id);
   items.del(j);
   for(int i=0; i<Lwpns.Count(); i++)
@@ -9097,6 +9544,10 @@ void LinkClass::checkitems()
   if(pickup&ipONETIME)                                      // set screen item flag for one-time-only items
     setmapflag();
 
+  if(itemsbuf[id].collect_script)
+  {
+	run_script(itemsbuf[id].collect_script, index, SCRIPT_ITEM);
+  }
   getitem(id);
 
   if(pickup&ipHOLDUP)
@@ -9237,13 +9688,13 @@ bool LinkClass::refill()
   int refill_magic_stop=get_gamedata_maxmagic(game);
   if (refill_why==REFILL_BPOTION)
   {
-    refill_heart_stop=min(potion_life+(zinit.blue_potion_heart_percent?(get_gamedata_maxlife(game)*(zinit.blue_potion_hearts/100.0)):((zinit.blue_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
-    refill_magic_stop=min(potion_magic+(zinit.blue_potion_magic_percent?(get_gamedata_maxmagic(game)*(zinit.blue_potion_magic/100.0)):((zinit.blue_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
+    refill_heart_stop=min(potion_life+(zinit.blue_potion_heart_percent?int(get_gamedata_maxlife(game)*(zinit.blue_potion_hearts/100.0)):((zinit.blue_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
+    refill_magic_stop=min(potion_magic+(zinit.blue_potion_magic_percent?int(get_gamedata_maxmagic(game)*(zinit.blue_potion_magic/100.0)):((zinit.blue_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
   }
   else if (refill_why==REFILL_RPOTION)
   {
-    refill_heart_stop=min(potion_life+(zinit.red_potion_heart_percent?(get_gamedata_maxlife(game)*(zinit.red_potion_hearts/100.0)):((zinit.red_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
-    refill_magic_stop=min(potion_magic+(zinit.red_potion_magic_percent?(get_gamedata_maxmagic(game)*(zinit.red_potion_magic/100.0)):((zinit.red_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
+    refill_heart_stop=min(potion_life+(zinit.red_potion_heart_percent?int(get_gamedata_maxlife(game)*(zinit.red_potion_hearts/100.0)):((zinit.red_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
+    refill_magic_stop=min(potion_magic+(zinit.red_potion_magic_percent?int(get_gamedata_maxmagic(game)*(zinit.red_potion_magic/100.0)):((zinit.red_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
   }
   if(refillclk%speed == 0)
   {
@@ -9917,7 +10368,7 @@ void LinkClass::reset_ladder()
 
 void LinkClass::check_conveyor()
 {
-  if (action==casting||inlikelike)
+  if (action==casting||inlikelike||pull_link)
   {
     return;
   }

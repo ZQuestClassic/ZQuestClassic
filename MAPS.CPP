@@ -260,7 +260,7 @@ void setmapflag(int flag)
   if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
      flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
   {
-    if(!isdungeon()||(flag!=mSECRET)||(TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM))
+    if(!isdungeon()||(flag!=mSECRET)/*||(TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM)*/)
     {
       byte nmap=tmpscr->nextmap;
       byte nscr=tmpscr->nextscr;
@@ -358,6 +358,26 @@ void update_combo_cycling()
     }
   }
 
+  for (int i=0; i<176; i++)
+  {
+    x=tmpscr->data[i];
+    y=animated_combo_table2[x][0];
+    //time to restart
+    if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
+        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+        (combobuf[x].nextcombo!=0))
+    {
+      tmpscr->data[i]=combobuf[x].nextcombo;
+      tmpscr->cset[i]=combobuf[x].nextcset;
+      int c=tmpscr->data[i];
+      int cs=tmpscr->cset[i];
+      if (combobuf[c].type==cSPINTILE1)
+      {
+        addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+      }
+    }
+  }
+
   for(int i=0;i<32;i++)
   {
 	  x=tmpscr->ffdata[i];
@@ -365,6 +385,26 @@ void update_combo_cycling()
 	  //time to restart
 	  if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+        (combobuf[x].nextcombo!=0))
+      {
+        tmpscr->ffdata[i]=combobuf[x].nextcombo;
+        tmpscr->ffcset[i]=combobuf[x].nextcset;
+        int c=tmpscr->ffdata[i];
+        int cs=tmpscr->ffcset[i];
+        if (combobuf[c].type==cSPINTILE1)
+        {
+          addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+        }
+      }
+  }
+
+  for(int i=0;i<32;i++)
+  {
+	  x=tmpscr->ffdata[i];
+	  y=animated_combo_table2[x][0];
+	  //time to restart
+	  if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
+        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
       {
         tmpscr->ffdata[i]=combobuf[x].nextcombo;
@@ -390,6 +430,25 @@ void update_combo_cycling()
         //time to restart
         if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
             (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
+            (combobuf[x].nextcombo!=0))
+        {
+          (tmpscr2+j)->data[i]=combobuf[x].nextcombo;
+          (tmpscr2+j)->cset[i]=combobuf[x].nextcset;
+          int c=(tmpscr2+j)->data[i];
+          int cs=(tmpscr2+j)->cset[i];
+          if (combobuf[c].type==cSPINTILE1)
+          {
+            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+          }
+        }
+      }
+	  for (int i=0; i<176; i++)
+      {
+        x=(tmpscr2+j)->data[i];
+        y=animated_combo_table2[x][0];
+        //time to restart
+        if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
+            (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
             (combobuf[x].nextcombo!=0))
         {
           (tmpscr2+j)->data[i]=combobuf[x].nextcombo;
@@ -1070,7 +1129,7 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
 
   for(int i=0; i<176; i++)
   {
-    if((!(s->flags2&fCLEARSECRET)&&(single<0)) || high16only)
+    if((!(s->flags2&fCLEARSECRET)&&(single<0)) || high16only || s->flags4&fENEMYSCRTPERM)
     {
       for (int iter=0; iter<2; ++iter)
       {
@@ -1116,7 +1175,7 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
 
   for(int i=0; i<32; i++)
   {
-	if((!(s->flags2&fCLEARSECRET)&&(single<0)) || high16only)
+	if((!(s->flags2&fCLEARSECRET)&&(single<0)) || high16only || s->flags4&fENEMYSCRTPERM)
     {
       for (int iter=0; iter<1; ++iter)
       {
@@ -1371,7 +1430,7 @@ bool findentrance(int x, int y, int flag, bool setflag)
 		if(findtrigger(-1,false)) setflag=false;
 		if(findtrigger(-1,true)) setflag=false;
   }
-  if(setflag && (!isdungeon()||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM))
+  if(setflag && (!isdungeon()/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/))
     if(!(tmpscr->flags5&fTEMPSECRETS))
       setmapflag(mSECRET);
   return true;
@@ -2762,12 +2821,19 @@ void loadscr(int tmp,int scr,int ldir)
       animated_combo_table4[x][1]=0;
     }
   }
+  for (word x=0; x<animated_combos2; x++)
+  {
+    if (combobuf[animated_combo_table24[x][0]].nextcombo!=0)
+    {
+      animated_combo_table24[x][1]=0;
+    }
+  }
+  reset_combo_animations2();
   
 
   mapscr ffscr = tmpscr[tmp];
 
   tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
-  
 
   if(tmp==0)
   {
@@ -2788,19 +2854,18 @@ void loadscr(int tmp,int scr,int ldir)
         tmpscr[tmp].ffwidth[i] = ffscr.ffwidth[i];
         tmpscr[tmp].ffheight[i] = ffscr.ffheight[i];
         tmpscr[tmp].ffflags[i] = ffscr.ffflags[i];
-		tmpscr[tmp].ffscript[i] = ffscr.ffscript[i];
-		tmpscr[tmp].d0[i] = ffscr.d0[i];
-		tmpscr[tmp].d1[i] = ffscr.d1[i];
-		tmpscr[tmp].d2[i] = ffscr.d2[i];
-		tmpscr[tmp].d3[i] = ffscr.d3[i];
-		tmpscr[tmp].d4[i] = ffscr.d4[i];
-		tmpscr[tmp].d5[i] = ffscr.d5[i];
-		tmpscr[tmp].d6[i] = ffscr.d6[i];
-		tmpscr[tmp].d7[i] = ffscr.d7[i];
-		tmpscr[tmp].a1[i] = ffscr.a1[i];
-		tmpscr[tmp].a2[i] = ffscr.a2[i];
+        tmpscr[tmp].ffscript[i] = ffscr.ffscript[i];
+		for (int j=0; j<2; ++j)
+        {
+          tmpscr[tmp].a[i][j] = ffscr.a[i][j];
+        }
+		for (int j=0; j<8; ++j)
+        {
+          tmpscr[tmp].d[i][j] = ffscr.d[i][j];
+        }
 		tmpscr[tmp].pc[i] = ffscr.pc[i];
-		tmpscr[tmp].scriptflag[i] = ffscr.scriptflag[i];
+        tmpscr[tmp].scriptflag[i] = ffscr.scriptflag[i];
+		tmpscr[tmp].ffcref[i] = ffscr.ffcref[i];
       }
     }
   }
@@ -2821,7 +2886,7 @@ void loadscr(int tmp,int scr,int ldir)
     }
   }
   
-  if(!isdungeon()||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM)
+  if(!isdungeon()/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
   {
     if(game->maps[(currmap<<7)+scr]&mSECRET)               // if special stuff done before
     {

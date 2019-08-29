@@ -75,7 +75,7 @@ extern char *snapshotformatlist(int index, int *list_size);
 /*0=normal, 1=jwin*/
 void box_start(int style , char *title, FONT *title_font, FONT *message_font, bool log);
 //void box_start();
-void box_out(char *msg);
+void box_out(const char *msg);
 void box_save_x();
 void box_load_x();
 void box_eol();

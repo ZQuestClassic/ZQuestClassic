@@ -50,6 +50,19 @@ public:
   bool mainguy, leader, itemguy, count_enemy, dying, scored;
   fix  step;
 
+//d variables
+  dword flags;
+  dword flags2;
+  word  s_tile; //secondary (additional) tile(s)
+
+
+  short  family, dcset, anim;
+  short  dp, wdp, wpn;
+
+  short  rate, hrate, dstep, homing;
+  short  dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, bgsfx, bosspal;
+  
+  
   fix  getX();
   fix  getY();
   int  getID();
@@ -394,6 +407,7 @@ public:
 class eRope : public enemy
 {
 public:
+  bool didbomb;
   bool charging;
   eRope(fix X,fix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);

@@ -514,6 +514,7 @@ int onOpen()
     filepath[0]=0;
   }
   setup_combo_animations();
+  setup_combo_animations2();
   Map.setCurrMap(zinit.last_map);
   Map.setCurrScr(zinit.last_screen);
   rebuild_trans_table();
@@ -545,6 +546,7 @@ int onRevert()
       filepath[0]=0;
     }
     setup_combo_animations();
+	setup_combo_animations2();
     refresh(rALL);
   }
   else
@@ -933,6 +935,7 @@ int onImport_ZQT()
   register_blank_tiles();
   loadlvlpal(Color);
   setup_combo_animations();
+  setup_combo_animations2();
   Map.setCurrMap(Map.getCurrMap());                         // for bound checking
   refresh(rALL);
   refresh_pal();
@@ -975,6 +978,7 @@ int onImport_UnencodedQuest()
   register_blank_tiles();
   loadlvlpal(Color);
   setup_combo_animations();
+  setup_combo_animations2();
   Map.setCurrMap(Map.getCurrMap());                         // for bound checking
   refresh(rALL);
   refresh_pal();

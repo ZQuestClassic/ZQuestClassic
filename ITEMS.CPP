@@ -32,7 +32,7 @@ bool item::animate(int index)
     clk=0x7000;
   if(flash)
   {
-    cs = itemsbuf[id].csets;
+    cs = o_cset;
     if(frame&8)
       cs >>= 4;
     else
@@ -40,18 +40,18 @@ bool item::animate(int index)
   }
   if(anim)
   {
-    int spd = itemsbuf[id].speed;
+    int spd = o_speed;
     if(aframe==0)
-      spd *= itemsbuf[id].delay+1;
+      spd *= o_delay+1;
 
     if(++aclk >= spd)
     {
       aclk=0;
-      if(++aframe >= itemsbuf[id].frames)
+      if(++aframe >= frames)
         aframe=0;
 
     }
-    tile = itemsbuf[id].tile + aframe;
+    tile = o_tile + aframe;
   }
 
   if(id==iFairyMoving)
@@ -91,9 +91,15 @@ item::item(fix X,fix Y,int i,int p,int c) : sprite()
 
   if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
     return;
-
+  
+  o_tile = itemsbuf[id].tile;
   tile = itemsbuf[id].tile;
   cs = itemsbuf[id].csets&15;
+  o_cset = itemsbuf[id].csets;
+  o_speed = itemsbuf[id].speed;
+  o_delay = itemsbuf[id].delay;
+  frames = itemsbuf[id].frames;
+  flip = itemsbuf[id].misc>>2;
 
   if(itemsbuf[id].misc&1)
     flash=true;
@@ -127,6 +133,11 @@ item::item(fix X,fix Y,int i,int p,int c) : sprite()
   {
     misc = ++fairy_cnt;
     addfairy(x, y, misc);
+  }
+  for(int i=0;i<8;i++)
+  {
+    if(i<2) a[i]=itemsbuf[id].initiala[i]*10000;
+    d[i]=itemsbuf[id].initiald[i];
   }
 }
 

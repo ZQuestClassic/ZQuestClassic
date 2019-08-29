@@ -202,7 +202,7 @@ int writegameicons(PACKFILE *f, zquestheader *header, miscQdata *misc);
 int writedoorcombosets(PACKFILE *f, zquestheader *header);
 int write_one_subscreen(PACKFILE *f, zquestheader *header, int i);
 int writeffscript(PACKFILE *f, zquestheader *header, bool keepdata);
-int write_one_ffscript(PACKFILE *f, zquestheader *header, int i);
+int write_one_ffscript(PACKFILE *f, zquestheader *header, int i, ffscript **script);
 
 #define ZELDA_VERSION_210       0x0210                          //version of the program
 #define VERSION_BUILD_210       0                               //build number of this version

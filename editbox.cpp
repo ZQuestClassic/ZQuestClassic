@@ -24,15 +24,10 @@
 
 /* This code is not fully tested */
 
-#ifndef __GTHREAD_HIDE_WIN32API                             
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include <stdio.h>
 #include <string.h>
-
 #include "zc_alleg.h"
 #include "jwin.h"
+#include <stdio.h>
 #include "EditboxNew.h"
 
 #ifndef _MSC_VER
@@ -57,7 +52,6 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 	int ret = D_O_K;
   
 	static clock_t ticks;
-	bool dontredraw=false;
 	switch(msg)
 	{
 	case MSG_START:
@@ -153,8 +147,8 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 			case KEY_TAB:
 				{
 					model->clear();
-					int ch = Unicode::getCharAtOffset(uconvert_ascii("\t",NULL),0);
-					model->getCursor().insertChar(ch);
+					int c = Unicode::getCharAtOffset(uconvert_ascii("\t",NULL),0);
+					model->getCursor().insertChar(c);
 					ret = D_USED_CHAR;
 					break;
 				}
@@ -201,15 +195,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 					ret = D_USED_CHAR;
 					break;
 				}
-				ret = D_O_K;
-				break;
-			case KEY_ESC:
-				return D_EXIT;
-			case KEY_F1:
-				model->doHelp();
-				ret = D_USED_CHAR;
-				dontredraw=true;
-				break;
+
 			}
 			//selection post-processing
 			if (key[KEY_LSHIFT]||key[KEY_RSHIFT])
@@ -275,7 +261,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 		}
     
 	}
-	if(ret == D_USED_CHAR && !dontredraw)
+	if(ret == D_USED_CHAR)
 	{
 		//redraw
 		if(!model->getCursor().isVisible())

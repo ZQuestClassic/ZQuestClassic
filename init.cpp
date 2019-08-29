@@ -245,7 +245,7 @@ static int init_misc_list[] =
 {
   // dialog control number
   //  1605, 1606, 1607, 1608, 1609, 1610, 1611, 1612, 1613, 1614, 1615, 1616, 1617, 1618, 1619, 1620, 1621, 1622, 1623, 1624, 1625, 1626, 1627, 1628, 1629, 1630, 1631, 1632, 1633, 1634, 1635, 1636, 1637, 1638, 1639, 1640, 1641, -1
-  1655, 1656, 1657, 1658, 1659, 1660, 1661, 1662, 1663, 1664, 1665, 1666, 1667, 1668, 1669, 1670, 1671, 1672, 1673, 1674, 1675, 1676, 1677, 1678, 1679, 1680, 1681, 1682, 1683, 1684, 1685, 1686, 1687, 1688, 1689, 1690, 1691, -1
+  1655, 1656, 1657, 1658, 1659, 1660, 1661, 1662, 1663, 1664, 1665, 1666, 1667, 1668, 1669, 1670, 1671, 1672, 1673, 1674, 1675, 1676, 1677, 1678, 1679, 1680, 1681, 1682, 1683, 1684, 1685, 1686, 1687, 1688, 1689, 1690, 1691, 1694, 1695, 1696, 1697, -1
 };
 
 
@@ -4216,10 +4216,10 @@ void PopulateInitDialog()
 
   initPopulate(i, jwin_frame_proc,       163,   181,  131,   20,       0,       0,    0,       0,   FR_ETCHED,        0,     NULL ); i++;
   initPopulate(i, jwin_check_proc,       169,   186,   64,    9,   vc(0),  vc(11),    0,       0,          1,             0,     (void *) "Cane of Byrna" ); i++;
-  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
-  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
-  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
-  initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
+  initPopulate(i, jwin_text_proc,       80,  144,   64,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Max Rupies:" ); i++;
+  initPopulate(i, jwin_edit_proc,      128,  140,   21,   16,    vc(12),  vc(1),  0,       0,          5,             0,       NULL ); i++;
+  initPopulate(i, jwin_text_proc,       80,  162,   64,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Max Keys:" ); i++;
+  initPopulate(i, jwin_edit_proc,      128,  158,   21,   16,    vc(12),  vc(1),  0,       0,          5,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;

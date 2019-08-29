@@ -23,7 +23,6 @@
 #include "jwin.h"
 
 #define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMMIDIS
-#define  WAV_COUNT    WAV_ZELDA+1
 
 #define MAX_IDLE      72000                                 // 20 minutes
 #define MAX_ACTIVE    72000                                 // 20 minutes
@@ -149,6 +148,10 @@ word get_gamedata_life();
 byte get_gamedata_magicdrainrate();
 word get_gamedata_maxmagic();
 word get_gamedata_magic();
+void set_gamedata_maxlife(word l);
+void set_gamedata_life(word l);
+void set_gamedata_maxmagic(word l);
+void set_gamedata_magic(word l);
 byte get_gamedata_cheat();
 byte get_gamedata_HCpieces();
 byte get_gamedata_sbombs();
@@ -161,6 +164,7 @@ word get_gamedata_arrows();
 word get_gamedata_rupies();
 bool no_subscreen();
 bool is_zquest();
+void quit_game();
 
 INLINE void sfx(int index)         { sfx(index,128,false); }
 INLINE void sfx(int index,int pan) { sfx(index,pan,false); }
@@ -207,6 +211,9 @@ extern char     palnames[256][17];
 extern word animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
 extern word animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
 extern word animated_combos;
+extern word animated_combo_table2[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
+extern word animated_combo_table24[MAXCOMBOS][2];            //[0]=combo, [1]=clock
+extern word animated_combos2;
 extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of blank tiles
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
 extern bool ewind_restart;
@@ -274,7 +281,15 @@ extern mapscr tmpscr[2];
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];
-extern ffscript ffscripts[256][1000];
+extern ffscript *ffscripts[512];
+extern ffscript *itemscripts[256];
+extern ffscript *guyscripts[256];
+extern ffscript *wpnscripts[256];
+extern ffscript *globalscripts[3];
+extern ffscript *linkscripts[3];
+extern ffscript *screenscripts[256];
+extern SAMPLE customsfxdata[WAV_COUNT];
+extern int sfxdat;
 
 extern int  resx,resy,scrx,scry;
 extern bool sbig;                                           // big screen

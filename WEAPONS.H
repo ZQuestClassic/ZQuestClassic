@@ -37,6 +37,8 @@ public:
   fix step;
   bool bounce, ignoreLink;
   word flash,wid,aframe,csclk;
+  int o_tile, o_cset, o_speed, o_type, frames, o_flip;
+  int temp1;
 
   weapon(fix X,fix Y,int Id,int Type,int pow,int Dir);
   void LOADGFX(int wpn);

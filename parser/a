@@ -1,0 +1,34 @@
+import "b"
+void foo() {return;}
+float foo(float a, bool e, float c) {int d;
+        {
+        int a=d;
+        }
+        if(bar.c)
+                return 0;
+        return 0.0001;}
+float bar() {return 0;}
+script foo for 1
+{
+        float a=10;
+        float b = foo(a, true, -.9);
+        bool bar() {return true;}
+        void run()
+        {
+        float b;
+        if(a > 1 || a != 0.01)
+                foo.a=bar.a+2;
+        else
+        {
+                for(float c = 1; c<2; c=2*-c+1)
+                {
+                   b=foo.bar();
+                }
+                bar();
+        }
+        int d= a*a/a+(a-b);
+        return;
+        }
+}
+//a comment
+import "c"

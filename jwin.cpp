@@ -66,14 +66,13 @@ int jwin_colors[jcMAX] =
   0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
 };
 
-/* all GUI objects are drawn with these colors */
-static int scheme[jcMAX] =
+int scheme[jcMAX] =
 {
-  0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
-  0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
+	0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
+	0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
 };
 
-/*  jwin_set_colors:
+ /*  jwin_set_colors:
   *   Loads a set of colors in 0xRRGGBB or 256-color-indexed format
   *   into the current color scheme using the appropriate color depth
   *   conversions.
@@ -344,7 +343,7 @@ void draw_x_button(BITMAP *dest, int x, int y, int state)
   line(dest,x+1,y+6,x+7,y,  c);
 }
 
-static void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int state)
+void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int state)
 {
   int c = scheme[jcDARK];
   int ah = min(h/3, 5);
@@ -357,6 +356,22 @@ static void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, 
   for( ; i<ah; i++)
   {
     _allegro_hline(dest, x-(up?i:ah-i-1), y+i, x+(up?i:ah-i-1), c);
+  }
+}
+
+void draw_arrow_button_horiz(BITMAP *dest, int x, int y, int w, int h, int up, int state)
+{
+  int c = scheme[jcDARK];
+  int aw = min(w/3, 5);
+  int i = 0;
+
+  jwin_draw_button(dest,x,y,w,h,state,1);
+  y += h/2 - (state?0:1);
+  x += (w-aw)/2 + (state?1:0);
+
+  for( ; i<aw; i++)
+  {
+    _allegro_vline(dest, x+i,y-(up?i:aw-i-1), y+(up?i:aw-i-1), c);
   }
 }
 
@@ -399,7 +414,7 @@ static int do_x_button(BITMAP *dest, int x, int y)
 /* dotted_rect:
   *  Draws a dotted rectangle, for showing an object has the input focus.
   */
-static void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg)
+void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg)
 {
   int x = ((x1+y1) & 1) ? 1 : 0;
   int c;
@@ -1037,7 +1052,7 @@ int jwin_numedit_proc(int msg,DIALOG *d,int c)
 /*  _calc_scroll_bar:
   *   Helps find positions of buttons on the scroll bar.
   */
-static void _calc_scroll_bar(int h, int height, int listsize, int offset,
+void _calc_scroll_bar(int h, int height, int listsize, int offset,
                              int *bh, int *len, int *pos)
 {
   *bh = max( min( (h-4)/2, 14 ), 0 );
@@ -1049,7 +1064,7 @@ static void _calc_scroll_bar(int h, int height, int listsize, int offset,
   *  Helper to process a click on a scrollable object.
   */
 
-static void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset)
+void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset)
 {
   enum { top_btn, bottom_btn, bar, top_bar, bottom_bar };
 

@@ -25,6 +25,9 @@ extern newcombo *combobuf;
 extern word animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
 extern word animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
 extern word animated_combos;
+extern word animated_combo_table2[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
+extern word animated_combo_table24[MAXCOMBOS][2];            //[0]=combo, [1]=clock
+extern word animated_combos2;
 extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of blank tiles
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
 extern fix  LinkModifiedX();
@@ -140,7 +143,7 @@ void setup_combo_animations()
   {
     animated_combo_table[x][0]=y;
     animated_combo_table[x][1]=combobuf[x].tile;
-    if (combobuf[x].frames>1)
+    if (combobuf[x].frames>1&&!(combobuf[x].freshanim))
     {
       animated_combo_table4[y][0]=x;
       animated_combo_table4[y][1]=0;
@@ -148,6 +151,25 @@ void setup_combo_animations()
     }
   }
   animated_combos=y;
+}
+
+void setup_combo_animations2()
+{
+  memset(animated_combo_table2, 0, MAXCOMBOS*2*2);
+  memset(animated_combo_table24, 0, MAXCOMBOS*2*2);
+  int y=0;
+  for (word x=0; x<MAXCOMBOS; ++x)
+  {
+    animated_combo_table2[x][0]=y;
+    animated_combo_table2[x][1]=combobuf[x].tile;
+    if (combobuf[x].frames>1&&combobuf[x].freshanim)
+    {
+      animated_combo_table24[y][0]=x;
+      animated_combo_table24[y][1]=0;
+      ++y;
+    }
+  }
+  animated_combos2=y;
 }
 
 void reset_combo_animation(int c)
@@ -164,11 +186,33 @@ void reset_combo_animation(int c)
   }
 }
 
+void reset_combo_animation2(int c)
+{
+  for (word x=0; x<animated_combos2; ++x)
+  {
+    int y=animated_combo_table24[x][0];                      //combo number
+    if (y==c)
+    {
+      combobuf[y].tile=animated_combo_table2[y][1];        //reset tile
+      animated_combo_table24[x][1]=0;                        //reset clock
+      return;
+    }
+  }
+}
+
 void reset_combo_animations()
 {
   for (word x=0; x<animated_combos; ++x)
   {
     combobuf[animated_combo_table4[x][0]].tile=animated_combo_table[animated_combo_table4[x][0]][1];
+  }
+}
+
+void reset_combo_animations2()
+{
+  for (word x=0; x<animated_combos; ++x)
+  {
+    combobuf[animated_combo_table24[x][0]].tile=animated_combo_table2[animated_combo_table24[x][0]][1];
   }
 }
 
@@ -182,19 +226,46 @@ void animate_combos()
     int y=animated_combo_table4[x][0];                      //combo number
     if (animated_combo_table4[x][1]>=combobuf[y].speed)     //time to animate
     {
-      if (combobuf[y].tile-(combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim))>=animated_combo_table[y][1]-1)
+      if (combobuf[y].tile-(combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim)+((((combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim))+(animated_combo_table[y][1]%20))/TILES_PER_ROW)*combobuf[y].skipanimy*TILES_PER_ROW))>=animated_combo_table[y][1]-1)
       {
         combobuf[y].tile=animated_combo_table[y][1];        //reset tile
       }
       else
       {
-        combobuf[y].tile+=1+(combobuf[y].skipanim);                                 //increment tile
+	    int temp = combobuf[y].tile/20;
+        combobuf[y].tile+=1+(combobuf[y].skipanim); //increment tile
+		if((combobuf[y].tile/20) > temp) combobuf[y].tile+=TILES_PER_ROW*combobuf[y].skipanimy; 
       }
       animated_combo_table4[x][1]=0;                        //reset clock
     }
+	//(combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim)+(((((combobuf[y].frames-1)*combobuf[y].skipanim)+(animated_combo_table[y][1]%20))/TILES_PER_ROW)*combobuf[y].skipanimy*TILES_PER_ROW))
     else
     {
       ++animated_combo_table4[x][1];                        //increment clock
+    }
+  }
+
+  for (word x=0; x<animated_combos2; ++x)
+  {
+    int y=animated_combo_table24[x][0];                      //combo number
+    if (animated_combo_table24[x][1]>=combobuf[y].speed)     //time to animate
+    {
+      if (combobuf[y].tile-(combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim)+((((combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim))+(animated_combo_table2[y][1]%20))/TILES_PER_ROW)*combobuf[y].skipanimy*TILES_PER_ROW))>=animated_combo_table2[y][1]-1)
+      {
+        combobuf[y].tile=animated_combo_table2[y][1];        //reset tile
+      }
+      else
+      {
+	    int temp = combobuf[y].tile/20;
+        combobuf[y].tile+=1+(combobuf[y].skipanim); //increment tile
+		if((combobuf[y].tile/20) > temp) combobuf[y].tile+=TILES_PER_ROW*combobuf[y].skipanimy; 
+      }
+      animated_combo_table24[x][1]=0;                        //reset clock
+    }
+	//(combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim)+(((((combobuf[y].frames-1)*combobuf[y].skipanim)+(animated_combo_table[y][1]%20))/TILES_PER_ROW)*combobuf[y].skipanimy*TILES_PER_ROW))
+    else
+    {
+      ++animated_combo_table24[x][1];                        //increment clock
     }
   }
 }

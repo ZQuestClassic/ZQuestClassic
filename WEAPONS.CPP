@@ -148,7 +148,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
         case down:  flip=get_bit(quest_rules,qr_SWORDWANDFLIPFIX)?3:2;
         case up:    hyofs=2; hysz=12; break;
         case left:  flip=1;
-        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); hxofs=2; hxsz=12; yofs = playing_field_offset+(BSZ ? 3 : 1); break;
+        case right: tile=o_tile+((frames>1)?frames:1); hxofs=2; hxsz=12; yofs = playing_field_offset+(BSZ ? 3 : 1); break;
       }
       break;
     case wArrow:
@@ -166,7 +166,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
         case down:  flip=2;
         case up:    hyofs=2; hysz=12; break;
         case left:  flip=1;
-        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset + 1; hyofs=2; hysz=14; hxofs=2; hxsz=12; break;
+        case right: tile=o_tile+((frames>1)?frames:1); yofs=playing_field_offset + 1; hyofs=2; hysz=14; hxofs=2; hxsz=12; break;
       }
       break;
     case wSSparkle:
@@ -212,7 +212,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
         case down:  flip=2;
         case up:    hyofs=2; hysz=12; break;
         case left:  flip=1;
-        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); hxofs=2; hxsz=12; break;
+        case right: tile=o_tile+((frames>1)?frames:1); hxofs=2; hxsz=12; break;
       }
       break;
     case wBrang:
@@ -240,8 +240,8 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
       {
         case down:  flip=2; xofs+=4;  yofs+=1; hyofs=2; hysz=12; break;
         case up:    yofs+=3; xofs-=5; hyofs=2; hysz=12; break;
-        case left:  flip=1; tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs+=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
-        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs-=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
+        case left:  flip=1; tile=o_tile+((frames>1)?frames:1); xofs+=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
+        case right: tile=o_tile+((frames>1)?frames:1); xofs-=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
       }
       break;
     case wHSHandle:
@@ -258,8 +258,8 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
       {
         case down:  flip=2; xofs+=4;  yofs+=1; hyofs=2; hysz=12; break;
         case up:    yofs+=3; xofs-=5; hyofs=2; hysz=12; break;
-        case left:  flip=1; tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs+=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
-        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs-=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
+        case left:  flip=1; tile=o_tile+((frames>1)?frames:1); xofs+=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
+        case right: tile=o_tile+((frames>1)?frames:1); xofs-=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
       }
       break;
     case wHSChain:
@@ -306,7 +306,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
         case down:  flip=2;
         case up:    break;
         case left:  flip=1;
-        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); break;
+        case right: tile=o_tile+((frames>1)?frames:1); break;
       }
       break;
     case ewSBomb:
@@ -318,12 +318,13 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
         case down:  flip=2;
         case up:    break;
         case left:  flip=1;
-        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); break;
+        case right: tile=o_tile+((frames>1)?frames:1); break;
       }
       break;
     case ewBrang:
       hxofs=0; hxsz=15;
       wid = min(max(current_item(itype_brang,true),1),3)-1+wBRANG;
+      LOADGFX(wid);
       break;
     case wRefFireball:
     case ewFireball:
@@ -345,7 +346,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
         case down:  flip=2;
         case up:    xofs=-4; hxsz=8; break;
         case left:  flip=1;
-        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset+1; break;
+        case right: tile=o_tile+((frames>1)?frames:1); yofs=playing_field_offset+1; break;
       }
       break;
     case ewSword:
@@ -357,7 +358,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
         case down:  flip=2;
         case up:    break;
         case left:  flip=1;
-        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset+1; break;
+        case right: tile=o_tile+((frames>1)?frames:1); yofs=playing_field_offset+1; break;
       }
       break;
     case wRefMagic:
@@ -370,7 +371,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
         case down:  flip=2;
         case up:    break;
         case left:  flip=1;
-        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset+1; break;
+        case right: tile=o_tile+((frames>1)?frames:1); yofs=playing_field_offset+1; break;
       }
       if (id==wRefMagic)
       {
@@ -486,6 +487,13 @@ void weapon::LOADGFX(int wpn)
   flash = wpnsbuf[wid].misc&3;
   tile  = wpnsbuf[wid].tile;
   cs = wpnsbuf[wid].csets&15;
+  o_tile = wpnsbuf[wid].tile;
+  o_cset = wpnsbuf[wid].csets;
+  o_flip=(wpnsbuf[wid].misc>>2)&3;
+  o_speed = wpnsbuf[wid].speed;
+  o_type = wpnsbuf[wid].type;
+  frames = wpnsbuf[wid].frames;
+  temp1 = wpnsbuf[wFIRE].tile;
 }
 
 bool weapon::Dead() { return dead!=-1; }
@@ -674,7 +682,7 @@ bool weapon::animate(int index)
         id = (id<wEnemyWeapons?wBomb:ewBomb);
         hxofs=1000;
       }
-      if(clk==49)
+      if(clk==49&&(id==wBomb||id==ewBomb))
       {
         sfx(WAV_BOMB,pan(int(x)));
         hxofs=hyofs=-8;
@@ -836,7 +844,7 @@ bool weapon::animate(int index)
         id = (id<wEnemyWeapons?wSBomb:ewSBomb);
         hxofs=1000;
       }
-      if(clk==49)
+      if(clk==49&&(id==wSBomb||id==ewSBomb))
       {
         sfx(WAV_BOMB,pan(int(x)));
         hxofs=hyofs=-16;
@@ -1277,12 +1285,12 @@ bool weapon::animate(int index)
           dir = 3-dir;
           if((dir==1)||(dir==2))
             flip ^= 3;
-          tile=wpnsbuf[wid].tile;
+          tile=o_tile;
           if (dir&2)
           {
-            if (wpnsbuf[wid].frames>1)
+            if (frames>1)
             {
-              tile+=wpnsbuf[wid].frames;
+              tile+=frames;
             }
             else
             {
@@ -1302,12 +1310,12 @@ bool weapon::animate(int index)
             flip ^= 2;
           else
             flip ^= 1;
-          tile=wpnsbuf[wid].tile;
+          tile=o_tile;
           if (dir&2)
           {
-            if (wpnsbuf[wid].frames>1)
+            if (frames>1)
             {
-              tile+=wpnsbuf[wid].frames;
+              tile+=frames;
             }
             else
             {
@@ -1595,8 +1603,8 @@ void weapon::onhit(bool clipped, int special, int linkdir)
   {
     case ewBomb:     step=0; break;
     case ewSBomb:    step=0; break;
-    case ewLitBomb:  step=0; id=ewBomb;  clk=47; sfx(WAV_BOMB,pan(int(x))); hxofs=hyofs=-7;  hxsz=hysz=30; break;
-    case ewLitSBomb: step=0; id=ewSBomb; clk=47; sfx(WAV_BOMB,pan(int(x))); hxofs=hyofs=-16; hxsz=hysz=48; break;
+    case ewLitBomb:  step=0; id=ewBomb;  clk=47; hxofs=hyofs=-7;  hxsz=hysz=30; break;
+    case ewLitSBomb: step=0; id=ewSBomb; clk=47; hxofs=hyofs=-16; hxsz=hysz=48; break;
     case wLitBomb:  if(!clipped) dead=1;
     case wLitSBomb: if(!clipped) dead=1;
     case wWhistle:
@@ -1695,7 +1703,7 @@ void weapon::draw(BITMAP *dest)
   {
     if(!BSZ)
     {
-      cs = (id==wBeam) ? 6 : wpnsbuf[wid].csets&15;
+      cs = (id==wBeam) ? 6 : o_cset&15;
       cs += frame&3;
     }
     else
@@ -1704,7 +1712,7 @@ void weapon::draw(BITMAP *dest)
         cs = ((frame>>2)&1)+7;
       else
       {
-        cs = wpnsbuf[wid].csets&15;
+        cs = o_cset&15;
         if(++csclk >= 12)
           csclk = 0;
         cs += csclk>>2;
@@ -1713,26 +1721,26 @@ void weapon::draw(BITMAP *dest)
   }
   if(flash>1)
   {
-    if(++csclk >= (wpnsbuf[wid].speed<<1))
+    if(++csclk >= (o_speed<<1))
       csclk = 0;
 
-    cs = wpnsbuf[wid].csets&15;
-    if(csclk >= wpnsbuf[wid].speed)
-      cs = wpnsbuf[wid].csets>>4;
+    cs = o_cset&15;
+    if(csclk >= o_speed)
+      cs = o_cset>>4;
   }
 
-  if(wpnsbuf[wid].frames&&wid!=wBRANG)
+  if(frames&&wid!=wBRANG)
   {
-    if(++clk2 >= wpnsbuf[wid].speed)
+    if(++clk2 >= o_speed)
     {
       clk2 = 0;
-      if(wpnsbuf[wid].frames>1)
+      if(frames>1)
       {
         ++tile;
-        if(++aframe >= wpnsbuf[wid].frames)
+        if(++aframe >= frames)
         {
           aframe = 0;
-          tile-=wpnsbuf[wid].frames;
+          tile-=frames;
         }
       }
     }
@@ -1750,10 +1758,10 @@ void weapon::draw(BITMAP *dest)
       // draw the beam thingies
       int ofs=23-dead;
       int f = frame&3;
-      int type = wpnsbuf[wid].type;
-      tile = wpnsbuf[wid].tile+2;
+      int type = o_type;
+      tile = o_tile+2;
       if(type)
-        cs = wpnsbuf[wid].csets>>4;
+        cs = o_cset>>4;
       if(type==3 && (f&2))
         ++tile;
       if(!type || f==0 || (type>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs,cs,0);
@@ -1796,7 +1804,7 @@ void weapon::draw(BITMAP *dest)
       overtile16(dest,tile,x,y+yofs,cs,0);
       overtile16(dest,tile,x+((clk&1)?-14:14),y+yofs,cs,0);
       overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+14,cs,0);
-      if(id==wSBomb)
+      if(id==wSBomb||id==ewSBomb)
       {
         overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-27,cs,0);
         overtile16(dest,tile,x+((clk&1)?-21:21),y+yofs-13,cs,0);
@@ -1822,19 +1830,19 @@ void weapon::draw(BITMAP *dest)
     case ewFireTrail:
     case ewFlame:
     case wFire:
-    if(wpnsbuf[wid].frames==0)
-      flip = ((clk & wpnsbuf[wid].misc) >> 2) & 3;
+    if(frames==0)
+      flip = o_flip;
     break;
 
     case ewBrang:
     case wBrang:
-    tile = wpnsbuf[wid].tile;
-    cs = wpnsbuf[wid].csets&15;
+    tile = o_tile;
+    cs = o_cset&15;
     if(BSZ)
       flip = bszboomflip[(clk>>2)&3];
     else
     {
-      tile = boomframe[clk&0xE] + wpnsbuf[wid].tile;
+      tile = boomframe[clk&0xE] + o_tile;
       flip = boomframe[(clk&0xE)+1];
     }
     if(dead>0)
@@ -1847,10 +1855,10 @@ void weapon::draw(BITMAP *dest)
     break;
 
     case wWind:
-    if(wpnsbuf[wid].frames==0)
-      flip ^= (wpnsbuf[wid].misc>>2)&3;
+    if(frames==0)
+      flip ^= o_flip;
     if((dead!=-1) && !BSZ)
-      tile = wpnsbuf[wFIRE].tile;
+      tile = temp1;//wpnsbuf[wFIRE].tile;
     break;
 
     case ewWind:

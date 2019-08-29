@@ -1359,9 +1359,11 @@ int edit_dcs(int index)
 void editdoorcomboset(int index)
 {
   reset_combo_animations();
+  reset_combo_animations2();
   DoorComboSet tempdcs=DoorComboSets[index];
   edit_dcs(index);
   setup_combo_animations();
+  setup_combo_animations2();
   return;
 }
 

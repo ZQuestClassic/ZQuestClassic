@@ -63,6 +63,7 @@ class LinkClass : public sprite
   int warpx,warpy,holdclk,holditem,attack,swordclk,didstuff,blowcnt;
   byte skipstep,lstep,hopclk,diveclk,whirlwind;
   byte hitdir,ladderdir,lastdir[3],ladderstart;
+  fix slide_x, slide_y;
   int stepoutindex, stepoutwr;
   int shiftdir;
   int sdir;
@@ -77,6 +78,7 @@ class LinkClass : public sprite
   bool dontdraw;
   void movelink();
   void move(int d);
+  void slide();
   void hitlink(int hit);
   int  nextcombo(int cx,int cy,int cdir);
   int  nextflag(int cx,int cy,int cdir, bool comboflag);
@@ -88,6 +90,7 @@ class LinkClass : public sprite
   void checkscroll();
   void checkspecial();
   void checkspecial2(int *ls);
+  void checkspecial3();
   void checkpushblock();
   void checkbosslockblock();
   void checklockblock();
@@ -148,6 +151,8 @@ public:
   void beatlikelike();
   fix  getX();
   fix  getY();
+  fix  getSlideX();
+  fix  getSlideY();
   fix  getXOfs();
   fix  getYOfs();
   void setXOfs(int newxofs);
@@ -175,6 +180,7 @@ public:
   bool getClock();
   void setClock(bool state);
   int  getAction();
+  void setAction(actiontype new_action);
   bool isDiving();
   bool isSwimming();
   void setDontDraw(bool new_dontdraw);
@@ -183,6 +189,7 @@ public:
   void setNayrusLoveShieldClk(int newclk);
   int getNayrusLoveShieldClk();
   bool ffwarp;
+  bool ffpit;
 };
 
 bool isRaftFlag(int flag);
@@ -202,7 +209,7 @@ void selectAwpn(int step);
 void selectBwpn(int xstep, int ystep);
 bool canget(int id);
 void dospecialmoney(int index);
-void getitem(int id);
+void getitem(int id, bool nosound=false);
 void getdraggeditem(int j);
 void red_shift();
 void slide_in_color(int color);

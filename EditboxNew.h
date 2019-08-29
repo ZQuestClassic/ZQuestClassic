@@ -9,10 +9,6 @@ using std::string;
 using std::list;
 using std::pair;
 
-#ifdef _MSC_VER
-#pragma warning(disable: 4355)
-#endif
-
 class EditboxModel;
 class EditboxCursor;
 struct DIALOG;
@@ -22,7 +18,7 @@ struct BITMAP;
 class Unicode
 {
 public:
-	static const int TABSIZE = 4;
+	const static int TABSIZE = 4;
 	static int indexToOffset(string &s, int i);
 	static void insertAtIndex(string &s, int c, int i);
 	static void extractRange(string &s, string &dest, int first, int last);
@@ -67,7 +63,7 @@ struct LineData
 class EditboxView
 {
 public:
-	EditboxView(DIALOG *Host, FONT *TextFont) : textfont(TextFont), dbuf(NULL), host(Host), model(NULL) {}
+	EditboxView(DIALOG *host, FONT *textfont) : textfont(textfont), dbuf(NULL), host(host), model(NULL) {}
 	void initialize(EditboxModel *model);
 	void lineDown();
 	void lineUp();
@@ -82,10 +78,9 @@ public:
 	virtual void draw();
 	virtual void ensureCursorOnScreen() {}
 	virtual ~EditboxView();
-	virtual bool mouseClick(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
-	virtual bool mouseDrag(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
-	virtual bool mouseRelease(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
-	DIALOG *getDialog() {return host;}
+	virtual bool mouseClick(int x, int y) {return false;}
+	virtual bool mouseDrag(int x, int y) {return false;}
+	virtual bool mouseRelease(int x, int y) {return false;}
 protected:
 	virtual void enforceHardLimits() {}
 	void invertRectangle(int x1, int y1, int x2, int y2);
@@ -112,7 +107,7 @@ public:
 	EditboxCursor(EditboxModel &model) : visible(true), host(model), index(0), preferredX(0) {}
 	void insertChar(int c);
 	void insertString(string s);
-	void updateCursor(int new_index) {index = new_index;}
+	void updateCursor(int index) {this->index = index;}
 	void invertVisibility() {visible = !visible;}
 	bool isVisible() {return visible;}
 	int getPosition() {return index;}
@@ -127,15 +122,12 @@ private:
 	EditboxModel &host;
 	int index;
 	int preferredX;
-	//NOT IMPLEMENTED: DO NOT USE
-	EditboxCursor(EditboxCursor &);
-	EditboxCursor &operator =(EditboxCursor &);
 };
 
 class EditboxModel
 {
 public:
-	EditboxModel(string &Buffer, EditboxView *View, bool ReadOnly = false, char *hf = NULL) : helpfile(hf), lines(), buffer(Buffer), view(View), readonly(ReadOnly), cursor(*this), clipboard(""), s() {}
+	EditboxModel(string &buffer, EditboxView *view, bool readonly = false) : lines(), buffer(buffer), view(view), readonly(readonly), cursor(*this), clipboard(""), s() {}
 	TextSelection &getSelection() {return s;}
 	EditboxCursor &getCursor() {return cursor;}
 	EditboxView *getView() {return view;}
@@ -151,9 +143,7 @@ public:
 	void cut();
 	void clear();
 	void paste();
-	void doHelp();
 private:
-	char *helpfile;
 	list<LineData> lines;
 	string &buffer;
 	EditboxView *view;
@@ -161,8 +151,6 @@ private:
 	EditboxCursor cursor;
 	string clipboard;
 	TextSelection s;
-	//NOT IMPLEMENTED; DO NOT USE
-	EditboxModel &operator=(EditboxModel &);
 };
 
 struct CharPos
@@ -175,8 +163,8 @@ struct CharPos
 class BasicEditboxView : public EditboxView
 {
 public:
-	BasicEditboxView(DIALOG *Host, FONT *TextFont, int FGColor, int BGColor, int Highlight_Style) : EditboxView(Host, TextFont), 
-		view_x(0), view_y(0), fgcolor(FGColor), bgcolor(BGColor), hstyle(Highlight_Style) {}
+	BasicEditboxView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor) : EditboxView(host, textfont), 
+		view_x(0), view_y(0), fgcolor(fgcolor), bgcolor(bgcolor) {}
 	~BasicEditboxView();
 	void ensureCursorOnScreen();
 	void scrollUp();
@@ -187,10 +175,6 @@ public:
 	bool mouseClick(int x, int y);
 	bool mouseDrag(int x, int y);
 	bool mouseRelease(int x, int y);
-	static const int HSTYLE_EOLINE = 0;
-	static const int HSTYLE_EOTEXT = 1; 
-	int getForeground() {return fgcolor;}
-	int getBackground() {return bgcolor;}
 protected:
 	void createStripBitmap(list<LineData>::iterator it, int width);
 	virtual void drawExtraComponents()=0;
@@ -208,21 +192,20 @@ protected:
 	CharPos findCharacter(int x, int y);
 	int fgcolor;
 	int bgcolor;
-	int hstyle;
 };
 
 class EditboxVScrollView : public BasicEditboxView
 {
 public:
-	EditboxVScrollView(DIALOG *Host, FONT *TextFont, int FGColor, int BGColor, int Highlight_Style=HSTYLE_EOLINE) : BasicEditboxView(Host, TextFont, FGColor, BGColor, Highlight_Style), sbarpattern(NULL) {}
+	EditboxVScrollView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor) : BasicEditboxView(host, textfont, fgcolor, bgcolor), sbarpattern(NULL) {}
 	
 	~EditboxVScrollView();
 	bool mouseClick(int x, int y);
 	bool mouseDrag(int x, int y);
 	bool mouseRelease(int x, int y);
 protected:
-	virtual bool mouseDragOther(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
-	virtual bool mouseClickOther(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
+	virtual bool mouseDragOther(int x, int y) {return false;}
+	virtual bool mouseClickOther(int x, int y) {return false;}
 	void drawExtraComponents();
 	void init();
 	int bottomarrow_y;
@@ -243,7 +226,7 @@ private:
 class EditboxWordWrapView : public EditboxVScrollView
 {
 public:
-	EditboxWordWrapView(DIALOG *Host, FONT *TextFont, int FGColor, int BGColor, int Highlight_Style=HSTYLE_EOLINE) : EditboxVScrollView(Host, TextFont, FGColor, BGColor, Highlight_Style) {}
+	EditboxWordWrapView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor) : EditboxVScrollView(host, textfont, fgcolor, bgcolor) {}
 protected:
 	void layoutPage();
 };
@@ -251,7 +234,7 @@ protected:
 class EditboxNoWrapView : public EditboxVScrollView
 {
 public:
-	EditboxNoWrapView(DIALOG *Host, FONT *TextFont, int FGColor, int BGColor, int Highlight_Style=HSTYLE_EOLINE) : EditboxVScrollView(Host, TextFont, FGColor, BGColor, Highlight_Style) {}
+	EditboxNoWrapView(DIALOG *host, FONT *textfont, int fgcolor, int bgcolor) : EditboxVScrollView(host, textfont, fgcolor, bgcolor) {}
 	void init();
 protected:
 	void layoutPage();
@@ -259,29 +242,17 @@ protected:
 	bool mouseDragOther(int x, int y);
 	bool mouseRelease(int x, int y);
 	bool mouseClickOther(int x, int y);
-	int leftarrow_y;
-	int rightarrow_y;
 private:
 	int leftarrow_x;
+	int leftarrow_y;
 	int leftarrow_state;
 	int rightarrow_x;
+	int rightarrow_y;
 	int rightarrow_state;
 	int hbaroff;
 	int hbarlen;
 	int hbarstate;
 	int hbarstartx;
-};
-
-class EditboxScriptView : public EditboxNoWrapView
-{
-public:
-	EditboxScriptView(DIALOG *Host, FONT *TextFont, int FGColor, int BGColor, int Highlight_Style=HSTYLE_EOLINE) : EditboxNoWrapView(Host, TextFont, FGColor, BGColor, Highlight_Style), linetext(NULL) {}
-	void init();
-	~EditboxScriptView();
-protected:
-	void drawExtraComponents();
-private:
-	BITMAP *linetext;
 };
 
 #endif

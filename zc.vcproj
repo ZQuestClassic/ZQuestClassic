@@ -130,7 +130,13 @@
 				RelativePath=".\defdata.cpp">
 			</File>
 			<File
-				RelativePath=".\editbox.c">
+				RelativePath=".\editbox.cpp">
+			</File>
+			<File
+				RelativePath=".\EditboxModel.cpp">
+			</File>
+			<File
+				RelativePath=".\EditboxView.cpp">
 			</File>
 			<File
 				RelativePath=".\ending.cpp">
@@ -259,9 +265,6 @@
 			</File>
 			<File
 				RelativePath=".\defdata.h">
-			</File>
-			<File
-				RelativePath=".\eb_intern.h">
 			</File>
 			<File
 				RelativePath=".\editbox.h">

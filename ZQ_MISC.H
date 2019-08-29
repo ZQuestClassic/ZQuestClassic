@@ -19,8 +19,6 @@
 #include "jwin.h"
 
 #define MAXSCREENS 128
-#define ITEMCNT   iMax
-#define WPNCNT    wMAX
 #define MAXROOMTYPES   rMAX
 #define MAXWARPTYPES   wtMAX-1                              // minus whistle
 #define MAXWARPEFFECTS   weMAX
@@ -62,6 +60,8 @@ INLINE int bit(int val,int b)
 enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU };
 extern char *imgstr[6];
 extern char ns_string[3];
+extern char *old_item_string[OLDITEMCNT];
+extern char *old_weapon_string[OLDWPNCNT];
 extern char *item_string[ITEMCNT];
 extern char *weapon_string[WPNCNT];
 extern char *roomtype_string[MAXROOMTYPES];

@@ -5035,6 +5035,7 @@ static MENU subscreen_menu[] =
   { NULL }
 };
 
+
 static DIALOG subscreen_dlg[] =
 {
   // (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
@@ -6315,7 +6316,7 @@ int onEditSubscreens()
                     break;
                 }
               }
-              if (sstemplatelist_dlg[4].d1==0)
+			  if (sstemplatelist_dlg[4].d1==0)
 			  {
                 css->ss_type=sstACTIVE;
                 sprintf(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
