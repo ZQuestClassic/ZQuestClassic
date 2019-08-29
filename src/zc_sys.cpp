@@ -1639,7 +1639,7 @@ int choose_opening_shape()
     int numBits=0;
     int bitCounter;
     
-    for(int i=0; i<4; i++)
+    for(int i=0; i<bosMAX; i++)
     {
         if(COOLSCROLL&(1<<i))
             numBits++;
@@ -1652,7 +1652,7 @@ int choose_opening_shape()
     // Pick a bit
     bitCounter=rand()%numBits+1;
     
-    for(int i=0; i<4; i++)
+    for(int i=0; i<bosMAX; i++)
     {
         // If this bit is set, decrement the bit counter
         if(COOLSCROLL&(1<<i))
@@ -1660,7 +1660,7 @@ int choose_opening_shape()
             
         // When the counter hits 0, return a value based on
         // which bit it stopped on.
-        // Reminder: enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosMAX};
+        // Reminder: enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
         if(bitCounter==0)
             return i;
     }
@@ -1669,9 +1669,9 @@ int choose_opening_shape()
     return bosCIRCLE;
 }
 
-void close_black_opening(int x, int y, bool wait)
+void close_black_opening(int x, int y, bool wait, int shape)
 {
-    black_opening_shape=choose_opening_shape();
+    black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
     
     int w=256, h=224;
     int blockrows=28, blockcolumns=32;
@@ -1691,6 +1691,12 @@ void close_black_opening(int x, int y, bool wait)
     lensclk = 0;
     //black_opening_shape=(black_opening_shape+1)%bosMAX;
     
+    
+    if(black_opening_shape == bosFADEBLACK)
+	{
+		refreshTints();
+		memcpy(tempblackpal, RAMpal, sizeof(RAMpal)); //Store palette in temp palette for fade effect
+	}
     if(wait)
     {
         for(int i=0; i<66; i++)
@@ -1708,9 +1714,9 @@ void close_black_opening(int x, int y, bool wait)
     }
 }
 
-void open_black_opening(int x, int y, bool wait)
+void open_black_opening(int x, int y, bool wait, int shape)
 {
-    black_opening_shape=choose_opening_shape();
+    black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
     
     int w=256, h=224;
     int blockrows=28, blockcolumns=32;
@@ -1728,7 +1734,11 @@ void open_black_opening(int x, int y, bool wait)
     black_opening_x = x;
     black_opening_y = y;
     lensclk = 0;
-    
+    if(black_opening_shape == bosFADEBLACK)
+	{
+		refreshTints();
+		memcpy(tempblackpal, RAMpal, sizeof(RAMpal)); //Store palette in temp palette for fade effect
+	}
     if(wait)
     {
         for(int i=0; i<66; i++)
@@ -1808,6 +1818,20 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
         
         break;
     }
+	
+	case bosFADEBLACK:
+	{
+		if(black_opening_count<0)
+		{
+			black_fade(zc_min(-black_opening_count,63));
+		}
+		else if(black_opening_count>0)
+		{
+			black_fade(63-zc_max(black_opening_count-3,0));
+		}
+		else black_fade(0);
+		return; //no blitting from tmp_scr!
+	}
     
     case bosCIRCLE:
     default:
@@ -1822,6 +1846,19 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
     }
     
     masked_blit(tmp_scr,dest,0,0,0,0,320,240);
+}
+
+
+void black_fade(int fadeamnt)
+{
+    for(int i=0; i < 0xEF; i++)
+    {
+        RAMpal[i].r = vbound(tempblackpal[i].r-fadeamnt,0,63);
+        RAMpal[i].g = vbound(tempblackpal[i].g-fadeamnt,0,63);
+        RAMpal[i].b = vbound(tempblackpal[i].b-fadeamnt,0,63);
+    }
+    
+    refreshpal = true;
 }
 
 //----------------------------------------------------------------
@@ -3653,6 +3690,13 @@ void updatescr(bool allowwavy)
             --black_opening_count;
         }
     }
+	if(black_opening_count==0&&black_opening_shape==bosFADEBLACK)
+	{
+		black_opening_shape = bosCIRCLE;
+		memcpy(RAMpal, tempblackpal, PAL_SIZE*sizeof(RGB));
+		refreshTints();
+		refreshpal=true;
+	}
     
     if(refreshpal)
     {
@@ -5030,14 +5074,14 @@ void blackscr(int fcnt,bool showsubscr)
     }
 }
 
-void openscreen()
+void openscreen(int shape)
 {
     reset_pal_cycling();
     black_opening_count=0;
     
-    if(COOLSCROLL)
+    if(COOLSCROLL || shape>-1)
     {
-        open_black_opening(LinkX()+8, (LinkY()-LinkZ())+8+playing_field_offset, true);
+        open_black_opening(LinkX()+8, (LinkY()-LinkZ())+8+playing_field_offset, true, shape);
         return;
     }
     else
@@ -5052,6 +5096,65 @@ void openscreen()
     int x=128;
     
     for(int i=0; i<80; i++)
+    {
+        draw_screen(tmpscr);
+        //? draw_screen already draws the subscreen -DD
+        //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+        x=128-(((i*128/80)/8)*8);
+        
+        if(x>0)
+        {
+            rectfill(framebuf,0,playing_field_offset,x,167+playing_field_offset,0);
+            rectfill(framebuf,256-x,playing_field_offset,255,167+playing_field_offset,0);
+        }
+        
+        //    x=((80-i)/2)*4;
+        /*
+          --x;
+          switch(++c)
+          {
+          case 5: c=0;
+          case 0:
+          case 2:
+          case 3: --x; break;
+          }
+          */
+        syskeys();
+        advanceframe(true);
+        
+        if(Quit)
+        {
+            break;
+        }
+    }
+    
+    Link.setDontDraw(false);
+    show_subscreen_items=true;
+    show_subscreen_dmap_dots=true;
+}
+
+void closescreen(int shape)
+{
+    reset_pal_cycling();
+    black_opening_count=0;
+    
+    if(COOLSCROLL || shape>-1)
+    {
+        close_black_opening(LinkX()+8, (LinkY()-LinkZ())+8+playing_field_offset, true, shape);
+        return;
+    }
+    else
+    {
+        Link.setDontDraw(true);
+        show_subscreen_dmap_dots=false;
+        show_subscreen_numbers=false;
+        //    show_subscreen_items=false;
+        show_subscreen_life=false;
+    }
+    
+    int x=128;
+    
+    for(int i=79; i>=0; --i)
     {
         draw_screen(tmpscr);
         //? draw_screen already draws the subscreen -DD

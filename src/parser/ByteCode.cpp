@@ -3085,6 +3085,21 @@ string OOpenWipe::toString()
     return "OPENWIPE";
 }
 
+string OCloseWipe::toString()
+{
+    return "CLOSEWIPE";
+}
+
+string OOpenWipeShape::toString()
+{
+    return "OPENWIPESHAPE " + getArgument()->toString();
+}
+
+string OCloseWipeShape::toString()
+{
+    return "CLOSEWIPESHAPE " + getArgument()->toString();
+}
+
 //Game->GetItemScript(int ptr[])
 string OGetItemScript::toString()
 {
