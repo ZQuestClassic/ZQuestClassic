@@ -23,7 +23,7 @@ void put_active_subscr(miscQdata *misc, int y, bool pulled_down)
 {
   //  load_Sitems();
   Sitems.animate();
-  bool showtime = get_gamedata_timevalid() && !get_gamedata_cheat() && get_bit(quest_rules,qr_TIME);
+  bool showtime = game->get_timevalid() && !game->get_cheat() && get_bit(quest_rules,qr_TIME);
   show_custom_subscreen(framebuf, misc, current_subscreen_active, 0, 6-y, showtime, pulled_down);
 }
 
@@ -43,7 +43,7 @@ void dosubscr_new(miscQdata *misc)
   }
 
   int miny;
-  bool showtime = get_gamedata_timevalid(game) && !get_gamedata_cheat(game) && get_bit(quest_rules,qr_TIME);
+  bool showtime = game->get_timevalid() && !game->get_cheat() && get_bit(quest_rules,qr_TIME);
   load_Sitems(misc);
 
   pause_sfx(WAV_BRANG);
@@ -94,14 +94,19 @@ void dosubscr_new(miscQdata *misc)
   {
     load_control_state();
     int pos = Bpos;
+    
+    if(rUp())         selectWpn(0, -1, true);
+    else if(rDown())  selectWpn(0, 1, true);
+    else if(rLeft())  selectWpn(-1, 0, true);
+    else if(rRight()) selectWpn(1, 0, true);
+    else if(rLbtn())  selectWpn(-1, 0, true);
+    else if(rRbtn())  selectWpn(1, 0, true);
 
-    if(rUp())         selectBwpn(0, -1);
-    else if(rDown())  selectBwpn(0, 1);
-    else if(rLeft())  selectBwpn(-1, 0);
-    else if(rRight()) selectBwpn(1, 0);
-    else if(rLbtn())  selectBwpn(-1, 0);
-    else if(rRbtn())  selectBwpn(1, 0);
-
+    if (get_bit(quest_rules,qr_SELECTAWPN))
+    {
+      Bwpn = Bweapon(Bpos);
+      Awpn = current_item(itype_sword) >=4 ? iXSword : current_item(itype_sword) - 1 + iSword;
+    }
     if(pos!=Bpos)
       sfx(WAV_CHIME);
 
@@ -126,40 +131,6 @@ void dosubscr_new(miscQdata *misc)
     if(rSbtn())
       done=true;
   } while(!done);
-/*
-  if(COOLSCROLL)
-  {
-    for(int y=6; y<=174; y+=3)
-    {
-      domoney();
-      Link.refill();
-      put_passive_subscr(scrollbuf,misc,0,174,showtime,false);
-      blit(scrollbuf,framebuf,0,168+230+6-y,0,230-y,256,y-6);
-      blit(scrollbuf,framebuf,0,y,0,0,256,230-y);
-      put_active_subscr(misc,y,false);
-      advanceframe();
-      if(Quit)
-        return;
-    }
-    blit(scrollbuf,scrollbuf,256,0,0,0,256,176);
-  }
-  else
-  {
-    for(int y=6; y<=174; y+=3)
-    {
-      domoney();
-      Link.refill();
-      put_passive_subscr(scrollbuf,misc,0,174,showtime,false);
-      blit(scrollbuf,framebuf,0,y,0,0,256,224);
-      put_active_subscr(misc,y,false);
-      advanceframe();
-      if(Quit)
-        return;
-    }
-    blit(scrollbuf,scrollbuf,0,230,0,0,256,176);
-  }
-*/
-
 
   for(int y=6; y<=174; y+=3)
   {
@@ -198,74 +169,99 @@ void dosubscr(miscQdata *misc)
   }
 
   int miny;
-  bool showtime = get_gamedata_timevalid(game) && !get_gamedata_cheat(game) && get_bit(quest_rules,qr_TIME);
+  bool showtime = game->get_timevalid() && !game->get_cheat() && get_bit(quest_rules,qr_TIME);
   load_Sitems(misc);
 
   pause_sfx(WAV_BRANG);
   adjust_sfx(WAV_ER,128,false);
   adjust_sfx(WAV_MSG,128,false);
 
-  if(COOLSCROLL)
+  //make a copy of the blank playing field on the right side of scrollbuf
+  blit(scrollbuf,scrollbuf,0,0,256,0,256,176);
+  //make a copy of the complete playing field on the bottom of scrollbuf
+  blit(framebuf,scrollbuf,0,playing_field_offset,0,176,256,176);
+  miny = 6;
+  for(int y=176-2; y>=6; y-=3)
   {
-    blit(scrollbuf,scrollbuf,0,0,256,0,256,176);
-    blit(framebuf,scrollbuf,0,56,0,230,256,176);
-    miny = 6;
-    blit(scrollbuf,framebuf,0,230,0,56,256,176);
-    for(int y=174; y>=6; y-=3)
+    domoney();
+    Link.refill();
+    //fill in the screen with black to prevent the hall of mirrors effect
+    rectfill(framebuf, 0, 0, 255, 223, 0);
+    if(COOLSCROLL)
     {
-      domoney();
-      Link.refill();
-      put_passive_subscr(scrollbuf,misc,0,174,showtime,false);
-      blit(scrollbuf,framebuf,0,y,0,0,256,230-y);
-      put_active_subscr(misc,y,false);
-      advanceframe();
-      if(Quit)
-        return;
+      //copy the playing field back onto the screen
+      blit(scrollbuf,framebuf,0,176,0,passive_subscreen_height,256,176);
     }
-  }
-  else
-  {
-    blit(scrollbuf,scrollbuf,0,0,256,0,256,176);
-    blit(framebuf,scrollbuf,0,56,0,230,256,176);
-    miny = 6;
-    blit(scrollbuf,framebuf,0,230,0,56,256,176);
-    for(int y=174; y>=6; y-=3)
+    else
     {
-      domoney();
-      Link.refill();
-      put_passive_subscr(scrollbuf,misc,0,174,showtime,false);
-      blit(scrollbuf,framebuf,0,y,0,0,256,224);
-      put_active_subscr(misc,y,false);
-      advanceframe();
-      if(Quit)
-        return;
+      //scroll the playing field (copy the copy we made)
+      blit(scrollbuf,framebuf,0,176,0,176-2-y+passive_subscreen_height,256,y);
     }
+    //throw the passive subscreen onto the screen
+    put_passive_subscr(framebuf,misc,0,176-2-y,showtime,false);
+    //put the active subscreen above the passive subscreen
+    put_active_subscr(misc,y,false);
+    advanceframe();
+    if(Quit)
+      return;
   }
 
   bool done=false;
 
-  put_passive_subscr(scrollbuf,misc,0,174,showtime,true);
   do
   {
     load_control_state();
     int pos = Bpos;
 
-    if(rUp())         selectBwpn(0, -1);
-    else if(rDown())  selectBwpn(0, 1);
-    else if(rLeft())  selectBwpn(-1, 0);
-    else if(rRight()) selectBwpn(1, 0);
-    else if(rLbtn())  selectBwpn(-1, 0);
-    else if(rRbtn())  selectBwpn(1, 0);
+    if(rUp())         selectWpn(0, -1, true);
+    else if(rDown())  selectWpn(0, 1, true);
+    else if(rLeft())  selectWpn(-1, 0, true);
+    else if(rRight()) selectWpn(1, 0, true);
+    else if(rLbtn())  selectWpn(-1, 0, true);
+    else if(rRbtn())  selectWpn(1, 0, true);
 
+    if (get_bit(quest_rules,qr_SELECTAWPN))
+    {
+      if(rBbtn())
+      {
+        if (Awpn == Bweapon(Bpos))
+	  Awpn = Bwpn;
+        Bwpn = Bweapon(Bpos);
+        sfx(WAV_PLACE);
+      }
+      else if(rAbtn())
+      {
+        if (Bwpn == Bweapon(Bpos))
+	  Bwpn = Awpn;
+        Awpn = Bweapon(Bpos);
+        sfx(WAV_PLACE);
+      }
+    }
     if(pos!=Bpos)
       sfx(WAV_CHIME);
 
     domoney();
     Link.refill();
-    put_passive_subscr(framebuf,misc,0,174-miny,showtime,true);
 
-    blit(scrollbuf,framebuf,0,6,0,6-miny,256,168);
-    put_active_subscr(misc,miny,true);
+    //put_passive_subscr(framebuf,misc,0,174-miny,showtime,true);
+    //blit(scrollbuf,framebuf,0,6,0,6-miny,256,168);
+    //put_active_subscr(misc,miny,true);
+
+    //fill in the screen with black to prevent the hall of mirrors effect
+    rectfill(framebuf, 0, 0, 255, 223, 0);
+    if(COOLSCROLL)
+    {
+      //copy the playing field back onto the screen
+      blit(scrollbuf,framebuf,0,176,0,passive_subscreen_height,256,176);
+    }
+    else
+    {
+      //nothing to do; the playing field has scrolled off the screen
+    }
+    //throw the passive subscreen onto the screen
+    put_passive_subscr(framebuf,misc,0,176-2-miny,showtime,false);
+    //put the active subscreen above the passive subscreen
+    put_active_subscr(misc,miny,false);
 
     advanceframe();
     if(NESquit && Up() && cAbtn() && cBbtn())
@@ -279,36 +275,29 @@ void dosubscr(miscQdata *misc)
       done=true;
   } while(!done);
 
-  if(COOLSCROLL)
+  for(int y=6; y<=174; y+=3)
   {
-    for(int y=6; y<=174; y+=3)
+    domoney();
+    Link.refill();
+    //fill in the screen with black to prevent the hall of mirrors effect
+    rectfill(framebuf, 0, 0, 255, 223, 0);
+    if(COOLSCROLL)
     {
-      domoney();
-      Link.refill();
-      put_passive_subscr(scrollbuf,misc,0,174,showtime,false);
-      blit(scrollbuf,framebuf,0,168+230+6-y,0,230-y,256,y-6);
-      blit(scrollbuf,framebuf,0,y,0,0,256,230-y);
-      put_active_subscr(misc,y,false);
-      advanceframe();
-      if(Quit)
-        return;
+      //copy the playing field back onto the screen
+      blit(scrollbuf,framebuf,0,176,0,passive_subscreen_height,256,176);
     }
-    blit(scrollbuf,scrollbuf,256,0,0,0,256,176);
-  }
-  else
-  {
-    for(int y=6; y<=174; y+=3)
+    else
     {
-      domoney();
-      Link.refill();
-      put_passive_subscr(scrollbuf,misc,0,174,showtime,false);
-      blit(scrollbuf,framebuf,0,y,0,0,256,224);
-      put_active_subscr(misc,y,false);
-      advanceframe();
-      if(Quit)
-        return;
+      //scroll the playing field (copy the copy we made)
+      blit(scrollbuf,framebuf,0,176,0,176-2-y+passive_subscreen_height,256,y);
     }
-    blit(scrollbuf,scrollbuf,0,230,0,0,256,176);
+    //throw the passive subscreen onto the screen
+    put_passive_subscr(framebuf,misc,0,176-2-y,showtime,false);
+    //put the active subscreen above the passive subscreen
+    put_active_subscr(misc,y,false);
+    advanceframe();
+    if(Quit)
+      return;
   }
 
   //  Sitems.clear();

@@ -18,4 +18,5 @@ int d_maxbombsedit_proc(int msg,DIALOG *d,int c);
 extern DIALOG init_dlg[];
 extern TABPANEL init_tabs[];
 int doInit(zinitdata *zinit);
+void resetItems(gamedata *data, zinitdata *zinit);
 #endif

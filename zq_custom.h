@@ -29,6 +29,7 @@ enum { ws_2_frame, ws_3_frame, ws_max };
 
 void edit_weapondata(int index);
 int onCustomWpns();
+int onCustomEnemies();
 int onCustomGuys();
 int d_ltile_proc(int msg,DIALOG *d,int c);
 int onCustomLink();

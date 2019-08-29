@@ -39,10 +39,11 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
-#include "zc_init.h"
+#include "init.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
+#define stricmp _stricmp
 #endif
 
 
@@ -59,6 +60,8 @@ int strike_hint_timer=0;
 int strike_hint;
 int slot_arg, slot_arg2;
 char *SAVE_FILE = "zc.sav";
+
+int script_drawing_commands[MAX_SCRIPT_DRAWING_COMMANDS][SCRIPT_DRAWING_COMMAND_VARIABLES];
 
 int passive_subscreen_height=56;
 int playing_field_offset=56;
@@ -108,9 +111,9 @@ int curr_tb_page=0;
 bool triplebuffer_not_available=false;
 
 RGB_MAP rgb_table;
-COLOR_MAP trans_table;
+COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf;
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
            *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font;
@@ -126,7 +129,7 @@ guydata    *guysbuf;
 ZCHEATS    zcheats;
 byte       use_cheats;
 byte       use_tiles;
-char       palnames[MAXLEVELS][PALNAMESIZE];
+char       palnames[OLDMAXLEVELS][PALNAMESIZE];
 word animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
 word animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
 word animated_combos;
@@ -136,10 +139,18 @@ word animated_combos2;
 bool blank_tile_table[NEWMAXTILES];                         //keeps track of blank tiles
 bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of blank tiles
 bool ewind_restart=false;
-word     msgclk, msgstr, msgpos, msg_count;
+word     msgclk, msgstr,
+	 msgpos,	// screen position of the next character. <72.
+	 msgptr,	// position within the string of the next character. <MSGSIZE.
+	 msgcset,	// cset to use for the displayed text.
+	 msgcolour,	// colour to use for the displayed text.
+	 msgspeed,	// delay between each character (5 = default).
+	 msg_count;
+FONT	 *msgfont;
 word     door_combo_set_count;
 word     introclk, intropos, dmapmsgclk, linkedmsgclk;
-short    lensclk, lenscnt;
+short    lensclk;
+bool     lenson;
 int    Bpos;
 byte screengrid[22];
 bool halt=false;
@@ -149,7 +160,7 @@ PALETTE tempbombpal;
 bool usebombpal;
 
 int readsize, writesize;
-
+bool fake_pack_writing=false;
 combo_alias combo_aliases[MAXCOMBOALIASES];  //Temporarily here to ZC can compile. All memory from this is freed after loading the quest file.
 
 SAMPLE customsfxdata[WAV_COUNT];
@@ -161,14 +172,14 @@ int gui_colorset=0;
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int lastentrance=0,lastentrance_dmap=0,prices[3][2],loadside, Bwpn, Awpn;
-int digi_volume,midi_volume,currmidi,wand_x,wand_y,wand_z,hasitem,whistleclk,pan_style;
+int digi_volume,midi_volume,currmidi,hasitem,whistleclk,pan_style;
 int Akey,Bkey,Skey,Lkey,Rkey,Pkey,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Quit=0;
 int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density;
 int arrow_x, arrow_y, arrow_z, brang_x, brang_y, brang_z;
-int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras;
+int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
 int cheat_goto_dmap=0, cheat_goto_screen=0, swordhearts[4], currcset;
 int gfc, gfc2, pitx, pity, refill_what, refill_why, heart_beep_timer=0, new_enemy_tile_start=1580;
-int nets=1580, magictype=mgc_none, magiccastclk, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y;
+int nets=1580, magictype=mgc_none, title_version, magiccastclk, quakeclk=0, wavy=0, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y;
 int magicdrainclk=0, conveyclk=3, memrequested=0;
 float avgfps=0;
 dword fps_secs=0;
@@ -186,8 +197,8 @@ bool nosecretsounds=false;
 bool Throttlefps, Paused=false, Advance=false, ShowFPS, Showpal=false;
 bool Playing, FrameSkip=false, TransLayers;
 bool __debug=false,debug_enabled;
-bool refreshpal,blockpath,wand_dead,loaded_guys,freeze_guys,
-  loaded_enemies,drawguys,details=false,DXtitle,watch;
+bool refreshpal,blockpath,loaded_guys,freeze_guys,
+  loaded_enemies,drawguys,details=false,watch;
 bool darkroom=false,BSZ,COOLSCROLL;                         //,NEWSUBSCR;
 bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,
   SystemKeys=true,NESquit,volkeys,useCD=false,boughtsomething=false,
@@ -211,13 +222,13 @@ mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
 gamedata *game=NULL;
-ffscript *ffscripts[512];
-ffscript *itemscripts[256];
-ffscript *guyscripts[256];
-ffscript *wpnscripts[256];
-ffscript *globalscripts[3];
-ffscript *linkscripts[3];
-ffscript *screenscripts[256];
+ffscript *ffscripts[NUMSCRIPTFFC];
+ffscript *itemscripts[NUMSCRIPTITEM];
+ffscript *guyscripts[NUMSCRIPTGUYS];
+ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+ffscript *globalscripts[NUMSCRIPTGLOBAL];
+ffscript *linkscripts[NUMSCRIPTLINK];
+ffscript *screenscripts[NUMSCRIPTSCREEN];
 
 extern byte global_ffc;
 extern byte global_item;
@@ -262,6 +273,7 @@ DoorComboSet *DoorComboSets;
 dmap         *DMaps;
 miscQdata    QMisc;
 mapscr       *TheMaps;
+zcmap		 *ZCMaps;
 byte	     *quest_file;
 dword		 quest_map_pos[MAPSCRS*MAXMAPS2];
 long		ffstack[32][256];
@@ -306,25 +318,29 @@ const byte ten_rupies_y[10] = {49,65,65,81,81,81,81,97,97,113};
 
 zcmidi tunes[MAXMIDIS] =
 {
-  // (title)                (s) (ls) (le) (l) (vol) (midi)
-  { "Zelda 1 - Dungeon",     0,  -1,  -1,  1,  176,  NULL },
-  { "Zelda 1 - Ending",      0, 129, 225,  1,  160,  NULL },
-  { "Zelda 1 - Game Over",   0,  -1,  -1,  1,  224,  NULL },
-  { "Zelda 1 - Level 9",     0,  -1,  -1,  1,  255,  NULL },
-  { "Zelda 1 - Overworld",   0,  17,  -1,  1,  208,  NULL },
-  { "Zelda 1 - Title",       0,  -1,  -1,  0,  168,  NULL },
-  { "Zelda 1 - Triforce",    0,  -1,  -1,  0,  168,  NULL },
+  // (title)                (s) (ls) (le) (l) (vol) (fmt) (midi)
+  { "Zelda 1 - Dungeon",     0,  -1,  -1,  1,  176,  0, NULL },
+  { "Zelda 1 - Ending",      0, 129, 225,  1,  160,  0, NULL },
+  { "Zelda 1 - Game Over",   0,  -1,  -1,  1,  224,  0, NULL },
+  { "Zelda 1 - Level 9",     0,  -1,  -1,  1,  255,  0, NULL },
+  { "Zelda 1 - Overworld",   0,  17,  -1,  1,  208,  0, NULL },
+  { "Zelda 1 - Title",       0,  -1,  -1,  0,  168,  0, NULL },
+  { "Zelda 1 - Triforce",    0,  -1,  -1,  0,  168,  0, NULL },
 };
 
 emusic enhancedMusic[MAXMUSIC];
 
 void dointro ()
 {
-  if (game->visited[currdmap]!=1)
+  if (game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0)
   {
     dmapmsgclk=0;
     game->visited[currdmap]=1;
     introclk=intropos=0;
+  }
+  else
+  {
+	introclk=intropos=72;
   }
 }
 
@@ -339,6 +355,7 @@ bool bad_version(int version)
 
 extern char *weapon_string[];
 extern char *item_string[];
+extern char *guy_string[];
 
 
 /**********************************/
@@ -425,7 +442,7 @@ void ALLOFF()
   msgstr=0;
   fadeclk=-1;
 
-  lensclk = lenscnt = 0;
+  lensclk = 0; lenson=false;
   drawguys=Udown=Ddown=Ldown=Rdown=Adown=Bdown=Sdown=true;
   if (watch && !cheat_superman)
   {
@@ -433,7 +450,7 @@ void ALLOFF()
   }
   //  if(watch)
   //    Link.setClock(false);
-  watch=freeze_guys=loaded_guys=loaded_enemies=wand_dead=blockpath=false;
+  watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
   stop_sfx(WAV_BRANG);
   for(int i=0; i<176; i++)
     guygrid[i]=0;
@@ -452,8 +469,13 @@ fix  LinkX()   { return Link.getX(); }
 fix  LinkY()   { return Link.getY(); }
 fix  LinkZ()   { return Link.getZ(); }
 int  LinkHClk() { return Link.getHClk(); }
+int  LinkAction() { return Link.getAction(); }
 int  LinkNayrusLoveShieldClk() { return Link.getNayrusLoveShieldClk(); }
 int  LinkHoverClk() { return Link.getHoverClk(); }
+int  LinkSwordClk() { return Link.getSwordClk(); }
+int  LinkItemClk() { return Link.getItemClk(); }
+void setSwordClk(int newclk) { Link.setSwordClk(newclk); }
+void setItemClk(int newclk) { Link.setItemClk(newclk); }
 int  LinkLStep() { return Link.getLStep(); }
 fix  GuyX(int j)   { return guys.getX(j); }
 fix  GuyY(int j)   { return guys.getY(j); }
@@ -469,7 +491,16 @@ bool  GuySuperman(int j)
 }
 
 int  GuyCount()   { return guys.Count(); }
-void StunGuy(int j)   { ((enemy*)guys.spr(j))->stunclk=160; }
+void StunGuy(int j,int stun)
+{
+  if (stun<=0) return;
+
+  if(((enemy*)guys.spr(j))->z==0 && canfall(((enemy*)guys.spr(j))->id))
+  {
+    ((enemy*)guys.spr(j))->stunclk=min(360,stun*4);
+    ((enemy*)guys.spr(j))->fall=-min(FEATHERJUMP,(stun*8)+rand()%5);
+  }
+}
 
 fix LinkModifiedX()   { return Link.getModifiedX(); }
 fix LinkModifiedY()   { return Link.getModifiedY(); }
@@ -505,16 +536,16 @@ void CatchBrang() { Link.Catch(); }
 
 int load_quest(gamedata *g, bool report)
 {
-  //  packfile_password(datapwd);
+  //  setPackfilePassword(datapwd);
   chop_path(qstpath);
   char *tempdir="";
 #ifndef ALLEGRO_MACOSX
   tempdir=qstdir;
 #endif
 
-  if(get_gamedata_quest(g)<255)
+  if(g->get_quest()<255)
   {
-    sprintf(qstpath,"%s%s.qst",tempdir,ordinal(get_gamedata_quest(g)));
+    sprintf(qstpath,"%s%s.qst",tempdir,ordinal(g->get_quest()));
   }
   else
   {
@@ -528,14 +559,14 @@ int load_quest(gamedata *g, bool report)
     }
   }
 
-  packfile_password(datapwd);
+  setPackfilePassword(datapwd);
   byte skip_flags[4];
   for (int i=0; i<4; ++i)
   {
     skip_flags[i]=0;
   }
   int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags);
-  packfile_password(NULL);
+  setPackfilePassword(NULL);
 
   /*
     for(int j=0;j<MAXCOMBOALIASES;j++) {
@@ -550,7 +581,7 @@ int load_quest(gamedata *g, bool report)
     }
     */
 
-  if(!g->title[0] || !get_gamedata_hasplayed(g))
+  if(!g->title[0] || !g->get_hasplayed())
   {
     strcpy(g->version,QHeader.version);
     strcpy(g->title,QHeader.title);
@@ -579,8 +610,20 @@ int load_quest(gamedata *g, bool report)
     game_pal();
   }
 
-  //  packfile_password(NULL);
+  //  setPackfilePassword(NULL);
   return ret;
+}
+
+void init_dmap()
+{
+	// readjust disabled items; could also do dmap-specific scripts here
+	for (int i=0;i<MAXITEMS;i++)
+	{
+		game->items_off[i] &= (!1); // disable last bit - this one is set by dmap
+		game->items_off[i] |= DMaps[currdmap].disableditems[i]; // and reset if required
+	}
+
+	return;
 }
 
 int init_game()
@@ -602,6 +645,7 @@ int init_game()
   add_nl2bsparkle=false;
   gofast=false;
   srand(time(0));
+  memset(script_drawing_commands, 0, MAX_SCRIPT_DRAWING_COMMANDS*SCRIPT_DRAWING_COMMAND_VARIABLES*sizeof(int));
 
   // confuse the cheaters by moving the game data to a random location
   if (game!=NULL)
@@ -631,14 +675,14 @@ int init_game()
   //  memcpy(&realgame,saves+currgame,sizeof(gamedata));
   memcpy(game,saves+currgame,sizeof(gamedata));
 
-  packfile_password(datapwd);
+  setPackfilePassword(datapwd);
   if(load_quest(game))
   {
     Quit=qERROR;
-    packfile_password(NULL);
+    setPackfilePassword(NULL);
     return 1;
   }
-  packfile_password(NULL);
+  setPackfilePassword(NULL);
 
   cheat=0;
 
@@ -686,14 +730,14 @@ int init_game()
 
   //  homescr = currscr = DMaps[0].cont;
   //  currdmap = warpscr = worldscr=0;
-  if(!get_gamedata_hasplayed(game))
+  if(!game->get_hasplayed())
   {
-    set_gamedata_continue_dmap(game, zinit.start_dmap);
+    game->set_continue_dmap(zinit.start_dmap);
   }
-  currdmap = warpscr = worldscr=get_gamedata_continue_dmap(game);
+  currdmap = warpscr = worldscr=game->get_continue_dmap();
+	init_dmap();
 
-
-  if (get_gamedata_continue_scrn(game) >= 0x80)
+  if (game->get_continue_scrn() >= 0x80)
   {
     //if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW || QHeader.zelda_version <= 0x190)
     if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
@@ -707,7 +751,7 @@ int init_game()
   }
   else
   {
-    homescr = currscr = get_gamedata_continue_scrn(game);
+    homescr = currscr = game->get_continue_scrn();
   }
   lastentrance = currscr;
   lastentrance_dmap = currdmap;
@@ -741,7 +785,7 @@ int init_game()
   ringcolor();
   loadlvlpal(DMaps[currdmap].color);
 
-  if (!get_gamedata_hasplayed(game))
+  if (!game->get_hasplayed())
   {
 		resetItems(game,&zinit);
   }
@@ -752,25 +796,25 @@ int init_game()
   }
 
 
-  if (!get_gamedata_hasplayed(game))
+  if (!game->get_hasplayed())
   {
-    set_gamedata_life(game, zinit.start_heart*HP_PER_HEART);
+    game->set_life(zinit.start_heart*HP_PER_HEART);
   }
   else
   {
     if(get_bit(zinit.misc,idM_CONTPERCENT))
     {
-      set_gamedata_life(game, ((get_gamedata_maxlife(game)*zinit.cont_heart/100)/HP_PER_HEART)*HP_PER_HEART);
+      game->set_life( ((game->get_maxlife()*zinit.cont_heart/100)/HP_PER_HEART)*HP_PER_HEART);
     }
     else
     {
-      set_gamedata_life(game, zinit.cont_heart*HP_PER_HEART);
+      game->set_life(zinit.cont_heart*HP_PER_HEART);
     }
   }
-  set_gamedata_hasplayed(game, 1);
+  game->set_hasplayed(1);
 
   if(get_bit(quest_rules,qr_CONTFULL))
-    set_gamedata_life(game, get_gamedata_maxlife(game));
+    game->set_life(game->get_maxlife());
   /*
     else
     game->life=3*HP_PER_HEART;
@@ -781,8 +825,18 @@ int init_game()
   update_subscreens();
 
   load_Sitems(&QMisc);
-  selectBwpn(0,0);
-  selectAwpn(0);
+  selectWpn(0,0,true);
+  switch(current_item(itype_sword))
+  {
+    case 1:
+    case 2:
+    case 3:
+    Awpn = current_item(itype_sword) - 1 + iSword; break;
+    case 4:
+    Awpn = iXSword; break;
+    default:
+    Awpn = 0;
+  }
   reset_subscr_items();
 
   Link.setDontDraw(false);
@@ -891,6 +945,7 @@ int cont_game()
   homescr = currscr = lastentrance;
   currmap = DMaps[currdmap].map;
   dlevel = DMaps[currdmap].level;
+  init_dmap();
 
   for(int i=0; i<6; i++)
   {
@@ -918,15 +973,15 @@ int cont_game()
 
   if(get_bit(zinit.misc,idM_CONTPERCENT))
   {
-    set_gamedata_life(game, ((get_gamedata_maxlife(game)*zinit.cont_heart/100)/HP_PER_HEART)*HP_PER_HEART);
+    game->set_life( ((game->get_maxlife()*zinit.cont_heart/100)/HP_PER_HEART)*HP_PER_HEART);
   }
   else
   {
-    set_gamedata_life(game, zinit.cont_heart*HP_PER_HEART);
+    game->set_life(zinit.cont_heart*HP_PER_HEART);
   }
 
   if(get_bit(quest_rules,qr_CONTFULL))
-    set_gamedata_life(game, get_gamedata_maxlife(game));
+    game->set_life(game->get_maxlife());
   /*
     else
     game->life=3*HP_PER_HEART;
@@ -942,6 +997,7 @@ int cont_game()
   openscreen();
   show_subscreen_numbers=true;
   show_subscreen_life=true;
+  dointro();
   loadguys();
 
   if(!Quit)
@@ -984,6 +1040,7 @@ void restart_level()
   {
     currdmap = lastentrance_dmap;
     homescr = currscr = lastentrance;
+	init_dmap();
   }
   else
   {
@@ -1043,9 +1100,6 @@ void putintro()
     return;
   }
 
-  if(intropos>=72)
-    return;
-
   if((cBbtn())&&(get_bit(quest_rules,qr_ALLOWMSGBYPASS)))
   {
     //finish writing out the string
@@ -1054,6 +1108,13 @@ void putintro()
       textprintf_ex(msgdisplaybuf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,CSET(0)+1,-1,
                     "%c",DMaps[currdmap].intro[intropos]);
     }
+  }
+
+  if(intropos>=72)
+  {
+	if(dmapmsgclk >= 51)
+	 dmapmsgclk=50;
+	return;
   }
 
   if(((introclk++)%6<5)&&((!cAbtn())||(!get_bit(quest_rules,qr_ALLOWFASTMSG))))
@@ -1080,12 +1141,6 @@ void putintro()
   if(DMaps[currdmap].intro[intropos]==' ' && DMaps[currdmap].intro[intropos+1]==' ')
     while(DMaps[currdmap].intro[intropos]==' ')
       ++intropos;
-
-  if(intropos>=72)
-  {
-    //   Link.unfreeze();
-    dmapmsgclk=50;
-  }
 }
 
 //static char *dirstr[4] = {"Up","Down","Left","Right"};
@@ -1098,17 +1153,19 @@ void show_details()
   {
     textprintf_ex(framebuf,font,-3,-5,WHITE,BLACK,"%-4d",whistleclk);
     textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon());
-    textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",get_gamedata_time(game),time_str_long(get_gamedata_time(game)));
+    textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",game->get_time(),time_str_long(game->get_time()));
 
 //    for(int i=0; i<guys.Count(); i++)
 //    for(int i=0; i<Ewpns.Count(); i++)
 //    for(int i=0; i<items.Count(); i++)
     {
 //      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d",items.spr(i)->id);
-//      textprintf_ex(framebuf,font,160,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %3d",((weapon*)Ewpns.spr(i))->id, ((weapon*)Ewpns.spr(i))->tile, ((weapon*)Ewpns.spr(i))->aframe, wpnsbuf[((weapon*)Ewpns.spr(i))->id].frames);
+//      textprintf_ex(framebuf,font,160,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %3d",((weapon*)Ewpns.spr(i))->id, ((weapon*)Ewpns.spr(i))->tile, ((weapon*)Ewpns.spr(i))->aframe, ((weapon*)Ewpns.spr(i))->clk); //wpnsbuf[((weapon*)Ewpns.spr(i))->id].frames);
 //      textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %3d %3d %3d",(int)((enemy*)guys.spr(i))->x, (int)((enemy*)guys.spr(i))->y, ((enemy*)guys.spr(i))->hxofs, ((enemy*)guys.spr(i))->hyofs, ((enemy*)guys.spr(i))->hxsz, ((enemy*)guys.spr(i))->hysz);//,dirstr[((enemy*)guys.spr(i))->dir]);//, dirstr[((enemy*)guys.spr(i))->clk3]);
     }
-
+    textprintf_ex(framebuf,font,100,16,WHITE,BLACK,"%3d %02X",game->get_continue_dmap(), game->get_continue_scrn());
+    textprintf_ex(framebuf,font,100,24,WHITE,BLACK,"%3d %02X",lastentrance_dmap, lastentrance);
+    textprintf_ex(framebuf,font,100,32,WHITE,BLACK,"%02X %02X",homescr, currscr);
     /*
       for(int i=0; i<Ewpns.Count(); i++)
       {
@@ -1170,20 +1227,31 @@ void do_magic_casting()
         {
           Link.tile+=item_tile_mod(shieldModify);
         }
+        if (get_bit(quest_rules,qr_MORESOUNDS))
+	  sfx(WAV_ZN1DINSFIRE,pan(int(Link.getX())));
         for (int flamecounter=((-1)*(flamemax/2))+1; flamecounter<((flamemax/2)+1); flamecounter++)
         {
-          Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3,8*DAMAGE_MULTIPLIER,0));
+          Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3,8*DAMAGE_MULTIPLIER,
+		(tmpscr->flags7&fSIDEVIEW) ? (flamecounter<flamemax ? left : right) : 0));
           weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
-          w->step=2;
-          w->angular=true;
-          w->angle=(flamecounter*PI/(flamemax/2));
+	  if (tmpscr->flags7&fSIDEVIEW)
+          {
+            w->step=(flamecounter*PI/flamemax);
+            w->angular=(tmpscr->flags7&fSIDEVIEW)!=0;
+	    w->angle=0;
+	    flamecounter++;
+          }
+	  else
+          {
+            w->step=2;
+            w->angular=true;
+	    w->angle=(flamecounter*PI/(flamemax/2));
+          }
         }
         castnext=false;
         magiccastclk=128;
       }
 
-      /*
-        */
       if ((magiccastclk++)==226)
       {
         magictype=mgc_none;
@@ -1226,6 +1294,8 @@ void do_magic_casting()
       }
       if (magiccastclk==96)
       {
+        if (get_bit(quest_rules,qr_MORESOUNDS))
+	  sfx(WAV_ZN1FARORESWIND,pan(int(Link.getX())));
         Link.setDontDraw(true);
         for (int i=0; i<16; ++i)
         {
@@ -1299,12 +1369,12 @@ void do_magic_casting()
           Link.tile+=item_tile_mod(shieldModify);
         }
         Link.setNayrusLoveShieldClk(512);
+        if (get_bit(quest_rules,qr_MORESOUNDS))
+	  cont_sfx(WAV_ZN1NAYRUSLOVE1);
         castnext=false;
         magiccastclk=128;
       }
 
-      /*
-        */
       if ((magiccastclk++)==160)
       {
         magictype=mgc_none;
@@ -1463,12 +1533,15 @@ void game_loop()
     --fadeclk;
   }
   bool freeze = false;
-  bool freezeff = false;
+  bool freezemsg = (((msgpos && msgpos<72) || (intropos && intropos<72)) && get_bit(quest_rules,qr_MSGFREEZE));
+  bool freezeff = freezemsg;
   for(int i=0;i<176;i++)
   {
     if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
     if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
   }
+  if (msgpos && msgpos<72)
+    freezeff=true;
   animate_combos();
   load_control_state();
 
@@ -1476,7 +1549,7 @@ void game_loop()
   {
     update_freeform_combos();
   }
-  if(!freeze)
+  if(!freeze && !freezemsg)
   {
     run_script(1, 0, SCRIPT_GLOBAL);
 
@@ -1516,11 +1589,8 @@ void game_loop()
     nosecretsounds=(tmpscr->flags3&fNOSECRETSOUND)!=0;
   }
   draw_screen(tmpscr, 0, 0);
-  //  v This is in draw_screen now
-  //  put_passive_subscr(framebuf,0,0);
   if (linkedmsgclk==1)
   {
-    //4 is for iwMore
     if (wpnsbuf[iwMore].tile!=0)
     {
       putweapon(framebuf,zinit.msg_more_x, zinit.msg_more_y+playing_field_offset, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1]);
@@ -1572,7 +1642,12 @@ void game_loop()
       draw_lens_over();
       --lensclk;
     }
+    // Earthquake!
+    /*if (quakeclk)
+      playing_field_offset+=((int)(cos(--quakeclk*2)*4));*/
+    // Other effects in zc_sys.cpp
   }
+  memset(script_drawing_commands, 0, MAX_SCRIPT_DRAWING_COMMANDS*SCRIPT_DRAWING_COMMAND_VARIABLES*sizeof(int));
 
   //  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int(rand()%16)));
 }
@@ -1600,101 +1675,6 @@ int get_homescr()
 int get_bmaps(int si)
 {
   return game->bmaps[si];
-}
-
-word get_gamedata_maxlife()
-{
-  return get_gamedata_maxlife(game);
-}
-
-word get_gamedata_life()
-{
-  return get_gamedata_life(game);
-}
-
-byte get_gamedata_magicdrainrate()
-{
-  return get_gamedata_magicdrainrate(game);
-}
-
-word get_gamedata_maxmagic()
-{
-  return get_gamedata_maxmagic(game);
-}
-
-word get_gamedata_magic()
-{
-  return get_gamedata_magic(game);
-}
-
-void set_gamedata_maxlife(word l)
-{
-  set_gamedata_maxlife(game,l);
-}
-
-void set_gamedata_life(word l)
-{
-  set_gamedata_life(game,l);
-}
-
-void set_gamedata_maxmagic(word l)
-{
-  set_gamedata_maxmagic(game,l);
-}
-
-void set_gamedata_magic(word l)
-{
-  set_gamedata_magic(game,l);
-}
-
-byte get_gamedata_cheat()
-{
-  return get_gamedata_cheat(game);
-}
-
-byte get_gamedata_HCpieces()
-{
-  return get_gamedata_HCpieces(game);
-}
-
-byte get_gamedata_sbombs()
-{
-  return get_gamedata_sbombs(game);
-}
-
-byte get_gamedata_bombs()
-{
-  return get_gamedata_bombs(game);
-}
-
-byte get_gamedata_keys()
-{
-  return get_gamedata_keys(game);
-}
-
-byte get_gamedata_lkeys()
-{
-  return game->lvlkeys[get_dlevel()];
-}
-
-byte get_gamedata_timevalid()
-{
-  return get_gamedata_timevalid(game);
-}
-
-dword get_gamedata_time()
-{
-  return get_gamedata_time(game);
-}
-
-word get_gamedata_arrows()
-{
-  return get_gamedata_arrows(game);
-}
-
-word get_gamedata_rupies()
-{
-  return get_gamedata_rupies(game);
 }
 
 bool no_subscreen()
@@ -1826,7 +1806,6 @@ int main(int argc, char* argv[])
   }
   framebuf  = create_bitmap_ex(8,256,224);
   temp_buf  = create_bitmap_ex(8,256,224);
-  temp_buf2 = create_bitmap_ex(8,256,224);
   scrollbuf = create_bitmap_ex(8,512,406);
   screen2   = create_bitmap_ex(8,320,240);
   tmp_scr   = create_bitmap_ex(8,320,240);
@@ -1902,7 +1881,7 @@ int main(int argc, char* argv[])
   // load the data file
 
   resolve_password(datapwd);
-  packfile_password(datapwd);
+  setPackfilePassword(datapwd);
 
 
 
@@ -1935,7 +1914,7 @@ int main(int argc, char* argv[])
   }
   Z_message("OK\n");
 
-  packfile_password(NULL);
+  setPackfilePassword(NULL);
 
   Z_message("SFX.Dat...");
   if((sfxdata=load_datafile("sfx.dat"))==NULL)
@@ -1995,6 +1974,10 @@ int main(int argc, char* argv[])
   {
     item_string[i] = new char[64];
   }
+  for(int i=0;i<eMAXGUYS;i++)
+  {
+    guy_string[i] = new char[64];
+  }
   for(int i=0;i<512;i++)
   {
     ffscripts[i] = new ffscript[1];
@@ -2031,14 +2014,15 @@ int main(int argc, char* argv[])
     linkscripts[i][0].command = 0xFFFF;
   }
 
-  // load saved games
-  Z_message("Loading saved games... ");
-  if(load_savedgames()!=0)
+  for(int i=0;i<6;i++)
   {
-    Z_error("Insufficient memory");
+    if(i<2)
+	{
+	  tmpscr[i].data = NULL; tmpscr[i].sflag = NULL; tmpscr[i].cset = NULL;
+	}
+	tmpscr2[i].data = NULL; tmpscr2[i].sflag = NULL; tmpscr2[i].cset = NULL;
+	tmpscr3[i].data = NULL; tmpscr3[i].sflag = NULL; tmpscr3[i].cset = NULL;
   }
-
-  Z_message("OK\n");
 
   // initialize sound driver
 
@@ -2171,6 +2155,15 @@ int main(int argc, char* argv[])
   gui_mouse_focus = FALSE;
   position_mouse(resx-16,resy-16);
 
+// load saved games
+  Z_message("Loading saved games... ");
+  if(load_savedgames()!=0)
+  {
+    Z_error("Insufficient memory");
+  }
+
+  Z_message("OK\n");
+
 
   // AG logo
   if(!fast_start)
@@ -2194,17 +2187,18 @@ int main(int argc, char* argv[])
   while(Quit!=qEXIT)
   {
     toogam = false;
-    //    packfile_password(datapwd);
+    //    setPackfilePassword(datapwd);
     titlescreen(load_save);
+
     load_save=0;
-    //    packfile_password(NULL);
+    //    setPackfilePassword(NULL);
     setup_combo_animations();
   setup_combo_animations2();
     while(!Quit)
     {
       drawit=true;
-      game_loop();
-      advanceframe();
+	  game_loop();
+	  advanceframe();
     }
     tmpscr->flags3=0;
     Playing=Paused=false;
@@ -2345,6 +2339,10 @@ void quit_game()
   {
     delete [] item_string[i];
   }
+  for(int i=0;i<eMAXGUYS;i++)
+  {
+    delete [] guy_string[i];
+  }
   for(int i=0;i<512;i++)
   {
     if(ffscripts[i]!=NULL) delete [] ffscripts[i];
@@ -2373,6 +2371,30 @@ void quit_game()
   {
     if(linkscripts[i]!=NULL) delete [] linkscripts[i];
   }
+
+  for(int i=0; i<map_count*MAPSCRS; i++)
+  {
+    if(TheMaps[i].data != NULL) delete [] TheMaps[i].data;
+	if(TheMaps[i].sflag != NULL) delete [] TheMaps[i].sflag;
+	if(TheMaps[i].cset != NULL) delete [] TheMaps[i].cset;
+  }
+  for(int i=0;i<6;i++)
+  {
+	if(i<2)
+	{
+	  if(tmpscr[i].data != NULL) delete [] tmpscr[i].data;
+	  if(tmpscr[i].sflag != NULL) delete [] tmpscr[i].sflag;
+	  if(tmpscr[i].cset != NULL) delete [] tmpscr[i].cset;
+	}
+	if(tmpscr2[i].data != NULL) delete [] tmpscr2[i].data;
+	if(tmpscr2[i].sflag != NULL) delete [] tmpscr2[i].sflag;
+	if(tmpscr2[i].cset != NULL) delete [] tmpscr2[i].cset;
+	if(tmpscr3[i].data != NULL) delete [] tmpscr3[i].data;
+	if(tmpscr3[i].sflag != NULL) delete [] tmpscr3[i].sflag;
+	if(tmpscr3[i].cset != NULL) delete [] tmpscr3[i].cset;
+  }
+  if(TheMaps != NULL) free(TheMaps);
+  if(ZCMaps != NULL) free(ZCMaps);
   //  dumb_exit();
   Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
   Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");

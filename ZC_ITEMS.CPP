@@ -19,6 +19,7 @@
 #include "zelda.h"
 #include "guys.h"
 #include "zdefs.h"
+#include "maps.h"
 
 /*
   void movefairy(fix &x,fix &y,int misc) {
@@ -31,9 +32,18 @@
   */
 void addfairy(fix x, fix y, int id)
 {
-  addenemy(x,y,eITEMFAIRY,id+0x1000);
+  addenemy(x,y,eITEMFAIRY,id);
   sfx(WAV_SCALE);
   movefairy(x,y,id);
 }
 
+bool can_drop(fix x, fix y)
+{
+  return !_walkflag(x,y+16,0);
+}
+
+bool is_side_view()
+{
+  return (tmpscr->flags7&fSIDEVIEW)!=0;
+}
 /*** end of sprite.cc ***/

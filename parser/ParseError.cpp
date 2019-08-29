@@ -127,8 +127,11 @@ void printErrorMsg(AST *offender, int errorID, string param)
 	case LVALCONST:
 		oss << "Error T36: Cannot change the value of constant variable " << param << ".";
 		break;
+	case BADGLOBALINIT:
+		oss << "Error T37: Global variables can only be initialized to constants or globals declared in the same script.";
+		break;
 	default:
-		oss << "FATAL FATAL ERROR I0: bad internal error code (lol)" ;
+		oss << "FATAL FATAL ERROR I0: bad internal error code" ;
 		assert(false);
 		break;
 	}

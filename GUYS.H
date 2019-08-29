@@ -28,6 +28,7 @@ extern int guyindex;
 extern item_drop_object item_drop_set[256];
 
 int random_layer_enemy();
+int count_layer_enemies();
 bool can_do_clock();
 bool m_walkflag(int x,int y,int special);
 int link_on_wall();
@@ -61,8 +62,8 @@ public:
 
   short  rate, hrate, dstep, homing;
   short  dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, bgsfx, bosspal;
-  
-  
+
+
   fix  getX();
   fix  getY();
   int  getID();
@@ -206,6 +207,7 @@ public:
 
 class eTektite : public enemy
 {
+  int oldy; // a kludge to make the Z axis work
 public:
   int c;
   int clk2start;
@@ -814,6 +816,8 @@ void loadenemies();
 void moneysign();
 void putprices(bool sign);
 void setupscreen();
+FONT *setmsgfont();
+bool parsemsgcode();
 void putmsg();
 void domoney();
 void domagic();                                             //basically a copy of domoney()

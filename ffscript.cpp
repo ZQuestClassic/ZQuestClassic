@@ -16,6 +16,7 @@
 
 using std::string;
 
+extern sprite_list particles;
 extern LinkClass Link;
 enemy *script_npc;
 item *script_item;
@@ -44,11 +45,21 @@ byte global_lwpnclass=0;
 byte global_ewpnclass=0;
 byte global_guyclass=0;
 
+bool checkSprite(sprite *s)
+{
+	if(s==NULL)
+	{
+		al_trace("Script attempted to reference a nonexistent NPC!\n");
+		return false;
+	}
+	return true;
+}
+
 long get_arg(long arg, byte i)
 {
   int ret=0;
-  int di = ((get_currdmap())<<6) + ((get_currscr()>>4)<<3) + ((get_currscr()&15)-DMaps[get_currdmap()].xoff);
-  int mi = currmap*MAPSCRS+currscr;
+  int di;
+  int mi;
   long *d[8];
   long *a[2];
   byte *sp;
@@ -57,7 +68,7 @@ long get_arg(long arg, byte i)
   guyref=lwpn=ewpn=0;
   global=linkref=scr=0; //to get gcc to stop complaining aout unused variables
   ffc=itemref=iclass=lclass=eclass=gclass=sp=NULL;
-  
+
   switch(script_type)
   {
     case SCRIPT_FFC:
@@ -122,6 +133,7 @@ long get_arg(long arg, byte i)
       break;
   }
 
+  sprite *s = guys.spr(*guyref);
   switch(arg)
   {
     case DATA:
@@ -158,20 +170,30 @@ long get_arg(long arg, byte i)
       ret=(int)(Link.getX())*10000; break;
     case LINKY:
       ret=(int)(Link.getY())*10000; break;
+    case LINKZ:
+      ret=(int)(Link.getZ())*10000; break;
+    case LINKJUMP:
+      ret=(int)(-Link.getFall()/GRAVITY)*10000; break;
     case LINKDIR:
       ret=(int)(Link.dir)*10000; break;
     case LINKHP:
-      ret=(int)(get_gamedata_life())*10000; break;
+      ret=(int)(game->get_life())*10000; break;
     case LINKMP:
-      ret=(int)(get_gamedata_magic())*10000; break;
+      ret=(int)(game->get_magic())*10000; break;
     case LINKMAXHP:
-      ret=(int)(get_gamedata_maxlife())*10000; break;
+      ret=(int)(game->get_maxlife())*10000; break;
     case LINKMAXMP:
-      ret=(int)(get_gamedata_maxmagic())*10000; break;
+      ret=(int)(game->get_maxmagic())*10000; break;
     case LINKACTION:
       ret=(int)(Link.getAction())*10000; break;
     case LINKITEMD:
       ret = game->item[(*d[0])/10000] ? 10000 : 0; break;
+    case LINKSWORDJINX:
+      ret = (int)(Link.getSwordClk())*10000; break;
+    case LINKITEMJINX:
+      ret = (int)(Link.getItemClk())*10000; break;
+    case LINKCHARGED:
+      ret = (int)(Link.isCharged())*10000; break;
     case INPUTSTART:
       ret=control_state[6]?10000:0; break;
     case INPUTUP:
@@ -194,6 +216,10 @@ long get_arg(long arg, byte i)
       ret=((int)items.spr(*itemref)->x)*10000; break;
     case ITEMY:
       ret=((int)items.spr(*itemref)->y)*10000; break;
+    case ITEMZ:
+      ret=((int)items.spr(*itemref)->z)*10000; break;
+    case ITEMJUMP:
+      ret=(-(int)items.spr(*itemref)->fall/GRAVITY)*10000; break;
     case ITEMDRAWTYPE:
       ret=items.spr(*itemref)->drawstyle*10000; break;
     case ITEMID:
@@ -235,49 +261,95 @@ long get_arg(long arg, byte i)
     case ITEMEXTEND:
       ret=(items.spr(*itemref)->extend)*10000; break;
     case NPCX:
-      ret=((int)guys.spr(*guyref)->x)*10000; break;
+		if(checkSprite(s))
+			ret=((int)s->x)*10000; 
+		break;
     case NPCY:
-      ret=((int)guys.spr(*guyref)->y)*10000; break;
+		if(checkSprite(s))
+			ret=((int)s->y)*10000; 
+		break;
+    case NPCZ:
+		if(checkSprite(s))
+			ret=((int)s->z)*10000; 
+		break;
+    case NPCJUMP:
+		if(checkSprite(s))
+			ret=(-(int)s->fall/GRAVITY)*10000; 
+		break;
     case NPCDIR:
-      ret=(guys.spr(*guyref)->dir)*10000; break;
+		if(checkSprite(s))
+			ret=(s->dir)*10000; 
+		break;
     case NPCRATE:
-      ret=((enemy*)(guys.spr(*guyref)))->rate*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->rate*10000; 
+		break;
     case NPCFRAMERATE:
-      ret=((enemy*)(guys.spr(*guyref)))->frate*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->frate*10000; 
+		break;
     case NPCHALTRATE:
-      ret=((enemy*)(guys.spr(*guyref)))->hrate*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->hrate*10000; 
+		break;
     case NPCDRAWTYPE:
-      ret=((enemy*)(guys.spr(*guyref)))->drawstyle*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->drawstyle*10000; 
+		break;
     case NPCHP:
-      ret=((enemy*)(guys.spr(*guyref)))->hp*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->hp*10000; 
+		break;
     case NPCID:
-      ret=((enemy*)(guys.spr(*guyref)))->id*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->id*10000; 
+		break;
     case NPCDP:
-      ret=((enemy*)(guys.spr(*guyref)))->dp*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->dp*10000; 
+		break;
     case NPCWDP:
-      ret=((enemy*)(guys.spr(*guyref)))->wdp*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->wdp*10000; 
+		break;
     case NPCTILE:
-      ret=((enemy*)(guys.spr(*guyref)))->o_tile*10000; break;
-//    case NPCENEMY:
-//      ret=((enemy*)(guys.spr(*guyref)))->*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->o_tile*10000; 
+		break;
     case NPCWEAPON:
-      ret=((enemy*)(guys.spr(*guyref)))->wpn*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->wpn*10000; 
+		break;
     case NPCITEMSET:
-      ret=((enemy*)(guys.spr(*guyref)))->item_set*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->item_set*10000; 
+		break;
     case NPCCSET:
-      ret=((enemy*)(guys.spr(*guyref)))->dcset*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->dcset*10000; 
+		break;
     case NPCBOSSPAL:
-      ret=((enemy*)(guys.spr(*guyref)))->bosspal*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->bosspal*10000; 
+		break;
     case NPCBGSFX:
-      ret=((enemy*)(guys.spr(*guyref)))->bgsfx*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->bgsfx*10000; 
+		break;
     case NPCCOUNT:
       ret=guys.Count()*10000; break;
     case NPCEXTEND:
-      ret=((enemy*)(guys.spr(*guyref)))->extend*10000; break;
+		if(checkSprite(s))
+			ret=((enemy*)(s))->extend*10000; 
+		break;
     case LWPNX:
       ret=(int)((weapon*)(Lwpns.spr(*lwpn)))->x*10000; break;
     case LWPNY:
       ret=(int)((weapon*)(Lwpns.spr(*lwpn)))->y*10000; break;
+    case LWPNZ:
+      ret=(int)((weapon*)(Lwpns.spr(*lwpn)))->z*10000; break;
+    case LWPNJUMP:
+      ret=-(int)(((weapon*)(Lwpns.spr(*lwpn)))->fall/GRAVITY)*10000; break;
     case LWPNDIR:
       ret=((weapon*)(Lwpns.spr(*lwpn)))->dir*10000; break;
     case LWPNSTEP:
@@ -322,6 +394,10 @@ long get_arg(long arg, byte i)
       ret=(int)((weapon*)(Ewpns.spr(*ewpn)))->x*10000; break;
     case EWPNY:
       ret=(int)((weapon*)(Ewpns.spr(*ewpn)))->y*10000; break;
+    case EWPNZ:
+      ret=(int)((weapon*)(Ewpns.spr(*ewpn)))->z*10000; break;
+    case EWPNJUMP:
+      ret=-(int)(((weapon*)(Ewpns.spr(*ewpn)))->fall/GRAVITY)*10000; break;
     case EWPNDIR:
       ret=((weapon*)(Ewpns.spr(*ewpn)))->dir*10000; break;
     case EWPNSTEP:
@@ -363,47 +439,49 @@ long get_arg(long arg, byte i)
     case EWPNOCSET:
       ret=(((weapon*)(Ewpns.spr(*ewpn)))->o_cset&15)*10000; break;
     case GAMEDEATHS:
-      ret=get_gamedata_deaths(game)*10000; break;
+      ret=game->get_deaths()*10000; break;
     case GAMECHEAT:
-      ret=get_gamedata_cheat(game)*10000; break;
+      ret=game->get_cheat()*10000; break;
     case GAMETIME:
-      ret=get_gamedata_time(game);  break;// Can't multiply by 10000 or the maximum result is too big
+      ret=game->get_time();  break;// Can't multiply by 10000 or the maximum result is too big
     case GAMETIMEVALID:
-      ret=get_gamedata_timevalid(game)?10000:0; break;
+      ret=game->get_timevalid()?10000:0; break;
     case GAMEHASPLAYED:
-      ret=get_gamedata_hasplayed(game)?10000:0; break;
+      ret=game->get_hasplayed()?10000:0; break;
     case GAMEGUYCOUNT:
+		mi = currmap*MAPSCRS+currscr;
       ret=game->guys[mi]*10000; break;
     case GAMECONTSCR:
-      ret=get_gamedata_continue_scrn(game)*10000; break;
+      ret=game->get_continue_scrn()*10000; break;
     case GAMECONTDMAP:
-      ret=get_gamedata_continue_dmap(game)*10000; break;
+      ret=game->get_continue_dmap()*10000; break;
     case GAMECOUNTERD:
-      ret=get_gamedata_counter(game, (*(d[0]))/10000)*10000; break;
+      ret=game->get_counter((*(d[0]))/10000)*10000; break;
     case GAMEMCOUNTERD:
-      ret=get_gamedata_maxcounter(game, (*(d[0]))/10000)*10000; break;
+      ret=game->get_maxcounter((*(d[0]))/10000)*10000; break;
     case GAMEDCOUNTERD:
-      ret=get_gamedata_dcounter(game, (*(d[0]))/10000)*10000; break;
+      ret=game->get_dcounter((*(d[0]))/10000)*10000; break;
     case GAMEGENERICD:
-      ret=get_gamedata_generic(game, (*(d[0]))/10000)*10000; break;
+      ret=game->get_generic((*(d[0]))/10000)*10000; break;
     case GAMEITEMSD:
-	  ret=(game->item[(*(d[0]))/10000] ? 10000 : 0); break;
+    ret=(game->item[(*(d[0]))/10000] ? 10000 : 0); break;
     case GAMELITEMSD:
       ret=game->lvlitems[(*(d[0]))/10000]*10000; break;
     case GAMELKEYSD:
       ret=game->lvlkeys[(*(d[0]))/10000]*10000; break;
     case GAMEMAPFLAGD:
+		mi = currmap*MAPSCRS+currscr;
       ret=((game->maps[mi]>>((*(d[0]))/10000))&1)?10000:0; break;
     case GAMEMAPFLAGDD:
       ret=((game->maps[*(d[0])/10000]>>((*(d[1]))/10000))&1)?10000:0; break;
     case GAMEGUYCOUNTD:
       ret=game->guys[*(d[0])/10000]*10000; break;
     case CURMAP:
-      ret=currmap; break;
+      ret=currmap*10000; break;
     case CURSCR:
-      ret=currscr; break;
+      ret=currscr*10000; break;
     case CURDMAP:
-      ret=currdmap; break;
+      ret=currdmap*10000; break;
     case COMBODD:
       ret=tmpscr->data[(*(d[0]))/10000]*10000; break;
     case COMBOCD:
@@ -435,6 +513,7 @@ long get_arg(long arg, byte i)
     case REFNPCCLASS:
       ret=(*gclass)*10000; break;
     case SDD:
+		di = ((get_currdmap())<<6) + ((get_currscr()>>4)<<3) + ((get_currscr()&15)-DMaps[get_currdmap()].xoff);
       ret=game->screen_d[di][*(d[0])/10000]; break;
     case GDD:
       ret=game->global_d[*(d[0])/10000]; break;
@@ -443,6 +522,73 @@ long get_arg(long arg, byte i)
     case SP:
       ret = (*sp)*10000; break;
     default:
+	{
+	  int k;
+	  if(arg>=D(0)&&arg<=D(7))
+	  {
+	    k=arg-D(0); ret=*(d[k]); break;
+	  }
+	  else if(arg>=A(0)&&arg<=A(1))
+	  {
+	    k=arg-A(0); if(script_type!=SCRIPT_GLOBAL) ret=*(a[k]); break;
+	  }
+	  else if(arg>=SD(0)&&arg<=SD(7))
+	  {
+	    di = ((get_currdmap())<<6) + ((get_currscr()>>4)<<3) + ((get_currscr()&15)-DMaps[get_currdmap()].xoff);
+	    k=arg-SD(0); ret=game->screen_d[di][k]; break;
+	  }
+	  else if(arg>=GD(0)&&arg<=GD(255))
+	  {
+	    k=arg-GD(0); ret=game->global_d[k]; break;
+	  }
+	  else if(((arg-GAMECOUNTER(0))%3)+GAMECOUNTER(0)==GAMECOUNTER(0)&&arg>=GAMECOUNTER(0)&&arg<=GAMEDCOUNTER(31))
+	  {
+	    k=(arg-GAMECOUNTER(0))/3; ret=game->get_counter(k)*10000; break;
+	  }
+	  else if(((arg-GAMECOUNTER(0))%3)+GAMECOUNTER(0)==GAMEMCOUNTER(0)&&arg>=GAMECOUNTER(0)&&arg<=GAMEDCOUNTER(31))
+	  {
+	    k=(arg-GAMECOUNTER(0))/3; ret=game->get_maxcounter(k)*10000; break;
+	  }
+	  else if(((arg-GAMECOUNTER(0))%3)+GAMECOUNTER(0)==GAMEDCOUNTER(0)&&arg>=GAMECOUNTER(0)&&arg<=GAMEDCOUNTER(31))
+	  {
+	    k=(arg-GAMECOUNTER(0))/3; ret=game->get_dcounter(k)*10000; break;
+	  }
+	  else if(arg>=GAMEMAPFLAG(0)&&arg<=GAMEMAPFLAG(31))
+	  {
+		  mi = currmap*MAPSCRS+currscr;
+	    k=arg-GAMEMAPFLAG(0); ret=((game->maps[mi]>>k)&1)?10000:0; break;
+	  }
+	  else if(((arg-COMBOD(0))%3)+COMBOD(0)==COMBOD(0)&&arg>=COMBOD(0)&&arg<=COMBOF(175))
+	  {
+	    k=(arg-COMBOD(0))/3; ret=tmpscr->data[k]*10000; break;
+	  }
+	  else if(((arg-COMBOD(0))%3)+COMBOD(0)==COMBOC(0)&&arg>=COMBOD(0)&&arg<=COMBOF(175))
+	  {
+	    k=(arg-COMBOD(0))/3; ret=tmpscr->cset[k]*10000; break;
+	  }
+	  else if(((arg-COMBOD(0))%3)+COMBOD(0)==COMBOF(0)&&arg>=COMBOD(0)&&arg<=COMBOF(175))
+	  {
+	    k=(arg-COMBOD(0))/3; ret=tmpscr->sflag[k]*10000; break;
+	  }
+	  else if(arg>=GAMEGENERIC(0)&&arg<=GAMEGENERIC(255))
+	  {
+	    k=arg-GAMEGENERIC(0); ret=game->get_generic(k)*10000; break;
+	  }
+	  else if(arg>=GAMEITEMS(0)&&arg<=GAMEITEMS(255))
+	  {
+	    k=arg-GAMEITEMS(0); ret=(game->item[k] ? 10000 : 0); break;
+	  }
+	  else if(arg>=GAMELITEMS(0)&&arg<=GAMELITEMS(255))
+	  {
+	    k=arg-GAMELITEMS(0); ret=game->lvlitems[k]*10000; break;
+	  }
+	  else if(arg>=GAMELKEYS(0)&&arg<=GAMELKEYS(255))
+	  {
+	    k=arg-GAMELKEYS(0); ret=game->lvlkeys[k]*10000; break;
+	  }
+	  break;
+	}
+	/*
       for(int k=0;k<2;k++)
       {
         if(arg==A(k)) { if(script_type!=SCRIPT_GLOBAL) ret=*(a[k]); break; }
@@ -454,16 +600,16 @@ long get_arg(long arg, byte i)
       }
       for(int k=0;k<32;k++)
       {
-        if(arg==GAMECOUNTER(k)) { ret=get_gamedata_counter(game, k)*10000; break; }
-        if(arg==GAMEMCOUNTER(k)) { ret=get_gamedata_maxcounter(game, k)*10000; break; }
-        if(arg==GAMEDCOUNTER(k)) { ret=get_gamedata_dcounter(game, k)*10000; break; }
+        if(arg==GAMECOUNTER(k)) { ret=game->get_counter(k)*10000; break; }
+        if(arg==GAMEMCOUNTER(k)) { ret=game->get_maxcounter(k)*10000; break; }
+        if(arg==GAMEDCOUNTER(k)) { ret=game->get_dcounter(k)*10000; break; }
         if(arg==GAMEMAPFLAG(k)) { ret=((game->maps[mi]>>k)&1)?10000:0; break; }
       }
       for(int k=0;k<256;k++)
       {
         if(arg==GD(k)) { ret=game->global_d[k]; break; }
-        if(arg==GAMEGENERIC(k)) { ret=get_gamedata_generic(game, k)*10000; break; }
-		if(arg==GAMEITEMS(k)) { ret=(game->item[k] ? 10000 : 0); break; }
+        if(arg==GAMEGENERIC(k)) { ret=game->get_generic(k)*10000; break; }
+        if(arg==GAMEITEMS(k)) { ret=(game->item[k] ? 10000 : 0); break; }
         if(arg==GAMELITEMS(k)) { ret=game->lvlitems[k]*10000; break; }
         if(arg==GAMELKEYS(k)) { ret=game->lvlkeys[k]*10000; break; }
       }
@@ -473,24 +619,25 @@ long get_arg(long arg, byte i)
         if(arg==COMBOC(k)) { ret=tmpscr->cset[k]*10000; break; }
         if(arg==COMBOF(k)) { ret=tmpscr->sflag[k]*10000; break; }
       }
-      break;
+      break;*/
   }
   return ret;
 }
 
 void set_variable(long arg, byte i, long value)
 {
-  int di = ((get_currdmap())<<6) + ((get_currscr()>>4)<<3) + ((get_currscr()&15)-DMaps[get_currdmap()].xoff);
-  int mi = currmap*MAPSCRS+currscr;
+  int di;
+  int mi;
   long *d[8];
   long *a[2];
   byte *sp;
-   byte *ffc, *itemref, *iclass, *guyref, *lwpn, *gclass, *ewpn, *lclass, *eclass, global, linkref, scr;
+  byte *ffc, *itemref, *iclass, *guyref, *lwpn, *gclass, *ewpn, *lclass, *eclass, global, linkref, scr;
+  gclass=lclass=eclass=0;
 
   guyref=lwpn=ewpn=0;
   global=linkref=scr=0; //to get gcc to stop complaining aout unused variables
   ffc=itemref=iclass=sp=NULL;
-  
+
   switch(script_type)
   {
     case SCRIPT_FFC:
@@ -504,14 +651,23 @@ void set_variable(long arg, byte i, long value)
       lclass = &(tmpscr->lwpnclass[i]);
       eclass = &(tmpscr->ewpnclass[i]);
       sp = &(tmpscr->sp[i]);
-      for(int j=0;j<8;j++)
-      {
-        d[j] = &(tmpscr->d[i][j]);
-      }
-      for(int j=0; j<2; j++)
-      {
-        a[j] = &(tmpscr->a[i][j]);
-      }
+      //for(int j=0;j<8;j++)
+      //{
+      d[0] = &(tmpscr->d[i][0]);
+	  d[1] = &(tmpscr->d[i][1]);
+	  d[2] = &(tmpscr->d[i][2]);
+	  d[3] = &(tmpscr->d[i][3]);
+	  d[4] = &(tmpscr->d[i][4]);
+	  d[5] = &(tmpscr->d[i][5]);
+	  d[6] = &(tmpscr->d[i][6]);
+	  d[7] = &(tmpscr->d[i][7]);
+
+      //}
+      //for(int j=0; j<2; j++)
+      //{
+      a[0] = &(tmpscr->a[i][0]);
+	  a[1] = &(tmpscr->a[i][1]);
+      //}
       break;
     case SCRIPT_ITEM:
       ffc = &(items.spr(i)->ffcref);
@@ -524,14 +680,22 @@ void set_variable(long arg, byte i, long value)
       lclass = &(items.spr(i)->lwpnclass);
       eclass = &(items.spr(i)->ewpnclass);
       sp = &(items.spr(i)->sp);
-      for(int j=0;j<8;j++)
-      {
-        d[j] = &(items.spr(i)->d[j]);
-      }
-      for(int j=0;j<2;j++)
-      {
-        a[j] = &(items.spr(i)->a[j]);
-      }
+      //for(int j=0;j<8;j++)
+      //{
+      d[0] = &(items.spr(i)->d[0]);
+	  d[1] = &(items.spr(i)->d[1]);
+	  d[2] = &(items.spr(i)->d[2]);
+	  d[3] = &(items.spr(i)->d[3]);
+	  d[4] = &(items.spr(i)->d[4]);
+	  d[5] = &(items.spr(i)->d[5]);
+	  d[6] = &(items.spr(i)->d[6]);
+	  d[7] = &(items.spr(i)->d[7]);
+      //}
+      //for(int j=0;j<2;j++)
+      //{
+      a[0] = &(items.spr(i)->a[0]);
+	  a[1] = &(items.spr(i)->a[1]);
+      //}
       break;
     case SCRIPT_GLOBAL:
       ffc = &(global_ffc);
@@ -544,16 +708,25 @@ void set_variable(long arg, byte i, long value)
       lclass = &(global_lwpnclass);
       eclass = &(global_ewpnclass);
       sp = &g_sp;
-      for(int j=0;j<8;j++)
-      {
-        d[j] = &g_d[j];
-      }
-      for(int j=0;j<2;j++)
-      {
-        a[j] = NULL;
-      }
+      //for(int j=0;j<8;j++)
+      //{
+      d[0] = &g_d[0];
+	  d[1] = &g_d[1];
+	  d[2] = &g_d[2];
+	  d[3] = &g_d[3];
+	  d[4] = &g_d[4];
+	  d[5] = &g_d[5];
+	  d[6] = &g_d[6];
+	  d[7] = &g_d[7];
+      //}
+      //for(int j=0;j<2;j++)
+      //{
+      a[0] = NULL;
+	  a[1] = NULL;
+      //}
       break;
   }
+  sprite *s = guys.spr(*guyref);
 
   switch(arg)
   {
@@ -591,22 +764,34 @@ void set_variable(long arg, byte i, long value)
       Link.setX(value/10000); break;
     case LINKY:
       Link.setY(value/10000); break;
+    case LINKZ:
+      Link.setZ(value/10000); break;
+    case LINKJUMP:
+      Link.setFall((-value*GRAVITY)/10000); break;
     case LINKDIR:
       Link.dir=value/10000; break;
     case LINKHP:
-      set_gamedata_life(value/10000); break;
+      game->set_life(value/10000); break;
     case LINKMP:
-      set_gamedata_magic(value/10000); break;
+      game->set_magic(value/10000); break;
     case LINKMAXHP:
-      set_gamedata_maxlife(value/10000); break;
+      game->set_maxlife(value/10000); break;
     case LINKMAXMP:
-      set_gamedata_maxmagic(value/10000); break;
+      game->set_maxmagic(value/10000); break;
     case LINKACTION:
       Link.setAction((actiontype)(value/10000)); break;
-	case LINKITEMD:
-		game->item[(*d[0])/10000] = (value == 0) ? false : true;
-		resetItems(game);
-		break;
+    case LINKITEMD:
+      game->item[(*d[0])/10000] = (value == 0) ? false : true;
+      resetItems(game);
+      break;
+    case LINKSWORDJINX:
+      Link.setSwordClk(value/10000); break;
+    case LINKITEMJINX:
+      Link.setItemClk(value/10000); break;
+/*
+    case LINKCHARGED:
+      break;
+*/
     case INPUTSTART:
       control_state[6]=((value/10000)!=0)?true:false; break;
     case INPUTUP:
@@ -629,6 +814,13 @@ void set_variable(long arg, byte i, long value)
       (items.spr(*itemref)->x)=(fix)(value/10000); break;
     case ITEMY:
       (items.spr(*itemref)->y)=(fix)(value/10000); break;
+    case ITEMZ:
+      (items.spr(*itemref)->z)=(fix)(value/10000);
+      if (items.spr(*itemref)->z<0)
+  (items.spr(*itemref)->z)==0;
+      break;
+    case ITEMJUMP:
+      (items.spr(*itemref)->fall)=(fix)(value*GRAVITY/10000); break;
     case ITEMDRAWTYPE:
       items.spr(*itemref)->drawstyle=value/10000; break;
     case ITEMID:
@@ -673,6 +865,13 @@ void set_variable(long arg, byte i, long value)
       ((weapon*)(Lwpns.spr(*lwpn)))->x=(fix)value/10000; break;
     case LWPNY:
       ((weapon*)(Lwpns.spr(*lwpn)))->y=(fix)value/10000; break;
+    case LWPNZ:
+      ((weapon*)(Lwpns.spr(*lwpn)))->z=(fix)value/10000;
+      if (((weapon*)(Lwpns.spr(*lwpn)))->z<0)
+  (((weapon*)(Lwpns.spr(*lwpn)))->z)==0;
+      break;
+    case LWPNJUMP:
+      ((weapon*)(Lwpns.spr(*lwpn)))->fall=(fix)value*GRAVITY/10000; break;
     case LWPNDIR:
       ((weapon*)(Lwpns.spr(*lwpn)))->dir=value/10000; break;
     case LWPNSTEP:
@@ -715,6 +914,13 @@ void set_variable(long arg, byte i, long value)
       ((weapon*)(Ewpns.spr(*ewpn)))->x=(fix)value/10000; break;
     case EWPNY:
       ((weapon*)(Ewpns.spr(*ewpn)))->y=(fix)value/10000; break;
+    case EWPNZ:
+      ((weapon*)(Ewpns.spr(*ewpn)))->z=(fix)value/10000;
+      if (((weapon*)(Ewpns.spr(*ewpn)))->z<0)
+  ((weapon*)(Ewpns.spr(*ewpn)))->z=0;
+      break;
+    case EWPNJUMP:
+      ((weapon*)(Ewpns.spr(*ewpn)))->fall=(fix)value*GRAVITY/10000; break;
     case EWPNDIR:
       ((weapon*)(Ewpns.spr(*ewpn)))->dir=value/10000; break;
     case EWPNSTEP:
@@ -754,69 +960,120 @@ void set_variable(long arg, byte i, long value)
     case EWPNOCSET:
       (((weapon*)(Ewpns.spr(*ewpn)))->o_cset)|=(value/10000)&15; break;
     case NPCX:
-      (guys.spr(*guyref)->x)=(fix)(value/10000); break;
+		if(checkSprite(s))
+			(s->x)=(fix)(value/10000); 
+		break;
     case NPCY:
-      (guys.spr(*guyref)->y)=(fix)(value/10000); break;
+		if(checkSprite(s))
+			(s->y)=(fix)(value/10000); 
+		break;
+    case NPCZ:
+		if(checkSprite(s))
+		{
+			if(canfall(s->id))
+			{
+				(s->z)=(fix)(value/10000);
+				if (s->z<0)
+					(s->z)=0;
+			}
+		}
+		break;
+    case NPCJUMP:
+		if(checkSprite(s))
+		{
+			if(canfall(s->id))
+				(s->fall)=(fix)(value*GRAVITY/10000); 
+		}
+		break;
     case NPCDIR:
-      (guys.spr(*guyref)->dir)=value/10000; break;
+		if(checkSprite(s))
+			(s->dir)=value/10000; 
+		break;
     case NPCRATE:
-      ((enemy*)(guys.spr(*guyref)))->rate=value/10000; break;
+		if(checkSprite(s))
+            ((enemy*)(s))->rate=value/10000; 
+		break;
     case NPCFRAMERATE:
-      ((enemy*)(guys.spr(*guyref)))->frate=value/10000; break;
+		if(checkSprite(s))
+            ((enemy*)(s))->frate=value/10000; 
+		break;
     case NPCHALTRATE:
-      ((enemy*)(guys.spr(*guyref)))->hrate=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->hrate=value/10000; 
+		break;
     case NPCDRAWTYPE:
-      ((enemy*)(guys.spr(*guyref)))->drawstyle=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->drawstyle=value/10000; 
+		break;
     case NPCHP:
-      ((enemy*)(guys.spr(*guyref)))->hp=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->hp=value/10000; 
+		break;
     case NPCID:
-      ((enemy*)(guys.spr(*guyref)))->id=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->id=value/10000; 
+		break;
     case NPCDP:
-      ((enemy*)(guys.spr(*guyref)))->dp=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->dp=value/10000; 
+		break;
     case NPCWDP:
-      ((enemy*)(guys.spr(*guyref)))->wdp=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->wdp=value/10000; 
+		break;
     case NPCTILE:
-      ((enemy*)(guys.spr(*guyref)))->o_tile=value/10000; break;
-      /*case NPCENEMY:
-      ret=((enemy*)(guys.spr(*guyref)))->*10000; break;*/
+		if(checkSprite(s))
+			((enemy*)(s))->o_tile=value/10000; 
+		break;
     case NPCWEAPON:
-      ((enemy*)(guys.spr(*guyref)))->wpn=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->wpn=value/10000; 
+		break;
     case NPCITEMSET:
-      ((enemy*)(guys.spr(*guyref)))->item_set=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->item_set=value/10000; 
+		break;
     case NPCCSET:
-      ((enemy*)(guys.spr(*guyref)))->dcset=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->dcset=value/10000; 
+		break;
     case NPCBOSSPAL:
-      ((enemy*)(guys.spr(*guyref)))->bosspal=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->bosspal=value/10000; 
+		break;
     case NPCBGSFX:
-      ((enemy*)(guys.spr(*guyref)))->bgsfx=value/10000; break;
-      /*case NPCCOUNT:
-      guys.Count()*10000; break;*/
+		if(checkSprite(s))
+			((enemy*)(s))->bgsfx=value/10000; 
+		break;
     case NPCEXTEND:
-      ((enemy*)(guys.spr(*guyref)))->extend=value/10000; break;
+		if(checkSprite(s))
+			((enemy*)(s))->extend=value/10000; 
+		break;
     case GAMEDEATHS:
-      set_gamedata_deaths(game,value/10000); break;
+      game->set_deaths(value/10000); break;
     case GAMECHEAT:
-      set_gamedata_cheat(game,value/10000); break;
+      game->set_cheat(value/10000); break;
     case GAMETIME:
-      set_gamedata_time(game,value); break; // Can't multiply by 10000 or the maximum result is too big
+      game->set_time(value); break; // Can't multiply by 10000 or the maximum result is too big
     case GAMETIMEVALID:
-      set_gamedata_timevalid(game, (value/10000)?1:0); break;
+      game->set_timevalid((value/10000)?1:0); break;
     case GAMEHASPLAYED:
-      set_gamedata_hasplayed(game, (value/10000)?1:0); break;
+      game->set_hasplayed((value/10000)?1:0); break;
     case GAMEGUYCOUNT:
+		 mi = currmap*MAPSCRS+currscr;
       game->guys[mi]=value/10000; break;
     case GAMECONTSCR:
-      set_gamedata_continue_scrn(game, value/10000); break;
+      game->set_continue_scrn(value/10000); break;
     case GAMECONTDMAP:
-      set_gamedata_continue_dmap(game, value/10000); break;
+      game->set_continue_dmap(value/10000); break;
     case GAMECOUNTERD:
-      set_gamedata_counter(game, value/10000, (*(d[0]))/10000); break;
+      game->set_counter(value/10000, (*(d[0]))/10000); break;
     case GAMEMCOUNTERD:
-      set_gamedata_maxcounter(game, value/10000, (*(d[0]))/10000); break;
+      game->set_maxcounter(value/10000, (*(d[0]))/10000); break;
     case GAMEDCOUNTERD:
-      set_gamedata_dcounter(game, value/10000, (*(d[0]))/10000); break;
+      game->set_dcounter(value/10000, (*(d[0]))/10000); break;
     case GAMEGENERICD:
-      set_gamedata_generic(game, value/10000, (*(d[0]))/10000); break;
+      game->set_generic(value/10000, (*(d[0]))/10000); break;
     case GAMEITEMSD:
       game->item[(*(d[0]))/10000]= (value!=0); break;
     case GAMELITEMSD:
@@ -824,6 +1081,7 @@ void set_variable(long arg, byte i, long value)
     case GAMELKEYSD:
       game->lvlkeys[(*(d[0]))/10000]=value/10000; break;
     case GAMEMAPFLAGD:
+		 mi = currmap*MAPSCRS+currscr;
       (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<((*(d[0]))/10000):game->maps[mi]&=~(((value/10000)?1:0)<<((*(d[0]))/10000)); break;
     case GAMEMAPFLAGDD:
       (value/10000)?game->maps[*(d[0])/10000]|=((value/10000)?1:0)<<((*(d[1]))/10000):game->maps[*(d[0])/10000]&=~(((value/10000)?1:0)<<((*(d[1]))/10000)); break;
@@ -847,7 +1105,20 @@ void set_variable(long arg, byte i, long value)
       *itemref = value/10000; break;
     case REFITEMCLASS:
       *iclass = value/10000; break;
+    case REFLWPN:
+      *lwpn = value/10000;
+    case REFLWPNCLASS:
+      *lclass = value/10000;
+    case REFEWPN:
+      *ewpn = value/10000;
+    case REFEWPNCLASS:
+      *eclass = value/10000;
+    case REFNPC:
+      *guyref = value/10000;
+    case REFNPCCLASS:
+      *gclass = value/10000;
     case SDD:
+		di = ((get_currdmap())<<6) + ((get_currscr()>>4)<<3) + ((get_currscr()&15)-DMaps[get_currdmap()].xoff);
       game->screen_d[di][*(d[0])/10000]=value; break;
     case GDD:
       game->global_d[*(d[0])/10000]=value; break;
@@ -856,37 +1127,228 @@ void set_variable(long arg, byte i, long value)
     case SP:
       *sp = value/10000; break;
     default:
-      for(int k=0;k<2;k++)
+	{
+	  int k;
+	  if(arg>=D(0)&&arg<=D(7))
+	  {
+	    k=arg-D(0); *(d[k])=value; break;
+	  }
+	  else if(arg>=A(0)&&arg<=A(1))
+	  {
+	    k=arg-A(0); if(script_type!=SCRIPT_GLOBAL) *(a[k])=value; break;
+	  }
+	  else if(arg>=SD(0)&&arg<=SD(7))
+	  {
+		  di = ((get_currdmap())<<6) + ((get_currscr()>>4)<<3) + ((get_currscr()&15)-DMaps[get_currdmap()].xoff);
+	    k=arg-SD(0); game->screen_d[di][k]=value; break;
+	  }
+	  else if(arg>=GD(0)&&arg<=GD(255))
+	  {
+	    k=arg-GD(0); game->global_d[k]=value; break;
+	  }
+	  else if(((arg-GAMECOUNTER(0))%3)+GAMECOUNTER(0)==GAMECOUNTER(0)&&arg>=GAMECOUNTER(0)&&arg<=GAMEDCOUNTER(31))
+	  {
+	    k=(arg-GAMECOUNTER(0))/3; game->set_counter(value/10000, k); break;
+	  }
+	  else if(((arg-GAMECOUNTER(0))%3)+GAMECOUNTER(0)==GAMEMCOUNTER(0)&&arg>=GAMECOUNTER(0)&&arg<=GAMEDCOUNTER(31))
+	  {
+	    k=(arg-GAMECOUNTER(0))/3; game->set_maxcounter(value/10000, k); break;
+	  }
+	  else if(((arg-GAMECOUNTER(0))%3)+GAMECOUNTER(0)==GAMEDCOUNTER(0)&&arg>=GAMECOUNTER(0)&&arg<=GAMEDCOUNTER(31))
+	  {
+	    k=(arg-GAMECOUNTER(0))/3; game->set_dcounter(value/10000, k); break;
+	  }
+	  else if(arg>=GAMEMAPFLAG(0)&&arg<=GAMEMAPFLAG(31))
+	  {
+		   mi = currmap*MAPSCRS+currscr;
+	    k=arg-GAMEMAPFLAG(0); (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<(k):game->maps[mi]&=~(((value/10000)?1:0)<<(k)); break;
+	  }
+	  else if(((arg-COMBOD(0))%3)+COMBOD(0)==COMBOD(0)&&arg>=COMBOD(0)&&arg<=COMBOF(175))
+	  {
+	    k=(arg-COMBOD(0))/3; tmpscr->data[k]=(value/10000); break;
+	  }
+	  else if(((arg-COMBOD(0))%3)+COMBOD(0)==COMBOC(0)&&arg>=COMBOD(0)&&arg<=COMBOF(175))
+	  {
+	    k=(arg-COMBOD(0))/3; tmpscr->cset[k]=(value/10000); break;
+	  }
+	  else if(((arg-COMBOD(0))%3)+COMBOD(0)==COMBOF(0)&&arg>=COMBOD(0)&&arg<=COMBOF(175))
+	  {
+	    k=(arg-COMBOD(0))/3; tmpscr->sflag[k]=(value/10000); break;
+	  }
+	  else if(arg>=GAMEGENERIC(0)&&arg<=GAMEGENERIC(255))
+	  {
+	    k=arg-GAMEGENERIC(0); game->set_generic(value/10000, k); break;
+	  }
+	  else if(arg>=GAMEITEMS(0)&&arg<=GAMEITEMS(255))
+	  {
+	    k=arg-GAMEITEMS(0); game->item[k]= (value!=0); break;
+	  }
+	  else if(arg>=GAMELITEMS(0)&&arg<=GAMELITEMS(255))
+	  {
+	    k=arg-GAMELITEMS(0); game->lvlitems[k]=value/10000; break;
+	  }
+	  else if(arg>=GAMELKEYS(0)&&arg<=GAMELKEYS(255))
+	  {
+	    k=arg-GAMELKEYS(0); game->lvlkeys[k]=value/10000; break;
+	  }
+	  break;
+	}
+
+	 /* bool found=false;
+      //for(int k=0;k<2;k++)
+      //{
+      if(arg==A(0)) { if(script_type!=SCRIPT_GLOBAL) *(a[0])=value; break; }
+	  if(arg==A(1)) { if(script_type!=SCRIPT_GLOBAL) *(a[1])=value; break; }
+      //}
+      //for(int k=0;k<8;k++)
+      //{
+      if(arg==D(0)) { *(d[0])=value; break; }
+      if(arg==SD(0)) { game->screen_d[di][0]=value; break; }
+	  if(arg==D(1)) { *(d[1])=value; break; }
+      if(arg==SD(1)) { game->screen_d[di][1]=value; break; }
+	  if(arg==D(2)) { *(d[2])=value; break; }
+      if(arg==SD(2)) { game->screen_d[di][2]=value; break; }
+	  if(arg==D(3)) { *(d[3])=value; break; }
+      if(arg==SD(3)) { game->screen_d[di][3]=value; break; }
+	  if(arg==D(4)) { *(d[4])=value; break; }
+      if(arg==SD(4)) { game->screen_d[di][4]=value; break; }
+	  if(arg==D(5)) { *(d[5])=value; break; }
+      if(arg==SD(5)) { game->screen_d[di][5]=value; break; }
+	  if(arg==D(6)) { *(d[6])=value; break; }
+      if(arg==SD(6)) { game->screen_d[di][6]=value; break; }
+	  if(arg==D(7)) { *(d[7])=value; break; }
+      if(arg==SD(7)) { game->screen_d[di][7]=value; break; }
+      //}
+      for(int k=0;k<4;k+=8)
       {
-        if(arg==A(k)) { if(script_type!=SCRIPT_GLOBAL) *(a[k])=value; break; }
+        if(arg==GAMECOUNTER(k)) { game->set_counter(value/10000, k); found=true; break; }
+        if(arg==GAMEMCOUNTER(k)) { game->set_maxcounter(value/10000, k); found=true; break; }
+        if(arg==GAMEDCOUNTER(k)) { game->set_dcounter(value/10000, k); found=true; break; }
+        if(arg==GAMEMAPFLAG(k)) { (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<k:game->maps[mi]&=~(((value/10000)?1:0)<<k); found=true; break;}
+
+		if(arg==GAMECOUNTER(k+1)) { game->set_counter(value/10000, k+1); found=true; break; }
+        if(arg==GAMEMCOUNTER(k+1)) { game->set_maxcounter(value/10000, k+1); found=true; break; }
+        if(arg==GAMEDCOUNTER(k+1)) { game->set_dcounter(value/10000, k+1); found=true; break; }
+        if(arg==GAMEMAPFLAG(k+1)) { (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<(k+1):game->maps[mi]&=~(((value/10000)?1:0)<<(k+1)); found=true; break;}
+
+		if(arg==GAMECOUNTER(k+2)) { game->set_counter(value/10000, k+2); found=true; break; }
+        if(arg==GAMEMCOUNTER(k+2)) { game->set_maxcounter(value/10000, k+2); found=true; break; }
+        if(arg==GAMEDCOUNTER(k+2)) { game->set_dcounter(value/10000, k+2); found=true; break; }
+        if(arg==GAMEMAPFLAG(k+2)) { (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<(k+2):game->maps[mi]&=~(((value/10000)?1:0)<<(k+2)); found=true; break;}
+
+		if(arg==GAMECOUNTER(k+3)) { game->set_counter(value/10000, k+3); found=true; break; }
+        if(arg==GAMEMCOUNTER(k+3)) { game->set_maxcounter(value/10000, k+3); found=true; break; }
+        if(arg==GAMEDCOUNTER(k+3)) { game->set_dcounter(value/10000, k+3); found=true; break; }
+        if(arg==GAMEMAPFLAG(k+3)) { (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<(k+3):game->maps[mi]&=~(((value/10000)?1:0)<<(k+3)); found=true; break;}
+
+		if(arg==GAMECOUNTER(k+4)) { game->set_counter(value/10000, k+4); found=true; break; }
+        if(arg==GAMEMCOUNTER(k+4)) { game->set_maxcounter(value/10000, k+4); found=true; break; }
+        if(arg==GAMEDCOUNTER(k+4)) { game->set_dcounter(value/10000, k+4); found=true; break; }
+        if(arg==GAMEMAPFLAG(k+4)) { (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<(k+4):game->maps[mi]&=~(((value/10000)?1:0)<<(k+4)); found=true; break;}
+
+		if(arg==GAMECOUNTER(k+5)) { game->set_counter(value/10000, k+5); found=true; break; }
+        if(arg==GAMEMCOUNTER(k+5)) { game->set_maxcounter(value/10000, k+5); found=true; break; }
+        if(arg==GAMEDCOUNTER(k+5)) { game->set_dcounter(value/10000, k+5); found=true; break; }
+        if(arg==GAMEMAPFLAG(k+5)) { (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<(k+5):game->maps[mi]&=~(((value/10000)?1:0)<<(k+5)); found=true; break;}
+
+		if(arg==GAMECOUNTER(k+6)) { game->set_counter(value/10000, k+6); found=true; break; }
+        if(arg==GAMEMCOUNTER(k+6)) { game->set_maxcounter(value/10000, k+6); found=true; break; }
+        if(arg==GAMEDCOUNTER(k+6)) { game->set_dcounter(value/10000, k+6); found=true; break; }
+        if(arg==GAMEMAPFLAG(k+6)) { (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<(k+6):game->maps[mi]&=~(((value/10000)?1:0)<<(k+6)); found=true; break;}
+
+		if(arg==GAMECOUNTER(k+7)) { game->set_counter(value/10000, k+7); found=true; break; }
+        if(arg==GAMEMCOUNTER(k+7)) { game->set_maxcounter(value/10000, k+7); found=true; break; }
+        if(arg==GAMEDCOUNTER(k+7)) { game->set_dcounter(value/10000, k+7); found=true; break; }
+        if(arg==GAMEMAPFLAG(k+7)) { (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<(k+7):game->maps[mi]&=~(((value/10000)?1:0)<<(k+7)); found=true; break;}
       }
-      for(int k=0;k<8;k++)
+	  if(found==true) break;
+      for(int k=0;k<32;k+=8)
       {
-        if(arg==D(k)) { *(d[k])=value; break; }
-        if(arg==SD(k)) { game->screen_d[di][k]=value; break; }
+        if(arg==GD(k)) { game->global_d[k]=value; found=true; break; }
+        if(arg==GAMEGENERIC(k)) { game->set_generic(value/10000, k); found=true; break; }
+        if(arg==GAMEITEMS(k)) { game->item[k]= (value!=0); found=true; break; }
+        if(arg==GAMELITEMS(k)) { game->lvlitems[k]=value/10000; found=true; break; }
+        if(arg==GAMELKEYS(k)) { game->lvlkeys[k]=value/10000; found=true; break; }
+
+		if(arg==GD(k+1)) { game->global_d[k+1]=value; found=true; break; }
+        if(arg==GAMEGENERIC(k+1)) { game->set_generic(value/10000, k+1); found=true; break; }
+        if(arg==GAMEITEMS(k+1)) { game->item[k+1]= (value!=0); found=true; break; }
+        if(arg==GAMELITEMS(k+1)) { game->lvlitems[k+1]=value/10000; found=true; break; }
+        if(arg==GAMELKEYS(k+1)) { game->lvlkeys[k+1]=value/10000; found=true; break; }
+
+		if(arg==GD(k+2)) { game->global_d[k+2]=value; found=true; break; }
+        if(arg==GAMEGENERIC(k+2)) { game->set_generic(value/10000, k+2); found=true; break; }
+        if(arg==GAMEITEMS(k+2)) { game->item[k+2]= (value!=0); found=true; break; }
+        if(arg==GAMELITEMS(k+2)) { game->lvlitems[k+2]=value/10000; found=true; break; }
+        if(arg==GAMELKEYS(k+2)) { game->lvlkeys[k+2]=value/10000; found=true; break; }
+
+		if(arg==GD(k+3)) { game->global_d[k+3]=value; found=true; break; }
+        if(arg==GAMEGENERIC(k+3)) { game->set_generic(value/10000, k+3); found=true; break; }
+        if(arg==GAMEITEMS(k+3)) { game->item[k+3]= (value!=0); found=true; break; }
+        if(arg==GAMELITEMS(k+3)) { game->lvlitems[k+3]=value/10000; found=true; break; }
+        if(arg==GAMELKEYS(k+3)) { game->lvlkeys[k+3]=value/10000; found=true; break; }
+
+		if(arg==GD(k+4)) { game->global_d[k+4]=value; found=true; break; }
+        if(arg==GAMEGENERIC(k+4)) { game->set_generic(value/10000, k+4); found=true; break; }
+        if(arg==GAMEITEMS(k+4)) { game->item[k+4]= (value!=0); found=true; break; }
+        if(arg==GAMELITEMS(k+4)) { game->lvlitems[k+4]=value/10000; found=true; break; }
+        if(arg==GAMELKEYS(k+4)) { game->lvlkeys[k+4]=value/10000; found=true; break; }
+
+		if(arg==GD(k+5)) { game->global_d[k+5]=value; found=true; break; }
+        if(arg==GAMEGENERIC(k+5)) { game->set_generic(value/10000, k+5); found=true; break; }
+        if(arg==GAMEITEMS(k+5)) { game->item[k+5]= (value!=0); found=true; break; }
+        if(arg==GAMELITEMS(k+5)) { game->lvlitems[k+5]=value/10000; found=true; break; }
+        if(arg==GAMELKEYS(k+5)) { game->lvlkeys[k+5]=value/10000; found=true; break; }
+
+		if(arg==GD(k+6)) { game->global_d[k+6]=value; found=true; break; }
+        if(arg==GAMEGENERIC(k+6)) { game->set_generic(value/10000, k+6); found=true; break; }
+        if(arg==GAMEITEMS(k+6)) { game->item[k+6]= (value!=0); found=true; break; }
+        if(arg==GAMELITEMS(k+6)) { game->lvlitems[k+6]=value/10000; found=true; break; }
+        if(arg==GAMELKEYS(k+6)) { game->lvlkeys[k+6]=value/10000; found=true; break; }
+
+		if(arg==GD(k+7)) { game->global_d[k+7]=value; found=true; break; }
+        if(arg==GAMEGENERIC(k+7)) { game->set_generic(value/10000, k+7); found=true; break; }
+        if(arg==GAMEITEMS(k+7)) { game->item[k+7]= (value!=0); found=true; break; }
+        if(arg==GAMELITEMS(k+7)) { game->lvlitems[k+7]=value/10000; found=true; break; }
+        if(arg==GAMELKEYS(k+7)) { game->lvlkeys[k+7]=value/10000; found=true; break; }
       }
-      for(int k=0;k<32;k++)
+	  if(found==true) break;
+      for(int k=0;k<22;k+=8)
       {
-        if(arg==GAMECOUNTER(k)) { set_gamedata_counter(game, value/10000, k); break; }
-        if(arg==GAMEMCOUNTER(k)) { set_gamedata_maxcounter(game, value/10000, k); break; }
-        if(arg==GAMEDCOUNTER(k)) { set_gamedata_dcounter(game, value/10000, k); break; }
-        if(arg==GAMEMAPFLAG(k)) { (value/10000)?game->maps[mi]|=((value/10000)?1:0)<<k:game->maps[mi]&=~(((value/10000)?1:0)<<k); break;}
-      }
-      for(int k=0;k<256;k++)
-      {
-        if(arg==GD(k)) { game->global_d[k]=value; break; }
-        if(arg==GAMEGENERIC(k)) { set_gamedata_generic(game, value/10000, k); break; }
-        if(arg==GAMEITEMS(k)) { game->item[k]= (value!=0); break; }
-        if(arg==GAMELITEMS(k)) { game->lvlitems[k]=value/10000; break; }
-        if(arg==GAMELKEYS(k)) { game->lvlkeys[k]=value/10000; break; }
-      }
-      for(int k=0;k<176;k++)
-      {
-        if(arg==COMBOD(k)) tmpscr->data[k]=(value/10000);
-        if(arg==COMBOC(k)) tmpscr->cset[k]=(value/10000);
-        if(arg==COMBOF(k)) tmpscr->sflag[k]=(value/10000);
+		if(arg==COMBOD(k)) { tmpscr->data[k]=(value/10000); found=true; break; }
+		if(arg==COMBOC(k)) { tmpscr->cset[k]=(value/10000); found=true; break; }
+		if(arg==COMBOF(k)) { tmpscr->sflag[k]=(value/10000); found=true; break; }
+
+		if(arg==COMBOD(k+1)) { tmpscr->data[k+1]=(value/10000); found=true; break; }
+		if(arg==COMBOC(k+1)) { tmpscr->cset[k+1]=(value/10000); found=true; break; }
+		if(arg==COMBOF(k+1)) { tmpscr->sflag[k+1]=(value/10000); found=true; break; }
+
+		if(arg==COMBOD(k+2)) { tmpscr->data[k+2]=(value/10000); found=true; break; }
+		if(arg==COMBOC(k+2)) { tmpscr->cset[k+2]=(value/10000); found=true; break; }
+		if(arg==COMBOF(k+2)) { tmpscr->sflag[k+2]=(value/10000); found=true; break; }
+
+		if(arg==COMBOD(k+3)) { tmpscr->data[k+3]=(value/10000); found=true; break; }
+		if(arg==COMBOC(k+3)) { tmpscr->cset[k+3]=(value/10000); found=true; break; }
+		if(arg==COMBOF(k+3)) { tmpscr->sflag[k+3]=(value/10000); found=true; break; }
+
+		if(arg==COMBOD(k+4)) { tmpscr->data[k+4]=(value/10000); found=true; break; }
+		if(arg==COMBOC(k+4)) { tmpscr->cset[k+4]=(value/10000); found=true; break; }
+		if(arg==COMBOF(k+4)) { tmpscr->sflag[k+4]=(value/10000); found=true; break; }
+
+		if(arg==COMBOD(k+5)) { tmpscr->data[k+5]=(value/10000); found=true; break; }
+		if(arg==COMBOC(k+5)) { tmpscr->cset[k+5]=(value/10000); found=true; break; }
+		if(arg==COMBOF(k+5)) { tmpscr->sflag[k+5]=(value/10000); found=true; break; }
+
+		if(arg==COMBOD(k+6)) { tmpscr->data[k+6]=(value/10000); found=true; break; }
+		if(arg==COMBOC(k+6)) { tmpscr->cset[k+6]=(value/10000); found=true; break; }
+		if(arg==COMBOF(k+6)) { tmpscr->sflag[k+6]=(value/10000); found=true; break; }
+
+		if(arg==COMBOD(k+7)) { tmpscr->data[k+7]=(value/10000); found=true; break; }
+		if(arg==COMBOC(k+7)) { tmpscr->cset[k+7]=(value/10000); found=true; break; }
+		if(arg==COMBOF(k+7)) { tmpscr->sflag[k+7]=(value/10000); found=true; break; }
       }
       break;
+	}*/
   }
 }
 
@@ -940,12 +1402,12 @@ void do_trig(int script, word *pc, byte i, bool v, int type)
     double rangle = (temp/10000) * PI / 180.0;
     temp = (long)(sin(rangle)*10000);
   }
-  else if(type==1) 
+  else if(type==1)
   {
     double rangle = (temp/10000) * PI / 180.0;
     temp = (long)(cos(rangle)*10000);
   }
-  else if(type==2) 
+  else if(type==2)
   {
     double rangle = (temp/10000) * PI / 180.0;
     temp = (long)(tan(rangle)*10000);
@@ -1652,6 +2114,221 @@ void do_sqroot(int script, word *pc, byte i, bool v)
   set_variable(*arg1,i,int((sqrt(temp))*10000));
 }
 
+void do_clearsprites(int script, word *pc, byte i, bool v)
+{
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+
+  //long arg1;
+  //long arg2;
+  double temp;
+  int temp2;
+
+  ////arg1 = ffscripts[script][*pc].arg1;
+  //arg2 = ffscripts[script][*pc].arg2;
+
+  if(v)
+  {
+    temp = *arg1;
+  }
+  else
+  {
+    temp=get_arg(*arg1,i);
+  }
+  temp=temp/10000.0;
+  temp2=int(temp);
+  switch (temp2)
+  {
+    case 0:
+      guys.clear();
+      break;
+    case 1:
+      items.clear();
+      break;
+    case 2:
+      Ewpns.clear();
+      break;
+    case 3:
+      Lwpns.clear();
+      chainlinks.clear();
+      break;
+    case 4:
+      decorations.clear();
+      break;
+    case 5:
+      particles.clear();
+      break;
+  }
+}
+
+void do_drawing_command(int script, word *pc, byte i, int script_command)
+{
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+  script_command=script_command;
+
+  byte *sp=NULL;
+  switch(script_type)
+  {
+  case SCRIPT_FFC:
+    sp = &(tmpscr->sp[i]);
+    break;
+  case SCRIPT_ITEM:
+    sp = &(items.spr(i)->sp);
+    break;
+  case SCRIPT_GLOBAL:
+    sp = &g_sp;
+    break;
+  }
+
+
+  long temp;
+  long temp2;
+
+  temp=get_arg(*arg2,i);
+  temp2=get_arg(*arg1,i);
+  int j=0;
+  for (; j<1000; ++j)
+  {
+    if (script_drawing_commands[j][0]==0)
+    {
+      break;
+    }
+  }
+  if (j>=MAX_SCRIPT_DRAWING_COMMANDS)  //out of drawing command space
+  {
+    return;
+  }
+  script_drawing_commands[j][0]=script_command;
+  script_drawing_commands[j][1]=read_stack(script, i, (*sp)+8);//get_arg(*arg1,i); //xy
+  script_drawing_commands[j][2]=read_stack(script, i, (*sp)+7);//get_arg(*arg2,i); //color or tile/combo+cset for DRAWTILER and DRAWCOMBOR
+  script_drawing_commands[j][3]=read_stack(script, i, (*sp)+6);
+  script_drawing_commands[j][4]=read_stack(script, i, (*sp)+5);
+  script_drawing_commands[j][5]=read_stack(script, i, (*sp)+4);
+  script_drawing_commands[j][6]=read_stack(script, i, (*sp)+3);
+  script_drawing_commands[j][7]=read_stack(script, i, (*sp)+2);
+  script_drawing_commands[j][8]=read_stack(script, i, (*sp)+1);
+  script_drawing_commands[j][9]=read_stack(script, i, *sp);
+  switch(script_command)
+  {
+    case RECTR:
+      script_drawing_commands[j][1]=read_stack(script, i, (*sp)+11);      //layer
+      script_drawing_commands[j][2]=read_stack(script, i, (*sp)+10);      //x
+      script_drawing_commands[j][3]=read_stack(script, i, (*sp)+9);       //y
+      script_drawing_commands[j][4]=read_stack(script, i, (*sp)+8);       //x2
+      script_drawing_commands[j][5]=read_stack(script, i, (*sp)+7);       //y2
+      script_drawing_commands[j][6]=read_stack(script, i, (*sp)+6);       //color
+      script_drawing_commands[j][7]=read_stack(script, i, (*sp)+5);       //scale factor
+      script_drawing_commands[j][8]=read_stack(script, i, (*sp)+4);       //rotation anchor x
+      script_drawing_commands[j][9]=read_stack(script, i, (*sp)+3);       //rotation anchor y
+      script_drawing_commands[j][10]=read_stack(script, i, (*sp)+2);      //rotation angle
+      script_drawing_commands[j][11]=read_stack(script, i, (*sp)+1);      //fill
+      script_drawing_commands[j][12]=read_stack(script, i, (*sp)+0);      //opacity
+      break;
+    case CIRCLER:
+      script_drawing_commands[j][1]=read_stack(script, i, (*sp)+10);      //layer
+      script_drawing_commands[j][2]=read_stack(script, i, (*sp)+9);       //x
+      script_drawing_commands[j][3]=read_stack(script, i, (*sp)+8);       //y
+      script_drawing_commands[j][4]=read_stack(script, i, (*sp)+7);       //radius
+      script_drawing_commands[j][5]=read_stack(script, i, (*sp)+6);       //color
+      script_drawing_commands[j][6]=read_stack(script, i, (*sp)+5);       //scale factor
+      script_drawing_commands[j][7]=read_stack(script, i, (*sp)+4);       //rotation anchor x
+      script_drawing_commands[j][8]=read_stack(script, i, (*sp)+3);       //rotation anchor y
+      script_drawing_commands[j][9]=read_stack(script, i, (*sp)+2);       //rotation angle
+      script_drawing_commands[j][10]=read_stack(script, i, (*sp)+1);      //fill
+      script_drawing_commands[j][11]=read_stack(script, i, (*sp)+0);      //opacity
+      break;
+    case ARCR:
+      script_drawing_commands[j][1]=read_stack(script, i, (*sp)+13);      //layer
+      script_drawing_commands[j][2]=read_stack(script, i, (*sp)+12);      //x
+      script_drawing_commands[j][3]=read_stack(script, i, (*sp)+11);      //y
+      script_drawing_commands[j][4]=read_stack(script, i, (*sp)+10);      //radius
+      script_drawing_commands[j][5]=read_stack(script, i, (*sp)+9);       //start angle
+      script_drawing_commands[j][6]=read_stack(script, i, (*sp)+8);       //end angle
+      script_drawing_commands[j][7]=read_stack(script, i, (*sp)+7);       //color
+      script_drawing_commands[j][8]=read_stack(script, i, (*sp)+6);       //scale factor
+      script_drawing_commands[j][9]=read_stack(script, i, (*sp)+5);       //rotation anchor x
+      script_drawing_commands[j][10]=read_stack(script, i, (*sp)+4);      //rotation anchor y
+      script_drawing_commands[j][11]=read_stack(script, i, (*sp)+3);      //rotation angle
+      script_drawing_commands[j][12]=read_stack(script, i, (*sp)+2);      //closed
+      script_drawing_commands[j][13]=read_stack(script, i, (*sp)+1);      //fill
+      script_drawing_commands[j][14]=read_stack(script, i, (*sp)+0);      //opacity
+      break;
+    case ELLIPSER:
+      script_drawing_commands[j][1]=read_stack(script, i, (*sp)+11);      //layer
+      script_drawing_commands[j][2]=read_stack(script, i, (*sp)+10);      //x
+      script_drawing_commands[j][3]=read_stack(script, i, (*sp)+9);       //y
+      script_drawing_commands[j][4]=read_stack(script, i, (*sp)+8);       //radiusx
+      script_drawing_commands[j][5]=read_stack(script, i, (*sp)+7);       //radiusy
+      script_drawing_commands[j][6]=read_stack(script, i, (*sp)+6);       //color
+      script_drawing_commands[j][7]=read_stack(script, i, (*sp)+5);       //scale factor
+      script_drawing_commands[j][8]=read_stack(script, i, (*sp)+4);       //rotation anchor x
+      script_drawing_commands[j][9]=read_stack(script, i, (*sp)+3);       //rotation anchor y
+      script_drawing_commands[j][10]=read_stack(script, i, (*sp)+2);      //rotation angle
+      script_drawing_commands[j][11]=read_stack(script, i, (*sp)+1);      //fill
+      script_drawing_commands[j][12]=read_stack(script, i, (*sp)+0);      //opacity
+      break;
+    case LINER:
+      script_drawing_commands[j][1]=read_stack(script, i, (*sp)+10);      //layer
+      script_drawing_commands[j][2]=read_stack(script, i, (*sp)+9);       //x
+      script_drawing_commands[j][3]=read_stack(script, i, (*sp)+8);       //y
+      script_drawing_commands[j][4]=read_stack(script, i, (*sp)+7);       //x2
+      script_drawing_commands[j][5]=read_stack(script, i, (*sp)+6);       //y2
+      script_drawing_commands[j][6]=read_stack(script, i, (*sp)+5);       //color
+      script_drawing_commands[j][7]=read_stack(script, i, (*sp)+4);       //scale factor
+      script_drawing_commands[j][8]=read_stack(script, i, (*sp)+3);       //rotation anchor x
+      script_drawing_commands[j][9]=read_stack(script, i, (*sp)+2);       //rotation anchor y
+      script_drawing_commands[j][10]=read_stack(script, i, (*sp)+1);      //rotation angle
+      script_drawing_commands[j][11]=read_stack(script, i, (*sp)+0);      //opacity
+      break;
+    case PUTPIXELR:
+      script_drawing_commands[j][1]=read_stack(script, i, (*sp)+7);       //layer
+      script_drawing_commands[j][2]=read_stack(script, i, (*sp)+6);       //x
+      script_drawing_commands[j][3]=read_stack(script, i, (*sp)+5);       //y
+      script_drawing_commands[j][4]=read_stack(script, i, (*sp)+4);       //color
+      script_drawing_commands[j][5]=read_stack(script, i, (*sp)+3);       //rotation anchor x
+      script_drawing_commands[j][6]=read_stack(script, i, (*sp)+2);       //rotation anchor y
+      script_drawing_commands[j][7]=read_stack(script, i, (*sp)+1);       //rotation angle
+      script_drawing_commands[j][8]=read_stack(script, i, (*sp)+0);       //opacity
+      break;
+    case DRAWTILER:
+      script_drawing_commands[j][1]=read_stack(script, i, (*sp)+13);      //layer
+      script_drawing_commands[j][2]=read_stack(script, i, (*sp)+12);      //x
+      script_drawing_commands[j][3]=read_stack(script, i, (*sp)+11);      //y
+      script_drawing_commands[j][4]=read_stack(script, i, (*sp)+10);      //tile
+      script_drawing_commands[j][5]=read_stack(script, i, (*sp)+9);       //tile width
+      script_drawing_commands[j][6]=read_stack(script, i, (*sp)+8);       //tile height
+      script_drawing_commands[j][7]=read_stack(script, i, (*sp)+7);       //color (cset)
+      script_drawing_commands[j][8]=read_stack(script, i, (*sp)+6);       //scale factor
+      script_drawing_commands[j][9]=read_stack(script, i, (*sp)+5);       //rotation anchor x
+      script_drawing_commands[j][10]=read_stack(script, i, (*sp)+4);      //rotation anchor y
+      script_drawing_commands[j][11]=read_stack(script, i, (*sp)+3);      //rotation angle
+      script_drawing_commands[j][12]=read_stack(script, i, (*sp)+2);      //flip
+      script_drawing_commands[j][13]=read_stack(script, i, (*sp)+1);      //transparency
+      script_drawing_commands[j][14]=read_stack(script, i, (*sp)+0);      //opacity
+      break;
+    case DRAWCOMBOR:
+      script_drawing_commands[j][1]=read_stack(script, i, (*sp)+14);      //layer
+      script_drawing_commands[j][2]=read_stack(script, i, (*sp)+13);      //x
+      script_drawing_commands[j][3]=read_stack(script, i, (*sp)+12);      //y
+      script_drawing_commands[j][4]=read_stack(script, i, (*sp)+11);      //combo
+      script_drawing_commands[j][5]=read_stack(script, i, (*sp)+10);      //combo width
+      script_drawing_commands[j][6]=read_stack(script, i, (*sp)+9);       //combo height
+      script_drawing_commands[j][7]=read_stack(script, i, (*sp)+8);       //color (cset)
+      script_drawing_commands[j][8]=read_stack(script, i, (*sp)+7);       //scale factor
+      script_drawing_commands[j][9]=read_stack(script, i, (*sp)+6);       //rotation anchor x
+      script_drawing_commands[j][10]=read_stack(script, i, (*sp)+5);      //rotation anchor y
+      script_drawing_commands[j][11]=read_stack(script, i, (*sp)+4);      //rotation angle
+      script_drawing_commands[j][12]=read_stack(script, i, (*sp)+3);      //frame
+      script_drawing_commands[j][13]=read_stack(script, i, (*sp)+2);      //flip
+      script_drawing_commands[j][14]=read_stack(script, i, (*sp)+1);      //transparency
+      script_drawing_commands[j][15]=read_stack(script, i, (*sp)+0);      //opacity
+      break;
+  }
+}
+
 void do_push(int script, word *pc, byte i, bool v) {
   //these are here to bypass compiler warnings about unused arguments
   pc=pc;
@@ -1735,7 +2412,7 @@ void do_sfx(int script, word *pc, byte i, bool v)
   //these are here to bypass compiler warnings about unused arguments
   script=script;
   pc=pc;
-  
+
   //long arg1;
   long temp;
 
@@ -1752,21 +2429,55 @@ void do_sfx(int script, word *pc, byte i, bool v)
   sfx(temp);
 }
 
-void do_loadweapon(int, word *, byte, bool)
+void do_loadweapon(int script, word *pc, byte i, bool v)
 {
-  return; //why is this here?
- 
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+  i=i;
+  v=v;
+
+  return;
 }
 
-void do_loaditem(int, word *, byte, bool)
+void do_loaditem(int script, word *pc, byte i, bool v)
 {
-  return; //why is this here?
- }
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
+  i=i;
+  v=v;
 
-void do_loadnpc(int, word *, byte, bool)
+  return;
+}
+
+void do_loadnpc(int script, word *pc, byte i, bool v)
 {
+  //these are here to bypass compiler warnings about unused arguments
+  script=script;
+  pc=pc;
 
-  return; //why is this here?
+  long temp;
+  if(v)
+  {
+    temp=*arg1;
+  }
+  else
+  {
+    temp=get_arg(*arg1,i)/10000;
+  }
+  switch(script_type)
+  {
+    case SCRIPT_FFC:
+    (tmpscr->guyref[i])=temp;
+    break;
+    case SCRIPT_ITEM:
+    (items.spr(i)->guyref)=temp;
+    break;
+    case SCRIPT_GLOBAL:
+    (global_guy)=temp;
+    break;
+  }
 }
 
 void do_createlweapon(int script, word *pc, byte i, bool v)
@@ -1774,19 +2485,19 @@ void do_createlweapon(int script, word *pc, byte i, bool v)
   //these are here to bypass compiler warnings about unused arguments
   script=script;
   pc=pc;
-  
+
   byte *wpnref=NULL;
   switch(script_type)
   {
-  case SCRIPT_FFC:
-    wpnref=&(tmpscr->lwpnref[i]);
-  break;
-  case SCRIPT_ITEM:
-    wpnref=&(items.spr(i)->lwpnref);
-  break;
-  case SCRIPT_GLOBAL:
-    wpnref=&(global_lwpn);
-  break;
+    case SCRIPT_FFC:
+      wpnref=&(tmpscr->lwpnref[i]);
+      break;
+    case SCRIPT_ITEM:
+      wpnref=&(items.spr(i)->lwpnref);
+      break;
+    case SCRIPT_GLOBAL:
+      wpnref=&(global_lwpn);
+      break;
   }
   //long arg1;
   long temp;
@@ -1810,19 +2521,19 @@ void do_createeweapon(int script, word *pc, byte i, bool v)
   //these are here to bypass compiler warnings about unused arguments
   script=script;
   pc=pc;
-  
+
   byte *wpnref=NULL;
   switch(script_type)
   {
-  case SCRIPT_FFC:
-    wpnref=&(tmpscr->ewpnref[i]);
-  break;
-  case SCRIPT_ITEM:
-    wpnref=&(items.spr(i)->ewpnref);
-  break;
-  case SCRIPT_GLOBAL:
-    wpnref=&(global_ewpn);
-  break;
+    case SCRIPT_FFC:
+      wpnref=&(tmpscr->ewpnref[i]);
+      break;
+    case SCRIPT_ITEM:
+      wpnref=&(items.spr(i)->ewpnref);
+      break;
+    case SCRIPT_GLOBAL:
+      wpnref=&(global_ewpn);
+      break;
   }
   //long arg1;
   long temp;
@@ -1846,19 +2557,19 @@ void do_createitem(int script, word *pc, byte i, bool v)
   //these are here to bypass compiler warnings about unused arguments
   script=script;
   pc=pc;
-  
+
   byte *itemref=NULL;
   switch(script_type)
   {
-  case SCRIPT_FFC:
-    itemref=&(tmpscr->itemref[i]);
-  break;
-  case SCRIPT_ITEM:
-    itemref=&(items.spr(i)->itemref);
-  break;
-  case SCRIPT_GLOBAL:
-    itemref=&(global_item);
-  break;
+    case SCRIPT_FFC:
+      itemref=&(tmpscr->itemref[i]);
+      break;
+    case SCRIPT_ITEM:
+      itemref=&(items.spr(i)->itemref);
+      break;
+    case SCRIPT_GLOBAL:
+      itemref=&(global_item);
+      break;
   }
   //long arg1;
   long temp;
@@ -1886,15 +2597,15 @@ void do_createnpc(int script, word *pc, byte i, bool v)
   byte *guyref=NULL;
   switch(script_type)
   {
-  case SCRIPT_FFC:
-    guyref=&(tmpscr->guyref[i]);
-  break;
-  case SCRIPT_ITEM:
-    guyref=&(items.spr(i)->guyref);
-  break;
-  case SCRIPT_GLOBAL:
-    guyref=&(global_guy);
-  break;
+    case SCRIPT_FFC:
+      guyref=&(tmpscr->guyref[i]);
+      break;
+    case SCRIPT_ITEM:
+      guyref=&(items.spr(i)->guyref);
+      break;
+    case SCRIPT_GLOBAL:
+      guyref=&(global_guy);
+      break;
   }
   //long arg1;
   long temp;
@@ -1918,7 +2629,7 @@ void do_trace(int script, word *pc, byte i, bool v)
   //these are here to bypass compiler warnings about unused arguments
   script=script;
   pc=pc;
-  
+
   //long arg1;
   long temp;
 
@@ -1932,7 +2643,6 @@ void do_trace(int script, word *pc, byte i, bool v)
   {
     temp=get_arg(*arg1,i);
   }
-  //I've HAD IT with this motherfucking fixed-point output code
   char tmp[100];
   sprintf(tmp,(temp < 0 ? "%06ld" : "%05ld"), temp);
   string s = tmp;
@@ -1947,7 +2657,7 @@ void do_tracenl(int script, word *pc, byte i, bool v)
   pc=pc;
   i=i;
   v=v;
-  
+
   al_trace("\n");
 }
 
@@ -1966,44 +2676,44 @@ int run_script(int script, byte i, int stype)
   script_type = stype;
   switch(script_type)
   {
-  case SCRIPT_FFC:
+    case SCRIPT_FFC:
       pc = &(tmpscr->pc[i]);
-    command = &(ffscripts[script][*pc].command);
-    arg1 = &(ffscripts[script][*pc].arg1);
-    arg2 = &(ffscripts[script][*pc].arg2);
-    ffs = &(tmpscr->ffscript[i]);
-    sflag = &(tmpscr->scriptflag[i]);
-  tmpscr->ffcref[i]=i;
-    break;
-  case SCRIPT_ITEM:
-    pc = &(items.spr(i)->pc);
-    command = &(itemscripts[script][*pc].command);
-    arg1 = &(itemscripts[script][*pc].arg1);
-    arg2 = &(itemscripts[script][*pc].arg2);
-    ffs = &(items.spr(i)->doscript);
-    sflag = &(items.spr(i)->scriptflag);
-  items.spr(i)->itemref = i;
-    break;
-  case SCRIPT_GLOBAL:
-    pc = &g_pc;
-    command = &(globalscripts[script][*pc].command);
+      command = &(ffscripts[script][*pc].command);
+      arg1 = &(ffscripts[script][*pc].arg1);
+      arg2 = &(ffscripts[script][*pc].arg2);
+      ffs = &(tmpscr->ffscript[i]);
+      sflag = &(tmpscr->scriptflag[i]);
+      tmpscr->ffcref[i]=i;
+      break;
+    case SCRIPT_ITEM:
+      pc = &(items.spr(i)->pc);
+      command = &(itemscripts[script][*pc].command);
+      arg1 = &(itemscripts[script][*pc].arg1);
+      arg2 = &(itemscripts[script][*pc].arg2);
+      ffs = &(items.spr(i)->doscript);
+      sflag = &(items.spr(i)->scriptflag);
+      items.spr(i)->itemref = i;
+      break;
+    case SCRIPT_GLOBAL:
+      pc = &g_pc;
+      command = &(globalscripts[script][*pc].command);
       arg1 = &(globalscripts[script][*pc].arg1);
-    arg2 = &(globalscripts[script][*pc].arg2);
-    ffs = &g_doscript;
-    sflag = &g_scriptflag;
-    break;
+      arg2 = &(globalscripts[script][*pc].arg2);
+      ffs = &g_doscript;
+      sflag = &g_scriptflag;
+      break;
   }
 
   bool increment = true;
-  
+
   while(*ffs != 0 && (*command!=0xFFFF)&&(*command!=WAITFRAME))
   {
     if(key[KEY_ALT]&&key[KEY_F4])
-  {
-    quit_game();
-    exit(101);
-  }
-  switch(*command)
+    {
+      quit_game();
+      exit(101);
+    }
+    switch(*command)
     {
       case SETV:
         do_set(script, pc, i, true); break;
@@ -2034,24 +2744,24 @@ int run_script(int script, byte i, int stype)
       case CHECKTRIG:
         break;
       case WARP:
-        tmpscr->sidewarpdmap[0] = *arg1;
-        tmpscr->sidewarpscr[0] = *arg2;
-		tmpscr->sidewarptype[0] = wtIWARP;
+        tmpscr->sidewarpdmap[0] = (*arg1)/10000;
+        tmpscr->sidewarpscr[0] = (*arg2)/10000;
+        tmpscr->sidewarptype[0] = wtIWARP;
         Link.ffwarp = true; break;
-    case WARPR:
-        tmpscr->sidewarpdmap[0] = get_arg(*arg1,i);
-        tmpscr->sidewarpscr[0] = get_arg(*arg2,i);
-		tmpscr->sidewarptype[0] = wtIWARP;
+      case WARPR:
+        tmpscr->sidewarpdmap[0] = get_arg(*arg1,i)/10000;
+        tmpscr->sidewarpscr[0] = get_arg(*arg2,i)/10000;
+        tmpscr->sidewarptype[0] = wtIWARP;
         Link.ffwarp = true; break;
-    case PITWARP:
-        tmpscr->sidewarpdmap[0] = *arg1;
-        tmpscr->sidewarpscr[0] = *arg2;
-		tmpscr->sidewarptype[0] = wtIWARP;
+      case PITWARP:
+        tmpscr->sidewarpdmap[0] = (*arg1)/10000;
+        tmpscr->sidewarpscr[0] = (*arg2)/10000;
+        tmpscr->sidewarptype[0] = wtIWARP;
         Link.ffwarp = true; Link.ffpit=true; break;
-    case PITWARPR:
-        tmpscr->sidewarpdmap[0] = get_arg(*arg1,i);
-        tmpscr->sidewarpscr[0] = get_arg(*arg2,i);
-		tmpscr->sidewarptype[0] = wtIWARP;
+      case PITWARPR:
+        tmpscr->sidewarpdmap[0] = get_arg(*arg1,i)/10000;
+        tmpscr->sidewarpscr[0] = get_arg(*arg2,i)/10000;
+        tmpscr->sidewarptype[0] = wtIWARP;
         Link.ffwarp = true; Link.ffpit=true; break;
       case COMPAREV:
         do_comp(script, pc, i, true); break;
@@ -2086,7 +2796,7 @@ int run_script(int script, byte i, int stype)
       case COSV:
         do_trig(script, pc, i, true, 1); break;
       case COSR:
-        do_trig(script, pc, i, false, 1); break; 
+        do_trig(script, pc, i, false, 1); break;
       case TANV:
         do_trig(script, pc, i, true, 2); break;
       case TANR:
@@ -2219,13 +2929,26 @@ int run_script(int script, byte i, int stype)
           long temp = *arg1;
           int tmp2 = (get_arg(temp,i)/10000)-1;
           *pc = tmp2;
-          increment = false; 
+          increment = false;
         }
         break;
       case SQROOTV:
         do_sqroot(script,pc,i,true); break;
       case SQROOTR:
         do_sqroot(script,pc,i,false); break;
+      case CLEARSPRITESR:
+        do_clearsprites(script, pc, i, false); break;
+      case CLEARSPRITESV:
+        do_clearsprites(script, pc, i, true); break;
+      case RECTR:
+      case CIRCLER:
+      case ARCR:
+      case ELLIPSER:
+      case LINER:
+      case PUTPIXELR:
+      case DRAWTILER:
+      case DRAWCOMBOR:
+        do_drawing_command(script, pc, i, *command); break;
     }
     if(increment)
     {
@@ -2262,11 +2985,11 @@ int run_script(int script, byte i, int stype)
   return 0;
 }
 
-int ffscript_engine()
+int ffscript_engine(bool preload)
 {
   for(byte i=0;i<32;i++)
   {
-    if(tmpscr->ffscript[i])
+    if(tmpscr->ffscript[i] && !(preload && !(tmpscr->ffflags[i]&ffPRELOAD)))
     {
       run_script(tmpscr->ffscript[i], i, SCRIPT_FFC);
     }
@@ -2332,5 +3055,6 @@ int read_stack(int script, byte i, int sp)
   }
   return (*st)[sp];
 }
+
 
 

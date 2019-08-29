@@ -55,6 +55,7 @@ public:
 	int getReturnLabelID() {return returnlabelid;}
 	BuildOpcodes() : continuelabelid(-1), breaklabelid(-1), failure(false) {}
 	bool isOK() {return !failure;}
+	void castFromBool(vector<Opcode *> &result, int reg);
 private:
 	vector<Opcode *> result;
 	int returnlabelid;

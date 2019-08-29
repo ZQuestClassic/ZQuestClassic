@@ -42,6 +42,7 @@ class zmap
 public:
 
   zmap();
+  ~zmap();
   bool CanUndo();
   bool CanPaste();
   int  CopyScr();
@@ -71,6 +72,7 @@ public:
   bool reset_templates(bool validate);
   bool clearmap(bool newquest);
   void clearscr(int scr);
+  void clearzcmap(int map);
   void savescreen();
   int  load(char *path);
   int  save(char *path);
@@ -143,6 +145,7 @@ void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
 void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag);
 void over_combo_translucent(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int opacity);
 void over_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags);
+void copy_mapscr(mapscr *dest, const mapscr *src);
 
 /******************************/
 /******** ZQuest stuff ********/

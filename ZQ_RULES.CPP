@@ -56,27 +56,36 @@ static int rules5_list[] =
 static int rules6_list[] =
 {
   // dialog control number
-  //rules6 (88-103)
+  //rules6 (88-104)
   89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, -1
 };
 
 static int rules7_list[] =
 {
   // dialog control number
-  //rules6 (88-103)
+  //rules7 (105-121)
   105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, -1
 };
+
+static int rules8_list[] =
+{
+  // dialog control number
+  //rules8 (122-???)
+   121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, -1
+};
+
 
 static TABPANEL rules_tabs[] =
 {
   // (text)
-  { "  1  ", D_SELECTED, rules1_list, 0, NULL },
-  { "  2  ", 0,          rules2_list, 0, NULL },
-  { "  3  ", 0,          rules3_list, 0, NULL },
-  { "  4  ", 0,          rules4_list, 0, NULL },
-  { "  5  ", 0,          rules5_list, 0, NULL },
-  { "  6  ", 0,          rules6_list, 0, NULL },
-  { "  7  ", 0,          rules7_list, 0, NULL },
+  { " 1 ", D_SELECTED, rules1_list, 0, NULL },
+  { " 2 ", 0,          rules2_list, 0, NULL },
+  { " 3 ", 0,          rules3_list, 0, NULL },
+  { " 4 ", 0,          rules4_list, 0, NULL },
+  { " 5 ", 0,          rules5_list, 0, NULL },
+  { " 6 ", 0,          rules6_list, 0, NULL },
+  { " 7 ", 0,          rules7_list, 0, NULL },
+  { " 8 ", 0,          rules8_list, 0, NULL },
   { NULL,    0,          NULL,        0, NULL }
 };
 
@@ -105,7 +114,7 @@ static DIALOG rules_dlg[] =
 
   { jwin_check_proc,      10,  123,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Level 3 CSet Fix", NULL, NULL },
   { jwin_check_proc,      10,  133,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Cool Scrolling", NULL, NULL },
-  { jwin_check_proc,      10,  143,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Start With 999 Rupies", NULL, NULL },
+  { jwin_check_proc,      10,  143,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Start With 999 Rupies (Obsolete)", NULL, NULL },
   { jwin_check_proc,      10,  153,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Big Triforce Pieces", NULL, NULL },
 
   { jwin_check_proc,      10,  163,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "24 Heart Containers", NULL, NULL },
@@ -119,7 +128,7 @@ static DIALOG rules_dlg[] =
   { jwin_check_proc,      10,   63,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Must Kill All Bosses", NULL, NULL },
   { jwin_check_proc,      10,   73,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Sprite Flicker", NULL, NULL },
 
-  { jwin_check_proc,      10,   83,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Continue With Full Life", NULL, NULL },
+  { jwin_check_proc,      10,   83,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Continue With Full Life (Obsolete)", NULL, NULL },
   { jwin_check_proc,      10,   93,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Raft/Ladder Fix", NULL, NULL },
   { jwin_check_proc,      10,  103,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Show Secret Combo Hints When Using The Lens", NULL, NULL },
   { jwin_check_proc,      10,  113,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fix Link's Position in Dungeons", NULL, NULL },
@@ -161,9 +170,9 @@ static DIALOG rules_dlg[] =
   { jwin_check_proc,      10,   63,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Candle Consumes Magic", NULL, NULL },
   { jwin_check_proc,      10,   73,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Boots Consume Magic", NULL, NULL },
 
-  { jwin_check_proc,      10,   83,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Medicine Doesn't Re-Enable Bubble-Removed Items", NULL, NULL },
-  { jwin_check_proc,      10,   93,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fairies Don't Re-Enable Bubble-Removed Items", NULL, NULL },
-  { jwin_check_proc,      10,  103,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Triforce Doesn't Re-Enable Bubble-Removed Items", NULL, NULL },
+  { jwin_check_proc,      10,   83,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Medicine Doesn't Remove Bubble Jinxes", NULL, NULL },
+  { jwin_check_proc,      10,   93,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fairies Don't Remove Bubble Jinxes", NULL, NULL },
+  { jwin_check_proc,      10,  103,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Triforce Doesn't Remove Bubble Jinxes", NULL, NULL },
   { jwin_check_proc,      10,  113,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Use New Enemy Tiles", NULL, NULL },
 
   { jwin_check_proc,      10,  123,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Rope 2 Doesn't Flash", NULL, NULL },
@@ -196,10 +205,12 @@ static DIALOG rules_dlg[] =
   { jwin_check_proc,      10,  173,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Combo Cycling On Layers", NULL, NULL },
   { jwin_check_proc,      10,  183,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Full Priority Damage Combos", NULL, NULL },
   { jwin_check_proc,      10,  193,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Warps Ignore Arrival X/Y Position", NULL, NULL },
+
   //  qr_LTTPCOLLISION (87)
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
   //  qr_LTTPWALK (88)
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
+
   //rules6 (89-104)
   { jwin_check_proc,      10,   43,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Slow Enemy Animation", NULL, NULL },
   { jwin_check_proc,      10,   53,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "True Arrows", NULL, NULL },
@@ -208,7 +219,7 @@ static DIALOG rules_dlg[] =
 
   { jwin_check_proc,      10,   83,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Enable 1/4 Heart Life Bar", NULL, NULL },
   { jwin_check_proc,      10,   93,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Use Warp Return Points Only", NULL, NULL },
-  { jwin_check_proc,      10,  103,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Special Room Guys Don't Create A Poof When Appearing", NULL, NULL },
+  { jwin_check_proc,      10,  103,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Special Room Guys Don't Create A Puff When Appearing", NULL, NULL },
   { jwin_check_proc,      10,  113,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Can Be Bypassed With The B Button", NULL, NULL },
 
   { jwin_check_proc,      10,  123,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Diving", NULL, NULL },
@@ -221,6 +232,7 @@ static DIALOG rules_dlg[] =
   { jwin_check_proc,      10,  183,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Trap Position Fix", NULL, NULL },
   { jwin_check_proc,      10,  193,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Dark Rooms Stay Lit Only While Fire Is On Screen", NULL, NULL },
 
+  //rules6 (105-120)
   { jwin_check_proc,      10,   43,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Red Potion Disappears When Used", NULL, NULL },
   { jwin_check_proc,      10,   53,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Use Old-Style Warp Detection", NULL, NULL },
   { jwin_check_proc,      10,   63,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Invisible Border on Non-Dungeon Dmaps", NULL, NULL },
@@ -233,15 +245,33 @@ static DIALOG rules_dlg[] =
 
   { jwin_check_proc,      10,  123,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "More Sound Effects", NULL, NULL },
   { jwin_check_proc,      10,  133,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Boomerang/Hookshot Grabs All Items", NULL, NULL },
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,      10,  143,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "4 Heart Container Pieces Don't Make 1 Heart Container", NULL, NULL },
+  { jwin_check_proc,      10,  153,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Can Use Items/Weapons on Edge of Screen", NULL, NULL },
+
+  { jwin_check_proc,      10,  163,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Like Likes Eat Small Shields", NULL, NULL },
+  { jwin_check_proc,      10,  173,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Freeze All Action", NULL, NULL },
+  { jwin_check_proc,      10,  183,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Flip Right-Facing Slash", NULL, NULL },
+  { jwin_check_proc,      10,  193,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Book Magic Uses \"Magic (Fire)\" Sprite", NULL, NULL },
+
+  //rules6 (121-136)
+  { jwin_check_proc,      10,   43,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Slow Walk While Charging", NULL, NULL },
+  { jwin_check_proc,      10,   53,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Wand Can't Be Used As Melee Weapon", NULL, NULL },
+  { jwin_check_proc,      10,   63,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Slower Bomb Fuses", NULL, NULL },
+  { jwin_check_proc,      10,   73,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Magic Mirrors/Prisms Reflect Sword Beams", NULL, NULL },
+
+  { jwin_check_proc,      10,   83,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Can Select A Button Weapon on Subscreen", NULL, NULL },
+  { jwin_check_proc,      10,   93,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Lens Reveals Invisible Enemies", NULL, NULL },
+  { jwin_check_proc,      10,  103,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Burn Flags Are Triggered Instantly", NULL, NULL },
+  { jwin_check_proc,      10,  113,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Link Drowns in Walkable Water (not done yet)", NULL, NULL },
+
+  { jwin_check_proc,      10,  123,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Disappear", NULL, NULL },
+  { jwin_check_proc,      10,  133,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Subscreen Appears Above Sprites", NULL, NULL },
+  { jwin_check_proc,      10,  143,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Correct Bomb/Darknut Interaction", NULL, NULL },
+  { jwin_check_proc,      10,  153,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Win -> Continue Uses Last Saved DMap", NULL, NULL },
 
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
-
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };

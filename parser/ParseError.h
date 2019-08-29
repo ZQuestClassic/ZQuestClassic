@@ -45,4 +45,5 @@ void printErrorMsg(AST *offender, int errorID, string param=string());
 #define CONTINUEBAD 34
 #define CONSTREDEF 35
 #define LVALCONST 36
+#define BADGLOBALINIT 37
 #endif

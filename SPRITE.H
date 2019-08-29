@@ -75,6 +75,7 @@ public:
 
 
   sprite();
+  sprite(sprite const & other);
   sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs);
   virtual ~sprite();
   virtual void draw(BITMAP* dest);                        // main layer

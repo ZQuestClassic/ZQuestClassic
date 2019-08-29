@@ -37,14 +37,14 @@ extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 
 extern const byte lsteps[8];
 
-enum { did_fairy=1, did_candle=2, did_whistle=4, did_magic=8, did_all=16 };
+enum { did_fairy=1, did_candle=2, did_whistle=4, did_magic=8, did_glove=16, did_all=32 };
 
 enum actiontype
 {
   none, walking, attacking, freeze, landhold1, landhold2,
   rafting, gothit, inwind, scrolling, won, swimming, hopping,
   swimhit, waterhold1, waterhold2, casting, climbcovertop,
-  climbcoverbottom, dying
+  climbcoverbottom, dying, drowning, climbing
 };
 
 typedef struct tilesequence
@@ -55,12 +55,34 @@ typedef struct tilesequence
   byte exp;                                                 // not used
 } tilesequence;
 
+#define SWORDCHARGEFRAME 20
+#define SWORDTAPFRAME SWORDCHARGEFRAME-8
+#define HAMMERCHARGEFRAME 11
+#define WANDCHARGEFRAME 12
+
 class LinkClass : public sprite
 {
-  int drunkclk, NayrusLoveShieldClk, hoverclk;
-  bool autostep,superman,refilling,inlikelike,inwallm;
-  int attackclk,ladderx,laddery,pushing,fairyclk,refillclk,hclk;
-  int warpx,warpy,holdclk,holditem,attack,swordclk,didstuff,blowcnt;
+  bool autostep,superman,refilling,inlikelike,inwallm,tapping;
+  int ladderx,laddery,
+      warpx,warpy,
+      pushing,  //incremental time spent pushing.
+      jumping,  //incremental time spent airborne.
+      charging, //incremental time spent charging.
+      spins,    //1 + number of sword spins left to do. 0 = not spinning.
+      fairyclk, //fairy circle timeout.
+      refillclk,//life refill timeout.
+      drunkclk, //intoxication timeout.
+      NayrusLoveShieldClk, // Nayru's Love timeout.
+      hoverclk, //hover boots timeout.
+      hclk,     //damage blinking timeout.
+      holdclk,  //"hold up item" timeout.
+      holditem, //item being held.
+      attackclk,//attack timeout.
+      attack,   //current attack.
+      swordclk, //curse timeout.
+      didstuff, //played the whistle? used the blue candle?
+      blowcnt,  //number of times whistle blown.
+      drownclk; //drowning timeout.
   byte skipstep,lstep,hopclk,diveclk,whirlwind;
   byte hitdir,ladderdir,lastdir[3],ladderstart;
   int stepoutindex, stepoutwr;
@@ -74,7 +96,9 @@ class LinkClass : public sprite
   int hshandle_id, hshead_id, itemclk;
   byte conveyor_flags;
   fix climb_cover_x, climb_cover_y;
+  fix entry_x, entry_y;
   bool dontdraw;
+  // Methods below here.
   void movelink();
   void move(int d);
   void hitlink(int hit);
@@ -85,6 +109,7 @@ class LinkClass : public sprite
   int  lookahead(int destscr = -1, int d=up);
   int  lookaheadflag(int destscr = -1, int d=up);
   void checkhit();
+  void checkdamagecombos(int dx1, int dx2, int dy1, int dy2);
   void checkscroll();
   void checkspecial();
   void checkspecial2(int *ls);
@@ -92,6 +117,7 @@ class LinkClass : public sprite
   void checkpushblock();
   void checkbosslockblock();
   void checklockblock();
+  void checkswordtap();
   void checkchest();
   void checklockedchest();
   void checkbosschest();
@@ -128,7 +154,8 @@ class LinkClass : public sprite
   void check_pound_block(int bx, int by);
   void check_conveyor();
   bool check_cheat_warp();
- 
+  bool sideviewhammerpound();
+
 public:
 
   int DrunkClock();
@@ -147,10 +174,12 @@ public:
   void resetflags(bool all);
   void Freeze();
   void unfreeze();
+  void Drown();
   void beatlikelike();
   fix  getX();
   fix  getY();
   fix  getZ();
+  int  getFall();
   fix  getXOfs();
   fix  getYOfs();
   void setXOfs(int newxofs);
@@ -163,9 +192,19 @@ public:
   fix  getClimbCoverY();
   void setX(int new_x);
   void setY(int new_y);
+  void setZ(int new_Z);
+  void setFall(int new_fall);
   void setClimbCoverX(int new_x);
   void setClimbCoverY(int new_y);
   int  getLStep();
+  int  getCharging();
+  void setCharging(int new_charging);
+  bool isCharged();
+  int  getAttackClk();
+  int  getSwordClk();
+  int  getItemClk();
+  void  setSwordClk(int newclk);
+  void  setItemClk(int newclk);
   fix  getModifiedX();
   fix  getModifiedY();
   int  getDir();
@@ -204,8 +243,8 @@ void computeMaxArrows();
 /************************************/
 
 int Bweapon(int pos);
-void selectAwpn(int step);
-void selectBwpn(int xstep, int ystep);
+void selectWpn(int xstep, int ystep, bool b);
+bool isWpnPressed(int wpn);
 bool canget(int id);
 void dospecialmoney(int index);
 void getitem(int id, bool nosound=false);

@@ -40,6 +40,9 @@ void weapon::seekLink()
   else if(angle<0)      dir=r_up;
   else if(angle>(PI/2))   dir=l_down;
   else                  dir=r_down;
+
+  if (z>LinkZ()) z--;
+  else if (z<LinkZ()) z++;
 }
 
 void weapon::seekEnemy(int j)
@@ -111,6 +114,52 @@ int weapon::seekEnemy2(int j)
   else                  dir=r_down;
   return j;
 }
+
+weapon::weapon(weapon const & other):
+  sprite(other),
+  power(other.power),
+  type(other.type),
+  dead(other.dead),
+  clk2(other.clk2),
+  misc2(other.misc2),
+  ignorecombo(other.ignorecombo),
+  dragging(other.dragging),
+  step(other.step),
+  bounce(other.bounce),
+  ignoreLink(other.ignoreLink),
+  flash(other.flash),
+  wid(other.wid),
+  aframe(other.aframe),
+  csclk(other.csclk),
+  o_tile(other.o_tile),
+  o_cset(other.o_cset),
+  o_speed(other.o_speed),
+  o_type(other.o_type),
+  frames(other.frames),
+  o_flip(other.o_flip),
+  temp1(other.temp1)
+{
+  for (int i=0; i<10; ++i)
+  {
+    dummy_int[i]=other.dummy_int[i];
+    dummy_fix[i]=other.dummy_fix[i];
+    dummy_float[i]=other.dummy_float[i];
+    dummy_bool[i]=other.dummy_bool[i];
+  }
+  for (int i=0; i<8; ++i)
+  {
+    d[i]=other.d[i];
+  }
+  for (int i=0; i<2; ++i)
+  {
+    a[i]=other.a[i];
+  }
+  for (int i=0; i<256; ++i)
+  {
+    stack[i]=other.stack[i];
+  }
+}
+
 weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
 {
   x=X; y=Y; z=Z; id=Id; type=Type; power=pow; dir=max(Dir,0);
@@ -122,6 +171,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
   bounce=ignoreLink=false;
   yofs=playing_field_offset - 2;
   dragging=-1;
+  hzsz=8;
+  hzsz=8;
 
   if(id>wEnemyWeapons)
     canfreeze=true;
@@ -135,12 +186,15 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
       break;
     case wWind:
       LOADGFX(wWIND);
+      if (get_bit(quest_rules,qr_MORESOUNDS))
+        cont_sfx(WAV_ZN1WHIRLWIND);
       clk=-14;
       step=2;
       break;
     case wBeam:
+    case wRefBeam:
       step = 3;
-      LOADGFX(current_item(itype_sword)-1+wSWORD);
+      LOADGFX(id==wRefBeam ? ewSword : current_item(itype_sword)-1+wSWORD);
       flash = 1;
       cs = 6;
       switch(dir)
@@ -149,6 +203,10 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
         case up:    hyofs=2; hysz=12; break;
         case left:  flip=1;
         case right: tile=o_tile+((frames>1)?frames:1); hxofs=2; hxsz=12; yofs = playing_field_offset+(BSZ ? 3 : 1); break;
+      }
+      if (id==wRefBeam)
+      {
+        ignorecombo=(((int)y&0xF0)+((int)x>>4));
       }
       break;
     case wArrow:
@@ -205,7 +263,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
       LOADGFX(wBAIT);
       break;
     case wMagic:
-      LOADGFX(wMAGIC);
+      LOADGFX(can_use_item(itype_book,i_book) && get_bit(quest_rules,qr_FIREMAGICSPRITE) ? wFIREMAGIC : wMAGIC);
       step = (BSZ ? 3 : 2.5);
       switch(dir)
       {
@@ -225,7 +283,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
       break;
     case wHookshot:
       hookshot_used=true;
-      if(current_item(itype_hookshot)==2)
+      if(/*current_item(itype_hookshot)==2*/type==2)
       {
         LOADGFX(wLSHEAD);
       }
@@ -246,7 +304,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
       break;
     case wHSHandle:
       step = 0;
-      if(current_item(itype_hookshot)==2)
+      if(/*current_item(itype_hookshot)==2*/type==2)
       {
         LOADGFX(wLSHANDLE);
       }
@@ -327,8 +385,9 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
       LOADGFX(wid);
       break;
     case ewFireball:
+      // Hmmm... wrong place for this?
       if (get_bit(quest_rules,qr_MORESOUNDS))
-	sfx(WAV_FIREBALL,(int)x);
+	sfx(WAV_ZN1FIREBALL,(int)x);
       //fallthrough;
     case wRefFireball:
       LOADGFX(ewFIREBALL);
@@ -337,6 +396,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
       seekLink();
       break;
     case ewRock:
+      if (get_bit(quest_rules,qr_MORESOUNDS))
+	sfx(WAV_ZN1ROCK,(int)x);
       LOADGFX(ewROCK);
       hxofs=0; hxsz=15;
       step=3;
@@ -426,13 +487,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
       {
         case pDINSFIREROCKET:
 	  if (get_bit(quest_rules,qr_MORESOUNDS))
-	    sfx(WAV_ROCKETUP,(int)x);
+	    sfx(WAV_ZN1ROCKETUP,(int)x);
           LOADGFX(wDINSFIRE1A);
           step = 4;
           break;
         case pDINSFIREROCKETRETURN:
 	  if (get_bit(quest_rules,qr_MORESOUNDS))
-	    sfx(WAV_ROCKETDOWN,(int)x);
+	    sfx(WAV_ZN1ROCKETDOWN,(int)x);
           LOADGFX(wDINSFIRE1B);
           step = 4;
           break;
@@ -448,14 +509,14 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
         case pNAYRUSLOVEROCKET1:
           LOADGFX(wNAYRUSLOVE1A);
 	  if (get_bit(quest_rules,qr_MORESOUNDS))
-	    sfx(WAV_ROCKETUP,(int)x);
+	    sfx(WAV_ZN1ROCKETUP,(int)x);
           step = 4;
           drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
           break;
         case pNAYRUSLOVEROCKETRETURN1:
           LOADGFX(wNAYRUSLOVE1B);
 	  if (get_bit(quest_rules,qr_MORESOUNDS))
-	    sfx(WAV_ROCKETDOWN,(int)x);
+	    sfx(WAV_ZN1ROCKETDOWN,(int)x);
           step = 4;
           drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
           break;
@@ -610,32 +671,47 @@ bool weapon::animate(int index)
   // do special timing stuff
   bool hooked=false;
   // fall down
-  switch(id) 
+  switch(id)
   {
+    case wFire:
+      // Din's Fire shouldn't fall
+      if(type>3) break;
     case wBomb:
     case wSBomb:
     case wLitBomb:
     case wLitSBomb:
     case wBait:
-    case wFire:
     case ewFlame:
     case ewFireTrail:
-    z-=(int)fall/100;
-    if (z<=0)
-    {
-      z = 0;
-      fall = -fall/2;
+     if (tmpscr->flags7&fSIDEVIEW)
+     {
+       if (!_walkflag(x,y+16,0))
+       {
+         y+=(int)fall/100;
+	 if (fall <= TERMINALV)
+	   fall += GRAVITY;
+       }
+       else
+	 fall = 0;
+     }
+     else
+     {
+       z-=(int)fall/100;
+
+       if (z<=0)
+         z = fall = 0;
+       else if (fall <= TERMINALV)
+         fall += GRAVITY;
     }
-    else if (fall <= TERMINALV)
-      fall += GRAVITY;
   }
-  
+
   //static PALETTE temppal;
   //  fix tempx, tempy;
   switch(id)
   {
     // Link's weapons
     case wBeam:
+    case wRefBeam:
       for (int i=0; i<current_item(itype_sword); i++)
       {
         if (findentrance(x,y,mfSWORDBEAM+i,true)) dead=23;
@@ -648,8 +724,141 @@ bool weapon::animate(int index)
       {
         dead=23;
       }
+    case ewSword:
+      if(get_bit(quest_rules,qr_SWORDMIRROR))
+      {
+        int checkx=0, checky=0;
+        switch (dir)
+        {
+          case up: checkx=x; checky=y+8;
+          break;
+          case down: checkx=x; checky=y;
+          break;
+          case left: checkx=x+8; checky=y;
+          break;
+          case right: checkx=x; checky=y;
+          break;
+        }
+	if (ignorecombo==(((int)checky&0xF0)+((int)checkx>>4)))
+	  break;
+        if (hitcombo(checkx,checky,cMIRROR))
+        {
+          id = wRefBeam;
+          dir ^= 1;
+          if(dir&2)
+            flip ^= 1;
+          else
+            flip ^= 2;
+          ignoreLink=false;
+          ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+          y=(int)y&0xF0;
+          x=(int)x&0xF0;
+        }
+        if (hitcombo(checkx,checky,cMIRRORSLASH))
+        {
+          id = wRefBeam;
+          dir = 3-dir;
+          if((dir==1)||(dir==2))
+            flip ^= 3;
+          tile=o_tile;
+          if (dir&2)
+          {
+            if (frames>1)
+            {
+              tile+=frames;
+            }
+            else
+            {
+              ++tile;
+            }
+          }
+          ignoreLink=false;
+          ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+          y=(int)y&0xF0;
+          x=(int)x&0xF0;
+        }
+        if (hitcombo(checkx,checky,cMIRRORBACKSLASH))
+        {
+          id = wRefBeam;
+          dir ^= 2;
+          if(dir&1)
+            flip ^= 2;
+          else
+            flip ^= 1;
+          tile=o_tile;
+          if (dir&2)
+          {
+            if (frames>1)
+            {
+              tile+=frames;
+            }
+            else
+            {
+              ++tile;
+            }
+          }
+          ignoreLink=false;
+          ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+          y=(int)y&0xF0;
+          x=(int)x&0xF0;
+        }
+        if (hitcombo(checkx,checky,cMAGICPRISM))
+        {
+          int newx, newy;
+          newy=(int)y&0xF0;
+          newx=(int)x&0xF0;
+          for (int tdir=0; tdir<4; tdir++)
+          {
+            if (dir!=(tdir^1))
+            {
+              weapon *w=new weapon(*this);
+              w->dir=tdir;
+              w->x=newx;
+              w->y=newy;
+              w->z=z;
+              w->id=wRefBeam;
+              w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+              //also set up the magic's correct animation -DD
+              switch(w->dir)
+              {
+                case down:  w->flip=2;
+                case up:    w->tile = w->o_tile; w->hyofs=2; w->hysz=12; break;
+                case left:  w->flip=1;
+                case right: w->tile=w->o_tile+((w->frames>1)?w->frames:1); w->hxofs=2; w->hxsz=12; break;
+              }
+              Lwpns.add(w);
+            }
+          }
+          dead=0;
+        }
+        if (hitcombo(checkx,checky,cMAGICPRISM4))
+        {
+          int newx, newy;
+          newy=(int)y&0xF0;
+          newx=(int)x&0xF0;
+          for (int tdir=0; tdir<4; tdir++)
+          {
+            weapon *w=new weapon(*this);
+            w->dir=tdir;
+            w->x=newx;
+            w->y=newy;
+            w->z=z;
+            w->id=wRefBeam;
+            w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+            //also set up the magic's correct animation -DD
+            switch(w->dir)
+            {
+              case down:  w->flip=2;
+              case up:    w->tile = w->o_tile; w->hyofs=2; w->hysz=12; break;
+              case left:  w->flip=1;
+              case right: w->tile=w->o_tile+((w->frames>1)?w->frames:1); w->hxofs=2; w->hxsz=12; break;
+            }
+            Lwpns.add(w);
+          }
+          dead=0;
+        }
+      }
       break;
-
     case wWhistle:
       if(clk)
       {
@@ -663,7 +872,19 @@ bool weapon::animate(int index)
       if(get_bit(quest_rules,qr_NOARRIVALPOINT))
         wrx=tmpscr->warpreturnx[0];
       else wrx=tmpscr->warparrivalx;
-      if(type==1 && dead==-1 && x>=(int)wrx) dead=2;
+      if(type==1 && dead==-1 && x>=(int)wrx)
+      {
+	dead=2;
+	stop_sfx(WAV_ZN1WHIRLWIND);
+      }
+      else if (LinkAction() !=inwind &&
+	((dir==right && x>=240) || (dir==down && y>=160) ||
+	(dir==left && x<=0) || (dir==up && y<=0)))
+      {
+	stop_sfx(WAV_ZN1WHIRLWIND);
+      }
+      else if (get_bit(quest_rules,qr_MORESOUNDS))
+        adjust_sfx(WAV_ZN1WHIRLWIND,pan(int(x)),true);
       break;
     }
 
@@ -679,6 +900,13 @@ bool weapon::animate(int index)
 				if(clk==94)
 				{
 					dead=1;
+					if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+					{
+						lighting(2,dir);
+					}
+				}
+				if(clk==94 || get_bit(quest_rules,qr_INSTABURNFLAGS))
+				{
 					findentrance(x,y,mfBCANDLE,true);
 					if (type>0)
 					{
@@ -688,10 +916,6 @@ bool weapon::animate(int index)
 					{
 						findentrance(x,y,mfWANDFIRE,true);
 						findentrance(x,y,mfDINSFIRE,true);
-					}
-					if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
-					{
-						lighting(2,dir);
 					}
 				}
 			}                                                     //wand fire
@@ -720,25 +944,25 @@ bool weapon::animate(int index)
     case ewLitBomb:
     case ewBomb:
 		{
-			if(clk==48&&step==0)
+			if(clk==192 &&step==0)
 			{
 				id = (id<wEnemyWeapons?wBomb:ewBomb);
 				hxofs=1000;
 			}
-			if(clk==49&&(id==wBomb||id==ewBomb))
+			if(clk==196&&(id==wBomb||id==ewBomb))
 			{
 				sfx(WAV_BOMB,pan(int(x)));
 				hxofs=hyofs=-8;
 				hxsz=hysz=32;
 				hzsz=16;
 			}
-			if(clk==81)
+			if(clk==231)
 			{
 				hxofs=1000;
 			}
 			if(id<wEnemyWeapons)
 			{
-				if(clk==49)
+				if(clk==196)
 				{
 					findentrance(x,y,mfBOMB,true);
 					findentrance(x,y,mfSTRIKE,true);
@@ -746,7 +970,7 @@ bool weapon::animate(int index)
 				if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
 				{
 					usebombpal=true;
-					if(clk==50 || clk==55)
+					if(clk==200 || clk==205)
 					{
 						usebombpal=true;
 						memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
@@ -771,7 +995,7 @@ bool weapon::animate(int index)
 						}
 						refreshpal = true;
 					}
-					if(clk==54 || clk==59)
+					if(clk==204 || clk==209)
 					{
 						// undo grayscale
 						usebombpal=false;
@@ -779,18 +1003,20 @@ bool weapon::animate(int index)
 						refreshpal = true;
 					}
 				}
-				if(clk==80)
+				if(clk==230)
 				{
 					bombdoor(x,y);
 				}
 			}
-			if(clk==84)
+			if(clk==234)
 			{
 				if (step==0)
 				{
 					dead=1;
 				}
 			}
+			if(clk<200 && !get_bit(quest_rules,qr_SLOWBOMBFUSES))
+			  clk+=3;
 			break;
 		}
     case wArrow:
@@ -890,12 +1116,12 @@ bool weapon::animate(int index)
     case wLitSBomb:
     case wSBomb:
 		{
-			if(clk==48&&step==0)
+			if(clk==384&&step==0)
 			{
 				id = (id<wEnemyWeapons?wSBomb:ewSBomb);
 				hxofs=1000;
 			}
-			if(clk==49&&(id==wSBomb||id==ewSBomb))
+			if(clk==392&&(id==wSBomb||id==ewSBomb))
 			{
 				sfx(WAV_BOMB,pan(int(x)));
 				hxofs=hyofs=-16;
@@ -903,7 +1129,7 @@ bool weapon::animate(int index)
 			}
 			if (id<wEnemyWeapons)
 			{
-				if(clk==49)
+				if(clk==384)
 				{
 					for (int tx=-8; tx<=8; tx+=16)
 					{
@@ -923,7 +1149,7 @@ bool weapon::animate(int index)
 				}
 				if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
 				{
-					if(clk==50 || clk==55)
+					if(clk==400 || clk==405)
 					{
 						memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
 						//grayscale entire screen
@@ -948,25 +1174,27 @@ bool weapon::animate(int index)
 						}
 						refreshpal = true;
 					}
-					if(clk==54 || clk==59)
+					if(clk==404 || clk==409)
 					{
 						// undo grayscale
 						memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
 						refreshpal = true;
 					}
 				}
-				if(clk==80)
+				if(clk==430)
 				{
 					bombdoor(x,y);
 				}
 			}
-			if(clk==84)
+			if(clk==434)
 			{
 				if (step==0)
 				{
 					dead=1;
 				}
 			}
+			if(clk<400 && !get_bit(quest_rules,qr_SLOWBOMBFUSES))
+			  clk+=7;
 			break;
 		}
     case wBait:
@@ -1022,16 +1250,16 @@ bool weapon::animate(int index)
 			{
 				step=3;
 			}
-  
+
 			if(clk==0)                                            // delay a frame
 			{
 				++clk;
 				sfx(WAV_BRANG,pan(int(x)),true);
 				return false;
 			}
-  
+
 			if(clk==1)                                            // then check directional input
-			{	
+			{
 				if(Up())
 				{
 					dir=up;
@@ -1053,13 +1281,13 @@ bool weapon::animate(int index)
 					dir=right;
 				}
 			}
-  
+
 			if(dead==1)
 			{
 				dead=-1;
 				misc=1;
 			}
-	  
+
 			if(misc==1)                                           // returning
 			{
 				if(abs(LinkY()-y)<7 && abs(LinkX()-x)<7)
@@ -1078,9 +1306,9 @@ bool weapon::animate(int index)
 				}
 				seekLink();
 			}
-  
+
 			adjust_sfx(WAV_BRANG,pan(int(x)),true);
-  
+
 			if ((get_bit(quest_rules,qr_MBSPARKLES+type-2)) && (type>=2))
 			{
 				if (!(clk%(16>>type)))
@@ -1091,7 +1319,7 @@ bool weapon::animate(int index)
 					add_bsparkle=type-1;
 				}
 			}
-  
+
 			break;
 		}
     case wHookshot:
@@ -1264,8 +1492,8 @@ bool weapon::animate(int index)
         case pNAYRUSLOVEROCKETTRAILRETURN1:                                             //Nayru's Love Rocket return trail
           if(clk>=(((wpnsbuf[wNAYRUSLOVES1B].frames) * (wpnsbuf[wNAYRUSLOVES1B].speed))-1)) { dead=0; }
           break;
-  
-  
+
+
         case pNAYRUSLOVEROCKET2:                                             //Nayru's Love Rocket
           if (!(clk%(4)))
           {
@@ -1295,7 +1523,7 @@ bool weapon::animate(int index)
         case pNAYRUSLOVEROCKETTRAILRETURN2:                                             //Nayru's Love Rocket return trail
           if(clk>=(((wpnsbuf[wNAYRUSLOVES2B].frames) * (wpnsbuf[wNAYRUSLOVES2B].speed))-1)) { dead=0; }
           break;
-  
+
       }
       break;
 
@@ -1306,6 +1534,12 @@ bool weapon::animate(int index)
       if ((id==wMagic)&&(findentrance(x,y,mfWANDMAGIC,true))) dead=0;
       if ((id==wRefMagic)&&(findentrance(x,y,mfREFMAGIC,true))) dead=0;
       if ((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
+      if (((id==wMagic && can_use_item(itype_book,i_book)) || tile == wpnsbuf[wFIREMAGIC].tile) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+      {
+        findentrance(x,y,mfBCANDLE,true);
+        findentrance(x,y,mfRCANDLE,true);
+        findentrance(x,y,mfWANDFIRE,true);
+      }
       int checkx=0, checky=0;
       switch (dir)
       {
@@ -1322,64 +1556,27 @@ bool weapon::animate(int index)
       {
         if (hitcombo(checkx,checky,cMIRROR))
         {
-          id = wRefMagic;
-          dir ^= 1;
-          if(dir&2)
-            flip ^= 1;
-          else
-            flip ^= 2;
-          ignoreLink=false;
-          ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-          y=(int)y&0xF0;
-          x=(int)x&0xF0;
+          int newx, newy;
+          newy=(int)y&0xF0;
+          newx=(int)x&0xF0;
+          addLwpn(newx,newy,z,wRefMagic,0,power,dir^1);
+          dead=0;
         }
         if (hitcombo(checkx,checky,cMIRRORSLASH))
         {
-          id = wRefMagic;
-          dir = 3-dir;
-          if((dir==1)||(dir==2))
-            flip ^= 3;
-          tile=o_tile;
-          if (dir&2)
-          {
-            if (frames>1)
-            {
-              tile+=frames;
-            }
-            else
-            {
-              ++tile;
-            }
-          }
-          ignoreLink=false;
-          ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-          y=(int)y&0xF0;
-          x=(int)x&0xF0;
+          int newx, newy;
+          newy=(int)y&0xF0;
+          newx=(int)x&0xF0;
+          addLwpn(newx,newy,z,wRefMagic,0,power,3-dir);
+          dead=0;
         }
         if (hitcombo(checkx,checky,cMIRRORBACKSLASH))
         {
-          id = wRefMagic;
-          dir ^= 2;
-          if(dir&1)
-            flip ^= 2;
-          else
-            flip ^= 1;
-          tile=o_tile;
-          if (dir&2)
-          {
-            if (frames>1)
-            {
-              tile+=frames;
-            }
-            else
-            {
-              ++tile;
-            }
-          }
-          ignoreLink=false;
-          ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-          y=(int)y&0xF0;
-          x=(int)x&0xF0;
+          int newx, newy;
+          newy=(int)y&0xF0;
+          newx=(int)x&0xF0;
+          addLwpn(newx,newy,z,wRefMagic,0,power,dir^2);
+          dead=0;
         }
         if (hitcombo(checkx,checky,cMAGICPRISM))
         {
@@ -1390,7 +1587,22 @@ bool weapon::animate(int index)
           {
             if (dir!=(tdir^1))
             {
-              addLwpn(newx,newy,z,wRefMagic,0,power,tdir);
+              weapon *w=new weapon(*this);
+              w->dir=tdir;
+              w->x=newx;
+              w->y=newy;
+              w->z=z;
+              w->id=wRefMagic;
+              w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+              //also set up the magic's correct animation -DD
+              switch(w->dir)
+              {
+                case down:  w->flip=2;
+                case up:    w->tile = w->o_tile; w->hyofs=2; w->hysz=12; break;
+                case left:  w->flip=1;
+                case right: w->tile=w->o_tile+((w->frames>1)?w->frames:1); w->hxofs=2; w->hxsz=12; break;
+              }
+              Lwpns.add(w);
             }
           }
           dead=0;
@@ -1402,7 +1614,22 @@ bool weapon::animate(int index)
           newx=(int)x&0xF0;
           for (int tdir=0; tdir<4; tdir++)
           {
-            addLwpn(newx,newy,z,wRefMagic,0,power,tdir);
+            weapon *w=new weapon(*this);
+            w->dir=tdir;
+            w->x=newx;
+            w->y=newy;
+            w->z=z;
+            w->id=wRefMagic;
+            w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+            //also set up the magic's correct animation -DD
+            switch(w->dir)
+            {
+              case down:  w->flip=2;
+              case up:    w->tile = w->o_tile; w->hyofs=2; w->hysz=12; break;
+              case left:  w->flip=1;
+              case right: w->tile=w->o_tile+((w->frames>1)?w->frames:1); w->hxofs=2; w->hxsz=12; break;
+            }
+            Lwpns.add(w);
           }
           dead=0;
         }
@@ -1498,8 +1725,10 @@ bool weapon::animate(int index)
         {
           seekLink();
         }
+	if (get_bit(quest_rules,qr_MORESOUNDS) && step!=0)
+          sfx(WAV_BRANG,pan(int(x)),true);
       }
-  
+
       ++clk2;
       if(clk2==45&&!dummy_bool[0])
       {
@@ -1525,14 +1754,16 @@ bool weapon::animate(int index)
             step=3;
           }
       }
-  
+
       if(dead==1)
       {
         dead=-1;
         misc=1;
         dir^=1;
+	if (get_bit(quest_rules,qr_MORESOUNDS))
+          stop_sfx(WAV_BRANG);
       }
-  
+
       if(misc==1)                                           // returning
       {
         if (dummy_bool[0]==true)
@@ -1616,16 +1847,18 @@ void weapon::onhit(bool clipped, int special, int linkdir)
         }
         return;
 
+      case ewSword:
+      case wRefBeam:
       case ewMagic:
       case wRefMagic:
-        id = wRefMagic;
+        id = ((id==ewMagic || id==wRefMagic) ? wRefMagic : wRefBeam);
         dir ^= 1;
         if(dir&2)
           flip ^= 1;
         else
           flip ^= 2;
         return;
-  
+
         default:
         special = 1;                                          // check normal shield stuff
     }
@@ -1636,7 +1869,7 @@ void weapon::onhit(bool clipped, int special, int linkdir)
     switch(id)
     {
       case ewRock:
-	if (get_bit(quest_rules,qr_REFLECTROCKS)) 
+	if (get_bit(quest_rules,qr_REFLECTROCKS))
 	{
 	 id = wRefRock;
          dir ^= 1;
@@ -1667,8 +1900,8 @@ void weapon::onhit(bool clipped, int special, int linkdir)
   {
     case ewBomb:     step=0; break;
     case ewSBomb:    step=0; break;
-    case ewLitBomb:  step=0; id=ewBomb;  clk=47; hxofs=hyofs=-7;  hxsz=hysz=30; break;
-    case ewLitSBomb: step=0; id=ewSBomb; clk=47; hxofs=hyofs=-16; hxsz=hysz=48; break;
+    case ewLitBomb:  step=0; id=ewBomb;  clk=195; hxofs=hyofs=-7;  hxsz=hysz=30; break;
+    case ewLitSBomb: step=0; id=ewSBomb; clk=391; hxofs=hyofs=-16; hxsz=hysz=48; break;
     case wLitBomb:  if(!clipped) dead=1;
     case wLitSBomb: if(!clipped) dead=1;
     case wWhistle:
@@ -1680,6 +1913,7 @@ void weapon::onhit(bool clipped, int special, int linkdir)
     case wPhantom: break;                                   // don't worry about clipping or hits with these
     case ewFireTrail:  if (!clipped) dead=1; break;
     case ewFlame:  if (!clipped) dead=1; break;
+    case wRefBeam:
     case wBeam:    dead=23; break;
     case wArrow:   dead=4; break;                           //findentrance(x,y,mfARROW,true); break;
     case ewArrow:  dead=clipped?4:1; break;
@@ -1726,11 +1960,16 @@ void weapon::onhit(bool clipped, int special, int linkdir)
         dead=4;
       }
       break;
+    case wRefMagic:
     case wMagic:
-      wand_dead=true;
-      wand_x=x; wand_y=y; wand_z=z;        // set some global flags
-      dead=1; break;                                          //remove the dead part to make the wand only die when clipped
-
+      dead=1; //remove the dead part to make the wand only die when clipped
+      if(((id==wMagic && can_use_item(itype_book,i_book))
+	|| tile == wpnsbuf[wFIREMAGIC].tile) && Lwpns.idCount(wFire)<2)
+      {
+        Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0));
+        sfx(WAV_FIRE,pan(x));
+      }
+      break;
     case ewWind:
       if (clipped)
       {
@@ -1767,12 +2006,12 @@ void weapon::draw(BITMAP *dest)
   {
     if(!BSZ)
     {
-      cs = (id==wBeam) ? 6 : o_cset&15;
+      cs = (id==wBeam || id==wRefBeam) ? 6 : o_cset&15;
       cs += frame&3;
     }
     else
     {
-      if(id==wBeam)
+      if(id==wBeam || id==wRefBeam)
         cs = ((frame>>2)&1)+7;
       else
       {
@@ -1809,6 +2048,7 @@ void weapon::draw(BITMAP *dest)
   switch(id)
   {
     case wBeam:
+    case wRefBeam:
     {
       if(dead==-1) break;
       // draw the beam shards

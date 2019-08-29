@@ -25,7 +25,8 @@
 #define MAXCOMBOTYPES  cMAX
 #define MAXFLAGS    mfMAX
 #define MAXPATTERNS  4
-#define MAXCUSTOMMIDIS_ZQ  4+MAXCUSTOMMIDIS
+//AAAArghhh put parentheses around your macros :( :(
+#define MAXCUSTOMMIDIS_ZQ  (4+MAXCUSTOMMIDIS)
 
 #define cWALK      1
 #define cFLAGS     2
@@ -70,11 +71,16 @@ extern char *warptype_string[MAXWARPTYPES];
 extern char *warpeffect_string[MAXWARPEFFECTS];
 extern char *combotype_string[MAXCOMBOTYPES];
 extern char *flag_string[MAXFLAGS];
+extern char	*old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
 extern char *pattern_string[MAXPATTERNS];
 extern char *short_pattern_string[MAXPATTERNS];
 extern char *midi_string[MAXCUSTOMMIDIS_ZQ];
 extern char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1];
+extern char *enetype_string[eeMAX];
+extern char *eneanim_string[aMAX];
+extern char *itemset_string[isMAX];
+extern char *eweapon_string[wMax-wEnemyWeapons];
 extern int gocnt;
 
 int filetype(char *path);

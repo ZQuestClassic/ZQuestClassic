@@ -58,7 +58,7 @@ void BuildOpcodes::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *par
 	result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
 	result.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
 }
-	
+
 void BuildOpcodes::caseExprAnd(ASTExprAnd &host, void *param)
 {
 	if(host.hasIntValue())
@@ -147,7 +147,7 @@ void BuildOpcodes::caseExprGT(ASTExprGT &host, void *param)
 	next->setLabel(donelabel);
 	result.push_back(next);
 }
-	
+
 void BuildOpcodes::caseExprGE(ASTExprGE &host, void *param)
 {
 	if(host.hasIntValue())
@@ -235,8 +235,22 @@ void BuildOpcodes::caseExprLE(ASTExprLE &host, void *param)
 	result.push_back(next);
 }
 
+void BuildOpcodes::castFromBool(vector<Opcode *> &res, int reg)
+{
+	int donelabel=ScriptParser::getUniqueLabelID();
+	res.push_back(new OCompareImmediate(new VarArgument(reg), new LiteralArgument(0)));
+	res.push_back(new OGotoTrueImmediate(new LabelArgument(donelabel)));
+	res.push_back(new OSetImmediate(new VarArgument(reg), new LiteralArgument(1)));
+	res.push_back(new OGotoImmediate(new LabelArgument(donelabel)));
+	Opcode *next = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
+	next->setLabel(donelabel);
+	res.push_back(next);
+}
+
 void BuildOpcodes::caseExprEQ(ASTExprEQ &host, void *param)
 {
+	//special case for booleans
+	bool isBoolean = (host.getFirstOperand()->getType() == ScriptParser::TYPE_BOOL);
 	if(host.hasIntValue())
 	{
 		result.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
@@ -247,6 +261,11 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ &host, void *param)
 	result.push_back(new OPushRegister(new VarArgument(EXP1)));
 	host.getSecondOperand()->execute(*this,param);
 	result.push_back(new OPopRegister(new VarArgument(EXP2)));
+	if(isBoolean)
+	{
+		castFromBool(result, EXP1);
+		castFromBool(result, EXP2);
+	}
 	int truelabel = ScriptParser::getUniqueLabelID();
 	int donelabel = ScriptParser::getUniqueLabelID();
 	result.push_back(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -264,6 +283,8 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ &host, void *param)
 
 void BuildOpcodes::caseExprNE(ASTExprNE &host, void *param)
 {
+	//special case for booleans
+	bool isBoolean = (host.getFirstOperand()->getType() == ScriptParser::TYPE_BOOL);
 	if(host.hasIntValue())
 	{
 		result.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
@@ -274,6 +295,11 @@ void BuildOpcodes::caseExprNE(ASTExprNE &host, void *param)
 	result.push_back(new OPushRegister(new VarArgument(EXP1)));
 	host.getSecondOperand()->execute(*this,param);
 	result.push_back(new OPopRegister(new VarArgument(EXP2)));
+	if(isBoolean)
+	{
+		castFromBool(result, EXP1);
+		castFromBool(result, EXP2);
+	}
 	int truelabel = ScriptParser::getUniqueLabelID();
 	int donelabel = ScriptParser::getUniqueLabelID();
 	result.push_back(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -511,9 +537,9 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement &host, void *param)
 		host.getOperand()->execute(*this,param);
 		c->symbols->putAST(host.getOperand(), oldid);
 	}
-	
+
 	result.push_back(new OPushRegister(new VarArgument(EXP1)));
-	
+
 	//increment EXP1
 	result.push_back(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
 	//store it
@@ -548,9 +574,9 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement &host, void *param)
 		host.getOperand()->execute(*this,param);
 		c->symbols->putAST(host.getOperand(), oldid);
 	}
-	
+
 	result.push_back(new OPushRegister(new VarArgument(EXP1)));
-	
+
 	//decrement EXP1
 	result.push_back(new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
 	//store it
@@ -584,7 +610,7 @@ void BuildOpcodes::caseFuncCall(ASTFuncCall &host, void *param)
 		((ASTExprArrow *)host.getName())->getLVal()->execute(*this,param);
 		//host.getName()->execute(*this,param);
 		//push it onto the stack
-		result.push_back(new OPushRegister(new VarArgument(EXP1)));	
+		result.push_back(new OPushRegister(new VarArgument(EXP1)));
 	}
 	//push the parameters, in forward order
 	for(list<ASTExpr *>::iterator it = host.getParams().begin(); it != host.getParams().end(); it++)
@@ -599,7 +625,7 @@ void BuildOpcodes::caseFuncCall(ASTFuncCall &host, void *param)
 	next->setLabel(returnaddr);
 	result.push_back(next);
 }
-	
+
 void BuildOpcodes::caseStmtAssign(ASTStmtAssign &host, void *param)
 {
 	//load the rval into EXP1
@@ -705,7 +731,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	next->setLabel(loopend);
 	result.push_back(next);
 }
-	
+
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 {
 	//run the test
@@ -756,7 +782,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
 	start->setLabel(startlabel);
 	result.push_back(start);
-	
+
 	int oldbreak = breaklabelid;
 	int oldcontinue = continuelabelid;
 	breaklabelid = endlabel;
@@ -764,7 +790,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	host.getStmt()->execute(*this,param);
 	breaklabelid = oldbreak;
 	continuelabelid = oldcontinue;
-	
+
 	start = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
 	start->setLabel(continuelabel);
 	result.push_back(start);
@@ -777,7 +803,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	end->setLabel(endlabel);
 	result.push_back(end);
 }
-	
+
 void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 {
 	//run the test
@@ -797,7 +823,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 	next->setLabel(endif);
 	result.push_back(next);
 }
-	
+
 void BuildOpcodes::caseStmtReturn(ASTStmtReturn &host, void *param)
 {
   //these are here to bypass compiler warnings about unused arguments
@@ -823,7 +849,7 @@ void BuildOpcodes::caseStmtEmpty(ASTStmtEmpty &host, void *param)
 
 	//empty
 }
-	
+
 void BuildOpcodes::caseNumConstant(ASTNumConstant &host, void *param)
 {
   //these are here to bypass compiler warnings about unused arguments
@@ -831,7 +857,7 @@ void BuildOpcodes::caseNumConstant(ASTNumConstant &host, void *param)
 
 	result.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
 }
-	
+
 void BuildOpcodes::caseBoolConstant(ASTBoolConstant &host, void *param)
 {
   //these are here to bypass compiler warnings about unused arguments
@@ -889,7 +915,7 @@ void LValBOHelper::caseExprDot(ASTExprDot &host, void *param)
 	}
 	//set the stack
 	int offset = c->stackframe->getOffset(vid);
-	
+
 	result.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
 	result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
 	result.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));

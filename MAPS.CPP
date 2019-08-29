@@ -47,14 +47,14 @@ int draw_screen_clip_rect_y2=223;
 //bool draw_screen_clip_rect_show_guys=false;
 bool checktrigger=false;
 
-void clear_dmap(byte i)
+void clear_dmap(word i)
 {
   memset(&DMaps[i],0,sizeof(dmap));
 }
 
 void clear_dmaps()
 {
-  for (int i=0; i<=255; i++)
+  for (int i=0; i<MAXDMAPS; i++)
   {
     clear_dmap(i);
   }
@@ -62,12 +62,6 @@ void clear_dmaps()
 
 int isdungeon()
 {
-  // overworlds should always be dlevel 0
-  /*
-    if(dlevel == 0)
-    return 0;
-    */
-
   // dungeons can have any dlevel above 0
   if((DMaps[currdmap].type&dmfTYPE) == dmDNGN)
   {
@@ -95,9 +89,9 @@ int MAPFFCOMBO(int x,int y)
   for(int i=0;i<32;i++)
   {
     if(x>=(tmpscr->ffx[i]/10000)&&x<(tmpscr->ffx[i]/10000)+(tmpscr->ffwidth[i]&63)+1)
-	  if(y>=(tmpscr->ffy[i]/10000)&&y<(tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1)
-	    if(!(tmpscr->ffflags[i]&ffCHANGER))
-		  return tmpscr->ffdata[i];
+    if(y>=(tmpscr->ffy[i]/10000)&&y<(tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1)
+      if(!(tmpscr->ffflags[i]&ffCHANGER))
+      return tmpscr->ffdata[i];
   }
   return 0;
 }
@@ -141,14 +135,14 @@ int MAPFFCOMBOFLAG(int x,int y)
   for(int i=0;i<32;i++)
   {
     if(x>=(tmpscr->ffx[i]/10000)&&x<((tmpscr->ffx[i]/10000)+(tmpscr->ffwidth[i]&63)+1))
-	  if(y>=(tmpscr->ffy[i]/10000)&&y<((tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1))
-	  {
-	    if(!(tmpscr->ffflags[i]&ffCHANGER))
-		{
-	    current_ffcombo = i;
-		return combobuf[tmpscr->ffdata[i]].flag;
-		}
-	  }
+    if(y>=(tmpscr->ffy[i]/10000)&&y<((tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1))
+    {
+      if(!(tmpscr->ffflags[i]&ffCHANGER))
+      {
+        current_ffcombo = i;
+        return combobuf[tmpscr->ffdata[i]].flag;
+      }
+    }
   }
   current_ffcombo=-1;
   return 0;
@@ -156,6 +150,7 @@ int MAPFFCOMBOFLAG(int x,int y)
 
 int MAPCOMBO2(int layer,int x,int y)
 {
+  if(tmpscr2[layer].data==NULL) return 0;
   int combo = (y&0xF0)+(x>>4);
   if(combo>175)
     return 0;
@@ -168,6 +163,7 @@ int MAPCOMBO2(int layer,int x,int y)
 
 int MAPCSET2(int layer,int x,int y)
 {
+  if(tmpscr2[layer].cset==NULL) return 0;
   int combo = (y&0xF0)+(x>>4);
   if(combo>175)
     return 0;
@@ -180,6 +176,7 @@ int MAPCSET2(int layer,int x,int y)
 
 int MAPFLAG2(int layer,int x,int y)
 {
+  if(tmpscr2[layer].sflag==NULL) return 0;
   int combo = (y&0xF0)+(x>>4);
   if(combo>175)
     return 0;
@@ -201,6 +198,7 @@ int COMBOTYPE2(int layer,int x,int y)
 
 int MAPCOMBOFLAG2(int layer,int x,int y)
 {
+  if(tmpscr2[layer].data==NULL) return 0;
   int combo = (y&0xF0)+(x>>4);
   if(combo>175)
     return 0;
@@ -342,6 +340,7 @@ void update_combo_cycling()
   {
     x=tmpscr->data[i];
     y=animated_combo_table[x][0];
+	if(combobuf[x].freshanim) continue;
     //time to restart
     if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
@@ -362,6 +361,7 @@ void update_combo_cycling()
   {
     x=tmpscr->data[i];
     y=animated_combo_table2[x][0];
+  if(!(combobuf[x].freshanim)) continue;
     //time to restart
     if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
@@ -372,7 +372,7 @@ void update_combo_cycling()
       int c=tmpscr->data[i];
       int cs=tmpscr->cset[i];
       if (combobuf[c].type==cSPINTILE1)
-      { 
+      {
         addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table2[c][1]+max(1,combobuf[c].frames));
       }
     }
@@ -380,10 +380,11 @@ void update_combo_cycling()
 
   for(int i=0;i<32;i++)
   {
-	  x=tmpscr->ffdata[i];
-	  y=animated_combo_table[x][0];
-	  //time to restart
-	  if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
+    x=tmpscr->ffdata[i];
+    y=animated_combo_table[x][0];
+  if(combobuf[x].freshanim) continue;
+    //time to restart
+    if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
       {
@@ -400,10 +401,11 @@ void update_combo_cycling()
 
   for(int i=0;i<32;i++)
   {
-	  x=tmpscr->ffdata[i];
-	  y=animated_combo_table2[x][0];
-	  //time to restart
-	  if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
+    x=tmpscr->ffdata[i];
+    y=animated_combo_table2[x][0];
+  if(!(combobuf[x].freshanim)) continue;
+    //time to restart
+    if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
       {
@@ -423,10 +425,12 @@ void update_combo_cycling()
   {
     for (int j=0; j<6; j++)
     {
+	  if(tmpscr2[j].data==NULL||tmpscr2[j].cset==NULL||tmpscr2[j].sflag==NULL) continue;
       for (int i=0; i<176; i++)
       {
         x=(tmpscr2+j)->data[i];
         y=animated_combo_table[x][0];
+    if(combobuf[x].freshanim) continue;
         //time to restart
         if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
             (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
@@ -442,10 +446,11 @@ void update_combo_cycling()
           }
         }
       }
-	  for (int i=0; i<176; i++)
+    for (int i=0; i<176; i++)
       {
         x=(tmpscr2+j)->data[i];
         y=animated_combo_table2[x][0];
+    if(!(combobuf[x].freshanim)) continue;
         //time to restart
         if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
             (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
@@ -526,6 +531,7 @@ bool remove_lockblocks(int tmp,bool redraw)                 // tmp = index of tm
   }
   for (int j=0; j<6; j++)
   {
+    if(t[j].data==NULL||t[j].cset==NULL||t[j].sflag==NULL) continue;
     for (int i=0; i<176; i++)
     {
       if ((combobuf[t[j].data[i]].type==cLOCKBLOCK) ||
@@ -559,6 +565,7 @@ bool remove_bosslockblocks(int tmp,bool redraw)             // tmp = index of tm
   }
   for (int j=0; j<6; j++)
   {
+    if(t[j].data==NULL||t[j].cset==NULL||t[j].sflag==NULL) continue;
     for (int i=0; i<176; i++)
     {
       if ((combobuf[t[j].data[i]].type==cBOSSLOCKBLOCK) ||
@@ -592,6 +599,7 @@ bool remove_chests(int tmp,bool redraw)                 // tmp = index of tmpscr
   }
   for (int j=0; j<6; j++)
   {
+    if(t[j].data==NULL||t[j].cset==NULL||t[j].sflag==NULL) continue;
     for (int i=0; i<176; i++)
     {
       if ((combobuf[t[j].data[i]].type==cCHEST) ||
@@ -625,6 +633,7 @@ bool remove_lockedchests(int tmp,bool redraw)                 // tmp = index of 
   }
   for (int j=0; j<6; j++)
   {
+    if(t[j].data==NULL||t[j].cset==NULL||t[j].sflag==NULL) continue;
     for (int i=0; i<176; i++)
     {
       if ((combobuf[t[j].data[i]].type==cLOCKEDCHEST) ||
@@ -658,6 +667,7 @@ bool remove_bosschests(int tmp,bool redraw)                 // tmp = index of tm
   }
   for (int j=0; j<6; j++)
   {
+    if(t[j].data==NULL||t[j].cset==NULL||t[j].sflag==NULL) continue;
     for (int i=0; i<176; i++)
     {
       if ((combobuf[t[j].data[i]].type==cBOSSCHEST) ||
@@ -717,10 +727,10 @@ void delete_fireball_shooter(mapscr *s, int i)
 
 bool findtrigger(int scombo, bool ff)
 {
-	int checkflag=0;
-	int iter;
-	for(int j=0;j<(ff?32:176);j++)
-	{
+  int checkflag=0;
+  int iter;
+  for(int j=0;j<(ff?32:176);j++)
+  {
     if(ff)
     {
       checkflag=combobuf[tmpscr->ffdata[j]].flag;
@@ -775,8 +785,8 @@ bool findtrigger(int scombo, bool ff)
         break;
       }
     }
-	}
-	return false;
+  }
+  return false;
 }
 
 void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
@@ -908,6 +918,7 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
 
       for (int j=0; j<6; j++)
       {
+	    if(t[j].data==NULL||t[j].cset==NULL||t[j].sflag==NULL) continue;
         if(single>=0) continue;
         for (int iter=0; iter<2; ++iter)
         {
@@ -1023,7 +1034,7 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
 
   for(int i=0; i<32; i++)
   {
-	  if(single>=0)
+    if(single>=0)
       if(i+176!=single)
         continue;
       bool putit;
@@ -1132,7 +1143,7 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
           if(iter) s->sflag[i] = s->secretflag[ft];
         }
       }
-	}
+  }
   }
 
   if(checktrigger)
@@ -1140,8 +1151,8 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
     checktrigger=false;
     if(tmpscr->flags6&fTRIGGERF1631)
     {
-		if(findtrigger(-1,false)) goto endhe;
-		if(findtrigger(-1,true)) goto endhe;
+    if(findtrigger(-1,false)) goto endhe;
+    if(findtrigger(-1,true)) goto endhe;
     }
   }
 
@@ -1167,8 +1178,10 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
       }
       for (int j=0; j<6; j++)
       {
+	    if(t[j].data==NULL||t[j].cset==NULL||t[j].sflag==NULL) continue;
         for (int iter=0; iter<2; ++iter)
         {
+
           int checkflag=combobuf[t[j].data[i]].flag;
           if (iter==1)
           {
@@ -1193,7 +1206,7 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
 
   for(int i=0; i<32; i++)
   {
-	if((!(s->flags2&fCLEARSECRET)&&(single<0)) || high16only || s->flags4&fENEMYSCRTPERM)
+  if((!(s->flags2&fCLEARSECRET)&&(single<0)) || high16only || s->flags4&fENEMYSCRTPERM)
     {
       for (int iter=0; iter<1; ++iter)
       {
@@ -1210,14 +1223,14 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
           //        putit = true;
         }
       }
-	}
   }
-    
+  }
+
 endhe:
   if(tmpscr->flags4&fDISABLETIME)
   {
-	  activated_timed_warp=true;
-	  tmpscr->timedwarptics = 0;
+    activated_timed_warp=true;
+    tmpscr->timedwarptics = 0;
   }
 }
 
@@ -1270,28 +1283,28 @@ bool findentrance(int x, int y, int flag, bool setflag)
 
   if(MAPFFCOMBOFLAG(x,y)==flag)
   {
-	foundflag=true;
+  foundflag=true;
     foundfflag=true;
   }
   ffcombos[0] = current_ffcombo;
 
   if(MAPFFCOMBOFLAG(x+15,y)==flag)
   {
-	foundflag=true;
+  foundflag=true;
     foundfflag=true;
   }
   ffcombos[1] = current_ffcombo;
 
   if(MAPFFCOMBOFLAG(x,y+15)==flag)
   {
-	foundflag=true;
+  foundflag=true;
     foundfflag=true;
   }
   ffcombos[2] = current_ffcombo;
 
   if(MAPFFCOMBOFLAG(x+15,y+15)==flag)
   {
-	foundflag=true;
+  foundflag=true;
     foundfflag=true;
   }
   ffcombos[3] = current_ffcombo;
@@ -1423,21 +1436,21 @@ bool findentrance(int x, int y, int flag, bool setflag)
 
   if(ffcombosingle)
   {
-	  if(ffcombos[0]!=-1) scombo = ffcombos[0]+176;
-	  else if(ffcombos[1]!=-1) scombo = ffcombos[1]+176;
-	  else if(ffcombos[2]!=-1) scombo = ffcombos[2]+176;
-	  else if(ffcombos[3]!=-1) scombo = ffcombos[3]+176;
+    if(ffcombos[0]!=-1) scombo = ffcombos[0]+176;
+    else if(ffcombos[1]!=-1) scombo = ffcombos[1]+176;
+    else if(ffcombos[2]!=-1) scombo = ffcombos[2]+176;
+    else if(ffcombos[3]!=-1) scombo = ffcombos[3]+176;
   }
 
   if(scombo<0)
   {
-	checktrigger=true;
+  checktrigger=true;
     hidden_entrance(0,true);
   }
-  else 
+  else
   {
     checktrigger=true;
-	hidden_entrance(0,true,single16,scombo);
+  hidden_entrance(0,true,single16,scombo);
   }
   if (!nosecretsounds)
   {
@@ -1445,8 +1458,8 @@ bool findentrance(int x, int y, int flag, bool setflag)
   }
   if(tmpscr->flags6&fTRIGGERFPERM)
   {
-		if(findtrigger(-1,false)) setflag=false;
-		if(findtrigger(-1,true)) setflag=false;
+    if(findtrigger(-1,false)) setflag=false;
+    if(findtrigger(-1,true)) setflag=false;
   }
   if(setflag && (!isdungeon()/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/))
     if(!(tmpscr->flags5&fTEMPSECRETS))
@@ -1456,7 +1469,7 @@ bool findentrance(int x, int y, int flag, bool setflag)
 
 void update_freeform_combos()
 {
-  ffscript_engine();
+  ffscript_engine(false);
   for(int i=0;i<32;i++)
   {
     if(!(tmpscr->ffflags[i]&ffCHANGER) && tmpscr->ffdata[i]!=0 && !(tmpscr->ffflags[i]&ffSTATIONARY))
@@ -1491,7 +1504,7 @@ void update_freeform_combos()
       }
       if(tmpscr->ffx[i]<-320000)
       {
-        if(tmpscr->flags6&fWRAPAROUNDFF) 
+        if(tmpscr->flags6&fWRAPAROUNDFF)
         {
           tmpscr->ffx[i] = 2880000-(tmpscr->ffx[i]+320000);
           ffprvx[i] = tmpscr->ffx[i];
@@ -1504,7 +1517,7 @@ void update_freeform_combos()
       }
       if(tmpscr->ffy[i]<-320000)
       {
-        if(tmpscr->flags6&fWRAPAROUNDFF) 
+        if(tmpscr->flags6&fWRAPAROUNDFF)
         {
           tmpscr->ffy[i] = 2080000-(tmpscr->ffy[i]+320000);
           ffprvx[i] = tmpscr->ffx[i];
@@ -1517,7 +1530,7 @@ void update_freeform_combos()
       }
       if(tmpscr->ffx[i]>=2880000)
       {
-        if(tmpscr->flags6&fWRAPAROUNDFF) 
+        if(tmpscr->flags6&fWRAPAROUNDFF)
         {
           tmpscr->ffx[i] = tmpscr->ffx[i]-2880000-320000;
           ffprvy[i] = tmpscr->ffy[i];
@@ -1530,7 +1543,7 @@ void update_freeform_combos()
       }
       if(tmpscr->ffy[i]>=2080000)
       {
-        if(tmpscr->flags6&fWRAPAROUNDFF) 
+        if(tmpscr->flags6&fWRAPAROUNDFF)
         {
           tmpscr->ffy[i] = tmpscr->ffy[i]-2080000-320000;
           ffprvy[i] = tmpscr->ffy[i];
@@ -1541,7 +1554,7 @@ void update_freeform_combos()
           tmpscr->ffflags[i]&=~ffCARRYOVER;
         }
       }
-  
+
       for(int j=0;j<32;j++)
       {
         if(i!=j)
@@ -1576,10 +1589,14 @@ void update_freeform_combos()
                 tmpscr->ffheight[i]=tmpscr->ffheight[j];
                 if(tmpscr->ffflags[i]&ffCARRYOVER)
                   tmpscr->ffflags[i]=tmpscr->ffflags[j]|ffCARRYOVER;
-                else tmpscr->ffflags[i]=tmpscr->ffflags[j];
+                else
+		{
+		  tmpscr->ffflags[i]=tmpscr->ffflags[j];
+		}
+		tmpscr->ffflags[i]&=~ffCHANGER;
                 ffposx[i]=(short)(tmpscr->ffx[j]/10000);
                 ffposy[i]=(short)(tmpscr->ffy[j]/10000);
-       
+
                 if(combobuf[tmpscr->ffdata[j]].flag>15 && combobuf[tmpscr->ffdata[j]].flag<32)
                 {
                   tmpscr->ffdata[j]=tmpscr->secretcombo[combobuf[tmpscr->ffdata[j]].flag-16+4];
@@ -1707,192 +1724,443 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
   switch (type)
   {
     case -2:                                                //push blocks
-    for (int i=0; i<176; i++)
-    {
-      mf=layer->sflag[i];
-      if (mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED ||
-          ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS)))
+      for (int i=0; i<176; i++)
       {
-        overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
+        mf=layer->sflag[i];
+        if (mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS)))
+        {
+          overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
+        }
+        else
+        {
+          mf=combobuf[layer->data[i]].flag;
+          if (mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS)))
+          {
+            overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
+          }
+        }
       }
-      else
+      break;
+    case -1:                                                //over combo
+      for (int i=0; i<176; i++)
       {
-        mf=combobuf[layer->data[i]].flag;
-        if (mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED ||
-            ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS)))
+        if (combobuf[layer->data[i]].type==cOVERHEAD)
         {
           overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
         }
       }
-    }
-    break;
-    case -1:                                                //over combo
-    for (int i=0; i<176; i++)
-    {
-      if (combobuf[layer->data[i]].type==cOVERHEAD)
-      {
-        overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
-      }
-      /*if (combobuf[layer->data[i]].type==cVERTICAL)
-        {
-        if(Link.getY() <= (i&0xF0))
-        {
-        overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,layer->data[i],layer->cset[i]);
-        }
-        }*/
-    }
-    break;
+      break;
     case 0:
     //case 1:
     //case 2:
     case 3:
     case 4:
     case 5:
-	if (TransLayers || layer->layeropacity[type]==255)
-    {
-      if (layer->layermap[type]>0)
+      if (TransLayers || layer->layeropacity[type]==255)
       {
-        if (scrolling)
+        if (layer->layermap[type]>0)
         {
-          if (layer->layeropacity[type]==255)
+          if (scrolling)
           {
-            for (int i=0; i<176; i++)
+            if (layer->layeropacity[type]==255)
             {
-              overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
+              if (tempscreen==2)
+              {
+                for (int i=0; i<176; i++)
+                {
+                  overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                }
+              }
+              else
+              {
+                for (int i=0; i<176; i++)
+                {
+                  overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                }
+              }
+            }
+            else
+            {
+              if (tempscreen==2)
+              {
+                for (int i=0; i<176; i++)
+                {
+                  overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
+                }
+              }
+              else
+              {
+                for (int i=0; i<176; i++)
+                {
+                  overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
+                }
+              }
             }
           }
           else
           {
-            for (int i=0; i<176; i++)
+            if (layer->layeropacity[type]==255)
             {
-              //                overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr3[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
-              overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
+              if (tempscreen==2)
+              {
+                for (int i=0; i<176; i++)
+                {
+                  overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                }
+              }
+              else
+              {
+                for (int i=0; i<176; i++)
+                {
+                  overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                }
+              }
             }
-          }
-        }
-        else
-        {
-          if (layer->layeropacity[type]==255)
-          {
-            for (int i=0; i<176; i++)
+            else
             {
-              overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-            }
-          }
-          else
-          {
-            for (int i=0; i<176; i++)
-            {
-              overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
+              if (tempscreen==2)
+              {
+                for (int i=0; i<176; i++)
+                {
+                  overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
+                }
+              }
+              else
+              {
+                for (int i=0; i<176; i++)
+                {
+                  overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
+                }
+              }
             }
           }
         }
       }
-    }
-    break;
-	case 1:
-	if (TransLayers || layer->layeropacity[type]==255)
-    {
-      if (layer->layermap[type]>0)
+      break;
+    case 1:
+      if (TransLayers || layer->layeropacity[type]==255)
       {
-        if (scrolling)
+        if (layer->layermap[type]>0)
         {
-          if (layer->layeropacity[type]==255)
+          if (scrolling)
           {
-            for (int i=0; i<176; i++)
+            if (layer->layeropacity[type]==255)
             {
-			  if(layer->flags7&fLAYER2BG)
-			    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-              else overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
+              if(layer->flags7&fLAYER2BG)
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
+              else
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
+            }
+            else
+            {
+              if(layer->flags7&fLAYER2BG)
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
+              else
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
+                  }
+                }
+              }
             }
           }
           else
           {
-            for (int i=0; i<176; i++)
+            if (layer->layeropacity[type]==255)
             {
-              //                overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr3[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
-			  if(layer->flags7&fLAYER2BG)
-			    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-              else overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
+              if(layer->flags7&fLAYER2BG)
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
+              else
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
             }
-          }
-        }
-        else
-        {
-          if (layer->layeropacity[type]==255)
-          {
-            for (int i=0; i<176; i++)
+            else
             {
-			  if(layer->flags7&fLAYER2BG)
-				putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-              else overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-            }
-          }
-          else
-          {
-            for (int i=0; i<176; i++)
-            {
-			  if(layer->flags7&fLAYER2BG)
-				putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-              else overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
+              if(layer->flags7&fLAYER2BG)
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
+              else
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
+                  }
+                }
+              }
             }
           }
         }
       }
-    }
-    break;
-	case 2:
-	if (TransLayers || layer->layeropacity[type]==255)
-    {
-      if (layer->layermap[type]>0)
+      break;
+    case 2:
+      if (TransLayers || layer->layeropacity[type]==255)
       {
-        if (scrolling)
+        if (layer->layermap[type]>0)
         {
-          if (layer->layeropacity[type]==255)
+          if (scrolling)
           {
-            for (int i=0; i<176; i++)
+            if (layer->layeropacity[type]==255)
             {
-			  if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
-			    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-              else overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
+              if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
+              else
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
+            }
+            else
+            {
+              if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
+              else
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
+                  }
+                }
+              }
             }
           }
           else
           {
-            for (int i=0; i<176; i++)
+            if (layer->layeropacity[type]==255)
             {
-              //                overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr3[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
-			  if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
-			    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-              else overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
+              if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
+              else
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
             }
-          }
-        }
-        else
-        {
-          if (layer->layeropacity[type]==255)
-          {
-            for (int i=0; i<176; i++)
+            else
             {
-			  if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
-				putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-              else overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-            }
-          }
-          else
-          {
-            for (int i=0; i<176; i++)
-            {
-			  if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
-				putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i]);
-              else overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tempscreen==2?tmpscr2[type].data[i]:tmpscr3[type].data[i],tempscreen==2?tmpscr2[type].cset[i]:tmpscr3[type].cset[i],layer->layeropacity[type]);
+              if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i]);
+                  }
+                }
+              }
+              else
+              {
+                if (tempscreen==2)
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr2[type].data[i],tmpscr2[type].cset[i],layer->layeropacity[type]);
+                  }
+                }
+                else
+                {
+                  for (int i=0; i<176; i++)
+                  {
+                    overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmpscr3[type].data[i],tmpscr3[type].cset[i],layer->layeropacity[type]);
+                  }
+                }
+              }
             }
           }
         }
       }
-    }
-    break;
-	
+      break;
   }
 }
 
@@ -1950,34 +2218,930 @@ void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen
       break;
   }
   do_scrolling_layer(bmp, type, layer, x, y, false, tempscreen);
+  if(type>=0&&type<=5)
+  {
+    do_primitives(bmp, type+1, layer, x, y);
+  }
+}
+
+void do_primitives(BITMAP *bmp, int type, mapscr *layer, int , int )
+{
+  layer=layer;
+  color_map=&trans_table2;
+
+  BITMAP *bmp2;
+  bmp2 = create_bitmap_ex(8, bmp->w, bmp->h);
+  clear_bitmap(bmp2);
+  for(int i=0; i<1000; i++)
+  {
+    int *sdci=script_drawing_commands[i];
+    if(sdci[0]==0)
+    {
+      continue;
+    }
+    clear_bitmap(bmp2);
+    if(sdci[1] == type) //layer?
+    {
+      switch(sdci[0])
+      {
+        case RECTR:
+          {
+            //sdci[1]=layer
+            //sdci[2]=x
+            //sdci[3]=y
+            //sdci[4]=x2
+            //sdci[5]=y2
+            //sdci[6]=color
+            //sdci[7]=scale factor
+            //sdci[8]=rotation anchor x
+            //sdci[9]=rotation anchor y
+            //sdci[10]=rotation angle
+            //sdci[11]=fill
+            //sdci[12]=opacity
+            if (sdci[7]==0) //scale
+            {
+              break;
+            }
+            int x1=sdci[2]/10000;
+            int y1=sdci[3]/10000;
+            int x2=sdci[4]/10000;
+            int y2=sdci[5]/10000;
+            if (x1>x2)
+            {
+              swap(x1,x2);
+            }
+            if (y1>y2)
+            {
+              swap(y1,y2);
+            }
+            if (sdci[7]/10000!=1)
+            {
+              int w=x2-x1+1;
+              int h=y2-y1+1;
+              int w2=w*sdci[7]/10000;
+              int h2=h*sdci[7]/10000;
+              x1=x1-((w2-w)/2);
+              x2=x2+((w2-w)/2);
+              y1=y1-((h2-h)/2);
+              y2=y2+((h2-h)/2);
+            }
+            int color=sdci[6]/10000;
+
+            if(sdci[12]/10000<=127) //translucent
+            {
+              drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+            }
+            if(sdci[10]==0) //no rotation
+            {
+              if(sdci[11]) //filled
+              {
+                rectfill(bmp, x1, y1, x2, y2, color);
+              }
+              else //outline
+              {
+                rect(bmp, x1, y1, x2, y2, color);
+              }
+            }
+            else  //rotate
+            {
+              int xy[16];
+              int rx=sdci[8]/10000;
+              int ry=sdci[9]/10000;
+              fixed ra1=itofix(sdci[10]%10000)/10000;
+              fixed ra2=itofix(sdci[10]/10000);
+              fixed ra=ra1+ra2;
+
+              xy[ 0]=rx + fixtoi( ( fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry) ) ); //x1
+              xy[ 1]=ry + fixtoi( ( fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry) ) ); //y1
+              xy[ 2]=rx + fixtoi( ( fixcos(ra) * (x2 - rx) - fixsin(ra) * (y1 - ry) ) ); //x2
+              xy[ 3]=ry + fixtoi( ( fixsin(ra) * (x2 - rx) + fixcos(ra) * (y1 - ry) ) ); //y1
+              xy[ 4]=rx + fixtoi( ( fixcos(ra) * (x2 - rx) - fixsin(ra) * (y2 - ry) ) ); //x2
+              xy[ 5]=ry + fixtoi( ( fixsin(ra) * (x2 - rx) + fixcos(ra) * (y2 - ry) ) ); //y2
+              xy[ 6]=rx + fixtoi( ( fixcos(ra) * (x1 - rx) - fixsin(ra) * (y2 - ry) ) ); //x1
+              xy[ 7]=ry + fixtoi( ( fixsin(ra) * (x1 - rx) + fixcos(ra) * (y2 - ry) ) ); //y2
+              xy[ 8]=rx + fixtoi( ( fixcos(ra) * (x1 - rx    ) - fixsin(ra) * (y1 - ry + 1) ) ); //x1
+              xy[ 9]=ry + fixtoi( ( fixsin(ra) * (x1 - rx    ) + fixcos(ra) * (y1 - ry + 1) ) ); //y1
+              xy[10]=rx + fixtoi( ( fixcos(ra) * (x2 - rx - 1) - fixsin(ra) * (y1 - ry    ) ) ); //x2
+              xy[11]=ry + fixtoi( ( fixsin(ra) * (x2 - rx - 1) + fixcos(ra) * (y1 - ry    ) ) ); //y1
+              xy[12]=rx + fixtoi( ( fixcos(ra) * (x2 - rx    ) - fixsin(ra) * (y2 - ry - 1) ) ); //x2
+              xy[13]=ry + fixtoi( ( fixsin(ra) * (x2 - rx    ) + fixcos(ra) * (y2 - ry - 1) ) ); //y2
+              xy[14]=rx + fixtoi( ( fixcos(ra) * (x1 - rx + 1) - fixsin(ra) * (y2 - ry    ) ) ); //x1
+              xy[15]=ry + fixtoi( ( fixsin(ra) * (x1 - rx + 1) + fixcos(ra) * (y2 - ry    ) ) ); //y2
+              if(sdci[11]) //filled
+              {
+                polygon(bmp, 4, xy, color);
+              }
+              else //outline
+              {
+                line(bmp, xy[0], xy[1], xy[10], xy[11], color);
+                line(bmp, xy[2], xy[3], xy[12], xy[13], color);
+                line(bmp, xy[4], xy[5], xy[14], xy[15], color);
+                line(bmp, xy[6], xy[7], xy[ 8], xy[ 9], color);
+              }
+            }
+            drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+          }
+          break;
+        case CIRCLER:
+          {
+            //sdci[1]=layer
+            //sdci[2]=x
+            //sdci[3]=y
+            //sdci[4]=radius
+            //sdci[5]=color
+            //sdci[6]=scale factor
+            //sdci[7]=rotation anchor x
+            //sdci[8]=rotation anchor y
+            //sdci[9]=rotation angle
+            //sdci[10]=fill
+            //sdci[11]=opacity
+            if (sdci[6]==0) //scale
+            {
+              break;
+            }
+            int x1=sdci[2]/10000;
+            int y1=sdci[3]/10000;
+            qword r=sdci[4];
+            if (sdci[6]/10000!=1)
+            {
+              r*=sdci[6];
+              r/=10000;
+            }
+            r/=10000;
+            int color=sdci[5]/10000;
+
+            if(sdci[12]/10000<=127) //translucent
+            {
+              drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+            }
+            if(sdci[9]!=0&&(sdci[2]!=sdci[7]||sdci[3]!=sdci[8])) //rotation
+            {
+              int xy[2];
+              int rx=sdci[7]/10000;
+              int ry=sdci[8]/10000;
+              fixed ra1=itofix(sdci[9]%10000)/10000;
+              fixed ra2=itofix(sdci[9]/10000);
+              fixed ra=ra1+ra2;
+
+              xy[ 0]=rx + fixtoi( ( fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry) ) ); //x1
+              xy[ 1]=ry + fixtoi( ( fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry) ) ); //y1
+              x1=xy[0];
+              y1=xy[1];
+            }
+            if(sdci[10]) //filled
+            {
+              circlefill(bmp, x1, y1, r, color);
+            }
+            else //outline
+            {
+              circle(bmp, x1, y1, r, color);
+            }
+            drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+          }
+          break;
+        case ARCR:
+          {
+            //sdci[1]=layer
+            //sdci[2]=x
+            //sdci[3]=y
+            //sdci[4]=radius
+            //sdci[5]=start angle
+            //sdci[6]=end angle
+            //sdci[7]=color
+            //sdci[8]=scale factor
+            //sdci[9]=rotation anchor x
+            //sdci[10]=rotation anchor y
+            //sdci[11]=rotation angle
+            //sdci[12]=closed
+            //sdci[13]=fill
+            //sdci[14]=opacity
+
+            if (sdci[8]==0) //scale
+            {
+              break;
+            }
+            int cx=sdci[2]/10000;
+            int cy=sdci[3]/10000;
+            qword r=sdci[4];
+            if (sdci[8]/10000!=1)
+            {
+              r*=sdci[8];
+              r/=10000;
+            }
+            r/=10000;
+
+            int color=sdci[7]/10000;
+
+            fixed ra1=itofix(sdci[11]%10000)/10000;
+            fixed ra2=itofix(sdci[11]/10000);
+            fixed ra=ra1+ra2;
+
+            fixed a1=itofix(sdci[5]%10000)/10000;
+            fixed a2=itofix(sdci[5]/10000);
+            fixed sa=a1+a2;
+
+            a1=itofix(sdci[6]%10000)/10000;
+            a2=itofix(sdci[6]/10000);
+            fixed ea=a1+a2;
+
+            if(sdci[11]!=0) //rotation
+            {
+              int rx=sdci[9]/10000;
+              int ry=sdci[10]/10000;
+
+              cx=rx + fixtoi( ( fixcos(ra) * (cx - rx) - fixsin(ra) * (cy - ry) ) ); //x1
+              cy=ry + fixtoi( ( fixsin(ra) * (cx - rx) + fixcos(ra) * (cy - ry) ) ); //y1
+              ea-=ra;
+              sa-=ra;
+            }
+
+            int fx=cx+fixtoi(fixcos(-(ea+sa)/2)*r/2);
+            int fy=cy+fixtoi(fixsin(-(ea+sa)/2)*r/2);
+
+            if(sdci[12]) //closed
+            {
+              if(sdci[13]) //filled
+              {
+                cx-=min(0,fx);
+                cy-=min(0,fy);
+                arc(bmp2, cx, cy, sa, ea, int(r), color);
+                line(bmp2, cx, cy, cx+fixtoi(fixcos(-sa)*r), cy+fixtoi(fixsin(-sa)*r), color);
+                line(bmp2, cx, cy, cx+fixtoi(fixcos(-ea)*r), cy+fixtoi(fixsin(-ea)*r), color);
+                floodfill(bmp2, max(0,fx), max(0,fy), color);
+                if(sdci[14]/10000<=127) //translucent
+                {
+                  draw_trans_sprite(bmp, bmp2, min(0,fx), min(0,fy));
+                }
+                else
+                {
+                  draw_sprite(bmp, bmp2, min(0,fx), min(0,fy));
+                }
+              }
+              else
+              {
+                arc(bmp, cx, cy, sa, ea, int(r), color);
+                line(bmp, cx, cy, cx+fixtoi(fixcos(-sa)*r), cy+fixtoi(fixsin(-sa)*r), color);
+                line(bmp, cx, cy, cx+fixtoi(fixcos(-ea)*r), cy+fixtoi(fixsin(-ea)*r), color);
+              }
+            }
+            else
+            {
+              if(sdci[14]/10000<=127) //translucent
+              {
+                drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+              }
+              arc(bmp, cx, cy, sa, ea, int(r), color);
+              drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+            }
+          }
+          break;
+        case ELLIPSER:
+          {
+            //sdci[1]=layer
+            //sdci[2]=x
+            //sdci[3]=y
+            //sdci[4]=radiusx
+            //sdci[5]=radiusy
+            //sdci[6]=color
+            //sdci[7]=scale factor
+            //sdci[8]=rotation anchor x
+            //sdci[9]=rotation anchor y
+            //sdci[10]=rotation angle
+            //sdci[11]=fill
+            //sdci[12]=opacity
+
+            if (sdci[7]==0) //scale
+            {
+              break;
+            }
+//            textout_ex(bmp, font, "Ellipse!", 200, 150, 1, -1);
+            float magic_number=0.2761423749154;
+
+            int x1=sdci[2]/10000;
+            int y1=sdci[3]/10000;
+            qword radx=sdci[4];
+                  radx*=sdci[7];
+                  radx/=100000000;
+            qword rady=sdci[5];
+                  rady*=sdci[7];
+                  rady/=100000000;
+            int handle_offset_x=int(magic_number*radx*2);
+            int handle_offset_y=int(magic_number*rady*2);
+
+            int color=sdci[6]/10000;
+
+            int xy[56];
+            xy[0]  =
+            xy[2]  =
+            xy[22] = x1 - radx;
+            xy[10]  =
+            xy[12]  =
+            xy[14]  = x1 + radx;
+            xy[4]  =
+            xy[20] = x1 - handle_offset_x;
+            xy[8]  =
+            xy[16]  = x1 + handle_offset_x;
+            xy[6]  =
+            xy[18]  = x1;
+
+            xy[5]  =
+            xy[7]  =
+            xy[9]  = y1 - rady;
+            xy[17]  =
+            xy[19]  =
+            xy[21] = y1 + rady;
+            xy[15]  =
+            xy[23] = y1 + handle_offset_y;
+            xy[3]  =
+            xy[11]  = y1 - handle_offset_y;
+            xy[1]  =
+            xy[13]  = y1;
+
+            int rx=sdci[8]/10000;
+            int ry=sdci[9]/10000;
+            fixed ra1=itofix(sdci[10]%10000)/10000;
+            fixed ra2=itofix(sdci[10]/10000);
+            fixed ra=ra1+ra2;
+
+            int rcx=rx + fixtoi( ( fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry) ) );
+            int rcy=ry + fixtoi( ( fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry) ) );
+
+            xy[24]=rx + fixtoi( ( fixcos(ra) * (xy[ 0] - rx) - fixsin(ra) * (xy[ 1] - ry) ) );
+            xy[25]=ry + fixtoi( ( fixsin(ra) * (xy[ 0] - rx) + fixcos(ra) * (xy[ 1] - ry) ) );
+            xy[26]=rx + fixtoi( ( fixcos(ra) * (xy[ 2] - rx) - fixsin(ra) * (xy[ 3] - ry) ) );
+            xy[27]=ry + fixtoi( ( fixsin(ra) * (xy[ 2] - rx) + fixcos(ra) * (xy[ 3] - ry) ) );
+            xy[28]=rx + fixtoi( ( fixcos(ra) * (xy[ 4] - rx) - fixsin(ra) * (xy[ 5] - ry) ) );
+            xy[29]=ry + fixtoi( ( fixsin(ra) * (xy[ 4] - rx) + fixcos(ra) * (xy[ 5] - ry) ) );
+            xy[30]=rx + fixtoi( ( fixcos(ra) * (xy[ 6] - rx - 1) - fixsin(ra) * (xy[ 7] - ry) ) );
+            xy[31]=ry + fixtoi( ( fixsin(ra) * (xy[ 6] - rx - 1) + fixcos(ra) * (xy[ 7] - ry) ) );
+
+            xy[32]=rx + fixtoi( ( fixcos(ra) * (xy[ 6] - rx) - fixsin(ra) * (xy[ 7] - ry) ) );
+            xy[33]=ry + fixtoi( ( fixsin(ra) * (xy[ 6] - rx) + fixcos(ra) * (xy[ 7] - ry) ) );
+            xy[34]=rx + fixtoi( ( fixcos(ra) * (xy[ 8] - rx) - fixsin(ra) * (xy[ 9] - ry) ) );
+            xy[35]=ry + fixtoi( ( fixsin(ra) * (xy[ 8] - rx) + fixcos(ra) * (xy[ 9] - ry) ) );
+            xy[36]=rx + fixtoi( ( fixcos(ra) * (xy[10] - rx) - fixsin(ra) * (xy[11] - ry) ) );
+            xy[37]=ry + fixtoi( ( fixsin(ra) * (xy[10] - rx) + fixcos(ra) * (xy[11] - ry) ) );
+            xy[38]=rx + fixtoi( ( fixcos(ra) * (xy[12] - rx) - fixsin(ra) * (xy[13] - ry - 1) ) );
+            xy[39]=ry + fixtoi( ( fixsin(ra) * (xy[12] - rx) + fixcos(ra) * (xy[13] - ry - 1) ) );
+
+            xy[40]=rx + fixtoi( ( fixcos(ra) * (xy[12] - rx) - fixsin(ra) * (xy[13] - ry) ) );
+            xy[41]=ry + fixtoi( ( fixsin(ra) * (xy[12] - rx) + fixcos(ra) * (xy[13] - ry) ) );
+            xy[42]=rx + fixtoi( ( fixcos(ra) * (xy[14] - rx) - fixsin(ra) * (xy[15] - ry) ) );
+            xy[43]=ry + fixtoi( ( fixsin(ra) * (xy[14] - rx) + fixcos(ra) * (xy[15] - ry) ) );
+            xy[44]=rx + fixtoi( ( fixcos(ra) * (xy[16] - rx) - fixsin(ra) * (xy[17] - ry) ) );
+            xy[45]=ry + fixtoi( ( fixsin(ra) * (xy[16] - rx) + fixcos(ra) * (xy[17] - ry) ) );
+            xy[46]=rx + fixtoi( ( fixcos(ra) * (xy[18] - rx + 1) - fixsin(ra) * (xy[19] - ry) ) );
+            xy[47]=ry + fixtoi( ( fixsin(ra) * (xy[18] - rx + 1) + fixcos(ra) * (xy[19] - ry) ) );
+
+            xy[48]=rx + fixtoi( ( fixcos(ra) * (xy[18] - rx) - fixsin(ra) * (xy[19] - ry) ) );
+            xy[49]=ry + fixtoi( ( fixsin(ra) * (xy[18] - rx) + fixcos(ra) * (xy[19] - ry) ) );
+            xy[50]=rx + fixtoi( ( fixcos(ra) * (xy[20] - rx) - fixsin(ra) * (xy[21] - ry) ) );
+            xy[51]=ry + fixtoi( ( fixsin(ra) * (xy[20] - rx) + fixcos(ra) * (xy[21] - ry) ) );
+            xy[52]=rx + fixtoi( ( fixcos(ra) * (xy[22] - rx) - fixsin(ra) * (xy[23] - ry) ) );
+            xy[53]=ry + fixtoi( ( fixsin(ra) * (xy[22] - rx) + fixcos(ra) * (xy[23] - ry) ) );
+            xy[54]=rx + fixtoi( ( fixcos(ra) * (xy[ 0] - rx) - fixsin(ra) * (xy[ 1] - ry + 1) ) );
+            xy[55]=ry + fixtoi( ( fixsin(ra) * (xy[ 0] - rx) + fixcos(ra) * (xy[ 1] - ry + 1) ) );
+
+            if (rcx<0)
+            {
+              for (int j=0; j<16; ++j)
+              {
+                xy[24+(j<<1)]-=rcx;
+              }
+            }
+            if (rcy<0)
+            {
+              for (int j=0; j<16; ++j)
+              {
+                xy[25+(j<<1)]-=rcy;
+              }
+            }
+            if(sdci[11]) //filled
+            {
+              spline(bmp2, xy+ 24, color);
+              spline(bmp2, xy+ 32, color);
+              spline(bmp2, xy+ 40, color);
+              spline(bmp2, xy+ 48, color);
+              //rect(bmp2, 0, 0, 255, 167, color);
+              floodfill(bmp2, max(0,rcx), max(0,rcy), color);
+              if(sdci[12]/10000<=127) //translucent
+              {
+                draw_trans_sprite(bmp, bmp2, min(0,rcx), min(0,rcy));
+              }
+              else
+              {
+                draw_sprite(bmp, bmp2, min(0,rcx), min(0,rcy));
+              }
+            }
+            else
+            {
+              if(sdci[12]/10000<=127) //translucent
+              {
+                drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+              }
+              spline(bmp, xy+ 24, color);
+              spline(bmp, xy+ 32, color);
+              spline(bmp, xy+ 40, color);
+              spline(bmp, xy+ 48, color);
+            }
+
+            drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+          }
+          break;
+        case LINER:
+          {
+            //sdci[1]=layer
+            //sdci[2]=x
+            //sdci[3]=y
+            //sdci[4]=x2
+            //sdci[5]=y2
+            //sdci[6]=color
+            //sdci[7]=scale factor
+            //sdci[8]=rotation anchor x
+            //sdci[9]=rotation anchor y
+            //sdci[10]=rotation angle
+            //sdci[11]=opacity
+            if (sdci[7]==0) //scale
+            {
+              break;
+            }
+            int x1=sdci[2]/10000;
+            int y1=sdci[3]/10000;
+            int x2=sdci[4]/10000;
+            int y2=sdci[5]/10000;
+            if (x1>x2)
+            {
+              swap(x1,x2);
+            }
+            if (y1>y2)
+            {
+              swap(y1,y2);
+            }
+            if (sdci[7]/10000!=1)
+            {
+              int w=x2-x1+1;
+              int h=y2-y1+1;
+              int w2=w*sdci[7]/10000;
+              int h2=h*sdci[7]/10000;
+              x1=x1-((w2-w)/2);
+              x2=x2+((w2-w)/2);
+              y1=y1-((h2-h)/2);
+              y2=y2+((h2-h)/2);
+            }
+            int color=sdci[6]/10000;
+
+            if(sdci[11]/10000<=127) //translucent
+            {
+              drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+            }
+            if(sdci[10]!=0) //rotation
+            {
+              int xy[4];
+              int rx=sdci[8]/10000;
+              int ry=sdci[9]/10000;
+              fixed ra1=itofix(sdci[10]%10000)/10000;
+              fixed ra2=itofix(sdci[10]/10000);
+              fixed ra=ra1+ra2;
+
+              xy[ 0]=rx + fixtoi( ( fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry) ) ); //x1
+              xy[ 1]=ry + fixtoi( ( fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry) ) ); //y1
+              xy[ 2]=rx + fixtoi( ( fixcos(ra) * (x2 - rx) - fixsin(ra) * (y2 - ry) ) ); //x2
+              xy[ 3]=ry + fixtoi( ( fixsin(ra) * (x2 - rx) + fixcos(ra) * (y2 - ry) ) ); //y2
+              x1=xy[0];
+              y1=xy[1];
+              x2=xy[2];
+              y2=xy[3];
+            }
+            line(bmp, x1, y1, x2, y2, color);
+            drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+          }
+          break;
+        case PUTPIXELR:
+          {
+            //sdci[1]=layer
+            //sdci[2]=x
+            //sdci[3]=y
+            //sdci[4]=color
+            //sdci[5]=rotation anchor x
+            //sdci[6]=rotation anchor y
+            //sdci[7]=rotation angle
+            //sdci[8]=opacity
+            int x1=sdci[2]/10000;
+            int y1=sdci[3]/10000;
+            int color=sdci[4]/10000;
+
+            if(sdci[8]/10000<=127) //translucent
+            {
+              drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+            }
+            if(sdci[7]!=0) //rotation
+            {
+              int xy[2];
+              int rx=sdci[5]/10000;
+              int ry=sdci[6]/10000;
+              fixed ra1=itofix(sdci[7]%10000)/10000;
+              fixed ra2=itofix(sdci[7]/10000);
+              fixed ra=ra1+ra2;
+
+              xy[ 0]=rx + fixtoi( ( fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry) ) ); //x1
+              xy[ 1]=ry + fixtoi( ( fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry) ) ); //y1
+              x1=xy[0];
+              y1=xy[1];
+            }
+            putpixel(bmp, x1, y1, color);
+            drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+          }
+          break;
+        case DRAWTILER:
+          {
+            //sdci[1]=layer
+            //sdci[2]=x
+            //sdci[3]=y
+            //sdci[4]=tile
+            //sdci[5]=tile width
+            //sdci[6]=tile height
+            //sdci[7]=color (cset)
+            //sdci[8]=scale factor
+            //sdci[9]=rotation anchor x
+            //sdci[10]=rotation anchor y
+            //sdci[11]=rotation angle
+            //sdci[12]=flip
+            //sdci[13]=transparency
+            //sdci[14]=opacity
+            if (sdci[8]==0) //scale
+            {
+              break;
+            }
+            int w = sdci[5]/10000;
+            int h = sdci[6]/10000;
+            if(w<1||h<1||h>20||w>20)
+            {
+              break;
+            }
+            int flip=(sdci[12]/10000)&3;
+            int scale=sdci[8];
+            int rotation=sdci[11];
+            bool transparency=sdci[13]!=0;
+            int opacity=sdci[14]/10000;
+            int color=sdci[7]/10000;
+            int x1=sdci[2]/10000;
+            int y1=sdci[3]/10000;
+            if (scale/10000!=1||rotation) //scaled or rotated
+            {
+              if(transparency) //transparency
+              {
+                switch (flip)
+                {
+                  case 1:
+                    for(int j=0;j<h;j++)
+                    {
+                      for(int k=w-1;k>=0;k--)
+                      {
+                        overtile16(bmp2, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+j*16, color, flip);
+                      }
+                    }
+                    break;
+                  case 2:
+                    for(int j=h-1;j>=0;j--)
+                    {
+                      for(int k=0;k<w;k++)
+                      {
+                        overtile16(bmp2, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+((h-1)-j)*16, color, flip);
+                      }
+                    }
+                    break;
+                  case 3:
+                    for(int j=h-1;j>=0;j--)
+                    {
+                      for(int k=w-1;k>=0;k--)
+                      {
+                        overtile16(bmp2, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+((h-1)-j)*16, color, flip);
+                      }
+                    }
+                    break;
+                  case 0:
+                  default:
+                    for(int j=0;j<h;j++)
+                    {
+                      for(int k=0;k<=w;k++)
+                      {
+                        overtile16(bmp2, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+j*16, color, flip);
+                      }
+                    }
+                    break;
+
+                }
+              }
+              else
+              {
+                switch (flip)
+                {
+                  case 1:
+                    for(int j=0;j<h;j++)
+                    {
+                      for(int k=w-1;k>=0;k--)
+                      {
+                        puttile16(bmp2, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+j*16, color, flip);
+                      }
+                    }
+                    break;
+                  case 2:
+                    for(int j=h-1;j>=0;j--)
+                    {
+                      for(int k=0;k<w;k++)
+                      {
+                        puttile16(bmp2, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+((h-1)-j)*16, color, flip);
+                      }
+                    }
+                    break;
+                  case 3:
+                    for(int j=h-1;j>=0;j--)
+                    {
+                      for(int k=w-1;k>=0;k--)
+                      {
+                        puttile16(bmp2, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+((h-1)-j)*16, color, flip);
+                      }
+                    }
+                    break;
+                  case 0:
+                  default:
+                    for(int j=0;j<h;j++)
+                    {
+                      for(int k=0;k<=w;k++)
+                      {
+                        puttile16(bmp2, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+j*16, color, flip);
+                      }
+                    }
+                    break;
+
+                }
+              }
+              if (opacity<=127)
+              {
+                draw_trans_sprite(bmp, bmp2, 0, 0);
+              }
+              else
+              {
+                draw_sprite(bmp, bmp2, 0, 0);
+              }
+            }
+            else
+            {
+              if(transparency) //transparency
+              {
+                if(opacity<=127) //translucency
+                {
+                  switch (flip)
+                  {
+                    case 1:
+                      for(int j=0;j<h;j++)
+                      {
+                        for(int k=w-1;k>=0;k--)
+                        {
+                          overtiletranslucent16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+j*16, color, flip, opacity);
+                        }
+                      }
+                      break;
+                    case 2:
+                      for(int j=h-1;j>=0;j--)
+                      {
+                        for(int k=0;k<w;k++)
+                        {
+                          overtiletranslucent16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+((h-1)-j)*16, color, flip, opacity);
+                        }
+                      }
+                      break;
+                    case 3:
+                      for(int j=h-1;j>=0;j--)
+                      {
+                        for(int k=w-1;k>=0;k--)
+                        {
+                          overtiletranslucent16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+((h-1)-j)*16, color, flip, opacity);
+                        }
+                      }
+                      break;
+                    case 0:
+                    default:
+                      for(int j=0;j<h;j++)
+                      {
+                        for(int k=0;k<=w;k++)
+                        {
+                          overtiletranslucent16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+j*16, color, flip, opacity);
+                        }
+                      }
+                      break;
+                  }
+                }
+                else
+                {
+                  switch (flip)
+                  {
+                    case 1:
+                      for(int j=0;j<h;j++)
+                      {
+                        for(int k=w-1;k>=0;k--)
+                        {
+                          overtile16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+j*16, color, flip);
+                        }
+                      }
+                      break;
+                    case 2:
+                      for(int j=h-1;j>=0;j--)
+                      {
+                        for(int k=0;k<w;k++)
+                        {
+                          overtile16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+((h-1)-j)*16, color, flip);
+                        }
+                      }
+                      break;
+                    case 3:
+                      for(int j=h-1;j>=0;j--)
+                      {
+                        for(int k=w-1;k>=0;k--)
+                        {
+                          overtile16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+((h-1)-j)*16, color, flip);
+                        }
+                      }
+                      break;
+                    case 0:
+                    default:
+                      for(int j=0;j<h;j++)
+                      {
+                        for(int k=0;k<=w;k++)
+                        {
+                          overtile16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+j*16, color, flip);
+                        }
+                      }
+                      break;
+
+                  }
+                }
+              }
+              else
+              {
+                if(sdci[13]/10000<=127) //translucency
+                {
+                  switch (flip)
+                  {
+                    case 1:
+                      for(int j=0;j<h;j++)
+                      {
+                        for(int k=w-1;k>=0;k--)
+                        {
+                          puttiletranslucent16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+j*16, color, flip, opacity);
+                        }
+                      }
+                      break;
+                    case 2:
+                      for(int j=h-1;j>=0;j--)
+                      {
+                        for(int k=0;k<w;k++)
+                        {
+                          puttiletranslucent16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+((h-1)-j)*16, color, flip, opacity);
+                        }
+                      }
+                      break;
+                    case 3:
+                      for(int j=h-1;j>=0;j--)
+                      {
+                        for(int k=w-1;k>=0;k--)
+                        {
+                          puttiletranslucent16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+((h-1)-j)*16, color, flip, opacity);
+                        }
+                      }
+                      break;
+                    case 0:
+                    default:
+                      for(int j=0;j<h;j++)
+                      {
+                        for(int k=0;k<=w;k++)
+                        {
+                          puttiletranslucent16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+j*16, color, flip, opacity);
+                        }
+                      }
+                      break;
+
+                  }
+                }
+                else
+                {
+                  switch (flip)
+                  {
+                    case 1:
+                      for(int j=0;j<h;j++)
+                      {
+                        for(int k=w-1;k>=0;k--)
+                        {
+                          puttile16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+j*16, color, flip);
+                        }
+                      }
+                      break;
+                    case 2:
+                      for(int j=h-1;j>=0;j--)
+                      {
+                        for(int k=0;k<w;k++)
+                        {
+                          puttile16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+((h-1)-j)*16, color, flip);
+                        }
+                      }
+                      break;
+                    case 3:
+                      for(int j=h-1;j>=0;j--)
+                      {
+                        for(int k=w-1;k>=0;k--)
+                        {
+                          puttile16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+((w-1)-k)*16, y1+((h-1)-j)*16, color, flip);
+                        }
+                      }
+                      break;
+                    case 0:
+                    default:
+                      for(int j=0;j<h;j++)
+                      {
+                        for(int k=0;k<=w;k++)
+                        {
+                          puttile16(bmp, (sdci[4]/10000)+(j*TILES_PER_ROW)+k, x1+k*16, y1+j*16, color, flip);
+                        }
+                      }
+                      break;
+
+                  }
+                }
+              }
+            }
+            //rotate_scaled_sprite(bmp2, bmp1, (sdci[1]/10000)-x,((sdci[1]%10000)<5000?(sdci[1]%10000):(sdci[1]%10000)-10000)+playing_field_offset-y,ftofix(sdci[7]/10000.0),ftofix(sdci[5]/10000.0));
+          }
+          break;
+        case DRAWCOMBOR:
+          {
+            //sdci[1]=layer
+            //sdci[2]=x
+            //sdci[3]=y
+            //sdci[4]=combo
+            //sdci[5]=tile width
+            //sdci[6]=tile height
+            //sdci[7]=color (cset)
+            //sdci[8]=scale factor
+            //sdci[9]=rotation anchor x
+            //sdci[10]=rotation anchor y
+            //sdci[11]=rotation angle
+            //sdci[12]=frame
+            //sdci[13]=flip
+            //sdci[14]=transparency
+            //sdci[15]=opacity
+//            int w = sdci[3]/10000;
+//           int h = sdci[3]%10000;
+//            bmp1 = create_bitmap_ex(8, w*16, h*16);
+//            clear_bitmap(bmp1);
+//            if(w<1||h<1||h>20||w>20)
+//            {
+//              break;
+//            }
+//            for(int l=0;i<h;i++)
+//            {
+//              for(int j=0;j<w;j++)
+//              {
+//                overcombo(bmp1, j*16, l*16, (sdci[2]/10000)+(l*20)+j, sdci[2]%10000);
+//              }
+//            }
+//            rotate_scaled_sprite(bmp2, bmp1, (sdci[1]/10000)-x,((sdci[1]%10000)<5000?(sdci[1]%10000):(sdci[1]%10000)-10000)+playing_field_offset-y,ftofix(sdci[7]/10000.0),ftofix(sdci[5]/10000.0));
+          }
+          break;
+      }
+    }
+//    masked_blit(bmp2,bmp,0,0,0,0,bmp->w,bmp->h);
+  }
+  destroy_bitmap(bmp2);
+//  if(bmp1!=NULL) destroy_bitmap(bmp1);
+  color_map=&trans_table;
 }
 
 void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
 {
-	//1. Draw some layers onto temp_buf
-	//2. Blit those layers onto framebuf with clipping
-	//3. Draw some sprites onto temp_buf2
-	//4. Blit temp_buf2 onto temp_buf and framebuf, without clipping
-	//5. Draw some layers onto temp_buf
-	//6. Blit temp_buf onto framebuf with clipping
-	//7. Clear temp_buf2 and draw some flying sprites onto temp_buf2
-	//8. Blit temp_buf2 onto framebuf and temp_buf, without clipping
-	//9. Draw some layers onto temp_buf
-	//10. Blit temp_buf onto framebuf with clipping
-	//11. Clear temp_buf2 and draw some text on it
-	//12. Blit temp_buf2 onto framebuf without clipping
-	clear_bitmap(framebuf);
-	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2); 
-	clear_bitmap(temp_buf);
-	clear_bitmap(temp_buf2);
+  //The Plan:
+  //1. Draw some layers onto temp_buf
+  //2. Blit those layers onto framebuf with clipping
+  //3. Draw some sprites onto framebuf
+  //4. Blit framebuf onto temp_buf
+  //5. Draw some layers onto temp_buf
+  //6. Blit temp_buf onto framebuf with clipping
+  //7. Draw some flying sprites onto framebuf
+  //8. Blit frame_buf onto temp_buf
+  //9. Draw some layers onto temp_buf
+  //10. Blit temp_buf onto framebuf with clipping
+  //11. Draw some text on framebuf
+  clear_bitmap(framebuf);
+  set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+  clear_bitmap(temp_buf);
   int cmby2=0;
   int pcounter;
 
+  //1. Draw some layers onto temp_buf
   clear_bitmap(scrollbuf);
   if (layer2!=NULL)
   {
     if(layer2->flags7&fLAYER2BG) do_layer(scrollbuf,1, layer2, x2, y2+playing_field_offset, 3);
-	if(layer2->flags7&fLAYER3BG) do_layer(scrollbuf,2, layer2, x2, y2+playing_field_offset, 3);
+    if(layer2->flags7&fLAYER3BG) do_layer(scrollbuf,2, layer2, x2, y2+playing_field_offset, 3);
   }
   if(layer1->flags7&fLAYER2BG)
   {
@@ -2008,6 +3172,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     putscr(scrollbuf,x2,y2,layer2);
   }
   putscr(scrollbuf,x1,y1,layer1);
+  do_primitives(scrollbuf, 0, layer1, x1,y1+playing_field_offset);
   blit(scrollbuf,temp_buf,0,0,0,playing_field_offset,256,168);
 
   for (pcounter=0;pcounter<particles.Count();pcounter++)
@@ -2018,6 +3183,10 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
       //particles.del(pcounter);
     }
   }
+  if(!get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+  {
+    put_passive_subscr(temp_buf, &QMisc, 0, passive_subscreen_offset, false, false);
+  }
   if(!(get_bit(quest_rules,qr_LAYER12UNDERCAVE)))
   {
     if ((Link.getAction()==climbcovertop)||(Link.getAction()==climbcoverbottom))
@@ -2027,10 +3196,10 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
         cmby2=16;
       }
       else if (Link.getAction()==climbcoverbottom)
-        {
-          cmby2=-16;
-        }
-        decorations.draw2(temp_buf,true);
+      {
+        cmby2=-16;
+      }
+      decorations.draw2(temp_buf,true);
       Link.draw(temp_buf);
       decorations.draw(temp_buf,true);
       int ccx = (int)(Link.getClimbCoverX());
@@ -2064,7 +3233,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
   {
     if(layer1->ffdata[i])
     {
-      if(!(tmpscr->ffflags[i]&ffCHANGER))
+      if(!(layer1->ffflags[i]&ffCHANGER) && (!(layer1->ffflags[i]&ffLENSVIS) || lensclk))
       {
         if(!(layer1->ffflags[i]&ffOVERLAY))
         {
@@ -2072,13 +3241,17 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
           {
             for(int k=0;k<(layer1->ffwidth[i]>>6)+1;k++)
             {
+              int tx=((layer1->ffx[i]/10000)+(k*16));
+              int ty=((layer1->ffy[i]/10000)+(j*16))+playing_field_offset;
               if(layer1->ffflags[i]&ffTRANS)
               {
-                  overtiletranslucent16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
+//                overtiletranslucent16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
+                overtiletranslucent16(temp_buf, combo_tile(layer1->ffdata[i],tx,ty)+(j*20)+(k), tx, ty, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
               }
               else
               {
-                  overtile16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
+//                overtile16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
+                overtile16(temp_buf, combo_tile(layer1->ffdata[i],tx,ty)+(j*20)+(k), tx, ty, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
               }
             }
           }
@@ -2107,10 +3280,10 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
         cmby2=16;
       }
       else if (Link.getAction()==climbcoverbottom)
-        {
-          cmby2=-16;
-        }
-        decorations.draw2(temp_buf,true);
+      {
+        cmby2=-16;
+      }
+      decorations.draw2(temp_buf,true);
       Link.draw(temp_buf);
       decorations.draw(temp_buf,true);
       int ccx = (int)(Link.getClimbCoverX());
@@ -2140,57 +3313,66 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     draw_lens_under(temp_buf);
   }
 
-  blit(temp_buf, framebuf, 0, 0, 0, 0, 255, 223);
-  
+  //2. Blit those layers onto framebuf with clipping
+
+  blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
+
+  //3. Draw some sprites onto framebuf
+  set_clip_rect(framebuf,0,0,256,224);
+  if(!(pricesdisplaybuf->clip))
+  {
+    masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
+  }
+
   if ((Link.getAction()!=climbcovertop)&&(Link.getAction()!=climbcoverbottom))
   {
-    Link.draw_under(temp_buf2);
-    mblock2.draw(temp_buf2);
+    Link.draw_under(framebuf);
+    mblock2.draw(framebuf);
     if (Link.isSwimming())
     {
-      decorations.draw2(temp_buf2,true);
-      Link.draw(temp_buf2);
-      decorations.draw(temp_buf2,true);
+      decorations.draw2(framebuf,true);
+      Link.draw(framebuf);
+      decorations.draw(framebuf,true);
     }
   }
   if(drawguys)
   {
     if(get_bit(quest_rules,qr_NOFLICKER) || (frame&1))
     {
-      if (get_bit(quest_rules,qr_SHADOWS)&&((!get_bit(quest_rules,qr_SHADOWSFLICKER))||(get_bit(quest_rules,qr_SHADOWSFLICKER)&&(frame&1))))
+      if (get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
       {
-        guys.drawshadow(temp_buf2,get_bit(quest_rules,qr_TRANSSHADOWS) != 0,true);
+        guys.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
       }
-      guys.draw(temp_buf2,true);
-      chainlinks.draw(temp_buf2,true);
-      Lwpns.draw(temp_buf2,true);
-      Ewpns.draw(temp_buf2,true);
-      items.draw(temp_buf2,true);
+      guys.draw(framebuf,true);
+      chainlinks.draw(framebuf,true);
+      Lwpns.draw(framebuf,true);
+      Ewpns.draw(framebuf,true);
+      items.draw(framebuf,true);
     }
     else
     {
-      if (get_bit(quest_rules,qr_SHADOWS)&&((!get_bit(quest_rules,qr_SHADOWSFLICKER))||(get_bit(quest_rules,qr_SHADOWSFLICKER)&&(frame&1))))
+      if (get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
       {
-        guys.drawshadow(temp_buf2,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
+        guys.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
       }
-      items.draw(temp_buf2,false);
-      chainlinks.draw(temp_buf2,false);
-      Lwpns.draw(temp_buf2,false);
-      guys.draw(temp_buf2,false);
-      Ewpns.draw(temp_buf2,false);
+      items.draw(framebuf,false);
+      chainlinks.draw(framebuf,false);
+      Lwpns.draw(framebuf,false);
+      guys.draw(framebuf,false);
+      Ewpns.draw(framebuf,false);
     }
-    guys.draw2(temp_buf2,true);
+    guys.draw2(framebuf,true);
   }
   if ((Link.getAction()!=climbcovertop)&& (Link.getAction()!=climbcoverbottom))
   {
     if (!Link.isSwimming())
     {
-      if (Link.getZ()>0) {
-        Link.drawshadow(temp_buf2,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
+      if (Link.getZ()>0 &&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1)) {
+        Link.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
       }
-      decorations.draw2(temp_buf2,true);
-      Link.draw(temp_buf2);
-      decorations.draw(temp_buf2,true);
+      decorations.draw2(framebuf,true);
+      Link.draw(framebuf);
+      decorations.draw(framebuf,true);
     }
   }
 
@@ -2201,24 +3383,26 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     {
       if(((eLikeLike*)guys.spr(i))->haslink)
       {
-        guys.spr(i)->draw(temp_buf2);
+        guys.spr(i)->draw(framebuf);
       }
     }
     if(guys.spr(i)->id == eWALLM)
     {
       if(((eWallM*)guys.spr(i))->haslink)
       {
-        guys.spr(i)->draw(temp_buf2);
+        guys.spr(i)->draw(framebuf);
       }
     }
-    if (guys.spr(i)->z > Link.getZ()) { //Jumping enemies in front of Link.
-	guys.spr(i)->draw(temp_buf2);
+    if (guys.spr(i)->z > Link.getZ())
+    { //Jumping enemies in front of Link.
+      guys.spr(i)->draw(framebuf);
     }
   }
-  set_clip_rect(framebuf,0,0,255,223); 
-  masked_blit(temp_buf2, framebuf, 0, 0, 0, 0, 255, 223);
-  masked_blit(temp_buf2, temp_buf, 0, 0, 0, 0, 255, 223);
-  clear_bitmap(temp_buf2);
+  //4. Blit framebuf onto temp_buf
+
+  masked_blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
+
+  //5. Draw some layers onto temp_buf
 
   if (layer2!=NULL)
   {
@@ -2259,20 +3443,25 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     }
   }
 
-  set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2); 
-  blit(temp_buf, framebuf, 0, 0, 0, 0, 255, 223);
-  
-/* 
+  //6. Blit temp_buf onto framebuf with clipping
+
+  set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+  blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
+
+  //7. Draw some flying sprites onto framebuf
+  set_clip_rect(framebuf,0,0,256,224);
+
+/*
   //Commented out: jumping Link and jumping enemies are drawn on this layer.
-  
+
   if (Link.getZ() > 0)
     Link.draw(temp_buf2);
-*/    
+*/
   if (!get_bit(quest_rules,qr_ENEMIESZAXIS)) for(int i=0; i<guys.Count(); i++)
   {
     if((isflier(guys.spr(i)->id))/* || guys.spr(i)->z > 0*/)
     {
-      guys.spr(i)->draw(temp_buf2);
+      guys.spr(i)->draw(framebuf);
     }/*
     if(guys.spr(i)->id == eCEILINGM)
     {
@@ -2282,12 +3471,22 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
       }
     }*/
   }
+  else
+  {
+    for(int i=0; i<guys.Count(); i++)
+    {
+      if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > 0)
+        {
+          guys.spr(i)->draw(framebuf);
+        }
+    }
+  }
 
-        
-  set_clip_rect(framebuf,0,0,255,223); 
-  masked_blit(temp_buf2, framebuf, 0, 0, 0, 0, 255, 223);
-  masked_blit(temp_buf2, temp_buf, 0, 0, 0, 0, 255, 223);
-  clear_bitmap(temp_buf2);
+  //8. Blit framebuf onto temp_buf
+
+  masked_blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
+
+  //9. Draw some layers onto temp_buf
 
   if (layer2!=NULL)
   {
@@ -2308,7 +3507,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
   {
     if(layer1->ffdata[i])
     {
-      if(!(layer1->ffflags[i]&ffCHANGER))
+      if(!(layer1->ffflags[i]&ffCHANGER) && (!(layer1->ffflags[i]&ffLENSVIS) || lensclk))
       {
         if(layer1->ffflags[i]&ffOVERLAY)
         {
@@ -2316,13 +3515,17 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
           {
             for(int k=0;k<(layer1->ffwidth[i]>>6)+1;k++)
             {
+              int tx=((layer1->ffx[i]/10000)+(k*16));
+              int ty=((layer1->ffy[i]/10000)+(j*16))+playing_field_offset;
               if(layer1->ffflags[i]&ffTRANS)
               {
-                  overtiletranslucent16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
+//                overtiletranslucent16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
+                overtiletranslucent16(temp_buf, combo_tile(layer1->ffdata[i],tx,ty)+(j*20)+(k), tx, ty, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
               }
               else
               {
-                  overtile16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
+//                overtile16(temp_buf, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
+                overtile16(temp_buf, combo_tile(layer1->ffdata[i],tx,ty)+(j*20)+(k), tx, ty, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
               }
             }
           }
@@ -2340,22 +3543,28 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
     }
   }
 
-  set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2); 
-  blit(temp_buf, framebuf, 0, 0, 0, 0, 255, 223);
-  
+  //10. Blit temp_buf onto framebuf with clipping
+
+  set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+  blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
+
+
+  //11. Draw some text on framebuf
+
+  set_clip_rect(framebuf,0,0,256,224);
+
   if(!(msgdisplaybuf->clip))
   {
-    masked_blit(msgdisplaybuf,temp_buf2,0,0,0,playing_field_offset,256,168);
+    masked_blit(msgdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
   }
-  if(!(pricesdisplaybuf->clip))
+
+  if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
   {
-    masked_blit(pricesdisplaybuf,temp_buf2,0,0,0,playing_field_offset,256,168);
+    put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, false);
   }
-  
-  masked_blit(temp_buf2, framebuf, 0, 0, 0,0,255, 233);
-  set_clip_rect(framebuf,0,0,255,223);
-  put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, false);
+  memset(script_drawing_commands, 0, MAX_SCRIPT_DRAWING_COMMANDS*SCRIPT_DRAWING_COMMAND_VARIABLES*sizeof(int));
 }
+
 
 void put_door(int t,int pos,int side,int type,bool redraw)
 {
@@ -2756,7 +3965,7 @@ void openshutters()
 
 void loadscr(int tmp,int scr,int ldir)
 {
-  
+
   //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
   for (word x=0; x<animated_combos; x++)
   {
@@ -2773,11 +3982,21 @@ void loadscr(int tmp,int scr,int ldir)
     }
   }
   reset_combo_animations2();
-  
+
 
   mapscr ffscr = tmpscr[tmp];
 
+  if(tmpscr[tmp].data!=NULL) delete [] tmpscr[tmp].data;
+  if(tmpscr[tmp].sflag!=NULL) delete [] tmpscr[tmp].sflag;
+  if(tmpscr[tmp].cset!=NULL) delete [] tmpscr[tmp].cset;
   tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
+  tmpscr[tmp].data = NULL; tmpscr[tmp].sflag = NULL; tmpscr[tmp].cset = NULL;
+  tmpscr[tmp].data = new word[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+  memcpy(tmpscr[tmp].data, TheMaps[currmap*MAPSCRS+scr].data, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(word));
+  tmpscr[tmp].sflag = new byte[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+  memcpy(tmpscr[tmp].sflag, TheMaps[currmap*MAPSCRS+scr].sflag, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
+  tmpscr[tmp].cset = new byte[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+  memcpy(tmpscr[tmp].cset, TheMaps[currmap*MAPSCRS+scr].cset, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
 
   if(tmp==0)
   {
@@ -2799,30 +4018,38 @@ void loadscr(int tmp,int scr,int ldir)
         tmpscr[tmp].ffheight[i] = ffscr.ffheight[i];
         tmpscr[tmp].ffflags[i] = ffscr.ffflags[i];
         tmpscr[tmp].ffscript[i] = ffscr.ffscript[i];
-		for (int j=0; j<2; ++j)
+        tmpscr[tmp].scriptflag[i] = ffscr.scriptflag[i];
+        for (int j=0; j<2; ++j)
         {
           tmpscr[tmp].a[i][j] = ffscr.a[i][j];
         }
-		for (int j=0; j<8; ++j)
+        for (int j=0; j<8; ++j)
         {
           tmpscr[tmp].d[i][j] = ffscr.d[i][j];
         }
-		tmpscr[tmp].pc[i] = ffscr.pc[i];
-        tmpscr[tmp].scriptflag[i] = ffscr.scriptflag[i];
-		tmpscr[tmp].ffcref[i] = ffscr.ffcref[i];
-		tmpscr[tmp].sp[i] = ffscr.sp[i];
-		
+        if(!(ffscr.ffflags[i]&ffSCRIPTRESET))
+        {
+          tmpscr[tmp].pc[i] = ffscr.pc[i];
+          tmpscr[tmp].ffcref[i] = ffscr.ffcref[i];
+          tmpscr[tmp].sp[i] = ffscr.sp[i];
+        }
+        else
+        {
+          tmpscr[tmp].pc[i] = 1;
+	  tmpscr[tmp].sp[i] = 0;
+	  tmpscr[tmp].ffcref[i] = 0;
+        }
       }
-	  else
-	  {
-		   for(int j=0; j<256; j++)
-			{
-				ffstack[i][j] = 0;
-			}
-	  }
+      else
+      {
+        for(int j=0; j<256; j++)
+        {
+          ffstack[i][j] = 0;
+        }
+      }
     }
   }
-  
+
 
   if (tmp==0)
   {
@@ -2830,15 +4057,35 @@ void loadscr(int tmp,int scr,int ldir)
     {
       if (tmpscr[tmp].layermap[i]>0)
       {
-        tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
+	    if(tmpscr2[i].data!=NULL) delete [] tmpscr2[i].data;
+		if(tmpscr2[i].sflag!=NULL) delete [] tmpscr2[i].sflag;
+		if(tmpscr2[i].cset!=NULL) delete [] tmpscr2[i].cset;
+		if((ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+		{
+          tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
+		  tmpscr2[i].data = NULL; tmpscr2[i].sflag = NULL; tmpscr2[i].cset = NULL;
+		  tmpscr2[i].data = new word[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+		  memcpy(tmpscr2[i].data, TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]].data, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(word));
+		  tmpscr2[i].sflag = new byte[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+		  memcpy(tmpscr2[i].sflag, TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]].sflag, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
+		  tmpscr2[i].cset = new byte[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+		  memcpy(tmpscr2[i].cset, TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]].cset, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
+		}
+		else
+		{
+		  memset(tmpscr2+i,0,sizeof(mapscr));
+		}
       }
       else
       {
+	    if(tmpscr2[i].data!=NULL) delete [] tmpscr2[i].data;
+		if(tmpscr2[i].sflag!=NULL) delete [] tmpscr2[i].sflag;
+		if(tmpscr2[i].cset!=NULL) delete [] tmpscr2[i].cset;
         memset(tmpscr2+i,0,sizeof(mapscr));
       }
     }
   }
-  
+
   if(!isdungeon()/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
   {
     if(game->maps[(currmap<<7)+scr]&mSECRET)               // if special stuff done before
@@ -2847,7 +4094,7 @@ void loadscr(int tmp,int scr,int ldir)
       hidden_entrance(tmp,false);
     }
   }
-  
+
 
   if(game->maps[(currmap<<7)+scr]&mLOCKBLOCK)              // if special stuff done before
   {
@@ -2873,7 +4120,7 @@ void loadscr(int tmp,int scr,int ldir)
   {
     remove_bosschests(tmp,false);
   }
-  
+
   // check doors
   if(isdungeon())
   {
@@ -2929,27 +4176,27 @@ void loadscr(int tmp,int scr,int ldir)
   }
 
 
-  for(int i=0; i<176; ++i)
+  for(int i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
   {
     int c=tmpscr[tmp].data[i];
     int cs=tmpscr[tmp].cset[i];
     if (combobuf[c].type==cSPINTILE1)
     {
-      addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
+      addenemy((i%ZCMaps[currmap].tileWidth)<<4,(i/ZCMaps[currmap].tileHeight)<<4,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
     }
   }
   for (int j=0; j<6; ++j)
   {
-    if (tmpscr[tmp].layermap[j]>0)
+    if ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight))
     {
       mapscr *layerscreen=TheMaps+((tmpscr[tmp].layermap[j]-1)*MAPSCRS)+tmpscr[tmp].layerscreen[j];
-      for(int i=0; i<176; ++i)
+      for(int i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
       {
         int c=layerscreen->data[i];
         int cs=layerscreen->cset[i];
         if (combobuf[c].type==cSPINTILE1)
         {
-          addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
+          addenemy((i%ZCMaps[currmap].tileWidth)<<4,(i/ZCMaps[currmap].tileHeight)<<4,(cs<<12)+eSPINTILE1,animated_combo_table[c][1]+max(1,combobuf[c].frames));
         }
       }
     }
@@ -2969,17 +4216,47 @@ void loadscr2(int tmp,int scr,int ldir)
       animated_combo_table4[x][1]=0;
     }
   }
+  if(tmpscr[tmp].data!=NULL) delete [] tmpscr[tmp].data;
+  if(tmpscr[tmp].sflag!=NULL) delete [] tmpscr[tmp].sflag;
+  if(tmpscr[tmp].cset!=NULL) delete [] tmpscr[tmp].cset;
   tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
+  tmpscr[tmp].data = NULL; tmpscr[tmp].sflag = NULL; tmpscr[tmp].cset = NULL;
+  tmpscr[tmp].data = new word[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+  memcpy(tmpscr[tmp].data, TheMaps[currmap*MAPSCRS+scr].data, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(word));
+  tmpscr[tmp].sflag = new byte[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+  memcpy(tmpscr[tmp].sflag, TheMaps[currmap*MAPSCRS+scr].sflag, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
+  tmpscr[tmp].cset = new byte[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+  memcpy(tmpscr[tmp].cset, TheMaps[currmap*MAPSCRS+scr].cset, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
   if (tmp==0)
   {
     for (int i=0; i<6; i++)
     {
       if (tmpscr[tmp].layermap[i]>0)
       {
-        tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
+	    if(tmpscr2[i].data!=NULL) delete [] tmpscr2[i].data;
+		if(tmpscr2[i].sflag!=NULL) delete [] tmpscr2[i].sflag;
+		if(tmpscr2[i].cset!=NULL) delete [] tmpscr2[i].cset;
+		if((ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+		{
+          tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
+		  tmpscr2[i].data = NULL; tmpscr2[i].sflag = NULL; tmpscr2[i].cset = NULL;
+		  tmpscr2[i].data = new word[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+		  memcpy(tmpscr2[i].data, TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]].data, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(word));
+		  tmpscr2[i].sflag = new byte[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+		  memcpy(tmpscr2[i].sflag, TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]].sflag, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
+		  tmpscr2[i].cset = new byte[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+		  memcpy(tmpscr2[i].cset, TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]].cset, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
+		}
+		else
+		{
+		  memset(tmpscr2+i,0,sizeof(mapscr));
+		}
       }
       else
       {
+	    if(tmpscr2[i].data!=NULL) delete [] tmpscr2[i].data;
+		if(tmpscr2[i].sflag!=NULL) delete [] tmpscr2[i].sflag;
+		if(tmpscr2[i].cset!=NULL) delete [] tmpscr2[i].cset;
         memset(tmpscr2+i,0,sizeof(mapscr));
       }
     }
@@ -3086,7 +4363,7 @@ void putscr(BITMAP* dest,int x,int y, mapscr* scrn)
   for(int i=0; i<176; i++)
   {
     if(scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG)
-	  overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
+    overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
     else putcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
   }
 
@@ -3296,13 +4573,16 @@ void ViewMap()
   mapscr tmpscr_c[6];
   for (int i=0; i<6; ++i)
   {
-    memcpy(&(tmpscr_c[i]), &(tmpscr2[i]), sizeof(mapscr));
+    memcpy(&(tmpscr_c[i]), &(tmpscr2[i]), sizeof(struct mapscr));
+	memset(&(tmpscr2[i]),0,sizeof(struct mapscr));
     if (i>=2)
     {
       continue;
     }
-    memcpy(&(tmpscr_b[i]), &(tmpscr[i]), sizeof(mapscr));
+    memcpy(&(tmpscr_b[i]), &(tmpscr[i]), sizeof(struct mapscr));
+	memset(&(tmpscr[i]),0,sizeof(struct mapscr));
   }
+
   BITMAP* mappic = NULL;
   static double scales[17] =
   {
@@ -3342,20 +4622,40 @@ void ViewMap()
       else
       {
         loadscr2(1,s,-1);
-        for (int i=0; i<6; i++)
+		for (int i=0; i<6; i++)
         {
           if (tmpscr[1].layermap[i]>0)
           {
-            tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
+            if(tmpscr2[i].data!=NULL) delete [] tmpscr2[i].data;
+            if(tmpscr2[i].sflag!=NULL) delete [] tmpscr2[i].sflag;
+            if(tmpscr2[i].cset!=NULL) delete [] tmpscr2[i].cset;
+            if((ZCMaps[tmpscr[1].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[1].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+            {
+              tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
+              tmpscr2[i].data = NULL; tmpscr2[i].sflag = NULL; tmpscr2[i].cset = NULL;
+              tmpscr2[i].data = new word[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+              memcpy(tmpscr2[i].data, TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]].data, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(word));
+              tmpscr2[i].sflag = new byte[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+              memcpy(tmpscr2[i].sflag, TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]].sflag, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
+              tmpscr2[i].cset = new byte[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+              memcpy(tmpscr2[i].cset, TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]].cset, (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
+            }
+            else
+            {
+              memset(tmpscr2+i,0,sizeof(mapscr));
+            }
           }
           else
           {
+            if(tmpscr2[i].data!=NULL) delete [] tmpscr2[i].data;
+            if(tmpscr2[i].sflag!=NULL) delete [] tmpscr2[i].sflag;
+            if(tmpscr2[i].cset!=NULL) delete [] tmpscr2[i].cset;
             memset(tmpscr2+i,0,sizeof(mapscr));
           }
         }
 
-		if((tmpscr+1)->flags7&fLAYER2BG) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
-		if((tmpscr+1)->flags7&fLAYER3BG) do_layer(scrollbuf, 2, tmpscr+1, -256, playing_field_offset, 2);
+        if((tmpscr+1)->flags7&fLAYER2BG) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
+        if((tmpscr+1)->flags7&fLAYER3BG) do_layer(scrollbuf, 2, tmpscr+1, -256, playing_field_offset, 2);
         putscr(scrollbuf,256,0,tmpscr+1);
         do_layer(scrollbuf, 0, tmpscr+1, -256, playing_field_offset, 2);
         if(!((tmpscr+1)->flags7&fLAYER2BG)) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
@@ -3378,7 +4678,7 @@ void ViewMap()
 
   do
   {
-	load_control_state();
+    load_control_state();
     int step = int(16.0/scales[sc]);
     step = (step>>1) + (step&1);
     bool r = cRbtn();
@@ -3462,17 +4762,35 @@ void ViewMap()
       done = true;
 
   } while(!done && !Quit);
+
   destroy_bitmap(mappic);
-  loadscr2(0,currscr,-1);
+
+  for(int i=0;i<6;i++)
+  {
+    if(i==1)
+    {
+      if(tmpscr[i].data != NULL) delete [] tmpscr[i].data;
+	  tmpscr[i].data=NULL;
+      if(tmpscr[i].sflag != NULL) delete [] tmpscr[i].sflag;
+	  tmpscr[i].sflag=NULL;
+      if(tmpscr[i].cset != NULL) delete [] tmpscr[i].cset;
+	  tmpscr[i].cset=NULL;
+    }
+    if(tmpscr2[i].data != NULL) delete [] tmpscr2[i].data;
+    if(tmpscr2[i].sflag != NULL) delete [] tmpscr2[i].sflag;
+    if(tmpscr2[i].cset != NULL) delete [] tmpscr2[i].cset;
+  }
   for (int i=0; i<6; ++i)
   {
-    memcpy(&(tmpscr2[i]), &(tmpscr_c[i]), sizeof(mapscr));
+    memcpy(&(tmpscr2[i]), &(tmpscr_c[i]), sizeof(struct mapscr));
     if (i>=2)
     {
       continue;
     }
-    memcpy(&(tmpscr[i]), &(tmpscr_b[i]), sizeof(mapscr));
+    memcpy(&(tmpscr[i]), &(tmpscr_b[i]), sizeof(struct mapscr));
   }
+
+  //loadscr2(0,currscr,-1);
 
 }
 
@@ -3482,7 +4800,7 @@ int onViewMap()
   {
     if(get_bit(quest_rules,qr_VIEWMAP))
     {
-      clear_to_color(framebuf,BLACK);
+	  clear_to_color(framebuf,BLACK);
       //      text_mode(BLACK);
       textout_centre_ex(framebuf,font,"Drawing map...",128,108,WHITE,BLACK);
       advanceframe();

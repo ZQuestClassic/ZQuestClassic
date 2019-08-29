@@ -23,6 +23,8 @@ void movefairy(fix &x,fix &y,int misc);
 void killfairy(int misc);
 void addenemy(int x,int y,int id,int clk);
 void addfairy(fix x, fix y, int misc);
+bool can_drop(fix x, fix y);
+bool is_side_view();
 
 class item : public sprite
 {

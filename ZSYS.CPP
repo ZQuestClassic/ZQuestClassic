@@ -26,18 +26,9 @@ using std::string;
 #include "zc_sys.h"
 #include "jwin.h"
 
-/*
-  enum { jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
-  jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
-  jcMAX };
-
-  int jwin_pal[jcMAX] =
-  {
-  vc(11),vc(15),vc(4),vc(7),vc(6),vc(0),
-  192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
-  };
-  */
-
+#ifdef _MSC_VER
+#define stricmp _stricmp
+#endif
 
 char *time_str_long(dword time)
 {
@@ -88,7 +79,7 @@ char *time_str_short2(dword time)
 
 void extract_name(char *path,char *name,int type)
 {
-  int l=strlen(path);
+  int l=(int)strlen(path);
   int i=l;
   while(i>0 && path[i-1]!='/' && path[i-1]!='\\')
     --i;
@@ -215,8 +206,8 @@ char *zc_make_relative_filename(char *dest, const char *path, const char *filena
 
 void chop_path(char *path)
 {
-  int p = strlen(path);
-  int f = strlen(get_filename(path));
+  int p = (int)strlen(path);
+  int f = (int)strlen(get_filename(path));
   if(f<p)
     path[p-f]=0;
 }
@@ -496,6 +487,7 @@ int encode_file_007(char *srcfile, char *destfile, int key2, char *header, int m
     return 2;
   }
 
+
   // write the header
   if(header)
   {
@@ -560,7 +552,7 @@ int decode_file_007(char *srcfile, char *destfile, char *header, int method, boo
   short c1 = 0, c2 = 0, check1, check2;
 
   // open files
-  size = file_size(srcfile);
+  size = file_size_ex(srcfile);
   if(size < 1)
   {
     return 1;
@@ -592,7 +584,7 @@ int decode_file_007(char *srcfile, char *destfile, char *header, int method, boo
     }
   }
 
-  //packfile_password(NULL);
+  //setPackfilePassword(NULL);
   dest = fopen(destfile, "wb");
   if(!dest)
   {
@@ -606,7 +598,7 @@ int decode_file_007(char *srcfile, char *destfile, char *header, int method, boo
     }
     return 2;
   }
-  //packfile_password(datapwd);
+  //setPackfilePassword(datapwd);
 
   // read the header
   err = 4;
@@ -970,14 +962,14 @@ void box_out(const char *msg)
     sprintf(box_log_msg+box_msg_pos, msg);
   }
   box_x += text_length(box_message_font, msg);
-  box_msg_pos+=strlen(msg);
+  box_msg_pos+=(int)strlen(msg);
   if(remainder != "")
 	{
 		bool oldlog = box_log;
 		box_log = false;
 		box_eol();
 		box_out(remainder.c_str());
-		box_log = oldlog;	
+		box_log = oldlog;
 	}
 }
 
@@ -1916,7 +1908,7 @@ void copy_dialog(DIALOG **to, DIALOG *from)
         (from[i].proc==jwin_button_proc)||
         (from[i].proc==jwin_check_proc)||
         (from[i].proc==jwin_ctext_proc)||
-		(from[i].proc==jwin_edit_proc) || 
+		(from[i].proc==jwin_edit_proc) ||
         (from[i].proc==jwin_radio_proc)||
         (from[i].proc==jwin_rtext_proc)||
         (from[i].proc==jwin_text_proc)||
@@ -1930,7 +1922,7 @@ void copy_dialog(DIALOG **to, DIALOG *from)
     {
       (*to)[i].dp3=(void *)(*to);
     }
-    
+
 /*
     case d_bitmap_proc:
     case d_box_proc:
@@ -2051,8 +2043,8 @@ void free_dialog(DIALOG **dlg)
     {
       free((*dlg)[i].dp);
     }
-    
-    
+
+
 /*
     case d_bitmap_proc:
     case d_box_proc:
@@ -2126,4 +2118,30 @@ void free_dialog(DIALOG **dlg)
   }
   memset((*dlg),0,sizeof(DIALOG)*(count+1));
   free((*dlg));
+}
+
+static char * packpasswrd = NULL;
+void setPackfilePassword(const char *newpwd)
+{
+	if(newpwd==NULL)
+		packpasswrd = NULL;
+	else
+	{
+		int len = (int)strlen(newpwd);
+		if(packpasswrd != NULL)
+			delete[] packpasswrd;
+		packpasswrd = new char[len+1];
+		strcpy(packpasswrd, newpwd);
+	}
+	packfile_password(packpasswrd);
+}
+
+char * getCurPackfilePassword()
+{
+	if(packpasswrd == NULL)
+		return NULL;
+	int len = (int)strlen(packpasswrd);
+	char *ret = new char[len+1];
+	strcpy(ret, packpasswrd);
+	return ret;
 }

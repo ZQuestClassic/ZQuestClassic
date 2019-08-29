@@ -11,7 +11,7 @@
 #ifndef _MAPS_H_
 #define _MAPS_H_
 #include "zdefs.h"
-void clear_dmap(byte i);
+void clear_dmap(word i);
 void clear_dmaps();
 int count_dmaps();
 int isdungeon();
@@ -57,6 +57,7 @@ int nextscr(int dir);
 void bombdoor(int x,int y);
 void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen);
 void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen);
+void do_primitives(BITMAP *bmp, int type, mapscr *layer, int x, int y);
 void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2);
 
 INLINE void draw_screen(mapscr* layer, int x, int y)

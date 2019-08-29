@@ -613,8 +613,13 @@ bool zqwin_set_scale(int scale, bool defer)
     }
   }
 
-  gui_mouse_x=zqscale_mouse_x;
-  gui_mouse_y=zqscale_mouse_y;
+  
+	// Mouse Scale Issue Fix Just commented these out and presto it works :-D	
+#ifndef COMPILE_FOR_LINUX	
+	gui_mouse_x=zqscale_mouse_x;
+	gui_mouse_y=zqscale_mouse_y;
+#endif
+	
   return true;
 }
 

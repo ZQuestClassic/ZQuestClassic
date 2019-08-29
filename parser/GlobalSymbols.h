@@ -24,7 +24,7 @@ struct AccessorTable
 	int setorget;
 	int var;
 	int numindex;
-	int params[5];
+	int params[20];
 };
 
 class LibrarySymbols

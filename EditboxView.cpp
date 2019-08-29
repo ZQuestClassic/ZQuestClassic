@@ -29,7 +29,7 @@ void EditboxView::initialize(EditboxModel *new_model)
 
   string nl = "";
   Unicode::insertAtIndex(nl,'\n',0);
-  unsigned int nlsize = nl.size();
+  unsigned int nlsize = (unsigned int)nl.size();
   if(model->getBuffer().size() < nlsize || model->getBuffer().substr(model->getBuffer().size()-nlsize,nlsize) != nl)
     model->getBuffer() += nl;
   dbuf = create_bitmap_ex(8, host->w, host->h);
@@ -117,8 +117,6 @@ void EditboxView::invertRectangle(int x1, int y1, int x2, int y2)
   //I don't feel like dicking around with colormaps right now
   //this method is SLOOOW, big efficiency opportunity here
   static std::map<int, int> invmap;
-  PALETTE pal;
-  get_palette(pal);
   RGB color;
   //don't wast time drawing in stupid places
   x1 = max(x1, 0);
@@ -129,27 +127,27 @@ void EditboxView::invertRectangle(int x1, int y1, int x2, int y2)
   y1 = min(y1, host->h);
   y2 = max(y2, 0);
   y2 = min(y2, host->h);
-  for(int i=x1; i<=x2; i++)
+  for(int i=x1; i<x2; i++)
   {
-    for(int j=y1; j<=y2; j++)
+    for(int j=y1; j<y2; j++)
     {
       int c = getpixel(dbuf, i,j);
-      if(c != -1)
+	  if(c != -1)
       {
         std::map<int, int>::iterator it = invmap.find(c);
-        int invcolor;
+		int invcolor;
         if(it == invmap.end())
         {
           get_color(c, &color);
-          unsigned char r = ~color.r;
-          unsigned char g = ~color.g;
-          unsigned char b = ~color.b;
-          invcolor = bestfit_color(pal,r,g,b);
-          invmap[c] = invcolor;
+		  unsigned char r = 4*(((~color.r)&0x3F)+1)-1;
+		  unsigned char g = 4*(((~color.g)&0x3F)+1)-1;
+          unsigned char b = 4*(((~color.b)&0x3F)+1)-1;
+		  invcolor = makecol(r,g,b);
+		  invmap[c] = invcolor;
         }
         else
           invcolor = it->second;
-        putpixel(dbuf, i,j,invcolor);
+		putpixel(dbuf, i,j,invcolor);
       }
     }
   }
@@ -281,13 +279,13 @@ void BasicEditboxView::draw()
     pair<int, int> selection = model->getSelection().getSelection();
     CursorPos selstart = model->findIndex(selection.first);
     CursorPos selend = model->findIndex(selection.second);
-    if(selstart.lineno == selend.lineno)
+	if(selstart.lineno == selend.lineno)
     {
       //invert the selection rectangle
       int starty = area_ystart-host->y-view_y+selstart.lineno*textheight;
       int startx = area_xstart-host->x+selstart.x-view_x;
       int endx = area_xstart-host->x+selend.x-view_x;
-      invertRectangle(startx, starty, endx, starty+textheight-1);
+	  invertRectangle(startx, starty, endx, starty+textheight);
     }
     else
     {
@@ -303,7 +301,7 @@ void BasicEditboxView::draw()
 	  {
 		  endx = area_xstart-host->x+selstart.it->strip->w;
 	  }
-      invertRectangle(startx,starty,endx,starty+textheight-1);
+      invertRectangle(startx,starty,endx,starty+textheight);
       //do intermediate lines
 	  list<LineData>::iterator it = selstart.it;
 	  it++;
@@ -318,11 +316,11 @@ void BasicEditboxView::draw()
         {
           endx2 = area_xstart-host->x+it->strip->w;
         }
-        invertRectangle(area_xstart-host->x, area_ystart-host->y-view_y+line*textheight, endx2, area_ystart-host->y-view_y+(line+1)*textheight-1);
+        invertRectangle(area_xstart-host->x, area_ystart-host->y-view_y+line*textheight, endx2, area_ystart-host->y-view_y+(line+1)*textheight);
       }
       //do the last line
       endx = area_xstart-host->x+selend.x-view_x;
-      invertRectangle(area_xstart-host->x,area_ystart-host->y-view_y+selend.lineno*textheight, endx, area_ystart-host->y-view_y+(selend.lineno+1)*textheight-1);
+      invertRectangle(area_xstart-host->x,area_ystart-host->y-view_y+selend.lineno*textheight, endx, area_ystart-host->y-view_y+(selend.lineno+1)*textheight);
     }
   }
   set_clip_rect(dbuf, 0,0,host->w,host->h);
@@ -368,7 +366,9 @@ bool BasicEditboxView::mouseDrag(int x, int y)
       view_x = min(xmost-area_width, view_x+1);
     }
     if(oldsel != model->getSelection().getSelection())
+	{
       return true;
+	}
   }
   return false;
 }
@@ -427,7 +427,7 @@ void EditboxVScrollView::drawExtraComponents()
   rectfill(dbuf, toparrow_x-host->x, barstart, toparrow_x-host->x+15, barend, 0);
   solid_mode();
   //compute the bar button, based on view_y
-  int totallen = model->getLines().size()*textheight;
+  int totallen = (int)model->getLines().size()*textheight;
   int available = bottomarrow_y-(toparrow_y+16);
   if(available < 0)
   {
@@ -479,7 +479,7 @@ bool EditboxVScrollView::mouseClick(int x, int y)
         //deltay:(available-barlen) = dealtaview_y:(totallen-area_height)
         int available = bottomarrow_y-(toparrow_y+16);
         int textheight = text_height(textfont);
-        int totallen = model->getLines().size()*textheight;
+        int totallen = (int)model->getLines().size()*textheight;
 		if(available > barlen)
 			view_y -= ((totallen-area_height)*deltay)/(available-barlen);
         enforceHardLimits();
@@ -515,7 +515,7 @@ bool EditboxVScrollView::mouseClick(int x, int y)
           y -= toparrow_y+16+barlen/2;
           int available = bottomarrow_y-(toparrow_y+16);
           int textheight = text_height(textfont);
-          int totallen = model->getLines().size()*textheight;
+          int totallen = (int)model->getLines().size()*textheight;
           //y:(available-barlen)= view_y:(totallen-area_height)
 		  if(available <= barlen)
 			  view_y=0;
@@ -737,9 +737,8 @@ bool EditboxNoWrapView::mouseRelease(int x, int y)
   return EditboxVScrollView::mouseRelease(x,y);
 }
 
-bool EditboxNoWrapView::mouseDragOther(int x, int y)
+bool EditboxNoWrapView::mouseDragOther(int x, int )
 {
-  x=x; y=y; //these are here to bypass compiler warnings about unused arguments
   //maybe pressing arrow, or sliding?
   if(leftarrow_state == 1)
     {
@@ -770,14 +769,14 @@ bool EditboxNoWrapView::mouseClickOther(int x, int y)
       // clicked on an arrow, or the slider
       if(hbarstate == 1)
       {
-        //adjust
+		//adjust
         int deltax = hbarstartx-x;
         hbarstartx = x;
         //deltax:(available-hbarlen) = dealtaview_x:(totallen-area_width)
-        int available = leftarrow_x-(rightarrow_x+16);
+        int available = rightarrow_x-(leftarrow_x+16);
         int totallen = view_width;
 		if(available > hbarlen)
-			view_x += ((totallen-area_width)*deltax)/(available-hbarlen);
+			view_x -= ((totallen-area_width)*deltax)/(available-hbarlen);
         enforceHardLimits();
         return true;
       }
@@ -797,10 +796,10 @@ bool EditboxNoWrapView::mouseClickOther(int x, int y)
       else
       {
         //clicked the slider
-        if(leftarrow_x+16+hbaroff <= x && x <= leftarrow_x+16+hbaroff+hbarlen)
+		if(leftarrow_x+16+hbaroff <= x && x <= leftarrow_x+16+hbaroff+hbarlen)
         {
           //clicked the bar itself
-          hbarstartx = x;
+		  hbarstartx = x;
           hbarstate = 1;
           return true;
         }

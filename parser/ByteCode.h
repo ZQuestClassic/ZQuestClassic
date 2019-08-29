@@ -87,13 +87,21 @@ using namespace std;
 #define ITEMCLASSCOUNTER 64
 #define REFITEMCLASS 65
 //#define GETA 66
+#define LINKZ 66
 //#define GETB 67
+#define LINKJUMP 67
 //#define GETL 68
+#define ITEMZ 68
 //#define GETR 69
+#define ITEMJUMP 69
 //#define GETUP 70
+#define NPCZ 70
 //#define GETDOWN 71
+#define NPCJUMP 71
 //#define GETLEFT 72
+#define LINKSWORDJINX 73
 //#define GETRIGHT 73
+#define LINKITEMJINX 74
 //#define GETSTART 74
 #define COMBOID 75
 #define COMBOTD 76
@@ -696,6 +704,70 @@ public:
 	OPlaySoundRegister(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OPlaySoundRegister(a->clone());}
+};
+
+class OClearSpritesRegister : public UnaryOpcode
+{
+public:
+	OClearSpritesRegister(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OClearSpritesRegister(a->clone());}
+};
+
+class ORectangleRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new ORectangleRegister();}
+};
+
+class OCircleRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new OCircleRegister();}
+};
+
+class OArcRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new OArcRegister();}
+};
+
+class OEllipseRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new OEllipseRegister();}
+};
+
+class OLineRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new OLineRegister();}
+};
+
+class OPutPixelRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new OPutPixelRegister();}
+};
+
+class ODrawTileRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new ODrawTileRegister();}
+};
+
+class ODrawComboRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new ODrawComboRegister();}
 };
 
 #endif

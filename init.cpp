@@ -24,6 +24,9 @@
 #include "zsys.h"
 #include "gui.h"
 
+#define stringizehelp(L) #L
+#define stringize(L) stringizehelp(L)
+
 #define vc(x)  ((x)+224)                                    // offset to 'VGA color' x (row 14)
 
 using namespace std;
@@ -38,6 +41,7 @@ extern char *item_string[];
 
 void initPopulate(int i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,
                   void *dp, void *dp2 = NULL, void *dp3 = NULL);
+void getitem(int id, bool nosound);
 
 static const int endEquipField = 33;
 
@@ -2264,10 +2268,10 @@ void PopulateInitDialog()
   //1668
   initPopulate(i, jwin_frame_proc,     164,   71,   40,   50,    0,       0,      0,       0,          FR_ETCHED,     0,       NULL ); i++;
   initPopulate(i, jwin_text_proc,      168,   68,   40,    8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) " HCP's " ); i++;
-  initPopulate(i, jwin_radio_proc,     168,   78,   25,    9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "0" ); i++;
-  initPopulate(i, jwin_radio_proc,     168,   88,   25,    9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "1" ); i++;
-  initPopulate(i, jwin_radio_proc,     168,   98,   25,    9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "2" ); i++;
-  initPopulate(i, jwin_radio_proc,     168,  108,   25,    9,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "3" ); i++;
+  initPopulate(i, jwin_radio_proc,     168,   78,   25,    9,    vc(14),  vc(1),  0,       0,          2,             0,       (void *) "0" ); i++;
+  initPopulate(i, jwin_radio_proc,     168,   88,   25,    9,    vc(14),  vc(1),  0,       0,          2,             0,       (void *) "1" ); i++;
+  initPopulate(i, jwin_radio_proc,     168,   98,   25,    9,    vc(14),  vc(1),  0,       0,          2,             0,       (void *) "2" ); i++;
+  initPopulate(i, jwin_radio_proc,     168,  108,   25,    9,    vc(14),  vc(1),  0,       0,          2,             0,       (void *) "3" ); i++;
   //1674
   initPopulate(i, jwin_frame_proc,     221,   71,   62,  50,    0,       0,      0,       0,           FR_ETCHED,     0,       NULL ); i++;
   initPopulate(i, jwin_text_proc,      225,   68,    0,   8,    vc(15),  vc(1),  0,       0,           0,             0,       (void *) " Triforce " ); i++;
@@ -2281,18 +2285,18 @@ void PopulateInitDialog()
   initPopulate(i, jwin_check_proc,     259,  108,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "8" ); i++;
   //1684
   initPopulate(i, jwin_check_proc,      25,  142,   17,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "Slash" ); i++;
-  initPopulate(i, jwin_frame_proc,     186,  125,   78,  50,    0,       0,      0,       0,           FR_ETCHED,     0,       NULL ); i++;
-  initPopulate(i, jwin_text_proc,      190,  122,  113,   9,    vc(0),   vc(11), 0,       0,           0,             0,       (void *) " Magic " ); i++;
-  initPopulate(i, jwin_ctext_proc,     205,  132,   73,   9,    vc(0),   vc(11), 0,       0,           0,             0,       (void *) "Start" ); i++;
-  initPopulate(i, jwin_ctext_proc,     246,  132,   73,   9,    vc(0),   vc(11), 0,       0,           0,             0,       (void *) "Max" ); i++;
-  initPopulate(i, jwin_edit_proc,      194,  142,   21,  16,    0,       0,      0,       0,           2,             0,       NULL ); i++;
-  initPopulate(i, jwin_edit_proc,      235,  142,   21,  16,    0,       0,      0,       0,           2,             0,       NULL ); i++;
-  initPopulate(i, jwin_check_proc,     194,  162,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "Double" ); i++;
+  initPopulate(i, jwin_frame_proc,     176,  125,   98,  50,    0,       0,      0,       0,           FR_ETCHED,     0,       NULL ); i++;
+  initPopulate(i, jwin_text_proc,      180,  122,  113,   9,    vc(0),   vc(11), 0,       0,           0,             0,       (void *) " Magic (1/" stringize(MAGICPERBLOCK) " cont.)" ); i++;
+  initPopulate(i, jwin_ctext_proc,     195,  132,   73,   9,    vc(0),   vc(11), 0,       0,           0,             0,       (void *) "Start" ); i++;
+  initPopulate(i, jwin_ctext_proc,     236,  132,   73,   9,    vc(0),   vc(11), 0,       0,           0,             0,       (void *) "Max" ); i++;
+  initPopulate(i, jwin_edit_proc,      184,  142,   26,  16,    0,       0,      0,       0,           3,             0,       NULL ); i++;
+  initPopulate(i, jwin_edit_proc,      225,  142,   26,  16,    0,       0,      0,       0,           3,             0,       NULL ); i++;
+  initPopulate(i, jwin_check_proc,     184,  162,   25,   9,    vc(14),  vc(1),  0,       0,           1,             0,       (void *) "Double" ); i++;
   //1692
 
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
   initPopulate(i, d_dummy_proc,           0,    0,   0,      0,      0,       0,      0,       0,          0,             0,       NULL ); i++;
-  initPopulate(i, jwin_text_proc,       80,  144,   64,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Max Rupies:" ); i++;
+  initPopulate(i, jwin_text_proc,       80,  144,   64,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Max Rupees:" ); i++;
   initPopulate(i, jwin_edit_proc,      128,  140,   21,   16,    vc(12),  vc(1),  0,       0,          5,             0,       NULL ); i++;
   initPopulate(i, jwin_text_proc,       80,  162,   64,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "Max Keys:" ); i++;
   initPopulate(i, jwin_edit_proc,      128,  158,   21,   16,    vc(12),  vc(1),  0,       0,          5,             0,       NULL ); i++;
@@ -2356,12 +2360,13 @@ void PopulateInitDialog()
 }
 
 const char *itype_names[] = { "Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
-"Baits", "Letters", "Potions", "Wands", "Rings", "Wallets", "Amulets", "Shields", "Bows", "Rafts",
+"Bait", "Letters", "Potions", "Wands", "Rings", "Wallets", "Amulets", "Shields", "Bows", "Rafts",
 "Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", "Boots", "Hookshots", "Lenses", "Hammers",
 "Din's Fire", "Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", "Keys", "Magic Containers",
 "Triforce Pieces", "Maps", "Compasses", "Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", "Arrow Ammo",
 "Fairies", "Magic", "Hearts", "Heart Containers", "Heart Pieces", "Kill All Enemies",
-"Bomb Ammo", "Bomb Bags", "Roc Items", "Hover Boots"
+"Bomb Ammo", "Bomb Bags", "Roc Items", "Hover Boots","Scroll: Spin Attack","Scroll: Cross Beams","Scroll: Quake Hammer",
+"Whisp Rings", "Charge Rings", "Scroll: Peril Beam", "Wealth Medals"/*, "Scroll: Shield Attack"*/
 };
 
 const char *familylist(int index, int *list_size);
@@ -2371,7 +2376,6 @@ int doInit(zinitdata *zinit)
 	for(int i=0; i<MAXITEMS; i++)
 	{
 		int family = itemsbuf[i].family;
-		al_trace("%d : %s\n",i,itype_names[family]);
 		if(family == 0xFF || itemsbuf[i].set_gamedata == 0)
 			continue;
 		map<int,vector<Family> >::iterator it = families.find(family);
@@ -2594,7 +2598,7 @@ int doInit(zinitdata *zinit)
 
 
 		set_bit(zinit->misc,idM_CANSLASH,init_dlg[1684].flags);
-		zinit->max_magic = min(atoi(maxmagicstring),8);
+		zinit->max_magic = atoi(maxmagicstring);
 		zinit->magic = min(atoi(magicstring),zinit->max_magic);
 		set_bit(zinit->misc,idM_DOUBLEMAGIC,init_dlg[1691].flags);
 		zinit->max_rupees = vbound(atoi(maxrupeestring), 0, 0xFFFF);
@@ -2613,7 +2617,7 @@ const char *familylist(int index, int *list_size)
 {
   if(index<0)
   {
-	*list_size = families.size();
+	*list_size = (int)families.size();
     return NULL;
   }
   map<int, vector<Family> >::iterator it = families.begin();
@@ -2690,4 +2694,55 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
 		unscare_mouse();
 	}
 	return rval;
+}
+
+void resetItems(gamedata *game2, zinitdata *zinit2)
+{
+  //First set up the counters
+    game2->set_maxlife( min(zinit2->hc,get_bit(quest_rules,qr_24HC)?24:16)*HP_PER_HEART);
+    game2->set_bombs( zinit2->bombs);
+	if(zinit2->bombs > 0 && zinit2->max_bombs > 0) game2->set_item(iBombs, true);
+    game2->set_keys( zinit2->keys);
+    game2->set_maxbombs( zinit2->max_bombs);
+    game2->set_sbombs( zinit2->super_bombs);
+	if(zinit2->super_bombs > 0 && (zinit2->max_bombs>>2) > 0) game2->set_item(iSBomb, true);
+    game2->set_maxcounter( zinit2->max_bombs>>2, 6);
+	game2->set_HCpieces( zinit2->hcp);
+    game2->set_rupies( zinit2->rupies);
+
+  for (int i=0; i<MAXITEMS; i++) game2->items_off[i]=0;
+
+    for (int i=0; i<MAXLEVELS; i++)
+    {
+      game2->lvlitems[i]=0;
+      game2->lvlitems[i]|=get_bit(zinit2->map,i)?liMAP:0;
+      game2->lvlitems[i]|=get_bit(zinit2->compass,i)?liCOMPASS:0;
+      game2->lvlitems[i]|=get_bit(zinit2->boss_key,i)?liBOSSKEY:0;
+      game2->lvlkeys[i]=zinit2->level_keys[i];
+    }
+
+    for (int i=0; i<8; i++)
+    {
+      game2->lvlitems[i+1]|=get_bit(&zinit2->triforce,i)?liTRIFORCE:0;
+    }
+    game2->set_maxmagic( zinit2->max_magic);
+    game2->set_magic( min(zinit2->magic,zinit2->max_magic));
+    game2->set_magicdrainrate( get_bit(zinit2->misc,idM_DOUBLEMAGIC)?1:2);
+    game2->set_canslash( get_bit(zinit2->misc,idM_CANSLASH)?1:0);
+
+    game2->set_arrows( zinit2->arrows);
+    game2->set_maxarrows( zinit2->max_arrows);
+
+  game2->set_maxcounter( zinit2->max_rupees, 1);
+  game2->set_maxcounter( zinit2->max_keys, 5);
+
+  //now set up the items!
+  for(int i=0; i<MAXITEMS; i++)
+  {
+    game2->set_item(i,false);
+    if(zinit2->items[i])
+    {
+	  getitem(i,true);
+    }
+  }
 }

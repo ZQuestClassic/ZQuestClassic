@@ -6,6 +6,7 @@
 #include "jwinfsel.h"
 #include "zcmusic.h"
 #include "sprite.h"
+#include "gamedata.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -32,7 +33,7 @@
 //#define FLASH 243
 
 #ifdef ALLEGRO_MACOSX
-extern int midi_strict;
+extern int midi_strict; //L
 #endif
 extern bool cancelgetnum;
 
@@ -53,6 +54,10 @@ extern int CSET_SIZE;
 extern int CSET_SHFT;
 
 void update_combo_cycling();
+void update_freeform_combos();
+
+bool layers_valid(mapscr *tempscr);
+void fix_layers(mapscr *tempscr, bool showwarning);
 
 extern int coord_timer, coord_frame;
 extern int blackout_color, zq_screen_w, zq_screen_h, minimap_x, minimap_y, minimap_w, minimap_h;
@@ -78,7 +83,7 @@ extern int lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
                                                             //extern int mode, switch_mode, orig_mode;
 extern RGB_MAP rgb_table;
-extern COLOR_MAP trans_table;
+extern COLOR_MAP trans_table, trans_table2;
 extern char *datafile_str;
 extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
@@ -165,6 +170,7 @@ extern byte         music_flags[MUSICFLAGS_SIZE];
 extern word         map_count;
 extern miscQdata    misc;
 extern mapscr       *TheMaps;
+extern zcmap		*ZCMaps;
 extern dmap         *DMaps;
 extern MsgStr       *MsgStrings;
 extern DoorComboSet *DoorComboSets;
@@ -265,6 +271,8 @@ int onPgUp();
 int onPgDn();
 int onPlus();
 int onMinus();
+int onIntegrityCheck(); //generic name for now
+int onIntegrityCheckAll();
 bool getname(char *prompt,char *ext,char *def,bool usefilename);
 bool getname_nogo(char *prompt,char *ext,EXT_LIST *list,char *def,bool usefilename);
 //bool getname_nogo(char *prompt,char *ext,char *def,bool usefilename);
@@ -385,6 +393,7 @@ int onSecretF();
 int onSecretCombo();
 int onUnderCombo();
 int onImportFFScript();
+int onImportItemScript();
 int onImportGScript();
 int onCompileScript();
 
@@ -477,8 +486,9 @@ int onFullScreen();
 int isFullScreen();
 
 //bool edit_ins_mode=true;
-
+char *parse_msg_str(char *s);
 void put_msg_str(char *s,int x,int y,int fg,int bg,int pos);
+int d_msg_preview_proc(int msg,DIALOG *d,int c);
 int d_msg_edit_proc(int msg,DIALOG *d,int c);
 
 //char msgbuf[73];
@@ -667,7 +677,7 @@ void build_bie_list(bool hide);
 void build_big_list(bool hide);
 char *enemylist(int index, int *list_size);
 char *guylist(int index, int *list_size);
-int select_enemy(char *prompt,int enemy);
+int select_enemy(char *prompt,int enemy,char *oktext="OK", char *canceltext="Cancel");
 int select_guy(char *prompt,int guy);
 
 //unsigned char check[2] = { ';'+128,0 };
@@ -794,21 +804,26 @@ int current_item(int item_type);
 bool can_use_item(int item_type, int item);
 bool has_item(int item_type, int it);
 int get_bmaps(int si);
-word get_gamedata_maxlife();
-word get_gamedata_life();
-byte get_gamedata_magicdrainrate();
-word get_gamedata_maxmagic();
-word get_gamedata_magic();
-byte get_gamedata_cheat();
-byte get_gamedata_HCpieces();
-byte get_gamedata_sbombs();
-byte get_gamedata_bombs();
-byte get_gamedata_keys();
-byte get_gamedata_lkeys();
-byte get_gamedata_timevalid();
-dword get_gamedata_time();
-word get_gamedata_arrows();
-word get_gamedata_rupies();
+
+// Since there's no gamedata in zquest, this deals with the get_ functions.
+typedef struct {
+word get_maxlife();
+word get_life();
+byte get_magicdrainrate();
+word get_maxmagic();
+word get_magic();
+byte get_cheat();
+byte get_HCpieces();
+byte get_sbombs();
+byte get_bombs();
+byte get_keys();
+byte get_lkeys();
+byte get_timevalid();
+dword get_time();
+word get_arrows();
+word get_rupies();
+} zqgamedata;
+
 bool no_subscreen();
 
 extern int Awpn, Bwpn, Bpos;

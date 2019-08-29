@@ -138,9 +138,9 @@ subscreen_object z3_active[200]=
   { ssoLINE,                        0,               233,    139,      2,       1,       ssctMISC,             ssctTEXT,                     0,                    0,                            0,                    0,                            0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        NULL },
   { ssoLINE,                        0,               237,    139,      2,       1,       ssctMISC,             ssctTEXT,                     0,                    0,                            0,                    0,                            0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        NULL },
   { ssoBUTTONITEM,                  0,               200,      8,      0,       0,       0,                    0,                            0,                    0,                            0,                    0,                            1,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        NULL },
-  { ssoCOUNTER,                     0,               212,     18,      0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               0,                 sscARROWS,         1,                 0,                 0,                 0,        0,       0,       0,        NULL },
-  { ssoCOUNTER,                     0,               212,     18,      0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               0,                 sscBOMBS,          1,                 0,                 0,                 0,        0,       0,       0,        NULL },
-  { ssoCOUNTER,                     0,               212,     18,      0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               0,                 sscSBOMBS,         1,                 0,                 0,                 0,        0,       0,       0,        NULL },
+  { ssoCOUNTER,                     0,               212,     18,      0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               2,                 sscARROWS,         0,                 0,                 0,                 0,        0,       0,       0,        NULL },
+  { ssoCOUNTER,                     0,               212,     18,      0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               2,                 sscBOMBS,          0,                 0,                 0,                 0,        0,       0,       0,        NULL },
+  { ssoCOUNTER,                     0,               212,     18,      0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               2,                 sscSBOMBS,         0,                 0,                 0,                 0,        0,       0,       0,        NULL },
   { ssoSELECTEDITEMNAME,            0,               173,     24,     70,      16,       ssctMISC,             ssctTEXT,                     ssctMISC,             ssctSUBSCRSHADOW,             ssctSYSTEM,           -1,                           ssfPROP,           sstaCENTER,        sstsSHADOWED,      1,                 4,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        NULL },
   { ssoRECT,                        0,                24,      1,     16,       6,       0,                    0,                            0,                    0,                            0,                    0,                            1,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        NULL },
   { ssoTEXT,                        0,                24,      1,      0,       0,       ssctMISC,             ssctTEXT,                     ssctMISC,             ssctSUBSCRSHADOW,             ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaLEFT,          sstsSHADOWED,      0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        (void *) "ITEM" },
@@ -363,9 +363,9 @@ subscreen_object z3_passive[200]=
   { sso2X2FRAME,                    0,                 32,      6,     4,       4,       9,                    0,                            0,                    0,                            0,                    0,                        14131,                 0,                 1,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        NULL },
   { sso2X2FRAME,                    0,                 32,      6,     4,       4,       1,                    0,                            0,                    0,                            0,                    0,                        14040,                 0,                 1,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        NULL },
   { ssoBUTTONITEM,                  0,                 40,     14,     0,       0,       0,                    0,                            0,                    0,                            0,                    0,                            1,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        NULL },
-  { ssoCOUNTER,                     0,                 52,     24,     0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               0,                 sscARROWS,         1,                 0,                 0,                 0,        0,       0,       0,        NULL },
-  { ssoCOUNTER,                     0,                 52,     24,     0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               0,                 sscBOMBS,          1,                 0,                 0,                 0,        0,       0,       0,        NULL },
-  { ssoCOUNTER,                     0,                 52,     24,     0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               0,                 sscSBOMBS,         1,                 0,                 0,                 0,        0,       0,       0,        NULL },
+  { ssoCOUNTER,                     0,                 52,     24,     0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               2,                 sscARROWS,         0,                 0,                 0,                 0,        0,       0,       0,        NULL },
+  { ssoCOUNTER,                     0,                 52,     24,     0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               2,                 sscBOMBS,          0,                 0,                 0,                 0,        0,       0,       0,        NULL },
+  { ssoCOUNTER,                     0,                 52,     24,     0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfZ3SMALL,        sstaCENTER,        sstsOUTLINEDPLUS,  2,                 '~',               2,                 sscSBOMBS,         0,                 0,                 0,                 0,        0,       0,       0,        NULL },
   { ssoTEXT,                        0,                200,      6,     0,       0,       ssctMISC,             ssctTEXT,                     0,                    15,                           ssctSYSTEM,           -1,                           ssfSS4,            sstaCENTER,        sstsSHADOWED,      0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        (void *) "LIFE" },
   { ssoRECT,                        0,                178,      8,    12,       2,       0,                    15,                           0,                    15,                           0,                    0,                            1,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        NULL },
   { ssoLINE,                        0,                179,      8,    10,       1,       ssctMISC,             ssctTEXT,                     0,                    0,                            0,                    0,                            0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,                 0,        0,       0,       0,        NULL },
@@ -2250,19 +2250,19 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
       {
         int top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4 ) : ((dx==0) ? t8    : t8+1 );
         int bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
-    
+
         overtiletranslucent8(dest,top,(dx<<3)+x,y,cset,0,128);
         overtiletranslucent8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0,128);
       }
-    
+
       for(int dy=1; dy<h-1; dy++)
       {
         int left  = (dy >= (h>>1)) ? t8+80 : t8+2;
         int right = (dy >= (h>>1)) ? t8+85 : t8+7;
-    
+
         overtiletranslucent8(dest,left,x,(dy<<3)+y,cset,0,128);
         overtiletranslucent8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0,128);
-    
+
         for(int dx=1; dx<w-1; dx++)
         {
           int fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
@@ -2276,19 +2276,19 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
       {
         int top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4 ) : ((dx==0) ? t8    : t8+1 );
         int bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
-    
+
         overtile8(dest,top,(dx<<3)+x,y,cset,0);
         overtile8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0);
       }
-    
+
       for(int dy=1; dy<h-1; dy++)
       {
         int left  = (dy >= (h>>1)) ? t8+80 : t8+2;
         int right = (dy >= (h>>1)) ? t8+85 : t8+7;
-    
+
         overtile8(dest,left,x,(dy<<3)+y,cset,0);
         overtile8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0);
-    
+
         for(int dx=1; dx<w-1; dx++)
         {
           int fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
@@ -2305,19 +2305,19 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
       {
         int top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4 ) : ((dx==0) ? t8    : t8+1 );
         int bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
-    
+
         puttiletranslucent8(dest,top,(dx<<3)+x,y,cset,0,128);
         puttiletranslucent8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0,128);
       }
-    
+
       for(int dy=1; dy<h-1; dy++)
       {
         int left  = (dy >= (h>>1)) ? t8+80 : t8+2;
         int right = (dy >= (h>>1)) ? t8+85 : t8+7;
-    
+
         puttiletranslucent8(dest,left,x,(dy<<3)+y,cset,0,128);
         puttiletranslucent8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0,128);
-    
+
         for(int dx=1; dx<w-1; dx++)
         {
           int fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
@@ -2331,19 +2331,19 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
       {
         int top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4 ) : ((dx==0) ? t8    : t8+1 );
         int bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
-    
+
         oldputtile8(dest,top,(dx<<3)+x,y,cset,0);
         oldputtile8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0);
       }
-    
+
       for(int dy=1; dy<h-1; dy++)
       {
         int left  = (dy >= (h>>1)) ? t8+80 : t8+2;
         int right = (dy >= (h>>1)) ? t8+85 : t8+7;
-    
+
         oldputtile8(dest,left,x,(dy<<3)+y,cset,0);
         oldputtile8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0);
-    
+
         for(int dx=1; dx<w-1; dx++)
         {
           int fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
@@ -2684,16 +2684,21 @@ void lifemeter(BITMAP *dest,int x,int y,int tile,bool bs_style)
   {
     y+=24;
   }
-  for(int i=0; i<get_gamedata_maxlife(); i+=HP_PER_HEART)
+  for(int i=0; i<(game != NULL ? game->get_maxlife() : 1); i+=HP_PER_HEART)
   {
-    if(get_bit(quest_rules,qr_QUARTERHEART))
-    {
-      if(i+((HP_PER_HEART/4)*3)>=get_gamedata_life()) tile=6;
-      if(i+(HP_PER_HEART/2)>=get_gamedata_life()) tile=1;
-      if(i+((HP_PER_HEART/4)*1)>=get_gamedata_life()) tile=7;
-    }
-    else if(i+(HP_PER_HEART/2)>=get_gamedata_life()) tile=1;
-      if(i>=get_gamedata_life()) tile=4;
+    if(game != NULL)
+	{
+		if(get_bit(quest_rules,qr_QUARTERHEART))
+		{
+			if(i+((HP_PER_HEART/4)*3)>=game->get_life()) tile=6;
+			if(i+(HP_PER_HEART/2)>=game->get_life()) tile=1;
+			if(i+((HP_PER_HEART/4)*1)>=game->get_life()) tile=7;
+		}
+		else if(i+(HP_PER_HEART/2)>=game->get_life()) tile=1;
+			if(i>=game->get_life()) tile=4;
+	}
+	else
+		tile=4;
     overtile8(dest,tile,x,y,1,0);
     x+=8;
     if(((i>>4)&7)==7)
@@ -2712,12 +2717,12 @@ void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int n
   speed=speed;
   delay=delay;
 
-  if (((get_gamedata_magicdrainrate()==1)&&show==2)||
-      ((get_gamedata_magicdrainrate()==2)&&show==1))
+  if (((game->get_magicdrainrate()==1)&&show==2)||
+      ((game->get_magicdrainrate()==2)&&show==1))
   {
     return;
   }
-  int containers=get_gamedata_maxmagic()/MAGICPERBLOCK;
+  int containers=game->get_maxmagic()/MAGICPERBLOCK;
   int tile=rand()%32767, cset=rand()%15;
   bool mod_value=(rand()%2)!=0;
 
@@ -2748,10 +2753,10 @@ void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int n
 
   if (mod_value)
   {
-    if (get_gamedata_magic()>=container*MAGICPERBLOCK)
+    if (game->get_magic()>=container*MAGICPERBLOCK)
     {
       //tile=tile;                                        //full block
-      if (get_gamedata_magic()==container*MAGICPERBLOCK)
+      if (game->get_magic()==container*MAGICPERBLOCK)
       {
         if (unique_last)
         {
@@ -2761,13 +2766,13 @@ void magicgauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int n
     }
     else
     {
-      if (((container-1)*MAGICPERBLOCK)>get_gamedata_magic())
+      if (((container-1)*MAGICPERBLOCK)>game->get_magic())
       {
         tile+=4;                                //empty block
       }
       else
       {
-        tile+=4+((get_gamedata_magic()-((container-1)*MAGICPERBLOCK))%MAGICPERBLOCK);
+        tile+=4+((game->get_magic()-((container-1)*MAGICPERBLOCK))%MAGICPERBLOCK);
       }
     }
   }
@@ -2784,7 +2789,7 @@ void lifegauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int no
   speed=speed;
   delay=delay;
 
-  int containers=get_gamedata_maxlife()/HP_PER_HEART;
+  int containers=game->get_maxlife()/HP_PER_HEART;
   int tile=rand()%32767, cset=rand()%15;
   bool mod_value=(rand()%2)!=0;
 
@@ -2815,10 +2820,10 @@ void lifegauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int no
 
   if (mod_value)
   {
-    if (get_gamedata_life()>=container*HP_PER_HEART)
+    if (game->get_life()>=container*HP_PER_HEART)
     {
       //tile=tile;                                        //full block
-      if (get_gamedata_life()==container*HP_PER_HEART)
+      if (game->get_life()==container*HP_PER_HEART)
       {
         if (unique_last)
         {
@@ -2828,13 +2833,13 @@ void lifegauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int no
     }
     else
     {
-      if (((container-1)*HP_PER_HEART)>get_gamedata_life())
+      if (((container-1)*HP_PER_HEART)>game->get_life())
       {
         tile+=4;                                //empty block
       }
       else
       {
-        tile+=4+((get_gamedata_life()-((container-1)*HP_PER_HEART))%HP_PER_HEART);
+        tile+=4+((game->get_life()-((container-1)*HP_PER_HEART))%HP_PER_HEART);
       }
     }
   }
@@ -2846,30 +2851,30 @@ void lifegauge(BITMAP *dest,int x,int y, int container, int notlast_tile, int no
 void magicmeter(BITMAP *dest,int x,int y)
 {
   if (!get_bit(quest_rules,qr_ENABLEMAGIC)) return;
-  if (get_gamedata_maxmagic()==0) return;
+  if (game->get_maxmagic()==0) return;
   int tile;
   int mmtile=wpnsbuf[iwMMeter].tile;
   int mmcset=wpnsbuf[iwMMeter].csets&15;
   overtile8(dest,(mmtile*4)+2,x-8,y,mmcset,0);
-  if (get_gamedata_magicdrainrate()==1)
+  if (game->get_magicdrainrate()==1)
   {
     overtile8(dest,(mmtile*4)+1,x-10,y,mmcset,0);
   }
-  for(int i=0; i<get_gamedata_maxmagic(); i+=MAGICPERBLOCK)
+  for(int i=0; i<game->get_maxmagic(); i+=MAGICPERBLOCK)
   {
-    if (get_gamedata_magic()>=i+MAGICPERBLOCK)
+    if (game->get_magic()>=i+MAGICPERBLOCK)
     {
       tile=mmtile*4;                                        //full block
     }
     else
     {
-      if (i>get_gamedata_magic())
+      if (i>game->get_magic())
       {
         tile=((mmtile+1)*4);                                //empty block
       }
       else
       {
-        tile=((mmtile+1)*4)+((get_gamedata_magic()-i)%MAGICPERBLOCK);
+        tile=((mmtile+1)*4)+((game->get_magic()-i)%MAGICPERBLOCK);
       }
     }
     overtile8(dest,tile,x,y,mmcset,0);
@@ -2985,8 +2990,18 @@ void update_subscr_items()
 
     if(Awpn > 0)
     {
-      Aitem = new item((fix)0, (fix)0,(fix)0, Awpn, 0, 0);
-      //      Aitem = new item((fix)(zinit.subscreen<ssdtBSZELDA?148:160), (fix)24,(fix)0, Awpn, 0, 0);
+      Aitem = new item((fix)0, (fix)0,(fix)0,Awpn&0x0FFF, 0, 0);
+      switch (Awpn&0x0FFF)
+      {
+        case iArrow:
+        case iSArrow:
+        case iGArrow:
+        if ((Awpn&0xF000)==0xF000)
+        {
+          Aitem->dummy_bool[0]=true;
+        }
+        break;
+      }
       if(Aitem != NULL)
       {
         Aid = Awpn;
@@ -3018,7 +3033,7 @@ int stripspaces(char *source, char *target, int stop)
 char *subscreen_item_class_names[ssiMAX]=
 { "bomb", "sword", "shield", "candle", "letter", "potion", "letter/potion", "bow", "arrow", "bait", "ring", "bracelet", "map", "compass", "boss key", "magic key",
   "boomerang", "wand", "raft", "ladder", "whistle", "book", "wallet", "super bomb", "heart container pieces", "amulet", "flippers", "hookshot", "lens", "hammer", "boots",
-  "din's fire", "farore's wind", "nayru's love", "quiver", "bomb bag", "cane of byrna", "roc items", "hover boots" };
+  "din's fire", "farore's wind", "nayru's love", "quiver", "bomb bag", "cane of byrna", "roc items", "hover boots", "spin attack scroll", "cross beams scroll", "quake hammer scroll", "whisp ring", "charge ring", "peril beam scroll", "wealth medals" };
 
 char *subscreen_item_names[iMax] =
 {
@@ -3028,17 +3043,17 @@ char *subscreen_item_names[iMax] =
   "Short Bow", "Bait", "Blue Ring", "Red Ring", "Power Bracelet",
   "Triforce Fragment", "Map", "Compass", "Wooden Boomerang", "Magic Boomerang",
   "Wand", "Raft", "Ladder", "Heart Container", "Blue Potion",
-  "Red Potion", "Whistle", "Magic Book", "Magic Key", "Moving Fairy",
+  "Red Potion", "Whistle", "Magic Book", "Magic Key", "Fairy (Moving)",
   "Fire Boomerang", "Master Sword", "Mirror Shield", "20 Rupees", "50 Rupee",
   "200 Rupees", "Small Wallet", "Large Wallet", "Dust Pile",
   "Triforce", "Selection", "Misc 1", "Misc 2", "Super Bomb","Heart Container Piece",
   "Amulet", "Flippers", "Hookshot", "Lens of Truth", "Hammer", "Boots",
   "Power Glove", "Golden Arrows", "Magic Container", "Small Magic Jar",
-  "Large Magic Jar", "Golden Ring", "Kill All Enemies", "Strong Amulet",
-  "Din's Fire", "Farore's Wind", "Nayru's Love", "Boss Key", "Long Bow", "Stationary Fairy",
+  "Large Magic Jar", "Golden Ring", "Kill All Enemies", "Large Amulet",
+  "Din's Fire", "Farore's Wind", "Nayru's Love", "Boss Key", "Long Bow", "Fairy (Stationary)",
   "Arrow Ammunition (1)", "Arrow Ammunition (5)", "Arrow Ammunition (10)", "Arrow Ammunition (30)",
   "Small Quiver", "Medium Quiver", "Large Quiver", "Bomb Ammunition (1)", "Bomb Ammunition (4)", "Bomb Ammunition (8)", "Bomb Ammunition (30)",
-  "Small Bomb Bag", "Medium Bomb Bag", "Large Bomb Bag", "10 Rupees", "100 Rupees", "Cane of Byrna", "Letter (used)", "Roc's Feather", "Hover Boots"
+  "Small Bomb Bag", "Medium Bomb Bag", "Large Bomb Bag", "10 Rupees", "100 Rupees", "Cane of Byrna", "Letter (used)", "Roc's Feather", "Hover Boots","Small Shield","Scroll: Spin Attack","Scroll: Cross Beams","Scroll: Quake Hammer", "Scroll: Super Quake", "Scroll: Hurricane Spin", "Whisp Ring", "Large Whisp Ring", "Charge Ring", "Large Charge Ring", "Scroll: Peril Beam", "Magic Wallet", "Magic Quiver", "Magic Bomb Bag", "Worn-Out Glove", "Four-Way Ladder", "Bronze Wealth Medal", "Silver Wealth Medal", "Golden Wealth Medal"
 };
 
 void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
@@ -3085,234 +3100,280 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
     case ssiBOMBBAG:
     case ssiROCS:
     case ssiHOVERBOOTS:
-    for(int i=0; i<Sitems.Count(); i++)
-    {
-      int d=-1;
-      switch (Sitems.spr(i)->id)
+    case ssiSPINSCROLL:
+    case ssiCROSSSCROLL:
+    case ssiQUAKESCROLL:
+    case ssiWHISPRING:
+    case ssiCHARGERING:
+    case ssiPERILSCROLL:
+    case ssiWEALTHMEDAL:
+      for(int i=0; i<Sitems.Count(); i++)
       {
-        case iBombs:
-        d=ssiBOMB;
-        break;
-
-        case iSBomb:
-        d=ssiSBOMB;
-        break;
-
-        case iSword:
-        case iWSword:
-        case iMSword:
-        case iXSword:
-        d=ssiSWORD;
-        break;
-
-        case iShield:
-        case iMShield:
-        d=ssiSHIELD;
-        break;
-
-        case iBCandle:
-        case iRCandle:
-        d=ssiCANDLE;
-        break;
-
-        case iLetter:
-        d=ssiLETTER;
-        break;
-
-        case iBPotion:
-        case iRPotion:
-        d=ssiPOTION;
-        break;
-
-        case iArrow:
-        case iSArrow:
-        case iGArrow:
-        d=ssiARROW;
-        break;
-
-        case iBow:
-        case iBow2:
-        d=ssiBOW;
-        break;
-
-        case iBait:
-        d=ssiBAIT;
-        break;
-
-        case iBRing:
-        case iRRing:
-        case iGRing:
-        d=ssiRING;
-        break;
-
-        case iBracelet:
-        case iL2Bracelet:
-        d=ssiBRACELET;
-        break;
-
-        case iMap:
-        d=ssiMAP;
-        break;
-
-        case iCompass:
-        d=ssiCOMPASS;
-        break;
-
-        case iBossKey:
-        d=ssiBOSSKEY;
-        break;
-
-        case iBrang:
-        case iMBrang:
-        case iFBrang:
-        d=ssiBRANG;
-        break;
-
-        case iWand:
-        d=ssiWAND;
-        break;
-
-        case iRaft:
-        d=ssiRAFT;
-        break;
-
-        case iLadder:
-        d=ssiLADDER;
-        break;
-
-        case iWhistle:
-        d=ssiWHISTLE;
-        break;
-
-        case iBook:
-        d=ssiBOOK;
-        break;
-
-        case iMKey:
-        d=ssiMAGICKEY;
-        break;
-
-        case iWallet500:
-        case iWallet999:
-        d=ssiWALLET;
-        break;
-
-        //case iHCPiece:
-        case iMax:
-        d=ssiHCPIECE;
-        break;
-
-        case iAmulet:
-        case iL2Amulet:
-        d=ssiAMULET;
-        break;
-
-        case iFlippers:
-        d=ssiFLIPPERS;
-        break;
-
-        case iHookshot:
-        case iLongshot:
-        d=ssiHOOKSHOT;
-        break;
-
-        case iLens:
-        d=ssiLENS;
-        break;
-
-        case iHammer:
-        d=ssiHAMMER;
-        break;
-
-        case iBoots:
-        d=ssiBOOTS;
-        break;
-
-        case iDinsFire:
-        d=ssiDINSFIRE;
-        break;
-
-        case iFaroresWind:
-        d=ssiFARORESWIND;
-        break;
-
-        case iNayrusLove:
-        d=ssiNAYRUSLOVE;
-        break;
-
-        case iQuiver:
-        case iQuiverL2:
-        case iQuiverL3:
-        d=ssiQUIVER;
-        break;
-        
-        case iCByrna:
-        d=ssiCBYRNA;
-        break;
-
-	case iBombBag:
-	case iBombBagL2:
-	case iBombBagL3:
-	d=ssiBOMBBAG;
-	break;
-
-        case iRocsFeather:
-        d=ssiROCS;
-        break;
-
-        case iHoverBoots:
-        d=ssiHOVERBOOTS;
-        break;
-		
-        case iRupy:
-        case i5Rupies:
-        case iHeart:
-        case iClock:
-        case iKey:
-        case iTriforce:
-        case iHeartC:
-        case iFairyMoving:
-        case i20Rupies:
-        case i50Rupies:
-        case i200Rupies:
-        case iPile:
-        case iBigTri:
-        case iSelectA:
-        case iSelectB:
-        case iMisc1:
-        case iMisc2:
-        case iMagicC:
-        case iSMagic:
-        case iLMagic:
-        case iKillAll:
-        case iFairyStill:
-        case i10Rupies:
-        case i100Rupies:
-        default:
-        d=-1; //these are unused in the subscreen
-        break;
-
-      }
-      if ((d==itemtype)||
-          (itemtype==ssiLETTERPOTION&&(d==ssiLETTER||d==ssiPOTION))||
-          (itemtype==ssiBOWANDARROW&&(d==ssiBOW||d==ssiARROW)))
-      {
-        Sitems.spr(i)->x = x;
-        Sitems.spr(i)->y = y;
-        Sitems.spr(i)->yofs=0;
-        if (itemtype!=ssiBOWANDARROW||d!=ssiARROW||((get_bit(quest_rules,qr_TRUEARROWS)&&get_gamedata_arrows())||(!get_bit(quest_rules,qr_TRUEARROWS)&&get_gamedata_rupies())))
+        int d=-1;
+        switch (Sitems.spr(i)->id)
         {
-          Sitems.spr(i)->draw(dest);
+          case iBombs:
+            d=ssiBOMB;
+            break;
+
+          case iSBomb:
+            d=ssiSBOMB;
+            break;
+
+          case iSword:
+          case iWSword:
+          case iMSword:
+          case iXSword:
+            d=ssiSWORD;
+            break;
+
+          case iSShield:
+          case iShield:
+          case iMShield:
+            d=ssiSHIELD;
+            break;
+
+          case iBCandle:
+          case iRCandle:
+            d=ssiCANDLE;
+            break;
+
+          case iLetter:
+            d=ssiLETTER;
+            break;
+
+          case iBPotion:
+          case iRPotion:
+            d=ssiPOTION;
+            break;
+
+          case iArrow:
+          case iSArrow:
+          case iGArrow:
+            d=ssiARROW;
+            break;
+
+          case iBow:
+          case iBow2:
+            d=ssiBOW;
+            break;
+
+          case iBait:
+            d=ssiBAIT;
+            break;
+
+          case iBRing:
+          case iRRing:
+          case iGRing:
+            d=ssiRING;
+            break;
+
+	  case iOldGlove:
+          case iBracelet:
+          case iL2Bracelet:
+            d=ssiBRACELET;
+            break;
+
+          case iMap:
+            d=ssiMAP;
+            break;
+
+          case iCompass:
+            d=ssiCOMPASS;
+            break;
+
+          case iBossKey:
+            d=ssiBOSSKEY;
+            break;
+
+          case iBrang:
+          case iMBrang:
+          case iFBrang:
+            d=ssiBRANG;
+            break;
+
+          case iWand:
+            d=ssiWAND;
+            break;
+
+          case iRaft:
+            d=ssiRAFT;
+            break;
+
+          case iLadder:
+          case iL2Ladder:
+            d=ssiLADDER;
+            break;
+
+          case iWhistle:
+            d=ssiWHISTLE;
+            break;
+
+          case iBook:
+            d=ssiBOOK;
+            break;
+
+          case iMKey:
+            d=ssiMAGICKEY;
+            break;
+
+          case iWallet500:
+          case iWallet999:
+          case iWalletL3:
+            d=ssiWALLET;
+            break;
+
+          case iWealthMedal:
+          case iL2WealthMedal:
+          case iL3WealthMedal:
+            d=ssiWEALTHMEDAL;
+            break;
+
+          case iHCPiece:
+            d=ssiHCPIECE;
+            break;
+
+          case iAmulet:
+          case iL2Amulet:
+            d=ssiAMULET;
+            break;
+
+          case iFlippers:
+            d=ssiFLIPPERS;
+            break;
+
+          case iHookshot:
+          case iLongshot:
+            d=ssiHOOKSHOT;
+            break;
+
+          case iLens:
+            d=ssiLENS;
+            break;
+
+          case iHammer:
+            d=ssiHAMMER;
+            break;
+
+          case iBoots:
+            d=ssiBOOTS;
+            break;
+
+          case iDinsFire:
+            d=ssiDINSFIRE;
+            break;
+
+          case iFaroresWind:
+            d=ssiFARORESWIND;
+            break;
+
+          case iNayrusLove:
+            d=ssiNAYRUSLOVE;
+            break;
+
+          case iQuiver:
+          case iQuiverL2:
+          case iQuiverL3:
+          case iQuiverL4:
+            d=ssiQUIVER;
+            break;
+
+          case iCByrna:
+            d=ssiCBYRNA;
+            break;
+
+          case iBombBag:
+          case iBombBagL2:
+          case iBombBagL3:
+          case iBombBagL4:
+            d=ssiBOMBBAG;
+            break;
+
+          case iRocsFeather:
+            d=ssiROCS;
+            break;
+
+          case iHoverBoots:
+            d=ssiHOVERBOOTS;
+            break;
+
+          case iSpinScroll:
+          case iL2SpinScroll:
+            d=ssiSPINSCROLL;
+            break;
+
+          case iWhispRing:
+          case iL2WhispRing:
+            d=ssiWHISPRING;
+            break;
+
+          case iCrossScroll:
+            d=ssiCROSSSCROLL;
+            break;
+
+          case iQuakeScroll:
+          case iL2QuakeScroll:
+            d=ssiQUAKESCROLL;
+            break;
+
+          case iPerilScroll:
+            d=ssiPERILSCROLL;
+            break;
+
+	  case iChargeRing:
+	  case iL2ChargeRing:
+	    d=ssiCHARGERING;
+	    break;
+
+          case iRupy:
+          case i5Rupies:
+          case iHeart:
+          case iClock:
+          case iKey:
+          case iTriforce:
+          case iHeartC:
+          case iFairyMoving:
+          case i20Rupies:
+          case i50Rupies:
+          case i200Rupies:
+          case iPile:
+          case iBigTri:
+          case iSelectA:
+          case iSelectB:
+          case iMisc1:
+          case iMisc2:
+          case iMagicC:
+          case iSMagic:
+          case iLMagic:
+          case iKillAll:
+          case iFairyStill:
+          case i10Rupies:
+          case i100Rupies:
+          default:
+            d=-1; //these are unused in the subscreen
+            break;
+
         }
-        if (itemtype!=ssiBOWANDARROW)
+        if ((d==itemtype)||
+            (itemtype==ssiLETTERPOTION&&(d==ssiLETTER||d==ssiPOTION))||
+            (itemtype==ssiBOWANDARROW&&(d==ssiBOW||d==ssiARROW)))
         {
-          return;
+          Sitems.spr(i)->x = x;
+          Sitems.spr(i)->y = y;
+          Sitems.spr(i)->yofs=0;
+          if (itemtype!=ssiBOWANDARROW||d!=ssiARROW||((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows())||(!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
+          {
+            Sitems.spr(i)->draw(dest);
+          }
+          if (itemtype!=ssiBOWANDARROW)
+          {
+            return;
+          }
         }
       }
-    }
-    break;
+      break;
     default:
-    break;
+      break;
   }
 }
 
@@ -3529,7 +3590,11 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
         break;
         case ssoBSTIME:
         {
-          char *ts = time_str_short2(get_gamedata_time());
+			char *ts;
+			if(game)
+				ts = time_str_short2(game->get_time());
+			else
+				ts = time_str_short2(0);
 //          textout_shadowed_ex(dest,tempfont,ts,x,y,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
           textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
         }
@@ -3539,7 +3604,11 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
         {
           if(showtime||css->objects[i].type==ssoTIME)
           {
-            char *ts = time_str_med(get_gamedata_time());
+			  char *ts;
+			  if(game)
+				 ts = time_str_med(game->get_time());
+			  else
+				 ts = time_str_med(0);
 //            textout_right_ex(dest,tempfont,ts,x,y,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2));
             textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
           }
@@ -3612,7 +3681,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
         case ssoCOUNTER:
         {
         //counter(dest, x, y, tempfont,color,                                                                    shadowcolor,                                                              bgcolor,                                                                  alignment,         textstyle,         digits,            idigit,            showzero,           itemtype,           onlyselected)
-          counter(dest, x, y, tempfont,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5,css->objects[i].d6 != 0, css->objects[i].d7, css->objects[i].d8 != 0);
+          counter(dest, x, y, tempfont,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5,css->objects[i].d6&1, css->objects[i].d7, css->objects[i].d8, css->objects[i].d9, css->objects[i].d10, (css->objects[i].d6&2)!=0);
 //defaultcounters(dest, x, y, tempfont,color,                                                                    shadowcolor,                                                              bgcolor,                                                                  usex,              textstyle,         digits,            idigit )
 //defaultcounters(dest, x, y, tempfont,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5);
         }
@@ -3625,7 +3694,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
         case ssoMINIMAP:
         {
         //drawdmap(dest, misc, x, y, showmap,                 showlink,           showcompass,        linkcolor,                                                                 lccolor,                                                                   dccolor)
-          drawdmap(dest, misc, x, y, css->objects[i].d1 != 0, css->objects[i].d2, css->objects[i].d3, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
+          drawdmap(dest, misc, x, y, css->objects[i].d1 != 0, css->objects[i].d2 && !(TheMaps[(DMaps[get_currdmap()].map*MAPSCRS)+get_homescr()].flags7&fNOLINKMARK),
+ css->objects[i].d3 && !(DMaps[get_currdmap()].flags&dmfNOCOMPASS), subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
         }
         break;
         case ssoLARGEMAP:
@@ -3656,14 +3726,18 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
         break;
         case ssoSELECTEDITEMNAME:
         {
-          if (!Bitem)
+			if(Bitem==NULL)
+				break;
+		  item *Bitem2 = new item((fix)0, (fix)0, (fix)0,get_bit(quest_rules,qr_SELECTAWPN) ? Bweapon(Bpos)&0xFFF : Bitem->id, 0, 0);
+          if (!Bitem2)
+
           {
             break;
           }
           char itemname[80];
-          sprintf(itemname, "%s", subscreen_item_names[Bitem->id]);
+          sprintf(itemname, "%s", subscreen_item_names[Bitem2->id]);
 
-          switch (Bitem->id)
+          switch (Bitem2->id)
           {
             case iArrow:
             case iSArrow:
@@ -3672,7 +3746,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             {
               if(current_item(itype_bow))
               {
-                bool hasarrows=((get_bit(quest_rules,qr_TRUEARROWS)&&get_gamedata_arrows())||(!get_bit(quest_rules,qr_TRUEARROWS)&&get_gamedata_rupies()));
+                bool hasarrows=((get_bit(quest_rules,qr_TRUEARROWS)&&(game==NULL || game->get_arrows()))||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game==NULL || game->get_rupies())));
                 switch (current_item(itype_bow))
                 {
                   case 1:
@@ -3828,6 +3902,27 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
     {
       Aitem->x=x;
       Aitem->y=y;
+      switch (Aitem->id)
+      {
+        case iArrow:
+        case iSArrow:
+        case iGArrow:
+        if (Aitem->dummy_bool[0]==true)
+        {
+          if(current_item(itype_bow))
+          {
+            subscreenitem(dest, x, y, ssiBOW);
+            if (((get_bit(quest_rules,qr_TRUEARROWS)&&!game->get_arrows())
+	      ||(!get_bit(quest_rules,qr_TRUEARROWS)&&!game->get_rupies()&&!can_use_item(itype_wallet,i_mwallet)))
+		&&!can_use_item(itype_quiver,i_quiverl4))
+            {
+              return;
+            }
+          }
+        }
+        break;
+      }
+
       Aitem->draw(dest);
     }
     break;
@@ -3846,7 +3941,9 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
           if(current_item(itype_bow))
           {
             subscreenitem(dest, x, y, ssiBOW);
-            if ((get_bit(quest_rules,qr_TRUEARROWS)&&!get_gamedata_arrows())||(!get_bit(quest_rules,qr_TRUEARROWS)&&!get_gamedata_rupies()))
+            if (((get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_arrows()))
+	      ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!can_use_item(itype_wallet,i_mwallet)))
+		&&!can_use_item(itype_quiver,i_quiverl4))
             {
               return;
             }
@@ -3864,21 +3961,24 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
 
 void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, bool usex, int textstyle, int digits, char idigit)
 {
-  int yofs = get_gamedata_sbombs() ? 8 : 0;
+  int yofs = (game==NULL || game->get_sbombs()) ? 8 : 0;
 
   //88, 16
   overtile8(dest,5,x,y,1,0);
   overtile8(dest,8,x,y+16-yofs,1,0);
   overtile8(dest,9,x,y+24-yofs,0,0);
+  if(game)
+  {
+	putxnum(dest,x+8,y,game->get_rupies(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,can_use_item(itype_wallet,i_mwallet),idigit);
+	putxnum(dest,x+8,y+16-yofs,game->get_keys()+game->get_lkeys(),tempfont,color,shadowcolor,bgcolor, textstyle,usex,digits,can_use_item(itype_magickey,i_magickey),idigit);
+	putxnum(dest,x+8,y+24-yofs,game->get_bombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,can_use_item(itype_bombbag,i_bombbag4),idigit);
+  }
 
-  putxnum(dest,x+8,y,get_gamedata_rupies(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
-  putxnum(dest,x+8,y+16-yofs,get_gamedata_keys()+get_gamedata_lkeys(),tempfont,color,shadowcolor,bgcolor, textstyle,usex,digits,current_item(itype_magickey)>=i_magickey,idigit);
-  putxnum(dest,x+8,y+24-yofs,get_gamedata_bombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
-
-  if(get_gamedata_sbombs())
+  if(game==NULL || game->get_sbombs())
   {
     overtile8(dest,13,x,y+24,1,0);
-    putxnum(dest,x+8,y+24,get_gamedata_sbombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
+	if(game)
+		putxnum(dest,x+8,y+24,game->get_sbombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
   }
 }
 
@@ -3908,91 +4008,105 @@ bool is_counter_item(int itemtype, int countertype)
   return false;
 }
 
-void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle, int digits, char idigit, bool showzero, int itemtype, bool onlyselected)
+void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle, int digits, char idigit, bool showzero, int itemtype1, int itemtype2, int itemtype3, int infiniteitem, bool onlyselected)
 {
-  int value=1+rand()%32768;
+  int value=0;
+  bool infinite=false;
+  if (infiniteitem)
+  {
+    infinite=true;
+  }
   char valstring[80];
   char formatstring[80];
   sprintf(valstring,"01234567890123456789");
   sprintf(formatstring, "%%0%dd", digits);
-  bool infinite=false;
-  if (onlyselected &&
-       !(
-          (
-            (
-              Bitem&&
-              (
-                is_counter_item(Bitem->id,itemtype)
-              )
-            ) ||
-            (
-              Aitem&&
-              (
-                is_counter_item(Aitem->id,itemtype)
-              )
-            )
-          )
-        )
-     )
+  if (onlyselected && !(((Bitem&&(is_counter_item(Bitem->id,itemtype1)||is_counter_item(Bitem->id,itemtype2)||is_counter_item(Bitem->id,itemtype3)))||(Aitem&&(is_counter_item(Aitem->id,itemtype1)||is_counter_item(Aitem->id,itemtype2)||is_counter_item(Aitem->id,itemtype3))))))
   {
     return;
   }
-  switch (itemtype)
+  int itemtype;
+  /*
+  for (int i=0; i<3; ++i)
   {
-    case sscRUPEES:
-      value=get_gamedata_rupies();
-      break;
-    case sscBOMBS:
-      value=get_gamedata_bombs();
-      break;
-    case sscSBOMBS:
-      value=get_gamedata_sbombs();
-      break;
-    case sscARROWS:
-      if (get_bit(quest_rules,qr_TRUEARROWS))
-      {
-        value=get_gamedata_arrows();
-      }
-      else
-      {
-        value=get_gamedata_rupies();
-      }
-      if(!current_item(itype_arrow))
-      {
-        value=0;
-      }
-      break;
-    case sscGENKEYMAGIC:
-      if (current_item(itype_magickey)>=i_magickey)
-      {
-        infinite=true;
-      }
-      //fall through
-    case sscGENKEYNOMAGIC:
-      value=get_gamedata_keys();
-      break;
-    case sscLEVKEYMAGIC:
-      if (current_item(itype_magickey)>=i_magickey)
-      {
-        infinite=true;
-      }
-      //fall through
-    case sscLEVKEYNOMAGIC:
-      value=get_gamedata_lkeys();
-      break;
-    case sscANYKEYMAGIC:
-      if (current_item(itype_magickey)>=i_magickey)
-      {
-        infinite=true;
-      }
-      //fall through
-    case sscANYKEYNOMAGIC:
-      value=get_gamedata_keys()+get_gamedata_lkeys();
-      break;
-    default:
-      break;
-  }
-  if (!showzero&&!value)
+    switch (i)
+    {
+      case 0:
+        itemtype=itemtype1;
+        break;
+      case 1:
+        itemtype=itemtype2;
+        break;
+      case 2:
+        itemtype=itemtype3;
+        break;
+    }
+	*/
+	itemtype=itemtype1;
+	/* commented out until I find out what it does - it's messing up custom subscreens now as
+	itemtype2 and 3 are zero - so link's life gets added to the counters */
+	
+    switch (itemtype)
+    {
+      case sscRUPEES:
+	if (can_use_item(itype_wallet,i_mwallet))
+	  infinite=true;
+        value+=game->get_rupies();
+        break;
+      case sscBOMBS:
+	if (can_use_item(itype_bombbag,i_bombbag4))
+	  infinite=true;
+        value+=game->get_bombs();
+        break;
+      case sscSBOMBS:
+        value+=game->get_sbombs();
+        break;
+      case sscARROWS:
+	if ((!get_bit(quest_rules,qr_TRUEARROWS) && can_use_item(itype_wallet,i_mwallet)) || can_use_item(itype_quiver,i_quiverl4))
+	  infinite=true;
+        if(current_item(itype_arrow))
+        {
+          if (get_bit(quest_rules,qr_TRUEARROWS))
+          {
+            value+=game->get_arrows();
+          }
+          else
+          {
+            value+=game->get_rupies();
+          }
+        }
+        break;
+      case sscGENKEYMAGIC:
+        if (can_use_item(itype_magickey,i_magickey))
+        {
+          infinite=true;
+        }
+        //fall through
+      case sscGENKEYNOMAGIC:
+        value+=game->get_keys();
+        break;
+      case sscLEVKEYMAGIC:
+        if (can_use_item(itype_magickey,i_magickey))
+        {
+          infinite=true;
+        }
+        //fall through
+      case sscLEVKEYNOMAGIC:
+        value+=game->get_lkeys();
+        break;
+      case sscANYKEYMAGIC:
+        if (can_use_item(itype_magickey,i_magickey))
+        {
+          infinite=true;
+        }
+        //fall through
+      case sscANYKEYNOMAGIC:
+        value+=game->get_keys()+game->get_lkeys();
+        break;
+      default:
+        break;
+    }
+  // (for loop) }
+  if (!showzero&&!value&&!infinite)
   {
     return;
   }
@@ -4007,7 +4121,7 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
 
   textout_styled_aligned_ex(dest,tempfont,valstring,x,y,textstyle,alignment,color,shadowcolor,bgcolor);
 
-  //  putxnum(dest,x+8,y,get_gamedata_rupies(),tempfont,color,shadowcolor,bgcolor,shadowed,usex,digits,0,idigit);
+  //  putxnum(dest,x+8,y,game->get_rupies(),tempfont,color,shadowcolor,bgcolor,shadowed,usex,digits,0,idigit);
 }
 
 void minimaptitle(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowcolor, int bgcolor, int alignment, int textstyle)
@@ -4333,7 +4447,7 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
     {
       roomcolor = misc->colors.bmap_fg;
     }
-    
+
     si=(get_currdmap()-1)<<6;
     for(int y2=y+8; y2<y+72; y2+=8)
     {
@@ -4393,9 +4507,16 @@ void load_Sitems(miscQdata *misc)
       Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_ring)-1+iBRing,0,0));
     }
   }
-  if(current_item(itype_ladder)>=i_ladder)
+  if(current_item(itype_ladder))
   {
-    Sitems.add(new item((fix)0,(fix)0,(fix)0,iLadder,0,0));
+    if (current_item(itype_ladder)>=i_ladder2)
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iL2Ladder,0,0));
+    }
+    else
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iLadder,0,0));
+    }
   }
   if(current_item(itype_magickey)>=i_magickey)
   {
@@ -4411,6 +4532,10 @@ void load_Sitems(miscQdata *misc)
       {
         Sitems.add(new item((fix)0,(fix)0,(fix)0,iBracelet,0,0));
       }
+    else
+      {
+	Sitems.add(new item((fix)0,(fix)0,(fix)0,iOldGlove,0,0));
+      }
   }
 
   if(current_item(itype_shield))
@@ -4423,14 +4548,32 @@ void load_Sitems(miscQdata *misc)
       {
         Sitems.add(new item((fix)0,(fix)0,(fix)0,iShield,0,0));
       }
+    else if(current_item(itype_shield)>=i_smallshield)
+      {
+        Sitems.add(new item((fix)0,(fix)0,(fix)0,iSShield,0,0));
+      }
   }
   if(current_item(itype_sword))
   {
-    Sitems.add(new item((fix)0,(fix)0,(fix)0,iSword-1+current_item(itype_sword),0,0));
+    if(current_item(itype_shield)>=i_xsword)
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iXSword,0,0));
+    }
+    else
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iSword-1+current_item(itype_sword),0,0));
+    }
   }
   if(current_item(itype_wallet))
   {
-    Sitems.add(new item((fix)0,(fix)0,(fix)0,iWallet500-1+current_item(itype_wallet),0,0));
+    if(current_item(itype_wallet)==3)
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iWalletL3,0,0));
+    }
+    else
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iWallet500-1+current_item(itype_wallet),0,0));
+    }
   }
   if(current_item(itype_amulet))
   {
@@ -4455,11 +4598,18 @@ void load_Sitems(miscQdata *misc)
   if(misc->colors.HCpieces_tile)
   {
     //      item *HCP = new item((fix)(inventory_x[5]-ofs),(fix)y,iMax,0,0);
-    item *HCP = new item((fix)0,(fix)0,(fix)0,iMax,0,0);
+    item *HCP = new item((fix)0,(fix)0,(fix)0,iHCPiece,0,0);
     if(HCP)
     {
-      HCP->tile = misc->colors.HCpieces_tile + vbound(get_gamedata_HCpieces(),0,3);
-      HCP->cs   = misc->colors.HCpieces_cset;
+		//this method is called in the subscreen code to set up the item colors
+		//as a result this HACK is necessary to prevent ZQ from crashing, as ZQ has
+		//no valid game pointer.
+		//This haphazardly intermingled ZQ and ZC code makes me very sad :-/ -DD
+		if(game != NULL)
+			HCP->tile   = misc->colors.HCpieces_tile + vbound(game->get_HCpieces(),0,3);
+      HCP->o_tile = HCP->tile;
+      HCP->cs     = misc->colors.HCpieces_cset;
+      HCP->frames = 0;
       Sitems.add(HCP);
     }
   }
@@ -4474,7 +4624,8 @@ void load_Sitems(miscQdata *misc)
       Sitems.add(new item((fix)0,(fix)0,(fix)0,iFBrang,0,0));
     }
   }
-  if(get_gamedata_bombs())
+  //yet another ZQ problem... sigh
+  if(game == NULL || game->get_bombs())
   {
     Sitems.add(new item((fix)0,(fix)0,(fix)0,iBombs,0,0));
   }
@@ -4526,7 +4677,7 @@ void load_Sitems(miscQdata *misc)
   }
   if(current_item(itype_hookshot))
   {
-    if(current_item(itype_hookshot)==2)
+   if(current_item(itype_hookshot)==2)
     {
       Sitems.add(new item((fix)0,(fix)0,(fix)0,iLongshot,0,0));
     }
@@ -4535,7 +4686,7 @@ void load_Sitems(miscQdata *misc)
       Sitems.add(new item((fix)0,(fix)0,(fix)0,iHookshot,0,0));
     }
   }
-  if(get_gamedata_sbombs())
+  if(game == NULL || game->get_sbombs())
   {
     Sitems.add(new item((fix)0,(fix)0,(fix)0,iSBomb,0,0));
   }
@@ -4561,7 +4712,14 @@ void load_Sitems(miscQdata *misc)
   }
   if(current_item(itype_quiver))
   {
-    Sitems.add(new item((fix)0,(fix)0,(fix)0,iQuiver-1+current_item(itype_quiver),0,0));
+    if(current_item(itype_quiver)==4)
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iQuiverL4,0,0));
+    }
+    else
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_quiver)-1+iQuiver,0,0));
+    }
   }
   if(current_item(itype_cbyrna))
   {
@@ -4569,7 +4727,61 @@ void load_Sitems(miscQdata *misc)
   }
   if(current_item(itype_rocs))
   {
-    Sitems.add(new item((fix)0,(fix)0,(fix)0,iRocsFeather,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_rocs)-1+iRocsFeather,0,0));
+  }
+  if(current_item(itype_hoverboots))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iHoverBoots,0,0));
+  }
+  if(current_item(itype_spinscroll))
+  {
+   if(current_item(itype_spinscroll)==2)
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iL2SpinScroll,0,0));
+    }
+    else
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iSpinScroll,0,0));
+    }
+  }
+  if(current_item(itype_crossscroll))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iCrossScroll,0,0));
+  }
+  if(current_item(itype_quakescroll))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_quakescroll)-1+iQuakeScroll,0,0));
+  }
+  if(current_item(itype_whispring))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_whispring)-1+iWhispRing,0,0));
+  }
+  if(current_item(itype_chargering))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_chargering)-1+iChargeRing,0,0));
+  }
+  if(current_item(itype_perilscroll))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iPerilScroll,0,0));
+  }
+  if(current_item(itype_wealthmedal))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_wealthmedal)-1+iWealthMedal,0,0));
+  }
+  if(current_item(itype_wealthmedal))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_wealthmedal)-1+iWealthMedal,0,0));
+  }
+  if(current_item(itype_bombbag))
+  {
+    if(current_item(itype_bombbag)==4)
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iBombBagL4,0,0));
+    }
+    else
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_bombbag)-1+iBombBag,0,0));
+    }
   }
   if(has_item(itype_map, get_dlevel()))
   {
@@ -5019,15 +5231,15 @@ int sso_w(subscreen_object *tempsso)
     break;
 
     case ssoBSTIME:
-    w=text_length(ss_font(tempsso->d1), time_str_short2(get_gamedata_time()));
+    w=text_length(ss_font(tempsso->d1), time_str_short2(game->get_time()));
     break;
 
     case ssoTIME:
-    w=text_length(ss_font(tempsso->d1), time_str_med(get_gamedata_time()));
+    w=text_length(ss_font(tempsso->d1), time_str_med(game->get_time()));
     break;
 
     case ssoSSTIME:
-    w=text_length(ss_font(tempsso->d1), time_str_med(get_gamedata_time()));
+    w=text_length(ss_font(tempsso->d1), time_str_med(game->get_time()));
     break;
 
     case ssoMAGICMETER:

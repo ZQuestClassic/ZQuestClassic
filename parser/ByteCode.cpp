@@ -49,8 +49,16 @@ string VarArgument::toString()
 		return "LINKX";
 	case LINKY:
 		return "LINKY";
+	case LINKZ:
+		return "LINKZ";
+	case LINKJUMP:
+		return "LINKJUMP";
 	case LINKDIR:
 		return "LINKDIR";
+	case LINKSWORDJINX:
+		return "LINKSWORDJINX";
+	case LINKITEMJINX:
+		return "LINKITEMJINX";
 	case LINKHP:
 		return "LINKHP";
 	case LINKMP:
@@ -97,6 +105,10 @@ string VarArgument::toString()
 		return "ITEMX";
 	case ITEMY:
 		return "ITEMY";
+	case ITEMZ:
+		return "ITEMZ";
+	case ITEMJUMP:
+		return "ITEMJUMP";
 	case ITEMDRAWTYPE:
 		return "ITEMDRAWTYPE";
 	case ITEMID:
@@ -207,6 +219,10 @@ string VarArgument::toString()
 		return "NPCX";
 	case NPCY:
 		return "NPCY";
+	case NPCZ:
+		return "NPCZ";
+	case NPCJUMP:
+		return "NPCJUMP";
 	case NPCDIR:
 		return "NPCDIR";
 	case NPCRATE:
@@ -541,6 +557,51 @@ string OCreateNPCRegister::toString()
 string OPlaySoundRegister::toString()
 {
 	return "PLAYSOUNDR " + getArgument()->toString();
+}
+
+string OClearSpritesRegister::toString()
+{
+	return "CLEARSPRITESR " + getArgument()->toString();
+}
+
+string ORectangleRegister::toString()
+{
+	return "RECT";
+}
+
+string OCircleRegister::toString()
+{
+	return "CIRCLE";
+}
+
+string OArcRegister::toString()
+{
+	return "ARC";
+}
+
+string OEllipseRegister::toString()
+{
+	return "ELLIPSE";
+}
+
+string OLineRegister::toString()
+{
+	return "LINE";
+}
+
+string OPutPixelRegister::toString()
+{
+	return "PUTPIXEL";
+}
+
+string ODrawTileRegister::toString()
+{
+	return "DRAWTILE";
+}
+
+string ODrawComboRegister::toString()
+{
+	return "DRAWCOMBO";
 }
 //////////////////////////////////////////////////////////////////////////////////////
 

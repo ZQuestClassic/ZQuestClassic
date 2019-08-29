@@ -141,6 +141,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 				ret = D_USED_CHAR;
 				break;
 			case KEY_ENTER:
+			case KEY_ENTER_PAD:
 				model->clear();
 				model->getCursor().insertNewline();
 				ret = D_USED_CHAR;
@@ -154,6 +155,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 					break;
 				}
 			case KEY_DEL:
+			case KEY_DEL_PAD:
 				if(model->getSelection().hasSelection())
 					model->clear();
 				else

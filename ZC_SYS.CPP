@@ -17,7 +17,6 @@
 #include <string.h>
 #include <math.h>
 #include <map>
-//#include <dir.h>
 #include <ctype.h>
 #include "zc_alleg.h"
 #include "gamedata.h"
@@ -68,6 +67,10 @@ static char *qst_dir_name = "linux_qst_dir";
 static char *qst_dir_name = "macosx_qst_dir";
 #endif
 
+#ifdef _MSC_VER
+#define getcwd _getcwd
+#endif
+
 /**********************************/
 /******** System functions ********/
 /**********************************/
@@ -75,10 +78,6 @@ static char *qst_dir_name = "macosx_qst_dir";
 static char cfg_sect[] = "zeldadx";
 
 int d_dummy_proc(int msg,DIALOG *d,int c) { msg=msg; d=d; c=c; /*these are here to bypass compiler warnings about unused arguments*/ return D_O_K; }
-
-#ifdef ALLEGRO_LINUX_GP2X
-bool midi_strict=false;
-#endif
 
 void load_game_configs()
 {
@@ -114,7 +113,7 @@ void load_game_configs()
   SnapshotFormat = get_config_int(cfg_sect,"snapshot_format",0);
   ShowFPS = get_config_int(cfg_sect,"showfps",0)!=0;
   NESquit = get_config_int(cfg_sect,"fastquit",0)!=0;
-  DXtitle = get_config_int(cfg_sect,"title",1)!=0;
+  title_version = get_config_int(cfg_sect,"title",2);
   resx = get_config_int(cfg_sect,"resx",320);
   resy = get_config_int(cfg_sect,"resy",240);
   sbig = get_config_int(cfg_sect,"sbig",0)!=0;
@@ -144,7 +143,6 @@ void load_game_configs()
   ss_density = vbound(get_config_int(cfg_sect,"ss_density",3), 0, 6);
   heart_beep = get_config_int(cfg_sect,"heart_beep",1)!=0;
   gui_colorset = get_config_int(cfg_sect,"gui_colorset",0);
-  midi_strict = get_config_int(cfg_sect,"strict_midi",1);
   sfxdat = get_config_int(cfg_sect,"use_sfx_dat",1);
 
 }
@@ -182,7 +180,7 @@ void save_game_configs()
   set_config_int(cfg_sect,"snapshot_format",SnapshotFormat);
   set_config_int(cfg_sect,"showfps",(int)ShowFPS);
   set_config_int(cfg_sect,"fastquit",(int)NESquit);
-  set_config_int(cfg_sect,"title",(int)DXtitle);
+  set_config_int(cfg_sect,"title",title_version);
 
   set_config_int(cfg_sect,"resx",resx);
   set_config_int(cfg_sect,"resy",resy);
@@ -196,7 +194,6 @@ void save_game_configs()
   set_config_int(cfg_sect,"ss_density",ss_density);
   set_config_int(cfg_sect,"heart_beep",heart_beep);
   set_config_int(cfg_sect,"gui_colorset",gui_colorset);
-  set_config_int(cfg_sect,"strict_midi",midi_strict);
   set_config_int(cfg_sect,"use_sfx_dat",sfxdat);
 }
 
@@ -1406,9 +1403,10 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
 bool item_disabled(int item_type, int item)                 //is this item disabled?
 {
   //these are here to bypass compiler warnings about unused arguments
+  item_type=item_type;
   item=item;
-  
-  switch (item_type)
+
+  /*switch (item_type)
   {
     case itype_sword:
 	case itype_brang:
@@ -1433,18 +1431,26 @@ bool item_disabled(int item_type, int item)                 //is this item disab
 	case itype_magic:
 	return (game->items_off[item_type]>0);
     break;
-    
-    // case itype_key:
-    // return (get_gamedata_keys(game)>0);
 
-	default:
-	return false;
-  }
+	return (game->items_off[item]);
+
+    // case itype_key:
+    // return (game->get_keys()>0);
+
+	// default:
+	//return false;
+	*/
+
+  // }
+
+  // probably don't need this at all - getHighestLevelOfFamily does all the work
+  return false;
+
 }
 
 bool can_use_item(int item_type, int item)                  //can Link use this item?
 {
-  if (has_item(item_type, item) && !item_disabled(item_type, item))
+  if (current_item(item_type)>=item /*has_item(item_type, item)*/ && !item_disabled(item_type, item))
   {
     return true;
   }
@@ -1461,14 +1467,14 @@ bool has_item(int item_type, int it)                        //does Link possess 
 			int itemid = getItemID(itemsbuf, item_type, it);
 			if(itemid == -1)
 				return false;
-			return (game->item[itemid]);
+			return (game->get_item(itemid));
 		}
     case itype_clock:
     return Link.getClock()?1:0;
     case itype_key:
-    return (get_gamedata_keys(game)>0);
+    return (game->get_keys()>0);
     case itype_magiccontainer:
-    return (get_gamedata_maxmagic(game)>=MAGICPERBLOCK);
+    return (game->get_maxmagic()>=MAGICPERBLOCK);
     case itype_triforcepiece:                               //it: -2=any, -1=current level, other=that level
     {
       switch (it)
@@ -1595,7 +1601,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
 	int itemid = getItemID(itemsbuf, item_type, it);
 	if(itemid == -1)
 		return false;
-    return game->item[itemid];
+    return game->get_item(itemid);
     break;
   }
 }
@@ -1627,11 +1633,11 @@ bool has_item(int item_type, int it)                        //does Link possess 
   return 0;
 }*/
 
-int current_item(int item_type)           //item currently being used
+int current_item(int item_type, bool checkenabled)           //item currently being used
 {
   switch(item_type)
   {
-    case itype_bomb:
+    /*case itype_bomb:
     case itype_sbomb:
 		{
 			int itemid = getItemID(itemsbuf, item_type, 1);
@@ -1639,16 +1645,16 @@ int current_item(int item_type)           //item currently being used
 				return 0;
 			return can_use_item(item_type,1) ? game->item[itemid] : 0;
 			break;
-		}
+		}*/
     case itype_clock:
     return has_item(itype_clock,1) ? 1 : 0;
     break;
     case itype_key:
-    return get_gamedata_keys(game);
+    return game->get_keys();
     case itype_lkey:
     return game->lvlkeys[get_dlevel()];
     case itype_magiccontainer:
-    return get_gamedata_maxmagic(game)/MAGICPERBLOCK;
+    return game->get_maxmagic()/MAGICPERBLOCK;
     case itype_triforcepiece:
     {
       int count=0;
@@ -1690,7 +1696,7 @@ int current_item(int item_type)           //item currently being used
       break;
     }
     default:
-    int maxid = getHighestLevelOfFamily(game, itemsbuf, item_type);
+    int maxid = getHighestLevelOfFamily(game, itemsbuf, item_type, checkenabled);
 	if(maxid == -1)
 		return 0;
 	/*if(consecutive)
@@ -1709,6 +1715,11 @@ int current_item(int item_type)           //item currently being used
 	return itemsbuf[maxid].fam_type;
     break;
   }
+}
+
+int current_item(int item_type)           //item currently being used
+{
+	return current_item(item_type, false);
 }
 
 int item_tile_mod(bool smodify)
@@ -1830,7 +1841,7 @@ int item_tile_mod(bool smodify)
   ret=current_item(itype_shield);
   switch(ret)
   {
-    case 1: ret=0; break;
+    case 1: ret=itemsbuf[iSShield].ltm; break;
     case 2: ret=itemsbuf[iShield].ltm; break;
     case 3: ret=itemsbuf[iMShield].ltm; break;
     default: ret=0; break;
@@ -1961,7 +1972,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=get_gamedata_bombs(game);
+  ret=game->get_bombs();
   switch(ret)
   {
     case 0: ret=0; break;
@@ -1969,7 +1980,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=get_gamedata_sbombs(game);
+  ret=game->get_sbombs();
   switch(ret)
   {
     case 0: ret=0; break;
@@ -2100,10 +2111,21 @@ void draw_lens_under(BITMAP *dest)
           case mfENEMY4:
           case mfENEMY5:
           case mfENEMY6:
-
           case mfENEMY7:
           case mfENEMY8:
           case mfENEMY9:
+	  case mfSINGLE:
+	  case mfSINGLE16:
+	  case mfNOENEMY:
+	  case mfRAFT_BRANCH:
+	  case mfRAFT:
+	  case mfTRAP_H:
+	  case mfTRAP_V:
+	  case mfTRAP_4:
+	  case mfTRAP_LR:
+ 	  case mfTRAP_UD:
+ 	  case mfICE:
+	  case mfNOBLOCKS:
           break;
 
           case mfPUSHUD:
@@ -2171,6 +2193,10 @@ void draw_lens_under(BITMAP *dest)
           break;
 
           case mfFAIRY:
+	  case mfMAGICFAIRY:
+	  case mfALLFAIRY:
+/*
+	  //Why is this here?
           if (get_bit(quest_rules,qr_LENSHINTS))
           {
             tempitem=iFairyMoving;
@@ -2181,6 +2207,7 @@ void draw_lens_under(BITMAP *dest)
             }
             putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
           }
+*/
           break;
 
           case mfBCANDLE:
@@ -2874,11 +2901,11 @@ void draw_lens_over()
 
 //----------------------------------------------------------------
 
-void draw_wavy(int amplitude)
+void draw_wavy(int amplitude, bool interpol)
 {
-  BITMAP *wavebuf = create_bitmap_ex(8,288,224);
+  BITMAP *wavebuf = create_bitmap_ex(8,288,224-playing_field_offset);
   clear_to_color(wavebuf,0);
-  blit(framebuf,wavebuf,0,0,16,0,256,224);
+  blit(framebuf,wavebuf,0,playing_field_offset,16,0,256,224-playing_field_offset);
 
   int ofs;
   //  int amplitude=8;
@@ -2887,18 +2914,20 @@ void draw_wavy(int amplitude)
   int i=frame%amp2;
   for(int j=0; j<168; j++)
   {
-    ofs=0;
-    if (j&1)
+    if (j&1 && interpol)
     {
       ofs=int(sin((double(i+j)*2*PI/amp2))*amplitude);
     }
     else
     {
-      ofs-=int(sin((double(i+j)*2*PI/amp2))*amplitude);
+      ofs=-int(sin((double(i+j)*2*PI/amp2))*amplitude);
     }
-    for (int k=0; k<256; k++)
+    if(ofs)
     {
-      framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];
+      for (int k=0; k<256; k++)
+      {
+        framebuf->line[j+playing_field_offset][k]=wavebuf->line[j][k+ofs+16];
+      }
     }
   }
   destroy_bitmap(wavebuf);
@@ -2964,9 +2993,9 @@ void draw_fuzzy(int fuzz)
 
 void waitvsync()
 {
-  if((Throttlefps ^ (get_debug() && key[KEY_TILDE])))
+  if((Throttlefps ^ (true && key[KEY_TILDE])))
   {
-    while(!myvsync) rest(1);
+    while(!myvsync) rest(0);
     //    vsync();
   }
   myvsync=0;
@@ -3028,18 +3057,6 @@ void updatescr()
 		}
 	}
 
-	//redo this and waitvsync(), too
-
-	if (triplebuffer_not_available)
-	{
-		waitvsync();
-	}
-	else
-	{
-		//    myvsync=0;
-	}
-
-
 	if(refreshpal)
 	{
 		refreshpal=false;
@@ -3050,10 +3067,17 @@ void updatescr()
 
 	show_details();
 
-	if (Link.DrunkClock())
+	bool clearwavy = !wavy; //I plan to add ZASM game variable WAVY at some point.
+	if (!wavy)
 	{
-		draw_wavy(Link.DrunkClock()/(MAXDRUNKCLOCK/32));
+	    // So far two things can alter wavy apart from scripts: Wavy DMaps, and Drunkclk.
+	    wavy = max(Link.DrunkClock()/(MAXDRUNKCLOCK/32),(DMaps[currdmap].flags&dmfWAVY ? 4 : 0));
 	}
+	if(wavy && Playing && !Paused)
+          draw_wavy(wavy,false);
+	if (clearwavy)
+	  wavy = 0;
+
 	BITMAP *panorama = NULL;
 
 	bool nosubscr = (tmpscr->flags3&fNOSUBSCR) != 0;
@@ -3067,7 +3091,7 @@ void updatescr()
 	}
 	BITMAP *target;
 	bool dontusetb = triplebuffer_not_available ||
-		!(Throttlefps ^ (get_debug() && key[KEY_TILDE]));
+		!(Throttlefps ^ (true && key[KEY_TILDE]));
 	if(dontusetb)
 		target=screen;
 	else
@@ -3110,7 +3134,6 @@ void updatescr()
 			curr_tb_page=(curr_tb_page+1)%3;
 			clear_to_color(tb_page[curr_tb_page],BLACK);
 		}
-		waitvsync();
 	}
 
 
@@ -3386,7 +3409,7 @@ int onGoToComplete();
 
 void syskeys()
 {
-  bool oldDXtitle;
+  int oldtitle_version;
   if (close_button_quit)
   {
     close_button_quit=false;
@@ -3396,10 +3419,10 @@ void syskeys()
 
   if(rMbtn() || (gui_mouse_b() && !mouse_down))
   {
-    oldDXtitle=DXtitle;
+    oldtitle_version=title_version;
     System();
     logic_counter=0;
-    if (oldDXtitle!=DXtitle)
+    if (oldtitle_version!=title_version)
     {
       Quit=qRESET;
       kill_sfx();
@@ -3450,9 +3473,9 @@ void syskeys()
 
   if(get_debug() || cheat>=1)
   {
-    if(ReadKey(KEY_ASTERISK))   set_gamedata_life(game, get_gamedata_maxlife(game));
-    if(ReadKey(KEY_SLASH_PAD))  set_gamedata_magic(game, get_gamedata_maxmagic(game));
-    if(ReadKey(KEY_R))          set_gamedata_drupy(game, 999);
+    if(ReadKey(KEY_ASTERISK))   game->set_life( game->get_maxlife());
+    if(ReadKey(KEY_SLASH_PAD))  game->set_magic( game->get_maxmagic());
+    if(ReadKey(KEY_R))          game->set_drupy( 999);
     if(ReadKey(KEY_B))
     {
       onCheatBombs();
@@ -3520,22 +3543,22 @@ void syskeys()
       //magic containers
       if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
       {
-        set_gamedata_maxmagic(game, min(get_gamedata_maxmagic(game)+MAGICPERBLOCK,MAGICPERBLOCK*8));
+        game->set_maxmagic( min(game->get_maxmagic()+MAGICPERBLOCK,MAGICPERBLOCK*8));
       }
       else
       {
-        set_gamedata_maxlife(game, min(get_gamedata_maxlife(game)+HP_PER_HEART,HP_PER_HEART*24));
+        game->set_maxlife( min(game->get_maxlife()+HP_PER_HEART,HP_PER_HEART*24));
       }
     }
     else
     {
       if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
       {
-        set_gamedata_magic(game, min(get_gamedata_magic(game)+1,get_gamedata_maxmagic(game)));
+        game->set_magic( min(game->get_magic()+1,game->get_maxmagic()));
       }
       else
       {
-        set_gamedata_life(game, min(get_gamedata_life(game)+1,get_gamedata_maxlife(game)));
+        game->set_life( min(game->get_life()+1,game->get_maxlife()));
       }
     }
   }
@@ -3547,31 +3570,31 @@ void syskeys()
       //magic containers
       if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
       {
-        set_gamedata_maxmagic(game, max(get_gamedata_maxmagic(game)-MAGICPERBLOCK,0));
-        set_gamedata_magic(game, min(get_gamedata_maxmagic(game), get_gamedata_magic(game)));
+        game->set_maxmagic( max(game->get_maxmagic()-MAGICPERBLOCK,0));
+        game->set_magic( min(game->get_maxmagic(), game->get_magic()));
         //heart containers
       }
       else
       {
-        set_gamedata_maxlife(game, max(get_gamedata_maxlife(game)-HP_PER_HEART,HP_PER_HEART));
-        set_gamedata_life(game, min(get_gamedata_maxlife(game), get_gamedata_life(game)));
+        game->set_maxlife( max(game->get_maxlife()-HP_PER_HEART,HP_PER_HEART));
+        game->set_life( min(game->get_maxlife(), game->get_life()));
       }
     }
     else
     {
       if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
       {
-        set_gamedata_magic(game, max(get_gamedata_magic(game)-1,0));
+        game->set_magic( max(game->get_magic()-1,0));
       }
       else
       {
-        set_gamedata_life(game, max(get_gamedata_life(game)-1,0));
+        game->set_life( max(game->get_life()-1,0));
       }
     }
   }
 
   //if(ReadKey(KEY_S))   game->items[itype_shield]^=i_largeshield;
-  if(ReadKey(KEY_S)) game->item[iMShield]=true;
+  if(ReadKey(KEY_S)) game->set_item(iShield,true);
 /*
   if(ReadKey(KEY_0))   game->items[itype_sword]=0;
   if(ReadKey(KEY_1))   game->items[itype_sword]^=(1<<(i_sword-1));
@@ -3606,7 +3629,7 @@ void syskeys()
     }
     */
 
-  selectAwpn(0);
+  selectWpn(0,0,false);
 
 bottom:
   if(input_idle(true) > after_time())
@@ -3624,10 +3647,10 @@ bottom:
 
 void advanceframe()
 {
-  if((Throttlefps ^ (get_debug() && key[KEY_TILDE])))
+  if((Throttlefps ^ (true && key[KEY_TILDE])))
   {
-    
-    while(!logic_counter) rest(1);
+
+    while(!logic_counter) rest(0);
     logic_counter=0;
   }
   if (zcmusic!=NULL)
@@ -3649,8 +3672,8 @@ void advanceframe()
   if(Quit)
     return;
 
-  if(Playing && get_gamedata_time(game)<MAXTIME)
-    change_gamedata_time(game, 1);
+  if(Playing && game->get_time()<MAXTIME)
+    game->change_time(1);
 
   Advance=false;
   ++frame;
@@ -4285,7 +4308,6 @@ static DIALOG sound_dlg[] =
   { jwin_rtext_proc,     147,  152,  40,   8,    vc(7),   vc(11),  0,       0,         0,        0,       (void *) str_m, NULL,  NULL },
   { jwin_slider_proc,    164,  152,  96,   8,    vc(0),   jwin_pal[jcBOX],  0,       0,        127,       0,       NULL, (void *) set_buf, buf_dp },
   { jwin_text_proc,      60,   152,  48,   8,    vc(0),   vc(11),  0,       0,         0,        0,       (void *) "BG Buf", NULL,  NULL },
-  { jwin_check_proc,     60,   168,  48,   9,    vc(0),   vc(11),  0,       0,         0,        0,       (void *) "Strict MIDI", NULL,  NULL },
   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -4796,6 +4818,7 @@ int onMIDICredits()
 
 int onAbout()
 {
+/*
   switch (IS_BETA)
   {
     case 1:
@@ -4805,7 +4828,9 @@ int onAbout()
     case 0:
     sprintf(str_s,"%s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
   }
+*/
   //  sprintf(str_s,"%s",VerStr(ZELDA_VERSION));
+  sprintf(str_s,"%s Beta (Lost Isle Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
   about_dlg[0].dp2=lfont;
   PopUp_dialog(about_dlg,1);
   return D_O_K;
@@ -5005,7 +5030,7 @@ int onSound()
 
   pan_style = vbound(pan_style,0,3);
 
-  
+
   sound_dlg[0].dp2=lfont;
   midi_dp[1] = sound_dlg[3].x;
   midi_dp[2] = sound_dlg[3].y;
@@ -5019,14 +5044,12 @@ int onSound()
   sound_dlg[7].d2 = (digi_volume==255) ? 32 : digi_volume>>3;
   sound_dlg[8].d2 = pan_style;
   sound_dlg[15].d2 = zcmusic_bufsz;
-  sound_dlg[17].flags = midi_strict?D_SELECTED:0;
 
   int ret = PopUp_dialog(sound_dlg,12);
 
   if(ret==12)
   {
     master_volume(digi_volume,midi_volume);
-    midi_strict=sound_dlg[17].flags&D_SELECTED?1:0;
   }
   else
   {
@@ -5073,8 +5096,9 @@ int onExit()
   return D_O_K;
 }
 
-int onTitle_NES() { DXtitle=false; return D_O_K; }
-int onTitle_DX() { DXtitle=true; return D_O_K; }
+int onTitle_NES() { title_version=0; return D_O_K; }
+int onTitle_DX() { title_version=1; return D_O_K; }
+int onTitle_25() { title_version=2; return D_O_K; }
 
 int onDebug()
 {
@@ -5160,39 +5184,39 @@ int getnumber(char *prompt,int initialval)
 int onLife()
 {
   //this used to be a 0 instead of a 1.
-  set_gamedata_life(game, vbound(getnumber("Life",get_gamedata_life(game)),1,get_gamedata_maxlife(game)));
+  game->set_life( vbound(getnumber("Life",game->get_life()),1,game->get_maxlife()));
   return D_O_K;
 }
 
 int onHeartC()
 {
-  set_gamedata_maxlife(game, vbound(getnumber("Heart Containers",get_gamedata_maxlife(game)/HP_PER_HEART),1,24) * HP_PER_HEART);
-  set_gamedata_life(game, vbound(getnumber("Life",get_gamedata_life(game)/HP_PER_HEART),1,get_gamedata_maxlife(game)/HP_PER_HEART)*HP_PER_HEART);
+  game->set_maxlife( vbound(getnumber("Heart Containers",game->get_maxlife()/HP_PER_HEART),1,24) * HP_PER_HEART);
+  game->set_life( vbound(getnumber("Life",game->get_life()/HP_PER_HEART),1,game->get_maxlife()/HP_PER_HEART)*HP_PER_HEART);
   return D_O_K;
 }
 
 int onMagicC()
 {
-  set_gamedata_maxmagic(game, vbound(getnumber("Magic Containers",get_gamedata_maxmagic(game)/MAGICPERBLOCK),0,get_gamedata_maxmagic(game)/MAGICPERBLOCK) * MAGICPERBLOCK);
-  set_gamedata_magic(game, vbound(getnumber("Magic",get_gamedata_magic(game)/MAGICPERBLOCK),0,get_gamedata_maxmagic(game)/MAGICPERBLOCK)*MAGICPERBLOCK);
+  game->set_maxmagic( vbound(getnumber("Magic Containers",game->get_maxmagic()/MAGICPERBLOCK),0,game->get_maxmagic()/MAGICPERBLOCK) * MAGICPERBLOCK);
+  game->set_magic( vbound(getnumber("Magic",game->get_magic()/MAGICPERBLOCK),0,game->get_maxmagic()/MAGICPERBLOCK)*MAGICPERBLOCK);
   return D_O_K;
 }
 
 int onRupies()
 {
-  set_gamedata_rupies(game, vbound(getnumber("Rupies",get_gamedata_rupies(game)),0,get_gamedata_maxcounter(game,1)));
+  game->set_rupies( vbound(getnumber("Rupies",game->get_rupies()),0,game->get_maxcounter(1)));
   return D_O_K;
 }
 
 int onMaxBombs()
 {
-  set_gamedata_maxbombs(game, vbound(getnumber("Max Bombs",get_gamedata_maxbombs(game)),8,99));
-  set_gamedata_bombs(game, get_gamedata_maxbombs(game));
+  game->set_maxbombs( vbound(getnumber("Max Bombs",game->get_maxbombs()),8,99));
+  game->set_bombs( game->get_maxbombs());
   return D_O_K;
 }
 
-int onRefillLife() { set_gamedata_life(game, get_gamedata_maxlife(game)); return D_O_K; }
-int onRefillMagic() { set_gamedata_magic(game, get_gamedata_maxmagic(game)); return D_O_K; }
+int onRefillLife() { game->set_life( game->get_maxlife()); return D_O_K; }
+int onRefillMagic() { game->set_magic( game->get_maxmagic()); return D_O_K; }
 int onClock()  { setClock(!getClock()); return D_O_K; }
 
 int onQstPath()
@@ -5257,14 +5281,15 @@ done:
 
 int onCheatRupies()
 {
-  set_gamedata_drupy(game, get_gamedata_maxcounter(game,1));
+  game->set_drupy( game->get_maxcounter(1));
   return D_O_K;
 }
 
 int onCheatBombs()
 {
-  set_gamedata_bombs(game, get_gamedata_maxbombs(game));
-  set_gamedata_sbombs(game, get_gamedata_maxcounter(game,6));
+  getitem(iBombs,true);
+  game->set_bombs( game->get_maxbombs());
+  game->set_sbombs( game->get_maxcounter(6));
   return D_O_K;
 }
 
@@ -5382,6 +5407,7 @@ static MENU title_menu[] =
 {
   { "&Original",            onTitle_NES, NULL, 0, NULL },
   { "&Zelda Classic",       onTitle_DX,  NULL, 0, NULL },
+  { "&Zelda Classic 2.5",   onTitle_25,  NULL, 0, NULL },
   { NULL,                   NULL,        NULL, 0, NULL }
 };
 
@@ -5455,7 +5481,7 @@ static MENU cheat_menu[] =
   { "H.Containers...",      onHeartC,    NULL, 0, NULL },
   { "M.Containers...",      onMagicC,    NULL, 0, NULL },
   { "",                     NULL,        NULL, 0, NULL },
-  { "Link Data...",             onEquipment,     NULL, 0, NULL },
+  { "Link Data...",         onEquipment,     NULL, 0, NULL },
   { "",                     NULL,        NULL, 0, NULL },
   { "No walls\tF11",        onNoWalls,   NULL, 0, NULL },
   { "Quick Movement\tq",    onGoFast,    NULL, 0, NULL },
@@ -6198,8 +6224,9 @@ void System()
     if(mouse_down && !gui_mouse_b())
       mouse_down=0;
 
-    title_menu[0].flags = DXtitle ? 0 : D_SELECTED;
-    title_menu[1].flags = title_menu[0].flags ^ D_SELECTED;
+    title_menu[0].flags = (title_version==0) ? D_SELECTED : 0;
+    title_menu[1].flags = (title_version==1) ? D_SELECTED : 0;
+    title_menu[2].flags = (title_version==2) ? D_SELECTED : 0;
 
     settings_menu[6].flags = Throttlefps?D_SELECTED:0;
     settings_menu[7].flags = ShowFPS?D_SELECTED:0;
@@ -6221,13 +6248,14 @@ void System()
       cheat_menu[10].text  = (cheat >= 3) || get_debug() ? bar_str : NULL;
       cheat_menu[12].text = (cheat >= 4) || get_debug() ? bar_str : NULL;
       cheat_menu[6].flags = getClock() ? D_SELECTED : 0;
-      cheat_menu[15].flags = toogam ? D_SELECTED : 0;
-      cheat_menu[16].flags = gofast ? D_SELECTED : 0;
+      cheat_menu[13].flags = toogam ? D_SELECTED : 0;
+      cheat_menu[14].flags = gofast ? D_SELECTED : 0;
     }
 
     settings_menu[11].flags = heart_beep ? D_SELECTED : 0;
     reset_snapshot_format_menu();
-    settings_menu[13].flags = SnapshotFormat ? D_SELECTED : 0;
+	snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;
+    //settings_menu[13].flags = SnapshotFormat ? D_SELECTED : 0;
     if(debug_enabled)
     {
       settings_menu[15].flags = get_debug() ? D_SELECTED : 0;
@@ -6391,7 +6419,7 @@ void jukebox(int index)
 
 void play_DmapMusic()
 {
-  static char tfile[56];
+  static char tfile[2048];
   bool domidi=false;
   if (DMaps[currdmap].tmusic[0]!=0)
   {
@@ -6406,7 +6434,7 @@ void play_DmapMusic()
         zcmusic = NULL;
       }
 
-      sprintf(tmfname, "%s",qstpath);
+      sprintf(tmfname, "%s",qstdir);
       chop_path(tmfname);
       strcat(tmfname, DMaps[currdmap].tmusic);
 

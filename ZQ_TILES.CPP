@@ -24,6 +24,10 @@
 #include "zc_custom.h"
 #include <string.h>
 
+#ifdef _MSC_VER
+#define stricmp _stricmp
+#endif
+
 int ex=0;
 int nextcombo_fake_click=0;
 
@@ -404,7 +408,7 @@ void draw_selecting_outline(BITMAP *dest, int x, int y, int scale2)
   int x2=max(selecting_x1,selecting_x2);
   int y1=min(selecting_y1,selecting_y2);
   int y2=max(selecting_y1,selecting_y2);
-  
+
 //  rect(dest, x+(x1*scale2), y+(y1*scale2), x+((x2+1)*scale2), y+((y2+1)*scale2), 255);
   for(int i=1; i<18; ++i)
   {
@@ -740,20 +744,20 @@ void tile_floodfill_rec(int x,int y)
   {
     while(x>0 && (unpackbuf[(y<<4)+x-1] == tf_u))
       --x;
-  
+
     while(x<=15 && (unpackbuf[(y<<4)+x] == tf_u))
     {
       if (is_in_selection(x,y))
       {
         unpackbuf[(y<<4)+x] = tf_c;
       }
-  
+
       if(y>0 && (unpackbuf[((y-1)<<4)+x] == tf_u))
         tile_floodfill_rec(x,y-1);
-  
+
       if(y<15 && (unpackbuf[((y+1)<<4)+x] == tf_u))
         tile_floodfill_rec(x,y+1);
-  
+
       ++x;
     }
   }
@@ -800,7 +804,7 @@ void update_tool_cursor()
         break;
     }
   }
-  
+
   if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158)) //inside the zoomed tile window
   {
     if(tool_cur==-1)
@@ -1274,7 +1278,7 @@ void edit_tile(int tile,int flip,int &cs)
         case KEY_DOWN:
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
         {
-          tile=min(tile+TILES_PER_ROW,NEWMAXTILES);
+          tile=min(tile+TILES_PER_ROW,NEWMAXTILES-1);
           for(int i=0; i<undocount; i++)
           {
             undotile[i]=newtilebuf[tile].data[i];
@@ -1316,7 +1320,7 @@ void edit_tile(int tile,int flip,int &cs)
         case KEY_RIGHT:
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
         {
-          tile=min(tile+1, NEWMAXTILES);
+          tile=min(tile+1, NEWMAXTILES-1);
           for(int i=0; i<undocount; i++)
           {
             undotile[i]=newtilebuf[tile].data[i];
@@ -2027,7 +2031,7 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
       {
         int maxy=min(160,((BITMAP*)imagebuf)->h);
         int maxx=min(320,((BITMAP*)imagebuf)->w);
-  
+
         for (int y=0; y<maxy; y++)
         {
           if ((imagey<<4)+y>=((BITMAP*)imagebuf)->h)
@@ -2332,7 +2336,7 @@ void load_imagebuf()
   {
     case ftBMP:
       imagebuf = load_bitmap(imagepath,imagepal);
-      imagesize = file_size(imagepath);
+      imagesize = file_size_ex(imagepath);
       tilecount=0;
       create_rgb_table(&rgb_table, imagepal, NULL);
       rgb_map = &rgb_table;
@@ -2343,7 +2347,7 @@ void load_imagebuf()
       }
       break;
     case ftBIN:
-      imagesize = file_size(imagepath);
+      imagesize = file_size_ex(imagepath);
       tilecount=0;
       if(imagesize)
       {
@@ -2357,7 +2361,7 @@ void load_imagebuf()
       }
       break;
     case ftTIL:
-      imagesize = file_size(imagepath);
+      imagesize = file_size_ex(imagepath);
       f = pack_fopen(imagepath,F_READ);
       if (!f)
       {
@@ -2380,7 +2384,7 @@ void load_imagebuf()
       break;
 
     case ftZGP:
-      imagesize = file_size(imagepath);
+      imagesize = file_size_ex(imagepath);
       f=pack_fopen(imagepath,F_READ);
       if(!f)
       {
@@ -2425,7 +2429,7 @@ void load_imagebuf()
     case ftZQT:
       compressed=true;
     case ftQSU:
-      imagesize = file_size(imagepath);
+      imagesize = file_size_ex(imagepath);
       newtilebuf=grabtilebuf;
       byte skip_flags[4];
       for (int i=0; i<32; ++i)
@@ -2434,7 +2438,7 @@ void load_imagebuf()
       }
       set_bit(skip_flags,skip_tiles,0);
       set_bit(skip_flags,skip_header,0);
-      if(encrypted) packfile_password(datapwd);
+      if(encrypted) setPackfilePassword(datapwd);
       loadquest(imagepath,&tempheader,&misc,customMIDIs,false,compressed,encrypted,true,skip_flags);
       if (encrypted&&compressed)
       {
@@ -2446,7 +2450,7 @@ void load_imagebuf()
           chop_path(imagepath);
         }
       }
-      packfile_password(NULL);
+      setPackfilePassword(NULL);
       newtilebuf=hold;
       tilecount=count_tiles(grabtilebuf);
       break;
@@ -3673,7 +3677,7 @@ int move_intersection_sr(int check_first, int check_last, int selection_left, in
         return ti_none;
       }
       //else if (selection_top*TILES_PER_ROW+selection_left<check_first && (selection_top+1)*TILES_PER_ROW+selection_left>check_last)
-	  
+
 	  //one last base case: the strip we're interested in only lies along one row
 	  if(check_first/TILES_PER_ROW == check_last/TILES_PER_ROW)
 	  {
@@ -5282,7 +5286,7 @@ void copy_combos(int &tile,int &tile2,int &copy,int &copycnt, bool masscopy)
 	{
 		swap(tile,tile2);
 	}
-  
+
   if (!masscopy) {
 		if (tile==copy)
 		{
@@ -5307,7 +5311,7 @@ void copy_combos(int &tile,int &tile2,int &copy,int &copycnt, bool masscopy)
 		do {
 			combobuf[dest]=combobuf[src];
 			++src; ++dest;
-			if((src-copy)==copycnt) src=copy; 
+			if((src-copy)==copycnt) src=copy;
 		} while(dest<=tile2);
 		copy=-1;
 		tile2=tile;
@@ -5517,14 +5521,14 @@ void mass_overlay_tile(int dest1, int dest2, int src, bool backwards, bool rect_
 {
 	byte buf[256];
 	go_tiles();
-	
+
 	unpack_tile(newtilebuf, src, 0, false);
 	for(int i=0; i<256; i++)
     buf[i] = unpackbuf[i];
-	
+
 	if (!rect_sel) {
 		for ( int d=dest1; d <= dest2; ++d)
-		{	
+		{
 			unpack_tile(newtilebuf, d, 0, false);
 			for(int i=0; i<256; i++)
 			{
@@ -6079,16 +6083,16 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
         case KEY_HOME:  sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile):-(tile%TILES_PER_PAGE));   redraw=true; break;
         case KEY_END:   sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1); redraw=true; break;
         case KEY_P:     sel_tile(tile,tile2,first,type,((getnumber("Goto Page", tile_page(tile))-tile_page(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);  break;
-        case KEY_O:     
-			if(type==0 && copy>=0) { 
+        case KEY_O:
+			if(type==0 && copy>=0) {
 				if (key[KEY_LSHIFT] ||key[KEY_RSHIFT]) {
 					mass_overlay_tile(min(tile,tile2),max(tile,tile2),copy,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
 				}
 				else {
 					overlay_tile(tile,copy,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
-					redraw=true; 
+					redraw=true;
 				}
-			} 
+			}
 			break;
         case KEY_E:     if(type==0) { edit_tile(tile,flip,cs); redraw=true; } break;
         case KEY_G:     if(type==0) { grab_tile(tile,cs); redraw=true; } break;
@@ -6861,14 +6865,14 @@ static DIALOG advpaste_dialog[] =
 	{ jwin_win_proc,         0,    0,   200,  161,   vc(14),   vc(1),       0,     D_EXIT,       0,             0,        (void *) "Advanced Paste", NULL, NULL },
 	{ jwin_button_proc,     27,   130,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       (void *) "O&K", NULL, NULL },
 	{ jwin_button_proc,     112,  130,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
-	
+
 	{ jwin_check_proc,		10,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Tile", NULL, NULL },
 	{ jwin_check_proc,		10,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Cset2", NULL, NULL },
 	{ jwin_check_proc,		10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Walkability", NULL, NULL },
-	{ jwin_check_proc,		10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Animation", NULL, NULL },		
-	{ jwin_check_proc,		10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Type", NULL, NULL },	
-	{ jwin_check_proc,		10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Inherent Flag", NULL, NULL },	
-	
+	{ jwin_check_proc,		10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Animation", NULL, NULL },
+	{ jwin_check_proc,		10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Type", NULL, NULL },
+	{ jwin_check_proc,		10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,			(void*) "Inherent Flag", NULL, NULL },
+
   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -6876,10 +6880,10 @@ int advpaste(int tile, int tile2, int copy)
 {
 	int ret = zc_popup_dialog(advpaste_dialog,-1);
 	if (ret!=1) return ret;
-	
+
 	// save original in case it's in paste range
 	newcombo combo=combobuf[copy];
-	
+
 	for(int i=min(tile,tile2);i<=max(tile,tile2);++i)
 	{
 		if (advpaste_dialog[3].flags & D_SELECTED)  // tile
@@ -6895,7 +6899,7 @@ int advpaste(int tile, int tile2, int copy)
 		if (advpaste_dialog[8].flags & D_SELECTED)  // flag
 			{ combobuf[i].flag=combo.flag;}
 	}
-	
+
 	return ret;
 }
 
@@ -6913,7 +6917,7 @@ int combo_screen()
 
   int tile_clicked=-1;
   int t2;
-  
+
   bool masscopy;
 
   select_tile_rc_menu[5].text = NULL;
@@ -7051,14 +7055,14 @@ int combo_screen()
         copy=-1;
         break;
 
-        case KEY_V:     
+        case KEY_V:
 		if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] && copy != -1)
 		{
 			if (advpaste(tile, tile2, copy)==1)
 				{saved=false; redraw=true; copy=-1;}
 			break;
 		}
-		
+
 		masscopy=(key[KEY_LSHIFT] || key[KEY_RSHIFT])?1:0;
 		if(copy==-1)
         {
@@ -7087,18 +7091,18 @@ int combo_screen()
 		{
 			// insert 1 combo
 			go_combos();
-			
+
 			int z=tile;
 			tile=min(tile,tile2);
 			tile2=MAXCOMBOS;
 			copy=tile+1;
 			copycnt=MAXCOMBOS-tile;
-			
+
 			if (key[KEY_LSHIFT]||key[KEY_RSHIFT])
 				move_combos(tile,tile2,copy, copycnt);
-			else 
+			else
 				move_combos(copy,tile2,tile, copycnt);
-			
+
 			copy=-1;
 			tile2=tile=z;
 			setup_combo_animations();

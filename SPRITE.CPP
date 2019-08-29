@@ -53,6 +53,72 @@ sprite::sprite()
   itemclass=0;
 }
 
+sprite::sprite(sprite const & other):
+  x(other.x),
+  y(other.y),
+  z(other.z),
+  tile(other.tile),
+  shadowtile(other.shadowtile),
+  cs(other.cs),
+  flip(other.flip),
+  c_clk(other.c_clk),
+  clk(other.clk),
+  misc(other.misc),
+  fall(other.fall),
+  xofs(other.xofs),
+  yofs(other.yofs),
+  zofs(other.zofs),
+  hxofs(other.hxofs),
+  hyofs(other.hyofs),
+  hxsz(other.hxsz),
+  hysz(other.hysz),
+  hzsz(other.hzsz),
+  id(other.id),
+  dir(other.dir),
+  angular(other.angular),
+  canfreeze(other.canfreeze),
+  angle(other.angle),
+  lasthit(other.lasthit),
+  lasthitclk(other.lasthitclk),
+  drawstyle(other.drawstyle),
+  extend(other.extend),
+  ffcref(other.ffcref),
+  itemref(other.itemref),
+  guyref(other.guyref),
+  lwpnref(other.lwpnref),
+  ewpnref(other.ewpnref),
+  sp(other.sp),
+  pc(other.pc),
+  scriptflag(other.scriptflag),
+  doscript(other.doscript),
+  itemclass(other.itemclass),
+  guyclass(other.guyclass),
+  lwpnclass(other.lwpnclass),
+  ewpnclass(other.ewpnclass)
+
+{
+  for (int i=0; i<10; ++i)
+  {
+    dummy_int[i]=other.dummy_int[i];
+    dummy_fix[i]=other.dummy_fix[i];
+    dummy_float[i]=other.dummy_float[i];
+    dummy_bool[i]=other.dummy_bool[i];
+  }
+  for (int i=0; i<8; ++i)
+  {
+    d[i]=other.d[i];
+  }
+  for (int i=0; i<2; ++i)
+  {
+    a[i]=other.a[i];
+  }
+  for (int i=0; i<256; ++i)
+  {
+    stack[i]=other.stack[i];
+  }
+}
+
+
 sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
   x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
 {
@@ -195,43 +261,43 @@ void sprite::draw(BITMAP* dest)
     switch (drawstyle)
     {
       case 0:                                               //normal
-      overtile16(dest,tile,sx,sy,cs,flip);
-      break;
-      case 1:                                               //phantom
-      overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
-      break;
-      case 2:                                               //cloaked
-      overtilecloaked16(dest,tile,sx,sy,flip);
-      break;
-      case 3:												//link
-      switch(extend)
-      {
-        BITMAP *temp;
-        case 0:
         overtile16(dest,tile,sx,sy,cs,flip);
         break;
-        case 1:
-        temp = create_bitmap_ex(8,16,32);
-        clear_bitmap(temp);
-        overtile16(temp,tile-TILES_PER_ROW,0,0,cs,flip);
-        overtile16(temp,tile,0,16,cs,flip);
-        masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
-        destroy_bitmap(temp);
+      case 1:                                               //phantom
+        overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
         break;
-        case 2:
-        temp = create_bitmap_ex(8,48,32);
-        clear_bitmap(temp);
-        overtile16(temp,tile-TILES_PER_ROW,16,0,cs,flip);
-        overtile16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip);
-        overtile16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip);
-        overtile16(temp,tile,16,16,cs,flip);
-        overtile16(temp,tile-(flip?-1:1),0,16,cs,flip);
-        overtile16(temp,tile+(flip?-1:1),32,16,cs,flip);
-        masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
-        destroy_bitmap(temp);
+      case 2:                                               //cloaked
+        overtilecloaked16(dest,tile,sx,sy,flip);
         break;
-      }
-      break;
+      case 3:												//link
+        switch(extend)
+        {
+          BITMAP *temp;
+          case 0:
+          overtile16(dest,tile,sx,sy,cs,flip);
+          break;
+          case 1:
+          temp = create_bitmap_ex(8,16,32);
+          clear_bitmap(temp);
+          overtile16(temp,tile-TILES_PER_ROW,0,0,cs,flip);
+          overtile16(temp,tile,0,16,cs,flip);
+          masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+          destroy_bitmap(temp);
+          break;
+          case 2:
+          temp = create_bitmap_ex(8,48,32);
+          clear_bitmap(temp);
+          overtile16(temp,tile-TILES_PER_ROW,16,0,cs,flip);
+          overtile16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip);
+          overtile16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip);
+          overtile16(temp,tile,16,16,cs,flip);
+          overtile16(temp,tile-(flip?-1:1),0,16,cs,flip);
+          overtile16(temp,tile+(flip?-1:1),32,16,cs,flip);
+          masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+          destroy_bitmap(temp);
+          break;
+        }
+        break;
     }
   }
   else
@@ -329,10 +395,7 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
     }
     else
     {
-      if (frame&1)
-      {
-        overtile16(dest,shadowtile,sx,sy,shadowcs,shadowflip);
-      }
+      overtile16(dest,shadowtile,sx,sy,shadowcs,shadowflip);
     }
   }
 }

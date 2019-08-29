@@ -21,6 +21,7 @@
 #include "sfx.h"
 #include "zcmusic.h"
 #include "jwin.h"
+#include "gamedata.h"
 
 #define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMMIDIS
 
@@ -114,6 +115,11 @@ fix  LinkY();
 fix  LinkZ();
 int  LinkNayrusLoveShieldClk();
 int  LinkHoverClk();
+int  LinkSwordClk();
+int  LinkItemClk();
+int  LinkAction();
+void setSwordClk(int newclk);
+void setItemClk(int newclk);
 int  LinkLStep();
 fix  LinkModifiedX();
 fix  LinkModifiedY();
@@ -121,7 +127,7 @@ fix  GuyX(int j);
 fix  GuyY(int j);
 int  GuyID(int j);
 int  GuyMisc(int j);
-void StunGuy(int j);
+void StunGuy(int j,int stun);
 bool  GuySuperman(int j);
 int  GuyCount();
 int  LinkDir();
@@ -133,6 +139,7 @@ void CatchBrang();
 int LinkAction();
 
 void dointro();
+void init_dmap();
 int  init_game();
 int  cont_game();
 void restart_level();
@@ -145,25 +152,6 @@ int get_dlevel();
 int get_currscr();
 int get_homescr();
 int get_bmaps(int si);
-word get_gamedata_maxlife();
-word get_gamedata_life();
-byte get_gamedata_magicdrainrate();
-word get_gamedata_maxmagic();
-word get_gamedata_magic();
-void set_gamedata_maxlife(word l);
-void set_gamedata_life(word l);
-void set_gamedata_maxmagic(word l);
-void set_gamedata_magic(word l);
-byte get_gamedata_cheat();
-byte get_gamedata_HCpieces();
-byte get_gamedata_sbombs();
-byte get_gamedata_bombs();
-byte get_gamedata_keys();
-byte get_gamedata_lkeys();
-byte get_gamedata_timevalid();
-dword get_gamedata_time();
-word get_gamedata_arrows();
-word get_gamedata_rupies();
 bool no_subscreen();
 bool is_zquest();
 void quit_game();
@@ -191,7 +179,7 @@ extern int strike_hint_timer;
 extern int strike_hint;
 
 extern RGB_MAP rgb_table;
-extern COLOR_MAP trans_table;
+extern COLOR_MAP trans_table, trans_table2;
 extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2;
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
@@ -211,6 +199,10 @@ extern byte     use_cheats;
 extern byte     use_tiles;
 extern char     palnames[256][17];
 
+#define MAX_SCRIPT_DRAWING_COMMANDS 1000
+#define SCRIPT_DRAWING_COMMAND_VARIABLES 20
+extern int script_drawing_commands[MAX_SCRIPT_DRAWING_COMMANDS][SCRIPT_DRAWING_COMMAND_VARIABLES];
+
 extern word animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
 extern word animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
 extern word animated_combos;
@@ -220,10 +212,12 @@ extern word animated_combos2;
 extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of blank tiles
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
 extern bool ewind_restart;
-extern word     msgclk, msgstr, msgpos, msg_count;
+extern word     msgclk, msgstr, msgpos, msgptr, msg_count, msgcset, msgcolour, msgspeed;
+extern FONT	*msgfont;
 extern word     door_combo_set_count;
 extern word     introclk, intropos, dmapmsgclk, linkedmsgclk;
-extern short    lensclk, lenscnt;
+extern short    lensclk;
+extern bool     lenson;
 extern int    Bpos;
 extern byte screengrid[22];
 extern volatile int logic_counter;
@@ -243,14 +237,14 @@ extern char *SAVE_FILE;
 extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr;
 extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
 extern int lastentrance,lastentrance_dmap,prices[3][2],loadside, Bwpn, Awpn;
-extern int digi_volume,midi_volume,currmidi,wand_x,wand_y,wand_z,hasitem,whistleclk,pan_style;
+extern int digi_volume,midi_volume,currmidi,hasitem,whistleclk,pan_style;
 extern int Akey,Bkey,Skey,Lkey,Rkey,Pkey,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Quit;
 extern int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density;
 extern int arrow_x, arrow_y, arrow_z, brang_x, brang_y, brang_z;
-extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras;
+extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
 extern int swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what, refill_why;
-extern int heart_beep_timer, new_enemy_tile_start, nets, magictype;
-extern int magiccastclk, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
+extern int heart_beep_timer, new_enemy_tile_start, nets, magictype, title_version;
+extern int magiccastclk, quakeclk, wavy, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
 extern dword fps_secs;
 extern float avgfps;
 
@@ -258,8 +252,8 @@ extern bool do_cheat_goto;
 extern bool nosecretsounds;
 extern bool blockmoving;
 extern bool Throttlefps, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers;
-extern bool refreshpal,blockpath,wand_dead,__debug,loaded_guys,freeze_guys;
-extern bool loaded_enemies,drawguys,details,DXtitle,debug_enabled,watch;
+extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
+extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
 extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
 extern bool fixed_door, darkroom,BSZ,COOLSCROLL;            //,NEWSUBSCR;
@@ -323,6 +317,7 @@ extern DoorComboSet *DoorComboSets;
 extern dmap         *DMaps;
 extern miscQdata    QMisc;
 extern mapscr       *TheMaps;
+extern zcmap		*ZCMaps;
 extern byte			*quest_file;
 extern long		    ffstack[32][256];
 

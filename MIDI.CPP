@@ -22,6 +22,7 @@
   */
 
 #include "midi.h"
+#include "zsys.h"
 #include <string.h>
 #include <stdio.h>
 /* save_midi:

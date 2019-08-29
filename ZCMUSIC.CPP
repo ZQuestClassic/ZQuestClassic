@@ -29,6 +29,10 @@
 
 #include "zcmusic.h"
 
+#ifdef _MSC_VER
+#define stricmp _stricmp
+#endif
+
 // might consider replacing the following with user defined values from the
 // 'sound' dialog in the player. This way, each person could tune it as needed.
 #define DUH_CHANNELS  2                                     // stereo

@@ -21,6 +21,9 @@
 #include "zdefs.h"
 #include "jwin.h"
 
+void setPackfilePassword(const char *pwd);
+char * getCurPackfilePassword(void);
+
 #define FILENAME8_3   0
 #define FILENAME8__   1
 #define FILENAMEALL   2

@@ -736,6 +736,7 @@ yy_match:
 yy_find_action:
 		yy_current_state = *--yy_state_ptr;
 		yy_lp = yy_accept[yy_current_state];
+if(0) { yy_flex_realloc( NULL,0); yyunput(0,NULL); goto find_rule; }
 find_rule: /* we branch to this label when backing up */
 		for ( ; ; ) /* until we find what rule we matched */
 			{
@@ -1113,7 +1114,7 @@ YY_RULE_SETUP
 {
 						doLines();
 						yylval = new ASTString(yytext, yylloc);
-						return IDENTIFIER; 
+						return IDENTIFIER;
 					}
 	YY_BREAK
 case 70:
@@ -1146,7 +1147,7 @@ YY_RULE_SETUP
 #line 111 "ffscript.lpp"
 {
 	char temp[512];
-	sprintf(temp, "Scanner: lexical error '%s'.\n", yytext); 
+	sprintf(temp, "Scanner: lexical error '%s'.\n", yytext);
 	box_out(temp);
 	box_eol();
 	}

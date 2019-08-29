@@ -21,6 +21,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef _MSC_VER
+#define getcwd _getcwd
+#endif
+
 char qtbuf[31];
 
 void reset_qt(int index)
@@ -615,6 +619,32 @@ int onImport_Map()
     if(ret>1)
       Map.clearmap(false);
   }
+  else
+  {
+    bool willaffectlayers=false;
+    for(int i=0; i<MAPSCRS; i++)
+    {
+      for(int j=0; !willaffectlayers && j<6; j++)
+      {
+        if(TheMaps[Map.getCurrMap()*MAPSCRS+i].layermap[j]>Map.getMapCount())
+        {
+          willaffectlayers=true;
+          break;
+        }
+      }
+      fix_layers(&TheMaps[Map.getCurrMap()*MAPSCRS+i], false);
+    }
+
+    if(willaffectlayers)
+    {
+      jwin_alert("Layers Changed",
+                 "One or more screens in the imported map had",
+                 "layers on maps that do not exist. The map numbers",
+                 "of the affected layers will be reset to 0.",
+                 "&OK", NULL, 'o', 0, lfont);
+    }
+  }
+
   refresh(rSCRMAP+rMAP+rMENU);
   return D_O_K;
 }

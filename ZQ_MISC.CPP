@@ -21,6 +21,11 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef _MSC_VER
+#define strupr _strupr
+#define stricmp _stricmp
+#endif
+
 extern int prv_mode;
 extern void dopreview();
 
@@ -281,21 +286,21 @@ char *roomtype_string[MAXROOMTYPES] =
 {
   "(None)","Special Item","Pay for Info","Secret Money","Gamble",
   "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
-  "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupies",
-  "3-Stair Warp","Ganon","Zelda", "-<item pond>", "Magic Upgrade", "Learn Slash", "More Arrows"
+  "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+  "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
 };
 
 char *catchall_string[MAXROOMTYPES] =
 {
   " ","Special Item","Info Type","Amount"," ","Repair Fee"," "," "," ","Shop Type",
   "Shop Type","Price","Price"," ","Warp Ring"," "," ", "-<item pond type>", " ",
-  " ", "Price"
+  " ", "Price","Shop Type"
 };
 
 char *warptype_string[MAXWARPTYPES] =
 {
-  "Cave/Item Room","Passageway","Entrance/Exit","Scrolling Warp","Insta-Warp","Insta-Warp with Blackout","Insta-Warp with Opening Screen","Insta-Warp with Zap Effects", "Insta-Warp with Wave Effects", "Cancel Warp"
-  //  "Cave/Item Room","Passageway","Entrance/Exit","Scrolling Warp","Standard","Cancel Warp"," "," ", " ", " "
+  "Cave/Item Cellar","Passageway","Entrance/Exit","Scrolling Warp","Insta-Warp","Insta-Warp with Blackout","Insta-Warp with Opening Screen","Insta-Warp with Zap Effects", "Insta-Warp with Wave Effects", "Cancel Warp"
+  //  "Cave/Item Cellar","Passageway","Entrance/Exit","Scrolling Warp","Standard","Cancel Warp"," "," ", " ", " "
 };
 
 char *warpeffect_string[MAXWARPEFFECTS] =
@@ -307,7 +312,7 @@ char *warpeffect_string[MAXWARPEFFECTS] =
 char *combotype_string[MAXCOMBOTYPES] =
 {
   "(None)","Stairs [A]","Cave (Walk Down) [A]","Water","Armos","Grave","Dock",
-  "Undefined","Push (Wait)","Push (Heavy)","Push (Heavy, Wait)","Left Statue","Right Statue",
+  "Unused","Push (Wait)","Push (Heavy)","Push (Heavy, Wait)","Left Statue","Right Statue",
   "Slow Walk","Conveyor Up","Conveyor Down","Conveyor Left","Conveyor Right",
   "Swim Warp [A]","Dive Warp [A]","Ladder or Hookshot","Trigger (Temporary)","Trigger (Permanent)",
   "Win Game","Slash","Slash (->Item)", "Push (Very Heavy)", "Push (Very Heavy, Wait)", "Pound",
@@ -315,7 +320,7 @@ char *combotype_string[MAXCOMBOTYPES] =
   "Center Statue", "Trap (Horizontal, Line of Sight)", "Trap (Vertical, Line of Sight)", "Trap (4-Way)",
   "Trap (Horizontal, Constant)", "Trap (Vertical, Constant)", "Direct Warp [A]", "Hookshot Only", "Overhead",
   "No Fly Zone", "Magic Mirror (4-Way)", "Magic Mirror (Up-Left, Down-Right)", "Magic Mirror (Up-Right, Down-Left)", "Magic Prism (3-Way)",
-  "Magic Prism (4-Way)", "Magic Sponge", "Cave (Walk Up) [A]", "Eyeball A", "Eyeball B",
+  "Magic Prism (4-Way)", "Block Magic", "Cave (Walk Up) [A]", "Eyeball A", "Eyeball B",
   "No Jump Zone", "Bush", "Flowers", "Tall Grass", "Shallow Water", "Lock Block (Normal)",
   "Lock Block (Normal, Copycat)", "Lock Block (Boss)", "Lock Block (Boss, Copycat)", "Ladder Only", "BS Grave",
   "Treasure Chest (Normal)", "Treasure Chest (Normal, Copycat)", "Treasure Chest (Locked)",
@@ -372,16 +377,16 @@ char *flag_string[MAXFLAGS] =
   "34 Trap (4-Way, Line of Sight)",
   "35 Trap (Horizontal, Constant)",
   "36 Trap (Vertical, Constant)",
-  "37 Enemy 1",
-  "38 Enemy 2",
-  "39 Enemy 3",
-  "40 Enemy 4",
-  "41 Enemy 5",
-  "42 Enemy 6",
-  "43 Enemy 7",
-  "44 Enemy 8",
-  "45 Enemy 9",
-  "46 Enemy 10",
+  "37 Enemy 0",
+  "38 Enemy 1",
+  "39 Enemy 2",
+  "40 Enemy 3",
+  "41 Enemy 4",
+  "42 Enemy 5",
+  "43 Enemy 6",
+  "44 Enemy 7",
+  "45 Enemy 8",
+  "46 Enemy 9",
   "47 Push (Horizontal, Once)",
   "48 Push (Up, Once)",
   "49 Push (Down, Once)",
@@ -436,7 +441,7 @@ char *flag_string[MAXFLAGS] =
 };
 
 // eMAXGUYS is defined in zdefs.h
-char *guy_string[eMAXGUYS] =
+char *old_guy_string[OLDMAXGUYS] =
 {
   "(None)","Abei","Ama","Merchant","Moblin","Fire","Fairy","Goriya","Zelda","Abei 2","Empty","","","","","","","","","",
   // 020
@@ -503,6 +508,145 @@ char *guy_string[eMAXGUYS] =
   "Pols Voice (Magic)", "Pols Voice (Whistle) ", "Darknut (Mirror) ", "Ghini (L2, Fire) ", "Ghini (L2, Magic) ",
   // 175
   "Grappler Bug (HP) ", "Grappler Bug (MP) "
+};
+
+char *guy_string[eMAXGUYS];
+
+char *enetype_string[eeMAX] =
+{
+	"Guy",
+	"Walking Enemy",
+	"Walker and Shooter",
+	"Tektite",
+	"Leever",
+	"Peahat",
+	"Zora",
+	"Rock",
+	"Ghini",
+	"Armos",
+	"Keese",
+	"Gel",
+	"Zol",
+	"Rope",
+	"Goriya",
+	"Trap",
+	"Wall Master",
+	"Bubble",
+	"Vire",
+	"Like-Like",
+	"Pols Voice",
+	"Wizzrobe",
+	"Aquamentus",
+	"Moldorm",
+	"Dodongo",
+	"Manhandla",
+	"Gleeok",
+	"Digdogger",
+	"Gohma",
+	"Lanmola",
+	"Patra",
+	"Ganon",
+	"Projectile",
+	"Gel Tribble",
+	"Zol Tribble",
+	"Vire Tribble",
+	"Keese Tribble",
+	"Spin Tile",
+	"(None)",
+	"Fairy",
+	"Fire"
+};
+
+char *eneanim_string[aMAX] =
+{
+	"(None)",
+	"Flip",
+	"Slow Flip",
+	"2-Frame",
+	"Slow 2-Frame",
+	"Octorok (Old)",
+	"Tektite (Old)",
+	"Leever (Old)",
+	"Walker",
+	"Zora (Old)",
+	"Zora (New)",
+	"Ghini",
+	"Armos",
+	"Rope",
+	"Wall Master (Old)",
+	"Wall Master (New)",
+	"Darknut (Old)",
+	"Vire",
+	"3-Frame",
+	"Wizzrobe (Old)",
+	"Aquamentus",
+	"Dodongo (Old)",
+	"Manhandla",
+	"Gleeok",
+	"Digdogger",
+	"Gohma",
+	"Lanmola",
+	"2-Frame Repeated (?)",
+	"4-Frame 4-Dir + Tracking",
+	"4-Frame 8-Dir + Tracking",
+	"4-Frame 4-Dir + Firing",
+	"4-Frame 4-Dir",
+	"4-Frame 8-Dir + Firing",
+	"Armos 4-Frame",
+	"4-Frame Repeated 4-Dir",
+	"4-Frame Repeated 8-Dir",
+	"4-Frame 3-Trap (?)",
+	"4-Frame 8-Dir Big",
+	"Tektite (New)",
+	"Pols Voice",
+	"2-Frame 4-Dir",
+	"Leever (New)",
+	"Darknut (New)",
+	"Wizzrobe (New)",
+	"Dodongo (New)",
+	"Dodongo (BS)",
+	"4-Frame Repeated 8-Dir + Firing",
+	"4-Frame Repeated 4-Dir + Firing",
+	"4-Frame No-Dir",
+	"Ganon",
+	"2-Frame Big"
+};
+
+char *itemset_string[isMAX] =
+{
+	"(None)",
+	"Default",
+	"Bombs",
+	"Rupees",
+	"Life",
+	"Bombs 100%",
+	"Super Bombs 100%",
+	"Magic",
+	"Magic + Bombs",
+	"Magic + Rupees",
+	"Magic + Life",
+	"Magic 2"
+};
+
+char *eweapon_string[wMax-wEnemyWeapons] =
+{
+	"(None)",
+	"Fireball",
+	"Arrow",
+	"Boomerang",
+	"Sword",
+	"Rock",
+	"Magic",
+	"Bomb",
+	"Super Bomb",
+	"Lit Bomb",
+	"Lit Super Bomb",
+	"Fire Trail",
+	"Flame",
+	"Wind",
+	"Flame 2",
+	"Flame 2 Trail",
+	"Ice"
 };
 
 char *pattern_string[MAXPATTERNS] =
@@ -956,7 +1100,7 @@ int onDecMap();
 
 int onDumpScr();
 
-// these are here so that copy_dialog won't choke when compiling zelda
+// these are here so that copy_dialog won't choke when compiling zquest
 int d_jbutton_proc(int, DIALOG*, int)
 {
   return D_O_K;
@@ -976,5 +1120,6 @@ int d_savemidi_proc(int, DIALOG*, int)
 {
   return D_O_K;
 }
+
 
 

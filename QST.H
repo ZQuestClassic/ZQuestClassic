@@ -112,7 +112,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
 int readitems(PACKFILE *f, word version, word build, bool keepdata);
 int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readguys(PACKFILE *f, zquestheader *Header, bool keepdata);
-int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version);
+int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version);
 int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata);
 int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build, bool keepdata);

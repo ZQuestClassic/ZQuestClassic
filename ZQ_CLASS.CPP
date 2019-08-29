@@ -59,6 +59,8 @@ long ffprvx[32]={-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10
 long ffprvy[32]={-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
                   -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000};
 
+bool save_warn=true;
+
 void reset_dmap(int index)
 {
   bound(index,0,MAXDMAPS-1);
@@ -82,6 +84,29 @@ zmap::zmap()
   prv_cmbcycle=0;
   prv_advance=0;
   prv_freeze=0;
+  for(int i=0;i<6;i++)
+  {
+    if(i==0)
+  {
+    prvscr.data = NULL; prvscr.sflag = NULL; prvscr.cset = NULL;
+  }
+  prvlayers[i].data = NULL; prvlayers[i].sflag = NULL; prvlayers[i].cset = NULL;
+  }
+}
+zmap::~zmap()
+{
+  for(int i=0;i<6;i++)
+    {
+    if(i==0)
+    {
+      if(prvscr.data != NULL) delete [] prvscr.data;
+      if(prvscr.sflag != NULL) delete [] prvscr.sflag;
+      if(prvscr.cset != NULL) delete [] prvscr.cset;
+    }
+    if(prvlayers[i].data != NULL) delete [] prvlayers[i].data;
+    if(prvlayers[i].sflag != NULL) delete [] prvlayers[i].sflag;
+    if(prvlayers[i].cset != NULL) delete [] prvlayers[i].cset;
+    }
 }
 bool zmap::CanUndo() { return can_undo; }
 bool zmap::CanPaste() { return can_paste; }
@@ -140,13 +165,13 @@ bool zmap::reset_templates(bool validate)
   mapscr temp_mapscr;
   PACKFILE *f=NULL;
 
-  packfile_password(datapwd);
+  setPackfilePassword(datapwd);
   f=open_quest_template(&header, deletefilename, validate);
   get_version_and_build(f, &version, &build);
 
   if (!find_section(f, ID_MAPS))
   {
-    packfile_password(NULL);
+    setPackfilePassword(NULL);
     return false;
   }
 
@@ -172,37 +197,210 @@ bool zmap::reset_templates(bool validate)
     return false;
   }
 
+  zcmap temp_map;
+
+  if(version>12)
+  {
+      if(!p_getc(&(temp_map.tileWidth),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_getc(&(temp_map.tileHeight),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.subaWidth),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.subaHeight),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.subpWidth),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.subpHeight),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.scrResWidth),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.scrResHeight),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.viewWidth),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.viewHeight),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.viewX),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.viewY),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_getc(&(temp_map.subaTrans),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_getc(&(temp_map.subpTrans),f,true))
+      {
+        return qe_invalid;
+      }
+  }
+  else
+  {
+    temp_map.scrResWidth = 256;
+    temp_map.scrResHeight = 224;
+    temp_map.tileWidth = 16;
+    temp_map.tileHeight = 11;
+    temp_map.viewWidth = 256;
+    temp_map.viewHeight = 176;
+    temp_map.viewX = 0;
+    temp_map.viewY = 64;
+    temp_map.subaWidth = 256;
+    temp_map.subaHeight = 168;
+    temp_map.subaTrans = false;
+    temp_map.subpWidth = 256;
+    temp_map.subpHeight = 56;
+    temp_map.subpTrans = false;
+  }
   for (int i=0; i<MAPSCRSNORMAL; ++i)
   {
-    readmapscreen(f, &header, &temp_mapscr, sversion);
+    readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
   }
-  readmapscreen(f, &header, TheMaps+128, sversion);
-  readmapscreen(f, &header, TheMaps+129, sversion);
+  readmapscreen(f, &header, TheMaps+128, &temp_map, sversion);
+  readmapscreen(f, &header, TheMaps+129, &temp_map, sversion);
   for (int i=0; i<(MAPSCRS-(MAPSCRSNORMAL+2)); ++i)
   {
-    readmapscreen(f, &header, &temp_mapscr, sversion);
+    readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
+  }
+  if(version>12)
+  {
+      if(!p_getc(&(temp_map.tileWidth),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_getc(&(temp_map.tileHeight),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.subaWidth),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.subaHeight),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.subpWidth),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.subpHeight),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.scrResWidth),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.scrResHeight),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.viewWidth),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.viewHeight),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.viewX),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_igetw(&(temp_map.viewY),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_getc(&(temp_map.subaTrans),f,true))
+      {
+        return qe_invalid;
+      }
+    if(!p_getc(&(temp_map.subpTrans),f,true))
+      {
+        return qe_invalid;
+      }
+  }
+  else
+  {
+    temp_map.scrResWidth = 256;
+    temp_map.scrResHeight = 224;
+    temp_map.tileWidth = 16;
+    temp_map.tileHeight = 11;
+    temp_map.viewWidth = 256;
+    temp_map.viewHeight = 176;
+    temp_map.viewX = 0;
+    temp_map.viewY = 64;
+    temp_map.subaWidth = 256;
+    temp_map.subaHeight = 168;
+    temp_map.subaTrans = false;
+    temp_map.subpWidth = 256;
+    temp_map.subpHeight = 56;
+    temp_map.subpTrans = false;
   }
   for (int i=0; i<MAPSCRSNORMAL; ++i)
   {
-    readmapscreen(f, &header, &temp_mapscr, sversion);
+    readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
   }
-  readmapscreen(f, &header, TheMaps+MAPSCRS+128, sversion);
-  readmapscreen(f, &header, TheMaps+MAPSCRS+129, sversion);
+  readmapscreen(f, &header, TheMaps+MAPSCRS+128, &temp_map, sversion);
+  readmapscreen(f, &header, TheMaps+MAPSCRS+129, &temp_map, sversion);
 
   pack_fclose(f);
   if (deletefilename[0]==0)
   {
     delete_file(deletefilename);
   }
-  packfile_password(NULL);
+  setPackfilePassword(NULL);
 
   return true;
+}
+
+void zmap::clearzcmap(int map)
+{
+  ZCMaps[map].scrResWidth = 256;
+  ZCMaps[map].scrResHeight = 224;
+  ZCMaps[map].tileWidth = 16;
+  ZCMaps[map].tileHeight = 11;
+  ZCMaps[map].viewWidth = 256;
+  ZCMaps[map].viewHeight = 176;
+  ZCMaps[map].viewX = 0;
+  ZCMaps[map].viewY = 64;
+  ZCMaps[map].subaWidth = 256;
+  ZCMaps[map].subaHeight = 168;
+  ZCMaps[map].subaTrans = false;
+  ZCMaps[map].subpWidth = 256;
+  ZCMaps[map].subpHeight = 56;
+  ZCMaps[map].subpTrans = false;
 }
 
 bool zmap::clearmap(bool newquest)
 {
   if(currmap<map_count)
   {
+    clearzcmap(currmap);
     for(int i=0; i<MAPSCRS-(newquest?0:TEMPLATES); i++)
     {
       clearscr(i);
@@ -225,13 +423,49 @@ mapscr* zmap::AbsoluteScr(int scr)          { return TheMaps+scr; }
 mapscr* zmap::AbsoluteScr(int map, int scr) { return TheMaps+(map*MAPSCRS)+scr; }
 void zmap::set_prvscr(int map, int scr)
 {
+  if(prvscr.data!=NULL) delete [] prvscr.data;
+  if(prvscr.sflag!=NULL) delete [] prvscr.sflag;
+  if(prvscr.cset!=NULL) delete [] prvscr.cset;
   prvscr=TheMaps[(map*MAPSCRS)+scr];
-  prvlayers[0]=TheMaps[((prvscr.layermap[0]?prvscr.layermap[0]-1:0)*MAPSCRS)+prvscr.layerscreen[0]];
-  prvlayers[1]=TheMaps[((prvscr.layermap[1]?prvscr.layermap[1]-1:0)*MAPSCRS)+prvscr.layerscreen[1]];
-  prvlayers[2]=TheMaps[((prvscr.layermap[2]?prvscr.layermap[2]-1:0)*MAPSCRS)+prvscr.layerscreen[2]];
-  prvlayers[3]=TheMaps[((prvscr.layermap[3]?prvscr.layermap[3]-1:0)*MAPSCRS)+prvscr.layerscreen[3]];
-  prvlayers[4]=TheMaps[((prvscr.layermap[4]?prvscr.layermap[4]-1:0)*MAPSCRS)+prvscr.layerscreen[4]];
-  prvlayers[5]=TheMaps[((prvscr.layermap[5]?prvscr.layermap[5]-1:0)*MAPSCRS)+prvscr.layerscreen[5]];
+  prvscr.data=NULL; prvscr.sflag=NULL; prvscr.cset=NULL;
+  prvscr.data = new word[ZCMaps[map].tileWidth*ZCMaps[map].tileHeight];
+  memcpy(prvscr.data, TheMaps[(map*MAPSCRS)+scr].data, ZCMaps[map].tileWidth*ZCMaps[map].tileHeight*sizeof(word));
+  prvscr.sflag = new byte[ZCMaps[map].tileWidth*ZCMaps[map].tileHeight];
+  memcpy(prvscr.sflag, TheMaps[(map*MAPSCRS)+scr].sflag, ZCMaps[map].tileWidth*ZCMaps[map].tileHeight*sizeof(byte));
+  prvscr.cset = new byte[ZCMaps[map].tileWidth*ZCMaps[map].tileHeight];
+  memcpy(prvscr.cset, TheMaps[(map*MAPSCRS)+scr].cset, ZCMaps[map].tileWidth*ZCMaps[map].tileHeight*sizeof(byte));
+
+  for(int i=0; i<6; i++)
+  {
+    if (prvscr.layermap[i]>0)
+      {
+      if(prvlayers[i].data!=NULL) delete [] prvlayers[i].data;
+    if(prvlayers[i].sflag!=NULL) delete [] prvlayers[i].sflag;
+    if(prvlayers[i].cset!=NULL) delete [] prvlayers[i].cset;
+    if((ZCMaps[prvscr.layermap[i]-1].tileWidth==ZCMaps[map].tileWidth) && (ZCMaps[prvscr.layermap[i]-1].tileHeight==ZCMaps[map].tileHeight))
+    {
+          prvlayers[i]=TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]];
+      prvlayers[i].data = NULL; prvlayers[i].sflag = NULL; prvlayers[i].cset = NULL;
+      prvlayers[i].data = new word[(ZCMaps[map].tileWidth)*(ZCMaps[map].tileHeight)];
+      memcpy(prvlayers[i].data, TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]].data, (ZCMaps[map].tileWidth)*(ZCMaps[map].tileHeight)*sizeof(word));
+      prvlayers[i].sflag = new byte[(ZCMaps[map].tileWidth)*(ZCMaps[map].tileHeight)];
+      memcpy(prvlayers[i].sflag, TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]].sflag, (ZCMaps[map].tileWidth)*(ZCMaps[map].tileHeight)*sizeof(byte));
+      prvlayers[i].cset = new byte[(ZCMaps[map].tileWidth)*(ZCMaps[map].tileHeight)];
+      memcpy(prvlayers[i].cset, TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]].cset, (ZCMaps[map].tileWidth)*(ZCMaps[map].tileHeight)*sizeof(byte));
+    }
+    else
+    {
+      memset(prvlayers+i,0,sizeof(mapscr));
+    }
+      }
+      else
+      {
+      if(prvlayers[i].data!=NULL) delete [] prvlayers[i].data;
+    if(prvlayers[i].sflag!=NULL) delete [] prvlayers[i].sflag;
+    if(prvlayers[i].cset!=NULL) delete [] prvlayers[i].cset;
+        memset(prvlayers+i,0,sizeof(mapscr));
+      }
+  }
   prv_map=map;
   prv_scr=scr;
 }
@@ -441,6 +675,9 @@ void zmap::clearscr(int scr)
     for(unsigned i=0; i<sizeof(mapscr); i++)
     *(di++) = 0;
     */
+  if(screens[scr].data != NULL) delete [] screens[scr].data;
+  if(screens[scr].sflag != NULL) delete [] screens[scr].sflag;
+  if(screens[scr].cset != NULL) delete [] screens[scr].cset;
   memset(di, 0, sizeof(mapscr));
   /*
     for(int i=0; i<4; i++)
@@ -462,8 +699,15 @@ void zmap::clearscr(int scr)
   for(int i=0;i<32;i++)
   {
     screens[scr].ffwidth[i]=15;
-	screens[scr].ffheight[i]=15;
+  screens[scr].ffheight[i]=15;
   }
+  // These, too, will be changed later
+  screens[scr].data = new word[176];//[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+  memset(screens[scr].data, 0, 176*sizeof(word));//(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(word));
+  screens[scr].sflag = new byte[176];//[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+  memset(screens[scr].sflag, 0, 176);//(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
+  screens[scr].cset = new byte[176];//[(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)];
+  memset(screens[scr].cset, 0, 176);//(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight)*sizeof(byte));
 }
 
 void zmap::savescreen()
@@ -575,7 +819,6 @@ int zmap::save(char *path)
     return 3;
   }
   for(int i=0; i<MAPSCRS; i++)
-
   {
     if(!pfwrite(screens+i,sizeof(mapscr),f))
     {
@@ -619,7 +862,7 @@ void put_flags(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
     }
     if (combobuf[cmbdat].flag)
       {
-		rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
+    rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
         textprintf_ex(dest,z3smallfont,x+1,y+9,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
       }
   }
@@ -674,7 +917,7 @@ void put_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags,int sflag
     }
     if (combobuf[cmbdat].flag)
       {
-		  rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
+      rectfill(dest,x,y+(sflag?8:0),x+15,y+15,vc((combobuf[cmbdat].flag)&15));
         textprintf_ex(dest,z3smallfont,x+1,y+1,vc(15-((combobuf[cmbdat].flag)&15)),-1,"%d",combobuf[cmbdat].flag);
       }
   }
@@ -739,6 +982,45 @@ void over_combo(BITMAP *dest,int x,int y,word cmbdat,int cset,int flags)
     }
     */
 
+}
+
+void copy_mapscr(mapscr *dest, const mapscr *src)
+{
+  if(dest->data!=NULL)
+  {
+    delete[] dest->data;
+    dest->data=NULL;
+  }
+  if(dest->sflag!=NULL)
+  {
+    delete[] dest->sflag;
+    dest->sflag=NULL;
+  }
+  if(dest->cset!=NULL)
+  {
+    delete[] dest->cset;
+    dest->cset=NULL;
+  }
+
+  memcpy(dest, src, sizeof(mapscr));
+
+  if(src->data!=NULL)
+  {
+    dest->data=new word[176];// These array sizes will be changed to tileWidth*tileHeight leter
+    memcpy(dest->data, src->data, 176*sizeof(word));
+  }
+
+  if(src->sflag!=NULL)
+  {
+    dest->sflag=new byte[176];
+    memcpy(dest->sflag, src->sflag, 176*sizeof(byte));
+  }
+
+  if(src->cset!=NULL)
+  {
+    dest->cset=new byte[176];
+    memcpy(dest->cset, src->cset, 176*sizeof(byte));
+  }
 }
 
 void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,bool ignorepos)
@@ -1309,7 +1591,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
   for(int k=1;k<3;k++)
   {
     if(k==1&&layer->flags7&fLAYER2BG)
-	{
+  {
     if(LayerMaskInt[k+1]!=0)
     {
       layermap=layer->layermap[k]-1;
@@ -1320,21 +1602,21 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         {
           for (int i=0; i<176; i++)
           {
-			  put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags|dark,0);
+        put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags|dark,0);
           }
         }
         else
         {
           for (int i=0; i<176; i++)
           {
-			  put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags|dark,0);
+        put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags|dark,0);
           }
         }
       }
     }
-	}
-	if(k==2&&layer->flags7&fLAYER3BG)
-	{
+  }
+  if(k==2&&layer->flags7&fLAYER3BG)
+  {
     if(LayerMaskInt[k+1]!=0)
     {
       layermap=layer->layermap[k]-1;
@@ -1345,8 +1627,8 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         {
           for (int i=0; i<176; i++)
           {
-		    if(!(layer->flags7&fLAYER2BG))
-				put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags|dark,0);
+        if(!(layer->flags7&fLAYER2BG))
+        put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags|dark,0);
             else over_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],flags);
           }
         }
@@ -1354,14 +1636,14 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         {
           for (int i=0; i<176; i++)
           {
-		    if(!(layer->flags7&fLAYER2BG))
-			  put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags|dark,0);
+        if(!(layer->flags7&fLAYER2BG))
+        put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags|dark,0);
             else over_combo_translucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],flags,layer->layeropacity[k]);
           }
         }
       }
     }
-	}
+  }
   }
   if (LayerMaskInt[0]!=0)
   {
@@ -1370,8 +1652,8 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
       word cmbdat = layer->data[i];
       byte cmbcset = layer->cset[i];
       int cmbflag = layer->sflag[i];
-	  if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
-		over_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,flags);
+    if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
+    over_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,flags);
       else put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,antiflags|dark,cmbflag);
     }
   }
@@ -1409,35 +1691,33 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
     }
     if(k==0)
     {
-      /*for(int i=31;i>=0;i--)
-        {
+      for(int i=31;i>=0;i--)
+      {
         if(layer->ffdata[i])
         {
           if(!(layer->ffflags[i]&ffCHANGER))
-            over_combo(dest,(int)layer->ffx[i]+x,(int)layer->ffy[i]+y,layer->ffdata[i],layer->ffcset[i],flags);
+          {
+            if(!(layer->ffflags[i]&ffOVERLAY))
+            {
+              for(int j=0;j<(layer->ffheight[i]>>6)+1;j++)
+              {
+                for(int l=0;l<(layer->ffwidth[i]>>6)+1;l++)
+                {
+                  int tx=(layer->ffx[i]/10000)+(l*16)+x;
+                  int ty=(layer->ffy[i]/10000)+(j*16)+y;
+                  if(layer->ffflags[i]&ffTRANS)
+                  {
+                    overtiletranslucent16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
+                  }
+                  else
+                  {
+                    overtile16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
+                  }
+                }
+              }
+            }
+          }
         }
-      }*/
-      for(int i=31;i>=0;i--)
-      {
-	    if(layer->ffdata[i])
-	    {
-	      if(!(layer->ffflags[i]&ffCHANGER))
-	      {
-		    if(!(layer->ffflags[i]&ffOVERLAY))
-		    {
-	          //overcombo(framebuf,(int)layer->ffx[i],(int)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
-		      for(int j=0;j<(layer->ffheight[i]>>6)+1;j++)
-		      {
-		        for(int l=0;l<(layer->ffwidth[i]>>6)+1;l++)
-			    {
-			      if(layer->ffflags[i]&ffTRANS)
-			        overtiletranslucent16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(l), (layer->ffx[i]/10000)+(l*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
-			      else overtile16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(l), (layer->ffx[i]/10000)+(l*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
-			    }
-		      }
-		    }
-	      }
-	    }
       }
     }
   }
@@ -1643,52 +1923,51 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         }
       }
     }
-	if(k==4)
-	{
-    /*for(int i=31;i>=0;i--)
-      {
+  if(k==4)
+  {
+    for(int i=31;i>=0;i--)
+    {
       if(layer->ffdata[i])
       {
         if(!(layer->ffflags[i]&ffCHANGER))
-          over_combo(dest,(int)layer->ffx[i]+x,(int)layer->ffy[i]+y,layer->ffdata[i],layer->ffcset[i],flags);
+        {
+          if(layer->ffflags[i]&ffOVERLAY)
+          {
+              //overcombo(framebuf,(int)layer->ffx[i],(int)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
+            for(int j=0;j<(layer->ffheight[i]>>6)+1;j++)
+            {
+              for(int l=0;l<(layer->ffwidth[i]>>6)+1;l++)
+              {
+                  int tx=(layer->ffx[i]/10000)+(l*16)+x;
+                  int ty=(layer->ffy[i]/10000)+(j*16)+y;
+                  if(layer->ffflags[i]&ffTRANS)
+                  {
+                    overtiletranslucent16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
+                  }
+                  else
+                  {
+                    overtile16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
+                  }
+              }
+            }
+          }
+        }
       }
-    }*/
-      for(int i=31;i>=0;i--)
+    }
+  }
+  if(k==5)
+  {
+    for(int i=31;i>=0;i--)
+    {
+      if(layer->ffdata[i])
       {
-	    if(layer->ffdata[i])
-	    {
-	      if(!(layer->ffflags[i]&ffCHANGER))
-	      {
-		    if(layer->ffflags[i]&ffOVERLAY)
-		    {
-	          //overcombo(framebuf,(int)layer->ffx[i],(int)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
-		      for(int j=0;j<(layer->ffheight[i]>>6)+1;j++)
-		      {
-		        for(int l=0;l<(layer->ffwidth[i]>>6)+1;l++)
-			    {
-			      if(layer->ffflags[i]&ffTRANS)
-			        overtiletranslucent16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(l), (layer->ffx[i]/10000)+(l*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
-			      else overtile16(dest, combobuf[layer->ffdata[i]].tile+(j*20)+(l), (layer->ffx[i]/10000)+(l*16)+x, (layer->ffy[i]/10000)+(j*16)+y, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
-			    }
-		      }
-		    }
-	      }
-	    }
+        if(layer->ffflags[i]&ffCHANGER)
+        {
+        putpixel(dest,(layer->ffx[i]/10000)+x,(layer->ffy[i]/10000)+y,vc(rand()%16));
       }
-	}
-	if(k==5)
-	{
-	  for(int i=31;i>=0;i--)
-	  {
-	    if(layer->ffdata[i])
-	    {
-	      if(layer->ffflags[i]&ffCHANGER)
-	      {
-		    putpixel(dest,(layer->ffx[i]/10000)+x,(layer->ffy[i]/10000)+y,vc(rand()%16));
-		  }
-		}
-	  }
-	}
+    }
+    }
+  }
   }
 
   if (flags&cWALK)
@@ -2700,10 +2979,12 @@ void zmap::putdoor(int scr,int side,int door)
 }
 
 void zmap::Ugo()
-
 {
   for (int x=0; x<128; x++)
-    undomap[x]=screens[x];
+  {
+    copy_mapscr(&undomap[x], &screens[x]);
+    //undomap[x]=screens[x];
+  }
   can_undo=true;
 }
 
@@ -2711,7 +2992,6 @@ void zmap::Uhuilai()
 {
   if(can_undo)
     for (int x=0; x<128; x++)
-
       swap(screens[x],undomap[x]);
 }
 
@@ -2719,7 +2999,8 @@ void zmap::Copy()
 {
   if(screens[currscr].valid&mVALID)
   {
-    copymapscr=screens[currscr];
+    copy_mapscr(&copymapscr, &screens[currscr]);
+    //copymapscr=screens[currscr];
     can_paste=true;
     copymap=currmap;
     copyscr=currscr;
@@ -2775,7 +3056,7 @@ void zmap::PasteUnderCombo()
   {
     Ugo();
     screens[currscr].undercombo = copymapscr.undercombo;
-	screens[currscr].undercset = copymapscr.undercset;
+  screens[currscr].undercset = copymapscr.undercset;
     saved=false;
   }
 }
@@ -2785,12 +3066,12 @@ void zmap::PasteSecretCombos()
   if(can_paste)
   {
     Ugo();
-	for(int i=0;i<128;i++)
-	{
+  for(int i=0;i<128;i++)
+  {
       screens[currscr].secretcombo[i] = copymapscr.secretcombo[i];
-	  screens[currscr].secretcset[i] = copymapscr.secretcset[i];
-	  screens[currscr].secretflag[i] = copymapscr.secretflag[i];
-	}
+    screens[currscr].secretcset[i] = copymapscr.secretcset[i];
+    screens[currscr].secretflag[i] = copymapscr.secretflag[i];
+  }
     saved=false;
   }
 }
@@ -2800,23 +3081,23 @@ void zmap::PasteFFCombos()
   if(can_paste)
   {
     Ugo();
-	screens[currscr].numff = copymapscr.numff;
-	for(int i=0;i<128;i++)
-	{
+  screens[currscr].numff = copymapscr.numff;
+  for(int i=0;i<128;i++)
+  {
       screens[currscr].ffdata[i] = copymapscr.ffdata[i];
-	  screens[currscr].ffcset[i] = copymapscr.ffcset[i];
-	  screens[currscr].ffx[i] = copymapscr.ffx[i];
-	  screens[currscr].ffy[i] = copymapscr.ffy[i];
-	  screens[currscr].ffxdelta[i] = copymapscr.ffxdelta[i];
-	  screens[currscr].ffydelta[i] = copymapscr.ffydelta[i];
-	  screens[currscr].ffxdelta2[i] = copymapscr.ffxdelta2[i];
-	  screens[currscr].ffydelta2[i] = copymapscr.ffydelta2[i];
-	  screens[currscr].fflink[i] = copymapscr.fflink[i];
-	  screens[currscr].ffdelay[i] = copymapscr.ffdelay[i];
-	  screens[currscr].ffwidth[i] = copymapscr.ffwidth[i];
-	  screens[currscr].ffheight[i] = copymapscr.ffheight[i];
-	  screens[currscr].ffflags[i] = copymapscr.ffflags[i];
-	}
+    screens[currscr].ffcset[i] = copymapscr.ffcset[i];
+    screens[currscr].ffx[i] = copymapscr.ffx[i];
+    screens[currscr].ffy[i] = copymapscr.ffy[i];
+    screens[currscr].ffxdelta[i] = copymapscr.ffxdelta[i];
+    screens[currscr].ffydelta[i] = copymapscr.ffydelta[i];
+    screens[currscr].ffxdelta2[i] = copymapscr.ffxdelta2[i];
+    screens[currscr].ffydelta2[i] = copymapscr.ffydelta2[i];
+    screens[currscr].fflink[i] = copymapscr.fflink[i];
+    screens[currscr].ffdelay[i] = copymapscr.ffdelay[i];
+    screens[currscr].ffwidth[i] = copymapscr.ffwidth[i];
+    screens[currscr].ffheight[i] = copymapscr.ffheight[i];
+    screens[currscr].ffflags[i] = copymapscr.ffflags[i];
+  }
     saved=false;
   }
 }
@@ -2826,16 +3107,16 @@ void zmap::PasteWarps()
   if(can_paste)
   {
     Ugo();
-	screens[currscr].sidewarpindex = copymapscr.sidewarpindex;
-	for(int i=0;i<4;i++)
-	{
+  screens[currscr].sidewarpindex = copymapscr.sidewarpindex;
+  for(int i=0;i<4;i++)
+  {
       screens[currscr].tilewarptype[i] = copymapscr.tilewarptype[i];
-	  screens[currscr].tilewarpdmap[i] = copymapscr.tilewarpdmap[i];
-	  screens[currscr].tilewarpscr[i] = copymapscr.tilewarpscr[i];
-	  screens[currscr].sidewarptype[i] = copymapscr.sidewarptype[i];
-	  screens[currscr].sidewarpdmap[i] = copymapscr.sidewarpdmap[i];
-	  screens[currscr].sidewarpscr[i] = copymapscr.sidewarpscr[i];
-	}
+    screens[currscr].tilewarpdmap[i] = copymapscr.tilewarpdmap[i];
+    screens[currscr].tilewarpscr[i] = copymapscr.tilewarpscr[i];
+    screens[currscr].sidewarptype[i] = copymapscr.sidewarptype[i];
+    screens[currscr].sidewarpdmap[i] = copymapscr.sidewarpdmap[i];
+    screens[currscr].sidewarpscr[i] = copymapscr.sidewarpscr[i];
+  }
     saved=false;
   }
 }
@@ -2846,35 +3127,35 @@ void zmap::PasteScreenData()
   {
     Ugo();
     screens[currscr].csensitive = copymapscr.csensitive;
-	screens[currscr].flags = copymapscr.flags;
-	screens[currscr].flags2 = copymapscr.flags2;
-	screens[currscr].flags3 = copymapscr.flags3;
-	screens[currscr].flags4 = copymapscr.flags4;
-	screens[currscr].flags5 = copymapscr.flags5;
-	screens[currscr].flags6 = copymapscr.flags6;
-	screens[currscr].flags7 = copymapscr.flags7;
-	screens[currscr].flags8 = copymapscr.flags8;
-	screens[currscr].flags9 = copymapscr.flags9;
-	screens[currscr].flags10 = copymapscr.flags10;
-	screens[currscr].item = copymapscr.item;
-	screens[currscr].hasitem = copymapscr.hasitem;
-	screens[currscr].itemx = copymapscr.itemx;
-	screens[currscr].itemy = copymapscr.itemy;
-	screens[currscr].nextmap = copymapscr.nextmap;
-	screens[currscr].nextscr = copymapscr.nextscr;
-	screens[currscr].nocarry = copymapscr.nocarry;
-	screens[currscr].noreset = copymapscr.noreset;
-	screens[currscr].path[0] = copymapscr.path[0];
-	screens[currscr].path[1] = copymapscr.path[1];
-	screens[currscr].path[2] = copymapscr.path[2];
-	screens[currscr].path[3] = copymapscr.path[3];
-	screens[currscr].pattern = copymapscr.pattern;
-	screens[currscr].exitdir = copymapscr.exitdir;
-	screens[currscr].enemyflags = copymapscr.enemyflags;
-	screens[currscr].screen_midi = copymapscr.screen_midi;
-	screens[currscr].stairx = copymapscr.stairx;
-	screens[currscr].stairy = copymapscr.stairy;
-	screens[currscr].timedwarptics = copymapscr.timedwarptics;
+  screens[currscr].flags = copymapscr.flags;
+  screens[currscr].flags2 = copymapscr.flags2;
+  screens[currscr].flags3 = copymapscr.flags3;
+  screens[currscr].flags4 = copymapscr.flags4;
+  screens[currscr].flags5 = copymapscr.flags5;
+  screens[currscr].flags6 = copymapscr.flags6;
+  screens[currscr].flags7 = copymapscr.flags7;
+  screens[currscr].flags8 = copymapscr.flags8;
+  screens[currscr].flags9 = copymapscr.flags9;
+  screens[currscr].flags10 = copymapscr.flags10;
+  screens[currscr].item = copymapscr.item;
+  screens[currscr].hasitem = copymapscr.hasitem;
+  screens[currscr].itemx = copymapscr.itemx;
+  screens[currscr].itemy = copymapscr.itemy;
+  screens[currscr].nextmap = copymapscr.nextmap;
+  screens[currscr].nextscr = copymapscr.nextscr;
+  screens[currscr].nocarry = copymapscr.nocarry;
+  screens[currscr].noreset = copymapscr.noreset;
+  screens[currscr].path[0] = copymapscr.path[0];
+  screens[currscr].path[1] = copymapscr.path[1];
+  screens[currscr].path[2] = copymapscr.path[2];
+  screens[currscr].path[3] = copymapscr.path[3];
+  screens[currscr].pattern = copymapscr.pattern;
+  screens[currscr].exitdir = copymapscr.exitdir;
+  screens[currscr].enemyflags = copymapscr.enemyflags;
+  screens[currscr].screen_midi = copymapscr.screen_midi;
+  screens[currscr].stairx = copymapscr.stairx;
+  screens[currscr].stairy = copymapscr.stairy;
+  screens[currscr].timedwarptics = copymapscr.timedwarptics;
     saved=false;
   }
 }
@@ -2884,14 +3165,14 @@ void zmap::PasteWarpLocations()
   if(can_paste)
   {
     Ugo();
-	screens[currscr].warpreturnc = copymapscr.warpreturnc;
-	screens[currscr].warparrivalx = copymapscr.warparrivalx;
-	screens[currscr].warparrivaly = copymapscr.warparrivaly;
-	for(int i=0;i<4;i++)
-	{
-	  screens[currscr].warpreturnx[i] = copymapscr.warpreturnx[i];
-	  screens[currscr].warpreturny[i] = copymapscr.warpreturny[i];
-	}
+  screens[currscr].warpreturnc = copymapscr.warpreturnc;
+  screens[currscr].warparrivalx = copymapscr.warparrivalx;
+  screens[currscr].warparrivaly = copymapscr.warparrivaly;
+  for(int i=0;i<4;i++)
+  {
+    screens[currscr].warpreturnx[i] = copymapscr.warpreturnx[i];
+    screens[currscr].warpreturny[i] = copymapscr.warpreturny[i];
+  }
     saved=false;
   }
 }
@@ -2901,9 +3182,9 @@ void zmap::PasteDoors()
   if(can_paste)
   {
     Ugo();
-	for(int i=0;i<4;i++)
+  for(int i=0;i<4;i++)
       screens[currscr].door[i] = copymapscr.door[i];
-	screens[currscr].door_combo_set = copymapscr.door_combo_set;
+  screens[currscr].door_combo_set = copymapscr.door_combo_set;
     saved=false;
   }
 }
@@ -2913,12 +3194,12 @@ void zmap::PasteLayers()
   if(can_paste)
   {
     Ugo();
-	for(int i=0;i<6;i++)
-	{
+  for(int i=0;i<6;i++)
+  {
       screens[currscr].layermap[i] = copymapscr.layermap[i];
-	  screens[currscr].layerscreen[i] = copymapscr.layerscreen[i];
-	  screens[currscr].layeropacity[i] = copymapscr.layeropacity[i];
-	}
+    screens[currscr].layerscreen[i] = copymapscr.layerscreen[i];
+    screens[currscr].layeropacity[i] = copymapscr.layeropacity[i];
+  }
     saved=false;
   }
 }
@@ -2929,7 +3210,7 @@ void zmap::PasteRoom()
   {
     Ugo();
     screens[currscr].room = copymapscr.room;
-	screens[currscr].catchall = copymapscr.catchall;
+  screens[currscr].catchall = copymapscr.catchall;
     saved=false;
   }
 }
@@ -2940,7 +3221,7 @@ void zmap::PasteGuy()
   {
     Ugo();
     screens[currscr].guy = copymapscr.guy;
-	screens[currscr].str = copymapscr.str;
+  screens[currscr].str = copymapscr.str;
     saved=false;
   }
 }
@@ -2951,7 +3232,8 @@ void zmap::PasteAll()
   {
     Ugo();
     int oldcolor=getcolor();
-    screens[currscr]=copymapscr;
+    copy_mapscr(&screens[currscr], &copymapscr);
+    //screens[currscr]=copymapscr;
     int newcolor=getcolor();
     loadlvlpal(newcolor);
     if (!(screens[currscr].valid&mVALID))
@@ -3012,7 +3294,8 @@ void zmap::PasteAllToAll()
     int oldcolor=getcolor();
     for (int x=0; x<128; x++)
     {
-      screens[x]=copymapscr;
+      copy_mapscr(&screens[x], &copymapscr);
+      //screens[x]=copymapscr;
     }
     int newcolor=getcolor();
     loadlvlpal(newcolor);
@@ -3047,8 +3330,8 @@ void zmap::update_combo_cycling()
   for (int i=0; i<176; i++)
   {
     x=prvscr.data[i];
-    y=animated_combo_table[x][0];
-    //time to restart
+	y=animated_combo_table[x][0];
+	//time to restart
     if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
@@ -3074,10 +3357,10 @@ void zmap::update_combo_cycling()
 
   for(int i=0;i<32;i++)
   {
-	  x=prvscr.ffdata[i];
-	  y=animated_combo_table[x][0];
-	  //time to restart
-	  if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
+    x=prvscr.ffdata[i];
+    y=animated_combo_table[x][0];
+    //time to restart
+    if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
       {
@@ -3088,10 +3371,10 @@ void zmap::update_combo_cycling()
 
   for(int i=0;i<32;i++)
   {
-	  x=prvscr.ffdata[i];
-	  y=animated_combo_table2[x][0];
-	  //time to restart
-	  if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
+    x=prvscr.ffdata[i];
+    y=animated_combo_table2[x][0];
+    //time to restart
+    if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
       {
@@ -3102,35 +3385,37 @@ void zmap::update_combo_cycling()
 
   if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
   {
-    for (int j=0; j<6; j++)
-    {
-      for (int i=0; i<176; i++)
-      {
-        x=(prvlayers[j]).data[i];
-        y=animated_combo_table[x][0];
-        //time to restart
-        if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
-            (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
-            (combobuf[x].nextcombo!=0))
-        {
-          (prvlayers[j]).data[i]=combobuf[x].nextcombo;
-          (prvlayers[j]).cset[i]=combobuf[x].nextcset;
-        }
-      }
-	  for (int i=0; i<176; i++)
-      {
-        x=(prvlayers[j]).data[i];
-        y=animated_combo_table2[x][0];
-        //time to restart
-        if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
-            (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
-            (combobuf[x].nextcombo!=0))
-        {
-          (prvlayers[j]).data[i]=combobuf[x].nextcombo;
-          (prvlayers[j]).cset[i]=combobuf[x].nextcset;
-        }
-      }
-    }
+	  for	(int j=0; j<6; j++)
+	  {
+		  if(prvlayers[j].data==NULL)
+			  continue;
+		  for (int i=0;	i<176; i++)
+		  {
+			  x=(prvlayers[j]).data[i];
+			  y=animated_combo_table[x][0];
+			  //time to restart
+			  if ((animated_combo_table4[y][1]>=combobuf[x].speed) &&
+				  (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1)	&&
+				  (combobuf[x].nextcombo!=0))
+			  {
+				  (prvlayers[j]).data[i]=combobuf[x].nextcombo;
+				  (prvlayers[j]).cset[i]=combobuf[x].nextcset;
+			  }
+		  }
+		  for	(int i=0; i<176; i++)
+		  {
+			  x=(prvlayers[j]).data[i];
+			  y=animated_combo_table2[x][0];
+			  //time to restart
+			  if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
+				  (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+				  (combobuf[x].nextcombo!=0))
+			  {
+				  (prvlayers[j]).data[i]=combobuf[x].nextcombo;
+				  (prvlayers[j]).cset[i]=combobuf[x].nextcset;
+			  }
+		  }
+	  }
   }
   return;
 }
@@ -3143,40 +3428,40 @@ void zmap::update_freeform_combos()
   }
   for(int i=0;i<32;i++)
   {
-	if(!(prvscr.ffflags[i]&ffCHANGER) && prvscr.ffdata[i]!=0 && !(prvscr.ffflags[i]&ffSTATIONARY))
-	{
+  if(!(prvscr.ffflags[i]&ffCHANGER) && prvscr.ffdata[i]!=0 && !(prvscr.ffflags[i]&ffSTATIONARY))
+  {
 
-	  if(prvscr.fflink[i] ? !prvscr.ffdelay[prvscr.fflink[i]] : !prvscr.ffdelay[i])
-	  {
-	    if(prvscr.fflink[i]&&(prvscr.fflink[i]-1)!=i)
-	    {
+    if(prvscr.fflink[i] ? !prvscr.ffdelay[prvscr.fflink[i]] : !prvscr.ffdelay[i])
+    {
+      if(prvscr.fflink[i]&&(prvscr.fflink[i]-1)!=i)
+      {
         ffprvx[i] = prvscr.ffx[i];
         ffprvy[i] = prvscr.ffy[i];
-	      prvscr.ffx[i]+=prvscr.ffxdelta[prvscr.fflink[i]-1];
-	      prvscr.ffy[i]+=prvscr.ffydelta[prvscr.fflink[i]-1];
-	    }
-	    else
-	    {
+        prvscr.ffx[i]+=prvscr.ffxdelta[prvscr.fflink[i]-1];
+        prvscr.ffy[i]+=prvscr.ffydelta[prvscr.fflink[i]-1];
+      }
+      else
+      {
         ffprvx[i] = prvscr.ffx[i];
         ffprvy[i] = prvscr.ffy[i];
-	      prvscr.ffx[i]+=prvscr.ffxdelta[i];
-	      prvscr.ffy[i]+=prvscr.ffydelta[i];
-	      prvscr.ffxdelta[i]+=prvscr.ffxdelta2[i];
-	      prvscr.ffydelta[i]+=prvscr.ffydelta2[i];
+        prvscr.ffx[i]+=prvscr.ffxdelta[i];
+        prvscr.ffy[i]+=prvscr.ffydelta[i];
+        prvscr.ffxdelta[i]+=prvscr.ffxdelta2[i];
+        prvscr.ffydelta[i]+=prvscr.ffydelta2[i];
         if(prvscr.ffxdelta[i]>1280000) prvscr.ffxdelta[i]=1280000;
         if(prvscr.ffxdelta[i]<-1280000) prvscr.ffxdelta[i]=-1280000;
         if(prvscr.ffydelta[i]>1280000) prvscr.ffydelta[i]=1280000;
         if(prvscr.ffydelta[i]<-1280000) prvscr.ffydelta[i]=-1280000;
-	    }
-	  }
-	  else
-	  {
-	    if(!prvscr.fflink[i] || (prvscr.fflink[i]-1)==i)
-	      prvscr.ffdelay[i]--;
-	  }
-	  if(prvscr.ffx[i]<-320000)
-	  {
-	    if(prvscr.flags6&fWRAPAROUNDFF)
+      }
+    }
+    else
+    {
+      if(!prvscr.fflink[i] || (prvscr.fflink[i]-1)==i)
+        prvscr.ffdelay[i]--;
+    }
+    if(prvscr.ffx[i]<-320000)
+    {
+      if(prvscr.flags6&fWRAPAROUNDFF)
       {
         prvscr.ffx[i] = (2880000-(prvscr.ffx[i]+320000));
         ffprvx[i] = prvscr.ffx[i];
@@ -3186,23 +3471,23 @@ void zmap::update_freeform_combos()
         prvscr.ffdata[i]=0;
         prvscr.ffflags[i]&=~ffCARRYOVER;
       }
-	  }
-	  if(prvscr.ffy[i]<-320000)
-	  {
-	    if(prvscr.flags6&fWRAPAROUNDFF)
-		{
-			prvscr.ffy[i] = 2080000-(prvscr.ffy[i]+320000);
-			ffprvx[i] = prvscr.ffx[i];
-		}
-		else
-		{
-			prvscr.ffdata[i]=0;
-			prvscr.ffflags[i]&=~ffCARRYOVER;
-		}
-	  }
-	  if(prvscr.ffx[i]>=2880000)
-	  {
-	    if(prvscr.flags6&fWRAPAROUNDFF)
+    }
+    if(prvscr.ffy[i]<-320000)
+    {
+      if(prvscr.flags6&fWRAPAROUNDFF)
+    {
+      prvscr.ffy[i] = 2080000-(prvscr.ffy[i]+320000);
+      ffprvx[i] = prvscr.ffx[i];
+    }
+    else
+    {
+      prvscr.ffdata[i]=0;
+      prvscr.ffflags[i]&=~ffCARRYOVER;
+    }
+    }
+    if(prvscr.ffx[i]>=2880000)
+    {
+      if(prvscr.flags6&fWRAPAROUNDFF)
       {
         prvscr.ffx[i] = prvscr.ffx[i]-2880000-320000;
         ffprvy[i] = prvscr.ffy[i];
@@ -3212,10 +3497,10 @@ void zmap::update_freeform_combos()
         prvscr.ffdata[i]=0;
         prvscr.ffflags[i]&=~ffCARRYOVER;
       }
-	  }
-	  if(prvscr.ffy[i]>=2080000)
-	  {
-	    if(prvscr.flags6&fWRAPAROUNDFF)
+    }
+    if(prvscr.ffy[i]>=2080000)
+    {
+      if(prvscr.flags6&fWRAPAROUNDFF)
       {
         prvscr.ffy[i] = prvscr.ffy[i]-2080000-320000;
         ffprvy[i] = prvscr.ffy[i];
@@ -3225,75 +3510,76 @@ void zmap::update_freeform_combos()
         prvscr.ffdata[i]=0;
         prvscr.ffflags[i]&=~ffCARRYOVER;
       }
-	  }
+    }
 
-	  for(int j=0;j<32;j++)
-	  {
-	    if(i!=j)
-		{
-		  if(prvscr.ffflags[j]&ffCHANGER)
-		  {
-		    if((((prvscr.ffx[j]/10000)!=ffposx[i])||((prvscr.ffy[j]/10000)!=ffposy[i]))&&(prvscr.fflink[i]==0))
-			{
-			  if((isonline(prvscr.ffx[i],prvscr.ffy[i],ffprvx[i],ffprvy[i],prvscr.ffx[j],prvscr.ffy[j])||
-				  ((prvscr.ffx[i]==prvscr.ffx[j])&&(prvscr.ffy[i]==prvscr.ffy[j])))&&(ffprvx[i]>-10000000&&ffprvy[i]>-10000000))
-			  {
-			    //prvscr.ffdata[i]=prvscr.ffdata[j];
-			    //prvscr.ffcset[i]=prvscr.ffcset[j];
-				if(prvscr.ffflags[j]&ffCHANGETHIS)
-				{
-				  prvscr.ffdata[i] = prvscr.ffdata[j];
-				  prvscr.ffcset[i] = prvscr.ffcset[j];
-				}
-				if(prvscr.ffflags[j]&ffCHANGENEXT)
-				  prvscr.ffdata[i]++;
-				if(prvscr.ffflags[j]&ffCHANGEPREV)
-				  prvscr.ffdata[i]--;
-			    prvscr.ffdelay[i]=prvscr.ffdelay[j];
-			    prvscr.ffx[i]=prvscr.ffx[j];
-			    prvscr.ffy[i]=prvscr.ffy[j];
-			    prvscr.ffxdelta[i]=prvscr.ffxdelta[j];
-			    prvscr.ffydelta[i]=prvscr.ffydelta[j];
-			    prvscr.ffxdelta2[i]=prvscr.ffxdelta2[j];
-			    prvscr.ffydelta2[i]=prvscr.ffydelta2[j];
-			    prvscr.fflink[i]=prvscr.fflink[j];
-				prvscr.ffwidth[i]=prvscr.ffwidth[j];
-				prvscr.ffheight[i]=prvscr.ffheight[j];
-				if(prvscr.ffflags[i]&ffCARRYOVER)
-				  prvscr.ffflags[i]=prvscr.ffflags[j]&ffCARRYOVER;
-				else prvscr.ffflags[i]=prvscr.ffflags[j];
-			    ffposx[i]=(short)(prvscr.ffx[j]/10000);
-			    ffposy[i]=(short)(prvscr.ffy[j]/10000);
+    for(int j=0;j<32;j++)
+    {
+      if(i!=j)
+    {
+      if(prvscr.ffflags[j]&ffCHANGER)
+      {
+        if((((prvscr.ffx[j]/10000)!=ffposx[i])||((prvscr.ffy[j]/10000)!=ffposy[i]))&&(prvscr.fflink[i]==0))
+      {
+        if((isonline(prvscr.ffx[i],prvscr.ffy[i],ffprvx[i],ffprvy[i],prvscr.ffx[j],prvscr.ffy[j])||
+          ((prvscr.ffx[i]==prvscr.ffx[j])&&(prvscr.ffy[i]==prvscr.ffy[j])))&&(ffprvx[i]>-10000000&&ffprvy[i]>-10000000))
+        {
+          //prvscr.ffdata[i]=prvscr.ffdata[j];
+          //prvscr.ffcset[i]=prvscr.ffcset[j];
+        if(prvscr.ffflags[j]&ffCHANGETHIS)
+        {
+          prvscr.ffdata[i] = prvscr.ffdata[j];
+          prvscr.ffcset[i] = prvscr.ffcset[j];
+        }
+        if(prvscr.ffflags[j]&ffCHANGENEXT)
+          prvscr.ffdata[i]++;
+        if(prvscr.ffflags[j]&ffCHANGEPREV)
+          prvscr.ffdata[i]--;
+          prvscr.ffdelay[i]=prvscr.ffdelay[j];
+          prvscr.ffx[i]=prvscr.ffx[j];
+          prvscr.ffy[i]=prvscr.ffy[j];
+          prvscr.ffxdelta[i]=prvscr.ffxdelta[j];
+          prvscr.ffydelta[i]=prvscr.ffydelta[j];
+          prvscr.ffxdelta2[i]=prvscr.ffxdelta2[j];
+          prvscr.ffydelta2[i]=prvscr.ffydelta2[j];
+          prvscr.fflink[i]=prvscr.fflink[j];
+        prvscr.ffwidth[i]=prvscr.ffwidth[j];
+        prvscr.ffheight[i]=prvscr.ffheight[j];
+        if(prvscr.ffflags[i]&ffCARRYOVER)
+          prvscr.ffflags[i]=prvscr.ffflags[j]&ffCARRYOVER;
+        else prvscr.ffflags[i]=prvscr.ffflags[j];
+          prvscr.ffflags[i]&=~ffCHANGER;
+          ffposx[i]=(short)(prvscr.ffx[j]/10000);
+          ffposy[i]=(short)(prvscr.ffy[j]/10000);
 
-			    if(combobuf[prvscr.ffdata[j]].flag>15 && combobuf[prvscr.ffdata[j]].flag<32)
-			    {
-			      prvscr.ffdata[j]=prvscr.secretcombo[combobuf[prvscr.ffdata[j]].flag-16+4];
-			    }
-				if((prvscr.ffflags[j]&ffSWAPNEXT)||(prvscr.ffflags[j]&ffSWAPPREV))
-				{
-				  int k=0;
-				  if(prvscr.ffflags[j]&ffSWAPNEXT)
-				    k=j<31?j+1:0;
-				  if(prvscr.ffflags[j]&ffSWAPPREV)
-					k=j>0?j-1:31;
-				  //swap(prvscr.ffx[j],prvscr.ffx[k]);
-				  //swap(prvscr.ffy[j],prvscr.ffy[k]);
-				  swap(prvscr.ffxdelta[j],prvscr.ffxdelta[k]);
-				  swap(prvscr.ffydelta[j],prvscr.ffydelta[k]);
-				  swap(prvscr.ffxdelta2[j],prvscr.ffxdelta2[k]);
-				  swap(prvscr.ffydelta2[j],prvscr.ffydelta2[k]);
-				  swap(prvscr.fflink[j],prvscr.fflink[k]);
-				  swap(prvscr.ffwidth[j],prvscr.ffwidth[k]);
-				  swap(prvscr.ffheight[j],prvscr.ffheight[k]);
-				  swap(prvscr.ffflags[j],prvscr.ffflags[k]);
-				}
-			  }
-			}
-		  }
-		}
-	  }
+          if(combobuf[prvscr.ffdata[j]].flag>15 && combobuf[prvscr.ffdata[j]].flag<32)
+          {
+            prvscr.ffdata[j]=prvscr.secretcombo[combobuf[prvscr.ffdata[j]].flag-16+4];
+          }
+        if((prvscr.ffflags[j]&ffSWAPNEXT)||(prvscr.ffflags[j]&ffSWAPPREV))
+        {
+          int k=0;
+          if(prvscr.ffflags[j]&ffSWAPNEXT)
+            k=j<31?j+1:0;
+          if(prvscr.ffflags[j]&ffSWAPPREV)
+          k=j>0?j-1:31;
+          //swap(prvscr.ffx[j],prvscr.ffx[k]);
+          //swap(prvscr.ffy[j],prvscr.ffy[k]);
+          swap(prvscr.ffxdelta[j],prvscr.ffxdelta[k]);
+          swap(prvscr.ffydelta[j],prvscr.ffydelta[k]);
+          swap(prvscr.ffxdelta2[j],prvscr.ffxdelta2[k]);
+          swap(prvscr.ffydelta2[j],prvscr.ffydelta2[k]);
+          swap(prvscr.fflink[j],prvscr.fflink[k]);
+          swap(prvscr.ffwidth[j],prvscr.ffwidth[k]);
+          swap(prvscr.ffheight[j],prvscr.ffheight[k]);
+          swap(prvscr.ffflags[j],prvscr.ffflags[k]);
+        }
+        }
+      }
+      }
+    }
+    }
 
-	}
+  }
   }
 }
 
@@ -3405,7 +3691,6 @@ void zmap::dowarp2(int ring,int index)
 
 /******************************/
 /******** ZQuest stuff ********/
-
 /******************************/
 char *MsgString(int index)
 {
@@ -3414,11 +3699,25 @@ char *MsgString(int index)
   char u[80];
   sprintf(u, "%d", index);
   s=strcat(u,": ");
-  char *t=MsgStrings[index].s;
-  while(*t==' ')
-    ++t;
-  s=strcat(s,t);
-  return s;
+
+  char *t = new char[73];
+  memset(t, 0, 73);
+  int i=0;
+  //return s;
+
+  //remove preceding spaces;
+  for(; MsgStrings[index].s[i]==' '; i++);
+  int msgptr=0;
+  for(; msgptr<72 && i<MSGSIZE; i++)
+  {
+    if(MsgStrings[index].s[i]>=32 && MsgStrings[index].s[i]<=126)
+    {
+      t[msgptr++]=MsgStrings[index].s[i];
+    }
+  }
+  for(;msgptr<=72;msgptr++)
+    t[msgptr]=0;
+  return strcat(s,t);
 }
 
 void reset_msgstr(int index)
@@ -3429,9 +3728,9 @@ void reset_msgstr(int index)
     for(int i=0; i<76; i++)
     *(s++)=0;
     */
-  memset(MsgStrings[index].s, 0, 73);
+  memset(MsgStrings[index].s, 0, MSGSIZE+1);
   MsgStrings[index].nextstring=0;
-  memset(MsgStrings[index].expansion, 0, 32);
+  //memset(MsgStrings[index].expansion, 0, 32);
 }
 
 void init_msgstrs()
@@ -3683,9 +3982,6 @@ bool load_tiles(char *path, int starttile)
 
 bool load_zgp(char *path)
 {
-//  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-//  return false;
-  //open the file
   dword section_id;
   dword section_version;
   dword section_cversion;
@@ -4020,8 +4316,8 @@ bool save_subscreen(char *path, bool *cancel)
 
   if(ret==0||ret==4)
   {
-	  *cancel=true;
-	  return true;
+    *cancel=true;
+    return true;
   }
   //open the file
   PACKFILE *f=pack_fopen(path,F_WRITE);
@@ -4087,7 +4383,7 @@ bool load_subscreen(char *path)
 
   if(ret==0||ret==4)
   {
-	  return true;
+    return true;
   }
   //open the file
   PACKFILE *f=pack_fopen(path,F_READ);
@@ -4107,8 +4403,8 @@ bool load_subscreen(char *path)
 
   if(section_id!=ID_SUBSCREEN)
   {
-	  pack_fclose(f);
-	  return false;
+    pack_fclose(f);
+    return false;
   }
 
   //section version info
@@ -4142,6 +4438,7 @@ bool setMapCount2(int c, bool reload)
   bool resized=true;
   PACKFILE *f=pack_fopen(tmpfilename,F_WRITE);
   int oldmapcount=map_count;
+  fake_pack_writing=false;
   if (reload)
   {
     for(int i=0; i<oldmapcount; i++)
@@ -4156,6 +4453,7 @@ bool setMapCount2(int c, bool reload)
   pack_fclose(f);
 
   free(TheMaps);
+  bound(c,1,MAXMAPS2);
   if((TheMaps=(mapscr*)malloc(sizeof(mapscr)*MAPSCRS*c))==NULL)
   {
     if((TheMaps=(mapscr*)malloc(sizeof(mapscr)*MAPSCRS*oldmapcount))==NULL)
@@ -4174,7 +4472,6 @@ bool setMapCount2(int c, bool reload)
 
   if (resized)
   {
-    bound(c,1,MAXMAPS2);
     map_count=c;
     int currmap=Map.getCurrMap();
 
@@ -4196,6 +4493,7 @@ bool setMapCount2(int c, bool reload)
       for (int mc=oldmapcount; mc<map_count; mc++)
       {
         Map.setCurrMap(mc);
+        Map.clearzcmap(mc);
         for (int ms=0; ms<MAPSCRS; ms++)
         {
           Map.clearscr(ms);
@@ -4228,6 +4526,8 @@ bool setMapCount2(int c, bool reload)
     Map.setCurrMap(bound(currmap,0,c-1));                   // for bound checking
     if (oldmapcount>c)
     {
+      if(!layers_valid(Map.CurrScr()))
+        fix_layers(Map.CurrScr(), false);
       refresh(rALL);
     }
   }
@@ -4253,8 +4553,8 @@ int init_quest()
   zinit.last_screen = 0;
   if(map != NULL)
   {
-	  destroy_bitmap(map);
-	  map=NULL;
+    destroy_bitmap(map);
+    map=NULL;
   }
   return 0;
 /* WTF is all of this dead code? -DD
@@ -4508,14 +4808,14 @@ bool quest_access(char *filename, zquestheader *hdr, bool compressed)
 int load_quest(char *filename, bool compressed, bool encrypted)
 {
   char buf[2048];
-  if(encrypted) packfile_password(datapwd);
+  if(encrypted) setPackfilePassword(datapwd);
   byte skip_flags[4];
   for (int i=0; i<4; ++i)
   {
     skip_flags[i]=0;
   }
   int ret=loadquest(filename,&header,&misc,customMIDIs,true,compressed,encrypted,true,skip_flags);
-  packfile_password(NULL);
+  setPackfilePassword(NULL);
 
   if(ret!=qe_OK)
   {
@@ -4549,11 +4849,11 @@ bool write_midi(MIDI *m,PACKFILE *f)
 {
   int c;
 
-  pack_mputw(m->divisions,f);
+  p_mputw(m->divisions,f);
 
   for(c=0; c<MIDI_TRACKS; c++)
   {
-    pack_mputl(m->track[c].len,f);
+    p_mputl(m->track[c].len,f);
 
     if(m->track[c].len > 0)
     {
@@ -4569,119 +4869,111 @@ int writeheader(PACKFILE *f, zquestheader *Header)
   dword section_id=ID_HEADER;
   dword section_version=V_HEADER;
   dword section_cversion=CV_HEADER;
-  dword section_size=22+18+131+20+2048+1;                    //+29;
+  dword section_size=0;
 
   //file header string
   if(!pfwrite(Header->id_str,sizeof(Header->id_str),f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 2;
+    new_return(2);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 3;
+    new_return(3);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 4;
+    new_return(4);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 5;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  if(!p_iputw(Header->zelda_version,f))
-  {
-    return 6;
-  }
-  if(!p_putc(Header->build,f))
-  {
-    return 7;
-  }
-  /*
-    if(!pfwrite(Header->password,sizeof(Header->password),f))
+    //section size
+    if(!p_iputl(section_size,f))
     {
-    return 8;
+      new_return(5);
     }
-    if(!p_iputw(Header->pwdkey,f))
+
+    writesize=0;
+
+    //finally...  section data
+    if(!p_iputw(Header->zelda_version,f))
     {
-    return 9;
+      new_return(6);
     }
-    */
-  if(!pfwrite(Header->pwd_hash,sizeof(Header->pwd_hash),f))
-  {
-    return 8;
-  }
-  if(!p_iputw(Header->internal,f))
-  {
-    return 10;
-  }
-  if(!p_putc(Header->quest_number,f))
-  {
-    return 11;
-  }
-  if(!pfwrite(Header->version,sizeof(Header->version),f))
-  {
-    return 12;
-  }
-  if(!pfwrite(Header->minver,sizeof(Header->minver),f))
-  {
-    return 13;
-  }
-  if(!pfwrite(Header->title,sizeof(Header->title),f))
-  {
-    return 14;
-  }
-  if(!pfwrite(Header->author,sizeof(Header->author),f))
-  {
-    return 15;
-  }
-  if(!p_putc(Header->use_keyfile,f))
-  {
-    return 16;
-  }
-  if(!pfwrite(Header->data_flags,sizeof(Header->data_flags),f))
-  {
-    return 17;
-  }
-  if(!pfwrite(Header->templatepath,sizeof(Header->templatepath),f))
-  {
-    return 19;
-  }
-  if(!p_putc(0,f)) //why are we doing this?
-  {
-    return 20;
+    if(!p_putc(Header->build,f))
+    {
+      new_return(7);
+    }
+    if(!pfwrite(Header->pwd_hash,sizeof(Header->pwd_hash),f))
+    {
+      new_return(8);
+    }
+    if(!p_iputw(Header->internal,f))
+    {
+      new_return(10);
+    }
+    if(!p_putc(Header->quest_number,f))
+    {
+      new_return(11);
+    }
+    if(!pfwrite(Header->version,sizeof(Header->version),f))
+    {
+      new_return(12);
+    }
+    if(!pfwrite(Header->minver,sizeof(Header->minver),f))
+    {
+      new_return(13);
+    }
+    if(!pfwrite(Header->title,sizeof(Header->title),f))
+    {
+      new_return(14);
+    }
+    if(!pfwrite(Header->author,sizeof(Header->author),f))
+    {
+      new_return(15);
+    }
+    if(!p_putc(Header->use_keyfile,f))
+    {
+      new_return(16);
+    }
+    if(!pfwrite(Header->data_flags,sizeof(Header->data_flags),f))
+    {
+      new_return(17);
+    }
+    if(!pfwrite(Header->templatepath,sizeof(Header->templatepath),f))
+    {
+      new_return(19);
+    }
+    if(!p_putc(0,f)) //why are we doing this?
+    {
+      new_return(20);
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //unneeded data
-  /*
-    if(!pfwrite(midi_flags,sizeof(midi_flags),f)){
-    return 18;
-    }
-    if(!pfwrite(Header->foo,sizeof(Header->foo),f)){
-    return 21;
-    }
-    if(!pfwrite(Header->foo2,sizeof(Header->foo2),f)){
-    return 22;
-    }
-    if(!p_putc(Header->old_str_count,f)){
-    return 23;
-    }
-    if(!p_putc(Header->old_options,f)){
-    return 24;
-    }
-    */
-  return 0;
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeheader()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writerules(PACKFILE *f, zquestheader *Header)
@@ -4692,36 +4984,57 @@ int writerules(PACKFILE *f, zquestheader *Header)
   dword section_id=ID_RULES;
   dword section_version=V_RULES;
   dword section_cversion=CV_RULES;
-  dword section_size=2*10;
+  dword section_size=0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!pfwrite(quest_rules,QUESTRULES_SIZE,f))
+    {
+      new_return(5);
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  if(!pfwrite(quest_rules,QUESTRULES_SIZE,f))
+  if (writesize!=int(section_size) && save_warn)
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writerules()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
-  return 0;
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 
@@ -4733,226 +5046,245 @@ int writedoorcombosets(PACKFILE *f, zquestheader *Header)
   dword section_id=ID_DOORS;
   dword section_version=V_DOORS;
   dword section_cversion=CV_DOORS;
-  dword section_size=2+door_combo_set_count*
-    (21+(3*9*4*2)+(3*9*6*2)+(3*2*2)+(3*2*3)+(3*4)+(2));
+  dword section_size=0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!p_iputw(door_combo_set_count,f))
+    {
+      new_return(5);
+    }
+
+    for (int i=0; i<door_combo_set_count; i++)
+    {
+      //name
+      if(!pfwrite(&DoorComboSets[i].name,sizeof(DoorComboSets[0].name),f))
+      {
+        new_return(6);
+      }
+      //up door
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<4; k++)
+        {
+          if(!p_iputw(DoorComboSets[i].doorcombo_u[j][k],f))
+          {
+            new_return(7);
+          }
+        }
+      }
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<4; k++)
+        {
+          if(!p_putc(DoorComboSets[i].doorcset_u[j][k],f))
+          {
+            new_return(8);
+          }
+        }
+      }
+
+      //down door
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<4; k++)
+        {
+          if(!p_iputw(DoorComboSets[i].doorcombo_d[j][k],f))
+          {
+            new_return(9);
+          }
+        }
+      }
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<4; k++)
+        {
+          if(!p_putc(DoorComboSets[i].doorcset_d[j][k],f))
+          {
+            new_return(10);
+          }
+        }
+      }
+
+
+      //left door
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<6; k++)
+        {
+          if(!p_iputw(DoorComboSets[i].doorcombo_l[j][k],f))
+
+          {
+            new_return(11);
+          }
+        }
+      }
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<6; k++)
+        {
+          if(!p_putc(DoorComboSets[i].doorcset_l[j][k],f))
+          {
+            new_return(12);
+          }
+        }
+      }
+
+      //right door
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<6; k++)
+        {
+          if(!p_iputw(DoorComboSets[i].doorcombo_r[j][k],f))
+          {
+            new_return(13);
+          }
+        }
+      }
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<6; k++)
+        {
+          if(!p_putc(DoorComboSets[i].doorcset_r[j][k],f))
+          {
+            new_return(14);
+          }
+        }
+      }
+
+
+      //up bomb rubble
+      for (int j=0; j<2; j++)
+      {
+        if(!p_iputw(DoorComboSets[i].bombdoorcombo_u[j],f))
+        {
+          new_return(15);
+        }
+      }
+      for (int j=0; j<2; j++)
+      {
+        if(!p_putc(DoorComboSets[i].bombdoorcset_u[j],f))
+        {
+          new_return(16);
+        }
+      }
+
+      //down bomb rubble
+      for (int j=0; j<2; j++)
+      {
+        if(!p_iputw(DoorComboSets[i].bombdoorcombo_d[j],f))
+        {
+          new_return(17);
+        }
+      }
+      for (int j=0; j<2; j++)
+      {
+        if(!p_putc(DoorComboSets[i].bombdoorcset_d[j],f))
+        {
+          new_return(18);
+        }
+      }
+
+      //left bomb rubble
+      for (int j=0; j<3; j++)
+      {
+        if(!p_iputw(DoorComboSets[i].bombdoorcombo_l[j],f))
+        {
+          new_return(19);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(DoorComboSets[i].bombdoorcset_l[j],f))
+        {
+          new_return(20);
+        }
+      }
+
+      //right bomb rubble
+      for (int j=0; j<3; j++)
+      {
+        if(!p_iputw(DoorComboSets[i].bombdoorcombo_r[j],f))
+        {
+          new_return(21);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(DoorComboSets[i].bombdoorcset_r[j],f))
+        {
+          new_return(22);
+        }
+      }
+
+      //walkthrough stuff
+      for (int j=0; j<4; j++)
+      {
+        if(!p_iputw(DoorComboSets[i].walkthroughcombo[j],f))
+        {
+          new_return(23);
+        }
+      }
+      for (int j=0; j<4; j++)
+      {
+        if(!p_putc(DoorComboSets[i].walkthroughcset[j],f))
+        {
+          new_return(24);
+        }
+      }
+
+      //flags
+      for (int j=0; j<2; j++)
+      {
+        if(!p_putc(DoorComboSets[i].flags[j],f))
+        {
+          new_return(25);
+        }
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  if(!p_iputw(door_combo_set_count,f))
+  if (writesize!=int(section_size) && save_warn)
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writedoorcombosets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  for (int i=0; i<door_combo_set_count; i++)
-  {
-    //name
-    if(!pfwrite(&DoorComboSets[i].name,sizeof(DoorComboSets[0].name),f))
-    {
-      return 6;
-    }
-    //up door
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<4; k++)
-      {
-        if(!p_iputw(DoorComboSets[i].doorcombo_u[j][k],f))
-        {
-          return 7;
-        }
-      }
-    }
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<4; k++)
-      {
-        if(!p_putc(DoorComboSets[i].doorcset_u[j][k],f))
-        {
-          return 8;
-        }
-      }
-    }
-
-    //down door
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<4; k++)
-      {
-        if(!p_iputw(DoorComboSets[i].doorcombo_d[j][k],f))
-        {
-          return 9;
-        }
-      }
-    }
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<4; k++)
-      {
-        if(!p_putc(DoorComboSets[i].doorcset_d[j][k],f))
-        {
-          return 10;
-        }
-      }
-    }
-
-
-    //left door
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<6; k++)
-      {
-        if(!p_iputw(DoorComboSets[i].doorcombo_l[j][k],f))
-
-        {
-          return 11;
-        }
-      }
-    }
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<6; k++)
-      {
-        if(!p_putc(DoorComboSets[i].doorcset_l[j][k],f))
-        {
-          return 12;
-        }
-      }
-    }
-
-    //right door
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<6; k++)
-      {
-        if(!p_iputw(DoorComboSets[i].doorcombo_r[j][k],f))
-        {
-          return 13;
-        }
-      }
-    }
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<6; k++)
-      {
-        if(!p_putc(DoorComboSets[i].doorcset_r[j][k],f))
-        {
-          return 14;
-        }
-      }
-    }
-
-
-    //up bomb rubble
-    for (int j=0; j<2; j++)
-    {
-      if(!p_iputw(DoorComboSets[i].bombdoorcombo_u[j],f))
-      {
-        return 15;
-      }
-    }
-    for (int j=0; j<2; j++)
-    {
-      if(!p_putc(DoorComboSets[i].bombdoorcset_u[j],f))
-      {
-        return 16;
-      }
-    }
-
-    //down bomb rubble
-    for (int j=0; j<2; j++)
-    {
-      if(!p_iputw(DoorComboSets[i].bombdoorcombo_d[j],f))
-      {
-        return 17;
-      }
-    }
-    for (int j=0; j<2; j++)
-    {
-      if(!p_putc(DoorComboSets[i].bombdoorcset_d[j],f))
-      {
-        return 18;
-      }
-    }
-
-    //left bomb rubble
-    for (int j=0; j<3; j++)
-    {
-      if(!p_iputw(DoorComboSets[i].bombdoorcombo_l[j],f))
-      {
-        return 19;
-      }
-    }
-    for (int j=0; j<3; j++)
-    {
-      if(!p_putc(DoorComboSets[i].bombdoorcset_l[j],f))
-      {
-        return 20;
-      }
-    }
-
-    //right bomb rubble
-    for (int j=0; j<3; j++)
-    {
-      if(!p_iputw(DoorComboSets[i].bombdoorcombo_r[j],f))
-      {
-        return 21;
-      }
-    }
-    for (int j=0; j<3; j++)
-    {
-      if(!p_putc(DoorComboSets[i].bombdoorcset_r[j],f))
-      {
-        return 22;
-      }
-    }
-
-    //walkthrough stuff
-    for (int j=0; j<4; j++)
-    {
-      if(!p_iputw(DoorComboSets[i].walkthroughcombo[j],f))
-      {
-        return 23;
-      }
-    }
-    for (int j=0; j<4; j++)
-    {
-      if(!p_putc(DoorComboSets[i].walkthroughcset[j],f))
-      {
-        return 24;
-      }
-    }
-
-    //flags
-    for (int j=0; j<2; j++)
-    {
-      if(!p_putc(DoorComboSets[i].flags[j],f))
-      {
-        return 25;
-      }
-    }
-
-  }
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_dmaps)
@@ -4965,144 +5297,182 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
   dword section_id=ID_DMAPS;
   dword section_version=V_DMAPS;
   dword section_cversion=CV_DMAPS;
-  dword section_size=2+(dmap_count*(16+42+73+12+56));
+  dword section_size=0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  dmap_count=min(dmap_count, max_dmaps);
-  dmap_count=min(dmap_count, MAXDMAPS-start_dmap);
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
 
-  //finally...  section data
-  if(!p_iputw(dmap_count,f))
-  {
-    return 5;
-  }
+    writesize=0;
+
+    dmap_count=min(dmap_count, max_dmaps);
+    dmap_count=min(dmap_count, MAXDMAPS-start_dmap);
+
+    //finally...  section data
+    if(!p_iputw(dmap_count,f))
+    {
+      new_return(5);
+    }
 
 
-  for (int i=start_dmap; i<start_dmap+dmap_count; i++)
-  {
-    if(!p_putc(DMaps[i].map,f))
+    for (int i=start_dmap; i<start_dmap+dmap_count; i++)
     {
-      return 6;
-    }
-    if(!p_putc(DMaps[i].level,f))
-    {
-      return 7;
-    }
-    if(!p_putc(DMaps[i].xoff,f))
-    {
-      return 8;
-    }
-    if(!p_putc(DMaps[i].compass,f))
-    {
-      return 9;
-    }
-    if(!p_putc(DMaps[i].color,f))
-    {
-      return 10;
-    }
-    if(!p_putc(DMaps[i].midi,f))
-    {
-      return 11;
-    }
-    if(!p_putc(DMaps[i].cont,f))
-    {
-      return 12;
-    }
-    if(!p_putc(DMaps[i].type,f))
-    {
-      return 13;
-    }
-    for (int j=0; j<8; j++)
-    {
-      if(!p_putc(DMaps[i].grid[j],f))
+      if(!p_putc(DMaps[i].map,f))
       {
-        return 14;
+        new_return(6);
+      }
+      if(!p_iputw(DMaps[i].level,f))
+      {
+        new_return(7);
+      }
+      if(!p_putc(DMaps[i].xoff,f))
+      {
+        new_return(8);
+      }
+      if(!p_putc(DMaps[i].compass,f))
+      {
+        new_return(9);
+      }
+      if(!p_putc(DMaps[i].color,f))
+      {
+        new_return(10);
+      }
+      if(!p_putc(DMaps[i].midi,f))
+      {
+        new_return(11);
+      }
+      if(!p_putc(DMaps[i].cont,f))
+      {
+        new_return(12);
+      }
+      if(!p_putc(DMaps[i].type,f))
+      {
+        new_return(13);
+      }
+      for (int j=0; j<8; j++)
+      {
+        if(!p_putc(DMaps[i].grid[j],f))
+        {
+          new_return(14);
+        }
+      }
+      //16
+      if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
+      {
+        new_return(15);
+      }
+      if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
+      {
+        new_return(16);
+      }
+      if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
+      {
+        new_return(17);
+      }
+      if(!p_iputw(DMaps[i].minimap_1_tile,f))
+      {
+        new_return(18);
+      }
+      if(!p_putc(DMaps[i].minimap_1_cset,f))
+      {
+        new_return(19);
+      }
+      if(!p_iputw(DMaps[i].minimap_2_tile,f))
+      {
+        new_return(20);
+      }
+      if(!p_putc(DMaps[i].minimap_2_cset,f))
+      {
+        new_return(21);
+      }
+      if(!p_iputw(DMaps[i].largemap_1_tile,f))
+      {
+        new_return(22);
+      }
+      if(!p_putc(DMaps[i].largemap_1_cset,f))
+      {
+        new_return(23);
+      }
+      if(!p_iputw(DMaps[i].largemap_2_tile,f))
+      {
+        new_return(24);
+      }
+      if(!p_putc(DMaps[i].largemap_2_cset,f))
+      {
+        new_return(25);
+      }
+      if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
+      {
+        new_return(26);
+      }
+      if(!p_putc(DMaps[i].tmusictrack,f))
+      {
+        new_return(25);
+      }
+      if(!p_putc(DMaps[i].active_subscreen,f))
+      {
+        new_return(26);
+      }
+      if(!p_putc(DMaps[i].passive_subscreen,f))
+      {
+        new_return(27);
+      }
+      byte disabled[32];
+      memset(disabled,0,32);
+      for (int j=0;j<MAXITEMS;j++)
+      {
+        if (DMaps[i].disableditems[j])
+        {
+          disabled[j/8] |= (1 << (j%8));
+        }
+      }
+      if(!pfwrite(disabled,32,f))
+      {
+        new_return(28);
+      }
+      if(!p_iputl(DMaps[i].flags,f))
+      {
+        new_return(29);
       }
     }
-    //16
-    if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
+
+    if (writecycle==0)
     {
-      return 15;
-    }
-    if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
-    {
-      return 16;
-    }
-    if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
-    {
-      return 17;
-    }
-    if(!p_iputw(DMaps[i].minimap_1_tile,f))
-    {
-      return 18;
-    }
-    if(!p_putc(DMaps[i].minimap_1_cset,f))
-    {
-      return 19;
-    }
-    if(!p_iputw(DMaps[i].minimap_2_tile,f))
-    {
-      return 20;
-    }
-    if(!p_putc(DMaps[i].minimap_2_cset,f))
-    {
-      return 21;
-    }
-    if(!p_iputw(DMaps[i].largemap_1_tile,f))
-    {
-      return 22;
-    }
-    if(!p_putc(DMaps[i].largemap_1_cset,f))
-    {
-      return 23;
-    }
-    if(!p_iputw(DMaps[i].largemap_2_tile,f))
-    {
-      return 24;
-    }
-    if(!p_putc(DMaps[i].largemap_2_cset,f))
-    {
-      return 25;
-    }
-    if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
-    {
-      return 26;
-    }
-    if(!p_putc(DMaps[i].tmusictrack,f))
-    {
-      return 25;
-    }
-    if(!p_putc(DMaps[i].active_subscreen,f))
-    {
-      return 26;
-    }
-    if(!p_putc(DMaps[i].passive_subscreen,f))
-    {
-      return 27;
+      section_size=writesize;
     }
   }
-  return 0;
+
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writedmaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
@@ -5113,147 +5483,163 @@ int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
   dword section_id=ID_COLORS;
   dword section_version=V_COLORS;
   dword section_cversion=CV_COLORS;
-  dword section_size = 22 * sizeof(char) + 6 * sizeof(word);
+  dword section_size = 0;
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    if(!p_putc(Misc->colors.text,f))
+    {
+      new_return(5);
+    }
+    if(!p_putc(Misc->colors.caption,f))
+    {
+      new_return(6);
+    }
+    if(!p_putc(Misc->colors.overw_bg,f))
+    {
+      new_return(7);
+    }
+    if(!p_putc(Misc->colors.dngn_bg,f))
+    {
+      new_return(8);
+    }
+    if(!p_putc(Misc->colors.dngn_fg,f))
+    {
+      new_return(9);
+    }
+    if(!p_putc(Misc->colors.cave_fg,f))
+    {
+      new_return(10);
+    }
+    if(!p_putc(Misc->colors.bs_dk,f))
+    {
+      new_return(11);
+    }
+    if(!p_putc(Misc->colors.bs_goal,f))
+    {
+      new_return(12);
+    }
+    if(!p_putc(Misc->colors.compass_lt,f))
+    {
+      new_return(13);
+    }
+    if(!p_putc(Misc->colors.compass_dk,f))
+    {
+      new_return(14);
+    }
+    if(!p_putc(Misc->colors.subscr_bg,f))
+    {
+      new_return(15);
+    }
+    if(!p_putc(Misc->colors.triframe_color,f))
+    {
+      new_return(16);
+    }
+    if(!p_putc(Misc->colors.link_dot,f))
+    {
+      new_return(17);
+    }
+    if(!p_putc(Misc->colors.bmap_bg,f))
+    {
+      new_return(18);
+    }
+    if(!p_putc(Misc->colors.bmap_fg,f))
+    {
+      new_return(19);
+    }
+    if(!p_putc(Misc->colors.triforce_cset,f))
+    {
+      new_return(20);
+    }
+    if(!p_putc(Misc->colors.triframe_cset,f))
+    {
+      new_return(21);
+    }
+    if(!p_putc(Misc->colors.overworld_map_cset,f))
+    {
+      new_return(22);
+    }
+    if(!p_putc(Misc->colors.dungeon_map_cset,f))
+    {
+      new_return(23);
+    }
+    if(!p_putc(Misc->colors.blueframe_cset,f))
+    {
+      new_return(24);
+    }
+    if(!p_iputw(Misc->colors.triforce_tile,f))
+    {
+      new_return(25);
+    }
+    if(!p_iputw(Misc->colors.triframe_tile,f))
+    {
+      new_return(26);
+    }
+    if(!p_iputw(Misc->colors.overworld_map_tile,f))
+    {
+      new_return(27);
+    }
+    if(!p_iputw(Misc->colors.dungeon_map_tile,f))
+    {
+      new_return(28);
+    }
+    if(!p_iputw(Misc->colors.blueframe_tile,f))
+    {
+      new_return(29);
+    }
+    if(!p_iputw(Misc->colors.HCpieces_tile,f))
+    {
+      new_return(30);
+    }
+    if(!p_putc(Misc->colors.HCpieces_cset,f))
+    {
+      new_return(31);
+    }
+    if(!p_putc(Misc->colors.subscr_shadow,f))
+    {
+      new_return(32);
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-
-  writesize=0;
-
-  if(!p_putc(Misc->colors.text,f))
+  if (writesize!=int(section_size) && save_warn)
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writemisccolors()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
-  if(!p_putc(Misc->colors.caption,f))
-  {
-    return 6;
-  }
-  if(!p_putc(Misc->colors.overw_bg,f))
-  {
-    return 7;
-  }
-  if(!p_putc(Misc->colors.dngn_bg,f))
-  {
-    return 8;
-  }
-  if(!p_putc(Misc->colors.dngn_fg,f))
-  {
-    return 9;
-  }
-  if(!p_putc(Misc->colors.cave_fg,f))
-  {
-    return 10;
-  }
-  if(!p_putc(Misc->colors.bs_dk,f))
-  {
-    return 11;
-  }
-  if(!p_putc(Misc->colors.bs_goal,f))
-  {
-    return 12;
-  }
-  if(!p_putc(Misc->colors.compass_lt,f))
-  {
-    return 13;
-  }
-  if(!p_putc(Misc->colors.compass_dk,f))
-  {
-    return 14;
-  }
-  if(!p_putc(Misc->colors.subscr_bg,f))
-  {
-    return 15;
-  }
-  if(!p_putc(Misc->colors.triframe_color,f))
-  {
-    return 16;
-  }
-  if(!p_putc(Misc->colors.link_dot,f))
-  {
-    return 17;
-  }
-  if(!p_putc(Misc->colors.bmap_bg,f))
-  {
-    return 18;
-  }
-  if(!p_putc(Misc->colors.bmap_fg,f))
-  {
-    return 19;
-  }
-  if(!p_putc(Misc->colors.triforce_cset,f))
-  {
-    return 20;
-  }
-  if(!p_putc(Misc->colors.triframe_cset,f))
-  {
-    return 21;
-  }
-  if(!p_putc(Misc->colors.overworld_map_cset,f))
-  {
-    return 22;
-  }
-  if(!p_putc(Misc->colors.dungeon_map_cset,f))
-  {
-    return 23;
-  }
-  if(!p_putc(Misc->colors.blueframe_cset,f))
-  {
-    return 24;
-  }
-  if(!p_iputw(Misc->colors.triforce_tile,f))
-  {
-    return 25;
-  }
-  if(!p_iputw(Misc->colors.triframe_tile,f))
-  {
-    return 26;
-  }
-  if(!p_iputw(Misc->colors.overworld_map_tile,f))
-  {
-    return 27;
-  }
-  if(!p_iputw(Misc->colors.dungeon_map_tile,f))
-  {
-    return 28;
-  }
-  if(!p_iputw(Misc->colors.blueframe_tile,f))
-  {
-    return 29;
-  }
-  if(!p_iputw(Misc->colors.HCpieces_tile,f))
-  {
-    return 30;
-  }
-  if(!p_putc(Misc->colors.HCpieces_cset,f))
-  {
-    return 31;
-  }
-  if(!p_putc(Misc->colors.subscr_shadow,f))
-  {
-    return 32;
-  }
-
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
@@ -5264,40 +5650,58 @@ int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
   dword section_id=ID_ICONS;
   dword section_version=V_ICONS;
   dword section_cversion=CV_ICONS;
-  dword section_size = 4 * sizeof(word);
+  dword section_size = 0;
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  writesize=0;
-
-  for (int i=0; i<4; i++)
-  {
-    if(!p_iputw(Misc->icons[i],f))
+    //section size
+    if(!p_iputl(section_size,f))
     {
-      return 5;
+      new_return(4);
+    }
+
+    writesize=0;
+
+    for (int i=0; i<4; i++)
+    {
+      if(!p_iputw(Misc->icons[i],f))
+      {
+        new_return(5);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
     }
   }
 
-  return 0;
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writegameicons()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
@@ -5313,281 +5717,163 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
   word warprings=count_warprings(Misc);
   word windwarps=count_windwarps(Misc);
   word triforces=8;
-  //  dword section_size=0;
-  dword section_size = sizeof(word) + shops * 3 * (sizeof(char) + sizeof(word))
-    + sizeof(word) + infos * 3 * 2 * sizeof(word)
-    + sizeof(word) + warprings * (8 * sizeof(char) + 8 * sizeof(char) + sizeof(char))
-    + sizeof(word) + windwarps * 2 * sizeof(char)
-    + triforces * sizeof(char)
-//    + 22 * sizeof(char) + 6 * sizeof(word)
-//    + 4 * sizeof(word)
-    + sizeof(word);
+  dword section_size = 0;
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-
-  writesize=0;
-  //shops
-  if(!p_iputw(shops,f))
-  {
-    return 5;
-  }
-  for (int i=0; i<shops; i++)
-  {
-    for (int j=0; j<3; j++)
+    //section size
+    if(!p_iputl(section_size,f))
     {
-	  if(!p_putc(Misc->shop[i].item[j],f))
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //shops
+    if(!p_iputw(shops,f))
+    {
+      new_return(5);
+    }
+    for (int i=0; i<shops; i++)
+    {
+      for (int j=0; j<3; j++)
       {
-        return 6;
+      if(!p_putc(Misc->shop[i].item[j],f))
+        {
+          new_return(6);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_iputw(Misc->shop[i].price[j],f))
+        {
+          new_return(7);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(Misc->shop[i].hasitem[j],f))
+        {
+          new_return(7);
+        }
       }
     }
-    for (int j=0; j<3; j++)
+
+    //infos
+    if(!p_iputw(infos,f))
     {
-      if(!p_iputw(Misc->shop[i].price[j],f))
+      new_return(8);
+    }
+    for (int i=0; i<infos; i++)
+    {
+      for (int j=0; j<3; j++)
       {
-        return 7;
+        if(!p_iputw(Misc->info[i].str[j],f))
+        {
+          new_return(9);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_iputw(Misc->info[i].price[j],f))
+        {
+          new_return(10);
+        }
       }
     }
-	for (int j=0; j<3; j++)
-	{
-		if(!p_putc(Misc->shop[i].hasitem[j],f))
-		{
-			return 7;
-		}
-	}
-  }
 
-  //infos
-  if(!p_iputw(infos,f))
-  {
-    return 8;
-  }
-  for (int i=0; i<infos; i++)
-  {
-    for (int j=0; j<3; j++)
+    //warp rings
+    if(!p_iputw(warprings,f))
     {
-      if(!p_iputw(Misc->info[i].str[j],f))
+      new_return(11);
+    }
+    for (int i=0; i<warprings; i++)
+    {
+      for (int j=0; j<8; j++)
       {
-        return 9;
+        if(!p_iputw(Misc->warp[i].dmap[j],f))
+        {
+          new_return(12);
+        }
+      }
+      for (int j=0; j<8; j++)
+      {
+        if(!p_putc(Misc->warp[i].scr[j],f))
+        {
+          new_return(13);
+        }
+      }
+      if(!p_putc(Misc->warp[i].size,f))
+      {
+        new_return(14);
       }
     }
-    for (int j=0; j<3; j++)
+
+    //wind warps
+    if(!p_iputw(windwarps,f))
     {
-      if(!p_iputw(Misc->info[i].price[j],f))
+      new_return(15);
+    }
+    for (int i=0; i<windwarps; i++)
+    {
+      if(!p_iputw(Misc->wind[i].dmap,f))
       {
-        return 10;
+        new_return(16);
+      }
+      if(!p_putc(Misc->wind[i].scr,f))
+      {
+        new_return(17);
       }
     }
-  }
 
-  //warp rings
-  if(!p_iputw(warprings,f))
-  {
-    return 11;
-  }
-  for (int i=0; i<warprings; i++)
-  {
-    for (int j=0; j<8; j++)
+    //triforce pieces
+    for (int i=0; i<triforces; i++)
     {
-      if(!p_putc(Misc->warp[i].dmap[j],f))
+      if(!p_putc(Misc->triforce[i],f))
       {
-        return 12;
+        new_return(18);
       }
     }
-    for (int j=0; j<8; j++)
+
+    //end string
+    if(!p_iputw(Misc->endstring,f))
     {
-      if(!p_putc(Misc->warp[i].scr[j],f))
-      {
-        return 13;
-      }
+      new_return(19);
     }
-    if(!p_putc(Misc->warp[i].size,f))
+
+    if (writecycle==0)
     {
-      return 14;
+      section_size=writesize;
     }
   }
 
-  //wind warps
-  if(!p_iputw(windwarps,f))
+  if (writesize!=int(section_size) && save_warn)
   {
-    return 15;
-  }
-  for (int i=0; i<windwarps; i++)
-  {
-    if(!p_putc(Misc->wind[i].dmap,f))
-    {
-      return 16;
-    }
-    if(!p_putc(Misc->wind[i].scr,f))
-    {
-      return 17;
-    }
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writemisc()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  //triforce pieces
-  for (int i=0; i<triforces; i++)
-  {
-    if(!p_putc(Misc->triforce[i],f))
-    {
-      return 18;
-    }
-  }
-
-/*
-  //misc color data
-  {                                                         //this brace is here to make it easier to fold all the color data code
-    if(!p_putc(Misc->colors.text,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.caption,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.overw_bg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.dngn_bg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.dngn_fg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.cave_fg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.bs_dk,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.bs_goal,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.compass_lt,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.compass_dk,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.subscr_bg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.triframe_color,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.link_dot,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.bmap_bg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.bmap_fg,f))
-    {
-      return qe_invalid;
-    }
-
-    if(!p_putc(Misc->colors.triforce_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.triframe_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.overworld_map_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.dungeon_map_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.blueframe_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.triforce_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.triframe_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.overworld_map_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.dungeon_map_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.blueframe_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.HCpieces_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.HCpieces_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.subscr_shadow,f))
-    {
-      return qe_invalid;
-    }
-  }
-
-  //save game icons
-  for (int i=0; i<4; i++)
-  {
-    if(!p_iputw(Misc->icons[i],f))
-    {
-      return qe_invalid;
-    }
-  }
-*/
-
-  //end string
-  if(!p_iputw(Misc->endstring,f))
-  {
-    return 19;
-  }
-
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writeitems(PACKFILE *f, zquestheader *Header)
@@ -5599,131 +5885,151 @@ int writeitems(PACKFILE *f, zquestheader *Header)
   dword section_version=V_ITEMS;
   dword section_cversion=CV_ITEMS;
   //  dword section_size=0;
-  dword section_size = sizeof(word) + iMax * (sizeof(word) + 5 * sizeof(char) + sizeof(long));
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  if(!p_iputw(iMax,f))
-  {
-    return 5;
-  }
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
 
-  for(int i=0; i<iMax; i++)
-  {
-	if(!pfwrite(item_string[i], 64, f))
-	{
-	  return 5;
-	}
-  }
+    writesize=0;
 
-  for (int i=0; i<iMax; i++)
-  {
-    if(!p_iputw(itemsbuf[i].tile,f))
+    //finally...  section data
+    if(!p_iputw(iMax,f))
     {
-      return 6;
+      new_return(5);
     }
-    if(!p_putc(itemsbuf[i].misc,f))
-    {
-      return 7;
-    }
-    if(!p_putc(itemsbuf[i].csets,f))
-    {
-      return 8;
-    }
-    if(!p_putc(itemsbuf[i].frames,f))
-    {
-      return 9;
-    }
-    if(!p_putc(itemsbuf[i].speed,f))
-    {
-      return 10;
-    }
-    if(!p_putc(itemsbuf[i].delay,f))
-    {
 
-      return 11;
-    }
-    if(!p_iputl(itemsbuf[i].ltm,f))
+    for(int i=0; i<iMax; i++)
     {
-      return 12;
-    }
-	if(!p_putc(itemsbuf[i].family,f))
-	{
-	  return 13;
-	}
-	if(!p_putc(itemsbuf[i].fam_type,f))
-	{
-	  return 14;
-	}
-	if(!p_putc(itemsbuf[i].set_gamedata,f))
-	{
-	  return 15;
-	}
-	if(!p_iputw(itemsbuf[i].script,f))
-	{
-	  return 16;
-	}
-	if(!p_putc(itemsbuf[i].count,f))
-	{
-	  return 17;
-	}
-	if(!p_iputw(itemsbuf[i].amount,f))
-	{
-	  return 18;
-	}
-	if(!p_iputw(itemsbuf[i].collect_script,f))
-	{
-	  return 19;
-	}
-	if(!p_iputw(itemsbuf[i].setmax,f))
-	{
-	  return 21;
-	}
-	if(!p_iputw(itemsbuf[i].max,f))
-	{
-	  return 22;
-	}
-	if(!p_putc(itemsbuf[i].playsound,f))
-	{
-	  return 23;
-	}
-	for(int j=0;j<8;j++)
-	{
-	  if(!p_iputl(itemsbuf[i].initiald[j],f))
+      if(!pfwrite(item_string[i], 64, f))
       {
-	    return 24;
+        new_return(5);
       }
-	}
-	for(int j=0;j<2;j++)
-	{
-	  if(!p_putc(itemsbuf[i].initiala[j],f))
+    }
+
+    for (int i=0; i<iMax; i++)
+    {
+      if(!p_iputw(itemsbuf[i].tile,f))
       {
-        return 25;
+        new_return(6);
       }
-	}
+      if(!p_putc(itemsbuf[i].misc,f))
+      {
+        new_return(7);
+      }
+      if(!p_putc(itemsbuf[i].csets,f))
+      {
+        new_return(8);
+      }
+      if(!p_putc(itemsbuf[i].frames,f))
+      {
+        new_return(9);
+      }
+      if(!p_putc(itemsbuf[i].speed,f))
+      {
+        new_return(10);
+      }
+      if(!p_putc(itemsbuf[i].delay,f))
+      {
+        new_return(11);
+      }
+      if(!p_iputl(itemsbuf[i].ltm,f))
+      {
+        new_return(12);
+      }
+      if(!p_putc(itemsbuf[i].family,f))
+      {
+        new_return(13);
+      }
+      if(!p_putc(itemsbuf[i].fam_type,f))
+      {
+        new_return(14);
+      }
+      if(!p_putc(itemsbuf[i].set_gamedata,f))
+      {
+        new_return(15);
+      }
+      if(!p_iputw(itemsbuf[i].script,f))
+      {
+        new_return(16);
+      }
+      if(!p_putc(itemsbuf[i].count,f))
+      {
+        new_return(17);
+      }
+      if(!p_iputw(itemsbuf[i].amount,f))
+      {
+        new_return(18);
+      }
+      if(!p_iputw(itemsbuf[i].collect_script,f))
+      {
+        new_return(19);
+      }
+      if(!p_iputw(itemsbuf[i].setmax,f))
+      {
+        new_return(21);
+      }
+      if(!p_iputw(itemsbuf[i].max,f))
+      {
+        new_return(22);
+      }
+      if(!p_putc(itemsbuf[i].playsound,f))
+      {
+        new_return(23);
+      }
+      for(int j=0;j<8;j++)
+      {
+        if(!p_iputl(itemsbuf[i].initiald[j],f))
+        {
+          new_return(24);
+        }
+      }
+      for(int j=0;j<2;j++)
+      {
+        if(!p_putc(itemsbuf[i].initiala[j],f))
+        {
+          new_return(25);
+        }
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
-  return 0;
+
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeitems()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writeweapons(PACKFILE *f, zquestheader *Header)
@@ -5734,75 +6040,93 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
   dword section_id=ID_WEAPONS;
   dword section_version=V_WEAPONS;
   dword section_cversion=CV_WEAPONS;
-  //  dword section_size=0;
-  dword section_size = sizeof(word) + wMAX * (sizeof(word) + 5 * sizeof(char));
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!p_iputw(wMAX,f))
+    {
+      new_return(5);
+    }
+
+    for(int i=0; i<wMAX; i++)
+    {
+      if(!pfwrite(weapon_string[i], 64, f))
+      {
+        new_return(5);
+      }
+    }
+
+    for (int i=0; i<wMAX; i++)
+    {
+      if(!p_iputw(wpnsbuf[i].tile,f))
+      {
+        new_return(6);
+      }
+      if(!p_putc(wpnsbuf[i].misc,f))
+      {
+        new_return(7);
+      }
+      if(!p_putc(wpnsbuf[i].csets,f))
+      {
+        new_return(8);
+      }
+      if(!p_putc(wpnsbuf[i].frames,f))
+      {
+        new_return(9);
+      }
+      if(!p_putc(wpnsbuf[i].speed,f))
+      {
+        new_return(10);
+      }
+      if(!p_putc(wpnsbuf[i].type,f))
+      {
+        new_return(11);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  if(!p_iputw(wMAX,f))
+  if (writesize!=int(section_size) && save_warn)
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeweapons()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  for(int i=0; i<wMAX; i++)
-  {
-	if(!pfwrite(weapon_string[i], 64, f))
-	{
-	  return 5;
-	}
-  }
-
-  for (int i=0; i<wMAX; i++)
-  {
-    if(!p_iputw(wpnsbuf[i].tile,f))
-    {
-
-      return 6;
-    }
-    if(!p_putc(wpnsbuf[i].misc,f))
-    {
-      return 7;
-    }
-    if(!p_putc(wpnsbuf[i].csets,f))
-    {
-      return 8;
-    }
-    if(!p_putc(wpnsbuf[i].frames,f))
-    {
-      return 9;
-    }
-    if(!p_putc(wpnsbuf[i].speed,f))
-    {
-      return 10;
-    }
-    if(!p_putc(wpnsbuf[i].type,f))
-    {
-      return 11;
-    }
-  }
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writemaps(PACKFILE *f, zquestheader *Header)
@@ -5813,277 +6137,280 @@ int writemaps(PACKFILE *f, zquestheader *Header)
   dword section_id=ID_MAPS;
   dword section_version=V_MAPS;
   dword section_cversion=CV_MAPS;
-  //  dword section_size=0;
-  dword section_size = sizeof(word) + map_count * MAPSCRS * 1301;
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  if(!p_iputw(map_count,f))
-  {
-    return 5;
-  }
-
-  int scr=0;
-  for(int i=0; i<map_count && i<MAXMAPS2; i++)
-  {
-    for (int j=0; j<MAPSCRS; j++)
+    //section size
+    if(!p_iputl(section_size,f))
     {
-      scr=i*MAPSCRS+j;
+      new_return(4);
+    }
 
-      if(!p_putc(TheMaps[scr].valid,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].guy,f))
-      {
-        return qe_invalid;
-      }
+    writesize=0;
 
+    //finally...  section data
+    if(!p_iputw(map_count,f))
+    {
+      new_return(5);
+    }
+
+    int scr=0;
+    for(int i=0; i<map_count && i<MAXMAPS2; i++)
+    {
+      for (int j=0; j<MAPSCRS; j++)
       {
-        if(!p_iputw(TheMaps[scr].str,f))
+        scr=i*MAPSCRS+j;
+
+        if(!p_putc(TheMaps[scr].valid,f))
         {
           return qe_invalid;
         }
-      }
+        if(!p_putc(TheMaps[scr].guy,f))
+        {
+          return qe_invalid;
+        }
 
-      if(!p_putc(TheMaps[scr].room,f))
-      {
-        return qe_invalid;
-      }
-
-      if(!p_putc(TheMaps[scr].item,f))
-      {
-        return qe_invalid;
-      }
-	  if(!p_putc(TheMaps[scr].hasitem, f))
-		  return qe_invalid;
-      for(int k=0;k<4;k++)
-      {
-        if(!p_putc(TheMaps[scr].tilewarptype[k],f))
         {
-          return qe_invalid;
-        }
-      }
-
-      {
-        if(!p_iputw(TheMaps[scr].door_combo_set,f))
-        {
-          return qe_invalid;
-        }
-      }
-
-      for(int k=0;k<4;k++)
-      {
-        if(!p_putc(TheMaps[scr].warpreturnx[k],f))
-        {
-          return qe_invalid;
-        }
-      }
-      for(int k=0;k<4;k++)
-      {
-        if(!p_putc(TheMaps[scr].warpreturny[k],f))
-        {
-          return qe_invalid;
-        }
-      }
-      if(!p_putc(TheMaps[scr].warpreturnc,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].stairx,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].stairy,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].itemx,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].itemy,f))
-      {
-        return qe_invalid;
-      }
-
-      if(!p_putc(TheMaps[scr].color,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].enemyflags,f))
-      {
-        return qe_invalid;
-      }
-      for(int k=0; k<4; k++)
-      {
-        if(!p_putc(TheMaps[scr].door[k],f))
-        {
-          return qe_invalid;
-        }
-      }
-      for(int k=0;k<4;k++)
-      {
-        if(!p_putc(TheMaps[scr].tilewarpdmap[k],f))
-        {
-          return qe_invalid;
-        }
-      }
-      for(int k=0;k<4;k++)
-      {
-        if(!p_putc(TheMaps[scr].tilewarpscr[k],f))
-        {
-          return qe_invalid;
-        }
-      }
-      if(!p_putc(TheMaps[scr].exitdir,f))
-      {
-        return qe_invalid;
-      }
-
-      for(int k=0; k<10; k++)
-      {
-        {
-          if(!p_iputw(TheMaps[scr].enemy[k],f))
+          if(!p_iputw(TheMaps[scr].str,f))
           {
             return qe_invalid;
           }
         }
-      }
 
-      if(!p_putc(TheMaps[scr].pattern,f))
-      {
-        return qe_invalid;
-      }
-      for(int k=0;k<4;k++)
-      {
-        if(!p_putc(TheMaps[scr].sidewarptype[k],f))
+        if(!p_putc(TheMaps[scr].room,f))
         {
           return qe_invalid;
         }
-      }
-      if(!p_putc(TheMaps[scr].warparrivalx,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].warparrivaly,f))
-      {
-        return qe_invalid;
-      }
-      for(int k=0; k<4; k++)
-      {
-        if(!p_putc(TheMaps[scr].path[k],f))
+
+        if(!p_putc(TheMaps[scr].item,f))
         {
           return qe_invalid;
         }
-      }
-      for(int k=0;k<4;k++)
-      {
-        if(!p_putc(TheMaps[scr].sidewarpscr[k],f))
+        if(!p_putc(TheMaps[scr].hasitem, f))
         {
           return qe_invalid;
         }
-      }
-      for(int k=0;k<4;k++)
-      {
-        if(!p_putc(TheMaps[scr].sidewarpdmap[k],f))
+        for(int k=0;k<4;k++)
+        {
+          if(!p_putc(TheMaps[scr].tilewarptype[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+
+        if(!p_iputw(TheMaps[scr].door_combo_set,f))
         {
           return qe_invalid;
         }
-      }
-      if(!p_putc(TheMaps[scr].sidewarpindex,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_iputw(TheMaps[scr].undercombo,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].undercset,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_iputw(TheMaps[scr].catchall,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].flags,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].flags2,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].flags3,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].flags4,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].flags5,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_iputw(TheMaps[scr].noreset,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_iputw(TheMaps[scr].nocarry,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].flags6,f))
-      {
-        return qe_invalid;
-      }
-	  if(!p_putc(TheMaps[scr].flags7,f))
-      {
-        return qe_invalid;
-      }
-	  if(!p_putc(TheMaps[scr].flags8,f))
-      {
-        return qe_invalid;
-      }
-	  if(!p_putc(TheMaps[scr].flags9,f))
-      {
-        return qe_invalid;
-      }
-	  if(!p_putc(TheMaps[scr].flags10,f))
-      {
-        return qe_invalid;
-      }
-	  if(!p_putc(TheMaps[scr].csensitive,f))
-      {
-        return qe_invalid;
-      }
+
+        for(int k=0;k<4;k++)
+        {
+          if(!p_putc(TheMaps[scr].warpreturnx[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        for(int k=0;k<4;k++)
+        {
+          if(!p_putc(TheMaps[scr].warpreturny[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        if(!p_putc(TheMaps[scr].warpreturnc,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].stairx,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].stairy,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].itemx,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].itemy,f))
+        {
+          return qe_invalid;
+        }
+
+        if(!p_putc(TheMaps[scr].color,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].enemyflags,f))
+        {
+          return qe_invalid;
+        }
+        for(int k=0; k<4; k++)
+        {
+          if(!p_putc(TheMaps[scr].door[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        for(int k=0;k<4;k++)
+        {
+          if(!p_iputw(TheMaps[scr].tilewarpdmap[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        for(int k=0;k<4;k++)
+        {
+          if(!p_putc(TheMaps[scr].tilewarpscr[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        if(!p_putc(TheMaps[scr].exitdir,f))
+        {
+          return qe_invalid;
+        }
+
+        for(int k=0; k<10; k++)
+        {
+          {
+            if(!p_iputw(TheMaps[scr].enemy[k],f))
+            {
+              return qe_invalid;
+            }
+          }
+        }
+
+        if(!p_putc(TheMaps[scr].pattern,f))
+        {
+          return qe_invalid;
+        }
+        for(int k=0;k<4;k++)
+        {
+          if(!p_putc(TheMaps[scr].sidewarptype[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        if(!p_putc(TheMaps[scr].warparrivalx,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].warparrivaly,f))
+        {
+          return qe_invalid;
+        }
+        for(int k=0; k<4; k++)
+        {
+          if(!p_putc(TheMaps[scr].path[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        for(int k=0;k<4;k++)
+        {
+          if(!p_putc(TheMaps[scr].sidewarpscr[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        for(int k=0;k<4;k++)
+        {
+          if(!p_iputw(TheMaps[scr].sidewarpdmap[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        if(!p_putc(TheMaps[scr].sidewarpindex,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_iputw(TheMaps[scr].undercombo,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].undercset,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_iputw(TheMaps[scr].catchall,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags2,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags3,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags4,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags5,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_iputw(TheMaps[scr].noreset,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_iputw(TheMaps[scr].nocarry,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags6,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags7,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags8,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags9,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags10,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].csensitive,f))
+        {
+          return qe_invalid;
+        }
 
 
-      {  //this is enclosed in extra braces to allow quick section folding
         for(int k=0; k<6; k++)
         {
           if(!p_putc(TheMaps[scr].layermap[k],f))
@@ -6098,9 +6425,7 @@ int writemaps(PACKFILE *f, zquestheader *Header)
             return qe_invalid;
           }
         }
-      }
 
-      {  //this is enclosed in extra braces to allow quick section folding
         for(int k=0; k<6; k++)
         {
           if(!p_putc(TheMaps[scr].layeropacity[k],f))
@@ -6108,16 +6433,12 @@ int writemaps(PACKFILE *f, zquestheader *Header)
             return qe_invalid;
           }
         }
-      }
 
-      {  //this is enclosed in extra braces to allow quick section folding
         if(!p_iputw(TheMaps[scr].timedwarptics,f))
         {
           return qe_invalid;
         }
-      }
 
-      {  //this is enclosed in extra braces to allow quick section folding
         if(!p_putc(TheMaps[scr].nextmap,f))
         {
           return qe_invalid;
@@ -6126,20 +6447,15 @@ int writemaps(PACKFILE *f, zquestheader *Header)
         {
           return qe_invalid;
         }
-      }
 
-      {  //this is enclosed in extra braces to allow quick section folding
         for(int k=0; k<128; k++)
         {
           if(!p_iputw(TheMaps[scr].secretcombo[k],f))
           {
             return qe_invalid;
           }
-
         }
-      }
 
-      {  //this is enclosed in extra braces to allow quick section folding
         for(int k=0; k<128; k++)
         {
           if(!p_putc(TheMaps[scr].secretcset[k],f))
@@ -6154,153 +6470,160 @@ int writemaps(PACKFILE *f, zquestheader *Header)
             return qe_invalid;
           }
         }
-      }
 
-      {  //this is enclosed in extra braces to allow quick section folding
-        for(int k=0; k<16*11; k++)
+        for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
         {
           if(!p_iputw(TheMaps[scr].data[k],f))
           {
             return qe_invalid;
           }
         }
-      }
 
-      {  //this is enclosed in extra braces to allow quick section folding
-        for(int k=0; k<16*11; k++)
+        for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
         {
           if(!p_putc(TheMaps[scr].sflag[k],f))
           {
             return qe_invalid;
           }
         }
-      }
 
-      {  //this is enclosed in extra braces to allow quick section folding
-        for(int k=0; k<16*11; k++)
+        for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
         {
           if(!p_putc(TheMaps[scr].cset[k],f))
           {
             return qe_invalid;
           }
         }
-      }
 
-      if(!p_iputw(TheMaps[scr].screen_midi,f))
-      {
-        return qe_invalid;
-      }
+        if(!p_iputw(TheMaps[scr].screen_midi,f))
+        {
+          return qe_invalid;
+        }
 
-	  //if(TheMaps[scr].numff > 32) TheMaps[scr].numff=32;
-	  if(!p_iputl(TheMaps[scr].numff,f))
-	  {
-	    return qe_invalid;
-	  }
-	  for(int k=0;k<32;k++)
-	  {
-	    if((TheMaps[scr].numff>>k)&1)
-		{
-	      if(!p_iputw(TheMaps[scr].ffdata[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_putc(TheMaps[scr].ffcset[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputw(TheMaps[scr].ffdelay[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].ffx[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].ffy[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].ffxdelta[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].ffydelta[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].ffxdelta2[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].ffydelta2[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_putc(TheMaps[scr].fflink[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_putc(TheMaps[scr].ffwidth[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_putc(TheMaps[scr].ffheight[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].ffflags[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputw(TheMaps[scr].ffscript[k],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].d[k][0],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].d[k][1],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].d[k][2],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].d[k][3],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].d[k][4],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].d[k][5],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].d[k][6],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_iputl(TheMaps[scr].d[k][7],f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_putc(TheMaps[scr].a[k][0]/10000,f))
-		  {
-		    return qe_invalid;
-		  }
-		  if(!p_putc(TheMaps[scr].a[k][1]/10000,f))
-		  {
-		    return qe_invalid;
-		  }
-		}
-	  }
+        if(!p_iputl(TheMaps[scr].numff,f))
+        {
+          return qe_invalid;
+        }
+        for(int k=0;k<32;k++)
+        {
+          if((TheMaps[scr].numff>>k)&1)
+          {
+            if(!p_iputw(TheMaps[scr].ffdata[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_putc(TheMaps[scr].ffcset[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputw(TheMaps[scr].ffdelay[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].ffx[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].ffy[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].ffxdelta[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].ffydelta[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].ffxdelta2[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].ffydelta2[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_putc(TheMaps[scr].fflink[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_putc(TheMaps[scr].ffwidth[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_putc(TheMaps[scr].ffheight[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].ffflags[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputw(TheMaps[scr].ffscript[k],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].d[k][0],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].d[k][1],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].d[k][2],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].d[k][3],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].d[k][4],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].d[k][5],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].d[k][6],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_iputl(TheMaps[scr].d[k][7],f))
+            {
+              return qe_invalid;
+            }
+            if(!p_putc(TheMaps[scr].a[k][0]/10000,f))
+            {
+              return qe_invalid;
+            }
+            if(!p_putc(TheMaps[scr].a[k][1]/10000,f))
+            {
+              return qe_invalid;
+            }
+          }
+        }
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
     }
   }
-  return 0;
+
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writemaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writecombos(PACKFILE *f, word version, word build, word start_combo, word max_combos)
@@ -6317,105 +6640,120 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
   combos_used = count_combos()-start_combo;
   combos_used = min(combos_used, max_combos);
   combos_used = min(combos_used, MAXCOMBOS);
-  dword section_size = sizeof(word) + combos_used * 12;
-
-  for(int j=0; j<MAXCOMBOALIASES; j++)
-  {
-    section_size += (sizeof(byte)*3) + (sizeof(word)*((combo_aliases[j].width+1)*(combo_aliases[j].height+1)))*comboa_lmasktotal(combo_aliases[j].layermask);
-  }
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    combos_used=count_combos()-start_combo;
+    combos_used=min(combos_used, max_combos);
+    combos_used=min(combos_used, MAXCOMBOS);
+    if(!p_iputw(combos_used,f))
+    {
+      new_return(5);
+    }
+
+    for (int i=start_combo; i<start_combo+combos_used; i++)
+    {
+      if(!p_iputw(combobuf[i].tile,f))
+      {
+        new_return(6);
+      }
+      if(!p_putc(combobuf[i].flip,f))
+      {
+        new_return(7);
+      }
+      if(!p_putc(combobuf[i].walk,f))
+      {
+        new_return(8);
+      }
+      if(!p_putc(combobuf[i].type,f))
+      {
+        new_return(9);
+      }
+      if(!p_putc(combobuf[i].csets,f))
+      {
+        new_return(10);
+      }
+      if(!p_putc(combobuf[i].frames,f))
+      {
+        new_return(11);
+      }
+      if(!p_putc(combobuf[i].speed,f))
+      {
+        new_return(12);
+      }
+      if(!p_iputw(combobuf[i].nextcombo,f))
+      {
+        new_return(13);
+      }
+      if(!p_putc(combobuf[i].nextcset,f))
+      {
+        new_return(14);
+      }
+      if(!p_putc(combobuf[i].flag,f))
+      {
+        new_return(15);
+      }
+      if(!p_putc(combobuf[i].skipanim,f))
+      {
+        new_return(16);
+      }
+      if(!p_iputw(combobuf[i].nexttimer,f))
+      {
+        new_return(17);
+      }
+      if(!p_putc(combobuf[i].skipanimy,f))
+      {
+        new_return(18);
+      }
+      if(!p_putc(combobuf[i].freshanim,f))
+      {
+        new_return(19);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  combos_used=count_combos()-start_combo;
-  combos_used=min(combos_used, max_combos);
-  combos_used=min(combos_used, MAXCOMBOS);
-  if(!p_iputw(combos_used,f))
+  if (writesize!=int(section_size) && save_warn)
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writecombos()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  for (int i=start_combo; i<start_combo+combos_used; i++)
-  {
-    if(!p_iputw(combobuf[i].tile,f))
-    {
-      return 6;
-    }
-    if(!p_putc(combobuf[i].flip,f))
-    {
-      return 7;
-    }
-    if(!p_putc(combobuf[i].walk,f))
-    {
-      return 8;
-    }
-    if(!p_putc(combobuf[i].type,f))
-    {
-      return 9;
-    }
-    if(!p_putc(combobuf[i].csets,f))
-    {
-      return 10;
-    }
-    if(!p_putc(combobuf[i].frames,f))
-    {
-      return 11;
-    }
-    if(!p_putc(combobuf[i].speed,f))
-    {
-      return 12;
-    }
-    if(!p_iputw(combobuf[i].nextcombo,f))
-    {
-      return 13;
-    }
-    if(!p_putc(combobuf[i].nextcset,f))
-    {
-      return 14;
-    }
-    if(!p_putc(combobuf[i].flag,f))
-    {
-      return 15;
-    }
-	if(!p_putc(combobuf[i].skipanim,f))
-    {
-      return 16;
-    }
-	if(!p_iputw(combobuf[i].nexttimer,f))
-    {
-      return 17;
-    }
-	if(!p_putc(combobuf[i].skipanimy,f))
-    {
-      return 18;
-    }
-	if(!p_putc(combobuf[i].freshanim,f))
-    {
-      return 19;
-    }
-  }
-
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writecomboaliases(PACKFILE *f, word version, word build)
@@ -6429,73 +6767,90 @@ int writecomboaliases(PACKFILE *f, word version, word build)
   dword section_cversion=CV_COMBOALIASES;
   dword section_size=0;
 
-  for(int j=0; j<MAXCOMBOALIASES; j++)
-  {
-    section_size += (sizeof(byte)*3) + (sizeof(word)*((combo_aliases[j].width+1)*(combo_aliases[j].height+1)))*comboa_lmasktotal(combo_aliases[j].layermask);
-  }
-
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    for(int j=0;j<MAXCOMBOALIASES;j++)
+    {
+      if(!p_iputw(combo_aliases[j].combo,f))
+      {
+        new_return(5);
+      }
+      if(!p_putc(combo_aliases[j].cset,f))
+      {
+        new_return(6);
+      }
+      int count = ((combo_aliases[j].width+1)*(combo_aliases[j].height+1))*(comboa_lmasktotal(combo_aliases[j].layermask)+1);
+      if(!p_putc(combo_aliases[j].width,f))
+      {
+        new_return(7);
+      }
+      if(!p_putc(combo_aliases[j].height,f))
+      {
+        new_return(8);
+      }
+      if(!p_putc(combo_aliases[j].layermask,f))
+      {
+        new_return(9);
+      }
+      for(int k=0;k<count;k++)
+      {
+        if(!p_iputw(combo_aliases[j].combos[k],f))
+        {
+          new_return(10);
+        }
+      }
+      for(int k=0;k<count;k++)
+      {
+        if(!p_putc(combo_aliases[j].csets[k],f))
+        {
+          new_return(11);
+        }
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  for(int j=0;j<MAXCOMBOALIASES;j++)
+
+  if (writesize!=int(section_size) && save_warn)
   {
-    if(!p_iputw(combo_aliases[j].combo,f))
-    {
-      return 5;
-    }
-    if(!p_putc(combo_aliases[j].cset,f))
-    {
-      return 6;
-    }
-    int count = ((combo_aliases[j].width+1)*(combo_aliases[j].height+1))*(comboa_lmasktotal(combo_aliases[j].layermask)+1);
-    if(!p_putc(combo_aliases[j].width,f))
-    {
-      return 7;
-    }
-    if(!p_putc(combo_aliases[j].height,f))
-    {
-      return 8;
-    }
-    if(!p_putc(combo_aliases[j].layermask,f))
-    {
-      return 9;
-    }
-    for(int k=0;k<count;k++)
-    {
-      if(!p_iputw(combo_aliases[j].combos[k],f))
-      {
-        return 10;
-      }
-    }
-    for(int k=0;k<count;k++)
-    {
-      if(!p_putc(combo_aliases[j].csets[k],f))
-      {
-        return 11;
-      }
-    }
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writecomboaliases()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
-  return 0;
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
@@ -6509,73 +6864,92 @@ int writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word 
   dword section_id=ID_CSETS;
   dword section_version=V_CSETS;
   dword section_cversion=CV_CSETS;
-  //  dword section_size=0;
   int palcycles = count_palcycles(Misc);
-  dword section_size = newpsTOTAL
-    + MAXLEVELS * PALNAMESIZE
-    + sizeof(word) + palcycles * 9;
+ // int palcyccount = count_palcycles(Misc);
+  dword section_size = 0;
 
   //section id
 
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!pfwrite(colordata,newpsTOTAL,f))
+    {
+      new_return(5);
+    }
+    if(!pfwrite(palnames,OLDMAXLEVELS*PALNAMESIZE,f))
+    {
+      new_return(6);
+    }
+    if(!p_iputw(palcycles,f))
+    {
+      new_return(15);
+    }
+    for (int i=0; i<palcycles; i++)
+    {
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(Misc->cycles[i][j].first,f))
+        {
+          new_return(16);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(Misc->cycles[i][j].count,f))
+        {
+          new_return(17);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(Misc->cycles[i][j].speed,f))
+        {
+          new_return(18);
+        }
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  if(!pfwrite(colordata,newpsTOTAL,f))
+  if (writesize!=int(section_size) && save_warn)
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writecolordata()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
-  if(!pfwrite(palnames,MAXLEVELS*PALNAMESIZE,f))
-  {
-    return 6;
-  }
-  if(!p_iputw(palcycles,f))
-  {
-    return 15;
-  }
-  for (int i=0; i<palcycles; i++)
-  {
-    for (int j=0; j<3; j++)
-    {
-      if(!p_putc(Misc->cycles[i][j].first,f))
-      {
-        return 16;
-      }
-    }
-    for (int j=0; j<3; j++)
-    {
-      if(!p_putc(Misc->cycles[i][j].count,f))
-      {
-        return 17;
-      }
-    }
-    for (int j=0; j<3; j++)
-    {
-      if(!p_putc(Misc->cycles[i][j].speed,f))
-      {
-        return 18;
-      }
-    }
-  }
-  return 0;
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word max_msgstrs)
@@ -6589,50 +6963,93 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
   dword section_id=ID_STRINGS;
   dword section_version=V_STRINGS;
   dword section_cversion=CV_STRINGS;
-  //  dword section_size=0;
-  dword section_size = sizeof(word)
-    + msg_count * (sizeof(MsgStrings[0].s) + sizeof(word));
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  if(!p_iputw(msg_count,f))
-  {
-    return qe_invalid;
-  }
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
 
-  for (int i=0; i<msg_count; i++)
-  {
-    if(!pfwrite(MsgStrings[i].s,sizeof(MsgStrings[0].s),f))
+    writesize=0;
+
+    //finally...  section data
+    if(!p_iputw(msg_count,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(MsgStrings[i].nextstring,f))
+
+    for (int i=0; i<msg_count; i++)
     {
-      return qe_invalid;
+      if(!pfwrite(MsgStrings[i].s,sizeof(MsgStrings[0].s),f))
+      {
+        return qe_invalid;
+      }
+      if(!p_iputw(MsgStrings[i].nextstring,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_iputw(MsgStrings[i].tile,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(MsgStrings[i].cset,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(MsgStrings[i].trans?1:0,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(MsgStrings[i].font,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(MsgStrings[i].y,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(MsgStrings[i].sfx,f))
+      {
+        return qe_invalid;
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
     }
   }
-  return 0;
+
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writestrings()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_tiles)
@@ -6645,141 +7062,195 @@ int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_
   dword section_id=ID_TILES;
   dword section_version=V_TILES;
   dword section_cversion=CV_TILES;
-  //  dword section_size=0;
   tiles_used = count_tiles(newtilebuf)-start_tile;
   tiles_used = min(tiles_used, max_tiles);
   tiles_used = min(tiles_used, NEWMAXTILES);
-  dword section_size = sizeof(word) + (int)tiles_used * (int)tilesize(tf4Bit);
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  tiles_used=count_tiles(newtilebuf)-start_tile;
-  tiles_used=min(tiles_used, max_tiles);
-  tiles_used=min(tiles_used, NEWMAXTILES);
-  if(!p_iputw(tiles_used,f))
-  {
-    return 5;
-  }
-
-  for (dword i=0; i<tiles_used; ++i)
-  {
-    if(!p_putc(newtilebuf[start_tile+i].format,f))
+    //section size
+    if(!p_iputl(section_size,f))
     {
-      return 6;
+      new_return(4);
     }
-    if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
+
+    writesize=0;
+
+    //finally...  section data
+    tiles_used=count_tiles(newtilebuf)-start_tile;
+    tiles_used=min(tiles_used, max_tiles);
+    tiles_used=min(tiles_used, NEWMAXTILES);
+    if(!p_iputw(tiles_used,f))
     {
-      return 7;
+      new_return(5);
+    }
+
+    for (dword i=0; i<tiles_used; ++i)
+    {
+      if(!p_putc(newtilebuf[start_tile+i].format,f))
+      {
+        new_return(6);
+      }
+      if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
+      {
+        new_return(7);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
     }
   }
-  return 0;
+
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writetiles()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
-int writemidis(PACKFILE *f, zquestheader *Header)
-{
-  //these are here to bypass compiler warnings about unused arguments
-  Header=Header;
+/* MIDI Format
+section_id			LONG
+section_version		WORD
+section_cversion	WORD
+section_size		LONG
+midi_flags			32 Byte ? BITFIELD[252]
 
+[
+title		20
+start 		 4
+loop_start	 4
+loop_end	 4
+loop		 2
+volume		 2
+midi		 *
+]
+
+*/
+
+int writemidis(PACKFILE *f)
+{
   dword section_id=ID_MIDIS;
   dword section_version=V_MIDIS;
   dword section_cversion=CV_MIDIS;
   dword section_size = 0;
-  {
-    int midi_count = 0;
-    for(int i = 0; i < MAXCUSTOMMIDIS; i++ )
-      if( get_bit(midi_flags, i) )
-      {
-        midi_count++;
-        for(int c = 0; c < MIDI_TRACKS; c++ )
-          section_size += customMIDIs[i].midi->track[c].len;
-      }
-      section_size += sizeof(midi_flags)
-      + midi_count * (sizeof(customMIDIs[0].title) + (3 + MIDI_TRACKS) * sizeof(long) + 3 * sizeof(word));
-  }
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  if(!pfwrite(midi_flags,sizeof(midi_flags),f))
-  {
-    return 5;
-  }
-  for(int i=0; i<MAXCUSTOMMIDIS; i++)
-  {
-    if(get_bit(midi_flags,i))
+    //section size
+    if(!p_iputl(section_size,f))
     {
-      if(!pfwrite(&customMIDIs[i].title,sizeof(customMIDIs[0].title),f))
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+	if(!pfwrite(midi_flags,sizeof(midi_flags),f))
+    {
+      new_return(5);
+    }
+    for(int i=0; i<MAXCUSTOMMIDIS; i++)
+    {
+      if(get_bit(midi_flags,i))
       {
-        return 6;
-      }
-      if(!p_iputl(customMIDIs[i].start,f))
-      {
-        return 7;
-      }
-      if(!p_iputl(customMIDIs[i].loop_start,f))
-      {
-        return 8;
-      }
-      if(!p_iputl(customMIDIs[i].loop_end,f))
-      {
-        return 9;
-      }
-      if(!p_iputw(customMIDIs[i].loop,f))
-      {
-        return 10;
-      }
-      if(!p_iputw(customMIDIs[i].volume,f))
-      {
-        return 11;
-      }
-      if(!write_midi(customMIDIs[i].midi,f))
-      {
-        return 12;
+		if(!pfwrite(&customMIDIs[i].title,sizeof(customMIDIs[0].title),f))
+        {
+          new_return(6);
+        }
+		if(!p_iputl(customMIDIs[i].start,f))
+        {
+          new_return(7);
+        }
+        if(!p_iputl(customMIDIs[i].loop_start,f))
+        {
+          new_return(8);
+        }
+        if(!p_iputl(customMIDIs[i].loop_end,f))
+        {
+          new_return(9);
+        }
+        if(!p_iputw(customMIDIs[i].loop,f))
+        {
+          new_return(10);
+        }
+        if(!p_iputw(customMIDIs[i].volume,f))
+        {
+          new_return(11);
+        }
+		if(!pfwrite(&customMIDIs[i].format, sizeof(customMIDIs[i].format),f))
+        {
+          new_return(12);
+        }
+        switch(customMIDIs[i].format)
+		{
+		case MFORMAT_MIDI:
+				if(!write_midi(customMIDIs[i].midi,f)) new_return(13);
+				break;
+		default:
+			new_return(14);
+			break;
+		}
       }
     }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
-  return 0;
+
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writemidis()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writecheats(PACKFILE *f, zquestheader *Header)
@@ -6787,52 +7258,69 @@ int writecheats(PACKFILE *f, zquestheader *Header)
   dword section_id=ID_CHEATS;
   dword section_version=V_CHEATS;
   dword section_cversion=CV_CHEATS;
-  //  dword section_size=0;
-  dword section_size = sizeof(char);
-  if(Header->data_flags[ZQ_CHEATS2])
-    section_size += sizeof(long) + sizeof(zcheats.codes);
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  if(!p_putc(Header->data_flags[ZQ_CHEATS2],f))
-  {
-    return 5;
-  }
-
-  if(Header->data_flags[ZQ_CHEATS2])
-  {
-    if(!p_iputl(zcheats.flags,f))
+    //section size
+    if(!p_iputl(section_size,f))
     {
-      return 6;
+      new_return(4);
     }
-    if(!pfwrite(&zcheats.codes, sizeof(zcheats.codes), f))
+
+    writesize=0;
+
+    //finally...  section data
+    if(!p_putc(Header->data_flags[ZQ_CHEATS2],f))
     {
-      return 7;
+      new_return(5);
+    }
+
+    if(Header->data_flags[ZQ_CHEATS2])
+    {
+      if(!p_iputl(zcheats.flags,f))
+      {
+        new_return(6);
+      }
+      if(!pfwrite(&zcheats.codes, sizeof(zcheats.codes), f))
+      {
+        new_return(7);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
     }
   }
 
-  return 0;
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writecheats()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writeguys(PACKFILE *f, zquestheader *Header)
@@ -6848,33 +7336,220 @@ int writeguys(PACKFILE *f, zquestheader *Header)
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
 
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    for(int i=0; i<eMAXGUYS; i++)
+    {
+      if(!pfwrite(guy_string[i], 64, f))
+      {
+        new_return(5);
+      }
+    }
+
+    for(int i=0; i<eMAXGUYS; i++)
+    {
+      if(!p_iputl(guysbuf[i].flags,f))
+      {
+        new_return(6);
+      }
+      if(!p_iputl(guysbuf[i].flags2,f))
+      {
+        new_return(7);
+      }
+      if(!p_iputw(guysbuf[i].tile,f))
+      {
+        new_return(8);
+      }
+      if(!p_putc(guysbuf[i].width,f))
+      {
+        new_return(9);
+      }
+      if(!p_putc(guysbuf[i].height,f))
+      {
+        new_return(10);
+      }
+      if(!p_iputw(guysbuf[i].s_tile,f))
+      {
+        new_return(11);
+      }
+      if(!p_putc(guysbuf[i].s_width,f))
+      {
+        new_return(12);
+      }
+      if(!p_putc(guysbuf[i].s_height,f))
+      {
+        new_return(13);
+      }
+      if(!p_iputw(guysbuf[i].e_tile,f))
+      {
+        new_return(14);
+      }
+      if(!p_putc(guysbuf[i].e_width,f))
+      {
+        new_return(15);
+      }
+      if(!p_putc(guysbuf[i].e_height,f))
+      {
+        new_return(16);
+      }
+      if(!p_iputw(guysbuf[i].hp,f))
+      {
+        new_return(17);
+      }
+      if(!p_iputw(guysbuf[i].family,f))
+      {
+        new_return(18);
+      }
+      if(!p_iputw(guysbuf[i].cset,f))
+      {
+        new_return(19);
+      }
+      if(!p_iputw(guysbuf[i].anim,f))
+      {
+        new_return(20);
+      }
+      if(!p_iputw(guysbuf[i].e_anim,f))
+      {
+        new_return(21);
+      }
+      if(!p_iputw(guysbuf[i].frate,f))
+      {
+        new_return(22);
+      }
+      if(!p_iputw(guysbuf[i].e_frate,f))
+      {
+        new_return(23);
+      }
+      if(!p_iputw(guysbuf[i].dp,f))
+      {
+        new_return(24);
+      }
+      if(!p_iputw(guysbuf[i].wdp,f))
+      {
+        new_return(25);
+      }
+      if(!p_iputw(guysbuf[i].weapon,f))
+      {
+        new_return(26);
+      }
+      if(!p_iputw(guysbuf[i].rate,f))
+      {
+        new_return(27);
+      }
+      if(!p_iputw(guysbuf[i].hrate,f))
+      {
+        new_return(28);
+      }
+      if(!p_iputw(guysbuf[i].step,f))
+      {
+        new_return(29);
+      }
+      if(!p_iputw(guysbuf[i].homing,f))
+      {
+        new_return(30);
+      }
+      if(!p_iputw(guysbuf[i].grumble,f))
+      {
+        new_return(31);
+      }
+      if(!p_iputw(guysbuf[i].item_set,f))
+      {
+        new_return(32);
+      }
+      if(!p_iputw(guysbuf[i].misc1,f))
+      {
+        new_return(33);
+      }
+      if(!p_iputw(guysbuf[i].misc2,f))
+      {
+        new_return(34);
+      }
+      if(!p_iputw(guysbuf[i].misc3,f))
+      {
+        new_return(35);
+      }
+      if(!p_iputw(guysbuf[i].misc4,f))
+      {
+        new_return(36);
+      }
+      if(!p_iputw(guysbuf[i].misc5,f))
+      {
+        new_return(37);
+      }
+      if(!p_iputw(guysbuf[i].misc6,f))
+      {
+        new_return(38);
+      }
+      if(!p_iputw(guysbuf[i].misc7,f))
+      {
+        new_return(39);
+      }
+      if(!p_iputw(guysbuf[i].misc8,f))
+      {
+        new_return(40);
+      }
+      if(!p_iputw(guysbuf[i].misc9,f))
+      {
+        new_return(41);
+      }
+      if(!p_iputw(guysbuf[i].misc10,f))
+      {
+        new_return(42);
+      }
+      if(!p_iputw(guysbuf[i].bgsfx,f))
+      {
+        new_return(43);
+      }
+      if(!p_iputw(guysbuf[i].bosspal,f))
+      {
+        new_return(44);
+      }
+      if(!p_iputw(guysbuf[i].extend,f))
+      {
+        new_return(45);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeguys()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
 
-  //well, defaults are used for now.  sorry.
-
-  //More data will come here
-
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writelinksprites(PACKFILE *f, zquestheader *Header)
@@ -6890,175 +7565,225 @@ int writelinksprites(PACKFILE *f, zquestheader *Header)
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
 
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
 
-  for(int i=0;i<4;i++)
-  {
-    if(!p_iputw((word)walkspr[i][spr_tile],f))
-    {
-      return 5;
-    }
-    if(!p_putc((byte)walkspr[i][spr_flip],f))
-    {
-      return 5;
-    }
-    if(!p_putc((byte)walkspr[i][spr_extend],f))
-    {
-      return 5;
-    }
-  }
+    writesize=0;
 
-  for(int i=0;i<4;i++)
-  {
-    if(!p_iputw((word)stabspr[i][spr_tile],f))
+    //finally...  section data
+    for(int i=0;i<4;i++)
     {
-      return 6;
-    }
-    if(!p_putc((byte)stabspr[i][spr_flip],f))
-    {
-      return 6;
-    }
-    if(!p_putc((byte)stabspr[i][spr_extend],f))
-    {
-      return 6;
-    }
-  }
-
-  for(int i=0;i<4;i++)
-  {
-    if(!p_iputw((word)slashspr[i][spr_tile],f))
-    {
-      return 7;
-    }
-    if(!p_putc((byte)slashspr[i][spr_flip],f))
-    {
-      return 7;
-    }
-    if(!p_putc((byte)slashspr[i][spr_extend],f))
-    {
-      return 7;
-    }
-  }
-
-  for(int i=0;i<4;i++)
-  {
-    if(!p_iputw((word)floatspr[i][spr_tile],f))
-    {
-      return 8;
-    }
-    if(!p_putc((byte)floatspr[i][spr_flip],f))
-    {
-      return 8;
-    }
-    if(!p_putc((byte)floatspr[i][spr_extend],f))
-    {
-      return 8;
-    }
-  }
-
-  for(int i=0;i<4;i++)
-  {
-    if(!p_iputw((word)swimspr[i][spr_tile],f))
-    {
-      return 8;
-    }
-    if(!p_putc((byte)swimspr[i][spr_flip],f))
-    {
-      return 8;
-    }
-    if(!p_putc((byte)swimspr[i][spr_extend],f))
-    {
-      return 8;
-    }
-  }
-
-  for(int i=0;i<4;i++)
-  {
-    if(!p_iputw((word)divespr[i][spr_tile],f))
-    {
-      return 9;
-    }
-    if(!p_putc((byte)divespr[i][spr_flip],f))
-    {
-      return 9;
-    }
-    if(!p_putc((byte)divespr[i][spr_extend],f))
-    {
-      return 9;
-    }
-  }
-
-  for(int i=0;i<4;i++)
-  {
-    if(!p_iputw((word)poundspr[i][spr_tile],f))
-    {
-      return 10;
-    }
-    if(!p_putc((byte)poundspr[i][spr_flip],f))
-    {
-      return 10;
-    }
-    if(!p_putc((byte)poundspr[i][spr_extend],f))
-    {
-      return 10;
-    }
-  }
-
-  if(!p_iputw((word)castingspr[spr_tile],f))
-  {
-    return 11;
-  }
-  if(!p_putc((byte)castingspr[spr_flip],f))
-  {
-    return 11;
-  }
-  if(!p_putc((byte)castingspr[spr_extend],f))
-  {
-    return 11;
-  }
-
-  for(int i=0;i<2;i++)
-  {
-    for(int j=0;j<2;j++)
-    {
-      if(!p_iputw((word)holdspr[i][j][spr_tile],f))
+      if(!p_iputw((word)walkspr[i][spr_tile],f))
       {
-        return 12;
+        new_return(5);
       }
-      if(!p_putc((byte)holdspr[i][j][spr_flip],f))
+      if(!p_putc((byte)walkspr[i][spr_flip],f))
       {
-        return 12;
+        new_return(5);
       }
-      if(!p_putc((byte)holdspr[i][j][spr_extend],f))
+      if(!p_putc((byte)walkspr[i][spr_extend],f))
       {
-        return 12;
+        new_return(5);
       }
+    }
+
+    for(int i=0;i<4;i++)
+    {
+      if(!p_iputw((word)stabspr[i][spr_tile],f))
+      {
+        new_return(6);
+      }
+      if(!p_putc((byte)stabspr[i][spr_flip],f))
+      {
+        new_return(6);
+      }
+      if(!p_putc((byte)stabspr[i][spr_extend],f))
+      {
+        new_return(6);
+      }
+    }
+
+    for(int i=0;i<4;i++)
+    {
+      if(!p_iputw((word)slashspr[i][spr_tile],f))
+      {
+        new_return(7);
+      }
+      if(!p_putc((byte)slashspr[i][spr_flip],f))
+      {
+        new_return(7);
+      }
+      if(!p_putc((byte)slashspr[i][spr_extend],f))
+      {
+        new_return(7);
+      }
+    }
+
+    for(int i=0;i<4;i++)
+    {
+      if(!p_iputw((word)floatspr[i][spr_tile],f))
+      {
+        new_return(8);
+      }
+      if(!p_putc((byte)floatspr[i][spr_flip],f))
+      {
+        new_return(8);
+      }
+      if(!p_putc((byte)floatspr[i][spr_extend],f))
+      {
+        new_return(8);
+      }
+    }
+
+    for(int i=0;i<4;i++)
+    {
+      if(!p_iputw((word)swimspr[i][spr_tile],f))
+      {
+        new_return(8);
+      }
+      if(!p_putc((byte)swimspr[i][spr_flip],f))
+      {
+        new_return(8);
+      }
+      if(!p_putc((byte)swimspr[i][spr_extend],f))
+      {
+        new_return(8);
+      }
+    }
+
+    for(int i=0;i<4;i++)
+    {
+      if(!p_iputw((word)divespr[i][spr_tile],f))
+      {
+        new_return(9);
+      }
+      if(!p_putc((byte)divespr[i][spr_flip],f))
+      {
+        new_return(9);
+      }
+      if(!p_putc((byte)divespr[i][spr_extend],f))
+      {
+        new_return(9);
+      }
+    }
+
+    for(int i=0;i<4;i++)
+    {
+      if(!p_iputw((word)poundspr[i][spr_tile],f))
+      {
+        new_return(10);
+      }
+      if(!p_putc((byte)poundspr[i][spr_flip],f))
+      {
+        new_return(10);
+      }
+      if(!p_putc((byte)poundspr[i][spr_extend],f))
+      {
+        new_return(10);
+      }
+    }
+
+    if(!p_iputw((word)castingspr[spr_tile],f))
+    {
+      new_return(11);
+    }
+    if(!p_putc((byte)castingspr[spr_flip],f))
+    {
+      new_return(11);
+    }
+    if(!p_putc((byte)castingspr[spr_extend],f))
+    {
+      new_return(11);
+    }
+
+    for(int i=0;i<2;i++)
+    {
+      for(int j=0;j<2;j++)
+      {
+        if(!p_iputw((word)holdspr[i][j][spr_tile],f))
+        {
+          new_return(12);
+        }
+        if(!p_putc((byte)holdspr[i][j][spr_flip],f))
+        {
+          new_return(12);
+        }
+        if(!p_putc((byte)holdspr[i][j][spr_extend],f))
+        {
+          new_return(12);
+        }
+      }
+    }
+
+    for(int i=0;i<4;i++)
+    {
+      if(!p_iputw((word)jumpspr[i][spr_tile],f))
+      {
+        new_return(13);
+      }
+      if(!p_putc((byte)jumpspr[i][spr_flip],f))
+      {
+        new_return(13);
+      }
+      if(!p_putc((byte)jumpspr[i][spr_extend],f))
+      {
+        new_return(13);
+      }
+    }
+    for(int i=0;i<4;i++)
+    {
+      if(!p_iputw((word)chargespr[i][spr_tile],f))
+      {
+        new_return(13);
+      }
+      if(!p_putc((byte)chargespr[i][spr_flip],f))
+      {
+        new_return(13);
+      }
+      if(!p_putc((byte)chargespr[i][spr_extend],f))
+      {
+        new_return(13);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
     }
   }
 
   //More data will come here
 
-  return 0;
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writelinksprites()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writesubscreens(PACKFILE *f, zquestheader *Header)
@@ -7071,32 +7796,57 @@ int writesubscreens(PACKFILE *f, zquestheader *Header)
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
 
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    for(int i=0;i<MAXCUSTOMSUBSCREENS;i++)
+    {
+      int ret = write_one_subscreen(f, Header, i);
+      fake_pack_writing=(writecycle==0);
+      if(ret!=0)
+      {
+        new_return(ret);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  for(int i=0;i<MAXCUSTOMSUBSCREENS;i++)
+  if (writesize!=int(section_size) && save_warn)
   {
-    int ret = write_one_subscreen(f, Header, i);
-	if(ret!=0) return ret;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writesubscreens()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
-  return 0;
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
@@ -7107,122 +7857,122 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
   int numsub = 0;
   if(!pfwrite(custom_subscreen[i].name, 64,f))
   {
-    return 28;
+    new_return(28);
   }
-	if(!p_putc(custom_subscreen[i].ss_type,f))
-	{
-	  return 29;
-	}
+  if(!p_putc(custom_subscreen[i].ss_type,f))
+  {
+    new_return(29);
+  }
   for(int k=0;(k<MAXSUBSCREENITEMS&&(custom_subscreen[i].objects[k].type != ssoNULL));k++)
   {
     numsub++;
   }
-	if(!p_putc(numsub,f))
+  if(!p_putc(numsub,f))
   {
-    return 4;
+    new_return(4);
   }
   for(int j=0;(j<MAXSUBSCREENITEMS&&j<numsub);j++)
   {
     if(!p_putc(custom_subscreen[i].objects[j].type, f))
     {
-      return 5;
+      new_return(5);
     }
     if(!p_putc(custom_subscreen[i].objects[j].pos, f))
     {
-      return 6;
+      new_return(6);
     }
     if(!p_iputw(custom_subscreen[i].objects[j].x, f))
     {
-      return 7;
+      new_return(7);
     }
     if(!p_iputw(custom_subscreen[i].objects[j].y, f))
     {
-      return 8;
+      new_return(8);
     }
     if(!p_iputw(custom_subscreen[i].objects[j].w, f))
     {
-      return 9;
+      new_return(9);
     }
     if(!p_iputw(custom_subscreen[i].objects[j].h, f))
     {
-      return 10;
+      new_return(10);
     }
     if(!p_putc(custom_subscreen[i].objects[j].colortype1, f))
     {
-      return 11;
+      new_return(11);
     }
     if(!p_iputw(custom_subscreen[i].objects[j].color1, f))
     {
-      return 12;
+      new_return(12);
     }
     if(!p_putc(custom_subscreen[i].objects[j].colortype2, f))
     {
-      return 13;
+      new_return(13);
     }
     if(!p_iputw(custom_subscreen[i].objects[j].color2, f))
     {
-      return 14;
+      new_return(14);
     }
     if(!p_putc(custom_subscreen[i].objects[j].colortype3, f))
     {
-      return 15;
+      new_return(15);
     }
     if(!p_iputw(custom_subscreen[i].objects[j].color3, f))
     {
-      return 16;
+      new_return(16);
     }
     if(!p_iputl(custom_subscreen[i].objects[j].d1, f))
     {
-      return 17;
+      new_return(17);
     }
     if(!p_iputl(custom_subscreen[i].objects[j].d2, f))
     {
-      return 18;
+      new_return(18);
     }
     if(!p_iputl(custom_subscreen[i].objects[j].d3, f))
     {
-      return 19;
+      new_return(19);
     }
     if(!p_iputl(custom_subscreen[i].objects[j].d4, f))
     {
-      return 20;
+      new_return(20);
     }
     if(!p_iputl(custom_subscreen[i].objects[j].d5, f))
     {
-      return 21;
+      new_return(21);
     }
     if(!p_iputl(custom_subscreen[i].objects[j].d6, f))
     {
-      return 22;
+      new_return(22);
     }
     if(!p_iputl(custom_subscreen[i].objects[j].d7, f))
     {
-      return 23;
+      new_return(23);
     }
     if(!p_iputl(custom_subscreen[i].objects[j].d8, f))
     {
-      return 24;
+      new_return(24);
     }
     if(!p_iputl(custom_subscreen[i].objects[j].d9, f))
     {
-      return 25;
+      new_return(25);
     }
     if(!p_iputl(custom_subscreen[i].objects[j].d10, f))
     {
-      return 26;
+      new_return(26);
     }
-	  if(!p_putc(custom_subscreen[i].objects[j].speed, f))
-	  {
-	    return 27;
-	  }
+    if(!p_putc(custom_subscreen[i].objects[j].speed, f))
+    {
+      new_return(27);
+    }
     if(!p_putc(custom_subscreen[i].objects[j].delay, f))
-	  {
-	    return 28;
-	  }
+    {
+      new_return(28);
+    }
     if(!p_iputw(custom_subscreen[i].objects[j].frame, f))
-	  {
-	    return 29;
-	  }
+    {
+      new_return(29);
+    }
 
     switch(custom_subscreen[i].objects[j].type)
     {
@@ -7234,20 +7984,20 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
         {
           if(strlen((char*)custom_subscreen[i].objects[j].dp1))
           {
-            if(!p_iputw(strlen((char*)custom_subscreen[i].objects[j].dp1), f))
+            if(!p_iputw((int)strlen((char*)custom_subscreen[i].objects[j].dp1), f))
             {
-              return 27;
+              new_return(27);
             }
-            if(!pfwrite(custom_subscreen[i].objects[j].dp1, strlen((char*)custom_subscreen[i].objects[j].dp1)+1,f))
+            if(!pfwrite(custom_subscreen[i].objects[j].dp1, (long)strlen((char*)custom_subscreen[i].objects[j].dp1)+1,f))
             {
-              return 28;
+              new_return(28);
             }
           }
           else
           {
             if(!p_putc(0, f))
             {
-              return 27;
+              new_return(27);
             }
           }
         }
@@ -7255,18 +8005,19 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
         {
           if(!p_putc(0, f))
           {
-            return 27;
+            new_return(27);
           }
         }
         break;
       default:
         if(!p_putc(0, f))
         {
-          return 27;
+          new_return(27);
         }
     }
   }
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 extern ffscript *ffscripts[512];
@@ -7289,136 +8040,209 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
 
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    for(int i=0;i<512;i++)
+    {
+      int ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
+      fake_pack_writing=(writecycle==0);
+      if(ret!=0)
+      {
+        new_return(ret);
+      }
+    }
+    for(int i=0;i<256;i++)
+    {
+      int ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
+      fake_pack_writing=(writecycle==0);
+      if(ret!=0)
+      {
+        new_return(ret);
+      }
+    }
+    for(int i=0;i<256;i++)
+    {
+      int ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
+      fake_pack_writing=(writecycle==0);
+      if(ret!=0)
+      {
+        new_return(ret);
+      }
+    }
+    for(int i=0;i<256;i++)
+    {
+      int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
+      fake_pack_writing=(writecycle==0);
+      if(ret!=0)
+      {
+        new_return(ret);
+      }
+    }
+    for(int i=0;i<256;i++)
+    {
+      int ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
+      fake_pack_writing=(writecycle==0);
+      if(ret!=0)
+      {
+        new_return(ret);
+      }
+    }
+    for(int i=0;i<3;i++)
+    {
+      int ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
+      fake_pack_writing=(writecycle==0);
+      if(ret!=0)
+      {
+        new_return(ret);
+      }
+    }
+    for(int i=0;i<3;i++)
+    {
+      int ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
+      fake_pack_writing=(writecycle==0);
+      if(ret!=0)
+      {
+        new_return(ret);
+      }
+    }
+    if(!p_iputl((long)zScript.size(), f))
+    {
+      new_return(2001);
+    }
+    if(!pfwrite((void *)zScript.c_str(), (long)zScript.size(), f))
+    {
+      new_return(2002);
+    }
+    word numffcbindings=0;
+    for(std::map<int, pair<string, string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+    {
+      if(it->second.second != "")
+      {
+        numffcbindings++;
+      }
+    }
+    if(!p_iputw(numffcbindings, f))
+    {
+      new_return(2003);
+    }
+    for(std::map<int, pair<string, string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+    {
+      if(it->second.second != "")
+      {
+        if(!p_iputw(it->first,f))
+        {
+          new_return(2004);
+        }
+        if(!p_iputl((long)it->second.second.size(), f))
+        {
+          new_return(2005);
+        }
+        if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+        {
+          new_return(2006);
+        }
+      }
+    }
+    word numglobalbindings=0;
+    for(std::map<int, pair<string, string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+    {
+      if(it->second.second != "")
+      {
+        numglobalbindings++;
+      }
+    }
+    if(!p_iputw(numglobalbindings, f))
+    {
+      new_return(2007);
+    }
+    for(std::map<int, pair<string, string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+    {
+      if(it->second.second != "")
+      {
+        if(!p_iputw(it->first,f))
+        {
+          new_return(2008);
+        }
+        if(!p_iputl((long)it->second.second.size(), f))
+        {
+          new_return(2009);
+        }
+        if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+        {
+          new_return(2010);
+        }
+      }
+    }
+    word numitembindings=0;
+    for(std::map<int, pair<string, string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+    {
+      if(it->second.second != "")
+      {
+        numitembindings++;
+      }
+    }
+    if(!p_iputw(numitembindings, f))
+    {
+      new_return(2011);
+    }
+    for(std::map<int, pair<string, string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+    {
+      if(it->second.second != "")
+      {
+        if(!p_iputw(it->first,f))
+        {
+          new_return(2012);
+        }
+        if(!p_iputl((long)it->second.second.size(), f))
+        {
+          new_return(2013);
+        }
+        if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+        {
+          new_return(2014);
+        }
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  for(int i=0;i<512;i++)
+  if (writesize!=int(section_size) && save_warn)
   {
-    int ret = write_one_ffscript(f, Header, i, &ffscripts[i]);
-	if(ret!=0) return ret;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeffscript()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
-  for(int i=0;i<256;i++)
-  {
-    int ret = write_one_ffscript(f, Header, i, &itemscripts[i]);
-	if(ret!=0) return ret;
-  }
-  for(int i=0;i<256;i++)
-  {
-    int ret = write_one_ffscript(f, Header, i, &guyscripts[i]);
-	if(ret!=0) return ret;
-  }
-  for(int i=0;i<256;i++)
-  {
-    int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
-	if(ret!=0) return ret;
-  }
-  for(int i=0;i<256;i++)
-  {
-    int ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
-	if(ret!=0) return ret;
-  }
-  for(int i=0;i<3;i++)
-  {
-    int ret = write_one_ffscript(f, Header, i, &globalscripts[i]);
-	if(ret!=0) return ret;
-  }
-  for(int i=0;i<3;i++)
-  {
-    int ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
-	if(ret!=0) return ret;
-  }
-  if(!p_iputl(zScript.size(), f))
-  {
-	  return 2001;
-  }
-  if(!pfwrite((void *)zScript.c_str(), zScript.size(), f))
-  {
-	  return 2002;
-  }
-  word numffcbindings=0;
-  for(std::map<int, pair<string, string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
-  {
-	  if(it->second.second != "")
-		  numffcbindings++;
-  }
-  if(!p_iputw(numffcbindings, f))
-  {
-	  return 2003;
-  }
-  for(std::map<int, pair<string, string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
-  {
-	  if(it->second.second != "")
-	  {
-		  if(!p_iputw(it->first,f))
-			  return 2004;
-		  if(!p_iputl(it->second.second.size(), f))
-			  return 2005;
-		  if(!pfwrite((void *)it->second.second.c_str(), it->second.second.size(),f))
-			  return 2006;
-	  }
-  }
-  word numglobalbindings=0;
-  for(std::map<int, pair<string, string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
-  {
-	  if(it->second.second != "")
-		  numglobalbindings++;
-  }
-  if(!p_iputw(numglobalbindings, f))
-  {
-	  return 2007;
-  }
-  for(std::map<int, pair<string, string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
-  {
-	  if(it->second.second != "")
-	  {
-		  if(!p_iputw(it->first,f))
-			  return 2008;
-		  if(!p_iputl(it->second.second.size(), f))
-			  return 2009;
-		  if(!pfwrite((void *)it->second.second.c_str(), it->second.second.size(),f))
-			  return 2010;
-	  }
-  }
-  word numitembindings=0;
-  for(std::map<int, pair<string, string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
-  {
-	  if(it->second.second != "")
-		  numitembindings++;
-  }
-  if(!p_iputw(numitembindings, f))
-  {
-	  return 2011;
-  }
-  for(std::map<int, pair<string, string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
-  {
-	  if(it->second.second != "")
-	  {
-		  if(!p_iputw(it->first,f))
-			  return 2012;
-		  if(!p_iputl(it->second.second.size(), f))
-			  return 2013;
-		  if(!pfwrite((void *)it->second.second.c_str(), it->second.second.size(),f))
-			  return 2014;
-	  }
-  }
-  return 0;
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **script)
@@ -7427,42 +8251,43 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **scri
   Header=Header;
   i=i;
 
-	int num_commands;
-	for(int j=0;;j++)
-	{
-	  if((*script)[j].command==0xFFFF)
-	  {
-	    num_commands = j+1;
-		break;
-	  }
-	}
-	if(!p_iputl(num_commands,f))
-	{
-	  return 6;
-	}
-	for(int j=0;j<num_commands;j++)
-	{
-		if(!p_iputw((*script)[j].command,f))
-		{
-			return 7;
-		}
-		if((*script)[j].command==0xFFFF)
-		{
-			break;
-		}
-		else
-		{
-			if(!p_iputl((*script)[j].arg1,f))
-			{
-				return 8;
-			}
-			if(!p_iputl((*script)[j].arg2,f))
-			{
-				return 9;
-			}
-		}
-	}
-	return 0;
+  int num_commands;
+  for(int j=0;;j++)
+  {
+    if((*script)[j].command==0xFFFF)
+    {
+      num_commands = j+1;
+      break;
+    }
+  }
+  if(!p_iputl(num_commands,f))
+  {
+    new_return(6);
+  }
+  for(int j=0;j<num_commands;j++)
+  {
+    if(!p_iputw((*script)[j].command,f))
+    {
+      new_return(7);
+    }
+    if((*script)[j].command==0xFFFF)
+    {
+      break;
+    }
+    else
+    {
+      if(!p_iputl((*script)[j].arg1,f))
+      {
+        new_return(8);
+      }
+      if(!p_iputl((*script)[j].arg2,f))
+      {
+        new_return(9);
+      }
+    }
+  }
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 extern SAMPLE customsfxdata[WAV_COUNT];
@@ -7480,66 +8305,87 @@ int writesfx(PACKFILE *f, zquestheader *Header)
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
 
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    for(int i=1;i<WAV_COUNT;i++)
+    {
+      if(!p_iputl(customsfxdata[i].bits,f))
+      {
+        new_return(5);
+      }
+      if(!p_iputl(customsfxdata[i].stereo,f))
+      {
+        new_return(6);
+      }
+      if(!p_iputl(customsfxdata[i].freq,f))
+      {
+        new_return(7);
+      }
+      if(!p_iputl(customsfxdata[i].priority,f))
+      {
+        new_return(8);
+      }
+      if(!p_iputl(customsfxdata[i].len,f))
+      {
+        new_return(9);
+      }
+      if(!p_iputl(customsfxdata[i].loop_start,f))
+      {
+        new_return(10);
+      }
+      if(!p_iputl(customsfxdata[i].loop_end,f))
+      {
+        new_return(11);
+      }
+      if(!p_iputl(customsfxdata[i].param,f))
+      {
+        new_return(12);
+      }
+      if(!pfwrite(customsfxdata[i].data, (customsfxdata[i].bits==8?1:2)*customsfxdata[i].len,f))
+      {
+        new_return(13);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  for(int i=1;i<WAV_COUNT;i++)
+  if (writesize!=int(section_size) && save_warn)
   {
-    if(!p_iputl(customsfxdata[i].bits,f))
-	{
-		return 5;
-	}
-	if(!p_iputl(customsfxdata[i].stereo,f))
-	{
-		return 6;
-	}
-	if(!p_iputl(customsfxdata[i].freq,f))
-	{
-		return 7;
-	}
-	if(!p_iputl(customsfxdata[i].priority,f))
-	{
-		return 8;
-	}
-	if(!p_iputl(customsfxdata[i].len,f))
-	{
-		return 9;
-	}
-	if(!p_iputl(customsfxdata[i].loop_start,f))
-	{
-		return 10;
-	}
-	if(!p_iputl(customsfxdata[i].loop_end,f))
-	{
-		return 11;
-	}
-	if(!p_iputl(customsfxdata[i].param,f))
-	{
-		return 12;
-	}
-	if(!pfwrite(customsfxdata[i].data, (customsfxdata[i].bits==8?1:2)*customsfxdata[i].len,f))
-	{
-		return 13;
-	}
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writesfx()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
-  return 0;
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writeinitdata(PACKFILE *f, zquestheader *Header)
@@ -7550,8 +8396,7 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
   dword section_id=ID_INITDATA;
   dword section_version=V_INITDATA;
   dword section_cversion=CV_INITDATA;
-  //  dword section_size=0;
-  dword section_size = 174;
+  dword section_size = 0;
 
   zinit.last_map=Map.getCurrMap();
   zinit.last_screen=Map.getCurrScr();
@@ -7560,425 +8405,329 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    //write the new items
+    for(int i=0; i<MAXITEMS; i++)
+    {
+      if(!p_putc(zinit.items[i] ? 1 : 0, f))
+      {
+        new_return(5);
+      }
+    }
+    //bomb counter RANDOMLY in the middle of items :-/
+    if(!p_putc(zinit.bombs,f))
+    {
+      new_return(23);
+    }
+    if(!p_putc(zinit.super_bombs,f))
+    {
+      new_return(24);
+    }
+    if(!p_putc(zinit.hc,f))
+    {
+      new_return(35);
+    }
+    if(!p_putc(zinit.start_heart,f))
+    {
+      new_return(36);
+    }
+    if(!p_putc(zinit.cont_heart,f))
+    {
+      new_return(37);
+    }
+    if(!p_putc(zinit.hcp,f))
+    {
+      new_return(38);
+    }
+    if(!p_putc(zinit.max_bombs,f))
+    {
+      new_return(39);
+    }
+    if(!p_putc(zinit.keys,f))
+    {
+      new_return(40);
+    }
+    if(!p_iputw(zinit.rupies,f))
+    {
+      new_return(41);
+    }
+    if(!p_putc(zinit.triforce,f))
+    {
+      new_return(42);
+    }
+    for (int i=0; i<64; i++)
+    {
+      if(!p_putc(zinit.map[i],f))
+      {
+        new_return(43);
+      }
+    }
+    for (int i=0; i<64; i++)
+    {
+      if(!p_putc(zinit.compass[i],f))
+      {
+        new_return(44);
+      }
+    }
+    for (int i=0; i<64; i++)
+    {
+      if(!p_putc(zinit.boss_key[i],f))
+      {
+        new_return(45);
+      }
+    }
+    for (int i=0; i<16; i++)
+    {
+      if(!p_putc(zinit.misc[i],f))
+      {
+        new_return(46);
+      }
+    }
+    for (int i=0; i<4; i++)
+    {
+      if(!p_putc(zinit.sword_hearts[i],f))
+      {
+        new_return(47);
+      }
+    }
+    if(!p_putc(zinit.last_map,f))
+    {
+      new_return(48);
+    }
+    if(!p_putc(zinit.last_screen,f))
+    {
+      new_return(49);
+    }
+    if(!p_putc(zinit.max_magic,f))
+    {
+      new_return(50);
+    }
+    if(!p_putc(zinit.magic,f))
+    {
+      new_return(51);
+    }
+    for (int i=0; i<4; i++)
+    {
+      if(!p_putc(zinit.beam_hearts[i],f))
+      {
+        new_return(52);
+      }
+    }
+    if(!p_putc(zinit.beam_percent,f))
+    {
+      new_return(53);
+    }
+    for (int i=0; i<4; i++)
+    {
+      if(!p_putc(zinit.beam_power[i],f))
+      {
+        new_return(54);
+      }
+    }
+    if(!p_putc(zinit.hookshot_links,f))
+    {
+      new_return(55);
+    }
+    if(!p_putc(zinit.hookshot_length,f))
+    {
+      new_return(56);
+    }
+    if(!p_putc(zinit.longshot_links,f))
+    {
+      new_return(57);
+    }
+    if(!p_putc(zinit.longshot_length,f))
+    {
+      new_return(58);
+    }
+    if(!p_putc(zinit.msg_more_x,f))
+    {
+      new_return(59);
+    }
+    if(!p_putc(zinit.msg_more_y,f))
+    {
+      new_return(60);
+    }
+    if(!p_putc(zinit.subscreen,f))
+    {
+      new_return(61);
+    }
+    if(!p_iputw(zinit.start_dmap,f))
+    {
+      new_return(62);
+    }
+    if(!p_putc(zinit.linkanimationstyle,f))
+    {
+      new_return(63);
+    }
+    if(!p_putc(zinit.arrows,f))
+    {
+      new_return(64);
+    }
+    if(!p_putc(zinit.max_arrows,f))
+    {
+      new_return(65);
+    }
+    for(int i=0;i<MAXLEVELS;i++)
+    {
+      if(!p_putc(zinit.level_keys[i],f))
+      {
+        new_return(66);
+      }
+    }
+    if(!p_iputw(zinit.ss_grid_x,f))
+    {
+      new_return(67);
+    }
+    if(!p_iputw(zinit.ss_grid_y,f))
+    {
+      new_return(68);
+    }
+    if(!p_iputw(zinit.ss_grid_xofs,f))
+    {
+      new_return(68);
+    }
+    if(!p_iputw(zinit.ss_grid_yofs,f))
+    {
+      new_return(70);
+    }
+    if(!p_iputw(zinit.ss_grid_color,f))
+    {
+      new_return(71);
+    }
+    if(!p_iputw(zinit.ss_bbox_1_color,f))
+    {
+      new_return(72);
+    }
+    if(!p_iputw(zinit.ss_bbox_2_color,f))
+    {
+      new_return(73);
+    }
+    if(!p_iputw(zinit.ss_flags,f))
+    {
+      new_return(74);
+    }
+    if(!p_putc(zinit.moving_fairy_hearts,f))
+    {
+      new_return(75);
+    }
+    if(!p_putc(zinit.moving_fairy_heart_percent,f))
+    {
+      new_return(76);
+    }
+    if(!p_putc(zinit.stationary_fairy_hearts,f))
+    {
+      new_return(78);
+    }
+    if(!p_putc(zinit.stationary_fairy_heart_percent,f))
+    {
+      new_return(79);
+    }
+    if(!p_putc(zinit.moving_fairy_magic,f))
+    {
+      new_return(80);
+    }
+    if(!p_putc(zinit.moving_fairy_magic_percent,f))
+    {
+      new_return(81);
+    }
+    if(!p_putc(zinit.stationary_fairy_magic,f))
+    {
+      new_return(82);
+    }
+    if(!p_putc(zinit.stationary_fairy_magic_percent,f))
+    {
+      new_return(83);
+    }
+    if(!p_putc(zinit.blue_potion_hearts,f))
+    {
+      new_return(84);
+    }
+    if(!p_putc(zinit.blue_potion_heart_percent,f))
+    {
+      new_return(85);
+    }
+    if(!p_putc(zinit.red_potion_hearts,f))
+    {
+      new_return(86);
+    }
+    if(!p_putc(zinit.red_potion_heart_percent,f))
+    {
+      new_return(87);
+    }
+    if(!p_putc(zinit.blue_potion_magic,f))
+    {
+      new_return(88);
+    }
+    if(!p_putc(zinit.blue_potion_magic_percent,f))
+    {
+      new_return(89);
+    }
+    if(!p_putc(zinit.red_potion_magic,f))
+    {
+      new_return(90);
+    }
+    if(!p_putc(zinit.red_potion_magic_percent,f))
+    {
+      new_return(91);
+    }
+    if(!p_putc(zinit.subscreen_style,f))
+    {
+      new_return(92);
+    }
+    if(!p_putc(zinit.usecustomsfx,f))
+    {
+      new_return(93);
+    }
+    if(!p_iputw(zinit.max_rupees,f))
+    {
+      new_return(94);
+    }
+    if(!p_iputw(zinit.max_keys,f))
+    {
+      new_return(95);
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  //write the new items
-  for(int i=0; i<MAXITEMS; i++)
+  if (writesize!=int(section_size) && save_warn)
   {
-	  if(!p_putc(zinit.items[i] ? 1 : 0, f))
-		  return 5;
-  }
-  /*if(!p_putc(zinit.raft,f))
-  {
-    return 5;
-  }
-  if(!p_putc(zinit.ladder,f))
-  {
-    return 6;
-  }
-  if(!p_putc(zinit.book,f))
-  {
-    return 7;
-  }
-  if(!p_putc(zinit.key,f))
-  {
-    return 8;
-  }
-  if(!p_putc(zinit.flippers,f))
-  {
-    return 9;
-  }
-  if(!p_putc(zinit.boots,f))
-  {
-    return 10;
-  }
-  if(!p_putc(zinit.ring,f))
-  {
-    return 11;
-  }
-  if(!p_putc(zinit.sword,f))
-  {
-    return 12;
-  }
-  if(!p_putc(zinit.shield,f))
-  {
-    return 13;
-  }
-  if(!p_putc(zinit.wallet,f))
-  {
-    return 14;
-  }
-  if(!p_putc(zinit.bracelet,f))
-  {
-    return 15;
-  }
-  if(!p_putc(zinit.amulet,f))
-  {
-    return 16;
-  }
-  if(!p_putc(zinit.bow,f))
-  {
-    return 17;
-  }
-  if(!p_putc(zinit.candle,f))
-  {
-    return 18;
-  }
-  if(!p_putc(zinit.boomerang,f))
-  {
-    return 19;
-  }
-  if(!p_putc(zinit.arrow,f))
-  {
-    return 20;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeinitdata()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  if(!p_putc(zinit.potion,f))
-  {
-    return 21;
-  }
-  if(!p_putc(zinit.whistle,f))
-  {
-    return 22;
-  }*/
-  //bomb counter RANDOMLY in the middle of items :-/
-  if(!p_putc(zinit.bombs,f))
-  {
-    return 23;
-  }
-  if(!p_putc(zinit.super_bombs,f))
-  {
-    return 24;
-  }
-  /*
-  if(!p_putc(zinit.wand,f))
-  {
-    return 25;
-  }
-  if(!p_putc(zinit.letter,f))
-
-  {
-    return 26;
-  }
-  if(!p_putc(zinit.lens,f))
-  {
-    return 27;
-  }
-  if(!p_putc(zinit.hookshot,f))
-  {
-    return 28;
-  }
-  if(!p_putc(zinit.bait,f))
-  {
-    return 29;
-  }
-  if(!p_putc(zinit.hammer,f))
-  {
-    return 30;
-  }
-  if(!p_putc(zinit.dins_fire,f))
-  {
-    return 31;
-  }
-  if(!p_putc(zinit.farores_wind,f))
-  {
-    return 32;
-  }
-  if(!p_putc(zinit.nayrus_love,f))
-  {
-    return 33;
-  }
-  if(!p_putc(zinit.cloak,f))
-  {
-    return 34;
-  }*/
-  if(!p_putc(zinit.hc,f))
-  {
-    return 35;
-  }
-  if(!p_putc(zinit.start_heart,f))
-  {
-    return 36;
-  }
-  if(!p_putc(zinit.cont_heart,f))
-  {
-    return 37;
-  }
-  if(!p_putc(zinit.hcp,f))
-  {
-    return 38;
-  }
-  if(!p_putc(zinit.max_bombs,f))
-  {
-    return 39;
-  }
-  if(!p_putc(zinit.keys,f))
-  {
-    return 40;
-  }
-  if(!p_iputw(zinit.rupies,f))
-  {
-    return 41;
-  }
-  if(!p_putc(zinit.triforce,f))
-  {
-    return 42;
-  }
-  for (int i=0; i<32; i++)
-  {
-    if(!p_putc(zinit.map[i],f))
-    {
-      return 43;
-    }
-  }
-  for (int i=0; i<32; i++)
-  {
-    if(!p_putc(zinit.compass[i],f))
-    {
-      return 44;
-    }
-  }
-  for (int i=0; i<32; i++)
-  {
-    if(!p_putc(zinit.boss_key[i],f))
-    {
-      return 45;
-    }
-  }
-  for (int i=0; i<16; i++)
-  {
-    if(!p_putc(zinit.misc[i],f))
-    {
-      return 46;
-    }
-  }
-  for (int i=0; i<4; i++)
-  {
-    if(!p_putc(zinit.sword_hearts[i],f))
-    {
-      return 47;
-    }
-  }
-  if(!p_putc(zinit.last_map,f))
-  {
-    return 48;
-  }
-  if(!p_putc(zinit.last_screen,f))
-  {
-    return 49;
-  }
-  if(!p_putc(zinit.max_magic,f))
-  {
-    return 50;
-  }
-  if(!p_putc(zinit.magic,f))
-  {
-    return 51;
-  }
-  for (int i=0; i<4; i++)
-  {
-    if(!p_putc(zinit.beam_hearts[i],f))
-    {
-      return 52;
-    }
-  }
-  if(!p_putc(zinit.beam_percent,f))
-  {
-    return 53;
-  }
-  for (int i=0; i<4; i++)
-  {
-    if(!p_putc(zinit.beam_power[i],f))
-    {
-      return 54;
-    }
-  }
-  if(!p_putc(zinit.hookshot_links,f))
-  {
-    return 55;
-  }
-  if(!p_putc(zinit.hookshot_length,f))
-  {
-    return 56;
-  }
-  if(!p_putc(zinit.longshot_links,f))
-  {
-    return 57;
-  }
-  if(!p_putc(zinit.longshot_length,f))
-  {
-    return 58;
-  }
-  if(!p_putc(zinit.msg_more_x,f))
-  {
-    return 59;
-  }
-  if(!p_putc(zinit.msg_more_y,f))
-  {
-    return 60;
-  }
-  if(!p_putc(zinit.subscreen,f))
-  {
-    return 61;
-  }
-  if(!p_putc(zinit.start_dmap,f))
-  {
-    return 62;
-  }
-  if(!p_putc(zinit.linkanimationstyle,f))
-  {
-    return 63;
-  }
-  if(!p_putc(zinit.arrows,f))
-  {
-    return 64;
-  }
-  if(!p_putc(zinit.max_arrows,f))
-  {
-    return 65;
-  }
-  for(int i=0;i<256;i++)
-  {
-    if(!p_putc(zinit.level_keys[i],f))
-  	{
-  	  return 66;
-  	}
-  }
-  if(!p_iputw(zinit.ss_grid_x,f))
-  {
-    return 67;
-  }
-  if(!p_iputw(zinit.ss_grid_y,f))
-  {
-    return 68;
-  }
-  if(!p_iputw(zinit.ss_grid_xofs,f))
-  {
-    return 68;
-  }
-  if(!p_iputw(zinit.ss_grid_yofs,f))
-  {
-    return 70;
-  }
-  if(!p_iputw(zinit.ss_grid_color,f))
-  {
-    return 71;
-  }
-  if(!p_iputw(zinit.ss_bbox_1_color,f))
-  {
-    return 72;
-  }
-  if(!p_iputw(zinit.ss_bbox_2_color,f))
-  {
-    return 73;
-  }
-  if(!p_iputw(zinit.ss_flags,f))
-  {
-    return 74;
-  }
-  if(!p_putc(zinit.moving_fairy_hearts,f))
-  {
-    return 75;
-  }
-  if(!p_putc(zinit.moving_fairy_heart_percent,f))
-  {
-    return 76;
-  }
-  /*if(!p_putc(zinit.quiver,f))
-  {
-	  return 77;
-  }*/
-  if(!p_putc(zinit.stationary_fairy_hearts,f))
-  {
-    return 78;
-  }
-  if(!p_putc(zinit.stationary_fairy_heart_percent,f))
-  {
-    return 79;
-  }
-  if(!p_putc(zinit.moving_fairy_magic,f))
-  {
-    return 80;
-  }
-  if(!p_putc(zinit.moving_fairy_magic_percent,f))
-  {
-    return 81;
-  }
-  if(!p_putc(zinit.stationary_fairy_magic,f))
-  {
-    return 82;
-  }
-  if(!p_putc(zinit.stationary_fairy_magic_percent,f))
-  {
-    return 83;
-  }
-  if(!p_putc(zinit.blue_potion_hearts,f))
-  {
-    return 84;
-  }
-  if(!p_putc(zinit.blue_potion_heart_percent,f))
-  {
-    return 85;
-  }
-  if(!p_putc(zinit.red_potion_hearts,f))
-  {
-    return 86;
-  }
-  if(!p_putc(zinit.red_potion_heart_percent,f))
-  {
-    return 87;
-  }
-  if(!p_putc(zinit.blue_potion_magic,f))
-  {
-    return 88;
-  }
-  if(!p_putc(zinit.blue_potion_magic_percent,f))
-  {
-    return 89;
-  }
-  if(!p_putc(zinit.red_potion_magic,f))
-  {
-    return 90;
-  }
-  if(!p_putc(zinit.red_potion_magic_percent,f))
-  {
-    return 91;
-  }
-  if(!p_putc(zinit.subscreen_style,f))
-  {
-    return 92;
-  }
-  if(!p_putc(zinit.usecustomsfx,f))
-  {
-    return 93;
-  }
-  if(!p_iputw(zinit.max_rupees,f))
-  {
-    return 94;
-  }
-  if(!p_iputw(zinit.max_keys,f))
-  {
-    return 95;
-  }
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int save_unencoded_quest(char *filename, bool compressed)
@@ -8013,12 +8762,12 @@ int save_unencoded_quest(char *filename, bool compressed)
 
   PACKFILE *f = pack_fopen(filename,compressed?F_WRITE_PACKED:F_WRITE);
   if(!f)
-    return 1;
+    new_return(1);
 
   box_out("Writing Header...");
   if (writeheader(f,&header)!=0)
   {
-    return 2;
+    new_return(2);
   }
   box_out("okay.");
   box_eol();
@@ -8026,7 +8775,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Rules...");
   if (writerules(f,&header)!=0)
   {
-    return 3;
+    new_return(3);
   }
   box_out("okay.");
   box_eol();
@@ -8034,7 +8783,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Strings...");
   if (writestrings(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)!=0)
   {
-    return 4;
+    new_return(4);
   }
   box_out("okay.");
   box_eol();
@@ -8042,7 +8791,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Doors...");
   if (writedoorcombosets(f,&header)!=0)
   {
-    return 5;
+    new_return(5);
   }
   box_out("okay.");
   box_eol();
@@ -8050,7 +8799,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing DMaps...");
   if (writedmaps(f,header.zelda_version,header.build,0,MAXDMAPS)!=0)
   {
-    return 6;
+    new_return(6);
   }
   box_out("okay.");
   box_eol();
@@ -8058,7 +8807,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Misc. Data...");
   if (writemisc(f,&header,&misc)!=0)
   {
-    return 7;
+    new_return(7);
   }
   box_out("okay.");
   box_eol();
@@ -8066,7 +8815,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Misc. Colors...");
   if (writemisccolors(f,&header,&misc)!=0)
   {
-    return 8;
+    new_return(8);
   }
   box_out("okay.");
   box_eol();
@@ -8074,7 +8823,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Game Icons...");
   if (writegameicons(f,&header,&misc)!=0)
   {
-    return 9;
+    new_return(9);
   }
   box_out("okay.");
   box_eol();
@@ -8082,7 +8831,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Items...");
   if (writeitems(f,&header)!=0)
   {
-    return 10;
+    new_return(10);
   }
 
   box_out("okay.");
@@ -8091,7 +8840,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Weapons...");
   if (writeweapons(f,&header)!=0)
   {
-    return 11;
+    new_return(11);
   }
   box_out("okay.");
   box_eol();
@@ -8099,7 +8848,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Maps...");
   if (writemaps(f,&header)!=0)
   {
-    return 12;
+    new_return(12);
   }
   box_out("okay.");
   box_eol();
@@ -8107,7 +8856,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Combos...");
   if (writecombos(f,header.zelda_version,header.build,0,MAXCOMBOS)!=0)
   {
-    return 13;
+    new_return(13);
   }
   box_out("okay.");
   box_eol();
@@ -8115,7 +8864,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Combo Aliases...");
   if (writecomboaliases(f,header.zelda_version,header.build)!=0)
   {
-    return 14;
+    new_return(14);
   }
   box_out("okay.");
   box_eol();
@@ -8123,7 +8872,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Color Data...");
   if (writecolordata(f,&misc,header.zelda_version,header.build,0,newpdTOTAL)!=0)
   {
-    return 15;
+    new_return(15);
   }
   box_out("okay.");
   box_eol();
@@ -8131,15 +8880,15 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Tiles...");
   if (writetiles(f,header.zelda_version,header.build,0,NEWMAXTILES)!=0)
   {
-    return 16;
+    new_return(16);
   }
   box_out("okay.");
   box_eol();
 
   box_out("Writing MIDIs...");
-  if (writemidis(f,&header)!=0)
+  if (writemidis(f)!=0)
   {
-    return 17;
+    new_return(17);
   }
   box_out("okay.");
   box_eol();
@@ -8147,7 +8896,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Cheat Codes...");
   if (writecheats(f,&header)!=0)
   {
-    return 18;
+    new_return(18);
   }
   box_out("okay.");
   box_eol();
@@ -8155,7 +8904,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Init. Data...");
   if (writeinitdata(f,&header)!=0)
   {
-    return 19;
+    new_return(19);
   }
   box_out("okay.");
   box_eol();
@@ -8163,7 +8912,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Custom Guy Data...");
   if (writeguys(f,&header)!=0)
   {
-    return 20;
+    new_return(20);
   }
   box_out("okay.");
   box_eol();
@@ -8171,7 +8920,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Custom Link Sprite Data...");
   if (writelinksprites(f,&header)!=0)
   {
-    return 21;
+    new_return(21);
   }
   box_out("okay.");
   box_eol();
@@ -8179,7 +8928,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing Custom Subscreen Data...");
   if (writesubscreens(f,&header)!=0)
   {
-    return 22;
+    new_return(22);
   }
   box_out("okay.");
   box_eol();
@@ -8187,7 +8936,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing FF Script Data...");
   if (writeffscript(f,&header)!=0)
   {
-    return 23;
+    new_return(23);
   }
   box_out("okay.");
   box_eol();
@@ -8195,7 +8944,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   box_out("Writing SFX Data...");
   if (writesfx(f,&header)!=0)
   {
-    return 24;
+    new_return(24);
   }
   box_out("okay.");
   box_eol();
@@ -8205,7 +8954,7 @@ int save_unencoded_quest(char *filename, bool compressed)
   replace_extension(keyfilename, get_filename(filepath), "key", 255);
   if (header.use_keyfile&&header.dirty_password)
   {
-    packfile_password(NULL);
+    setPackfilePassword(NULL);
     PACKFILE *fp = pack_fopen(keyfilename, F_WRITE);
     char msg[80];
     memset(msg,0,80);
@@ -8216,9 +8965,10 @@ int save_unencoded_quest(char *filename, bool compressed)
     p_putc(header.build,fp);
     pfwrite(header.password, 256, fp);
     pack_fclose(fp);
-    packfile_password(datapwd);
+    setPackfilePassword(datapwd);
   }
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int save_quest(char *filename, bool version_210)
@@ -8227,7 +8977,7 @@ int save_quest(char *filename, bool version_210)
   char tmpbuf[L_tmpnam];
   char *tmpfilename = temp_name(tmpbuf);
 
-  packfile_password(datapwd);
+  setPackfilePassword(datapwd);
   int ret;
   if (version_210)
   {
@@ -8246,7 +8996,7 @@ int save_quest(char *filename, bool version_210)
 
 
 
-  packfile_password(NULL);
+  setPackfilePassword(NULL);
   if(ret == 0)
   {
     box_out("Encrypting...");
@@ -8292,89 +9042,89 @@ void zmap::prv_secrets(bool high16only)
         switch(checkflag)
         {
           case mfBCANDLE:
-          ft=sBCANDLE;
-          break;
+            ft=sBCANDLE;
+            break;
           case mfRCANDLE:
-          ft=sRCANDLE;
-          break;
+            ft=sRCANDLE;
+            break;
           case mfWANDFIRE:
-          ft=sWANDFIRE;
-          break;
+            ft=sWANDFIRE;
+            break;
           case mfDINSFIRE:
-          ft=sDINSFIRE;
-          break;
+            ft=sDINSFIRE;
+            break;
           case mfARROW:
-          ft=sARROW;
-          break;
+            ft=sARROW;
+            break;
           case mfSARROW:
-          ft=sSARROW;
-          break;
+            ft=sSARROW;
+            break;
           case mfGARROW:
-          ft=sGARROW;
-          break;
+            ft=sGARROW;
+            break;
           case mfSBOMB:
-          ft=sSBOMB;
-          break;
+            ft=sSBOMB;
+            break;
           case mfBOMB:
-          ft=sBOMB;
-          break;
+            ft=sBOMB;
+            break;
           case mfBRANG:
-          ft=sBRANG;
-          break;
+            ft=sBRANG;
+            break;
           case mfMBRANG:
-          ft=sMBRANG;
-          break;
+            ft=sMBRANG;
+            break;
           case mfFBRANG:
-          ft=sFBRANG;
-          break;
+            ft=sFBRANG;
+            break;
           case mfWANDMAGIC:
-          ft=sWANDMAGIC;
-          break;
+            ft=sWANDMAGIC;
+            break;
           case mfREFMAGIC:
-          ft=sREFMAGIC;
-          break;
+            ft=sREFMAGIC;
+            break;
           case mfREFFIREBALL:
-          ft=sREFFIREBALL;
-          break;
+            ft=sREFFIREBALL;
+            break;
           case mfSWORD:
-          ft=sSWORD;
-          break;
+            ft=sSWORD;
+            break;
           case mfWSWORD:
-          ft=sWSWORD;
-          break;
+            ft=sWSWORD;
+            break;
           case mfMSWORD:
-          ft=sMSWORD;
-          break;
+            ft=sMSWORD;
+            break;
           case mfXSWORD:
-          ft=sXSWORD;
-          break;
+            ft=sXSWORD;
+            break;
           case mfSWORDBEAM:
-          ft=sSWORDBEAM;
-          break;
+            ft=sSWORDBEAM;
+            break;
           case mfWSWORDBEAM:
-          ft=sWSWORDBEAM;
-          break;
+            ft=sWSWORDBEAM;
+            break;
           case mfMSWORDBEAM:
-          ft=sMSWORDBEAM;
-          break;
+            ft=sMSWORDBEAM;
+            break;
           case mfXSWORDBEAM:
-          ft=sXSWORDBEAM;
-          break;
+            ft=sXSWORDBEAM;
+            break;
           case mfHOOKSHOT:
-          ft=sHOOKSHOT;
-          break;
+            ft=sHOOKSHOT;
+            break;
           case mfWAND:
-          ft=sWAND;
-          break;
+            ft=sWAND;
+            break;
           case mfHAMMER:
-          ft=sHAMMER;
-          break;
+            ft=sHAMMER;
+            break;
           case mfSTRIKE:
-          ft=sSTRIKE;
-          break;
+            ft=sSTRIKE;
+            break;
           default:
-          putit = false;
-          break;
+            putit = false;
+            break;
         }
         if (putit)
         {
@@ -8389,7 +9139,9 @@ void zmap::prv_secrets(bool high16only)
         for (int iter=0; iter<2; ++iter)
         {
           putit=true;
-          int checkflag=combobuf[t[j].data[i]].flag;
+		  if(t[j].data==NULL)
+			  continue;
+		  int checkflag=combobuf[t[j].data[i]].flag;
           if (iter==1)
           {
             checkflag=t[j].sflag[i];
@@ -8397,89 +9149,89 @@ void zmap::prv_secrets(bool high16only)
           switch(checkflag)
           {
             case mfBCANDLE:
-            ft=sBCANDLE;
-            break;
+              ft=sBCANDLE;
+              break;
             case mfRCANDLE:
-            ft=sRCANDLE;
-            break;
+              ft=sRCANDLE;
+              break;
             case mfWANDFIRE:
-            ft=sWANDFIRE;
-            break;
+              ft=sWANDFIRE;
+              break;
             case mfDINSFIRE:
-            ft=sDINSFIRE;
-            break;
+              ft=sDINSFIRE;
+              break;
             case mfARROW:
-            ft=sARROW;
-            break;
+              ft=sARROW;
+              break;
             case mfSARROW:
-            ft=sSARROW;
-            break;
+              ft=sSARROW;
+              break;
             case mfGARROW:
-            ft=sGARROW;
-            break;
+              ft=sGARROW;
+              break;
             case mfSBOMB:
-            ft=sSBOMB;
-            break;
+              ft=sSBOMB;
+              break;
             case mfBOMB:
-            ft=sBOMB;
-            break;
+              ft=sBOMB;
+              break;
             case mfBRANG:
-            ft=sBRANG;
-            break;
+              ft=sBRANG;
+              break;
             case mfMBRANG:
-            ft=sMBRANG;
-            break;
+              ft=sMBRANG;
+              break;
             case mfFBRANG:
-            ft=sFBRANG;
-            break;
+              ft=sFBRANG;
+              break;
             case mfWANDMAGIC:
-            ft=sWANDMAGIC;
-            break;
+              ft=sWANDMAGIC;
+              break;
             case mfREFMAGIC:
-            ft=sREFMAGIC;
-            break;
+              ft=sREFMAGIC;
+              break;
             case mfREFFIREBALL:
-            ft=sREFFIREBALL;
-            break;
+              ft=sREFFIREBALL;
+              break;
             case mfSWORD:
-            ft=sSWORD;
-            break;
+              ft=sSWORD;
+              break;
             case mfWSWORD:
-            ft=sWSWORD;
-            break;
+              ft=sWSWORD;
+              break;
             case mfMSWORD:
-            ft=sMSWORD;
-            break;
+              ft=sMSWORD;
+              break;
             case mfXSWORD:
-            ft=sXSWORD;
-            break;
+              ft=sXSWORD;
+              break;
             case mfSWORDBEAM:
-            ft=sSWORDBEAM;
-            break;
+              ft=sSWORDBEAM;
+              break;
             case mfWSWORDBEAM:
-            ft=sWSWORDBEAM;
-            break;
+              ft=sWSWORDBEAM;
+              break;
             case mfMSWORDBEAM:
-            ft=sMSWORDBEAM;
-            break;
+              ft=sMSWORDBEAM;
+              break;
             case mfXSWORDBEAM:
-            ft=sXSWORDBEAM;
-            break;
+              ft=sXSWORDBEAM;
+              break;
             case mfHOOKSHOT:
-            ft=sHOOKSHOT;
-            break;
+              ft=sHOOKSHOT;
+              break;
             case mfWAND:
-            ft=sWAND;
-            break;
+              ft=sWAND;
+              break;
             case mfHAMMER:
-            ft=sHAMMER;
-            break;
+              ft=sHAMMER;
+              break;
             case mfSTRIKE:
-            ft=sSTRIKE;
-            break;
+              ft=sSTRIKE;
+              break;
             default:
-            putit = false;
-            break;
+              putit = false;
+              break;
           }
           if (putit)
           {
@@ -8502,14 +9254,16 @@ void zmap::prv_secrets(bool high16only)
       }
       for (int j=0; j<6; j++)
       {
-        if((t[j].sflag[i] > 15)&&(t[j].sflag[i] < 32))
-        {
-          t[j].data[i] = t[j].secretcombo[(t[j].sflag[i])-16+4];
-          t[j].cset[i] = t[j].secretcset[(t[j].sflag[i])-16+4];
-          t[j].sflag[i] = t[j].secretflag[(t[j].sflag[i])-16+4];
-          //          putit = true;
-        }
-      }
+		  if(t[j].sflag==NULL)
+			  continue;
+		  if((t[j].sflag[i] > 15)&&(t[j].sflag[i] < 32))
+		  {
+			  t[j].data[i] = t[j].secretcombo[(t[j].sflag[i])-16+4];
+			  t[j].cset[i] = t[j].secretcset[(t[j].sflag[i])-16+4];
+			  t[j].sflag[i] = t[j].secretflag[(t[j].sflag[i])-16+4];
+			  //          putit = true;
+		  }
+	  }
     }
 
     /*
@@ -8526,115 +9280,116 @@ int writeheader_210(PACKFILE *f, zquestheader *Header)
   dword section_id=ID_HEADER;
   dword section_version=V_HEADER_210;
   dword section_cversion=CV_HEADER_210;
-  dword section_size=38+18+131+20+280+1;                    //+29;
+  dword section_size=0;
 
   //file header string
   if(!pfwrite(Header->id_str,sizeof(Header->id_str),f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 2;
+    new_return(2);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 3;
+    new_return(3);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 4;
+    new_return(4);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 5;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(5);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!p_iputw(Header->zelda_version,f))
+    {
+      new_return(6);
+    }
+    if(!p_putc(Header->build,f))
+    {
+      new_return(7);
+    }
+    char temp_pwd[31]="                              ";
+    if(!pfwrite(temp_pwd,30,f))
+    {
+      new_return(8);
+    }
+    if(!p_iputw(0,f))
+    {
+      new_return(9);
+    }
+    if(!p_iputw(Header->internal,f))
+    {
+      new_return(10);
+    }
+    if(!p_putc(Header->quest_number,f))
+    {
+      new_return(11);
+    }
+    if(!pfwrite(Header->version,sizeof(Header->version),f))
+    {
+      new_return(12);
+    }
+    if(!pfwrite(Header->minver,sizeof(Header->minver),f))
+    {
+      new_return(13);
+    }
+    if(!pfwrite(Header->title,sizeof(Header->title),f))
+    {
+      new_return(14);
+    }
+    if(!pfwrite(Header->author,sizeof(Header->author),f))
+    {
+      new_return(15);
+    }
+    if(!p_putc(Header->use_keyfile,f))
+    {
+      new_return(16);
+    }
+    if(!pfwrite(Header->data_flags,sizeof(Header->data_flags),f))
+    {
+      new_return(17);
+    }
+    if(!pfwrite(Header->templatepath,280,f))
+    {
+      new_return(19);
+    }
+    if(!p_putc(0,f))
+    {
+      new_return(20);
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  if(!p_iputw(Header->zelda_version,f))
+  if (writesize!=int(section_size))
   {
-    return 6;
-  }
-  if(!p_putc(Header->build,f))
-  {
-    return 7;
-  }
-  char temp_pwd[31]="                              ";
-  if(!pfwrite(temp_pwd,30,f))
-  {
-    return 8;
-  }
-//  if(!p_iputw(Header->pwdkey,f))
-  if(!p_iputw(0,f))
-  {
-    return 9;
-  }
-  if(!p_iputw(Header->internal,f))
-  {
-    return 10;
-  }
-  if(!p_putc(Header->quest_number,f))
-  {
-    return 11;
-  }
-  if(!pfwrite(Header->version,sizeof(Header->version),f))
-  {
-    return 12;
-  }
-  if(!pfwrite(Header->minver,sizeof(Header->minver),f))
-  {
-    return 13;
-  }
-  if(!pfwrite(Header->title,sizeof(Header->title),f))
-  {
-    return 14;
-  }
-  if(!pfwrite(Header->author,sizeof(Header->author),f))
-  {
-    return 15;
-  }
-  if(!p_putc(Header->use_keyfile,f))
-  {
-    return 16;
-  }
-  if(!pfwrite(Header->data_flags,sizeof(Header->data_flags),f))
-  {
-    return 17;
-  }
-  if(!pfwrite(Header->templatepath,280,f))
-  {
-    return 19;
-  }
-  if(!p_putc(0,f))
-  {
-    return 20;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeheader_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  //unneeded data
-  /*
-    if(!pfwrite(midi_flags,sizeof(midi_flags),f)){
-      return 18;
-    }
-    if(!pfwrite(Header->foo,sizeof(Header->foo),f)){
-      return 21;
-    }
-    if(!pfwrite(Header->foo2,sizeof(Header->foo2),f)){
-      return 22;
-    }
-    if(!p_putc(Header->old_str_count,f)){
-  return 23;
-  }
-  if(!p_putc(Header->old_options,f)){
-  return 24;
-  }
-  */
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 
@@ -8646,36 +9401,57 @@ int writerules_210(PACKFILE *f, zquestheader *Header)
   dword section_id=ID_RULES;
   dword section_version=V_RULES_210;
   dword section_cversion=CV_RULES_210;
-  dword section_size=2*10;
+  dword section_size=0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!pfwrite(quest_rules,QUESTRULES_SIZE,f))
+    {
+      new_return(5);
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  if(!pfwrite(quest_rules,QUESTRULES_SIZE,f))
+  if (writesize!=int(section_size))
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writerules_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
-  return 0;
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 
@@ -8687,226 +9463,245 @@ int writedoorcombosets_210(PACKFILE *f, zquestheader *Header)
   dword section_id=ID_DOORS;
   dword section_version=V_DOORS_210;
   dword section_cversion=CV_DOORS_210;
-  dword section_size=2+door_combo_set_count*
-    (21+(3*9*4*2)+(3*9*6*2)+(3*2*2)+(3*2*3)+(3*4)+(2));
+  dword section_size=0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!p_iputw(door_combo_set_count,f))
+    {
+      new_return(5);
+    }
+
+    for (int i=0; i<door_combo_set_count; i++)
+    {
+      //name
+      if(!pfwrite(&DoorComboSets[i].name,sizeof(DoorComboSets[0].name),f))
+      {
+        new_return(6);
+      }
+      //up door
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<4; k++)
+        {
+          if(!p_iputw(DoorComboSets[i].doorcombo_u[j][k],f))
+          {
+            new_return(7);
+          }
+        }
+      }
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<4; k++)
+        {
+          if(!p_putc(DoorComboSets[i].doorcset_u[j][k],f))
+          {
+            new_return(8);
+          }
+        }
+      }
+
+      //down door
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<4; k++)
+        {
+          if(!p_iputw(DoorComboSets[i].doorcombo_d[j][k],f))
+          {
+            new_return(9);
+          }
+        }
+      }
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<4; k++)
+        {
+          if(!p_putc(DoorComboSets[i].doorcset_d[j][k],f))
+          {
+            new_return(10);
+          }
+        }
+      }
+
+
+      //left door
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<6; k++)
+        {
+          if(!p_iputw(DoorComboSets[i].doorcombo_l[j][k],f))
+
+          {
+            new_return(11);
+          }
+        }
+      }
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<6; k++)
+        {
+          if(!p_putc(DoorComboSets[i].doorcset_l[j][k],f))
+          {
+            new_return(12);
+          }
+        }
+      }
+
+      //right door
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<6; k++)
+        {
+          if(!p_iputw(DoorComboSets[i].doorcombo_r[j][k],f))
+          {
+            new_return(13);
+          }
+        }
+      }
+      for (int j=0; j<9; j++)
+      {
+        for (int k=0; k<6; k++)
+        {
+          if(!p_putc(DoorComboSets[i].doorcset_r[j][k],f))
+          {
+            new_return(14);
+          }
+        }
+      }
+
+
+      //up bomb rubble
+      for (int j=0; j<2; j++)
+      {
+        if(!p_iputw(DoorComboSets[i].bombdoorcombo_u[j],f))
+        {
+          new_return(15);
+        }
+      }
+      for (int j=0; j<2; j++)
+      {
+        if(!p_putc(DoorComboSets[i].bombdoorcset_u[j],f))
+        {
+          new_return(16);
+        }
+      }
+
+      //down bomb rubble
+      for (int j=0; j<2; j++)
+      {
+        if(!p_iputw(DoorComboSets[i].bombdoorcombo_d[j],f))
+        {
+          new_return(17);
+        }
+      }
+      for (int j=0; j<2; j++)
+      {
+        if(!p_putc(DoorComboSets[i].bombdoorcset_d[j],f))
+        {
+          new_return(18);
+        }
+      }
+
+      //left bomb rubble
+      for (int j=0; j<3; j++)
+      {
+        if(!p_iputw(DoorComboSets[i].bombdoorcombo_l[j],f))
+        {
+          new_return(19);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(DoorComboSets[i].bombdoorcset_l[j],f))
+        {
+          new_return(20);
+        }
+      }
+
+      //right bomb rubble
+      for (int j=0; j<3; j++)
+      {
+        if(!p_iputw(DoorComboSets[i].bombdoorcombo_r[j],f))
+        {
+          new_return(21);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(DoorComboSets[i].bombdoorcset_r[j],f))
+        {
+          new_return(22);
+        }
+      }
+
+      //walkthrough stuff
+      for (int j=0; j<4; j++)
+      {
+        if(!p_iputw(DoorComboSets[i].walkthroughcombo[j],f))
+        {
+          new_return(23);
+        }
+      }
+      for (int j=0; j<4; j++)
+      {
+        if(!p_putc(DoorComboSets[i].walkthroughcset[j],f))
+        {
+          new_return(24);
+        }
+      }
+
+      //flags
+      for (int j=0; j<2; j++)
+      {
+        if(!p_putc(DoorComboSets[i].flags[j],f))
+        {
+          new_return(25);
+        }
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  if(!p_iputw(door_combo_set_count,f))
+  if (writesize!=int(section_size))
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writedoorcombosets_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  for (int i=0; i<door_combo_set_count; i++)
-  {
-    //name
-    if(!pfwrite(&DoorComboSets[i].name,sizeof(DoorComboSets[0].name),f))
-    {
-      return 6;
-    }
-    //up door
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<4; k++)
-      {
-        if(!p_iputw(DoorComboSets[i].doorcombo_u[j][k],f))
-        {
-          return 7;
-        }
-      }
-    }
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<4; k++)
-      {
-        if(!p_putc(DoorComboSets[i].doorcset_u[j][k],f))
-        {
-          return 8;
-        }
-      }
-    }
-
-    //down door
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<4; k++)
-      {
-        if(!p_iputw(DoorComboSets[i].doorcombo_d[j][k],f))
-        {
-          return 9;
-        }
-      }
-    }
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<4; k++)
-      {
-        if(!p_putc(DoorComboSets[i].doorcset_d[j][k],f))
-        {
-          return 10;
-        }
-      }
-    }
-
-
-    //left door
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<6; k++)
-      {
-        if(!p_iputw(DoorComboSets[i].doorcombo_l[j][k],f))
-
-        {
-          return 11;
-        }
-      }
-    }
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<6; k++)
-      {
-        if(!p_putc(DoorComboSets[i].doorcset_l[j][k],f))
-        {
-          return 12;
-        }
-      }
-    }
-
-    //right door
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<6; k++)
-      {
-        if(!p_iputw(DoorComboSets[i].doorcombo_r[j][k],f))
-        {
-          return 13;
-        }
-      }
-    }
-    for (int j=0; j<9; j++)
-    {
-      for (int k=0; k<6; k++)
-      {
-        if(!p_putc(DoorComboSets[i].doorcset_r[j][k],f))
-        {
-          return 14;
-        }
-      }
-    }
-
-
-    //up bomb rubble
-    for (int j=0; j<2; j++)
-    {
-      if(!p_iputw(DoorComboSets[i].bombdoorcombo_u[j],f))
-      {
-        return 15;
-      }
-    }
-    for (int j=0; j<2; j++)
-    {
-      if(!p_putc(DoorComboSets[i].bombdoorcset_u[j],f))
-      {
-        return 16;
-      }
-    }
-
-    //down bomb rubble
-    for (int j=0; j<2; j++)
-    {
-      if(!p_iputw(DoorComboSets[i].bombdoorcombo_d[j],f))
-      {
-        return 17;
-      }
-    }
-    for (int j=0; j<2; j++)
-    {
-      if(!p_putc(DoorComboSets[i].bombdoorcset_d[j],f))
-      {
-        return 18;
-      }
-    }
-
-    //left bomb rubble
-    for (int j=0; j<3; j++)
-    {
-      if(!p_iputw(DoorComboSets[i].bombdoorcombo_l[j],f))
-      {
-        return 19;
-      }
-    }
-    for (int j=0; j<3; j++)
-    {
-      if(!p_putc(DoorComboSets[i].bombdoorcset_l[j],f))
-      {
-        return 20;
-      }
-    }
-
-    //right bomb rubble
-    for (int j=0; j<3; j++)
-    {
-      if(!p_iputw(DoorComboSets[i].bombdoorcombo_r[j],f))
-      {
-        return 21;
-      }
-    }
-    for (int j=0; j<3; j++)
-    {
-      if(!p_putc(DoorComboSets[i].bombdoorcset_r[j],f))
-      {
-        return 22;
-      }
-    }
-
-    //walkthrough stuff
-    for (int j=0; j<4; j++)
-    {
-      if(!p_iputw(DoorComboSets[i].walkthroughcombo[j],f))
-      {
-        return 23;
-      }
-    }
-    for (int j=0; j<4; j++)
-    {
-      if(!p_putc(DoorComboSets[i].walkthroughcset[j],f))
-      {
-        return 24;
-      }
-    }
-
-    //flags
-    for (int j=0; j<2; j++)
-    {
-      if(!p_putc(DoorComboSets[i].flags[j],f))
-      {
-        return 25;
-      }
-    }
-
-  }
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writedmaps_210(PACKFILE *f, word version, word build, word start_dmap, word max_dmaps)
@@ -8919,132 +9714,153 @@ int writedmaps_210(PACKFILE *f, word version, word build, word start_dmap, word 
   dword section_id=ID_DMAPS;
   dword section_version=V_DMAPS_210;
   dword section_cversion=CV_DMAPS_210;
-  dword section_size=2+(dmap_count*(16+42+73+12+56));
+  dword section_size=0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  dmap_count=min(dmap_count, max_dmaps);
-  dmap_count=min(dmap_count, MAXDMAPS-start_dmap);
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
 
-  //finally...  section data
-  if(!p_iputw(dmap_count,f))
-  {
-    return 5;
-  }
+    writesize=0;
+
+    dmap_count=min(dmap_count, max_dmaps);
+    dmap_count=min(dmap_count, MAXDMAPS-start_dmap);
+
+    //finally...  section data
+    if(!p_iputw(dmap_count,f))
+    {
+      new_return(5);
+    }
 
 
-  for (int i=start_dmap; i<start_dmap+dmap_count; i++)
-  {
-    if(!p_putc(DMaps[i].map,f))
+    for (int i=start_dmap; i<start_dmap+dmap_count; i++)
     {
-      return 6;
-    }
-    if(!p_putc(DMaps[i].level,f))
-    {
-      return 7;
-    }
-    if(!p_putc(DMaps[i].xoff,f))
-    {
-      return 8;
-    }
-    if(!p_putc(DMaps[i].compass,f))
-    {
-      return 9;
-    }
-    if(!p_putc(DMaps[i].color,f))
-    {
-      return 10;
-    }
-    if(!p_putc(DMaps[i].midi,f))
-    {
-      return 11;
-    }
-    if(!p_putc(DMaps[i].cont,f))
-    {
-      return 12;
-    }
-    if(!p_putc(DMaps[i].type,f))
-    {
-      return 13;
-    }
-    for (int j=0; j<8; j++)
-    {
-      if(!p_putc(DMaps[i].grid[j],f))
+      if(!p_putc(DMaps[i].map,f))
       {
-        return 14;
+        new_return(6);
+      }
+      if(!p_putc(DMaps[i].level,f))
+      {
+        new_return(7);
+      }
+      if(!p_putc(DMaps[i].xoff,f))
+      {
+        new_return(8);
+      }
+      if(!p_putc(DMaps[i].compass,f))
+      {
+        new_return(9);
+      }
+      if(!p_putc(DMaps[i].color,f))
+      {
+        new_return(10);
+      }
+      if(!p_putc(DMaps[i].midi,f))
+      {
+        new_return(11);
+      }
+      if(!p_putc(DMaps[i].cont,f))
+      {
+        new_return(12);
+      }
+      if(!p_putc(DMaps[i].type,f))
+      {
+        new_return(13);
+      }
+      for (int j=0; j<8; j++)
+      {
+        if(!p_putc(DMaps[i].grid[j],f))
+        {
+          new_return(14);
+        }
+      }
+      //16
+      if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
+      {
+        new_return(15);
+      }
+      if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
+      {
+        new_return(16);
+      }
+      if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
+      {
+        new_return(17);
+      }
+      if(!p_iputw(DMaps[i].minimap_1_tile,f))
+      {
+        new_return(18);
+      }
+      if(!p_putc(DMaps[i].minimap_1_cset,f))
+      {
+        new_return(19);
+      }
+      if(!p_iputw(DMaps[i].minimap_2_tile,f))
+      {
+        new_return(20);
+      }
+      if(!p_putc(DMaps[i].minimap_2_cset,f))
+      {
+        new_return(21);
+      }
+      if(!p_iputw(DMaps[i].largemap_1_tile,f))
+      {
+        new_return(22);
+      }
+      if(!p_putc(DMaps[i].largemap_1_cset,f))
+      {
+        new_return(23);
+      }
+      if(!p_iputw(DMaps[i].largemap_2_tile,f))
+      {
+        new_return(24);
+      }
+      if(!p_putc(DMaps[i].largemap_2_cset,f))
+      {
+        new_return(25);
+      }
+      if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
+      {
+        new_return(26);
       }
     }
-    //16
-    if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
+
+    if (writecycle==0)
     {
-      return 15;
-    }
-    if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
-    {
-      return 16;
-    }
-    if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
-    {
-      return 17;
-    }
-    if(!p_iputw(DMaps[i].minimap_1_tile,f))
-    {
-      return 18;
-    }
-    if(!p_putc(DMaps[i].minimap_1_cset,f))
-    {
-      return 19;
-    }
-    if(!p_iputw(DMaps[i].minimap_2_tile,f))
-    {
-      return 20;
-    }
-    if(!p_putc(DMaps[i].minimap_2_cset,f))
-    {
-      return 21;
-    }
-    if(!p_iputw(DMaps[i].largemap_1_tile,f))
-    {
-      return 22;
-    }
-    if(!p_putc(DMaps[i].largemap_1_cset,f))
-    {
-      return 23;
-    }
-    if(!p_iputw(DMaps[i].largemap_2_tile,f))
-    {
-      return 24;
-    }
-    if(!p_putc(DMaps[i].largemap_2_cset,f))
-    {
-      return 25;
-    }
-    if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
-    {
-      return 26;
+      section_size=writesize;
     }
   }
-  return 0;
+
+  if (writesize!=int(section_size))
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writedmaps_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writemisc_210(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
@@ -9061,273 +9877,283 @@ int writemisc_210(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
   word windwarps=count_windwarps(Misc);
   word triforces=8;
 //  dword section_size=0;
-  dword section_size = sizeof(word) + shops * 3 * (sizeof(char) + sizeof(word))
-                     + sizeof(word) + infos * 3 * 2 * sizeof(word)
-                     + sizeof(word) + warprings * (8 * sizeof(char) + sizeof(char))
-                     + sizeof(word) + windwarps * 2 * sizeof(char)
-                     + triforces * sizeof(char)
-                     + 21 * sizeof(char) + 6 * sizeof(word)
-                     + 4 * sizeof(word)
-                     + sizeof(word);
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-
-    return 1;
+    new_return(1);
   }
 
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
-
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-
-  //infos
-  if(!p_iputw(shops,f))
-  {
-    return qe_invalid;
-  }
-  for (int i=0; i<shops; i++)
-  {
-    for (int j=0; j<3; j++)
+    //section size
+    if(!p_iputl(section_size,f))
     {
-		int temp = Misc->shop[i].item[j];
-		if(Misc->shop[i].hasitem[j] == 0)
-			temp=0;
-      if(!p_putc(temp,f))
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //infos
+    if(!p_iputw(shops,f))
+    {
+      return qe_invalid;
+    }
+    for (int i=0; i<shops; i++)
+    {
+      for (int j=0; j<3; j++)
+      {
+      int temp = Misc->shop[i].item[j];
+      if(Misc->shop[i].hasitem[j] == 0)
+        temp=0;
+        if(!p_putc(temp,f))
+        {
+          return qe_invalid;
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_iputw(Misc->shop[i].price[j],f))
+        {
+          return qe_invalid;
+        }
+      }
+    }
+
+    //infos
+    if(!p_iputw(infos,f))
+    {
+      return qe_invalid;
+    }
+    for (int i=0; i<infos; i++)
+    {
+      for (int j=0; j<3; j++)
+      {
+        if(!p_iputw(Misc->info[i].str[j],f))
+        {
+          return qe_invalid;
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_iputw(Misc->info[i].price[j],f))
+        {
+          return qe_invalid;
+        }
+      }
+    }
+
+    //warp rings
+    if(!p_iputw(warprings,f))
+    {
+      return qe_invalid;
+    }
+    for (int i=0; i<warprings; i++)
+    {
+      for (int j=0; j<8; j++)
+      {
+        if(!p_putc(Misc->warp[i].dmap[j],f))
+        {
+          return qe_invalid;
+        }
+      }
+      for (int j=0; j<8; j++)
+      {
+        if(!p_putc(Misc->warp[i].scr[j],f))
+        {
+          return qe_invalid;
+        }
+      }
+      if(!p_putc(Misc->warp[i].size,f))
       {
         return qe_invalid;
       }
     }
-    for (int j=0; j<3; j++)
+
+    //wind warps
+
+    if(!p_iputw(windwarps,f))
     {
-      if(!p_iputw(Misc->shop[i].price[j],f))
+      return qe_invalid;
+    }
+    for (int i=0; i<windwarps; i++)
+    {
+      if(!p_putc(Misc->wind[i].dmap,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->wind[i].scr,f))
       {
         return qe_invalid;
       }
     }
-  }
 
-  //infos
-  if(!p_iputw(infos,f))
-  {
-    return qe_invalid;
-  }
-  for (int i=0; i<infos; i++)
-  {
-    for (int j=0; j<3; j++)
+    //triforce pieces
+    for (int i=0; i<triforces; i++)
     {
-      if(!p_iputw(Misc->info[i].str[j],f))
+      if(!p_putc(Misc->triforce[i],f))
       {
         return qe_invalid;
       }
     }
-    for (int j=0; j<3; j++)
-    {
-      if(!p_iputw(Misc->info[i].price[j],f))
+
+    //misc color data
+    {                                                         //this brace is here to make it easier to fold all the color data code
+      if(!p_putc(Misc->colors.text,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.caption,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.overw_bg,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.dngn_bg,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.dngn_fg,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.cave_fg,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.bs_dk,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.bs_goal,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.compass_lt,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.compass_dk,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.subscr_bg,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.triframe_color,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.link_dot,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.bmap_bg,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.bmap_fg,f))
+      {
+        return qe_invalid;
+      }
+
+      if(!p_putc(Misc->colors.triforce_cset,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.triframe_cset,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.overworld_map_cset,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.dungeon_map_cset,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.blueframe_cset,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_iputw(Misc->colors.triforce_tile,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_iputw(Misc->colors.triframe_tile,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_iputw(Misc->colors.overworld_map_tile,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_iputw(Misc->colors.dungeon_map_tile,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_iputw(Misc->colors.blueframe_tile,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_iputw(Misc->colors.HCpieces_tile,f))
+      {
+        return qe_invalid;
+      }
+      if(!p_putc(Misc->colors.HCpieces_cset,f))
       {
         return qe_invalid;
       }
     }
-  }
 
-  //warp rings
-  if(!p_iputw(warprings,f))
-  {
-    return qe_invalid;
-  }
-  for (int i=0; i<warprings; i++)
-  {
-    for (int j=0; j<8; j++)
+    //save game icons
+    for (int i=0; i<4; i++)
     {
-      if(!p_putc(Misc->warp[i].dmap[j],f))
+      if(!p_iputw(Misc->icons[i],f))
       {
         return qe_invalid;
       }
     }
-    for (int j=0; j<8; j++)
-    {
-      if(!p_putc(Misc->warp[i].scr[j],f))
-      {
-        return qe_invalid;
-      }
-    }
-    if(!p_putc(Misc->warp[i].size,f))
+
+    //end string
+    if(!p_iputw(Misc->endstring,f))
     {
       return qe_invalid;
     }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //wind warps
-
-  if(!p_iputw(windwarps,f))
+  if (writesize!=int(section_size))
   {
-    return qe_invalid;
-  }
-  for (int i=0; i<windwarps; i++)
-  {
-    if(!p_putc(Misc->wind[i].dmap,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->wind[i].scr,f))
-    {
-      return qe_invalid;
-    }
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writemisc_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  //triforce pieces
-  for (int i=0; i<triforces; i++)
-  {
-    if(!p_putc(Misc->triforce[i],f))
-    {
-      return qe_invalid;
-    }
-  }
-
-  //misc color data
-  {                                                         //this brace is here to make it easier to fold all the color data code
-    if(!p_putc(Misc->colors.text,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.caption,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.overw_bg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.dngn_bg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.dngn_fg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.cave_fg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.bs_dk,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.bs_goal,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.compass_lt,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.compass_dk,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.subscr_bg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.triframe_color,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.link_dot,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.bmap_bg,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.bmap_fg,f))
-    {
-      return qe_invalid;
-    }
-
-    if(!p_putc(Misc->colors.triforce_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.triframe_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.overworld_map_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.dungeon_map_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.blueframe_cset,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.triforce_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.triframe_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.overworld_map_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.dungeon_map_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.blueframe_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_iputw(Misc->colors.HCpieces_tile,f))
-    {
-      return qe_invalid;
-    }
-    if(!p_putc(Misc->colors.HCpieces_cset,f))
-    {
-      return qe_invalid;
-    }
-  }
-
-  //save game icons
-  for (int i=0; i<4; i++)
-  {
-    if(!p_iputw(Misc->icons[i],f))
-    {
-      return qe_invalid;
-    }
-  }
-
-  //end string
-  if(!p_iputw(Misc->endstring,f))
-  {
-    return qe_invalid;
-  }
-
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writeitems_210(PACKFILE *f, zquestheader *Header)
@@ -9339,69 +10165,89 @@ int writeitems_210(PACKFILE *f, zquestheader *Header)
   dword section_version=V_ITEMS_210;
   dword section_cversion=CV_ITEMS_210;
 //  dword section_size=0;
-  dword section_size = sizeof(word) + iMax * (sizeof(word) + 5 * sizeof(char) + sizeof(long));
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!p_iputw(iMax,f))
+    {
+      new_return(5);
+    }
+
+    for (int i=0; i<iMax; i++)
+    {
+      if(!p_iputw(itemsbuf[i].tile,f))
+      {
+        new_return(6);
+      }
+      if(!p_putc(itemsbuf[i].misc,f))
+      {
+        new_return(7);
+      }
+      if(!p_putc(itemsbuf[i].csets,f))
+      {
+        new_return(8);
+      }
+      if(!p_putc(itemsbuf[i].frames,f))
+      {
+        new_return(9);
+      }
+      if(!p_putc(itemsbuf[i].speed,f))
+      {
+        new_return(10);
+      }
+      if(!p_putc(itemsbuf[i].delay,f))
+      {
+        new_return(11);
+      }
+      if(!p_iputl(itemsbuf[i].ltm,f))
+      {
+        new_return(12);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  if(!p_iputw(iMax,f))
+  if (writesize!=int(section_size))
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeitems_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  for (int i=0; i<iMax; i++)
-  {
-    if(!p_iputw(itemsbuf[i].tile,f))
-    {
-      return 6;
-    }
-    if(!p_putc(itemsbuf[i].misc,f))
-    {
-      return 7;
-    }
-    if(!p_putc(itemsbuf[i].csets,f))
-    {
-      return 8;
-    }
-    if(!p_putc(itemsbuf[i].frames,f))
-    {
-      return 9;
-    }
-    if(!p_putc(itemsbuf[i].speed,f))
-    {
-      return 10;
-    }
-    if(!p_putc(itemsbuf[i].delay,f))
-    {
-
-      return 11;
-    }
-    if(!p_iputl(itemsbuf[i].ltm,f))
-    {
-      return 12;
-    }
-  }
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writeweapons_210(PACKFILE *f, zquestheader *Header)
@@ -9413,66 +10259,86 @@ int writeweapons_210(PACKFILE *f, zquestheader *Header)
   dword section_version=V_WEAPONS_210;
   dword section_cversion=CV_WEAPONS_210;
 //  dword section_size=0;
-  dword section_size = sizeof(word) + wMAX * (sizeof(word) + 5 * sizeof(char));
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!p_iputw(wMAX,f))
+    {
+      new_return(5);
+    }
+
+    for (int i=0; i<wMAX; i++)
+    {
+      if(!p_iputw(wpnsbuf[i].tile,f))
+      {
+
+        new_return(6);
+      }
+      if(!p_putc(wpnsbuf[i].misc,f))
+      {
+        new_return(7);
+      }
+      if(!p_putc(wpnsbuf[i].csets,f))
+      {
+        new_return(8);
+      }
+      if(!p_putc(wpnsbuf[i].frames,f))
+      {
+        new_return(9);
+      }
+      if(!p_putc(wpnsbuf[i].speed,f))
+      {
+        new_return(10);
+      }
+      if(!p_putc(wpnsbuf[i].type,f))
+      {
+        new_return(11);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  if(!p_iputw(wMAX,f))
+  if (writesize!=int(section_size))
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeweapons_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  for (int i=0; i<wMAX; i++)
-  {
-    if(!p_iputw(wpnsbuf[i].tile,f))
-    {
-
-      return 6;
-    }
-    if(!p_putc(wpnsbuf[i].misc,f))
-    {
-      return 7;
-    }
-    if(!p_putc(wpnsbuf[i].csets,f))
-    {
-      return 8;
-    }
-    if(!p_putc(wpnsbuf[i].frames,f))
-    {
-      return 9;
-    }
-    if(!p_putc(wpnsbuf[i].speed,f))
-    {
-      return 10;
-    }
-    if(!p_putc(wpnsbuf[i].type,f))
-    {
-      return 11;
-    }
-  }
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writemaps_210(PACKFILE *f, zquestheader *Header)
@@ -9484,298 +10350,320 @@ int writemaps_210(PACKFILE *f, zquestheader *Header)
   dword section_version=V_MAPS_210;
   dword section_cversion=CV_MAPS_210;
 //  dword section_size=0;
-  dword section_size = sizeof(word) + map_count * MAPSCRS * 1298;
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  if(!p_iputw(map_count,f))
-  {
-    return 5;
-  }
-
-  int scr=0;
-
-  for(int i=0; i<map_count && i<MAXMAPS2; i++)
-  {
-    for (int j=0; j<MAPSCRS; j++)
+    //section size
+    if(!p_iputl(section_size,f))
     {
-      scr=i*MAPSCRS+j;
+      new_return(4);
+    }
 
-      if(!p_putc(TheMaps[scr].valid,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].guy,f))
-      {
-        return qe_invalid;
-      }
+    writesize=0;
 
+    //finally...  section data
+    if(!p_iputw(map_count,f))
+    {
+      new_return(5);
+    }
+
+    int scr=0;
+
+    for(int i=0; i<map_count && i<MAXMAPS2; i++)
+    {
+      for (int j=0; j<MAPSCRS; j++)
       {
-        if(!p_iputw(TheMaps[scr].str,f))
+        scr=i*MAPSCRS+j;
+
+        if(!p_putc(TheMaps[scr].valid,f))
         {
           return qe_invalid;
         }
-      }
-
-      if(!p_putc(TheMaps[scr].room,f))
-      {
-        return qe_invalid;
-      }
-	  int temp = TheMaps[scr].item;
-	  if(TheMaps[scr].hasitem == 0)
-		  temp=0;
-      if(!p_putc(temp,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].tilewarptype[0],f))
-      {
-        return qe_invalid;
-      }
-
-      {
-        if(!p_iputw(TheMaps[scr].door_combo_set,f))
+        if(!p_putc(TheMaps[scr].guy,f))
         {
           return qe_invalid;
         }
-      }
 
-      if(!p_putc(TheMaps[scr].warpreturnx[0],f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].warpreturny[0],f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].stairx,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].stairy,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].itemx,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].itemy,f))
-      {
-        return qe_invalid;
-      }
+        {
+          if(!p_iputw(TheMaps[scr].str,f))
+          {
+            return qe_invalid;
+          }
+        }
 
-      if(!p_putc(TheMaps[scr].color,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].enemyflags,f))
-      {
-        return qe_invalid;
-      }
-      for(int k=0; k<4; k++)
-      {
-        if(!p_putc(TheMaps[scr].door[k],f))
+        if(!p_putc(TheMaps[scr].room,f))
         {
           return qe_invalid;
         }
-      }
-      if(!p_putc(TheMaps[scr].tilewarpdmap[0],f))
-      {
-        return qe_invalid;
-
-      }
-      if(!p_putc(TheMaps[scr].tilewarpscr[0],f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].exitdir,f))
-      {
-        return qe_invalid;
-      }
-
-      for(int k=0; k<10; k++)
-      {
+        int temp = TheMaps[scr].item;
+        if(TheMaps[scr].hasitem == 0)
         {
-          if(!p_iputw(TheMaps[scr].enemy[k],f))
-          {
-            return qe_invalid;
-          }
+          temp=0;
         }
-      }
-
-      if(!p_putc(TheMaps[scr].pattern,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].sidewarptype[0],f))
-      {
-
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].warparrivalx,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].warparrivaly,f))
-      {
-        return qe_invalid;
-      }
-      for(int k=0; k<4; k++)
-      {
-        if(!p_putc(TheMaps[scr].path[k],f))
+        if(!p_putc(temp,f))
         {
           return qe_invalid;
         }
-      }
-      if(!p_putc(TheMaps[scr].sidewarpscr[0],f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].sidewarpdmap[0],f))
-      {
-        return qe_invalid;
-      }
-      if(!p_iputw(TheMaps[scr].undercombo,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].undercset,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_iputw(TheMaps[scr].catchall,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].flags,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].flags2,f))
-      {
-        return qe_invalid;
-      }
-      if(!p_putc(TheMaps[scr].flags3,f))
-
-      {
-        return qe_invalid;
-      }
-
-      {
-        for(int k=0; k<6; k++)
-        {
-          if(!p_putc(TheMaps[scr].layermap[k],f))
-          {
-            return qe_invalid;
-          }
-        }
-        for(int k=0; k<6; k++)
-        {
-          if(!p_putc(TheMaps[scr].layerscreen[k],f))
-          {
-            return qe_invalid;
-          }
-        }
-      }
-
-      {
-        for(int k=0; k<6; k++)
-        {
-          if(!p_putc(TheMaps[scr].layeropacity[k],f))
-          {
-            return qe_invalid;
-          }
-        }
-      }
-
-      {
-        if(!p_iputw(TheMaps[scr].timedwarptics,f))
+        if(!p_putc(TheMaps[scr].tilewarptype[0],f))
         {
           return qe_invalid;
         }
-      }
 
-      {
-        for(int k=0; k<128; k++)
         {
-          if(!p_iputw(TheMaps[scr].secretcombo[k],f))
-          {
-            return qe_invalid;
-          }
-
-        }
-      }
-
-      {
-        for(int k=0; k<128; k++)
-        {
-          if(!p_putc(TheMaps[scr].secretcset[k],f))
+          if(!p_iputw(TheMaps[scr].door_combo_set,f))
           {
             return qe_invalid;
           }
         }
-        for(int k=0; k<128; k++)
-        {
-          if(!p_putc(TheMaps[scr].secretflag[k],f))
-          {
-            return qe_invalid;
-          }
-        }
-      }
 
-      for(int k=0; k<16*11; k++)
-      {
-        if(!p_iputw(TheMaps[scr].data[k],f))
+        if(!p_putc(TheMaps[scr].warpreturnx[0],f))
         {
           return qe_invalid;
         }
-      }
+        if(!p_putc(TheMaps[scr].warpreturny[0],f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].stairx,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].stairy,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].itemx,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].itemy,f))
+        {
+          return qe_invalid;
+        }
 
-      {
+        if(!p_putc(TheMaps[scr].color,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].enemyflags,f))
+        {
+          return qe_invalid;
+        }
+        for(int k=0; k<4; k++)
+        {
+          if(!p_putc(TheMaps[scr].door[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        if(!p_putc(TheMaps[scr].tilewarpdmap[0],f))
+        {
+          return qe_invalid;
+
+        }
+        if(!p_putc(TheMaps[scr].tilewarpscr[0],f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].exitdir,f))
+        {
+          return qe_invalid;
+        }
+
+        for(int k=0; k<10; k++)
+        {
+          {
+            if(!p_iputw(TheMaps[scr].enemy[k],f))
+            {
+              return qe_invalid;
+            }
+          }
+        }
+
+        if(!p_putc(TheMaps[scr].pattern,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].sidewarptype[0],f))
+        {
+
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].warparrivalx,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].warparrivaly,f))
+        {
+          return qe_invalid;
+        }
+        for(int k=0; k<4; k++)
+        {
+          if(!p_putc(TheMaps[scr].path[k],f))
+          {
+            return qe_invalid;
+          }
+        }
+        if(!p_putc(TheMaps[scr].sidewarpscr[0],f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].sidewarpdmap[0],f))
+        {
+          return qe_invalid;
+        }
+        if(!p_iputw(TheMaps[scr].undercombo,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].undercset,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_iputw(TheMaps[scr].catchall,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags2,f))
+        {
+          return qe_invalid;
+        }
+        if(!p_putc(TheMaps[scr].flags3,f))
+        {
+          return qe_invalid;
+        }
+
+        {
+          for(int k=0; k<6; k++)
+          {
+            if(!p_putc(TheMaps[scr].layermap[k],f))
+            {
+              return qe_invalid;
+            }
+          }
+          for(int k=0; k<6; k++)
+          {
+            if(!p_putc(TheMaps[scr].layerscreen[k],f))
+            {
+              return qe_invalid;
+            }
+          }
+        }
+
+        {
+          for(int k=0; k<6; k++)
+          {
+            if(!p_putc(TheMaps[scr].layeropacity[k],f))
+            {
+              return qe_invalid;
+            }
+          }
+        }
+
+        {
+          if(!p_iputw(TheMaps[scr].timedwarptics,f))
+          {
+            return qe_invalid;
+          }
+        }
+
+        {
+          for(int k=0; k<128; k++)
+          {
+            if(!p_iputw(TheMaps[scr].secretcombo[k],f))
+            {
+              return qe_invalid;
+            }
+
+          }
+        }
+
+        {
+          for(int k=0; k<128; k++)
+          {
+            if(!p_putc(TheMaps[scr].secretcset[k],f))
+            {
+              return qe_invalid;
+            }
+          }
+          for(int k=0; k<128; k++)
+          {
+            if(!p_putc(TheMaps[scr].secretflag[k],f))
+            {
+              return qe_invalid;
+            }
+          }
+        }
+
         for(int k=0; k<16*11; k++)
         {
-          if(!p_putc(TheMaps[scr].sflag[k],f))
+          if(!p_iputw(TheMaps[scr].data[k],f))
           {
             return qe_invalid;
           }
         }
-      }
 
-      {
-        for(int k=0; k<16*11; k++)
         {
-          if(!p_putc(TheMaps[scr].cset[k],f))
+          for(int k=0; k<16*11; k++)
           {
-            return qe_invalid;
+            if(!p_putc(TheMaps[scr].sflag[k],f))
+            {
+              return qe_invalid;
+            }
+          }
+        }
+
+        {
+          for(int k=0; k<16*11; k++)
+          {
+            if(!p_putc(TheMaps[scr].cset[k],f))
+            {
+              return qe_invalid;
+            }
           }
         }
       }
     }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
-  return 0;
+
+  if (writesize!=int(section_size))
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writemaps_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writecombos_210(PACKFILE *f, word version, word build, word start_combo, word max_combos)
@@ -9792,79 +10680,100 @@ int writecombos_210(PACKFILE *f, word version, word build, word start_combo, wor
   combos_used = count_combos()-start_combo;
   combos_used = min(combos_used, max_combos);
   combos_used = min(combos_used, MAXCOMBOS);
-  dword section_size = sizeof(word) + combos_used * 11;
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    combos_used=count_combos()-start_combo;
+    combos_used=min(combos_used, max_combos);
+    combos_used=min(combos_used, MAXCOMBOS);
+    if(!p_iputw(combos_used,f))
+    {
+      new_return(5);
+    }
+
+    for (int i=start_combo; i<start_combo+combos_used; i++)
+    {
+      if(!p_iputw(combobuf[i].tile,f))
+      {
+        new_return(6);
+      }
+      if(!p_putc(combobuf[i].flip,f))
+      {
+        new_return(7);
+      }
+      if(!p_putc(combobuf[i].walk,f))
+      {
+        new_return(8);
+      }
+      if(!p_putc(combobuf[i].type,f))
+      {
+        new_return(9);
+      }
+      if(!p_putc(combobuf[i].csets,f))
+      {
+        new_return(10);
+      }
+      if(!p_putc(combobuf[i].frames,f))
+      {
+        new_return(11);
+      }
+      if(!p_putc(combobuf[i].speed,f))
+      {
+        new_return(12);
+      }
+      if(!p_iputw(combobuf[i].nextcombo,f))
+      {
+        new_return(13);
+      }
+      if(!p_putc(combobuf[i].nextcset,f))
+      {
+        new_return(14);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  combos_used=count_combos()-start_combo;
-  combos_used=min(combos_used, max_combos);
-  combos_used=min(combos_used, MAXCOMBOS);
-  if(!p_iputw(combos_used,f))
+  if (writesize!=int(section_size))
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writecombos_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  for (int i=start_combo; i<start_combo+combos_used; i++)
-  {
-    if(!p_iputw(combobuf[i].tile,f))
-    {
-      return 6;
-    }
-    if(!p_putc(combobuf[i].flip,f))
-    {
-      return 7;
-    }
-    if(!p_putc(combobuf[i].walk,f))
-    {
-      return 8;
-    }
-    if(!p_putc(combobuf[i].type,f))
-    {
-      return 9;
-    }
-    if(!p_putc(combobuf[i].csets,f))
-    {
-      return 10;
-    }
-    if(!p_putc(combobuf[i].frames,f))
-    {
-      return 11;
-    }
-    if(!p_putc(combobuf[i].speed,f))
-    {
-      return 12;
-    }
-    if(!p_iputw(combobuf[i].nextcombo,f))
-    {
-      return 13;
-    }
-    if(!p_putc(combobuf[i].nextcset,f))
-    {
-      return 14;
-    }
-  }
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writecolordata_210(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
@@ -9880,71 +10789,90 @@ int writecolordata_210(PACKFILE *f, miscQdata *Misc, word version, word build, w
   dword section_cversion=CV_CSETS_210;
 //  dword section_size=0;
   int palcycles = count_palcycles(Misc);
-  dword section_size = newpsTOTAL
-                     + MAXLEVELS * PALNAMESIZE
-                     + sizeof(word) + palcycles * 9;
+  dword section_size = 0;
 
   //section id
 
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!pfwrite(colordata,newpsTOTAL,f))
+    {
+      new_return(5);
+    }
+    if(!pfwrite(palnames,OLDMAXLEVELS*PALNAMESIZE,f))
+    {
+      new_return(6);
+    }
+    if(!p_iputw(palcycles,f))
+    {
+      new_return(15);
+    }
+    for (int i=0; i<palcycles; i++)
+    {
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(Misc->cycles[i][j].first,f))
+        {
+          new_return(16);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(Misc->cycles[i][j].count,f))
+        {
+          new_return(17);
+        }
+      }
+      for (int j=0; j<3; j++)
+      {
+        if(!p_putc(Misc->cycles[i][j].speed,f))
+        {
+          new_return(18);
+        }
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  if(!pfwrite(colordata,newpsTOTAL,f))
+  if (writesize!=int(section_size))
   {
-    return 5;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writecolordata_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
-  if(!pfwrite(palnames,MAXLEVELS*PALNAMESIZE,f))
-  {
-    return 6;
-  }
-  if(!p_iputw(palcycles,f))
-  {
-    return 15;
-  }
-  for (int i=0; i<palcycles; i++)
-  {
-    for (int j=0; j<3; j++)
-    {
-      if(!p_putc(Misc->cycles[i][j].first,f))
-      {
-        return 16;
-      }
-    }
-    for (int j=0; j<3; j++)
-    {
-      if(!p_putc(Misc->cycles[i][j].count,f))
-      {
-        return 17;
-      }
-    }
-    for (int j=0; j<3; j++)
-    {
-      if(!p_putc(Misc->cycles[i][j].speed,f))
-      {
-        return 18;
-      }
-    }
-  }
-  return 0;
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writestrings_210(PACKFILE *f, word version, word build, word start_msgstr, word max_msgstrs)
@@ -9959,49 +10887,69 @@ int writestrings_210(PACKFILE *f, word version, word build, word start_msgstr, w
   dword section_version=V_STRINGS_210;
   dword section_cversion=CV_STRINGS_210;
 //  dword section_size=0;
-  dword section_size = sizeof(word)
-                     + msg_count * (sizeof(MsgStrings[0].s) + sizeof(word));
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  if(!p_iputw(msg_count,f))
-  {
-    return qe_invalid;
-  }
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
 
-  for (int i=0; i<msg_count; i++)
-  {
-    if(!pfwrite(MsgStrings[i].s,sizeof(MsgStrings[0].s),f))
+    writesize=0;
+
+    //finally...  section data
+    if(!p_iputw(msg_count,f))
     {
       return qe_invalid;
     }
-    if(!p_iputw(MsgStrings[i].nextstring,f))
+
+    for (int i=0; i<msg_count; i++)
     {
-      return qe_invalid;
+      if(!pfwrite(MsgStrings[i].s,sizeof(MsgStrings[0].s),f))
+      {
+        return qe_invalid;
+      }
+      if(!p_iputw(MsgStrings[i].nextstring,f))
+      {
+        return qe_invalid;
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
     }
   }
-  return 0;
+
+  if (writesize!=int(section_size))
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writestrings_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writetiles_210(PACKFILE *f, word version, word build, word start_tile, word max_tiles)
@@ -10018,135 +10966,161 @@ int writetiles_210(PACKFILE *f, word version, word build, word start_tile, word 
   tiles_used = count_tiles(newtilebuf)-start_tile;
   tiles_used = min(tiles_used, max_tiles);
   tiles_used = min(tiles_used, NEWMAXTILES);
-  dword section_size = sizeof(word)
-                     + (int)tiles_used * (int)SINGLE_TILE_SIZE;
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  tiles_used=count_tiles(newtilebuf)-start_tile;
-  tiles_used=min(tiles_used, max_tiles);
-  tiles_used=min(tiles_used, NEWMAXTILES);
-  if(!p_iputw(tiles_used,f))
-  {
-    return 5;
-  }
-
-//  if(!pfwrite(tilebuf+start_tile,dword(dword(SINGLE_TILE_SIZE)*dword(tiles_used)),f))
-  for (dword i=0; i<tiles_used; ++i)
-  {
-    if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
+    //section size
+    if(!p_iputl(section_size,f))
     {
-      return 6;
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    tiles_used=count_tiles(newtilebuf)-start_tile;
+    tiles_used=min(tiles_used, max_tiles);
+    tiles_used=min(tiles_used, NEWMAXTILES);
+    if(!p_iputw(tiles_used,f))
+    {
+      new_return(5);
+    }
+
+  //  if(!pfwrite(tilebuf+start_tile,dword(dword(SINGLE_TILE_SIZE)*dword(tiles_used)),f))
+    for (dword i=0; i<tiles_used; ++i)
+    {
+      if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
+      {
+        new_return(6);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
     }
   }
-  return 0;
+
+  if (writesize!=int(section_size))
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writetiles_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
-int writemidis_210(PACKFILE *f, zquestheader *Header)
+int writemidis_210(PACKFILE *f)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  Header=Header;
-
   dword section_id=ID_MIDIS;
   dword section_version=V_MIDIS_210;
   dword section_cversion=CV_MIDIS_210;
   dword section_size = 0;
-  {
-    int midi_count = 0;
-    for(int i = 0; i < MAXCUSTOMMIDIS; i++ )
-      if( get_bit(midi_flags, i) )
-      {
-        midi_count++;
-        for(int c = 0; c < MIDI_TRACKS; c++ )
-          section_size += customMIDIs[i].midi->track[c].len;
-      }
-      section_size += sizeof(midi_flags)
-      + midi_count * (sizeof(customMIDIs[0].title) + (3 + MIDI_TRACKS) * sizeof(long) + 3 * sizeof(word));
-  }
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  if(!pfwrite(midi_flags,sizeof(midi_flags),f))
-  {
-    return 5;
-  }
-  for(int i=0; i<MAXCUSTOMMIDIS; i++)
-  {
-    if(get_bit(midi_flags,i))
+    //section size
+    if(!p_iputl(section_size,f))
     {
-      if(!pfwrite(&customMIDIs[i].title,sizeof(customMIDIs[0].title),f))
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!pfwrite(midi_flags,sizeof(midi_flags),f))
+    {
+      new_return(5);
+    }
+    for(int i=0; i<MAXCUSTOMMIDIS; i++)
+    {
+      if(get_bit(midi_flags,i))
       {
-        return 6;
-      }
-      if(!p_iputl(customMIDIs[i].start,f))
-      {
-        return 7;
-      }
-      if(!p_iputl(customMIDIs[i].loop_start,f))
-      {
-        return 8;
-      }
-      if(!p_iputl(customMIDIs[i].loop_end,f))
-      {
-        return 9;
-      }
-      if(!p_iputw(customMIDIs[i].loop,f))
-      {
-        return 10;
-      }
-      if(!p_iputw(customMIDIs[i].volume,f))
-      {
-        return 11;
-      }
-      if(!write_midi(customMIDIs[i].midi,f))
-      {
-        return 12;
+        if(!pfwrite(&customMIDIs[i].title,sizeof(customMIDIs[0].title),f))
+        {
+          new_return(6);
+        }
+        if(!p_iputl(customMIDIs[i].start,f))
+        {
+          new_return(7);
+        }
+        if(!p_iputl(customMIDIs[i].loop_start,f))
+        {
+          new_return(8);
+        }
+        if(!p_iputl(customMIDIs[i].loop_end,f))
+        {
+          new_return(9);
+        }
+        if(!p_iputw(customMIDIs[i].loop,f))
+        {
+          new_return(10);
+        }
+        if(!p_iputw(customMIDIs[i].volume,f))
+        {
+          new_return(11);
+        }
+        if(!write_midi(customMIDIs[i].midi,f))
+        {
+          new_return(12);
+        }
       }
     }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
-  return 0;
+
+  if (writesize!=int(section_size))
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writemidis_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writecheats_210(PACKFILE *f, zquestheader *Header)
@@ -10155,51 +11129,69 @@ int writecheats_210(PACKFILE *f, zquestheader *Header)
   dword section_version=V_CHEATS_210;
   dword section_cversion=CV_CHEATS_210;
 //  dword section_size=0;
-  dword section_size = sizeof(char);
-  if(Header->data_flags[ZQ_CHEATS2])
-    section_size += sizeof(long) + sizeof(zcheats.codes);
+  dword section_size = 0;
 
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
-  }
+    fake_pack_writing=(writecycle==0);
 
-  //finally...  section data
-  if(!p_putc(Header->data_flags[ZQ_CHEATS2],f))
-  {
-    return 5;
-  }
-
-  if(Header->data_flags[ZQ_CHEATS2])
-  {
-    if(!p_iputl(zcheats.flags,f))
+    //section size
+    if(!p_iputl(section_size,f))
     {
-      return 6;
+      new_return(4);
     }
-    if(!pfwrite(&zcheats.codes, sizeof(zcheats.codes), f))
+
+    writesize=0;
+
+    //finally...  section data
+    if(!p_putc(Header->data_flags[ZQ_CHEATS2],f))
     {
-      return 7;
+      new_return(5);
+    }
+
+    if(Header->data_flags[ZQ_CHEATS2])
+    {
+      if(!p_iputl(zcheats.flags,f))
+      {
+        new_return(6);
+      }
+      if(!pfwrite(&zcheats.codes, sizeof(zcheats.codes), f))
+      {
+        new_return(7);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
     }
   }
 
-  return 0;
+  if (writesize!=int(section_size))
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writecheats_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writeguys_210(PACKFILE *f, zquestheader *Header)
@@ -10215,31 +11207,51 @@ int writeguys_210(PACKFILE *f, zquestheader *Header)
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
 
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+
+    //well, defaults are used for now.  sorry.
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
+  if (writesize!=int(section_size))
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeguys_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
 
-  //well, defaults are used for now.  sorry.
-
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 int writeinitdata_210(PACKFILE *f, zquestheader *Header)
@@ -10251,7 +11263,7 @@ int writeinitdata_210(PACKFILE *f, zquestheader *Header)
   dword section_version=V_INITDATA_210;
   dword section_cversion=CV_INITDATA_210;
 //  dword section_size=0;
-  dword section_size = 174;
+  dword section_size = 0;
 
   zinit.last_map=Map.getCurrMap();
   zinit.last_screen=Map.getCurrScr();
@@ -10259,278 +11271,299 @@ int writeinitdata_210(PACKFILE *f, zquestheader *Header)
   //section id
   if(!p_mputl(section_id,f))
   {
-    return 1;
+    new_return(1);
   }
 
   //section version info
   if(!p_iputw(section_version,f))
   {
-    return 2;
+    new_return(2);
   }
   if(!p_iputw(section_cversion,f))
   {
-    return 3;
+    new_return(3);
   }
 
-  //section size
-  if(!p_iputl(section_size,f))
+  for (int writecycle=0; writecycle<2; ++writecycle)
   {
-    return 4;
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    //GAH more old item code :( :( :(
+    if(!p_putc(zinit.items[iRaft] ? 1 : 0,f))
+    {
+      new_return(5);
+    }
+    if(!p_putc(zinit.items[iRaft] ? 1 : 0,f))
+    {
+      new_return(6);
+    }
+    if(!p_putc(zinit.items[iBook] ? 1 : 0,f))
+    {
+      new_return(7);
+    }
+    if(!p_putc(zinit.items[iMKey] ? 1 : 0,f))
+    {
+      new_return(8);
+    }
+    if(!p_putc(zinit.items[iFlippers] ? 1 : 0,f))
+    {
+      new_return(9);
+    }
+    if(!p_putc(zinit.items[iBoots] ? 1 : 0,f))
+    {
+      new_return(10);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_ring),f))
+    {
+      new_return(11);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_sword),f))
+    {
+      new_return(12);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_shield),f))
+    {
+      new_return(13);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_wallet),f))
+    {
+      new_return(14);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_bracelet),f))
+    {
+      new_return(15);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_amulet),f))
+    {
+      new_return(16);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_bow),f))
+    {
+      new_return(17);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_candle),f))
+    {
+      new_return(18);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_brang),f))
+    {
+      new_return(19);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_arrow),f))
+    {
+      new_return(20);
+    }
+
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_potion),f))
+    {
+      new_return(21);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_whistle),f))
+    {
+      new_return(22);
+    }
+    if(!p_putc(zinit.bombs,f))
+    {
+      new_return(23);
+    }
+    if(!p_putc(zinit.super_bombs,f))
+    {
+      new_return(24);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_wand),f))
+    {
+      new_return(25);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_letter),f))
+
+    {
+      new_return(26);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_lens),f))
+    {
+      new_return(27);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_hookshot),f))
+    {
+      new_return(28);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_bait),f))
+    {
+      new_return(29);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_hammer),f))
+    {
+      new_return(30);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_dinsfire),f))
+    {
+      new_return(31);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_faroreswind),f))
+    {
+      new_return(32);
+    }
+    if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_nayruslove),f))
+    {
+      new_return(33);
+    }
+    //WTF is this cloak?
+    //if(!p_putc(zinit.cloak,f))
+    if(!p_putc(0,f))
+    {
+      new_return(34);
+    }
+    if(!p_putc(zinit.hc,f))
+    {
+      new_return(35);
+    }
+    if(!p_putc(zinit.start_heart,f))
+    {
+      new_return(36);
+    }
+    if(!p_putc(zinit.cont_heart,f))
+    {
+      new_return(37);
+    }
+    if(!p_putc(zinit.hcp,f))
+    {
+      new_return(38);
+    }
+    if(!p_putc(zinit.max_bombs,f))
+    {
+      new_return(39);
+    }
+    if(!p_putc(zinit.keys,f))
+    {
+      new_return(40);
+    }
+    if(!p_iputw(zinit.rupies,f))
+    {
+      new_return(41);
+    }
+    if(!p_putc(zinit.triforce,f))
+    {
+      new_return(42);
+    }
+    for (int i=0; i<32; i++)
+    {
+      if(!p_putc(zinit.map[i],f))
+      {
+        new_return(43);
+      }
+    }
+    for (int i=0; i<32; i++)
+    {
+      if(!p_putc(zinit.compass[i],f))
+      {
+        new_return(44);
+      }
+    }
+    for (int i=0; i<32; i++)
+    {
+      if(!p_putc(zinit.boss_key[i],f))
+      {
+        new_return(45);
+      }
+    }
+    for (int i=0; i<16; i++)
+    {
+      if(!p_putc(zinit.misc[i],f))
+      {
+        new_return(46);
+      }
+    }
+    for (int i=0; i<4; i++)
+    {
+      if(!p_putc(zinit.sword_hearts[i],f))
+      {
+        new_return(47);
+      }
+    }
+    if(!p_putc(zinit.last_map,f))
+    {
+      new_return(48);
+    }
+    if(!p_putc(zinit.last_screen,f))
+    {
+      new_return(49);
+    }
+    if(!p_putc(zinit.max_magic,f))
+    {
+      new_return(50);
+    }
+    if(!p_putc(zinit.magic,f))
+    {
+      new_return(51);
+    }
+    for (int i=0; i<4; i++)
+    {
+      if(!p_putc(zinit.beam_hearts[i],f))
+      {
+        new_return(52);
+      }
+    }
+    if(!p_putc(zinit.beam_percent,f))
+    {
+      new_return(53);
+    }
+    for (int i=0; i<4; i++)
+    {
+      if(!p_putc(zinit.beam_power[i],f))
+      {
+        new_return(54);
+      }
+    }
+    if(!p_putc(zinit.hookshot_links,f))
+    {
+      new_return(55);
+    }
+    if(!p_putc(zinit.msg_more_x,f))
+    {
+      new_return(56);
+    }
+    if(!p_putc(zinit.msg_more_y,f))
+    {
+      new_return(57);
+    }
+    if(!p_putc(zinit.subscreen,f))
+    {
+      new_return(58);
+    }
+    if(!p_putc(zinit.start_dmap,f))
+    {
+      new_return(59);
+    }
+  //  if(!p_putc(zinit.linkwalkstyle,f))
+    if(!p_putc(zinit.linkanimationstyle,f))
+    {
+      new_return(60);
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
   }
 
-  //finally...  section data
-  //GAH more old item code :( :( :(
-  if(!p_putc(zinit.items[iRaft] ? 1 : 0,f))
+  if (writesize!=int(section_size))
   {
-    return 5;
-  }
-  if(!p_putc(zinit.items[iRaft] ? 1 : 0,f))
-  {
-    return 6;
-  }
-  if(!p_putc(zinit.items[iBook] ? 1 : 0,f))
-  {
-    return 7;
-  }
-  if(!p_putc(zinit.items[iMKey] ? 1 : 0,f))
-  {
-    return 8;
-  }
-  if(!p_putc(zinit.items[iFlippers] ? 1 : 0,f))
-  {
-    return 9;
-  }
-  if(!p_putc(zinit.items[iBoots] ? 1 : 0,f))
-  {
-    return 10;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_ring),f))
-  {
-    return 11;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_sword),f))
-  {
-    return 12;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_shield),f))
-  {
-    return 13;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_wallet),f))
-  {
-    return 14;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_bracelet),f))
-  {
-    return 15;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_amulet),f))
-  {
-    return 16;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_bow),f))
-  {
-    return 17;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_candle),f))
-  {
-    return 18;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_brang),f))
-  {
-    return 19;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_arrow),f))
-  {
-    return 20;
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeinitdata_210()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
   }
 
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_potion),f))
-  {
-    return 21;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_whistle),f))
-  {
-    return 22;
-  }
-  if(!p_putc(zinit.bombs,f))
-  {
-    return 23;
-  }
-  if(!p_putc(zinit.super_bombs,f))
-  {
-    return 24;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_wand),f))
-  {
-    return 25;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_letter),f))
-
-  {
-    return 26;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_lens),f))
-  {
-    return 27;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_hookshot),f))
-  {
-    return 28;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_bait),f))
-  {
-    return 29;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_hammer),f))
-  {
-    return 30;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_dinsfire),f))
-  {
-    return 31;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_faroreswind),f))
-  {
-    return 32;
-  }
-  if(!p_putc(computeOldStyleBitfield(&zinit,itemsbuf,itype_nayruslove),f))
-  {
-    return 33;
-  }
-  //WTF is this cloak?
-  //if(!p_putc(zinit.cloak,f))
-  if(!p_putc(0,f))
-  {
-    return 34;
-  }
-  if(!p_putc(zinit.hc,f))
-  {
-    return 35;
-  }
-  if(!p_putc(zinit.start_heart,f))
-  {
-    return 36;
-  }
-  if(!p_putc(zinit.cont_heart,f))
-  {
-    return 37;
-  }
-  if(!p_putc(zinit.hcp,f))
-  {
-    return 38;
-  }
-  if(!p_putc(zinit.max_bombs,f))
-  {
-    return 39;
-  }
-  if(!p_putc(zinit.keys,f))
-  {
-    return 40;
-  }
-  if(!p_iputw(zinit.rupies,f))
-  {
-    return 41;
-  }
-  if(!p_putc(zinit.triforce,f))
-  {
-    return 42;
-  }
-  for (int i=0; i<32; i++)
-  {
-    if(!p_putc(zinit.map[i],f))
-    {
-      return 43;
-    }
-  }
-  for (int i=0; i<32; i++)
-  {
-    if(!p_putc(zinit.compass[i],f))
-    {
-      return 44;
-    }
-  }
-  for (int i=0; i<32; i++)
-  {
-    if(!p_putc(zinit.boss_key[i],f))
-    {
-      return 45;
-    }
-  }
-  for (int i=0; i<16; i++)
-  {
-    if(!p_putc(zinit.misc[i],f))
-    {
-      return 46;
-    }
-  }
-  for (int i=0; i<4; i++)
-  {
-    if(!p_putc(zinit.sword_hearts[i],f))
-    {
-      return 47;
-    }
-  }
-  if(!p_putc(zinit.last_map,f))
-  {
-    return 48;
-  }
-  if(!p_putc(zinit.last_screen,f))
-  {
-    return 49;
-  }
-  if(!p_putc(zinit.max_magic,f))
-  {
-    return 50;
-  }
-  if(!p_putc(zinit.magic,f))
-  {
-    return 51;
-  }
-  for (int i=0; i<4; i++)
-  {
-    if(!p_putc(zinit.beam_hearts[i],f))
-    {
-      return 52;
-    }
-  }
-  if(!p_putc(zinit.beam_percent,f))
-  {
-    return 53;
-  }
-  for (int i=0; i<4; i++)
-  {
-    if(!p_putc(zinit.beam_power[i],f))
-    {
-      return 54;
-    }
-  }
-  if(!p_putc(zinit.hookshot_links,f))
-  {
-    return 55;
-  }
-  if(!p_putc(zinit.msg_more_x,f))
-  {
-    return 56;
-  }
-  if(!p_putc(zinit.msg_more_y,f))
-  {
-    return 57;
-  }
-  if(!p_putc(zinit.subscreen,f))
-  {
-    return 58;
-  }
-  if(!p_putc(zinit.start_dmap,f))
-  {
-    return 59;
-  }
-//  if(!p_putc(zinit.linkwalkstyle,f))
-  if(!p_putc(zinit.linkanimationstyle,f))
-  {
-    return 60;
-  }
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }
 
 
@@ -10567,12 +11600,12 @@ int save_unencoded_quest_210(char *filename, bool compressed)
 
   PACKFILE *f = pack_fopen(filename,compressed?F_WRITE_PACKED:F_WRITE);
   if(!f)
-    return 1;
+    new_return(1);
 
   box_out("Writing 2.10 Header...");
   if (writeheader_210(f,&header)!=0)
   {
-    return 2;
+    new_return(2);
   }
   box_out("okay.");
   box_eol();
@@ -10580,7 +11613,7 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Rules...");
   if (writerules_210(f,&header)!=0)
   {
-    return 3;
+    new_return(3);
   }
   box_out("okay.");
   box_eol();
@@ -10588,7 +11621,7 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Strings...");
   if (writestrings_210(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)!=0)
   {
-    return 4;
+    new_return(4);
   }
   box_out("okay.");
   box_eol();
@@ -10596,15 +11629,15 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Doors...");
   if (writedoorcombosets_210(f,&header)!=0)
   {
-    return 5;
+    new_return(5);
   }
   box_out("okay.");
   box_eol();
 
   box_out("Writing 2.10 DMaps...");
-  if (writedmaps_210(f,header.zelda_version,header.build,0,MAXDMAPS)!=0)
+  if (writedmaps_210(f,header.zelda_version,header.build,0,OLDMAXDMAPS)!=0)
   {
-    return 6;
+    new_return(6);
   }
   box_out("okay.");
   box_eol();
@@ -10612,7 +11645,7 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Misc. Data...");
   if (writemisc_210(f,&header,&misc)!=0)
   {
-    return 7;
+    new_return(7);
   }
   box_out("okay.");
   box_eol();
@@ -10620,7 +11653,7 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Items...");
   if (writeitems_210(f,&header)!=0)
   {
-    return 8;
+    new_return(8);
   }
 
   box_out("okay.");
@@ -10629,7 +11662,7 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Weapons...");
   if (writeweapons_210(f,&header)!=0)
   {
-    return 9;
+    new_return(9);
   }
   box_out("okay.");
   box_eol();
@@ -10637,7 +11670,7 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Maps...");
   if (writemaps_210(f,&header)!=0)
   {
-    return 10;
+    new_return(10);
   }
   box_out("okay.");
   box_eol();
@@ -10645,7 +11678,7 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Combos...");
   if (writecombos_210(f,header.zelda_version,header.build,0,MAXCOMBOS)!=0)
   {
-    return 11;
+    new_return(11);
   }
   box_out("okay.");
   box_eol();
@@ -10653,7 +11686,7 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Color Data...");
   if (writecolordata_210(f,&misc,header.zelda_version,header.build,0,newpdTOTAL)!=0)
   {
-    return 12;
+    new_return(12);
   }
   box_out("okay.");
   box_eol();
@@ -10662,15 +11695,15 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   if (writetiles_210(f,header.zelda_version,header.build,0,NEWMAXTILES)!=0)
   {
 
-    return 13;
+    new_return(13);
   }
   box_out("okay.");
   box_eol();
 
   box_out("Writing 2.10 MIDIs...");
-  if (writemidis_210(f,&header)!=0)
+  if (writemidis_210(f)!=0)
   {
-    return 14;
+    new_return(14);
   }
   box_out("okay.");
   box_eol();
@@ -10678,7 +11711,7 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Cheat Codes...");
   if (writecheats_210(f,&header)!=0)
   {
-    return 15;
+    new_return(15);
   }
   box_out("okay.");
   box_eol();
@@ -10686,7 +11719,7 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Init. Data...");
   if (writeinitdata_210(f,&header)!=0)
   {
-    return 16;
+    new_return(16);
   }
   box_out("okay.");
   box_eol();
@@ -10694,12 +11727,13 @@ int save_unencoded_quest_210(char *filename, bool compressed)
   box_out("Writing 2.10 Enemy Data...");
   if (writeguys_210(f,&header)!=0)
   {
-    return 17;
+    new_return(17);
   }
   box_out("okay.");
   box_eol();
 
   pack_fclose(f);
 
-  return 0;
+  new_return(0);
+  return 0;  //this is just here to stomp the compiler from whining.
 }

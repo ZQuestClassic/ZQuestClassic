@@ -1,4 +1,4 @@
-#ifndef __GTHREAD_HIDE_WIN32API                             
+#ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
@@ -203,7 +203,7 @@ void TextSelection::ensureSelecting(EditboxCursor &cursor)
 {
 	if(!isselecting)
 	{
-		restartSelection(cursor);	
+		restartSelection(cursor);
 	}
 }
 
@@ -292,6 +292,7 @@ void EditboxCursor::insertNewline()
 	list<LineData>::iterator next = cp.it;
 	next++;
 	host.getLines().insert(next,newld);
+	next--;
 	host.markAsDirty(next);
 	host.markAsDirty(cp.it);
 	host.getView()->update();
@@ -449,7 +450,7 @@ void EditboxModel::paste()
 	therestline.strip = NULL;
 	cp.it->line = cp.it->line.substr(0,offset);
 	cp.it->newlineterminated = false;
-	cp.it->numchars = cp.index;	
+	cp.it->numchars = cp.index;
 	//insert the damn lines
 	list<LineData>::iterator it = cp.it;
 	it++;
@@ -535,9 +536,9 @@ void EditboxModel::doHelp()
   {
 		helpstr+=c;
 		c = fgetc(hb);
-  }	
+  }
   fclose(hb);
-  
+
   help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],pfont,view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
   help_dlg[0].dp2= lfont;
   help_dlg[2].bg = view->getDialog()->bg;

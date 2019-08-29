@@ -247,6 +247,7 @@ int mix_value(int c1,int c2,int pos,int max)
 char *shorten_string(char *dest, char *src, FONT *usefont, int maxchars, int maxwidth)
 {
   strncpy(dest,src,maxchars);
+  dest[maxchars-1]='\0';
   int len=(int)strlen(dest);
   int width=text_length(usefont, dest);
   dest[len]=0;
@@ -291,6 +292,7 @@ void jwin_draw_titlebar(BITMAP *dest, int x, int y, int w, int h, char *str, boo
                         temp_pal[scheme[jcTITLER]].g*255/63,
                         temp_pal[scheme[jcTITLER]].b*255/63),
               scheme[jcTITLEL], scheme[jcTITLER]);
+
 
   if(len>509)
     len=509;
@@ -586,7 +588,6 @@ int jwin_win_proc(int msg, DIALOG *d, int c)
     }
     break;
   }
-
   return D_O_K;
 }
 
@@ -840,7 +841,12 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
   int scroll;
   char *s;
   char buf[2];
-
+  char nullbuf[2];
+  sprintf(nullbuf, " ");
+  if (d->dp==NULL)
+  {
+    d->dp=(void *)nullbuf;
+  }
   s = (char*)d->dp;
   l = (int)strlen(s);
   if (d->d2 > l)
@@ -893,19 +899,19 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
       bg = (d->flags & D_DISABLED) || (d->flags & D_READONLY) ? scheme[jcBOX] : scheme[jcTEXTBG];
       x = 3;
       y = (d->h - text_height(font)) / 2 + d->y;
-  
+
       /* first fill in the edges */
-  
+
       if(y > d->y+2)
         rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, y-1, bg);
-  
+
       if(y+text_height(font)-1 < d->y+d->h-2)
         rectfill(screen, d->x+2, y+text_height(font)-1, d->x+d->w-3, d->y+d->h-3, bg);
-  
+
       _allegro_vline(screen, d->x+2, d->y+2, d->y+d->h-3, bg);
-  
+
       /* now the text */
-  
+
       if (scroll)
       {
         p = d->d2-b+1;
@@ -913,7 +919,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
       }
       else
         p = 0;
-  
+
       for (; p<=b; p++)
       {
         buf[0] = s[p] ? s[p] : ' ';
@@ -924,17 +930,17 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
         textout_ex(screen, font, buf, d->x+x, y, f ? bg : fg,f ? fg : bg);
         x += w;
       }
-  
+
       if (x < d->w-2)
         rectfill(screen, d->x+x, y, d->x+d->w-3, y+text_height(font)-1, bg);
-  
+
       jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
       font = oldfont;
       break;
 
     case MSG_CLICK:
       x = d->x+3;
-  
+
       if (scroll)
       {
         p = d->d2-b+1;
@@ -942,7 +948,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
       }
       else
         p = 0;
-  
+
       for (; p<b; p++)
       {
         buf[0] = s[p];
@@ -3374,7 +3380,7 @@ int d_abclist_proc(int msg,DIALOG *d,int c)
 
 int jwin_checkfont_proc(int msg, DIALOG *d, int c)
 {
-	
+
 	FONT *oldfont = font;
 	if(d->dp2)
 	{
@@ -4202,7 +4208,7 @@ void jwin_center_dialog(DIALOG *dialog)
   int xc, yc;
   int c;
   ASSERT(dialog);
-  
+
   /* how much to move by? */
   xc = (SCREEN_W - dialog[0].w) / 2 - dialog[0].x;
   yc = (SCREEN_H - dialog[0].h) / 2 - dialog[0].y;

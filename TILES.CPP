@@ -143,7 +143,7 @@ void setup_combo_animations()
   {
     animated_combo_table[x][0]=y;
     animated_combo_table[x][1]=combobuf[x].tile;
-    if (combobuf[x].frames>1&&!(combobuf[x].freshanim))
+	if ((combobuf[x].frames>1 || combobuf[x].nextcombo != 0)&&!(combobuf[x].freshanim))
     {
       animated_combo_table4[y][0]=x;
       animated_combo_table4[y][1]=0;
@@ -162,7 +162,7 @@ void setup_combo_animations2()
   {
     animated_combo_table2[x][0]=y;
     animated_combo_table2[x][1]=combobuf[x].tile;
-    if (combobuf[x].frames>1&&combobuf[x].freshanim)
+	if ((combobuf[x].frames>1 || combobuf[x].nextcombo != 0)&&combobuf[x].freshanim)
     {
       animated_combo_table24[y][0]=x;
       animated_combo_table24[y][1]=0;
@@ -224,7 +224,7 @@ void animate_combos()
   for (word x=0; x<animated_combos; ++x)
   {
     int y=animated_combo_table4[x][0];                      //combo number
-    if (animated_combo_table4[x][1]>=combobuf[y].speed)     //time to animate
+	if (animated_combo_table4[x][1]>=combobuf[y].speed)     //time to animate
     {
       if (combobuf[y].tile-(combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim)+((((combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim))+(animated_combo_table[y][1]%20))/TILES_PER_ROW)*combobuf[y].skipanimy*TILES_PER_ROW))>=animated_combo_table[y][1]-1)
       {
@@ -234,7 +234,7 @@ void animate_combos()
       {
 	    int temp = combobuf[y].tile/20;
         combobuf[y].tile+=1+(combobuf[y].skipanim); //increment tile
-		if((combobuf[y].tile/20) > temp) combobuf[y].tile+=TILES_PER_ROW*combobuf[y].skipanimy; 
+		if((combobuf[y].tile/20) > temp) combobuf[y].tile+=TILES_PER_ROW*combobuf[y].skipanimy;
       }
       animated_combo_table4[x][1]=0;                        //reset clock
     }
@@ -258,7 +258,7 @@ void animate_combos()
       {
 	    int temp = combobuf[y].tile/20;
         combobuf[y].tile+=1+(combobuf[y].skipanim); //increment tile
-		if((combobuf[y].tile/20) > temp) combobuf[y].tile+=TILES_PER_ROW*combobuf[y].skipanimy; 
+		if((combobuf[y].tile/20) > temp) combobuf[y].tile+=TILES_PER_ROW*combobuf[y].skipanimy;
       }
       animated_combo_table24[x][1]=0;                        //reset clock
     }
@@ -1151,87 +1151,97 @@ void overblocktranslucent8(BITMAP *dest,int tile,int x,int y,int csets[],int fli
 //  cmbdat: fffffsss cccccccc
 //          (f:flags, s:cset, c:combo)
 
-void putcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacity)
+int combo_tile(newcombo c, int x, int y)
 {
-  //  int cset=(cmbdat&0x0700)>>8;
-
-  newcombo c = combobuf[cmbdat];                            //strip the flags
   int drawtile=c.tile;
-  int tframes=max(1, combobuf[cmbdat].frames);
+  int tframes=max(1, c.frames);
   double ddir=0;
-  switch (combobuf[cmbdat].type)
+  switch (c.type)
   {
     case cEYEBALL_A:
-    ddir=atan2(double(y-LinkModifiedY()),double(LinkModifiedX()-x));
-    if ((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
-    {
-      drawtile+=tframes*5;                                //dl
-    }
-    else if ((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
+      ddir=atan2(double(y-playing_field_offset-LinkModifiedY()),double(LinkModifiedX()-x));
+      if ((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
+      {
+        drawtile+=tframes*5;                                //dl
+      }
+      else if ((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
       {
         drawtile+=tframes*4;                                //d
       }
       else if ((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
-        {
-          drawtile+=tframes*3;                                //dr
-        }
-        else if ((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
-          {
-            drawtile+=tframes*2;                                //r
-          }
-          else if ((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
-            {
-              drawtile+=tframes*1;                                //ur
-            }
-            else if ((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
-              {
-                drawtile+=tframes*0;                                //u
-              }
-              else if ((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
-                {
-                  drawtile+=tframes*7;                                //ul
-                }
-                else
-                {
-                  drawtile+=tframes*6;                                //l
-                }
-    break;
+      {
+        drawtile+=tframes*3;                                //dr
+      }
+      else if ((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
+      {
+        drawtile+=tframes*2;                                //r
+      }
+      else if ((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
+      {
+        drawtile+=tframes*1;                                //ur
+      }
+      else if ((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
+      {
+        drawtile+=tframes*0;                                //u
+      }
+      else if ((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
+      {
+        drawtile+=tframes*7;                                //ul
+      }
+      else
+      {
+        drawtile+=tframes*6;                                //l
+      }
+      break;
     case cEYEBALL_B:
-    ddir=atan2(double(y-LinkModifiedY()),double(LinkModifiedX()-x));
-    if ((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
-    {
-      drawtile+=tframes*5;                                //dl
-    }
-    else if ((ddir<=(((-4)*PI)/8))&&(ddir>(((-6)*PI)/8)))
+      ddir=atan2(double(y-playing_field_offset-LinkModifiedY()),double(LinkModifiedX()-x));
+      if ((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
+      {
+        drawtile+=tframes*5;                                //dl
+      }
+      else if ((ddir<=(((-4)*PI)/8))&&(ddir>(((-6)*PI)/8)))
       {
         drawtile+=tframes*4;                                //d
       }
       else if ((ddir<=(((-2)*PI)/8))&&(ddir>(((-4)*PI)/8)))
-        {
-          drawtile+=tframes*3;                                //dr
-        }
-        else if ((ddir<=(((0)*PI)/8))&&(ddir>(((-2)*PI)/8)))
-          {
-            drawtile+=tframes*2;                                //r
-          }
-          else if ((ddir<=(((2)*PI)/8))&&(ddir>(((0)*PI)/8)))
-            {
-              drawtile+=tframes*1;                                //ur
-            }
-            else if ((ddir<=(((4)*PI)/8))&&(ddir>(((2)*PI)/8)))
-              {
-                drawtile+=tframes*0;                                //u
-              }
-              else if ((ddir<=(((6)*PI)/8))&&(ddir>(((4)*PI)/8)))
-                {
-                  drawtile+=tframes*7;                                //ul
-                }
-                else
-                {
-                  drawtile+=tframes*6;                                //l
-                }
-    break;
+      {
+        drawtile+=tframes*3;                                //dr
+      }
+      else if ((ddir<=(((0)*PI)/8))&&(ddir>(((-2)*PI)/8)))
+      {
+        drawtile+=tframes*2;                                //r
+      }
+      else if ((ddir<=(((2)*PI)/8))&&(ddir>(((0)*PI)/8)))
+      {
+        drawtile+=tframes*1;                                //ur
+      }
+      else if ((ddir<=(((4)*PI)/8))&&(ddir>(((2)*PI)/8)))
+      {
+        drawtile+=tframes*0;                                //u
+      }
+      else if ((ddir<=(((6)*PI)/8))&&(ddir>(((4)*PI)/8)))
+      {
+        drawtile+=tframes*7;                                //ul
+      }
+      else
+      {
+        drawtile+=tframes*6;                                //l
+      }
+      break;
   }
+  return drawtile;
+}
+
+int combo_tile(int cmbdat, int x, int y)
+{
+  newcombo c = combobuf[cmbdat];
+  return combo_tile(c, x, y);
+}
+
+void putcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacity)
+{
+  newcombo c = combobuf[cmbdat];
+  int drawtile=combo_tile(c, x, y);
   if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
     puttiletranslucent16(dest,drawtile,x,y,cset,c.flip,opacity);
   else
@@ -1250,83 +1260,8 @@ void putcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacit
 
 void overcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacity)
 {
-  newcombo c = combobuf[cmbdat];                            //strip the flags
-  int drawtile=c.tile;
-  int tframes=max(1, combobuf[cmbdat].frames);
-  double ddir=0;
-  switch (combobuf[cmbdat].type)
-  {
-    case cEYEBALL_A:
-    ddir=atan2(double(y-LinkModifiedY()),double(LinkModifiedX()-x));
-    if ((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
-    {
-      drawtile+=tframes*5;                                //dl
-    }
-    else if ((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
-      {
-        drawtile+=tframes*4;                                //d
-      }
-      else if ((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
-        {
-          drawtile+=tframes*3;                                //dr
-        }
-        else if ((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
-          {
-            drawtile+=tframes*2;                                //r
-          }
-          else if ((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
-            {
-              drawtile+=tframes*1;                                //ur
-            }
-            else if ((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
-              {
-                drawtile+=tframes*0;                                //u
-              }
-              else if ((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
-                {
-                  drawtile+=tframes*7;                                //ul
-                }
-                else
-                {
-                  drawtile+=tframes*6;                                //l
-                }
-    break;
-    case cEYEBALL_B:
-    ddir=atan2(double(y-LinkModifiedY()),double(LinkModifiedX()-x));
-    if ((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
-    {
-      drawtile+=tframes*5;                                //dl
-    }
-    else if ((ddir<=(((-4)*PI)/8))&&(ddir>(((-6)*PI)/8)))
-      {
-        drawtile+=tframes*4;                                //d
-      }
-      else if ((ddir<=(((-2)*PI)/8))&&(ddir>(((-4)*PI)/8)))
-        {
-          drawtile+=tframes*3;                                //dr
-        }
-        else if ((ddir<=(((0)*PI)/8))&&(ddir>(((-2)*PI)/8)))
-          {
-            drawtile+=tframes*2;                                //r
-          }
-          else if ((ddir<=(((2)*PI)/8))&&(ddir>(((0)*PI)/8)))
-            {
-              drawtile+=tframes*1;                                //ur
-            }
-            else if ((ddir<=(((4)*PI)/8))&&(ddir>(((2)*PI)/8)))
-              {
-                drawtile+=tframes*0;                                //u
-              }
-              else if ((ddir<=(((6)*PI)/8))&&(ddir>(((4)*PI)/8)))
-                {
-                  drawtile+=tframes*7;                                //ul
-                }
-                else
-                {
-                  drawtile+=tframes*6;                                //l
-                }
-    break;
-  }
+  newcombo c = combobuf[cmbdat];
+  int drawtile=combo_tile(c, x, y);
   if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
     overtiletranslucent16(dest,drawtile,x,y,cset,c.flip,opacity);
   else
@@ -2067,85 +2002,8 @@ void overblock8(BITMAP *dest,int tile,int x,int y,int csets[],int flip,int mask)
 
 void putcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
 {
-  //  int cset=(cmbdat&0x0700)>>8;
-
-  newcombo c = combobuf[cmbdat];                            //strip the flags
-  int drawtile=c.tile;
-  int tframes=max(1, combobuf[cmbdat].frames);
-  double ddir=0;
-  switch (combobuf[cmbdat].type)
-  {
-    case cEYEBALL_A:
-      ddir=atan2(double(y-LinkModifiedY()),double(LinkModifiedX()-x));
-      if ((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
-      {
-        drawtile+=tframes*5;                                //dl
-      }
-      else if ((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
-      {
-        drawtile+=tframes*4;                                //d
-      }
-      else if ((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
-      {
-        drawtile+=tframes*3;                                //dr
-      }
-      else if ((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
-      {
-        drawtile+=tframes*2;                                //r
-      }
-      else if ((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
-      {
-        drawtile+=tframes*1;                                //ur
-      }
-      else if ((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
-      {
-        drawtile+=tframes*0;                                //u
-      }
-      else if ((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
-      {
-        drawtile+=tframes*7;                                //ul
-      }
-      else
-      {
-        drawtile+=tframes*6;                                //l
-      }
-      break;
-    case cEYEBALL_B:
-      ddir=atan2(double(y-LinkModifiedY()),double(LinkModifiedX()-x));
-      if ((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
-      {
-        drawtile+=tframes*5;                                //dl
-      }
-      else if ((ddir<=(((-4)*PI)/8))&&(ddir>(((-6)*PI)/8)))
-      {
-        drawtile+=tframes*4;                                //d
-      }
-      else if ((ddir<=(((-2)*PI)/8))&&(ddir>(((-4)*PI)/8)))
-      {
-        drawtile+=tframes*3;                                //dr
-      }
-      else if ((ddir<=(((0)*PI)/8))&&(ddir>(((-2)*PI)/8)))
-      {
-        drawtile+=tframes*2;                                //r
-      }
-      else if ((ddir<=(((2)*PI)/8))&&(ddir>(((0)*PI)/8)))
-      {
-        drawtile+=tframes*1;                                //ur
-      }
-      else if ((ddir<=(((4)*PI)/8))&&(ddir>(((2)*PI)/8)))
-      {
-        drawtile+=tframes*0;                                //u
-      }
-      else if ((ddir<=(((6)*PI)/8))&&(ddir>(((4)*PI)/8)))
-      {
-        drawtile+=tframes*7;                                //ul
-      }
-      else
-      {
-        drawtile+=tframes*6;                                //l
-      }
-      break;
-  }
+  newcombo c = combobuf[cmbdat];
+  int drawtile=combo_tile(c, x, y);
   if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
     puttile16(dest,drawtile,x,y,cset,c.flip);
   //    puttile16(dest,c.drawtile,x,y,cset,c.flip);
@@ -2168,85 +2026,8 @@ void putcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
 
 void oldputcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
 {
-  //  int cset=(cmbdat&0x0700)>>8;
-
-  newcombo c = combobuf[cmbdat];                            //strip the flags
-  int drawtile=c.tile;
-  int tframes=max(1, combobuf[cmbdat].frames);
-  double ddir=0;
-  switch (combobuf[cmbdat].type)
-  {
-    case cEYEBALL_A:
-      ddir=atan2(double(y-LinkModifiedY()),double(LinkModifiedX()-x));
-      if ((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
-      {
-        drawtile+=tframes*5;                                //dl
-      }
-      else if ((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
-      {
-        drawtile+=tframes*4;                                //d
-      }
-      else if ((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
-      {
-        drawtile+=tframes*3;                                //dr
-      }
-      else if ((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
-      {
-        drawtile+=tframes*2;                                //r
-      }
-      else if ((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
-      {
-        drawtile+=tframes*1;                                //ur
-      }
-      else if ((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
-      {
-        drawtile+=tframes*0;                                //u
-      }
-      else if ((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
-      {
-        drawtile+=tframes*7;                                //ul
-      }
-      else
-      {
-        drawtile+=tframes*6;                                //l
-      }
-      break;
-    case cEYEBALL_B:
-      ddir=atan2(double(y-LinkModifiedY()),double(LinkModifiedX()-x));
-      if ((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
-      {
-        drawtile+=tframes*5;                                //dl
-      }
-      else if ((ddir<=(((-4)*PI)/8))&&(ddir>(((-6)*PI)/8)))
-      {
-        drawtile+=tframes*4;                                //d
-      }
-      else if ((ddir<=(((-2)*PI)/8))&&(ddir>(((-4)*PI)/8)))
-      {
-        drawtile+=tframes*3;                                //dr
-      }
-      else if ((ddir<=(((0)*PI)/8))&&(ddir>(((-2)*PI)/8)))
-      {
-        drawtile+=tframes*2;                                //r
-      }
-      else if ((ddir<=(((2)*PI)/8))&&(ddir>(((0)*PI)/8)))
-      {
-        drawtile+=tframes*1;                                //ur
-      }
-      else if ((ddir<=(((4)*PI)/8))&&(ddir>(((2)*PI)/8)))
-      {
-        drawtile+=tframes*0;                                //u
-      }
-      else if ((ddir<=(((6)*PI)/8))&&(ddir>(((4)*PI)/8)))
-      {
-        drawtile+=tframes*7;                                //ul
-      }
-      else
-      {
-        drawtile+=tframes*6;                                //l
-      }
-      break;
-  }
+  newcombo c = combobuf[cmbdat];
+  int drawtile=combo_tile(c, x, y);
   if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
     oldputtile16(dest,drawtile,x,y,cset,c.flip);
   //    oldputtile16(dest,c.drawtile,x,y,cset,c.flip);
@@ -2269,83 +2050,8 @@ void oldputcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
 
 void overcombo(BITMAP* dest,int x,int y,int cmbdat,int cset)
 {
-  newcombo c = combobuf[cmbdat];                            //strip the flags
-  int drawtile=c.tile;
-  int tframes=max(1, combobuf[cmbdat].frames);
-  double ddir=0;
-  switch (combobuf[cmbdat].type)
-  {
-    case cEYEBALL_A:
-    ddir=atan2(double(y-LinkModifiedY()),double(LinkModifiedX()-x));
-    if ((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
-    {
-      drawtile+=tframes*5;                                //dl
-    }
-    else if ((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
-      {
-        drawtile+=tframes*4;                                //d
-      }
-      else if ((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
-        {
-          drawtile+=tframes*3;                                //dr
-        }
-        else if ((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
-          {
-            drawtile+=tframes*2;                                //r
-          }
-          else if ((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
-            {
-              drawtile+=tframes*1;                                //ur
-            }
-            else if ((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
-              {
-                drawtile+=tframes*0;                                //u
-              }
-              else if ((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
-                {
-                  drawtile+=tframes*7;                                //ul
-                }
-                else
-                {
-                  drawtile+=tframes*6;                                //l
-                }
-    break;
-    case cEYEBALL_B:
-    ddir=atan2(double(y-LinkModifiedY()),double(LinkModifiedX()-x));
-    if ((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
-    {
-      drawtile+=tframes*5;                                //dl
-    }
-    else if ((ddir<=(((-4)*PI)/8))&&(ddir>(((-6)*PI)/8)))
-      {
-        drawtile+=tframes*4;                                //d
-      }
-      else if ((ddir<=(((-2)*PI)/8))&&(ddir>(((-4)*PI)/8)))
-        {
-          drawtile+=tframes*3;                                //dr
-        }
-        else if ((ddir<=(((0)*PI)/8))&&(ddir>(((-2)*PI)/8)))
-          {
-            drawtile+=tframes*2;                                //r
-          }
-          else if ((ddir<=(((2)*PI)/8))&&(ddir>(((0)*PI)/8)))
-            {
-              drawtile+=tframes*1;                                //ur
-            }
-            else if ((ddir<=(((4)*PI)/8))&&(ddir>(((2)*PI)/8)))
-              {
-                drawtile+=tframes*0;                                //u
-              }
-              else if ((ddir<=(((6)*PI)/8))&&(ddir>(((4)*PI)/8)))
-                {
-                  drawtile+=tframes*7;                                //ul
-                }
-                else
-                {
-                  drawtile+=tframes*6;                                //l
-                }
-    break;
-  }
+  newcombo c = combobuf[cmbdat];
+  int drawtile=combo_tile(c, x, y);
   if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
     overtile16(dest,drawtile,x,y,cset,c.flip);
   else

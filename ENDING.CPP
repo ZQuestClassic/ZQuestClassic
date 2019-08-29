@@ -137,7 +137,7 @@ void ending()
   sfx(WAV_ZELDA);
   Quit=0;
 
-  set_gamedata_cheat(game,  get_gamedata_cheat(game) | (cheat>1)?1:0);
+  game->set_cheat(game->get_cheat() | (cheat>1)?1:0);
 
   draw_screen_clip_rect_x1=0;
   draw_screen_clip_rect_x2=255;
@@ -175,6 +175,10 @@ void ending()
     advanceframe();
     if(Quit) return;
   }
+
+  clear_bitmap(msgdisplaybuf);
+  draw_screen(tmpscr, 0, 0);
+  advanceframe();
 
   draw_screen_clip_rect_x1=0;
   draw_screen_clip_rect_x2=255;
@@ -316,7 +320,7 @@ void ending()
   puttile16(scrollbuf,3,256,0,csBOSS,0);
 
   int len=600*2;
-  if(get_gamedata_quest(game)>1)
+  if(game->get_quest()>1)
   {
     len=720*2;
   }
@@ -354,7 +358,7 @@ void ending()
         case 560: textout_ex(scrollbuf,zfont,"COMPOSER...... KONCHAN",40,224,red,0); break;
       }
 
-      switch(get_gamedata_quest(game))
+      switch(game->get_quest())
       {
         case 1:
         switch(y)
@@ -370,7 +374,7 @@ void ending()
         switch(y)
         {
           case 768: textout_ex(scrollbuf,zfont,"YOU ARE GREAT.",72,224,white,0); break;
-          case 792: textprintf_ex(scrollbuf,zfont,72,224,red,0,"%-8s -%3d",get_gamedata_name(game),get_gamedata_deaths(game)); break;
+          case 792: textprintf_ex(scrollbuf,zfont,72,224,red,0,"%-8s -%3d",game->get_name(),game->get_deaths()); break;
           case 816: textout_ex(scrollbuf,zfont,"YOU HAVE AN AMAZING",48,224,white,0); break;
           case 832: textout_ex(scrollbuf,zfont,"WISDOM AND POWER.",64,224,white,0); break;
           /*
@@ -385,7 +389,7 @@ void ending()
         switch(y)
         {
           case 768: textout_ex(scrollbuf,zfont,"YOU ARE GREAT.",72,224,white,0); break;
-          case 792: textprintf_ex(scrollbuf,zfont,72,224,red,0,"%-8s -%3d",get_gamedata_name(game),get_gamedata_deaths(game)); break;
+          case 792: textprintf_ex(scrollbuf,zfont,72,224,red,0,"%-8s -%3d",game->get_name(),game->get_deaths()); break;
           case 816: textout_ex(scrollbuf,zfont,"YOU HAVE AN AMAZING",48,224,white,0); break;
           case 832: textout_ex(scrollbuf,zfont,"WISDOM AND POWER.",64,224,white,0); break;
           case 880: textout_ex(scrollbuf,zfont,"END OF",104,224,white,0); break;
@@ -398,13 +402,13 @@ void ending()
         switch(y)
         {
           case 768: textout_centre_ex(scrollbuf,zfont,"Congratulations!",128,224,white,0); break;
-          case 784: textprintf_ex(scrollbuf,zfont,72,224,red,0,"%-8s -%3d",get_gamedata_name(game),get_gamedata_deaths(game)); break;
-          case 800: if(get_gamedata_timevalid(game) && !get_gamedata_cheat(game))
-            textout_centre_ex(scrollbuf,zfont,time_str_med(get_gamedata_time(game)),128,224,blue,0); break;
+          case 784: textprintf_ex(scrollbuf,zfont,72,224,red,0,"%-8s -%3d",game->get_name(),game->get_deaths()); break;
+          case 800: if(game->get_timevalid() && !game->get_cheat())
+            textout_centre_ex(scrollbuf,zfont,time_str_med(game->get_time()),128,224,blue,0); break;
           case 816: textout_centre_ex(scrollbuf,zfont,"You beat a",128,224,white,0); break;
           case 832: textout_centre_ex(scrollbuf,zfont,"custom quest.",128,224,white,0); break;
           case 880: textout_centre_ex(scrollbuf,zfont,"ZELDA CLASSIC",128,224,white,0); break;
-          case 896: textout_centre_ex(scrollbuf,zfont,"1999-2006",128,224,white,0); break;
+          case 896: textout_centre_ex(scrollbuf,zfont,"1999-2007",128,224,white,0); break;
           case 912: textout_centre_ex(scrollbuf,zfont,"Armageddon Games",128,224,blue,0); break;
         }
         break;
@@ -452,31 +456,31 @@ void ending()
     load_control_state();
   } while(!rSbtn());
 
-  if(get_gamedata_quest(game)>0 && get_gamedata_quest(game)<QUEST_COUNT)
+  if(game->get_quest()>0 && game->get_quest()<QUEST_COUNT)
   {
     inc_quest();
+    game->set_maxlife(zinit.hc*HP_PER_HEART);
+    removeItemsOfFamily(game, itemsbuf, itype_ring);
+    int maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
+    if(maxring != -1)
+    {
+      getitem(maxring,true);
+    }
+    ringcolor();
   }
 
-  packfile_password(datapwd);
+  setPackfilePassword(datapwd);
   load_quest(game);
-  packfile_password(NULL);
-  set_gamedata_maxlife(game, zinit.hc*HP_PER_HEART);
+  setPackfilePassword(NULL);
   load_game_icon(game);
-  //game->items[itype_ring]=0;
-  removeItemsOfFamily(game, itemsbuf, itype_ring);
-  int maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
-  /*if (zinit.ring)
-  {
-    game->items[itype_ring]=(1<<(min(zinit.ring,3)-1));
-  }*/
-  if(maxring != -1)
-  {
-	  getitem(maxring,true);
-  }
-  ringcolor();
+
   saves[currgame] = *game;
-  set_gamedata_continue_dmap(game, zinit.start_dmap);
-  set_gamedata_continue_scrn(game, 0xFF);
+  if (!get_bit(quest_rules,qr_WINGAMEALTERNATECONTINUE))
+  {
+    game->set_continue_dmap(zinit.start_dmap);
+    game->set_continue_scrn(0xFF);
+  }
+
   memcpy(saves+currgame,game,sizeof(gamedata));
   save_savedgames();
 }
@@ -484,18 +488,18 @@ void ending()
 void inc_quest()
 {
   char name[9];
-  strcpy(name,get_gamedata_name(game));
-  int quest = min(get_gamedata_quest(game)+1,QUEST_COUNT);
-  int deaths = get_gamedata_deaths(game);
+  strcpy(name,game->get_name());
+  int quest = min(game->get_quest()+1,QUEST_COUNT);
+  int deaths = game->get_deaths();
 
   memset(game, 0, sizeof(gamedata));
 
-  set_gamedata_name(game, name);
-  set_gamedata_quest(game, quest);
-  set_gamedata_deaths(game, deaths);
-  set_gamedata_life(game, 3*HP_PER_HEART);
-  set_gamedata_maxlife(game, 3*HP_PER_HEART);
-  set_gamedata_maxbombs(game, 8);
-  set_gamedata_hasplayed(game, true);
+  game->set_name(name);
+  game->set_quest(quest);
+  game->set_deaths(deaths);
+  game->set_life(3*HP_PER_HEART);
+  game->set_maxlife(3*HP_PER_HEART);
+  game->set_maxbombs(8);
+  game->set_hasplayed(true);
 
 }

@@ -124,7 +124,6 @@ bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
 					return false;
 				}
 			}
-			assert(false);
 		}
 	case ScriptParser::TYPE_FLOAT:
 		{
@@ -392,8 +391,8 @@ void TypeCheck::caseExprEQ(ASTExprEQ &host, void *param)
 	host.getSecondOperand()->execute(*this, param);
 	if(failure)
 		return;
-	if(!standardCheck(ScriptParser::TYPE_FLOAT, host.getFirstOperand()->getType(), &host)
-		|| !standardCheck(ScriptParser::TYPE_FLOAT, host.getSecondOperand()->getType(),&host))
+	if(!standardCheck(host.getFirstOperand()->getType(), host.getSecondOperand()->getType(),
+		&host))
 	{
 		failure = true;
 		return;
@@ -416,8 +415,8 @@ void TypeCheck::caseExprNE(ASTExprNE &host, void *param)
 	host.getSecondOperand()->execute(*this, param);
 	if(failure)
 		return;
-	if(!standardCheck(ScriptParser::TYPE_FLOAT, host.getFirstOperand()->getType(), &host)
-		|| !standardCheck(ScriptParser::TYPE_FLOAT, host.getSecondOperand()->getType(),&host))
+	if(!standardCheck(host.getFirstOperand()->getType(), host.getSecondOperand()->getType(),
+		&host))
 	{
 		failure = true;
 		return;

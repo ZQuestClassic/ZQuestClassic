@@ -56,6 +56,9 @@ void putblock8(BITMAP *dest,int tile,int x,int y,int csets[],int flip,int mask);
 void oldputblock8(BITMAP *dest,int tile,int x,int y,int csets[],int flip,int mask);
 void overblock8(BITMAP *dest,int tile,int x,int y,int csets[],int flip,int mask);
 
+int combo_tile(newcombo c, int x, int y);
+int combo_tile(int cmbdat, int x, int y);
+
 void putcombo(BITMAP* dest,int x,int y,int cmbdat,int cset);
 void oldputcombo(BITMAP* dest,int x,int y,int cmbdat,int cset);
 void overcombo(BITMAP* dest,int x,int y,int cmbdat,int cset);

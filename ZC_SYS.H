@@ -24,6 +24,7 @@ void save_game_configs();
 
 void draw_lens_under(BITMAP *dest);
 void draw_lens_over();
+void draw_wavy(int amplitude, bool interpol);
 void fix_menu();
 void f_Quit(int type);
 void advanceframe();
@@ -130,6 +131,7 @@ bool can_use_item(int item_type, int item);
 bool has_item(int item_type, int item);
 //int high_item(int jmax, int item_type, bool consecutive, int itemcluster, bool usecluster);
 int current_item(int item_type);
+int current_item(int item_type, bool checkenabled);
 int high_flag(int i, int item_type, bool consecutive);
 int item_tile_mod(bool);
 int dmap_tile_mod();
@@ -161,6 +163,6 @@ void zc_putpixel(int layer, int x, int y, int cset, int color, int timer);
 extern int midi_strict;
 #endif
 #ifdef ALLEGRO_MACOSX
-extern int midi_strict;
+extern int midi_strict; //L
 #endif
 #endif                                                      // _ZC_SYS_H_

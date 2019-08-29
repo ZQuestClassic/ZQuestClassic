@@ -253,6 +253,25 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 		
 	}
 	rval->globalFuncs = fds;
+
+
+
+	//add global pointers
+	int vid2;
+		
+	//add a Link global variable
+	vid2 = globalScope->getVarSymbols().addVariable("Link", ScriptParser::TYPE_LINK);
+	t->putVar(vid2, ScriptParser::TYPE_LINK);
+	t->addGlobalPointer(vid2);
+	//add a Screen global variable
+	vid2 = globalScope->getVarSymbols().addVariable("Screen", ScriptParser::TYPE_SCREEN);
+	t->putVar(vid2, ScriptParser::TYPE_SCREEN);
+	t->addGlobalPointer(vid2);
+	//add a Game global variable
+	vid2 = globalScope->getVarSymbols().addVariable("Game", ScriptParser::TYPE_GAME);
+	t->putVar(vid2, ScriptParser::TYPE_GAME);
+	t->addGlobalPointer(vid2);
+	
 	//put script variables and functions in their script subscopes
 	GetScripts gs;
 	theAST->execute(gs, NULL);
@@ -277,24 +296,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 			delete subscope;
 			continue;
 		}
-		//add the "this" pointer
-		int vid2 = subscope->getVarSymbols().addVariable("this", scripttype);
-		t->putVar(vid2, scripttype);
-		rval->thisPtr[*it]=vid2;
-		//t->addGlobalPointer(vid2);
-		//add a Link global variable
-		vid2 = subscope->getVarSymbols().addVariable("Link", ScriptParser::TYPE_LINK);
-		t->putVar(vid2, ScriptParser::TYPE_LINK);
-		t->addGlobalPointer(vid2);
-		//add a Screen global variable
-		vid2 = subscope->getVarSymbols().addVariable("Screen", ScriptParser::TYPE_SCREEN);
-		t->putVar(vid2, ScriptParser::TYPE_SCREEN);
-		t->addGlobalPointer(vid2);
-		//add a Game global variable
-		vid2 = subscope->getVarSymbols().addVariable("Game", ScriptParser::TYPE_GAME);
-		t->putVar(vid2, ScriptParser::TYPE_GAME);
-		t->addGlobalPointer(vid2);
-
+		
 		pair<Scope *, SymbolTable *> param(subscope, t);
 		BuildScriptSymbols bss;
 		(*it)->execute(bss, &param);
@@ -347,7 +349,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 		for(vector<ASTFuncDecl *>::iterator it = fds.begin(); it != fds.end(); it++)
 		{
 			Scope *subscope = new Scope(globalScope);
-			pair<Scope *, SymbolTable *> param(subscope, t);
+			BFSParam param = {subscope, t,ScriptParser::TYPE_VOID};
 			BuildFunctionSymbols bfs;
 			(*it)->execute(bfs, &param);
 			if(!bfs.isOK())
@@ -362,7 +364,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 		{
 			Scope *subscope = globalScope->getNamedChild((*it)->getName());
 			Scope *newscope = new Scope(subscope);
-			pair<Scope *, SymbolTable *> param(newscope, t);
+			BFSParam param = {newscope, t,rval->scriptTypes[*it]};
 			list<ASTDecl *> decls = (*it)->getScriptBlock()->getDeclarations();
 			for(list<ASTDecl *>::iterator it2 = decls.begin(); it2 != decls.end(); it2++)
 			{
@@ -374,7 +376,9 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 					BuildFunctionSymbols bfs;
 					(*it2)->execute(bfs, &param);
 					if(!bfs.isOK())
-					failure = true;
+						failure = true;
+					if(bfs.getThisVID() != -1)
+						rval->thisPtr[*it]=bfs.getThisVID();
 				}
 				
 			}
@@ -859,12 +863,18 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 		rval.second = false;
 		parts.second = parts.second.substr(0,4);
 	}
-	if(parts.first.size() > 4)
+	if(parts.first.size() > 6)
 	{
 		rval.second = false;
-		parts.first = parts.first.substr(0,4);
+		parts.first = parts.first.substr(0,6);
 	}
-	long intval = ((long)(atoi(parts.first.c_str())))*10000;
+	int firstpart = atoi(parts.first.c_str());
+	if(firstpart > 214747)
+	{
+		firstpart = 214747;
+		rval.second = false;
+	}
+	long intval = ((long)(firstpart))*10000;
 	//add fractional part; tricky!
 	int fpart = 0;
 	while(parts.second.length() < 4)

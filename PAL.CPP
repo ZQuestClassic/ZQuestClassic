@@ -8,8 +8,8 @@
 //
 //--------------------------------------------------------
 
-#include "zc_alleg.h"
 
+#include "zc_alleg.h"
 #include "zdefs.h"
 #include "maps.h"
 #include "zelda.h"
@@ -97,30 +97,37 @@ void loadlvlpal(int level)
 
   create_rgb_table(&rgb_table, RAMpal, NULL);
   create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128, NULL);
+  memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
+  for (int q=0; q<PAL_SIZE; q++)
+  {
+    trans_table2.data[0][q] = q;
+    trans_table2.data[q][q] = q;
+  }
 
   refreshpal=true;
 }
 
 void loadpalset(int cset,int dataset)
 {
-  byte *si = colordata + CSET(dataset)*3;
-  for(int i=0; i<16; i++)
+  int j = CSET(dataset)*3;
+  for(int i=0; i<16; i++,j+=3)
   {
-    RAMpal[CSET(cset)+i] = _RGB(si);
-    si+=3;
+    RAMpal[CSET(cset)+i] = _RGB(&colordata[j]);
   }
   refreshpal=true;
 }
 
 void ringcolor()
 {
-  switch(current_item(itype_ring))
-  {
-    case 0: loadpalset(6,6); break;
-    case 1: loadpalset(6,pSprite(6)); break;
-    case 2: loadpalset(6,pSprite(7)); break;
-    case 3: loadpalset(6,pSprite(8)); break;
-  }
+	int level = current_item(itype_ring);
+	if(level==0)
+	{
+		loadpalset(6,6);
+	}
+	else
+	{
+		loadpalset(6,pSprite(min(15,5+level)));
+	}
   refreshpal=true;
 }
 
@@ -217,21 +224,21 @@ void lighting(int funct, int dir)
     case 1:
       if(darkroom)
       {
-        fade(DMaps[currdmap].color,false,true,false);
+        fade(currscr==129 ? dlevel==0 ? 10 : 11 : DMaps[currdmap].color,false,true,false);
         darkroom=false;
       }
       break;
     case 2:                                                 //currently light.  room you are going to is supposed to be dark (or candle goes out).
       if(tmpscr->flags&fDARK && !darkroom)
       {
-        fade(DMaps[currdmap].color,false,false,false);
+        fade(currscr==129 ? dlevel==0 ? 10 : 11 : DMaps[currdmap].color,false,false,false);
         darkroom=true;
       }
       break;
     case 3:                                                 //currently dark.  room you are going to is supposed to be light.
       if((!(tmpscr->flags&fDARK) && darkroom)||(DMaps[currdmap].color!=currcset))
       {
-        fade(DMaps[currdmap].color,false,true,false);
+        fade(currscr==129 ? dlevel==0 ? 10 : 11 : DMaps[currdmap].color,false,true,false);
         darkroom=false;
       }
       currcset=DMaps[currdmap].color;
@@ -239,7 +246,7 @@ void lighting(int funct, int dir)
     case 4:                                                 //currently light.  room you are going to is supposed to be dark.
       if((tmpscr->flags&fDARK && !darkroom)||(DMaps[(tmpscr[((currscr<128)?0:1)].sidewarpdmap[index])].color!=currcset))
       {
-        fade(DMaps[currdmap].color,true,false,true);
+        fade(currscr==129 ? dlevel==0 ? 10 : 11 : DMaps[currdmap].color,true,false,true);
         darkroom=true;
       }
       break;

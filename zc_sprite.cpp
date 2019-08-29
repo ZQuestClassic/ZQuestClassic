@@ -88,13 +88,22 @@ bool movingblock::animate(int index)
   {
     bool bhole=false;
     blockmoving=false;
+    int f1 = tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)];
+    int f2 = MAPCOMBOFLAG(x,y);
+
     tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]=bcombo;
     tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=cs;
-    if ((tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]==mfBLOCKTRIGGER)||(combobuf[bcombo].flag==mfBLOCKTRIGGER))
+
+    if ((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER)
     {
       trigger=true;
+
+      if(f2==mfBLOCKTRIGGER)
+      {
+        tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
+      }
     }
-    if ((tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]==mfBLOCKHOLE)||(combobuf[bcombo].flag==mfBLOCKHOLE))
+    if ((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
     {
       tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]+=1;
       bhole=true;
@@ -106,7 +115,7 @@ bool movingblock::animate(int index)
     }
     else
     {
-      int f2 = MAPCOMBOFLAG(x,y);
+      f2 = MAPCOMBOFLAG(x,y);
       if (!((f2==mfPUSHUDINS && dir<=down) ||
            (f2==mfPUSHLRINS && dir>=left) ||
            (f2==mfPUSHUINS && dir==up) ||
@@ -130,7 +139,12 @@ bool movingblock::animate(int index)
       }
     }
 
-    if (oldflag<mfPUSHUDNS||trigger)                        //triggers a secret
+    //triggers a secret
+    f2 = MAPCOMBOFLAG(x,y);
+    if ((oldflag==mfPUSHUD || oldflag==mfPUSH4 || (oldflag>=mfPUSHLR && oldflag<=mfPUSHR)) ||
+        ((oldflag<mfPUSHUDNS || oldflag>mfPUSHRINS) && (f2==mfPUSHUD || f2==mfPUSH4 || (f2>=mfPUSHLR && f2<=mfPUSHR))) ||
+        trigger)
+        //if(oldflag<mfPUSHUDNS||trigger)
     {
       if(hiddenstair(0,true))
       {

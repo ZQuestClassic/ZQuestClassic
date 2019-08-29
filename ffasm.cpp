@@ -18,9 +18,14 @@
 #define strnicmp strncasecmp
 #endif
 
+#ifdef _MSC_VER
+#define stricmp _stricmp
+#define strnicmp _strnicmp
+#endif
+
 extern char *datapath, *temppath;
 
-script_command command_list[NUMCOMMANDS]=
+script_command command_list[NUMCOMMANDS+1]=
 {
     //name                args arg1 arg2 more
   { "SETV",                2,   0,   1,   0},
@@ -103,8 +108,8 @@ script_command command_list[NUMCOMMANDS]=
   { "LOADITEMV",           1,   1,   0,   0},
   { "LOADNPCR",            1,   0,   0,   0},
   { "LOADNPCV",            1,   1,   0,   0},
-  { "CREATELWEAPONR",       1,   0,   0,   0},
-  { "CREATELWEAPONV",       1,   1,   0,   0},
+  { "CREATELWEAPONR",      1,   0,   0,   0},
+  { "CREATELWEAPONV",      1,   1,   0,   0},
   { "CREATEITEMR",         1,   0,   0,   0},
   { "CREATEITEMV",         1,   1,   0,   0},
   { "CREATENPCR",          1,   0,   0,   0},
@@ -114,11 +119,27 @@ script_command command_list[NUMCOMMANDS]=
   { "GOTOR",               1,   0,   0,   0},
   { "SQROOTV",             2,   0,   1,   0},
   { "SQROOTR",             2,   0,   0,   0},
-  { "CREATEEWEAPONR",       1,   0,   0,   0},
-  { "CREATEEWEAPONV",       1,   1,   0,   0},
+  { "CREATEEWEAPONR",      1,   0,   0,   0},
+  { "CREATEEWEAPONV",      1,   1,   0,   0},
   { "PITWARP",             2,   1,   1,   0},
-  { "WARPR",             2,   0,   0,   0},
-  { "PITWARPR",             2,   0,   0,   0},
+  { "WARPR",               2,   0,   0,   0},
+  { "PITWARPR",            2,   0,   0,   0},
+  { "CLEARSPRITESR",       1,   0,   0,   0},
+  { "CLEARSPRITESV",       1,   1,   0,   0},
+  { "RECT",                0,   0,   0,   0},
+  { "CIRCLE",              0,   0,   0,   0},
+  { "ARC",                 0,   0,   0,   0},
+  { "ELLIPSE",             0,   0,   0,   0},
+  { "LINE",                0,   0,   0,   0},
+  { "PUTPIXEL",            0,   0,   0,   0},
+  { "DRAWTILE",            0,   0,   0,   0},
+  { "DRAWCOMBO",           0,   0,   0,   0},
+  { "ELLIPSE2",            0,   0,   0,   0},
+  { "SPLINE",              0,   0,   0,   0},
+  { "FLOODFILL",           0,   0,   0,   0},
+  { "COMPOUNDR",           1,   0,   0,   0},
+  { "COMPOUNDV",           1,   1,   0,   0},
+  { "",                    0,   0,   0,   0}
 };
 
 
@@ -159,34 +180,22 @@ script_variable variable_list[]=
   { "INPUTR",            INPUTR,               0,             0 },
   { "LINKX",             LINKX,                0,             0 },
   { "LINKY",             LINKY,                0,             0 },
+  { "LINKZ",             LINKZ,                0,             0 },
+  { "LINKJUMP",          LINKJUMP,             0,             0 },
   { "LINKDIR",           LINKDIR,              0,             0 },
   { "LINKHP",            LINKHP,               0,             0 },
   { "LINKMP",            LINKMP,               0,             0 },
   { "LINKMAXHP",         LINKMAXHP,            0,             0 },
   { "LINKMAXMP",         LINKMAXMP,            0,             0 },
   { "LINKACTION",        LINKACTION,           0,             0 },
-  { "LINKITEMD",		 LINKITEMD,			   0,			  0 },
-  /*{ "WPNX",              WPNX,                 0,             0 },
-  { "WPNY",              WPNY,                 0,             0 },
-  { "WPNDIR",            WPNDIR,               0,             0 },
-  { "WPNSTEP",           WPNSTEP,              0,             0 },
-  { "WPNANGULAR",        WPNANGULAR,           0,             0 },
-  { "WPNANGLE",          WPNANGLE,             0,             0 },
-  { "WPNDRAWTYPE",       WPNDRAWTYPE,          0,             0 },
-  { "WPNPOWER",          WPNPOWER,             0,             0 },
-  { "WPNDEAD",           WPNDEAD,              0,             0 },
-  { "WPNID",             WPNID,                0,             0 },
-  { "WPNTILE",           WPNTILE,              0,             0 },
-  { "WPNCSET",           WPNCSET,              0,             0 },
-  { "WPNFLASHCSET",      WPNFLASHCSET,         0,             0 },
-  { "WPNFRAMES",         WPNFRAMES,            0,             0 },
-  { "WPNFRAME",          WPNFRAME,             0,             0 },
-  { "WPNASPEED",         WPNASPEED,            0,             0 },
-  { "WPNFLASH",          WPNFLASH,             0,             0 },
-  { "WPNFLIP",           WPNFLIP,              0,             0 },
-  { "WPNCOUNT",          WPNCOUNT,             0,             0 },*/
+  { "LINKITEMD",         LINKITEMD,            0,             0 },
+  { "LINKSWORDJINX",     LINKSWORDJINX,        0,             0 },
+  { "LINKITEMJINX",      LINKITEMJINX,         0,             0 },
+  { "LINKCHARGED",       LINKCHARGED,          0,             0 },
   { "ITEMX",             ITEMX,                0,             0 },
   { "ITEMY",             ITEMY,                0,             0 },
+  { "ITEMZ",             ITEMZ,                0,             0 },
+  { "ITEMJUMP",          ITEMJUMP,             0,             0 },
   { "ITEMDRAWTYPE",      ITEMDRAWTYPE,         0,             0 },
   { "ITEMID",            ITEMID,               0,             0 },
   { "ITEMTILE",          ITEMTILE,             0,             0 },
@@ -199,16 +208,18 @@ script_variable variable_list[]=
   { "ITEMFLASH",         ITEMFLASH,            0,             0 },
   { "ITEMFLIP",          ITEMFLIP,             0,             0 },
   { "ITEMCOUNT",         ITEMCOUNT,            0,             0 },
-  { "ICLASSFAMILY",        ICLASSFAMILY,           0,             0 },
-  { "ICLASSFAMTYPE",       ICLASSFAMTYPE,          0,             0 },
-  { "ICLASSSETGAME",       ICLASSSETGAME,          0,             0 },
-  { "ICLASSAMOUNT",        ICLASSAMOUNT,           0,             0 },
-  { "ICLASSSETMAX",        ICLASSSETMAX,           0,             0 },
-  { "ICLASSMAX",           ICLASSMAX,              0,             0 },
-  { "ICLASSCOUNTER",       ICLASSCOUNTER,          0,             0 },
+  { "ICLASSFAMILY",      ICLASSFAMILY,         0,             0 },
+  { "ICLASSFAMTYPE",     ICLASSFAMTYPE,        0,             0 },
+  { "ICLASSSETGAME",     ICLASSSETGAME,        0,             0 },
+  { "ICLASSAMOUNT",      ICLASSAMOUNT,         0,             0 },
+  { "ICLASSSETMAX",      ICLASSSETMAX,         0,             0 },
+  { "ICLASSMAX",         ICLASSMAX,            0,             0 },
+  { "ICLASSCOUNTER",     ICLASSCOUNTER,        0,             0 },
   { "ITEMEXTEND",        ITEMEXTEND,           0,             0 },
   { "NPCX",              NPCX,                 0,             0 },
   { "NPCY",              NPCY,                 0,             0 },
+  { "NPCZ",              NPCZ,                 0,             0 },
+  { "NPCJUMP",           NPCJUMP,              0,             0 },
   { "NPCDIR",            NPCDIR,               0,             0 },
   { "NPCRATE",           NPCRATE,              0,             0 },
   { "NPCFRAMERATE",      NPCFRAMERATE,         0,             0 },
@@ -277,6 +288,8 @@ script_variable variable_list[]=
   { "REFNPCCLASS",       REFNPCCLASS,          0,             0 },
   { "LWPNX",             LWPNX,                0,             0 },
   { "LWPNY",             LWPNY,                0,             0 },
+  { "LWPNZ",             LWPNZ,                0,             0 },
+  { "LWPNJUMP",          LWPNJUMP,             0,             0 },
   { "LWPNDIR",           LWPNDIR,              0,             0 },
   { "LWPNSTEP",          LWPNSTEP,             0,             0 },
   { "LWPNANGULAR",       LWPNANGULAR,          0,             0 },
@@ -299,6 +312,8 @@ script_variable variable_list[]=
   { "LWPNOCSET",         LWPNOCSET,            0,             0 },
   { "EWPNX",             EWPNX,                0,             0 },
   { "EWPNY",             EWPNY,                0,             0 },
+  { "EWPNZ",             EWPNZ,                0,             0 },
+  { "EWPNJUMP",          EWPNJUMP,             0,             0 },
   { "EWPNDIR",           EWPNDIR,              0,             0 },
   { "EWPNSTEP",          EWPNSTEP,             0,             0 },
   { "EWPNANGULAR",       EWPNANGULAR,          0,             0 },
@@ -321,6 +336,7 @@ script_variable variable_list[]=
   { "EWPNOCSET",         EWPNOCSET,            0,             0 },
   { "NPCEXTEND",         NPCEXTEND,            0,             0 },
   { "SP",                SP,                   0,             0 },
+  { "GS",                GS(0),              256,             0 },
   { " ",                -1,                    0,             0 }
 };
 
@@ -350,12 +366,12 @@ long ffparse(char *string)
   ptr=strchr(tempstring1, '.');
   *ptr=0;
   ret=atoi(tempstring1)*10000;
-  
+
   ++ptr;
   char *ptr2=ptr;
   ptr2+=4;
   *ptr2=0;
-  
+
   if(negcheck<0)
 	  ret-=atoi(ptr);
   else ret+=atoi(ptr);
@@ -370,7 +386,7 @@ bool ffcheck(char *arg)
 	{
 		if(arg[i]!='\0')
 		{
-			if(i==0) 
+			if(i==0)
 			{
 				if(arg[i]!='-' && arg[i]!='.' && !(arg[i] >= '0' && arg[i] <='9'))
 					return false;
@@ -396,11 +412,11 @@ int numlines;
 int parse_script(ffscript **script)
 {
   if(!getname("Import Script (.txt)","txt",datapath,false))
-    return D_O_K;
-  return parse_script_file(script,temppath);
+    return D_CLOSE;
+  return parse_script_file(script,temppath, true);
 }
 
-int parse_script_file(ffscript **script, const char *path)
+int parse_script_file(ffscript **script, const char *path, bool report_success)
 {
   saved=false;
   FILE *fscript = fopen(path,"rb");
@@ -409,6 +425,7 @@ int parse_script_file(ffscript **script, const char *path)
   char *arg1buf = new char[0x100];
   char *arg2buf = new char[0x100];
   bool stop=false;
+  bool success=true;
   numlines = 0;
   int num_commands;
   for(int i=0;;i++)
@@ -437,27 +454,27 @@ int parse_script_file(ffscript **script, const char *path)
           }
           else
           {
-				while(getc(fscript)!='\n') 
-				{
-					if(feof(fscript)) 
-					{
-						stop=true;
-						break;
-					}
-				}
+            while(getc(fscript)!='\n')
+            {
+              if(feof(fscript))
+              {
+                stop=true;
+                break;
+              }
+            }
             buffer[j] = '\0';
-              j=0x400;
+            j=0x400;
           }
         }
       }
     }
     int k=0;
-	while(buffer[k] == ' ' || buffer[k] == '\t') k++;
-	if(buffer[k] == '\0') { i--; continue; }
-	k=0;
+    while(buffer[k] == ' ' || buffer[k] == '\t') k++;
+    if(buffer[k] == '\0') { i--; continue; }
+    k=0;
     if(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
     {
-        while(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0') 
+        while(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
         {
           labels[numlines][k] = buffer[k];
           k++;
@@ -510,24 +527,24 @@ int parse_script_file(ffscript **script, const char *path)
             }
             else
             {
-				while(getc(fscript)!='\n') 
-				{
-					if(feof(fscript)) 
-					{
-						stop=true;
-						break;
-					}
-				}
+              while(getc(fscript)!='\n')
+              {
+                if(feof(fscript))
+                {
+                  stop=true;
+                  break;
+                }
+              }
               buffer[j] = '\0';
-                j=0x400;
+              j=0x400;
             }
           }
         }
       }
       int k=0, l=0;
-	  while(buffer[k] == ' ' || buffer[k] == '\t') k++;
-	  if(buffer[k] == '\0') { i--; continue; }
-	  k=0;
+      while(buffer[k] == ' ' || buffer[k] == '\t') k++;
+      if(buffer[k] == '\0') { i--; continue; }
+      k=0;
       while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') k++;
       while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0')  k++;
       while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0')
@@ -549,26 +566,27 @@ int parse_script_file(ffscript **script, const char *path)
         arg2buf[l] = buffer[k]; k++; l++;
       }
       arg2buf[l] = '\0';
-	  int parse_err;
+      int parse_err;
       if(!(parse_script_section(combuf, arg1buf, arg2buf, script, i, parse_err)))
       {
         char buf[80],buf2[80],buf3[80],name[13];
-		char* errstrbuf[] = {
-		"Invalid instruction.",
-		"Parameter 1 invalid.",
-		"Parameter 2 invalid."
-		};
+        char* errstrbuf[] = {
+        "Invalid instruction.",
+        "Parameter 1 invalid.",
+        "Parameter 2 invalid."
+        };
         extract_name(temppath,name,FILENAME8_3);
         sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
-		sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
-		sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
+        sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
+        sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
         jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,lfont);
         stop=true;
+        success=false;
         (*script)[0].command = 0xFFFF;
 	    }
     }
   }
-  if(!stop)
+  if(report_success && success) //(!stop) // stop is never true here
   {
     char buf[80],name[13];
     extract_name(temppath,name,FILENAME8_3);
@@ -580,12 +598,12 @@ int parse_script_file(ffscript **script, const char *path)
   delete [] arg1buf;
   delete [] arg2buf;
   fclose(fscript);
-  return D_O_K;
+  return success?D_O_K:D_CLOSE;
 }
 
 int set_argument(char *argbuf, ffscript **script, int com, int argument)
 {
-  long *arg; 
+  long *arg;
   if(argument)
   {
     arg = &((*script)[com].arg2);
@@ -635,7 +653,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
   (*script)[com].arg1 = 0;
   (*script)[com].arg2 = 0;
   bool found_command=false;
-  
+
   for (int i=0; i<NUMCOMMANDS&&!found_command; ++i)
   {
     if (strcmp(combuf,command_list[i].name)==0)
@@ -683,7 +701,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
       {
         if (command_list[i].args>0)
         {
-		  if (command_list[i].arg1_type==1)
+          if (command_list[i].arg1_type==1)
           {
             if (!ffcheck(arg1buf))
             {

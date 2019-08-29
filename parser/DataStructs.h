@@ -143,5 +143,11 @@ struct OpcodeContext
 	SymbolTable *symbols;
 };
 
+struct BFSParam
+{
+	Scope *scope;
+	SymbolTable *table;
+	int type;
+};
 
 #endif

@@ -17,6 +17,9 @@
 /**********************************/
 
 #include "items.h"
+#include "maps.h"
+#include "zelda.h"
+#include "zdefs.h"
 
 int fairy_cnt=0;
 
@@ -31,36 +34,66 @@ bool item::animate(int index)
   //these are here to bypass compiler warnings about unused arguments
   index=index;
 
-  z-=(int)fall/100;
-  if (z<=0) 
+  if (is_side_view())
   {
-      z = 0;
+    if (can_drop(x,y) && !(pickup & ipDUMMY))
+    {
+      y+=(int)fall/100;
+      if (fall <= TERMINALV)
+      {
+        fall += GRAVITY;
+      }
+    }
+    else
+    {
       fall = -fall/2; // LA key bounce.
+    }
   }
-  else if (fall <= TERMINALV) fall += GRAVITY;
+  else
+  {
+    z-=(int)fall/100;
+    if (z<0)
+    {
+      z = 0;
+      fall = -fall/2;
+    }
+    else if (fall <= TERMINALV)
+    {
+      fall += GRAVITY;
+    }
+  }
 
   if((++clk)>=0x8000)
+  {
     clk=0x7000;
+  }
   if(flash)
   {
     cs = o_cset;
     if(frame&8)
+    {
       cs >>= 4;
+    }
     else
+    {
       cs &= 15;
+    }
   }
   if(anim)
   {
     int spd = o_speed;
     if(aframe==0)
+    {
       spd *= o_delay+1;
+    }
 
     if(++aclk >= spd)
     {
       aclk=0;
       if(++aframe >= frames)
+      {
         aframe=0;
-
+      }
     }
     tile = o_tile + aframe;
   }
@@ -71,11 +104,17 @@ bool item::animate(int index)
   }
 
   if(fadeclk==0)
+  {
     return true;
+  }
   if(pickup&ipTIMER)
+  {
     if(++clk2 == 512)
+    {
       return true;
-    return false;
+    }
+  }
+  return false;
 }
 
 void item::draw(BITMAP *dest)
@@ -101,7 +140,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c) : sprite()
 
   if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
     return;
-  
+
   o_tile = itemsbuf[id].tile;
   tile = itemsbuf[id].tile;
   cs = itemsbuf[id].csets&15;
@@ -178,12 +217,17 @@ void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int 
 }
 
 //some methods for dealing with items
+int getItemFamily(itemdata* items, int item)
+{
+	return items[item].family;
+}
+
 void removeItemsOfFamily(gamedata *g, itemdata *items, int family)
 {
 	for(int i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family)
-			g->item[i]=false;
+			g->set_item(i,false);
 	}
 }
 
@@ -214,13 +258,13 @@ int getHighestLevelOfFamily(zinitdata *source, itemdata *items, int family)
 	return result;
 }
 
-int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family)
+int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family, bool checkenabled)
 {
 	int result = -1;
 	int highestlevel = -1;
 	for(int i=0; i<MAXITEMS; i++)
 	{
-		if(items[i].family == family && source->item[i])
+		if(items[i].family == family && source->get_item(i) && (checkenabled?(!(source->items_off[i]) ):1) )
 		{
 			if(items[i].fam_type >= highestlevel)
 			{
@@ -234,10 +278,19 @@ int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family)
 
 void downgradeItemOfFamily(gamedata *g, itemdata *items, int family)
 {
+    // If you have the red potion, you don't have the blue potion,
+    // so it has to be explicitly added
+    if(family==itype_potion && g->get_item(iRPotion))
+    {
+        g->set_item(iRPotion,false);
+        g->set_item(iBPotion,true);
+        return;
+    }
+
 	int maxitem = getHighestLevelOfFamily(g, items, family);
 	if(maxitem != -1)
 	{
-		g->item[maxitem]=false;
+		g->set_item(maxitem,false);
 	}
 }
 
@@ -257,7 +310,7 @@ void addOldStyleFamily(zinitdata *dest, itemdata *items, int family, char levels
 	{
 		if(levels & (1<<i))
 		{
-			int id = getItemID(items, family, i);
+			int id = getItemID(items, family, i+1);
 			if(id != -1)
 				dest->items[id]=true;
 		}
@@ -281,23 +334,23 @@ int computeOldStyleBitfield(zinitdata *source, itemdata *items, int family)
 char *old_item_string[OLDITEMCNT] =
 {
   "Rupee (1)", "Rupee (5)", "Heart", "Bomb (Normal)", "Clock",
-  "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Shield 1 (Magic)", "Key (Normal)",
+  "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Shield 2 (Magic)", "Key (Normal)",
   "Candle 1 (Blue)", "Candle 2 (Red)", "Letter", "Arrow 1 (Wooden)", "Arrow 2 (Silver)",
-  "Bow 1 (Short)", "Bait", "Ring 1 (Blue)", "Ring 2 (Red)", "Bracelet 1",
+  "Bow 1 (Short)", "Bait", "Ring 1 (Blue)", "Ring 2 (Red)", "Bracelet 2",
   "Triforce (Fragment)", "Map", "Compass", "Boomerang 1 (Wooden)", "Boomerang 2 (Magic)",
-  "Wand", "Raft", "Ladder", "Heart Container", "Potion 1 (Blue)",
+  "Wand", "Raft", "Ladder 1", "Heart Container", "Potion 1 (Blue)",
   "Potion 2 (Red)", "Whistle", "Magic Book", "Key (Magic)", "Fairy (Moving)",
-  "Boomerang 3 (Fire)", "Sword 4 (Master)", "Shield 2 (Mirror)", "Rupee (20)", "Rupee (50)",
+  "Boomerang 3 (Fire)", "Sword 4 (Master)", "Shield 3 (Mirror)", "Rupee (20)", "Rupee (50)",
   "Rupee (200)", "Wallet 1 (500)", "Wallet 2 (999)", "Dust Pile",
   "Triforce (Whole)", "Selection (1)", "Misc 1", "Misc 2", "Bomb (Super)","Heart Container Piece",
   "Amulet 1", "Flippers", "Hookshot 1 (Short)", "Lens of Truth", "Hammer", "Boots",
-  "Bracelet 2", "Arrow 3 (Golden)", "Magic Container", "Magic Jar 1 (Small)",
+  "Bracelet 3", "Arrow 3 (Golden)", "Magic Container", "Magic Jar 1 (Small)",
   "Magic Jar 2 (Large)", "Ring 3 (Golden)", "Kill All Enemies", "Amulet 2",
   "Din's Fire", "Farore's Wind", "Nayru's Love", "Key (Boss)", "Bow 2 (Long)", "Fairy (Stationary)",
   "Arrow Ammunition (1)", "Arrow Ammunition (5)", "Arrow Ammunition (10)", "Arrow Ammunition (30)",
   "Quiver 1 (Small)", "Quiver 2 (Medium)", "Quiver 3 (Large)", "Bomb Ammunition (1)", "Bomb Ammunition (4)", "Bomb Ammunition (8)", "Bomb Ammunition (30)",
   "Bomb Bag 1 (Small)", "Bomb Bag 2 (Medium)", "Bomb Bag 3 (Large)", "Key (Level Specific)", "Selection (2)", "Rupee (10)", "Rupee (100)", "Cane of Byrna",
-  "Hookshot 2 (Long)", "Letter (used)", "Roc's Feather", "Hover Boots"
+  "Hookshot 2 (Long)", "Letter (used)", "Roc's Feather", "Hover Boots","Shield 1 (Small)","Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer", "Scroll: Super Quake", "Scroll: Hurricane Spin", "Whisp Ring 1", "Whisp Ring 2", "Charge Ring 1", "Charge Ring 2", "Scroll: Peril Beam", "Wallet 3 (Magic)", "Quiver 4 (Magic)", "Bomb Bag 4 (Magic)", "Bracelet 1 (Worn-out Glove)", "Ladder 2 (Four-Way)", "Wealth Medal 1 (75%)", "Wealth Medal 2 (50%)", "Wealth Medal 3 (25%)"/*, "Scroll: Shield Attack"*/
 };
 
 char *item_string[ITEMCNT];
@@ -307,7 +360,7 @@ char *old_weapon_string[OLDWPNCNT] =
   "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Sword 4 (Master)",
   "Boomerang 1 (Wooden)", "Boomerang 2 (Magic)", "Boomerang 3 (Fire)", "Bomb (Normal)",
   "Bomb (Super)", "Explosion (Normal)", "Arrow 1 (Wooden)", "Arrow 2 (Silver)", "Flame", "Whirlwind",
-  "Bait", "Wand", "Magic", "Fireball", "Rock", "Arrow (Enemy)", "Sword (Enemy)",
+  "Bait", "Wand", "Magic (Normal)", "Fireball", "Rock", "Arrow (Enemy)", "Sword (Enemy)",
   "Magic (Enemy)", "MISC: Spawn", "MISC: Death", "MISC: <unused>", "Hammer",
   "Hookshot 1 (Short) Head", "Hookshot 1 (Short) Chain (Horizontal)", "Hookshot 1 (Short) Handle", "MISC: Arrow 2 (Silver) Sparkle",
   "MISC: Arrow 3 (Golden) Sparkle", "MISC: Boomerang 2 (Magic) Sparkle", "MISC: Boomerang 3 (Fire) Sparkle",
@@ -320,9 +373,15 @@ char *old_weapon_string[OLDWPNCNT] =
   "Nayru's Love (Left)", "Nayru's Love (Left, Returning)","Nayru's Love Trail (Left)", "Nayru's Love Trail (Left, Returning)",
   "Nayru's Love (Right)", "Nayru's Love (Right, Returning)","Nayru's Love Trail (Right)", "Nayru's Love Trail (Right, Returning)",
   "Nayru's Love Shield (Front)", "Nayru's Love Shield (Back)", "MISC: Subscreen Vine", "Cane of Byrna", "Cane of Byrna (Slash)",
-  "Hookshot 2 (Long) Head", "Hookshot 2 (Long) Chain (Horizontal)", "Hookshot 2 (Long) Handle", "Hookshot 2 (Long) Chain (Vertical)", 
+  "Hookshot 2 (Long) Head", "Hookshot 2 (Long) Chain (Horizontal)", "Hookshot 2 (Long) Handle", "Hookshot 2 (Long) Chain (Vertical)",
   "Explosion (Super)", "Bomb (Enemy, Normal)", "Bomb (Enemy, Super)", "Explosion (Enemy, Normal)",  "Explosion (Enemy, Super)",
-  "Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy)", "Ice Magic (Enemy)", "MISC: Hover Boots Glow"
+  "Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy)", "Magic (Ice, Enemy)", "MISC: Hover Boots Glow", "Magic (Fire)"/*, "MISC: Sideview Ladder", "MISC: Sideview Raft"*/
 };
 
 char *weapon_string[WPNCNT];
+
+/*char *lweapon_string[lwMax] =
+{
+	"(None)","Sword","Sword Beam","Boomerang","Bomb"*/
+
+

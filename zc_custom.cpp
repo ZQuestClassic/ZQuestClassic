@@ -23,134 +23,142 @@ int floatspr[4][3];                                  //dir,                    t
 int swimspr[4][3];                                   //dir,                    tile/flip/extend
 int divespr[4][3];                                   //dir,                    tile/flip/extend
 int poundspr[4][3];                                  //dir,                    tile/flip/extend
+int jumpspr[4][3];                                   //dir,                    tile/flip/extend
+int chargespr[4][3];                                 //dir,                    tile/flip/extend
 int castingspr[3];                                   //                        tile/flip/extend
 int holdspr[2][2][3];                                //     land/water, hands. tile/flip/extend
+//int fallspr[3];                                     //     		       tile/flip/extend
 
 void linktile(int *tile, int *flip, int *extend, int state, int dir, int style)
 {
   switch (state)
   {
     case ls_float:
-    *extend=floatspr[dir][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=floatspr[dir][spr_extend];
+      break;
     case ls_swim:
-    *extend=swimspr[dir][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=swimspr[dir][spr_extend];
+      break;
     case ls_dive:
-    *extend=divespr[dir][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=divespr[dir][spr_extend];
+      break;
     case ls_slash:
-    *extend=slashspr[dir][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=slashspr[dir][spr_extend];
+      break;
     case ls_walk:
-    *extend=walkspr[dir][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=walkspr[dir][spr_extend];
+      break;
+    case ls_jump:
+      *extend=jumpspr[dir][spr_extend];
+      break;
+    case ls_charge:
+      *extend=chargespr[dir][spr_extend];
+      break;
     case ls_stab:
-    *extend=stabspr[dir][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=stabspr[dir][spr_extend];
+      break;
     case ls_pound:
-    *extend=poundspr[dir][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=poundspr[dir][spr_extend];
+      break;
     case ls_cast:
-    *extend=castingspr[spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=castingspr[spr_extend];
+      break;
     case ls_landhold1:
-    *extend=holdspr[spr_landhold][spr_hold1][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=holdspr[spr_landhold][spr_hold1][spr_extend];
+      break;
     case ls_landhold2:
-    *extend=holdspr[spr_landhold][spr_hold2][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=holdspr[spr_landhold][spr_hold2][spr_extend];
+      break;
     case ls_waterhold1:
-    *extend=holdspr[spr_waterhold][spr_hold1][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=holdspr[spr_waterhold][spr_hold1][spr_extend];
+      break;
     case ls_waterhold2:
-    *extend=holdspr[spr_waterhold][spr_hold2][spr_extend];
-    linktile(tile, flip, state, dir, style);
-    break;
+      *extend=holdspr[spr_waterhold][spr_hold2][spr_extend];
+      break;
     default:
-    *tile=0;
-    *flip=0;
-    *extend=0;
-    break;
+      *tile=0;
+      *flip=0;
+      *extend=0;
+      return;
   }
+  linktile(tile, flip, state, dir, style);
 }
 void setlinktile(int tile, int flip, int extend, int state, int dir)
 {
   switch (state)
   {
     case ls_float:
-    floatspr[dir][spr_tile] = tile;
-    floatspr[dir][spr_flip] = flip;
-    floatspr[dir][spr_extend] = extend;
-    break;
+      floatspr[dir][spr_tile] = tile;
+      floatspr[dir][spr_flip] = flip;
+      floatspr[dir][spr_extend] = extend;
+      break;
     case ls_swim:
-    swimspr[dir][spr_tile] = tile;
-    swimspr[dir][spr_flip] = flip;
-    swimspr[dir][spr_extend] = extend;
-    break;
+      swimspr[dir][spr_tile] = tile;
+      swimspr[dir][spr_flip] = flip;
+      swimspr[dir][spr_extend] = extend;
+      break;
     case ls_dive:
-    divespr[dir][spr_tile] = tile;
-    divespr[dir][spr_flip] = flip;
-    divespr[dir][spr_extend] = extend;
-    break;
+      divespr[dir][spr_tile] = tile;
+      divespr[dir][spr_flip] = flip;
+      divespr[dir][spr_extend] = extend;
+      break;
     case ls_slash:
-    slashspr[dir][spr_tile] = tile;
-    slashspr[dir][spr_flip] = flip;
-    slashspr[dir][spr_extend] = extend;
-    break;
+      slashspr[dir][spr_tile] = tile;
+      slashspr[dir][spr_flip] = flip;
+      slashspr[dir][spr_extend] = extend;
+      break;
     case ls_walk:
-    walkspr[dir][spr_tile] = tile;
-    walkspr[dir][spr_flip] = flip;
-    walkspr[dir][spr_extend] = extend;
-    break;
+      walkspr[dir][spr_tile] = tile;
+      walkspr[dir][spr_flip] = flip;
+      walkspr[dir][spr_extend] = extend;
+      break;
     case ls_stab:
-    stabspr[dir][spr_tile] = tile;
-    stabspr[dir][spr_flip] = flip;
-    stabspr[dir][spr_extend] = extend;
-    break;
+      stabspr[dir][spr_tile] = tile;
+      stabspr[dir][spr_flip] = flip;
+      stabspr[dir][spr_extend] = extend;
+      break;
     case ls_pound:
-    poundspr[dir][spr_tile] = tile;
-    poundspr[dir][spr_flip] = flip;
-    poundspr[dir][spr_extend] = extend;
-    break;
+      poundspr[dir][spr_tile] = tile;
+      poundspr[dir][spr_flip] = flip;
+      poundspr[dir][spr_extend] = extend;
+      break;
+    case ls_jump:
+      jumpspr[dir][spr_tile] = tile;
+      jumpspr[dir][spr_flip] = flip;
+      jumpspr[dir][spr_extend] = extend;
+      break;
+    case ls_charge:
+      chargespr[dir][spr_tile] = tile;
+      chargespr[dir][spr_flip] = flip;
+      chargespr[dir][spr_extend] = extend;
+      break;
     case ls_cast:
-    castingspr[spr_tile] = tile;
-    castingspr[spr_flip] = flip;
-    castingspr[spr_extend] = extend;
-    break;
+      castingspr[spr_tile] = tile;
+      castingspr[spr_flip] = flip;
+      castingspr[spr_extend] = extend;
+      break;
     case ls_landhold1:
-    holdspr[spr_landhold][spr_hold1][spr_tile] = tile;
-    holdspr[spr_landhold][spr_hold1][spr_flip] = flip;
-    holdspr[spr_landhold][spr_hold1][spr_extend] = extend;
-    break;
+      holdspr[spr_landhold][spr_hold1][spr_tile] = tile;
+      holdspr[spr_landhold][spr_hold1][spr_flip] = flip;
+      holdspr[spr_landhold][spr_hold1][spr_extend] = extend;
+      break;
     case ls_landhold2:
-    holdspr[spr_landhold][spr_hold2][spr_tile] = tile;
-    holdspr[spr_landhold][spr_hold2][spr_flip] = flip;
-    holdspr[spr_landhold][spr_hold2][spr_extend] = extend;
-    break;
+      holdspr[spr_landhold][spr_hold2][spr_tile] = tile;
+      holdspr[spr_landhold][spr_hold2][spr_flip] = flip;
+      holdspr[spr_landhold][spr_hold2][spr_extend] = extend;
+      break;
     case ls_waterhold1:
-    holdspr[spr_waterhold][spr_hold1][spr_tile] = tile;
-    holdspr[spr_waterhold][spr_hold1][spr_flip] = flip;
-    holdspr[spr_waterhold][spr_hold1][spr_extend] = extend;
-    break;
+      holdspr[spr_waterhold][spr_hold1][spr_tile] = tile;
+      holdspr[spr_waterhold][spr_hold1][spr_flip] = flip;
+      holdspr[spr_waterhold][spr_hold1][spr_extend] = extend;
+      break;
     case ls_waterhold2:
-    holdspr[spr_waterhold][spr_hold2][spr_tile] = tile;
-    holdspr[spr_waterhold][spr_hold2][spr_flip] = flip;
-    holdspr[spr_waterhold][spr_hold2][spr_extend] = extend;
-    break;
+      holdspr[spr_waterhold][spr_hold2][spr_tile] = tile;
+      holdspr[spr_waterhold][spr_hold2][spr_flip] = flip;
+      holdspr[spr_waterhold][spr_hold2][spr_extend] = extend;
+      break;
     default:
-    break;
+      break;
   }
 }
 
@@ -162,57 +170,65 @@ void linktile(int *tile, int *flip, int state, int dir, int style)
   switch (state)
   {
     case ls_float:
-    *tile=floatspr[dir][spr_tile];
-    *flip=floatspr[dir][spr_flip];
-    break;
+      *tile=floatspr[dir][spr_tile];
+      *flip=floatspr[dir][spr_flip];
+      break;
     case ls_swim:
-    *tile=swimspr[dir][spr_tile];
-    *flip=swimspr[dir][spr_flip];
-    break;
+      *tile=swimspr[dir][spr_tile];
+      *flip=swimspr[dir][spr_flip];
+      break;
     case ls_dive:
-    *tile=divespr[dir][spr_tile];
-    *flip=divespr[dir][spr_flip];
-    break;
+      *tile=divespr[dir][spr_tile];
+      *flip=divespr[dir][spr_flip];
+      break;
     case ls_slash:
-    *tile=slashspr[dir][spr_tile];
-    *flip=slashspr[dir][spr_flip];
-    break;
+      *tile=slashspr[dir][spr_tile];
+      *flip=slashspr[dir][spr_flip];
+      break;
     case ls_walk:
-    *tile=walkspr[dir][spr_tile];
-    *flip=walkspr[dir][spr_flip];
-    break;
+      *tile=walkspr[dir][spr_tile];
+      *flip=walkspr[dir][spr_flip];
+      break;
     case ls_stab:
-    *tile=stabspr[dir][spr_tile];
-    *flip=stabspr[dir][spr_flip];
-    break;
+      *tile=stabspr[dir][spr_tile];
+      *flip=stabspr[dir][spr_flip];
+      break;
     case ls_pound:
-    *tile=poundspr[dir][spr_tile];
-    *flip=poundspr[dir][spr_flip];
-    break;
+      *tile=poundspr[dir][spr_tile];
+      *flip=poundspr[dir][spr_flip];
+      break;
+    case ls_jump:
+      *tile=jumpspr[dir][spr_tile];
+      *flip=jumpspr[dir][spr_flip];
+      break;
+    case ls_charge:
+      *tile=chargespr[dir][spr_tile];
+      *flip=chargespr[dir][spr_flip];
+      break;
     case ls_cast:
-    *tile=castingspr[spr_tile];
-    *flip=castingspr[spr_flip];
-    break;
+      *tile=castingspr[spr_tile];
+      *flip=castingspr[spr_flip];
+      break;
     case ls_landhold1:
-    *tile=holdspr[spr_landhold][spr_hold1][spr_tile];
-    *flip=holdspr[spr_landhold][spr_hold1][spr_flip];
-    break;
+      *tile=holdspr[spr_landhold][spr_hold1][spr_tile];
+      *flip=holdspr[spr_landhold][spr_hold1][spr_flip];
+      break;
     case ls_landhold2:
-    *tile=holdspr[spr_landhold][spr_hold2][spr_tile];
-    *flip=holdspr[spr_landhold][spr_hold2][spr_flip];
-    break;
+      *tile=holdspr[spr_landhold][spr_hold2][spr_tile];
+      *flip=holdspr[spr_landhold][spr_hold2][spr_flip];
+      break;
     case ls_waterhold1:
-    *tile=holdspr[spr_waterhold][spr_hold1][spr_tile];
-    *flip=holdspr[spr_waterhold][spr_hold1][spr_flip];
-    break;
+      *tile=holdspr[spr_waterhold][spr_hold1][spr_tile];
+      *flip=holdspr[spr_waterhold][spr_hold1][spr_flip];
+      break;
     case ls_waterhold2:
-    *tile=holdspr[spr_waterhold][spr_hold2][spr_tile];
-    *flip=holdspr[spr_waterhold][spr_hold2][spr_flip];
-    break;
+      *tile=holdspr[spr_waterhold][spr_hold2][spr_tile];
+      *flip=holdspr[spr_waterhold][spr_hold2][spr_flip];
+      break;
     default:
-    *tile=0;
-    *flip=0;
-    break;
+      *tile=0;
+      *flip=0;
+      break;
   }
 }
 
@@ -314,6 +330,34 @@ void setuplinktiles(int style)
     poundspr[right][spr_tile]=linkspr+1;
     poundspr[right][spr_flip]=0;
     poundspr[right][spr_extend]=0;
+
+// Alter these when default sprites are created.
+    jumpspr[up][spr_tile]=linkspr+24;
+    jumpspr[up][spr_flip]=0;
+    jumpspr[up][spr_extend]=0;
+    jumpspr[down][spr_tile]=linkspr+19;
+    jumpspr[down][spr_flip]=0;
+    jumpspr[down][spr_extend]=0;
+    jumpspr[left][spr_tile]=linkspr+16;
+    jumpspr[left][spr_flip]=1;
+    jumpspr[left][spr_extend]=0;
+    jumpspr[right][spr_tile]=linkspr+16;
+    jumpspr[right][spr_flip]=0;
+    jumpspr[right][spr_extend]=0;
+
+// Alter these when default sprites are created.
+    chargespr[up][spr_tile]=linkspr+24;
+    chargespr[up][spr_flip]=0;
+    chargespr[up][spr_extend]=0;
+    chargespr[down][spr_tile]=linkspr+19;
+    chargespr[down][spr_flip]=0;
+    chargespr[down][spr_extend]=0;
+    chargespr[left][spr_tile]=linkspr+16;
+    chargespr[left][spr_flip]=1;
+    chargespr[left][spr_extend]=0;
+    chargespr[right][spr_tile]=linkspr+16;
+    chargespr[right][spr_flip]=0;
+    chargespr[right][spr_extend]=0;
 
     castingspr[spr_tile]=linkspr;
     castingspr[spr_flip]=0;
@@ -424,6 +468,34 @@ void setuplinktiles(int style)
     poundspr[right][spr_tile]=linkspr+1;
     poundspr[right][spr_flip]=0;
     poundspr[right][spr_extend]=0;
+
+// Alter these when default sprites are created.
+    jumpspr[up][spr_tile]=linkspr+24;
+    jumpspr[up][spr_flip]=0;
+    jumpspr[up][spr_extend]=0;
+    jumpspr[down][spr_tile]=linkspr+19;
+    jumpspr[down][spr_flip]=0;
+    jumpspr[down][spr_extend]=0;
+    jumpspr[left][spr_tile]=linkspr+16;
+    jumpspr[left][spr_flip]=1;
+    jumpspr[left][spr_extend]=0;
+    jumpspr[right][spr_tile]=linkspr+16;
+    jumpspr[right][spr_flip]=0;
+    jumpspr[right][spr_extend]=0;
+
+// Alter these when default sprites are created.
+    chargespr[up][spr_tile]=linkspr+24;
+    chargespr[up][spr_flip]=0;
+    chargespr[up][spr_extend]=0;
+    chargespr[down][spr_tile]=linkspr+19;
+    chargespr[down][spr_flip]=0;
+    chargespr[down][spr_extend]=0;
+    chargespr[left][spr_tile]=linkspr+16;
+    chargespr[left][spr_flip]=1;
+    chargespr[left][spr_extend]=0;
+    chargespr[right][spr_tile]=linkspr+16;
+    chargespr[right][spr_flip]=0;
+    chargespr[right][spr_extend]=0;
 
     castingspr[spr_tile]=linkspr;
     castingspr[spr_flip]=0;

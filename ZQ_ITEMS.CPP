@@ -16,6 +16,7 @@
 /**********  Item Class  **********/
 /**********************************/
 
+#include "zq_class.h"
 #include "zdefs.h"
 
 void movefairy(fix &x,fix &y,int misc)
@@ -46,4 +47,20 @@ void addfairy(fix x, fix y, int id)
   return;
 }
 
+bool can_drop(fix x, fix y)
+{
+  x=x;
+  y=y;
+  return false;
+}
+
+bool is_side_view()
+{
+  return (Map.CurrScr()->flags7&fSIDEVIEW) != 0;
+}
+
+void getitem(int , bool )
+{
+}
 /*** end of sprite.cc ***/
+

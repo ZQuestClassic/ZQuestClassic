@@ -82,9 +82,9 @@ public:
 	virtual void draw();
 	virtual void ensureCursorOnScreen() {}
 	virtual ~EditboxView();
-	virtual bool mouseClick(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
-	virtual bool mouseDrag(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
-	virtual bool mouseRelease(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
+	virtual bool mouseClick(int, int) {return false;}
+	virtual bool mouseDrag(int, int) {return false;}
+	virtual bool mouseRelease(int, int) {return false;}
 	DIALOG *getDialog() {return host;}
 protected:
 	virtual void enforceHardLimits() {}
