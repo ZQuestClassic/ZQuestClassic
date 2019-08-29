@@ -3121,6 +3121,10 @@ long get_register(const long arg)
     case ITEMCOUNT:
         ret=(items.Count())*10000;
         break;
+    
+    case GETRENDERTARGET:
+        ret=(zscriptDrawingRenderTarget->GetCurrentRenderTarget())*10000;
+        break;
         
     case ITEMEXTEND:
         if(0!=(s=checkItem(ri->itemref)))
@@ -28159,6 +28163,19 @@ script_variable ZASMVars[]=
 	{"IDATAVALIDATE", IDATAVALIDATE, 0, 0 },
 	{ "DISABLEKEY",		DISABLEKEY,        0,             0 },
 	{ "DISABLEBUTTON",		DISABLEBUTTON,        0,             0 },
+	{ "GAMESUSPEND",		GAMESUSPEND,        0,             0 },
+	{ "LINKOTILE",		LINKOTILE,        0,             0 },
+	{ "LINKOFLIP",		LINKOFLIP,        0,             0 },
+	{ "ITEMSPRITEINITD",		ITEMSPRITEINITD,        0,             0 },
+	
+	{ "ZSCRIPTVERSION",		ZSCRIPTVERSION,        0,             0 },
+	{ "REFFILE",		REFFILE,        0,             0 },
+	{ "LINKCLIMBING",		LINKCLIMBING,        0,             0 },
+	{ "NPCIMMORTAL",		NPCIMMORTAL,        0,             0 },
+	{ "NPCNOSLIDE",		NPCNOSLIDE,        0,             0 },
+	{ "NPCKNOCKBACKSPEED",		NPCKNOCKBACKSPEED,        0,             0 },
+	{ "NPCNOSCRIPTKB",		NPCNOSCRIPTKB,        0,             0 },
+	{ "GETRENDERTARGET",		GETRENDERTARGET,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -1767,6 +1767,7 @@ string VarArgument::toString()
 	case NPCNOSLIDE: return "NPCNOSLIDE";
 	case NPCKNOCKBACKSPEED: return "NPCKNOCKBACKSPEED";
 	case NPCNOSCRIPTKB: return "NPCNOSCRIPTKB";
+	case GETRENDERTARGET: return "GETRENDERTARGET";
 	
 	
     default:
