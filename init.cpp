@@ -8,7 +8,7 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API                             
+#ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
@@ -2358,10 +2358,10 @@ void PopulateInitDialog()
 const char *itype_names[] = { "Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
 "Baits", "Letters", "Potions", "Wands", "Rings", "Wallets", "Amulets", "Shields", "Bows", "Rafts",
 "Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", "Boots", "Hookshots", "Lenses", "Hammers",
-"Din's Fires", "Farore's Winds", "Nayru's Loves", "Bombs", "Super Bombs", "Clocks", "Keys", "Magic Containers",
-"Triforce Pieces", "Maps", "Compasses", "Boss Keys", "Quivers", "Level Keys", "Canes of Byrna",
-"Rupees", "Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", "Heart Pieces", "Kill All Enemies",
-"Bomb Ammo", "Bomb Bags"
+"Din's Fire", "Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", "Keys", "Magic Containers",
+"Triforce Pieces", "Maps", "Compasses", "Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", "Arrow Ammo",
+"Fairies", "Magic", "Hearts", "Heart Containers", "Heart Pieces", "Kill All Enemies",
+"Bomb Ammo", "Bomb Bags", "Roc Items", "Hover Boots"
 };
 
 const char *familylist(int index, int *list_size);
@@ -2371,6 +2371,7 @@ int doInit(zinitdata *zinit)
 	for(int i=0; i<MAXITEMS; i++)
 	{
 		int family = itemsbuf[i].family;
+		al_trace("%d : %s\n",i,itype_names[family]);
 		if(family == 0xFF || itemsbuf[i].set_gamedata == 0)
 			continue;
 		map<int,vector<Family> >::iterator it = families.find(family);
@@ -2690,4 +2691,3 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
 	}
 	return rval;
 }
-

@@ -22,7 +22,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="5"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -31,8 +31,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="aldmd.lib dumbd.lib almp3.lib alogg.lib gme.lib jpg.lib loadpng.lib zlibd.lib libpngd.lib spc.lib algif.lib alld.lib"
 				OutputFile="$(OutDir)/zquest.exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="./libs/win32debug"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/zquest.pdb"
 				SubSystem="2"

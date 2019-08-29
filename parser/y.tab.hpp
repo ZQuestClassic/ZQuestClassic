@@ -49,54 +49,55 @@
      CONTINUE = 275,
      CONST = 276,
      DO = 277,
-     ASSIGN = 278,
-     SEMICOLON = 279,
-     COMMA = 280,
-     LBRACKET = 281,
-     RBRACKET = 282,
-     LPAREN = 283,
-     RPAREN = 284,
-     DOT = 285,
-     LBRACE = 286,
-     RBRACE = 287,
-     ARROW = 288,
-     NUMBER = 289,
-     PLUSASSIGN = 290,
-     MINUSASSIGN = 291,
-     TIMESASSIGN = 292,
-     DIVIDEASSIGN = 293,
-     ANDASSIGN = 294,
-     ORASSIGN = 295,
-     BITANDASSIGN = 296,
-     BITORASSIGN = 297,
-     BITXORASSIGN = 298,
-     MODULOASSIGN = 299,
-     LSHIFTASSIGN = 300,
-     RSHIFTASSIGN = 301,
-     IDENTIFIER = 302,
-     QUOTEDSTRING = 303,
-     RSHIFT = 304,
-     LSHIFT = 305,
-     BITXOR = 306,
-     BITOR = 307,
-     BITAND = 308,
-     OR = 309,
-     AND = 310,
-     BITNOT = 311,
-     NOT = 312,
-     DECREMENT = 313,
-     INCREMENT = 314,
-     NE = 315,
-     EQ = 316,
-     GT = 317,
-     GE = 318,
-     LT = 319,
-     LE = 320,
-     MINUS = 321,
-     PLUS = 322,
-     DIVIDE = 323,
-     TIMES = 324,
-     MODULO = 325
+     NPC = 278,
+     ASSIGN = 279,
+     SEMICOLON = 280,
+     COMMA = 281,
+     LBRACKET = 282,
+     RBRACKET = 283,
+     LPAREN = 284,
+     RPAREN = 285,
+     DOT = 286,
+     LBRACE = 287,
+     RBRACE = 288,
+     ARROW = 289,
+     NUMBER = 290,
+     PLUSASSIGN = 291,
+     MINUSASSIGN = 292,
+     TIMESASSIGN = 293,
+     DIVIDEASSIGN = 294,
+     ANDASSIGN = 295,
+     ORASSIGN = 296,
+     BITANDASSIGN = 297,
+     BITORASSIGN = 298,
+     BITXORASSIGN = 299,
+     MODULOASSIGN = 300,
+     LSHIFTASSIGN = 301,
+     RSHIFTASSIGN = 302,
+     IDENTIFIER = 303,
+     QUOTEDSTRING = 304,
+     RSHIFT = 305,
+     LSHIFT = 306,
+     BITXOR = 307,
+     BITOR = 308,
+     BITAND = 309,
+     OR = 310,
+     AND = 311,
+     BITNOT = 312,
+     NOT = 313,
+     DECREMENT = 314,
+     INCREMENT = 315,
+     NE = 316,
+     EQ = 317,
+     GT = 318,
+     GE = 319,
+     LT = 320,
+     LE = 321,
+     MINUS = 322,
+     PLUS = 323,
+     DIVIDE = 324,
+     TIMES = 325,
+     MODULO = 326
    };
 #endif
 /* Tokens.  */
@@ -120,54 +121,55 @@
 #define CONTINUE 275
 #define CONST 276
 #define DO 277
-#define ASSIGN 278
-#define SEMICOLON 279
-#define COMMA 280
-#define LBRACKET 281
-#define RBRACKET 282
-#define LPAREN 283
-#define RPAREN 284
-#define DOT 285
-#define LBRACE 286
-#define RBRACE 287
-#define ARROW 288
-#define NUMBER 289
-#define PLUSASSIGN 290
-#define MINUSASSIGN 291
-#define TIMESASSIGN 292
-#define DIVIDEASSIGN 293
-#define ANDASSIGN 294
-#define ORASSIGN 295
-#define BITANDASSIGN 296
-#define BITORASSIGN 297
-#define BITXORASSIGN 298
-#define MODULOASSIGN 299
-#define LSHIFTASSIGN 300
-#define RSHIFTASSIGN 301
-#define IDENTIFIER 302
-#define QUOTEDSTRING 303
-#define RSHIFT 304
-#define LSHIFT 305
-#define BITXOR 306
-#define BITOR 307
-#define BITAND 308
-#define OR 309
-#define AND 310
-#define BITNOT 311
-#define NOT 312
-#define DECREMENT 313
-#define INCREMENT 314
-#define NE 315
-#define EQ 316
-#define GT 317
-#define GE 318
-#define LT 319
-#define LE 320
-#define MINUS 321
-#define PLUS 322
-#define DIVIDE 323
-#define TIMES 324
-#define MODULO 325
+#define NPC 278
+#define ASSIGN 279
+#define SEMICOLON 280
+#define COMMA 281
+#define LBRACKET 282
+#define RBRACKET 283
+#define LPAREN 284
+#define RPAREN 285
+#define DOT 286
+#define LBRACE 287
+#define RBRACE 288
+#define ARROW 289
+#define NUMBER 290
+#define PLUSASSIGN 291
+#define MINUSASSIGN 292
+#define TIMESASSIGN 293
+#define DIVIDEASSIGN 294
+#define ANDASSIGN 295
+#define ORASSIGN 296
+#define BITANDASSIGN 297
+#define BITORASSIGN 298
+#define BITXORASSIGN 299
+#define MODULOASSIGN 300
+#define LSHIFTASSIGN 301
+#define RSHIFTASSIGN 302
+#define IDENTIFIER 303
+#define QUOTEDSTRING 304
+#define RSHIFT 305
+#define LSHIFT 306
+#define BITXOR 307
+#define BITOR 308
+#define BITAND 309
+#define OR 310
+#define AND 311
+#define BITNOT 312
+#define NOT 313
+#define DECREMENT 314
+#define INCREMENT 315
+#define NE 316
+#define EQ 317
+#define GT 318
+#define GE 319
+#define LT 320
+#define LE 321
+#define MINUS 322
+#define PLUS 323
+#define DIVIDE 324
+#define TIMES 325
+#define MODULO 326
 
 
 

@@ -3,8 +3,8 @@
 # Let's get this bad boy.. 
 # Welcome to the Mac OS X installer script for Zelda Classic
 #do some basic stuff
-echo "Input password for gcc_select 4.0"
-sudo gcc_select 4.0
+#echo "Input password for gcc_select 4.0"
+#sudo gcc_select 4.0
 
 # start with the normal build.
 make clean

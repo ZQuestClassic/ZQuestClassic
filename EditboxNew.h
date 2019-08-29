@@ -85,6 +85,7 @@ public:
 	virtual bool mouseClick(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
 	virtual bool mouseDrag(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
 	virtual bool mouseRelease(int x, int y) {x=x; y=y; /*these are here to bypass compiler warnings about unused arguments*/ return false;}
+	DIALOG *getDialog() {return host;}
 protected:
 	virtual void enforceHardLimits() {}
 	void invertRectangle(int x1, int y1, int x2, int y2);
@@ -134,7 +135,7 @@ private:
 class EditboxModel
 {
 public:
-	EditboxModel(string &Buffer, EditboxView *View, bool ReadOnly = false) : lines(), buffer(Buffer), view(View), readonly(ReadOnly), cursor(*this), clipboard(""), s() {}
+	EditboxModel(string &Buffer, EditboxView *View, bool ReadOnly = false, char *hf = NULL) : helpfile(hf), lines(), buffer(Buffer), view(View), readonly(ReadOnly), cursor(*this), clipboard(""), s() {}
 	TextSelection &getSelection() {return s;}
 	EditboxCursor &getCursor() {return cursor;}
 	EditboxView *getView() {return view;}
@@ -150,7 +151,9 @@ public:
 	void cut();
 	void clear();
 	void paste();
+	void doHelp();
 private:
+	char *helpfile;
 	list<LineData> lines;
 	string &buffer;
 	EditboxView *view;
@@ -186,6 +189,8 @@ public:
 	bool mouseRelease(int x, int y);
 	static const int HSTYLE_EOLINE = 0;
 	static const int HSTYLE_EOTEXT = 1; 
+	int getForeground() {return fgcolor;}
+	int getBackground() {return bgcolor;}
 protected:
 	void createStripBitmap(list<LineData>::iterator it, int width);
 	virtual void drawExtraComponents()=0;

@@ -62,7 +62,6 @@
 #include "zqscale.h"
 #endif
 
-
 #ifdef ALLEGRO_DOS
 static char *data_path_name   = "dos_data_path";
 static char *midi_path_name   = "dos_midi_path";
@@ -101,6 +100,10 @@ static char *qtpath_name      = "macosx_qtpath%d";
 #include "zq_doors.h"
 #include "zq_rules.h"
 #include "zq_cset.h"
+
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
 
 #define max(a,b)  ((a)>(b)?(a):(b))
 #define min(a,b)  ((a)<(b)?(a):(b))
@@ -194,6 +197,7 @@ tiledata *newtilebuf, *grabtilebuf;
 newcombo *combobuf;
 itemdata *itemsbuf;
 wpndata  *wpnsbuf;
+comboclass *combo_class_buf;
 guydata  *guysbuf;
 newcombo curr_combo;
 PALETTE RAMpal;
@@ -582,8 +586,8 @@ static MENU tool_menu[] =
   { "",                       NULL,         NULL, 0, NULL },
   { "&View Palette",          onShowPal,    NULL, 0, NULL },
   { "Re-apply Template",      onReTemplate, NULL, 0, NULL },
-  { "Import FF Script",       onImportFFScript, NULL, 0, NULL },
-  { "Import Global Script",   onImportGScript, NULL, 0, NULL },
+  { "Import ASM FFC Script",       onImportFFScript, NULL, 0, NULL },
+  { "Import ASM Global Script",   onImportGScript, NULL, 0, NULL },
   { "Compile Z-Script...",	  onCompileScript, NULL, 0, NULL },
   //  { "Test &GUI",          onTestGUI,    NULL, 0, NULL },
   { NULL,                     NULL,                    NULL, 0, NULL }
@@ -1637,7 +1641,7 @@ bool getname(char *prompt,char *ext,char *def,bool usefilename)
   if(!usefilename)
   {
 
-    int i=strlen(temppath);
+    int i=(int)strlen(temppath);
     while(i>=0 && temppath[i]!='\\' && temppath[i]!='/')
       temppath[i--]=0;
   }
@@ -1656,7 +1660,7 @@ bool getname_nogo(char *prompt,char *ext,EXT_LIST *list,char *def,bool usefilena
 
   if(!usefilename)
   {
-    int i=strlen(temppath);
+    int i=(int)strlen(temppath);
     while(i>=0 && temppath[i]!='\\' && temppath[i]!='/')
       temppath[i--]=0;
   }
@@ -2234,7 +2238,7 @@ void textprintf_centre_disabled(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int
 
 char *strip_extra_spaces(char *string)
 {
-  int len=strlen(string);
+  int len=(int)strlen(string);
   char *src=(char *)malloc(len+1);
   char *tmpsrc=src;
   memcpy(src,string,len+1);
@@ -2314,7 +2318,7 @@ void drawpanel(int panel)
         put_combo(menu1,panel_1_x+panel_1_w-60,panel_1_y+11,Combo,CSet,0,0);
         put_walkflags(menu1,panel_1_x+panel_1_w-60,panel_1_y+11,Combo);
 
-        textprintf_centre_disabled(menu1,spfont,panel_1_x+panel_1_w-28,panel_1_y+3,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Next");
+        textprintf_centre_disabled(menu1,spfont,panel_1_x+panel_1_w-28,panel_1_y+3,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Cycle");
         jwin_draw_frame(menu1,panel_1_x+panel_1_w-38,panel_1_y+9,20, 20, FR_DEEP);
         if (NextCombo>0)
         {
@@ -5596,7 +5600,7 @@ static DIALOG rlist_dlg[] =
   int i;
   } item_struct;
   */
-item_struct bii[iMax];
+item_struct bii[iMax+1];
 int bii_cnt=-1;
 
 void build_bii_list(bool usenone)
@@ -5607,9 +5611,8 @@ void build_bii_list(bool usenone)
     bii[0].s = "(None)";
     bii[0].i = -2;
     bii_cnt=1;
-	start=0;
+	  start=0;
   }
-
   for(int i=start; i<iMax; i++)
   {
     bii[bii_cnt].s = item_string[i];
@@ -6014,7 +6017,7 @@ static DIALOG scrdata_dlg[] =
   { jwin_check_proc,      167,  108,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Layer 3 Is Background", NULL, NULL },
   { jwin_check_proc,      167,  118,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Layer 2 Is Background", NULL, NULL },
   //56
-  { d_dummy_proc,      160,  56-24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,      167,  128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Item Falls From Ceiling", NULL, NULL },
   { d_dummy_proc,      160,  56-24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
   { d_dummy_proc,      160,  56-24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
   { d_dummy_proc,      160,  56-24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
@@ -6133,6 +6136,7 @@ int onScrData()
   f = Map.CurrScr()->flags7;
   scrdata_dlg[54].flags = (f&1) ? D_SELECTED : 0;
   scrdata_dlg[55].flags = (f&2) ? D_SELECTED : 0;
+  scrdata_dlg[56].flags = (f&4) ? D_SELECTED : 0;
 
 
   word g = Map.CurrScr()->noreset;
@@ -6215,7 +6219,8 @@ int onScrData()
     Map.CurrScr()->flags6 = f;
    	f=0;
 	f |= scrdata_dlg[54].flags == D_SELECTED ? 1:0;
-	f |= scrdata_dlg[55].flags == D_SELECTED ? 2:0;
+  f |= scrdata_dlg[55].flags == D_SELECTED ? 2:0;
+  f |= scrdata_dlg[56].flags == D_SELECTED ? 4:0;
 	Map.CurrScr()->flags7 = f;
 
 
@@ -7955,7 +7960,7 @@ static int editdmap_subscreenmaps_list[] =
 static int editdmap_disableitems_list[] =
 {
   // dialog control number
-  101,102,103,104,105, 106, -1
+  100,101,102,103,104,105,-1
 };
 
 static TABPANEL editdmap_tabs[] =
@@ -8079,7 +8084,6 @@ static DIALOG editdmap_dlg[] =
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL, NULL, NULL },
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL, NULL, NULL },
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL, NULL, NULL },
-  //  { d_grid_proc,          164,  104,  116,  60,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
   { d_grid_proc,          166,   98,  124,  66,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
   { jwin_text_proc,       166,  170,   48,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Compass: 0x", NULL, NULL },
   //60
@@ -8124,7 +8128,6 @@ static DIALOG editdmap_dlg[] =
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL, NULL, NULL },
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL, NULL, NULL },
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL, NULL, NULL },
-  { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL, NULL, NULL },
   //95
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL, NULL, NULL },
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL, NULL, NULL },
@@ -8133,11 +8136,11 @@ static DIALOG editdmap_dlg[] =
   { d_dummy_proc,          0,    0,    0,    0,   0,          0,   0,       0,          0,             0,        NULL, NULL, NULL },
   // 100
   { jwin_text_proc,       16,   84,   48,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Disabled Items:", NULL, NULL },
-  { jwin_abclist_proc,       16,   100,   120,  100,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-  { jwin_abclist_proc,       181,   100,   120,  100,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-  { jwin_text_proc,       181,   84,   48,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "All Items:", NULL, NULL },
-  { jwin_button_proc,     150,   120,  20,   20,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  13,      0,     0,             0,       (void *) "->", NULL, NULL },
-  { jwin_button_proc,     150,   160,  20,   20,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  13,      0,     0,             0,       (void *) "<-", NULL, NULL },
+  { jwin_abclist_proc,    16,   96,   120,  104,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
+  { jwin_abclist_proc,   181,   96,   120,  104,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,      181,   84,   48,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "All Items:", NULL, NULL },
+  { jwin_button_proc,    150,   120,  20,   20,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  13,      0,     0,             0,       (void *) "->", NULL, NULL },
+  { jwin_button_proc,    150,   160,  20,   20,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  13,      0,     0,             0,       (void *) "<-", NULL, NULL },
   
   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -8220,12 +8223,12 @@ void editdmap(int index)
   editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
   editdmap_dlg[89].d1=vbound(DMaps[index].tmusictrack,0,dmap_tracks-1);
   
-  build_bii_list(true);
+  build_bii_list(false);
   initDI(index);
-  editdmap_dlg[102].dp = (void*)DIlist;
+  editdmap_dlg[101].dp = (void*)DIlist;
+  editdmap_dlg[101].d1 = 0;
+  editdmap_dlg[102].dp = (void*)itemlist;
   editdmap_dlg[102].d1 = 0;
-  editdmap_dlg[103].dp = (void*)itemlist;
-  editdmap_dlg[103].d1 = 0;
   
   int ret=-1;
   while (ret!=0&&ret!=1&&ret!=2)
@@ -8269,12 +8272,12 @@ void editdmap(int index)
         editdmap_dlg[89].d1=0;
         break;
 	  case 105: 											// item disable "->"
-		deleteDI(editdmap_dlg[102].d1, index);
+		deleteDI(editdmap_dlg[101].d1, index);
 	  break;
 	  case 106: 											// item disable "<-"
 	  {
 		// 101 is the disabled list, 102 the item list
-		insertDI(editdmap_dlg[103].d1, index);
+		insertDI(editdmap_dlg[102].d1, index);
 	  }
 	  break;
     }
@@ -10948,12 +10951,12 @@ char *pattern_list(int index, int *list_size)
 static DIALOG pattern_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-  { jwin_win_proc, 72,   64,   176+1,  88+1,   vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Enemy Pattern", NULL, NULL },
+  { jwin_win_proc, 72,   64,   176+1,  108+1,   vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Enemy Pattern", NULL, NULL },
   { d_dummy_proc,      160,  72,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-  { jwin_list_proc,       80,   94,   160+1,  24,   jwin_pal[jcTEXTFG],jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       (void *) pattern_list, NULL, NULL },
+  { jwin_list_proc,       80,   94,   160+1,  40,   jwin_pal[jcTEXTFG],jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       (void *) pattern_list, NULL, NULL },
   // 3
-  { jwin_button_proc,     90,   128,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       (void *) "O&K", NULL, NULL },
-  { jwin_button_proc,     170,  128,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { jwin_button_proc,     90,   140,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0,       (void *) "O&K", NULL, NULL },
+  { jwin_button_proc,     170,  140,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -13027,13 +13030,13 @@ static DIALOG ffcombo_dlg[] =
 	{ jwin_edit_proc,      156+10,  115+20,   24,    16,   vc(12),   vc(1),   0,       0,          1,             0,       NULL, NULL, NULL },
 	//31
 	{ jwin_text_proc,       6+10,  25+20,   160,    36,   0,        0,       0,       0,          0,             0,       (void *) "Flags (Normal):", NULL, NULL },
-	{ jwin_text_proc,       6+10,  75+20,   160,    36,   0,        0,       0,       0,          0,             0,       (void *) "Flags (FF Change specific)", NULL, NULL },
+  { jwin_text_proc,       6+10,  75+20,   160,    36,   0,        0,       0,       0,          0,             0,       (void *) "Flags (Changer specific):", NULL, NULL },
 	//33
 	{ jwin_check_proc,      6+10,  35+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Draw Over", NULL, NULL },
 	{ jwin_check_proc,      6+10,  45+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Translucent", NULL, NULL },
-    { jwin_check_proc,      6+10,  55+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Carry-Over", NULL, NULL },
-	{ jwin_check_proc,      6+10,  65+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Stationary", NULL, NULL },
-	{ d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,     80+10,  35+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Carry-Over", NULL, NULL },
+	{ jwin_check_proc,     80+10,  45+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Stationary", NULL, NULL },
+	{ jwin_check_proc,      6+10,  55+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Is a Changer (Invisible)", NULL, NULL },
 	{ d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
 	{ d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
 	{ d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
@@ -13047,11 +13050,11 @@ static DIALOG ffcombo_dlg[] =
 	{ d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
 	{ d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
 	//49
-	{ jwin_check_proc,      6+10,  85+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Swap Next", NULL, NULL },
-	{ jwin_check_proc,      6+10,  95+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Swap Prev", NULL, NULL },
-	{ jwin_check_proc,      6+10,  105+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Chng Next", NULL, NULL },
-	{ jwin_check_proc,      6+10,  115+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Chng Prev", NULL, NULL },
-	{ jwin_check_proc,      70+10,  85+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Chng to This", NULL, NULL },
+	{ jwin_check_proc,      6+10,  85+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Swap speed with next FFC", NULL, NULL },
+	{ jwin_check_proc,      6+10,  95+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Swap speed with prev. FFC", NULL, NULL },
+	{ jwin_check_proc,      6+10,  105+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Increase combo ID", NULL, NULL },
+	{ jwin_check_proc,      6+10,  115+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Decrease combo ID", NULL, NULL },
+	{ jwin_check_proc,      6+10,  125+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Change combo/cset to this", NULL, NULL },
 	//54
 	{ jwin_text_proc,       112+10,  151+20,   70,    12,   0,        0,       0,       0,          0,             0,       (void *) "Script:", NULL, NULL },
 	{ jwin_droplist_proc,  156+10,   151+20,   60,    16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],   0,       0,          1,             0,       (void *) ffscriptlist, NULL, NULL },
@@ -13085,7 +13088,7 @@ static DIALOG ffcombo_dlg[] =
 
 char *strip_decimals(char *string)
 {
-  int len=strlen(string);
+  int len=(int)strlen(string);
   char *src=(char *)malloc(len+1);
   char *tmpsrc=src;
   memcpy(src,string,len+1);
@@ -13111,7 +13114,7 @@ char *clean_numeric_string(char *string)
 {
   bool found_sign=false;
   bool found_decimal=false;
-  int len=strlen(string);
+  int len=(int)strlen(string);
   char *src=(char *)malloc(len+1);
   char *tmpsrc=src;
   memcpy(src,string,len+1);
@@ -13129,7 +13132,7 @@ char *clean_numeric_string(char *string)
     }
     tmpsrc++;
   }
-  len=strlen(src);
+  len=(int)strlen(src);
   char *src2=(char *)malloc(len+1);
   tmpsrc=src2;
   memcpy(src,src2,len+1);
@@ -13279,7 +13282,7 @@ const char *assignffclist(int index, int *list_size)
 {
   if(index<0)
   {
-	*list_size = ffcmap.size();
+	*list_size = (int)ffcmap.size();
     return NULL;
   }
   return ffcmap[index].first.c_str();
@@ -13289,7 +13292,7 @@ const char *assigngloballist(int index, int *list_size)
 {
   if(index<0)
   {
-	*list_size = globalmap.size();
+	*list_size = (int)globalmap.size();
     return NULL;
   }
   return globalmap[index].first.c_str();
@@ -13299,7 +13302,7 @@ const char *assignitemlist(int index, int *list_size)
 {
   if(index<0)
   {
-	*list_size = itemmap.size();
+	*list_size = (int)itemmap.size();
     return NULL;
   }
   return itemmap[index].first.c_str();
@@ -13309,7 +13312,7 @@ const char *assignffcscriptlist(int index, int *list_size)
 {
   if(index<0)
   {
-	*list_size = asffcscripts.size();
+	*list_size = (int)asffcscripts.size();
     return NULL;
   }
   return asffcscripts[index].c_str();
@@ -13319,7 +13322,7 @@ const char *assignglobalscriptlist(int index, int *list_size)
 {
   if(index<0)
   {
-	 *list_size = asglobalscripts.size();
+	 *list_size = (int)asglobalscripts.size();
 	 return NULL;
   }
   return asglobalscripts[index].c_str();
@@ -13329,7 +13332,7 @@ const char *assignitemscriptlist(int index, int *list_size)
 {
   if(index<0)
   {
-	 *list_size = asitemscripts.size();
+	 *list_size = (int)asitemscripts.size();
 	 return NULL;
   }
   return asitemscripts[index].c_str();
@@ -13372,7 +13375,7 @@ static DIALOG edit_zscript_dlg[] =
 void doEditZScript(int bg,int fg)
 {
 	string old = zScript;
-	EditboxModel *em = new EditboxModel(zScript, new EditboxScriptView(&edit_zscript_dlg[2],sfont2,fg,bg,BasicEditboxView::HSTYLE_EOTEXT));
+	EditboxModel *em = new EditboxModel(zScript, new EditboxScriptView(&edit_zscript_dlg[2],sfont2,fg,bg,BasicEditboxView::HSTYLE_EOTEXT), false, "zscript.txt");
 	edit_zscript_dlg[2].dp = em;
   edit_zscript_dlg[0].dp2= lfont;
   edit_zscript_dlg[2].bg = bg;
@@ -13467,7 +13470,7 @@ int onCompileScript()
 					jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 					break;
 				}
-				int written = fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
+				int written = (int)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
 				if(written != (int)zScript.size())
 					jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				fclose(zscript);
@@ -13798,7 +13801,9 @@ int onEditFFCombo(int ffcombo)
   ffcombo_dlg[33].flags = (f&ffOVERLAY) ? D_SELECTED : 0;
   ffcombo_dlg[34].flags = (f&ffTRANS) ? D_SELECTED : 0;
   ffcombo_dlg[35].flags = (f&ffCARRYOVER) ? D_SELECTED : 0;
-  ffcombo_dlg[35].flags = (f&ffSTATIONARY) ? D_SELECTED : 0;
+  ffcombo_dlg[36].flags = (f&ffSTATIONARY) ? D_SELECTED : 0;
+  ffcombo_dlg[37].flags = (f&ffCHANGER) ? D_SELECTED : 0;
+
   ffcombo_dlg[49].flags = (f&ffSWAPNEXT) ? D_SELECTED : 0;
   ffcombo_dlg[50].flags = (f&ffSWAPPREV) ? D_SELECTED : 0;
   ffcombo_dlg[51].flags = (f&ffCHANGENEXT) ? D_SELECTED : 0;
@@ -13844,7 +13849,8 @@ int onEditFFCombo(int ffcombo)
 	f |= (ffcombo_dlg[33].flags&D_SELECTED) ? ffOVERLAY : 0;
 	f |= (ffcombo_dlg[34].flags&D_SELECTED) ? ffTRANS : 0;
 	f |= (ffcombo_dlg[35].flags&D_SELECTED) ? ffCARRYOVER : 0;
-	f |= (ffcombo_dlg[35].flags&D_SELECTED) ? ffSTATIONARY : 0;
+	f |= (ffcombo_dlg[36].flags&D_SELECTED) ? ffSTATIONARY : 0;
+	f |= (ffcombo_dlg[37].flags&D_SELECTED) ? ffCHANGER : 0;
 	f |= (ffcombo_dlg[49].flags&D_SELECTED) ? ffSWAPNEXT : 0;
 	f |= (ffcombo_dlg[50].flags&D_SELECTED) ? ffSWAPPREV : 0;
 	f |= (ffcombo_dlg[51].flags&D_SELECTED) ? ffCHANGENEXT : 0;
@@ -13884,9 +13890,10 @@ static DIALOG sfx_sel_dlg[] =
   { jwin_win_proc,           0,     0,  200,   159,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0,       (void *) "Choose SFX Number", NULL, NULL },
   { jwin_button_proc,       35,   132,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
   { jwin_button_proc,      104,   132,   61,    21,  vc(14),              vc(1),                27,       D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
-  { jwin_button_proc,       70,    78,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0,       (void *) "Load", NULL, NULL },
+  { jwin_button_proc,       35,    78,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0,       (void *) "Load", NULL, NULL },
   { jwin_button_proc,       35,   105,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0,       (void *) "Play", NULL, NULL },
-  { jwin_button_proc,      104,   105,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0,       (void *) "Stop", NULL, NULL },
+  { jwin_button_proc,      104,   105,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0,       (void *) "Default All"/*"Stop"*/, NULL, NULL },
+  { jwin_button_proc,      104,    78,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0,       (void *) "Default", NULL, NULL },
   { jwin_droplist_proc,     70,    25,   54,    16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],    0,       0,          0,             0,       (void *) sfxlist, NULL, NULL },
   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -14052,6 +14059,22 @@ void kill_sfx()
   return vbound(x,0,255);
 }*/
 
+
+void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
+{
+  sfx1->data = calloc((sfx2->bits==8?1:2)*sfx2->len,1);
+  sfx1->bits = sfx2->bits;
+  sfx1->stereo = sfx2->stereo;
+  sfx1->freq = sfx2->freq;
+  sfx1->priority = sfx2->priority;
+  sfx1->len = sfx2->len;
+  sfx1->loop_start = sfx2->loop_start;
+  sfx1->loop_end = sfx2->loop_end;
+  sfx1->param = sfx2->param;
+  memcpy(sfx1->data, sfx2->data, (sfx2->bits==8?1:2)*sfx2->len);
+}
+
+
 int onEditSFX()
 {
   kill_sfx();
@@ -14061,17 +14084,7 @@ int onEditSFX()
   sfx_sel_dlg[0].dp2=lfont;
   for(int i=1;i<WAV_COUNT;i++)
   {
-//    templist[i].data = new byte[(customsfxdata[i].bits==8?1:2)*customsfxdata[i].len];
-    templist[i].data = calloc((customsfxdata[i].bits==8?1:2)*customsfxdata[i].len,1);
-    templist[i].bits = customsfxdata[i].bits;
-    templist[i].stereo = customsfxdata[i].stereo;
-    templist[i].freq = customsfxdata[i].freq;
-    templist[i].priority = customsfxdata[i].priority;
-    templist[i].len = customsfxdata[i].len;
-    templist[i].loop_start = customsfxdata[i].loop_start;
-    templist[i].loop_end = customsfxdata[i].loop_end;
-    templist[i].param = customsfxdata[i].param;
-    memcpy(templist[i].data, customsfxdata[i].data, (customsfxdata[i].bits==8?1:2)*customsfxdata[i].len);
+    change_sfx(&templist[i], &customsfxdata[i]);
   }
 
   do
@@ -14088,17 +14101,7 @@ int onEditSFX()
 //            delete [] customsfxdata[i].data;
             free(customsfxdata[i].data);
           }
-//          customsfxdata[i].data = new byte[(templist[i].bits==8?1:2)*templist[i].len];
-          customsfxdata[i].data = calloc((templist[i].bits==8?1:2)*templist[i].len,1);
-          customsfxdata[i].bits = templist[i].bits;
-          customsfxdata[i].stereo = templist[i].stereo;
-          customsfxdata[i].freq = templist[i].freq;
-          customsfxdata[i].priority = templist[i].priority;
-          customsfxdata[i].len = templist[i].len;
-          customsfxdata[i].loop_start = templist[i].loop_start;
-          customsfxdata[i].loop_end = templist[i].loop_end;
-          customsfxdata[i].param = templist[i].param;
-          memcpy(customsfxdata[i].data, templist[i].data, (templist[i].bits==8?1:2)*templist[i].len);
+          change_sfx(&customsfxdata[i],&templist[i]);
         }
       case 2:
       case 0:
@@ -14123,28 +14126,31 @@ int onEditSFX()
           }
           else
           {
-            int i=sfx_sel_dlg[6].d1+1;
-			if(templist[i].data!=NULL) free(templist[i].data);
-            templist[i].data = calloc((temp_sample->bits==8?1:2)*temp_sample->len,1);
-            templist[i].bits = temp_sample->bits;
-            templist[i].stereo = temp_sample->stereo;
-            templist[i].freq = temp_sample->freq;
-            templist[i].priority = temp_sample->priority;
-            templist[i].len = temp_sample->len;
-            templist[i].loop_start = temp_sample->loop_start;
-            templist[i].loop_end = temp_sample->loop_end;
-            templist[i].param = temp_sample->param;
-            memcpy(templist[i].data, temp_sample->data, (temp_sample->bits==8?1:2)*temp_sample->len);
+            int i=sfx_sel_dlg[7].d1+1;
+            change_sfx(&templist[i], temp_sample);
             destroy_sample(temp_sample);
           }
         }
         break;
       case 4:
         kill_sfx();
-        sfx(sfx_sel_dlg[6].d1+1, 128, false);
+        sfx(sfx_sel_dlg[7].d1+1, 128, false);
         break;
-      case 5:
-        kill_sfx();
+      case 5: //formerly stop
+        //kill_sfx();
+        {
+          SAMPLE *temp_sample;
+          for(int i=1;i<49;i++)
+          {
+            temp_sample = (SAMPLE *)sfxdata[i].dat;
+            change_sfx(&templist[i], temp_sample);
+          }
+        }
+        break;
+      case 6:
+        int i=sfx_sel_dlg[7].d1+1;
+        SAMPLE *temp_sample = (SAMPLE *)sfxdata[i].dat;
+        change_sfx(&templist[i], temp_sample);
         break;
     }
   } while (ret>2);
@@ -15138,11 +15144,10 @@ int get_homescr()
   return DMaps[zinit.start_dmap].cont;
 }
 
-int current_item(int item_type, bool consecutive)
+int current_item(int item_type)
 {
   //these are here to bypass compiler warnings about unused arguments
-  consecutive=consecutive;
-
+  
   if (item_type==itype_shield)
   {
     return 2;
@@ -15271,6 +15276,16 @@ int main(int argc,char **argv)
     case 0:
     Z_title("ZQuest %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
   }
+
+    //turn on MSVC memory checks
+  //this should be interesting...
+#ifdef _MSC_VER
+#ifdef _DEBUG
+  int flag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+  flag |= (_CRTDBG_ALLOC_MEM_DF);
+  _CrtSetDbgFlag(flag);
+#endif
+#endif
 
   PopulateInitDialog();
 

@@ -428,6 +428,7 @@ void ending()
     {
       return;
     }
+    load_control_state();
     rSbtn();
   }
 
@@ -448,6 +449,7 @@ void ending()
     {
       return;
     }
+    load_control_state();
   } while(!rSbtn());
 
   if(get_gamedata_quest(game)>0 && get_gamedata_quest(game)<QUEST_COUNT)

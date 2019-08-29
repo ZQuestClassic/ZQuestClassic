@@ -114,7 +114,7 @@ void loadpalset(int cset,int dataset)
 
 void ringcolor()
 {
-  switch(current_item(itype_ring,true))
+  switch(current_item(itype_ring))
   {
     case 0: loadpalset(6,6); break;
     case 1: loadpalset(6,pSprite(6)); break;

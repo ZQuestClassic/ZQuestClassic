@@ -199,6 +199,44 @@ string VarArgument::toString()
 		return "FFLINK";
 	case LINKITEMD:
 		return "LINKITEMD";
+	case REFNPC:
+		return "REFNPC";
+	case NPCCOUNT:
+		return "NPCCOUNT";
+	case NPCX:
+		return "NPCX";
+	case NPCY:
+		return "NPCY";
+	case NPCDIR:
+		return "NPCDIR";
+	case NPCRATE:
+		return "NPCRATE";
+	case NPCFRAMERATE:
+		return "NPCFRAMERATE";
+	case NPCHALTRATE:
+		return "NPCHALTRATE";
+	case NPCDRAWTYPE:
+		return "NPCDRAWTYPE";
+	case NPCHP:
+		return "NPCHP";
+	case NPCDP:
+		return "NPCDP";
+	case NPCWDP:
+		return "NPCWDP";
+	case NPCTILE:
+		return "NPCTILE";
+	case NPCWEAPON:
+		return "NPCWEAPON";
+	case NPCITEMSET:
+		return "NPCITEMSET";
+	case NPCCSET:
+		return "NPCCSET";
+	case NPCBOSSPAL:
+		return "NPCBOSSPAL";
+	case NPCBGSFX:
+		return "NPCBGSFX";
+	case NPCEXTEND:
+		return "NPCEXTEND";
 	default:
 		{
 			sprintf(temp, "d%d", ID);
@@ -493,6 +531,11 @@ string OSqrtRegister::toString()
 string OCreateItemRegister::toString()
 {
 	return "CREATEITEMR " + getArgument()->toString();
+}
+
+string OCreateNPCRegister::toString()
+{
+	return "CREATENPCR " + getArgument()->toString();
 }
 
 string OPlaySoundRegister::toString()

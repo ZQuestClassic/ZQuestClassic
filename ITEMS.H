@@ -31,7 +31,7 @@ public:
   int aclk,aframe;
   bool flash,twohand,anim;
   int o_tile,o_cset, o_speed, o_delay, frames;
-  item(fix X,fix Y,int i,int p,int c);
+  item(fix X,fix Y,fix Z,int i,int p,int c);
   virtual ~item();
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);

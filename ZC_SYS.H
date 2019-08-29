@@ -129,7 +129,7 @@ bool item_disabled(int item_type, int item);
 bool can_use_item(int item_type, int item);
 bool has_item(int item_type, int item);
 //int high_item(int jmax, int item_type, bool consecutive, int itemcluster, bool usecluster);
-int current_item(int item_type, bool consecutive);
+int current_item(int item_type);
 int high_flag(int i, int item_type, bool consecutive);
 int item_tile_mod(bool);
 int dmap_tile_mod();
@@ -158,7 +158,7 @@ int  pan(int x);
 int onSetSnapshotFormat();
 void zc_putpixel(int layer, int x, int y, int cset, int color, int timer);
 #ifdef ALLEGRO_LINUX_GP2X
-extern bool midi_strict;
+extern int midi_strict;
 #endif
 #ifdef ALLEGRO_MACOSX
 extern int midi_strict;

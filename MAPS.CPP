@@ -96,7 +96,7 @@ int MAPFFCOMBO(int x,int y)
   {
     if(x>=(tmpscr->ffx[i]/10000)&&x<(tmpscr->ffx[i]/10000)+(tmpscr->ffwidth[i]&63)+1)
 	  if(y>=(tmpscr->ffy[i]/10000)&&y<(tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1)
-	    if(combobuf[tmpscr->ffdata[i]].type!=cCHANGE)
+	    if(!(tmpscr->ffflags[i]&ffCHANGER))
 		  return tmpscr->ffdata[i];
   }
   return 0;
@@ -143,7 +143,7 @@ int MAPFFCOMBOFLAG(int x,int y)
     if(x>=(tmpscr->ffx[i]/10000)&&x<((tmpscr->ffx[i]/10000)+(tmpscr->ffwidth[i]&63)+1))
 	  if(y>=(tmpscr->ffy[i]/10000)&&y<((tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1))
 	  {
-	    if(combobuf[tmpscr->ffdata[i]].type!=cCHANGE)
+	    if(!(tmpscr->ffflags[i]&ffCHANGER))
 		{
 	    current_ffcombo = i;
 		return combobuf[tmpscr->ffdata[i]].flag;
@@ -1459,7 +1459,7 @@ void update_freeform_combos()
   ffscript_engine();
   for(int i=0;i<32;i++)
   {
-    if(combobuf[tmpscr->ffdata[i]].type!=cCHANGE && tmpscr->ffdata[i]!=0 && !(tmpscr->ffflags[i]&ffSTATIONARY))
+    if(!(tmpscr->ffflags[i]&ffCHANGER) && tmpscr->ffdata[i]!=0 && !(tmpscr->ffflags[i]&ffSTATIONARY))
     {
       if(tmpscr->fflink[i] ? !tmpscr->ffdelay[tmpscr->fflink[i]] : !tmpscr->ffdelay[i])
       {
@@ -1546,7 +1546,7 @@ void update_freeform_combos()
       {
         if(i!=j)
         {
-          if(combobuf[tmpscr->ffdata[j]].type==cCHANGE)
+          if(tmpscr->ffflags[j]&ffCHANGER)
           {
             if((((tmpscr->ffx[j]/10000)!=ffposx[i])||((tmpscr->ffy[j]/10000)!=ffposy[i]))&&(tmpscr->fflink[i]==0))
             {
@@ -1966,7 +1966,6 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
 	//10. Blit temp_buf onto framebuf with clipping
 	//11. Clear temp_buf2 and draw some text on it
 	//12. Blit temp_buf2 onto framebuf without clipping
-	//good lord.
 	clear_bitmap(framebuf);
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2); 
 	clear_bitmap(temp_buf);
@@ -2034,16 +2033,18 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
         decorations.draw2(temp_buf,true);
       Link.draw(temp_buf);
       decorations.draw(temp_buf,true);
-      overcombo(temp_buf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2));
-      putcombo (temp_buf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ));
+      int ccx = (int)(Link.getClimbCoverX());
+      int ccy = (int)(Link.getClimbCoverY());
+
+      overcombo(temp_buf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
+      putcombo (temp_buf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
       if(int(Link.getX())&15)
       {
-        overcombo(temp_buf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2));
-        putcombo (temp_buf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ));
+        overcombo(temp_buf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
+        putcombo (temp_buf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
       }
     }
   }
-  
   if (layer2!=NULL)
   {
     do_layer(temp_buf,0, layer2, x2, y2, 3);
@@ -2063,8 +2064,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
   {
     if(layer1->ffdata[i])
     {
-      int c=combobuf[layer1->ffdata[i]].type;
-      if(c!=cCHANGE)
+      if(!(tmpscr->ffflags[i]&ffCHANGER))
       {
         if(!(layer1->ffflags[i]&ffOVERLAY))
         {
@@ -2113,12 +2113,15 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
         decorations.draw2(temp_buf,true);
       Link.draw(temp_buf);
       decorations.draw(temp_buf,true);
-      overcombo(temp_buf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())+cmby2));
-      putcombo (temp_buf,int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX()),int(Link.getClimbCoverY())      ));
+      int ccx = (int)(Link.getClimbCoverX());
+      int ccy = (int)(Link.getClimbCoverY());
+
+      overcombo(temp_buf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
+      putcombo (temp_buf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
       if(int(Link.getX())&15)
       {
-        overcombo(temp_buf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2+playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())+cmby2));
-        putcombo (temp_buf,int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      +playing_field_offset,MAPCOMBO(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ),MAPCSET(int(Link.getClimbCoverX())+16,int(Link.getClimbCoverY())      ));
+        overcombo(temp_buf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
+        putcombo (temp_buf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
       }
     }
   }
@@ -2182,6 +2185,9 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
   {
     if (!Link.isSwimming())
     {
+      if (Link.getZ()>0) {
+        Link.drawshadow(temp_buf2,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
+      }
       decorations.draw2(temp_buf2,true);
       Link.draw(temp_buf2);
       decorations.draw(temp_buf2,true);
@@ -2204,6 +2210,9 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
       {
         guys.spr(i)->draw(temp_buf2);
       }
+    }
+    if (guys.spr(i)->z > Link.getZ()) { //Jumping enemies in front of Link.
+	guys.spr(i)->draw(temp_buf2);
     }
   }
   set_clip_rect(framebuf,0,0,255,223); 
@@ -2253,14 +2262,28 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
   set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2); 
   blit(temp_buf, framebuf, 0, 0, 0, 0, 255, 223);
   
-  for(int i=0; i<guys.Count(); i++)
+/* 
+  //Commented out: jumping Link and jumping enemies are drawn on this layer.
+  
+  if (Link.getZ() > 0)
+    Link.draw(temp_buf2);
+*/    
+  if (!get_bit(quest_rules,qr_ENEMIESZAXIS)) for(int i=0; i<guys.Count(); i++)
   {
-    if(isflier(guys.spr(i)->id))
+    if((isflier(guys.spr(i)->id))/* || guys.spr(i)->z > 0*/)
     {
       guys.spr(i)->draw(temp_buf2);
-    }
+    }/*
+    if(guys.spr(i)->id == eCEILINGM)
+    {
+      if (((eCEILINGM*)guys.spr(i))->haslink)
+      {
+        guys.spr(i)->draw(temp_buf2);
+      }
+    }*/
   }
-	
+
+        
   set_clip_rect(framebuf,0,0,255,223); 
   masked_blit(temp_buf2, framebuf, 0, 0, 0, 0, 255, 223);
   masked_blit(temp_buf2, temp_buf, 0, 0, 0, 0, 255, 223);
@@ -2285,8 +2308,7 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
   {
     if(layer1->ffdata[i])
     {
-      int c=combobuf[layer1->ffdata[i]].type;
-      if(c!=cCHANGE)
+      if(!(layer1->ffflags[i]&ffCHANGER))
       {
         if(layer1->ffflags[i]&ffOVERLAY)
         {
@@ -3219,7 +3241,7 @@ bool hit_walkflag(int x,int y,int cnt)
   if(x<16 || y<16 || (x+(cnt-1)*8)>=240 || y>=160)
     return true;
   //  for(int i=0; i<4; i++)
-  if(mblock2.clk && mblock2.hit(x,y,cnt*8,1))
+  if(mblock2.clk && mblock2.hit(x,y,0,cnt*8,1,16))
     return true;
   return _walkflag(x,y,cnt);
 }

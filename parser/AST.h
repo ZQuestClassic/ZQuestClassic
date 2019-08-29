@@ -38,6 +38,7 @@ class ASTTypeFFC;
 class ASTTypeItem;
 class ASTTypeItemclass;
 class ASTTypeGlobal;
+class ASTTypeNPC;
 class ASTVarDeclInitializer;
 class ASTExpr;
 class ASTExprAnd;
@@ -100,6 +101,7 @@ public:
 	virtual void caseTypeFFC(ASTTypeFFC &host, void *param) {void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/  caseDefault(param);}
 	virtual void caseTypeItem(ASTTypeItem &host, void *param) {void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/  caseDefault(param);}
 	virtual void caseTypeItemclass(ASTTypeItemclass &host, void *param) {void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/  caseDefault(param);}
+	virtual void caseTypeNPC(ASTTypeNPC &, void *param) {caseDefault(param);}
 	virtual void caseTypeGlobal(ASTTypeGlobal &host, void *param) {void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/  caseDefault(param);}
 	virtual void caseVarDecl(ASTVarDecl &host, void *param) {void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/  caseDefault(param);}
 	virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param) {void *temp; temp=&host; param=param; /*these are here to bypass compiler warnings about unused arguments*/  caseDefault(param);}
@@ -438,6 +440,20 @@ private:
 	//NOT IMPLEMENTED; DO NOT USE
 	ASTTypeItemclass(ASTTypeItemclass &);
 	ASTTypeItemclass &operator=(ASTTypeItemclass &);
+};
+
+class ASTTypeNPC : public ASTType
+{
+public:
+	ASTTypeNPC(LocationData Loc) : ASTType(Loc) {}
+	void execute(ASTVisitor &visitor, void *param)
+	{
+		visitor.caseTypeNPC(*this,param);
+	}
+private:
+	//NOT IMPLEMENTED; DO NOT USE
+	ASTTypeNPC(ASTTypeNPC &);
+	ASTTypeNPC &operator=(ASTTypeNPC &);
 };
 
 class ASTVarDecl : public ASTDecl

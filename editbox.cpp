@@ -52,6 +52,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 	int ret = D_O_K;
   
 	static clock_t ticks;
+	bool dontredraw=false;
 	switch(msg)
 	{
 	case MSG_START:
@@ -199,6 +200,11 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 				break;
 			case KEY_ESC:
 				return D_EXIT;
+			case KEY_F1:
+				model->doHelp();
+				ret = D_USED_CHAR;
+				dontredraw=true;
+				break;
 			}
 			//selection post-processing
 			if (key[KEY_LSHIFT]||key[KEY_RSHIFT])
@@ -264,7 +270,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 		}
     
 	}
-	if(ret == D_USED_CHAR)
+	if(ret == D_USED_CHAR && !dontredraw)
 	{
 		//redraw
 		if(!model->getCursor().isVisible())

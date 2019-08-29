@@ -145,15 +145,15 @@ long get_arg(long arg, byte i)
     case FFFLAGSD:
       ret=((tmpscr->ffflags[*ffc]>>((*(d[0]))/10000))&1)?10000:0; break;
     case FFCWIDTH:
-      ret=((tmpscr->ffwidth[*ffc]&63)+1)*10000;
+      ret=((tmpscr->ffwidth[*ffc]&63)+1)*10000; break;
     case FFCHEIGHT:
-      ret=((tmpscr->ffheight[*ffc]&63)+1)*10000;
+      ret=((tmpscr->ffheight[*ffc]&63)+1)*10000; break;
     case FFTWIDTH:
-      ret=((tmpscr->ffwidth[*ffc]>>6)+1)*10000;
+      ret=((tmpscr->ffwidth[*ffc]>>6)+1)*10000; break;
     case FFTHEIGHT:
-      ret=((tmpscr->ffheight[*ffc]>>6)+1)*10000;
+      ret=((tmpscr->ffheight[*ffc]>>6)+1)*10000; break;
     case FFLINK:
-      ret=(tmpscr->fflink[*ffc])*10000;
+      ret=(tmpscr->fflink[*ffc])*10000; break;
     case LINKX:
       ret=(int)(Link.getX())*10000; break;
     case LINKY:
@@ -170,8 +170,8 @@ long get_arg(long arg, byte i)
       ret=(int)(get_gamedata_maxmagic())*10000; break;
     case LINKACTION:
       ret=(int)(Link.getAction())*10000; break;
-	case LINKITEMD:
-		ret = game->item[(*d[0])/10000] ? 10000 : 0;
+    case LINKITEMD:
+      ret = game->item[(*d[0])/10000] ? 10000 : 0; break;
     case INPUTSTART:
       ret=control_state[6]?10000:0; break;
     case INPUTUP:
@@ -275,93 +275,93 @@ long get_arg(long arg, byte i)
     case NPCEXTEND:
       ret=((enemy*)(guys.spr(*guyref)))->extend*10000; break;
     case LWPNX:
-      ret=(int)((weapon*)(Lwpns.spr(*lwpn)))->x*10000;
+      ret=(int)((weapon*)(Lwpns.spr(*lwpn)))->x*10000; break;
     case LWPNY:
-      ret=(int)((weapon*)(Lwpns.spr(*lwpn)))->y*10000;
+      ret=(int)((weapon*)(Lwpns.spr(*lwpn)))->y*10000; break;
     case LWPNDIR:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->dir*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->dir*10000; break;
     case LWPNSTEP:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->step*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->step*10000; break;
     case LWPNANGLE:
-      ret=int(((weapon*)(Lwpns.spr(*lwpn)))->angle*10000);
+      ret=int(((weapon*)(Lwpns.spr(*lwpn)))->angle*10000); break;
     case LWPNANGULAR:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->angular*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->angular*10000; break;
     case LWPNDRAWTYPE:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->drawstyle*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->drawstyle*10000; break;
     case LWPNPOWER:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->power*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->power*10000; break;
     case LWPNDEAD:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->dead*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->dead*10000; break;
     case LWPNID:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->id*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->id*10000; break;
     case LWPNTILE:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->tile*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->tile*10000; break;
     case LWPNCSET:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->cs*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->cs*10000; break;
     case LWPNFLASHCSET:
-      ret=(((weapon*)(Lwpns.spr(*lwpn)))->o_cset>>4)*10000;
+      ret=(((weapon*)(Lwpns.spr(*lwpn)))->o_cset>>4)*10000; break;
     case LWPNFRAMES:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->frames*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->frames*10000; break;
     case LWPNFRAME:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->aframe*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->aframe*10000; break;
     case LWPNASPEED:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->o_speed*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->o_speed*10000; break;
     case LWPNFLASH:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->flash*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->flash*10000; break;
     case LWPNFLIP:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->flip*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->flip*10000; break;
     case LWPNCOUNT:
-      ret=Lwpns.Count()*10000;
+      ret=Lwpns.Count()*10000; break;
     case LWPNEXTEND:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->extend*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->extend*10000; break;
     case LWPNOTILE:
-      ret=((weapon*)(Lwpns.spr(*lwpn)))->o_tile*10000;
+      ret=((weapon*)(Lwpns.spr(*lwpn)))->o_tile*10000; break;
     case LWPNOCSET:
-      ret=(((weapon*)(Lwpns.spr(*lwpn)))->o_cset&15)*10000;
+      ret=(((weapon*)(Lwpns.spr(*lwpn)))->o_cset&15)*10000; break;
     case EWPNX:
-      ret=(int)((weapon*)(Ewpns.spr(*ewpn)))->x*10000;
+      ret=(int)((weapon*)(Ewpns.spr(*ewpn)))->x*10000; break;
     case EWPNY:
-      ret=(int)((weapon*)(Ewpns.spr(*ewpn)))->y*10000;
+      ret=(int)((weapon*)(Ewpns.spr(*ewpn)))->y*10000; break;
     case EWPNDIR:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->dir*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->dir*10000; break;
     case EWPNSTEP:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->step*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->step*10000; break;
     case EWPNANGLE:
-      ret=int(((weapon*)(Ewpns.spr(*ewpn)))->angle*10000);
+      ret=int(((weapon*)(Ewpns.spr(*ewpn)))->angle*10000); break;
     case EWPNANGULAR:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->angular*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->angular*10000; break;
     case EWPNDRAWTYPE:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->drawstyle*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->drawstyle*10000; break;
     case EWPNPOWER:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->power*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->power*10000; break;
     case EWPNDEAD:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->dead*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->dead*10000; break;
     case EWPNID:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->id*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->id*10000; break;
     case EWPNTILE:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->tile*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->tile*10000; break;
     case EWPNCSET:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->cs*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->cs*10000; break;
     case EWPNFLASHCSET:
-      ret=(((weapon*)(Ewpns.spr(*ewpn)))->o_cset>>4)*10000;
+      ret=(((weapon*)(Ewpns.spr(*ewpn)))->o_cset>>4)*10000; break;
     case EWPNFRAMES:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->frames*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->frames*10000; break;
     case EWPNFRAME:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->aframe*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->aframe*10000; break;
     case EWPNASPEED:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->o_speed*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->o_speed*10000; break;
     case EWPNFLASH:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->flash*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->flash*10000; break;
     case EWPNFLIP:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->flip*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->flip*10000; break;
     case EWPNCOUNT:
-      ret=Ewpns.Count()*10000;
+      ret=Ewpns.Count()*10000; break;
     case EWPNEXTEND:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->extend*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->extend*10000; break;
     case EWPNOTILE:
-      ret=((weapon*)(Ewpns.spr(*ewpn)))->o_tile*10000;
+      ret=((weapon*)(Ewpns.spr(*ewpn)))->o_tile*10000; break;
     case EWPNOCSET:
-      ret=(((weapon*)(Ewpns.spr(*ewpn)))->o_cset&15)*10000;
+      ret=(((weapon*)(Ewpns.spr(*ewpn)))->o_cset&15)*10000; break;
     case GAMEDEATHS:
       ret=get_gamedata_deaths(game)*10000; break;
     case GAMECHEAT:
@@ -435,11 +435,11 @@ long get_arg(long arg, byte i)
     case REFNPCCLASS:
       ret=(*gclass)*10000; break;
     case SDD:
-      ret=game->screen_d[di][*(d[0])/10000];
+      ret=game->screen_d[di][*(d[0])/10000]; break;
     case GDD:
-      ret=game->global_d[*(d[0])/10000];
+      ret=game->global_d[*(d[0])/10000]; break;
     case SDDD:
-      ret=game->screen_d[*(d[0])/10000][*(d[1])/10000];
+      ret=game->screen_d[*(d[0])/10000][*(d[1])/10000]; break;
     case SP:
       ret = (*sp)*10000; break;
     default:
@@ -578,15 +578,15 @@ void set_variable(long arg, byte i, long value)
     case FFFLAGSD:
     (value/10000)?tmpscr->ffflags[*ffc]|=((value/10000)?1:0)<<((*(d[0]))/10000):tmpscr->ffflags[*ffc]&=~(((value/10000)?1:0)<<((*(d[0]))/10000)); break;
     case FFCWIDTH:
-    tmpscr->ffwidth[*ffc]|=((value/10000)-1)&63;
+    tmpscr->ffwidth[*ffc]=((value/10000)-1)&63; break;
     case FFCHEIGHT:
-      tmpscr->ffheight[*ffc]|=((value/10000)-1)&63;
+      tmpscr->ffheight[*ffc]=((value/10000)-1)&63; break;
     case FFTWIDTH:
-      tmpscr->ffwidth[*ffc]|=(((value/10000)-1)&3)<<6;
+      tmpscr->ffwidth[*ffc]=(((value/10000)-1)&3)<<6; break;
     case FFTHEIGHT:
-      tmpscr->ffheight[*ffc]|=(((value/10000)-1)&3)<<6;
+      tmpscr->ffheight[*ffc]=(((value/10000)-1)&3)<<6; break;
     case FFLINK:
-      (tmpscr->fflink[*ffc])=vbound(value/10000,1,32);
+      (tmpscr->fflink[*ffc])=vbound(value/10000,1,32); break;
     case LINKX:
       Link.setX(value/10000); break;
     case LINKY:
@@ -670,93 +670,93 @@ void set_variable(long arg, byte i, long value)
     case ITEMEXTEND:
       (items.spr(*itemref)->extend)=value/10000; break;
     case LWPNX:
-      ((weapon*)(Lwpns.spr(*lwpn)))->x=(fix)value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->x=(fix)value/10000; break;
     case LWPNY:
-      ((weapon*)(Lwpns.spr(*lwpn)))->y=(fix)value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->y=(fix)value/10000; break;
     case LWPNDIR:
-      ((weapon*)(Lwpns.spr(*lwpn)))->dir=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->dir=value/10000; break;
     case LWPNSTEP:
-      ((weapon*)(Lwpns.spr(*lwpn)))->step=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->step=value/10000; break;
     case LWPNANGLE:
-      ((weapon*)(Lwpns.spr(*lwpn)))->angle=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->angle=value/10000; break;
     case LWPNANGULAR:
-      ((weapon*)(Lwpns.spr(*lwpn)))->angular=(value/10000) != 0;
+      ((weapon*)(Lwpns.spr(*lwpn)))->angular=(value/10000) != 0; break;
     case LWPNDRAWTYPE:
-      ((weapon*)(Lwpns.spr(*lwpn)))->drawstyle=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->drawstyle=value/10000; break;
     case LWPNPOWER:
-      ((weapon*)(Lwpns.spr(*lwpn)))->power=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->power=value/10000; break;
     case LWPNDEAD:
-      ((weapon*)(Lwpns.spr(*lwpn)))->dead=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->dead=value/10000; break;
     case LWPNID:
-      ((weapon*)(Lwpns.spr(*lwpn)))->id=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->id=value/10000; break;
     case LWPNTILE:
-      ((weapon*)(Lwpns.spr(*lwpn)))->tile=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->tile=value/10000; break;
     case LWPNCSET:
-      ((weapon*)(Lwpns.spr(*lwpn)))->cs=(value/10000)&15;
+      ((weapon*)(Lwpns.spr(*lwpn)))->cs=(value/10000)&15; break;
     case LWPNFLASHCSET:
-      (((weapon*)(Lwpns.spr(*lwpn)))->o_cset)|=(value/10000)<<4;
+      (((weapon*)(Lwpns.spr(*lwpn)))->o_cset)|=(value/10000)<<4; break;
     case LWPNFRAMES:
-      ((weapon*)(Lwpns.spr(*lwpn)))->frames=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->frames=value/10000; break;
     case LWPNFRAME:
-      ((weapon*)(Lwpns.spr(*lwpn)))->aframe=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->aframe=value/10000; break;
     case LWPNASPEED:
-      ((weapon*)(Lwpns.spr(*lwpn)))->o_speed=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->o_speed=value/10000; break;
     case LWPNFLASH:
-      ((weapon*)(Lwpns.spr(*lwpn)))->flash=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->flash=value/10000; break;
     case LWPNFLIP:
-      ((weapon*)(Lwpns.spr(*lwpn)))->flip=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->flip=value/10000; break;
     case LWPNEXTEND:
-      ((weapon*)(Lwpns.spr(*lwpn)))->extend=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->extend=value/10000; break;
     case LWPNOTILE:
-      ((weapon*)(Lwpns.spr(*lwpn)))->o_tile=value/10000;
+      ((weapon*)(Lwpns.spr(*lwpn)))->o_tile=value/10000; break;
     case LWPNOCSET:
-      (((weapon*)(Lwpns.spr(*lwpn)))->o_cset)|=(value/10000)&15;
+      (((weapon*)(Lwpns.spr(*lwpn)))->o_cset)|=(value/10000)&15; break;
     case EWPNX:
-      ((weapon*)(Ewpns.spr(*ewpn)))->x=(fix)value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->x=(fix)value/10000; break;
     case EWPNY:
-      ((weapon*)(Ewpns.spr(*ewpn)))->y=(fix)value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->y=(fix)value/10000; break;
     case EWPNDIR:
-      ((weapon*)(Ewpns.spr(*ewpn)))->dir=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->dir=value/10000; break;
     case EWPNSTEP:
-      ((weapon*)(Ewpns.spr(*ewpn)))->step=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->step=value/10000; break;
     case EWPNANGLE:
-      ((weapon*)(Ewpns.spr(*ewpn)))->angle=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->angle=value/10000; break;
     case EWPNANGULAR:
-      ((weapon*)(Ewpns.spr(*ewpn)))->angular=(value/10000)!=0;
+      ((weapon*)(Ewpns.spr(*ewpn)))->angular=(value/10000)!=0; break;
     case EWPNDRAWTYPE:
-      ((weapon*)(Ewpns.spr(*ewpn)))->drawstyle=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->drawstyle=value/10000; break;
     case EWPNPOWER:
-      ((weapon*)(Ewpns.spr(*ewpn)))->power=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->power=value/10000; break;
     case EWPNDEAD:
-      ((weapon*)(Ewpns.spr(*ewpn)))->dead=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->dead=value/10000; break;
     case EWPNID:
-      ((weapon*)(Ewpns.spr(*ewpn)))->id=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->id=value/10000; break;
     case EWPNTILE:
-      ((weapon*)(Ewpns.spr(*ewpn)))->tile=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->tile=value/10000; break;
     case EWPNCSET:
-      ((weapon*)(Ewpns.spr(*ewpn)))->cs=(value/10000)&15;
+      ((weapon*)(Ewpns.spr(*ewpn)))->cs=(value/10000)&15; break;
     case EWPNFLASHCSET:
-      (((weapon*)(Ewpns.spr(*ewpn)))->o_cset)|=(value/10000)<<4;
+      (((weapon*)(Ewpns.spr(*ewpn)))->o_cset)|=(value/10000)<<4; break;
     case EWPNFRAMES:
-      ((weapon*)(Ewpns.spr(*ewpn)))->frames=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->frames=value/10000; break;
     case EWPNFRAME:
-      ((weapon*)(Ewpns.spr(*ewpn)))->aframe=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->aframe=value/10000; break;
     case EWPNASPEED:
-      ((weapon*)(Ewpns.spr(*ewpn)))->o_speed=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->o_speed=value/10000; break;
     case EWPNFLASH:
-      ((weapon*)(Ewpns.spr(*ewpn)))->flash=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->flash=value/10000; break;
     case EWPNFLIP:
-      ((weapon*)(Ewpns.spr(*ewpn)))->flip=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->flip=value/10000; break;
     case EWPNEXTEND:
-      ((weapon*)(Ewpns.spr(*ewpn)))->extend=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->extend=value/10000; break;
     case EWPNOTILE:
-      ((weapon*)(Ewpns.spr(*ewpn)))->o_tile=value/10000;
+      ((weapon*)(Ewpns.spr(*ewpn)))->o_tile=value/10000; break;
     case EWPNOCSET:
-      (((weapon*)(Ewpns.spr(*ewpn)))->o_cset)|=(value/10000)&15;
+      (((weapon*)(Ewpns.spr(*ewpn)))->o_cset)|=(value/10000)&15; break;
     case NPCX:
-      (guys.spr(*guyref)->x)=(fix)value/10000; break;
+      (guys.spr(*guyref)->x)=(fix)(value/10000); break;
     case NPCY:
-      (guys.spr(*guyref)->y)=(fix)value/10000; break;
+      (guys.spr(*guyref)->y)=(fix)(value/10000); break;
     case NPCDIR:
       (guys.spr(*guyref)->dir)=value/10000; break;
     case NPCRATE:
@@ -1801,7 +1801,7 @@ void do_createlweapon(int script, word *pc, byte i, bool v)
   {
     temp=get_arg(*arg1,i)/10000;
   }
-  addLwpn(0,0,temp,0,0,0);
+  addLwpn(0,0,0,temp,0,0,0);
   *wpnref=Lwpns.Count()-1;
 }
 
@@ -1837,7 +1837,7 @@ void do_createeweapon(int script, word *pc, byte i, bool v)
   {
     temp=get_arg(*arg1,i)/10000;
   }
-  addEwpn(0,0,temp,0,0,0);
+  addEwpn(0,0,0,temp,0,0,0);
   *wpnref=Ewpns.Count()-1;
 }
 
@@ -2332,4 +2332,5 @@ int read_stack(int script, byte i, int sp)
   }
   return (*st)[sp];
 }
+
 

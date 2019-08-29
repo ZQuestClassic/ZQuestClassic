@@ -27,9 +27,10 @@ extern bool is_zquest();
 
 sprite::sprite()
 {
-  x=y=ground_y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=ground_yofs=zofs=hxofs=hyofs=0;
+  x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=zofs=hxofs=hyofs=fall=0;
   id=-1;
   hxsz=hysz=16;
+  hzsz=1;
   yofs=playing_field_offset;
   dir=down;
   angular=canfreeze=false;
@@ -111,11 +112,6 @@ int sprite::real_y(fix fy)
   return fy.v>>16;
 }
 
-int sprite::real_ground_y(fix fy)
-{
-  return fy.v>>16;
-}
-
 int sprite::real_z(fix fz)
 {
   return fz.v>>16;
@@ -127,14 +123,14 @@ bool sprite::hit(sprite *s)
   if (halt)
   {
   }
-  return hit(s->x+s->hxofs,s->y+s->hyofs,s->hxsz,s->hysz);
+  return hit(s->x+s->hxofs,s->y+s->hyofs,s->z+s->zofs,s->hxsz,s->hysz,s->hzsz);
 }
 
-bool sprite::hit(int tx,int ty,int txsz,int tysz)
+bool sprite::hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz)
 {
   if(id<0 || clk<0) return false;
-  return (tx+txsz>x+hxofs && ty+tysz>y+hyofs && tx<x+hxofs+hxsz
-          && ty<y+hyofs+hysz);
+  return (tx+txsz>x+hxofs && ty+tysz>y+hyofs && tz+tzsz>z+zofs &&
+          tx<x+hxofs+hxsz && ty<y+hyofs+hysz && tz<z+zofs+hzsz);
 }
 
 int sprite::hitdir(int tx,int ty,int txsz,int tysz,int dir2)
@@ -189,11 +185,8 @@ void sprite::draw(BITMAP* dest)
   {
     return;
   }
-  int sz = real_z(z+zofs);
   int sx = real_x(x+xofs);
-  int sy = real_y(y+yofs);
-
-  sz+=0; //temporarily here to keep from getting "unused variable" compiler warnings.
+  int sy = real_y(y+yofs)-real_z(z+zofs);
 
   if(id<0)
     return;
@@ -259,13 +252,13 @@ void sprite::draw(BITMAP* dest)
   }
 
   if(get_debug() && key[KEY_O] && !is_zquest())
-    rectfill(dest,x+hxofs,y+playing_field_offset+hyofs,x+hxofs+hxsz-1,y+playing_field_offset+hyofs+hysz-1,vc(id));
+    rectfill(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,y+playing_field_offset+hyofs+hysz-1,vc(id));
 }
 
 void sprite::draw8(BITMAP* dest)
 {
   int sx = real_x(x+xofs);
-  int sy = real_y(y+yofs);
+  int sy = real_y(y+yofs)-real_z(z+zofs);
 
   if(id<0)
     return;
@@ -286,7 +279,7 @@ void sprite::draw8(BITMAP* dest)
 void sprite::drawcloaked(BITMAP* dest)
 {
   int sx = real_x(x+xofs);
-  int sy = real_y(y+yofs);
+  int sy = real_y(y+yofs)-real_z(z+zofs);
 
   if(id<0)
     return;
@@ -588,10 +581,10 @@ int sprite_list::hit(sprite *s)
     return -1;
 }
 
-int sprite_list::hit(int x,int y,int xsize, int ysize)
+int sprite_list::hit(int x,int y,int z, int xsize, int ysize, int zsize)
 {
   for(int i=0; i<count; i++)
-    if(sprites[i]->hit(x,y,xsize,ysize))
+    if(sprites[i]->hit(x,y,z,xsize,ysize,zsize))
       return i;
     return -1;
 }

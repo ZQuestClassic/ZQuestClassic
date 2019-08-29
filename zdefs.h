@@ -86,7 +86,7 @@
 #include <string.h>
 
 #define ZELDA_VERSION       0x0211                          //version of the program
-#define VERSION_BUILD       14                              //build number of this version
+#define VERSION_BUILD       15                              //build number of this version
 #define IS_BETA             1                               //is this a beta?
 #define DATE_STR            "January 1, 2006"
 
@@ -406,6 +406,7 @@ extern int readsize, writesize;
 //flags7
 #define fLAYER3BG		  1
 #define fLAYER2BG		  2
+#define fITEMFALLS		  4
 
 
 // enemy flags
@@ -506,7 +507,7 @@ enum
   cSWARPA, cSWARPB, cSWARPC, cSWARPD, cSWARPR, cSTRIGNOFLAG, cSTRIGFLAG,
   cSTEP, cSTEPSAME, cSTEPALL, cSTEPCOPY, cNOENEMY, cBLOCKARROW1, cBLOCKARROW2,
   cBLOCKARROW3, cBLOCKBRANG1, cBLOCKBRANG2, cBLOCKBRANG3, cBLOCKSBEAM, cBLOCKALL,
-  cBLOCKFIREBALL, cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE, cSPINTILE1, cSPINTILE2,
+  cBLOCKFIREBALL, cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE/**DEPRECIATED**/, cSPINTILE1, cSPINTILE2,
   cSCREENFREEZE, cSCREENFREEZEFF, cICE, cSLASHNEXT, cSLASHNEXTITEM, cBUSHNEXT,
   cMAX
 };
@@ -553,6 +554,9 @@ enum
   qr_RINGAFFECTDAMAGE, qr_ALLOW10RUPEEDROPS, qr_TRAPPOSFIX, qr_TEMPCANDLELIGHT,
   //12
   qr_REDPOTIONONCE, qr_OLDSTYLEWARP, qr_NOBORDER,qr_OLDTRIBBLES,
+  qr_REFLECTROCKS, qr_OLDPICKUP, qr_ENEMIESZAXIS, qr_SAFEENEMYFADE,
+  //13
+  qr_MORESOUNDS,qr_BRANGPICKUP,
   
   qr_MAX
 };
@@ -577,8 +581,13 @@ enum { REFILL_BPOTION, REFILL_RPOTION, REFILL_FAIRY, REFILL_TRIFORCE};
 #define LENSDRAINAMOUNT          2
 #define LENSDRAINSPEED           1
 #define BYRNADRAINAMOUNT         2
-#define BYRNADRAINSPEED          .5
-// It's a secret to everybody! ;)
+#define BYRNADRAINSPEED          0.5
+
+//Z-axis related
+#define GRAVITY 16
+#define TERMINALV 320
+#define FEATHERJUMP 320
+
 #define WANDDRAINAMOUNT          8
 #define CANDLEDRAINAMOUNT        4
 #define DINSFIREDRAINAMOUNT     32
@@ -588,12 +597,12 @@ enum { REFILL_BPOTION, REFILL_RPOTION, REFILL_FAIRY, REFILL_TRIFORCE};
 #define BOOTSDRAINSPEED          1
 
 //other
-#define MAXDRUNKCLOCK 500
+#define MAXDRUNKCLOCK          500
 
 enum
 {
   dBUSHLEAVES, dFLOWERCLIPPINGS, dGRASSCLIPPINGS, dHAMMERSMACK,
-  dTALLGRASS, dRIPPLES, dNAYRUSLOVESHIELD, dMAXDECORATIONS
+  dTALLGRASS, dRIPPLES, dNAYRUSLOVESHIELD, dHOVER, dMAXDECORATIONS
 };
 
 // items
@@ -601,23 +610,32 @@ enum                                                        // value matters bec
 {
   iRupy, i5Rupies, iHeart, iBombs, iClock,
   iSword, iWSword, iMSword, iShield, iKey,
-  iBCandle, iRCandle, iLetter, iArrow, iSArrow,             /*10*/
+  // 10
+  iBCandle, iRCandle, iLetter, iArrow, iSArrow,
   iBow, iBait, iBRing, iRRing, iBracelet,
-  iTriforce, iMap, iCompass, iBrang, iMBrang,               /*20*/
+  // 20
+  iTriforce, iMap, iCompass, iBrang, iMBrang,
   iWand, iRaft,iLadder,iHeartC, iBPotion,
-  iRPotion, iWhistle,iBook, iMKey, iFairyMoving,            /*30*/
+  // 30
+  iRPotion, iWhistle,iBook, iMKey, iFairyMoving,
   iFBrang, iXSword, iMShield, i20Rupies, i50Rupies,
-  i200Rupies, iWallet500, iWallet999, iPile, iBigTri,       /*40*/
+  // 40
+  i200Rupies, iWallet500, iWallet999, iPile, iBigTri,
   iSelectA, iMisc1, iMisc2, iSBomb, iHCPiece,
-  iAmulet, iFlippers, iHookshot, iLens, iHammer,            /*50*/
+  // 50
+  iAmulet, iFlippers, iHookshot, iLens, iHammer,
   iBoots, iL2Bracelet, iGArrow, iMagicC, iSMagic,
-  iLMagic, iGRing, iKillAll, iL2Amulet, iDinsFire,          /*60*/
+  // 60
+  iLMagic, iGRing, iKillAll, iL2Amulet, iDinsFire,
   iFaroresWind, iNayrusLove, iBossKey, iBow2, iFairyStill,
+  // 70
   i1ArrowAmmo, i5ArrowAmmo, i10ArrowAmmo, i30ArrowAmmo, iQuiver,
   iQuiverL2, iQuiverL3, i1BombAmmo, i4BombAmmo, i8BombAmmo,
-  i30BombAmmo, iBombBag, iBombBagL2, iBombBagL3,
-  iLevelKey, iSelectB, i10Rupies, i100Rupies, iCByrna, iLongshot,
-  iLetterUsed,i90,
+  // 90
+  i30BombAmmo, iBombBag, iBombBagL2, iBombBagL3, iLevelKey,
+  iSelectB, i10Rupies, i100Rupies, iCByrna, iLongshot,
+  // 100
+  iLetterUsed,iRocsFeather,iHoverBoots,/*iSShield,*/i90,
   iMax=256
 };
 
@@ -644,14 +662,14 @@ enum
   wNAYRUSLOVE2A, wNAYRUSLOVE2B, wNAYRUSLOVES2A, wNAYRUSLOVES2B,
   iwNayrusLoveShieldFront, iwNayrusLoveShieldBack, iwSubscreenVine, wCBYRNA, wCBYRNASLASH,
   wLSHEAD, wLSCHAIN_H, wLSHANDLE, wLSCHAIN_V, wSBOOM, ewBOMB, ewSBOMB,
-  ewBOOM, ewSBOOM, ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, w84, wMAX=256
+  ewBOOM, ewSBOOM, ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, iwHover, w84, wMAX=256
 };
 
 // weapon types in game engine
 enum
 {
   wNone,wSword,wBeam,wBrang,wBomb,wSBomb,wLitBomb,wLitSBomb,wArrow,
-  wFire,wWhistle,wBait,wWand,wMagic,wCatching,wWind,wRefMagic,wRefFireball,
+  wFire,wWhistle,wBait,wWand,wMagic,wCatching,wWind,wRefMagic,wRefFireball,wRefRock,
   wHammer, wHookshot,
   wHSHandle, wHSChain, wSSparkle, wGSparkle, wMSparkle, wFSparkle,
   wSmack, wGArrow, ewFlame, ewWind, wPhantom, wCByrna,
@@ -751,7 +769,7 @@ enum
 };
 
 // enemy patters
-enum { pRANDOM, pSIDES };
+enum { pRANDOM, pSIDES, pSIDESR, pCEILING };
 
 enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
@@ -867,14 +885,16 @@ typedef struct item_drop_object
 #define ffSOLID         0x00000004
 #define ffCARRYOVER     0x00000008
 #define ffSTATIONARY    0x00000010
+#define ffCHANGER       0x00000020 //Is a changer
 
 //FF combo changer flags
 
-#define ffSWAPNEXT      0x80000000
-#define ffSWAPPREV      0x40000000
-#define ffCHANGENEXT    0x20000000
-#define ffCHANGEPREV    0x10000000 
-#define ffCHANGETHIS    0x08000000
+#define ffSWAPNEXT      0x80000000 //Swap speed with next FFC
+#define ffSWAPPREV      0x40000000 //Swap speed with prev. FFC
+#define ffCHANGENEXT    0x20000000 //Increase combo ID
+#define ffCHANGEPREV    0x10000000 //Decrease combo ID
+#define ffCHANGETHIS    0x08000000 //Change combo/cset to this
+#define ffCHANGESPEED   0x04000000 //Change speed to this (default, not implemented yet)
 
 typedef struct guydata
 {
@@ -1041,6 +1061,71 @@ enum
   sMSWORDBEAM, sXSWORDBEAM, sHOOKSHOT, sWAND, sHAMMER, sSTRIKE
 };
 
+typedef struct comboclass
+{
+  char  name[64];
+  byte  block_enemies;
+  byte  block_hole;
+  byte  block_trigger;
+  byte  block_weapon[32];
+  byte  conveyor_direction;
+  word  create_enemy;
+  byte  create_enemy_when;
+  long  create_enemy_change;
+  byte  directional_change_type;
+  long  distance_change_tiles;
+  short dive_item;
+  byte  dock;
+  byte  fairy;
+  byte  ff_combo_attr_change;
+  long  foot_decorations_tile;
+  byte  foot_decorations_type;
+  byte  hookshot_grab_point;
+  byte  ladder_pass;
+  byte  lock_block_type;
+  long  lock_block_change;
+  byte  magic_mirror_type;
+  short modify_hp_amount;
+  byte  modify_hp_delay;
+  byte  modify_hp_type;
+  short modify_mp_amount;
+  byte  modify_mp_delay;
+  byte  modify_mp_type;
+  byte  no_push_blocks;
+  byte  overhead;
+  byte  place_enemy;
+  byte  push_direction;
+  byte  push_weight;
+  byte  push_wait;
+  byte  pushed;
+  byte  raft;
+  byte  reset_room;
+  byte  save_point_type;
+  byte  screen_freeze_type;
+  byte  secret_combo;
+  byte  singular;
+  byte  slow_movement;
+  byte  statue_type;
+  byte  step_type;
+  long  step_change_to;
+  byte  strike_weapons[32];
+  long  strike_remnants;
+  byte  strike_remnants_type;
+  long  strike_change;
+  short strike_item;
+  short touch_item;
+  byte  touch_stairs;
+  byte  trigger_type;
+  byte  trigger_sensitive;
+  byte  warp_type;
+  byte  warp_sensitive;
+  byte  warp_direct;
+  byte  warp_location;
+  byte  water;
+  byte  whistle;
+  byte  win_game;
+};
+
 enum {cfOFFSET, cfMAX};
 
 typedef struct newcombo
@@ -1050,7 +1135,7 @@ typedef struct newcombo
   byte walk;
   byte type;
   byte csets;
-  word foo;                                                 //do not change!  used for positioning!  no idea why.
+  word foo; // used in zq_tiles for some reason. May be redundant. -- L.
   byte frames;
   byte speed;
   word nextcombo;
@@ -1380,10 +1465,10 @@ enum // used for gamedata ITEMS
   itype_dinsfire, itype_faroreswind, itype_nayruslove, itype_bomb,
   itype_sbomb, itype_clock, itype_key, itype_magiccontainer,
   itype_triforcepiece, itype_map, itype_compass, itype_bosskey,
-  itype_quiver, itype_lkey, itype_cbyrna, 
+  itype_quiver, itype_lkey, itype_cbyrna,
   itype_rupee, itype_arrowammo, itype_fairy, itype_magic, itype_heart,
   itype_heartcontainer, itype_heartpiece, itype_killem, itype_bombammo, itype_bombbag,
-  itype_last,
+  itype_rocs, itype_hoverboots, itype_last,
   itype_max=255
 };
 
@@ -1416,6 +1501,8 @@ enum {i_faroreswind=1, imax_faroreswind};
 enum {i_nayruslove=1, imax_nayruslove};
 enum {i_quiver=1, i_quiverl2, i_quiverl3, imax_quiver};
 enum {i_cbyrna=1, imax_cbyrna};
+enum {i_rocs=1, imax_rocs};
+enum {i_hoverboots=1, imax_hoverboots};
 enum {i_rupee=1, i_5rupee, i_10rupee, i_20rupee, i_50rupee, i_100rupee, i_200rupee, imax_rupee};
 enum {i_arrowa=1, i_5arrowa, i_10arrowa, i_30arrowa, imax_arrowa};
 enum {i_bomba=1, i_4bomba, i_8bomba, i_30bomba, imax_bomba};
@@ -1486,12 +1573,12 @@ typedef struct gamedata
 enum
 {
   idE_RAFT, idE_LADDER, idE_BOOK, idE_KEY,
-  idE_FLIPPERS, idE_BOOTS, idE_MAX
+  idE_FLIPPERS, idE_BOOTS, idE_HOVERBOOTS, idE_MAX
 };
 enum
 {
   idI_WAND, idI_LETTER, idI_LENS, idI_HOOKSHOT,
-  idI_BAIT, idI_HAMMER, idI_CBYRNA, idI_MAX
+  idI_BAIT, idI_HAMMER, idI_CBYRNA, idI_ROCS, idI_MAX
 };
 enum { idI_DFIRE, idI_FWIND, idI_NLOVE, idI_MAX2 };
 enum { idM_CONTPERCENT, idM_DOUBLEMAGIC, idM_CANSLASH, idM_MAX };

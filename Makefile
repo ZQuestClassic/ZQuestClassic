@@ -42,7 +42,7 @@ ifdef COMPILE_FOR_DOS
 else
 ifdef COMPILE_FOR_MACOSX
   PLATEXT = -m
-  ALLEG_LIB = `allegro-config --frameworks`
+  ALLEG_LIB = -framework Cocoa -framework Allegro -lalleg-main
   ZC_PLATFORM = Mac OS X
   ZELDA_PREFIX = zelda
   ZQUEST_PREFIX = zquest
@@ -173,6 +173,8 @@ ifdef COMPILE_FOR_MACOSX
 	cp qst.dat $(ZQUEST_EXE).app/
 	cp fonts.dat $(ZQUEST_EXE).app/
 	cp zquest.txt $(ZQUEST_EXE).app/
+	cp zscript.txt $(ZQUEST_EXE).app/
+	cp std.zh $(ZQUEST_EXE).app/
 	mv $(ZQUEST_EXE).app/Contents/MacOS/$(ZQUEST_EXE) "$(ZQUEST_EXE).app/Contents/MacOS/ZQuest Editor"
 	mv $(ZQUEST_EXE).app "ZQuest Editor.app"
 endif

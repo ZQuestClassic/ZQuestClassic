@@ -8,7 +8,7 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API                             
+#ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
@@ -47,6 +47,7 @@ extern tiledata     *newtilebuf;
 extern byte         *trashbuf;
 extern itemdata     *itemsbuf;
 extern wpndata      *wpnsbuf;
+extern comboclass   *combo_class_buf;
 extern guydata      *guysbuf;
 extern ZCHEATS      zcheats;
 extern zinitdata    zinit;
@@ -660,7 +661,7 @@ PACKFILE *open_quest_file(int *open_error, char *filename, char *deletefilename,
   while(1)
   rectfill(screen, 0, 0, SCREEN_W-1, SCREEN_H-1, 5);
   exit(0);
-*/  
+*/
   if(!oldquest)
   {
     sprintf(deletefilename, "%s", tmpfilename);
@@ -995,6 +996,12 @@ void get_qst_buffers()
     Z_error("Error");
   Z_message("OK\n");                                        // Allocating guy buffer...
 
+  memrequested+=(sizeof(comboclass)*cMAX);
+  Z_message("Allocating combo class buffer (%s)... ", byte_conversion2(sizeof(comboclass)*cMAX,memrequested,-1,-1));
+  if((combo_class_buf=(comboclass*)malloc(sizeof(comboclass)*cMAX))==NULL)
+    Z_error("Error");
+  Z_message("OK\n");                                        // Allocating combo class buffer...
+
 }
 
 bool init_palnames()
@@ -1128,14 +1135,18 @@ void reset_midi(zcmidi *m)
   m->loop_start=-1;
   m->loop_end=-1;
   if(m->midi)
+  {
     destroy_midi(m->midi);
+  }
   m->midi=NULL;
 }
 
 void reset_midis(zcmidi *m)
 {
   for(int i=0; i<MAXCUSTOMMIDIS; i++)
-    reset_midi(m+i);
+  {
+   	  reset_midi(m+i);
+  }
 }
 
 void reset_scr(int scr)
@@ -1913,14 +1924,28 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
   {
     set_bit(quest_rules,qr_NOSCROLLCONTINUE,1);
   }
+  if(tempheader.zelda_version == 0x210)
+  {
+	  set_bit(quest_rules, qr_NOSCROLLCONTINUE, get_bit(quest_rules, qr_CMBCYCLELAYERS));
+	  set_bit(quest_rules, qr_CMBCYCLELAYERS, 0);
+  }
   if(tempheader.zelda_version <= 0x210)
   {
-	set_bit(quest_rules,qr_OLDSTYLEWARP,1);
+    set_bit(quest_rules,qr_OLDSTYLEWARP,1);
   }
   //might not be correct
-  if(tempheader.zelda_version <= 0x190)
+  if(tempheader.zelda_version < 0x210)
   {
 	  set_bit(quest_rules, qr_OLDTRIBBLES,1);
+  }
+  if(tempheader.zelda_version == 0x210)
+  {
+	  set_bit(quest_rules, qr_OLDTRIBBLES, get_bit(quest_rules, qr_DMGCOMBOPRI));
+	  set_bit(quest_rules, qr_DMGCOMBOPRI, 0);
+  }
+  if(tempheader.zelda_version < 0x211 || (tempheader.zelda_version == 0x211 && tempheader.build<15))
+  {
+	  set_bit(quest_rules, qr_OLDPICKUP,1);
   }
   if (keepdata==true)
   {
@@ -2780,7 +2805,7 @@ int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keep
 
   //finally...  section data
   readsize=0;
-  
+
   if(!p_getc(&temp_misc.colors.text,f,true))
   {
     return qe_invalid;
@@ -2931,7 +2956,7 @@ int readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepd
 
   //finally...  section data
   readsize=0;
-  
+
   icons=4;
   for (int i=0; i<icons; i++)
   {
@@ -3507,7 +3532,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata)
   {
     for(int i=0; i<ITEMCNT; i++)
     {
-      sprintf(item_string[i],"z%d",i);
+      sprintf(item_string[i],"z%03d",i);
     }
 	for(int i=0; i<OLDITEMCNT; i++)
     {
@@ -3664,12 +3689,27 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata)
       tempitem.playsound=WAV_SCALE;
       reset_itembuf(&tempitem,i);
     }
-	//Account for older quests that didn't have an actual item for the used letter
-	if(s_cversion < 2 && i==iLetterUsed)
-	{
-		reset_itembuf(&tempitem, iLetterUsed);
-		strcpy(item_string[i],old_item_string[i]);
-	}
+    //Account for older quests that didn't have an actual item for the used letter
+    if(s_cversion < 2 && i==iLetterUsed)
+    {
+      reset_itembuf(&tempitem, iLetterUsed);
+      strcpy(item_string[i],old_item_string[i]);
+    }
+    if(s_cversion < 2 && i==iRocsFeather)
+    {
+      reset_itembuf(&tempitem, iRocsFeather);
+      strcpy(item_string[i],old_item_string[i]);
+    }
+    if(s_cversion < 2 && i==iHoverBoots)
+    {
+      reset_itembuf(&tempitem, iHoverBoots);
+      strcpy(item_string[i],old_item_string[i]);
+    }
+    /* Fixup for a few quests made during October 2006. */
+    if(tempitem.playsound==25)
+      tempitem.playsound=WAV_SCALE;
+    if(tempitem.playsound==22)
+      tempitem.playsound=WAV_PLINK;
     if (keepdata==true)
     {
       memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
@@ -3733,7 +3773,7 @@ void reset_itembuf(itemdata *item, int id)
     case iCompass:      item->family=itype_compass; item->fam_type=0; item->set_gamedata=0; break;
     case iBossKey:      item->family=itype_bosskey; item->fam_type=0; item->set_gamedata=0; break;
     case iLetter:       item->family=itype_letter; item->fam_type=i_letter; item->set_gamedata=1; break;
-	case iLetterUsed:	item->family=itype_letter; item->fam_type=i_letter_used; item->set_gamedata=1; break;
+    case iLetterUsed:   item->family=itype_letter; item->fam_type=i_letter_used; item->set_gamedata=1; break;
     case iBait:         item->family=itype_bait; item->fam_type=i_bait; item->set_gamedata=1; break;
     case iWand:         item->family=itype_wand; item->fam_type=i_wand; item->set_gamedata=1; break;
     case iWhistle:      item->family=itype_whistle; item->fam_type=i_recorder; item->set_gamedata=1; break;
@@ -3759,18 +3799,20 @@ void reset_itembuf(itemdata *item, int id)
     case iFaroresWind:  item->family=itype_faroreswind; item->fam_type=i_faroreswind; item->set_gamedata=1; break;
     case iNayrusLove:   item->family=itype_nayruslove; item->fam_type=i_nayruslove; item->set_gamedata=1; break;
     case iCByrna:       item->family=itype_cbyrna; item->fam_type=i_cbyrna; item->set_gamedata=1; break;
-    case i1BombAmmo:	item->family=itype_bombammo; item->fam_type=i_bomba; item->set_gamedata=0; item->count=2; item->amount=1; break;
-    case i4BombAmmo:	item->family=itype_bombammo; item->fam_type=i_4bomba; item->set_gamedata=0; item->count=2; item->amount=4; break;
-    case i8BombAmmo:	item->family=itype_bombammo; item->fam_type=i_8bomba; item->set_gamedata=0; item->count=2; item->amount=8; break;
-    case i30BombAmmo:	item->family=itype_bombammo; item->fam_type=i_30bomba; item->set_gamedata=0; item->count=2; item->amount=30; break;
-    case iBombBag:		item->family=itype_bombbag; item->fam_type=i_bombbag1; item->set_gamedata=1; item->count=2; item->setmax=30; item->max=30; break;
-    case iBombBagL2:	item->family=itype_bombbag; item->fam_type=i_bombbag2; item->set_gamedata=1; item->count=2; item->setmax=60; item->max=60; break;
-    case iBombBagL3:	item->family=itype_bombbag; item->fam_type=i_bombbag3; item->set_gamedata=1; item->count=2; item->setmax=99; item->max=99; break;
+    case iRocsFeather:  item->family=itype_rocs; item->fam_type=i_rocs; item->set_gamedata=1; break;
+    case iHoverBoots:   item->family=itype_hoverboots; item->fam_type=i_hoverboots; item->set_gamedata=1; break;
+    case i1BombAmmo:    item->family=itype_bombammo; item->fam_type=i_bomba; item->set_gamedata=0; item->count=2; item->amount=1; break;
+    case i4BombAmmo:    item->family=itype_bombammo; item->fam_type=i_4bomba; item->set_gamedata=0; item->count=2; item->amount=4; break;
+    case i8BombAmmo:    item->family=itype_bombammo; item->fam_type=i_8bomba; item->set_gamedata=0; item->count=2; item->amount=8; break;
+    case i30BombAmmo:   item->family=itype_bombammo; item->fam_type=i_30bomba; item->set_gamedata=0; item->count=2; item->amount=30; break;
+    case iBombBag:      item->family=itype_bombbag; item->fam_type=i_bombbag1; item->set_gamedata=1; item->count=2; item->setmax=30; item->max=30; break;
+    case iBombBagL2:    item->family=itype_bombbag; item->fam_type=i_bombbag2; item->set_gamedata=1; item->count=2; item->setmax=60; item->max=60; break;
+    case iBombBagL3:    item->family=itype_bombbag; item->fam_type=i_bombbag3; item->set_gamedata=1; item->count=2; item->setmax=99; item->max=99; break;
     case iTriforce:     item->family=itype_triforcepiece; item->fam_type=0; item->set_gamedata=0; item->playsound=0; break;
     case iBigTri:       item->family=itype_triforcepiece; item->fam_type=0; item->set_gamedata=0; item->playsound=0; break;
   }
 }
-  
+
 
 int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
@@ -3779,7 +3821,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
   byte padding;
   wpndata tempweapon;
   word s_version=0, s_cversion=0;
-  
+
 
   if(Header->zelda_version < 0x186)
   {
@@ -3835,7 +3877,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
   {
     for(int i=0; i<WPNCNT; i++)
     {
-      sprintf(weapon_string[i],"z%d",i);
+      sprintf(weapon_string[i],"z%03d",i);
     }
     for(int i=0; i<OLDWPNCNT; i++)
     {
@@ -3906,7 +3948,88 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
 int init_guys()
 {
   for(int i=0; i<MAXGUYS; i++)
+  {
     guysbuf[i] = default_guys[i];
+  }
+  return 0;
+}
+
+int init_combo_classes()
+{
+  for(int i=0; i<cMAX; i++)
+  {
+    combo_class_buf[i] = default_combo_classes[i];
+    continue;
+    al_trace("===== %03d =====\n", i);
+    al_trace("name:  %s\n", combo_class_buf[i].name);
+    al_trace("block_enemies:  %d\n", combo_class_buf[i].block_enemies);
+    al_trace("block_hole:  %d\n", combo_class_buf[i].block_hole);
+    al_trace("block_trigger:  %d\n", combo_class_buf[i].block_trigger);
+    for(int j=0; j<32; j++)
+    {
+      al_trace("block_weapon[%d]:  %d\n", j, combo_class_buf[i].block_weapon[j]);
+    }
+    al_trace("conveyor_direction:  %d\n", combo_class_buf[i].conveyor_direction);
+    al_trace("create_enemy:  %d\n", combo_class_buf[i].create_enemy);
+    al_trace("create_enemy_when:  %d\n", combo_class_buf[i].create_enemy_when);
+    al_trace("create_enemy_change:  %ld\n", combo_class_buf[i].create_enemy_change);
+    al_trace("directional_change_type:  %d\n", combo_class_buf[i].directional_change_type);
+    al_trace("distance_change_tiles:  %ld\n", combo_class_buf[i].distance_change_tiles);
+    al_trace("dive_item:  %d\n", combo_class_buf[i].dive_item);
+    al_trace("dock:  %d\n", combo_class_buf[i].dock);
+    al_trace("fairy:  %d\n", combo_class_buf[i].fairy);
+    al_trace("ff_combo_attr_change:  %d\n", combo_class_buf[i].ff_combo_attr_change);
+    al_trace("foot_decorations_tile:  %ld\n", combo_class_buf[i].foot_decorations_tile);
+    al_trace("foot_decorations_type:  %d\n", combo_class_buf[i].foot_decorations_type);
+    al_trace("hookshot_grab_point:  %d\n", combo_class_buf[i].hookshot_grab_point);
+    al_trace("ladder_pass:  %d\n", combo_class_buf[i].ladder_pass);
+    al_trace("lock_block_type:  %d\n", combo_class_buf[i].lock_block_type);
+    al_trace("lock_block_change:  %ld\n", combo_class_buf[i].lock_block_change);
+    al_trace("magic_mirror_type:  %d\n", combo_class_buf[i].magic_mirror_type);
+    al_trace("modify_hp_amount:  %d\n", combo_class_buf[i].modify_hp_amount);
+    al_trace("modify_hp_delay:  %d\n", combo_class_buf[i].modify_hp_delay);
+    al_trace("modify_hp_type:  %d\n", combo_class_buf[i].modify_hp_type);
+    al_trace("modify_mp_amount:  %d\n", combo_class_buf[i].modify_mp_amount);
+    al_trace("modify_mp_delay:  %d\n", combo_class_buf[i].modify_mp_delay);
+    al_trace("modify_mp_type:  %d\n", combo_class_buf[i].modify_mp_type);
+    al_trace("no_push_blocks:  %d\n", combo_class_buf[i].no_push_blocks);
+    al_trace("overhead:  %d\n", combo_class_buf[i].overhead);
+    al_trace("place_enemy:  %d\n", combo_class_buf[i].place_enemy);
+    al_trace("push_direction:  %d\n", combo_class_buf[i].push_direction);
+    al_trace("push_weight:  %d\n", combo_class_buf[i].push_weight);
+    al_trace("push_wait:  %d\n", combo_class_buf[i].push_wait);
+    al_trace("pushed:  %d\n", combo_class_buf[i].pushed);
+    al_trace("raft:  %d\n", combo_class_buf[i].raft);
+    al_trace("reset_room:  %d\n", combo_class_buf[i].reset_room);
+    al_trace("save_point_type:  %d\n", combo_class_buf[i].save_point_type);
+    al_trace("screen_freeze_type:  %d\n", combo_class_buf[i].screen_freeze_type);
+    al_trace("secret_combo:  %d\n", combo_class_buf[i].secret_combo);
+    al_trace("singular:  %d\n", combo_class_buf[i].singular);
+    al_trace("slow_movement:  %d\n", combo_class_buf[i].slow_movement);
+    al_trace("statue_type:  %d\n", combo_class_buf[i].statue_type);
+    al_trace("step_type:  %d\n", combo_class_buf[i].step_type);
+    al_trace("step_change_to:  %ld\n", combo_class_buf[i].step_change_to);
+    for(int j=0; j<32; j++)
+    {
+      al_trace("strike_weapons[%d]:  %d\n", j, combo_class_buf[i].strike_weapons[j]);
+    }
+    al_trace("strike_remnants:  %ld\n", combo_class_buf[i].strike_remnants);
+    al_trace("strike_remnants_type:  %d\n", combo_class_buf[i].strike_remnants_type);
+    al_trace("strike_change:  %ld\n", combo_class_buf[i].strike_change);
+    al_trace("strike_item:  %d\n", combo_class_buf[i].strike_item);
+    al_trace("touch_item:  %d\n", combo_class_buf[i].touch_item);
+    al_trace("touch_stairs:  %d\n", combo_class_buf[i].touch_stairs);
+    al_trace("trigger_type:  %d\n", combo_class_buf[i].trigger_type);
+    al_trace("trigger_sensitive:  %d\n", combo_class_buf[i].trigger_sensitive);
+    al_trace("warp_type:  %d\n", combo_class_buf[i].warp_type);
+    al_trace("warp_sensitive:  %d\n", combo_class_buf[i].warp_sensitive);
+    al_trace("warp_direct:  %d\n", combo_class_buf[i].warp_direct);
+    al_trace("warp_location:  %d\n", combo_class_buf[i].warp_location);
+    al_trace("water:  %d\n", combo_class_buf[i].water);
+    al_trace("whistle:  %d\n", combo_class_buf[i].whistle);
+    al_trace("win_game:  %d\n", combo_class_buf[i].win_game);
+    al_trace("\n\n");
+  }
   return 0;
 }
 
@@ -4379,7 +4502,7 @@ int read_one_subscreen(PACKFILE *f, zquestheader *Header, bool keepdata, int i, 
      return qe_invalid;
     }
   }
-    
+
   int temp_size=0;
   bool deletets = false;
   switch(temp_sub->type)
@@ -4885,9 +5008,9 @@ int read_one_ffscript(PACKFILE *f, zquestheader *Header, bool keepdata, int i, w
       (*script)[j].arg1 = temp_script.arg1;
       (*script)[j].arg2 = temp_script.arg2;
     }
-    } 
+    }
   }
-    
+
   return 0;
 }
 
@@ -4956,16 +5079,16 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
       return qe_invalid;
     }
-  
+
   // al_trace("F%i: L%i\n",i,temp_sample.len);
 //    temp_sample.data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
     temp_sample.data = calloc((temp_sample.bits==8?1:2)*temp_sample.len,1);
-  
+
   if(!pfread(temp_sample.data, (temp_sample.bits==8?1:2)*temp_sample.len,f,keepdata))
     {
       return qe_invalid;
     }
-    
+
     if(keepdata)
     {
       if(customsfxdata[i].data!=NULL)
@@ -4997,9 +5120,9 @@ void setupsfx()
   for(int i=1;i<WAV_COUNT;i++)
   {
     int j=i;
-    if(i>35)
+    if(i>Z35)
     {
-      i=35;
+      i=Z35;
     }
     SAMPLE *temp_sample = (SAMPLE *)sfxdata[i].dat;
     if(customsfxdata[j].data!=NULL)
@@ -6173,6 +6296,8 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
   reset_combo_animations();
   reset_combo_animations2();
 
+  init_combo_classes();
+
   // combos
   word combos_used=0;
   int dummy;
@@ -6828,7 +6953,7 @@ int readmidis(PACKFILE *f, zquestheader *Header, zcmidi *midis, bool keepdata)
   }
   for(int i=0; i<midis_to_read; i++)
   {
-    memset(&temp_midi,0,sizeof(temp_midi));
+    memset(&temp_midi,0,sizeof(zcmidi));
     if (keepdata==true)
     {
       reset_midi(midis+i);
@@ -6868,7 +6993,7 @@ int readmidis(PACKFILE *f, zquestheader *Header, zcmidi *midis, bool keepdata)
       }
       if (keepdata==true)
       {
-        memcpy(&midis[i], &temp_midi, sizeof(temp_midi));
+        memcpy(&midis[i], &temp_midi, sizeof(zcmidi));
       }
       if(((keepdata==true?midis[i].midi:temp_midi.midi)=read_midi(f, true))==NULL)
       {
@@ -7052,7 +7177,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 					return qe_invalid;
 				}
 				temp_zinit.items[iBoots]=(temp!=0);
-			}	
+			}
 		}
 		if(s_version < 10)
 		{
@@ -7170,8 +7295,6 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//Back to more OLD item code
 		if(s_version < 10)
 		{
-
-
 			if ((Header->zelda_version > 0x192)||
 				//new only
 				((Header->zelda_version == 0x192)&&(Header->build>173)))
@@ -7255,6 +7378,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			temp_zinit.items[iMKey]=(get_bit(&equipment, idE_KEY)!=0);
 			temp_zinit.items[iFlippers]=(get_bit(&equipment, idE_FLIPPERS)!=0);
 			temp_zinit.items[iBoots]=(get_bit(&equipment, idE_BOOTS)!=0);
+      temp_zinit.items[iHoverBoots]=(get_bit(&items, idE_HOVERBOOTS)!=0);
 
 
 			if(!p_getc(&items,f,true))
@@ -7266,7 +7390,9 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			temp_zinit.items[iLens]=(get_bit(&items, idI_LENS)!=0);
 			temp_zinit.items[iHookshot]=(get_bit(&items, idI_HOOKSHOT)!=0);
 			temp_zinit.items[iBait]=(get_bit(&items, idI_BAIT)!=0);
-			temp_zinit.items[iHammer]=(get_bit(&items, idI_HAMMER)!=0);
+      temp_zinit.items[iHammer]=(get_bit(&items, idI_HAMMER)!=0);
+      temp_zinit.items[iCByrna]=(get_bit(&items, idI_CBYRNA)!=0);
+      temp_zinit.items[iRocsFeather]=(get_bit(&items, idI_ROCS)!=0);
 		}
 
 		if(!p_getc(&temp_zinit.hc,f,true))
@@ -7739,7 +7865,7 @@ int loadquest(char *filename, zquestheader *Header, miscQdata *Misc, zcmidi *mid
     keepall=false;
     jwin_alert("Load Quest","Data retention disabled.",NULL,NULL,"OK",NULL,13,27,lfont);
   }
-  
+
   //  show_progress=true;
   char tmpbuf[L_tmpnam];
   char *tmpfilename = temp_name(tmpbuf);
@@ -7774,7 +7900,7 @@ int loadquest(char *filename, zquestheader *Header, miscQdata *Misc, zcmidi *mid
     for(int i=1; i<NUMSCRIPTGLOBAL; i++)
     {
       globalmap[i] = pair<string,string>("","");
-    }		
+    }
     for(int i=0; i<NUMSCRIPTITEM; i++)
     {
       itemmap[i] = pair<string,string>("","");
@@ -8377,7 +8503,7 @@ int loadquest(char *filename, zquestheader *Header, miscQdata *Misc, zcmidi *mid
       DMaps[i].active_subscreen=(type == dmOVERW || type == dmBSOVERW)?0:1;
       DMaps[i].passive_subscreen=(get_bit(quest_rules,qr_ENABLEMAGIC))?0:1;
     }
-          
+
 
     //link sprites
     box_out("Reading Custom Link Sprite Data...");

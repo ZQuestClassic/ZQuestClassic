@@ -24,12 +24,6 @@
 #include "link.h"
 #include "zc_init.h"
 
-/*
-  extern FONT *lfont;
-  extern int jwin_pal[jcMAX];
-  extern bool saved;
-  extern int startdmapxy[6];
-  */
 int dmap_list_size=0;
 bool dmap_list_zero=false;
 
@@ -42,6 +36,7 @@ int onCheatConsole()
 
   //modify some entries
   init_dlg[1658].dp = (void *)"Current HP (hearts):";
+  init_dlg[1658].flags |= D_DISABLED;
   init_dlg[1659].flags |= D_DISABLED;
   init_dlg[1667].flags |= D_DISABLED;
   init_dlg[1664].flags |= D_DISABLED;
@@ -49,10 +44,8 @@ int onCheatConsole()
 
   int rval = doInit(zinit2);
   resetItems(game, zinit2);
-  //some special values to reset
-  set_gamedata_life(game, zinit2->start_heart*HP_PER_HEART);
   delete zinit2;
-  return rval;
+  return rval; 
 }
 
 
@@ -69,14 +62,14 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 {
 	zinitdata *zinit2 = new zinitdata;
   //populate it
-  zinit2->hc = get_gamedata_maxlife()/HP_PER_HEART;
-  zinit2->bombs = get_gamedata_bombs();
-  zinit2->keys = get_gamedata_keys();
+  zinit2->hc = get_gamedata_maxlife(gdata)/HP_PER_HEART;
+  zinit2->bombs = get_gamedata_bombs(gdata);
+  zinit2->keys = get_gamedata_keys(gdata);
   zinit2->max_bombs = get_gamedata_maxbombs(gdata);
-  zinit2->super_bombs = get_gamedata_sbombs();
+  zinit2->super_bombs = get_gamedata_sbombs(gdata);
   zinit2->max_bombs = get_gamedata_maxcounter(gdata,6)<<2;
-  zinit2->hcp = get_gamedata_HCpieces();
-  zinit2->rupies = get_gamedata_rupies();
+  zinit2->hcp = get_gamedata_HCpieces(gdata);
+  zinit2->rupies = get_gamedata_rupies(gdata);
   for(int i=0; i<MAXLEVELS; i++)
   {
     set_bit(zinit2->map, i, (gdata->lvlitems[i] & liMAP) ? 1 : 0);
@@ -88,18 +81,18 @@ zinitdata *copyIntoZinit(gamedata *gdata)
   {
     set_bit(&zinit2->triforce,i,(gdata->lvlitems[i+1]&liTRIFORCE) ? 1 : 0);
   }
-  zinit2->max_magic = get_gamedata_maxmagic()/MAGICPERBLOCK;
-  zinit2->magic = get_gamedata_magic()/MAGICPERBLOCK;
-  set_bit(zinit2->misc, idM_DOUBLEMAGIC, (get_gamedata_magicdrainrate()==1) ? 1 : 0);
+  zinit2->max_magic = get_gamedata_maxmagic(gdata)/MAGICPERBLOCK;
+  zinit2->magic = get_gamedata_magic(gdata)/MAGICPERBLOCK;
+  set_bit(zinit2->misc, idM_DOUBLEMAGIC, (get_gamedata_magicdrainrate(gdata)==1) ? 1 : 0);
   set_bit(zinit2->misc, idM_CANSLASH, get_gamedata_canslash(gdata));
   
-  zinit2->arrows = get_gamedata_arrows();
+  zinit2->arrows = get_gamedata_arrows(gdata);
   zinit2->max_arrows = get_gamedata_maxarrows(gdata);
 
   zinit2->max_rupees = get_gamedata_maxcounter(gdata, 1);
   zinit2->max_keys = get_gamedata_maxcounter(gdata, 5);
   
-  zinit2->start_heart = get_gamedata_life()/HP_PER_HEART;
+  zinit2->start_heart = get_gamedata_life(gdata)/HP_PER_HEART;
      
   //now set up the items!
   for(int i=0; i<MAXITEMS; i++)
@@ -157,9 +150,10 @@ void resetItems(gamedata *game2, zinitdata *zinit2)
   //now set up the items!
   for(int i=0; i<MAXITEMS; i++)
   {
+    game2->item[i]=false;
     if(zinit2->items[i])
     {
-      getitem(i,true);
+	  getitem(i,true);
     }
   }
 }

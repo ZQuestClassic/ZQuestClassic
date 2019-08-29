@@ -104,6 +104,7 @@ const int ScriptParser::TYPE_ITEMCLASS;
 const int ScriptParser::TYPE_SCREEN;
 const int ScriptParser::TYPE_GLOBAL;
 const int ScriptParser::TYPE_GAME;
+const int ScriptParser::TYPE_NPC;
 #endif 
 
 string ScriptParser::trimQuotes(string quoteds)
@@ -202,6 +203,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 	LinkSymbols::getInst().addSymbolsToScope(globalScope,t);
 	ScreenSymbols::getInst().addSymbolsToScope(globalScope,t);
 	GameSymbols::getInst().addSymbolsToScope(globalScope,t);
+	NPCSymbols::getInst().addSymbolsToScope(globalScope,t);
 
 	//strip the global functions from the AST
 	GetGlobalFuncs gc;
@@ -570,6 +572,11 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 		rval->funcs[it->first] = it->second;
 	}
 	globalcode = GameSymbols::getInst().addSymbolsCode(lt);
+	for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+	{
+		rval->funcs[it->first] = it->second;
+	}
+	globalcode = NPCSymbols::getInst().addSymbolsCode(lt);
 	for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
 	{
 		rval->funcs[it->first] = it->second;

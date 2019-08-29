@@ -40,7 +40,7 @@ public:
   int o_tile, o_cset, o_speed, o_type, frames, o_flip;
   int temp1;
 
-  weapon(fix X,fix Y,int Id,int Type,int pow,int Dir);
+  weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir);
   void LOADGFX(int wpn);
   bool Dead();
   bool clip();
@@ -49,7 +49,7 @@ public:
   virtual void onhit(bool clipped, int special, int linkdir);
   // override hit detection to check for invicibility, etc
   virtual bool hit(sprite *s);
-  virtual bool hit(int tx,int ty,int txsz,int tysz);
+  virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
   virtual void draw(BITMAP *dest);
 };
 

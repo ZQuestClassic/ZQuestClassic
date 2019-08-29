@@ -34,10 +34,17 @@ extern int conveyclk;
 class sprite
 {
 public:
-  fix x,y,ground_y,z;
-  int tile,shadowtile,cs,flip,c_clk,clk,misc;
-  fix xofs,yofs,ground_yofs,zofs;
-  int hxofs,hyofs,hxsz,hysz;
+  fix x,y,z;
+  int tile,shadowtile,cs,flip,c_clk,clk,misc,fall;
+  fix xofs,yofs,zofs;
+  // no hzofs - it's always equal to zofs.
+  int hxofs,hyofs,hxsz,hysz,hzsz;
+  /*
+   * Explanation of hzsz:
+   * Hzsz is how "tall" a sprite is.
+   * To jump over a sprite, you must be higher than its z+hzsz.
+   * Enemies have hzsz of 0 so that Link can jump over them (see LA.)
+   */
   int id,dir;
   bool angular,canfreeze;
   double angle;
@@ -83,7 +90,7 @@ public:
   int real_ground_y(fix fy);
   int real_z(fix fz);
   virtual bool hit(sprite *s);
-  virtual bool hit(int tx,int ty,int txsz,int tysz);
+  virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
 
 
   virtual int hitdir(int tx,int ty,int txsz,int tysz,int dir);
@@ -125,7 +132,7 @@ public:
   void check_conveyor();
   int Count();
   int hit(sprite *s);
-  int hit(int x,int y,int xsize, int ysize);
+  int hit(int x,int y,int z,int xsize, int ysize, int zsize);
   // returns the number of sprites with matching id
   int idCount(int id, int mask);
   // returns index of first sprite with matching id, -1 if none found

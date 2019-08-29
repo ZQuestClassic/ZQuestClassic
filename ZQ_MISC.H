@@ -24,7 +24,7 @@
 #define MAXWARPEFFECTS   weMAX
 #define MAXCOMBOTYPES  cMAX
 #define MAXFLAGS    mfMAX
-#define MAXPATTERNS  2
+#define MAXPATTERNS  4
 #define MAXCUSTOMMIDIS_ZQ  4+MAXCUSTOMMIDIS
 
 #define cWALK      1
@@ -252,7 +252,7 @@ int onTestOptions();
 
 int onOptions();
 
-void edit_combo(int c,bool freshen,int cs);
+bool edit_combo(int c,bool freshen,int cs);
 
 void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg,bool value);
 void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int value);

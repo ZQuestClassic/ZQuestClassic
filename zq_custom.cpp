@@ -137,7 +137,7 @@ void test_item(itemdata test)
   itemsbuf = &test;
   BITMAP *buf = create_bitmap_ex(8,16,16);
 
-  item temp((fix)0,(fix)0,0,0,0);
+  item temp((fix)0,(fix)0,(fix)0,0,0,0);
   temp.yofs = 0;
   go();
   scare_mouse();

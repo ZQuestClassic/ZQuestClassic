@@ -370,7 +370,7 @@ char *itemclass_str[ssiMAX] =
 {
   "Bombs", "Sword", "Shield", "Candle", "Letter", "Potion", "Letter/Potion", "Bow", "Arrow", "Bow & Arrow", "Bait", "Ring", "Bracelet", "Map", "Compass",
   "Boss Key", "Magic Key", "Boomerang", "Wand", "Raft", "Ladder", "Whistle", "Book", "Wallet", "Super Bomb", "HC Piece", "Amulet", "Flippers", "Hookshot", "Lens",
-  "Hammer", "Boots", "Din's Fire", "Farore's Wind", "Nayru's Love", "Quiver", "Cane of Byrna"
+  "Hammer", "Boots", "Din's Fire", "Farore's Wind", "Nayru's Love", "Quiver", "Cane of Byrna","Bomb Bag","Roc Items","Hover Boots"
 };
 
 char *itemclasslist(int index, int *list_size)
@@ -4161,29 +4161,29 @@ int Bweapon(int pos)
   switch (css->objects[p].d1)
   {
     case ssiBRANG:
-    if(current_item(itype_brang,true)==3)
+    if(current_item(itype_brang)==3)
     {
       return iFBrang;
     }
-    if(current_item(itype_brang,true))
+    if(current_item(itype_brang))
     {
-      return current_item(itype_brang,true)-1+iBrang;
+      return current_item(itype_brang)-1+iBrang;
     }
     break;
     case ssiBOMB:
-    if(current_item(itype_bomb,true))
+    if(current_item(itype_bomb))
     {
       return iBombs;
     }
     break;
     case ssiBOWANDARROW:
     case ssiARROW:
-    if(current_item(itype_bow,true) && current_item(itype_arrow,true))
+    if(current_item(itype_bow) && current_item(itype_arrow))
     {
       bool bow=(css->objects[p].d1==ssiBOWANDARROW);
-      if (current_item(itype_arrow,true)<3)
+      if (current_item(itype_arrow)<3)
       {
-        return current_item(itype_arrow,true)-1+iArrow+(bow?0xF000:0);
+        return current_item(itype_arrow)-1+iArrow+(bow?0xF000:0);
       }
       else
       {
@@ -4192,67 +4192,67 @@ int Bweapon(int pos)
     }
     break;
     case ssiCANDLE:
-    if(current_item(itype_candle,true))
+    if(current_item(itype_candle))
     {
-      return current_item(itype_candle,true)-1+iBCandle;
+      return current_item(itype_candle)-1+iBCandle;
     }
     break;
     case ssiDINSFIRE:
-    if(current_item(itype_dinsfire,true))
+    if(current_item(itype_dinsfire))
     {
       return iDinsFire;
     }
     break;
     case ssiWHISTLE:
-    if(current_item(itype_whistle,true))
+    if(current_item(itype_whistle))
     {
       return iWhistle;
     }
     break;
     case ssiBAIT:
-    if(current_item(itype_bait,true))
+    if(current_item(itype_bait))
     {
       return iBait;
     }
     break;
     case ssiLETTERPOTION:
-    if(current_item(itype_potion,true))
+    if(current_item(itype_potion))
     {
-      return current_item(itype_potion,true)-1+iBPotion;
+      return current_item(itype_potion)-1+iBPotion;
     }
-    if(current_item(itype_letter,true))
+    if(current_item(itype_letter))
     {
       return iLetter;
     }
     break;
     case ssiPOTION:
-    if(current_item(itype_potion,true))
+    if(current_item(itype_potion))
     {
-      return current_item(itype_potion,true)-1+iBPotion;
+      return current_item(itype_potion)-1+iBPotion;
     }
     break;
     case ssiLETTER:
-    if(current_item(itype_letter,true))
+    if(current_item(itype_letter))
     {
       return iLetter;
     }
     break;
     case ssiWAND:
-    if(current_item(itype_wand,true))
+    if(current_item(itype_wand))
     {
       return iWand;
     }
     break;
     case ssiFARORESWIND:
-    if(current_item(itype_faroreswind,true))
+    if(current_item(itype_faroreswind))
     {
       return iFaroresWind;
     }
     break;
     case ssiHOOKSHOT:
-    if(current_item(itype_hookshot, true))
+    if(current_item(itype_hookshot))
     {
-      if(current_item(itype_hookshot, true)==2)
+      if(current_item(itype_hookshot)==2)
       {
         return iLongshot;
       }
@@ -4260,25 +4260,25 @@ int Bweapon(int pos)
     }
     break;
     case ssiSBOMB:
-    if(current_item(itype_sbomb,true))
+    if(current_item(itype_sbomb))
     {
       return iSBomb;
     }
     break;
     case ssiLENS:
-    if(current_item(itype_lens, true))
+    if(current_item(itype_lens))
     {
       return iLens;
     }
     break;
     case ssiHAMMER:
-    if(current_item(itype_hammer, true))
+    if(current_item(itype_hammer))
     {
       return iHammer;
     }
     break;
     case ssiNAYRUSLOVE:
-    if(current_item(itype_nayruslove,true))
+    if(current_item(itype_nayruslove))
     {
       return iNayrusLove;
     }
@@ -4469,7 +4469,7 @@ char *sso_item[ssiMAX]=
 {
   "ssiBOMB", "ssiSWORD", "ssiSHIELD", "ssiCANDLE", "ssiLETTER", "ssiPOTION", "ssiLETTERPOTION", "ssiBOW", "ssiARROW", "ssiBOWANDARROW", "ssiBAIT", "ssiRING", "ssiBRACELET", "ssiMAP",
   "ssiCOMPASS", "ssiBOSSKEY", "ssiMAGICKEY", "ssiBRANG", "ssiWAND", "ssiRAFT", "ssiLADDER", "ssiWHISTLE", "ssiBOOK", "ssiWALLET", "ssiSBOMB", "ssiHCPIECE", "ssiAMULET", "ssiFLIPPERS",
-  "ssiHOOKSHOT", "ssiLENS", "ssiHAMMER", "ssiBOOTS", "ssiDINSFIRE", "ssiFARORESWIND", "ssiNAYRUSLOVE", "ssiQUIVER", "ssiCBYRNA"
+  "ssiHOOKSHOT", "ssiLENS", "ssiHAMMER", "ssiBOOTS", "ssiDINSFIRE", "ssiFARORESWIND", "ssiNAYRUSLOVE", "ssiQUIVER", "ssiCBYRNA", "ssiROCS"
 };
 
 char *sso_alignment[3]=

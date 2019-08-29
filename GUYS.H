@@ -95,7 +95,7 @@ public:
   void masked_draw(BITMAP *dest,int mx,int my,int mw,int mh);
   // override hit detection to check for invicibility, stunned, etc
   virtual bool hit(sprite *s);
-  virtual bool hit(int tx,int ty,int txsz,int tysz);
+  virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
   virtual bool hit(weapon *w);
   //                         --==**==--
   //   Movement routines that can be used by derived classes as needed
@@ -123,6 +123,8 @@ public:
   // keeps walking around
   void constant_walk(int rate,int homing,int special);
   void constant_walk();
+  // falls through the Z axis;
+  void falldown();
   int pos(int x,int y);
   // for variable step rates
   void variable_walk(int rate,int homing,int special);
@@ -226,7 +228,7 @@ public:
 class ePeahat : public enemy
 {
 public:
-  int ox, oy, moving_superman, c;
+  int ox, oy, c;
   ePeahat(fix X,fix Y,int Id,int Clk);                    // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
   virtual void drawshadow(BITMAP *dest, bool translucent);
@@ -492,7 +494,6 @@ class eOctorok : public enemy
 public:
   eOctorok(fix X,fix Y,int Id,int Clk);                   // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
-  virtual void drawshadow(BITMAP *dest,bool translucent);
   virtual void draw(BITMAP *dest);
 };
 
@@ -772,7 +773,7 @@ public:
 /**********************************/
 /**********  Misc Code  ***********/
 /**********************************/
-void addEwpn(int x,int y,int id,int type,int power,int dir);
+void addEwpn(int x,int y,int z,int id,int type,int power,int dir);
 int enemy_dp(int index);
 int ewpn_dp(int index);
 int lwpn_dp(int index);
@@ -783,9 +784,9 @@ void additem(int x,int y,int id,int pickup);
 void additem(int x,int y,int id,int pickup,int clk);
 void kill_em_all();
 // For Link's hit detection. Don't count them if they are stunned or are guys.
-int GuyHit(int tx,int ty,int txsz,int tysz);
+int GuyHit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
 // For Link's hit detection. Count them if they are dying.
-int GuyHit(int index,int tx,int ty,int txsz,int tysz);
+int GuyHit(int index,int tx,int ty,int tz,int txsz,int tysz,int tzsz);
 bool hasMainGuy();
 void EatLink(int index);
 void GrabLink(int index);
@@ -793,8 +794,10 @@ bool CarryLink();
 void movefairy(fix &x,fix &y,int misc);
 void killfairy(int misc);
 void addenemy(int x,int y,int id,int clk);
+void addenemy(int x,int y,int z,int id,int clk);
 bool checkpos(int id);
 bool isjumper(int id);
+bool canfall(int id);
 void addfires();
 void loadguys();
 void never_return(int index);
@@ -803,8 +806,8 @@ bool slowguy(int id);
 bool countguy(int id);
 bool ok2add(int id);
 void load_default_enemies();
-void nsp();
-int next_side_pos();
+void nsp(bool random);
+int next_side_pos(bool random);
 bool can_side_load(int id);
 void side_load_enemies();
 void loadenemies();

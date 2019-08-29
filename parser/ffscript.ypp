@@ -57,6 +57,7 @@ extern YYLTYPE noloc;
 %token CONTINUE
 %token CONST
 %token DO
+%token NPC
 
 %token ASSIGN
 %token SEMICOLON
@@ -168,6 +169,7 @@ Type : FLOAT {$$ = new ASTTypeFloat(@1);}
 	| FFC {$$ = new ASTTypeFFC(@1);}
 	| ITEM {$$ = new ASTTypeItem(@1);}
 	| ITEMCLASS {$$ = new ASTTypeItemclass(@1);}
+	| NPC		{$$ = new ASTTypeNPC(@1);}
 	;
 
 FuncDecl : Type IDENTIFIER LPAREN ParamList RPAREN Block {ASTFuncDecl *fd = (ASTFuncDecl *)$4;

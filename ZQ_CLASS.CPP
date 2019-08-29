@@ -12,7 +12,7 @@
 /****** ZMAP class ******/
 /************************/
 
-#ifndef __GTHREAD_HIDE_WIN32API                             
+#ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
@@ -1413,8 +1413,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         {
         if(layer->ffdata[i])
         {
-          int c=combobuf[layer->ffdata[i]].type;
-          if(c!=cCHANGE)
+          if(!(layer->ffflags[i]&ffCHANGER))
             over_combo(dest,(int)layer->ffx[i]+x,(int)layer->ffy[i]+y,layer->ffdata[i],layer->ffcset[i],flags);
         }
       }*/
@@ -1422,8 +1421,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
       {
 	    if(layer->ffdata[i])
 	    {
-	      int c=combobuf[layer->ffdata[i]].type;
-	      if(c!=cCHANGE)
+	      if(!(layer->ffflags[i]&ffCHANGER))
 	      {
 		    if(!(layer->ffflags[i]&ffOVERLAY))
 		    {
@@ -1651,8 +1649,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
       {
       if(layer->ffdata[i])
       {
-        int c=combobuf[layer->ffdata[i]].type;
-        if(c!=cCHANGE)
+        if(!(layer->ffflags[i]&ffCHANGER))
           over_combo(dest,(int)layer->ffx[i]+x,(int)layer->ffy[i]+y,layer->ffdata[i],layer->ffcset[i],flags);
       }
     }*/
@@ -1660,8 +1657,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
       {
 	    if(layer->ffdata[i])
 	    {
-	      int c=combobuf[layer->ffdata[i]].type;
-	      if(c!=cCHANGE)
+	      if(!(layer->ffflags[i]&ffCHANGER))
 	      {
 		    if(layer->ffflags[i]&ffOVERLAY)
 		    {
@@ -1686,8 +1682,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
 	  {
 	    if(layer->ffdata[i])
 	    {
-	      int c=combobuf[layer->ffdata[i]].type;
-	      if(c==cCHANGE)
+	      if(layer->ffflags[i]&ffCHANGER)
 	      {
 		    putpixel(dest,(layer->ffx[i]/10000)+x,(layer->ffy[i]/10000)+y,vc(rand()%16));
 		  }
@@ -3148,7 +3143,7 @@ void zmap::update_freeform_combos()
   }
   for(int i=0;i<32;i++)
   {
-	if(combobuf[prvscr.ffdata[i]].type!=cCHANGE && prvscr.ffdata[i]!=0 && !(prvscr.ffflags[i]&ffSTATIONARY))
+	if(!(prvscr.ffflags[i]&ffCHANGER) && prvscr.ffdata[i]!=0 && !(prvscr.ffflags[i]&ffSTATIONARY))
 	{
 
 	  if(prvscr.fflink[i] ? !prvscr.ffdelay[prvscr.fflink[i]] : !prvscr.ffdelay[i])
@@ -3236,7 +3231,7 @@ void zmap::update_freeform_combos()
 	  {
 	    if(i!=j)
 		{
-		  if(combobuf[prvscr.ffdata[j]].type==cCHANGE)
+		  if(prvscr.ffflags[j]&ffCHANGER)
 		  {
 		    if((((prvscr.ffx[j]/10000)!=ffposx[i])||((prvscr.ffy[j]/10000)!=ffposy[i]))&&(prvscr.fflink[i]==0))
 			{
@@ -3824,7 +3819,7 @@ bool load_zgp(char *path)
 
   //read the triforce pieces info and make sure it worked
   //really do this?
-  
+
   //read the game icons info and make sure it worked
   if(!p_mgetl(&section_id,f,true))
   {
@@ -3964,7 +3959,7 @@ bool save_zgp(char *path)
 
   //write the triforce pieces info and make sure it worked
   //really do this?
-  
+
   //write the game icons info and make sure it worked
   if (writegameicons(f, &header, &misc)!=0)
   {
@@ -4342,7 +4337,7 @@ int init_quest()
   zinit.blue_potion_magic_percent=1;
   zinit.red_potion_magic=100;
   zinit.red_potion_magic_percent=1;
-  
+
 
   saved=true;
   sprintf(buf,"ZQuest - Untitled Quest");
@@ -6217,27 +6212,27 @@ int writemaps(PACKFILE *f, zquestheader *Header)
 		  {
 		    return qe_invalid;
 		  }
-		  if(!pfwrite(&TheMaps[scr].ffx[k],4,f))
+		  if(!p_iputl(TheMaps[scr].ffx[k],f))
 		  {
 		    return qe_invalid;
 		  }
-		  if(!pfwrite(&TheMaps[scr].ffy[k],4,f))
+		  if(!p_iputl(TheMaps[scr].ffy[k],f))
 		  {
 		    return qe_invalid;
 		  }
-		  if(!pfwrite(&TheMaps[scr].ffxdelta[k],4,f))
+		  if(!p_iputl(TheMaps[scr].ffxdelta[k],f))
 		  {
 		    return qe_invalid;
 		  }
-		  if(!pfwrite(&TheMaps[scr].ffydelta[k],4,f))
+		  if(!p_iputl(TheMaps[scr].ffydelta[k],f))
 		  {
 		    return qe_invalid;
 		  }
-		  if(!pfwrite(&TheMaps[scr].ffxdelta2[k],4,f))
+		  if(!p_iputl(TheMaps[scr].ffxdelta2[k],f))
 		  {
 		    return qe_invalid;
 		  }
-		  if(!pfwrite(&TheMaps[scr].ffydelta2[k],4,f))
+		  if(!p_iputl(TheMaps[scr].ffydelta2[k],f))
 		  {
 		    return qe_invalid;
 		  }
@@ -7228,7 +7223,7 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
 	  {
 	    return 29;
 	  }
-	  
+
     switch(custom_subscreen[i].objects[j].type)
     {
       case ssoTEXT:
@@ -8242,7 +8237,7 @@ int save_quest(char *filename, bool version_210)
   {
     ret  = save_unencoded_quest(tmpfilename, true);
   }
-  
+
 
 
   //  int ret = save_unencoded_quest(filename, false);
@@ -8957,7 +8952,7 @@ int writedmaps_210(PACKFILE *f, word version, word build, word start_dmap, word 
     return 5;
   }
 
-  
+
   for (int i=start_dmap; i<start_dmap+dmap_count; i++)
   {
     if(!p_putc(DMaps[i].map,f))
@@ -10257,7 +10252,7 @@ int writeinitdata_210(PACKFILE *f, zquestheader *Header)
   dword section_cversion=CV_INITDATA_210;
 //  dword section_size=0;
   dword section_size = 174;
-  
+
   zinit.last_map=Map.getCurrMap();
   zinit.last_screen=Map.getCurrScr();
 

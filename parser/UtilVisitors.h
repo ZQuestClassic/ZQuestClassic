@@ -21,6 +21,7 @@ public:
 	virtual void caseTypeItem(ASTTypeItem &host, void *param);
 	virtual void caseTypeItemclass(ASTTypeItemclass &host, void *param);
 	virtual void caseTypeGlobal(ASTTypeGlobal &host, void *param);
+	virtual void caseTypeNPC(ASTTypeNPC &host, void *param);
 	virtual void caseVarDecl(ASTVarDecl &host, void *param);
 	virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
 	virtual void caseExprAnd(ASTExprAnd &host, void *param);
@@ -369,6 +370,7 @@ public:
 	virtual void caseTypeItem(ASTTypeItem &host, void *param);
 	virtual void caseTypeItemclass(ASTTypeItemclass &host, void *param);
 	virtual void caseTypeGlobal(ASTTypeGlobal &host, void *param);
+	virtual void caseTypeNPC(ASTTypeNPC &host, void *param);
 };
 
 class IsDotExpr : public ASTVisitor

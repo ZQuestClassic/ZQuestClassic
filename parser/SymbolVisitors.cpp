@@ -69,7 +69,7 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
 		printErrorMsg(&host, VOIDVAR, name);
 	}
 	if(type == ScriptParser::TYPE_FFC || type == ScriptParser::TYPE_ITEM
-		|| type == ScriptParser::TYPE_ITEMCLASS)
+		|| type == ScriptParser::TYPE_ITEMCLASS || type == ScriptParser::TYPE_NPC)
 	{
 		failure = true;
 		printErrorMsg(&host, REFVAR, name);

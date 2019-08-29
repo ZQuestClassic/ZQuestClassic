@@ -91,7 +91,7 @@ enum { sscRUPEES, sscBOMBS, sscSBOMBS, sscARROWS, sscGENKEYMAGIC, sscGENKEYNOMAG
 //subscreen items
 enum { ssiBOMB, ssiSWORD, ssiSHIELD, ssiCANDLE, ssiLETTER, ssiPOTION, ssiLETTERPOTION, ssiBOW, ssiARROW, ssiBOWANDARROW, ssiBAIT, ssiRING, ssiBRACELET, ssiMAP, ssiCOMPASS,
   ssiBOSSKEY, ssiMAGICKEY, ssiBRANG, ssiWAND, ssiRAFT, ssiLADDER, ssiWHISTLE, ssiBOOK, ssiWALLET, ssiSBOMB, ssiHCPIECE, ssiAMULET, ssiFLIPPERS, ssiHOOKSHOT, ssiLENS,
-  ssiHAMMER, ssiBOOTS, ssiDINSFIRE, ssiFARORESWIND, ssiNAYRUSLOVE, ssiQUIVER, ssiCBYRNA, ssiMAX };
+  ssiHAMMER, ssiBOOTS, ssiDINSFIRE, ssiFARORESWIND, ssiNAYRUSLOVE, ssiQUIVER, ssiBOMBBAG, ssiCBYRNA, ssiROCS, ssiHOVERBOOTS, ssiMAX };
 
 //subscreen text alignment
 enum { sstaLEFT, sstaCENTER, sstaRIGHT };

@@ -61,6 +61,9 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
 	case ScriptParser::TYPE_ITEMCLASS:
 		fidparam = ItemclassSymbols::getInst().matchFunction(name, p->first.second->first);
 		break;
+	case ScriptParser::TYPE_NPC:
+		fidparam = NPCSymbols::getInst().matchFunction(name, p->first.second->first);
+		break;
 
 	default:
 		p->first.first->fail();
@@ -195,6 +198,14 @@ bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
 				return true;
 			if(toblame)
 				printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to itemclass");
+			return false;
+		}
+	case ScriptParser::TYPE_NPC:
+		{
+			if(secondtype == ScriptParser::TYPE_NPC)
+				return true;
+			if(toblame)
+				printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to npc");
 			return false;
 		}
 	default:
@@ -802,7 +813,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 		int lvaltype = lval->getLVal()->getType();
 		if(!(lvaltype == ScriptParser::TYPE_FFC || lvaltype == ScriptParser::TYPE_LINK
 			|| lvaltype == ScriptParser::TYPE_SCREEN || lvaltype == ScriptParser::TYPE_ITEM
-			|| lvaltype == ScriptParser::TYPE_ITEMCLASS || lvaltype == ScriptParser::TYPE_GAME))
+			|| lvaltype == ScriptParser::TYPE_ITEMCLASS || lvaltype == ScriptParser::TYPE_GAME || lvaltype == ScriptParser::TYPE_NPC))
 		{
 			printErrorMsg(lval, ARROWNOTPOINTER);
 			failure = true;
@@ -925,6 +936,9 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 			break;
 		case ScriptParser::TYPE_ITEMCLASS:
 			fidtype = ItemclassSymbols::getInst().matchFunction(name->getName(), st);
+			break;
+		case ScriptParser::TYPE_NPC:
+			fidtype = NPCSymbols::getInst().matchFunction(name->getName(), st);
 			break;
 
 		default:
@@ -1053,6 +1067,11 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
 	case ScriptParser::TYPE_ITEMCLASS:
 		{
 			fidparam = ItemclassSymbols::getInst().matchFunction(name, st);	
+			break;
+		}
+	case ScriptParser::TYPE_NPC:
+		{
+			fidparam = NPCSymbols::getInst().matchFunction(name,st);
 			break;
 		}
 	default:

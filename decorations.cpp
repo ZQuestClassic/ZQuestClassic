@@ -237,7 +237,7 @@ bool dTallGrass::animate(int index)
 {
   index=index;  //this is here to bypass compiler warnings about unused arguments
   return ((COMBOTYPE(LinkX(),LinkY()+15)!=cTALLGRASS)||
-          (COMBOTYPE(LinkX()+15,LinkY()+15)!=cTALLGRASS));
+          (COMBOTYPE(LinkX()+15,LinkY()+15)!=cTALLGRASS) || LinkZ()>8);
 }
 
 void dTallGrass::draw(BITMAP *dest)
@@ -268,7 +268,7 @@ bool dRipples::animate(int index)
   index=index;  //this is here to bypass compiler warnings about unused arguments
   clk++;
   return ((COMBOTYPE(LinkX(),LinkY()+15)!=cSHALLOWWATER)||
-          (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER));
+          (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER) || LinkZ() != 0);
 }
 
 void dRipples::draw(BITMAP *dest)
@@ -280,6 +280,29 @@ void dRipples::draw(BITMAP *dest)
   decoration::draw8(dest);
   x+=8; ++tile;
   decoration::draw8(dest);
+}
+
+dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+{
+  id=Id; clk=Clk;
+}
+
+void dHover::draw(BITMAP *dest)
+{
+  int t=wpnsbuf[iwHover].tile*4;
+  cs=wpnsbuf[iwHover].csets&15; flip=0;
+  x=LinkX(); y=LinkY()+10-LinkZ();
+  tile=t+(((clk/8)%3)*2);
+  decoration::draw8(dest);
+  x+=8; ++tile;
+  decoration::draw8(dest);
+}
+
+bool dHover::animate(int index)
+{
+  index=index;  //this is here to bypass compiler warnings about unused arguments
+  clk++;
+  return LinkHoverClk()<=0;
 }
 
 dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
@@ -310,7 +333,7 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
   if (((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&((!get_bit(quest_rules,qr_FLICKERINGNAYRUSLOVESHIELD))||((misc==1)?(frame&1):(!(frame&1)))))
   {
     drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVESHIELD)?1:0;
-    x=LinkX()-8; y=LinkY()-8;
+    x=LinkX()-8; y=LinkY()-8-LinkZ();
     tile=t;
     if (fr>0&&spd>0)
     {

@@ -2952,7 +2952,7 @@ void update_subscr_items()
 
     if(Bwpn > 0)
     {
-      Bitem = new item((fix)0, (fix)0, Bwpn&0x0FFF, 0, 0);
+      Bitem = new item((fix)0, (fix)0, (fix)0, Bwpn&0x0FFF, 0, 0);
       Bitem->dummy_bool[0]=false;
       switch (Bwpn&0x0FFF)
       {
@@ -2965,7 +2965,7 @@ void update_subscr_items()
         }
         break;
       }
-      //      Bitem = new item((fix)(zinit.subscreen<ssdtBSZELDA?124:136), (fix)24, Bwpn, 0, 0);
+      //      Bitem = new item((fix)(zinit.subscreen<ssdtBSZELDA?124:136), (fix)24,(fix)0, Bwpn, 0, 0);
       if(Bitem != NULL)
       {
         Bid = Bwpn;
@@ -2985,8 +2985,8 @@ void update_subscr_items()
 
     if(Awpn > 0)
     {
-      Aitem = new item((fix)0, (fix)0, Awpn, 0, 0);
-      //      Aitem = new item((fix)(zinit.subscreen<ssdtBSZELDA?148:160), (fix)24, Awpn, 0, 0);
+      Aitem = new item((fix)0, (fix)0,(fix)0, Awpn, 0, 0);
+      //      Aitem = new item((fix)(zinit.subscreen<ssdtBSZELDA?148:160), (fix)24,(fix)0, Awpn, 0, 0);
       if(Aitem != NULL)
       {
         Aid = Awpn;
@@ -3018,27 +3018,27 @@ int stripspaces(char *source, char *target, int stop)
 char *subscreen_item_class_names[ssiMAX]=
 { "bomb", "sword", "shield", "candle", "letter", "potion", "letter/potion", "bow", "arrow", "bait", "ring", "bracelet", "map", "compass", "boss key", "magic key",
   "boomerang", "wand", "raft", "ladder", "whistle", "book", "wallet", "super bomb", "heart container pieces", "amulet", "flippers", "hookshot", "lens", "hammer", "boots",
-  "din's fire", "farore's wind", "nayru's love", "quiver", "cane of byrna" };
+  "din's fire", "farore's wind", "nayru's love", "quiver", "bomb bag", "cane of byrna", "roc items", "hover boots" };
 
 char *subscreen_item_names[iMax] =
 {
   "Rupee", "5 Rupees", "Heart", "Bombs", "Clock",
   "Wooden Sword", "White Sword", "Magic Sword", "Magic Shield", "Key",
   "Blue Candle", "Red Candle", "Letter", "Wooden Arrows", "Silver Arrows",
-  "Short Bow", "Bait", "Blue Ring", "Red Ring", "Power Brecelet",
+  "Short Bow", "Bait", "Blue Ring", "Red Ring", "Power Bracelet",
   "Triforce Fragment", "Map", "Compass", "Wooden Boomerang", "Magic Boomerang",
   "Wand", "Raft", "Ladder", "Heart Container", "Blue Potion",
   "Red Potion", "Whistle", "Magic Book", "Magic Key", "Moving Fairy",
   "Fire Boomerang", "Master Sword", "Mirror Shield", "20 Rupees", "50 Rupee",
   "200 Rupees", "Small Wallet", "Large Wallet", "Dust Pile",
   "Triforce", "Selection", "Misc 1", "Misc 2", "Super Bomb","Heart Container Piece",
-  "Weak Amulet", "Flippers", "Hookshot", "Lens of Truth", "Hammer", "Boots",
-  "Titan's Mitt", "Golden Arrows", "Magic Container", "Small Magic Jar 1",
+  "Amulet", "Flippers", "Hookshot", "Lens of Truth", "Hammer", "Boots",
+  "Power Glove", "Golden Arrows", "Magic Container", "Small Magic Jar",
   "Large Magic Jar", "Golden Ring", "Kill All Enemies", "Strong Amulet",
   "Din's Fire", "Farore's Wind", "Nayru's Love", "Boss Key", "Long Bow", "Stationary Fairy",
   "Arrow Ammunition (1)", "Arrow Ammunition (5)", "Arrow Ammunition (10)", "Arrow Ammunition (30)",
   "Small Quiver", "Medium Quiver", "Large Quiver", "Bomb Ammunition (1)", "Bomb Ammunition (4)", "Bomb Ammunition (8)", "Bomb Ammunition (30)",
-  "Small Bomb Bag", "Medium Bomb Bag", "Large Bomb Bag", "10 Rupees", "100 Rupees", "Cane of Byrna", "Letter (used)"
+  "Small Bomb Bag", "Medium Bomb Bag", "Large Bomb Bag", "10 Rupees", "100 Rupees", "Cane of Byrna", "Letter (used)", "Roc's Feather", "Hover Boots"
 };
 
 void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
@@ -3082,6 +3082,9 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
     case ssiNAYRUSLOVE:
     case ssiQUIVER:
     case ssiCBYRNA:
+    case ssiBOMBBAG:
+    case ssiROCS:
+    case ssiHOVERBOOTS:
     for(int i=0; i<Sitems.Count(); i++)
     {
       int d=-1;
@@ -3245,6 +3248,20 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
         
         case iCByrna:
         d=ssiCBYRNA;
+        break;
+
+	case iBombBag:
+	case iBombBagL2:
+	case iBombBagL3:
+	d=ssiBOMBBAG;
+	break;
+
+        case iRocsFeather:
+        d=ssiROCS;
+        break;
+
+        case iHoverBoots:
+        d=ssiHOVERBOOTS;
         break;
 		
         case iRupy:
@@ -3482,12 +3499,12 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 {
   color_map=&trans_table;
   set_trans_blender(0, 0, 0, 128);
-  static item sel_a((fix)0,(fix)0,iSelectA,0,0);
-  static item sel_b((fix)0,(fix)0,iSelectB,0,0);
+  static item sel_a((fix)0,(fix)0,(fix)0,iSelectA,0,0);
+  static item sel_b((fix)0,(fix)0,(fix)0,iSelectB,0,0);
   if (new_sel)
   {
-    sel_a=item((fix)0,(fix)0,iSelectA,0,0);
-    sel_b=item((fix)0,(fix)0,iSelectB,0,0);
+    sel_a=item((fix)0,(fix)0,(fix)0,iSelectA,0,0);
+    sel_b=item((fix)0,(fix)0,(fix)0,iSelectB,0,0);
     new_sel=false;
   }
   sel_a.yofs=0;
@@ -3653,10 +3670,10 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             case iGArrow:
             if (Bitem->dummy_bool[0]==true) //if we also have a bow
             {
-              if(current_item(itype_bow,true))
+              if(current_item(itype_bow))
               {
                 bool hasarrows=((get_bit(quest_rules,qr_TRUEARROWS)&&get_gamedata_arrows())||(!get_bit(quest_rules,qr_TRUEARROWS)&&get_gamedata_rupies()));
-                switch (current_item(itype_bow,true))
+                switch (current_item(itype_bow))
                 {
                   case 1:
                   sprintf(itemname, "Short Bow%s%s", hasarrows?" & ":"",hasarrows?subscreen_item_names[Bitem->id]:"");
@@ -3826,11 +3843,10 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
         case iGArrow:
         if (Bitem->dummy_bool[0]==true)
         {
-          if(current_item(itype_bow,true))
+          if(current_item(itype_bow))
           {
             subscreenitem(dest, x, y, ssiBOW);
             if ((get_bit(quest_rules,qr_TRUEARROWS)&&!get_gamedata_arrows())||(!get_bit(quest_rules,qr_TRUEARROWS)&&!get_gamedata_rupies()))
-              //                if (!get_gamedata_rupies())
             {
               return;
             }
@@ -3856,7 +3872,7 @@ void defaultcounters(BITMAP *dest, int x, int y, FONT *tempfont, int color, int 
   overtile8(dest,9,x,y+24-yofs,0,0);
 
   putxnum(dest,x+8,y,get_gamedata_rupies(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
-  putxnum(dest,x+8,y+16-yofs,get_gamedata_keys()+get_gamedata_lkeys(),tempfont,color,shadowcolor,bgcolor, textstyle,usex,digits,current_item(itype_magickey,true)>=i_magickey,idigit);
+  putxnum(dest,x+8,y+16-yofs,get_gamedata_keys()+get_gamedata_lkeys(),tempfont,color,shadowcolor,bgcolor, textstyle,usex,digits,current_item(itype_magickey)>=i_magickey,idigit);
   putxnum(dest,x+8,y+24-yofs,get_gamedata_bombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,0,idigit);
 
   if(get_gamedata_sbombs())
@@ -3941,13 +3957,13 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
       {
         value=get_gamedata_rupies();
       }
-      if(!current_item(itype_arrow,true))
+      if(!current_item(itype_arrow))
       {
         value=0;
       }
       break;
     case sscGENKEYMAGIC:
-      if (current_item(itype_magickey,true)>=i_magickey)
+      if (current_item(itype_magickey)>=i_magickey)
       {
         infinite=true;
       }
@@ -3956,7 +3972,7 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
       value=get_gamedata_keys();
       break;
     case sscLEVKEYMAGIC:
-      if (current_item(itype_magickey,true)>=i_magickey)
+      if (current_item(itype_magickey)>=i_magickey)
       {
         infinite=true;
       }
@@ -3965,7 +3981,7 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
       value=get_gamedata_lkeys();
       break;
     case sscANYKEYMAGIC:
-      if (current_item(itype_magickey,true)>=i_magickey)
+      if (current_item(itype_magickey)>=i_magickey)
       {
         infinite=true;
       }
@@ -4355,91 +4371,91 @@ void load_Sitems(miscQdata *misc)
 /*
   if(Awpn > 0)
   {
-    Sitems.add(new item((fix)0, (fix)0, Awpn, 0, 0));
+    Sitems.add(new item((fix)0, (fix)0,(fix)0, Awpn, 0, 0));
   }
 */
-  if(current_item(itype_raft, true)>=i_raft)
+  if(current_item(itype_raft)>=i_raft)
   {
-    Sitems.add(new item((fix)0,(fix)0,iRaft,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iRaft,0,0));
   }
-  if(current_item(itype_book, true)>=i_book)
+  if(current_item(itype_book)>=i_book)
   {
-    Sitems.add(new item((fix)0,(fix)0,iBook,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iBook,0,0));
   }
-  if(current_item(itype_ring,true))
+  if(current_item(itype_ring))
   {
-    if (current_item(itype_ring,true)>=3)
+    if (current_item(itype_ring)>=3)
     {
-      Sitems.add(new item((fix)0,(fix)0,iGRing,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iGRing,0,0));
     }
     else
     {
-      Sitems.add(new item((fix)0,(fix)0,current_item(itype_ring,true)-1+iBRing,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_ring)-1+iBRing,0,0));
     }
   }
-  if(current_item(itype_ladder, true)>=i_ladder)
+  if(current_item(itype_ladder)>=i_ladder)
   {
-    Sitems.add(new item((fix)0,(fix)0,iLadder,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iLadder,0,0));
   }
-  if(current_item(itype_magickey, true)>=i_magickey)
+  if(current_item(itype_magickey)>=i_magickey)
   {
-    Sitems.add(new item((fix)0,(fix)0,iMKey,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iMKey,0,0));
   }
-  if(current_item(itype_bracelet,true))
+  if(current_item(itype_bracelet))
   {
-    if(current_item(itype_bracelet,true)>=i_bracelet2)
+    if(current_item(itype_bracelet)>=i_bracelet2)
     {
-      Sitems.add(new item((fix)0,(fix)0,iL2Bracelet,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iL2Bracelet,0,0));
     }
-    else if(current_item(itype_bracelet,true)>=i_bracelet1)
+    else if(current_item(itype_bracelet)>=i_bracelet1)
       {
-        Sitems.add(new item((fix)0,(fix)0,iBracelet,0,0));
+        Sitems.add(new item((fix)0,(fix)0,(fix)0,iBracelet,0,0));
       }
   }
 
-  if(current_item(itype_shield,true))
+  if(current_item(itype_shield))
   {
-    if(current_item(itype_shield,true)>=i_mirrorshield)
+    if(current_item(itype_shield)>=i_mirrorshield)
     {
-      Sitems.add(new item((fix)0,(fix)0,iMShield,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iMShield,0,0));
     }
-    else if(current_item(itype_shield,true)>=i_largeshield)
+    else if(current_item(itype_shield)>=i_largeshield)
       {
-        Sitems.add(new item((fix)0,(fix)0,iShield,0,0));
+        Sitems.add(new item((fix)0,(fix)0,(fix)0,iShield,0,0));
       }
   }
-  if(current_item(itype_sword,true))
+  if(current_item(itype_sword))
   {
-    Sitems.add(new item((fix)0,(fix)0,iSword-1+current_item(itype_sword,true),0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iSword-1+current_item(itype_sword),0,0));
   }
-  if(current_item(itype_wallet,true))
+  if(current_item(itype_wallet))
   {
-    Sitems.add(new item((fix)0,(fix)0,iWallet500-1+current_item(itype_wallet,true),0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iWallet500-1+current_item(itype_wallet),0,0));
   }
-  if(current_item(itype_amulet,true))
+  if(current_item(itype_amulet))
   {
-    if(current_item(itype_amulet,true)>=i_amulet2)
+    if(current_item(itype_amulet)>=i_amulet2)
     {
-      Sitems.add(new item((fix)0,(fix)0,iL2Amulet,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iL2Amulet,0,0));
     }
-    else if (current_item(itype_amulet,true)>=i_amulet1)
+    else if (current_item(itype_amulet)>=i_amulet1)
       {
-        Sitems.add(new item((fix)0,(fix)0,iAmulet,0,0));
+        Sitems.add(new item((fix)0,(fix)0,(fix)0,iAmulet,0,0));
       }
   }
-  if(current_item(itype_flippers,true)>=i_flippers)
+  if(current_item(itype_flippers)>=i_flippers)
   {
-    Sitems.add(new item((fix)0,(fix)0,iFlippers,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iFlippers,0,0));
   }
-  if(current_item(itype_boots,true)>=i_boots)
+  if(current_item(itype_boots)>=i_boots)
   {
-    Sitems.add(new item((fix)0,(fix)0,iBoots,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iBoots,0,0));
   }
   // HC Pieces
   if(misc->colors.HCpieces_tile)
   {
     //      item *HCP = new item((fix)(inventory_x[5]-ofs),(fix)y,iMax,0,0);
-    item *HCP = new item((fix)0,(fix)0,iMax,0,0);
+    item *HCP = new item((fix)0,(fix)0,(fix)0,iMax,0,0);
     if(HCP)
     {
       HCP->tile = misc->colors.HCpieces_tile + vbound(get_gamedata_HCpieces(),0,3);
@@ -4447,121 +4463,125 @@ void load_Sitems(miscQdata *misc)
       Sitems.add(HCP);
     }
   }
-  if(current_item(itype_brang,true))
+  if(current_item(itype_brang))
   {
-    if (current_item(itype_brang,true)<i_fbrang)
+    if (current_item(itype_brang)<i_fbrang)
     {
-      Sitems.add(new item((fix)0,(fix)0,current_item(itype_brang,true)-1+iBrang,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_brang)-1+iBrang,0,0));
     }
     else
     {
-      Sitems.add(new item((fix)0,(fix)0,iFBrang,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iFBrang,0,0));
     }
   }
   if(get_gamedata_bombs())
   {
-    Sitems.add(new item((fix)0,(fix)0,iBombs,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iBombs,0,0));
   }
-  if(current_item(itype_bow,true))
+  if(current_item(itype_bow))
   {
-    if(current_item(itype_bow,true)==2)
+    if(current_item(itype_bow)==2)
     {
-      Sitems.add(new item((fix)0,(fix)0,iBow2,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iBow2,0,0));
     }
     else
     {
-      Sitems.add(new item((fix)0,(fix)0,iBow,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iBow,0,0));
     }
   }
-  if(current_item(itype_arrow,true))
+  if(current_item(itype_arrow))
   {
-    if (current_item(itype_arrow,true)<i_garrow)
+    if (current_item(itype_arrow)<i_garrow)
     {
-      Sitems.add(new item((fix)0,(fix)0,current_item(itype_arrow,true)-1+iArrow,0,0));
-    }
-    else
-    {
-      Sitems.add(new item((fix)0,(fix)0,iGArrow,0,0));
-    }
-  }
-  if(current_item(itype_candle,true))
-  {
-    Sitems.add(new item((fix)0,(fix)0,current_item(itype_candle,true)-1+iBCandle,0,0));
-  }
-  if(current_item(itype_whistle,true))
-  {
-    Sitems.add(new item((fix)0,(fix)0,iWhistle,0,0));
-  }
-  if(current_item(itype_bait,true))
-  {
-    Sitems.add(new item((fix)0,(fix)0,iBait,0,0));
-  }
-  if(current_item(itype_potion,true))
-  {
-    Sitems.add(new item((fix)0,(fix)0,current_item(itype_potion,true)-1+iBPotion,0,0));
-  }
-  if(current_item(itype_letter,true))
-  {
-    Sitems.add(new item((fix)0,(fix)0,iLetter,0,0));
-  }
-  if(current_item(itype_wand,true))
-  {
-    Sitems.add(new item((fix)0,(fix)0,iWand,0,0));
-  }
-  if(current_item(itype_hookshot,true))
-  {
-    if(current_item(itype_hookshot,true)==2)
-    {
-      Sitems.add(new item((fix)0,(fix)0,iLongshot,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_arrow)-1+iArrow,0,0));
     }
     else
     {
-      Sitems.add(new item((fix)0,(fix)0,iHookshot,0,0));
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iGArrow,0,0));
+    }
+  }
+  if(current_item(itype_candle))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_candle)-1+iBCandle,0,0));
+  }
+  if(current_item(itype_whistle))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iWhistle,0,0));
+  }
+  if(current_item(itype_bait))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iBait,0,0));
+  }
+  if(current_item(itype_potion))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,current_item(itype_potion)-1+iBPotion,0,0));
+  }
+  if(current_item(itype_letter))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iLetter,0,0));
+  }
+  if(current_item(itype_wand))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iWand,0,0));
+  }
+  if(current_item(itype_hookshot))
+  {
+    if(current_item(itype_hookshot)==2)
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iLongshot,0,0));
+    }
+    else
+    {
+      Sitems.add(new item((fix)0,(fix)0,(fix)0,iHookshot,0,0));
     }
   }
   if(get_gamedata_sbombs())
   {
-    Sitems.add(new item((fix)0,(fix)0,iSBomb,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iSBomb,0,0));
   }
-  if(current_item(itype_lens,true))
+  if(current_item(itype_lens))
   {
-    Sitems.add(new item((fix)0,(fix)0,iLens,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iLens,0,0));
   }
-  if(current_item(itype_hammer,true))
+  if(current_item(itype_hammer))
   {
-    Sitems.add(new item((fix)0,(fix)0,iHammer,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iHammer,0,0));
   }
-  if(current_item(itype_dinsfire,true))
+  if(current_item(itype_dinsfire))
   {
-    Sitems.add(new item((fix)0,(fix)0,iDinsFire,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iDinsFire,0,0));
   }
-  if(current_item(itype_faroreswind,true))
+  if(current_item(itype_faroreswind))
   {
-    Sitems.add(new item((fix)0,(fix)0,iFaroresWind,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iFaroresWind,0,0));
   }
-  if(current_item(itype_nayruslove,true))
+  if(current_item(itype_nayruslove))
   {
-    Sitems.add(new item((fix)0,(fix)0,iNayrusLove,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iNayrusLove,0,0));
   }
-  if(current_item(itype_quiver,true))
+  if(current_item(itype_quiver))
   {
-    Sitems.add(new item((fix)0,(fix)0,iQuiver-1+current_item(itype_quiver,true),0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iQuiver-1+current_item(itype_quiver),0,0));
   }
-  if(current_item(itype_cbyrna,true))
+  if(current_item(itype_cbyrna))
   {
-    Sitems.add(new item((fix)0,(fix)0,iCByrna,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iCByrna,0,0));
+  }
+  if(current_item(itype_rocs))
+  {
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iRocsFeather,0,0));
   }
   if(has_item(itype_map, get_dlevel()))
   {
-    Sitems.add(new item((fix)0,(fix)0,iMap,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iMap,0,0));
   }
   if(has_item(itype_compass, get_dlevel()))
   {
-    Sitems.add(new item((fix)0,(fix)0,iCompass,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iCompass,0,0));
   }
   if(has_item(itype_bosskey, get_dlevel()))
   {
-    Sitems.add(new item((fix)0,(fix)0,iBossKey,0,0));
+    Sitems.add(new item((fix)0,(fix)0,(fix)0,iBossKey,0,0));
   }
   new_sel=true;
 }

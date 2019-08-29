@@ -6,6 +6,22 @@
 
 #include "EditboxNew.h"
 #include "zc_alleg.h"
+#include "jwin.h"
+#include "zdefs.h"
+#include "editbox.h"
+#include "gui.h"
+
+extern FONT *lfont;
+extern FONT *pfont;
+
+static DIALOG help_dlg[] =
+{
+  { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0,        (void *) "ZQuest Help", NULL, NULL },
+  { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC,  (void *) close_dlg, NULL, NULL },
+  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
 
 int Unicode::indexToOffset(string &s, int i)
 {
@@ -502,4 +518,29 @@ void EditboxModel::makeLines(list<LineData> &target, string &source)
 	  ld.strip = NULL;
 	  target.push_back(ld);
   }
+}
+
+void EditboxModel::doHelp()
+{
+	string helpstr = "";
+	if(!helpfile)
+		return;
+	FILE *hb = fopen(helpfile, "r");
+  if(!hb)
+  {
+    return;
+  }
+  char c = fgetc(hb);
+  while(!feof(hb))
+  {
+		helpstr+=c;
+		c = fgetc(hb);
+  }	
+  fclose(hb);
+  
+  help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],pfont,view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+  help_dlg[0].dp2= lfont;
+  help_dlg[2].bg = view->getDialog()->bg;
+  zc_popup_dialog(help_dlg,2);
+  delete (EditboxModel*)(help_dlg[2].dp);
 }

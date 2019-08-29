@@ -31,6 +31,14 @@ bool item::animate(int index)
   //these are here to bypass compiler warnings about unused arguments
   index=index;
 
+  z-=(int)fall/100;
+  if (z<=0) 
+  {
+      z = 0;
+      fall = -fall/2; // LA key bounce.
+  }
+  else if (fall <= TERMINALV) fall += GRAVITY;
+
   if((++clk)>=0x8000)
     clk=0x7000;
   if(flash)
@@ -83,9 +91,9 @@ void item::draw(BITMAP *dest)
   }
 }
 
-item::item(fix X,fix Y,int i,int p,int c) : sprite()
+item::item(fix X,fix Y,fix Z,int i,int p,int c) : sprite()
 {
-  x=X; y=Y; id=i; pickup=p; clk=c;
+  x=X; y=Y; z=Z; id=i; pickup=p; clk=c;
   misc=clk2=0;
   aframe=aclk=0;
   anim=flash=twohand=false;
@@ -147,7 +155,7 @@ item::item(fix X,fix Y,int i,int p,int c) : sprite()
 
 void putitem(BITMAP *dest,int x,int y,int item_id)
 {
-  item temp((fix)x,(fix)y,item_id,0,0);
+  item temp((fix)x,(fix)y,(fix)0,item_id,0,0);
   temp.yofs=0;
   temp.animate(0);
   temp.draw(dest);
@@ -155,7 +163,7 @@ void putitem(BITMAP *dest,int x,int y,int item_id)
 
 void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int flash)
 {
-  item temp((fix)x,(fix)y,item_id,0,0);
+  item temp((fix)x,(fix)y,(fix)0,item_id,0,0);
   temp.yofs=0;
   temp.aclk=aclk;
   temp.aframe=aframe;
@@ -289,7 +297,7 @@ char *old_item_string[OLDITEMCNT] =
   "Arrow Ammunition (1)", "Arrow Ammunition (5)", "Arrow Ammunition (10)", "Arrow Ammunition (30)",
   "Quiver 1 (Small)", "Quiver 2 (Medium)", "Quiver 3 (Large)", "Bomb Ammunition (1)", "Bomb Ammunition (4)", "Bomb Ammunition (8)", "Bomb Ammunition (30)",
   "Bomb Bag 1 (Small)", "Bomb Bag 2 (Medium)", "Bomb Bag 3 (Large)", "Key (Level Specific)", "Selection (2)", "Rupee (10)", "Rupee (100)", "Cane of Byrna",
-  "Hookshot 2 (Long)", "Letter (used)"
+  "Hookshot 2 (Long)", "Letter (used)", "Roc's Feather", "Hover Boots"
 };
 
 char *item_string[ITEMCNT];
@@ -314,7 +322,7 @@ char *old_weapon_string[OLDWPNCNT] =
   "Nayru's Love Shield (Front)", "Nayru's Love Shield (Back)", "MISC: Subscreen Vine", "Cane of Byrna", "Cane of Byrna (Slash)",
   "Hookshot 2 (Long) Head", "Hookshot 2 (Long) Chain (Horizontal)", "Hookshot 2 (Long) Handle", "Hookshot 2 (Long) Chain (Vertical)", 
   "Explosion (Super)", "Bomb (Enemy, Normal)", "Bomb (Enemy, Super)", "Explosion (Enemy, Normal)",  "Explosion (Enemy, Super)",
-  "Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy)", "Ice Magic (Enemy)"
+  "Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy)", "Ice Magic (Enemy)", "MISC: Hover Boots Glow"
 };
 
 char *weapon_string[WPNCNT];

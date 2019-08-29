@@ -111,9 +111,9 @@ int weapon::seekEnemy2(int j)
   else                  dir=r_down;
   return j;
 }
-weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
+weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir) : sprite()
 {
-  x=X; y=Y; id=Id; type=Type; power=pow; dir=max(Dir,0);
+  x=X; y=Y; z=Z; id=Id; type=Type; power=pow; dir=max(Dir,0);
   clk=clk2=flip=misc=misc2=0;
   flash=wid=aframe=csclk=0;
   ignorecombo=-1;
@@ -140,7 +140,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
       break;
     case wBeam:
       step = 3;
-      LOADGFX(current_item(itype_sword,true)-1+wSWORD);
+      LOADGFX(current_item(itype_sword)-1+wSWORD);
       flash = 1;
       cs = 6;
       switch(dir)
@@ -152,7 +152,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
       }
       break;
     case wArrow:
-      if (current_item(itype_arrow,true)<3)
+      if (current_item(itype_arrow)<3)
       {
         LOADGFX(wARROW+type-1);
       }
@@ -184,8 +184,8 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
     case wFSparkle:
       LOADGFX(wFSPARKLE);
       step=0;
-    break;
-      case wFire:
+      break;
+    case wFire:
       LOADGFX(wFIRE);
       step = (type<2)?.5:0;
       hxofs = hyofs=1;
@@ -225,7 +225,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
       break;
     case wHookshot:
       hookshot_used=true;
-      if(current_item(itype_hookshot,true)==2)
+      if(current_item(itype_hookshot)==2)
       {
         LOADGFX(wLSHEAD);
       }
@@ -246,7 +246,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
       break;
     case wHSHandle:
       step = 0;
-      if(current_item(itype_hookshot,true)==2)
+      if(current_item(itype_hookshot)==2)
       {
         LOADGFX(wLSHANDLE);
       }
@@ -265,7 +265,7 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
     case wHSChain:
       {
         int chain_gfx;
-        if(current_item(itype_hookshot,true)==2)
+        if(current_item(itype_hookshot)==2)
         {
           if (dir<left)
           {
@@ -323,11 +323,14 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
       break;
     case ewBrang:
       hxofs=0; hxsz=15;
-      wid = min(max(current_item(itype_brang,true),1),3)-1+wBRANG;
+      wid = min(max(current_item(itype_brang),1),3)-1+wBRANG;
       LOADGFX(wid);
       break;
-    case wRefFireball:
     case ewFireball:
+      if (get_bit(quest_rules,qr_MORESOUNDS))
+	sfx(WAV_FIREBALL,(int)x);
+      //fallthrough;
+    case wRefFireball:
       LOADGFX(ewFIREBALL);
       step=1.75;
       misc=dir-1;
@@ -422,10 +425,14 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
       switch (type)
       {
         case pDINSFIREROCKET:
+	  if (get_bit(quest_rules,qr_MORESOUNDS))
+	    sfx(WAV_ROCKETUP,(int)x);
           LOADGFX(wDINSFIRE1A);
           step = 4;
           break;
         case pDINSFIREROCKETRETURN:
+	  if (get_bit(quest_rules,qr_MORESOUNDS))
+	    sfx(WAV_ROCKETDOWN,(int)x);
           LOADGFX(wDINSFIRE1B);
           step = 4;
           break;
@@ -440,11 +447,15 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
 		  break;
         case pNAYRUSLOVEROCKET1:
           LOADGFX(wNAYRUSLOVE1A);
+	  if (get_bit(quest_rules,qr_MORESOUNDS))
+	    sfx(WAV_ROCKETUP,(int)x);
           step = 4;
           drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
           break;
         case pNAYRUSLOVEROCKETRETURN1:
           LOADGFX(wNAYRUSLOVE1B);
+	  if (get_bit(quest_rules,qr_MORESOUNDS))
+	    sfx(WAV_ROCKETDOWN,(int)x);
           step = 4;
           drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
           break;
@@ -598,13 +609,34 @@ bool weapon::animate(int index)
 
   // do special timing stuff
   bool hooked=false;
+  // fall down
+  switch(id) 
+  {
+    case wBomb:
+    case wSBomb:
+    case wLitBomb:
+    case wLitSBomb:
+    case wBait:
+    case wFire:
+    case ewFlame:
+    case ewFireTrail:
+    z-=(int)fall/100;
+    if (z<=0)
+    {
+      z = 0;
+      fall = -fall/2;
+    }
+    else if (fall <= TERMINALV)
+      fall += GRAVITY;
+  }
+  
   //static PALETTE temppal;
   //  fix tempx, tempy;
   switch(id)
   {
     // Link's weapons
     case wBeam:
-      for (int i=0; i<current_item(itype_sword,true); i++)
+      for (int i=0; i<current_item(itype_sword); i++)
       {
         if (findentrance(x,y,mfSWORDBEAM+i,true)) dead=23;
       }
@@ -698,6 +730,7 @@ bool weapon::animate(int index)
 				sfx(WAV_BOMB,pan(int(x)));
 				hxofs=hyofs=-8;
 				hxsz=hysz=32;
+				hzsz=16;
 			}
 			if(clk==81)
 			{
@@ -774,14 +807,14 @@ bool weapon::animate(int index)
 			{
 				dead=4;
 			}
-			if (current_item(itype_arrow,true)>1)
+			if (current_item(itype_arrow)>1)
 			{
 				if (findentrance(x,y,mfSARROW,true))
 				{
 					dead=4;
 				}
 			}
-			if (current_item(itype_arrow,true)==3)
+			if (current_item(itype_arrow)==3)
 			{
 				if (findentrance(x,y,mfGARROW,true))
 				{
@@ -796,6 +829,7 @@ bool weapon::animate(int index)
 				{
 					arrow_x=x;
 					arrow_y=y;
+					arrow_z=z;
 					add_asparkle=type-1;
 				}
 			}
@@ -807,14 +841,14 @@ bool weapon::animate(int index)
 			{
 				dead=4;
 			}
-			if(current_item(itype_arrow,true)<3)
+			if(current_item(itype_arrow)<3)
 			{
 				if (hitcombo(x,y,cBLOCKARROW2))
 				{
 					dead=4;
 				}
 			}
-			if(current_item(itype_arrow,true)==1)
+			if(current_item(itype_arrow)==1)
 			{
 				if (hitcombo(x,y,cBLOCKARROW1))
 				{
@@ -944,7 +978,7 @@ bool weapon::animate(int index)
 
     case wBrang:
 		{
-			for (int i=0; i<current_item(itype_brang,true); i++)
+			for (int i=0; i<current_item(itype_brang); i++)
       {
         if (findentrance(x,y,mfBRANG+i,true)) dead=1;
       }
@@ -957,14 +991,14 @@ bool weapon::animate(int index)
 			{
 				dead=1;
 			}
-			if(current_item(itype_brang,true)<3)
+			if(current_item(itype_brang)<3)
 			{
 				if (hitcombo(x,y,cBLOCKBRANG2))
 				{
 					dead=1;
 				}
 			}
-			if(current_item(itype_brang,true)==1)
+			if(current_item(itype_brang)==1)
 			{
 				if (hitcombo(x,y,cBLOCKBRANG1))
 				{
@@ -1032,11 +1066,11 @@ bool weapon::animate(int index)
 				{
 					CatchBrang();
 					stop_sfx(WAV_BRANG);
-					if (current_item(itype_brang,true)>1)
+					if (current_item(itype_brang)>1)
 					{
 						if (dummy_bool[0])
 						{
-							add_grenade(x,y,current_item(itype_brang,true)>2);
+							add_grenade(x,y,z,current_item(itype_brang)>2);
 							dummy_bool[0]=false;
 						}
 					}
@@ -1053,6 +1087,7 @@ bool weapon::animate(int index)
 				{
 					brang_x=x-3;
 					brang_y=y-3;
+					brang_z=z;
 					add_bsparkle=type-1;
 				}
 			}
@@ -1063,7 +1098,7 @@ bool weapon::animate(int index)
 		{
 			if (misc==0)
 			{
-				int maxlength=16*((current_item(itype_hookshot, true)==2)?zinit.longshot_length:zinit.hookshot_length);
+				int maxlength=16*((current_item(itype_hookshot)==2)?zinit.longshot_length:zinit.hookshot_length);
 				if((abs(LinkX()-x)>maxlength)||(abs(LinkY()-y)>maxlength))
 				{
 					dead=1;
@@ -1355,7 +1390,7 @@ bool weapon::animate(int index)
           {
             if (dir!=(tdir^1))
             {
-              addLwpn(newx,newy,wRefMagic,0,power,tdir);
+              addLwpn(newx,newy,z,wRefMagic,0,power,tdir);
             }
           }
           dead=0;
@@ -1367,7 +1402,7 @@ bool weapon::animate(int index)
           newx=(int)x&0xF0;
           for (int tdir=0; tdir<4; tdir++)
           {
-            addLwpn(newx,newy,wRefMagic,0,power,tdir);
+            addLwpn(newx,newy,z,wRefMagic,0,power,tdir);
           }
           dead=0;
         }
@@ -1600,10 +1635,20 @@ void weapon::onhit(bool clipped, int special, int linkdir)
   {
     switch(id)
     {
+      case ewRock:
+	if (get_bit(quest_rules,qr_REFLECTROCKS)) 
+	{
+	 id = wRefRock;
+         dir ^= 1;
+         if(dir&2)
+           flip ^= 1;
+         else
+           flip ^= 2;
+	 return;
+	}
       case ewMagic:
       case ewArrow:
       case ewSword:
-      case ewRock:
         bounce=true;
         dead=16;
         return;
@@ -1656,7 +1701,7 @@ void weapon::onhit(bool clipped, int special, int linkdir)
           /*
             if (current_item(itype_brang,true)>1) {
             if (dummy_bool[0]) {
-            add_grenade(x,y,current_item(itype_brang,true)>2);
+            add_grenade(x,y,z,current_item(itype_brang,true)>2);
             dummy_bool[0]=false;
             }
             }
@@ -1683,7 +1728,7 @@ void weapon::onhit(bool clipped, int special, int linkdir)
       break;
     case wMagic:
       wand_dead=true;
-      wand_x=x; wand_y=y;        // set some global flags
+      wand_x=x; wand_y=y; wand_z=z;        // set some global flags
       dead=1; break;                                          //remove the dead part to make the wand only die when clipped
 
     case ewWind:
@@ -1709,11 +1754,11 @@ bool weapon::hit(sprite *s)
   return (dead!=-1) ? false : sprite::hit(s);
 }
 
-bool weapon::hit(int tx,int ty,int txsz,int tysz)
+bool weapon::hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz)
 {
   if(id==ewBrang && misc)
     return false;
-  return (dead!=-1) ? false : sprite::hit(tx,ty,txsz,tysz);
+  return (dead!=-1) ? false : sprite::hit(tx,ty,tz,txsz,tysz,tzsz);
 }
 
 void weapon::draw(BITMAP *dest)
@@ -1766,7 +1811,7 @@ void weapon::draw(BITMAP *dest)
     case wBeam:
     {
       if(dead==-1) break;
-      // draw the beam thingies
+      // draw the beam shards
       int ofs=23-dead;
       int f = frame&3;
       int type2 = o_type;
@@ -1775,10 +1820,10 @@ void weapon::draw(BITMAP *dest)
         cs = o_cset>>4;
       if(type2==3 && (f&2))
         ++tile;
-      if(!type2 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs,cs,0);
-      if(!type2 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs,cs,1);
-      if(!type2 || f==1 || (type2>1 && f==2)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset+2+ofs,cs,2);
-      if(!type2 || f==3 || (type2>1 && f==0)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset+2+ofs,cs,3);
+      if(!type2 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs-(z+zofs),cs,0);
+      if(!type2 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs-(z+zofs),cs,1);
+      if(!type2 || f==1 || (type2>1 && f==2)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset+2+ofs-(z+zofs),cs,2);
+      if(!type2 || f==3 || (type2>1 && f==0)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset+2+ofs-(z+zofs),cs,3);
     } return;                                               // don't draw sword
 
     case wBomb:
@@ -1811,20 +1856,20 @@ void weapon::draw(BITMAP *dest)
       {
         ++tile;
       }
-      overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-13,cs,0);
-      overtile16(dest,tile,x,y+yofs,cs,0);
-      overtile16(dest,tile,x+((clk&1)?-14:14),y+yofs,cs,0);
-      overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+14,cs,0);
+      overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-13-(z+zofs),cs,0);
+      overtile16(dest,tile,x,y+yofs-(z+zofs),cs,0);
+      overtile16(dest,tile,x+((clk&1)?-14:14),y+yofs-(z+zofs),cs,0);
+      overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+14-(z+zofs),cs,0);
       if(id==wSBomb||id==ewSBomb)
       {
-        overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-27,cs,0);
-        overtile16(dest,tile,x+((clk&1)?-21:21),y+yofs-13,cs,0);
-        overtile16(dest,tile,x+((clk&1)?-28:28),y+yofs,cs,0);
-        overtile16(dest,tile,x+((clk&1)?21:-21),y+yofs+14,cs,0);
-        overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+28,cs,0);
+        overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-27-(z+zofs),cs,0);
+        overtile16(dest,tile,x+((clk&1)?-21:21),y+yofs-13-(z+zofs),cs,0);
+        overtile16(dest,tile,x+((clk&1)?-28:28),y+yofs-(z+zofs),cs,0);
+        overtile16(dest,tile,x+((clk&1)?21:-21),y+yofs+14-(z+zofs),cs,0);
+        overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+28-(z+zofs),cs,0);
       }
       if(get_debug() && key[KEY_O])
-        rectfill(dest,x+hxofs,y+hyofs+yofs,
+        rectfill(dest,x+hxofs,y+hyofs+yofs-(z+zofs),
                  x+hxofs+hxsz-1,y+hyofs+hysz-1+yofs,vc(id));
       return;                                               // don't draw bomb
 
@@ -1904,7 +1949,7 @@ void weapon::draw(BITMAP *dest)
 
 void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe)
 {
-  weapon temp((fix)x,(fix)y,weapon_id,type,0,dir);
+  weapon temp((fix)x,(fix)y,(fix)0,weapon_id,type,0,dir);
   temp.yofs=0;
   temp.clk2=aclk;
   temp.aframe=aframe;

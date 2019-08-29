@@ -86,6 +86,14 @@ public:
   virtual void draw(BITMAP *dest);
 };
 
+class dHover : public decoration
+{
+public:
+  dHover(fix X,fix Y,int Id,int Clk);
+  virtual bool animate(int index);
+  virtual void draw(BITMAP *dest);
+};
+
 class dNayrusLoveShield : public decoration
 {
 public:

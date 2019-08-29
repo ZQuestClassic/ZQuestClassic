@@ -126,7 +126,7 @@ int click_d_ctile_proc();
 int onCmb_dlg_h();
 int onCmb_dlg_v();
 int onCmb_dlg_r();
-void edit_combo(int c,bool freshen,int cs);
+bool edit_combo(int c,bool freshen,int cs);
 int d_itile_proc(int msg,DIALOG *d,int c);
 int onIcons();
 void center_zq_tiles_dialogs();

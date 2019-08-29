@@ -226,12 +226,13 @@ static DIALOG rules_dlg[] =
   { jwin_check_proc,      10,   63,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Invisible Border on Non-Dungeon Dmaps", NULL, NULL },
   { jwin_check_proc,      10,   73,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "1.90-Style Tribbles", NULL, NULL },
 
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,      10,   83,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "All Shields Reflect Rocks", NULL, NULL },
+  { jwin_check_proc,      10,   93,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Items Disappear During Hold-Up", NULL, NULL },
+  { jwin_check_proc,      10,  103,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Enemies Jump/Fly Through Z-Axis", NULL, NULL },
+  { jwin_check_proc,      10,  113,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Can Safely Trigger Armos/Grave From The South", NULL, NULL },
 
-  { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
+  { jwin_check_proc,      10,  123,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "More Sound Effects", NULL, NULL },
+  { jwin_check_proc,      10,  133,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Boomerang/Hookshot Grabs All Items", NULL, NULL },
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },
   { d_dummy_proc,          0,    0,     0,    0,    vc(15),   vc(1),      0,      0,          0,             0,       NULL, NULL, NULL },

@@ -328,8 +328,8 @@ static void storyscreen(int f)
 static int trstr;
 static byte tr_items[] =
 {
-  2,28,34,4,0,1,29,30,12,16,5,6,7,8,23,24,3,15,13,14,10,11,
-  17,18,19,31,26,27,25,32,9,33,21,22,23
+iHeart,iHeartC,iFairyMoving,iClock,iRupy,i5Rupies,iBPotion,iRPotion,iLetter,iBait,iSword,iWSword,iMSword,iShield,iBrang,iMBrang,iBombs,iBow,iArrow,iSArrow,iBCandle,iRCandle,
+  iBRing,iRRing,iBracelet,iWhistle,iRaft,iLadder,iWand,iBook,iKey,iMKey,iMap,iCompass,iTriforce
 };
 
 static char* treasure_str[] =

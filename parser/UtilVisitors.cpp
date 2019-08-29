@@ -123,6 +123,10 @@ void Clone::caseTypeItemclass(ASTTypeItemclass &host, void *param)
 
 	result = new ASTTypeItemclass(host.getLocation());
 }
+void Clone::caseTypeNPC(ASTTypeNPC &host, void *)
+{
+	result = new ASTTypeNPC(host.getLocation());
+}
 void Clone::caseVarDecl(ASTVarDecl &host, void *param)
 {
 	host.getType()->execute(*this,param);
@@ -804,4 +808,9 @@ void ExtractType::caseTypeItemclass(ASTTypeItemclass &host, void *param)
   temp=&host;
 
 	*(int *)param = ScriptParser::TYPE_ITEMCLASS;
+}
+
+void ExtractType::caseTypeNPC(ASTTypeNPC &, void *param)
+{
+	*(int *)param = ScriptParser::TYPE_NPC;
 }

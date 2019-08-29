@@ -126,6 +126,25 @@ using namespace std;
 #define FFCHEIGHT 103
 #define FFLINK 104
 #define LINKITEMD 105
+#define REFNPC 106
+#define NPCCOUNT 107
+#define NPCX 108
+#define NPCY 109
+#define NPCDIR 110
+#define NPCRATE 111
+#define NPCFRAMERATE 112
+#define NPCHALTRATE 113
+#define NPCDRAWTYPE 114
+#define NPCHP 115
+#define NPCDP 116
+#define NPCWDP 117
+#define NPCTILE 118
+#define NPCWEAPON 119
+#define NPCITEMSET 120
+#define NPCCSET 121
+#define NPCBOSSPAL 122
+#define NPCBGSFX 123
+#define NPCEXTEND 124
 
 class LiteralArgument;
 class VarArgument;
@@ -661,6 +680,14 @@ public:
 	OCreateItemRegister(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OCreateItemRegister(a->clone());}
+};
+
+class OCreateNPCRegister : public UnaryOpcode
+{
+public:
+	OCreateNPCRegister(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OCreateNPCRegister(a->clone());}
 };
 
 class OPlaySoundRegister : public UnaryOpcode

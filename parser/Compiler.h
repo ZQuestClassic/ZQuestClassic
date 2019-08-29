@@ -75,6 +75,7 @@ public:
 	static const int TYPE_ITEM = 7;
 	static const int TYPE_ITEMCLASS = 8;
 	static const int TYPE_GAME = 9;
+	static const int TYPE_NPC = 10;
 	static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
 	static SymbolData *buildSymbolTable(AST *theAST, std::map<string, long> *constants);
 	static FunctionData *typeCheck(SymbolData *sdata);
@@ -95,6 +96,7 @@ public:
 		case TYPE_ITEM: return "item";
 		case TYPE_ITEMCLASS: return "itemclass";
 		case TYPE_GAME: return "game";
+		case TYPE_NPC: return "npc";
 		default: return "wtf";
 		}
 	}

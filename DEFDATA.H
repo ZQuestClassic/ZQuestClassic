@@ -17,6 +17,6 @@
 
 #include "items.h"
 #include "guys.h"
-extern itemdata default_items[MAXITEMS];
+extern comboclass default_combo_classes[cMAX];
 extern guydata default_guys[eMAXGUYS];
 #endif

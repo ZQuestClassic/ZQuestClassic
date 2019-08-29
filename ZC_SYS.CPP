@@ -1407,7 +1407,7 @@ bool item_disabled(int item_type, int item)                 //is this item disab
 {
   //these are here to bypass compiler warnings about unused arguments
   item=item;
-
+  
   switch (item_type)
   {
     case itype_sword:
@@ -1429,6 +1429,7 @@ bool item_disabled(int item_type, int item)                 //is this item disab
 	case itype_bomb:
 	case itype_sbomb:
 	case itype_cbyrna:
+	case itype_rocs:
 	case itype_magic:
 	return (game->items_off[item_type]>0);
     break;
@@ -1626,7 +1627,7 @@ bool has_item(int item_type, int it)                        //does Link possess 
   return 0;
 }*/
 
-int current_item(int item_type, bool consecutive)           //item currently being used
+int current_item(int item_type)           //item currently being used
 {
   switch(item_type)
   {
@@ -1692,7 +1693,7 @@ int current_item(int item_type, bool consecutive)           //item currently bei
     int maxid = getHighestLevelOfFamily(game, itemsbuf, item_type);
 	if(maxid == -1)
 		return 0;
-	if(consecutive)
+	/*if(consecutive)
 	{
 		for(int j=maxid-1; j>0; j--)
 		{
@@ -1704,12 +1705,10 @@ int current_item(int item_type, bool consecutive)           //item currently bei
 		}
 		if(maxid == -1)
 			return 0;
-	}
+	}*/
 	return itemsbuf[maxid].fam_type;
     break;
   }
-  //return high_item(jmax, item_type, consecutive, 0, false);
-
 }
 
 int item_tile_mod(bool smodify)
@@ -1719,7 +1718,7 @@ int item_tile_mod(bool smodify)
 
   long tile=0;
   int ret=0;
-  ret=current_item(itype_sword, true);
+  ret=current_item(itype_sword);
   switch(ret)
   {
     case 1: ret=itemsbuf[iSword].ltm; break;
@@ -1730,7 +1729,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_brang, true);
+  ret=current_item(itype_brang);
   switch(ret)
   {
     case 1: ret=itemsbuf[iBrang].ltm; break;
@@ -1740,7 +1739,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_arrow, true);
+  ret=current_item(itype_arrow);
   switch(ret)
   {
     case 1: ret=itemsbuf[iArrow].ltm; break;
@@ -1750,7 +1749,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_candle, true);
+  ret=current_item(itype_candle);
   switch(ret)
   {
     case 1: ret=itemsbuf[iBCandle].ltm; break;
@@ -1759,14 +1758,14 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_whistle, true);
+  ret=current_item(itype_whistle);
   switch(ret)
   {
     case 1: ret=itemsbuf[iWhistle].ltm; break;
     default: ret=0; break;
   }
   tile+=ret;
-  ret=current_item(itype_bait, true);
+  ret=current_item(itype_bait);
   switch(ret)
   {
     case 1: ret=itemsbuf[iBait].ltm; break;
@@ -1774,7 +1773,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_letter, true);
+  ret=current_item(itype_letter);
   switch(ret)
   {
     case 1:
@@ -1783,7 +1782,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_potion, true);
+  ret=current_item(itype_potion);
   switch(ret)
   {
     case 1: ret=itemsbuf[iBPotion].ltm; break;
@@ -1792,7 +1791,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_wand, true);
+  ret=current_item(itype_wand);
   switch(ret)
   {
     case 1: ret=itemsbuf[iWand].ltm; break;
@@ -1800,7 +1799,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_ring, true);
+  ret=current_item(itype_ring);
   switch(ret)
   {
     case 1: ret=itemsbuf[iBRing].ltm; break;
@@ -1810,7 +1809,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_wallet, true);
+  ret=current_item(itype_wallet);
   switch(ret)
   {
     case 1: ret=itemsbuf[iWallet500].ltm; break;
@@ -1819,7 +1818,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_amulet, true);
+  ret=current_item(itype_amulet);
   switch(ret)
   {
     case 1: ret=itemsbuf[iAmulet].ltm; break;
@@ -1828,7 +1827,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_shield, true);
+  ret=current_item(itype_shield);
   switch(ret)
   {
     case 1: ret=0; break;
@@ -1838,7 +1837,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_bow, true);
+  ret=current_item(itype_bow);
   switch(ret)
   {
     case 1: ret=itemsbuf[iBow].ltm; break;
@@ -1848,7 +1847,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_raft, true);
+  ret=current_item(itype_raft);
   switch(ret)
   {
     case 1: ret=itemsbuf[iRaft].ltm; break;
@@ -1856,7 +1855,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_ladder, true);
+  ret=current_item(itype_ladder);
   switch(ret)
   {
     case 1: ret=itemsbuf[iLadder].ltm; break;
@@ -1864,14 +1863,14 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_book, true);
+  ret=current_item(itype_book);
   switch(ret)
   {
     case 1: ret=itemsbuf[iBook].ltm; break;
     default: ret=0; break;
   }
   tile+=ret;
-  ret=current_item(itype_magickey, true);
+  ret=current_item(itype_magickey);
   switch(ret)
   {
     case 1: ret=itemsbuf[iMKey].ltm; break;
@@ -1879,7 +1878,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_bracelet, true);
+  ret=current_item(itype_bracelet);
   switch(ret)
   {
     case 1: ret=itemsbuf[iBracelet].ltm; break;
@@ -1888,7 +1887,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_flippers, true);
+  ret=current_item(itype_flippers);
   switch(ret)
   {
     case 1: ret=itemsbuf[iFlippers].ltm; break;
@@ -1896,7 +1895,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_boots, true);
+  ret=current_item(itype_boots);
   switch(ret)
   {
     case 1: ret=itemsbuf[iBoots].ltm; break;
@@ -1904,7 +1903,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_hookshot, true);
+  ret=current_item(itype_hookshot);
   switch(ret)
   {
     case 1: ret=itemsbuf[iHookshot].ltm; break;
@@ -1913,14 +1912,14 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_lens, true);
+  ret=current_item(itype_lens);
   switch(ret)
   {
     case 1: ret=itemsbuf[iLens].ltm; break;
     default: ret=0; break;
   }
   tile+=ret;
-  ret=current_item(itype_hammer, true);
+  ret=current_item(itype_hammer);
   switch(ret)
   {
     case 1: ret=itemsbuf[iHammer].ltm; break;
@@ -1928,7 +1927,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_dinsfire, true);
+  ret=current_item(itype_dinsfire);
   switch(ret)
   {
     case 1: ret=itemsbuf[iDinsFire].ltm; break;
@@ -1936,7 +1935,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_faroreswind, true);
+  ret=current_item(itype_faroreswind);
   switch(ret)
   {
     case 1: ret=itemsbuf[iFaroresWind].ltm; break;
@@ -1944,7 +1943,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_nayruslove, true);
+  ret=current_item(itype_nayruslove);
   switch(ret)
   {
     case 1: ret=itemsbuf[iNayrusLove].ltm; break;
@@ -1952,7 +1951,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_quiver, true);
+  ret=current_item(itype_quiver);
   switch(ret)
   {
     case 1: ret=itemsbuf[iQuiver].ltm; break;
@@ -1978,7 +1977,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_clock, true);
+  ret=current_item(itype_clock);
   switch(ret)
   {
     case 1: ret=itemsbuf[iClock].ltm; break;
@@ -1986,7 +1985,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_key, true);
+  ret=current_item(itype_key);
   switch(ret)
   {
     case 0: ret=0; break;
@@ -1994,7 +1993,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_lkey, true);
+  ret=current_item(itype_lkey);
   switch(ret)
   {
     case 0: ret=0; break;
@@ -2002,7 +2001,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_map, true);
+  ret=current_item(itype_map);
   switch(ret)
   {
     case 0: ret=0; break;
@@ -2010,7 +2009,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_compass, true);
+  ret=current_item(itype_compass);
   switch(ret)
   {
     case 0: ret=0; break;
@@ -2018,7 +2017,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_bosskey, true);
+  ret=current_item(itype_bosskey);
   switch(ret)
   {
     case 0: ret=0; break;
@@ -2026,7 +2025,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_magiccontainer, true);
+  ret=current_item(itype_magiccontainer);
   switch(ret)
   {
     case 0: ret=0; break;
@@ -2034,7 +2033,7 @@ int item_tile_mod(bool smodify)
   }
   tile+=ret;
 
-  ret=current_item(itype_triforcepiece, true);
+  ret=current_item(itype_triforcepiece);
   switch(ret)
   {
     case 0: ret=0; break;
@@ -2773,6 +2772,7 @@ void draw_lens_under(BITMAP *dest)
           case mfDIVE_ITEM:
           if (get_bit(quest_rules,qr_LENSHINTS))
           {
+	  // TODO: This.
           }
           if(!getmapflag())
             //          putitem2(dest,x,y,tmpscr->catchall);
@@ -2974,161 +2974,161 @@ void waitvsync()
 
 void updatescr()
 {
-  //rest(1);
-  if (halt)
-  {
-    char buf[20];
-    int num=0;
-    do
-    {
-      sprintf(buf, "zelda%03d.bmp", ++num);
-    } while(num<999 && exists(buf));
+	//rest(1);
+	if (halt)
+	{
+		char buf[20];
+		int num=0;
+		do
+		{
+			sprintf(buf, "zelda%03d.bmp", ++num);
+		} while(num<999 && exists(buf));
 
-    PALETTE tpal;
-    get_palette(tpal);
-    if (tmpscr->flags3&fNOSUBSCR)
-    {
-      BITMAP *ssbuf = create_bitmap_ex(8,256,168);
-      clear_to_color(ssbuf,0);
-      blit(framebuf,ssbuf,0,playing_field_offset,0,0,256,168);
-      save_bitmap(buf,ssbuf,tpal);
-      destroy_bitmap(ssbuf);
-    }
-    else
-    {
-      save_bitmap(buf,framebuf,tpal);
-    }
-  }
+		PALETTE tpal;
+		get_palette(tpal);
+		if (tmpscr->flags3&fNOSUBSCR)
+		{
+			BITMAP *ssbuf = create_bitmap_ex(8,256,168);
+			clear_to_color(ssbuf,0);
+			blit(framebuf,ssbuf,0,playing_field_offset,0,0,256,168);
+			save_bitmap(buf,ssbuf,tpal);
+			destroy_bitmap(ssbuf);
+		}
+		else
+		{
+			save_bitmap(buf,framebuf,tpal);
+		}
+	}
 
-  if(toogam)
-  {
-    textout_ex(framebuf,font,"no walls",8,216,1,-1);
-  }
+	if(toogam)
+	{
+		textout_ex(framebuf,font,"no walls",8,216,1,-1);
+	}
 
-  if(Showpal)
-    dump_pal(framebuf);
+	if(Showpal)
+		dump_pal(framebuf);
 
-  if(!Playing)
-    black_opening_count=0;
+	if(!Playing)
+		black_opening_count=0;
 
-  if(black_opening_count<0) //shape is opening up
-  {
-    black_opening(framebuf,black_opening_x,black_opening_y,(66+black_opening_count),66);
-    if (Advance||(!Paused))
-    {
-      ++black_opening_count;
-    }
-  }
-  else if(black_opening_count>0) //shape is closing
-    {
-      black_opening(framebuf,black_opening_x,black_opening_y,black_opening_count,66);
-      if (Advance||(!Paused))
-      {
-        --black_opening_count;
-      }
-    }
+	if(black_opening_count<0) //shape is opening up
+	{
+		black_opening(framebuf,black_opening_x,black_opening_y,(66+black_opening_count),66);
+		if (Advance||(!Paused))
+		{
+			++black_opening_count;
+		}
+	}
+	else if(black_opening_count>0) //shape is closing
+	{
+		black_opening(framebuf,black_opening_x,black_opening_y,black_opening_count,66);
+		if (Advance||(!Paused))
+		{
+			--black_opening_count;
+		}
+	}
 
-    //redo this and waitvsync(), too
+	//redo this and waitvsync(), too
 
-  if (triplebuffer_not_available)
-  {
-    waitvsync();
-  }
-  else
-  {
-    //    myvsync=0;
-  }
+	if (triplebuffer_not_available)
+	{
+		waitvsync();
+	}
+	else
+	{
+		//    myvsync=0;
+	}
 
 
-  if(refreshpal)
-  {
-    refreshpal=false;
-    RAMpal[253] = _RGB(0,0,0);
-    RAMpal[254] = _RGB(63,63,63);
-    set_palette_range(RAMpal,0,255,false);
-  }
+	if(refreshpal)
+	{
+		refreshpal=false;
+		RAMpal[253] = _RGB(0,0,0);
+		RAMpal[254] = _RGB(63,63,63);
+		set_palette_range(RAMpal,0,255,false);
+	}
 
-  show_details();
+	show_details();
 
-  if (Link.DrunkClock())
-  {
-    draw_wavy(Link.DrunkClock()/(MAXDRUNKCLOCK/32));
-  }
-  BITMAP *panorama = NULL;
+	if (Link.DrunkClock())
+	{
+		draw_wavy(Link.DrunkClock()/(MAXDRUNKCLOCK/32));
+	}
+	BITMAP *panorama = NULL;
 
-  bool nosubscr = (tmpscr->flags3&fNOSUBSCR) != 0;
+	bool nosubscr = (tmpscr->flags3&fNOSUBSCR) != 0;
 
-  if (nosubscr)
-  {
-	  panorama = create_bitmap_ex(8,256,224);
-      rectfill(panorama,0,0,255,passive_subscreen_height/2,0);
-      rectfill(panorama,0,168+passive_subscreen_height/2,255,168+passive_subscreen_height-1,0);
-      blit(framebuf,panorama,0,playing_field_offset,0,passive_subscreen_height/2,256,224-passive_subscreen_height);
-  }
-  BITMAP *target;
-  bool dontusetb = triplebuffer_not_available ||
-	  !(Throttlefps ^ (get_debug() && key[KEY_TILDE]));
-  if(dontusetb)
-	  target=screen;
-  else
-	  target=tb_page[curr_tb_page];
+	if (nosubscr)
+	{
+		panorama = create_bitmap_ex(8,256,224);
+		rectfill(panorama,0,0,255,passive_subscreen_height/2,0);
+		rectfill(panorama,0,168+passive_subscreen_height/2,255,168+passive_subscreen_height-1,0);
+		blit(framebuf,panorama,0,playing_field_offset,0,passive_subscreen_height/2,256,224-passive_subscreen_height);
+	}
+	BITMAP *target;
+	bool dontusetb = triplebuffer_not_available ||
+		!(Throttlefps ^ (get_debug() && key[KEY_TILDE]));
+	if(dontusetb)
+		target=screen;
+	else
+		target=tb_page[curr_tb_page];
 
-  if (scanlines && sbig)
-    {
-      BITMAP *scanlinesbmp = create_bitmap_ex(8,512,448);
-      stretch_blit(nosubscr?panorama:framebuf,scanlinesbmp,0,0,256,224,0,0    ,512,448);
-      for (int i=0; i<224; ++i)
-      {
-        _allegro_hline(scanlinesbmp, 0, i*2+1, 512, BLACK);
-      }
-      blit(scanlinesbmp,target,0,0,scrx+32-128,scry+8-112,512,448);
+	if (scanlines && sbig)
+	{
+		BITMAP *scanlinesbmp = create_bitmap_ex(8,512,448);
+		stretch_blit(nosubscr?panorama:framebuf,scanlinesbmp,0,0,256,224,0,0    ,512,448);
+		for (int i=0; i<224; ++i)
+		{
+			_allegro_hline(scanlinesbmp, 0, i*2+1, 512, BLACK);
+		}
+		blit(scanlinesbmp,target,0,0,scrx+32-128,scry+8-112,512,448);
 
-      destroy_bitmap(scanlinesbmp);
-    }
+		destroy_bitmap(scanlinesbmp);
+	}
 	else if (sbig)
-      {
-        //jman2050, what are you doing with this line below?
-        //exists((char*)panorama); exists((char*)screen);
-        //did you mean
-        //assert((char*)panorama); assert((char*)screen);
-        BITMAP *tempscreen = create_bitmap_ex(8,512,448);
-        clear_bitmap(tempscreen);
-        stretch_blit(nosubscr?panorama:framebuf,tempscreen,0,0,256,224,0,0,512,448);
-        blit(tempscreen,target,0,0,scrx+32-128,scry+8-112,512,448);
-        destroy_bitmap(tempscreen);
-      }
-      else
-      {
-        blit(nosubscr?panorama:framebuf,target,0,0,scrx+32,scry+8,256,224);
-      }
+	{
+		//jman2050, what are you doing with this line below?
+		//exists((char*)panorama); exists((char*)screen);
+		//did you mean
+		//assert((char*)panorama); assert((char*)screen);
+		BITMAP *tempscreen = create_bitmap_ex(8,512,448);
+		clear_bitmap(tempscreen);
+		stretch_blit(nosubscr?panorama:framebuf,tempscreen,0,0,256,224,0,0,512,448);
+		blit(tempscreen,target,0,0,scrx+32-128,scry+8-112,512,448);
+		destroy_bitmap(tempscreen);
+	}
+	else
+	{
+		blit(nosubscr?panorama:framebuf,target,0,0,scrx+32,scry+8,256,224);
+	}
 
-  if (!dontusetb)
-  {
-    if(!poll_scroll())
-    {
-      request_video_bitmap(tb_page[curr_tb_page]);
-      curr_tb_page=(curr_tb_page+1)%3;
-      clear_to_color(tb_page[curr_tb_page],BLACK);
-    }
-    waitvsync();
-  }
-
-
-  if(ShowFPS)
-    show_fps();
+	if (!dontusetb)
+	{
+		if(!poll_scroll())
+		{
+			request_video_bitmap(tb_page[curr_tb_page]);
+			curr_tb_page=(curr_tb_page+1)%3;
+			clear_to_color(tb_page[curr_tb_page],BLACK);
+		}
+		waitvsync();
+	}
 
 
-  if(Paused)
-    show_paused();
+	if(ShowFPS)
+		show_fps();
 
-  if(details)
-  {
-    textprintf_ex(screen,font,0,SCREEN_H-8,254,BLACK,"%-6d (%s)", idle_count, time_str_long(idle_count));
-  }
 
-  if(panorama!=NULL) destroy_bitmap(panorama);
+	if(Paused)
+		show_paused();
 
-  ++framecnt;
+	if(details)
+	{
+		textprintf_ex(screen,font,0,SCREEN_H-8,254,BLACK,"%-6d (%s)", idle_count, time_str_long(idle_count));
+	}
+
+	if(panorama!=NULL) destroy_bitmap(panorama);
+
+	++framecnt;
 }
 
 //----------------------------------------------------------------
@@ -6492,6 +6492,8 @@ void Z_init_sound()
     sfx_voice[i]=-1;
   for(int i=0; i<ZC_MIDI_COUNT; i++)
     tunes[i].midi = (MIDI*)mididata[i].dat;
+  for(int j=0; j<MAXCUSTOMMIDIS; j++)
+	tunes[ZC_MIDI_COUNT+j].midi=NULL;
   master_volume(digi_volume,midi_volume);
 }
 
@@ -6529,9 +6531,9 @@ bool sfx_init(int index)
   if(sfx_voice[index]==-1)
   {
     if(sfxdat)
-	  if(index<35)
+	  if(index<Z35)
         sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[index].dat);
-	  else sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[35].dat);
+	  else sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[Z35].dat);
 	else
 	  sfx_voice[index]=allocate_voice(&customsfxdata[index]);
   }

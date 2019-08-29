@@ -27,6 +27,7 @@
 int ex=0;
 int nextcombo_fake_click=0;
 
+
 BITMAP *selection_pattern;
 byte selection_grid[18][18];
 byte selection_anchor=0;
@@ -37,9 +38,204 @@ int selecting_x1, selecting_x2, selecting_y1, selecting_y2;
 
 BITMAP *intersection_pattern;
 
+byte relational_template[48][4]=
+{
+  {  0,  0,  0,  0 },
+  {  0,  1,  0,  0 },
+  {  1,  0,  0,  0 },
+  {  1,  1,  0,  0 },
+  {  0,  0,  1,  0 },
+  {  0,  1,  1,  0 },
+  {  1,  0,  1,  0 },
+  {  1,  1,  1,  0 },
+  {  0,  0,  0,  1 },
+  {  0,  1,  0,  1 },
+  {  1,  0,  0,  1 },
+  {  1,  1,  0,  1 },
+  {  0,  0,  1,  1 },
+  {  0,  1,  1,  1 },
+  {  1,  0,  1,  1 },
+  {  1,  1,  1,  1 },
+  {  0,  2,  0,  2 },
+  {  1,  2,  0,  2 },
+  {  0,  2,  1,  2 },
+  {  1,  2,  1,  2 },
+  {  3,  3,  0,  0 },
+  {  3,  3,  1,  0 },
+  {  3,  3,  0,  1 },
+  {  3,  3,  1,  1 },
+  {  3,  4,  0,  2 },
+  {  3,  4,  1,  2 },
+  {  2,  0,  2,  0 },
+  {  2,  1,  2,  0 },
+  {  2,  0,  2,  1 },
+  {  2,  1,  2,  1 },
+  {  2,  2,  2,  2 },
+  {  4,  3,  2,  0 },
+  {  4,  3,  2,  1 },
+  {  4,  4,  2,  2 },
+  {  0,  0,  3,  3 },
+  {  0,  1,  3,  3 },
+  {  1,  0,  3,  3 },
+  {  1,  1,  3,  3 },
+  {  0,  2,  3,  4 },
+  {  1,  2,  3,  4 },
+  {  3,  3,  3,  3 },
+  {  3,  4,  3,  4 },
+  {  2,  0,  4,  3 },
+  {  2,  1,  4,  3 },
+  {  2,  2,  4,  4 },
+  {  4,  3,  4,  3 },
+  {  4,  4,  4,  4 },
+  {  5,  5,  5,  5 }
+};
+
+byte dungeon_carving_template[96][4]=
+{
+  {  0,  0,  0,  0 },
+  {  0,  1,  0,  0 },
+  {  1,  0,  0,  0 },
+  {  1,  1,  0,  0 },
+  {  0,  0,  1,  0 },
+  {  0,  1,  1,  0 },
+  {  1,  0,  1,  0 },
+  {  1,  1,  1,  0 },
+  {  0,  0,  0,  1 },
+  {  0,  1,  0,  1 },
+  {  1,  0,  0,  1 },
+  {  1,  1,  0,  1 },
+  {  0,  0,  1,  1 },
+  {  0,  1,  1,  1 },
+  {  1,  0,  1,  1 },
+  {  1,  1,  1,  1 },
+  {  0,  2,  0,  2 },
+  {  1,  2,  0,  2 },
+  {  0,  2,  1,  2 },
+  {  1,  2,  1,  2 },
+  {  3,  3,  0,  0 },
+  {  3,  3,  1,  0 },
+  {  3,  3,  0,  1 },
+  {  3,  3,  1,  1 },
+  {  3,  4,  0,  2 },
+  {  3,  4,  1,  2 },
+  {  2,  0,  2,  0 },
+  {  2,  1,  2,  0 },
+  {  2,  0,  2,  1 },
+  {  2,  1,  2,  1 },
+  {  2,  2,  2,  2 },
+  {  4,  3,  2,  0 },
+  {  4,  3,  2,  1 },
+  {  4,  4,  2,  2 },
+  {  0,  0,  3,  3 },
+  {  0,  1,  3,  3 },
+  {  1,  0,  3,  3 },
+  {  1,  1,  3,  3 },
+  {  0,  2,  3,  4 },
+  {  1,  2,  3,  4 },
+  {  3,  3,  3,  3 },
+  {  3,  4,  3,  4 },
+  {  2,  0,  4,  3 },
+  {  2,  1,  4,  3 },
+  {  2,  2,  4,  4 },
+  {  4,  3,  4,  3 },
+  {  4,  4,  4,  4 },
+  {  5,  5,  5,  5 },
+
+  {  5,  5,  5,  5 },
+  {  6,  6,  6,  6 },
+  {  7,  7,  7,  7 },
+  {  7,  6,  7,  6 },
+  {  8,  8,  8,  8 },
+  { 16,  6,  8, 15 },
+  {  7,  7,  8,  8 },
+  {  7,  6,  8, 15 },
+  {  9,  9,  9,  9 },
+  {  6,  6,  9,  9 },
+  {  7, 17, 14,  9 },
+  {  7,  6, 14,  9 },
+  {  8,  9,  8,  9 },
+  { 16,  6,  8,  9 },
+  {  7, 17,  8,  9 },
+  {  7,  6,  8,  9 },
+  { 10, 10, 10, 10 },
+  {  7, 10, 14, 10 },
+  { 16, 10,  8, 10 },
+  {  7, 10,  8, 10 },
+  { 11, 11, 11, 11 },
+  { 11, 11,  8, 15 },
+  { 11, 11, 14,  9 },
+  { 11, 11,  8,  9 },
+  { 14, 14, 14, 14 },
+  { 14, 14,  8, 14 },
+  { 12, 12, 12, 12 },
+  { 12,  6, 12, 15 },
+  { 12, 17, 12,  9 },
+  { 12,  6, 12,  9 },
+  { 12, 10, 12, 10 },
+  { 15, 15, 15, 15 },
+  { 15, 15, 15,  9 },
+  { 15, 14, 12, 10 },
+  { 13, 13, 13, 13 },
+  { 16,  6, 13, 13 },
+  {  7, 17, 13, 13 },
+  {  7,  6, 13, 13 },
+  { 16, 16, 16, 16 },
+  {  7, 16, 16, 16 },
+  { 11, 11, 13, 13 },
+  { 11, 14, 13, 16 },
+  { 17, 17, 17, 17 },
+  { 17,  6, 17, 17 },
+  { 12, 10, 17, 16 },
+  { 15, 11, 17, 13 },
+  { 15, 14, 17, 16 },
+  { 18, 18, 18, 18 }
+};
+
 /*********************************/
 /*****    Tiles & Combos    ******/
 /*********************************/
+
+void merge_tiles(int dest_tile, int src_quarter1, int src_quarter2, int src_quarter3, int src_quarter4)
+{
+  int size=tilesize(newtilebuf[dest_tile].format)>>4;
+  int size2=size>>1;
+  if (newtilebuf[dest_tile].data==NULL)
+  {
+    reset_tile(newtilebuf, dest_tile, newtilebuf[src_quarter1>>2].format);
+  }
+  int i=0;
+  if ((dest_tile<<2)+i!=src_quarter1)
+  {
+    for (int j=0; j<8; ++j)
+    {
+      memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter1>>2].data[((j+((src_quarter1&2)<<2))*size)+((src_quarter1&1)*size2)]), size2);
+    }
+  }
+  i=1;
+  if ((dest_tile<<2)+i!=src_quarter2)
+  {
+    for (int j=0; j<8; ++j)
+    {
+      memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter2>>2].data[((j+((src_quarter2&2)<<2))*size)+((src_quarter2&1)*size2)]), size2);
+    }
+  }
+  i=2;
+  if ((dest_tile<<2)+i!=src_quarter3)
+  {
+    for (int j=0; j<8; ++j)
+    {
+      memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter3>>2].data[((j+((src_quarter3&2)<<2))*size)+((src_quarter3&1)*size2)]), size2);
+    }
+  }
+  i=3;
+  if ((dest_tile<<2)+i!=src_quarter4)
+  {
+    for (int j=0; j<8; ++j)
+    {
+      memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter4>>2].data[((j+((src_quarter4&2)<<2))*size)+((src_quarter4&1)*size2)]), size2);
+    }
+  }
+}
 
 int d_combo_proc(int msg,DIALOG *d,int c);
 
@@ -66,7 +262,7 @@ void go_tiles()
 
     switch (count % 8)
     {
-      case 0:        do {  *to++ = *from++;
+        case 0:        do {  *to++ = *from++;
         case 7:              *to++ = *from++;
         case 6:              *to++ = *from++;
         case 5:              *to++ = *from++;
@@ -3718,6 +3914,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
   int dest_left=0, dest_right=0;
   int dest_width=0, dest_height=0;
   int rows=0, cols=0;
+
   if (rect)
   {
     dest_top=tile_row(dest_first);
@@ -3867,7 +4064,6 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
 
 
 
-
   char buf[80], buf2[80], buf3[80], buf4[80];
   sprintf(buf, " ");
   sprintf(buf2, " ");
@@ -3906,8 +4102,10 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
   // warn if paste overwrites other defined tiles or
   // if delete erases other defined tiles
   int selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
+
   for (int q=0; q<2; ++q)
   {
+
     switch (q)
     {
       case 0:
@@ -3927,6 +4125,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         selection_height=src_height;
         break;
     }
+
     if (move||q==0)
     {
       //check combos
@@ -5055,7 +5254,6 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
       }
     }
   }
-
   return true;
 }
 //
@@ -5065,7 +5263,6 @@ bool copy_tiles(int &tile,int &tile2,int &copy,int &copycnt, bool rect_sel, bool
   bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
   bool copied=false;
   copied=copy_tiles_united(tile,tile2,copy,copycnt,rect_sel,move);
-
   if (copied)
   {
     if (!ctrl)
@@ -5447,6 +5644,19 @@ void convert_tile(int t, int bp2, int cs, bool shift, bool alt)
       break;
   }
 }
+
+static DIALOG create_relational_tiles_dlg[] =
+{
+  // (dialog proc)       (x)   (y)    (w)     (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+  { jwin_win_proc,         0,    0,   160,     92,   vc(0),              vc(11),           0,       D_EXIT,     0,             0,       (void *) "Tile Setup", NULL, NULL },
+  { jwin_rtext_proc,      74,   28,    48,      8,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       (void *) "Frames:", NULL, NULL },
+  { jwin_edit_proc,       78,   24,    48,     16,   0,                  0,                0,       0,          6,             0,       NULL, NULL, NULL },
+  { jwin_radio_proc,       8,   44,    64,      9,   vc(14),             vc(1),            0,       D_SELECTED, 0,             0,       (void *) "Relational", NULL, NULL },
+  { jwin_radio_proc,      68,   44,    64,      9,   vc(14),             vc(1),            0,       0,          0,             0,       (void *) "Dungeon Carving", NULL, NULL },
+  { jwin_button_proc,     10,   66,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,     90,   66,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
+  { NULL,                  0,    0,     0,      0,   0,                  0,                0,       0,          0,             0,       NULL, NULL,  NULL }
+};
 
 int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
 {
@@ -5924,6 +6134,88 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
           go_tiles();
           saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
         }
+        else if (copy==-1)
+        {
+          //snuffles
+          int combo2=0;
+          int cs2=0;
+          if (select_combo_2(combo2,cs2))
+          {
+            go_combos();
+            int temptile=combobuf[combo2].tile;
+            combobuf[combo2].tile=min(tile,tile2);
+            if (edit_combo(combo2,false,cs2))
+            {
+              int frames=max(combobuf[combo2].frames,1);
+              for (int i=1; i<(max(tile2,tile)-min(tile,tile2)+1)/frames; ++i)
+              {
+                memcpy(&(combobuf[combo2+i]), &(combobuf[combo2]), sizeof(newcombo));
+                combobuf[combo2+i].tile+=(frames*i);
+              }
+              setup_combo_animations();
+              setup_combo_animations2();
+            }
+            else
+            {
+              combobuf[combo2].tile=temptile;
+            }
+          }
+        }
+        redraw=true;
+        break;
+        case KEY_D:
+        {
+          int frames=1;
+          char buf[80];
+          sprintf(buf, "%d", frames);
+          create_relational_tiles_dlg[0].dp2=lfont;
+          create_relational_tiles_dlg[2].dp=buf;
+          int ret=zc_popup_dialog(create_relational_tiles_dlg,2);
+          if(ret==5)
+          {
+            frames=max(atoi(buf),1);
+            bool same = true;
+            int bitcheck=newtilebuf[tile].format;
+            for (int t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
+            {
+              if (newtilebuf[tile+t].format!=bitcheck) same = false;
+            }
+            if (!same)
+            {
+              jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,lfont);
+              break;
+            }
+            if (tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
+            {
+              jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,lfont);
+              break;
+            }
+            for (int i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
+            {
+              reset_tile(newtilebuf, tile+i, bitcheck);
+            }
+            if (create_relational_tiles_dlg[3].flags&D_SELECTED)
+            {
+              for (int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+              {
+                for (int j=0; j<frames; ++j)
+                {
+                  merge_tiles(tile+(i*frames)+j, (tile+(relational_template[i][0]*frames)+j)<<2, ((tile+(relational_template[i][1]*frames)+j)<<2)+1, ((tile+(relational_template[i][2]*frames)+j)<<2)+2, ((tile+(relational_template[i][3]*frames)+j)<<2)+3);
+                }
+              }
+            }
+            else
+            {
+              for (int i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
+              {
+                for (int j=0; j<frames; ++j)
+                {
+                  merge_tiles(tile+(i*frames)+j, (tile+(dungeon_carving_template[i][0]*frames)+j)<<2, ((tile+(dungeon_carving_template[i][1]*frames)+j)<<2)+1, ((tile+(dungeon_carving_template[i][2]*frames)+j)<<2)+2, ((tile+(dungeon_carving_template[i][3]*frames)+j)<<2)+3);
+                }
+              }
+            }
+          }
+        }
         redraw=true;
         break;
         case KEY_B:
@@ -6262,7 +6554,7 @@ void combo_info(int tile,int tile2,int cs,int copy,int copycnt,int page,int butt
         }
       }
     }
-    textprintf_right_ex(screen2,pfont,132,216,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"next:");
+    textprintf_right_ex(screen2,pfont,132,216,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Cycle:");
     textprintf_right_ex(screen2,pfont,132,224,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",tile);//nextcombo);
   }
 
@@ -6716,13 +7008,14 @@ int combo_screen()
         case KEY_RIGHT: sel_combo(tile,tile2,1,combo_cols);   redraw=true; break;
         case KEY_PGUP:  if(page>0)             { --page;      tile=tile2=(page<<8)+(tile&0xFF); } redraw=true; break;
         case KEY_PGDN:  if(page<COMBO_PAGES-1) { ++page;      tile=tile2=(page<<8)+(tile&0xFF); } redraw=true; break;
+        case KEY_A:     { tile=(page<<8); tile2=(page<<8)+(0xFF); } redraw=true; break;
         case KEY_P:
         {
           int choosepage = getnumber("Goto Page", page);
           page=(min(choosepage,COMBO_PAGES-1));  tile=tile2=(page<<8)+(tile&0xFF); redraw=true; break;
         }
         case KEY_U:     comeback_combos(); redraw=true; break;
-        case KEY_E:     go_combos();  edit_combo(tile,false,cs); redraw=true; setup_combo_animations(); setup_combo_animations2(); break;
+        case KEY_E:     go_combos(); edit_combo(tile,false,cs); redraw=true; setup_combo_animations(); setup_combo_animations2(); break;
         case KEY_C:     go_combos(); copy=min(tile,tile2); copycnt=abs(tile-tile2)+1; redraw=true; break;
 
         case KEY_H:     for(int i=min(tile,tile2); i<=max(tile,tile2); i++)
@@ -7180,7 +7473,7 @@ static DIALOG combo_dlg[] =
   { jwin_text_proc,       60,   108,   64,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0,       (void *) "A.Speed:", NULL, NULL },
   { jwin_numedit_proc,   102+5,  86,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
   { jwin_numedit_proc,   102+5,  104,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-  { jwin_text_proc,       192,  71,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) "Next:", NULL, NULL },
+  { jwin_text_proc,       192,  71,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       (void *) "Cycle:", NULL, NULL },
   // 30
   { jwin_frame_proc,   190,  79,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
   { d_combo_proc,      192,  81,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -7278,7 +7571,7 @@ int onCmb_dlg_r()
     return D_REDRAW;
 }
 
-void edit_combo(int c,bool freshen,int cs)
+bool edit_combo(int c,bool freshen,int cs)
 {
   combo_dlg[0].dp2=lfont;
   if (bict_cnt==-1)
@@ -7398,6 +7691,7 @@ void edit_combo(int c,bool freshen,int cs)
 
   setup_combo_animations();
   setup_combo_animations2();
+  return (ret==1);
 }
 
 int d_itile_proc(int msg,DIALOG *d,int c)
@@ -7480,6 +7774,7 @@ int onIcons()
 void center_zq_tiles_dialogs()
 {
   jwin_center_dialog(combo_dlg);
+  jwin_center_dialog(create_relational_tiles_dlg);
   jwin_center_dialog(icon_dlg);
   jwin_center_dialog(leech_dlg);
   jwin_center_dialog(tile_move_list_dlg);

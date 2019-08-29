@@ -31,6 +31,9 @@
 //#define ed15 253
 //#define FLASH 243
 
+#ifdef ALLEGRO_MACOSX
+extern int midi_strict;
+#endif
 extern bool cancelgetnum;
 
 extern bool disable_saving, OverwriteProtection;
@@ -87,6 +90,7 @@ extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
 extern tiledata *newtilebuf, *grabtilebuf;
 extern newcombo *combobuf;
+extern comboclass *combo_class_buf;
 extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;
 extern guydata  *guysbuf;
@@ -390,7 +394,7 @@ typedef struct item_struct
   int i;
 } item_struct;
 
-extern item_struct bii[iMax];
+extern item_struct bii[iMax+1];
 
 typedef struct weapon_struct
 {
@@ -786,7 +790,7 @@ void custom_vsync();
 void music_pause();
 void music_resume();
 int get_currdmap();
-int current_item(int item_type, bool consecutive);
+int current_item(int item_type);
 bool can_use_item(int item_type, int item);
 bool has_item(int item_type, int it);
 int get_bmaps(int si);
@@ -820,7 +824,7 @@ bool is_zquest();
 
 //throw together midi_strict hack
 #ifdef ALLEGRO_LINUX_GP2X
-extern bool midi_strict;
+extern int midi_strict;
 #endif
 
 // game.maps[] flags

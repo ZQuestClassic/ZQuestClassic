@@ -118,5 +118,15 @@ private:
 	GameSymbols();
 };
 
+class NPCSymbols : public LibrarySymbols
+{
+public:
+	static NPCSymbols &getInst() {return singleton;}
+protected:
+private:
+	static NPCSymbols singleton;
+	NPCSymbols();
+};
+
 
 #endif

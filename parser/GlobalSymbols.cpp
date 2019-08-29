@@ -471,8 +471,8 @@ static AccessorTable FFCTable[] = {
 	{"getAy",		ScriptParser::TYPE_FLOAT,	GETTER,		YD2,	1,	{ScriptParser::TYPE_FFC, -1} },
 	{"setAy",		ScriptParser::TYPE_VOID,	SETTER,		YD2,	1,	{ScriptParser::TYPE_FFC, ScriptParser::TYPE_FLOAT, -1} },
 	{"WasTriggered",ScriptParser::TYPE_BOOL,	FUNCTION,	0,		1,	{ScriptParser::TYPE_FFC, -1} },
-	{"getFlags[]",	ScriptParser::TYPE_FLOAT,	GETTER,		FFFLAGSD,2,	{ScriptParser::TYPE_FFC, ScriptParser::TYPE_FLOAT, -1} },
-	{"setFlags[]",	ScriptParser::TYPE_VOID,	SETTER,		FFFLAGSD,2,	{ScriptParser::TYPE_FFC, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_FLOAT, -1} },
+	{"getFlags[]",	ScriptParser::TYPE_BOOL,	GETTER,		FFFLAGSD,2,	{ScriptParser::TYPE_FFC, ScriptParser::TYPE_FLOAT, -1} },
+	{"setFlags[]",	ScriptParser::TYPE_VOID,	SETTER,		FFFLAGSD,2,	{ScriptParser::TYPE_FFC, ScriptParser::TYPE_FLOAT, ScriptParser::TYPE_BOOL, -1} },
 	{"getTileWidth",ScriptParser::TYPE_FLOAT,	GETTER,		FFTWIDTH,1,	{ScriptParser::TYPE_FFC, -1} },
 	{"setTileWidth",ScriptParser::TYPE_VOID,	SETTER,		FFTWIDTH,1,	{ScriptParser::TYPE_FFC, ScriptParser::TYPE_FLOAT, -1} },
 	{"getTileHeight",ScriptParser::TYPE_FLOAT,	GETTER,		FFTHEIGHT,1,{ScriptParser::TYPE_FFC, -1} },
@@ -642,6 +642,9 @@ static AccessorTable ScreenTable[] = {
 	{"LoadItem",	ScriptParser::TYPE_ITEM,	FUNCTION,	0,			1,	{ScriptParser::TYPE_SCREEN, ScriptParser::TYPE_FLOAT, -1} },
 	{"CreateItem",	ScriptParser::TYPE_ITEM,	FUNCTION,	0,			1,	{ScriptParser::TYPE_SCREEN,	ScriptParser::TYPE_FLOAT, -1} },
 	{"LoadFFC",		ScriptParser::TYPE_FFC,		FUNCTION,	0,			1,	{ScriptParser::TYPE_SCREEN,	ScriptParser::TYPE_FLOAT, -1} },
+	{"NumNPCs",		ScriptParser::TYPE_FLOAT,	GETTER,		NPCCOUNT,	1,	{ScriptParser::TYPE_SCREEN,	-1} },
+	{"LoadNPC",		ScriptParser::TYPE_NPC,		FUNCTION,	0,			1,	{ScriptParser::TYPE_SCREEN,	ScriptParser::TYPE_FLOAT, -1} },
+	{"CreateNPC",	ScriptParser::TYPE_NPC,		FUNCTION,	0,			1,	{ScriptParser::TYPE_SCREEN, ScriptParser::TYPE_FLOAT, -1} },
   { "",                     -1,                              -1,            -1,                -1,   { -1,                         -1,                          -1,                          -1,                          -1 } }
 };
 
@@ -708,6 +711,41 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
 		rval[label] = code;
 	}
+	//npc LoadNPC(screen, int)
+	{
+		int id = memberids["LoadNPC"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		//convert from 1-index to 0-index
+		code.push_back(new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label] = code;
+	}
+	//npc CreateNPC(screen, int)
+	{
+		int id = memberids["CreateNPC"];
+		
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OCreateNPCRegister(new VarArgument(EXP1)));
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFNPC)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label] = code;
+	}
 	return rval;
 }
 
@@ -755,8 +793,8 @@ ItemclassSymbols ItemclassSymbols::singleton = ItemclassSymbols();
 static AccessorTable itemclassTable[] = {
 	{"getFamily",	ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSFAMILY,	1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
 	{"setFamily",	ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSFAMILY,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1, -1} },
-	{"getFamilyType",ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSFAMTYPE,	1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
-	{"setFamilyType",ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSFAMTYPE,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1, -1} },
+	{"getLevel",	ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSFAMTYPE,	1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
+	{"setLevel",	ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSFAMTYPE,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1, -1} },
 	{"getAmount",	ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSAMOUNT,	1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
 	{"setAmount",	ScriptParser::TYPE_VOID,	SETTER,		ITEMCLASSAMOUNT,	1,	{ScriptParser::TYPE_ITEMCLASS, ScriptParser::TYPE_FLOAT, -1, -1} },
 	{"getMax",		ScriptParser::TYPE_FLOAT,	GETTER,		ITEMCLASSMAX,		1,	{ScriptParser::TYPE_ITEMCLASS, -1, -1, -1} },
@@ -805,16 +843,14 @@ static AccessorTable gameTable[] = {
   { "setDCounter[]",        ScriptParser::TYPE_VOID,         SETTER,        GAMEDCOUNTERD,     2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
   { "getGeneric[]",         ScriptParser::TYPE_FLOAT,        GETTER,        GAMEGENERICD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
   { "setGeneric[]",         ScriptParser::TYPE_VOID,         SETTER,        GAMEGENERICD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
-  { "getItems[]",           ScriptParser::TYPE_FLOAT,        GETTER,        GAMEITEMSD,        2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
-  { "setItems[]",           ScriptParser::TYPE_VOID,         SETTER,        GAMEITEMSD,        2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
   { "getLItems[]",          ScriptParser::TYPE_FLOAT,        GETTER,        GAMELITEMSD,       2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
   { "setLItems[]",          ScriptParser::TYPE_VOID,         SETTER,        GAMELITEMSD,       2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
   { "getLKeys[]",           ScriptParser::TYPE_FLOAT,        GETTER,        GAMELKEYSD,        2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
   { "setLKeys[]",           ScriptParser::TYPE_VOID,         SETTER,        GAMELKEYSD,        2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
-  { "getCurMapFlag[]",      ScriptParser::TYPE_FLOAT,        GETTER,        GAMEMAPFLAGD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
-  { "setCurMapFlag[]",      ScriptParser::TYPE_VOID,         SETTER,        GAMEMAPFLAGD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
-  { "GetMapFlag",           ScriptParser::TYPE_FLOAT,        FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
-  { "SetMapFlag",           ScriptParser::TYPE_VOID,         FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1 } },   
+  { "getCurMapFlag[]",      ScriptParser::TYPE_BOOL,	     GETTER,        GAMEMAPFLAGD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
+  { "setCurMapFlag[]",      ScriptParser::TYPE_VOID,         SETTER,        GAMEMAPFLAGD,      2,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_BOOL,	 -1,                          -1 } },   
+  { "GetMapFlag",           ScriptParser::TYPE_BOOL,         FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
+  { "SetMapFlag",           ScriptParser::TYPE_VOID,         FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_BOOL,    -1 } },   
   { "GetScreenD",           ScriptParser::TYPE_FLOAT,        FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1,                          -1 } },   
   { "SetScreenD",           ScriptParser::TYPE_VOID,         FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,    -1 } },   
   { "LoadItemClass",        ScriptParser::TYPE_ITEMCLASS,    FUNCTION,      0,                 1,    { ScriptParser::TYPE_GAME,    ScriptParser::TYPE_FLOAT,    -1,                          -1,                          -1 } },   
@@ -846,10 +882,11 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
 		rval[label] = code;
 	}
-	//int GetMapFlag(game, int,int)
+	//bool GetMapFlag(game, int,int)
 	{
 		int id = memberids["GetMapFlag"];
 		int label = lt.functionToLabel(id);
+		int done = ScriptParser::getUniqueLabelID();
 		vector<Opcode *> code;
 		//pop off the params
 		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
@@ -859,14 +896,21 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(GAMEMAPFLAGDD)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		code.push_back(new OGotoTrueImmediate(new LabelArgument(done)));
+		code.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+		code.push_back(new OGotoImmediate(new LabelArgument(done)));
+		Opcode *next = new OPopRegister(new VarArgument(EXP2));
+		next->setLabel(done);
+		code.push_back(next);
 		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
 		rval[label] = code;
 	}
-	//void SetMapFlag(game, int,int,int)
+	//void SetMapFlag(game, int,int,bool)
 	{
 		int id = memberids["SetMapFlag"];
 		int label = lt.functionToLabel(id);
+		int done = ScriptParser::getUniqueLabelID();
 		vector<Opcode *> code;
 		//pop off the params
 		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
@@ -876,7 +920,12 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(GAMEMAPFLAGDD), new VarArgument(SFTEMP)));
+		code.push_back(new OCompareImmediate(new VarArgument(SFTEMP), new LiteralArgument(0)));
+		code.push_back(new OGotoTrueImmediate(new LabelArgument(done)));
+		code.push_back(new OSetImmediate(new VarArgument(SFTEMP), new LiteralArgument(10000)));
+		Opcode *next = new OSetRegister(new VarArgument(GAMEMAPFLAGDD), new VarArgument(SFTEMP));
+		next->setLabel(done);
+		code.push_back(next);
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
 		rval[label] = code;
@@ -933,4 +982,49 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 		rval[label] = code;
 	}
 	return rval;
+}
+
+NPCSymbols NPCSymbols::singleton = NPCSymbols();
+
+static AccessorTable npcTable[] = {
+	{ "getX",				  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCX,				 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setX",				  ScriptParser::TYPE_VOID,		   SETTER,		  NPCX,				 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getY",				  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCY,			     1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setY",				  ScriptParser::TYPE_VOID,		   SETTER,		  NPCY,				 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getDir",				  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCDIR,		     1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setDir",				  ScriptParser::TYPE_VOID,		   SETTER,		  NPCDIR,			 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getRate",			  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCRATE,			 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setRate",			  ScriptParser::TYPE_VOID,		   SETTER,		  NPCRATE,			 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getASpeed",			  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCFRAMERATE,		 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setFSpeed",			  ScriptParser::TYPE_VOID,		   SETTER,		  NPCFRAMERATE,		 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getHaltrate",		  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCHALTRATE,		 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setHaltrate",		  ScriptParser::TYPE_VOID,		   SETTER,		  NPCHALTRATE,		 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getDrawStyle",		  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCDRAWTYPE,		 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setDrawStyle",		  ScriptParser::TYPE_VOID,		   SETTER,		  NPCDRAWTYPE,		 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getHP",				  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCHP,			 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setHP",				  ScriptParser::TYPE_VOID,		   SETTER,		  NPCHP,			 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getDamage",			  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCDP,			 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setDamage",			  ScriptParser::TYPE_VOID,		   SETTER,		  NPCDP,			 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getWeaponDamage",	  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCWDP,			 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setWeaponDamage",	  ScriptParser::TYPE_VOID,		   SETTER,		  NPCWDP,			 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getTile",			  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCTILE,			 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setTile",			  ScriptParser::TYPE_VOID,		   SETTER,		  NPCTILE,			 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getWeapon",			  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCWEAPON,		 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setWeapon",			  ScriptParser::TYPE_VOID,		   SETTER,		  NPCWEAPON,		 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getItemSet",			  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCITEMSET,		 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setItemSet",			  ScriptParser::TYPE_VOID,		   SETTER,		  NPCITEMSET,		 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getCSet",			  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCCSET,			 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setCSet",			  ScriptParser::TYPE_VOID,		   SETTER,		  NPCCSET,			 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getBossPal",			  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCBOSSPAL,		 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setBossPal",			  ScriptParser::TYPE_VOID,		   SETTER,		  NPCBOSSPAL,		 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getSFX",				  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCBGSFX,			 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setSFX",				  ScriptParser::TYPE_VOID,		   SETTER,		  NPCBGSFX,			 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+	{ "getExtend",			  ScriptParser::TYPE_FLOAT,		   GETTER,		  NPCEXTEND,		 1,	   { ScriptParser::TYPE_NPC,	 -1,						  -1,						   -1,							-1 } },
+	{ "setExtend",			  ScriptParser::TYPE_VOID,		   SETTER,		  NPCEXTEND,		 1,	   { ScriptParser::TYPE_NPC,	 ScriptParser::TYPE_FLOAT,	  -1,						   -1,							-1 } },
+    { "",                     -1,                              -1,            -1,                -1,   { -1,                         -1,                          -1,                          -1,                          -1 } }
+};
+
+NPCSymbols::NPCSymbols() {
+	table = npcTable;
+	refVar = REFNPC;
 }

@@ -57,7 +57,7 @@ typedef struct tilesequence
 
 class LinkClass : public sprite
 {
-  int drunkclk, NayrusLoveShieldClk;
+  int drunkclk, NayrusLoveShieldClk, hoverclk;
   bool autostep,superman,refilling,inlikelike,inwallm;
   int attackclk,ladderx,laddery,pushing,fairyclk,refillclk,hclk;
   int warpx,warpy,holdclk,holditem,attack,swordclk,didstuff,blowcnt;
@@ -134,6 +134,7 @@ public:
   int DrunkClock();
   LinkClass();
   void init();
+  virtual void drawshadow(BITMAP* dest, bool translucent);
   virtual void draw(BITMAP* dest);
   virtual bool animate(int index);
   bool dowarp(int type, int index);
@@ -149,6 +150,7 @@ public:
   void beatlikelike();
   fix  getX();
   fix  getY();
+  fix  getZ();
   fix  getXOfs();
   fix  getYOfs();
   void setXOfs(int newxofs);
@@ -184,6 +186,7 @@ public:
   int getHClk();
   void setNayrusLoveShieldClk(int newclk);
   int getNayrusLoveShieldClk();
+  int getHoverClk();
   bool ffwarp;
   bool ffpit;
 };

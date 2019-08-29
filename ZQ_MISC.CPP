@@ -329,7 +329,7 @@ char *combotype_string[MAXCOMBOTYPES] =
   "Trigger (Sens. Temp)", "Trigger (Sens. Perm)", "Step->Next", "Step->Next (Same)", "Step->Next (All)", "Step->Next (Copycat)",
   "No Enemies", "Block Arrow (Wooden)", "Block Arrow (Wood+Silver)", "Block Arrow (All)", "Block Brang (Wooden)",
   "Block Brang (Wood+Magic)", "Block Brang (All)", "Block Sword Beam", "Block All", "Block Fireball",
-  "Damage (8 hearts)", "Damage (16 hearts)", "Damage (32 hearts)", "FF Combo Attr. Change", "Spinning Tile (Immediate)", "Spinning Tile (Random)",
+  "Damage (8 hearts)", "Damage (16 hearts)", "Damage (32 hearts)", "Unused", "Spinning Tile (Immediate)", "Spinning Tile (Random)",
   "Screen Freeze", "Screen Freeze (FFCs Animate)", "Unused", "Slash->Next", "Slash->Next (Item)", "Bush->Next (Item)"
 };
 
@@ -507,12 +507,12 @@ char *guy_string[eMAXGUYS] =
 
 char *pattern_string[MAXPATTERNS] =
 {
-  "Random","Enter from Sides"
+  "Random","Enter from Sides (Classic)","Enter from Sides (Random)", "Fall From Ceiling"
 };
 
 char *short_pattern_string[MAXPATTERNS] =
 {
-  "Random", "Sides"
+  "Random", "Sides", "Sides (Random)", "Ceiling"
 };
 
 char *midi_string[MAXCUSTOMMIDIS_ZQ] =
@@ -665,8 +665,6 @@ int onTest();
 int onTestOptions();
 
 int onOptions();
-
-void edit_combo(int c,bool freshen,int cs);
 
 void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg,bool value);
 void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int value);
@@ -978,4 +976,5 @@ int d_savemidi_proc(int, DIALOG*, int)
 {
   return D_O_K;
 }
+
 
