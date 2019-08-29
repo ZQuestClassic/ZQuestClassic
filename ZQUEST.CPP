@@ -67,12 +67,15 @@ int c=(cy*16)+cx;
 #include "fontsdat.h"
 #include "jwinfsel.h"
 #include "gui.h"
+#include "midi_strict.inc"
 
 #ifndef ALLEGRO_DOS
 #include "zqscale.h"
 #endif
 
-
+#ifdef NEEDS_MIDI_STRICT
+bool midi_strict=true;
+#endif
 #ifdef ALLEGRO_DOS
 static char *data_path_name   = "dos_data_path";
 static char *midi_path_name   = "dos_midi_path";
