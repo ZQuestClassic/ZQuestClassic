@@ -152,8 +152,12 @@ void resume_all_sfx();
 void stop_sfx(int index);
 void kill_sfx();
 int  pan(int x);
+int onSetSnapshotFormat();
 void zc_putpixel(int layer, int x, int y, int cset, int color, int timer);
 #ifdef ALLEGRO_LINUX_GP2X
+extern bool midi_strict;
+#endif
+#ifdef ALLEGRO_MACOSX
 extern bool midi_strict;
 #endif
 #endif                                                      // _ZC_SYS_H_

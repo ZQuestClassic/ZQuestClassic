@@ -117,6 +117,10 @@ int readtiles(PACKFILE *f, zquestheader *header, word version, word build, word 
 int readmidis(PACKFILE *f, zquestheader *header, zcmidi *midis, bool keepdata);
 int readcheatcodes(PACKFILE *f, zquestheader *header, bool keepdata);
 int readinitdata(PACKFILE *f, zquestheader *header, bool keepdata);
+int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata);
+int read_one_subscreen(PACKFILE *f, zquestheader *header, bool keepdata, int i, word s_version, word s_cversion);
+int readffscript(PACKFILE *f, zquestheader *header, bool keepdata);
+int read_one_ffscript(PACKFILE *f, zquestheader *header, bool keepdata, int i, word s_version, word s_cversion);
 
 
 int get_version_and_build(PACKFILE *f, word *version, word *build);

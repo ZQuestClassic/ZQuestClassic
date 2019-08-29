@@ -65,6 +65,13 @@ void Z_title(char *format,...);
 
 int anim_3_4(int clk, int speed);
 
+int bound(int &x,int low,int high);
+
+enum {ssfmtBMP, ssfmtGIF, ssfmtJPG, ssfmtPNG, ssfmtPCX, ssfmtTGA, ssfmtMAX };
+extern char *snapshotformat_str[ssfmtMAX][2];
+extern char *snapshotformatlist(int index, int *list_size);
+
+
 /*0=normal, 1=jwin*/
 void box_start(int style , char *title, FONT *title_font, FONT *message_font, bool log);
 //void box_start();

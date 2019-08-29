@@ -31,6 +31,10 @@
 //#define ed15 253
 //#define FLASH 243
 
+#ifdef ALLEGRO_MACOSX
+extern bool midi_strict;
+#endif 
+
 extern bool cancelgetnum;
 
 extern bool disable_saving, OverwriteProtection;
@@ -130,6 +134,7 @@ extern word msg_count, qt_count;
 extern word door_combo_set_count;
 extern int LeechUpdate;
 extern int LeechUpdateTiles;
+extern int SnapshotFormat;
 extern int memrequested;
 extern byte Color;
 
@@ -376,6 +381,7 @@ int d_scombo2_proc(int msg, DIALOG *d, int c);
 int onSecretF();
 int onSecretCombo();
 int onUnderCombo();
+int onImportFFScript();
 
 typedef struct item_struct
 {

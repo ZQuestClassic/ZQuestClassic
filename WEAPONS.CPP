@@ -129,324 +129,354 @@ weapon::weapon(fix X,fix Y,int Id,int Type,int pow,int Dir) : sprite()
   switch(id)
   {
     case wWhistle:
-    xofs=1000;                                            // don't show
-    x=y=hxofs=hyofs=0;
-    hxsz=hysz=255;                                        // hit the whole screen
-    break;
+      xofs=1000;                                            // don't show
+      x=y=hxofs=hyofs=0;
+      hxsz=hysz=255;                                        // hit the whole screen
+      break;
     case wWind:
-    LOADGFX(wWIND);
-    clk=-14;
-    step=2;
-    break;
+      LOADGFX(wWIND);
+      clk=-14;
+      step=2;
+      break;
     case wBeam:
-    step = 3;
-    LOADGFX(current_item(itype_sword,true)-1+wSWORD);
-    flash = 1;
-    cs = 6;
-    switch(dir)
-    {
-      case down:  flip=get_bit(quest_rules,qr_SWORDWANDFLIPFIX)?3:2;
-      case up:    hyofs=2; hysz=12; break;
-      case left:  flip=1;
-      case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); hxofs=2; hxsz=12; yofs = playing_field_offset+(BSZ ? 3 : 1); break;
-    }
-    break;
-    case wArrow:
-    if (current_item(itype_arrow,true)<3)
-    {
-      LOADGFX(wARROW+type-1);
-    }
-    else
-    {
-      LOADGFX(wGARROW);
-    }
-    step=3;
-    switch(dir)
-    {
-      case down:  flip=2;
-      case up:    hyofs=2; hysz=12; break;
-      case left:  flip=1;
-      case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset + 1; hyofs=2; hysz=14; hxofs=2; hxsz=12; break;
-    }
-    break;
-    case wSSparkle:
-    LOADGFX(wSSPARKLE);
-    step=0;
-    break;
-    case wGSparkle:
-    LOADGFX(wGSPARKLE);
-    step=0;
-    break;
-    case wMSparkle:
-    LOADGFX(wMSPARKLE);
-    step=0;
-    break;
-    case wFSparkle:
-    LOADGFX(wFSPARKLE);
-    step=0;
-    break;
-    case wFire:
-    LOADGFX(wFIRE);
-    step = (type<2)?.5:0;
-    hxofs = hyofs=1;
-    hxsz = hysz = 14;
-    if(BSZ)
-      yofs+=2;
-    break;
-    case wBomb:
-    LOADGFX(wBOMB);
-    hxofs=hyofs=4; hxsz=hysz=8; id = wLitBomb;
-    break;
-    case wSBomb:
-    LOADGFX(wSBOMB);
-    hxofs=hyofs=4; hxsz=hysz=8; id = wLitSBomb;
-    break;
-    case wBait:
-    LOADGFX(wBAIT);
-    break;
-    case wMagic:
-    LOADGFX(wMAGIC);
-    step = (BSZ ? 3 : 2.5);
-    switch(dir)
-    {
-      case down:  flip=2;
-      case up:    hyofs=2; hysz=12; break;
-      case left:  flip=1;
-      case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs = playing_field_offset + (BSZ ? 3 : 1); hxofs=2; hxsz=12; break;
-    }
-    break;
-    case wBrang:
-    LOADGFX(wBRANG+type-1);
-    if(type>=2)
-      clk2=256;
-    hxofs=4; hxsz=7;
-    hyofs=2; hysz=11;
-    dummy_bool[0]=false;                                  //grenade armed?
-    break;
-
-    case wHookshot:
-    hookshot_used=true;
-    if(current_item(itype_hookshot,true)==2)
-    {
-      LOADGFX(wLSHEAD);
-    }
-    else
-    {
-      LOADGFX(wHSHEAD);
-    }
-    step = 4;
-    //     step = 0;
-    clk2=256;
-    switch(dir)
-    {
-      case down:  flip=2; xofs+=4;  yofs+=1; hyofs=2; hysz=12; break;
-      case up:    yofs+=3; xofs-=5; hyofs=2; hysz=12; break;
-      case left:  flip=1; tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs+=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
-      case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs-=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
-    }
-    break;
-
-    case wHSHandle:
-    step = 0;
-    if(current_item(itype_hookshot,true)==2)
-    {
-      LOADGFX(wLSHANDLE);
-    }
-    else
-    {
-      LOADGFX(wHSHANDLE);
-    }
-    switch(dir)
-    {
-      case down:  flip=2; xofs+=4;  yofs+=1; hyofs=2; hysz=12; break;
-      case up:    yofs+=3; xofs-=5; hyofs=2; hysz=12; break;
-      case left:  flip=1; tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs+=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
-      case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs-=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
-    }
-    break;
-
-    case wHSChain:
-    {
-      int chain_gfx;
-      if(current_item(itype_hookshot,true)==2)
-      {
-        if (dir<left)
-        {
-          chain_gfx=wLSCHAIN_V;
-        }
-        else
-        {
-          chain_gfx=wLSCHAIN_H;
-        }
-      }
-      else
-      {
-        if (dir<left)
-        {
-          chain_gfx=wHSCHAIN_V;
-        }
-        else
-        {
-          chain_gfx=wHSCHAIN_H;
-        }
-      }
-      step = 0;
+      step = 3;
+      LOADGFX(current_item(itype_sword,true)-1+wSWORD);
+      flash = 1;
+      cs = 6;
       switch(dir)
       {
-        case down:  LOADGFX(chain_gfx); xofs+=4;  yofs-=7;  break;
-        case up:    LOADGFX(chain_gfx); xofs-=5;  yofs+=11; break;
-        case left:  LOADGFX(chain_gfx); xofs+=10; yofs=playing_field_offset+4;  break;
-        case right: LOADGFX(chain_gfx); xofs-=10; yofs=playing_field_offset+4;  break;
+        case down:  flip=get_bit(quest_rules,qr_SWORDWANDFLIPFIX)?3:2;
+        case up:    hyofs=2; hysz=12; break;
+        case left:  flip=1;
+        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); hxofs=2; hxsz=12; yofs = playing_field_offset+(BSZ ? 3 : 1); break;
       }
-    }
-    break;
-
-    case ewBrang:
-    hxofs=0; hxsz=15;
-    wid = min(max(current_item(itype_brang,true),1),3)-1+wBRANG;
-    break;
-
-    case wRefFireball:
-    case ewFireball:
-    LOADGFX(ewFIREBALL);
-    step=1.75;
-    misc=dir-1;
-    seekLink();
-    break;
-
-    case ewRock:
-    LOADGFX(ewROCK);
-    hxofs=0; hxsz=15;
-    step=3;
-    break;
-    case ewArrow:
-    LOADGFX(ewARROW);
-    step=2;
-    switch(dir)
-    {
-      case down:  flip=2;
-      case up:    xofs=-4; hxsz=8; break;
-      case left:  flip=1;
-      case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset+1; break;
-    }
-    break;
-    case ewSword:
-    LOADGFX(ewSWORD);
-    hxofs=0; hxsz=15;
-    step=3;
-    switch(dir)
-    {
-      case down:  flip=2;
-      case up:    break;
-      case left:  flip=1;
-      case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset+1; break;
-    }
-    break;
-    case wRefMagic:
-    case ewMagic:
-    LOADGFX(ewMAGIC);
-    hxofs=0; hxsz=15;
-    step=3;
-    switch(dir)
-    {
-      case down:  flip=2;
-      case up:    break;
-      case left:  flip=1;
-      case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset+1; break;
-    }
-    if (id==wRefMagic)
-    {
-      ignorecombo=(((int)y&0xF0)+((int)x>>4));
-    }
-    break;
-    case ewFlame:
-    LOADGFX(ewFLAME);
-    if (dir==255)
-    {
-      step=2;
-      seekLink();
-    }
-    else
-    {
-      if (dir>right)
+      break;
+    case wArrow:
+      if (current_item(itype_arrow,true)<3)
       {
-        step = .707;
+        LOADGFX(wARROW+type-1);
       }
       else
       {
-        step = 1;
+        LOADGFX(wGARROW);
       }
-    }
-    hxofs = hyofs=1;
-    hxsz = hysz = 14;
-    if(BSZ)
-      yofs+=2;
+      step=3;
+      switch(dir)
+      {
+        case down:  flip=2;
+        case up:    hyofs=2; hysz=12; break;
+        case left:  flip=1;
+        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset + 1; hyofs=2; hysz=14; hxofs=2; hxsz=12; break;
+      }
+      break;
+    case wSSparkle:
+      LOADGFX(wSSPARKLE);
+      step=0;
+      break;
+    case wGSparkle:
+      LOADGFX(wGSPARKLE);
+      step=0;
+      break;
+    case wMSparkle:
+      LOADGFX(wMSPARKLE);
+      step=0;
+      break;
+    case wFSparkle:
+      LOADGFX(wFSPARKLE);
+      step=0;
     break;
+      case wFire:
+      LOADGFX(wFIRE);
+      step = (type<2)?.5:0;
+      hxofs = hyofs=1;
+      hxsz = hysz = 14;
+      if(BSZ)
+        yofs+=2;
+      break;
+    case wBomb:
+      LOADGFX(wBOMB);
+      hxofs=hyofs=4; hxsz=hysz=8; id = wLitBomb;
+      break;
+    case wSBomb:
+      LOADGFX(wSBOMB);
+      hxofs=hyofs=4; hxsz=hysz=8; id = wLitSBomb;
+      break;
+    case wBait:
+      LOADGFX(wBAIT);
+      break;
+    case wMagic:
+      LOADGFX(wMAGIC);
+      step = (BSZ ? 3 : 2.5);
+      switch(dir)
+      {
+        case down:  flip=2;
+        case up:    hyofs=2; hysz=12; break;
+        case left:  flip=1;
+        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); hxofs=2; hxsz=12; break;
+      }
+      break;
+    case wBrang:
+      LOADGFX(wBRANG+type-1);
+      if(type>=2)
+        clk2=256;
+      hxofs=4; hxsz=7;
+      hyofs=2; hysz=11;
+      dummy_bool[0]=false;                                  //grenade armed?
+      break;
+    case wHookshot:
+      hookshot_used=true;
+      if(current_item(itype_hookshot,true)==2)
+      {
+        LOADGFX(wLSHEAD);
+      }
+      else
+      {
+        LOADGFX(wHSHEAD);
+      }
+      step = 4;
+      //     step = 0;
+      clk2=256;
+      switch(dir)
+      {
+        case down:  flip=2; xofs+=4;  yofs+=1; hyofs=2; hysz=12; break;
+        case up:    yofs+=3; xofs-=5; hyofs=2; hysz=12; break;
+        case left:  flip=1; tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs+=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
+        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs-=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
+      }
+      break;
+    case wHSHandle:
+      step = 0;
+      if(current_item(itype_hookshot,true)==2)
+      {
+        LOADGFX(wLSHANDLE);
+      }
+      else
+      {
+        LOADGFX(wHSHANDLE);
+      }
+      switch(dir)
+      {
+        case down:  flip=2; xofs+=4;  yofs+=1; hyofs=2; hysz=12; break;
+        case up:    yofs+=3; xofs-=5; hyofs=2; hysz=12; break;
+        case left:  flip=1; tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs+=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
+        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); xofs-=2; yofs=playing_field_offset+4; hxofs=2; hxsz=12; break;
+      }
+      break;
+    case wHSChain:
+      {
+        int chain_gfx;
+        if(current_item(itype_hookshot,true)==2)
+        {
+          if (dir<left)
+          {
+            chain_gfx=wLSCHAIN_V;
+          }
+          else
+          {
+            chain_gfx=wLSCHAIN_H;
+          }
+        }
+        else
+        {
+          if (dir<left)
+          {
+            chain_gfx=wHSCHAIN_V;
+          }
+          else
+          {
+            chain_gfx=wHSCHAIN_H;
+          }
+        }
+        step = 0;
+        switch(dir)
+        {
+          case down:  LOADGFX(chain_gfx); xofs+=4;  yofs-=7;  break;
+          case up:    LOADGFX(chain_gfx); xofs-=5;  yofs+=11; break;
+          case left:  LOADGFX(chain_gfx); xofs+=10; yofs=playing_field_offset+4;  break;
+          case right: LOADGFX(chain_gfx); xofs-=10; yofs=playing_field_offset+4;  break;
+        }
+      }
+      break;
+    case ewBomb:
+      LOADGFX(ewBOMB);
+      hxofs=0; hxsz=16;
+      id = ewLitBomb;
+      switch(dir)
+      {
+        case down:  flip=2;
+        case up:    break;
+        case left:  flip=1;
+        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); break;
+      }
+      break;
+    case ewSBomb:
+      LOADGFX(ewSBOMB);
+      hxofs=0; hxsz=16;
+      id = ewLitSBomb;
+      switch(dir)
+      {
+        case down:  flip=2;
+        case up:    break;
+        case left:  flip=1;
+        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); break;
+      }
+      break;
+    case ewBrang:
+      hxofs=0; hxsz=15;
+      wid = min(max(current_item(itype_brang,true),1),3)-1+wBRANG;
+      break;
+    case wRefFireball:
+    case ewFireball:
+      LOADGFX(ewFIREBALL);
+      step=1.75;
+      misc=dir-1;
+      seekLink();
+      break;
+    case ewRock:
+      LOADGFX(ewROCK);
+      hxofs=0; hxsz=15;
+      step=3;
+      break;
+    case ewArrow:
+      LOADGFX(ewARROW);
+      step=2;
+      switch(dir)
+      {
+        case down:  flip=2;
+        case up:    xofs=-4; hxsz=8; break;
+        case left:  flip=1;
+        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset+1; break;
+      }
+      break;
+    case ewSword:
+      LOADGFX(ewSWORD);
+      hxofs=0; hxsz=15;
+      step=3;
+      switch(dir)
+      {
+        case down:  flip=2;
+        case up:    break;
+        case left:  flip=1;
+        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset+1; break;
+      }
+      break;
+    case wRefMagic:
+    case ewMagic:
+      LOADGFX(ewMAGIC);
+      hxofs=0; hxsz=15;
+      step=3;
+      switch(dir)
+      {
+        case down:  flip=2;
+        case up:    break;
+        case left:  flip=1;
+        case right: tile=wpnsbuf[wid].tile+((wpnsbuf[wid].frames>1)?wpnsbuf[wid].frames:1); yofs=playing_field_offset+1; break;
+      }
+      if (id==wRefMagic)
+      {
+        ignorecombo=(((int)y&0xF0)+((int)x>>4));
+      }
+      break;
+    case ewFlame:
+      LOADGFX(ewFLAME);
+      if (dir==255)
+      {
+        step=2;
+        seekLink();
+      }
+      else
+      {
+        if (dir>right)
+        {
+          step = .707;
+        }
+        else
+        {
+          step = 1;
+        }
+      }
+      hxofs = hyofs=1;
+      hxsz = hysz = 14;
+      if(BSZ)
+        yofs+=2;
+      break;
+    case ewFireTrail:
+      LOADGFX(ewFIRETRAIL);
+      step=0;
+      hxofs = hyofs=1;
+      hxsz = hysz = 14;
+      if(BSZ)
+        yofs+=2;
+      break;
     case ewWind:
-    LOADGFX(ewWIND);
-    clk=0;
-    step=3;
-    break;
+      LOADGFX(ewWIND);
+      clk=0;
+      step=3;
+      break;
     case wPhantom:
-    switch (type)
-    {
-      case pDINSFIREROCKET:
-      LOADGFX(wDINSFIRE1A);
-      step = 4;
+      switch (type)
+      {
+        case pDINSFIREROCKET:
+          LOADGFX(wDINSFIRE1A);
+          step = 4;
+          break;
+        case pDINSFIREROCKETRETURN:
+          LOADGFX(wDINSFIRE1B);
+          step = 4;
+          break;
+        case pDINSFIREROCKETTRAIL:
+          LOADGFX(wDINSFIRES1A);
+          break;
+        case pDINSFIREROCKETTRAILRETURN:
+          LOADGFX(wDINSFIRES1B);
+          break;
+        case pMESSAGEMORE:
+          LOADGFX(iwMore);
+          break;
+        case pNAYRUSLOVEROCKET1:
+          LOADGFX(wNAYRUSLOVE1A);
+          step = 4;
+          drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
+          break;
+        case pNAYRUSLOVEROCKETRETURN1:
+          LOADGFX(wNAYRUSLOVE1B);
+          step = 4;
+          drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
+          break;
+        case pNAYRUSLOVEROCKETTRAIL1:
+          LOADGFX(wNAYRUSLOVES1A);
+          drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
+          break;
+        case pNAYRUSLOVEROCKETTRAILRETURN1:
+          LOADGFX(wNAYRUSLOVES1B);
+          drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
+          break;
+        case pNAYRUSLOVEROCKET2:
+          LOADGFX(wNAYRUSLOVE2A);
+          step = 4;
+          drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
+          break;
+        case pNAYRUSLOVEROCKETRETURN2:
+          LOADGFX(wNAYRUSLOVE2B);
+          step = 4;
+          drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
+          break;
+        case pNAYRUSLOVEROCKETTRAIL2:
+          LOADGFX(wNAYRUSLOVES2A);
+          drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
+          break;
+        case pNAYRUSLOVEROCKETTRAILRETURN2:
+          LOADGFX(wNAYRUSLOVES2B);
+          drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
+          break;
+        default:
+          tile=0;
+          break;
+      }
       break;
-      case pDINSFIREROCKETRETURN:
-      LOADGFX(wDINSFIRE1B);
-      step = 4;
-      break;
-      case pDINSFIREROCKETTRAIL:
-      LOADGFX(wDINSFIRES1A);
-      break;
-      case pDINSFIREROCKETTRAILRETURN:
-      LOADGFX(wDINSFIRES1B);
-      break;
-      case pMESSAGEMORE:
-      LOADGFX(iwMore);
-      break;
-      case pNAYRUSLOVEROCKET1:
-      LOADGFX(wNAYRUSLOVE1A);
-      step = 4;
-      drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
-      break;
-      case pNAYRUSLOVEROCKETRETURN1:
-      LOADGFX(wNAYRUSLOVE1B);
-      step = 4;
-      drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
-      break;
-      case pNAYRUSLOVEROCKETTRAIL1:
-      LOADGFX(wNAYRUSLOVES1A);
-      drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
-      break;
-      case pNAYRUSLOVEROCKETTRAILRETURN1:
-      LOADGFX(wNAYRUSLOVES1B);
-      drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
-      break;
-      case pNAYRUSLOVEROCKET2:
-      LOADGFX(wNAYRUSLOVE2A);
-      step = 4;
-      drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
-      break;
-      case pNAYRUSLOVEROCKETRETURN2:
-      LOADGFX(wNAYRUSLOVE2B);
-      step = 4;
-      drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
-      break;
-      case pNAYRUSLOVEROCKETTRAIL2:
-      LOADGFX(wNAYRUSLOVES2A);
-      drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
-      break;
-      case pNAYRUSLOVEROCKETTRAILRETURN2:
-      LOADGFX(wNAYRUSLOVES2B);
-      drawstyle=get_bit(quest_rules,qr_TRANSLUCENTNAYRUSLOVEROCKET)?1:0;
-      break;
-    }
-    break;
     default:
-    tile=0; break;
+      tile=0;
+      break;
   }
 }
 
@@ -496,6 +526,14 @@ bool weapon::clip()
   }
 
   if(id==ewFlame)
+  {
+    c[0] = d?32:16;
+    c[1] = d?128:144;
+    c[2] = d?32:16;
+    c[3] = d?208:224;
+  }
+
+  if(id==ewFireTrail)
   {
     c[0] = d?32:16;
     c[1] = d?128:144;
@@ -629,62 +667,73 @@ bool weapon::animate(int index)
 
     case wLitBomb:
     case wBomb:
-      if(clk==48)
+    case ewLitBomb:
+    case ewBomb:
+      if(clk==48&&step==0)
       {
-        id = wBomb;
+        id = (id<wEnemyWeapons?wBomb:ewBomb);
         hxofs=1000;
       }
       if(clk==49)
       {
         sfx(WAV_BOMB,pan(int(x)));
-        findentrance(x,y,mfBOMB,true);
-        findentrance(x,y,mfSTRIKE,true);
-        hxofs=hyofs=-7;
-        hxsz=hysz=30;
+        hxofs=hyofs=-8;
+        hxsz=hysz=32;
       }
-      if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
+      if(id<wEnemyWeapons)
       {
-        usebombpal=true;
-        if(clk==50 || clk==55)
+        if(clk==49)
+        {
+          findentrance(x,y,mfBOMB,true);
+          findentrance(x,y,mfSTRIKE,true);
+        }
+        if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
         {
           usebombpal=true;
-          memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
-          //grayscale entire screen
-          if(get_bit(quest_rules,qr_FADE))
+          if(clk==50 || clk==55)
           {
-            for(int i=CSET(0); i < CSET(15); i++)
+            usebombpal=true;
+            memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
+            //grayscale entire screen
+            if(get_bit(quest_rules,qr_FADE))
             {
-              int g = min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
-              g = (g >> 1) + 32;
-              RAMpal[i] = _RGB(g,g,g);
+              for(int i=CSET(0); i < CSET(15); i++)
+              {
+                int g = min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+                g = (g >> 1) + 32;
+                RAMpal[i] = _RGB(g,g,g);
+              }
             }
+            else
+            {
+              // this is awkward. NES Z1 converts colors based on the global
+              // NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+              for(int i=CSET(0); i < CSET(15); i++)
+              {
+                RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+              }
+            }
+            refreshpal = true;
           }
-          else
+          if(clk==54 || clk==59)
           {
-            // this is awkward. NES Z1 converts colors based on the global
-            // NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-            for(int i=CSET(0); i < CSET(15); i++)
-            {
-              RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-            }
+            // undo grayscale
+            usebombpal=false;
+            memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+            refreshpal = true;
           }
-          refreshpal = true;
         }
-        if(clk==54 || clk==59)
+        if(clk==80)
         {
-          // undo grayscale
-          usebombpal=false;
-          memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
-          refreshpal = true;
+          bombdoor(x,y);
         }
-      }
-      if(clk==80)
-      {
-        bombdoor(x,y);
       }
       if(clk==84)
       {
-        dead=1;
+        if (step==0)
+        {
+          dead=1;
+        }
       }
       break;
 
@@ -778,75 +827,86 @@ bool weapon::animate(int index)
       }
       break;
 
+    case ewLitSBomb:
+    case ewSBomb:
     case wLitSBomb:
     case wSBomb:
-      if(clk==48)
+      if(clk==48&&step==0)
       {
-        id = wSBomb;
+        id = (id<wEnemyWeapons?wSBomb:ewSBomb);
         hxofs=1000;
       }
       if(clk==49)
       {
         sfx(WAV_BOMB,pan(int(x)));
-        for (int tx=-8; tx<=8; tx+=16)
-        {
-          for (int ty=-16; ty<=16; ty+=32)
-          {
-            findentrance(x+tx,y+ty,mfBOMB,true);
-            findentrance(x+tx,y+ty,mfSBOMB,true);
-            findentrance(x+tx,y+ty,mfSTRIKE,true);
-          }
-        }
-        for (int tx=-16; tx<=16; tx+=16)
-        {
-          findentrance(x+tx,y,mfBOMB,true);
-          findentrance(x+tx,y,mfSBOMB,true);
-          findentrance(x+tx,y,mfSTRIKE,true);
-        }
         hxofs=hyofs=-16;
         hxsz=hysz=48;
       }
-      if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
+      if (id<wEnemyWeapons)
       {
-        if(clk==50 || clk==55)
+        if(clk==49)
         {
-          memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
-          //grayscale entire screen
-          if(get_bit(quest_rules,qr_FADE))
+          for (int tx=-8; tx<=8; tx+=16)
           {
-            for(int i=CSET(0); i < CSET(15); i++)
+            for (int ty=-16; ty<=16; ty+=32)
             {
-              int g = min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
-              g = (g >> 1) + 32;
-              //g = ((g - 32) >> 1) + 32;
-              RAMpal[i] = _RGB(g,g,g);
+              findentrance(x+tx,y+ty,mfBOMB,true);
+              findentrance(x+tx,y+ty,mfSBOMB,true);
+              findentrance(x+tx,y+ty,mfSTRIKE,true);
             }
           }
-          else
+          for (int tx=-16; tx<=16; tx+=16)
           {
-            // this is awkward. NES Z1 converts colors based on the global
-            // NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-            for(int i=CSET(0); i < CSET(15); i++)
-            {
-              RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-            }
+            findentrance(x+tx,y,mfBOMB,true);
+            findentrance(x+tx,y,mfSBOMB,true);
+            findentrance(x+tx,y,mfSTRIKE,true);
           }
-          refreshpal = true;
         }
-        if(clk==54 || clk==59)
+        if (!get_bit(quest_rules,qr_NOBOMBPALFLASH))
         {
-          // undo grayscale
-          memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
-          refreshpal = true;
+          if(clk==50 || clk==55)
+          {
+            memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
+            //grayscale entire screen
+            if(get_bit(quest_rules,qr_FADE))
+            {
+              for(int i=CSET(0); i < CSET(15); i++)
+              {
+                int g = min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+                g = (g >> 1) + 32;
+                //g = ((g - 32) >> 1) + 32;
+                RAMpal[i] = _RGB(g,g,g);
+              }
+            }
+            else
+            {
+              // this is awkward. NES Z1 converts colors based on the global
+              // NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+              for(int i=CSET(0); i < CSET(15); i++)
+              {
+                RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+              }
+            }
+            refreshpal = true;
+          }
+          if(clk==54 || clk==59)
+          {
+            // undo grayscale
+            memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+            refreshpal = true;
+          }
         }
-      }
-      if(clk==80)
-      {
-        bombdoor(x,y);
+        if(clk==80)
+        {
+          bombdoor(x,y);
+        }
       }
       if(clk==84)
       {
-        dead=1;
+        if (step==0)
+        {
+          dead=1;
+        }
       }
       break;
 
@@ -1337,8 +1397,35 @@ bool weapon::animate(int index)
       break;
 
     case ewFlame:
-      if(clk==32)  { step=0; lighting(1,dir); }
-      if(clk==126) { dead=1; }
+      if(clk==32)
+      {
+        step=0;
+        lighting(1,dir);
+      }
+      if(clk==126)
+      {
+        dead=1;
+        if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+        {
+          lighting(2,dir);
+        }
+      }
+      break;
+
+    case ewFireTrail:
+      if(clk==32)
+      {
+        step=0;  //should already be 0, but still...
+        lighting(1,dir);
+      }
+      if(clk==640)
+      {
+        dead=1;
+        if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+        {
+          lighting(2,dir);
+        }
+      }
       break;
 
     case ewBrang:
@@ -1453,55 +1540,63 @@ void weapon::onhit(bool clipped)
 void weapon::onhit(bool clipped, int special, int linkdir)
 {
   if(special==2)                                            // hit Link's mirror shield
+  {
     switch(id)
     {
       case ewFireball:
-      id = wRefFireball;
-      switch(linkdir)
-      {
-        case up:    angle += (PI - angle) * 2.0;      break;
-        case down:  angle = -angle;                   break;
-        case left:  angle += ((-PI/2) - angle) * 2.0; break;
-        case right: angle += (( PI/2) - angle) * 2.0; break;
-      }
-      return;
+        id = wRefFireball;
+        switch(linkdir)
+        {
+          case up:    angle += (PI - angle) * 2.0;      break;
+          case down:  angle = -angle;                   break;
+          case left:  angle += ((-PI/2) - angle) * 2.0; break;
+          case right: angle += (( PI/2) - angle) * 2.0; break;
+        }
+        return;
 
       case ewMagic:
       case wRefMagic:
-      id = wRefMagic;
-      dir ^= 1;
-      if(dir&2)
-        flip ^= 1;
-      else
-        flip ^= 2;
-      return;
-
-      default:
-      special = 1;                                          // check normal shield stuff
+        id = wRefMagic;
+        dir ^= 1;
+        if(dir&2)
+          flip ^= 1;
+        else
+          flip ^= 2;
+        return;
+  
+        default:
+        special = 1;                                          // check normal shield stuff
     }
+  }
 
   if(special==1)                                            // hit Link's shield
+  {
     switch(id)
     {
       case ewMagic:
       case ewArrow:
       case ewSword:
       case ewRock:
-      bounce=true;
-      dead=16;
-      return;
+        bounce=true;
+        dead=16;
+        return;
       case ewBrang:
-      if(misc==0)
-      {
-        clk2=256;
-        misc=1;
-        dir^=1;
-      }
-      return;
+        if(misc==0)
+        {
+          clk2=256;
+          misc=1;
+          dir^=1;
+        }
+        return;
     }
+  }
 
   switch(id)
   {
+    case ewBomb:     step=0; break;
+    case ewSBomb:    step=0; break;
+    case ewLitBomb:  step=0; id=ewBomb;  clk=47; sfx(WAV_BOMB,pan(int(x))); hxofs=hyofs=-7;  hxsz=hysz=30; break;
+    case ewLitSBomb: step=0; id=ewSBomb; clk=47; sfx(WAV_BOMB,pan(int(x))); hxofs=hyofs=-16; hxsz=hysz=48; break;
     case wLitBomb:  if(!clipped) dead=1;
     case wLitSBomb: if(!clipped) dead=1;
     case wWhistle:
@@ -1511,65 +1606,68 @@ void weapon::onhit(bool clipped, int special, int linkdir)
     case wFire:
     case wHSHandle:
     case wPhantom: break;                                   // don't worry about clipping or hits with these
+    case ewFireTrail:  if (!clipped) dead=1; break;
     case ewFlame:  if (!clipped) dead=1; break;
     case wBeam:    dead=23; break;
     case wArrow:   dead=4; break;                           //findentrance(x,y,mfARROW,true); break;
     case ewArrow:  dead=clipped?4:1; break;
     case wWind:
-    if(x>=240)
-      dead=2;
-    break;
+      if(x>=240)
+        dead=2;
+      break;
     case wBrang:
-    if(misc==0)
-    {
-      clk2=256;
-      if(clipped)
+      if(misc==0)
       {
-        dead=4;
+        clk2=256;
+        if(clipped)
+        {
+          dead=4;
+        }
+        else
+        {
+          misc=1;
+          /*
+            if (current_item(itype_brang,true)>1) {
+            if (dummy_bool[0]) {
+            add_grenade(x,y,current_item(itype_brang,true)>2);
+            dummy_bool[0]=false;
+            }
+            }
+            */
+        }
       }
-      else
-      {
-        misc=1;
-        /*
-          if (current_item(itype_brang,true)>1) {
-          if (dummy_bool[0]) {
-          add_grenade(x,y,current_item(itype_brang,true)>2);
-          dummy_bool[0]=false;
-          }
-          }
-          */
-      }
-    }
-    break;
+      break;
     case wHookshot:
-    if(misc==0)
-    {
-      clk2=256;
-      if(clipped)
-        dead=4;
-      else
-        misc=1;
-    }
-    break;
+      if(misc==0)
+      {
+        clk2=256;
+        if(clipped)
+          dead=4;
+        else
+          misc=1;
+      }
+      break;
     case ewBrang:
-    if(misc==0)
-    {
-      clk2=256;
-      dead=4;
-    }
-    break;
-    case wMagic: wand_dead=true; wand_x=x; wand_y=y;        // set some global flags
-    dead=1; break;                                          //remove the dead part to make the wand only die when clipped
+      if(misc==0)
+      {
+        clk2=256;
+        dead=4;
+      }
+      break;
+    case wMagic:
+      wand_dead=true;
+      wand_x=x; wand_y=y;        // set some global flags
+      dead=1; break;                                          //remove the dead part to make the wand only die when clipped
 
     case ewWind:
-    if (clipped)
-    {
-      if (misc==999)                                      // in enemy wind
+      if (clipped)
       {
-        ewind_restart=true;
+        if (misc==999)                                      // in enemy wind
+        {
+          ewind_restart=true;
+        }
+        dead=1;
       }
-      dead=1;
-    }
 
     break;
     default: dead=1;
@@ -1628,12 +1726,19 @@ void weapon::draw(BITMAP *dest)
     if(++clk2 >= wpnsbuf[wid].speed)
     {
       clk2 = 0;
-      if(++aframe >= wpnsbuf[wid].frames)
-        aframe = 0;
+      if(wpnsbuf[wid].frames>1)
+      {
+        ++tile;
+        if(++aframe >= wpnsbuf[wid].frames)
+        {
+          aframe = 0;
+          tile-=wpnsbuf[wid].frames;
+        }
+      }
     }
     //shnarf
     //     tile = wpnsbuf[wid].tile + aframe + (((!angular)&&(dir&2))?wpnsbuf[wid].frames:0);
-    tile = wpnsbuf[wid].tile + aframe;
+//    tile = wpnsbuf[wid].tile + aframe;
   }
 
   // do special case stuff
@@ -1659,53 +1764,50 @@ void weapon::draw(BITMAP *dest)
 
     case wBomb:
     case wSBomb:
-    if(clk<48) break;
-    // draw the explosion
-    tile = wpnsbuf[wBOOM].tile;
-    cs = wpnsbuf[wBOOM].csets&15;
-    /*
-      if ((clk>=42 && clk<=45)||(clk>=50 && clk<=53))
+    case ewBomb:
+    case ewSBomb:
       {
-      for (int c=0; c<256; ++c)
+        if(clk<48) break;
+        // draw the explosion
+        int id2=0;
+        switch (id)
+        {
+          case wBomb:
+            id2=wBOOM;
+            break;
+          case wSBomb:
+            id2=wSBOOM;
+            break;
+          case ewBomb:
+            id2=ewBOOM;
+            break;
+          case ewSBomb:
+            id2=ewSBOOM;
+            break;
+        }
+        tile = wpnsbuf[id2].tile;
+        cs = wpnsbuf[id2].csets&15;
+      }
+      if(clk>72)
       {
-      if (clk==42||clk==50)
+        ++tile;
+      }
+      overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-13,cs,0);
+      overtile16(dest,tile,x,y+yofs,cs,0);
+      overtile16(dest,tile,x+((clk&1)?-14:14),y+yofs,cs,0);
+      overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+14,cs,0);
+      if(id==wSBomb)
       {
-      temppal[c]=RAMpal[c];
+        overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-27,cs,0);
+        overtile16(dest,tile,x+((clk&1)?-21:21),y+yofs-13,cs,0);
+        overtile16(dest,tile,x+((clk&1)?-28:28),y+yofs,cs,0);
+        overtile16(dest,tile,x+((clk&1)?21:-21),y+yofs+14,cs,0);
+        overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+28,cs,0);
       }
-      int tempcol=(RAMpal[c].r*5 + RAMpal[c].g*8 + RAMpal[c].b*3)>>4;
-      RAMpal[c].r=RAMpal[c].g=RAMpal[c].b=tempcol;
-      }
-      refreshpal=true;
-      }
-      else if (clk==46 || clk==54)
-      {
-      for (int c=0; c<256; ++c)
-      {
-      RAMpal[c]=temppal[c];
-      }
-      refreshpal=true;
-      }
-      */
-    if(clk>72)
-    {
-      ++tile;
-    }
-    overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-13,cs,0);
-    overtile16(dest,tile,x,y+yofs,cs,0);
-    overtile16(dest,tile,x+((clk&1)?-14:14),y+yofs,cs,0);
-    overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+14,cs,0);
-    if(id==wSBomb)
-    {
-      overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-27,cs,0);
-      overtile16(dest,tile,x+((clk&1)?-21:21),y+yofs-13,cs,0);
-      overtile16(dest,tile,x+((clk&1)?-28:28),y+yofs,cs,0);
-      overtile16(dest,tile,x+((clk&1)?21:-21),y+yofs+14,cs,0);
-      overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+28,cs,0);
-    }
-    if(get_debug() && key[KEY_O])
-      rectfill(dest,x+hxofs,y+hyofs+yofs,
-               x+hxofs+hxsz-1,y+hyofs+hysz-1+yofs,vc(id));
-    return;                                               // don't draw bomb
+      if(get_debug() && key[KEY_O])
+        rectfill(dest,x+hxofs,y+hyofs+yofs,
+                 x+hxofs+hxsz-1,y+hyofs+hysz-1+yofs,vc(id));
+      return;                                               // don't draw bomb
 
     case wArrow:
     case ewArrow:
@@ -1717,6 +1819,7 @@ void weapon::draw(BITMAP *dest)
       }
       break;
 
+    case ewFireTrail:
     case ewFlame:
     case wFire:
     if(wpnsbuf[wid].frames==0)

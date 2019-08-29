@@ -27,6 +27,7 @@ extern int vhead;
 extern int guyindex;
 extern item_drop_object item_drop_set[256];
 
+int random_layer_enemy();
 bool can_do_clock();
 bool m_walkflag(int x,int y,int special);
 int link_on_wall();
@@ -322,10 +323,10 @@ public:
 // Helper for launching fireballs from statues, etc.
 // It's invisible and can't be hit.
 // Pass the range value through the clk variable in the constuctor.
-class eFBall : public enemy
+class eProjectile : public enemy
 {
 public:
-  eFBall(fix X,fix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
+  eProjectile(fix X,fix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
 };
@@ -343,6 +344,16 @@ public:
   eNPC(fix X,fix Y,int Id,int Clk);                       // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
+  virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
+};
+
+class eSpinTile : public enemy
+{
+public:
+  eSpinTile(fix X,fix Y,int Id,int Clk);                       // : enemy(X,Y,Id,Clk)
+  virtual bool animate(int index);
+  virtual void draw(BITMAP *dest);
+  virtual void drawshadow(BITMAP *dest, bool translucent);
   virtual int takehit(int wpnId,int power,int wpnx,int wpny,int wpnDir);
 };
 

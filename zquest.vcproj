@@ -76,7 +76,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="alleg.lib aldmb.lib dumb.lib almp3.lib alogg.lib alspc.lib gme.lib"
+				AdditionalDependencies="alleg.lib aldmb.lib dumb.lib almp3.lib alogg.lib alspc.lib gme.lib al_gif.lib libjpgal.lib libpng.lib loadpng.lib zlib.lib"
 				OutputFile="$(OutDir)/zquest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="./libs/win32/"

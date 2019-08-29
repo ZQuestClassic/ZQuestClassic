@@ -24,56 +24,6 @@
 extern int prv_mode;
 extern void dopreview();
 
-/*
-  INLINE int popup_menu(MENU *menu,int x,int y)
-  {
-  while(gui_mouse_b());
-  return do_menu(menu,x,y);
-  }
-
-  INLINE int bit(int val,int b)
-  {
-  return (val>>b)&1;
-  }
-
-  enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU };
-
-  #define vc(x)  ((x)+224)    // offset to 'VGA color' x
-  #define dvc(x) ((x)+192)    // offset to dark 'VGA color' x
-  #define lc1(x) ((x)+208)    // offset to 'level bg color' x
-  #define lc2(x) ((x)+240)    // offset to 'level fg color' x
-  
-  #define MAXSCREENS 128
-  #define ITEMCNT   iMax
-  #define WPNCNT    wMAX
-  #define MAXROOMTYPES   rMAX
-  #define MAXWARPTYPES   wtMAX-1 // minus whistle
-  #define MAXCOMBOTYPES  cMAX
-  #define MAXFLAGS    mfMAX
-  #define zqMAXGUYS    10
-  #define MAXPATTERNS  2
-  #define MAXCUSTOMMIDIS_ZQ  4+MAXCUSTOMMIDIS
-
-  #define cWALK      1
-  #define cFLAGS     2
-  #define cDARK      4
-  #define cCSET      8
-  #define cNODARK    16
-  #define cNOITEM    32
-  #define cCTYPE     64
-  #define cDEBUG     128
-
-  #define rMAP       1
-  #define rCOMBOS    2
-  #define rSCRMAP    4
-  #define rMENU      8
-  #define rCOMBO     16
-  #define rALL       0x0FF
-  #define rCLEAR     0x100
-
-  #define C(x)   ((x)-'a'+1)
-
-  */
 
 char *imgstr[6] =
 {
@@ -90,18 +40,18 @@ int filetype(char *path)
   strcpy(ext,get_extension(path));
   strupr(ext);
 
-  if(strcmp(ext,"BMP")==0) return ftBMP;
-  if(strcmp(ext,"GIF")==0) return ftBMP;
-  if(strcmp(ext,"PCX")==0) return ftBMP;
-  if(strcmp(ext,"TGA")==0) return ftBMP;
-  if(strcmp(ext,"TIL")==0) return ftTIL;
-  if(strcmp(ext,"ZGP")==0) return ftZGP;
-  if(strcmp(ext,"QSU")==0) return ftQSU;
-  if(strcmp(ext,"DAT")==0) return 0;
-  if(strcmp(ext,"HTM")==0) return 0;
-  if(strcmp(ext,"HTML")==0) return 0;
-  if(strcmp(ext,"TXT")==0) return 0;
-  if(strcmp(ext,"ZIP")==0) return 0;
+  for (int i=0; i<ssfmtMAX; ++i)
+  {
+    if(stricmp(ext,snapshotformat_str[SnapshotFormat][1])==0) return ftBMP;
+  }
+  if(stricmp(ext,"til")==0) return ftTIL;
+  if(stricmp(ext,"zgp")==0) return ftZGP;
+  if(stricmp(ext,"qsu")==0) return ftQSU;
+  if(stricmp(ext,"dat")==0) return 0;
+  if(stricmp(ext,"htm")==0) return 0;
+  if(stricmp(ext,"html")==0) return 0;
+  if(stricmp(ext,"txt")==0) return 0;
+  if(stricmp(ext,"zip")==0) return 0;
   return ftBIN;
 }
 
@@ -152,13 +102,6 @@ void dump_pal()
 {
   for(int i=0; i<256; i++)
     rectfill(screen,(i&63)<<2,(i&0xFC0)>>4,((i&63)<<2)+3,((i&0xFC0)>>4)+3,i);
-}
-
-int bound(int &x,int low,int high)
-{
-  if(x<low) x=low;
-  if(x>high) x=high;
-  return x;
 }
 
 int wrap(int x,int low,int high)
@@ -358,7 +301,7 @@ char *weapon_string[WPNCNT] =
 {
   "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Sword 4 (Master)",
   "Boomerang 1 (Wooden)", "Boomerang 2 (Magic)", "Boomerang 3 (Fire)", "Bomb (Normal)",
-  "Bomb (Super)", "Explosion", "Arrow 1 (Wooden)", "Arrow 2 (Silver)", "Fire", "Whirlwind",
+  "Bomb (Super)", "Explosion (Normal)", "Arrow 1 (Wooden)", "Arrow 2 (Silver)", "Flame", "Whirlwind",
   "Bait", "Wand", "Magic", "Fireball", "Rock", "Arrow (Enemy)", "Sword (Enemy)",
   "Magic (Enemy)", "MISC: Spawn", "MISC: Death", "MISC: <unused>", "Hammer",
   "Hookshot 1 (Short) Head", "Hookshot 1 (Short) Chain (Horizontal)", "Hookshot 1 (Short) Handle", "MISC: Arrow 2 (Silver) Sparkle",
@@ -373,6 +316,8 @@ char *weapon_string[WPNCNT] =
   "Nayru's Love (Right)", "Nayru's Love (Right, Returning)","Nayru's Love Trail (Right)", "Nayru's Love Trail (Right, Returning)",
   "Nayru's Love Shield (Front)", "Nayru's Love Shield (Back)", "MISC: Subscreen Vine", "Cane of Byrna", "Cane of Byrna (Slash)",
   "Hookshot 2 (Long) Head", "Hookshot 2 (Long) Chain (Horizontal)", "Hookshot 2 (Long) Handle", "Hookshot 2 (Long) Chain (Vertical)", 
+  "Explosion (Super)", "Bomb (Enemy, Normal)", "Bomb (Enemy, Super)", "Explosion (Enemy, Normal)",  "Explosion (Enemy, Super)",
+  "Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy)", "Ice Magic (Enemy)"
 };
 
 char *roomtype_string[MAXROOMTYPES] =
@@ -427,7 +372,7 @@ char *combotype_string[MAXCOMBOTYPES] =
   "Trigger (Sens. Temp)", "Trigger (Sens. Perm)", "Step->Next", "Step->Next (Same)", "Step->Next (All)", "Step->Next (Copycat)",
   "No Enemies", "Block Arrow (Wooden)", "Block Arrow (Wood+Silver)", "Block Arrow (All)", "Block Brang (Wooden)",
   "Block Brang (Wood+Magic)", "Block Brang (All)", "Block Sword Beam", "Block All", "Block Fireball",
-  "Damage (8 hearts)", "Damage (16 hearts)", "Damage (32 hearts)", "FF Combo Attr. Change"
+  "Damage (8 hearts)", "Damage (16 hearts)", "Damage (32 hearts)", "FF Combo Attr. Change", "Spinning Tile (Immediate)", "Spinning Tile (Random)"
 };
 
 char *flag_string[MAXFLAGS] =
@@ -540,17 +485,17 @@ char *guy_string[eMAXGUYS] =
   // 025
   "Tektite (L2)","Leever (L1)","Leever (L2)","Moblin (L1)","Moblin (L2)",
   // 030
-  "Lynel (L1)","Lynel (L2)","Peahat","Zora <Slide-Proof>","Rock <Slide-Proof>",
+  "Lynel (L1)","Lynel (L2)","Peahat (L1)","Zora <Slide-Proof>","Rock <Slide-Proof>",
   // 035
-  "Ghini (L1)","Ghini (L2)","Armos","Keese (CSet 7)","Keese (CSet 8)",
+  "Ghini (L1, Normal)","Ghini (L1, Phantom)","Armos","Keese (CSet 7)","Keese (CSet 8)",
   // 040
-  "Keese (CSet 9)","Stalfos (L1)","Gel (Normal)","Zol (Normal)","Rope (L1)",
+  "Keese (CSet 9)","Stalfos (L1)","Gel (L1, Normal)","Zol (L1, Normal)","Rope (L1)",
   // 045
   "Goriya (L1)","Goriya (L2)","Trap (4-Way) ","Wall Master","Darknut (L1)",
   // 050
   "Darknut (L2)","Bubble (Sword, Temporary Disabling)","Vire (Normal)","Like Like","Gibdo",
   // 055
-  "Pols Voice","Wizzrobe (Teleporting)","Wizzrobe (Floating)","Aquamentus (Facing Left)","Moldorm",
+  "Pols Voice (Arrow)","Wizzrobe (Teleporting)","Wizzrobe (Floating)","Aquamentus (Facing Left)","Moldorm",
   // 060
   "Dodongo","Manhandla (L1)","Gleeok (1 Head)","Gleeok (2 Heads)","Gleeok (3 Heads)",
   // 065
@@ -560,11 +505,11 @@ char *guy_string[eMAXGUYS] =
   // 075
   "Lanmola (L2)","Patra (Big Circle)","Patra (Oval)","Ganon ","Stalfos (L2)",
   // 080
-  "Rope (L2)","Bubble (Sword, Permanent Disabling)","Bubble (Sword, Re-enabling)","Fire Shooter","Item Fairy ",
+  "Rope (L2)","Bubble (Sword, Permanent Disabling)","Bubble (Sword, Re-enabling)","Shooter (Fireball)","Item Fairy ",
   // 085
-  "Fire","Octorok (Magic)", "Darknut (Death Knight)", "Gel (Tribble)", "Zol (Tribble)",
+  "Fire","Octorok (Magic)", "Darknut (Death Knight)", "Gel (L1, Tribble)", "Zol (L1, Tribble)",
   // 090
-  "Keese (Tribble)", "Vire (Tribble)", "Darknut (Splitting)", "Aquamentus (Facing Right)", "Manhandla 2",
+  "Keese (Tribble)", "Vire (Tribble)", "Darknut (Splitting)", "Aquamentus (Facing Right)", "Manhandla (L2)",
   // 095
   "Trap (Horizontal, Line of Sight) ", "Trap (Vertical, Line of Sight) ", "Trap (Horizontal, Constant) ", "Trap (Vertical, Constant) ", "Wizzrobe (Fire)",
   // 100
@@ -584,9 +529,21 @@ char *guy_string[eMAXGUYS] =
   // 135
   "Boulder <Slide-Proof>", "Goriya (L3)", "Leever (L3)", "Octorok (L3, Slow)", "Octorok (L3, Fast)",
   // 140
-  "Trap (8-Way) ", "Trap (Diagonal) ", "Trap (/, Constant) ", "Trap (/, Line of Sight) ", "Trap (\\, Constant) ",
+  "Octorok (L4, Slow)", "Octorok (L4, Fast)", "Trap (8-Way) ", "Trap (Diagonal) ", "Trap (/, Constant) ",
   // 145
-  "Trap (\\, Line of Sight) ", "Trap (CW, Constant) ", "Trap (CW, Line of Sight) ", "Trap (CCW, Constant) ", "Trap (CCW, Line of Sight) "
+  "Trap (/, Line of Sight) ", "Trap (\\, Constant) ", "Trap (\\, Line of Sight) ", "Trap (CW, Constant) ", "Trap (CW, Line of Sight) ",
+  // 150
+  "Trap (CCW, Constant) ", "Trap (CCW, Line of Sight) ", "Summoner", "Wizzrobe (Ice) ", "Shooter (Magic)",
+  // 155
+  "Shooter (Rock)", "Shooter (Spear)", "Shooter (Sword)", "Shooter (Fire)", "Shooter (Fire 2)",
+  // 160
+  "Bombchu", "Gel (L2, Normal)", "Zol (L2, Normal)", "Gel (L2, Tribble)", "Zol (L2, Tribble)",
+  // 165
+  "Tektite (L3) ", "Spinning Tile (Immediate) ", "Spinning Tile (Random) ", "Lynel (L3) ", "Peahat (L2) ",
+  // 170
+  "Pols Voice (Magic)", "Pols Voice (Whistle) ", "Darknut (Mirror) ", "Ghini (L2, Fire) ", "Ghini (L2, Magic) ",
+  // 175
+  "Grappler Bug (HP) ", "Grappler Bug (MP) "
 };
 
 char *pattern_string[MAXPATTERNS] =
@@ -710,6 +667,7 @@ int onImport_DMaps();
 int onImport_Msgs();
 int onImport_Combos();
 int onImport_Tiles();
+int onImport_Subscreen();
 int onImport_Pals();
 int onImport_ZGP();
 int onImport_ZQT();
@@ -720,6 +678,7 @@ int onExport_DMaps();
 int onExport_Msgs();
 int onExport_Combos();
 int onExport_Tiles();
+int onExport_Subscreen();
 int onExport_Pals();
 int onExport_ZGP();
 int onExport_ZQT();
@@ -775,7 +734,7 @@ int onSnapshot()
   int num=0;
   do
   {
-    sprintf(buf, "zelda%03d.gif", ++num);
+    sprintf(buf, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
   } while(num<999 && exists(buf));
 
   blit(screen,screen2,0,0,0,0,zq_screen_w,zq_screen_h);

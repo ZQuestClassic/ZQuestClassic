@@ -14,7 +14,13 @@
 #include <string.h>
 //#include <dir.h>
 #include <ctype.h>
+
 #include "zc_alleg.h"
+#include <png.h>
+#include <pngconf.h>
+#include <loadpng.h>
+#include <jpgalleg.h>
+
 #include "zcmusic.h"
 #include "zdefs.h"
 #include "zelda.h"
@@ -28,9 +34,11 @@
 #include "jwin.h"
 #include "jwinfsel.h"
 #include "save_gif.h"
+#include "load_gif.h" // not really needed; we're just saving GIF files in ZC.
 #include "fontsdat.h"
 #include "particles.h"
 #include "gamedata.h"
+
 
 ZCMUSIC *zcmusic = NULL;
 zinitdata zinit;
@@ -169,6 +177,7 @@ bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,
   is_on_conveyor, activated_timed_warp=false;
 
 int  add_asparkle=0, add_bsparkle=0;
+int SnapshotFormat;
 
 char   zeldadat_sig[52];
 char   sfxdat_sig[52];
@@ -181,6 +190,7 @@ mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
 gamedata *game=NULL;
+ffscript ffscripts[256][1000];
 
 //movingblock mblock2; //mblock[4]?
 //LinkClass   Link;
@@ -1133,11 +1143,11 @@ void show_details()
     textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",get_gamedata_time(game),time_str_long(get_gamedata_time(game)));
 
 //    for(int i=0; i<guys.Count(); i++)
-//    for(int i=0; i<Lwpns.Count(); i++)
-    for(int i=0; i<items.Count(); i++)
+    for(int i=0; i<Ewpns.Count(); i++)
+//    for(int i=0; i<items.Count(); i++)
     {
-      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d",items.spr(i)->id);
-//      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d %3d",((weapon*)Lwpns.spr(i))->clk, ((weapon*)Lwpns.spr(i))->dead);
+//      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d",items.spr(i)->id);
+      textprintf_ex(framebuf,font,160,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %3d",((weapon*)Ewpns.spr(i))->id, ((weapon*)Ewpns.spr(i))->tile, ((weapon*)Ewpns.spr(i))->aframe, wpnsbuf[((weapon*)Ewpns.spr(i))->id].frames);
 //      textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %3d %3d %3d",(int)((enemy*)guys.spr(i))->x, (int)((enemy*)guys.spr(i))->y, ((enemy*)guys.spr(i))->hxofs, ((enemy*)guys.spr(i))->hyofs, ((enemy*)guys.spr(i))->hxsz, ((enemy*)guys.spr(i))->hysz);//,dirstr[((enemy*)guys.spr(i))->dir]);//, dirstr[((enemy*)guys.spr(i))->clk3]);
     }
 
@@ -1748,6 +1758,10 @@ int main(int argc, char* argv[])
   //atexit(&dumb_exit);
   //dumb_register_stdfiles();
 
+  register_bitmap_file_type("GIF",  load_gif, save_gif);
+  jpgalleg_init();
+  loadpng_init();
+
   set_config_file("ag.cfg");
 
   if(install_timer() < 0)
@@ -1951,6 +1965,13 @@ int main(int argc, char* argv[])
     {
       memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
     }
+  }
+  for(int i=0;i<256;i++)
+  {
+	  for(int j=0;j<1000;j++)
+	  {
+		  ffscripts[i][j].command = 0xFFFF;
+	  }
   }
 
   // load saved games

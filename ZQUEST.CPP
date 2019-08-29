@@ -39,8 +39,15 @@
 #include <ctype.h>
 //#include <dir.h>
 
-#include "gui.h"
 #include "zc_alleg.h"
+
+#include <png.h>
+#include <pngconf.h>
+
+#include <loadpng.h>
+#include <jpgalleg.h>
+
+#include "gui.h"
 #include "load_gif.h"
 #include "save_gif.h"
 #include "editbox.h"
@@ -65,6 +72,7 @@
 #include "zq_class.h"
 #include "subscr.h"
 #include "zq_subscr.h"
+#include "ffscript.h"
 
 
 #ifndef ALLEGRO_DOS
@@ -206,6 +214,7 @@ PALETTE RAMpal;
 midi_info Midi_Info;
 bool zq_showpal=false;
 bool combo_cols=false;
+ffscript ffscripts[256][1000];
 
 zinitdata zinit;
 
@@ -245,6 +254,7 @@ int OnlyCheckNewTilesForDuplicates;
 word msg_count, qt_count;
 int LeechUpdate;
 int LeechUpdateTiles;
+int SnapshotFormat;
 
 int memrequested;
 byte Color;
@@ -373,6 +383,7 @@ static MENU import_menu[] =
   { "&Map",             onImport_Map,            NULL },
   { "&DMaps",           onImport_DMaps,          NULL },
   { "&Tiles",           onImport_Tiles,          NULL },
+  { "Su&bscreen",       onImport_Subscreen,      NULL },
   { "&Palettes",        onImport_Pals,           NULL },
   { "&String Table",    onImport_Msgs,           NULL },
   { "&Combo Table",     onImport_Combos,         NULL },
@@ -387,6 +398,7 @@ static MENU export_menu[] =
   { "&Map",             onExport_Map,       NULL },
   { "&DMaps",           onExport_DMaps,     NULL },
   { "&Tiles",           onExport_Tiles,     NULL },
+  { "Su&bscreen",       onExport_Subscreen, NULL },
   { "&Palettes",        onExport_Pals,      NULL },
   { "&String Table",    onExport_Msgs,      NULL },
   { "&Combo Table",     onExport_Combos,    NULL },
@@ -406,8 +418,8 @@ static MENU file_menu[] =
   { "&Revert",                onRevert,          NULL },
   { "Quest &Templates...",    onQuestTemplates,  NULL },
   { "" },
-  { "&Import\t ",             NULL,              import_menu },
-  { "&Export\t ",             NULL,              export_menu },
+  { "&Import",                NULL,              import_menu },
+  { "&Export",                NULL,              export_menu },
   { "" },
   { "E&xit\tESC",             onExit,            NULL },
   //   { "Test box",               onTestBox,         NULL },
@@ -563,11 +575,12 @@ static MENU tool_menu[] =
   { "&Flags\tF8",             onFlags,      NULL },
   { "&List Combos Used\t'",   onUsedCombos, NULL },
   { "" },
-  { "&Preview Mode\tx",       onX,          NULL },
+  { "&Preview Mode\tX",       onX,          NULL },
   { "Drawing &Mode",          NULL,         drawing_mode_menu },
   { "" },
   { "&View Palette",          onShowPal,    NULL },
   { "Re-apply Template",      onReTemplate, NULL },
+  { "Import FF Script",       onImportFFScript, NULL},
   //  { "Test &GUI",          onTestGUI,    NULL },
   { NULL }
 };
@@ -910,10 +923,10 @@ static DIALOG dialogs[] =
   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_RIGHT,      0,       (void *) onRight },
   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PGUP,       0,       (void *) onPgUp },
   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PGDN,       0,       (void *) onPgDn },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PLUS_PAD,   0,    (void *) onPlus },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_MINUS_PAD,  0,   (void *) onMinus },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ASTERISK,   0,    (void *) onTimes },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SLASH_PAD,  0,   (void *) onDivide },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PLUS_PAD,   0,       (void *) onPlus },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_MINUS_PAD,  0,       (void *) onMinus },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ASTERISK,   0,       (void *) onTimes },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SLASH_PAD,  0,       (void *) onDivide },
   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,         0,       (void *) onHelp },//
   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,         0,       (void *) onSave },//
   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F3,         0,       (void *) onOpen },//
@@ -1033,16 +1046,15 @@ void update_freeform_combos()
 /*** dialog handlers ***/
 /***********************/
 
-extern char *colorlist(int index, int *list_size)
-;
+extern char *colorlist(int index, int *list_size);
 
 static DIALOG options_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-  { jwin_win_proc,       80,   72-24,   160+28,  220,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "ZQuest Options" },
+  { jwin_win_proc,       80,   72-24,   160+28,  238,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "ZQuest Options" },
   { d_dummy_proc,         0,     0,     0,  0,    vc(15),  vc(1),  0,       0,          0,             0,       NULL },
-  { jwin_button_proc,    111,   242,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
-  { jwin_button_proc,    191,   242,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
+  { jwin_button_proc,    111,   260,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
+  { jwin_button_proc,    191,   260,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel" },
   { jwin_check_proc,      98,   72,   128+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Mouse scroll" },
   { jwin_check_proc,      98,   82,  128+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Save paths" },
   { jwin_check_proc,      98,   92,  128+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Palette cycle" },
@@ -1060,6 +1072,8 @@ static DIALOG options_dlg[] =
   { jwin_check_proc,      98,   212,  128+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Show Grid" },
   { jwin_text_proc,       98,   226,  128+1,  8+1,    0,       0,      0,       0,          0,             0,       (void *) "Grid Color:" },
   { jwin_droplist_proc,  150,   222,  100,    16,     0,       0,      0,       0,          0,             0,       (void *) colorlist },
+  { jwin_text_proc,       98,   244,  128+1,  8+1,    0,       0,      0,       0,          0,             0,       (void *) "Snapshot Format:" },
+  { jwin_droplist_proc,  179,   240,  55,     16,     0,       0,      0,       0,          0,             0,       (void *) snapshotformatlist },
   { NULL }
 };
 #ifdef ALLEGRO_LINUX_GP2X
@@ -1086,6 +1100,7 @@ int onOptions()
   options_dlg[17].flags = TileProtection ? D_SELECTED : 0;
   options_dlg[18].flags = ShowGrid ? D_SELECTED : 0;
   options_dlg[20].d1 = GridColor;
+  options_dlg[22].d1 = SnapshotFormat;
   if(zc_popup_dialog(options_dlg,-1) == 2)
   {
     MouseScroll         = options_dlg[4].flags & D_SELECTED ? 1 : 0;
@@ -1104,6 +1119,7 @@ int onOptions()
     TileProtection      = options_dlg[17].flags & D_SELECTED ? 1 : 0;
     ShowGrid            = options_dlg[18].flags & D_SELECTED ? 1 : 0;
     GridColor           = options_dlg[20].d1;
+    SnapshotFormat      = options_dlg[22].d1;
   }
   setup_combo_animations();
   refresh(rALL);
@@ -1195,8 +1211,8 @@ int onUndo()
 
 extern short ffposx[32];
 extern short ffposy[32];
-extern float ffprvx[32];
-extern float ffprvy[32];
+extern long ffprvx[32];
+extern long ffprvy[32];
 
 int onCopy()
 {
@@ -1207,8 +1223,8 @@ int onCopy()
 	{
 	  ffposx[i]=-1000;
 	  ffposy[i]=-1000;
-	  ffprvx[i]=-1000;
-	  ffprvy[i]=-1000;
+	  ffprvx[i]=-10000000;
+	  ffprvy[i]=-10000000;
 	}
     return D_O_K;
   }
@@ -1829,7 +1845,9 @@ int playMusic()
 {
   char *ext=(char *)malloc(4);
   bool ismidi=false;
-  if(getname("Load Music",(char*)zcmusic_types,midipath,false))
+  char allmusic_types[256];
+  sprintf(allmusic_types, "%s;mid", zcmusic_types);
+  if(getname("Load Music",(char*)allmusic_types,midipath,false))
   {
     strcpy(midipath,temppath);
 
@@ -2012,9 +2030,20 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
   }
   blit(graypic,screen,0,0,0,0,320,240);
   destroy_bitmap(graypic);
+  char extbuf[2][80];
+  memset(extbuf[0],0,80);
+  memset(extbuf[1],0,80);
+  sprintf(extbuf[0], "View Image (%s", snapshotformat_str[0][1]);
+  sprintf(extbuf[1], snapshotformat_str[0][1]);
 
+  for (int i=1; i<ssfmtMAX; ++i)
+  {
+    sprintf(extbuf[0], "%s, %s", extbuf[0], snapshotformat_str[i][1]);
+    sprintf(extbuf[1], "%s;%s", extbuf[1], snapshotformat_str[i][1]);
+  }
+  sprintf(extbuf[0], "%s)", extbuf[0]);
 
-  int gotit = getname("View Image (bmp,pcx,gif)","bmp;pcx;gif",imagepath,true);
+  int gotit = getname(extbuf[0],extbuf[1],imagepath,true);
   if(!gotit)
   {
     set_palette(temppal);
@@ -2061,13 +2090,11 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
 }
 
 int onViewPic()
-
 {
 	return launchPicViewer(&pic,picpal,&picx,&picy,&picscale,false);
 }
 
-int launchPicViewer(BITMAP **pictoview, PALETTE pal,
-					int *px, int *py, double *scale, bool isviewingmap)
+int launchPicViewer(BITMAP **pictoview, PALETTE pal, int *px, int *py, double *scale, bool isviewingmap)
 {
   restore_mouse();
   BITMAP *buf;
@@ -7031,7 +7058,7 @@ static DIALOG editmsg_dlg[] =
   { jwin_ctext_proc,       236,   81,   192,  8,    vc(9),   vc(1),  0,       0,          0,             0,       (void *) "3" },
   { jwin_ctext_proc,       244,   81,   192,  8,    vc(9),   vc(1),  0,       0,          0,             0,       (void *) "2" },
   { jwin_ctext_proc,       252,   81,   192,  8,    vc(9),   vc(1),  0,       0,          0,             0,       (void *) "1" },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0,       (void *) onHelp },
+  { d_keyboard_proc,         0,    0,     0,  0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp },
   { NULL }
 };
 
@@ -7057,8 +7084,6 @@ void editmsg(int index)
   {
     saved=false;
     strcpy(MsgStrings[index].s,msgbuf);
-    //   set_bit(&MsgStrings[index].d1,msLINKED,editmsg_dlg[4].flags);
-    //   MsgStrings[index].d1 = editmsg_dlg[4].flags & D_SELECTED ? 1 : 0;
     MsgStrings[index].nextstring = editmsg_dlg[5].d1;
     if(index==msg_count)
       ++msg_count;
@@ -7082,10 +7107,6 @@ static DIALOG strlist_dlg[] =
   { jwin_edit_proc,       204-20,  161,   26,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
   { NULL }
 };
-
-
-
-
 
 int strlist_del()
 {
@@ -11507,10 +11528,10 @@ static DIALOG itemprop_dlg[] =
   { jwin_text_proc,      14,   87,   56,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Stationary Fairy: " },
   { jwin_text_proc,      14,  105,   56,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Blue Potion: " },
   { jwin_text_proc,      14,  123,   64,   8,    vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Red Potion: " },
-  { jwin_edit_proc,      93,   65,   26,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,      93,   83,   26,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,      93,  101,   26,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
-  { jwin_edit_proc,      93,  119,   26,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL },
+  { jwin_edit_proc,      93,   65,   26,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,      93,   83,   26,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,      93,  101,   26,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
+  { jwin_edit_proc,      93,  119,   26,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL },
   // 49
   { jwin_ctext_proc,    130,   55,   48,   8,    vc(15),  vc(1),  0,       0,          0,             0,       (void *) "%" },
   { jwin_check_proc,    125,   69,   24+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL },
@@ -12640,7 +12661,7 @@ int onSelectFFCombo()
 
 static int ffcombo_data_list[] =
 {
-  4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,-1
+  4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,54,55,-1
 };
 
 static int ffcombo_flag_list[] =
@@ -12655,6 +12676,8 @@ static TABPANEL ffcombo_tabs[] =
   { "Flags",       0,           ffcombo_flag_list },
   { NULL }
 };
+
+char *ffscriptlist(int index, int *list_size);
 
 static DIALOG ffcombo_dlg[] =
 {
@@ -12722,6 +12745,8 @@ static DIALOG ffcombo_dlg[] =
 	{ jwin_check_proc,      6+10,  105+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Chng Next" },
 	{ jwin_check_proc,      6+10,  115+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Chng Prev" },
 	{ jwin_check_proc,      70+10,  85+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0,       (void *) "Chng to This" },
+	{ jwin_text_proc,       112+10,  151+20,   70,    36,   0,        0,       0,       0,          0,             0,       (void *) "Script:" },
+	{ jwin_droplist_proc,  156+10,   151+20,   60,    16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],   0,       0,          1,             0,       (void *) ffscriptlist },
 	{ NULL }
 };
 
@@ -12846,6 +12871,456 @@ long ffparse(char *string)
   return ret;
 }
 
+static char ffscript_str_buf[32];
+
+char *ffscriptlist(int index, int *list_size)
+{
+  if(index>=0)
+  {
+    bound(index,0,255);
+	sprintf(ffscript_str_buf,"%d",index);
+    return ffscript_str_buf;
+  }
+  *list_size=256;
+  return NULL;
+}
+
+static char ffscript_str_buf2[32];
+
+char *ffscriptlist2(int index, int *list_size)
+{
+  if(index>=0)
+  {
+    bound(index,0,254);
+	sprintf(ffscript_str_buf2,"%d",index+1);
+    return ffscript_str_buf2;
+  }
+  *list_size=255;
+  return NULL;
+}
+
+static DIALOG ffscript_sel_dlg[] =
+{
+	{ jwin_win_proc,        0,    0,  200,   159,  vc(14),   vc(1),      0,       D_EXIT,     0,             0,       (void *) "Choose Script Number" },
+	{ jwin_button_proc,     35,   132,   61,   21,  vc(14),   vc(1),     13,       D_EXIT,     0,             0,       (void *) "Save" },
+  { jwin_button_proc,    104,   132,   61,   21,  vc(14),   vc(1),     27,       D_EXIT,     0,             0,       (void *) "Done" },
+	{ jwin_droplist_proc,  11,   25,   49,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0,       (void *) ffscriptlist2 },
+	{ jwin_frame_proc,   68,  23,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL },
+	{ NULL }
+};
+
+int set_argument(char *argbuf, int script, int com, int argument)
+{
+	long *arg; 
+	if(argument) arg = &(ffscripts[script][com].arg2);
+	else arg = &(ffscripts[script][com].arg1);
+	if(strcmp(argbuf,"d0")==0)
+	{
+		*arg = D0;
+	}
+	else if(strcmp(argbuf,"d1")==0)
+	{
+		*arg = D1;
+	}
+	else if(strcmp(argbuf,"d2")==0)
+	{
+		*arg = D2;
+	}
+	else if(strcmp(argbuf,"d3")==0)
+	{
+		*arg = D3;
+	}
+	else if(strcmp(argbuf,"d4")==0)
+	{
+		*arg = D4;
+	}
+	else if(strcmp(argbuf,"d5")==0)
+	{
+		*arg = D5;
+	}
+	else if(strcmp(argbuf,"d6")==0)
+	{
+		*arg = D6;
+	}
+	else if(strcmp(argbuf,"d7")==0)
+	{
+		*arg = D7;
+	}
+	else if(strcmp(argbuf,"a1")==0)
+	{
+		*arg = A1;
+	}
+	else if(strcmp(argbuf,"a2")==0)
+	{
+		*arg = A2;
+	}
+	else if(strcmp(argbuf,"data")==0)
+	{
+		*arg = DATA;
+	}
+	else if(strcmp(argbuf,"cset")==0)
+	{
+		*arg = FCSET;
+	}
+	else if(strcmp(argbuf,"delay")==0)
+	{
+		*arg = DELAY;
+	}
+	else if(strcmp(argbuf,"x")==0)
+	{
+		*arg = FX;
+	}
+	else if(strcmp(argbuf,"y")==0)
+	{
+		*arg = FY;
+	}
+	else if(strcmp(argbuf,"xd")==0)
+	{
+		*arg = XD;
+	}
+	else if(strcmp(argbuf,"yd")==0)
+	{
+		*arg = YD;
+	}
+	else if(strcmp(argbuf,"xd2")==0)
+	{
+		*arg = XD2;
+	}
+	else if(strcmp(argbuf,"yd2")==0)
+	{
+		*arg = YD2;
+	}
+	else if(strcmp(argbuf,"lx")==0)
+	{
+		*arg = LX;
+	}
+	else if(strcmp(argbuf,"ly")==0)
+	{
+		*arg = LY;
+	}
+	else
+	{
+		for(int i=0;i<176;i++)
+		{
+			char buf[7];
+			sprintf(buf, "cd%d", i);
+			if(strcmp(argbuf,buf)==0)
+			{
+				*arg = COMBOD(i);
+				return 1;
+			}
+			sprintf(buf, "cc%d", i);
+			if(strcmp(argbuf,buf)==0)
+			{
+				*arg = COMBOC(i);
+				return 1;
+			}
+			sprintf(buf, "cf%d", i);
+			if(strcmp(argbuf,buf)==0)
+			{
+				*arg = COMBOF(i);
+				return 1;
+			}
+		}
+		return 0;
+	}
+	return 1;
+}
+
+int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, int script, int com)
+{
+	if(strcmp(combuf,"SETR")==0)
+	{
+		ffscripts[script][com].command = SETR;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		if(!set_argument(arg2buf, script, com, 1))
+			return 0;
+	}
+	else if(strcmp(combuf,"SETV")==0)
+	{
+		ffscripts[script][com].command = SETV;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
+	}
+	else if(strcmp(combuf,"ADDR")==0)
+	{
+		ffscripts[script][com].command = ADDR;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		if(!set_argument(arg2buf, script, com, 1))
+			return 0;
+	}
+	else if(strcmp(combuf,"ADDV")==0)
+	{
+		ffscripts[script][com].command = ADDV;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
+	}
+	else if(strcmp(combuf,"SUBR")==0)
+	{
+		ffscripts[script][com].command = SUBR;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		if(!set_argument(arg2buf, script, com, 1))
+			return 0;
+	}
+	else if(strcmp(combuf,"SUBV")==0)
+	{
+		ffscripts[script][com].command = SUBV;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
+	}
+	else if(strcmp(combuf,"MULTR")==0)
+	{
+		ffscripts[script][com].command = MULTR;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		if(!set_argument(arg2buf, script, com, 1))
+			return 0;
+	}
+	else if(strcmp(combuf,"MULTV")==0)
+	{
+		ffscripts[script][com].command = MULTV;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
+	}
+	else if(strcmp(combuf,"DIVR")==0)
+	{
+		ffscripts[script][com].command = DIVR;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		if(!set_argument(arg2buf, script, com, 1))
+			return 0;
+	}
+	else if(strcmp(combuf,"DIVV")==0)
+	{
+		ffscripts[script][com].command = DIVV;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
+	}
+	else if(strcmp(combuf,"COMPARER")==0)
+	{
+		ffscripts[script][com].command = COMPARER;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		if(!set_argument(arg2buf, script, com, 1))
+			return 0;
+	}
+	else if(strcmp(combuf,"COMPAREV")==0)
+	{
+		ffscripts[script][com].command = COMPAREV;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		ffscripts[script][com].arg2 = vbound(ffparse(arg2buf),-327680000,327680000);
+	}
+	else if(strcmp(combuf,"WAITFRAME")==0)
+	{
+		ffscripts[script][com].command = WAITFRAME;
+		ffscripts[script][com].arg1 = 0;
+		ffscripts[script][com].arg2 = 0;
+	}
+	else if(strcmp(combuf,"GOTO")==0)
+	{
+		ffscripts[script][com].command = GOTO;
+		ffscripts[script][com].arg1 = atoi(arg1buf)-1;
+		ffscripts[script][com].arg2 = 0;
+	}
+	else if(strcmp(combuf,"CHECKTRIG")==0)
+	{
+		ffscripts[script][com].command = CHECKTRIG;
+		ffscripts[script][com].arg1 = 0;
+		ffscripts[script][com].arg2 = 0;
+	}
+	else if(strcmp(combuf,"WARP")==0)
+	{
+		ffscripts[script][com].command = WARP;
+		ffscripts[script][com].arg1 = atoi(arg1buf);
+		ffscripts[script][com].arg2 = atoi(arg2buf);
+	}
+	else if(strcmp(combuf,"GOTOTRUE")==0)
+	{
+		ffscripts[script][com].command = GOTOTRUE;
+		ffscripts[script][com].arg1 = atoi(arg1buf)-1;
+		ffscripts[script][com].arg2 = 0;
+	}
+	else if(strcmp(combuf,"GOTOFALSE")==0)
+	{
+		ffscripts[script][com].command = GOTOFALSE;
+		ffscripts[script][com].arg1 = atoi(arg1buf)-1;
+		ffscripts[script][com].arg2 = 0;
+	}
+	else if(strcmp(combuf,"GOTOMORE")==0)
+	{
+		ffscripts[script][com].command = GOTOMORE;
+		ffscripts[script][com].arg1 = atoi(arg1buf)-1;
+		ffscripts[script][com].arg2 = 0;
+	}
+	else if(strcmp(combuf,"GOTOLESS")==0)
+	{
+		ffscripts[script][com].command = GOTOLESS;
+		ffscripts[script][com].arg1 = atoi(arg1buf)-1;
+		ffscripts[script][com].arg2 = 0;
+	}
+	else if(strcmp(combuf,"LOAD1")==0)
+	{
+		ffscripts[script][com].command = LOAD1;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		if(!set_argument(arg2buf, script, com, 1))
+			return 0;
+	}
+	else if(strcmp(combuf,"LOAD2")==0)
+	{
+		ffscripts[script][com].command = LOAD2;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		if(!set_argument(arg2buf, script, com, 1))
+			return 0;
+	}
+	else if(strcmp(combuf,"SETA1")==0)
+	{
+		ffscripts[script][com].command = SETA1;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		if(!set_argument(arg2buf, script, com, 1))
+			return 0;
+	}
+	else if(strcmp(combuf,"SETA2")==0)
+	{
+		ffscripts[script][com].command = SETA2;
+		if(!set_argument(arg1buf, script, com, 0))
+			return 0;
+		if(!set_argument(arg2buf, script, com, 1))
+			return 0;
+	}
+	else if(strcmp(combuf,"QUIT")==0)
+	{
+		ffscripts[script][com].command = QUIT;
+		ffscripts[script][com].arg1 = 0;
+		ffscripts[script][com].arg2 = 0;
+	}
+	else
+	{
+		return 0;
+	}
+	return 1;
+}
+
+int parse_script(int script)
+{
+  if(!getname("Import Script (.txt)","txt",datapath,false))
+    return D_O_K;
+  saved=false;
+  FILE *fscript = fopen(temppath,"rb");
+  char *buffer = new char[0x400];
+  char *combuf = new char[0x100];
+  char *arg1buf = new char[0x100];
+  char *arg2buf = new char[0x100];
+  bool stop=false;
+
+  for(int i=0;i<1000;i++)
+  {
+    if(stop)
+    {
+      ffscripts[script][i].command = 0xFFFF;
+      i=1000;
+    }
+    else
+    {
+/*
+      sprintf(buffer, "");
+      sprintf(combuf, "");
+      sprintf(arg1buf, "");
+      sprintf(arg2buf, "");
+*/
+      buffer[0]=0;
+      combuf[0]=0;
+      arg1buf[0]=0;
+      arg2buf[0]=0;
+      for(int j=0;j<0x400;j++)
+      {
+        char temp;
+        temp = getc(fscript);
+        if(feof(fscript)) {stop=true; j=0x400; ungetc(temp,fscript);}
+        else
+        {
+          ungetc(temp,fscript);
+          buffer[j] = getc(fscript);
+          if(buffer[j] == ';' || buffer[j] == '\n' || buffer[j] == 13)
+          {
+            if(buffer[j] == '\n')
+            {
+              buffer[j] = '\0';
+              j=0x400;
+            }
+            else
+            {
+              while(getc(fscript)!='\n');
+              buffer[j] = '\0';
+                j=0x400;
+            }
+          }
+        }
+      }
+      int k=0, l=0;
+      while(buffer[k] == ' ' && buffer[k] != '\0')  k++;
+      while(buffer[k] != ' ' && buffer[k] != '\0')
+      {
+        combuf[l] = buffer[k]; k++; l++;
+      }
+      combuf[l] = '\0';
+      l=0;
+      while(buffer[k] == ' ' && buffer[k] != '\0') k++;
+      while(buffer[k] != ',' && buffer[k] != '\0')
+      {
+        arg1buf[l] = buffer[k]; k++; l++;
+      }
+      arg1buf[l] = '\0';
+      l=0;
+      while((buffer[k] == ' ' || buffer[k] == ',') && buffer[k] != '\0') k++;
+      while(buffer[k] != ' ' && buffer[k] != '\0')
+      {
+        arg2buf[l] = buffer[k]; k++; l++;
+      }
+      arg2buf[l] = '\0';
+      if(!(parse_script_section(combuf, arg1buf, arg2buf, script, i)))
+      {
+        char buf[80],name[13];
+        extract_name(temppath,name,FILENAME8_3);
+        sprintf(buf,"Unable to parse instruction %d from script %s",i,name);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        stop=true;
+        ffscripts[script][0].command = 0xFFFF;
+      }
+    }
+  }
+  delete [] buffer;
+  delete [] combuf;
+  delete [] arg1buf;
+  delete [] arg2buf;
+  fclose(fscript);
+  return D_O_K;
+}
+
+int onImportFFScript()
+{
+	ffscript_sel_dlg[0].dp2 = lfont;
+	ffscript_sel_dlg[3].d1 = 0;
+
+	int ret=zc_popup_dialog(ffscript_sel_dlg,0);
+	if(ret==1)
+	{
+		parse_script(ffscript_sel_dlg[3].d1+1);
+	}
+	return D_O_K;
+}
+
 int onEditFFCombo(int ffcombo)
 {
   char xystring[8][10];
@@ -12886,6 +13361,7 @@ int onEditFFCombo(int ffcombo)
   ffcombo_dlg[28].dp = wstring[1];
   ffcombo_dlg[29].dp = wstring[2];
   ffcombo_dlg[30].dp = wstring[3];
+  ffcombo_dlg[55].d1 = Map.CurrScr()->ffscript[ffcombo];
 
   int f=Map.CurrScr()->ffflags[ffcombo];
   ffcombo_dlg[33].flags = (f&ffOVERLAY) ? D_SELECTED : 0;
@@ -12912,6 +13388,7 @@ int onEditFFCombo(int ffcombo)
     Map.CurrScr()->ffxdelta2[ffcombo] = vbound(ffparse(xystring[4]),-1280000, 1280000);
     Map.CurrScr()->ffydelta2[ffcombo] = vbound(ffparse(xystring[5]),-1280000, 1280000);
     Map.CurrScr()->ffdelay[ffcombo] = atoi(xystring[6])<10000?max(0,atoi(xystring[6])):9999;
+	Map.CurrScr()->ffscript[ffcombo] = ffcombo_dlg[55].d1;
 
 	int cw = atoi(wstring[0])<65?max(1,atoi(wstring[0])):64;
 	int ch = atoi(wstring[1])<65?max(1,atoi(wstring[1])):64;
@@ -14155,7 +14632,9 @@ int main(int argc,char **argv)
   allegro_init();
   three_finger_flag=false;
   register_bitmap_file_type("GIF",  load_gif, save_gif);
-
+  jpgalleg_init();
+  loadpng_init();
+  
   set_config_file("ag.cfg");
 
   if(install_timer() < 0)
@@ -14294,6 +14773,13 @@ int main(int argc,char **argv)
       memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
     }
   }
+  for(int i=0;i<256;i++)
+  {
+	  for(int j=0;j<1000;j++)
+	  {
+		  ffscripts[i][j].command = 0xFFFF;
+	  }
+  }
 
   int helpsize = file_size("zquest.txt");
   if(helpsize==0)
@@ -14339,6 +14825,7 @@ int main(int argc,char **argv)
   TileProtection      = get_config_int("zquest","tile_protection",1);
   ShowGrid            = get_config_int("zquest","show_grid",0);
   GridColor           = get_config_int("zquest","grid_color",15);
+  SnapshotFormat      = get_config_int("zquest","snapshot_format",0);
   SavePaths           = get_config_int("zquest","save_paths",1);
   CycleOn             = get_config_int("zquest","cycle_on",1);
   Vsync               = get_config_int("zquest","vsync",1)!=0;
@@ -15033,6 +15520,7 @@ int main(int argc,char **argv)
   set_config_int("zquest","tile_protection",TileProtection);
   set_config_int("zquest","show_grid",ShowGrid);
   set_config_int("zquest","grid_color",GridColor);
+  set_config_int("zquest","snapshot_format",SnapshotFormat);
   set_config_int("zquest","save_paths",SavePaths);
   set_config_int("zquest","cycle_on",CycleOn);
   set_config_int("zquest","vsync",Vsync);
@@ -15250,6 +15738,7 @@ void do_animations()
     textprintf_ex(menu1,font,panel_8_x+1,panel_8_y+32+3,vc(0),-1,"%s",help_list[help_pos+4]);
   }
 }
+
 
 
 int d_nbmenu_proc(int msg,DIALOG *d,int c)

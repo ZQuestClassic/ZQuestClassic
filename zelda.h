@@ -259,6 +259,8 @@ extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;
 extern bool is_on_conveyor, activated_timed_warp;
 
+extern int SnapshotFormat;
+
 extern int add_asparkle, add_bsparkle;
 
 extern bool show_layer_0, show_layer_1, show_layer_2, show_layer_3, show_layer_4, show_layer_5, show_layer_6, show_layer_over, show_layer_push, show_sprites;
@@ -272,6 +274,7 @@ extern mapscr tmpscr[2];
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];
+extern ffscript ffscripts[256][1000];
 
 extern int  resx,resy,scrx,scry;
 extern bool sbig;                                           // big screen

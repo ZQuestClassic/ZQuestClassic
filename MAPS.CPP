@@ -18,6 +18,7 @@
 #include "zc_subscr.h"
 #include "link.h"
 #include "guys.h"
+#include "ffscript.h"
 #include <string.h>
 #include "particles.h"
 
@@ -33,10 +34,10 @@ short ffposx[32]={-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1
                   -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000};
 short ffposy[32]={-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
                   -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000};
-float ffprvx[32]={-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
-                  -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000};
-float ffprvy[32]={-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
-                  -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000};
+long ffprvx[32]={-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
+                  -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000};
+long ffprvy[32]={-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
+                  -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000};
 
 int draw_screen_clip_rect_x1=0;
 int draw_screen_clip_rect_x2=255;
@@ -93,8 +94,8 @@ int MAPFFCOMBO(int x,int y)
 {
   for(int i=0;i<32;i++)
   {
-    if(x>=(int)tmpscr->ffx[i]&&x<(int)tmpscr->ffx[i]+(tmpscr->ffwidth[i]&63)+1)
-	  if(y>=(int)tmpscr->ffy[i]&&y<(int)tmpscr->ffy[i]+(tmpscr->ffheight[i]&63)+1)
+    if(x>=(tmpscr->ffx[i]/10000)&&x<(tmpscr->ffx[i]/10000)+(tmpscr->ffwidth[i]&63)+1)
+	  if(y>=(tmpscr->ffy[i]/10000)&&y<(tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1)
 	    if(combobuf[tmpscr->ffdata[i]].type!=cCHANGE)
 		  return tmpscr->ffdata[i];
   }
@@ -139,8 +140,8 @@ int MAPFFCOMBOFLAG(int x,int y)
 {
   for(int i=0;i<32;i++)
   {
-    if(x>=(int)tmpscr->ffx[i]&&x<((int)tmpscr->ffx[i]+(tmpscr->ffwidth[i]&63)+1))
-	  if(y>=(int)tmpscr->ffy[i]&&y<((int)tmpscr->ffy[i]+(tmpscr->ffheight[i]&63)+1))
+    if(x>=(tmpscr->ffx[i]/10000)&&x<((tmpscr->ffx[i]/10000)+(tmpscr->ffwidth[i]&63)+1))
+	  if(y>=(tmpscr->ffy[i]/10000)&&y<((tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1))
 	  {
 	    if(combobuf[tmpscr->ffdata[i]].type!=cCHANGE)
 		{
@@ -217,7 +218,7 @@ void setmapflag()
 
   byte nmap=tmpscr->nextmap;
   byte nscr=tmpscr->nextscr;
-  while((nmap!=0&&nscr!=0)&&(nmap!=0)&&!((nmap-1==currmap)&&(nscr==homescr))&&!(nscr>=128))
+  while(/*(nmap!=0&&nscr!=0)&&*/(nmap!=0)&&!((nmap-1==currmap)&&(nscr==homescr))&&!(nscr>=128))
   {
     int temp = ((currscr>=128) ? (tmpscr->nocarry&mBELOW) : (tmpscr->nocarry&mITEM));
     if(temp!=((currscr>=128) ? mBELOW : mITEM))
@@ -235,7 +236,7 @@ void unsetmapflag()
     game->maps[(currmap<<7)+homescr] &= ((currscr>=128) ? ~mBELOW : ~mITEM);
   byte nmap=tmpscr->nextmap;
   byte nscr=tmpscr->nextscr;
-  while((nmap!=0&&nscr!=0)&&(nmap!=0)&&(!((nmap-1==currmap)&&(nscr==homescr)))&&!(nscr>=128))
+  while(/*(nmap!=0&&nscr!=0)&&*/(nmap!=0)&&(!((nmap-1==currmap)&&(nscr==homescr)))&&!(nscr>=128))
   {
     /*if(!(TheMaps[((nmap-1)*MAPSCRS)+nscr].flags4&fNOITEMRESET))*/
     int temp = ((currscr>=128) ? (tmpscr->nocarry&mBELOW) : (tmpscr->nocarry&mITEM));
@@ -263,7 +264,7 @@ void setmapflag(int flag)
     {
       byte nmap=tmpscr->nextmap;
       byte nscr=tmpscr->nextscr;
-      while((nmap!=0&&nscr!=0)&&(nmap!=0)&&(!((nmap-1==currmap)&&(nscr==homescr)))&&!(nscr>=128))
+      while(/*(nmap!=0&&nscr!=0)&&*/(nmap!=0)&&(!((nmap-1==currmap)&&(nscr==homescr)))&&!(nscr>=128))
       {
         if((tmpscr->nocarry&flag)!=flag)
           game->maps[((nmap-1)<<7)+nscr] |= flag;
@@ -288,7 +289,7 @@ void unsetmapflag(int flag)
   {
     byte nmap=tmpscr->nextmap;
     byte nscr=tmpscr->nextscr;
-    while((nmap!=0&&nscr!=0)&&(nmap!=0)&&(!((nmap-1==currmap)&&(nscr==homescr)))&&!(nscr>=128))
+    while(/*(nmap!=0&&nscr!=0)&&*/(nmap!=0)&&(!((nmap-1==currmap)&&(nscr==homescr)))&&!(nscr>=128))
     {
       /*if(flag==mITEM || flag==mBELOW) {
         if(!(TheMaps[((nmap-1)*MAPSCRS)+nscr].flags4&fNOITEMRESET))
@@ -348,6 +349,12 @@ void update_combo_cycling()
     {
       tmpscr->data[i]=combobuf[x].nextcombo;
       tmpscr->cset[i]=combobuf[x].nextcset;
+      int c=tmpscr->data[i];
+      int cs=tmpscr->cset[i];
+      if (combobuf[c].type==cSPINTILE1)
+      {
+        addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+      }
     }
   }
 
@@ -362,6 +369,12 @@ void update_combo_cycling()
       {
         tmpscr->ffdata[i]=combobuf[x].nextcombo;
         tmpscr->ffcset[i]=combobuf[x].nextcset;
+        int c=tmpscr->ffdata[i];
+        int cs=tmpscr->ffcset[i];
+        if (combobuf[c].type==cSPINTILE1)
+        {
+          addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+        }
       }
   }
 
@@ -381,6 +394,12 @@ void update_combo_cycling()
         {
           (tmpscr2+j)->data[i]=combobuf[x].nextcombo;
           (tmpscr2+j)->cset[i]=combobuf[x].nextcset;
+          int c=(tmpscr2+j)->data[i];
+          int cs=(tmpscr2+j)->cset[i];
+          if (combobuf[c].type==cSPINTILE1)
+          {
+            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+          }
         }
       }
     }
@@ -801,6 +820,12 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
           s->data[i] = s->secretcombo[ft];
           s->cset[i] = s->secretcset[ft];
           if(iter) s->sflag[i] = s->secretflag[ft];
+          int c=s->data[i];
+          int cs=s->cset[i];
+          if (combobuf[c].type==cSPINTILE1)
+          {
+            addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+          }
         }
       }
 
@@ -907,6 +932,12 @@ void hidden_entrance(int tmp,bool refresh,bool high16only,int single)
             t[j].data[i] = t[j].secretcombo[ft];
             t[j].cset[i] = t[j].secretcset[ft];
             if(iter) t[j].sflag[i] = t[j].secretflag[ft];
+            int c=t[j].data[i];
+            int cs=t[j].cset[i];
+            if (combobuf[c].type==cSPINTILE1)
+            {
+              addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+            }
           }
         }
       }
@@ -1348,6 +1379,7 @@ bool findentrance(int x, int y, int flag, bool setflag)
 
 void update_freeform_combos()
 {
+  ffscript_engine();
   for(int i=0;i<32;i++)
   {
     if(combobuf[tmpscr->ffdata[i]].type!=cCHANGE && tmpscr->ffdata[i]!=0 && !(tmpscr->ffflags[i]&ffSTATIONARY))
@@ -1439,10 +1471,10 @@ void update_freeform_combos()
         {
           if(combobuf[tmpscr->ffdata[j]].type==cCHANGE)
           {
-            if((((int)tmpscr->ffx[j]!=ffposx[i])||((int)tmpscr->ffy[j]!=ffposy[i]))&&(tmpscr->fflink[i]==0))
+            if((((tmpscr->ffx[j]/10000)!=ffposx[i])||((tmpscr->ffy[j]/10000)!=ffposy[i]))&&(tmpscr->fflink[i]==0))
             {
-              if((isonline(tmpscr->ffx[i],tmpscr->ffy[i],ffprvx[i],ffprvy[i],tmpscr->ffx[j],tmpscr->ffy[j])||
-                (FLOAT_EQ(tmpscr->ffx[i],tmpscr->ffx[j])&&FLOAT_EQ(tmpscr->ffy[i],tmpscr->ffy[j])))&&(ffprvx[i]>-1000&&ffprvy[i]>-1000))
+              if((isonline(tmpscr->ffx[i]/10000,tmpscr->ffy[i]/10000,ffprvx[i]/10000,ffprvy[i]/10000,tmpscr->ffx[j]/10000,tmpscr->ffy[j]/10000)||
+                (tmpscr->ffx[i]==tmpscr->ffx[j])&&(tmpscr->ffy[i]==tmpscr->ffy[j]))&&(ffprvx[i]>-10000000&&ffprvy[i]>-10000000))
               {
                 //tmpscr->ffdata[i]=tmpscr->ffdata[j];
                 //tmpscr->ffcset[i]=tmpscr->ffcset[j];
@@ -1468,8 +1500,8 @@ void update_freeform_combos()
                 if(tmpscr->ffflags[i]&ffCARRYOVER)
                   tmpscr->ffflags[i]=tmpscr->ffflags[j]|ffCARRYOVER;
                 else tmpscr->ffflags[i]=tmpscr->ffflags[j];
-                ffposx[i]=(short)tmpscr->ffx[j];
-                ffposy[i]=(short)tmpscr->ffy[j];
+                ffposx[i]=(short)(tmpscr->ffx[j]/10000);
+                ffposy[i]=(short)(tmpscr->ffy[j]/10000);
        
                 if(combobuf[tmpscr->ffdata[j]].flag>15 && combobuf[tmpscr->ffdata[j]].flag<32)
                 {
@@ -1949,12 +1981,12 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
               if(layer1->ffflags[i]&ffTRANS)
               {
   //                overtiletranslucent16(dest, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((int)layer1->ffx[i])+(k*16), ((int)layer1->ffy[i])+(j*16)+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
-                overcombotranslucent(framebuf, ((layer1->ffx[i]+(k*16))/10000), ((layer1->ffy[i]+(j*16))/10000)+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i], 128);
+                overcombotranslucent(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i], 128);
               }
               else
               {
   //                overtile16(dest, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((int)layer1->ffx[i])+(k*16), ((int)layer1->ffy[i])+(j*16)+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
-                  overcombo(framebuf, ((layer1->ffx[i]+(k*16))/10000), ((layer1->ffy[i]+(j*16))/10000)+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i]);
+                  overcombo(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i]);
               }
             }
           }
@@ -2219,12 +2251,12 @@ void draw_screen(mapscr* layer1, mapscr* layer2, int x1, int y1, int x2, int y2)
               if(layer1->ffflags[i]&ffTRANS)
               {
   //                overtiletranslucent16(dest, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((int)layer1->ffx[i])+(k*16), ((int)layer1->ffy[i])+(j*16)+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip, 128);
-                overcombotranslucent(framebuf, ((layer1->ffx[i]+(k*16))/10000), ((layer1->ffy[i]+(j*16))/10000)+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i], 128);
+                overcombotranslucent(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i], 128);
               }
               else
               {
   //                overtile16(dest, combobuf[layer1->ffdata[i]].tile+(j*20)+(k), ((int)layer1->ffx[i])+(k*16), ((int)layer1->ffy[i])+(j*16)+playing_field_offset, layer1->ffcset[i], combobuf[layer1->ffdata[i]].flip);
-                  overcombo(framebuf, ((layer1->ffx[i]+(k*16))/10000), ((layer1->ffy[i]+(j*16))/10000)+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i]);
+                  overcombo(framebuf, ((layer1->ffx[i]/10000)+(k*16)), ((layer1->ffy[i]/10000)+(j*16))+playing_field_offset, layer1->ffdata[i]+(j*20)+(k), layer1->ffcset[i]);
               }
             }
           }
@@ -2753,6 +2785,19 @@ void loadscr(int tmp,int scr,int ldir)
         tmpscr[tmp].ffwidth[i] = ffscr.ffwidth[i];
         tmpscr[tmp].ffheight[i] = ffscr.ffheight[i];
         tmpscr[tmp].ffflags[i] = ffscr.ffflags[i];
+		tmpscr[tmp].ffscript[i] = ffscr.ffscript[i];
+		tmpscr[tmp].d0[i] = ffscr.d0[i];
+		tmpscr[tmp].d1[i] = ffscr.d1[i];
+		tmpscr[tmp].d2[i] = ffscr.d2[i];
+		tmpscr[tmp].d3[i] = ffscr.d3[i];
+		tmpscr[tmp].d4[i] = ffscr.d4[i];
+		tmpscr[tmp].d5[i] = ffscr.d5[i];
+		tmpscr[tmp].d6[i] = ffscr.d6[i];
+		tmpscr[tmp].d7[i] = ffscr.d7[i];
+		tmpscr[tmp].a1[i] = ffscr.a1[i];
+		tmpscr[tmp].a2[i] = ffscr.a2[i];
+		tmpscr[tmp].pc[i] = ffscr.pc[i];
+		tmpscr[tmp].scriptflag[i] = ffscr.scriptflag[i];
       }
     }
   }
@@ -2856,7 +2901,32 @@ void loadscr(int tmp,int scr,int ldir)
       {
         tmpscr[tmp].door[i]=door;
       }
+    }
+  }
 
+  for(int i=0; i<176; ++i)
+  {
+    int c=tmpscr[tmp].data[i];
+    int cs=tmpscr[tmp].cset[i];
+    if (combobuf[c].type==cSPINTILE1)
+    {
+      addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+    }
+  }
+  for (int j=0; j<6; ++j)
+  {
+    if (tmpscr[tmp].layermap>0)
+    {
+      mapscr *layerscreen=TheMaps+((tmpscr[tmp].layermap[j]-1)*MAPSCRS)+tmpscr[tmp].layerscreen[j];
+      for(int i=0; i<176; ++i)
+      {
+        int c=layerscreen->data[i];
+        int cs=layerscreen->cset[i];
+        if (combobuf[c].type==cSPINTILE1)
+        {
+          addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].tile+max(1,combobuf[c].frames));
+        }
+      }
     }
   }
 }

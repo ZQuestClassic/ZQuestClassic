@@ -147,13 +147,36 @@ char *temp_name(char *s)
   return temporaryname;
 }
 
+int bound(int &x,int low,int high)
+{
+  if(x<low) x=low;
+  if(x>high) x=high;
+  return x;
+}
+
+char *snapshotformat_str[ssfmtMAX][2]=
+{
+  {"BMP", "bmp"},
+  {"GIF", "gif"},
+  {"JPG", "jpg"},
+  {"PNG", "png"},
+  {"PCX", "pcx"},
+  {"TGA", "tga"},
+};
+
+char *snapshotformatlist(int index, int *list_size)
+{
+  if(index>=0)
+  {
+    bound(index,0,ssfmtMAX);
+    return snapshotformat_str[index][0];
+  }
+  *list_size=ssfmtMAX;
+  return NULL;
+}
 
 
-
-
-
-
-//Allegro's make_relaive_filename doesn't handle uppercase/lowercase too well for drive letters
+//Allegro's make_relative_filename doesn't handle uppercase/lowercase too well for drive letters
 char *zc_make_relative_filename(char *dest, const char *path, const char *filename, int size)
 {
 #ifdef ALLEGRO_LINUX

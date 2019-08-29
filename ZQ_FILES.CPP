@@ -227,79 +227,79 @@ int ListQTs(bool edit)
     switch(ret)
     {
       case 2:
-      if (edit)
-      {
+        if (edit)
+        {
+          doedit=true;
+        }
+        else
+        {
+          if (index>0&&!valid_zqt(QuestTemplates[index].path))
+          {
+            jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,lfont);
+          }
+          else
+          {
+            strcpy(header.templatepath, QuestTemplates[index].path);
+            index=-1;
+          }
+        }
+        break;
+      case 5:
         doedit=true;
-      }
-      else
-      {
+        break;
+      case 3:
+        if (index>1&&index<qt_count-1)
+        {
+          swap(QuestTemplates[index],QuestTemplates[index-1]);
+          --qtlist_dlg[2].d1;
+          index=qtlist_dlg[2].d1;
+        }
+        break;
+      case 4:
+        if (index>0&&index<qt_count-2)
+        {
+          swap(QuestTemplates[index],QuestTemplates[index+1]);
+          ++qtlist_dlg[2].d1;
+          index=qtlist_dlg[2].d1;
+        }
+        break;
+      case 6:
         if (index>0&&!valid_zqt(QuestTemplates[index].path))
         {
           jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,lfont);
         }
         else
         {
-          strcpy(header.templatepath, QuestTemplates[index].path);
+          if (!edit)
+          {
+            strcpy(header.templatepath, QuestTemplates[index].path);
+          }
           index=-1;
         }
-      }
-      break;
-      case 5:
-      doedit=true;
-      break;
-      case 3:
-      if (index>1&&index<qt_count-1)
-      {
-        swap(QuestTemplates[index],QuestTemplates[index-1]);
-        --qtlist_dlg[2].d1;
-        index=qtlist_dlg[2].d1;
-      }
-      break;
-      case 4:
-      if (index>0&&index<qt_count-2)
-      {
-        swap(QuestTemplates[index],QuestTemplates[index+1]);
-        ++qtlist_dlg[2].d1;
-        index=qtlist_dlg[2].d1;
-      }
-      break;
-      case 6:
-      if (index>0&&!valid_zqt(QuestTemplates[index].path))
-      {
-        jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,lfont);
-      }
-      else
-      {
-        if (!edit)
-        {
-          strcpy(header.templatepath, QuestTemplates[index].path);
-        }
-        index=-1;
-      }
-      break;
+        break;
       case 0:
       case 7:
-      if (edit)
-      {
-        qt_count=backup_qt_count+1;
-        for (int x=0; x<MAXQTS; x++)
+        if (edit)
         {
-          QuestTemplates[x]=BackupQTs[x];
+          qt_count=backup_qt_count+1;
+          for (int x=0; x<MAXQTS; x++)
+          {
+            QuestTemplates[x]=BackupQTs[x];
+          }
         }
-      }
-      index=-2;
-      break;
+        index=-2;
+        break;
       case 8:
-      char buf[25];
-      strncpy(buf,QuestTemplates[index].name,30);
-      if(jwin_alert("Confirm Deletion", "Delete this quest template?",buf,"(the file will still exist)","Yes","No",'y',27,lfont)==1)
-      {
-        for(int i=index; i<MAXQTS-1; i++)
-          QuestTemplates[i]=QuestTemplates[i+1];
-        reset_qt(MAXQTS-1);
-        --qt_count;
-      }
-      break;
+        char buf[25];
+        strncpy(buf,QuestTemplates[index].name,30);
+        if(jwin_alert("Confirm Deletion", "Delete this quest template?",buf,"(the file will still exist)","Yes","No",'y',27,lfont)==1)
+        {
+          for(int i=index; i<MAXQTS-1; i++)
+            QuestTemplates[i]=QuestTemplates[i+1];
+          reset_qt(MAXQTS-1);
+          --qt_count;
+        }
+        break;
     }
     if(edit&&hasroom)
     {
@@ -861,6 +861,52 @@ int onExport_ZGP()
   {
     sprintf(buf,"ZQuest");
     sprintf(buf2,"Saved %s",name);
+  }
+  else
+  {
+    sprintf(buf,"Error");
+    sprintf(buf2,"Error saving %s",name);
+  }
+  jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+  return D_O_K;
+}
+
+int onImport_Subscreen()
+{
+  if(!getname("Import Subscreen (.sub)","sub",datapath,false))
+    return D_O_K;
+  saved=false;
+  // usetiles=true;
+  if(!load_subscreen(temppath))
+  {
+    char buf[80],name[13];
+    extract_name(temppath,name,FILENAME8_3);
+    sprintf(buf,"Unable to load %s",name);
+    jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+  }
+  refresh(rALL);
+  return D_O_K;
+}
+
+int onExport_Subscreen()
+{
+  if(!getname("Export Subscreen (.sub)","sub",datapath,false))
+    return D_O_K;
+  bool cancel;
+  char buf[80],buf2[80],name[13];
+  extract_name(temppath,name,FILENAME8_3);
+  if(save_subscreen(temppath, &cancel))
+  {
+    if(!cancel)
+	{
+      sprintf(buf,"ZQuest");
+      sprintf(buf2,"Saved %s",name);
+	}
+	else
+	{
+	  sprintf(buf,"ZQuest");
+	  sprintf(buf2,"Did not save %s",name);
+	}
   }
   else
   {

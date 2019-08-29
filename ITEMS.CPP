@@ -73,8 +73,12 @@ void item::draw(BITMAP *dest)
     return;
 
   if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1)
+  {
     if(clk2>32 || (clk2&2)==0 || id==iFairyMoving || id==iFairyStill)
+    {
       sprite::draw(dest);
+    }
+  }
 }
 
 item::item(fix X,fix Y,int i,int p,int c) : sprite()
@@ -85,7 +89,7 @@ item::item(fix X,fix Y,int i,int p,int c) : sprite()
   anim=flash=twohand=false;
   dummy_int[0]=-1;
 
-  if(id<0 || id>=iMax)
+  if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
     return;
 
   tile = itemsbuf[id].tile;

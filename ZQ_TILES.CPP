@@ -2960,14 +2960,34 @@ int move_intersection_sr(int check_first, int check_last, int selection_left, in
       {
         return ti_none;
       }
-      else if (selection_top*TILES_PER_ROW+selection_left<check_first && (selection_top+1)*TILES_PER_ROW+selection_left>check_last)
-        {
-          return ti_none;
-        }
-        else
-        {
-          return ti_broken;
-        }
+      //else if (selection_top*TILES_PER_ROW+selection_left<check_first && (selection_top+1)*TILES_PER_ROW+selection_left>check_last)
+	  
+	  //one last base case: the strip we're interested in only lies along one row
+	  if(check_first/TILES_PER_ROW == check_last/TILES_PER_ROW)
+	  {
+		  int cfcol = check_first%TILES_PER_ROW;
+		  int clcol = check_last%TILES_PER_ROW;
+		  if(clcol < selection_left || cfcol >= selection_left+selection_width)
+			  return ti_none;
+		  else
+			  return ti_broken;
+	  }
+	  else
+	  {
+		  //recursively cut the strip into substrips which lie entirely on one row
+		  int currow = check_first/TILES_PER_ROW;
+		  int endrow = check_last/TILES_PER_ROW;
+		  int accum = 0;
+		  accum |= move_intersection_sr(check_first,(currow+1)*TILES_PER_ROW-1,selection_left,selection_top,selection_width,selection_height);
+		  for(++currow;currow<endrow; currow++)
+		  {
+			accum |= move_intersection_sr(currow*TILES_PER_ROW,(currow+1)*TILES_PER_ROW-1,selection_left,selection_top,selection_width,selection_height);
+		  }
+		  accum |= move_intersection_sr(currow*TILES_PER_ROW, check_last,selection_left,selection_top,selection_width,selection_height);
+		  if(accum > 0)
+			  return ti_broken;
+		  return ti_none;
+	  }
   }
   return move_intersection_ss(check_first, check_last, selection_top*TILES_PER_ROW+selection_left, (selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1);
 }
@@ -3570,6 +3590,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
             m=BSZ?1:3;
             break;
             case wBOOM:
+            case wSBOOM:
             m=2;
             case iwDeath:
             m=BSZ?4:2;
@@ -6158,7 +6179,7 @@ int combo_screen()
 			copy=tile+1;
 			copycnt=MAXCOMBOS-tile;
 			
-			if (key[KEY_LSHIFT])
+			if (key[KEY_LSHIFT]||key[KEY_RSHIFT])
 				move_combos(tile,tile2,copy, copycnt);
 			else 
 				move_combos(copy,tile2,tile, copycnt);

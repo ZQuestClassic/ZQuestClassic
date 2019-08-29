@@ -27,7 +27,7 @@
 #include "matrix.h"
 #include "jwin.h"
 #include "jwinfsel.h"
-#include "save_gif.h"
+//#include "save_gif.h"
 #include "sprite.h"
 #include "zc_custom.h"
 #include "subscr.h"
@@ -109,7 +109,6 @@ class LinkClass : public sprite
   void walkup();
   void walkdown2();
   void walkup2();
-  bool dowarp(int type, int index);
   void exitcave();
   void stepout();
   void masked_draw(BITMAP *dest);
@@ -135,6 +134,7 @@ public:
   void init();
   virtual void draw(BITMAP* dest);
   virtual bool animate(int index);
+  bool dowarp(int type, int index);
 
   void linkstep();
   void stepforward(int steps, bool adjust);
@@ -181,6 +181,7 @@ public:
   int getHClk();
   void setNayrusLoveShieldClk(int newclk);
   int getNayrusLoveShieldClk();
+  bool ffwarp;
 };
 
 bool isRaftFlag(int flag);

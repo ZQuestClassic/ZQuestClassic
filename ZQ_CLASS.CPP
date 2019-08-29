@@ -28,6 +28,7 @@
 #include "md5.h"
 #include "zc_custom.h"
 #include "subscr.h"
+#include "zq_subscr.h"
 #include <string.h>
 
 #define EPSILON 0.01 // Define your own tolerance
@@ -42,10 +43,10 @@ short ffposx[32]={-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1
                   -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000};
 short ffposy[32]={-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
                   -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000};
-float ffprvx[32]={-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
-                  -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000};
-float ffprvy[32]={-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
-                  -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000};
+long ffprvx[32]={-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
+                  -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000};
+long ffprvy[32]={-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
+                  -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000};
 
 void reset_dmap(int index)
 {
@@ -3155,10 +3156,10 @@ void zmap::update_freeform_combos()
 		{
 		  if(combobuf[prvscr.ffdata[j]].type==cCHANGE)
 		  {
-		    if((((int)prvscr.ffx[j]!=ffposx[i])||((int)prvscr.ffy[j]!=ffposy[i]))&&(prvscr.fflink[i]==0))
+		    if((((prvscr.ffx[j]/10000)!=ffposx[i])||((prvscr.ffy[j]/10000)!=ffposy[i]))&&(prvscr.fflink[i]==0))
 			{
 			  if((isonline(prvscr.ffx[i],prvscr.ffy[i],ffprvx[i],ffprvy[i],prvscr.ffx[j],prvscr.ffy[j])||
-				  (FLOAT_EQ(prvscr.ffx[i],prvscr.ffx[j])&&FLOAT_EQ(prvscr.ffy[i],prvscr.ffy[j])))&&(ffprvx[i]>-1000&&ffprvy[i]>-1000))
+				  ((prvscr.ffx[i]==prvscr.ffx[j])&&(prvscr.ffy[i]==prvscr.ffy[j])))&&(ffprvx[i]>-10000000&&ffprvy[i]>-10000000))
 			  {
 			    //prvscr.ffdata[i]=prvscr.ffdata[j];
 			    //prvscr.ffcset[i]=prvscr.ffcset[j];
@@ -3184,8 +3185,8 @@ void zmap::update_freeform_combos()
 				if(prvscr.ffflags[i]&ffCARRYOVER)
 				  prvscr.ffflags[i]=prvscr.ffflags[j]&ffCARRYOVER;
 				else prvscr.ffflags[i]=prvscr.ffflags[j];
-			    ffposx[i]=(short)prvscr.ffx[j];
-			    ffposy[i]=(short)prvscr.ffy[j];
+			    ffposx[i]=(short)(prvscr.ffx[j]/10000);
+			    ffposy[i]=(short)(prvscr.ffy[j]/10000);
 
 			    if(combobuf[prvscr.ffdata[j]].flag>15 && combobuf[prvscr.ffdata[j]].flag<32)
 			    {
@@ -3899,6 +3900,152 @@ bool save_zgp(char *path)
 
   //write the template screens and make sure it worked
   //really do this?
+
+  pack_fclose(f);
+  return true;
+}
+
+bool save_subscreen(char *path, bool *cancel)
+{
+//  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+//  return false;
+  reset_combo_animations();
+  *cancel = false;
+
+  int ret;
+  sslist_dlg[0].dp2=lfont;
+  char *oldtitlestr=(char*)sslist_dlg[0].dp;
+  char *editstr=(char*)sslist_dlg[3].dp;
+  char *donestr=(char*)sslist_dlg[4].dp;
+  char *newtitlestr="Export Subscreen";
+  char *okstr="OK";
+  char *cancelstr="Cancel";
+  sslist_dlg[0].dp=newtitlestr;
+  sslist_dlg[3].dp=okstr;
+  sslist_dlg[4].dp=cancelstr;
+  show_new_ss=false;
+  //strcpy((char*)sslist_dlg[3].dp,"Save");
+  //strcpy((char*)sslist_dlg[4].dp,"Cancel");
+  ret = zc_popup_dialog(sslist_dlg,2);
+  //strcpy((char*)sslist_dlg[3].dp,"Edit");
+  //strcpy((char*)sslist_dlg[4].dp,"Done");
+  sslist_dlg[0].dp=oldtitlestr;
+  sslist_dlg[3].dp=editstr;
+  sslist_dlg[4].dp=donestr;
+  show_new_ss=true;
+
+  if(ret==0||ret==4)
+  {
+	  *cancel=true;
+	  return true;
+  }
+  //open the file
+  PACKFILE *f=pack_fopen(path,F_WRITE);
+  if(!f)
+    return false;
+
+  dword section_id=ID_SUBSCREEN;
+  dword section_version=V_SUBSCREEN;
+  dword section_cversion=CV_SUBSCREEN;
+
+  //section id
+  if(!p_mputl(section_id,f))
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  //section version info
+  if(!p_iputw(section_version,f))
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  if(!p_iputw(section_cversion,f))
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  //subscreens
+    if (write_one_subscreen(f,&header,sslist_dlg[2].d1)!=0)
+    {
+      pack_fclose(f);
+      return false;
+    }
+
+  pack_fclose(f);
+  return true;
+}
+
+bool load_subscreen(char *path)
+{
+  int ret;
+  sslist_dlg[0].dp2=lfont;
+  char *oldtitlestr=(char*)sslist_dlg[0].dp;
+  char *editstr=(char*)sslist_dlg[3].dp;
+  char *donestr=(char*)sslist_dlg[4].dp;
+  char *newtitlestr="Import Subscreen";
+  char *okstr="OK";
+  char *cancelstr="Cancel";
+  sslist_dlg[0].dp=(void *)newtitlestr;
+  sslist_dlg[3].dp=(void *)okstr;
+  sslist_dlg[4].dp=(void *)cancelstr;
+  //strcpy((char*)sslist_dlg[3].dp,"Write");
+  //strcpy((char*)sslist_dlg[4].dp,"Cancel");
+  ret = zc_popup_dialog(sslist_dlg,2);
+  //strcpy((char*)sslist_dlg[3].dp,"Edit");
+  //strcpy((char*)sslist_dlg[4].dp,"Done");
+  sslist_dlg[0].dp=(void *)oldtitlestr;
+  sslist_dlg[3].dp=(void *)editstr;
+  sslist_dlg[4].dp=(void *)donestr;
+
+  if(ret==0||ret==4)
+  {
+	  return true;
+  }
+  //open the file
+  PACKFILE *f=pack_fopen(path,F_READ);
+  if(!f)
+    return false;
+
+  dword section_id;
+  dword section_version;
+  dword section_cversion;
+
+  //section id
+  if(!p_mgetl(&section_id,f,true))
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  if(section_id!=ID_SUBSCREEN)
+  {
+	  pack_fclose(f);
+	  return false;
+  }
+
+  //section version info
+  if(!p_igetw(&section_version,f,true))
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  if(!p_igetw(&section_cversion,f,true))
+  {
+    pack_fclose(f);
+    return false;
+  }
+
+  //subscreens
+    if (read_one_subscreen(f,&header,true,sslist_dlg[2].d1,section_version,section_cversion)!=0)
+    {
+      pack_fclose(f);
+      return false;
+    }
 
   pack_fclose(f);
   return true;
@@ -5907,6 +6054,10 @@ int writemaps(PACKFILE *f, zquestheader *header)
 		{
 		  return qe_invalid;
 		}
+		if(!p_iputw(TheMaps[scr].ffscript[k],f))
+		{
+		  return qe_invalid;
+		}
 		}
 	  }
     }
@@ -6663,6 +6814,14 @@ int writesubscreens(PACKFILE *f, zquestheader *header)
 
   for(int i=0;i<MAXCUSTOMSUBSCREENS;i++)
   {
+    int ret = write_one_subscreen(f, header, i);
+	if(ret!=0) return ret;
+  }
+  return 0;
+}
+
+int write_one_subscreen(PACKFILE *f, zquestheader *header, int i)
+{
     int numsub = 0;
     if(!pfwrite(custom_subscreen[i].name, 64,f))
     {
@@ -6672,7 +6831,7 @@ int writesubscreens(PACKFILE *f, zquestheader *header)
     {
       numsub++;
     }
-    if(!p_putc(numsub,f))
+	if(!p_putc(numsub,f))
     {
       return 4;
     }
@@ -6766,15 +6925,15 @@ int writesubscreens(PACKFILE *f, zquestheader *header)
       {
         return 26;
       }
-	  if(!p_iputl(custom_subscreen[i].objects[j].speed, f))
+	  if(!p_putc(custom_subscreen[i].objects[j].speed, f))
 	  {
 	    return 27;
 	  }
-	    if(!p_iputl(custom_subscreen[i].objects[j].delay, f))
+	    if(!p_putc(custom_subscreen[i].objects[j].delay, f))
 	  {
 	    return 28;
 	  }
-	    if(!p_iputl(custom_subscreen[i].objects[j].frame, f))
+	    if(!p_iputw(custom_subscreen[i].objects[j].frame, f))
 	  {
 	    return 29;
 	  }
@@ -6821,8 +6980,76 @@ int writesubscreens(PACKFILE *f, zquestheader *header)
         }
       }
     }
+  return 0;
+}
+
+extern ffscript ffscripts[256][1000];
+
+int writeffscript(PACKFILE *f, zquestheader *header)
+{
+  dword section_id=ID_FFSCRIPT;
+  dword section_version=V_FFSCRIPT;
+  dword section_cversion=CV_FFSCRIPT;
+  dword section_size=0;
+  byte numscripts=0;
+  numscripts=numscripts; //to avoid unused variables warnings
+
+  //section id
+  if(!p_mputl(section_id,f))
+  {
+    return 1;
+  }
+
+  //section version info
+  if(!p_iputw(section_version,f))
+  {
+    return 2;
+  }
+
+  if(!p_iputw(section_cversion,f))
+  {
+    return 3;
+  }
+
+  //section size
+  if(!p_iputl(section_size,f))
+  {
+    return 4;
+  }
+
+  for(int i=0;i<256;i++)
+  {
+    int ret = write_one_ffscript(f, header, i);
+	if(ret!=0) return ret;
   }
   return 0;
+}
+
+int write_one_ffscript(PACKFILE *f, zquestheader *header, int i)
+{
+	for(int j=0;j<1000;j++)
+	{
+		if(!p_iputw(ffscripts[i][j].command,f))
+		{
+			return 6;
+		}
+		if(ffscripts[i][j].command==0xFFFF)
+		{
+			j=1000;
+		}
+		else
+		{
+			if(!p_iputl(ffscripts[i][j].arg1,f))
+			{
+				return 7;
+			}
+			if(!p_iputl(ffscripts[i][j].arg2,f))
+			{
+				return 8;
+			}
+		}
+	}
+	return 0;
 }
 
 int writeinitdata(PACKFILE *f, zquestheader *header)
@@ -7439,6 +7666,14 @@ int save_unencoded_quest(char *filename, bool compressed)
   if (writesubscreens(f,&header)!=0)
   {
     return 22;
+  }
+  box_out("okay.");
+  box_eol();
+
+  box_out("Writing FF Script Data...");
+  if (writeffscript(f,&header)!=0)
+  {
+    return 23;
   }
   box_out("okay.");
   box_eol();

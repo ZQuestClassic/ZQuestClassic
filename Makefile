@@ -1,6 +1,7 @@
 -include makefile.inc
 
 AUDIO_LIBS = -lgme -lalogg -lalmp3 -laldmb -ldumb
+IMAGE_LIBS = -ljpgal -lldpng -lpng -lz
 #LINKOPTS = -pg -g
 #OPTS = -pg -g
 #OPTS = -O3
@@ -20,6 +21,7 @@ ifdef COMPILE_FOR_WIN
   ZQUEST_PREFIX = zquest
   ZC_PLATFORM = Windows
   CC = g++
+  LIBDIR = -L./libs/mingw
 else
 ifdef COMPILE_FOR_LINUX
   PLATEXT = -l
@@ -46,6 +48,7 @@ ifdef COMPILE_FOR_MACOSX
   ZQUEST_PREFIX = zquest
   CFLAG = -pedantic -Wno-long-long -Wall -Wno-long-double
   CC = g++
+  LIBDIR= -L./libs/osx
 else
 ifdef COMPILE_FOR_GP2X
   PLATEXT = -g
@@ -58,6 +61,7 @@ ifdef COMPILE_FOR_GP2X
   CFLAG = -Wno-long-long -Wall -I/devkitGP2X/include
   CC = arm-linux-g++
   AUDIO_LIBS = -L/devkitGP2X/lib -lalspc -lalogg -lalmp3 -laldmb -ldumb
+  IMAGE_LIBS = -L/devkitGP2X/lib -ljpgal -lldpng -lpng -lz
 endif
 endif
 endif
@@ -67,7 +71,7 @@ endif
 ZELDA_EXE = $(ZELDA_PREFIX)$(PLATEXT)$(EXEEXT)
 ZQUEST_EXE = $(ZQUEST_PREFIX)$(PLATEXT)$(EXEEXT)
 
-ZELDA_OBJECTS = aglogo$(PLATEXT).o colors$(PLATEXT).o debug$(PLATEXT).o decorations$(PLATEXT).o defdata$(PLATEXT).o editbox$(PLATEXT).o ending$(PLATEXT).o gamedata$(PLATEXT).o gui$(PLATEXT).o guys$(PLATEXT).o init$(PLATEXT).o items$(PLATEXT).o jwin$(PLATEXT).o jwinfsel$(PLATEXT).o link$(PLATEXT).o maps$(PLATEXT).o matrix$(PLATEXT).o md5$(PLATEXT).o midi$(PLATEXT).o pal$(PLATEXT).o particles$(PLATEXT).o qst$(PLATEXT).o sprite$(PLATEXT).o subscr$(PLATEXT).o tab_ctl$(PLATEXT).o tiles$(PLATEXT).o title$(PLATEXT).o weapons$(PLATEXT).o zc_custom$(PLATEXT).o zc_init$(PLATEXT).o zc_items$(PLATEXT).o zc_sprite$(PLATEXT).o zc_subscr$(PLATEXT).o zc_sys$(PLATEXT).o zcmusic$(PLATEXT).o zelda$(PLATEXT).o zsys$(PLATEXT).o $(ZC_ICON)
+ZELDA_OBJECTS = aglogo$(PLATEXT).o colors$(PLATEXT).o debug$(PLATEXT).o decorations$(PLATEXT).o defdata$(PLATEXT).o editbox$(PLATEXT).o ending$(PLATEXT).o ffscript$(PLATEXT).o gamedata$(PLATEXT).o gui$(PLATEXT).o guys$(PLATEXT).o init$(PLATEXT).o items$(PLATEXT).o jwin$(PLATEXT).o jwinfsel$(PLATEXT).o link$(PLATEXT).o load_gif$(PLATEXT).o maps$(PLATEXT).o matrix$(PLATEXT).o md5$(PLATEXT).o midi$(PLATEXT).o pal$(PLATEXT).o particles$(PLATEXT).o qst$(PLATEXT).o save_gif$(PLATEXT).o sprite$(PLATEXT).o subscr$(PLATEXT).o tab_ctl$(PLATEXT).o tiles$(PLATEXT).o title$(PLATEXT).o weapons$(PLATEXT).o zc_custom$(PLATEXT).o zc_init$(PLATEXT).o zc_items$(PLATEXT).o zc_sprite$(PLATEXT).o zc_subscr$(PLATEXT).o zc_sys$(PLATEXT).o zcmusic$(PLATEXT).o zelda$(PLATEXT).o zsys$(PLATEXT).o $(ZC_ICON)
 ifdef COMPILE_FOR_DOS
 	ZQUEST_OBJECTS = colors$(PLATEXT).o defdata$(PLATEXT).o editbox$(PLATEXT).o gamedata$(PLATEXT).o gui$(PLATEXT).o init$(PLATEXT).o items$(PLATEXT).o jwin$(PLATEXT).o jwinfsel$(PLATEXT).o load_gif$(PLATEXT).o md5$(PLATEXT).o midi$(PLATEXT).o particles$(PLATEXT).o qst$(PLATEXT).o save_gif$(PLATEXT).o sprite$(PLATEXT).o subscr$(PLATEXT).o tab_ctl$(PLATEXT).o tiles$(PLATEXT).o zc_custom$(PLATEXT).o zcmusic$(PLATEXT).o zcmusicd$(PLATEXT).o zq_class$(PLATEXT).o zq_cset$(PLATEXT).o zq_custom$(PLATEXT).o zq_doors$(PLATEXT).o zq_files$(PLATEXT).o zq_items$(PLATEXT).o zq_init$(PLATEXT).o zq_misc$(PLATEXT).o zq_rules$(PLATEXT).o zq_sprite$(PLATEXT).o zq_subscr$(PLATEXT).o zq_tiles$(PLATEXT).o zquest$(PLATEXT).o zsys$(PLATEXT).o
 else
@@ -121,7 +125,7 @@ gp2x:
 all: test msg $(ZELDA_EXE) $(ZQUEST_EXE) done
 
 $(ZELDA_EXE): $(ZELDA_OBJECTS)
-	$(CC) $(LINKOPTS) -o $(ZELDA_EXE) $(ZELDA_OBJECTS) $(AUDIO_LIBS) $(ALLEG_LIB) $(STDCXX_LIB) $(ZC_ICON) $(SFLAG) $(WINFLAG)
+	$(CC) $(LINKOPTS) -o $(ZELDA_EXE) $(ZELDA_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(AUDIO_LIBS) $(ALLEG_LIB) $(STDCXX_LIB) $(ZC_ICON) $(SFLAG) $(WINFLAG)
 ifdef COMPRESS
 	upx --best $(ZELDA_EXE)
 endif
@@ -132,10 +136,10 @@ ifdef COMPILE_FOR_MACOSX
 	echo '	<key>CFBundleExecutable</key>' >> $(ZELDA_EXE).app/Contents/tempinfo
 	echo '	<string>Zelda Classic</string>' >> $(ZELDA_EXE).app/Contents/tempinfo
 	echo '	<key>CFBundleIconFile</key>' >> $(ZELDA_EXE).app/Contents/tempinfo
-	echo '	<string>Zelda Classic.icns</string>' >> $(ZELDA_EXE).app/Contents/tempinfo
+	echo '	<string>zc_icon.icns</string>' >> $(ZELDA_EXE).app/Contents/tempinfo
 	cat $(ZELDA_EXE).app/Contents/tempinfo Info2.plist > $(ZELDA_EXE).app/Contents/Info.plist
 	rm $(ZELDA_EXE).app/Contents/tempinfo
-	cp "Zelda Classic.icns" $(ZELDA_EXE).app/Contents/Resources/
+	cp "zc_icon.icns" $(ZELDA_EXE).app/Contents/Resources/
 	cp zelda.dat $(ZELDA_EXE).app/
 	cp sfx.dat $(ZELDA_EXE).app/
 	cp fonts.dat $(ZELDA_EXE).app/
@@ -148,7 +152,7 @@ ifdef COMPILE_FOR_MACOSX
 endif
 
 $(ZQUEST_EXE): $(ZQUEST_OBJECTS)
-	$(CC) $(LINKOPTS) -o $(ZQUEST_EXE) $(ZQUEST_OBJECTS) $(AUDIO_LIBS) $(ALLEG_LIB) $(STDCXX_LIB) $(ZQ_ICON) $(SFLAG) $(WINFLAG)
+	$(CC) $(LINKOPTS) -o $(ZQUEST_EXE) $(ZQUEST_OBJECTS) $(LIBDIR) $(IMAGE_LIBS) $(AUDIO_LIBS) $(ALLEG_LIB) $(STDCXX_LIB) $(ZQ_ICON) $(SFLAG) $(WINFLAG)
 ifdef COMPRESS
 	upx --best $(ZQUEST_EXE)
 endif
@@ -160,10 +164,10 @@ ifdef COMPILE_FOR_MACOSX
 	echo '	<key>CFBundleExecutable</key>' >> $(ZQUEST_EXE).app/Contents/tempinfo
 	echo '	<string>ZQuest Editor</string>' >> $(ZQUEST_EXE).app/Contents/tempinfo
 	echo '	<key>CFBundleIconFile</key>' >> $(ZQUEST_EXE).app/Contents/tempinfo
-	echo '	<string>ZQuest Editor.icns</string>' >> $(ZQUEST_EXE).app/Contents/tempinfo
+	echo '	<string>zq_icon.icns</string>' >> $(ZQUEST_EXE).app/Contents/tempinfo
 	cat $(ZQUEST_EXE).app/Contents/tempinfo Info2.plist > $(ZQUEST_EXE).app/Contents/Info.plist
 	rm $(ZQUEST_EXE).app/Contents/tempinfo
-	cp "ZQuest Editor.icns" $(ZQUEST_EXE).app/Contents/Resources/
+	cp "zq_icon.icns" $(ZQUEST_EXE).app/Contents/Resources/
 	cp zquest.dat $(ZQUEST_EXE).app/
 	cp qst.dat $(ZQUEST_EXE).app/
 	cp fonts.dat $(ZQUEST_EXE).app/
@@ -188,6 +192,8 @@ editbox-zq$(PLATEXT).o: eb_intern.h editbox.c editbox.h zc_alleg.h
 	$(CC) $(OPTS) -D_ZQUEST_SCALE_ $(CFLAG) -c editbox.c -o editbox-zq$(PLATEXT).o $(SFLAG) $(WINFLAG)
 ending$(PLATEXT).o: aglogo.h colors.h ending.cpp ending.h gamedata.h guys.h items.h jwin.h jwinfsel.h link.h maps.h matrix.h pal.h qst.h save_gif.h sfx.h sprite.h subscr.h tab_ctl.h tiles.h title.h weapons.h zc_alleg.h zc_custom.h zc_sys.h zcmusic.h zdefs.h zelda.h zeldadat.h zsys.h
 	$(CC) $(OPTS) $(CFLAG) -c ending.cpp -o ending$(PLATEXT).o $(SFLAG) $(WINFLAG)
+ffscript$(PLATEXT).o:ffscript.cpp ffscript.h zelda.h link.h
+	$(CC) $(OPTS) $(CFLAG) -c ffscript.cpp -o ffscript$(PLATEXT).o $(SFLAG) $(WINFLAG)
 font$(PLATEXT).o: font.c font.h zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c font.cpp -o font$(PLATEXT).o $(SFLAG) $(WINFLAG)
 gamedata$(PLATEXT).o: gamedata.cpp zc_alleg.h zdefs.h

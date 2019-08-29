@@ -2710,7 +2710,7 @@ int readdmaps(PACKFILE *f, zquestheader *header, word version, word build, word 
 int readmisccolors(PACKFILE *f, zquestheader *header, miscQdata *misc, bool keepdata)
 {
   miscQdata temp_misc;
-  word s_version, s_cversion;
+  word s_version=0, s_cversion=0;
   int tempsize=0;
 
   memcpy(&temp_misc,misc,sizeof(temp_misc));
@@ -2857,7 +2857,7 @@ int readmisccolors(PACKFILE *f, zquestheader *header, miscQdata *misc, bool keep
 int readgameicons(PACKFILE *f, zquestheader *header, miscQdata *misc, bool keepdata)
 {
   miscQdata temp_misc;
-  word s_version, s_cversion;
+  word s_version=0, s_cversion=0;
   byte icons;
   int tempsize=0;
 
@@ -2905,7 +2905,7 @@ int readmisc(PACKFILE *f, zquestheader *header, miscQdata *misc, bool keepdata)
   word ponds=16, pondsize=72, expansionsize=98*2;
   byte tempbyte, padding;
   miscQdata temp_misc;
-  word s_version, s_cversion;
+  word s_version=0, s_cversion=0;
   word swaptmp;
   int tempsize=0;
 
@@ -3500,6 +3500,8 @@ int readweapons(PACKFILE *f, zquestheader *header, bool keepdata)
   int dummy;
   byte padding;
   wpndata tempweapon;
+  word s_version=0, s_cversion=0;
+  
 
   if(header->zelda_version < 0x186)
   {
@@ -3514,11 +3516,11 @@ int readweapons(PACKFILE *f, zquestheader *header, bool keepdata)
   {
     weapons_to_read=0;
     //section version info
-    if(!p_igetw(&dummy,f,true))
+    if(!p_igetw(&s_version,f,true))
     {
       return qe_invalid;
     }
-    if(!p_igetw(&dummy,f,true))
+    if(!p_igetw(&s_cversion,f,true))
     {
       return qe_invalid;
     }
@@ -3573,6 +3575,10 @@ int readweapons(PACKFILE *f, zquestheader *header, bool keepdata)
     {
       memcpy(&wpnsbuf[i], &tempweapon, sizeof(tempweapon));
     }
+  }
+  if (s_version<2)
+  {
+    wpnsbuf[wSBOOM]=wpnsbuf[wBOOM];
   }
   if (keepdata==true)
   {
@@ -3819,30 +3825,6 @@ int readlinksprites2(PACKFILE *f, int v_linksprites, int cv_linksprites, bool ke
 int readlinksprites(PACKFILE *f, zquestheader *header, bool keepdata)
 {
   dword dummy;
-  word ls_version=0;
-
-  //section version info
-  if(!p_igetw(&ls_version,f,true))
-  {
-    return qe_invalid;
-  }
-  if(!p_igetw(&dummy,f,true))
-  {
-    return qe_invalid;
-  }
-
-  //section size
-  if(!p_igetl(&dummy,f,true))
-  {
-    return qe_invalid;
-  }
-
-  return readlinksprites2(f, ls_version, dummy, keepdata);
-}
-
-int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata)
-{
-  int dummy;
   word s_version=0, s_cversion=0;
 
   //section version info
@@ -3861,9 +3843,39 @@ int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata)
     return qe_invalid;
   }
 
+  return readlinksprites2(f, s_version, dummy, keepdata);
+}
+
+int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata)
+{
+  int dummy;
+  word s_version=0, s_cversion=0;
+	//section version info
+  if(!p_igetw(&s_version,f,true))
+  {
+    return qe_invalid;
+  }
+  if(!p_igetw(&s_cversion,f,true))
+  {
+    return qe_invalid;
+  }
+
+  //section size
+  if(!p_igetl(&dummy,f,true))
+  {
+    return qe_invalid;
+  }
   //finally...  section data
   for(int i=0;i<MAXCUSTOMSUBSCREENS;i++)
   {
+	  int ret = read_one_subscreen(f, header, keepdata, i, s_version, s_cversion);
+	  if(ret!=0) return ret;
+  }
+  return 0;
+}
+
+int read_one_subscreen(PACKFILE *f, zquestheader *header, bool keepdata, int i, word s_version, word s_cversion)
+{
     int numsub=0;
     subscreen_object *temp_sub = new subscreen_object;
     char tempname[64];
@@ -3871,11 +3883,13 @@ int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata)
     {
       return qe_invalid;
     }
-    if(!p_getc(&numsub,f,keepdata))
+	char tmp;
+    if(!p_getc(&tmp,f,keepdata))
     {
       return qe_invalid;
     }
-    int j;
+	numsub = (int)tmp;
+	int j;
     for(j=0;(j<MAXSUBSCREENITEMS&&j<numsub);j++)
     {
       memset(temp_sub,0,sizeof(subscreen_object));
@@ -3916,7 +3930,7 @@ int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata)
       {
         return qe_invalid;
       }
-      if(!p_getc(&(temp_sub->colortype1),f,keepdata))
+	  if(!p_getc(&(temp_sub->colortype1),f,keepdata))
       {
         return qe_invalid;
       }
@@ -3940,58 +3954,76 @@ int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata)
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->d1),f,keepdata))
+      if(!p_igetd(&(temp_sub->d1),f,keepdata))
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->d2),f,keepdata))
+      if(!p_igetd(&(temp_sub->d2),f,keepdata))
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->d3),f,keepdata))
+      if(!p_igetd(&(temp_sub->d3),f,keepdata))
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->d4),f,keepdata))
+      if(!p_igetd(&(temp_sub->d4),f,keepdata))
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->d5),f,keepdata))
+      if(!p_igetd(&(temp_sub->d5),f,keepdata))
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->d6),f,keepdata))
+      if(!p_igetd(&(temp_sub->d6),f,keepdata))
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->d7),f,keepdata))
+      if(!p_igetd(&(temp_sub->d7),f,keepdata))
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->d8),f,keepdata))
+      if(!p_igetd(&(temp_sub->d8),f,keepdata))
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->d9),f,keepdata))
+      if(!p_igetd(&(temp_sub->d9),f,keepdata))
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->d10),f,keepdata))
+      if(!p_igetd(&(temp_sub->d10),f,keepdata))
       {
         return qe_invalid;
       }
-      if(!p_igetl(&(temp_sub->speed),f,keepdata))
-      {
-       return qe_invalid;
-      }
-       if(!p_igetl(&(temp_sub->delay),f,keepdata))
-      {
-       return qe_invalid;
-      }
-       if(!p_igetl(&(temp_sub->frame),f,keepdata))
-      {
-       return qe_invalid;
-      }
+	  if(s_cversion < 2)
+	  {
+	    if(!p_igetl(&(temp_sub->speed),f,keepdata))
+	    {
+	     return qe_invalid;
+	    }
+	    if(!p_igetl(&(temp_sub->delay),f,keepdata))
+	    {
+	     return qe_invalid;
+	    }
+	    if(!p_igetl(&(temp_sub->frame),f,keepdata))
+	    {
+	     return qe_invalid;
+		}
+	  }
+	  else
+	  {
+	  if(!p_getc(&(temp_sub->speed),f,keepdata))
+	  {
+	   return qe_invalid;
+	  }
+	  if(!p_getc(&(temp_sub->delay),f,keepdata))
+	  {
+	   return qe_invalid;
+	  }
+	  if(!p_igetw(&(temp_sub->frame),f,keepdata))
+	  {
+	   return qe_invalid;
+	  }
+}
 	  
       int temp_size=0;
       bool deletets = false;
@@ -4001,11 +4033,13 @@ int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata)
         case ssoTEXTBOX:
         case ssoCURRENTITEMTEXT:
         case ssoCURRENTITEMCLASSTEXT:
-          if(!p_igetw(&temp_size,f,keepdata))
+			word temptempsize;
+          if(!p_igetw(&temptempsize,f,keepdata))
           {
             return qe_invalid;
           }
-          //if(temp_sub->dp1!=NULL) delete[] temp_sub->dp1;
+		  temp_size = (int)temptempsize;
+		  //if(temp_sub->dp1!=NULL) delete[] temp_sub->dp1;
           temp_sub->dp1 = new char[temp_size+1];
           deletets = true;
           if(temp_size)
@@ -4023,7 +4057,7 @@ int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata)
           }
           break;
       }
-      if(keepdata)
+	  if(keepdata)
       {
         switch(temp_sub->type)
         {
@@ -4059,8 +4093,7 @@ int readsubscreens(PACKFILE *f, zquestheader *header, bool keepdata)
         break;
     }
     delete temp_sub;
-  }
-  return 0;
+	return 0;
 }
 
 void reset_subscreen(subscreen_group *tempss)
@@ -4122,7 +4155,7 @@ int setupsubscreens()
         }
       }
       custom_subscreen[0].ss_type=sstACTIVE;
-      sprintf(custom_subscreen[0].name, "Top Subscreen (Triforce)");
+      sprintf(custom_subscreen[0].name, "Active Subscreen (Triforce)");
 //      memset(&custom_subscreen[0].objects[i],0,sizeof(subscreen_object));
       tempsub = default_subscreen_active[tempsubscreen][1];
       for(i=0;(i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL);i++)
@@ -4145,7 +4178,7 @@ int setupsubscreens()
         }
       }
       custom_subscreen[1].ss_type=sstACTIVE;
-      sprintf(custom_subscreen[1].name, "Top Subscreen (Dungeon Map)");
+      sprintf(custom_subscreen[1].name, "Active Subscreen (Dungeon Map)");
 //      memset(&custom_subscreen[1].objects[i],0,sizeof(subscreen_object));
       tempsub = default_subscreen_passive[tempsubscreen][0];
       for(i=0;(i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL);i++)
@@ -4168,7 +4201,7 @@ int setupsubscreens()
         }
       }
       custom_subscreen[2].ss_type=sstPASSIVE;
-      sprintf(custom_subscreen[2].name, "Bottom Subscreen (Magic)");
+      sprintf(custom_subscreen[2].name, "Passive Subscreen (Magic)");
 //      memset(&custom_subscreen[2].objects[i],0,sizeof(subscreen_object));
       tempsub = default_subscreen_passive[tempsubscreen][1];
       for(i=0;(i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL);i++)
@@ -4191,7 +4224,7 @@ int setupsubscreens()
         }
       }
       custom_subscreen[3].ss_type=sstPASSIVE;
-      sprintf(custom_subscreen[3].name, "Bottom Subscreen (No Magic)");
+      sprintf(custom_subscreen[3].name, "Passive Subscreen (No Magic)");
 //      memset(&custom_subscreen[3].objects[i],0,sizeof(subscreen_object));
       break;
     }
@@ -4296,6 +4329,72 @@ int setupsubscreens()
   return 0;
 }
 
+extern ffscript ffscripts[256][1000];
+
+int readffscript(PACKFILE *f, zquestheader *header, bool keepdata)
+{
+  int dummy;
+  word s_version=0, s_cversion=0;
+  byte numscripts=0;
+  numscripts=numscripts; //to avoid unused variables warnings
+  int ret;
+
+  //section version info
+  if(!p_igetw(&s_version,f,true))
+  {
+    return qe_invalid;
+  }
+  if(!p_igetw(&s_cversion,f,true))
+  {
+    return qe_invalid;
+  }
+
+  //section size
+  if(!p_igetl(&dummy,f,true))
+  {
+    return qe_invalid;
+  }
+
+  //finally...  section data
+  for(int i=0;i<256;i++)
+  {
+	  ret=read_one_ffscript(f, header, keepdata, i, s_version, s_cversion);
+	  if(ret!=0) return qe_invalid;
+  }
+  return 0;
+}
+
+int read_one_ffscript(PACKFILE *f, zquestheader *header, bool keepdata, int i, word s_version, word s_cversion)
+{
+	ffscript temp_script;
+	for(int j=0;j<1000;j++)
+	{
+		if(!p_igetw(&(temp_script.command),f,keepdata))
+		{
+			return qe_invalid;
+		}
+		if(temp_script.command == 0xFFFF)
+		{
+			ffscripts[i][j].command = 0xFFFF;
+			j=1000;
+		}
+		else
+		{
+			if(!p_igetl(&(temp_script.arg1),f,keepdata))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&(temp_script.arg2),f,keepdata))
+			{
+				return qe_invalid;
+			}
+			ffscripts[i][j].command = temp_script.command;
+			ffscripts[i][j].arg1 = temp_script.arg1;
+			ffscripts[i][j].arg2 = temp_script.arg2;
+		}
+	}
+	return 0;
+}
 
 int readguys(PACKFILE *f, zquestheader *header, bool keepdata)
 {
@@ -5202,7 +5301,7 @@ int readmapscreen(PACKFILE *f, zquestheader *header, mapscr *temp_mapscr, word v
           {
             return qe_invalid;
           }
-          if(!p_igetl(&(temp_mapscr->ffxdelta[m]),f,true))
+          if(!p_igetl(&(temp_mapscr->ffydelta[m]),f,true))
           {
             return qe_invalid;
           }
@@ -5210,7 +5309,7 @@ int readmapscreen(PACKFILE *f, zquestheader *header, mapscr *temp_mapscr, word v
           {
             return qe_invalid;
           }
-          if(!p_igetl(&(temp_mapscr->ffxdelta2[m]),f,true))
+          if(!p_igetl(&(temp_mapscr->ffydelta2[m]),f,true))
           {
             return qe_invalid;
           }
@@ -5240,6 +5339,17 @@ int readmapscreen(PACKFILE *f, zquestheader *header, mapscr *temp_mapscr, word v
           temp_mapscr->ffheight[m]=15;
           temp_mapscr->ffflags[m]=0;
         }
+		if(version>9)
+		{
+		  if(!p_igetw(&(temp_mapscr->ffscript[m]),f,true))
+          {
+            return qe_invalid;
+          }
+		}
+		else
+		{
+		  temp_mapscr->ffscript[m]=0;
+		}
       }
       else
       {
@@ -5256,6 +5366,7 @@ int readmapscreen(PACKFILE *f, zquestheader *header, mapscr *temp_mapscr, word v
         temp_mapscr->ffwidth[m]=15;
         temp_mapscr->ffheight[m]=15;
         temp_mapscr->ffflags[m]=0;
+		temp_mapscr->ffscript[m]=0;
       }
     }
   }
@@ -7206,6 +7317,20 @@ int loadquest(char *filename, zquestheader *header, miscQdata *misc, zcmidi *mid
           }
           box_out("Reading Custom Subscreen Data...");
           ret=readsubscreens(f, &tempheader, keepit);
+          checkstatus(ret);
+          box_out("okay.");
+          box_eol();
+          break;
+	    case ID_FFSCRIPT:
+          //Freeform combo scripts
+          if (catchup)
+          {
+            box_out("found.");
+            box_eol();
+            catchup=false;
+          }
+          box_out("Reading FF Script Data...");
+          ret=readffscript(f, &tempheader, keepit);
           checkstatus(ret);
           box_out("okay.");
           box_eol();

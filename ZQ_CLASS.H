@@ -187,6 +187,9 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 bool load_zgp(char *path);
 bool save_zgp(char *path);
 
+bool load_subscreen(char *path);
+bool save_subscreen(char *path, bool *cancel);
+
 bool load_zqt(char *path);
 bool save_zqt(char *path);
 
@@ -197,6 +200,9 @@ int writeweapons(PACKFILE *f, zquestheader *header);
 int writemisccolors(PACKFILE *f, zquestheader *header, miscQdata *misc);
 int writegameicons(PACKFILE *f, zquestheader *header, miscQdata *misc);
 int writedoorcombosets(PACKFILE *f, zquestheader *header);
+int write_one_subscreen(PACKFILE *f, zquestheader *header, int i);
+int writeffscript(PACKFILE *f, zquestheader *header, bool keepdata);
+int write_one_ffscript(PACKFILE *f, zquestheader *header, int i);
 
 #define ZELDA_VERSION_210       0x0210                          //version of the program
 #define VERSION_BUILD_210       0                               //build number of this version

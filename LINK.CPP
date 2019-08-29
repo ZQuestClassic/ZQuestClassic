@@ -29,8 +29,8 @@ extern bool draw_screen_clip_rect_show_link;
 
 extern short ffposx[32];
 extern short ffposy[32];
-extern float ffprvx[32];
-extern float ffprvy[32];
+extern long ffprvx[32];
+extern long ffprvy[32];
 
 int link_count = -1;
 int z3step = 2;
@@ -187,6 +187,7 @@ void LinkClass::init()
   conveyor_flags=0;
   drunkclk=0;
   drawstyle=3;
+  ffwarp = false;
 }
 
 void LinkClass::draw_under(BITMAP* dest)
@@ -495,8 +496,8 @@ void LinkClass::draw(BITMAP* dest)
       int wy=1;
       int wx=1;
       int f=0,t,cs;
-      t = wpnsbuf[wHammer].tile;
-      cs = wpnsbuf[wHammer].csets&15;
+      t = wpnsbuf[wHAMMER].tile;
+      cs = wpnsbuf[wHAMMER].csets&15;
 
       switch(dir)
       {
@@ -1384,6 +1385,14 @@ int LinkClass::EwpnHit()
           hitshield=true;
         break;
       }
+      switch (ew->id)
+      {
+        case ewLitBomb:
+        case ewBomb:
+        case ewLitSBomb:
+        case ewSBomb:
+          return i;
+      }
       if(!hitshield || action==attacking || action==swimming || hopclk==0xFF)
       {
         return i;
@@ -1565,6 +1574,8 @@ void LinkClass::checkhit()
               case 0:                                       //hookshot
               switch (t->id)
               {
+                case ewLitBomb:
+                case ewLitSBomb:
                 case ewFireball:
                 case ewSword:
                 case ewBrang:
@@ -1580,6 +1591,8 @@ void LinkClass::checkhit()
               case 1:                                       //wooden boomerang
               switch (t->id)
               {
+                case ewLitBomb:
+                case ewLitSBomb:
                 case ewBrang:
                 case ewArrow:
                 case ewRock:
@@ -1595,6 +1608,8 @@ void LinkClass::checkhit()
               case 2:                                       //magic boomerang
               switch (t->id)
               {
+                case ewLitBomb:
+                case ewLitSBomb:
                 case ewBrang:
                 case ewArrow:
                 case ewRock:
@@ -1614,6 +1629,8 @@ void LinkClass::checkhit()
               case 3:                                       //fire boomerang
               switch (t->id)
               {
+                case ewLitBomb:
+                case ewLitSBomb:
                 case ewBrang:
                 case ewArrow:
                 case ewRock:
@@ -2327,7 +2344,7 @@ bool LinkClass::animate(int index)
   for(int i=0;i<176;i++)
   {
 
-    int ind;
+    int ind=0;
     if(!awarp)
     {
       if(combobuf[tmpscr->data[i]].type==cAWARPA)
@@ -2358,7 +2375,7 @@ bool LinkClass::animate(int index)
   for(int i=0;i<32;i++)
   {
 
-    int ind;
+    int ind=0;
     if(!awarp)
     {
       if(combobuf[tmpscr->ffdata[i]].type==cAWARPA)
@@ -2383,6 +2400,12 @@ bool LinkClass::animate(int index)
       }
     }
 
+  }
+
+  if(ffwarp)
+  {
+	  ffwarp=false;
+	  dowarp(1,0);
   }
 
   // walk through bombed doors and fake walls
@@ -2846,6 +2869,13 @@ bool LinkClass::startwpn(int wpn)                           // an item index
     action=casting;
     magictype=mgc_nayruslove;
     break;
+	case iCByrna:
+	if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
+	  ((get_gamedata_magic(game)+get_gamedata_dmagic(game))<BYRNADRAINAMOUNT*get_gamedata_magicdrainrate(game)))
+	  return false;
+	change_gamedata_magic(game, -(BYRNADRAINAMOUNT*get_gamedata_magicdrainrate(game)));
+	Lwpns.add(new weapon((fix)wx,(fix)wy,wCByrna,current_item(itype_cbyrna,true),(current_item(itype_cbyrna,true)*DAMAGE_MULTIPLIER),dir));
+	break;
 
     default:
     return false;
@@ -9317,7 +9347,7 @@ void LinkClass::getTriforce(int id)
       if(f==88)
       {
         refill_what=REFILL_ALL;
-        refill_what=REFILL_TRIFORCE;
+        refill_why=REFILL_TRIFORCE;
         StartRefill();
         refill();
       }

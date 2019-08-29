@@ -111,6 +111,7 @@ void load_game_configs()
   //Vsync = get_config_int(cfg_sect,"vsync",0)!=0;
   Throttlefps = get_config_int(cfg_sect,"throttlefps",1)!=0;
   TransLayers = get_config_int(cfg_sect,"translayers",1)!=0;
+  SnapshotFormat = get_config_int(cfg_sect,"snapshot_format",0);
   ShowFPS = get_config_int(cfg_sect,"showfps",0)!=0;
   NESquit = get_config_int(cfg_sect,"fastquit",0)!=0;
   DXtitle = get_config_int(cfg_sect,"title",1)!=0;
@@ -177,6 +178,7 @@ void save_game_configs()
   //set_config_int(cfg_sect,"vsync",(int)Vsync);
   set_config_int(cfg_sect,"throttlefps", (int)Throttlefps);
   set_config_int(cfg_sect,"translayers",(int)TransLayers);
+  set_config_int(cfg_sect,"snapshot_format",SnapshotFormat);
   set_config_int(cfg_sect,"showfps",(int)ShowFPS);
   set_config_int(cfg_sect,"fastquit",(int)NESquit);
   set_config_int(cfg_sect,"title",(int)DXtitle);
@@ -3167,7 +3169,7 @@ int onGUISnapshot()
   int num=0;
   do
   {
-    sprintf(buf, "zelda%03d.bmp", ++num);
+    sprintf(buf, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
   } while(num<999 && exists(buf));
 
   BITMAP *b = create_bitmap_ex(8,resx,resy);
@@ -3190,7 +3192,7 @@ int onNonGUISnapshot()
   int num=0;
   do
   {
-    sprintf(buf, "zelda%03d.bmp", ++num);
+    sprintf(buf, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
   } while(num<999 && exists(buf));
 
   BITMAP *panorama = create_bitmap_ex(8,256,168);
@@ -5607,6 +5609,17 @@ static MENU title_menu[] =
   { NULL }
 };
 
+static MENU snapshot_format_menu[] =
+{
+  { "&BMP",            onSetSnapshotFormat, NULL },
+  { "&GIF",            onSetSnapshotFormat, NULL },
+  { "&JPG",            onSetSnapshotFormat, NULL },
+  { "&PNG",            onSetSnapshotFormat, NULL },
+  { "PC&X",            onSetSnapshotFormat, NULL },
+  { "&TGA",            onSetSnapshotFormat, NULL },
+  { NULL }
+};
+
 static MENU settings_menu[] =
 {
   { "Key &Buttons...",      onKeyboard,     NULL },
@@ -5622,6 +5635,8 @@ static MENU settings_menu[] =
   { "Volume &Keys",         onVolKeys,      NULL },
   { "Cont. Heart Beep",     onHeartBeep,    NULL },
   //{ "Frame Skip",          onFrameSkip,        NULL },
+  { "" },
+  { "Snapshot &Format",      NULL,           snapshot_format_menu },
   { "" },
   { "Debug",                onDebug,        NULL },
   { NULL }
@@ -5696,7 +5711,7 @@ MENU the_menu2[] =
 void fix_menu()
 {
   if(!debug_enabled)
-    settings_menu[12].text = NULL;
+    settings_menu[14].text = NULL;
 }
 
 static DIALOG system_dlg[] =
@@ -5726,6 +5741,45 @@ static DIALOG system_dlg2[] =
   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_TAB,  0,       (void *) onDebug },
   { NULL }
 };
+
+void reset_snapshot_format_menu()
+{
+  for (int i=0; i<ssfmtMAX; ++i)
+  {
+    snapshot_format_menu[i].flags=0;
+  }
+}
+
+int onSetSnapshotFormat()
+{
+  switch (active_menu->text[1])
+  {
+    case 'B': //"&BMP"
+      SnapshotFormat=0;
+      break;
+    case 'G': //"&GIF"
+      SnapshotFormat=1;
+      break;
+    case 'J': //"&JPG"
+      SnapshotFormat=2;
+      break;
+    case 'P': //"&PNG"
+      SnapshotFormat=3;
+      break;
+    case 'C': //"PC&X"
+      SnapshotFormat=4;
+      break;
+    case 'T': //"&TGA"
+      SnapshotFormat=5;
+      break;
+    case 'L': //"&LBM"
+      SnapshotFormat=6;
+      break;
+  }
+  snapshot_format_menu[SnapshotFormat].flags=D_SELECTED;
+  return D_O_K;
+}
+
 
 void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int from,int to)
 {
@@ -6398,9 +6452,11 @@ void System()
     }
 
     settings_menu[11].flags = heart_beep ? D_SELECTED : 0;
+    reset_snapshot_format_menu();
+    settings_menu[13].flags = SnapshotFormat ? D_SELECTED : 0;
     if(debug_enabled)
     {
-      settings_menu[13].flags = get_debug() ? D_SELECTED : 0;
+      settings_menu[15].flags = get_debug() ? D_SELECTED : 0;
     }
     //settings_menu[12].flags = FrameSkip ? D_SELECTED : 0;
 
@@ -6996,6 +7052,11 @@ int d_ssdn_btn3_proc(int, DIALOG*, int)
   return D_O_K;
 }
 
+int d_ssdn_btn4_proc(int, DIALOG*, int)
+{
+  return D_O_K;
+}
+
 int d_sslt_btn_proc(int, DIALOG*, int)
 {
   return D_O_K;
@@ -7007,6 +7068,11 @@ int d_sslt_btn2_proc(int, DIALOG*, int)
 }
 
 int d_sslt_btn3_proc(int, DIALOG*, int)
+{
+  return D_O_K;
+}
+
+int d_sslt_btn4_proc(int, DIALOG*, int)
 {
   return D_O_K;
 }
@@ -7026,6 +7092,11 @@ int d_ssrt_btn3_proc(int, DIALOG*, int)
   return D_O_K;
 }
 
+int d_ssrt_btn4_proc(int, DIALOG*, int)
+{
+  return D_O_K;
+}
+
 int d_ssup_btn_proc(int, DIALOG*, int)
 {
   return D_O_K;
@@ -7037,6 +7108,11 @@ int d_ssup_btn2_proc(int, DIALOG*, int)
 }
 
 int d_ssup_btn3_proc(int, DIALOG*, int)
+{
+  return D_O_K;
+}
+
+int d_ssup_btn4_proc(int, DIALOG*, int)
 {
   return D_O_K;
 }

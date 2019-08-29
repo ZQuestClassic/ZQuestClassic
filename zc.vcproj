@@ -71,12 +71,12 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"/>
+				DebugInformationFormat="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="alleg.lib aldmb.lib dumb.lib almp3.lib alogg.lib alspc.lib gme.lib"
+				AdditionalDependencies="aldmb.lib dumb.lib almp3.lib alogg.lib alspc.lib gme.lib al_gif.lib libjpgal.lib libpng.lib loadpng.lib zlib.lib alleg.lib"
 				OutputFile="$(OutDir)/zc.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="./libs/win32/"
@@ -134,6 +134,9 @@
 			</File>
 			<File
 				RelativePath=".\ending.cpp">
+			</File>
+			<File
+				RelativePath=".\ffscript.cpp">
 			</File>
 			<File
 				RelativePath=".\gamedata.cpp">

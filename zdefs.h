@@ -85,7 +85,7 @@
 #include "zc_alleg.h"
 
 #define ZELDA_VERSION       0x0211                          //version of the program
-#define VERSION_BUILD       11                              //build number of this version
+#define VERSION_BUILD       12                              //build number of this version
 #define IS_BETA             1                               //is this a beta?
 #define DATE_STR            "January 1, 2006"
 
@@ -96,7 +96,7 @@
 #define SFXDAT_VERSION        0x0210                        //version of sfx.dat
 #define SFXDAT_BUILD          0                             //build of sfx.dat
 #define FONTSDAT_VERSION      0x0211                        //version of fonts.dat
-#define FONTSDAT_BUILD        8                             //build of fonts.dat
+#define FONTSDAT_BUILD        12                            //build of fonts.dat
 #define QSTDAT_VERSION        0x0211                        //version of qst.dat
 #define QSTDAT_BUILD          0                             //build of qst.dat
 #define ZQUESTDAT_VERSION     0x0211                        //version of zquest.dat
@@ -161,6 +161,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_LINKSPRITES    ZC_ID('L','I','N','K')              //Link sprites
 #define ID_SUBSCREEN      ZC_ID('S','U','B','S')              //quest header
 #define ID_ITEMDROPSET    ZC_ID('D','R','O','P')              //quest header
+#define ID_FFSCRIPT       ZC_ID('F','F','S','C')              //quest header
 
 //Version number of the different section types
 #define V_HEADER          3
@@ -170,11 +171,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES           1
 #define V_COMBOS          4
 #define V_CSETS           1
-#define V_MAPS            9
+#define V_MAPS            10
 #define V_DMAPS           2
 #define V_DOORS           1
 #define V_ITEMS           1
-#define V_WEAPONS         1
+#define V_WEAPONS         2
 #define V_COLORS          1
 #define V_ICONS           1
 #define V_GRAPHICSPACK    1
@@ -187,6 +188,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES     2
 #define V_SUBSCREEN       1
 #define V_ITEMDROPSET     1
+#define V_FFSCRIPT	      1
 
 /*
   * Compatible version number of the different section types
@@ -212,15 +214,16 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_COLORS         1
 #define CV_ICONS          1
 #define CV_GRAPHICSPACK   1
-#define CV_INITDATA       1
+#define CV_INITDATA       7
 #define CV_GUYS           3
 #define CV_MIDIS          1
 #define CV_CHEATS         1
 #define CV_SAVEGAME       1
 #define CV_COMBOALIASES   1
 #define CV_LINKSPRITES    1
-#define CV_SUBSCREEN      1
-#define cV_ITEMDROPSET    1
+#define CV_SUBSCREEN      2
+#define CV_ITEMDROPSET    1
+#define CV_FFSCRIPT       1
 
 extern int curr_tb_page;
 extern bool triplebuffer_not_available;
@@ -498,7 +501,7 @@ enum
   cSWARPA, cSWARPB, cSWARPC, cSWARPD, cSWARPR, cSTRIGNOFLAG, cSTRIGFLAG,
   cSTEP, cSTEPSAME, cSTEPALL, cSTEPCOPY, cNOENEMY, cBLOCKARROW1, cBLOCKARROW2,
   cBLOCKARROW3, cBLOCKBRANG1, cBLOCKBRANG2, cBLOCKBRANG3, cBLOCKSBEAM, cBLOCKALL,
-  cBLOCKFIREBALL, cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE,
+  cBLOCKFIREBALL, cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE, cSPINTILE1, cSPINTILE2,
   cMAX
 };
 
@@ -633,7 +636,8 @@ enum
   wNAYRUSLOVE1A, wNAYRUSLOVE1B, wNAYRUSLOVES1A, wNAYRUSLOVES1B,
   wNAYRUSLOVE2A, wNAYRUSLOVE2B, wNAYRUSLOVES2A, wNAYRUSLOVES2B,
   iwNayrusLoveShieldFront, iwNayrusLoveShieldBack, iwSubscreenVine, wCBYRNA, wCBYRNASLASH,
-  wLSHEAD, wLSCHAIN_H, wLSHANDLE, wLSCHAIN_V, wMAX
+  wLSHEAD, wLSCHAIN_H, wLSHANDLE, wLSCHAIN_V, wSBOOM, ewBOMB, ewSBOMB,
+  ewBOOM, ewSBOOM, ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, wMAX
 };
 
 // weapon types in game engine
@@ -643,9 +647,10 @@ enum
   wFire,wWhistle,wBait,wWand,wMagic,wCatching,wWind,wRefMagic,wRefFireball,
   wHammer, wHookshot,
   wHSHandle, wHSChain, wSSparkle, wGSparkle, wMSparkle, wFSparkle,
-  wSmack, wGArrow, ewFlame, ewWind, wPhantom,
+  wSmack, wGArrow, ewFlame, ewWind, wPhantom, wCByrna,
   wEnemyWeapons,
-  ewFireball,ewArrow,ewBrang,ewSword,ewRock,ewMagic
+  ewFireball,ewArrow,ewBrang,ewSword,ewRock,ewMagic,ewBomb,ewSBomb,
+  ewLitBomb,ewLitSBomb,ewFireTrail,ewFlame2,ewFlame2Trail,ewIce
 };
 
 // phantom weapon types
@@ -683,7 +688,7 @@ enum
   eDIGPUP3, eDIGPUP4, eGOHMA1, eGOHMA2, eCENT1,
   eCENT2, ePATRA1, ePATRA2, eGANON, eSTALFOS2,
   //80
-  eROPE2, eBUBBLESP, eBUBBLESR, eFBALL, eITEMFAIRY,
+  eROPE2, eBUBBLESP, eBUBBLESR, eSHOOTFBALL, eITEMFAIRY,
   eFIRE, eOCTO5, eDKNUT5, eGELTRIB, eZOLTRIB,
   //90
   eKEESETRIB, eVIRETRIB, eDKNUT3, eLAQUAM, eMANHAN2,
@@ -701,9 +706,18 @@ enum
   eNPCWALK2, eNPCWALK3, eNPCWALK4, eNPCWALK5, eNPCWALK6,
   eBOULDER, eGORIYA3, eLEV3, eOCTO3S, eOCTO3F, 
   //140
-  eTRAP_8WAY, eTRAP_DIAGONAL, eTRAP_SLASH_C, eTRAP_SLASH_LOS, eTRAP_BACKSLASH_C,
-  eTRAP_BACKSLASH_LOS, eTRAP_CW_C, eTRAP_CW_LOS, eTRAP_CCW_C, eTRAP_CCW_LOS,
-
+  eOCTO4S, eOCTO4F, eTRAP_8WAY, eTRAP_DIAGONAL, eTRAP_SLASH_C,
+  eTRAP_SLASH_LOS, eTRAP_BACKSLASH_C, eTRAP_BACKSLASH_LOS, eTRAP_CW_C, eTRAP_CW_LOS,
+  //150
+  eTRAP_CCW_C, eTRAP_CCW_LOS, eSUMMONER, eIWIZ, eSHOOTMAGIC,
+  eSHOOTROCK, eSHOOTSPEAR, eSHOOTSWORD, eSHOOTFLAME, eSHOOTFLAME2,
+  //160
+  eBOMBCHU, eFGEL, eFZOL, eFGELTRIB, eFZOLTRIB,
+  eTEK3, eSPINTILE1, eSPINTILE2, eLYNEL3, eFPEAHAT,
+  //170
+  eMPOLSV, eWPOLSV, eDKNUT4, eFGHINI, eMGHINI,
+  eGRAPBUGHP, eGRAPBUGMP, 
+  
   eMAXGUYS
 };
 
@@ -714,7 +728,7 @@ enum
   eeGHINI, eeARMOS, eeKEESE, eeGEL, eeZOL, eeROPE, eeGORIYA, eeTRAP,
   eeWALLM, eeBUBBLE, eeVIRE, eeLIKE, eePOLSV, eeWIZZ, eeAQUA, eeMOLD,
   eeDONGO, eeMANHAN, eeGLEEOK, eeDIG, eeGHOMA, eeLANM, eePATRA, eeGANON,
-  eeFBALL, eeGELTRIB, eeZOLTRIB, eeVIRETRIB, eeKEESETRIB, eeNONE
+  eePROJECTILE, eeGELTRIB, eeZOLTRIB, eeVIRETRIB, eeKEESETRIB, eeSPINTILE, eeNONE
 };
 
 // enemy animation styles
@@ -725,7 +739,7 @@ enum
   aDONGO, aMANHAN, aGLEEOK, aDIG, aGHOMA, aLANM, a2FRMPOS, a4FRM4EYE,
   a4FRM8EYE, a4FRM4DIRF, a4FRM4DIR, a4FRM8DIR, aARMOS4, a4FRMPOS4DIR, a4FRMPOS8DIR,
   a4FRM3TRAP, a4FRM8DIRB, aNEWTEK, aNEWPOLV, a2FRM4DIR, aNEWLEV, aNEWDWALK,
-  aNEWWIZZ, aNEWDONGO, aDONGOBS, a4FRMPOS8DIRF, a4FRMPOS4DIRF, aGANON
+  aNEWWIZZ, aNEWDONGO, aDONGOBS, a4FRMPOS8DIRF, a4FRMPOS4DIRF, a4FRMNODIR, aGANON
 };
 
 // enemy patters
@@ -941,6 +955,19 @@ typedef struct mapscr
   byte ffwidth[32];
   byte ffheight[32];
   byte fflink[32];
+  word ffscript[32];
+  long d0[32];
+  long d1[32];
+  long d2[32];
+  long d3[32];
+  long d4[32];
+  long d5[32];
+  long d6[32];
+  long d7[32];
+  byte a1[32];
+  byte a2[32];
+  word pc[32];
+  dword scriptflag[32];
 
   // for importing older quests...
   byte old_cpage;
@@ -948,6 +975,12 @@ typedef struct mapscr
 
 } mapscr;
 
+typedef struct ffscript
+{
+	word command;
+	long arg1;
+	long arg2;
+} ffscript;
 
 enum
 {
@@ -1644,6 +1677,14 @@ INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
   return true;
 }
 
+INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
+{
+	long temp;
+	bool result = p_igetl(&temp,f,keepdata);
+	*(int *)p=(int)temp;
+	return result;
+}
+
 INLINE bool p_iputl(long c,PACKFILE *f)
 {
   if (!f) return false;
@@ -1762,4 +1803,3 @@ INLINE bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2)
 INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 #endif                                                      //_ZDEFS_H_
 
-//	-lalmp3 -lalogg -lvorbisidec -laldmb -ldumb -lalleg
