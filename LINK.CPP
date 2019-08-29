@@ -14,7 +14,11 @@
 #include "link.h"
 #include "guys.h"
 #include "subscr.h"
+#include "zc_subscr.h"
 #include "decorations.h"
+#include "gamedata.h"
+#include "zc_custom.h"
+#include "title.h"
 #include <stdio.h>
 
 extern int draw_screen_clip_rect_x1;
@@ -22,6 +26,17 @@ extern int draw_screen_clip_rect_x2;
 extern int draw_screen_clip_rect_y1;
 extern int draw_screen_clip_rect_y2;
 extern bool draw_screen_clip_rect_show_link;
+
+extern short ffposx[32];
+extern short ffposy[32];
+extern float ffprvx[32];
+extern float ffprvy[32];
+
+int link_count = -1;
+int z3step = 2;
+byte lshift = 0;
+
+void playLevelMusic();
 
 
 const byte lsteps[8] = {1,1,2,1,1,2,1,1};
@@ -111,8 +126,8 @@ bool LinkClass::isDiving() { return (diveclk>30); }
 bool LinkClass::isSwimming()
 {
   return ((action==swimming)||(action==swimhit)||
-    (action==swimhold1)||(action==swimhold2)||
-    (hopclk==0xFF));
+          (action==waterhold1)||(action==waterhold2)||
+          (hopclk==0xFF));
 }
 
 void LinkClass::setDontDraw(bool new_dontdraw)
@@ -135,8 +150,22 @@ void LinkClass::init()
   hookshot_used=false;
   hookshot_frozen=false;
   dir = up;
-  x=tmpscr->warparrivalx;
-  y=tmpscr->warparrivaly;
+  shiftdir = -1;
+  holddir = -1;
+  landswim = 0;
+  sdir = up;
+  ilswim=true;
+  walkable=false;
+  if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+  {
+    x=tmpscr->warpreturnx[0];
+    y=tmpscr->warpreturny[0];
+  }
+  else
+  {
+    x=tmpscr->warparrivalx;
+    y=tmpscr->warparrivaly;
+  }
   if(x==0)   dir=right;
   if(x==240) dir=left;
   if(y==0)   dir=down;
@@ -148,7 +177,7 @@ void LinkClass::init()
   attack=wNone;
   action=none;
   xofs=0;
-  yofs=56;
+  yofs=playing_field_offset;
   cs=6;
   pushing=fairyclk=0;
   id=0;
@@ -157,6 +186,7 @@ void LinkClass::init()
   hopclk=diveclk=0;
   conveyor_flags=0;
   drunkclk=0;
+  drawstyle=3;
 }
 
 void LinkClass::draw_under(BITMAP* dest)
@@ -167,12 +197,12 @@ void LinkClass::draw_under(BITMAP* dest)
     {
 
       overtile16(dest, itemsbuf[iRaft].tile, x, y+60,
-        itemsbuf[iRaft].csets&15, rotate_value((itemsbuf[iRaft].misc>>2)&3)^3);
+                 itemsbuf[iRaft].csets&15, rotate_value((itemsbuf[iRaft].misc>>2)&3)^3);
     }
     else
     {
       overtile16(dest, itemsbuf[iRaft].tile, x, y+60,
-        itemsbuf[iRaft].csets&15, (itemsbuf[iRaft].misc>>2)&3);
+                 itemsbuf[iRaft].csets&15, (itemsbuf[iRaft].misc>>2)&3);
     }
   }
 
@@ -181,19 +211,21 @@ void LinkClass::draw_under(BITMAP* dest)
 
     if ((ladderdir>=left) && (get_bit(quest_rules,qr_RLFIX)))
     {
-      overtile16(dest, itemsbuf[iLadder].tile, ladderx, laddery+56,
-        itemsbuf[iLadder].csets&15, rotate_value((itemsbuf[iRaft].misc>>2)&3)^3);
+      overtile16(dest, itemsbuf[iLadder].tile, ladderx, laddery+playing_field_offset,
+                 itemsbuf[iLadder].csets&15, rotate_value((itemsbuf[iRaft].misc>>2)&3)^3);
     }
     else
     {
-      overtile16(dest, itemsbuf[iLadder].tile, ladderx, laddery+56,
-        itemsbuf[iLadder].csets&15, (itemsbuf[iLadder].misc>>2)&3);
+      overtile16(dest, itemsbuf[iLadder].tile, ladderx, laddery+playing_field_offset,
+                 itemsbuf[iLadder].csets&15, (itemsbuf[iLadder].misc>>2)&3);
     }
   }
 }
 
 void LinkClass::draw(BITMAP* dest)
 {
+  int oxofs, oyofs;
+  bool shieldModify = false;
   if (tmpscr->flags3&fINVISLINK)
   {
     return;
@@ -213,10 +245,12 @@ void LinkClass::draw(BITMAP* dest)
     }
   }
 
-  bool useltm=get_bit(quest_rules,qr_FULLLTM);
+  bool useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
 
-  yofs = (!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 54 : 56;
+  yofs = playing_field_offset-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 2 : 0);
   detail_int[0]=yofs;
+  oxofs=xofs;
+  oyofs=yofs;
   if (action!=dying)
   {
     cs = 6;
@@ -227,14 +261,14 @@ void LinkClass::draw(BITMAP* dest)
         cs += (((~frame)>>1)&3);
       }
       else if (hclk&&(NayrusLoveShieldClk<=0))
-      {
-        cs += ((hclk>>1)&3);
-      }
+        {
+          cs += ((hclk>>1)&3);
+        }
     }
   }
   if(attackclk || action==attacking)
   {
-    if(attackclk>4)
+    if(attackclk>4||(attack==wSword&&get_gamedata_canslash(game)))
     {
       if(attack==wSword || attack==wWand)
       {
@@ -252,94 +286,156 @@ void LinkClass::draw(BITMAP* dest)
           t = wpnsbuf[current_item(itype_sword,true)-1].tile;
           cs = wpnsbuf[current_item(itype_sword,true)-1].csets&15;
         }
-
+        //end of slash/stab
         switch(dir)
         {
           case up:
-            wx=-1; wy=-12;
-            if (!game.canslash || attack!=wSword)
+          wx=-1; wy=-12;
+          if (get_gamedata_canslash(game) && attack==wSword)
+          {
+            if(attackclk>10) //extended stab
             {
-              if(attackclk==13) wy+=4;
-              if(attackclk==14) wy+=8;
+              yofs-=3;
+              wy-=3;
             }
-            break;
+            if(attackclk==14) //retracting stab
+            {
+              yofs+=3;
+              wy+=4;
+            }
+          }
+          if (!get_gamedata_canslash(game) || attack!=wSword)
+          {
+            if(attackclk==13) wy+=4;
+            if(attackclk==14) wy+=8;
+          }
+          break;
           case down:
-            f=get_bit(quest_rules,qr_SWORDWANDFLIPFIX)?3:2; wy=11;
-            if (!game.canslash || attack!=wSword)
+          f=get_bit(quest_rules,qr_SWORDWANDFLIPFIX)?3:2; wy=11;
+          if (get_gamedata_canslash(game) && attack==wSword)
+          {
+            if(attackclk>10) //extended stab
             {
-              if(attackclk==13) wy-=4;
-              if(attackclk==14) wy-=8;
+              yofs+=3;
+              wy+=4;
             }
-            break;
+            if(attackclk==14) //retracting stab
+            {
+              yofs-=3;
+              wy-=2;
+            }
+          }
+          if (!get_gamedata_canslash(game) || attack!=wSword)
+          {
+            if(attackclk==13) wy-=4;
+            if(attackclk==14) wy-=8;
+          }
+          break;
           case left:
-            f=1; wx=-11; ++t;
-            if (!game.canslash || attack!=wSword)
+          f=1; wx=-11; ++t;
+          if (get_gamedata_canslash(game) && attack==wSword)
+          {
+            if(attackclk>10)  //extended stab
             {
-              if(attackclk==13) wx+=4;
-              if(attackclk==14) wx+=8;
+              xofs-=4;
+              wx-=7;
             }
-            break;
+            if(attackclk==14) //retracting stab
+            {
+              xofs+=3;
+              wx+=7;
+            }
+          }
+          if (!get_gamedata_canslash(game) || attack!=wSword)
+          {
+            if(attackclk==13) wx+=4;
+            if(attackclk==14) wx+=8;
+          }
+          break;
           case right:
-            wx=11; ++t;
-            if (!game.canslash || attack!=wSword)
+          wx=11; ++t;
+          if (get_gamedata_canslash(game) && attack==wSword)
+          {
+            if(attackclk>10) //extended stab
             {
-              if(attackclk==13) wx-=4;
-              if(attackclk==14) wx-=8;
+              xofs+=4;
+              wx+=7;
             }
-            break;
+            if(attackclk==14) //retracting stab
+            {
+              xofs-=3;
+              wx-=7;
+            }
+          }
+          if (!get_gamedata_canslash(game) || attack!=wSword)
+          {
+            if(attackclk==13) wx-=4;
+            if(attackclk==14) wx-=8;
+          }
+          break;
         }
 
-        if (game.canslash && attack==wSword && attackclk<11)
+        if (get_gamedata_canslash(game) && attack==wSword && attackclk<11)
         {
+          //slashing tiles
           switch(dir)
           {
             case up:
-              wx=8; wy=0;
-              ++t; f=0;                                     //starts pointing right
-              if(attackclk>=8)
-              {
-                wy-=8;
-                t = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].tile;
-                cs = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].csets&15;
-                f=0;
-              }
-              break;
+            wx=15; wy=-3;
+            ++t; f=0;                                     //starts pointing right
+            if(attackclk>=7)
+            {
+              wy-=9;
+              wx-=3;
+              t = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].tile;
+              cs = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].csets&15;
+              f=0;
+            }
+            check_slash_block(x+wx,y+wy+8);
+            break;
             case down:
-              wx=-8; wy=0;
-              ++t; f=1;                                     //starts pointing left
-              if(attackclk>=8)
-              {
-                wy+=8;
-                t = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].tile;
-                cs = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].csets&15;
-                ++t;
-                f=0;
-              }
-              break;
+            wx=-13; wy=-1;
+            ++t; f=1;                                     //starts pointing left
+            if(attackclk>=7)
+            {
+              wy+=15; wx+=2;
+              t = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].tile;
+              cs = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].csets&15;
+              ++t;
+              f=0;
+            }
+            check_slash_block(x+wx,y+wy+8);
+            break;
             case left:
-              wx=0; wy=-8;
-              --t; f=0;                                     //starts pointing up
-              if(attackclk>=8)
-              {
-                wx-=8;
-                t = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].tile;
-                cs = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].csets&15;
-                t+=2;
-                f=0;
-              }
-              break;
+            wx=3; wy=-15;
+            --t; f=0;                                     //starts pointing up
+            if(attackclk>=7)
+            {
+              wx-=15;
+              wy+=3;
+              xofs-=1;
+              t = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].tile;
+              cs = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].csets&15;
+              t+=2;
+              f=0;
+            }
+            check_slash_block(x+wx,y+wy);
+            break;
             case right:
-              wx=0; wy=-8;
-              --t; f=1;                                     //starts pointing up
-              if(attackclk>=8)
-              {
-                wx+=8;
-                t = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].tile;
-                cs = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].csets&15;
-                t+=3;
-                f=0;
-              }
-              break;
+            wx=-3; wy=-15;
+            --t; f=1;                                     //starts pointing up
+            if(attackclk>=7)
+            {
+              wx+=15;
+              wy+=3;
+              xofs+=1;
+              t = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].tile;
+              cs = wpnsbuf[wSWORDSLASH+current_item(itype_sword,true)-1].csets&15;
+              t+=3;
+              f=0;
+            }
+            check_slash_block(x+wx+10,y+wy);
+            break;
           }
         }
 
@@ -347,34 +443,49 @@ void LinkClass::draw(BITMAP* dest)
         {
           wy+=2;
         }
-        if(isdungeon() && currscr<128)
+        if (!(get_bit(quest_rules,qr_LINKFLICKER)&&((superman||hclk)&&(frame&1))))
         {
-          BITMAP *sub = create_sub_bitmap(dest,16,72,224,144);
-          overtile16(sub,t,x+wx-16,y+wy-(72-yofs),cs,f);
-          destroy_bitmap(sub);
-        }
-        else
-        {
-          overtile16(dest,t,x+wx,y+yofs+wy,cs,f);
+          if(isdungeon() && currscr<128 && !get_bit(quest_rules,qr_FREEFORM))
+          {
+            BITMAP *sub = create_sub_bitmap(dest,16,playing_field_offset+16,224,144);
+            overtile16(sub,t,x+wx-16,y+wy-(72-yofs),cs,f);
+            destroy_bitmap(sub);
+          }
+          else
+          {
+            overtile16(dest,t,x+wx,y+yofs+wy,cs,f);
+          }
         }
       }
     }
 
-    if(attackclk<7 || ((attack==wSword || attack==wWand) && attackclk<13) || ((attack==wHammer) && attackclk<=30))
+    if(attackclk<7 || (attack==wSword && attackclk<(get_gamedata_canslash(game)?15:13) || attack==wWand && attackclk<13) || ((attack==wHammer) && attackclk<=30))
     {
-      linktile(&tile, &flip, ls_stab, dir, zinit.linkwalkstyle);
+      linktile(&tile, &flip, &extend, ls_stab, dir, zinit.linkanimationstyle);
 
-      if(game.canslash && (attack==wSword) && (attackclk<7))
+      if(get_gamedata_canslash(game) && (attack==wSword) && (attackclk<7))
       {
-        linktile(&tile, &flip, ls_slash, dir, zinit.linkwalkstyle);
+        linktile(&tile, &flip, &extend, ls_slash, dir, zinit.linkanimationstyle);
       }
       if((attack==wHammer) && (attackclk<13))
       {
-        linktile(&tile, &flip, ls_pound, dir, zinit.linkwalkstyle);
+        linktile(&tile, &flip, &extend, ls_pound, dir, zinit.linkanimationstyle);
       }
-      masked_draw(dest);
+
+      if (useltm)
+      {
+        tile+=item_tile_mod(shieldModify);
+      }
+
+      tile+=dmap_tile_mod();
+      if (!(get_bit(quest_rules,qr_LINKFLICKER)&&((superman||hclk)&&(frame&1))))
+      {
+        masked_draw(dest);
+      }
       if (attack!=wHammer)
       {
+        xofs=oxofs;
+        yofs=oyofs;
         return;
       }
     }
@@ -390,193 +501,272 @@ void LinkClass::draw(BITMAP* dest)
       switch(dir)
       {
         case up:
-          wx=-1; wy=-15;
-          if(attackclk>=13)
-          {
-            wx-=1; wy+=1; ++t;
-          }
-          if(attackclk>=15)
-          {
-            ++t;
-          }
-          break;
+        wx=-1; wy=-15;
+        if(attackclk>=13)
+        {
+          wx-=1; wy+=1; ++t;
+        }
+        if(attackclk>=15)
+        {
+          ++t;
+        }
+        break;
         case down:
-          wx=3;   wy=-14;  t+=3;
-          if(attackclk>=13)
-          {
-            wy+=16;
-            ++t;
-          }
-          if(attackclk>=15)
-          {
-            wx-=1; wy+=12;
-            ++t;
-          }
-          break;
+        wx=3;   wy=-14;  t+=3;
+        if(attackclk>=13)
+        {
+          wy+=16;
+          ++t;
+        }
+        if(attackclk>=15)
+        {
+          wx-=1; wy+=12;
+          ++t;
+        }
+        break;
         case left:
-          wx=0;   wy=-14;  t+=6; f=1;
-          if(attackclk>=13)
-          {
-            wx-=7; wy+=8;
-            ++t;
-          }
-          if(attackclk>=15)
-          {
-            wx-=8; wy+=8;
-            ++t;
-          }
-          break;
+        wx=0;   wy=-14;  t+=6; f=1;
+        if(attackclk>=13)
+        {
+          wx-=7; wy+=8;
+          ++t;
+        }
+        if(attackclk>=15)
+        {
+          wx-=8; wy+=8;
+          ++t;
+        }
+        break;
         case right:
-          wx=0;  wy=-14;  t+=6;
-          if(attackclk>=13)
-          {
-            wx+=7; wy+=8;
-            ++t;
-          }
-          if(attackclk>=15)
-          {
-            wx+=8; wy+=8;
-            ++t;
-          }
-          break;
+        wx=0;  wy=-14;  t+=6;
+        if(attackclk>=13)
+        {
+          wx+=7; wy+=8;
+          ++t;
+        }
+        if(attackclk>=15)
+        {
+          wx+=8; wy+=8;
+          ++t;
+        }
+        break;
       }
 
       if(BSZ || ((isdungeon() && currscr<128) &&
-        !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)))
+                 !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)))
         wy+=2;
-      if(isdungeon() && currscr<128)
+      if (!(get_bit(quest_rules,qr_LINKFLICKER)&&((superman||hclk)&&(frame&1))))
       {
-        BITMAP *sub = create_sub_bitmap(dest,16,72,224,144);
-        overtile16(sub,t,x+wx-16,y+wy-(72-yofs),cs,f);
-        destroy_bitmap(sub);
-      } else
-      overtile16(dest,t,x+wx,y+yofs+wy,cs,f);
+        if(isdungeon() && currscr<128)
+        {
+          BITMAP *sub = create_sub_bitmap(dest,16,playing_field_offset+16,224,144);
+          overtile16(sub,t,x+wx-16,y+wy-(72-yofs),cs,f);
+          destroy_bitmap(sub);
+        }
+        else
+        {
+          overtile16(dest,t,x+wx,y+yofs+wy,cs,f);
+        }
+      }
 
       if (attackclk==15)
       {
         sfx(WAV_HAMMER,pan(int(x)));
       }
+      xofs=oxofs;
+      yofs=oyofs;
       return;
     }
   }
 
   if (action!=casting)
   {
-    switch (zinit.linkwalkstyle)
+    switch (zinit.linkanimationstyle)
     {
-      case 0:                                               //normal
-        if(action==swimming || action==swimhit || hopclk==0xFF)
+      case las_original:                                               //normal
+      if(action==swimming || action==swimhit || hopclk==0xFF)
+      {
+        linktile(&tile, &flip, &extend, ls_float, dir, zinit.linkanimationstyle);
+        if (lstep>=6)
         {
-          linktile(&tile, &flip, ls_swim, dir, zinit.linkwalkstyle);
-          if (lstep>=6)
+          if (dir==up)
           {
-            ++tile;
+            ++flip;
           }
-          if (diveclk>30)
+          else
           {
-            linktile(&tile, &flip, ls_dive, dir, zinit.linkwalkstyle);
-            tile+=((frame>>3) & 1);
+            extend==2?tile+=2:++tile;
           }
         }
-        else
+        if (diveclk>30)
         {
-          linktile(&tile, &flip, ls_walk, dir, zinit.linkwalkstyle);
-          if (dir>up)
+          linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+          tile+=((frame>>3) & 1)*(extend==2?2:1);
+        }
+      }
+      else
+      {
+        linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+        if (dir>up)
+        {
+          useltm=true;
+          shieldModify=true;
+        }
+        /*
+          else if (dir==up)
           {
-            useltm=true;
+          useltm=true;
           }
-          if (lstep>=6)
+          */
+        if (lstep>=6)
+        {
+          if (dir==up)
           {
-            if (dir==up)
-            {
-              ++flip;
-            }
-            else
-            {
-              ++tile;
-            }
+            ++flip;
+          }
+          else
+          {
+            extend==2?tile+=2:++tile;
           }
         }
-        break;
-      case 1:                                               //BS
-        if(action==swimming || action==swimhit || hopclk==0xFF)
+      }
+      break;
+      case las_bszelda:                                               //BS
+      if(action==swimming || action==swimhit || hopclk==0xFF)
+      {
+        linktile(&tile, &flip, &extend, ls_float, dir, zinit.linkanimationstyle);
+        tile += anim_3_4(lstep,7)*(extend==2?2:1);
+        if(diveclk>30)
         {
-          linktile(&tile, &flip, ls_swim, dir, zinit.linkwalkstyle);
-          tile += anim_3_4(lstep,7);
-          if(diveclk>30)
-          {
-            linktile(&tile, &flip, ls_dive, dir, zinit.linkwalkstyle);
-            tile += anim_3_4(lstep,7);
-          }
+          linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+          tile += anim_3_4(lstep,7)*(extend==2?2:1);
         }
-        else
+      }
+      else
+      {
+        linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+        if (dir>up)
         {
-          linktile(&tile, &flip, ls_walk, dir, zinit.linkwalkstyle);
-          if (dir>up)
-          {
-            useltm=true;
-          }
-          tile += anim_3_4(lstep,7);
+          useltm=true;
+          shieldModify=true;
         }
-        break;
-      case 2:                                               //4-frame
-        break;
+        /*
+          else if (dir==up)
+          {
+          useltm=true;
+          }
+          */
+        tile += anim_3_4(lstep,7)*(extend==2?2:1);
+      }
+      break;
+      case las_zelda3:                                               //8-frame Zelda 3
+      if(action==swimming || action==swimhit || hopclk==0xFF)
+      {
+        linktile(&tile, &flip, &extend, ls_float, dir, zinit.linkanimationstyle);
+        tile += anim_3_4(lstep,7)*(extend==2?2:1);
+        if(diveclk>30)
+        {
+          linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+          tile += anim_3_4(lstep,7)*(extend==2?2:1);
+        }
+      }
+      else
+      {
+        linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+        if (action==walking)
+        {
+          tile+=(extend==2?2:1);
+        }
+        if (dir>up)
+        {
+          useltm=true;
+          shieldModify=true;
+        }
+        if (action==walking||action==hopping)
+        {
+          //tile+=(extend==2?2:1);
+          //tile+=(((active_count>>2)%8)*(extend==2?2:1));
+          int l=link_count;
+          l-=((l>3)?1:0)+((l>12)?1:0);
+          tile+=(l/2)*(extend==2?2:1);
+        }
+      }
+      break;
       default:
-        break;
+      break;
     }
   }
 
-  yofs = (!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 54 : 56;
+  yofs = playing_field_offset-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 2 : 0);
   if(action==won)
   {
-    yofs=54;
+    yofs=playing_field_offset - 2;
   }
-
-  if(action==holding1 || action==holding2)
+  if(action==landhold1 || action==landhold2)
   {
-//    yofs = BSZ ? 56 : 54;
-    useltm=get_bit(quest_rules,qr_FULLLTM);
-
-    yofs = (!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 54 : 56;
-    linktile(&tile, &flip, (action==holding1)?ls_hold1:ls_hold2, dir, zinit.linkwalkstyle);
-    if (get_bit(quest_rules,qr_HOLDITEMANIMATION))
-    {
-      putitem2(dest,x-((action==holding1)?4:0),y+yofs-16,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
-    }
-    else
-    {
-      putitem(dest,x-((action==holding1)?4:0),y+yofs-16,holditem);
-    }
+    useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
+    yofs = playing_field_offset-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 2 : 0);
+    linktile(&tile, &flip, &extend, (action==landhold1)?ls_landhold1:ls_landhold2, dir, zinit.linkanimationstyle);
   }
-  else if(action==swimhold1 || action==swimhold2)
+  else if(action==waterhold1 || action==waterhold2)
   {
-    useltm=get_bit(quest_rules,qr_FULLLTM);
-    linktile(&tile, &flip, (action==swimhold1)?ls_swimhold1:ls_swimhold2, dir, zinit.linkwalkstyle);
-    if (get_bit(quest_rules,qr_HOLDITEMANIMATION))
-    {
-      putitem2(dest,x-((action==swimhold1)?4:0),y+yofs-12,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
-    }
-    else
-    {
-      putitem(dest,x-((action==swimhold1)?4:0),y+yofs-12,holditem);
-    }
+    useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
+    linktile(&tile, &flip, &extend, (action==waterhold1)?ls_waterhold1:ls_waterhold2, dir, zinit.linkanimationstyle);
   }
-
-  if (useltm&&action!=casting)
+  if(action!=casting)
   {
-    tile+=item_tile_mod();
+    if (useltm)
+    {
+      tile+=item_tile_mod(shieldModify);
+    }
   }
   tile+=dmap_tile_mod();
   if (!(get_bit(quest_rules,qr_LINKFLICKER)&&((superman||hclk)&&(frame&1))))
   {
     masked_draw(dest);
   }
-  if((didstuff&did_fairy)||fairyclk==0||(get_bit(quest_rules,qr_NOHEARTRING)))
+
+  //draw held items after Link so they don't go behind his head
+  if(action==landhold1 || action==landhold2)
+  {
+    if (get_bit(quest_rules,qr_HOLDITEMANIMATION))
+    {
+      putitem2(dest,x-((action==landhold1)?4:0),y+yofs-16,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+    }
+    else
+    {
+      putitem(dest,x-((action==landhold1)?4:0),y+yofs-16,holditem);
+    }
+  }
+  else if(action==waterhold1 || action==waterhold2)
+  {
+    if (get_bit(quest_rules,qr_HOLDITEMANIMATION))
+    {
+      putitem2(dest,x-((action==waterhold1)?4:0),y+yofs-12,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+    }
+    else
+    {
+      putitem(dest,x-((action==waterhold1)?4:0),y+yofs-12,holditem);
+    }
+  }
+
+
+
+
+
+
+
+
+  if(fairyclk==0||(get_bit(quest_rules,qr_NOHEARTRING)))
+  {
+    xofs=oxofs;
+    yofs=oyofs;
     return;
+  }
 
   double a = fairyclk*2*PI/80 + (PI/2);
   int hearts=0;
-//  int htile = QHeader.dat_flags[ZQ_TILES] ? 2 : 0;
+  //  int htile = QHeader.dat_flags[ZQ_TILES] ? 2 : 0;
   int htile = 2;
   do
   {
@@ -591,21 +781,23 @@ void LinkClass::draw(BITMAP* dest)
       ny=y;
     }
     double tx = cos(a)*53  +nx;
-    double ty = -sin(a)*53 +ny+56;
+    double ty = -sin(a)*53 +ny+playing_field_offset;
     overtile8(dest,htile,int(tx),int(ty),1,0);
     a-=PI/4;
     ++hearts;
   } while(a>PI/2 && hearts<8);
+  xofs=oxofs;
+  yofs=oyofs;
 }
 
 void LinkClass::masked_draw(BITMAP* dest)
 {
   if(isdungeon() && currscr<128 && (x<16 || x>224 || y<18 || y>146) && !get_bit(quest_rules,qr_FREEFORM))
   {                                                         // clip under doorways
-    BITMAP *sub=create_sub_bitmap(dest,16,72,224,144);
+    BITMAP *sub=create_sub_bitmap(dest,16,playing_field_offset+16,224,144);
     if(sub!=NULL)
     {
-      yofs -= 72;
+      yofs -= (playing_field_offset+16);
       xofs -= 16;
       sprite::draw(sub);
       xofs=0;
@@ -613,7 +805,10 @@ void LinkClass::masked_draw(BITMAP* dest)
     }
   }
   else
+  {
     sprite::draw(dest);
+  }
+  return;
 }
 
 // separate case for sword/wand/hammer only
@@ -621,7 +816,7 @@ void LinkClass::masked_draw(BITMAP* dest)
 void LinkClass::checkstab()
 {
   if(action!=attacking || (attack!=wSword && attack!=wWand && attack!=wHammer)
-    || (attackclk<=4))
+     || (attackclk<=4))
     return;
 
   int wx=0,wy=0,wxsz=0,wysz=0;
@@ -650,38 +845,38 @@ void LinkClass::checkstab()
     return;
   }
 
-  if (game.canslash && attack==wSword && attackclk<11)
+  if (get_gamedata_canslash(game) && attack==wSword && attackclk<11)
   {
     switch(dir)
     {
       case up:
-        wx=x+8; wy=y;
-        if(attackclk>=8)
-        {
-          wy-=8;
-        }
-        break;
+      wx=x+8; wy=y;
+      if(attackclk>=8)
+      {
+        wy-=8;
+      }
+      break;
       case down:
-        wx=x-8; wy=y;
-        if(attackclk>=8)
-        {
-          wy+=8;
-        }
-        break;
+      wx=x-8; wy=y;
+      if(attackclk>=8)
+      {
+        wy+=8;
+      }
+      break;
       case left:
-        wx=x; wy=y-7;
-        if(attackclk>=8)
-        {
-          wx-=8;
-        }
-        break;
+      wx=x; wy=y-7;
+      if(attackclk>=8)
+      {
+        wx-=8;
+      }
+      break;
       case right:
-        wx=x; wy=y-8;
-        if(attackclk>=8)
-        {
-          wx+=8;
-        }
-        break;
+      wx=x; wy=y-8;
+      if(attackclk>=8)
+      {
+        wx+=8;
+      }
+      break;
     }
     wxsz=16; wysz=16;
   }
@@ -689,16 +884,18 @@ void LinkClass::checkstab()
   for(int i=0; i<guys.Count(); i++)
   {
     if(guys.spr(i)->hit(wx,wy,wxsz,wysz) || (attack==wWand && guys.spr(i)->hit(x,y-8,16,24))
-      || (attack==wHammer && guys.spr(i)->hit(x,y-8,16,24)))
+       || (attack==wHammer && guys.spr(i)->hit(x,y-8,16,24)))
     {
       int h = hit_enemy(i,attack,(attack==wSword)
-        ? ((1*DAMAGE_MULTIPLIER)<<(current_item(itype_sword,true)-1)) :
-      (attack==wWand) ? 2*DAMAGE_MULTIPLIER
-        : 4*(DAMAGE_MULTIPLIER), wx,wy,dir);
+                        ? ((1*DAMAGE_MULTIPLIER)<<(current_item(itype_sword,true)-1)) :
+                        (attack==wWand) ? 2*DAMAGE_MULTIPLIER
+                        : 4*(DAMAGE_MULTIPLIER), wx,wy,dir);
       if(h>0 && hclk==0 && !inlikelike)
       {
         if(GuyHit(i,x+7,y+7,2,2)!=-1)
+        {
           hitlink(i);
+        }
       }
       if(h==2)
         break;
@@ -713,7 +910,7 @@ void LinkClass::checkstab()
         if(((item*)items.spr(j))->clk2 >= 32)
         {
           if(items.spr(j)->hit(wx,wy,wxsz,wysz) || (attack==wWand && items.spr(j)->hit(x,y-8,16,24))
-            || (attack==wHammer && items.spr(j)->hit(x,y-8,16,24)))
+             || (attack==wHammer && items.spr(j)->hit(x,y-8,16,24)))
           {
             getitem(items.spr(j)->id);
             items.del(j);
@@ -725,9 +922,9 @@ void LinkClass::checkstab()
                 w->dragging=-1;
               }
               else if (w->dragging>j)
-              {
-                w->dragging-=1;
-              }
+                {
+                  w->dragging-=1;
+                }
             }
             --j;
           }
@@ -742,31 +939,31 @@ void LinkClass::checkstab()
     {
       set_bit(screengrid,q,0);
     }
-    if(dir==up && (int(x)&15)==0)
+    if(dir==up && ((int(x)&15)==0))
     {
       check_slash_block(wx,wy);
       check_slash_block(wx,wy+8);
     }
-    if(dir==up && (int(x)&15)==8)
-    {
-      check_slash_block(wx,wy);
-      check_slash_block(wx,wy+8);
-      check_slash_block(wx+8,wy);
-      check_slash_block(wx+8,wy+8);
-    }
-    if(dir==down && (int(x)&15)==0)
-    {
-      check_slash_block(wx,wy+wysz-8);
-      check_slash_block(wx,wy+wysz);
-    }
-    if(dir==down && (int(x)&15)==8)
+    else if(dir==up && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+      {
+        check_slash_block(wx,wy);
+        check_slash_block(wx,wy+8);
+        check_slash_block(wx+8,wy);
+        check_slash_block(wx+8,wy+8);
+      }
+      if(dir==down && ((int(x)&15)==0))
     {
       check_slash_block(wx,wy+wysz-8);
       check_slash_block(wx,wy+wysz);
-      check_slash_block(wx+8,wy+wysz-8);
-      check_slash_block(wx+8,wy+wysz);
     }
-    if(dir==left)
+    else if(dir==down && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+      {
+        check_slash_block(wx,wy+wysz-8);
+        check_slash_block(wx,wy+wysz);
+        check_slash_block(wx+8,wy+wysz-8);
+        check_slash_block(wx+8,wy+wysz);
+      }
+      if(dir==left)
     {
       check_slash_block(wx,wy+8);
       check_slash_block(wx+8,wy+8);
@@ -778,114 +975,124 @@ void LinkClass::checkstab()
     }
   }
   else if(attack==wWand)
-  {
-    for (int q=0; q<176; q++)
     {
-      set_bit(screengrid,q,0);
-    }
-    // cutable blocks
-    if(dir==up && (int(x)&15)==0)
-    {
-      check_wand_block(x,wy);
-      check_wand_block(x,wy+8);
-    }
-    if(dir==up && (int(x)&15)==8)
-    {
-      check_wand_block(x,wy);
-      check_wand_block(x,wy+8);
-      check_wand_block(x+8,wy);
-      check_wand_block(x+8,wy+8);
-    }
-    if(dir==down && (int(x)&15)==0)
-    {
-      check_wand_block(x,wy+wysz-8);
-      check_wand_block(x,wy+wysz);
-    }
-    if(dir==down && (int(x)&15)==8)
-    {
-      check_wand_block(x,wy+wysz-8);
-      check_wand_block(x,wy+wysz);
-      check_wand_block(x+8,wy+wysz-8);
-      check_wand_block(x+8,wy+wysz);
-    }
-    if(dir==left)
-    {
-      check_wand_block(wx,y+8);
-      check_wand_block(wx+8,y+8);
-    }
-    if(dir==right)
-    {
-      check_wand_block(wx+wxsz,y+8);
-      check_wand_block(wx+wxsz-8,y+8);
-    }
-  }
-  else if ((attack==wHammer) && (attackclk==15))
-  {
-    /*
-        // general area stun
-        for (int i=0; i<GuyCount(); i++) {
-    //      tempdistance=sqrt(pow(abs(x-GuyX(i)),2)+pow(abs(y-GuyY(i)),2));
-          if ((distance(x,y,GuyX(i),GuyY(i))<64)&&(!isflier(GuyID(i)))) {
-            StunGuy(i);
-          }
+      for (int q=0; q<176; q++)
+      {
+        set_bit(screengrid,q,0);
+      }
+      // cutable blocks
+      if(dir==up && (int(x)&15)==0)
+      {
+        check_wand_block(x,wy);
+        check_wand_block(x,wy+8);
+      }
+      else if(dir==up && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+        {
+          check_wand_block(x,wy);
+          check_wand_block(x,wy+8);
+          check_wand_block(x+8,wy);
+          check_wand_block(x+8,wy+8);
         }
-    */
+        if(dir==down && (int(x)&15)==0)
+      {
+        check_wand_block(x,wy+wysz-8);
+        check_wand_block(x,wy+wysz);
+      }
+      else if(dir==down && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+        {
+          check_wand_block(x,wy+wysz-8);
+          check_wand_block(x,wy+wysz);
+          check_wand_block(x+8,wy+wysz-8);
+          check_wand_block(x+8,wy+wysz);
+        }
+        if(dir==left)
+      {
+        check_wand_block(wx,y+8);
+        check_wand_block(wx+8,y+8);
+      }
+      if(dir==right)
+      {
+        check_wand_block(wx+wxsz,y+8);
+        check_wand_block(wx+wxsz-8,y+8);
+      }
+    }
+    else if ((attack==wHammer) && (attackclk==15))
+      {
+        /*
+          // general area stun
+          for (int i=0; i<GuyCount(); i++) {
+          //      tempdistance=sqrt(pow(abs(x-GuyX(i)),2)+pow(abs(y-GuyY(i)),2));
+          if ((distance(x,y,GuyX(i),GuyY(i))<64)&&(!isflier(GuyID(i)))) {
+          StunGuy(i);
+          }
+          }
+          */
 
-    // poundable blocks
-    for (int q=0; q<176; q++)
-    {
-      set_bit(screengrid,q,0);
-    }
-    if(dir==up && (int(x)&15)==0)
-    {
-      check_pound_block(x,wy);
-      check_pound_block(x,wy+8);
-    }
-    if(dir==up && (int(x)&15)==8)
-    {
-      check_pound_block(x,wy);
-      check_pound_block(x,wy+8);
-      check_pound_block(x+8,wy);
-      check_pound_block(x+8,wy+8);
-    }
-    if(dir==down && (int(x)&15)==0)
-    {
-      check_pound_block(x,wy+wysz-8);
-      check_pound_block(x,wy+wysz);
-    }
-    if(dir==down && (int(x)&15)==8)
-    {
-      check_pound_block(x,wy+wysz-8);
-      check_pound_block(x,wy+wysz);
-      check_pound_block(x+8,wy+wysz-8);
-      check_pound_block(x+8,wy+wysz);
-    }
-    if(dir==left)
-    {
-      check_pound_block(wx,y+8);
-      check_pound_block(wx+8,y+8);
-    }
-    if(dir==right)
-    {
-      check_pound_block(wx+wxsz,y+8);
-      check_pound_block(wx+wxsz-8,y+8);
-    }
-  }
-  return;
+        // poundable blocks
+        for (int q=0; q<176; q++)
+        {
+          set_bit(screengrid,q,0);
+        }
+        if(dir==up && (int(x)&15)==0)
+        {
+          check_pound_block(x,wy);
+          check_pound_block(x,wy+8);
+        }
+        else if(dir==up && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+          {
+            check_pound_block(x,wy);
+            check_pound_block(x,wy+8);
+            check_pound_block(x+8,wy);
+            check_pound_block(x+8,wy+8);
+          }
+          if(dir==down && (int(x)&15)==0)
+        {
+          check_pound_block(x,wy+wysz-8);
+          check_pound_block(x,wy+wysz);
+        }
+        else if(dir==down && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+          {
+            check_pound_block(x,wy+wysz-8);
+            check_pound_block(x,wy+wysz);
+            check_pound_block(x+8,wy+wysz-8);
+            check_pound_block(x+8,wy+wysz);
+          }
+          if(dir==left)
+        {
+          check_pound_block(wx,y+8);
+          check_pound_block(wx+8,y+8);
+        }
+        if(dir==right)
+        {
+          check_pound_block(wx+wxsz,y+8);
+          check_pound_block(wx+wxsz-8,y+8);
+        }
+      }
+      return;
 }
 
 void LinkClass::check_slash_block(int bx, int by)
 {
+  //keep things inside the screen boundaries
+  bx=vbound(bx, 0, 255);
+  by=vbound(by, 0, 176);
+  int fx=vbound(bx, 0, 255);
+  int fy=vbound(by, 0, 176);
+
+  //find out which combo row/column the coordinates are in
   bx &= 0xF0;
   by &= 0xF0;
 
   int type = COMBOTYPE(bx,by);
   int flag = MAPFLAG(bx,by);
+  int flag2 = MAPCOMBOFLAG(bx,by);
+  int flag3 = MAPFFCOMBOFLAG(fx,fy);
   int i = (bx>>4) + by;
 
   if(type!=cSLASH && type!=cSLASHITEM && type!=cBUSH && type!=cFLOWERS &&
-    type!=cTALLGRASS && (flag<mfSWORD || flag>mfXSWORD) &&
-    flag!=mfSTRIKE)
+     type!=cTALLGRASS && (flag<mfSWORD || flag>mfXSWORD) &&
+     flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE
+	 && (flag3<mfSWORD || flag3>mfXSWORD) && flag3!=mfSTRIKE)
     return;
 
   if(i > 175)
@@ -922,6 +1129,38 @@ void LinkClass::check_slash_block(int bx, int by)
     }
     findentrance(bx,by,mfSTRIKE,true);
   }
+  else if((flag2 >= 16)&&(flag2 <= 31))
+  {
+    s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
+    s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
+    s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+  }
+  else if(flag2 == mfARMOS_SECRET)
+  {
+    s->data[i] = s->secretcombo[sSTAIRS];
+    s->cset[i] = s->secretcset[sSTAIRS];
+    s->sflag[i] = s->secretflag[sSTAIRS];
+    if (!nosecretsounds)
+    {
+      sfx(WAV_SECRET);
+    }
+  }
+  else if ((flag2>=mfSWORD&&flag2<=mfXSWORD)||(flag2==mfSTRIKE))
+  {
+    for (int i=0; i<current_item(itype_sword,true); i++)
+    {
+      findentrance(bx,by,mfSWORD+i,true);
+    }
+    findentrance(bx,by,mfSTRIKE,true);
+  }
+  else if ((flag3>=mfSWORD&&flag<=mfXSWORD)||(flag3==mfSTRIKE))
+  {
+    for (int i=0; i<current_item(itype_sword,true); i++)
+    {
+      findentrance(fx,fy,mfSWORD+i,true);
+    }
+    findentrance(fx,fy,mfSTRIKE,true);
+  }
   else
   {
     s->data[i] = s->undercombo;
@@ -931,7 +1170,7 @@ void LinkClass::check_slash_block(int bx, int by)
     //    pausenow=true;
   }
 
-  if(flag==mfARMOS_ITEM && !getmapflag())
+  if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
   {
     items.add(new item((fix)bx, (fix)by, tmpscr->catchall, ipONETIME + ipBIGRANGE + ipHOLDUP, 0));
     if (!nosecretsounds)
@@ -947,7 +1186,7 @@ void LinkClass::check_slash_block(int bx, int by)
     if(r<15)      it=iHeart;                                // 15%
     else if(r<35) it=iRupy;                                 // 20%
 
-    if(it!=-1)
+      if(it!=-1)
       items.add(new item((fix)bx, (fix)by, it, ipBIGRANGE + ipTIMER, 0));
   }
 
@@ -955,49 +1194,82 @@ void LinkClass::check_slash_block(int bx, int by)
   switch (type)
   {
     case cBUSH:
-      decorations.add(new dBushLeaves((fix)bx, (fix)by, dBUSHLEAVES, 0));
-      break;
+    decorations.add(new dBushLeaves((fix)bx, (fix)by, dBUSHLEAVES, 0));
+    break;
     case cFLOWERS:
-      decorations.add(new dFlowerClippings((fix)bx, (fix)by, dFLOWERCLIPPINGS, 0));
-      break;
+    decorations.add(new dFlowerClippings((fix)bx, (fix)by, dFLOWERCLIPPINGS, 0));
+    break;
     case cTALLGRASS:
-      decorations.add(new dGrassClippings((fix)bx, (fix)by, dGRASSCLIPPINGS, 0));
-      break;
+    decorations.add(new dGrassClippings((fix)bx, (fix)by, dGRASSCLIPPINGS, 0));
+    break;
   }
 }
 
 void LinkClass::check_wand_block(int bx, int by)
 {
+  //keep things inside the screen boundaries
+  bx=vbound(bx, 0, 255);
+  by=vbound(by, 0, 176);
+  int fx=vbound(bx, 0, 255);
+  int fy=vbound(by, 0, 176);
+
+  //find out which combo row/column the coordinates are in
   bx &= 0xF0;
   by &= 0xF0;
 
   int flag = MAPFLAG(bx,by);
+  int flag2 = MAPCOMBOFLAG(bx,by);
+  int flag3=0;
+  int flag31 = MAPFFCOMBOFLAG(fx,fy);
+  int flag32 = MAPFFCOMBOFLAG(fx,fy);
+  int flag33 = MAPFFCOMBOFLAG(fx,fy);
+  int flag34 = MAPFFCOMBOFLAG(fx,fy);
+  if(flag31==mfWAND||flag32==mfWAND||flag33==mfWAND||flag34==mfWAND)
+    flag3=mfWAND;
+  if(flag31==mfSTRIKE||flag32==mfSTRIKE||flag33==mfSTRIKE||flag34==mfSTRIKE)
+	flag3=mfSTRIKE;
   int i = (bx>>4) + by;
 
-  if(flag!=mfWAND)
+  if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
     return;
 
   if(i > 175)
     return;
 
-  mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+  //mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
 
-  findentrance(bx,by,mfWAND,true);
-  findentrance(bx,by,mfSTRIKE,true);
-
-  putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+  //findentrance(bx,by,mfWAND,true);
+  //findentrance(bx,by,mfSTRIKE,true);
+  if((findentrance(bx,by,mfWAND,true)==false)&&(findentrance(bx,by,mfSTRIKE,true)==false))
+  {
+    if(flag3==mfWAND||flag3==mfSTRIKE)
+	{
+      findentrance(fx,fy,mfWAND,true);
+	  findentrance(fx,fy,mfSTRIKE,true);
+	}
+  }
+  //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
 void LinkClass::check_pound_block(int bx, int by)
 {
+  //keep things inside the screen boundaries
+  bx=vbound(bx, 0, 255);
+  by=vbound(by, 0, 176);
+  int fx=vbound(bx, 0, 255);
+  int fy=vbound(by, 0, 176);
+
+  //find out which combo row/column the coordinates are in
   bx &= 0xF0;
   by &= 0xF0;
 
   int type = COMBOTYPE(bx,by);
   int flag = MAPFLAG(bx,by);
+  int flag2 = MAPCOMBOFLAG(bx,by);
+  int flag3 = MAPCOMBOFLAG(fx,fy);
   int i = (bx>>4) + by;
 
-  if(type!=cPOUND && flag!=mfHAMMER && flag!=mfSTRIKE)
+  if(type!=cPOUND && flag!=mfHAMMER && flag!=mfSTRIKE && flag2!=mfHAMMER && flag2!=mfSTRIKE)
     return;
 
   if(i > 175)
@@ -1017,25 +1289,51 @@ void LinkClass::check_pound_block(int bx, int by)
     s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
   }
   else if(flag == mfARMOS_SECRET)
-  {
-    s->data[i] = s->secretcombo[sSTAIRS];
-    s->cset[i] = s->secretcset[sSTAIRS];
-    s->sflag[i] = s->secretflag[sSTAIRS];
-    if (!nosecretsounds)
     {
-      sfx(WAV_SECRET);
+      s->data[i] = s->secretcombo[sSTAIRS];
+      s->cset[i] = s->secretcset[sSTAIRS];
+      s->sflag[i] = s->secretflag[sSTAIRS];
+      if (!nosecretsounds)
+      {
+        sfx(WAV_SECRET);
+      }
     }
-  }
-  else if (flag==mfHAMMER||flag==mfSTRIKE)
-  {
-    findentrance(bx,by,mfHAMMER,true);
-    findentrance(bx,by,mfSTRIKE,true);
-  }
-  else
-  {
-    s->data[i]+=1;
-    set_bit(screengrid,i,1);
-  }
+    else if (flag==mfHAMMER||flag==mfSTRIKE)
+      {
+        findentrance(bx,by,mfHAMMER,true);
+        findentrance(bx,by,mfSTRIKE,true);
+      }
+      else if((flag2 >= 16)&&(flag2 <= 31))
+        {
+          s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
+          s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
+          s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+        }
+        else if(flag2 == mfARMOS_SECRET)
+          {
+            s->data[i] = s->secretcombo[sSTAIRS];
+            s->cset[i] = s->secretcset[sSTAIRS];
+            s->sflag[i] = s->secretflag[sSTAIRS];
+            if (!nosecretsounds)
+            {
+              sfx(WAV_SECRET);
+            }
+          }
+          else if (flag2==mfHAMMER||flag2==mfSTRIKE)
+            {
+              findentrance(bx,by,mfHAMMER,true);
+              findentrance(bx,by,mfSTRIKE,true);
+            }
+		  else if (flag3==mfHAMMER||flag3==mfSTRIKE)
+            {
+              findentrance(fx,fy,mfHAMMER,true);
+              findentrance(fx,fy,mfSTRIKE,true);
+            }
+            else
+            {
+              s->data[i]+=1;
+              set_bit(screengrid,i,1);
+            }
 
   if(flag==mfARMOS_ITEM && !getmapflag())
   {
@@ -1053,136 +1351,136 @@ int LinkClass::EwpnHit()
 {
   for(int i=0; i<Ewpns.Count(); i++)
     if(Ewpns.spr(i)->hit(x+7,y+7,2,2))
-  {
-    weapon *ew = (weapon*)(Ewpns.spr(i));
-    bool hitshield=false;
-    if ((ew->ignoreLink)==true)
-      break;
-    if (ew->id==ewWind)
     {
-      xofs=1000;
-      action=freeze;
-      ew->misc=999;                                         // in enemy wind
-      attackclk=0;
-      return -1;
-    }
+      weapon *ew = (weapon*)(Ewpns.spr(i));
+      bool hitshield=false;
+      if ((ew->ignoreLink)==true)
+        break;
+      if (ew->id==ewWind)
+      {
+        xofs=1000;
+        action=freeze;
+        ew->misc=999;                                         // in enemy wind
+        attackclk=0;
+        return -1;
+      }
 
-    switch(dir)
-    {
-      case up:
+      switch(dir)
+      {
+        case up:
         if(ew->dir==down || ew->dir==l_down || ew->dir==r_down)
           hitshield=true;
         break;
-      case down:
+        case down:
         if(ew->dir==up || ew->dir==l_up || ew->dir==r_up)
           hitshield=true;
         break;
-      case left:
+        case left:
         if(ew->dir==right || ew->dir==r_up || ew->dir==r_down)
           hitshield=true;
         break;
-      case right:
+        case right:
         if(ew->dir==left || ew->dir==l_up || ew->dir==l_down)
           hitshield=true;
         break;
-    }
-    if(!hitshield || action==attacking || action==swimming || hopclk==0xFF)
-    {
-      return i;
-    }
+      }
+      if(!hitshield || action==attacking || action==swimming || hopclk==0xFF)
+      {
+        return i;
+      }
 
-    switch(ew->id)
-    {
-      case ewFireball:
-      case ewMagic:
-      case ewSword:
+      switch(ew->id)
+      {
+        case ewFireball:
+        case ewMagic:
+        case ewSword:
         if((current_item(itype_shield,true)<i_largeshield) || ew->type)
         {
           return i;
         }
         break;
-      case ewFlame:
+        case ewFlame:
         if(current_item(itype_shield,true)<i_mirrorshield)
           return i;
         break;
-    }
+      }
 
-    int oldid = ew->id;
-    ew->onhit(false, (current_item(itype_shield,true)>=i_mirrorshield) ? 2 : 1, dir);
-    if(ew->id != oldid)                                     // changed type from ewX to wX
-    {
-      //        ew->power*=DAMAGE_MULTIPLIER;
-      Lwpns.add(ew);
-      Ewpns.remove(ew);
-    }
-    if (ew->id==wRefMagic)
-    {
-      ew->ignoreLink=true;
-      ew->ignorecombo=-1;
-    }
+      int oldid = ew->id;
+      ew->onhit(false, (current_item(itype_shield,true)>=i_mirrorshield) ? 2 : 1, dir);
+      if(ew->id != oldid)                                     // changed type from ewX to wX
+      {
+        //        ew->power*=DAMAGE_MULTIPLIER;
+        Lwpns.add(ew);
+        Ewpns.remove(ew);
+      }
+      if (ew->id==wRefMagic)
+      {
+        ew->ignoreLink=true;
+        ew->ignorecombo=-1;
+      }
 
-    sfx(WAV_CHINK,pan(int(x)));
-  }
-  return -1;
+      sfx(WAV_CHINK,pan(int(x)));
+    }
+    return -1;
 }
 
 int LinkClass::LwpnHit()                                    //only here to check magic hits
 {
   for(int i=0; i<Lwpns.Count(); i++)
     if(Lwpns.spr(i)->hit(x+7,y+7,2,2))
-  {
-    weapon *lw = (weapon*)(Lwpns.spr(i));
-    bool hitshield=false;
-    if ((lw->ignoreLink)==true)
-      break;
-
-    switch(dir)
     {
-      case up:
+      weapon *lw = (weapon*)(Lwpns.spr(i));
+      bool hitshield=false;
+      if ((lw->ignoreLink)==true)
+        break;
+
+      switch(dir)
+      {
+        case up:
         if(lw->dir==down || lw->dir==l_down || lw->dir==r_down)
           hitshield=true;
         break;
-      case down:
+        case down:
         if(lw->dir==up || lw->dir==l_up || lw->dir==r_up)
           hitshield=true;
         break;
-      case left:
+        case left:
         if(lw->dir==right || lw->dir==r_up || lw->dir==r_down)
           hitshield=true;
         break;
-      case right:
+        case right:
         if(lw->dir==left || lw->dir==l_up || lw->dir==l_down)
           hitshield=true;
         break;
-    }
+      }
 
-    switch(lw->id)
-    {
-      case wMagic:
-      case wRefMagic:
+      switch(lw->id)
+      {
+        case wMagic:
+        case wRefMagic:
         if((current_item(itype_shield,true)<i_largeshield) || lw->type)
         {
           return i;
         }
         break;
-      default:
+        default:
         return -1;
         break;
+      }
+
+      if(!hitshield || action==attacking || action==swimming || hopclk==0xFF)
+        return i;
+
+      lw->onhit(false, (current_item(itype_shield,true)>=i_mirrorshield) ? 2 : 1, dir);
+      if (lw->id==wRefMagic)
+      {
+        lw->ignoreLink=true;
+        lw->ignorecombo=-1;
+      }
+
+      sfx(WAV_CHINK,pan(int(x)));
     }
-
-    if(!hitshield || action==attacking || action==swimming || hopclk==0xFF)
-      return i;
-
-    lw->onhit(false, (current_item(itype_shield,true)>=i_mirrorshield) ? 2 : 1, dir);
-    if (lw->id==wRefMagic)
-    {
-      lw->ignoreLink=true;
-      lw->ignorecombo=-1;
-    }
-
-    sfx(WAV_CHINK,pan(int(x)));
-  }
-  return -1;
+    return -1;
 }
 
 void LinkClass::checkhit()
@@ -1210,19 +1508,19 @@ void LinkClass::checkhit()
     {
       for(int i=0; i<4; i++)
       {
+        byte lttpcol = get_bit(quest_rules, qr_LTTPCOLLISION);
         switch(hitdir)
         {
-          case up:    if(hit_walkflag(x,y+7,2))    action=none; else --y; break;
-          case down:  if(hit_walkflag(x,y+16,2))   action=none; else ++y; break;
-          case left:  if(hit_walkflag(x-1,y+8,1))  action=none; else --x; break;
-          case right: if(hit_walkflag(x+16,y+8,1)) action=none; else ++x; break;
+          case up:    if(hit_walkflag(x,y+(lttpcol?-1:7),2)||(int(x)&7?hit_walkflag(x+16,y+(lttpcol?-1:7),1):0))    action=none; else --y; break;
+          case down:  if(hit_walkflag(x,y+16,2)||(int(x)&7?hit_walkflag(x+16,y+16,1):0))   action=none; else ++y; break;
+          case left:  if(hit_walkflag(x-1,y+(lttpcol?0:8),1)||hit_walkflag(x-1,y+8,1)||(int(y)&7?hit_walkflag(x-1,y+16,1):0))  action=none; else --x; break;
+          case right: if(hit_walkflag(x+16,y+(lttpcol?0:8),1)||hit_walkflag(x+16,y+8,1)||(int(y)&7?hit_walkflag(x+16,y+16,1):0)) action=none; else ++x; break;
         }
       }
     }
   }
 
-  if(hclk>0 || inlikelike || action==inwind || inwallm || diveclk>30
-    || (action==hopping && hopclk<255) )
+  if(hclk>0 || inlikelike || action==inwind || inwallm || diveclk>30 || (action==hopping && hopclk<255) )
   {
     return;
   }
@@ -1233,12 +1531,12 @@ void LinkClass::checkhit()
 
     if (!get_bit(quest_rules,qr_FIREPROOFLINK))
     {
-      if(s->id==wFire && (superman ? s->hit(x+7,y+7,2,2) : s->hit(this))&&
-        ((weapon*)(Lwpns.spr(i)))->type<3)
+      if(s->id==wFire && (superman ? (get_bit(quest_rules,qr_LTTPWALK)?s->hit(x+4,y+4,7,7):s->hit(x+7,y+7,2,2)) : s->hit(this))&&
+         ((weapon*)(Lwpns.spr(i)))->type<3)
       {
         if(NayrusLoveShieldClk<=0)
         {
-          game.life = max(game.life-((HP_PER_HEART/2)>>current_item(itype_ring,true)),0);
+          set_gamedata_life(game, max(get_gamedata_life(game)-((HP_PER_HEART/2)>>current_item(itype_ring,true)),0));
         }
         hitdir = s->hitdir(x,y,16,16,dir);
         if(action!=rafting && action!=freeze)
@@ -1265,86 +1563,86 @@ void LinkClass::checkhit()
             switch (w)
             {
               case 0:                                       //hookshot
-                switch (t->id)
-                {
-                  case ewFireball:
-                  case ewSword:
-                  case ewBrang:
-                  case ewArrow:
-                  case ewRock:
-                    ((weapon*)s)->dead=1;
-                    ((weapon*)t)->onhit(true, 1, -1);
-                    break;
-                  case ewMagic:
-                    break;
-                }
+              switch (t->id)
+              {
+                case ewFireball:
+                case ewSword:
+                case ewBrang:
+                case ewArrow:
+                case ewRock:
+                ((weapon*)s)->dead=1;
+                ((weapon*)t)->onhit(true, 1, -1);
                 break;
+                case ewMagic:
+                break;
+              }
+              break;
               case 1:                                       //wooden boomerang
-                switch (t->id)
-                {
-                  case ewBrang:
-                  case ewArrow:
-                  case ewRock:
-                    ((weapon*)s)->dead=1;
-                    ((weapon*)t)->onhit(true, 1, -1);
-                    break;
-                  case ewFireball:
-                  case ewSword:
-                  case ewMagic:
-                    break;
-                }
+              switch (t->id)
+              {
+                case ewBrang:
+                case ewArrow:
+                case ewRock:
+                ((weapon*)s)->dead=1;
+                ((weapon*)t)->onhit(true, 1, -1);
                 break;
+                case ewFireball:
+                case ewSword:
+                case ewMagic:
+                break;
+              }
+              break;
               case 2:                                       //magic boomerang
-                switch (t->id)
+              switch (t->id)
+              {
+                case ewBrang:
+                case ewArrow:
+                case ewRock:
+                case ewFireball:
+                case ewSword:
+                case ewMagic:
+                ((weapon*)s)->dead=1;
+                ((weapon*)t)->onhit(true, 1, -1);
+                if (s->dummy_bool[0])
                 {
-                  case ewBrang:
-                  case ewArrow:
-                  case ewRock:
-                  case ewFireball:
-                  case ewSword:
-                  case ewMagic:
-                    ((weapon*)s)->dead=1;
-                    ((weapon*)t)->onhit(true, 1, -1);
-                    if (s->dummy_bool[0])
-                    {
-                      add_grenade(s->x,s->y,0);
-                      s->dummy_bool[0]=false;
-                    }
-                    break;
+                  add_grenade(s->x,s->y,0);
+                  s->dummy_bool[0]=false;
                 }
                 break;
+              }
+              break;
               case 3:                                       //fire boomerang
-                switch (t->id)
+              switch (t->id)
+              {
+                case ewBrang:
+                case ewArrow:
+                case ewRock:
+                case ewFireball:
+                case ewSword:
+                case ewMagic:
+                weapon *ew = ((weapon*)t);
+                int oldid = ew->id;
+                ((weapon*)s)->dead=1;
+                ew->onhit(true, 2, ew->dir);
+                if (s->dummy_bool[0])
                 {
-                  case ewBrang:
-                  case ewArrow:
-                  case ewRock:
-                  case ewFireball:
-                  case ewSword:
-                  case ewMagic:
-                    weapon *ew = ((weapon*)t);
-                    int oldid = ew->id;
-                    ((weapon*)s)->dead=1;
-                    ew->onhit(true, 2, ew->dir);
-                    if (s->dummy_bool[0])
-                    {
-                      add_grenade(s->x,s->y,1);
-                      s->dummy_bool[0]=false;
-                    }
-                    if(ew->id != oldid)                     // changed type from ewX to wX
-                    {
-                      Lwpns.add(ew);
-                      Ewpns.remove(ew);
-                    }
-                    if (ew->id==wRefMagic)
-                    {
-                      ew->ignoreLink=true;
-                      ew->ignorecombo=-1;
-                    }
-
-                    break;
+                  add_grenade(s->x,s->y,1);
+                  s->dummy_bool[0]=false;
                 }
+                if(ew->id != oldid)                     // changed type from ewX to wX
+                {
+                  Lwpns.add(ew);
+                  Ewpns.remove(ew);
+                }
+                if (ew->id==wRefMagic)
+                {
+                  ew->ignoreLink=true;
+                  ew->ignorecombo=-1;
+                }
+
                 break;
+              }
+              break;
             }
           }
         }
@@ -1358,10 +1656,10 @@ void LinkClass::checkhit()
       {
         if(NayrusLoveShieldClk<=0)
         {
-          game.life = max(game.life-((4*HP_PER_HEART/2)>>current_item(itype_ring,true)),0);
+          set_gamedata_life(game, max(get_gamedata_life(game)-((4*HP_PER_HEART/2)>>current_item(itype_ring,true)),0));
           if (s->id==wSBomb)
           {
-            game.life = max(game.life-((12*HP_PER_HEART/2)>>current_item(itype_ring,true)),0);
+            set_gamedata_life(game, max(get_gamedata_life(game)-((12*HP_PER_HEART/2)>>current_item(itype_ring,true)),0));
           }
         }
         hitdir = s->hitdir(x,y,16,16,dir);
@@ -1384,10 +1682,10 @@ void LinkClass::checkhit()
   }
 
   if(action==rafting || action==freeze ||
-    action==casting || superman)
+     action==casting || superman)
     return;
 
-  int hit = GuyHit(x+7,y+7,2,2);
+  int hit = get_bit(quest_rules,qr_LTTPWALK)?GuyHit(x+4,y+4,8,8):GuyHit(x+7,y+7,2,2);
   if(hit!=-1)
   {
     hitlink(hit);
@@ -1399,7 +1697,7 @@ void LinkClass::checkhit()
   {
     if(NayrusLoveShieldClk<=0)
     {
-      game.life = max(game.life-(lwpn_dp(hit)>>current_item(itype_ring,true)),0);
+      set_gamedata_life(game, max(get_gamedata_life(game)-(lwpn_dp(hit)>>current_item(itype_ring,true)),0));
     }
     hitdir = Lwpns.spr(hit)->hitdir(x,y,16,16,dir);
     ((weapon*)Lwpns.spr(hit))->onhit(false);
@@ -1417,7 +1715,7 @@ void LinkClass::checkhit()
   {
     if(NayrusLoveShieldClk<=0)
     {
-      game.life = max(game.life-(ewpn_dp(hit)>>current_item(itype_ring,true)),0);
+      set_gamedata_life(game, max(get_gamedata_life(game)-(ewpn_dp(hit)>>current_item(itype_ring,true)),0));
     }
     hitdir = Ewpns.spr(hit)->hitdir(x,y,16,16,dir);
     ((weapon*)Ewpns.spr(hit))->onhit(false);
@@ -1430,17 +1728,78 @@ void LinkClass::checkhit()
     return;
   }
 
-  int ctype1(combobuf[MAPDATA(x,y+8)].type);
-  int ctype2(combobuf[MAPDATA(x+8,y+8)].type);
-  int ctype=max(ctype1, ctype2);
 
-  if((ctype>=cDAMAGE1) && (ctype<=cDAMAGE4))
+  int dx1 = (int)x+8-(tmpscr->csensitive);
+  int dx2 = (int)x+8+(tmpscr->csensitive-1);
+  int dy1 = (int)y+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2);
+  int dy2 = (int)y+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)+(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive-1:((tmpscr->csensitive+1)/2)-1);
+  int ctype1(combobuf[MAPCOMBO(dx1,dy1)].type);
+  int ctype2(combobuf[MAPCOMBO(dx1,dy2)].type);
+  int ctype3(combobuf[MAPCOMBO(dx2,dy1)].type);
+  int ctype4(combobuf[MAPCOMBO(dx2,dy2)].type);
+  if(get_bit(quest_rules,qr_DMGCOMBOPRI))
   {
-    if((!(current_item(itype_boots, true))) || ((get_bit(quest_rules,qr_MAGICBOOTS))&&(game.magic+game.dmagic<BOOTSDRAINAMOUNT*game.magicdrainrate)))
+    if (((ctype1>=cDAMAGE1)&&(ctype1<=cDAMAGE4))||((ctype2>=cDAMAGE1)&&(ctype2<=cDAMAGE4))||((ctype3>=cDAMAGE1)&&(ctype3<=cDAMAGE4))||((ctype4>=cDAMAGE1)&&(ctype4<=cDAMAGE4))||
+		((ctype1>=cDAMAGE5)&&(ctype1<=cDAMAGE7))||((ctype2>=cDAMAGE5)&&(ctype2<=cDAMAGE7))||((ctype3>=cDAMAGE5)&&(ctype3<=cDAMAGE7))||((ctype4>=cDAMAGE5)&&(ctype4<=cDAMAGE7)))
+    {
+      if((ctype1<cDAMAGE1||ctype1>cDAMAGE4)&&(ctype1<cDAMAGE5||ctype1>cDAMAGE7))
+        ctype1=cDAMAGE1;
+      if((ctype2<cDAMAGE1||ctype1>cDAMAGE4)&&(ctype1<cDAMAGE5||ctype2>cDAMAGE7))
+        ctype2=cDAMAGE1;
+	  if((ctype3<cDAMAGE1||ctype1>cDAMAGE4)&&(ctype1<cDAMAGE5||ctype3>cDAMAGE7))
+        ctype3=cDAMAGE1;
+	  if((ctype4<cDAMAGE1||ctype1>cDAMAGE4)&&(ctype1<cDAMAGE5||ctype4>cDAMAGE7))
+        ctype4=cDAMAGE1;
+	}
+  }
+  int ctypea=max(ctype1, ctype2);
+  int ctypeb=max(ctype3, ctype4);
+  int ctypec = max(ctypea,ctypeb);
+
+  ctype1=combobuf[MAPFFCOMBO(dx1,dy1)].type;
+  ctype2=combobuf[MAPFFCOMBO(dx1,dy2)].type;
+  ctype3=combobuf[MAPFFCOMBO(dx2,dy1)].type;
+  ctype4=combobuf[MAPFFCOMBO(dx2,dy2)].type;
+  if(get_bit(quest_rules,qr_DMGCOMBOPRI))
+  {
+    if (((ctype1>=cDAMAGE1)&&(ctype1<=cDAMAGE4))||((ctype2>=cDAMAGE1)&&(ctype2<=cDAMAGE4))||((ctype3>=cDAMAGE1)&&(ctype3<=cDAMAGE4))||((ctype4>=cDAMAGE1)&&(ctype4<=cDAMAGE4))||
+		((ctype1>=cDAMAGE5)&&(ctype1<=cDAMAGE7))||((ctype2>=cDAMAGE5)&&(ctype2<=cDAMAGE7))||((ctype3>=cDAMAGE5)&&(ctype3<=cDAMAGE7))||((ctype4>=cDAMAGE5)&&(ctype4<=cDAMAGE7)))
+    {
+      if((ctype1<cDAMAGE1||ctype1>cDAMAGE4)&&(ctype1<cDAMAGE5||ctype1>cDAMAGE7))
+        ctype1=cDAMAGE1;
+      if((ctype2<cDAMAGE1||ctype1>cDAMAGE4)&&(ctype1<cDAMAGE5||ctype2>cDAMAGE7))
+        ctype2=cDAMAGE1;
+	  if((ctype3<cDAMAGE1||ctype1>cDAMAGE4)&&(ctype1<cDAMAGE5||ctype3>cDAMAGE7))
+        ctype3=cDAMAGE1;
+	  if((ctype4<cDAMAGE1||ctype1>cDAMAGE4)&&(ctype1<cDAMAGE5||ctype4>cDAMAGE7))
+        ctype4=cDAMAGE1;
+	}
+  }
+  ctypea=max(ctype1, ctype2);
+  ctypeb=max(ctype3, ctype4);
+  int ctyped = max(ctypea,ctypeb);
+  int ctype = max(ctypec,ctyped);
+
+  int damage=0xFF;
+  bool global_ring = (get_bit(quest_rules,qr_RINGAFFECTDAMAGE) != 0);
+  bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
+  int ringoffset=(global_ring!=current_ring)?current_item(itype_ring,true):0;
+
+  if(ctype==cDAMAGE1) damage=6;
+  else if(ctype==cDAMAGE2) damage=5;
+  else if(ctype==cDAMAGE3) damage=4;
+  else if(ctype==cDAMAGE4) damage=3;
+  else if(ctype==cDAMAGE5) damage=2;
+  else if(ctype==cDAMAGE6) damage=1;
+  else if(ctype==cDAMAGE7) damage=0;
+
+  if(damage!=0xFF)
+  {
+    if((tmpscr->flags5&fDAMAGEWITHBOOTS)|| (!(current_item(itype_boots, true))) || ((get_bit(quest_rules,qr_MAGICBOOTS))&&(get_gamedata_magic(game)+get_gamedata_dmagic(game)<BOOTSDRAINAMOUNT*get_gamedata_magicdrainrate(game))))
     {
       if(NayrusLoveShieldClk<=0)
       {
-        game.life = max((game.life-((HP_PER_HEART<<2)>>(cDAMAGE4-ctype))),0);
+        set_gamedata_life(game, max((get_gamedata_life(game)-(((HP_PER_HEART<<5)>>damage)>>ringoffset)),0));
       }
       hitdir = (dir^1);
       if(action!=rafting && action!=freeze)
@@ -1452,12 +1811,12 @@ void LinkClass::checkhit()
       return;
     }
     else if (get_bit(quest_rules,qr_MAGICBOOTS))
-    {
-      if (!(magicdrainclk%BOOTSDRAINSPEED))
       {
-        game.magic-=BOOTSDRAINAMOUNT*game.magicdrainrate;
+        if (!(magicdrainclk%BOOTSDRAINSPEED))
+        {
+          change_gamedata_magic(game, -BOOTSDRAINAMOUNT*get_gamedata_magicdrainrate(game));
+        }
       }
-    }
 
   }
 
@@ -1471,7 +1830,7 @@ void LinkClass::hitlink(int hit)
 
   if(NayrusLoveShieldClk<=0)
   {
-    game.life = max(game.life-(enemy_dp(hit)>>current_item(itype_ring,true)),0);
+    set_gamedata_life(game, max(get_gamedata_life(game)-(enemy_dp(hit)>>current_item(itype_ring,true)),0));
   }
   hitdir = guys.spr(hit)->hitdir(x,y,16,16,dir);
 
@@ -1485,48 +1844,62 @@ void LinkClass::hitlink(int hit)
   switch(guys.spr(hit)->id)
   {
     case eLIKE:
-        EatLink(hit);
-        inlikelike=true;
-        action=none;
-      break;
+    EatLink(hit);
+    inlikelike=true;
+    action=none;
+    break;
 
     case eWALLM:
+    if(((enemy*)guys.spr(hit))->hp>0)
+    {
       GrabLink(hit);
       inwallm=true;
       action=none;
-      break;
+    }
+    break;
 
-    case eBUBBLE:
-      if(swordclk>=0)
-        swordclk=150;
-      break;
+    case eBUBBLEST:
+    if(swordclk>=0)
+      swordclk=150;
+    break;
 
-    case eRBUBBLE:
-      swordclk=-1;
-      break;
+    case eBUBBLESP:
+    swordclk=-1;
+    break;
 
-    case eBBUBBLE:
-      swordclk=0;
-      break;
+    case eBUBBLESR:
+    swordclk=0;
+    break;
 
-    case eIBUBBLE:
-      if(itemclk>=0)
-        itemclk=150;
-      break;
+    case eBUBBLEIT:
+    if(itemclk>=0)
+      itemclk=150;
+    break;
 
-    case eRIBUBBLE:
-      itemclk=-1;
-      break;
+    case eBUBBLEIP:
+    itemclk=-1;
+    break;
 
-    case eBIBUBBLE:
-      itemclk=0;
-      break;
+    case eBUBBLEIR:
+    itemclk=0;
+    break;
   }
 }
 
 // returns true when game over
 bool LinkClass::animate(int index)
 {
+  int lsave=0;
+  if(do_cheat_goto)
+  {
+    didpit=true;
+    pitx=x;
+    pity=y;
+    dowarp(3,0);
+    do_cheat_goto=false;
+    return false;
+  }
+
   if (action!=climbcovertop&&action!=climbcoverbottom)
   {
     climb_cover_x=-1000;
@@ -1552,18 +1925,18 @@ bool LinkClass::animate(int index)
   {
     --drunkclk;
   }
-  if (!is_on_conveyor)
+  if (!is_on_conveyor&&!(get_bit(quest_rules,qr_LTTPWALK)))
   {
     switch (dir)
     {
       case up:
       case down:
-        x=(int(x)+4)&0xFFF8;
-        break;
+      x=(int(x)+4)&0xFFF8;
+      break;
       case left:
       case right:
-        y=(int(y)+4)&0xFFF8;
-        break;
+      y=(int(y)+4)&0xFFF8;
+      break;
     }
   }
   if ((watch==true) && (get_bit(quest_rules,qr_TEMPCLOCKS)))
@@ -1667,7 +2040,7 @@ bool LinkClass::animate(int index)
   }
   if(DrunkrLbtn())         selectBwpn(-1, 0);
   else if(DrunkrRbtn())    selectBwpn(1, 0);
-  if(rPbtn())         onViewMap();
+    if(rPbtn())         onViewMap();
 
   // make the flames from the wand
   if(wand_dead)
@@ -1685,8 +2058,8 @@ bool LinkClass::animate(int index)
     if (current_item(itype_arrow,true)>=2)
     {
       Lwpns.add(new weapon((fix)(arrow_x+(rand()%7)),
-        (fix)(arrow_y+(rand()%7)),
-        wSSparkle+add_asparkle-1,0,0,0));
+                           (fix)(arrow_y+(rand()%7)),
+                           wSSparkle+add_asparkle-1,0,0,0));
     }
     add_asparkle=false;
   }
@@ -1696,8 +2069,8 @@ bool LinkClass::animate(int index)
     if (current_item(itype_brang,true)>=2)
     {
       Lwpns.add(new weapon((fix)(brang_x+(rand()%7)),
-        (fix)(brang_y+(rand()%7)),
-        wMSparkle+add_bsparkle-1,0,0,0));
+                           (fix)(brang_y+(rand()%7)),
+                           wMSparkle+add_bsparkle-1,0,0,0));
     }
     add_bsparkle=false;
   }
@@ -1739,7 +2112,7 @@ bool LinkClass::animate(int index)
   }
 
   checkhit();
-  if(game.life<=0)
+  if(get_gamedata_life(game)<=0)
   {
     drunkclk=0;
     gameover();
@@ -1772,6 +2145,13 @@ bool LinkClass::animate(int index)
     return false;
   }
 
+  /*if(!get_bit(quest_rules,qr_LTTPWALK)) {
+    if(hopclk)
+    action = hopping; }
+    else {
+    if(hopclk==0xFF)
+    action = hopping;
+    }*/
   if(hopclk)
     action = hopping;
 
@@ -1780,42 +2160,42 @@ bool LinkClass::animate(int index)
   switch(action)
   {
     case gothit:
-      if(attackclk)
-        if(!doattack())
-          attackclk=0;
+    if(attackclk)
+      if(!doattack())
+        attackclk=0;
 
     case swimhit:
     case freeze:
     case scrolling:
-      break;
+    break;
 
     case casting:
-      if (magictype==mgc_none)
-      {
-        action=none;
-      }
-      break;
+    if (magictype==mgc_none)
+    {
+      action=none;
+    }
+    break;
 
-    case holding1:
-    case holding2:
-      if(--holdclk == 0)
-        action=none;
-      else
-        freeze_guys=true;
-      break;
+    case landhold1:
+    case landhold2:
+    if(--holdclk == 0)
+      action=none;
+    else
+      freeze_guys=true;
+    break;
 
-    case swimhold1:
-    case swimhold2:
-      diveclk=0;
-      if(--holdclk == 0)
-        action=swimming;
-      else
-        freeze_guys=true;
-      break;
+    case waterhold1:
+    case waterhold2:
+    diveclk=0;
+    if(--holdclk == 0)
+      action=swimming;
+    else
+      freeze_guys=true;
+    break;
 
     case hopping:
-      do_hopping();
-      break;
+    do_hopping();
+    break;
 
     case inwind:
     {
@@ -1842,37 +2222,46 @@ bool LinkClass::animate(int index)
     break;
 
     case swimming:
-      if(frame&1)
-        linkstep();
-      // fall through
+    if(frame&1)
+      linkstep();
+    // fall through
 
     default:
-      movelink();                                           // call the main movement routine
+    movelink();                                           // call the main movement routine
   }
   // check for ladder removal
-  if((abs(laddery-int(y))>=16) || (abs(ladderx-int(x))>=16))
+  if(get_bit(quest_rules,qr_LTTPWALK))
   {
-    ladderx = laddery = 0;
+    if(ladderx+laddery)
+    {
+      if(ladderdir==up)
+      {
+        if( (laddery-int(y)>=(16+(ladderstart==dir?ladderstart==down?1:0:0))) || (laddery-int(y)<=(-16-(ladderstart==dir?ladderstart==up?1:0:0))) || (abs(ladderx-int(x))>8))
+        {
+          reset_ladder();
+        }
+      }
+      else
+      {
+        if((abs(laddery-int(y))>8) || (ladderx-int(x)>=(16+(ladderstart==dir?ladderstart==right?1:0:0))) || (ladderx-int(x)<=(-16-(ladderstart==dir?ladderstart==left?1:0:0))))
+        {
+          reset_ladder();
+        }
+      }
+    }
+  }
+  else
+  {
+    if((abs(laddery-int(y))>=16) || (abs(ladderx-int(x))>=16))
+    {
+      reset_ladder();
+    }
   }
 
-  // check lots of other things
-  checkscroll();
-  if(action!=inwind)
-  {
-    checkitems();
-    checklocked();
-    checklockblock();
-    checkbosslockblock();
-    checkpushblock();
-    if (hookshot_frozen==false)
-    {
-      checkspecial();
-    }
-    if(action==won)
-    {
-      return true;
-    }
-  }
+  if(ilswim)
+    landswim++;
+  else landswim=0;
+  if(hopclk!=0xFF) ilswim=false;
 
   if((!loaded_guys) && (frame - newscr_clk >= 1))
   {
@@ -1891,12 +2280,109 @@ bool LinkClass::animate(int index)
     loadenemies();
   }
 
+  // check lots of other things
+  checkscroll();
+  if(action!=inwind)
+  {
+    checkspecial();
+    if (action!=attacking)
+    {
+      checkitems();
+    }
+    checklocked();
+    checklockblock();
+    checkbosslockblock();
+    checkchest();
+    checklockedchest();
+    checkbosschest();
+    checkpushblock();
+    if (hookshot_frozen==false)
+    {
+      checkspecial2(&lsave);
+    }
+    if(action==won)
+
+    {
+      return true;
+    }
+  }
+
 
   if((!activated_timed_warp) && (tmpscr->timedwarptics>0) &&
-    (frame - newscr_clk >= tmpscr->timedwarptics))
+     (frame - newscr_clk >= tmpscr->timedwarptics))
   {
     activated_timed_warp=true;
-    dowarp(1);
+    if(tmpscr->flags4 & fTIMEDDIRECT) {
+      didpit=true;
+      pitx=x;
+      pity=y;
+    }
+    int index = 0;
+    if(tmpscr->flags5 & fRANDOMTIMEDWARP) index=rand()%4;
+    sdir = dir; dowarp(1,index);
+  }
+
+  bool awarp = false;
+
+  for(int i=0;i<176;i++)
+  {
+
+    int ind;
+    if(!awarp)
+    {
+      if(combobuf[tmpscr->data[i]].type==cAWARPA)
+      {awarp=true; ind=0;}
+      else if(combobuf[tmpscr->data[i]].type==cAWARPB)
+        {awarp=true; ind=1;}
+        else if(combobuf[tmpscr->data[i]].type==cAWARPC)
+          {awarp=true; ind=2;}
+          else if(combobuf[tmpscr->data[i]].type==cAWARPD)
+            {awarp=true; ind=3;}
+            else if(combobuf[tmpscr->data[i]].type==cAWARPR)
+              {awarp=true; ind=rand()%4;}
+              if(awarp)
+      {
+        if(tmpscr->flags5&fDIRECTAWARP)
+        {
+          didpit=true;
+          pitx=x;
+          pity=y;
+        }
+        sdir = dir; dowarp(1,ind);
+      }
+    }
+
+  }
+
+  awarp=false;
+  for(int i=0;i<32;i++)
+  {
+
+    int ind;
+    if(!awarp)
+    {
+      if(combobuf[tmpscr->ffdata[i]].type==cAWARPA)
+      {awarp=true; ind=0;}
+      else if(combobuf[tmpscr->ffdata[i]].type==cAWARPB)
+        {awarp=true; ind=1;}
+        else if(combobuf[tmpscr->ffdata[i]].type==cAWARPC)
+          {awarp=true; ind=2;}
+          else if(combobuf[tmpscr->ffdata[i]].type==cAWARPD)
+            {awarp=true; ind=3;}
+            else if(combobuf[tmpscr->ffdata[i]].type==cAWARPR)
+              {awarp=true; ind=rand()%4;}
+              if(awarp)
+      {
+        if(tmpscr->flags5&fDIRECTAWARP)
+        {
+          didpit=true;
+          pitx=x;
+          pity=y;
+        }
+        sdir = dir; dowarp(1,ind);
+      }
+    }
+
   }
 
   // walk through bombed doors and fake walls
@@ -1906,25 +2392,25 @@ bool LinkClass::animate(int index)
 
   if(isdungeon() && action!=freeze && loaded_guys && !inlikelike)
   {
-    if(((dtype==dBOMBED)?DrunkUp():dir==up) && x==120 && y<=32 && tmpscr->door[0]==dtype)
+    if(((dtype==dBOMBED)?DrunkUp():dir==up) && (get_bit(quest_rules,qr_LTTPWALK)?x>112&&x<128:x==120) && y<=32 && tmpscr->door[0]==dtype)
     {
       walk=true;
       dir=up;
     }
 
-    if(((dtype==dBOMBED)?DrunkDown():dir==down) && x==120 && y>=128 && tmpscr->door[1]==dtype)
+    if(((dtype==dBOMBED)?DrunkDown():dir==down) && (get_bit(quest_rules,qr_LTTPWALK)?x>112&&x<128:x==120) && y>=128 && tmpscr->door[1]==dtype)
     {
       walk=true;
       dir=down;
     }
 
-    if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x<=32 && y==80 && tmpscr->door[2]==dtype)
+    if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x<=32 && (get_bit(quest_rules,qr_LTTPWALK)?y>72&&y<88:y==80) && tmpscr->door[2]==dtype)
     {
       walk=true;
       dir=left;
     }
 
-    if(((dtype==dBOMBED)?DrunkRight():dir==right) && x>=208 && y==80 && tmpscr->door[3]==dtype)
+    if(((dtype==dBOMBED)?DrunkRight():dir==right) && x>=208 && (get_bit(quest_rules,qr_LTTPWALK)?y>72&&y<88:y==80) && tmpscr->door[3]==dtype)
     {
       walk=true;
       dir=right;
@@ -1938,12 +2424,12 @@ bool LinkClass::animate(int index)
     {
       sfx(WAV_SECRET);
     }
-    stepforward(29);
+    stepforward(29, true);
     action=scrolling;
     pushing=false;
   }
 
-  if(game.life<=(HP_PER_HEART))
+  if(get_gamedata_life(game)<=(HP_PER_HEART))
   {
     if (heart_beep)
     {
@@ -1971,19 +2457,23 @@ bool LinkClass::animate(int index)
     heart_beep_timer=-1;
     stop_sfx(WAV_ER);
   }
-/*
   if(rSbtn())
   {
-    conveyclk=3;
-    dosubscr();
-  }
-*/
-  if(rSbtn())
-  {
-    conveyclk=3;
     int tmp_subscr_clk = frame;
-    dosubscr();
-    newscr_clk += frame - tmp_subscr_clk;
+    switch(lsave)
+    {
+      case 0:
+      conveyclk=3;
+      dosubscr(&QMisc);
+      newscr_clk += frame - tmp_subscr_clk;
+      break;
+      case 1:
+      save_game((tmpscr->flags4&fSAVEROOM) != 0, 0);
+      break;
+      case 2:
+      save_game((tmpscr->flags4&fSAVEROOM) != 0, 1);
+      break;
+    }
   }
 
   checkstab();
@@ -1997,7 +2487,7 @@ bool LinkClass::animate(int index)
 bool LinkClass::startwpn(int wpn)                           // an item index
 {
   if((dir==up && y<24) || (dir==down && y>128) ||
-    (dir==left && x<32) || (dir==right && x>208))
+     (dir==left && x<32) || (dir==right && x>208))
     return false;
 
   int wx=x;
@@ -2011,66 +2501,72 @@ bool LinkClass::startwpn(int wpn)                           // an item index
   }
   bool use_hookshot=true;
 
-  switch(wpn)
+  switch(wpn&0xFFF)
   {
 
     case iRPotion:
     case iBPotion:
-      //  --game.potion;
-      game.items[itype_potion]=game.items[itype_potion]>>1;
-      Bwpn=0;
+    //  --game->potion;
+    game->items[itype_potion]=game->items[itype_potion]>>1;
+    if(get_bit(quest_rules,qr_REDPOTIONONCE)&&(((wpn&0xFFF)==iRPotion)))
+    {
+      game->items[itype_potion]=game->items[itype_potion]>>1;
+    }
+    
+    Bwpn=0;
 
-      refill_what=REFILL_ALL;
-      StartRefill(REFILL_POTION);
-      while(refill())
-      {
-        putsubscr(framebuf,0,0);
-        advanceframe();
-      }
+    refill_what=REFILL_ALL;
+    refill_why=((wpn&0xFFF)==iBPotion?REFILL_BPOTION:REFILL_RPOTION);
+    StartRefill();
+    while(refill())
+    {
+      put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
+      advanceframe();
+    }
 
-      selectBwpn(0, 0);
-      return false;
+    selectBwpn(0, 0);
+    return false;
 
     case iLetter:
-      //  if(game.letter==1 && currscr==128 && tmpscr[1].room==rP_SHOP) {
-      if(current_item(itype_letter,true)==i_letter &&
-        tmpscr[currscr<128?0:1].room==rP_SHOP &&
-        tmpscr[currscr<128?0:1].guy &&
-//        ((currscr<128&&isdungeon())||(currscr>=128&&!isdungeon()))
-        ((currscr<128&&dlevel)||(currscr>=128&&!isdungeon()))
-        )
-      {
-        game.items[itype_letter]|=i_letter_used;
-        setupscreen();
-        action=none;
-      }
-      return false;
+    //  if(game->letter==1 && currscr==128 && tmpscr[1].room==rP_SHOP) {
+    if(current_item(itype_letter,true)==i_letter &&
+       tmpscr[currscr<128?0:1].room==rP_SHOP &&
+       tmpscr[currscr<128?0:1].guy &&
+       //        ((currscr<128&&isdungeon())||(currscr>=128&&!isdungeon()))
+       ((currscr<128&&dlevel)||(currscr>=128&&!isdungeon()))
+      )
+    {
+      game->items[itype_letter]|=i_letter_used;
+      setupscreen();
+      action=none;
+    }
+    return false;
 
     case iWhistle:
-      sfx(WAV_WHISTLE);
-      if(dir==up || dir==right)
-        ++blowcnt;
-      else
-        --blowcnt;
+    sfx(WAV_WHISTLE);
+    if(dir==up || dir==right)
+      ++blowcnt;
+    else
+      --blowcnt;
 
-      for(int i=0; i<150; i++)
-      {
-        advanceframe();
-        if(Quit)
-          return false;
-      }
-      Lwpns.add(new weapon(x,y,wWhistle,0,0,dir));
-
-      if(findentrance(x,y,mfWHISTLE,false))
-        didstuff |= did_whistle;
-
-      if((didstuff&did_whistle) || currscr>=128)
+    for(int i=0; i<150; i++)
+    {
+      advanceframe();
+      if(Quit)
         return false;
+    }
+    Lwpns.add(new weapon(x,y,wWhistle,0,0,dir));
 
+    if(findentrance(x,y,mfWHISTLE,false))
       didstuff |= did_whistle;
-      if(tmpscr->flags&fWHISTLE)
-        whistleclk=0;                                       // signal to start drying lake or doing other stuff
-      else if(dlevel==0 && TriforceCount())
+
+    if((didstuff&did_whistle) || currscr>=128)
+      return false;
+
+    didstuff |= did_whistle;
+    if(tmpscr->flags&fWHISTLE)
+      whistleclk=0;                                       // signal to start drying lake or doing other stuff
+    else if(dlevel==0 && TriforceCount())
         Lwpns.add(new weapon((fix)0,(fix)y,wWind,0,0,right));
       return false;
 
@@ -2079,18 +2575,18 @@ bool LinkClass::startwpn(int wpn)                           // an item index
       /*
         //remote detonation
         if(Lwpns.idCount(wLitBomb)) {
-          weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitBomb)));
-          ew->clk=41;
-          ew->id=wBomb;
-          return false;
+        weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitBomb)));
+        ew->clk=41;
+        ew->id=wBomb;
+        return false;
         }
-      */
+        */
       if(Lwpns.idCount(wLitBomb))
       {
         return false;
       }
-      if(!debug)
-        --game.items[itype_bomb];
+      if(!get_debug())
+        --game->items[itype_bomb];
       selectBwpn(8,8);
       if (isdungeon())
       {
@@ -2104,38 +2600,39 @@ bool LinkClass::startwpn(int wpn)                           // an item index
     {
       if(Lwpns.idCount(wLitSBomb))
         return false;
-      if(!debug)
-        --game.items[itype_sbomb];
+      if(!get_debug())
+        --game->items[itype_sbomb];
       selectBwpn(8,8);
       Lwpns.add(new weapon((fix)wx,(fix)wy,wSBomb,0,16*DAMAGE_MULTIPLIER,dir));
       sfx(WAV_PLACE,pan(wx));
     } break;
 
     case iWand:
-      if(Lwpns.idCount(wMagic))
-        return false;
-      if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
-        ((game.magic+game.dmagic)<WANDDRAINAMOUNT*game.magicdrainrate)&&
-        ((get_bit(quest_rules,qr_MAGICWAND))))
-        return false;
-      if(Lwpns.idCount(wBeam))
-        Lwpns.del(Lwpns.idFirst(wBeam));
-      Lwpns.add(new weapon((fix)wx,(fix)wy,wMagic,0,2*DAMAGE_MULTIPLIER,dir));
-      if (get_bit(quest_rules,qr_MAGICWAND))
-        game.magic-=(WANDDRAINAMOUNT*game.magicdrainrate);
-      sfx(WAV_WAND,pan(wx));
+    if(Lwpns.idCount(wMagic))
+      return false;
+    if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
+       ((get_gamedata_magic(game)+get_gamedata_dmagic(game))<WANDDRAINAMOUNT*get_gamedata_magicdrainrate(game))&&
+       ((get_bit(quest_rules,qr_MAGICWAND))))
+      return false;
+    if(Lwpns.idCount(wBeam))
+      Lwpns.del(Lwpns.idFirst(wBeam));
+    Lwpns.add(new weapon((fix)wx,(fix)wy,wMagic,0,2*DAMAGE_MULTIPLIER,dir));
+    if (get_bit(quest_rules,qr_MAGICWAND))
+      change_gamedata_magic(game, -(WANDDRAINAMOUNT*get_gamedata_magicdrainrate(game)));
+    sfx(WAV_WAND,pan(wx));
 
-      /* Fireball Wand
-        Lwpns.add(new weapon((fix)wx,(fix)wy,ewFireball,0,2*DAMAGE_MULTIPLIER,dir));
-        switch (dir) {
-          case up:
-            Lwpns.spr(Lwpns.Count()-1)->angle=-PI/2;
-            Lwpns.spr(Lwpns.Count()-1)->dir=up;
-            break;
-          case down:
-            Lwpns.spr(Lwpns.Count()-1)->angle=PI/2;
-            Lwpns.spr(Lwpns.Count()-1)->dir=down;
-            break;
+    /*
+      //    Fireball Wand
+      Lwpns.add(new weapon((fix)wx,(fix)wy,wRefFireball,0,2*DAMAGE_MULTIPLIER,dir));
+      switch (dir) {
+      case up:
+      Lwpns.spr(Lwpns.Count()-1)->angle=-PI/2;
+      Lwpns.spr(Lwpns.Count()-1)->dir=up;
+      break;
+      case down:
+      Lwpns.spr(Lwpns.Count()-1)->angle=PI/2;
+      Lwpns.spr(Lwpns.Count()-1)->dir=down;
+      break;
       case left:
       Lwpns.spr(Lwpns.Count()-1)->angle=PI;
       Lwpns.spr(Lwpns.Count()-1)->dir=left;
@@ -2145,216 +2642,213 @@ bool LinkClass::startwpn(int wpn)                           // an item index
       Lwpns.spr(Lwpns.Count()-1)->dir=right;
       break;
       }
-      Lwpns.spr(Lwpns.Count()-1)->id=wRefFireball;
       Lwpns.spr(Lwpns.Count()-1)->clk=16;
       ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step=3.5;
       Lwpns.spr(Lwpns.Count()-1)->dummy_bool[0]=true; //homing
-      if (get_bit(quest_rules,qr_MAGICWAND))
-      game.magic-=(WANDDRAINAMOUNT*game.magicdrainrate);
-      sfx(WAV_WAND,pan(wx));
       */
-      break;
+    break;
 
     case iSword:
-      if(Lwpns.idCount(wBeam)||Lwpns.idCount(wMagic))
-        return false;
-      //  Lwpns.add(new weapon(wx,wy,wBeam,0,((get_bit(quest_rules,qr_BEAMHALFPWR))?1:2)<<(game.sword-1),dir));
-      //  ((x<<z)>>y)
-      //  ((DAMAGE_MULTIPLIER<<(game.sword-1))>>(get_bit(quest_rules,qr_BEAMHALFPWR)))
-      //  x=DAMAGE_MULTIPLIER
-      //  y=(game.sword-1)
-      //  z=(get_bit(quest_rules,qr_BEAMHALFPWR))
-
-
-      //  Lwpns.add(new weapon(wx,wy,wBeam,0,((DAMAGE_MULTIPLIER<<(game.sword-1))>>(get_bit(quest_rules,qr_BEAMHALFPWR))),dir));
-      float temppower;
-      temppower=DAMAGE_MULTIPLIER<<(current_item(itype_sword,true)-1);
-      temppower=temppower*zinit.beam_power[current_item(itype_sword,true)-1];
-      temppower=temppower/100;
-      Lwpns.add(new weapon((fix)wx,(fix)wy,wBeam,0,int(temppower),dir));
-      sfx(WAV_BEAM,pan(wx));
-      break;
+    if(Lwpns.idCount(wBeam)||Lwpns.idCount(wMagic))
+      return false;
+    float temppower;
+    temppower=DAMAGE_MULTIPLIER<<(current_item(itype_sword,true)-1);
+    temppower=temppower*zinit.beam_power[current_item(itype_sword,true)-1];
+    temppower=temppower/100;
+    Lwpns.add(new weapon((fix)wx,(fix)wy,wBeam,0,int(temppower),dir));
+    sfx(WAV_BEAM,pan(wx));
+    break;
 
     case iBCandle: if(didstuff&did_candle) return false;
     case iRCandle:
-      if(Lwpns.idCount(wFire)>=2)
-        return false;
-      if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
-        ((game.magic+game.dmagic)<CANDLEDRAINAMOUNT*game.magicdrainrate)&&
-        ((get_bit(quest_rules,qr_MAGICCANDLE))))
-        return false;
-      didstuff|=did_candle;
-      Lwpns.add(new weapon((fix)wx,(fix)wy,wFire,(wpn==iBCandle)?0:1,1*DAMAGE_MULTIPLIER,dir));
-      if (get_bit(quest_rules,qr_MAGICCANDLE))
-        game.magic-=(CANDLEDRAINAMOUNT*game.magicdrainrate);
-      sfx(WAV_FIRE,pan(wx));
-      attack=wFire;
-      break;
+    if(Lwpns.idCount(wFire)>=2)
+      return false;
+    if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
+       ((get_gamedata_magic(game)+get_gamedata_dmagic(game))<CANDLEDRAINAMOUNT*get_gamedata_magicdrainrate(game))&&
+       ((get_bit(quest_rules,qr_MAGICCANDLE))))
+      return false;
+    didstuff|=did_candle;
+    Lwpns.add(new weapon((fix)wx,(fix)wy,wFire,(wpn==iBCandle)?0:1,1*DAMAGE_MULTIPLIER,dir));
+    if (get_bit(quest_rules,qr_MAGICCANDLE))
+      change_gamedata_magic(game, -(CANDLEDRAINAMOUNT*get_gamedata_magicdrainrate(game)));
+    sfx(WAV_FIRE,pan(wx));
+    attack=wFire;
+    break;
 
     case iGArrow:
     case iSArrow:
     case iArrow:
-      if(Lwpns.idCount(wArrow))
+    if(Lwpns.idCount(wArrow))
+      return false;
+    if(get_bit(quest_rules,qr_TRUEARROWS))
+    {
+      if(get_gamedata_arrows(game)<=0)
         return false;
-      if(game.drupy+game.rupies<=0)
+      change_gamedata_arrows(game, -1);
+    }
+    else
+    {
+      if(get_gamedata_drupy(game)+get_gamedata_rupies(game)<=0)
         return false;
-      --game.drupy;
-      Lwpns.add(new weapon((fix)wx,(fix)wy,wArrow,current_item(itype_arrow,true),(1*DAMAGE_MULTIPLIER)<<current_item(itype_arrow,true),dir));
-      ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=current_item(itype_bow,true);
-      sfx(WAV_ARROW,pan(wx));
-      break;
+      change_gamedata_drupy(game, -1);
+    }
+    Lwpns.add(new weapon((fix)wx,(fix)wy,wArrow,current_item(itype_arrow,true),(1*DAMAGE_MULTIPLIER)<<current_item(itype_arrow,true),dir));
+    ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=current_item(itype_bow,true);
+    sfx(WAV_ARROW,pan(wx));
+    break;
 
     case iBait:
-      if(Lwpns.idCount(wBait))
-        return false;
-      if(tmpscr->room==rGRUMBLE && !getmapflag())
+    if(Lwpns.idCount(wBait))
+      return false;
+    if(tmpscr->room==rGRUMBLE && !getmapflag())
+    {
+      items.add(new item((fix)wx,(fix)wy,iBait,ipDUMMY+ipFADE,0));
+      fadeclk=66;
+      msgstr=0;
+      clear_bitmap(msgdisplaybuf);
+      set_clip_state(msgdisplaybuf, 1);
+      clear_bitmap(pricesdisplaybuf);
+      set_clip_state(pricesdisplaybuf, 1);
+      //    putscr(scrollbuf,0,0,tmpscr);
+      setmapflag();
+      game->items[itype_bait]=0;
+      selectBwpn(0,0);
+      if(!nosecretsounds)
       {
-        items.add(new item((fix)wx,(fix)wy,iBait,ipDUMMY+ipFADE,0));
-        fadeclk=66;
-        msgstr=0;
-        clear_bitmap(msgdisplaybuf);
-        set_clip_state(msgdisplaybuf, 1);
-        clear_bitmap(pricesdisplaybuf);
-        set_clip_state(pricesdisplaybuf, 1);
-        //    putscr(scrollbuf,0,0,tmpscr);
-        setmapflag();
-        game.items[itype_bait]=0;
-        selectBwpn(0,0);
-        if(!nosecretsounds)
-        {
-          sfx(WAV_SECRET);
-        }
-        return false;
+        sfx(WAV_SECRET);
       }
-      Lwpns.add(new weapon((fix)wx,(fix)wy,wBait,0,0,dir));
-      break;
+      return false;
+    }
+    Lwpns.add(new weapon((fix)wx,(fix)wy,wBait,0,0,dir));
+    break;
 
     case iBrang:
     case iMBrang:
     case iFBrang:
-      if(Lwpns.idCount(wBrang))
-        return false;
-      Lwpns.add(new weapon((fix)wx,(fix)wy,wBrang,current_item(itype_brang,true),(current_item(itype_brang,true)*DAMAGE_MULTIPLIER),dir));
-      break;
+    if(Lwpns.idCount(wBrang))
+      return false;
+    Lwpns.add(new weapon((fix)wx,(fix)wy,wBrang,current_item(itype_brang,true),(current_item(itype_brang,true)*DAMAGE_MULTIPLIER),dir));
+    break;
 
     case iHookshot:
-      if(Lwpns.idCount(wHookshot))
-        return false;
+    case iLongshot:
+    if(inlikelike || Lwpns.idCount(wHookshot))
+      return false;
+    if (dir==up)
+    {
+      if ((combobuf[MAPCOMBO(x,y-7)].type==cHSGRAB)||
+          (_walkflag(x+2,y+4,1) && !isstepable(MAPCOMBO(int(x),int(y+4)))&&(combobuf[MAPCOMBO(x,y-7)].type!=cHOOKSHOTONLY)))
+      {
+        use_hookshot=false;
+      }
+    }
+
+    if (dir==down)
+    {
+      if (int(x)&8)
+      {
+        if ((combobuf[MAPCOMBO(x+16,y+23)].type==cHSGRAB))
+        {
+          use_hookshot=false;
+        }
+      }
+      else if ((combobuf[MAPCOMBO(x,y+23)].type==cHSGRAB))
+        {
+          use_hookshot=false;
+        }
+    }
+
+    if (dir==left)
+    {
+      if (int(y)&8)
+      {
+        if ((combobuf[MAPCOMBO(x-7,y+16)].type==cHSGRAB))
+        {
+          use_hookshot=false;
+        }
+      }
+      else if ((combobuf[MAPCOMBO(x-7,y)].type==cHSGRAB))
+        {
+          use_hookshot=false;
+        }
+    }
+
+    if (dir==right)
+    {
+      if (int(y)&8)
+      {
+        if ((combobuf[MAPCOMBO(x+23,y+16)].type==cHSGRAB))
+        {
+          use_hookshot=false;
+        }
+      }
+      else if ((combobuf[MAPCOMBO(x+23,y)].type==cHSGRAB))
+        {
+          use_hookshot=false;
+        }
+    }
+
+    if (use_hookshot)
+    {
       if (dir==up)
       {
-        if ((combobuf[MAPDATA(x,y-7)].type==cHSGRAB)||
-          (_walkflag(x+2,y+4,1) && !isstepable(MAPDATA(int(x),int(y+4)))))
-        {
-          use_hookshot=false;
-        }
+        hookshot_used=true;
+        Lwpns.add(new weapon((fix)wx,(fix)wy,wHSHandle,0,DAMAGE_MULTIPLIER,dir));
+        Lwpns.add(new weapon((fix)wx,(fix)wy-4,wHookshot,0,DAMAGE_MULTIPLIER,dir));
+        hs_startx=wx; hs_starty=wy-4;
       }
-
       if (dir==down)
       {
-        if (int(x)&8)
-        {
-          if ((combobuf[MAPDATA(x+16,y+23)].type==cHSGRAB))
-          {
-            use_hookshot=false;
-          }
-        }
-        else if ((combobuf[MAPDATA(x,y+23)].type==cHSGRAB))
-        {
-          use_hookshot=false;
-        }
+        hookshot_used=true;
+        Lwpns.add(new weapon((fix)wx,(fix)wy,wHSHandle,0,DAMAGE_MULTIPLIER,dir));
+        Lwpns.add(new weapon((fix)wx,(fix)wy+4,wHookshot,0,DAMAGE_MULTIPLIER,dir));
+        hs_startx=wx; hs_starty=wy+4;
       }
-
       if (dir==left)
       {
-        if (int(y)&8)
-        {
-          if ((combobuf[MAPDATA(x-7,y+16)].type==cHSGRAB))
-          {
-            use_hookshot=false;
-          }
-        }
-        else if ((combobuf[MAPDATA(x-7,y)].type==cHSGRAB))
-        {
-          use_hookshot=false;
-        }
+        hookshot_used=true;
+        Lwpns.add(new weapon((fix)wx,(fix)wy,wHSHandle,0,DAMAGE_MULTIPLIER,dir));
+        Lwpns.add(new weapon((fix)(wx-4),(fix)wy,wHookshot,0,DAMAGE_MULTIPLIER,dir));
+        hs_startx=wx-4; hs_starty=wy;
       }
-
       if (dir==right)
       {
-        if (int(y)&8)
-        {
-          if ((combobuf[MAPDATA(x+23,y+16)].type==cHSGRAB))
-          {
-            use_hookshot=false;
-          }
-        }
-        else if ((combobuf[MAPDATA(x+23,y)].type==cHSGRAB))
-        {
-          use_hookshot=false;
-        }
+        hookshot_used=true;
+        Lwpns.add(new weapon((fix)wx,(fix)wy,wHSHandle,0,DAMAGE_MULTIPLIER,dir));
+        Lwpns.add(new weapon((fix)(wx+4),(fix)wy,wHookshot,0,DAMAGE_MULTIPLIER,dir));
+        hs_startx=wx+4; hs_starty=wy;
       }
 
-      if (use_hookshot)
-      {
-        if (dir==up)
-        {
-          hookshot_used=true;
-          Lwpns.add(new weapon((fix)wx,(fix)wy,wHSHandle,0,DAMAGE_MULTIPLIER,dir));
-          Lwpns.add(new weapon((fix)wx,(fix)wy-4,wHookshot,0,DAMAGE_MULTIPLIER,dir));
-          hs_startx=wx; hs_starty=wy-4;
-        }
-        if (dir==down)
-        {
-          hookshot_used=true;
-          Lwpns.add(new weapon((fix)wx,(fix)wy,wHSHandle,0,DAMAGE_MULTIPLIER,dir));
-          Lwpns.add(new weapon((fix)wx,(fix)wy+4,wHookshot,0,DAMAGE_MULTIPLIER,dir));
-          hs_startx=wx; hs_starty=wy+4;
-        }
-        if (dir==left)
-        {
-          hookshot_used=true;
-          Lwpns.add(new weapon((fix)wx,(fix)wy,wHSHandle,0,DAMAGE_MULTIPLIER,dir));
-          Lwpns.add(new weapon((fix)(wx-4),(fix)wy,wHookshot,0,DAMAGE_MULTIPLIER,dir));
-          hs_startx=wx-4; hs_starty=wy;
-        }
-        if (dir==right)
-        {
-          hookshot_used=true;
-          Lwpns.add(new weapon((fix)wx,(fix)wy,wHSHandle,0,DAMAGE_MULTIPLIER,dir));
-          Lwpns.add(new weapon((fix)(wx+4),(fix)wy,wHookshot,0,DAMAGE_MULTIPLIER,dir));
-          hs_startx=wx+4; hs_starty=wy;
-        }
-
-        hookshot_frozen=true;
-      }
-      break;
+      hookshot_frozen=true;
+    }
+    break;
     case iDinsFire:
-      if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
-        ((game.magic+game.dmagic)<DINSFIREDRAINAMOUNT*game.magicdrainrate))
-        return false;
-      game.magic-=(DINSFIREDRAINAMOUNT*game.magicdrainrate);
-      action=casting;
-      magictype=mgc_dinsfire;
-      break;
+    if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
+       ((get_gamedata_magic(game)+get_gamedata_dmagic(game))<DINSFIREDRAINAMOUNT*get_gamedata_magicdrainrate(game)))
+      return false;
+    change_gamedata_magic(game, -(DINSFIREDRAINAMOUNT*get_gamedata_magicdrainrate(game)));
+    action=casting;
+    magictype=mgc_dinsfire;
+    break;
     case iFaroresWind:
-      if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
-        ((game.magic+game.dmagic)<FARORESWINDDRAINAMOUNT*game.magicdrainrate))
-        return false;
-      game.magic-=(FARORESWINDDRAINAMOUNT*game.magicdrainrate);
-      action=casting;
-      magictype=mgc_faroreswind;
-      break;
+    if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
+       ((get_gamedata_magic(game)+get_gamedata_dmagic(game))<FARORESWINDDRAINAMOUNT*get_gamedata_magicdrainrate(game)))
+      return false;
+    change_gamedata_magic(game, -(FARORESWINDDRAINAMOUNT*get_gamedata_magicdrainrate(game)));
+    action=casting;
+    magictype=mgc_faroreswind;
+    break;
     case iNayrusLove:
-      if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
-        ((game.magic+game.dmagic)<NAYRUSLOVEDRAINAMOUNT*game.magicdrainrate))
-        return false;
-      game.magic-=(NAYRUSLOVEDRAINAMOUNT*game.magicdrainrate);
-      action=casting;
-      magictype=mgc_nayruslove;
-      break;
+    if((get_bit(quest_rules,qr_ENABLEMAGIC))&&
+       ((get_gamedata_magic(game)+get_gamedata_dmagic(game))<NAYRUSLOVEDRAINAMOUNT*get_gamedata_magicdrainrate(game)))
+      return false;
+    change_gamedata_magic(game, -(NAYRUSLOVEDRAINAMOUNT*get_gamedata_magicdrainrate(game)));
+    action=casting;
+    magictype=mgc_nayruslove;
+    break;
 
     default:
-      return false;
+    return false;
   }
 
   return true;
@@ -2379,15 +2873,15 @@ bool LinkClass::doattack()
     }
   }
   else if(attack!=wWand && attack!=wSword
-    && attack!=wHammer && attackclk>7)
-  {
-    if(DrunkUp()||DrunkDown()||DrunkLeft()||DrunkRight())
+          && attack!=wHammer && attackclk>7)
     {
-      lstep = s;
-      return false;
+      if(DrunkUp()||DrunkDown()||DrunkLeft()||DrunkRight())
+      {
+        lstep = s;
+        return false;
+      }
     }
-  }
-  lstep=0;
+    lstep=0;
   ++attackclk;
   if(attackclk==2 && attack==wBrang)
   {
@@ -2402,7 +2896,7 @@ bool LinkClass::doattack()
     templife=zinit.beam_hearts[current_item(itype_sword,true)-1];
     if (get_bit(&(zinit.beam_percent),(current_item(itype_sword,true)-1)))
     {
-      templife=templife*game.maxlife;
+      templife=templife*get_gamedata_maxlife(game);
       templife=templife/100;
     }
     else
@@ -2410,7 +2904,7 @@ bool LinkClass::doattack()
       templife*=HP_PER_HEART;
     }
 
-    if(attack==wSword && game.life+((HP_PER_HEART/2)-1)>=templife)
+	if(attack==wSword && get_gamedata_life(game)+(get_bit(quest_rules,qr_QUARTERHEART)?((HP_PER_HEART/4)-1):((HP_PER_HEART/2)-1))>=templife)
       startwpn(iSword);
     if(attack==wWand)
       startwpn(iWand);
@@ -2423,7 +2917,7 @@ bool LinkClass::doattack()
 bool LinkClass::can_attack()
 {
   if(action==hopping || action==swimming || action==freeze ||
-    (action==attacking && !get_bit(quest_rules,qr_QUICKSWORD)))
+     (action==attacking && !get_bit(quest_rules,qr_QUICKSWORD)))
   {
     return false;
   }
@@ -2445,12 +2939,12 @@ bool isRaftFlag(int flag)
 
 void do_lens()
 {
-  //  if(cBbtn() && lensclk==0 && (lenscnt > 0 || game.drupy+game.rupies > 0))
-  //  ((get_bit(quest_rules,qr_ENABLEMAGIC))? (game.drupy+game.rupies > 0) : (game.dmagic+game.magic > 0))
+  //  if(cBbtn() && lensclk==0 && (lenscnt > 0 || game->drupy+game->rupies > 0))
+  //  ((get_bit(quest_rules,qr_ENABLEMAGIC))? (game->drupy+game->rupies > 0) : (game->dmagic+game->magic > 0))
   if(DrunkcBbtn() && lensclk==0 && (lenscnt > 0 ||
-    ((get_bit(quest_rules,qr_ENABLEMAGIC)) ?
-    (game.dmagic+game.magic > 0) :
-    (game.drupy+game.rupies > 0))))
+                                    ((get_bit(quest_rules,qr_ENABLEMAGIC)) ?
+                                     (get_gamedata_dmagic(game)+get_gamedata_magic(game) > 0) :
+                                     (get_gamedata_drupy(game)+get_gamedata_rupies(game) > 0))))
   {
     if(lenscnt)
       --lenscnt;
@@ -2460,12 +2954,12 @@ void do_lens()
       {
         if (!(magicdrainclk%LENSDRAINSPEED))
         {
-          game.magic-=LENSDRAINAMOUNT*game.magicdrainrate;
+          change_gamedata_magic(game, -LENSDRAINAMOUNT*get_gamedata_magicdrainrate(game));
         }
       }
       else
       {
-        game.drupy-=LENSDRAINAMOUNT/2;
+        change_gamedata_drupy(game, -LENSDRAINAMOUNT/2);
       }
       lenscnt = 4;
     }
@@ -2483,9 +2977,9 @@ void LinkClass::do_hopping()
     if(diveclk>0)
       --diveclk;
     else if(DrunkrAbtn())
-      diveclk=80;
+        diveclk=80;
 
-    if(!(int(x)&7) && !(int(y)&7))
+      if((!(int(x)&7) && !(int(y)&7)) || get_bit(quest_rules,qr_LTTPWALK))
     {
       action = swimming;
       hopclk = 0;
@@ -2507,30 +3001,187 @@ void LinkClass::do_hopping()
   }
   else                                                      // hopping in or out (need to separate the cases...)
   {
-    if(dir<left ? !(int(x)&7) && !(int(y)&15) : !(int(x)&15) && !(int(y)&7))
+    if(get_bit(quest_rules,qr_LTTPWALK))
     {
-      action = none;
-      hopclk = 0;
-      diveclk = 0;
-      if(iswater(MAPDATA(int(x),int(y)+8)))
+      if(hopclk==1) //hopping out
       {
-        // hopped in
-        action = swimming;
+        int lc = get_bit(quest_rules, qr_LTTPCOLLISION);
+        landswim=0;
+        if(dir==up)
+        {
+          linkstep();
+          linkstep();
+          int sidestep=0;
+          if(iswater(MAPCOMBO(x,y+(lc?0:8)-1)) && !iswater(MAPCOMBO(x+8,y+(lc?0:8)-1)) && !iswater(MAPCOMBO(x+15,y+(lc?0:8)-1)))
+            sidestep=1;
+          else if(!iswater(MAPCOMBO(x,y+(lc?0:8)-1)) && !iswater(MAPCOMBO(x+7,y+(lc?0:8)-1)) && iswater(MAPCOMBO(x+15,y+(lc?0:8)-1)))
+              sidestep=2;
+            if(sidestep==1) x++;
+          else if(sidestep==2) x--;
+            else y--;
+          if(!iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&!iswater(MAPCOMBO(int(x),int(y)+15)))
+          {
+            hopclk=0; diveclk=0; action=none;
+          }
+        }
+        if(dir==down)
+        {
+          linkstep();
+          linkstep();
+          int sidestep=0;
+          if(iswater(MAPCOMBO(x,y+16)) && !iswater(MAPCOMBO(x+8,y+16)) && !iswater(MAPCOMBO(x+15,y+16)))
+            sidestep=1;
+          else if(!iswater(MAPCOMBO(x,y+16)) && !iswater(MAPCOMBO(x+7,y+16)) && iswater(MAPCOMBO(x+15,y+16)))
+              sidestep=2;
+            if(sidestep==1) x++;
+          else if(sidestep==2) x--;
+            else y++;
+          if(!iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&!iswater(MAPCOMBO(int(x),int(y)+15)))
+          {
+            hopclk=0; diveclk=0; action=none;
+          }
+        }
+        if(dir==left)
+        {
+          linkstep();
+          linkstep();
+          int sidestep=0;
+          if(iswater(MAPCOMBO(x-1,y+(lc?0:8))) && !iswater(MAPCOMBO(x-1,y+(lc?8:12))) && !iswater(MAPCOMBO(x-1,y+15)))
+            sidestep=1;
+          else if(!iswater(MAPCOMBO(x-1,y+(lc?0:8))) && !iswater(MAPCOMBO(x-1,y+(lc?7:11))) && iswater(MAPCOMBO(x-1,y+15)))
+              sidestep=2;
+            if(sidestep==1) y++;
+          else if(sidestep==2) y--;
+            else x--;
+          if(!iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&!iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+          {
+            hopclk=0; diveclk=0; action=none;
+          }
+        }
+        if(dir==right)
+        {
+          linkstep();
+          linkstep();
+          int sidestep=0;
+          if(iswater(MAPCOMBO(x+16,y+(lc?0:8))) && !iswater(MAPCOMBO(x+16,y+(lc?8:12))) && !iswater(MAPCOMBO(x+16,y+15)))
+            sidestep=1;
+          else if(!iswater(MAPCOMBO(x+16,y+(lc?0:8))) && !iswater(MAPCOMBO(x+16,y+(lc?7:11))) && iswater(MAPCOMBO(x+16,y+15)))
+              sidestep=2;
+            if(sidestep==1) y++;
+          else if(sidestep==2) y--;
+            else x++;
+          if(!iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&!iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+          {
+            hopclk=0; diveclk=0; action=none;
+          }
+        }
       }
+
+      if(hopclk==2) //hopping in
+      {
+        int lc=get_bit(quest_rules,qr_LTTPCOLLISION);
+        landswim=0;
+        if(dir==up)
+        {
+          linkstep();
+          linkstep();
+          int sidestep=0;
+          if(!iswater(MAPCOMBO(x,y+(lc?0:8)-1)) && iswater(MAPCOMBO(x+8,y+(lc?0:8)-1)) && iswater(MAPCOMBO(x+15,y+(lc?0:8)-1)))
+            sidestep=1;
+          else if(iswater(MAPCOMBO(x,y+(lc?0:8)-1)) && iswater(MAPCOMBO(x+7,y+(lc?0:8)-1)) && !iswater(MAPCOMBO(x+15,y+(lc?0:8)-1)))
+              sidestep=2;
+            if(sidestep==1) x++;
+          else if(sidestep==2) x--;
+            else y--;
+          if(iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&iswater(MAPCOMBO(int(x),int(y)+15)))
+          {
+            hopclk=0xFF; diveclk=0; action=swimming;
+          }
+        }
+        if(dir==down)
+        {
+          linkstep();
+          linkstep();
+          int sidestep=0;
+          if(!iswater(MAPCOMBO(x,y+16)) && iswater(MAPCOMBO(x+8,y+16)) && iswater(MAPCOMBO(x+15,y+16)))
+            sidestep=1;
+          else if(iswater(MAPCOMBO(x,y+16)) && iswater(MAPCOMBO(x+7,y+16)) && !iswater(MAPCOMBO(x+15,y+16)))
+              sidestep=2;
+            if(sidestep==1) x++;
+          else if(sidestep==2) x--;
+            else y++;
+          if(iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&iswater(MAPCOMBO(int(x),int(y)+15)))
+          {
+            hopclk=0xFF; diveclk=0; action=swimming;
+          }
+        }
+        if(dir==left)
+        {
+          linkstep();
+          linkstep();
+          int sidestep=0;
+          if(!iswater(MAPCOMBO(x-1,y+(lc?0:8))) && iswater(MAPCOMBO(x-1,y+(lc?8:12))) && iswater(MAPCOMBO(x-1,y+15)))
+            sidestep=1;
+          else if(iswater(MAPCOMBO(x-1,y+(lc?0:8))) && iswater(MAPCOMBO(x-1,y+(lc?7:11))) && !iswater(MAPCOMBO(x-1,y+15)))
+              sidestep=2;
+            if(sidestep==1) y++;
+          else if(sidestep==2) y--;
+            else x--;
+          if(iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+          {
+            hopclk=0xFF; diveclk=0; action=swimming;
+          }
+        }
+        if(dir==right)
+        {
+          linkstep();
+          linkstep();
+          int sidestep=0;
+          if(!iswater(MAPCOMBO(x+16,y+(lc?0:8))) && iswater(MAPCOMBO(x+16,y+(lc?8:12))) && iswater(MAPCOMBO(x+16,y+15)))
+            sidestep=1;
+          else if(iswater(MAPCOMBO(x+16,y+(lc?0:8))) && iswater(MAPCOMBO(x+16,y+(lc?7:11))) && !iswater(MAPCOMBO(x+16,y+15)))
+              sidestep=2;
+            if(sidestep==1) y++;
+          else if(sidestep==2) y--;
+            else x++;
+          if(iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+          {
+            hopclk=0xFF; diveclk=0; action=swimming;
+          }
+        }
+      }
+
     }
     else
     {
-      linkstep();
-      linkstep();
-      int xofs = int(x)&15;
-      int yofs = int(y)&15;
-      int s = 1 + (frame&1);
-      switch(dir)
+      //if(dir<left ? get_bit(quest_rules,qr_LTTPWALK)?1:!(int(x)&7) && !(int(y)&15) : !(int(x)&15) && get_bit(quest_rules,qr_LTTPWALK)?1:!(int(y)&7))
+      if(dir<left ? !(int(x)&7) && !(int(y)&15) : !(int(x)&15) && !(int(y)&7))
       {
-        case up:    if(yofs<3 || yofs>13) --y; else y-=s; break;
-        case down:  if(yofs<3 || yofs>13) ++y; else y+=s; break;
-        case left:  if(xofs<3 || xofs>13) --x; else x-=s; break;
-        case right: if(xofs<3 || xofs>13) ++x; else x+=s; break;
+        action = none;
+        hopclk = 0;
+        diveclk = 0;
+        if(iswater(MAPCOMBO(int(x),int(y)+8)))
+        {
+          // hopped in
+          action = swimming;
+        }
+      }
+      else
+      {
+        linkstep();
+        linkstep();
+        if(++link_count>16)
+          link_count=0;
+        int xofs = int(x)&15;
+        int yofs = int(y)&15;
+        int s = 1 + (frame&1);
+        switch(dir)
+        {
+          case up:    if(yofs<3 || yofs>13) --y; else y-=s; break;
+          case down:  if(yofs<3 || yofs>13) ++y; else y+=s; break;
+          case left:  if(xofs<3 || xofs>13) --x; else x-=s; break;
+          case right: if(xofs<3 || xofs>13) ++x; else x+=s; break;
+        }
       }
     }
   }
@@ -2545,61 +3196,93 @@ void LinkClass::do_rafting()
   linkstep();
   if(!(int(x)&15) && !(int(y)&15))
   {
-    if(MAPFLAG(x,y)==mfRAFT_BRANCH)
+    if((MAPFLAG(x,y)==mfRAFT_BRANCH||MAPCOMBOFLAG(x,y)==mfRAFT_BRANCH))
     {
-      if(dir!=down && DrunkUp() && isRaftFlag(nextflag(x,y,up)))
+      if(dir!=down && DrunkUp() && (isRaftFlag(nextflag(x,y,up,false))||isRaftFlag(nextflag(x,y,up,true))))
       {
         dir = up;
         goto skip;
       }
-      if(dir!=up && DrunkDown() && isRaftFlag(nextflag(x,y,down)))
+      if(dir!=up && DrunkDown() && (isRaftFlag(nextflag(x,y,down,false))||isRaftFlag(nextflag(x,y,down,true))))
       {
         dir = down;
         goto skip;
       }
-      if(dir!=right && DrunkLeft() && isRaftFlag(nextflag(x,y,left)))
+      if(dir!=right && DrunkLeft() && (isRaftFlag(nextflag(x,y,left,false))||isRaftFlag(nextflag(x,y,left,true))))
       {
         dir = left;
         goto skip;
       }
-      if(dir!=left && DrunkRight() && isRaftFlag(nextflag(x,y,right)))
+      if(dir!=left && DrunkRight() && (isRaftFlag(nextflag(x,y,right,false))||isRaftFlag(nextflag(x,y,right,true))))
       {
         dir = right;
         goto skip;
       }
     }
 
-    if(!isRaftFlag(nextflag(x,y,dir)))
+    if(!isRaftFlag(nextflag(x,y,dir,false))&&!isRaftFlag(nextflag(x,y,dir,true)))
     {
       if(dir<left)
       {
-        if(isRaftFlag(nextflag(x,y,right)))
+        if((isRaftFlag(nextflag(x,y,right,false))||isRaftFlag(nextflag(x,y,right,true))))
           dir=right;
-        else if(isRaftFlag(nextflag(x,y,left)))
-          dir=left;
-        else if(y>0 && y<160)
-          action=none;
+        else if((isRaftFlag(nextflag(x,y,left,false))||isRaftFlag(nextflag(x,y,left,true))))
+            dir=left;
+          else if(y>0 && y<160)
+              action=none;
       }
       else
       {
-        if(isRaftFlag(nextflag(x,y,down)))
+        if((isRaftFlag(nextflag(x,y,down,false))||isRaftFlag(nextflag(x,y,down,true))))
           dir=down;
-        else if(isRaftFlag(nextflag(x,y,up)))
-          dir=up;
-        else if(x>0 && x<240)
-          action=none;
+        else if((isRaftFlag(nextflag(x,y,up,false))||isRaftFlag(nextflag(x,y,up,true))))
+            dir=up;
+          else if(x>0 && x<240)
+              action=none;
       }
     }
   }
 
-  skip:
+skip:
 
   switch(dir)
   {
-    case up:    --y; break;
-    case down:  ++y; break;
-    case left:  --x; break;
-    case right: ++x; break;
+    case up:
+    if(int(x)&15)
+    {
+      if(int(x)&8)
+        x++;
+      else x--;
+    }
+    else	--y;
+    break;
+    case down:
+    if(int(x)&15)
+    {
+      if(int(x)&8)
+        x++;
+      else x--;
+    }
+    else ++y;
+    break;
+    case left:
+    if(int(y)&15)
+    {
+      if(int(y)&8)
+        y++;
+      else y--;
+    }
+    else --x;
+    break;
+    case right:
+    if(int(y)&15)
+    {
+      if(int(y)&8)
+        y++;
+      else y--;
+    }
+    else ++x;
+    break;
   }
 }
 
@@ -2615,16 +3298,22 @@ void LinkClass::movelink()
     --diveclk;
   }
   else if(action==swimming)
-  {
-    if(DrunkrAbtn())
-      diveclk=80;
-  }
+    {
+      bool global_diving=(get_bit(quest_rules,qr_NODIVING) != 0);
+      bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
+      if(DrunkrAbtn()&&(global_diving==screen_diving))
+      {
+        diveclk=80;
+      }
+    }
 
-  if(action==rafting)
+    if(action==rafting)
   {
     do_rafting();
     if(action==rafting)
+    {
       return;
+    }
   }
 
   if(can_attack() && current_item(itype_sword,true)>0 && swordclk==0 && DrunkrAbtn())
@@ -2649,96 +3338,96 @@ void LinkClass::movelink()
   {
     do_lens();
     /* flamethrower
-     } else if((Bwpn==iBCandle)||(Bwpn==iRCandle)) {
-       if (!(frame%4)) {
+      } else if((Bwpn==iBCandle)||(Bwpn==iRCandle)) {
+      if (!(frame%4)) {
 
-         if(can_attack() && itemclk==0 && DrunkcBbtn()) {
-           if(!((get_bit(quest_rules,qr_ENABLEMAGIC))&&
-              ((game.magic+game.dmagic)<CANDLEDRAINAMOUNT*game.magicdrainrate)&&
-              ((get_bit(quest_rules,qr_MAGICCANDLE))))) {
-             didstuff|=did_candle;
-             Lwpns.add(new weapon((fix)wx,(fix)wy,wFire,4,4*DAMAGE_MULTIPLIER,0));
-             if (!(frame%24)&&(get_bit(quest_rules,qr_MAGICCANDLE))) {
-               game.magic-=(CANDLEDRAINAMOUNT*game.magicdrainrate);
-    }
-    sfx(WAV_FIRE,pan(wx));
-    //         action=attacking;
-    attackclk=0;
-    attack=wFire;
+      if(can_attack() && itemclk==0 && DrunkcBbtn()) {
+      if(!((get_bit(quest_rules,qr_ENABLEMAGIC))&&
+      ((game->magic+game->dmagic)<CANDLEDRAINAMOUNT*game->magicdrainrate)&&
+      ((get_bit(quest_rules,qr_MAGICCANDLE))))) {
+      didstuff|=did_candle;
+      Lwpns.add(new weapon((fix)wx,(fix)wy,wFire,4,4*DAMAGE_MULTIPLIER,0));
+      if (!(frame%24)&&(get_bit(quest_rules,qr_MAGICCANDLE))) {
+      game->magic-=(CANDLEDRAINAMOUNT*game->magicdrainrate);
+      }
+      sfx(WAV_FIRE,pan(wx));
+      //         action=attacking;
+      attackclk=0;
+      attack=wFire;
 
-    int i=Lwpns.Count()-1;
-    weapon *lw = (weapon*)(Lwpns.spr(i));
-    if (wpnsbuf[wFIRE].frames>1) {
-    lw->aframe=rand()%wpnsbuf[wFIRE].frames;
-    } else {
-    lw->flip=rand()%2;
-    }
-    lw->angular=true;
-    if     (dir==up)           lw->angle=-PI/2;
-    else if(dir==down)         lw->angle=PI/2;
-    else if(dir==left)         lw->angle=PI;
-    else if(dir==right)        lw->angle=0;
+      int i=Lwpns.Count()-1;
+      weapon *lw = (weapon*)(Lwpns.spr(i));
+      if (wpnsbuf[wFIRE].frames>1) {
+      lw->aframe=rand()%wpnsbuf[wFIRE].frames;
+      } else {
+      lw->flip=rand()%2;
+      }
+      lw->angular=true;
+      if     (dir==up)           lw->angle=-PI/2;
+      else if(dir==down)         lw->angle=PI/2;
+      else if(dir==left)         lw->angle=PI;
+      else if(dir==right)        lw->angle=0;
 
-    lw->angle+=((double)(rand()%64)/64)-.325;
+      lw->angle+=((double)(rand()%64)/64)-.325;
 
-    if(lw->angle==-PI || lw->angle==PI) lw->dir=left;
-    else if(lw->angle==-PI/2) lw->dir=up;
-    else if(lw->angle==PI/2)  lw->dir=down;
-    else if(lw->angle==0)     lw->dir=right;
-    else if(lw->angle<-PI/2)  lw->dir=l_up;
-    else if(lw->angle<0)      lw->dir=r_up;
-    else if(lw->angle>PI/2)   lw->dir=l_down;
-    else                      lw->dir=r_down;
+      if(lw->angle==-PI || lw->angle==PI) lw->dir=left;
+      else if(lw->angle==-PI/2) lw->dir=up;
+      else if(lw->angle==PI/2)  lw->dir=down;
+      else if(lw->angle==0)     lw->dir=right;
+      else if(lw->angle<-PI/2)  lw->dir=l_up;
+      else if(lw->angle<0)      lw->dir=r_up;
+      else if(lw->angle>PI/2)   lw->dir=l_down;
+      else                      lw->dir=r_down;
 
-    lw->step=2;
-    if (Bwpn==iRCandle) {
-    lw->step=3;
-    }
-    lw->clk=rand()%32;
+      lw->step=2;
+      if (Bwpn==iRCandle) {
+      lw->step=3;
+      }
+      lw->clk=rand()%32;
 
-    for(int j=Lwpns.Count()-1; j>0; j--) {
-    Lwpns.swap(j,j-1);
-    }
-    }
-    }
-    }
-    */
+      for(int j=Lwpns.Count()-1; j>0; j--) {
+      Lwpns.swap(j,j-1);
+      }
+      }
+      }
+      }
+      */
   }
   else if(can_attack() && itemclk==0 && DrunkrBbtn())
-  {
-    if(Bwpn==iWand)
     {
-      action=attacking;
-      attack=wWand;
-      attackclk=0;
-    }
-//    else if(Bwpn==iHammer)
-    else if((Bwpn==iHammer)&&!(action==attacking && attack==wHammer))
-    {
-      action=attacking;
-      attack=wHammer;
-      attackclk=0;
-    }
-    else if(startwpn(Bwpn))
-    {
-      if (action==casting)
-      {
-        return;
-      }
-      else
+      if(Bwpn==iWand)
       {
         action=attacking;
+        attack=wWand;
         attackclk=0;
-        attack=none;
-        if(Bwpn==iBrang || Bwpn==iMBrang || Bwpn==iFBrang)
-        {
-          attack=wBrang;
-        }
       }
+      //    else if(Bwpn==iHammer)
+      else if((Bwpn==iHammer)&&!(action==attacking && attack==wHammer))
+        {
+          action=attacking;
+          attack=wHammer;
+          attackclk=0;
+        }
+        else if(startwpn(Bwpn))
+          {
+            if (action==casting)
+            {
+              return;
+            }
+            else
+            {
+              action=attacking;
+              attackclk=0;
+              attack=none;
+              if(Bwpn==iBrang || Bwpn==iMBrang || Bwpn==iFBrang)
+              {
+                attack=wBrang;
+              }
+            }
+          }
     }
-  }
 
-  if(attackclk || action==attacking)
+    if(attackclk || action==attacking)
   {
     if(!inlikelike && attackclk>4 && (attackclk&3)==0)
     {
@@ -2764,53 +3453,104 @@ void LinkClass::movelink()
     if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep)
     {
       action=none;
+      link_count=-1;
       return;
     }
     autostep=false;
-    if(xoff||yoff)
+
+    if(!(get_bit(quest_rules, qr_LTTPWALK)))
     {
-      if(dir==up)
+      //if (xoff||yoff)
+      //{
+
+      /*if(get_bit(quest_rules, qr_LTTPWALK))
+        {
+        if(dir==up)
+        {
+        if(int(x)&7)
+        {
+        if(!walkflag(x, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1, 2, up))
+        {
+        if(!walkflag(x+8, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1, 2, up))
+        {
+        if(walkflag(x+15, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1, 2, up))
+        {
+        if(shift==1)*/
+
+
+      if(dir==up&&yoff)
       {
-        // int xstep=(lsteps[int(x)&7]);
-        // int ystep=lsteps[int(y)&7];
         if(int(x)&8)
         {
-          if(!walkflag(x,y+8-(lsteps[int(y)&7]),2,up))
+          if(!walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up))
+          {
             move(up);
-          else action=none;
+          }
+          else
+          {
+            action=none;
+          }
         }
-        //       else if(!walkflag(x+8,y+9,1,up))
-        else if(!walkflag(x,y+8-(lsteps[int(y)&7]),2,up))
-          move(up);
-        else action=none;
+        else if(!walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up))
+          {
+            move(up);
+          }
+          else
+          {
+            action=none;
+          }
+        return;
       }
-      if(dir==down)
+      if(dir==down&&yoff)
       {
         if(int(x)&8)
         {
-          if(!walkflag(x,y+15+(lsteps[int(y)&7]),2,down))
+          if(!walkflag(x,y+15+int(lsteps[int(y)&7]),2,down))
+          {
             move(down);
-          else action=none;
+          }
+          else
+          {
+            action=none;
+          }
         }
-        //       else if(!walkflag(x+8,y+16,1,down))
-        else if(!walkflag(x,y+15+(lsteps[int(y)&7]),2,down))
-          move(down);
-        else action=none;
+        else if(!walkflag(x,y+15+int(lsteps[int(y)&7]),2,down))
+          {
+            move(down);
+          }
+          else
+          {
+            action=none;
+          }
+        return;
       }
-      if(dir==left)
+      if(dir==left&&xoff)
       {
-        if(!walkflag(x-(lsteps[int(x)&7]),y+8,1,left))
+        if(!walkflag(x-int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left)&&!walkflag(x-int(lsteps[int(x)&7]),y+8,1,left))
+        {
           move(left);
-        else action=none;
+        }
+        else
+        {
+          action=none;
+        }
+        return;
       }
-      if(dir==right)
+      if(dir==right&&xoff)
       {
-        if(!walkflag(x+15+(lsteps[int(x)&7]),y+8,1,right))
+        if(!walkflag(x+15+int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right)&&!walkflag(x+15+int(lsteps[int(x)&7]),y+8,1,right))
+        {
           move(right);
-        else action=none;
+        }
+        else
+        {
+          action=none;
+        }
+        return;
       }
-      return;
     }
+    //return;
+    //}
   }
 
   if((action!=swimming)&&(action!=casting))
@@ -2818,16 +3558,464 @@ void LinkClass::movelink()
     action=none;
   }
 
+  if(get_bit(quest_rules, qr_LTTPWALK))
+  {
+    switch(holddir)
+    {
+      case up:
+      if(!Up()) holddir=-1; break;
+      case down:
+      if(!Down()) holddir=-1; break;
+      case left:
+      if(!Left()) holddir=-1; break;
+      case right:
+      if(!Right()) holddir=-1; break;
+      default:
+      break;
+    }
+
+    if(DrunkUp()&&(holddir==-1||holddir==up))
+    {
+
+      if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM))
+      {
+
+      }
+      else
+      {
+
+        dir=up;
+        holddir=up;
+
+
+        if(DrunkRight()&&shiftdir!=left)
+        {
+          shiftdir=right;
+        }
+        else if(DrunkLeft()&&shiftdir!=right)
+          {
+            shiftdir=left;
+          }
+          else shiftdir=-1;
+
+        //bool walkable;
+        if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,2,up)||(int(x)&7?walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,1,up):0)) {
+          if(z3step==2) {
+            z3step=1;
+            if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,2,up)||(int(x)&7?walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,1,up):0))
+              walkable = false;
+            else walkable=true;
+          }
+          else walkable=false;
+        }
+        else walkable = true;
+
+        int s=shiftdir;
+        if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
+        {
+          shiftdir=-1;
+        }
+        else
+        {
+          if(s==left) {
+            if(walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-1,y+15,1,left))
+              shiftdir=-1;
+            else if(walkable)
+                if(walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,left))
+                  shiftdir=-1;
+          }
+          else if(s==right) {
+              if(walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+16,y+15,1,right))
+                shiftdir=-1;
+              else if(walkable)
+                  if(walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,right))
+                    shiftdir=-1;
+            }
+        }
+        move(up);
+        shiftdir=s;
+
+        if(!walkable)
+        {
+          if(shiftdir==-1)
+          {
+            if(!walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up)&&
+               !walkflag(x+8,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up)&&
+               walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+            {
+              sprite::move((fix)-1,(fix)0);
+            }
+            else if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up)&&
+                    !walkflag(x+7,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up)&&
+                    !walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+              {
+                sprite::move((fix)1,(fix)0);
+              }
+              else if(shiftdir==-1)
+                {
+                  pushing=push+1;
+                  if(action!=swimming)
+                  {
+                    //linkstep();
+                    //if(++link_count > 16)
+                    //link_count=0;
+                  }
+                }
+                z3step=2;
+          }
+          else
+          {
+            if(action!=swimming)
+            {
+              //linkstep();
+              //if(++link_count > 16)
+              //link_count=0;
+            }
+            z3step=2;
+          }
+        }
+        return;
+      }
+    }
+
+    if(DrunkDown()&&(holddir==-1||holddir==down))
+    {
+
+      if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM))
+      {
+      }
+      else
+      {
+
+        dir=down;
+        holddir=down;
+
+
+        if(DrunkRight()&&shiftdir!=left)
+        {
+          shiftdir=right;
+        }
+        else if(DrunkLeft()&&shiftdir!=right)
+          {
+            shiftdir=left;
+          }
+          else shiftdir=-1;
+
+        //bool walkable;
+        if(walkflag(x,y+15+z3step,2,down)||(int(x)&7?walkflag(x+16,y+15+z3step,1,down):0)) {
+          if(z3step==2) {
+            z3step=1;
+            if(walkflag(x,y+15+z3step,2,down)||(int(x)&7?walkflag(x+16,y+15+z3step,1,down):0))
+              walkable = false;
+            else walkable=true;
+          }
+          else walkable=false;
+        }
+        else walkable = true;
+
+        int s=shiftdir;
+        if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
+        {
+          shiftdir=-1;
+        }
+        else
+        {
+          if(s==left) {
+            if(walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-1,y+15,1,left))
+              shiftdir=-1;
+            else if(walkable)
+                if(walkflag(x-1,y+16,1,left))
+                  shiftdir=-1;
+          }
+          else if(s==right) {
+              if(walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+16,y+15,1,right))
+                shiftdir=-1;
+              else if(walkable)
+                  if(walkflag(x+16,y+16,1,right))
+                    shiftdir=-1;
+            }
+        }
+        move(down);
+        shiftdir=s;
+
+        if(!walkable)
+        {
+          if(shiftdir==-1)
+          {
+            if(!walkflag(x,y+15+1,1,down)&&
+               !walkflag(x+8,y+15+1,1,down)&&
+               walkflag(x+15,y+15+1,1,down))
+            {
+              sprite::move((fix)-1,(fix)0);
+            }
+            else if(walkflag(x,y+15+1,1,down)&&
+                    !walkflag(x+7,y+15+1,1,down)&&
+                    !walkflag(x+15,y+15+1,1,down))
+              {
+                sprite::move((fix)1,(fix)0);
+              }
+              else if(shiftdir==-1)
+                {
+                  pushing=push+1;
+                  if(action!=swimming)
+                  {
+                    //linkstep();
+                    //if(++link_count > 16)
+                    //link_count=0;
+                  }
+                }
+                z3step=2;
+          }
+          else
+          {
+            if(action!=swimming)
+            {
+              //linkstep();
+              //if(++link_count > 16)
+              //link_count=0;
+            }
+            z3step=2;
+          }
+        }
+        return;
+      }
+    }
+
+    if(DrunkLeft()&&(holddir==-1||holddir==left))
+    {
+
+      if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
+      {
+      }
+      else
+      {
+        dir=left;
+        holddir=left;
+
+
+        if(DrunkUp()&&shiftdir!=down)
+        {
+          shiftdir=up;
+        }
+        else if(DrunkDown()&&shiftdir!=up)
+          {
+            shiftdir=down;
+          }
+          else shiftdir=-1;
+
+        //bool walkable;
+        if(walkflag(x-z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-z3step,y+8,1,left)||(int(y)&7?walkflag(x-z3step,y+16,1,left):0)) {
+          if(z3step==2) {
+            z3step=1;
+            if(walkflag(x-z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-z3step,y+8,1,left)||(int(y)&7?walkflag(x-z3step,y+16,1,left):0))
+              walkable = false;
+            else walkable=true;
+          }
+          else walkable=false;
+        }
+        else walkable = true;
+
+        int s=shiftdir;
+        if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM))
+        {
+          shiftdir=-1;
+        }
+        else
+        {
+          if(s==up) {
+            if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,2,up)||walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+              shiftdir=-1;
+            else if(walkable)
+                if(walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+                  shiftdir=-1;
+          }
+          else if(s==down) {
+              if(walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down))
+                shiftdir=-1;
+              else if(walkable)
+                  if(walkflag(x-1,y+16,1,down))
+                    shiftdir=-1;
+            }
+        }
+        move(left);
+        shiftdir=s;
+
+        if(!walkable)
+        {
+          if(shiftdir==-1) {
+            int v1=get_bit(quest_rules,qr_LTTPCOLLISION)?0:8;
+            int v2=get_bit(quest_rules,qr_LTTPCOLLISION)?8:12;
+            if(!walkflag(x-1,y+v1,1,left)&&
+               !walkflag(x-1,y+v2,1,left)&&
+               walkflag(x-1,y+15,1,left))
+            {
+              sprite::move((fix)0,(fix)-1);
+            }
+            else if(walkflag(x-1,y+v1,1,left)&&
+                    !walkflag(x-1,y+v2-1,1,left)&&
+                    !walkflag(x-1,y+15,1,left))
+              {
+                sprite::move((fix)0,(fix)1);
+              }
+              else if(shiftdir==-1)
+                {
+                  pushing=push+1;
+                  if(action!=swimming)
+                  {
+                    //linkstep();
+                    //if(++link_count > 16)
+                    //link_count=0;
+                  }
+                }
+                z3step=2;
+          }
+          else
+          {
+            if(action!=swimming)
+            {
+              //linkstep();
+              //if(++link_count > 16)
+              //link_count=0;
+            }
+            z3step=2;
+          }
+        }
+        return;
+      }
+    }
+
+    if(DrunkRight()&&(holddir==-1||holddir==right))
+    {
+
+      if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
+      {
+      }
+      else
+      {
+
+        dir=right;
+        holddir=right;
+
+
+        if(DrunkUp()&&shiftdir!=down)
+        {
+          shiftdir=up;
+        }
+        else if(DrunkDown()&&shiftdir!=up)
+          {
+            shiftdir=down;
+          }
+          else shiftdir=-1;
+
+        //bool walkable;
+        if(walkflag(x+15+z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right)||(int(y)&7?walkflag(x+15+z3step,y+16,1,right):0)) {
+          if(z3step==2) {
+            z3step=1;
+            if(walkflag(x+15+z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right)||(int(y)&7?walkflag(x+15+z3step,y+16,1,right):0))
+              walkable = false;
+            else walkable=true;
+          }
+          else walkable=false;
+        }
+        else walkable = true;
+
+        int s=shiftdir;
+        if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM))
+        {
+          shiftdir=-1;
+        }
+        else
+        {
+          if(s==up) {
+            if(walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,2,up)||walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+              shiftdir=-1;
+            else if(walkable)
+                if(walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up))
+                  shiftdir=-1;
+          }
+          else if(s==down) {
+              if(walkflag(x,y+16,2,down)||walkflag(x+15,y+16,1,down))
+                shiftdir=-1;
+              else if(walkable)
+                  if(walkflag(x+16,y+16,1,down))
+                    shiftdir=-1;
+            }
+        }
+        move(right);
+        shiftdir=s;
+
+        if(!walkable)
+        {
+          if(shiftdir==-1)
+          {
+            int v1=get_bit(quest_rules,qr_LTTPCOLLISION)?0:8;
+            int v2=get_bit(quest_rules,qr_LTTPCOLLISION)?8:12;
+            if(!walkflag(x+16,y+v1,1,right)&&
+               !walkflag(x+16,y+v2,1,right)&&
+               walkflag(x+16,y+15,1,right))
+            {
+              sprite::move((fix)0,(fix)-1);
+            }
+            else if(walkflag(x+16,y+v1,1,right)&&
+                    !walkflag(x+16,y+v2-1,1,right)&&
+                    !walkflag(x+16,y+15,1,right))
+              {
+                sprite::move((fix)0,(fix)1);
+              }
+              else //if(shiftdir==-1)
+              {
+                pushing=push+1; z3step=2;
+                if(action!=swimming)
+                {
+                  //linkstep();
+                  //if(++link_count > 16)
+                  //link_count=0;
+                }
+              }
+            z3step=2;
+          }
+          else
+          {
+            if(action!=swimming)
+            {
+              //linkstep();
+              //if(++link_count > 16)
+              //link_count=0;
+            }
+            z3step=2;
+          }
+        }
+        return;
+      }
+    }
+    bool wtry  = iswater(MAPCOMBO(x,y+15));
+    bool wtry8 = iswater(MAPCOMBO(x+15,y+15));
+    bool wtrx = iswater(MAPCOMBO(x,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)));
+    bool wtrx8 = iswater(MAPCOMBO(x+15,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)));
+    if(current_item(itype_flippers,true)&&!(ladderx+laddery))
+    {
+      if(wtrx&&wtrx8&&wtry&&wtry8) {
+        //action=swimming;
+        hopclk = 0xFF;
+      }
+    }
+
+    return;
+  }
+
+
   if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM))
+  {
     goto LEFTRIGHT;
+  }
 
   // make it easier to get in left & right doors
-  if(isdungeon() && DrunkLeft() && x==32 && y==80 && !walkflag(x-(lsteps[int(x)&7]),y+8,1,left))
+  if(isdungeon() && DrunkLeft() && x==32 && y==80 && !walkflag(x-int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left) && !walkflag(x-int(lsteps[int(x)&7]),y+8,1,left))
   {
     move(left);
     return;
   }
-  if(isdungeon() && DrunkRight() && x==208 && y==80 && !walkflag(x+15+(lsteps[int(x)&7]),y+8,1,right))
+  if(isdungeon() && DrunkRight() && x==208 && y==80 && !walkflag(x+15+int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right) && !walkflag(x+15+int(lsteps[int(x)&7]),y+8,1,right))
   {
     move(right);
     return;
@@ -2840,18 +4028,35 @@ void LinkClass::movelink()
       if(dir!=up&&dir!=down)
       {
         if(xoff>2&&xoff<6)
+        {
           move(dir);
+        }
         else if(xoff>=6)
+          {
+            move(right);
+          }
+          else if(xoff>=1)
+            {
+              move(left);
+            }
+      }
+      else
+      {
+        if(xoff>=4)
+        {
           move(right);
-        else if(xoff>=1)
-          move(left);
+        }
+        else if(xoff<4)
+          {
+            move(left);
+          }
       }
     }
     else
     {
       if((isdungeon())||(int(x)&8))
       {
-        if(!walkflag(x,y+8-(lsteps[int(y)&7]),2,up))
+        if(!walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up))
         {
           move(up);
           return;
@@ -2859,8 +4064,7 @@ void LinkClass::movelink()
       }
       else
       {
-        //       if(!walkflag(x,y+7,1,up)) {
-        if(!walkflag(x,y+8-(lsteps[int(y)&7]),2,up))
+        if(!walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up))
         {
           move(up);
           return;
@@ -2872,9 +4076,15 @@ void LinkClass::movelink()
         pushing=push+1;
         dir=up;
         if(action!=swimming)
+        {
           linkstep();
+        }
         return;
-      } else goto LEFTRIGHT;
+      }
+      else
+      {
+        goto LEFTRIGHT;
+      }
     }
     return;
   }
@@ -2888,16 +4098,27 @@ void LinkClass::movelink()
         if(xoff>2&&xoff<6)
           move(dir);
         else if(xoff>=6)
+            move(right);
+          else if(xoff>=1)
+              move(left);
+      }
+      else
+      {
+        if(xoff>=4)
+        {
           move(right);
-        else if(xoff>=1)
-          move(left);
+        }
+        else if(xoff<4)
+          {
+            move(left);
+          }
       }
     }
     else
     {
       if((isdungeon())||(int(x)&8))
       {
-        if(!walkflag(x,y+15+(lsteps[int(y)&7]),2,down))
+        if(!walkflag(x,y+15+int(lsteps[int(y)&7]),2,down))
         {
           move(down);
           return;
@@ -2905,8 +4126,7 @@ void LinkClass::movelink()
       }
       else
       {
-        //       if(!walkflag(x,y+16,1,down)) {
-        if(!walkflag(x,y+15+(lsteps[int(y)&7]),2,down))
+        if(!walkflag(x,y+15+int(lsteps[int(y)&7]),2,down))
         {
           move(down);
           return;
@@ -2917,7 +4137,9 @@ void LinkClass::movelink()
         pushing=push+1;
         dir=down;
         if(action!=swimming)
+        {
           linkstep();
+        }
         return;
       }
       else goto LEFTRIGHT;
@@ -2925,7 +4147,7 @@ void LinkClass::movelink()
     return;
   }
 
-  LEFTRIGHT:
+LEFTRIGHT:
 
   if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
     return;
@@ -2937,25 +4159,46 @@ void LinkClass::movelink()
       if(dir!=left&&dir!=right)
       {
         if(yoff>2&&yoff<6)
+        {
           move(dir);
+        }
         else if(yoff>=6)
+          {
+            move(down);
+          }
+          else if(yoff>=1)
+            {
+              move(up);
+            }
+      }
+      else
+      {
+        if(yoff>=4)
+        {
           move(down);
-        else if(yoff>=1)
-          move(up);
+        }
+        else if(yoff<4)
+          {
+            move(up);
+          }
       }
     }
     else
     {
-      if(!walkflag(x-(lsteps[int(x)&7]),y+8,1,left))
-        move(left);
-      else if( !DrunkUp() && !DrunkDown() )
+      if(!walkflag(x-int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left) && !walkflag(x-int(lsteps[int(x)&7]),y+8,1,left))
       {
-        pushing=push+1;
-        dir=left;
-        if(action!=swimming)
-          linkstep();
-        return;
+        move(left);
       }
+      else if( !DrunkUp() && !DrunkDown() )
+        {
+          pushing=push+1;
+          dir=left;
+          if(action!=swimming)
+          {
+            linkstep();
+          }
+          return;
+        }
     }
     return;
   }
@@ -2967,107 +4210,48 @@ void LinkClass::movelink()
       if(dir!=left&&dir!=right)
       {
         if(yoff>2&&yoff<6)
+        {
           move(dir);
+        }
         else if(yoff>=6)
+          {
+            move(down);
+          }
+          else if(yoff>=1)
+            {
+              move(up);
+            }
+      }
+      else
+      {
+        if(yoff>=4)
+        {
           move(down);
-        else if(yoff>=1)
-          move(up);
+        }
+        else if(yoff<4)
+          {
+            move(up);
+          }
       }
     }
     else
     {
-      if(!walkflag(x+15+(lsteps[int(x)&7]),y+8,1,right))
-        move(right);
-      else if( !DrunkUp() && !DrunkDown() )
+      if(!walkflag((int)x+15+(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right) && !walkflag((int)x+15+(lsteps[int(x)&7]),y+8,1,right))
       {
-        pushing=push+1;
-        dir=right;
-        if(action!=swimming)
-          linkstep();
-        return;
+        move(right);
       }
+      else if( !DrunkUp() && !DrunkDown() )
+        {
+          pushing=push+1;
+          dir=right;
+          if(action!=swimming)
+          {
+            linkstep();
+          }
+          return;
+        }
     }
   }
-
-  /* Use this code for free movement
-   if(Up()) {
-       if((isdungeon())||(int(x)&8)) {
-         if(!walkflag(x,y+7,2,up)) {
-           move(up);
-           return;
-         }
-       } else {
-  //       if(!walkflag(x,y+7,1,up)) {
-         if(!walkflag(x,y+7,2,up)) {
-           move(up);
-  return;
-  }
-  }
-
-  if( !Left() && !Right() ) {
-  pushing=push+1;
-  dir=up;
-  if(action!=swimming)
-  linkstep();
-  return;
-  } else goto LEFTRIGHT;
-  return;
-  }
-
-  if(Down()) {
-  if((isdungeon())||(int(x)&8)) {
-  if(!walkflag(x,y+16,2,down)) {
-  move(down);
-  return;
-  }
-  } else {
-  //       if(!walkflag(x,y+16,1,down)) {
-  if(!walkflag(x,y+16,2,down)) {
-  move(down);
-  return;
-  }
-  }
-  if( !Left() && !Right() ) {
-  pushing=push+1;
-  dir=down;
-  if(action!=swimming)
-  linkstep();
-  return;
-  }
-  else goto LEFTRIGHT;
-  return;
-  }
-
-  LEFTRIGHT:
-
-  if(isdungeon() && (y<=26 || y>=134))
-  return;
-
-  if(Left()) {
-  if(!walkflag(x-1,y+8,1,left))
-  move(left);
-  else if( !Up() && !Down() ) {
-  pushing=push+1;
-  dir=left;
-  if(action!=swimming)
-  linkstep();
-  return;
-  }
-  return;
-  }
-
-  if(Right()) {
-  if(!walkflag(x+16,y+8,1,right))
-  move(right);
-  else if( !Up() && !Down() ) {
-  pushing=push+1;
-  dir=right;
-  if(action!=swimming)
-  linkstep();
-  return;
-  }
-  }
-  */
 
 }
 
@@ -3078,214 +4262,493 @@ void LinkClass::move(int d)
   int dx=0,dy=0;
   int xstep=lsteps[int(x)&7];
   int ystep=lsteps[int(y)&7];
+  int z3skip=0;
   // xstep=ystep=0;
-  if(combobuf[MAPDATA(x+7,y+8)].type==cWALKSLOW)
+  if(combobuf[MAPCOMBO(x+7,y+8)].type==cWALKSLOW)
   {
-    if(d<left)
+    if(get_bit(quest_rules,qr_LTTPWALK))
     {
-      if(ystep>1)
-      {
-        skipstep^=1; ystep=skipstep;
-      }
+      skipstep=(skipstep+1)%4;
+      if(skipstep) z3skip=1; else z3skip=0;
     }
     else
     {
-      if(xstep>1)
+      if(d<left)
       {
-        skipstep^=1; xstep=skipstep;
+        //if(get_bit(quest_rules, qr_LTTPWALK))
+        //{
+
+        if(ystep>1)
+        {
+          skipstep^=1; ystep=skipstep;
+        }
+      }
+      else
+      {
+        if(xstep>1)
+        {
+          skipstep^=1; xstep=skipstep;
+        }
       }
     }
   }
-  switch(d)
+  else
   {
-    case up:    dy-=ystep; break;
-    case down:  dy+=ystep; break;
-    case left:  dx-=xstep; break;
-    case right: dx+=xstep; break;
+    if(get_bit(quest_rules,qr_LTTPWALK))
+    {
+      skipstep=0;
+    }
+  }
+  if(get_bit(quest_rules,qr_LTTPWALK))
+  {
+    switch(d)
+    {
+      case up:
+      if(shiftdir==left) {
+        if(walkable) {
+          dy-=1-z3skip; dx-=1-z3skip; z3step=2; }
+        else { dx-=1-z3skip; z3step=2; }
+      }
+      else if(shiftdir==right) {
+          if(walkable) {
+            dy-=1-z3skip; dx+=1-z3skip; z3step=2; }
+          else {dx+=1-z3skip; z3step=2;}
+        }
+        else {
+          if(walkable) {dy-=z3step-z3skip; z3step=(z3step%2)+1; }
+        }
+      break;
+      case down:
+      if(shiftdir==left) {
+        if(walkable) {
+          dy+=1-z3skip; dx-=1-z3skip; z3step=2; }
+        else { dx-=1-z3skip; z3step=2; }
+      }
+      else if(shiftdir==right) {
+          if(walkable) {
+            dy+=1-z3skip; dx+=1-z3skip; z3step=2; }
+          else {dx+=1-z3skip; z3step=2;}
+        }
+        else {
+          if(walkable) {dy+=z3step-z3skip; z3step=(z3step%2)+1; }
+        }
+      break;
+      case right:
+      if(shiftdir==up) {
+        if(walkable) {
+          dy-=1-z3skip; dx+=1-z3skip; z3step=2; }
+        else { dy-=1-z3skip; z3step=2; }
+      }
+      else if(shiftdir==down) {
+          if(walkable) {
+            dy+=1-z3skip; dx+=1-z3skip; z3step=2; }
+          else {dy+=1-z3skip; z3step=2;}
+        }
+        else {
+          if(walkable) {dx+=z3step-z3skip; z3step=(z3step%2)+1; }
+        }
+      break;
+      case left:
+      if(shiftdir==up) {
+        if(walkable) {
+          dy-=1-z3skip; dx-=1-z3skip; z3step=2; }
+        else { dy-=1-z3skip; z3step=2; }
+      }
+      else if(shiftdir==down) {
+          if(walkable) {
+            dy+=1-z3skip; dx-=1-z3skip; z3step=2; }
+          else {dy+=1-z3skip; z3step=2;}
+        }
+        else {
+          if(walkable) {dx-=z3step-z3skip; z3step=(z3step%2)+1; }
+        }
+      break;
+    }
+  }
+  else
+  {
+    switch(d)
+    {
+      case up:    dy-=ystep; break;
+      case down:  dy+=ystep; break;
+      case left:  dx-=xstep; break;
+      case right: dx+=xstep; break;
+    }
   }
   dir=d;
   linkstep();
-  if(action!=swimming)
+  if(action!=swimming) {
     action=walking;
+    if(++link_count > 16)
+      link_count=0;
+  }
   sprite::move((fix)dx,(fix)dy);
 }
 
 bool LinkClass::walkflag(int wx,int wy,int cnt,byte d)
 {
   if(toogam) return false;
-  if(blockpath && wy<88)
+  if(blockpath && wy<((get_bit(quest_rules,qr_LTTPCOLLISION))?80:88))
     return true;
 
   // for(int i=0; i<4; i++)
   if(mblock2.clk && mblock2.hit(wx,wy,d<=down?16:1,1))
     return true;
 
-  if(isdungeon() && currscr<128 && wy<40 && (x!=120 || _walkflag(120,24,2))
-    && !get_bit(quest_rules,qr_FREEFORM) )
+  if(isdungeon() && currscr<128 && wy<(get_bit(quest_rules,qr_LTTPCOLLISION)?32:40) && ((get_bit(quest_rules,qr_LTTPWALK)?(x<=112||x>=128):x!=120) || _walkflag(120,24,2))
+     && !get_bit(quest_rules,qr_FREEFORM) )
     return true;
 
   bool wf = _walkflag(wx,wy,cnt);
+  if(isdungeon() && currscr<128 && !get_bit(quest_rules,qr_FREEFORM))
+  {
+    if(get_bit(quest_rules,qr_LTTPWALK))
+    {
+      if(wx>=112&&wx<120&&wy<40&&wy>=32) wf=true;
+      if(wx>=136&&wx<144&&wy<40&&wy>=32) wf=true;
+    }
+  }
+
 
   if(action==swimming)
   {
     if(!wf)
     {
-      // hop out of the water
-      hopclk = 16;
+
+      if(landswim>=22||(!get_bit(quest_rules,qr_LTTPWALK)))
+      {
+        //Check for out of bounds for swimming
+        int hop = hopclk;
+        // hop out of the water
+        hopclk = 1;
+        //landswim=0;
+
+        if(get_bit(quest_rules,qr_LTTPWALK)) {
+          if(wx<0||wy<0) hopclk=hop;
+          else if(wx>248) hopclk=hop;
+            else if(wx>240&&cnt==2) hopclk=hop;
+              else if(wy>168) hopclk=hop;
+                //else {hopclk=0; diveclk=0; action=none;}
+                //}
+        }
+      }
+      else
+      {
+        if(dir==d)
+        {
+          //int vx=((int)x+4)&0xFFF8;
+          //int vy=((int)y+4)&0xFFF8;
+          int lc = get_bit(quest_rules,qr_LTTPCOLLISION);
+          if(dir==left)
+          {
+            if(!iswater(MAPCOMBO(x-1,y+(lc?7:11)))&&!iswater(MAPCOMBO(x-1,y+(lc?8:12))))
+              ilswim=true;
+            //else ilswim=false;
+          }
+          else if(dir==right)
+            {
+              if(!iswater(MAPCOMBO(x+16,y+(lc?7:11)))&&!iswater(MAPCOMBO(x+16,y+(lc?8:12))))
+                ilswim=true;
+              //else ilswim=false;
+            }
+            else if(dir==up)
+              {
+                if(!iswater(MAPCOMBO(x+7,y-1))&&!iswater(MAPCOMBO(x+8,y-1)))
+                  ilswim=true;
+                //else ilswim=false;
+              }
+              else if(dir==down)
+                {
+                  if(!iswater(MAPCOMBO(x+7,y+16))&&!iswater(MAPCOMBO(x+8,y+16)))
+                    ilswim=true;
+                  //else ilswim=false;
+                }
+        }
+        if(wx<0||wy<0);
+        else if(wx>248);
+          else if(wx>240&&cnt==2);
+            else if(wy>168);
+              else return true;
+      }
+
+
     }
     else
     {
-      bool wtrx  = iswater(MAPDATA(wx,wy));
-      bool wtrx8 = iswater(MAPDATA(x+8,wy));
+      bool wtrx  = iswater(MAPCOMBO(wx,wy));
+      bool wtrx8 = iswater(MAPCOMBO(x+8,wy));
 
+      /*if(get_bit(quest_rules,qr_LTTPWALK))
+        {
+        bool wtry  = iswater(MAPCOMBO(x,y+15));
+        bool wtry8 = iswater(MAPCOMBO(x+15,y+15));
+        wtrx = iswater(MAPCOMBO(x,y+8));
+        wtrx8 = iswater(MAPCOMBO(x+15,y+8));
+        if(wtrx&&wtrx8&&wtry&&wtry8) {
+        hopclk = 0xFF;
+        return false;
+        }
+        }
+        else
+        {*/
       if((d>=left && wtrx) || (d<=down && wtrx && wtrx8))
       {
         // swim
         hopclk = 0xFF;
         return false;
       }
+      //}
     }
   }
   else if(ladderx+laddery)                                  // ladder is being used
-  {
-    if((d&2)==ladderdir)                                    // same direction
     {
-      switch(d)
+      if(get_bit(quest_rules, qr_LTTPWALK))
       {
-        case up:
-          if(int(y)<=laddery)
-          {
-            return _walkflag(ladderx,laddery-8,1) ||
-              _walkflag(ladderx+8,laddery-8,1);
-
-          }
-          // no break
-        case down:
-          if((wy&0xF0)==laddery)
-            return false;
-          break;
-
-        default:
-          if((wx&0xF0)==ladderx)
-            return false;
-      }
-
-      if(d<=down)
-        return _walkflag(ladderx,wy,1) || _walkflag(ladderx+8,wy,1);
-      return _walkflag((wx&0xF8),wy,1) && _walkflag((wx&0xF8)+8,wy,1);
-    }
-    // different dir
-    return true;
-  }
-  else if(wf)
-  {
-    // see if it's a good spot for the ladder or for swimming
-    bool wtrx  = iswater(MAPDATA(wx,wy));
-    bool wtrx8 = iswater(MAPDATA(x+8,wy));
-    bool flgx  = _walkflag(wx,wy,1) && !wtrx;
-    bool flgx8 = _walkflag(x+8,wy,1) && !wtrx8;
-
-    // check if he can swim
-    if(current_item(itype_flippers,true))
-    {
-      if((d>=left && wtrx) || (d<=down && wtrx && wtrx8))
-      {
-        hopclk = 16;
-        return false;
-      }
-    }
-
-    // check if he can use the ladder
-    if(can_use_item(itype_ladder, i_ladder) && (tmpscr->flags&fLADDER || isdungeon()))
-    {
-      // add ladder combos
-      wtrx  = isstepable(MAPDATA(wx,wy));
-      wtrx8 = isstepable(MAPDATA(x+8,wy));
-      flgx  = _walkflag(wx,wy,1) && !wtrx;
-      flgx8 = _walkflag(x+8,wy,1) && !wtrx8;
-
-      if((d>=left && wtrx) || (d<=down && ((wtrx && !flgx8) || (wtrx8 && !flgx))) )
-      {
-        if( ((int(y)+15) < wy) || ((int(y)+8) > wy) )
-          ladderdir = up;
-        else
-          ladderdir = left;
-
         if(ladderdir==up)
         {
-          ladderx = int(x)&0xF8;
-          laddery = wy&0xF0;
+          if(wy>=laddery&&wy<(laddery+16))
+          {
+            bool temp = false;
+            if(!(wx>=ladderx&&wx<(ladderx+16)))
+              temp = true;
+            if(cnt==2) wx+=8;
+            if(!(wx>=ladderx&&wx<(ladderx+16)))
+              temp=true;
+            if(!temp) return false; else return true;
+          }
         }
         else
         {
-          ladderx = wx&0xF0;
-          laddery = int(y)&0xF8;
+          if(wx>=ladderx&&wx<(ladderx+16))
+          {
+            if(wy>=(laddery+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8))&&wy<(laddery+16))
+              return false;
+            else return true;
+          }
         }
-        return false;
+      }
+      else
+      {
+        if((d&2)==ladderdir)                                    // same direction
+        {
+          switch(d)
+          {
+            case up:
+            if(int(y)<=laddery)
+            {
+              return _walkflag(ladderx,laddery-8,1) ||
+                _walkflag(ladderx+8,laddery-8,1);
+
+            }
+            // no break
+            case down:
+            if((wy&0xF0)==laddery)
+              return false;
+            break;
+
+            default:
+            if((wx&0xF0)==ladderx)
+              return false;
+          }
+
+          if(d<=down)
+            return _walkflag(ladderx,wy,1) || _walkflag(ladderx+8,wy,1);
+          return _walkflag((wx&0xF8),wy,1) && _walkflag((wx&0xF8)+8,wy,1);
+        }
+        // different dir
+        return true;
       }
     }
-  }
-  return wf;
+    else if(wf)
+      {
+        // see if it's a good spot for the ladder or for swimming
+        bool wtrx  = iswater(MAPCOMBO(wx,wy));
+        bool wtrx8 = iswater(MAPCOMBO(x+8,wy));
+        bool flgx  = _walkflag(wx,wy,1) && !wtrx;
+        bool flgx8 = _walkflag(x+8,wy,1) && !wtrx8;
+
+        // check if he can swim
+        if(current_item(itype_flippers,true))
+        {
+          /*if(get_bit(quest_rules,qr_LTTPWALK))
+            {
+            bool wtry  = iswater(MAPCOMBO(x,y+15));
+            bool wtry8 = iswater(MAPCOMBO(x+15,y+15));
+            wtrx = iswater(MAPCOMBO(x,y+8));
+            wtrx8 = iswater(MAPCOMBO(x+15,y+8));
+            if(wtrx&&wtrx8&&wtry&&wtry8) {
+            //action=swimming;
+            hopclk = 0xFF;
+            return false;
+            }
+
+            wtrx  = iswater(MAPCOMBO(wx,wy));
+            wtrx8 = iswater(MAPCOMBO(x+8,wy));
+            wtry = iswater(MAPCOMBO(wx,wy+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:0)));
+            wtry8 = iswater(MAPCOMBO(x+8,y+8));
+
+            if((d>=left && (wtrx?1:!_walkflag(wx,wy,1)) && (wtry?1:!_walkflag(wx,wy+(get_bit(quest_rules, qr_LTTPCOLLISION)?8:0),1))) || (d<=down && (wtrx?1:!_walkflag(wx,wy,1)) && (wtrx8?1:!_walkflag(x+8,wy,1))))
+            {
+            return false;
+            }
+            }
+            else {*/
+          if(landswim>=22)
+          {
+            hopclk = 2;
+            //landswim=0;
+            return false;
+          }
+          else if((d>=left && wtrx) || (d<=down && wtrx && wtrx8))
+            {
+              if(!get_bit(quest_rules,qr_LTTPWALK))
+              { hopclk=2; return false; }
+              else if(dir==d) { ilswim=true; ladderx=0; laddery=0;}
+            }
+            //}
+        }
+
+        // check if he can use the ladder
+        if(can_use_item(itype_ladder, i_ladder) && (tmpscr->flags&fLADDER || isdungeon()) && !ilswim)
+        {
+          // add ladder combos
+          wtrx  = isstepable(MAPCOMBO(wx,wy));
+          wtrx8 = isstepable(MAPCOMBO(x+8,wy));
+          flgx  = _walkflag(wx,wy,1) && !wtrx;
+          flgx8 = _walkflag(x+8,wy,1) && !wtrx8;
+
+          if(get_bit(quest_rules,qr_LTTPWALK))
+          {
+            if(d==dir)
+            {
+              if(d>=left)
+              {
+                // int temp = ((wy&0xF0)==(int(y+8)&0xF0));
+                if(((wy&0xF0)==(int(y+8)&0xF0))&&(isstepable(MAPCOMBO(wx,wy))))
+                {
+                  ladderdir=left;
+                  ladderx = wx&0xF0;
+                  laddery = int(y+8)&0xF0;
+                  ladderstart=d;
+                  if(laddery==int(y))return false; else return true;
+                }
+              }
+              else if(d<=down)
+                {
+                  if(((wx&0xF0)==(int(x+8)&0xF0))&&(isstepable(MAPCOMBO(wx,wy))))
+                  {
+                    ladderdir=up;
+                    ladderx = int(x+8)&0xF0;
+                    laddery = wy&0xF0;
+                    ladderstart=d;
+                    if(ladderx==int(x))return false; else return true;
+                  }
+                  if(cnt==2)
+                  {
+                    int tx = wx+8;
+                    if(((tx&0xF0)==(int(x+8)&0xF0))&&(isstepable(MAPCOMBO(tx,wy))))
+                    {
+                      ladderdir=up;
+                      ladderx = int(x+8)&0xF0;
+                      laddery = wy&0xF0;
+                      ladderstart=d;
+                      if(ladderx==int(x))return false; else return true;
+                    }
+                  }
+
+                }
+            }
+          }
+          else
+          {
+            if((d>=left && wtrx) || (d<=down && ((wtrx && !flgx8) || (wtrx8 && !flgx))) )
+            {
+              if( ((int(y)+15) < wy) || ((int(y)+8) > wy) )
+                ladderdir = up;
+              else
+                ladderdir = left;
+
+              if(ladderdir==up)
+              {
+                ladderx = int(x)&0xF8;
+                laddery = wy&0xF0;
+              }
+              else
+              {
+                ladderx = wx&0xF0;
+                laddery = int(y)&0xF8;
+              }
+              return false;
+            }
+          }
+        }
+      }
+      return wf;
 }
 
 void LinkClass::checkpushblock()
 {
   if(toogam) return;
-  if(int(x)&15) return;
-  // if(y<16) return;
+  if(!get_bit(quest_rules,qr_LTTPWALK))
+    if(int(x)&15) return;
+    // if(y<16) return;
 
-  int bx = int(x)&0xF0;
+    int bx = int(x)&0xF0;
   int by = (int(y)&0xF0);
   switch(dir)
   {
     case up:
-      if (y<16)
-      {
-        return;
-      }
-      break;
+    if (y<16)
+    {
+      return;
+    }
+    if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
+    if((int)x&8) bx+=16;
+    break;
     case down:
-      if (y>128)
-      {
-        return;
-      }
-      else
+    if (y>128)
+    {
+      return;
+    }
+    else
+    {
+      by+=16;
+      if((int)x&8) bx+=16;
+    }
+    break;
+    case left:
+    if (x<32)
+    {
+      return;
+    }
+    else
+    {
+      bx-=16;
+      if(int(y)&8)
       {
         by+=16;
       }
-      break;
-    case left:
-      if (x<32)
-      {
-        return;
-      }
-      else
-      {
-        bx-=16;
-        if(int(y)&8)
-        {
-          by+=16;
-        }
-      }
-      break;
+    }
+    break;
     case right:
-      if (x>208)
+    if (x>208)
+    {
+      return;
+    }
+    else
+    {
+      bx+=16;
+      if(int(y)&8)
       {
-        return;
+        by+=16;
       }
-      else
-      {
-        bx+=16;
-        if(int(y)&8)
-        {
-          by+=16;
-        }
-      }
-      break;
+    }
+    break;
   }
 
   int f = MAPFLAG(bx,by);
-  int t = combobuf[MAPDATA(bx,by)].type;
+  int f2 = MAPCOMBOFLAG(bx,by);
+  int t = combobuf[MAPCOMBO(bx,by)].type;
 
   if( (t==cPUSH_WAIT || t==cPUSH_HW || t==cPUSH_HW2) && (pushing<16 || hasMainGuy()) ) return;
   if( (t==cPUSH_HEAVY || t==cPUSH_HW) && (current_item(itype_bracelet,true)<1) ) return;
@@ -3294,15 +4757,32 @@ void LinkClass::checkpushblock()
   if(get_bit(quest_rules,qr_HESITANTPUSHBLOCKS)&&(pushing<4)) return;
 
   bool doit=false;
+  bool changeflag=false;
+  bool changecombo=false;
 
   if (((f==mfPUSHUD || f==mfPUSHUDNS|| f==mfPUSHUDINS) && dir<=down) ||
-    ((f==mfPUSHLR || f==mfPUSHLRNS|| f==mfPUSHLRINS) && dir>=left) ||
-    ((f==mfPUSHU || f==mfPUSHUNS || f==mfPUSHUINS) && dir==up) ||
-    ((f==mfPUSHD || f==mfPUSHDNS || f==mfPUSHDINS) && dir==down) ||
-    ((f==mfPUSHL || f==mfPUSHLNS || f==mfPUSHLINS) && dir==left) ||
-    ((f==mfPUSHR || f==mfPUSHRNS || f==mfPUSHRINS) && dir==right) ||
-    f==mfPUSH4 || f==mfPUSH4NS || f==mfPUSH4INS)
+      ((f==mfPUSHLR || f==mfPUSHLRNS|| f==mfPUSHLRINS) && dir>=left) ||
+      ((f==mfPUSHU || f==mfPUSHUNS || f==mfPUSHUINS) && dir==up) ||
+      ((f==mfPUSHD || f==mfPUSHDNS || f==mfPUSHDINS) && dir==down) ||
+      ((f==mfPUSHL || f==mfPUSHLNS || f==mfPUSHLINS) && dir==left) ||
+      ((f==mfPUSHR || f==mfPUSHRNS || f==mfPUSHRINS) && dir==right) ||
+      f==mfPUSH4 || f==mfPUSH4NS || f==mfPUSH4INS)
+  {
+    changeflag=true;
     doit=true;
+  }
+
+  if ((((f2==mfPUSHUD || f2==mfPUSHUDNS|| f2==mfPUSHUDINS) && dir<=down) ||
+      ((f2==mfPUSHLR || f2==mfPUSHLRNS|| f2==mfPUSHLRINS) && dir>=left) ||
+      ((f2==mfPUSHU || f2==mfPUSHUNS || f2==mfPUSHUINS) && dir==up) ||
+      ((f2==mfPUSHD || f2==mfPUSHDNS || f2==mfPUSHDINS) && dir==down) ||
+      ((f2==mfPUSHL || f2==mfPUSHLNS || f2==mfPUSHLINS) && dir==left) ||
+      ((f2==mfPUSHR || f2==mfPUSHRNS || f2==mfPUSHRINS) && dir==right) ||
+      f2==mfPUSH4 || f2==mfPUSH4NS || f2==mfPUSH4INS)&&(f!=mfPUSHED))
+  {
+    changecombo=true;
+    doit=true;
+  }
 
   if(get_bit(quest_rules,qr_SOLIDBLK))
   {
@@ -3317,10 +4797,10 @@ void LinkClass::checkpushblock()
 
   switch(dir)
   {
-    case up:    if(MAPFLAG(bx,by-8)==mfNOBLOCKS)    doit=false; break;
-    case down:  if(MAPFLAG(bx,by+24)==mfNOBLOCKS)   doit=false; break;
-    case left:  if(MAPFLAG(bx-16,by+8)==mfNOBLOCKS) doit=false; break;
-    case right: if(MAPFLAG(bx+16,by+8)==mfNOBLOCKS) doit=false; break;
+    case up:    if((MAPFLAG(bx,by-8)==mfNOBLOCKS||MAPCOMBOFLAG(bx,by-8)==mfNOBLOCKS))       doit=false; break;
+    case down:  if((MAPFLAG(bx,by+24)==mfNOBLOCKS||MAPCOMBOFLAG(bx,by+24)==mfNOBLOCKS))     doit=false; break;
+    case left:  if((MAPFLAG(bx-16,by+8)==mfNOBLOCKS||MAPCOMBOFLAG(bx-16,by+8)==mfNOBLOCKS)) doit=false; break;
+    case right: if((MAPFLAG(bx+16,by+8)==mfNOBLOCKS||MAPCOMBOFLAG(bx+16,by+8)==mfNOBLOCKS)) doit=false; break;
   }
 
   if(doit)
@@ -3328,7 +4808,14 @@ void LinkClass::checkpushblock()
     //   for(int i=0; i<1; i++)
     if (!blockmoving)
     {
-      tmpscr->sflag[(by&0xF0)+(bx>>4)]=0;
+      if (changeflag)
+      {
+        tmpscr->sflag[(by&0xF0)+(bx>>4)]=0;
+      }
+      //if (changecombo)
+      //{
+        //++tmpscr->data[(by&0xF0)+(bx>>4)];
+      //}
       if(mblock2.clk<=0)
       {
         mblock2.push((fix)bx,(fix)by,dir,f);
@@ -3342,9 +4829,14 @@ bool usekey()
 {
   if(!can_use_item(itype_magickey, i_magickey))
   {
-    if(game.keys==0)
+    if(game->lvlkeys[dlevel]!=0)
+	{
+	  game->lvlkeys[dlevel]--;
+	  return true;
+	}
+    if(get_gamedata_keys(game)==0)
       return false;
-    --game.keys;
+    change_gamedata_keys(game, -1);
   }
   return true;
 }
@@ -3360,31 +4852,32 @@ void LinkClass::checklockblock()
   switch(dir)
   {
     case up:
-      break;
+    if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
+    break;
     case down:
-      by+=16;
-      break;
+    by+=16;
+    break;
     case left:
-      bx-=16;
-      if(int(y)&8)
-      {
-        by+=16;
-      }
-      bx2=bx;
-      break;
+    bx-=16;
+    if(int(y)&8)
+    {
+      by+=16;
+    }
+    bx2=bx;
+    break;
     case right:
-      bx+=16;
-      if(int(y)&8)
-      {
-        by+=16;
-      }
-      bx2=bx;
-      break;
+    bx+=16;
+    if(int(y)&8)
+    {
+      by+=16;
+    }
+    bx2=bx;
+    break;
   }
 
   bool found=false;
-  if ((combobuf[MAPDATA(bx,by)].type==cLOCKBLOCK)||
-    (combobuf[MAPDATA(bx2,by)].type==cLOCKBLOCK))
+  if ((combobuf[MAPCOMBO(bx,by)].type==cLOCKBLOCK)||
+      (combobuf[MAPCOMBO(bx2,by)].type==cLOCKBLOCK))
   {
     found=true;
   }
@@ -3392,8 +4885,8 @@ void LinkClass::checklockblock()
   {
     for (int i=0; i<2; i++)
     {
-      if ((combobuf[MAPDATA2(i,bx,by)].type==cLOCKBLOCK)||
-        (combobuf[MAPDATA2(i,bx2,by)].type==cLOCKBLOCK))
+      if ((combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKBLOCK)||
+          (combobuf[MAPCOMBO2(i,bx2,by)].type==cLOCKBLOCK))
       {
         found=true;
         break;
@@ -3422,31 +4915,32 @@ void LinkClass::checkbosslockblock()
   switch(dir)
   {
     case up:
-      break;
+    if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
+    break;
     case down:
-      by+=16;
-      break;
+    by+=16;
+    break;
     case left:
-      bx-=16;
-      if(int(y)&8)
-      {
-        by+=16;
-      }
-      bx2=bx;
-      break;
+    bx-=16;
+    if(int(y)&8)
+    {
+      by+=16;
+    }
+    bx2=bx;
+    break;
     case right:
-      bx+=16;
-      if(int(y)&8)
-      {
-        by+=16;
-      }
-      bx2=bx;
-      break;
+    bx+=16;
+    if(int(y)&8)
+    {
+      by+=16;
+    }
+    bx2=bx;
+    break;
   }
 
   bool found=false;
-  if ((combobuf[MAPDATA(bx,by)].type==cBOSSLOCKBLOCK)||
-    (combobuf[MAPDATA(bx2,by)].type==cBOSSLOCKBLOCK))
+  if ((combobuf[MAPCOMBO(bx,by)].type==cBOSSLOCKBLOCK)||
+      (combobuf[MAPCOMBO(bx2,by)].type==cBOSSLOCKBLOCK))
   {
     found=true;
   }
@@ -3454,8 +4948,8 @@ void LinkClass::checkbosslockblock()
   {
     for (int i=0; i<2; i++)
     {
-      if ((combobuf[MAPDATA2(i,bx,by)].type==cBOSSLOCKBLOCK)||
-        (combobuf[MAPDATA2(i,bx2,by)].type==cBOSSLOCKBLOCK))
+      if ((combobuf[MAPCOMBO2(i,bx,by)].type==cBOSSLOCKBLOCK)||
+          (combobuf[MAPCOMBO2(i,bx2,by)].type==cBOSSLOCKBLOCK))
       {
         found=true;
         break;
@@ -3467,11 +4961,220 @@ void LinkClass::checkbosslockblock()
     return;
   }
 
-  if(!(game.lvlitems[dlevel]&liBOSSKEY)) return;
+  if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
   setmapflag(mBOSSLOCKBLOCK);
   remove_bosslockblocks((currscr>=128)?1:0,true);
   sfx(WAV_DOOR);
 }
+
+void LinkClass::checkchest()
+{
+  if(toogam) return;
+
+  int bx = int(x)&0xF0;
+  int bx2 = int(x+8)&0xF0;
+  int by = int(y)&0xF0;
+
+  switch(dir)
+  {
+    case up:
+    if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
+    break;
+    case down:
+    case left:
+    case right:
+    return;
+    break;
+  }
+
+  bool found=false;
+  bool itemflag=false;
+  if ((combobuf[MAPCOMBO(bx,by)].type==cCHEST)||
+      (combobuf[MAPCOMBO(bx2,by)].type==cCHEST))
+  {
+    found=true;
+  }
+  if (!found)
+  {
+    for (int i=0; i<2; i++)
+    {
+      if ((combobuf[MAPCOMBO2(i,bx,by)].type==cCHEST)||
+          (combobuf[MAPCOMBO2(i,bx2,by)].type==cCHEST))
+      {
+        found=true;
+        break;
+      }
+    }
+  }
+  if(!found || pushing<8)
+  {
+    return;
+  }
+
+  setmapflag(mCHEST);
+  remove_chests((currscr>=128)?1:0,true);
+  itemflag = MAPFLAG(bx,by)==mfARMOS_ITEM;
+  itemflag |= MAPFLAG(bx2,by)==mfARMOS_ITEM;
+  itemflag |= MAPCOMBOFLAG(bx,by)==mfARMOS_ITEM;
+  itemflag |= MAPCOMBOFLAG(bx2,by)==mfARMOS_ITEM;
+  if (!itemflag)
+  {
+    for (int i=0; i<2; i++)
+    {
+      itemflag |= MAPFLAG2(i,bx,by)==mfARMOS_ITEM;
+      itemflag |= MAPFLAG2(i,bx2,by)==mfARMOS_ITEM;
+      itemflag |= MAPCOMBOFLAG2(i,bx,by)==mfARMOS_ITEM;
+      itemflag |= MAPCOMBOFLAG2(i,bx2,by)==mfARMOS_ITEM;
+    }
+  }
+
+  if(itemflag && !getmapflag())
+  {
+    items.add(new item(x, y, tmpscr->catchall, ipONETIME + ipBIGRANGE + ipHOLDUP, 0));
+  }
+}
+
+void LinkClass::checklockedchest()
+{
+  if(toogam) return;
+
+  int bx = int(x)&0xF0;
+  int bx2 = int(x+8)&0xF0;
+  int by = int(y)&0xF0;
+
+  switch(dir)
+  {
+    case up:
+    if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
+    break;
+    case down:
+    case left:
+    case right:
+    return;
+    break;
+  }
+
+  bool found=false;
+  bool itemflag=false;
+  if ((combobuf[MAPCOMBO(bx,by)].type==cLOCKEDCHEST)||
+      (combobuf[MAPCOMBO(bx2,by)].type==cLOCKEDCHEST))
+  {
+    found=true;
+  }
+  if (!found)
+  {
+    for (int i=0; i<2; i++)
+    {
+      if ((combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKEDCHEST)||
+          (combobuf[MAPCOMBO2(i,bx2,by)].type==cLOCKEDCHEST))
+      {
+        found=true;
+        break;
+      }
+    }
+  }
+  if(!found || pushing<8)
+  {
+    return;
+  }
+
+  if (!usekey()) return;
+  setmapflag(mLOCKEDCHEST);
+  remove_lockedchests((currscr>=128)?1:0,true);
+  itemflag = MAPFLAG(bx,by)==mfARMOS_ITEM;
+  itemflag |= MAPFLAG(bx2,by)==mfARMOS_ITEM;
+  itemflag |= MAPCOMBOFLAG(bx,by)==mfARMOS_ITEM;
+  itemflag |= MAPCOMBOFLAG(bx2,by)==mfARMOS_ITEM;
+  if (!itemflag)
+  {
+    for (int i=0; i<2; i++)
+    {
+      itemflag |= MAPFLAG2(i,bx,by)==mfARMOS_ITEM;
+      itemflag |= MAPFLAG2(i,bx2,by)==mfARMOS_ITEM;
+      itemflag |= MAPCOMBOFLAG2(i,bx,by)==mfARMOS_ITEM;
+      itemflag |= MAPCOMBOFLAG2(i,bx2,by)==mfARMOS_ITEM;
+    }
+  }
+
+  if(itemflag && !getmapflag())
+  {
+    items.add(new item(x, y, tmpscr->catchall, ipONETIME + ipBIGRANGE + ipHOLDUP, 0));
+  }
+}
+
+
+void LinkClass::checkbosschest()
+{
+  if(toogam) return;
+
+  int bx = int(x)&0xF0;
+  int bx2 = int(x+8)&0xF0;
+  int by = int(y)&0xF0;
+
+  switch(dir)
+  {
+    case up:
+    if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
+    break;
+    case down:
+    case left:
+    case right:
+    return;
+    break;
+  }
+
+  bool found=false;
+  bool itemflag=false;
+  if ((combobuf[MAPCOMBO(bx,by)].type==cBOSSCHEST)||
+      (combobuf[MAPCOMBO(bx2,by)].type==cBOSSCHEST))
+  {
+    found=true;
+  }
+  if (!found)
+  {
+    for (int i=0; i<2; i++)
+    {
+      if ((combobuf[MAPCOMBO2(i,bx,by)].type==cBOSSCHEST)||
+          (combobuf[MAPCOMBO2(i,bx2,by)].type==cBOSSCHEST))
+      {
+        found=true;
+        break;
+      }
+    }
+  }
+  if(!found || pushing<8)
+  {
+    return;
+  }
+
+  if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
+  setmapflag(mBOSSCHEST);
+  remove_bosschests((currscr>=128)?1:0,true);
+  itemflag = MAPFLAG(bx,by)==mfARMOS_ITEM;
+  itemflag |= MAPFLAG(bx2,by)==mfARMOS_ITEM;
+  itemflag |= MAPCOMBOFLAG(bx,by)==mfARMOS_ITEM;
+  itemflag |= MAPCOMBOFLAG(bx2,by)==mfARMOS_ITEM;
+  if (!itemflag)
+  {
+    for (int i=0; i<2; i++)
+    {
+      itemflag |= MAPFLAG2(i,bx,by)==mfARMOS_ITEM;
+      itemflag |= MAPFLAG2(i,bx2,by)==mfARMOS_ITEM;
+      itemflag |= MAPCOMBOFLAG2(i,bx,by)==mfARMOS_ITEM;
+      itemflag |= MAPCOMBOFLAG2(i,bx2,by)==mfARMOS_ITEM;
+    }
+  }
+
+  if(itemflag && !getmapflag())
+  {
+    items.add(new item(x, y, tmpscr->catchall, ipONETIME + ipBIGRANGE + ipHOLDUP, 0));
+  }
+}
+
+
+
+
+
 
 void LinkClass::checklocked()
 {
@@ -3482,99 +5185,100 @@ void LinkClass::checklocked()
 
   int si = (currmap<<7) + currscr;
   int di = nextscr(dir);
+  if(di==0xFFFF) return; 
 
   switch(dir)
   {
     case up:
-      if(y>32 || x!=120) return;
-      if (tmpscr->door[dir]==dLOCKED)
+    if(y>32 || (get_bit(quest_rules,qr_LTTPWALK)?(x<=112||x>=128):x!=120)) return;
+    if (tmpscr->door[dir]==dLOCKED)
+    {
+      if(usekey())
       {
-        if(usekey())
-        {
-          putdoor(0,up,dUNLOCKED);
-          tmpscr->door[0]=dUNLOCKED;
-          game.maps[si] |= 1;
-          game.maps[di] |= 2;
-        } else return;
-      }
-      else if (tmpscr->door[dir]==dBOSS)
+        putdoor(0,up,dUNLOCKED);
+        tmpscr->door[0]=dUNLOCKED;
+        game->maps[si] |= 1;
+            game->maps[di] |= 2;
+      } else return;
+    }
+    else if (tmpscr->door[dir]==dBOSS)
       {
-        if(game.lvlitems[dlevel]&liBOSSKEY)
+        if(game->lvlitems[dlevel]&liBOSSKEY)
         {
           putdoor(0,up,dOPENBOSS);
           tmpscr->door[0]=dOPENBOSS;
-          game.maps[si] |= 1;
-          game.maps[di] |= 2;
+          game->maps[si] |= 1;
+              game->maps[di] |= 2;
         } else return;
       }
       break;
     case down:
-      if(y!=128 || x!=120) return;
-      if (tmpscr->door[dir]==dLOCKED)
+    if(y!=128 || (get_bit(quest_rules,qr_LTTPWALK)?(x<=112||x>=128):x!=120)) return;
+    if (tmpscr->door[dir]==dLOCKED)
+    {
+      if(usekey())
       {
-        if(usekey())
-        {
-          putdoor(0,down,dUNLOCKED);
-          tmpscr->door[1]=dUNLOCKED;
-          game.maps[si] |= 2;
-          game.maps[di] |= 1;
-        } else return;
-      }
-      else if (tmpscr->door[dir]==dBOSS)
+        putdoor(0,down,dUNLOCKED);
+        tmpscr->door[1]=dUNLOCKED;
+        game->maps[si] |= 2;
+            game->maps[di] |= 1;
+      } else return;
+    }
+    else if (tmpscr->door[dir]==dBOSS)
       {
-        if(game.lvlitems[dlevel]&liBOSSKEY)
+        if(game->lvlitems[dlevel]&liBOSSKEY)
         {
           putdoor(0,down,dOPENBOSS);
           tmpscr->door[1]=dOPENBOSS;
-          game.maps[si] |= 2;
-          game.maps[di] |= 1;
+          game->maps[si] |= 2;
+              game->maps[di] |= 1;
         } else return;
       }
       break;
     case left:
-      if(y!=80 || x!=32) return;
+    if((get_bit(quest_rules,qr_LTTPWALK)?(y<=72||y>=88):y!=80) || x!=32) return;
 
-      if (tmpscr->door[dir]==dLOCKED)
+    if (tmpscr->door[dir]==dLOCKED)
+    {
+      if(usekey())
       {
-        if(usekey())
-        {
-          putdoor(0,left,dUNLOCKED);
-          tmpscr->door[2]=dUNLOCKED;
-          game.maps[si] |= 4;
-          game.maps[di] |= 8;
-        } else return;
-      }
-      else if (tmpscr->door[dir]==dBOSS)
+        putdoor(0,left,dUNLOCKED);
+        tmpscr->door[2]=dUNLOCKED;
+        game->maps[si] |= 4;
+            game->maps[di] |= 8;
+      } else return;
+    }
+    else if (tmpscr->door[dir]==dBOSS)
       {
-        if(game.lvlitems[dlevel]&liBOSSKEY)
+        if(game->lvlitems[dlevel]&liBOSSKEY)
         {
           putdoor(0,left,dOPENBOSS);
           tmpscr->door[2]=dOPENBOSS;
-          game.maps[si] |= 4;
-          game.maps[di] |= 8;
+          game->maps[si] |= 4;
+              game->maps[di] |= 8;
         } else return;
       }
       break;
     case right:
-      if(y!=80 || x!=208) return;
-      if (tmpscr->door[dir]==dLOCKED)
+    if((get_bit(quest_rules,qr_LTTPWALK)?(y<=72||y>=88):y!=80) || x!=208) return;
+    if (tmpscr->door[dir]==dLOCKED)
+    {
+      if(usekey())
       {
-        if(usekey())
-        {
-          putdoor(0,right,dUNLOCKED);
-          tmpscr->door[3]=dUNLOCKED;
-          game.maps[si] |= 8;
-          game.maps[di] |= 4;
-        } else return;
-      }
-      else if (tmpscr->door[dir]==dBOSS)
+        putdoor(0,right,dUNLOCKED);
+        tmpscr->door[3]=dUNLOCKED;
+        game->maps[si] |= 8;
+            game->maps[di] |= 4;
+      } else return;
+    }
+    else if (tmpscr->door[dir]==dBOSS)
       {
-        if(game.lvlitems[dlevel]&liBOSSKEY)
+        if(game->lvlitems[dlevel]&liBOSSKEY)
         {
           putdoor(0,right,dOPENBOSS);
           tmpscr->door[3]=dOPENBOSS;
-          game.maps[si] |= 8;
-          game.maps[di] |= 4;
+          game->maps[si] |= 8;
+              game->maps[di] |= 4;
         } else return;
       }
   }
@@ -3582,15 +5286,28 @@ void LinkClass::checklocked()
   markBmap(-1);
 }
 
-void LinkClass::fairycircle()
+void LinkClass::fairycircle(int type)
 {
-  if(didstuff&did_fairy)
-    return;
+  switch(type)
+  {
+    case REFILL_LIFE:
+    if(didstuff&did_fairy)
+      return;
+    break;
+    case REFILL_MAGIC:
+    if(didstuff&did_magic)
+      return;
+    break;
+    case REFILL_ALL:
+    if(didstuff&did_all)
+      return;
+  }
 
   if(fairyclk==0)
   {
-    refill_what=REFILL_LIFE;
-    StartRefill(REFILL_FAIRY);
+    refill_what=type;
+    refill_why=REFILL_FAIRY;
+    StartRefill();
     action=freeze;
     holdclk=0;
     hopclk=0;
@@ -3601,25 +5318,34 @@ void LinkClass::fairycircle()
   if(!refill() && ++holdclk>80)
   {
     action=none;
-    didstuff|=did_fairy;
+    switch(type)
+    {
+      case REFILL_LIFE:
+      didstuff|=did_fairy; break;
+      case REFILL_MAGIC:
+      didstuff|=did_magic; break;
+      case REFILL_ALL:
+      didstuff|=did_all; break;
+    }
+    fairyclk=0;
   }
 }
 
 int touchcombo(int x,int y)
 {
-  switch(combobuf[MAPDATA(x,y)].type)
+  switch(combobuf[MAPCOMBO(x,y)].type)
   {
     case cBSGRAVE:
     case cGRAVE:
-      if(MAPFLAG(x,y))
-      {
-        break;
-      }
-      // fall through
+    if(MAPFLAG(x,y)||MAPCOMBOFLAG(x,y))
+    {
+      break;
+    }
+    // fall through
     case cARMOS:
-      {
-        return combobuf[MAPDATA(x,y)].type;
-      }
+    {
+      return combobuf[MAPCOMBO(x,y)].type;
+    }
   }
   return 0;
 }
@@ -3635,37 +5361,37 @@ void LinkClass::checktouchblk()
   switch(dir)
   {
     case up:
-      if(touchcombo(x,y+7))
+    if(touchcombo(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:7)))
+    {
+      tx=x; ty=y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:7);
+    }
+    else if(touchcombo(x+8,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:7)))
       {
-        tx=x; ty=y+7;
-      }
-      else if(touchcombo(x+8,y+7))
-      {
-        tx=x+8; ty=y+7;
+        tx=x+8; ty=y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:7);
       }
       break;
     case down:
-      if(touchcombo(x,y+16))
-      {
-        tx=x; ty=y+16;
-      }
-      else if(touchcombo(x+8,y+16))
+    if(touchcombo(x,y+16))
+    {
+      tx=x; ty=y+16;
+    }
+    else if(touchcombo(x+8,y+16))
       {
         tx=x+8; ty=y+16;
       }
       break;
     case left:
-      if(touchcombo(x-1,y+15))
-      {
-        tx=x-1; ty=y+15;
-      }
-      break;
+    if(touchcombo(x-1,y+15))
+    {
+      tx=x-1; ty=y+15;
+    }
+    break;
     case right:
-      if(touchcombo(x+16,y+15))
-      {
-        tx=x+16; ty=y+15;
-      }
-      break;
+    if(touchcombo(x+16,y+15))
+    {
+      tx=x+16; ty=y+15;
+    }
+    break;
   }
   if(ty>=0)
   {
@@ -3684,15 +5410,15 @@ void LinkClass::checktouchblk()
     {
       guygrid[di]=1;
       int id=0;
-      switch(combobuf[MAPDATA(tx,ty)].type)
+      switch(combobuf[MAPCOMBO(tx,ty)].type)
       {
         case cARMOS: id=eARMOS; break;
         case cBSGRAVE:
-          tmpscr->data[di]++;
-          //fall through
+        tmpscr->data[di]++;
+        //fall through
         case cGRAVE:
-          id=eGHINI2;
-          break;
+        id=eGHINI2;
+        break;
       }
       addenemy(tx,ty+3,id,0);
     }
@@ -3713,8 +5439,9 @@ int LinkClass::nextcombo(int cx, int cy, int cdir)
   if(cx<0 || cy<0 || cx>255 || cy>175)
   {
     int ns = nextscr(cdir);
+	if(ns==0xFFFF) return 0;
 
-    // want actual screen index, not game.maps[] index
+    // want actual screen index, not game->maps[] index
     ns = (ns&127) + (ns>>7)*MAPSCRS;
 
     switch(cdir)
@@ -3725,17 +5452,17 @@ int LinkClass::nextcombo(int cx, int cy, int cdir)
       case right: cx=0; break;
     }
 
-    // from MAPDATA()
+    // from MAPCOMBO()
     int cmb = (cy&0xF0)+(cx>>4);
     if(cmb>175)
       return 0;
     return TheMaps[ns].data[cmb];                           // entire combo code
   }
 
-  return MAPDATA(cx,cy);
+  return MAPCOMBO(cx,cy);
 }
 
-int LinkClass::nextflag(int cx, int cy, int cdir)
+int LinkClass::nextflag(int cx, int cy, int cdir, bool comboflag)
 {
   switch(cdir)
   {
@@ -3749,8 +5476,9 @@ int LinkClass::nextflag(int cx, int cy, int cdir)
   if(cx<0 || cy<0 || cx>255 || cy>175)
   {
     int ns = nextscr(cdir);
+	if(ns==0xFFFF) return 0;
 
-    // want actual screen index, not game.maps[] index
+    // want actual screen index, not game->maps[] index
     ns = (ns&127) + (ns>>7)*MAPSCRS;
 
     switch(cdir)
@@ -3761,13 +5489,24 @@ int LinkClass::nextflag(int cx, int cy, int cdir)
       case right: cx=0; break;
     }
 
-    // from MAPDATA()
+    // from MAPCOMBO()
     int cmb = (cy&0xF0)+(cx>>4);
     if(cmb>175)
       return 0;
-    return TheMaps[ns].sflag[cmb];                          // flag
+    if (!comboflag)
+    {
+      return TheMaps[ns].sflag[cmb];                          // flag
+    }
+    else
+    {
+      return combobuf[TheMaps[ns].data[cmb]].flag;                          // flag
+    }
   }
 
+  if (comboflag)
+  {
+    return MAPCOMBOFLAG(cx,cy);
+  }
   return MAPFLAG(cx,cy);
 }
 
@@ -3800,7 +5539,7 @@ void LinkClass::checkspecial()
         if(hasitem==1)
           sfx(WAV_CLEARED);
         additem(tmpscr->itemx,tmpscr->itemy+1,Item,ipONETIME+ipBIGRANGE+
-          ((Item==iTriforce || (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0));
+                ((Item==iTriforce || (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0));
       }
       hasitem=0;
     }
@@ -3809,6 +5548,10 @@ void LinkClass::checkspecial()
     if(!did_secret && (tmpscr->flags2&fCLEARSECRET))
     {
       hidden_entrance(0,true,true);
+      if(tmpscr->flags4&fENEMYSCRTPERM && !isdungeon())
+      {
+        if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+      }
       if(!nosecretsounds)
       {
         sfx(WAV_SECRET);
@@ -3822,7 +5565,7 @@ void LinkClass::checkspecial()
   for(int i=0; i<4; i++)
     if(tmpscr->door[i]==dSHUTTER)
       has_shutters=true;
-  if(has_shutters)
+    if(has_shutters)
   {
     if(opendoors==0 && loaded_enemies)
     {
@@ -3831,130 +5574,606 @@ void LinkClass::checkspecial()
         opendoors=12;
     }
     else if(opendoors<0)
-      ++opendoors;
-    else if((--opendoors)==0)
-      openshutters();
+        ++opendoors;
+      else if((--opendoors)==0)
+          openshutters();
   }
 
   // set boss flag when boss is gone
   if(loaded_enemies && tmpscr->enemyflags&efBOSS && !hasmainguy)
   {
-    game.lvlitems[dlevel]|=liBOSS;
+    game->lvlitems[dlevel]|=liBOSS;
     stop_sfx(WAV_ROAR);
     stop_sfx(WAV_VADER);
     stop_sfx(WAV_DODONGO);
   }
 
+  if(getmapflag(mCHEST))              // if special stuff done before
+  {
+    remove_chests((currscr>=128)?1:0,false);
+  }
+
+  if(getmapflag(mLOCKEDCHEST))              // if special stuff done before
+  {
+    remove_lockedchests((currscr>=128)?1:0,false);
+  }
+
+  if(getmapflag(mBOSSCHEST))              // if special stuff done before
+  {
+    remove_bosschests((currscr>=128)?1:0,false);
+  }
+}
+
+void LinkClass::checkspecial2(int *ls)
+{
   if(toogam) return;
+  bool didstrig = false;
+
+  //Checks for sensitive warps. Sensitive warps are used no matter where Link is or whether he's arrived on top of it or not
+  for(int i=get_bit(quest_rules,qr_LTTPCOLLISION)?0:8;i<16;i+=get_bit(quest_rules,qr_LTTPCOLLISION)?15:7)
+  {
+    for(int j=0;j<16;j+=15)
+    {
+      int stype = COMBOTYPE(x+j,y+i);
+      if(stype==cSWARPA)
+      {
+        if(tmpscr->flags5&fDIRECTSWARP)
+        {
+          didpit=true;
+          pitx=x;pity=y;
+        }
+        sdir=dir;
+        dowarp(0,0);
+        return;
+      }
+      if(stype==cSWARPB)
+      {
+        if(tmpscr->flags5&fDIRECTSWARP)
+        {
+          didpit=true;
+          pitx=x;
+          pity=y;
+        }
+        sdir=dir;
+        dowarp(0,1);
+        return;
+      }
+      if(stype==cSWARPC)
+      {
+        if(tmpscr->flags5&fDIRECTSWARP)
+        {
+          didpit=true;
+          pitx=x;
+          pity=y;
+        }
+        sdir=dir;
+        dowarp(0,2);
+        return;
+      }
+      if(stype==cSWARPD)
+      {
+        if(tmpscr->flags5&fDIRECTSWARP)
+        {
+          didpit=true;
+          pitx=x;
+          pity=y;
+        }
+        sdir=dir;
+        dowarp(0,3);
+        return;
+      }
+      if(stype==cSWARPR)
+      {
+        if(tmpscr->flags5&fDIRECTSWARP)
+        {
+          didpit=true;
+          pitx=x;
+          pity=y;
+        }
+        sdir=dir;
+        dowarp(0,rand()%4);
+        return;
+      }
+      if(stype==cSTRIGNOFLAG || stype==cSTRIGFLAG)
+      {
+        if(stype==cSTRIGFLAG && !isdungeon())
+        {
+          if(!(tmpscr->flags5&fTEMPSECRETS))
+          {
+            setmapflag(mSECRET);
+          }
+          if(!didstrig)
+          {
+            hidden_entrance(0,true,false);
+            didstrig = true;
+          }
+        }
+        else
+        {
+          if(!didstrig) {hidden_entrance(0,true,true); didstrig = true;}
+        }
+      }
+    }
+  }
 
   // check if he's standing on a warp he just came out of
   if((int(y)&0xF8)==warpy)
-    if(x==warpx)
-      return;
-  warpy=255;
-
-  // check alignment for the rest of these
-  if(int(y)&7)
-    return;
-  if(int(x)&7)
-    return;
-
-  int flag = MAPFLAG(x,y);
-  int type = COMBOTYPE(x,y);
-
-  if(flag==mfFAIRY)
   {
-    fairycircle();
-    return;
+    if(x==warpx)
+    {
+      return;
+    }
+  }
+  warpy=255;
+  int tx=x;
+  int ty=y;
+
+  int flag=0;
+  int flag2=0;
+  int flag3=0;
+  int type=0;
+  int index = 0;
+  //bool gotpit=false;
+
+  int x1,x2,y1,y2;
+  x1 = tx;
+  x2 = tx+15;
+  y1 = ty;
+  y2 = ty+15;
+
+  if(get_bit(quest_rules, qr_LTTPWALK))
+  {
+    x1 = tx+4;
+    x2 = tx+11;
+    y1 = ty+4;
+    y2 = ty+11;
   }
 
-  if(flag==mfZELDA)
+  int types[4];
+  types[0]=types[1]=types[2]=types[3]=-1;
+
+  types[0] = MAPFLAG(x1,y1);
+  types[1] = MAPFLAG(x1,y2);
+  types[2] = MAPFLAG(x2,y1);
+  types[3] = MAPFLAG(x2,y2);
+  if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+	  flag = types[0];
+
+  types[0] = MAPCOMBOFLAG(x1,y1);
+  types[1] = MAPCOMBOFLAG(x1,y2);
+  types[2] = MAPCOMBOFLAG(x2,y1);
+  types[3] = MAPCOMBOFLAG(x2,y2);
+  if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+	  flag2 = types[0];
+
+  types[0] = MAPFFCOMBOFLAG(x1,y1);
+  types[1] = MAPFFCOMBOFLAG(x1,y2);
+  types[2] = MAPFFCOMBOFLAG(x2,y1);
+  types[3] = MAPFFCOMBOFLAG(x2,y2);
+  if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+	  flag3 = types[0];
+
+  types[0] = COMBOTYPE(x1,y1);
+  if(MAPFFCOMBO(x1,y1))
+	  types[0] = FFCOMBOTYPE(x1,y1);
+  types[1] = COMBOTYPE(x1,y2);
+  if(MAPFFCOMBO(x1,y2))
+	  types[1] = FFCOMBOTYPE(x1,y2);
+  types[2] = COMBOTYPE(x2,y1);
+  if(MAPFFCOMBO(x2,y1))
+	  types[2] = FFCOMBOTYPE(x2,y1);
+  types[3] = COMBOTYPE(x2,y2);
+  if(MAPFFCOMBO(x2,y2))
+	  types[3] = FFCOMBOTYPE(x2,y2);
+
+  for(int i=0;i<4;i++)
+  {
+    if(types[i]==cCAVE) index=0;
+    else if(types[i]==cCAVEB) {types[i]=cCAVE; index=1;}
+    else if(types[i]==cCAVEC) {types[i]=cCAVE; index=2;}
+    else if(types[i]==cCAVED) {types[i]=cCAVE; index=3;}
+  
+    if(types[i]==cPIT) index=0;
+    else if(types[i]==cPITB) {types[i]=cPIT; index=1;}
+    else if(types[i]==cPITC) {types[i]=cPIT; index=2;}
+    else if(types[i]==cPITD) {types[i]=cPIT; index=3;}
+  
+    if(types[i]==cSTAIR) index=0;
+    else if(types[i]==cSTAIRB) {types[i]=cSTAIR; index=1;}
+    else if(types[i]==cSTAIRC) {types[i]=cSTAIR; index=2;}
+    else if(types[i]==cSTAIRD) {types[i]=cSTAIR; index=3;}
+    else if(types[i]==cSTAIRR) {types[i]=cSTAIR; index=rand()%4;}
+  
+    if(types[i]==cCAVE2) index=0;
+    else if(types[i]==cCAVE2B) {types[i]=cCAVE2; index=1;}
+    else if(types[i]==cCAVE2C) {types[i]=cCAVE2; index=2;}
+    else if(types[i]==cCAVE2D) {types[i]=cCAVE2; index=3;}
+  
+    if(types[i]==cSWIMWARP) index=0;
+    else if(types[i]==cSWIMWARPB) {types[i]=cSWIMWARP; index=1;}
+    else if(types[i]==cSWIMWARPC) {types[i]=cSWIMWARP; index=2;}
+    else if(types[i]==cSWIMWARPD) {types[i]=cSWIMWARP; index=3;}
+  
+    if(types[i]==cDIVEWARP) index=0;
+    else if(types[i]==cDIVEWARPB) {types[i]=cDIVEWARP; index=1;}
+    else if(types[i]==cDIVEWARPC) {types[i]=cDIVEWARP; index=2;}
+    else if(types[i]==cDIVEWARPD) {types[i]=cDIVEWARP; index=3;}
+  
+    if(types[i]==cSTEP) types[i]=cSTEP;
+    else if(types[i]==cSTEPSAME) types[i]=cSTEP;
+    else if(types[i]==cSTEPALL) types[i]=cSTEP;
+  }
+
+  if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+	if(action!=freeze&&(!msgstr || msgpos>=72))
+	  type = types[0];
+
+  x1 = tx+4;
+  x2 = tx+11;
+  y1 = ty+4;
+  y2 = ty+11;
+
+  types[0] = COMBOTYPE(x1,y1);
+  if(MAPFFCOMBO(x1,y1))
+	  types[0] = FFCOMBOTYPE(x1,y1);
+  types[1] = COMBOTYPE(x1,y2);
+  if(MAPFFCOMBO(x1,y2))
+	  types[1] = FFCOMBOTYPE(x1,y2);
+  types[2] = COMBOTYPE(x2,y1);
+  if(MAPFFCOMBO(x2,y1))
+	  types[2] = FFCOMBOTYPE(x2,y1);
+  types[3] = COMBOTYPE(x2,y2);
+  if(MAPFFCOMBO(x2,y2))
+	  types[3] = FFCOMBOTYPE(x2,y2);
+
+  bool setsave=false;
+  for(int i=0;i<4;i++)
+  {
+    if(types[i]==cSAVE) setsave=true;
+    if(types[i]==cSAVE2) setsave=true;
+  }
+  if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+	if(setsave)
+      type = types[0];
+
+  x1 = tx+7;
+  x2 = tx+8;
+  y1 = ty+7+((get_bit(quest_rules,qr_LTTPCOLLISION))?0:4);
+  y2 = ty+8+((get_bit(quest_rules,qr_LTTPCOLLISION))?0:4);
+
+  types[0] = COMBOTYPE(x1,y1);
+  if(MAPFFCOMBO(x1,y1))
+	  types[0] = FFCOMBOTYPE(x1,y1);
+  types[1] = COMBOTYPE(x1,y2);
+  if(MAPFFCOMBO(x1,y2))
+	  types[1] = FFCOMBOTYPE(x1,y2);
+  types[2] = COMBOTYPE(x2,y1);
+  if(MAPFFCOMBO(x2,y1))
+	  types[2] = FFCOMBOTYPE(x2,y1);
+  types[3] = COMBOTYPE(x2,y2);
+  if(MAPFFCOMBO(x2,y2))
+	  types[3] = FFCOMBOTYPE(x2,y2);
+
+  for(int i=0;i<4;i++)
+  {
+    if(types[i]==cPIT) index=0;
+    else if(types[i]==cPITB) {types[i]=cPIT; index=1;}
+    else if(types[i]==cPITC) {types[i]=cPIT; index=2;}
+    else if(types[i]==cPITD) {types[i]=cPIT; index=3;}
+  }
+  if(types[0]==cPIT||types[1]==cPIT||types[2]==cPIT||types[3]==cPIT)
+    if(action!=freeze&&(!msgstr || msgpos>=72))
+	  type=cPIT;
+
+  /*
+
+  if(get_bit(quest_rules, qr_LTTPWALK))
+  {
+    if((int(x)&7)<4)
+      tx-=(int(x)&7);
+    if((int(x)&7)>4)
+      tx+=8-(int(x)&7);
+    if((int(y)&7)<4)
+      ty-=(int(y)&7);
+    if((int(y)&7)>4)
+      ty+=8-(int(y)&7);
+  }*/
+
+  if(type==cSAVE&&currscr<128)
+    *ls=1;
+
+  if(type==cSAVE2&&currscr<128)
+    *ls=2;
+
+  /*// check alignment for the rest of these
+  if(int(ty)&7)
+    return;
+  if(int(tx)&7)
+    return;*/
+
+  
+
+  if(flag==mfFAIRY||flag2==mfFAIRY||flag3==mfFAIRY)
+  {
+    fairycircle(REFILL_LIFE);
+    if(fairyclk!=0) return;
+  }
+
+  if(flag==mfMAGICFAIRY||flag2==mfMAGICFAIRY||flag3==mfMAGICFAIRY)
+  {
+    fairycircle(REFILL_MAGIC);
+    if(fairyclk!=0) return;
+  }
+
+  if(flag==mfALLFAIRY||flag2==mfALLFAIRY||flag3==mfALLFAIRY)
+  {
+    fairycircle(REFILL_ALL);
+    if(fairyclk!=0) return;
+  }
+
+  if(flag==mfZELDA||flag2==mfZELDA||flag3==mfZELDA)
   {
     saved_Zelda();
     return;
   }
-
-  if(int(x)&15)
+/*
+  if(int(tx)&15)
   {
-    if((COMBOTYPE(x,y)!=COMBOTYPE(x+8,y))&&
-      (COMBOTYPE(x,y)!=cPIT)&&(COMBOTYPE(x+8,y)!=cPIT))
+    if((COMBOTYPE(tx,ty)!=COMBOTYPE(tx+8,ty))&&
+       (COMBOTYPE(tx,ty)!=cPIT)&&(COMBOTYPE(tx+8,ty)!=cPIT)&&
+       (COMBOTYPE(tx,ty)!=cPITB)&&(COMBOTYPE(tx+8,ty)!=cPITB)&&
+       (COMBOTYPE(tx,ty)!=cPITC)&&(COMBOTYPE(tx+8,ty)!=cPITC)&&
+       (COMBOTYPE(tx,ty)!=cPITD)&&(COMBOTYPE(tx+8,ty)!=cPITD)&&
+       (COMBOTYPE(tx,ty)!=cPITR)&&(COMBOTYPE(tx+8,ty)!=cPITR))
       return;
-    if (COMBOTYPE(x+8,y+8)==cPIT)
+    if (COMBOTYPE(tx+8,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPIT)
     {
       type=cPIT;
+      index=0;
+      gotpit=true;
+    }
+    if (COMBOTYPE(tx+8,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPITB)
+    {
+      type=cPIT;
+      index=1;
+      gotpit=true;
+    }
+    if (COMBOTYPE(tx+8,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPITC)
+    {
+      type=cPIT;
+      index=2;
+      gotpit=true;
+    }
+    if (COMBOTYPE(tx+8,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPITD)
+    {
+      type=cPIT;
+      index=3;
+      gotpit=true;
+    }
+    if (COMBOTYPE(tx+8,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPITR)
+    {
+      type=cPIT;
+      index=rand()%4;
+      gotpit=true;
     }
   }
 
-  if(int(y)&15)
+  if(int(ty)&15)
   {
-    if((COMBOTYPE(x,y)!=COMBOTYPE(x,y+8))&&
-      (COMBOTYPE(x,y+8)!=cPIT))
+    if((COMBOTYPE(tx,ty)!=COMBOTYPE(tx,ty+8))&&
+       (COMBOTYPE(tx,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))!=cPIT)&&(COMBOTYPE(tx,ty+8)!=cPIT)&&
+       (COMBOTYPE(tx,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))!=cPITB)&&(COMBOTYPE(tx,ty+8)!=cPITB)&&
+       (COMBOTYPE(tx,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))!=cPITC)&&(COMBOTYPE(tx,ty+8)!=cPITC)&&
+       (COMBOTYPE(tx,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))!=cPITD)&&(COMBOTYPE(tx,ty+8)!=cPITD)&&
+       (COMBOTYPE(tx,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))!=cPITR)&&(COMBOTYPE(tx,ty+8)!=cPITR))
       return;
-    if (COMBOTYPE(x,y+8)==cPIT)
+    if ((COMBOTYPE(tx,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPIT)||((COMBOTYPE(tx,ty+8)==cPIT)))
     {
       type=cPIT;
+      index=0;
+      gotpit=true;
     }
-  }
+    if ((COMBOTYPE(tx,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPITB)||((COMBOTYPE(tx,ty+8)==cPITB)))
+    {
+      type=cPIT;
+      index=1;
+      gotpit=true;
+    }
+    if ((COMBOTYPE(tx,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPITC)||((COMBOTYPE(tx,ty+8)==cPITC)))
+    {
+      type=cPIT;
+      index=2;
+      gotpit=true;
+    }
+    if ((COMBOTYPE(tx,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPITD)||((COMBOTYPE(tx,ty+8)==cPITD)))
+    {
+      type=cPIT;
+      index=3;
+      gotpit=true;
+    }
+    if ((COMBOTYPE(tx,ty+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8))==cPITR)||((COMBOTYPE(tx,ty+8)==cPITR)))
+    {
+      type=cPIT;
+      index=rand()%4;
+      gotpit=true;
+    }
+  }*/
 
   if(type==cTRIGNOFLAG || type==cTRIGFLAG)
   {
     if(type==cTRIGFLAG && !isdungeon())
     {
-      setmapflag(mSECRET);
+      if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
       hidden_entrance(0,true,false);
     }
     else
       hidden_entrance(0,true,true);
   }
 
+  if(type==cSTEP)
+  {
+    if(COMBOTYPE(tx+8,ty+8)==cSTEP)
+    {
+      tmpscr->data[((ty+8)&0xF0)+((tx+8)>>4)]++;
+      reset_combo_animation(tmpscr->data[((ty+8)&0xF0)+((tx+8)>>4)]);
+    }
+
+    if(COMBOTYPE(tx+8,ty+8)==cSTEPSAME)
+    {
+      int stepc = tmpscr->data[((ty+8)&0xF0)+((tx+8)>>4)];
+      for(int k=0;k<176;k++)
+      {
+        if(tmpscr->data[k]==stepc)
+        {
+          tmpscr->data[k]++;
+          reset_combo_animation(tmpscr->data[k]);
+        }
+      }
+    }
+
+    if(COMBOTYPE(tx+8,ty+8)==cSTEPALL)
+    {
+      for(int k=0;k<176;k++)
+      {
+        if(
+            (combobuf[tmpscr->data[k]].type==cSTEP)||
+            (combobuf[tmpscr->data[k]].type==cSTEPSAME)||
+            (combobuf[tmpscr->data[k]].type==cSTEPALL)||
+            (combobuf[tmpscr->data[k]].type==cSTEPCOPY)
+          )
+        {
+          tmpscr->data[k]++;
+          reset_combo_animation(tmpscr->data[k]);
+        }
+      }
+    }
+  }
+
   if(type!=cCAVE && type!=cCAVE2 && type!=cSTAIR &&
-    type!=cPIT && type!=cSWIMWARP && !(type==cDIVEWARP && diveclk>30))
+     type!=cPIT && type!=cSWIMWARP && type!=cRESET &&
+     !(type==cDIVEWARP && diveclk>30))
   {
     switch(flag)
     {
       case mfDIVE_ITEM:
-        if(diveclk>30 && !getmapflag())
+      if(diveclk>30 && !getmapflag())
+      {
+        additem(x, y, tmpscr->catchall,
+                ipONETIME + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+        if(!nosecretsounds)
         {
-          additem(x, y, tmpscr->catchall,
-            ipONETIME + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+          sfx(WAV_SECRET);
+        }
+      }
+      return;
+
+      case mfRAFT:
+      case mfRAFT_BRANCH:
+      if((current_item(itype_raft, true)>=i_raft) && action!=rafting && action!=swimhit
+         && action!=gothit && type==cDOCK)
+      {
+        if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
+        {
+          action=rafting;
           if(!nosecretsounds)
           {
             sfx(WAV_SECRET);
           }
         }
-        return;
+      }
+      return;
+
+      default:
+      break;
+      //return;
+    }
+    switch(flag2)
+    {
+      case mfDIVE_ITEM:
+      if(diveclk>30 && !getmapflag())
+      {
+        additem(x, y, tmpscr->catchall,
+                ipONETIME + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+        if(!nosecretsounds)
+        {
+          sfx(WAV_SECRET);
+        }
+      }
+      return;
 
       case mfRAFT:
       case mfRAFT_BRANCH:
-        if((current_item(itype_raft, true)>=i_raft) && action!=rafting && action!=swimhit
-          && action!=gothit && type==cDOCK)
+      if((current_item(itype_raft, true)>=i_raft) && action!=rafting && action!=swimhit
+         && action!=gothit && type==cDOCK)
+      {
+        if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
         {
-          if(isRaftFlag(nextflag(x,y,dir)))
+          action=rafting;
+          if(!nosecretsounds)
           {
-            action=rafting;
-            if(!nosecretsounds)
-            {
-              sfx(WAV_SECRET);
-            }
+            sfx(WAV_SECRET);
           }
         }
-        return;
+      }
+      return;
 
       default:
-        return;
+		  break;
+      //return;
+    }
+	switch(flag3)
+    {
+      case mfDIVE_ITEM:
+      if(diveclk>30 && !getmapflag())
+      {
+        additem(x, y, tmpscr->catchall,
+                ipONETIME + ipBIGRANGE + ipHOLDUP + ipNODRAW);
+        if(!nosecretsounds)
+        {
+          sfx(WAV_SECRET);
+        }
+      }
+      return;
+
+      case mfRAFT:
+      case mfRAFT_BRANCH:
+      if((current_item(itype_raft, true)>=i_raft) && action!=rafting && action!=swimhit
+         && action!=gothit && type==cDOCK)
+      {
+        if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
+        {
+          action=rafting;
+          if(!nosecretsounds)
+          {
+            sfx(WAV_SECRET);
+          }
+        }
+      }
+      return;
+
+      default:
+      return;
     }
   }
 
   draw_screen(tmpscr, 0, 0);
   advanceframe();
 
+  int t=(currscr<128)?0:1;
   if(type==cCAVE)
   {
-    music_stop();
+    if (tmpscr[t].tilewarptype[0]!=wtPASS)
+    {
+      music_stop();
+    }
     walkdown();
-  } else if(type==cCAVE2)
+  }
+  else if(type==cCAVE2)
   {
-    music_stop();
+    if (tmpscr[t].tilewarptype[0]!=wtPASS)
+    {
+      music_stop();
+    }
     walkup2();
   }
 
@@ -3983,7 +6202,36 @@ void LinkClass::checkspecial()
     return;
   }
 
-  dowarp(0);
+  if(type==cRESET)
+  {
+    if(!(tmpscr->noreset&mSECRET)) unsetmapflag(mSECRET);
+    if(!(tmpscr->noreset&mITEM)) unsetmapflag(mITEM);
+    if(!(tmpscr->noreset&mBELOW)) unsetmapflag(mBELOW);
+    if(!(tmpscr->noreset&mNEVERRET)) unsetmapflag(mNEVERRET);
+    if(!(tmpscr->noreset&mCHEST)) unsetmapflag(mCHEST);
+    if(!(tmpscr->noreset&mLOCKEDCHEST)) unsetmapflag(mLOCKEDCHEST);
+    if(!(tmpscr->noreset&mBOSSCHEST)) unsetmapflag(mBOSSCHEST);
+    if(!(tmpscr->noreset&mLOCKBLOCK)) unsetmapflag(mLOCKBLOCK);
+    if(!(tmpscr->noreset&mBOSSLOCKBLOCK)) unsetmapflag(mBOSSLOCKBLOCK);
+    if(isdungeon())
+    {
+      if(!(tmpscr->noreset&mDOOR_LEFT)) unsetmapflag(mDOOR_LEFT);
+      if(!(tmpscr->noreset&mDOOR_RIGHT)) unsetmapflag(mDOOR_RIGHT);
+      if(!(tmpscr->noreset&mDOOR_DOWN)) unsetmapflag(mDOOR_DOWN);
+      if(!(tmpscr->noreset&mDOOR_UP)) unsetmapflag(mDOOR_UP);
+    }
+    //tmpscr->tilewarpdmap=currdmap;
+    //tmpscr->tilewarpscr=homescr-(((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
+    //tmpscr->tilewarptype=wtIWARP;
+    didpit=true;
+    pitx=x;
+    pity=y;
+    sdir=dir; dowarp(4,0);
+  }
+  else
+  {
+    sdir = dir; dowarp(0,index);
+  }
 }
 
 int selectWlevel(int d)
@@ -3991,38 +6239,41 @@ int selectWlevel(int d)
   if(TriforceCount()==0)
     return 0;
 
-  byte l = game.wlevel;
+  byte l = get_gamedata_wlevel(game);
 
   do
   {
-    if(d==0 && (game.lvlitems[l+1] & liTRIFORCE))
+    if(d==0 && (game->lvlitems[l+1] & liTRIFORCE))
       break;
     else if(d<0)
-      l = (l==0) ? 7 : l-1;
-    else
-      l = (l==7) ? 0 : l+1;
-  } while( !(game.lvlitems[l+1] & liTRIFORCE) );
+        l = (l==0) ? 7 : l-1;
+      else
+        l = (l==7) ? 0 : l+1;
+  } while( !(game->lvlitems[l+1] & liTRIFORCE) );
 
-  game.wlevel = l;
+  set_gamedata_wlevel(game, l);
   return l;
 }
 
-bool LinkClass::dowarp(int type)
+bool LinkClass::dowarp(int type, int index)
 {
   byte wdmap=0,wscr=0,wtype=0,t=0;
   t=(currscr<128)?0:1;
+  int wrindex = (tmpscr->warpreturnc>>(index*2))&3;
+  //int lastent_org = lastentrance;
+  //int lastdmap_org = lastentrace_dmap;
   switch(type)
   {
     case 0:                                                 // tile warp
-      wtype = tmpscr[t].tilewarptype;
-      wdmap = tmpscr[t].tilewarpdmap;
-      wscr = tmpscr[t].tilewarpscr;
-      break;
+    wtype = tmpscr[t].tilewarptype[index];
+    wdmap = tmpscr[t].tilewarpdmap[index];
+    wscr = tmpscr[t].tilewarpscr[index];
+    break;
     case 1:                                                 // side warp
-      wtype = tmpscr[t].sidewarptype;
-      wdmap = tmpscr[t].sidewarpdmap;
-      wscr = tmpscr[t].sidewarpscr;
-      break;
+    wtype = tmpscr[t].sidewarptype[index];
+    wdmap = tmpscr[t].sidewarpdmap[index];
+    wscr = tmpscr[t].sidewarpscr[index];
+    break;
     case 2:                                                 // whistle warp
     {
       wtype = wtWHISTLE;
@@ -4038,65 +6289,83 @@ bool LinkClass::dowarp(int type)
       wscr = QMisc.wind[level].scr;
     }
     break;
+    case 3:
+    wtype = wtIWARP;
+    wdmap = cheat_goto_dmap;
+    wscr = cheat_goto_screen;
+    break;
+    case 4:
+    wtype = wtIWARP;
+    wdmap = currdmap;
+    wscr = homescr-(((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
+    break;
   }
   bool intradmap = (wdmap == currdmap);
   switch(wtype)
   {
     case wtCAVE:                                            // cave/item room
-      ALLOFF();
-      homescr=currscr;
-      currscr=0x80;
-      if(dlevel==0)                                         // cave
+    ALLOFF();
+    homescr=currscr;
+    currscr=0x80;
+    if(dlevel==0)                                         // cave
+    {
+      music_stop();
+      kill_sfx();
+      if(tmpscr->room==rWARP)
+        currscr=0x81;
+      loadlvlpal(10);
+      bool b2 = COOLSCROLL&&
+        ((combobuf[MAPCOMBO(x,y-16)].type==cCAVE)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2)||
+         (combobuf[MAPCOMBO(x,y-16)].type==cCAVEB)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2B)||
+         (combobuf[MAPCOMBO(x,y-16)].type==cCAVEC)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2C)||
+         (combobuf[MAPCOMBO(x,y-16)].type==cCAVED)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2D));
+      blackscr(30,b2?false:true);
+      loadscr(0,currscr,up);
+      loadscr(1,homescr,up);
+      putscr(scrollbuf,0,0,tmpscr);
+      dir=up;
+      x=112;
+      y=160;
+      if (didpit)
       {
-        music_stop();
-        kill_sfx();
-        if(tmpscr->room==rWARP)
-          currscr=0x81;
-        loadlvlpal(10);
-        blackscr(30,(COOLSCROLL&&((combobuf[MAPDATA(x,y-16)].type==cCAVE)||(combobuf[MAPDATA(x,y-16)].type==cCAVE2)))?false:true);
-        loadscr(0,currscr,up);
-        loadscr(1,homescr,up);
-        putscr(scrollbuf,0,0,tmpscr);
-        dir=up;
-        x=112;
-        y=160;
-        if (didpit)
-        {
-          didpit=false;
-          x=pitx;
-          y=pity;
-        }
-        reset_hookshot();
-        stepforward(6);
+        didpit=false;
+        x=pitx;
+        y=pity;
       }
-      else                                                  // item room
+      reset_hookshot();
+      stepforward(get_bit(quest_rules,qr_LTTPWALK)?5:6, false);
+    }
+    else                                                  // item room
+    {
+      stop_sfx(WAV_ROAR);
+      stop_sfx(WAV_VADER);
+      stop_sfx(WAV_DODONGO);
+      draw_screen(tmpscr, 0, 0);
+      if ((tmpscr->flags&fDARK) == 0)
       {
-        stop_sfx(WAV_ROAR);
-        stop_sfx(WAV_VADER);
-        stop_sfx(WAV_DODONGO);
-        draw_screen(tmpscr, 0, 0);
         fade(DMaps[currdmap].color,true,false,false);
-        blackscr(30,true);
-        loadscr(0,currscr,down);
-        loadscr(1,homescr,-1);
-        dontdraw=true;
-        draw_screen(tmpscr, 0, 0);
-        fade(11,true,true,false);
-        dir=down;
-        x=48;
-        y=0;
-        // is thid didpit check necessary?
-        if (didpit)
-        {
-          didpit=false;
-          x=pitx;
-          y=pity;
-        }
-        reset_hookshot();
-        dontdraw=false;
-        stepforward(18);
       }
-      break;
+      blackscr(30,true);
+      loadscr(0,currscr,down);
+      loadscr(1,homescr,-1);
+      dontdraw=true;
+      draw_screen(tmpscr, 0, 0);
+      fade(11,true,true,false);
+      dir=down;
+      x=48;
+      y=0;
+      // is this didpit check necessary?
+      if (didpit)
+      {
+        didpit=false;
+        x=pitx;
+        y=pity;
+      }
+      reset_hookshot();
+      dontdraw=false;
+      stepforward(get_bit(quest_rules,qr_LTTPWALK)?16:18, false);
+    }
+    break;
 
     case wtPASS:                                            // passageway
     {
@@ -4128,7 +6397,7 @@ bool LinkClass::dowarp(int type)
           x=192;
         }
       }
-      // is thid didpit check necessary?
+      // is this didpit check necessary?
       if (didpit)
       {
         didpit=false;
@@ -4139,12 +6408,13 @@ bool LinkClass::dowarp(int type)
       y=0;
       reset_hookshot();
       dontdraw=false;
-      stepforward(18);
+      stepforward(get_bit(quest_rules,qr_LTTPWALK)?16:18, false);
       newscr_clk=frame;
       activated_timed_warp=false;
     } break;
 
-    case wtEXIT:                                            // entrance/exit
+    case wtEXIT: // entrance/exit
+    {
       ALLOFF();
       music_stop();
       kill_sfx();
@@ -4155,26 +6425,80 @@ bool LinkClass::dowarp(int type)
       loadfullpal();
       ringcolor();
       loadlvlpal(DMaps[currdmap].color);
-      lastentrance_dmap = currdmap;
+      //lastentrance_dmap = currdmap;
       homescr = currscr = wscr + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
-      if (dlevel)
+      loadscr(0,currscr,-1);
+      if (tmpscr->flags&fDARK)
       {
-        lastentrance = currscr;
+        if(get_bit(quest_rules,qr_FADE))
+        {
+          int dpos = 64;
+          int lpos = 32;
+          int last = CSET(5)-1;
+    
+          if(get_bit(quest_rules,qr_FADECS5))
+          {
+            last += 16;
+            loadpalset(5,5);
+          }
+    
+          loadlvlpal(DMaps[currdmap].color);
+          byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poFADE1)*3;
+          for(int i=0; i<16; i++)
+          {
+            int light = si[0]+si[1]+si[2];
+            si+=3;
+            fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+i,CSET(2)+i);
+          }
+          fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
+          refreshpal=true;
+        }
+        else
+        {
+          loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
+        }
+        darkroom=true;
+      }
+      int wrx,wry;
+      if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+      {
+        wrx=tmpscr->warpreturnx[0];
+        wry=tmpscr->warpreturny[0];
       }
       else
       {
-        lastentrance = DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
+        wrx=tmpscr->warparrivalx;
+        wry=tmpscr->warparrivaly;
       }
-      loadscr(0,currscr,-1);
+      if(((wrx>0||wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
+      {
+        if (dlevel)
+        {
+          lastentrance = currscr;
+        }
+        else
+        {
+          lastentrance = DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
+        }
+        lastentrance_dmap = wdmap;
+      }
       if(dlevel)
       {
-        x=tmpscr->warparrivalx;
-        y=tmpscr->warparrivaly;
+        if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+        {
+          x=tmpscr->warpreturnx[wrindex];
+          y=tmpscr->warpreturny[wrindex];
+        }
+        else
+        {
+          x=tmpscr->warparrivalx;
+          y=tmpscr->warparrivaly;
+        }
       }
       else
       {
-        x=tmpscr->warpreturnx;
-        y=tmpscr->warpreturny;
+        x=tmpscr->warpreturnx[wrindex];
+        y=tmpscr->warpreturny[wrindex];
       }
       if (didpit)
       {
@@ -4192,8 +6516,8 @@ bool LinkClass::dowarp(int type)
         // reset enemy kill counts
         for(int i=0; i<128; i++)
         {
-          game.guys[(currmap<<7)+i] = 0;
-          game.maps[(currmap<<7)+i] &= ~mTMPNORET;
+          game->guys[(currmap<<7)+i] = 0;
+          game->maps[(currmap<<7)+i] &= ~mTMPNORET;
         }
       }
       markBmap(dir^1);
@@ -4201,33 +6525,34 @@ bool LinkClass::dowarp(int type)
       if(isdungeon())
       {
         openscreen();
-        stepforward(12);
+        stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
       }
       else
       {
         if(!COOLSCROLL)
           openscreen();
 
-        if(combobuf[MAPDATA(x,y-16)].type==cCAVE)
+        if((combobuf[MAPCOMBO(x,y-16)].type==cCAVE)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVEB)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVEC)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVED))
         {
           reset_pal_cycling();
           putscr(scrollbuf,0,0,tmpscr);
           walkup();
         }
-        else if(combobuf[MAPDATA(x,y+16)].type==cCAVE2)
-        {
-          reset_pal_cycling();
-          putscr(scrollbuf,0,0,tmpscr);
-          walkdown2();
-        }
-        else if(COOLSCROLL)
-        {
-          openscreen();
-        }
+        else if((combobuf[MAPCOMBO(x,y+16)].type==cCAVE2)||(combobuf[MAPCOMBO(x,y+16)].type==cCAVE2B)||(combobuf[MAPCOMBO(x,y+16)].type==cCAVE2C)||(combobuf[MAPCOMBO(x,y+16)].type==cCAVE2D))
+          {
+            reset_pal_cycling();
+            putscr(scrollbuf,0,0,tmpscr);
+            walkdown2();
+          }
+          else if(COOLSCROLL)
+            {
+              openscreen();
+            }
       }
       show_subscreen_life=true;
       show_subscreen_numbers=true;
-      play_DmapMusic();
+      //play_DmapMusic();
+      playLevelMusic();
       currcset=DMaps[currdmap].color;
       dointro();
       warpx=x;
@@ -4235,20 +6560,31 @@ bool LinkClass::dowarp(int type)
       for(int i=0; i<6; i++)
         visited[i]=-1;
       break;
-
+    }
     case wtSCROLL:                                          // scrolling warp
     {
       int c = DMaps[currdmap].color;
       currmap = DMaps[wdmap].map;
       lighting(4,dir);
-      scrollscr(dir, wscr+DMaps[wdmap].xoff, wdmap);
+      scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
       reset_hookshot();
       currdmap = wdmap;
       dlevel = DMaps[currdmap].level;
       homescr = currscr = wscr + (((DMaps[wdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[wdmap].xoff);
       if (!intradmap)
       {
-        if(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))
+        int wrx,wry;
+        if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+        {
+          wrx=tmpscr->warpreturnx[0];
+          wry=tmpscr->warpreturny[0];
+        }
+        else
+        {
+          wrx=tmpscr->warparrivalx;
+          wry=tmpscr->warparrivaly;
+        }
+        if(((wrx>0||wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
         {
           if (dlevel)
           {
@@ -4262,8 +6598,11 @@ bool LinkClass::dowarp(int type)
         }
       }
       if(DMaps[currdmap].color != c)
+      {
         loadlvlpal(DMaps[currdmap].color);
-      play_DmapMusic();
+      }
+      //play_DmapMusic();
+      playLevelMusic();
       currcset=DMaps[currdmap].color;
       dointro();
     } break;
@@ -4276,11 +6615,16 @@ bool LinkClass::dowarp(int type)
       currdmap=wdmap;
       dlevel=DMaps[currdmap].level;
       loadlvlpal(DMaps[currdmap].color);
-      play_DmapMusic();
+      //play_DmapMusic();
+      playLevelMusic();
       currcset=DMaps[currdmap].color;
       dointro();
       action=inwind;
-      Lwpns.add(new weapon((fix)0,(fix)(tmpscr->warparrivaly),wWind,1,0,right));
+      int wry;
+      if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+        wry=tmpscr->warpreturny[0];
+      else wry=tmpscr->warparrivaly;
+      Lwpns.add(new weapon((fix)0,(fix)(wry),wWind,1,0,right));
       whirlwind=255;
     } break;
 
@@ -4300,15 +6644,21 @@ bool LinkClass::dowarp(int type)
         zapout();
       }
       else if (wtype==wtIWARPWAVE)
-      {
-        wavyout();
-      }
-      else if(wtype!=wtIWARP)
-      {
-        blackscr(30,(COOLSCROLL&&((combobuf[MAPDATA(x,y-16)].type==cCAVE)||(combobuf[MAPDATA(x,y-16)].type==cCAVE2)))?false:true);
-      }
+        {
+          wavyout();
+        }
+        else if(wtype!=wtIWARP)
+          {
+            bool b2 = COOLSCROLL&&
+              ((combobuf[MAPCOMBO(x,y-16)].type==cCAVE)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2)||
+               (combobuf[MAPCOMBO(x,y-16)].type==cCAVEB)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2B)||
+               (combobuf[MAPCOMBO(x,y-16)].type==cCAVEC)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2C)||
+               (combobuf[MAPCOMBO(x,y-16)].type==cCAVED)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2D));
 
-      int c = DMaps[currdmap].color;
+            blackscr(30,b2?false:true);
+          }
+
+          int c = DMaps[currdmap].color;
       currdmap = wdmap;
       dlevel = DMaps[currdmap].level;
       currmap = DMaps[currdmap].map;
@@ -4322,8 +6672,8 @@ bool LinkClass::dowarp(int type)
       loadscr(0,currscr,-1);
       putscr(scrollbuf,0,0,tmpscr);
 
-      x = tmpscr->warpreturnx;
-      y = tmpscr->warpreturny;
+      x = tmpscr->warpreturnx[wrindex];
+      y = tmpscr->warpreturny[wrindex];
       if (didpit)
       {
         didpit=false;
@@ -4341,31 +6691,32 @@ bool LinkClass::dowarp(int type)
         zapin();
       }
       else if (wtype==wtIWARPWAVE)
-      {
-        wavyin();
-      }
-      if(combobuf[MAPDATA(x,y-16)].type==cCAVE)
+        {
+          wavyin();
+        }
+        if((combobuf[MAPCOMBO(x,y-16)].type==cCAVE)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVEB)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVEC)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVED))
       {
         reset_pal_cycling();
         putscr(scrollbuf,0,0,tmpscr);
         walkup();
       }
-      else if(combobuf[MAPDATA(x,y+16)].type==cCAVE2)
-      {
-        reset_pal_cycling();
-        putscr(scrollbuf,0,0,tmpscr);
-        walkdown2();
-      }
-      else
-      {
-        if(wtype==wtIWARPOPEN)
+      else if((combobuf[MAPCOMBO(x,y+16)].type==cCAVE2)||(combobuf[MAPCOMBO(x,y+16)].type==cCAVE2B)||(combobuf[MAPCOMBO(x,y+16)].type==cCAVE2C)||(combobuf[MAPCOMBO(x,y+16)].type==cCAVE2D))
         {
-          openscreen();
+          reset_pal_cycling();
+          putscr(scrollbuf,0,0,tmpscr);
+          walkdown2();
         }
-      }
+        else
+        {
+          if(wtype==wtIWARPOPEN)
+          {
+            openscreen();
+          }
+        }
       show_subscreen_life=true;
       show_subscreen_numbers=true;
-      play_DmapMusic();
+      //play_DmapMusic();
+      playLevelMusic();
       currcset=DMaps[currdmap].color;
       dointro();
       warpx=x;
@@ -4376,11 +6727,13 @@ bool LinkClass::dowarp(int type)
 
     case wtNOWARP:
     default:
-      return false;
+    didpit=false;
+    update_subscreens();
+    return false;
   }
 
-  if(action!=rafting && iswater(MAPDATA(x,y+8))
-    && (current_item(itype_flippers, true)) && (action!=inwind))
+  if(action!=rafting && iswater(MAPCOMBO(x,y+8))
+     && (current_item(itype_flippers, true)) && (action!=inwind))
   {
     hopclk=0xFF;
     action=swimming;
@@ -4388,7 +6741,7 @@ bool LinkClass::dowarp(int type)
   newscr_clk=frame;
   activated_timed_warp=false;
   eat_buttons();
-  attackclk=0;
+  if(wtype!=wtIWARP) attackclk=0;
   didstuff=0;
   map_bkgsfx();
   loadside=dir^1;
@@ -4397,34 +6750,62 @@ bool LinkClass::dowarp(int type)
   {
     if (dlevel)
     {
+      int wrx,wry;
+      if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+      {
+        wrx=tmpscr->warpreturnx[0];
+        wry=tmpscr->warpreturny[0];
+      }
+      else
+      {
+        wrx=tmpscr->warparrivalx;
+        wry=tmpscr->warparrivaly;
+      }
       if ( (wtype == wtEXIT)
-          || (((wtype == wtSCROLL) && !intradmap)))
+          || (((wtype == wtSCROLL) && !intradmap) && ((wrx>0 || wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))))
       {
         if(!(wtype==wtSCROLL)||!(get_bit(quest_rules,qr_NOSCROLLCONTINUE)))
         {
-          game.continue_scrn=homescr;
+          set_gamedata_continue_scrn(game, homescr);
           //Z_message("continue_scrn = %02X\n e/e",get_gamedata_continue_scrn(game));
         }
       }
       else
       {
-        if (currdmap != game.continue_dmap)
+        if (currdmap != get_gamedata_continue_dmap(game))
         {
-          game.continue_scrn=DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
+          set_gamedata_continue_scrn(game, DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff));
           //Z_message("continue_scrn = %02X\n dlevel",game->continue_scrn);
         }
       }
     }
     else
     {
-      game.continue_scrn=DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
+      set_gamedata_continue_scrn(game, DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff));
       //Z_message("continue_scrn = %02X\n !dlevel",game->continue_scrn);
     }
-    game.continue_dmap=currdmap;
+    set_gamedata_continue_dmap(game, currdmap);
     lastentrance_dmap = currdmap;
-    lastentrance = game.continue_scrn;
-    //Z_message("continue_map = %d\n",game.continue_dmap);
+    lastentrance = get_gamedata_continue_scrn(game);
+    //Z_message("continue_map = %d\n",game->continue_dmap);
   }
+  if (tmpscr->flags4&fAUTOSAVE)
+  {
+    set_gamedata_continue_scrn(game, homescr);
+    set_gamedata_continue_dmap(game, currdmap);
+    lastentrance_dmap = currdmap;
+    lastentrance = get_gamedata_continue_scrn(game);
+  }
+  if (tmpscr->flags6&fCONTINUEHERE)
+  {
+    lastentrance_dmap = currdmap;
+    lastentrance = homescr;
+  }
+  update_subscreens();
+  memset(ffposx,0xFF,sizeof(short)*32);
+  memset(ffposy,0xFF,sizeof(short)*32);
+  memset(ffprvx,0xFF,sizeof(float)*32);
+  memset(ffprvy,0xFF,sizeof(float)*32);
   return true;
 }
 
@@ -4437,8 +6818,8 @@ void LinkClass::exitcave()
 {
   currscr=homescr;
   loadscr(0,currscr,255);                                   // bogus direction
-  x = tmpscr->warpreturnx;
-  y = tmpscr->warpreturny;
+  x = tmpscr->warpreturnx[0];
+  y = tmpscr->warpreturny[0];
   if (didpit)
   {
     didpit=false;
@@ -4447,7 +6828,10 @@ void LinkClass::exitcave()
   }
   if(x+y == 0)
     x = y = 80;
-  bool b = ((combobuf[MAPDATA(x,y-16)].type==cCAVE) || (combobuf[MAPDATA(x,y-16)].type==cCAVE2)) && COOLSCROLL;
+  bool b = ((combobuf[MAPCOMBO(x,y-16)].type==cCAVE) || (combobuf[MAPCOMBO(x,y-16)].type==cCAVE2) ||
+            (combobuf[MAPCOMBO(x,y-16)].type==cCAVEB) || (combobuf[MAPCOMBO(x,y-16)].type==cCAVE2B) ||
+            (combobuf[MAPCOMBO(x,y-16)].type==cCAVEC) || (combobuf[MAPCOMBO(x,y-16)].type==cCAVE2C) ||
+            (combobuf[MAPCOMBO(x,y-16)].type==cCAVED) || (combobuf[MAPCOMBO(x,y-16)].type==cCAVE2D)) && COOLSCROLL;
   blackscr(30,b?false:true);
   ringcolor();
   loadlvlpal(DMaps[currdmap].color);
@@ -4456,17 +6840,18 @@ void LinkClass::exitcave()
   kill_sfx();
   ALLOFF();
   putscr(scrollbuf,0,0,tmpscr);
-  if(combobuf[MAPDATA(x,y-16)].type==cCAVE)
+  if((combobuf[MAPCOMBO(x,y-16)].type==cCAVE)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVEB)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVEC)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVED))
   {
     walkup();
   }
-  else if(combobuf[MAPDATA(x,y+16)].type==cCAVE2)
-  {
-    walkdown2();
-  }
-  show_subscreen_life=true;
+  else if((combobuf[MAPCOMBO(x,y+16)].type==cCAVE2)||(combobuf[MAPCOMBO(x,y+16)].type==cCAVE2B)||(combobuf[MAPCOMBO(x,y+16)].type==cCAVE2C)||(combobuf[MAPCOMBO(x,y+16)].type==cCAVE2D))
+    {
+      walkdown2();
+    }
+    show_subscreen_life=true;
   show_subscreen_numbers=true;
-  play_DmapMusic();
+  //play_DmapMusic();
+  playLevelMusic();
   currcset=DMaps[currdmap].color;
   dointro();
   newscr_clk=frame;
@@ -4482,29 +6867,61 @@ void LinkClass::exitcave()
 
 
 
-void LinkClass::stepforward(int steps)
+void LinkClass::stepforward(int steps, bool adjust)
 {
 
   int tx=x;           //temp x
   int ty=y;           //temp y
   int tstep=0;        //temp single step distance
   int s=0;            //calculated step distance for all steps
+  z3step=2;
+  int sh=shiftdir;
+  shiftdir=-1;
 
   for (int i=steps; i>0; --i)
   {
-    tstep=lsteps[int((dir<left)?ty:tx)&7];
-
-    switch(dir)
+    if(get_bit(quest_rules,qr_LTTPWALK))
     {
-      case up:    ty-=tstep; break;
-      case down:  ty+=tstep; break;
-      case left:  tx-=tstep; break;
-      case right: tx+=tstep; break;
+      tstep=z3step;
+      z3step=(z3step%2)+1;
+    }
+    else
+    {
+      tstep=lsteps[int((dir<left)?ty:tx)&7];
+
+      switch(dir)
+      {
+        case up:    ty-=tstep; break;
+        case down:  ty+=tstep; break;
+        case left:  tx-=tstep; break;
+        case right: tx+=tstep; break;
+      }
     }
     s+=tstep;
   }
 
-    while(s>=0)
+  z3step=2;
+
+  while(s>=0)
+  {
+    if(get_bit(quest_rules,qr_LTTPWALK))
+    {
+      if((dir<left?int(x)&7:int(y)&7)&&adjust==true)
+      {
+        walkable=false;
+        shiftdir=dir<left?(int(x)&8?left:right):(int(y)&8?down:up);
+      }
+      else {s-=z3step; walkable=true;}
+      move(dir);
+      shiftdir=-1;
+      draw_screen(tmpscr, 0, 0);
+      advanceframe();
+      if(Quit)
+        return;
+
+
+    }
+    else
     {
       if (dir<left)
       {
@@ -4520,17 +6937,19 @@ void LinkClass::stepforward(int steps)
       if(Quit)
         return;
     }
+  }
   draw_screen(tmpscr, 0, 0);
   eat_buttons();
   logic_counter=0;
   drawit=true;
+  shiftdir=sh;
 }
 
 void LinkClass::walkdown() //entering cave
 {
   if(COOLSCROLL)
   {
-    close_black_opening(x+8, y+8+56, false);
+    close_black_opening(x+8, y+8+playing_field_offset, false);
   }
   hclk=0;
   stop_sfx(WAV_BRANG);
@@ -4549,14 +6968,14 @@ void LinkClass::walkdown() //entering cave
 
   for(int i=0; i<64; i++)
   {
-    if (FrameSkip)
-    {
+    /*if (FrameSkip)
+      {
       logic_counter=0;
       while(logic_counter==0)
       {
       }
       drawit=true;
-    }
+      }*/
     linkstep();
     if((i&3)==3)
       ++y;
@@ -4574,7 +6993,7 @@ void LinkClass::walkdown2() //exiting cave 2
 {
   if(COOLSCROLL)
   {
-    open_black_opening(x+8, y+8+56+16, false);
+    open_black_opening(x+8, y+8+playing_field_offset+16, false);
   }
   hclk=0;
   stop_sfx(WAV_BRANG);
@@ -4593,14 +7012,14 @@ void LinkClass::walkdown2() //exiting cave 2
 
   for(int i=0; i<64; i++)
   {
-    if (FrameSkip)
-    {
+    /*if (FrameSkip)
+      {
       logic_counter=0;
       while(logic_counter==0)
       {
       }
       drawit=true;
-    }
+      }*/
     linkstep();
     if((i&3)==3)
       ++y;
@@ -4618,7 +7037,7 @@ void LinkClass::walkup() //exiting cave
 {
   if(COOLSCROLL)
   {
-    open_black_opening(x+8, y+8+56-16, false);
+    open_black_opening(x+8, y+8+playing_field_offset-16, false);
   }
   hclk=0;
   stop_sfx(WAV_BRANG);
@@ -4638,14 +7057,14 @@ void LinkClass::walkup() //exiting cave
 
   for(int i=0; i<64; i++)
   {
-    if (FrameSkip)
-    {
+    /*if (FrameSkip)
+      {
       logic_counter=0;
       while(logic_counter==0)
       {
       }
       drawit=true;
-    }
+      }*/
     linkstep();
     if((i&3)==0)
       --y;
@@ -4665,7 +7084,7 @@ void LinkClass::walkup2() //entering cave2
 {
   if(COOLSCROLL)
   {
-    close_black_opening(x+8, y+8+56, false);
+    close_black_opening(x+8, y+8+playing_field_offset, false);
   }
   hclk=0;
   stop_sfx(WAV_BRANG);
@@ -4685,14 +7104,14 @@ void LinkClass::walkup2() //entering cave2
 
   for(int i=0; i<64; i++)
   {
-    if (FrameSkip)
-    {
+    /*if (FrameSkip)
+      {
       logic_counter=0;
       while(logic_counter==0)
       {
       }
       drawit=true;
-    }
+      }*/
     linkstep();
     if((i&3)==0)
       --y;
@@ -4717,17 +7136,50 @@ void LinkClass::stepout()
   ringcolor();
   if(currscr==129 && x!=warpx)
   {
-    currdmap=tmpscr[1].tilewarpdmap;
+    currdmap=tmpscr[1].tilewarpdmap[0];
     currmap=DMaps[currdmap].map;
     dlevel=DMaps[currdmap].level;
-    homescr=tmpscr[1].tilewarpscr+DMaps[currdmap].xoff;
+    homescr=tmpscr[1].tilewarpscr[0]+DMaps[currdmap].xoff;
   }
   currscr=homescr;
   loadscr(0,currscr,255);                                   // bogus direction
   draw_screen(tmpscr, 0, 0);
-  fade(DMaps[currdmap].color,true,true,false);
-  x = tmpscr->warpreturnx;
-  y = tmpscr->warpreturny;
+  if ((tmpscr->flags&fDARK) == 0)
+  {
+    fade(DMaps[currdmap].color,true,true,false);
+  }
+  else
+  {
+    if(get_bit(quest_rules,qr_FADE))
+    {
+      int dpos = 64;
+      int lpos = 32;
+      int last = CSET(5)-1;
+
+      if(get_bit(quest_rules,qr_FADECS5))
+      {
+        last += 16;
+        loadpalset(5,5);
+      }
+
+      loadlvlpal(DMaps[currdmap].color);
+      byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poFADE1)*3;
+      for(int i=0; i<16; i++)
+      {
+        int light = si[0]+si[1]+si[2];
+        si+=3;
+        fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+i,CSET(2)+i);
+      }
+      fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
+      refreshpal=true;
+    }
+    else
+    {
+      loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
+    }
+  }
+  x = tmpscr->warpreturnx[0];
+  y = tmpscr->warpreturny[0];
   if (didpit)
   {
     didpit=false;
@@ -4757,39 +7209,41 @@ bool edge_of_dmap(int side)
     case up:    return currscr<16;
     case down:  return currscr>=112;
     case left:
-      if((currscr&15)==0)
-        return true;
-      if ((DMaps[currdmap].type&dmfTYPE)!=dmOVERW)
-        //    if(dlevel)
-        return (((currscr&15)-DMaps[currdmap].xoff)<=0);
-      break;
+    if((currscr&15)==0)
+      return true;
+    if ((DMaps[currdmap].type&dmfTYPE)!=dmOVERW)
+      //    if(dlevel)
+      return (((currscr&15)-DMaps[currdmap].xoff)<=0);
+    break;
     case right:
-      if((currscr&15)==15)
-        return true;
-      if ((DMaps[currdmap].type&dmfTYPE)!=dmOVERW)
-        //    if(dlevel)
-        return (((currscr&15)-DMaps[currdmap].xoff)>=7);
-      break;
+    if((currscr&15)==15)
+      return true;
+    if ((DMaps[currdmap].type&dmfTYPE)!=dmOVERW)
+      //    if(dlevel)
+      return (((currscr&15)-DMaps[currdmap].xoff)>=7);
+    break;
   }
   return false;
 }
 
-bool LinkClass::nextcombo_wf()
+bool LinkClass::nextcombo_wf(int d)
 {
   if(toogam || action!=swimming || hopclk==0)
     return false;
 
   // assumes Link is about to scroll screens
 
-  int ns = nextscr(dir);
+  int ns = nextscr(d);
+  if(ns==0xFFFF)
+    return false;
 
-  // want actual screen index, not game.maps[] index
+  // want actual screen index, not game->maps[] index
   ns = (ns&127) + (ns>>7)*MAPSCRS;
 
   int cx = x;
   int cy = y;
 
-  switch(dir)
+  switch(d)
   {
     case up:    cy=160; break;
     case down:  cy=0; break;
@@ -4800,7 +7254,7 @@ bool LinkClass::nextcombo_wf()
   // check lower half of combo
   cy += 8;
 
-  // from MAPDATA()
+  // from MAPCOMBO()
   int cmb = (cy&0xF0)+(cx>>4);
   if(cmb>175)
     return true;
@@ -4836,6 +7290,100 @@ bool LinkClass::nextcombo_wf()
   return (c.walk&b) ? !dried && !swim : false;
 }
 
+bool LinkClass::nextcombo_solid(int d)
+{
+  if(toogam)
+    return false;
+
+  // assumes Link is about to scroll screens
+
+  int ns = nextscr(d);
+  if(ns==0xFFFF)
+    return false;
+
+  // want actual screen index, not game->maps[] index
+  ns = (ns&127) + (ns>>7)*MAPSCRS;
+
+  int cx = x;
+  int cy = y;
+
+  switch(d)
+  {
+    case up:    cy=160; break;
+    case down:  cy=0; break;
+    case left:  cx=240; break;
+    case right: cx=0; break;
+  }
+
+  if(d==up) cy += 8;
+  if(d==left||d==right) cy+=get_bit(quest_rules,qr_LTTPCOLLISION)?0:8;
+
+  // from MAPCOMBO()
+
+  for(int i=0;i<=(((get_bit(quest_rules,qr_LTTPCOLLISION))&&!(d==up||d==down))?((cy&7)?2:1):((cy&7)?1:0));cy+=8,i++)
+  {
+  int cmb = (cy&0xF0)+(cx>>4);
+  if(cmb>175)
+    return true;
+
+  newcombo c = combobuf[TheMaps[ns].data[cmb]];
+  bool dried = iswater_type(c.type) && (whistleclk>=88);
+  bool swim = iswater_type(c.type) && (current_item(itype_flippers, true));
+  int b=1;
+
+  if(cx&8) b<<=2;
+  if(cy&8) b<<=1;
+
+  if((c.walk&b) && !dried && !swim)
+    return true;
+
+  // next block (i.e. cnt==2)
+  if(!(cx&8))
+  {
+    b<<=2;
+  }
+  else
+  {
+    c = combobuf[TheMaps[ns].data[++cmb]];
+    dried = iswater_type(c.type) && (whistleclk>=88);
+    swim = iswater_type(c.type) && (current_item(itype_flippers, true));
+    b=1;
+    if(cy&8)
+    {
+      b<<=1;
+    }
+  }
+
+  if((c.walk&b) && !dried && !swim)
+    return true;
+
+  cx+=8;
+  if(cx&7)
+  {
+	if(!(cx&8))
+    {
+      b<<=2;
+    }
+    else
+    {
+      c = combobuf[TheMaps[ns].data[++cmb]];
+      dried = iswater_type(c.type) && (whistleclk>=88);
+      swim = iswater_type(c.type) && (current_item(itype_flippers, true));
+      b=1;
+      if(cy&8)
+      {
+        b<<=1;
+      }
+	}
+
+	if((c.walk&b) && !dried && !swim)
+    return true;
+  }
+
+  }
+  return false;
+}
+
 void LinkClass::checkscroll()
 {
   if(toogam)
@@ -4848,49 +7396,141 @@ void LinkClass::checkscroll()
 
   if(y<0)
   {
+    bool doit=true;
     y=0;
-    if(nextcombo_wf())
-      return;
+    if(nextcombo_wf(up))
+      doit=false;
+	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)))
+	{
+	  if(nextcombo_solid(up))
+	    doit=false;
+	}
+	if(doit)
+	{
     if(currscr>=128)
       stepout();
     else if(tmpscr->flags2&wfUP)
-      dowarp(1);
-    else if(!edge_of_dmap(up))
-      scrollscr(up);
+      { sdir=up; dowarp(1,(tmpscr->sidewarpindex)&3); }
+      else if(!edge_of_dmap(up))
+        {
+          scrollscr(up);
+          if (tmpscr->flags4&fAUTOSAVE)
+          {
+            set_gamedata_continue_scrn(game, homescr);
+            set_gamedata_continue_dmap(game, currdmap);
+            lastentrance_dmap = currdmap;
+            lastentrance = get_gamedata_continue_scrn(game);
+          }
+		  if (tmpscr->flags6&fCONTINUEHERE)
+		  {
+			lastentrance_dmap = currdmap;
+            lastentrance = homescr;
+		  }
+        }
+	}
   }
   if(y>160)
   {
+	bool doit=true;
     y=160;
-    if(nextcombo_wf())
-      return;
+    if(nextcombo_wf(down))
+      doit=false;
+	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)))
+	{
+	  if(nextcombo_solid(down))
+	    doit=false;
+	}
+	if(doit)
+	{
     if(currscr>=128)
       exitcave();
     else if(tmpscr->flags2&wfDOWN)
-      dowarp(1);
-    else if(!edge_of_dmap(down))
-      scrollscr(down);
+      { sdir=down; dowarp(1,(tmpscr->sidewarpindex>>2)&3); }
+      else if(!edge_of_dmap(down))
+        {
+          scrollscr(down);
+          if (tmpscr->flags4&fAUTOSAVE)
+          {
+            set_gamedata_continue_scrn(game, homescr);
+            set_gamedata_continue_dmap(game, currdmap);
+            lastentrance_dmap = currdmap;
+            lastentrance = get_gamedata_continue_scrn(game);
+          }
+		  if (tmpscr->flags6&fCONTINUEHERE)
+		  {
+			lastentrance_dmap = currdmap;
+            lastentrance = homescr;
+		  }
+        }
+	}
   }
   if(x<0)
   {
+    bool doit=true;
     x=0;
-    if(nextcombo_wf())
-      return;
+    if(nextcombo_wf(left))
+      doit=false;
+	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)))
+	{
+	  if(nextcombo_solid(left))
+	    doit=false;
+	}
+	if(doit)
+	{
     if(tmpscr->flags2&wfLEFT)
-      dowarp(1);
+    { sdir=left; dowarp(1,(tmpscr->sidewarpindex>>4)&3); }
     else if(!edge_of_dmap(left))
-      scrollscr(left);
+      {
+        scrollscr(left);
+        if (tmpscr->flags4&fAUTOSAVE)
+        {
+          set_gamedata_continue_scrn(game, homescr);
+          set_gamedata_continue_dmap(game, currdmap);
+          lastentrance_dmap = currdmap;
+          lastentrance = get_gamedata_continue_scrn(game);
+        }
+		if (tmpscr->flags6&fCONTINUEHERE)
+		  {
+			lastentrance_dmap = currdmap;
+            lastentrance = homescr;
+		  }
+      }
+	}
   }
   if(x>240)
   {
+    bool doit=true;
     x=240;
-    if(nextcombo_wf())
-      return;
+    if(nextcombo_wf(right))
+      doit=false;
+	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)))
+	{
+	  if(nextcombo_solid(right))
+	    doit=false;
+	}
+	if(doit)
+	{
     if(action==inwind)
-      dowarp(2);
+      dowarp(2,0);
     else if(tmpscr->flags2&wfRIGHT)
-      dowarp(1);
-    else if(!edge_of_dmap(right))
-      scrollscr(right);
+      {sdir=right; dowarp(1,(tmpscr->sidewarpindex>>6)&3); }
+      else if(!edge_of_dmap(right))
+        {
+          scrollscr(right);
+          if (tmpscr->flags4&fAUTOSAVE)
+          {
+            set_gamedata_continue_scrn(game, homescr);
+            set_gamedata_continue_dmap(game, currdmap);
+            lastentrance_dmap = currdmap;
+            lastentrance = get_gamedata_continue_scrn(game);
+          }
+		  if (tmpscr->flags6&fCONTINUEHERE)
+		  {
+			lastentrance_dmap = currdmap;
+            lastentrance = homescr;
+		  }
+        }
+	}
   }
 }
 
@@ -4905,14 +7545,14 @@ bool LinkClass::checkmaze(mapscr *scr)
   for(int i=0; i<4; i++)
     if(lastdir[i]!=scr->path[i])
       return false;
-  if(!nosecretsounds)
+    if(!nosecretsounds)
   {
     sfx(WAV_SECRET);
   }
   return true;
 }
 
-int LinkClass::lookahead(int destscr)                       // Helper for scrollscr that gets next combo on next screen.
+int LinkClass::lookahead(int destscr, int d)                       // Helper for scrollscr that gets next combo on next screen.
 {
   // Can use destscr for scrolling warps,
   // but assumes currmap is correct.
@@ -4921,7 +7561,7 @@ int LinkClass::lookahead(int destscr)                       // Helper for scroll
   int cx = x;
   int cy = y + 8;
 
-  switch(dir)
+  switch(d)
   {
     case up:    s-=16; cy=160; break;
     case down:  s+=16; cy=0; break;
@@ -4938,16 +7578,16 @@ int LinkClass::lookahead(int destscr)                       // Helper for scroll
   return TheMaps[currmap*MAPSCRS+s].data[combo];            // entire combo code
 }
 
-int LinkClass::lookaheadflag(int destscr)
+int LinkClass::lookaheadflag(int destscr, int d)
 {                                                           // Helper for scrollscr that gets next combo on next screen.
-  // Can use destscr for scrolling warps,
-  // but assumes currmap is correct.
+                                                            // Can use destscr for scrolling warps,
+                                                            // but assumes currmap is correct.
 
   int s = currscr;
   int cx = x;
   int cy = y + 8;
 
-  switch(dir)
+  switch(d)
   {
     case up:    s-=16; cy=160; break;
     case down:  s+=16; cy=0; break;
@@ -4961,6 +7601,10 @@ int LinkClass::lookaheadflag(int destscr)
   int combo = (cy&0xF0)+(cx>>4);
   if(combo>175)
     return 0;
+  if (!TheMaps[currmap*MAPSCRS+s].sflag[combo])
+  {
+    return combobuf[TheMaps[currmap*MAPSCRS+s].data[combo]].flag;           // flag
+  }
   return TheMaps[currmap*MAPSCRS+s].sflag[combo];           // flag
 }
 
@@ -4982,8 +7626,8 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
   actiontype lastaction = action;
   ALLOFF();
 
-  int ahead = lookahead(destscr);
-  int aheadflag = lookaheadflag(destscr);
+  int ahead = lookahead(destscr, dir);
+  int aheadflag = lookaheadflag(destscr, dir);
 
   if (lastaction!=inwind)
   {
@@ -4992,31 +7636,23 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
       action=rafting;
     }
     else if(iswater(ahead) && (current_item(itype_flippers, true)))
-    {
-      if(lastaction==swimming)
       {
-        action = swimming;
-        hopclk = 0xFF;
+        if(lastaction==swimming)
+        {
+          action = swimming;
+          hopclk = 0xFF;
+        }
+        else
+        {
+          action = hopping;
+          hopclk = 2;
+        }
       }
-      else
-      {
-        action = hopping;
-        hopclk = 16;
-      }
-    }
   }
   lstep=(lstep+6)%12;
   cx = scx;
   do
   {
-    if (FrameSkip)
-    {
-      logic_counter=0;
-      while(logic_counter==0)
-      {
-      }
-      drawit=true;
-    }
     draw_screen(tmpscr, 0, 0);
     if(cx==scx)
       rehydratelake();
@@ -5035,64 +7671,64 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
   switch(dir)
   {
     case up:
-      if (fixed_door)
-      {
-        unsetmapflag(mSECRET);
-      }
-      if(destscr!=-1)
-        currscr=destscr;
-      else if(checkmaze(oldscr))
+    if (fixed_door)
+    {
+      unsetmapflag(mSECRET);
+    }
+    if(destscr!=-1)
+      currscr=destscr;
+    else if(checkmaze(oldscr))
         currscr-=16;
       loadscr(0,currscr,dir);
-      blit(scrollbuf,scrollbuf,0,0,0,176,256,176);
-      putscr(scrollbuf,0,0,newscr);
-      sy=176;
-      cx=176/step;
-      break;
+    blit(scrollbuf,scrollbuf,0,0,0,176,256,176);
+    putscr(scrollbuf,0,0,newscr);
+    sy=176;
+    cx=176/step;
+    break;
 
     case down:
-      if (fixed_door)
-      {
-        unsetmapflag(mSECRET);
-      }
-      if(destscr!=-1)
-        currscr=destscr;
-      else if(checkmaze(oldscr))
+    if (fixed_door)
+    {
+      unsetmapflag(mSECRET);
+    }
+    if(destscr!=-1)
+      currscr=destscr;
+    else if(checkmaze(oldscr))
         currscr+=16;
       loadscr(0,currscr,dir);
-      putscr(scrollbuf,0,176,newscr);
-      cx=176/step;
-      break;
+    putscr(scrollbuf,0,176,newscr);
+    cx=176/step;
+    break;
 
     case left:
-      if (fixed_door)
-      {
-        unsetmapflag(mSECRET);
-      }
-      if(destscr!=-1)
-        currscr=destscr;
-      else if(checkmaze(oldscr))
+    if (fixed_door)
+    {
+      unsetmapflag(mSECRET);
+    }
+    if(destscr!=-1)
+      currscr=destscr;
+    else if(checkmaze(oldscr))
         --currscr;
       loadscr(0,currscr,dir);
-      blit(scrollbuf,scrollbuf,0,0,256,0,256,176);
-      putscr(scrollbuf,0,0,newscr);
-      sx=256;
-      cx=256/step;
-      break;
+    blit(scrollbuf,scrollbuf,0,0,256,0,256,176);
+    putscr(scrollbuf,0,0,newscr);
+    sx=256;
+    cx=256/step;
+    break;
 
     case right:
-      if (fixed_door)
-      {
-        unsetmapflag(mSECRET);
-      }
-      if(destscr!=-1)
-        currscr=destscr;
-      else if(checkmaze(oldscr))
+    if (fixed_door)
+    {
+      unsetmapflag(mSECRET);
+    }
+    if(destscr!=-1)
+      currscr=destscr;
+    else if(checkmaze(oldscr))
         ++currscr;
       loadscr(0,currscr,dir);
-      putscr(scrollbuf,256,0,newscr);
-      cx=256/step;
-      break;
+    putscr(scrollbuf,256,0,newscr);
+    cx=256/step;
+    break;
   }
 
   fixed_door=false;
@@ -5108,14 +7744,6 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
 
   while(cx>0)
   {
-    if (FrameSkip)
-    {
-      logic_counter=0;
-      while(logic_counter==0)
-      {
-      }
-      drawit=true;
-    }
     switch(dir)
     {
       case up:    sy-=step; break;
@@ -5123,7 +7751,6 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
       case left:  sx-=step; break;
       case right: sx+=step; break;
     }
-    //    putsubscr(framebuf,0,0);
     if (ladderx+laddery)
     {
       if(ladderdir==up)
@@ -5137,7 +7764,42 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
         laddery = int(y);
       }
     }
-    blit(scrollbuf,framebuf,sx,sy,0,56,256,168);
+	switch(dir)
+	{
+	  case up:
+      if(newscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
+      if(oldscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, oldscr, 0, -176+playing_field_offset, 3);
+      if(newscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
+      if(oldscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, oldscr, 0, -176+playing_field_offset, 3);
+      putscr(scrollbuf, 0, 0, newscr);
+      putscr(scrollbuf, 0, 176, oldscr);
+      break;
+	  case down:
+      if(newscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, newscr, 0, -176+playing_field_offset, 2);
+      if(oldscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
+      if(newscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, newscr, 0, -176+playing_field_offset, 2);
+      if(oldscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
+      putscr(scrollbuf, 0, 0, oldscr);
+      putscr(scrollbuf, 0, 176, newscr);
+      break;
+	  case left:
+      if(newscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
+      if(oldscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, oldscr, -256, playing_field_offset, 3);
+      if(newscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
+      if(oldscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, oldscr, -256, playing_field_offset, 3);
+      putscr(scrollbuf, 0, 0, newscr);
+      putscr(scrollbuf, 256, 0, oldscr);
+      break;
+	  case right:
+      if(newscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, newscr, -256, playing_field_offset, 2);
+      if(oldscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
+      if(newscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, newscr, -256, playing_field_offset, 2);
+      if(oldscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
+      putscr(scrollbuf, 0, 0, oldscr);
+      putscr(scrollbuf, 256, 0, newscr);
+      break;
+	}
+	blit(scrollbuf,framebuf,sx,sy,0,playing_field_offset,256,168);
     switch(dir)
     {
       case up:    if(y<160) y+=step; break;
@@ -5166,34 +7828,31 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
       ty2-=176;
     }
 
-    //    linkstep();
-    //    draw_screen(newscr, oldscr, tx, ty, tx2, ty2);
-
-    do_layer(framebuf, 0, oldscr, tx2, ty2, 3);
-    do_layer(framebuf, 1, oldscr, tx2, ty2, 3);
-    do_layer(framebuf, 0, newscr, tx, ty, 2);
-    do_layer(framebuf, 1, newscr, tx, ty, 2);
-    do_layer(framebuf, -2, oldscr, tx2, ty2, 3);
-    do_layer(framebuf, -2, newscr, tx, ty, 2);
+    do_layer(framebuf,0, oldscr, tx2, ty2, 3);
+    if(!(oldscr->flags7&fLAYER2BG)) do_layer(framebuf,1, oldscr, tx2, ty2, 3);
+    do_layer(framebuf,0, newscr, tx, ty, 2);
+    if(!(newscr->flags7&fLAYER2BG)) do_layer(framebuf,1, newscr, tx, ty, 2);
+    do_layer(framebuf,-2, oldscr, tx2, ty2, 3);
+    do_layer(framebuf,-2, newscr, tx, ty, 2);
     linkstep();
     if(!isdungeon()||get_bit(quest_rules,qr_FREEFORM))
     {
       draw_under(framebuf);
       draw(framebuf);
     }
-    do_layer(framebuf, 2, oldscr, tx2, ty2, 3);
-    do_layer(framebuf, 3, oldscr, tx2, ty2, 3);
-    do_layer(framebuf, -1, oldscr, tx2, ty2, 3);
-    do_layer(framebuf, 4, oldscr, tx2, ty2, 3);
-    do_layer(framebuf, 5, oldscr, tx2, ty2, 3);
+    if(!(oldscr->flags7&fLAYER3BG)) do_layer(framebuf,2, oldscr, tx2, ty2, 3);
+    do_layer(framebuf,3, oldscr, tx2, ty2, 3);
+    do_layer(framebuf,-1, oldscr, tx2, ty2, 3);
+    do_layer(framebuf,4, oldscr, tx2, ty2, 3);
+    do_layer(framebuf,5, oldscr, tx2, ty2, 3);
 
-    do_layer(framebuf, 2, newscr, tx, ty, 2);
-    do_layer(framebuf, 3, newscr, tx, ty, 2);
-    do_layer(framebuf, -1, newscr, tx, ty, 2);
-    do_layer(framebuf, 4, newscr, tx, ty, 2);
-    do_layer(framebuf, 5, newscr, tx, ty, 2);
+    if(!(newscr->flags7&fLAYER3BG)) do_layer(framebuf,2, newscr, tx, ty, 2);
+    do_layer(framebuf,3, newscr, tx, ty, 2);
+    do_layer(framebuf,-1, newscr, tx, ty, 2);
+    do_layer(framebuf,4, newscr, tx, ty, 2);
+    do_layer(framebuf,5, newscr, tx, ty, 2);
 
-    putsubscr(framebuf,0,0);
+    put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
 
     advanceframe();
     if(Quit)
@@ -5212,7 +7871,7 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
   homescr=currscr;
   putscr(scrollbuf,0,0,newscr);
 
-  if(MAPFLAG(x,y)==mfRAFT && action!=rafting && hopclk==0)
+  if((MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT) && action!=rafting && hopclk==0)
   {
     if (!nosecretsounds)
     {
@@ -5231,17 +7890,20 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
       case dOPEN:
       case dUNLOCKED:
       case dOPENBOSS:
-        stepforward(12);
-        break;
+      this->dir = dir;
+      stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+      break;
       case dSHUTTER:
       case d1WAYSHUTTER:
-        stepforward(24);
-        putdoor(0,dir^1,tmpscr->door[dir^1]);
-        opendoors=-4;
-        sfx(WAV_DOOR);
-        break;
+      this->dir = dir;
+      stepforward(get_bit(quest_rules,qr_LTTPWALK)?21:24, false);
+      putdoor(0,dir^1,tmpscr->door[dir^1]);
+      opendoors=-4;
+      sfx(WAV_DOOR);
+      break;
       default:
-        stepforward(24);
+      this->dir = dir;
+      stepforward(get_bit(quest_rules,qr_LTTPWALK)?21:24, false);
     }
   }
 
@@ -5253,6 +7915,12 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
   {
     sfx(WAV_SECRET);
   }
+
+  playLevelMusic();
+  memset(ffposx,0xFF,sizeof(short)*32);
+  memset(ffposy,0xFF,sizeof(short)*32);
+  memset(ffprvx,0xFF,sizeof(float)*32);
+  memset(ffprvy,0xFF,sizeof(float)*32);
 
   newscr_clk = frame;
   activated_timed_warp=false;
@@ -5266,78 +7934,146 @@ void LinkClass::scrollscr(int dir, int destscr, int destdmap)
 
 int Bweapon(int pos)
 {
-
-  switch(zinit.subscreen)
+  int p=-1;
+  for (int i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
   {
-    case 0:                                                 //original
-    case 1:                                                 //revision 1 ("New Subscreen")
-      switch(pos)
-      {
-        case 0: if(current_item(itype_brang,true)==3) return iFBrang;
-        if(current_item(itype_brang,true)) return current_item(itype_brang,true)-1+iBrang; break;
-        case 1: if(current_item(itype_bomb,true)) return iBombs; break;
-        case 2: if(current_item(itype_bow,true) && current_item(itype_arrow,true))
-        {
-          if (current_item(itype_arrow,true)<3)
-          {
-            return current_item(itype_arrow,true)-1+iArrow;
-          }
-          else
-          {
-            return iGArrow;
-          }
-        } break;
-        case 3: if(current_item(itype_candle,true)) return current_item(itype_candle,true)-1+iBCandle; break;
-        case 4: if(current_item(itype_whistle,true)) return iWhistle; break;
-        case 5: if(current_item(itype_bait,true)) return iBait; break;
-        case 6: if(current_item(itype_potion,true)) return current_item(itype_potion,true)-1+iBPotion;
-        if(current_item(itype_letter,true)) return iLetter; break;
-        case 7: if(current_item(itype_wand,true)) return iWand; break;
-        case 8: if(current_item(itype_hookshot, true)) return iHookshot; break;
-        case 9: if(current_item(itype_sbomb,true)) return iSBomb; break;
-        case 10: if(current_item(itype_lens, true)) return iLens; break;
-        case 11: if(current_item(itype_hammer, true)) return iHammer; break;
-      }
+    if (current_subscreen_active->objects[i].type==ssoCURRENTITEM && current_subscreen_active->objects[i].d3==pos)
+    {
+      p=i;
       break;
-    case 2:                                                 //revision 2 (1.92 beta 168)
-      switch(pos)
-      {
-        case 0: if(current_item(itype_brang,true)==3) return iFBrang;
-        if(current_item(itype_brang,true)) return current_item(itype_brang,true)-1+iBrang; break;
-        case 1: if(current_item(itype_bomb,true)) return iBombs; break;
-        case 2: if(current_item(itype_bow,true) && current_item(itype_arrow,true))
-        {
-          if (current_item(itype_arrow,true)<3)
-          {
-            return current_item(itype_arrow,true)-1+iArrow;
-          }
-          else
-          {
-            return iGArrow;
-          }
-        } break;
-        case 3: if(current_item(itype_candle,true)) return current_item(itype_candle,true)-1+iBCandle; break;
-        case 4: if(current_item(itype_dinsfire,true)) return iDinsFire; break;
-        case 5: if(current_item(itype_whistle,true)) return iWhistle; break;
-        case 6: if(current_item(itype_bait,true)) return iBait; break;
-        case 7: if(current_item(itype_potion,true)) return current_item(itype_potion,true)-1+iBPotion;
-        if(current_item(itype_letter,true)) return iLetter; break;
-        case 8: if(current_item(itype_wand,true)) return iWand; break;
-        case 9: if(current_item(itype_faroreswind,true)) return iFaroresWind; break;
-        case 10: if(current_item(itype_hookshot, true)) return iHookshot; break;
-        case 11: if(current_item(itype_sbomb,true)) return iSBomb; break;
-        case 12: if(current_item(itype_lens, true)) return iLens; break;
-        case 13: if(current_item(itype_hammer, true)) return iHammer; break;
-        case 14: if(current_item(itype_nayruslove,true)) return iNayrusLove; break;
-        case 15: break;
-        case 16: break;
-        case 17: break;
-        case 18: break;
-        case 19: break;
-      }
-      break;
+    }
+  }
+  if (p==-1)
+  {
+    return 0;
   }
 
+  switch (current_subscreen_active->objects[p].d1)
+  {
+    case ssiBRANG:
+    if(current_item(itype_brang,true)==3)
+    {
+      return iFBrang;
+    }
+    if(current_item(itype_brang,true))
+    {
+      return current_item(itype_brang,true)-1+iBrang;
+    }
+    break;
+    case ssiBOMB:
+    if(current_item(itype_bomb,true))
+    {
+      return iBombs;
+    }
+    break;
+    case ssiBOWANDARROW:
+    case ssiARROW:
+    if(current_item(itype_bow,true) && current_item(itype_arrow,true))
+    {
+      bool bow=(current_subscreen_active->objects[p].d1==ssiBOWANDARROW);
+      if (current_item(itype_arrow,true)<3)
+      {
+        return current_item(itype_arrow,true)-1+iArrow+(bow?0xF000:0);
+      }
+      else
+      {
+        return iGArrow+(bow?0xF000:0);
+      }
+    }
+    break;
+    case ssiCANDLE:
+    if(current_item(itype_candle,true))
+    {
+      return current_item(itype_candle,true)-1+iBCandle;
+    }
+    break;
+    case ssiDINSFIRE:
+    if(current_item(itype_dinsfire,true))
+    {
+      return iDinsFire;
+    }
+    break;
+    case ssiWHISTLE:
+    if(current_item(itype_whistle,true))
+    {
+      return iWhistle;
+    }
+    break;
+    case ssiBAIT:
+    if(current_item(itype_bait,true))
+    {
+      return iBait;
+    }
+    break;
+    case ssiLETTERPOTION:
+    if(current_item(itype_potion,true))
+    {
+      return current_item(itype_potion,true)-1+iBPotion;
+    }
+    if(current_item(itype_letter,true))
+    {
+      return iLetter;
+    }
+    break;
+    case ssiPOTION:
+    if(current_item(itype_potion,true))
+    {
+      return current_item(itype_potion,true)-1+iBPotion;
+    }
+    break;
+    case ssiLETTER:
+    if(current_item(itype_letter,true))
+    {
+      return iLetter;
+    }
+    break;
+    case ssiWAND:
+    if(current_item(itype_wand,true))
+    {
+      return iWand;
+    }
+    break;
+    case ssiFARORESWIND:
+    if(current_item(itype_faroreswind,true))
+    {
+      return iFaroresWind;
+    }
+    break;
+    case ssiHOOKSHOT:
+    if(current_item(itype_hookshot, true))
+    {
+      if(current_item(itype_hookshot, true)==2)
+      {
+        return iLongshot;
+      }
+      return iHookshot;
+    }
+    break;
+    case ssiSBOMB:
+    if(current_item(itype_sbomb,true))
+    {
+      return iSBomb;
+    }
+    break;
+    case ssiLENS:
+    if(current_item(itype_lens, true))
+    {
+      return iLens;
+    }
+    break;
+    case ssiHAMMER:
+    if(current_item(itype_hammer, true))
+    {
+      return iHammer;
+    }
+    break;
+    case ssiNAYRUSLOVE:
+    if(current_item(itype_nayruslove,true))
+    {
+      return iNayrusLove;
+    }
+    break;
+  }
   return 0;
 }
 
@@ -5349,11 +8085,11 @@ void selectAwpn(int step)
     case 1:
     case 2:
     case 3:
-      Awpn = current_item(itype_sword,true) - 1 + iSword; break;
+    Awpn = current_item(itype_sword,true) - 1 + iSword; break;
     case 4:
-      Awpn = iXSword; break;
+    Awpn = iXSword; break;
     default:
-      Awpn = 0;
+    Awpn = 0;
   }
 }
 
@@ -5362,61 +8098,61 @@ void selectBwpn(int xstep, int ystep)
   if((xstep==0)&&(ystep==0))
   {
     Bwpn=Bweapon(Bpos);
+    update_subscr_items();
     if(Bwpn)
+    {
       return;
+    }
     xstep=1;
   }
 
   if((xstep==8)&&(ystep==8))
   {
     Bwpn=Bweapon(Bpos);
+    update_subscr_items();
     if(Bwpn)
+    {
       return;
+    }
     xstep=-1;
   }
 
   int pos = Bpos;
-  int cnt=0;
-  switch(zinit.subscreen)
-  {
-    case 0:                                                 //original
-      cnt=8;
-      break;
-    case 1:                                                 //revision 1 ("New Subscreen")
-      cnt=12;
-      break;
-    case 2:                                                 //revision 2 (1.92 beta 168)
-      cnt=20;
-      break;
-  }
-  // int cnt = NEWSUBSCR ? 12 : 8;
 
   do
   {
-    switch(zinit.subscreen)
+    int p=-1;
+    for (int i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
     {
-      case 0:                                               //original
-        Bpos += xstep;
-        Bpos += (ystep*4);
-        break;
-      case 1:                                               //revision 1 ("New Subscreen")
-        Bpos += xstep;
-        Bpos += (ystep*4);
-        break;
-      case 2:                                               //revision 2 (1.92 beta 168)
-        Bpos += xstep;
-        Bpos += (ystep*5);
-        break;
+      if (current_subscreen_active->objects[i].type==ssoCURRENTITEM)
+      {
+        if (current_subscreen_active->objects[i].d3==Bpos)
+        {
+          p=i;
+          break;
+        }
+        else
+        {
+        }
+      }
     }
-
-    while(Bpos<0)
-      Bpos+=cnt;
-    while(Bpos>=cnt)
-      Bpos-=cnt;
+    if (p!=-1)
+    {
+      if (xstep!=0)
+      {
+        Bpos=xstep<0?current_subscreen_active->objects[p].d6:current_subscreen_active->objects[p].d7;
+      }
+      else
+      {
+        Bpos=ystep<0?current_subscreen_active->objects[p].d4:current_subscreen_active->objects[p].d5;
+      }
+    }
 
     Bwpn = Bweapon(Bpos);
     if(Bwpn)
+    {
       return;
+    }
   } while(Bpos!=pos);
 
   if(!Bwpn)
@@ -5425,13 +8161,13 @@ void selectBwpn(int xstep, int ystep)
 
 bool canget(int id)
 {
-  if(id==iSword && game.maxlife<swordhearts[0]*HP_PER_HEART)
+  if(id==iSword && get_gamedata_maxlife(game)<swordhearts[0]*HP_PER_HEART)
     return false;
-  if(id==iWSword && game.maxlife<swordhearts[1]*HP_PER_HEART)
+  if(id==iWSword && get_gamedata_maxlife(game)<swordhearts[1]*HP_PER_HEART)
     return false;
-  if(id==iMSword && game.maxlife<swordhearts[2]*HP_PER_HEART)
+  if(id==iMSword && get_gamedata_maxlife(game)<swordhearts[2]*HP_PER_HEART)
     return false;
-  if(id==iXSword && game.maxlife<swordhearts[3]*HP_PER_HEART)
+  if(id==iXSword && get_gamedata_maxlife(game)<swordhearts[3]*HP_PER_HEART)
     return false;
   return true;
 }
@@ -5442,94 +8178,187 @@ void dospecialmoney(int index)
   switch(tmpscr[tmp].room)
   {
     case rINFO:                                             // pay for info
-      if(game.rupies < abs(prices[index-1][0]))
-        return;
-      game.drupy -= abs(prices[index-1][0]);
-      msgstr = QMisc.info[tmpscr[tmp].catchall].str[index-1];
-      msgclk=msgpos=0;
-      rectfill(msgdisplaybuf, 0, 0, msgdisplaybuf->w, 80, 0);
-      for(int i=1; i<4; i++)
-        ((item*)items.spr(i))->pickup=ipDUMMY;
-      break;
+    if(get_gamedata_rupies(game) < abs(prices[index-1][0]))
+      return;
+    change_gamedata_drupy(game, -abs(prices[index-1][0]));
+    msgstr = QMisc.info[tmpscr[tmp].catchall].str[index-1];
+    msgclk=msgpos=0;
+    rectfill(msgdisplaybuf, 0, 0, msgdisplaybuf->w, 80, 0);
+    clear_bitmap(pricesdisplaybuf);
+    set_clip_state(pricesdisplaybuf, 1);
+    items.del(0);
+    for(int i=0; i<items.Count(); i++)
+      ((item*)items.spr(i))->pickup=ipDUMMY;
+    break;
 
     case rMONEY:                                            // secret money
-      ((item*)items.spr(0))->pickup=ipDUMMY;
-      game.drupy += (prices[0][0]=tmpscr[tmp].catchall);
-      putprices(false);
-      setmapflag();
-      break;
+    ((item*)items.spr(0))->pickup=ipDUMMY;
+    change_gamedata_drupy(game, (prices[0][0]=tmpscr[tmp].catchall));
+    putprices(false);
+    setmapflag();
+    break;
 
     case rGAMBLE:                                           // gamble
     {
-      if(game.rupies<10) return;
+      if(get_gamedata_rupies(game)<10) return;
       unsigned si=(rand()%24)*3;
       for(int i=0; i<3; i++)
         prices[i][0]=gambledat[si++];
-      game.drupy+=prices[index-1][0];
+      change_gamedata_drupy(game, prices[index-1][0]);
       putprices(true);
       for(int i=1; i<4; i++)
         ((item*)items.spr(i))->pickup=ipDUMMY;
     }break;
 
     case rBOMBS:
-      if(game.rupies<abs(tmpscr[tmp].catchall))
-        return;
-      game.drupy -= abs(tmpscr[tmp].catchall);
-      setmapflag();
-      game.maxbombs+=4;
-      game.items[itype_bomb]=game.maxbombs;
-      ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
-      fadeclk=66;
-      msgstr=0;
-      clear_bitmap(msgdisplaybuf);
-      set_clip_state(msgdisplaybuf, 1);
-      clear_bitmap(pricesdisplaybuf);
-      set_clip_state(pricesdisplaybuf, 1);
-      //    putscr(scrollbuf,0,0,tmpscr);
-      selectBwpn(0,0);
-      break;
+    if(get_gamedata_rupies(game)<abs(tmpscr[tmp].catchall))
+      return;
+    change_gamedata_drupy(game, -abs(tmpscr[tmp].catchall));
+    setmapflag();
+    change_gamedata_maxbombs(game, 4);
+    game->items[itype_bomb]=get_gamedata_maxbombs(game);
+    ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
+    fadeclk=66;
+    msgstr=0;
+    clear_bitmap(msgdisplaybuf);
+    set_clip_state(msgdisplaybuf, 1);
+    clear_bitmap(pricesdisplaybuf);
+    set_clip_state(pricesdisplaybuf, 1);
+    //    putscr(scrollbuf,0,0,tmpscr);
+    selectBwpn(0,0);
+    break;
+
+    case rARROWS:
+    if(get_gamedata_rupies(game)<abs(tmpscr[tmp].catchall))
+      return;
+    change_gamedata_drupy(game, -abs(tmpscr[tmp].catchall));
+    setmapflag();
+    change_gamedata_maxarrows(game, 10);
+    set_gamedata_arrows(game,get_gamedata_maxarrows(game));
+    ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
+    fadeclk=66;
+    msgstr=0;
+    clear_bitmap(msgdisplaybuf);
+    set_clip_state(msgdisplaybuf, 1);
+    clear_bitmap(pricesdisplaybuf);
+    set_clip_state(pricesdisplaybuf, 1);
+    //    putscr(scrollbuf,0,0,tmpscr);
+    selectBwpn(0,0);
+    break;
 
     case rSWINDLE:
-      if(items.spr(index)->id==iRupy)
-      {
-        if(game.rupies<abs(tmpscr[tmp].catchall))
-          return;
-        game.drupy -= abs(tmpscr[tmp].catchall);
-      }
-      else
-      {
-        if(game.maxlife<=HP_PER_HEART)
-          return;
-        game.life = max(game.life-HP_PER_HEART,0);
-        game.maxlife = max(game.maxlife-HP_PER_HEART,(HP_PER_HEART));
-      }
-      setmapflag();
-      ((item*)items.spr(0))->pickup=ipDUMMY+ipFADE;
-      ((item*)items.spr(1))->pickup=ipDUMMY+ipFADE;
-      fadeclk=66;
-      msgstr=0;
-      clear_bitmap(msgdisplaybuf);
-      set_clip_state(msgdisplaybuf, 1);
-      clear_bitmap(pricesdisplaybuf);
-      set_clip_state(pricesdisplaybuf, 1);
-      //    putscr(scrollbuf,0,0,tmpscr);
-      break;
+    if(items.spr(index)->id==iRupy)
+    {
+      if(get_gamedata_rupies(game)<abs(tmpscr[tmp].catchall))
+        return;
+      change_gamedata_drupy(game, -abs(tmpscr[tmp].catchall));
+    }
+    else
+    {
+      if(get_gamedata_maxlife(game)<=HP_PER_HEART)
+        return;
+      set_gamedata_life(game, max(get_gamedata_life(game)-HP_PER_HEART,0));
+      set_gamedata_maxlife(game, max(get_gamedata_maxlife(game)-HP_PER_HEART,(HP_PER_HEART)));
+    }
+    setmapflag();
+    ((item*)items.spr(0))->pickup=ipDUMMY+ipFADE;
+    ((item*)items.spr(1))->pickup=ipDUMMY+ipFADE;
+    fadeclk=66;
+    msgstr=0;
+    clear_bitmap(msgdisplaybuf);
+    set_clip_state(msgdisplaybuf, 1);
+    clear_bitmap(pricesdisplaybuf);
+    set_clip_state(pricesdisplaybuf, 1);
+    //    putscr(scrollbuf,0,0,tmpscr);
+    break;
   }
+}
+
+void computeMaxArrows(void)
+{
+	switch(game->items[itype_quiver])
+	{
+	case 3:
+		set_gamedata_maxarrows(game,max(get_gamedata_maxarrows(game),99));
+	case 2:
+		set_gamedata_maxarrows(game,max(get_gamedata_maxarrows(game),60));
+	case 1:
+		set_gamedata_maxarrows(game,max(get_gamedata_maxarrows(game),30));
+	}
 }
 
 void getitem(int id)
 {
   switch(id)
   {
-    case iRupy:         ++game.drupy;   break;
-    case i5Rupies:      game.drupy+=5;  break;
-    case i20Rupies:     game.drupy+=20; break;
-    case i50Rupies:     game.drupy+=50; break;
-    case i200Rupies:    game.drupy+=200; break;
-    case iWallet500:    game.items[itype_wallet]|=i_swallet; break;
-    case iWallet999:    game.items[itype_wallet]|=i_lwallet; break;
-    case iBombs:        game.items[itype_bomb]=min(game.items[itype_bomb]+4,game.maxbombs); break;
-    case iSBomb:        game.items[itype_sbomb]=min(game.items[itype_sbomb]+1,game.maxbombs>>2); break;
+    case iRupy:         change_gamedata_drupy(game, 1);  break;
+    case i5Rupies:      change_gamedata_drupy(game, 5);  break;
+	case i10Rupies:     change_gamedata_drupy(game, 10); break;
+    case i20Rupies:     change_gamedata_drupy(game, 20); break;
+    case i50Rupies:     change_gamedata_drupy(game, 50); break;
+	case i100Rupies:    change_gamedata_drupy(game, 100); break;
+    case i200Rupies:    change_gamedata_drupy(game, 200); break;
+    case iWallet500:    game->items[itype_wallet]|=i_swallet; break;
+    case iWallet999:    game->items[itype_wallet]|=i_lwallet; break;
+    case iBombs:        set_gamedata_bombs(game,min(get_gamedata_bombs(game)+4,get_gamedata_maxbombs(game))); break;
+    case iSBomb:        set_gamedata_sbombs(game,min(get_gamedata_sbombs(game)+1,get_gamedata_maxbombs(game)>>2)); break;
+    case i1ArrowAmmo:
+    set_gamedata_arrows(game,min(get_gamedata_arrows(game)+1,get_gamedata_maxarrows(game)));
+    break;
+    case i5ArrowAmmo:
+    set_gamedata_arrows(game,min(get_gamedata_arrows(game)+5,get_gamedata_maxarrows(game)));
+    break;
+    case i10ArrowAmmo:
+    set_gamedata_arrows(game,min(get_gamedata_arrows(game)+10,get_gamedata_maxarrows(game)));
+    break;
+    case i30ArrowAmmo:
+    set_gamedata_arrows(game,min(get_gamedata_arrows(game)+30,get_gamedata_maxarrows(game)));
+    break;
+    case iQuiver:
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_quiver,true)<i_quiver)
+      {
+        game->items[itype_quiver]=(1<<(i_quiver-1));
+      }
+    }
+    else
+    {
+      game->items[itype_quiver]|=(1<<(i_quiver-1));
+    }
+    //set_gamedata_maxarrows(game,max(get_gamedata_maxarrows(game),30));
+	computeMaxArrows();
+    break;
+    case iQuiverL2:
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_quiver,true)<i_quiverl2)
+      {
+        game->items[itype_quiver]=(1<<(i_quiverl2-1));
+      }
+    }
+    else
+    {
+      game->items[itype_quiver]|=(1<<(i_quiverl2-1));
+    }
+    //set_gamedata_maxarrows(game,max(get_gamedata_maxarrows(game),60));
+	computeMaxArrows();
+    break;
+    case iQuiverL3:
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_quiver,true)<i_quiverl3)
+      {
+        game->items[itype_quiver]=(1<<(i_quiverl3-1));
+      }
+    }
+    else
+    {
+      game->items[itype_quiver]|=(1<<(i_quiverl3-1));
+    }
+    //set_gamedata_maxarrows(game,max(get_gamedata_maxarrows(game),99));
+	computeMaxArrows();
+    break;
     case iClock:
     {
       setClock(watch=true);
@@ -5540,541 +8369,561 @@ void getitem(int id)
       }
     } break;
     case iSword:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_sword,true)<i_sword)
       {
-        if (current_item(itype_sword,true)<i_sword)
-        {
-          game.items[itype_sword]=(1<<(i_sword-1));
-        }
+        game->items[itype_sword]=(1<<(i_sword-1));
       }
-      else
-      {
-        game.items[itype_sword]|=(1<<(i_sword-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_sword]|=(1<<(i_sword-1));
+    }
+    break;
     case iWSword:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_sword,true)<i_wsword)
       {
-        if (current_item(itype_sword,true)<i_wsword)
-        {
-          game.items[itype_sword]=(1<<(i_wsword-1));
-        }
+        game->items[itype_sword]=(1<<(i_wsword-1));
       }
-      else
-      {
-        game.items[itype_sword]|=(1<<(i_wsword-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_sword]|=(1<<(i_wsword-1));
+    }
+    break;
     case iMSword:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_sword,true)<i_msword)
       {
-        if (current_item(itype_sword,true)<i_msword)
-        {
-          game.items[itype_sword]=(1<<(i_msword-1));
-        }
+        game->items[itype_sword]=(1<<(i_msword-1));
       }
-      else
-      {
-        game.items[itype_sword]|=(1<<(i_msword-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_sword]|=(1<<(i_msword-1));
+    }
+    break;
     case iXSword:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_sword,true)<i_xsword)
       {
-        if (current_item(itype_sword,true)<i_xsword)
-        {
-          game.items[itype_sword]=(1<<(i_xsword-1));
-        }
+        game->items[itype_sword]=(1<<(i_xsword-1));
       }
-      else
-      {
-        game.items[itype_sword]|=(1<<(i_xsword-1));
-      }
-      break;
-    case iKey:          if(game.keys<255) ++game.keys; break;
+    }
+    else
+    {
+      game->items[itype_sword]|=(1<<(i_xsword-1));
+    }
+    break;
+    case iKey:          if(get_gamedata_keys(game)<255) change_gamedata_keys(game, 1); break;
+    case iLevelKey:		if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++; break;
     case iBCandle:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_candle,true)<i_bcandle)
       {
-        if (current_item(itype_candle,true)<i_bcandle)
-        {
-          game.items[itype_candle]=(1<<(i_bcandle-1));
-        }
+        game->items[itype_candle]=(1<<(i_bcandle-1));
       }
-      else
-      {
-        game.items[itype_candle]|=(1<<(i_bcandle-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_candle]|=(1<<(i_bcandle-1));
+    }
+    break;
     case iRCandle:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_candle,true)<i_rcandle)
       {
-        if (current_item(itype_candle,true)<i_rcandle)
-        {
-          game.items[itype_candle]=(1<<(i_rcandle-1));
-        }
+        game->items[itype_candle]=(1<<(i_rcandle-1));
       }
-      else
-      {
-        game.items[itype_candle]|=(1<<(i_rcandle-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_candle]|=(1<<(i_rcandle-1));
+    }
+    break;
     case iArrow:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_arrow,true)<i_warrow)
       {
-        if (current_item(itype_arrow,true)<i_warrow)
-        {
-          game.items[itype_arrow]=(1<<(i_warrow-1));
-        }
+        game->items[itype_arrow]=(1<<(i_warrow-1));
       }
-      else
-      {
-        game.items[itype_arrow]|=(1<<(i_warrow-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_arrow]|=(1<<(i_warrow-1));
+    }
+    break;
     case iSArrow:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_arrow,true)<i_sarrow)
       {
-        if (current_item(itype_arrow,true)<i_sarrow)
-        {
-          game.items[itype_arrow]=(1<<(i_sarrow-1));
-        }
+        game->items[itype_arrow]=(1<<(i_sarrow-1));
       }
-      else
-      {
-        game.items[itype_arrow]|=(1<<(i_sarrow-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_arrow]|=(1<<(i_sarrow-1));
+    }
+    break;
     case iGArrow:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_arrow,true)<i_garrow)
       {
-        if (current_item(itype_arrow,true)<i_garrow)
-        {
-          game.items[itype_arrow]=(1<<(i_garrow-1));
-        }
+        game->items[itype_arrow]=(1<<(i_garrow-1));
       }
-      else
-      {
-        game.items[itype_arrow]|=(1<<(i_garrow-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_arrow]|=(1<<(i_garrow-1));
+    }
+    break;
     case iBRing:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_ring,true)<i_bring)
       {
-        if (current_item(itype_ring,true)<i_bring)
-        {
-          game.items[itype_ring]=(1<<(i_bring-1));
-        }
+        game->items[itype_ring]=(1<<(i_bring-1));
       }
-      else
-      {
-        game.items[itype_ring]|=(1<<(i_bring-1));
-      }
-      if(currscr<128 || dlevel)
-      {
-        ringcolor();
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_ring]|=(1<<(i_bring-1));
+    }
+    if(currscr<128 || dlevel)
+    {
+      ringcolor();
+    }
+    break;
     case iRRing:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_ring,true)<i_rring)
       {
-        if (current_item(itype_ring,true)<i_rring)
-        {
-          game.items[itype_ring]=(1<<(i_rring-1));
-        }
+        game->items[itype_ring]=(1<<(i_rring-1));
       }
-      else
-      {
-        game.items[itype_ring]|=(1<<(i_rring-1));
-      }
-      if(currscr<128 || dlevel)
-      {
-        ringcolor();
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_ring]|=(1<<(i_rring-1));
+    }
+    if(currscr<128 || dlevel)
+    {
+      ringcolor();
+    }
+    break;
     case iGRing:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_ring,true)<i_gring)
       {
-        if (current_item(itype_ring,true)<i_gring)
-        {
-          game.items[itype_ring]=(1<<(i_gring-1));
-        }
+        game->items[itype_ring]=(1<<(i_gring-1));
       }
-      else
-      {
-        game.items[itype_ring]|=(1<<(i_gring-1));
-      }
-      if(currscr<128 || dlevel)
-      {
-        ringcolor();
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_ring]|=(1<<(i_gring-1));
+    }
+    if(currscr<128 || dlevel)
+    {
+      ringcolor();
+    }
+    break;
     case iBrang:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_brang,true)<i_wbrang)
       {
-        if (current_item(itype_brang,true)<i_wbrang)
-        {
-          game.items[itype_brang]=(1<<(i_wbrang-1));
-        }
+        game->items[itype_brang]=(1<<(i_wbrang-1));
       }
-      else
-      {
-        game.items[itype_brang]|=(1<<(i_wbrang-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_brang]|=(1<<(i_wbrang-1));
+    }
+    break;
     case iMBrang:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_brang,true)<i_mbrang)
       {
-        if (current_item(itype_brang,true)<i_mbrang)
-        {
-          game.items[itype_brang]=(1<<(i_mbrang-1));
-        }
+        game->items[itype_brang]=(1<<(i_mbrang-1));
       }
-      else
-      {
-        game.items[itype_brang]|=(1<<(i_mbrang-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_brang]|=(1<<(i_mbrang-1));
+    }
+    break;
     case iFBrang:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_brang,true)<i_fbrang)
       {
-        if (current_item(itype_brang,true)<i_fbrang)
-        {
-          game.items[itype_brang]=(1<<(i_fbrang-1));
-        }
+        game->items[itype_brang]=(1<<(i_fbrang-1));
       }
-      else
-      {
-        game.items[itype_brang]|=(1<<(i_fbrang-1));
-      }
-      break;
-    case iBPotion:      game.items[itype_potion]=min(current_item(itype_potion,true)+1,2); break;
-    case iRPotion:      game.items[itype_potion]=2; break;
+    }
+    else
+    {
+      game->items[itype_brang]|=(1<<(i_fbrang-1));
+    }
+    break;
+    case iBPotion:      game->items[itype_potion]=min(current_item(itype_potion,true)+1,2); break;
+    case iRPotion:      game->items[itype_potion]=2; break;
     case iBracelet:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_bracelet,true)<i_bracelet1)
       {
-        if (current_item(itype_bracelet,true)<i_bracelet1)
-        {
-          game.items[itype_bracelet]=(1<<(i_bracelet1-1));
-        }
+        game->items[itype_bracelet]=(1<<(i_bracelet1-1));
       }
-      else
-      {
-        game.items[itype_bracelet]|=(1<<(i_bracelet1-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_bracelet]|=(1<<(i_bracelet1-1));
+    }
+    break;
     case iRaft:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_raft,true)<i_raft)
       {
-        if (current_item(itype_raft,true)<i_raft)
-        {
-          game.items[itype_raft]=(1<<(i_raft-1));
-        }
+        game->items[itype_raft]=(1<<(i_raft-1));
       }
-      else
-      {
-        game.items[itype_raft]|=(1<<(i_raft-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_raft]|=(1<<(i_raft-1));
+    }
+    break;
     case iLadder:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_ladder,true)<i_ladder)
       {
-        if (current_item(itype_ladder,true)<i_ladder)
-        {
-          game.items[itype_ladder]=(1<<(i_ladder-1));
-        }
+        game->items[itype_ladder]=(1<<(i_ladder-1));
       }
-      else
-      {
-        game.items[itype_ladder]|=(1<<(i_ladder-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_ladder]|=(1<<(i_ladder-1));
+    }
+    break;
     case iBow:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_bow,true)<i_shortbow)
       {
-        if (current_item(itype_bow,true)<i_shortbow)
-        {
-          game.items[itype_bow]=(1<<(i_shortbow-1));
-        }
+        game->items[itype_bow]=(1<<(i_shortbow-1));
       }
-      else
-      {
-        game.items[itype_bow]|=(1<<(i_shortbow-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_bow]|=(1<<(i_shortbow-1));
+    }
+    break;
     case iBow2:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_bow,true)<i_longbow)
       {
-        if (current_item(itype_bow,true)<i_longbow)
-        {
-          game.items[itype_bow]=(1<<(i_longbow-1));
-        }
+        game->items[itype_bow]=(1<<(i_longbow-1));
       }
-      else
-      {
-        game.items[itype_bow]|=(1<<(i_longbow-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_bow]|=(1<<(i_longbow-1));
+    }
+    break;
     case iBook:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_book,true)<i_book)
       {
-        if (current_item(itype_book,true)<i_book)
-        {
-          game.items[itype_book]=(1<<(i_book-1));
-        }
+        game->items[itype_book]=(1<<(i_book-1));
       }
-      else
-      {
-        game.items[itype_book]|=(1<<(i_book-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_book]|=(1<<(i_book-1));
+    }
+    break;
     case iShield:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_shield,true)<i_largeshield)
       {
-        if (current_item(itype_shield,true)<i_largeshield)
-        {
-          game.items[itype_shield]=(1<<(i_largeshield-1));
-        }
+        game->items[itype_shield]=(1<<(i_largeshield-1));
       }
-      else
-      {
-        game.items[itype_shield]|=(1<<(i_largeshield-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_shield]|=(1<<(i_largeshield-1));
+    }
+    break;
     case iMShield:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_shield,true)<i_mirrorshield)
       {
-        if (current_item(itype_shield,true)<i_mirrorshield)
-        {
-          game.items[itype_shield]=(1<<(i_mirrorshield-1));
-        }
+        game->items[itype_shield]=(1<<(i_mirrorshield-1));
       }
-      else
-      {
-        game.items[itype_shield]|=(1<<(i_mirrorshield-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_shield]|=(1<<(i_mirrorshield-1));
+    }
+    break;
     case iMKey:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_magickey,true)<i_magickey)
       {
-        if (current_item(itype_magickey,true)<i_magickey)
-        {
-          game.items[itype_magickey]=(1<<(i_magickey-1));
-        }
+        game->items[itype_magickey]=(1<<(i_magickey-1));
       }
-      else
-      {
-        game.items[itype_magickey]|=(1<<(i_magickey-1));
-      }
-      break;
-    case iMap:          game.lvlitems[dlevel]|=liMAP; break;
-    case iCompass:      game.lvlitems[dlevel]|=liCOMPASS; break;
-    case iBossKey:      game.lvlitems[dlevel]|=liBOSSKEY; break;
+    }
+    else
+    {
+      game->items[itype_magickey]|=(1<<(i_magickey-1));
+    }
+    break;
+    case iMap:          game->lvlitems[dlevel]|=liMAP; break;
+    case iCompass:      game->lvlitems[dlevel]|=liCOMPASS; break;
+    case iBossKey:      game->lvlitems[dlevel]|=liBOSSKEY; break;
     case iLetter:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_letter,true)<i_letter)
       {
-        if (current_item(itype_letter,true)<i_letter)
-        {
-          game.items[itype_letter]=(1<<(i_letter-1));
-        }
+        game->items[itype_letter]=(1<<(i_letter-1));
       }
-      else
-      {
-        game.items[itype_letter]|=(1<<(i_letter-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_letter]|=(1<<(i_letter-1));
+    }
+    break;
     case iBait:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_bait,true)<i_bait)
       {
-        if (current_item(itype_bait,true)<i_bait)
-        {
-          game.items[itype_bait]=(1<<(i_bait-1));
-        }
+        game->items[itype_bait]=(1<<(i_bait-1));
       }
-      else
-      {
-        game.items[itype_bait]|=(1<<(i_bait-1));
-      }
-      break;
-    case iWand:         game.items[itype_wand]|=i_wand; break;
+    }
+    else
+    {
+      game->items[itype_bait]|=(1<<(i_bait-1));
+    }
+    break;
+    case iWand:         game->items[itype_wand]|=i_wand; break;
     case iWhistle:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_whistle,true)<i_recorder)
       {
-        if (current_item(itype_whistle,true)<i_recorder)
-        {
-          game.items[itype_whistle]=(1<<(i_recorder-1));
-        }
+        game->items[itype_whistle]=(1<<(i_recorder-1));
       }
-      else
-      {
-        game.items[itype_whistle]|=(1<<(i_recorder-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_whistle]|=(1<<(i_recorder-1));
+    }
+    break;
     case iFairyStill:
-    case iFairyMoving:  game.life=min(game.life+(3*HP_PER_HEART),game.maxlife); break;
-    //  case iCross:      game.misc2|=iCROSS; break;
+      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.stationary_fairy_heart_percent?(get_gamedata_maxlife(game)*zinit.stationary_fairy_hearts/100):(get_gamedata_life(game)+(zinit.stationary_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
+      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.stationary_fairy_magic_percent?(get_gamedata_maxmagic(game)*zinit.stationary_fairy_magic/100):(get_gamedata_magic(game)+(zinit.stationary_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
+      break;
+    case iFairyMoving:
+      set_gamedata_life(game, min(get_gamedata_life(game)+(zinit.moving_fairy_heart_percent?(get_gamedata_maxlife(game)*zinit.moving_fairy_hearts/100):(get_gamedata_life(game)+(zinit.moving_fairy_hearts*HP_PER_HEART))),get_gamedata_maxlife(game)));
+      set_gamedata_magic(game, min(get_gamedata_magic(game)+(zinit.moving_fairy_magic_percent?(get_gamedata_maxmagic(game)*zinit.moving_fairy_magic/100):(get_gamedata_magic(game)+(zinit.moving_fairy_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game)));
+      break;
     case iAmulet:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_amulet,true)<i_amulet1)
       {
-        if (current_item(itype_amulet,true)<i_amulet1)
-        {
-          game.items[itype_amulet]=(1<<(i_amulet1-1));
-        }
+        game->items[itype_amulet]=(1<<(i_amulet1-1));
       }
-      else
-      {
-        game.items[itype_amulet]|=(1<<(i_amulet1-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_amulet]|=(1<<(i_amulet1-1));
+    }
+    break;
     case iL2Amulet:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_amulet,true)<i_amulet2)
       {
-        if (current_item(itype_amulet,true)<i_amulet2)
-        {
-          game.items[itype_amulet]=(1<<(i_amulet2-1));
-        }
+        game->items[itype_amulet]=(1<<(i_amulet2-1));
       }
-      else
-      {
-        game.items[itype_amulet]|=(1<<(i_amulet2-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_amulet]|=(1<<(i_amulet2-1));
+    }
+    break;
     case iFlippers:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_flippers,true)<i_flippers)
       {
-        if (current_item(itype_flippers,true)<i_flippers)
-        {
-          game.items[itype_flippers]=(1<<(i_flippers-1));
-        }
+        game->items[itype_flippers]=(1<<(i_flippers-1));
       }
-      else
-      {
-        game.items[itype_flippers]|=(1<<(i_flippers-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_flippers]|=(1<<(i_flippers-1));
+    }
+    break;
     case iBoots:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_boots,true)<i_boots)
       {
-        if (current_item(itype_boots,true)<i_boots)
-        {
-          game.items[itype_boots]=(1<<(i_boots-1));
-        }
+        game->items[itype_boots]=(1<<(i_boots-1));
       }
-      else
-      {
-        game.items[itype_boots]|=(1<<(i_boots-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_boots]|=(1<<(i_boots-1));
+    }
+    break;
     case iL2Bracelet:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_bracelet,true)<i_bracelet2)
       {
-        if (current_item(itype_bracelet,true)<i_bracelet2)
-        {
-          game.items[itype_bracelet]=(1<<(i_bracelet2-1));
-        }
+        game->items[itype_bracelet]=(1<<(i_bracelet2-1));
       }
-      else
+    }
+    else
 
-      {
-        game.items[itype_bracelet]|=(1<<(i_bracelet2-1));
-      }
-      break;
+    {
+      game->items[itype_bracelet]|=(1<<(i_bracelet2-1));
+    }
+    break;
     case iHookshot:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_hookshot,true)<i_hookshot)
       {
-        if (current_item(itype_hookshot,true)<i_hookshot)
-        {
-          game.items[itype_hookshot]=(1<<(i_hookshot-1));
-        }
+        game->items[itype_hookshot]=(1<<(i_hookshot-1));
       }
-      else
+    }
+    else
+    {
+      game->items[itype_hookshot]|=(1<<(i_hookshot-1));
+    }
+    break;
+    case iLongshot:
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_hookshot,true)<i_longshot)
       {
-        game.items[itype_hookshot]|=(1<<(i_hookshot-1));
+        game->items[itype_hookshot]=(1<<(i_longshot-1));
       }
-      break;
+    }
+    else
+    {
+      game->items[itype_hookshot]|=(1<<(i_longshot-1));
+    }
+    break;
     case iLens:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_lens,true)<i_lens)
       {
-        if (current_item(itype_lens,true)<i_lens)
-        {
-          game.items[itype_lens]=(1<<(i_lens-1));
-        }
+        game->items[itype_lens]=(1<<(i_lens-1));
       }
-      else
-      {
-        game.items[itype_lens]|=(1<<(i_lens-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_lens]|=(1<<(i_lens-1));
+    }
+    break;
     case iHammer:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_hammer,true)<i_hammer)
       {
-        if (current_item(itype_hammer,true)<i_hammer)
-        {
-          game.items[itype_hammer]=(1<<(i_hammer-1));
-        }
+        game->items[itype_hammer]=(1<<(i_hammer-1));
       }
-      else
-      {
-        game.items[itype_hammer]|=(1<<(i_hammer-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_hammer]|=(1<<(i_hammer-1));
+    }
+    break;
 
     case iMagicC:
-      if(game.maxmagic < MAGICPERBLOCK*8)
-        game.maxmagic+=MAGICPERBLOCK;
+    if(get_gamedata_maxmagic(game) < MAGICPERBLOCK*8)
+      change_gamedata_maxmagic(game, MAGICPERBLOCK);
 
-    case iSMagic:       game.dmagic+=MAGICPERBLOCK; break;
-    case iLMagic:       game.dmagic=MAGICPERBLOCK*8; break;
+    case iSMagic:       change_gamedata_dmagic(game, MAGICPERBLOCK); break;
+    case iLMagic:       set_gamedata_dmagic(game, MAGICPERBLOCK<<3); break;
 
     case iHCPiece:
-      if(++game.HCpieces<4)
-        break;
-      game.HCpieces = 0;
-      // fall through
+    change_gamedata_HCpieces(game, 1);
+    if(get_gamedata_HCpieces(game)<4)
+      break;
+    set_gamedata_HCpieces(game, 0);
+    // fall through
     case iHeartC:
-      if(game.maxlife < (get_bit(quest_rules,qr_24HC) ? 24*HP_PER_HEART : 16*HP_PER_HEART))
-        game.maxlife+=HP_PER_HEART;
-      // fall through
-    case iHeart:        game.life=min(game.life+HP_PER_HEART,game.maxlife); break;
+    if(get_gamedata_maxlife(game) < (get_bit(quest_rules,qr_24HC) ? 24*HP_PER_HEART : 16*HP_PER_HEART))
+      change_gamedata_maxlife(game, HP_PER_HEART);
+    // fall through
+    case iHeart:        set_gamedata_life(game, min(get_gamedata_life(game)+HP_PER_HEART,get_gamedata_maxlife(game))); break;
     case iKillAll:      kill_em_all(); break;
     case iDinsFire:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_dinsfire,true)<i_dinsfire)
       {
-        if (current_item(itype_dinsfire,true)<i_dinsfire)
-        {
-          game.items[itype_dinsfire]=(1<<(i_dinsfire-1));
-        }
+        game->items[itype_dinsfire]=(1<<(i_dinsfire-1));
       }
-      else
-      {
-        game.items[itype_dinsfire]|=(1<<(i_dinsfire-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_dinsfire]|=(1<<(i_dinsfire-1));
+    }
+    break;
     case iFaroresWind:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_faroreswind,true)<i_faroreswind)
       {
-        if (current_item(itype_faroreswind,true)<i_faroreswind)
-        {
-          game.items[itype_faroreswind]=(1<<(i_faroreswind-1));
-        }
+        game->items[itype_faroreswind]=(1<<(i_faroreswind-1));
       }
-      else
-      {
-        game.items[itype_faroreswind]|=(1<<(i_faroreswind-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_faroreswind]|=(1<<(i_faroreswind-1));
+    }
+    break;
     case iNayrusLove:
-      if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    if (!get_bit(quest_rules,qr_KEEPOLDITEMS))
+    {
+      if (current_item(itype_nayruslove,true)<i_nayruslove)
       {
-        if (current_item(itype_nayruslove,true)<i_nayruslove)
-        {
-          game.items[itype_nayruslove]=(1<<(i_nayruslove-1));
-        }
+        game->items[itype_nayruslove]=(1<<(i_nayruslove-1));
       }
-      else
-      {
-        game.items[itype_nayruslove]|=(1<<(i_nayruslove-1));
-      }
-      break;
+    }
+    else
+    {
+      game->items[itype_nayruslove]|=(1<<(i_nayruslove-1));
+    }
+    break;
   }
 
   selectBwpn(0,0);
@@ -6084,17 +8933,22 @@ void getitem(int id)
   {
     case iRupy:
     case i5Rupies:
-      sfx(WAV_CHIME);
-      break;
+	case i10Rupies:
+    case i20Rupies:
+    case i50Rupies:
+	case i100Rupies:
+    case i200Rupies:
+    sfx(WAV_CHIME);
+    break;
     case iHeart:
     case iKey:
-      sfx(WAV_PLINK);
-      break;
+    sfx(WAV_PLINK);
+    break;
     case iTriforce:
     case iBigTri:
-      break;
+    break;
     default:
-      sfx(WAV_SCALE);
+    sfx(WAV_SCALE);
   }
 }
 
@@ -6110,16 +8964,20 @@ void getdraggeditem(int j)
       w->dragging=-1;
     }
     else if (w->dragging>j)
-    {
-      w->dragging-=1;
-    }
+      {
+        w->dragging-=1;
+      }
   }
 }
 
 void LinkClass::checkitems()
 {
   int tmp=currscr>=128?1:0;
-  int index=items.hit(x,y+8,1,1);
+  int index;
+  if(get_bit(quest_rules,qr_LTTPWALK)) {
+    index=items.hit(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),6,6);
+  }
+  else index=items.hit(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,1);
   if(index==-1)
     return;
 
@@ -6134,7 +8992,7 @@ void LinkClass::checkitems()
       // wait for it to stop flashing, doesn't check for other items yet
       return;
 
-  if(pickup&ipENEMY)                                        // item was being carried by enemy
+    if(pickup&ipENEMY)                                        // item was being carried by enemy
     hasitem=0;
 
   if(pickup&ipDUMMY)                                        // dummy item (usually a rupy)
@@ -6147,7 +9005,7 @@ void LinkClass::checkitems()
   if (get_bit(quest_rules,qr_NOPOTIONCOMBINE))
   {
     if ((id==iBPotion||id==iRPotion)&&
-      (current_item(itype_potion,true)))
+        (current_item(itype_potion,true)))
     {
       return;
     }
@@ -6157,17 +9015,17 @@ void LinkClass::checkitems()
     switch(tmpscr[tmp].room)
     {
       case rSP_ITEM:                                        // special item
-        if(!canget(id))
-          return;
-        break;
+      if(!canget(id))
+        return;
+      break;
 
       case rP_SHOP:                                         // potion shop
-        if(msgpos<72)
-          return;
-      case rSHOP:                                           // shop
-      if(game.rupies<abs(prices[index-1][0]))
+      if(msgpos<72)
         return;
-      game.drupy -= abs(prices[index-1][0]);
+      case rSHOP:                                           // shop
+      if(get_gamedata_rupies(game)<abs(prices[index-1][0]))
+        return;
+      change_gamedata_drupy(game, -abs(prices[index-1][0]));
       boughtsomething=true;
       //make the other shop items untouchable after
       //you buy something
@@ -6178,13 +9036,13 @@ void LinkClass::checkitems()
         {
           ++count;
         }
+      }
+      for(int i=1; i<=count; i++)
+      {
+        ((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
+      }
+      break;
     }
-    for(int i=1; i<=count; i++)
-    {
-      ((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
-    }
-    break;
-  }
 
   if(pickup&ipONETIME)                                      // set screen item flag for one-time-only items
     setmapflag();
@@ -6197,9 +9055,9 @@ void LinkClass::checkitems()
     {
       msgstr=0;
       clear_bitmap(msgdisplaybuf);
-//      set_clip_state(msgdisplaybuf, 1);
+      //      set_clip_state(msgdisplaybuf, 1);
       clear_bitmap(pricesdisplaybuf);
-//      set_clip_state(pricesdisplaybuf, 1);
+      //      set_clip_state(pricesdisplaybuf, 1);
       //     putscr(scrollbuf,0,0,tmpscr);
     }
 
@@ -6209,22 +9067,22 @@ void LinkClass::checkitems()
     {                                                       // don't hold up bombs unless swimming or the bomb hold fix quest rule is on
       if(action==swimming)
       {
-        action=swimhold1;
+        action=waterhold1;
       }
       else
       {
-        action=holding1;
+        action=landhold1;
       }
 
       if(((item*)items.spr(index))->twohand)
       {
-        if(action==swimhold1)
+        if(action==waterhold1)
         {
-          action=swimhold2;
+          action=waterhold2;
         }
         else
         {
-          action=holding2;
+          action=landhold2;
         }
       }
 
@@ -6246,9 +9104,9 @@ void LinkClass::checkitems()
         w->dragging=-1;
       }
       else if (w->dragging>index)
-      {
-        w->dragging-=1;
-      }
+        {
+          w->dragging-=1;
+        }
     }
     // clear up shop stuff
     if((isdungeon()==0)&&(index!=0))
@@ -6264,9 +9122,9 @@ void LinkClass::checkitems()
             w->dragging=-1;
           }
           else if (w->dragging>0)
-          {
-            w->dragging-=1;
-          }
+            {
+              w->dragging-=1;
+            }
         }
       }
       clear_bitmap(msgdisplaybuf);
@@ -6287,9 +9145,9 @@ void LinkClass::checkitems()
         w->dragging=-1;
       }
       else if (w->dragging>index)
-      {
-        w->dragging-=1;
-      }
+        {
+          w->dragging-=1;
+        }
     }
     clear_bitmap(msgdisplaybuf);
     set_clip_state(msgdisplaybuf, 1);
@@ -6302,7 +9160,7 @@ void LinkClass::checkitems()
     getBigTri();
 }
 
-void LinkClass::StartRefill(int refill_why)
+void LinkClass::StartRefill()
 {
   if(!refilling)
   {
@@ -6310,7 +9168,7 @@ void LinkClass::StartRefill(int refill_why)
     stop_sfx(WAV_ER);
     sfx(WAV_REFILL,128,true);
     refilling=true;
-    if ((refill_why==REFILL_POTION)&&(!get_bit(quest_rules,qr_NONBUBBLEMEDICINE)))
+    if (((refill_why==REFILL_BPOTION)||(refill_why==REFILL_RPOTION))&&(!get_bit(quest_rules,qr_NONBUBBLEMEDICINE)))
       swordclk=0;
     if ((refill_why==REFILL_FAIRY)&&(!get_bit(quest_rules,qr_NONBUBBLEFAIRIES)))
       swordclk=0;
@@ -6325,44 +9183,55 @@ bool LinkClass::refill()
     return false;
   ++refillclk;
   int speed = get_bit(quest_rules,qr_FASTFILL) ? 6 : 22;
+  int refill_heart_stop=get_gamedata_maxlife(game);
+  int refill_magic_stop=get_gamedata_maxlife(game);
+  if (refill_why==REFILL_BPOTION)
+  {
+    refill_heart_stop=min(get_gamedata_life(game)+(zinit.blue_potion_heart_percent?(get_gamedata_maxlife(game)*zinit.blue_potion_hearts/100):(get_gamedata_life(game)+(zinit.blue_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
+    refill_heart_stop=min(get_gamedata_life(game)+(zinit.blue_potion_magic_percent?(get_gamedata_maxlife(game)*zinit.blue_potion_magic/100):(get_gamedata_life(game)+(zinit.blue_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
+  }
+  else if (refill_why==REFILL_RPOTION)
+  {
+    refill_heart_stop=min(get_gamedata_life(game)+(zinit.red_potion_heart_percent?(get_gamedata_maxlife(game)*zinit.red_potion_hearts/100):(get_gamedata_life(game)+(zinit.red_potion_hearts*HP_PER_HEART))),get_gamedata_maxlife(game));
+    refill_heart_stop=min(get_gamedata_life(game)+(zinit.red_potion_magic_percent?(get_gamedata_maxlife(game)*zinit.red_potion_magic/100):(get_gamedata_life(game)+(zinit.red_potion_magic*MAGICPERBLOCK))),get_gamedata_maxmagic(game));
+  }
   if(refillclk%speed == 0)
   {
-    //   game.life&=0xFFC;
+    //   game->life&=0xFFC;
     switch (refill_what)
     {
       case REFILL_LIFE:
-        game.life=min(game.maxlife, (game.life+HP_PER_HEART/2));
-        if(game.life>=game.maxlife)
-        {
-          game.life=game.maxlife;
-          kill_sfx();
-          sfx(WAV_MSG);
-          refilling=false;
-          return false;
-        } break;
+      set_gamedata_life(game, min(refill_heart_stop, (get_gamedata_life(game)+HP_PER_HEART/2)));
+      if(get_gamedata_life(game)>=refill_heart_stop)
+      {
+        set_gamedata_life(game, refill_heart_stop);
+        kill_sfx();
+        sfx(WAV_MSG);
+        refilling=false;
+        return false;
+      } break;
       case REFILL_MAGIC:
-        game.magic=min(game.maxmagic, (game.magic+MAGICPERBLOCK/4));
-        if(game.magic>=game.maxmagic)
-        {
-          game.magic=game.maxmagic;
-          kill_sfx();
-          sfx(WAV_MSG);
-          refilling=false;
-          return false;
-        } break;
+      set_gamedata_magic(game, min(refill_magic_stop, (get_gamedata_magic(game)+MAGICPERBLOCK/4)));
+      if(get_gamedata_magic(game)>=refill_magic_stop)
+      {
+        set_gamedata_magic(game, refill_magic_stop);
+        kill_sfx();
+        sfx(WAV_MSG);
+        refilling=false;
+        return false;
+      } break;
       case REFILL_ALL:
-        game.life=min(game.maxlife, (game.life+HP_PER_HEART/2));
-//        game.magic=min(game.maxmagic, (game.magic+MAGICPERBLOCK/4));
-        game.magic=min(game.maxmagic, (game.magic+MAGICPERBLOCK/2));
-        if((game.life>=game.maxlife)&&(game.magic>=game.maxmagic))
-        {
-          game.life=game.maxlife;
-          game.magic=game.maxmagic;
-          kill_sfx();
-          sfx(WAV_MSG);
-          refilling=false;
-          return false;
-        } break;
+      set_gamedata_life(game, min(refill_heart_stop, (get_gamedata_life(game)+HP_PER_HEART/2)));
+      set_gamedata_magic(game, min(refill_magic_stop, (get_gamedata_magic(game)+MAGICPERBLOCK/4)));
+      if((get_gamedata_life(game)>=refill_heart_stop)&&(get_gamedata_magic(game)>=refill_magic_stop))
+      {
+        set_gamedata_life(game, refill_heart_stop);
+        set_gamedata_magic(game, refill_magic_stop);
+        kill_sfx();
+        sfx(WAV_MSG);
+        refilling=false;
+        return false;
+      } break;
     }
   }
   return true;
@@ -6384,12 +9253,16 @@ void LinkClass::getTriforce(int id)
   Sitems.clear();
   chainlinks.clear();
   decorations.clear();
+  if (!COOLSCROLL)
+  {
+    show_subscreen_items=false;
+  }
 
   sfx(WAV_SCALE);
-  jukebox(MUSIC_TRIFORCE);
+  jukebox(ZC_MIDI_TRIFORCE);
   if (id==iTriforce)
   {
-    game.lvlitems[dlevel]|=liTRIFORCE;
+    game->lvlitems[dlevel]|=liTRIFORCE;
   }
 
   int f=0;
@@ -6401,7 +9274,7 @@ void LinkClass::getTriforce(int id)
     if(f==40)
     {
       ALLOFF();
-      action=holding2;                                      // have to reset this flag
+      action=landhold2;                                      // have to reset this flag
     }
     if(f>=40 && f<88)
     {
@@ -6444,7 +9317,8 @@ void LinkClass::getTriforce(int id)
       if(f==88)
       {
         refill_what=REFILL_ALL;
-        StartRefill(REFILL_TRIFORCE);
+        refill_what=REFILL_TRIFORCE;
+        StartRefill();
         refill();
       }
 
@@ -6478,11 +9352,11 @@ void LinkClass::getTriforce(int id)
       draw_screen_clip_rect_y1=0;
       draw_screen_clip_rect_y2=223;
       draw_screen_clip_rect_show_link=true;
-      draw_screen(tmpscr, 0, 0);
+      //draw_screen(tmpscr, 0, 0);
     }
 
     draw_screen(tmpscr, 0, 0);
-    putsubscr(framebuf,0,0);
+    put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
 
     advanceframe();
     ++f;
@@ -6494,26 +9368,56 @@ void LinkClass::getTriforce(int id)
   draw_screen_clip_rect_y1=0;
   draw_screen_clip_rect_y2=223;
   draw_screen_clip_rect_show_link=true;
-  dowarp(1); //side warp
+  sdir=dir; dowarp(1,0); //side warp
 }
 
-void setup_red_screen()
+void red_shift()
+{
+  int tnum=176;
+  // set up the new palette
+  for(int i=CSET(2); i < CSET(4); i++)
+  {
+    int r = (i-CSET(2)) << 1;
+    RAMpal[i+tnum].r = r;
+    RAMpal[i+tnum].g = r >> 3;
+    RAMpal[i+tnum].b = r >> 4;
+  }
+
+  // color scale the game screen
+  for(int y=0; y<168; y++)
+  {
+    for(int x=0; x<256; x++)
+    {
+      int c = framebuf->line[y+playing_field_offset][x];
+      int r = min(int(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
+      framebuf->line[y+playing_field_offset][x] = (c ? (r+tnum+CSET(2)) : 0);
+    }
+  }
+
+  refreshpal = true;
+}
+
+
+
+void setup_red_screen_old()
 {
   clear_bitmap(framebuf);
   rectfill(scrollbuf, 0, 0, 255, 167, 0);
+  if(tmpscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, tmpscr, 0, playing_field_offset, 2);
+  if(tmpscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, tmpscr, 0, playing_field_offset, 2);
   putscr(scrollbuf, 0, 0, tmpscr);
-  blit(scrollbuf, framebuf, 0, 0, 0, 56, 256, 168);
-  do_layer(framebuf, 0, tmpscr, 0, 0, 2);
-  do_layer(framebuf, 1, tmpscr, 0, 0, 2);
-  do_layer(framebuf, -2, tmpscr, 0, 0, 2);
+  blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+  do_layer(framebuf,0, tmpscr, 0, 0, 2);
+  if(!(tmpscr->flags7&fLAYER2BG)) do_layer(framebuf,1, tmpscr, 0, 0, 2);
+  do_layer(framebuf,-2, tmpscr, 0, 0, 2);
 
   if(!(msgdisplaybuf->clip))
   {
-    masked_blit(msgdisplaybuf, framebuf,0,0,0,56, 256,168);
+    masked_blit(msgdisplaybuf, framebuf,0,0,0,playing_field_offset, 256,168);
   }
   if(!(pricesdisplaybuf->clip))
   {
-    masked_blit(pricesdisplaybuf, framebuf,0,0,0,56, 256,168);
+    masked_blit(pricesdisplaybuf, framebuf,0,0,0,playing_field_offset, 256,168);
   }
   //red shift
   // color scale the game screen
@@ -6521,28 +9425,28 @@ void setup_red_screen()
   {
     for(int x=0; x<256; x++)
     {
-      int c = framebuf->line[y+56][x];
+      int c = framebuf->line[y+playing_field_offset][x];
       int r = min(int(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
-      framebuf->line[y+56][x] = (c ? (r+CSET(2)) : 0);
+      framebuf->line[y+playing_field_offset][x] = (c ? (r+CSET(2)) : 0);
     }
   }
 
-//  Link->draw(framebuf);
-  blit(framebuf,scrollbuf, 0, 56, 256, 56, 256, 168);
+  //  Link->draw(framebuf);
+  blit(framebuf,scrollbuf, 0, playing_field_offset, 256, playing_field_offset, 256, 168);
 
   clear_bitmap(framebuf);
 
-  if (!(tmpscr->layermap[2]==0
+  if (!((tmpscr->layermap[2]==0||(tmpscr->flags7&fLAYER3BG))
         && tmpscr->layermap[3]==0
         && tmpscr->layermap[4]==0
         && tmpscr->layermap[5]==0
         && !overheadcombos(tmpscr)))
   {
-    do_layer(framebuf, 2, tmpscr, 0, 0, 2);
-    do_layer(framebuf, 3, tmpscr, 0, 0, 2);
-    do_layer(framebuf, -1, tmpscr, 0, 0, 2);
-    do_layer(framebuf, 4, tmpscr, 0, 0, 2);
-    do_layer(framebuf, 5, tmpscr, 0, 0, 2);
+    if(!(tmpscr->flags7&fLAYER3BG)) do_layer(framebuf,2, tmpscr, 0, 0, 2);
+    do_layer(framebuf,3, tmpscr, 0, 0, 2);
+    do_layer(framebuf,-1, tmpscr, 0, 0, 2);
+    do_layer(framebuf,4, tmpscr, 0, 0, 2);
+    do_layer(framebuf,5, tmpscr, 0, 0, 2);
 
     //do an AND masked blit for messages on top of layers
     if(!(msgdisplaybuf->clip) || !(pricesdisplaybuf->clip))
@@ -6551,18 +9455,18 @@ void setup_red_screen()
       {
         for(int x=0; x<256; x++)
         {
-          int c1 = framebuf->line[y+56][x];
+          int c1 = framebuf->line[y+playing_field_offset][x];
           int c2 = msgdisplaybuf->line[y][x];
           int c3 = pricesdisplaybuf->line[y][x];
 
           if (c1 && c3)
           {
-            framebuf->line[y+56][x] = c3;
+            framebuf->line[y+playing_field_offset][x] = c3;
           }
           else if (c1 && c2)
-          {
-            framebuf->line[y+56][x] = c2;
-          }
+            {
+              framebuf->line[y+playing_field_offset][x] = c2;
+            }
         }
       }
     }
@@ -6573,14 +9477,14 @@ void setup_red_screen()
     {
       for(int x=0; x<256; x++)
       {
-        int c = framebuf->line[y+56][x];
+        int c = framebuf->line[y+playing_field_offset][x];
         int r = min(int(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
-        framebuf->line[y+56][x] = r+CSET(2);
+        framebuf->line[y+playing_field_offset][x] = r+CSET(2);
       }
     }
   }
 
-  blit(framebuf,scrollbuf, 0, 56, 0, 56, 256, 168);
+  blit(framebuf,scrollbuf, 0, playing_field_offset, 0, playing_field_offset, 256, 168);
 
   // set up the new palette
   for(int i=CSET(2); i < CSET(4); i++)
@@ -6592,6 +9496,7 @@ void setup_red_screen()
   }
   refreshpal = true;
 }
+
 
 
 void slide_in_color(int color)
@@ -6615,7 +9520,7 @@ void LinkClass::gameover()
   {
     Paused=false;
   }
-  game.deaths=min(game.deaths+1,999);
+  set_gamedata_deaths(game, min(get_gamedata_deaths(game)+1,999));
   dir=down;
   music_stop();
   kill_sfx();
@@ -6631,12 +9536,12 @@ void LinkClass::gameover()
   decorations.clear();
 
   //in original Z1, Link marker vanishes at death.
-  //code in subscr.cpp, putsubscr checks the following value.
+  //code in subscr.cpp, put_passive_subscr checks the following value.
   //color 255 is a GUI color, so quest makers shouldn't be using this value.
   //Also, subscreen is static after death in Z1.
   int tmp_link_dot = QMisc.colors.link_dot;
   QMisc.colors.link_dot = 255;
-  putsubscr(scrollbuf, 256, 0);//save this and reuse it.
+  put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
   QMisc.colors.link_dot = tmp_link_dot;
 
   do
@@ -6663,7 +9568,7 @@ void LinkClass::gameover()
       if(f>=194 && f<208)
       {
         if(f==194)
-         action = dying;
+          action = dying;
 
         cs = wpnsbuf[iwDeath].csets&15;
         tile = wpnsbuf[iwDeath].tile;
@@ -6672,9 +9577,9 @@ void LinkClass::gameover()
           tile += (f-194)/3;
         }
         else if(f>=204)
-        {
-          ++tile;
-        }
+          {
+            ++tile;
+          }
       }
 
       if(f==208)
@@ -6688,20 +9593,28 @@ void LinkClass::gameover()
           {
             draw_screen(tmpscr, 0, 0);
             //reuse our static subscreen
-            blit(scrollbuf,framebuf,256,0,0,0,256,56);
+            blit(scrollbuf,framebuf,256,0,0,0,256,passive_subscreen_height);
           }
           if(f==60)
-            setup_red_screen();
+          {
+            red_shift();
+            create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
+            create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128, NULL);
+          }
 
           if(f>=60 && f<=169)
           {
-            blit(scrollbuf,framebuf,256,0,0,0,256,224);
-            draw(framebuf);
-            masked_blit(scrollbuf,framebuf,0,56,0,56,256,168);
+            draw_screen(tmpscr, 0, 0);
+            //reuse our static subscreen
+            blit(scrollbuf,framebuf,256,0,0,0,256,passive_subscreen_height);
+            red_shift();
+
           }
           if(f>=139 && f<=169)//fade from red to black
           {
-            fade_interpolate(RAMpal,black_palette,RAMpal, (f-138)<<1, CSET(2), CSET(4)-1);
+            fade_interpolate(RAMpal,black_palette,RAMpal, (f-138)<<1, 224, 255);
+            create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
+            create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128, NULL);
             refreshpal=true;
           }
         }
@@ -6709,7 +9622,7 @@ void LinkClass::gameover()
         {
           if(f==170)//make Link grayish
           {
-            fade_interpolate(RAMpal,black_palette,RAMpal,64, CSET(2), CSET(4)-1);
+            fade_interpolate(RAMpal,black_palette,RAMpal,64, 224, 255);
             for(int i=CSET(6); i < CSET(7); i++)
             {
               int g = (RAMpal[i].r + RAMpal[i].g + RAMpal[i].b)/3;
@@ -6719,9 +9632,9 @@ void LinkClass::gameover()
           }
 
           //draw only link. otherwise black layers might cover him.
-          rectfill(framebuf,0,56,255,223,0);
+          rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
           draw(framebuf);
-          blit(scrollbuf,framebuf,256,0,0,0,256,56);
+          blit(scrollbuf,framebuf,256,0,0,0,256,passive_subscreen_height);
         }
       }
       else //!qr_FADE
@@ -6757,7 +9670,7 @@ void LinkClass::gameover()
               for(int i=0; i<176; i++)
                 tmpscr2[j].cset[i] = 2;
 
-          for(int i=1; i<16; i+=3)
+            for(int i=1; i<16; i+=3)
           {
             RAMpal[CSET(2)+i]   = NESpal(0x17);
             RAMpal[CSET(2)+i+1] = NESpal(0x16);
@@ -6792,26 +9705,26 @@ void LinkClass::gameover()
         {
           draw_screen(tmpscr, 0, 0);
           //reuse our static subscreen
-          blit(scrollbuf,framebuf,256,0,0,0,256,56);
+          blit(scrollbuf,framebuf,256,0,0,0,256,passive_subscreen_height);
         }
         else
         { //draw only link. otherwise black layers might cover him.
-          rectfill(framebuf,0,56,255,223,0);
+          rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
           draw(framebuf);
-          blit(scrollbuf,framebuf,256,0,0,0,256,56);
+          blit(scrollbuf,framebuf,256,0,0,0,256,passive_subscreen_height);
         }
       }
     }
     else if(f<350)//draw 'GAME OVER' text
-    {
-      clear_bitmap(framebuf);
-      blit(scrollbuf,framebuf,256,0,0,0,256,56);
-      textout_ex(framebuf,zfont,"GAME OVER",96,136,1,-1);
-    }
-    else
-    {
-      clear_bitmap(framebuf);
-    }
+      {
+        clear_bitmap(framebuf);
+        blit(scrollbuf,framebuf,256,0,0,0,256,passive_subscreen_height);
+        textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,1,-1);
+      }
+      else
+      {
+        clear_bitmap(framebuf);
+      }
 
     //SFX... put them all here
     switch (f)
@@ -6833,29 +9746,29 @@ void LinkClass::gameover()
 void LinkClass::ganon_intro()
 {
   /*
-  ************************
-  * GANON INTRO SEQUENCE *
-  ************************
-  -25 DOT updates
-  -24 LINK in
+    ************************
+    * GANON INTRO SEQUENCE *
+    ************************
+    -25 DOT updates
+    -24 LINK in
     0 TRIFORCE overhead - code begins at this point (f == 0)
-   47 GANON in
-   58 LIGHT step
-   68 LIGHT step
-   78 LIGHT step
-  255 TRIFORCE out
-  256 TRIFORCE in
-  270 TRIFORCE out
-  271 GANON out, LINK face up
-  */
+    47 GANON in
+    58 LIGHT step
+    68 LIGHT step
+    78 LIGHT step
+    255 TRIFORCE out
+    256 TRIFORCE in
+    270 TRIFORCE out
+    271 GANON out, LINK face up
+    */
   loaded_guys=true;
-  if(game.lvlitems[dlevel]&liBOSS)
+  if(game->lvlitems[dlevel]&liBOSS)
   {
     return;
   }
 
   dir=down;
-  action=holding2;
+  action=landhold2;
   holditem=iTriforce;
 
   for(int f=0; f<271 && !Quit; f++)
@@ -6894,19 +9807,11 @@ void LinkClass::ganon_intro()
 
     draw_screen(tmpscr, 0, 0);
     advanceframe();
-/*
-    if(rSbtn())
-    {
-      conveyclk=3;
-      dosubscr();
-      //      guys.draw(framebuf,false);
-    }
-*/
     if(rSbtn())
     {
       conveyclk=3;
       int tmp_subscr_clk = frame;
-      dosubscr();
+      dosubscr(&QMisc);
       newscr_clk += frame - tmp_subscr_clk;
     }
 
@@ -6914,10 +9819,11 @@ void LinkClass::ganon_intro()
 
   action=none;
   dir=up;
-  if(!getmapflag() && (tunes[MAXMUSIC-1].midi))
-    jukebox(MAXMUSIC-1);
+  if(!getmapflag() && (tunes[MAXMIDIS-1].midi))
+    jukebox(MAXMIDIS-1);
   else
-    play_DmapMusic();
+    //play_DmapMusic();
+    playLevelMusic();
   currcset=DMaps[currdmap].color;
   dointro();
   cont_sfx(WAV_ROAR);
@@ -6965,6 +9871,7 @@ void LinkClass::check_conveyor()
   {
     return;
   }
+  int xoff,yoff;
   if (conveyclk<=0)
   {
     conveyor_flags=0;
@@ -6975,33 +9882,33 @@ void LinkClass::check_conveyor()
       switch (i)
       {
         case 0:
-          ctype=(combobuf[MAPDATA(x+4,y+12)].type);
-          if((ctype>=cCVUP) && (ctype<=cCVRIGHT))
-          {
-            set_bit(&conveyor_flags,ctype-cCVUP,1);
-          }
-          break;
+        ctype=(combobuf[MAPCOMBO(x+8,y+12-(get_bit(quest_rules, qr_LTTPCOLLISION)*4))].type);
+        if((ctype>=cCVUP) && (ctype<=cCVRIGHT))
+        {
+          set_bit(&conveyor_flags,ctype-cCVUP,1);
+        }
+        break;
         case 1:
-          ctype=(combobuf[MAPDATA(x+11,y+12)].type);
-          if((ctype>=cCVUP) && (ctype<=cCVRIGHT))
-          {
-            set_bit(&conveyor_flags,ctype-cCVUP,1);
-          }
-          break;
+        ctype=(combobuf[MAPCOMBO(x+8,y+12-(get_bit(quest_rules, qr_LTTPCOLLISION)*4))].type);
+        if((ctype>=cCVUP) && (ctype<=cCVRIGHT))
+        {
+          set_bit(&conveyor_flags,ctype-cCVUP,1);
+        }
+        break;
         case 2:
-          ctype=(combobuf[MAPDATA(x+4,y+15)].type);
-          if((ctype>=cCVUP) && (ctype<=cCVRIGHT))
-          {
-            set_bit(&conveyor_flags,ctype-cCVUP,1);
-          }
-          break;
+        ctype=(combobuf[MAPCOMBO(x+8,y+12-(get_bit(quest_rules, qr_LTTPCOLLISION)*4))].type);
+        if((ctype>=cCVUP) && (ctype<=cCVRIGHT))
+        {
+          set_bit(&conveyor_flags,ctype-cCVUP,1);
+        }
+        break;
         case 3:
-          ctype=(combobuf[MAPDATA(x+11,y+15)].type);
-          if((ctype>=cCVUP) && (ctype<=cCVRIGHT))
-          {
-            set_bit(&conveyor_flags,ctype-cCVUP,1);
-          }
-          break;
+        ctype=(combobuf[MAPCOMBO(x+8,y+12-(get_bit(quest_rules, qr_LTTPCOLLISION)*4))].type);
+        if((ctype>=cCVUP) && (ctype<=cCVRIGHT))
+        {
+          set_bit(&conveyor_flags,ctype-cCVUP,1);
+        }
+        break;
       }
       if (conveyor_flags!=0)
       {
@@ -7013,81 +9920,125 @@ void LinkClass::check_conveyor()
       switch (i)
       {
         case 0:
-          if(get_bit(&conveyor_flags,i)&&!walkflag(x,y+8-2,2,up))
+        if(get_bit(&conveyor_flags,i)&&!walkflag(x,y+8-(get_bit(quest_rules, qr_LTTPCOLLISION)*8)-2,2,up))
+        {
+          int step=0;
+          if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!get_bit(quest_rules,qr_LTTPWALK))
           {
-            y=y-2;
-            hs_starty-=2;
-            for (int i=0; i<chainlinks.Count(); i++)
+            while(step<2)
             {
-              chainlinks.spr(i)->y-=2;
-            }
-            if (Lwpns.idFirst(wHookshot)>-1)
-            {
-              Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=2;
-            }
-            if (Lwpns.idFirst(wHSHandle)>-1)
-            {
-              Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=2;
+              yoff=((int)y-step)&7;
+              if (!yoff) break;
+              step++;
             }
           }
-          break;
+          else step=2;
+          y=y-step;
+          hs_starty-=step;
+          for (int i=0; i<chainlinks.Count(); i++)
+          {
+            chainlinks.spr(i)->y-=step;
+          }
+          if (Lwpns.idFirst(wHookshot)>-1)
+          {
+            Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
+          }
+          if (Lwpns.idFirst(wHSHandle)>-1)
+          {
+            Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
+          }
+        }
+        break;
         case 1:
-          if(get_bit(&conveyor_flags,i)&&!walkflag(x,y+15+2,2,down))
+        if(get_bit(&conveyor_flags,i)&&!walkflag(x,y+15+2,2,down))
+        {
+          int step=0;
+          if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!get_bit(quest_rules,qr_LTTPWALK))
           {
-            y=y+2;
-            hs_starty+=2;
-            for (int i=0; i<chainlinks.Count(); i++)
+            while(step<2)
             {
-              chainlinks.spr(i)->y+=2;
-            }
-            if (Lwpns.idFirst(wHookshot)>-1)
-            {
-              Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=2;
-            }
-            if (Lwpns.idFirst(wHSHandle)>-1)
-            {
-              Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=2;
+              yoff=((int)y+step)&7;
+              if (!yoff) break;
+              step++;
             }
           }
-          break;
+          else step=2;
+          y=y+step;
+          hs_starty+=step;
+          for (int i=0; i<chainlinks.Count(); i++)
+          {
+            chainlinks.spr(i)->y+=step;
+          }
+          if (Lwpns.idFirst(wHookshot)>-1)
+          {
+            Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
+          }
+          if (Lwpns.idFirst(wHSHandle)>-1)
+          {
+            Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=step;
+          }
+        }
+        break;
         case 2:
-          if(get_bit(&conveyor_flags,i)&&!walkflag(x-(lsteps[int(x)&7]),y+8,1,left))
+        if(get_bit(&conveyor_flags,i)&&!walkflag(x-int(lsteps[int(x)&7]),y+8-(get_bit(quest_rules, qr_LTTPCOLLISION)*8),1,left))
+        {
+          int step=0;
+          if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!get_bit(quest_rules,qr_LTTPWALK))
           {
-            x=x-2;
-            hs_startx-=2;
-            for (int i=0; i<chainlinks.Count(); i++)
+            while(step<2)
             {
-              chainlinks.spr(i)->x-=2;
-            }
-            if (Lwpns.idFirst(wHookshot)>-1)
-            {
-              Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=2;
-            }
-            if (Lwpns.idFirst(wHSHandle)>-1)
-            {
-              Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=2;
+              xoff=((int)x-step)&7;
+              if (!xoff) break;
+              step++;
             }
           }
-          break;
+          else step=2;
+          x=x-step;
+          hs_startx-=step;
+          for (int i=0; i<chainlinks.Count(); i++)
+          {
+            chainlinks.spr(i)->x-=step;
+          }
+          if (Lwpns.idFirst(wHookshot)>-1)
+          {
+            Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
+          }
+          if (Lwpns.idFirst(wHSHandle)>-1)
+          {
+            Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
+          }
+        }
+        break;
         case 3:
-          if(get_bit(&conveyor_flags,i)&&!walkflag(x+15+2,y+8,1,right))
+        if(get_bit(&conveyor_flags,i)&&!walkflag(x+15+2,y+8-(get_bit(quest_rules, qr_LTTPCOLLISION)*8),1,right))
+        {
+          int step=0;
+          if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!get_bit(quest_rules,qr_LTTPWALK))
           {
-            x=x+2;
-            hs_startx+=2;
-            for (int i=0; i<chainlinks.Count(); i++)
+            while(step<2)
             {
-              chainlinks.spr(i)->x+=2;
-            }
-            if (Lwpns.idFirst(wHookshot)>-1)
-            {
-              Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=2;
-            }
-            if (Lwpns.idFirst(wHSHandle)>-1)
-            {
-              Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=2;
+              xoff=((int)x+step)&7;
+              if (!xoff) break;
+              step++;
             }
           }
-          break;
+          else step=2;
+          x=x+step;
+          hs_startx+=step;
+          for (int i=0; i<chainlinks.Count(); i++)
+          {
+            chainlinks.spr(i)->x+=step;
+          }
+          if (Lwpns.idFirst(wHookshot)>-1)
+          {
+            Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
+          }
+          if (Lwpns.idFirst(wHSHandle)>-1)
+          {
+            Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
+          }
+        }
+        break;
       }
     }
   }

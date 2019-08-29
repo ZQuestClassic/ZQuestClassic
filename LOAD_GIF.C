@@ -1,6 +1,6 @@
 /* GIF Loader
- * by Paul Bartrum
- */
+  * by Paul Bartrum
+  */
 
 #ifdef MSS
 #include <mss.h>                                            /* For all those memory debugging fans ;-) */
@@ -14,9 +14,9 @@
 #include "load_gif.h"
 
 /* The following prototype comes from Allegro's internal. To avoid doing
- * such ugly things, the best would be to #include <allegro/aintern.h>, but
- * since that's just a wip, it's left like this for Allegro 3.0 compatibility
- */
+  * such ugly things, the best would be to #include <allegro/aintern.h>, but
+  * since that's just a wip, it's left like this for Allegro 3.0 compatibility
+  */
 //int _color_load_depth(int depth);
 
 struct LZW_STRING
@@ -112,15 +112,15 @@ void output_string(void)
             y = image_y + 4;
           }
           else if(interlace == 8  && (y - image_y) % 8 == 4)
-          {
-            interlace = 4;
-            y = image_y + 2;
-          }
-          else if(interlace == 4)
-          {
-            interlace = 2;
-            y = image_y + 1;
-          }
+            {
+              interlace = 4;
+              y = image_y + 2;
+            }
+            else if(interlace == 4)
+              {
+                interlace = 2;
+                y = image_y + 1;
+              }
         }
       }
     }
@@ -128,10 +128,10 @@ void output_string(void)
 }
 
 /* load_gif:
- *  Loads a 2-256 colour GIF file onto a bitmap, returning the bitmap
- *  structure and storing the pallete data in the specified pallete (this
- *  should be an array of at least 256 RGB structures).
- */
+  *  Loads a 2-256 colour GIF file onto a bitmap, returning the bitmap
+  *  structure and storing the pallete data in the specified pallete (this
+  *  should be an array of at least 256 RGB structures).
+  */
 BITMAP *load_gif(const char *filename, RGB *pal)
 {
   int width, height, depth;
@@ -181,10 +181,10 @@ BITMAP *load_gif(const char *filename, RGB *pal)
     }
   }
   else
-  if(depth)
-    pack_fseek(f, (1 << depth) * 3);
+    if(depth)
+      pack_fseek(f, (1 << depth) * 3);
 
-  do
+    do
   {
     i = pack_getc(f);
     if (i == EOF)
@@ -193,170 +193,170 @@ BITMAP *load_gif(const char *filename, RGB *pal)
     switch(i)
     {
       case 0x2C:                                            /* Image Descriptor */
-        image_x = pack_igetw(f);
-        image_y = pack_igetw(f);                            /* individual image dimensions */
-        image_w = pack_igetw(f);
-        image_h = pack_igetw(f);
+      image_x = pack_igetw(f);
+      image_y = pack_igetw(f);                            /* individual image dimensions */
+      image_w = pack_igetw(f);
+      image_h = pack_igetw(f);
 
-        i = pack_getc(f);
-        if(i & 64)
-          interlace = 8;
+      i = pack_getc(f);
+      if(i & 64)
+        interlace = 8;
+      else
+        interlace = 1;
+
+      if(i & 128)
+      {
+        depth = (i & 7) + 1;
+        if(pal)
+        {
+          for(i = 0; i < (1 << depth); i ++)
+          {
+            pal[i].r = pack_getc(f) / 4;
+            pal[i].g = pack_getc(f) / 4;
+            pal[i].b = pack_getc(f) / 4;
+          }
+        }
         else
-          interlace = 1;
+          pack_fseek(f, (1 << depth) * 3);
+      }
 
-        if(i & 128)
-        {
-          depth = (i & 7) + 1;
-          if(pal)
-          {
-            for(i = 0; i < (1 << depth); i ++)
-            {
-              pal[i].r = pack_getc(f) / 4;
-              pal[i].g = pack_getc(f) / 4;
-              pal[i].b = pack_getc(f) / 4;
-            }
-          }
-          else
-            pack_fseek(f, (1 << depth) * 3);
-        }
+      /* lzw stream starts now */
+      bit_size = pack_getc(f);
+      cc = 1 << bit_size;
 
-        /* lzw stream starts now */
-        bit_size = pack_getc(f);
-        cc = 1 << bit_size;
+      /* initialise string table */
+      for(i = 0; i < cc; i ++)
+      {
+        str[i].base = -1;
+        str[i].new_char = i;
+        str[i].length = 1;
+      }
 
-        /* initialise string table */
-        for(i = 0; i < cc; i ++)
-        {
-          str[i].base = -1;
-          str[i].new_char = i;
-          str[i].length = 1;
-        }
+      /* initialise the variables */
+      bit_pos = 0;
+      data_len = pack_getc(f); data_pos = 0;
+      entire = pack_getc(f); data_pos ++;
+      string_length = 0; x = image_x; y = image_y;
 
-        /* initialise the variables */
-        bit_pos = 0;
-        data_len = pack_getc(f); data_pos = 0;
-        entire = pack_getc(f); data_pos ++;
-        string_length = 0; x = image_x; y = image_y;
-
-        /* starting code */
-        clear_table();
+      /* starting code */
+      clear_table();
+      get_code();
+      if(code == cc)
         get_code();
+      get_string(code);
+      output_string();
+      old = code;
+
+      while(TRUE)
+      {
+        get_code();
+
         if(code == cc)
-          get_code();
-        get_string(code);
-        output_string();
-        old = code;
-
-        while(TRUE)
         {
+          /* starting code */
+          clear_table();
           get_code();
-
-          if(code == cc)
-          {
-            /* starting code */
-            clear_table();
-            get_code();
-            get_string(code);
-            output_string();
-            old = code;
-          }
-          else if(code == cc + 1)
+          get_string(code);
+          output_string();
+          old = code;
+        }
+        else if(code == cc + 1)
           {
             break;
           }
           else if(code < gif_empty_string)
-          {
-            get_string(code);
-            output_string();
-
-            if(bit_overflow == 0)
             {
-              str[gif_empty_string].base = old;
-              str[gif_empty_string].new_char = string[0];
-              str[gif_empty_string].length = str[old].length + 1;
-              gif_empty_string ++;
-              if(gif_empty_string == (1 << curr_bit_size))
-                curr_bit_size ++;
-              if(curr_bit_size == 13)
+              get_string(code);
+              output_string();
+
+              if(bit_overflow == 0)
               {
-                curr_bit_size = 12;
-                bit_overflow = 1;
+                str[gif_empty_string].base = old;
+                str[gif_empty_string].new_char = string[0];
+                str[gif_empty_string].length = str[old].length + 1;
+                gif_empty_string ++;
+                if(gif_empty_string == (1 << curr_bit_size))
+                  curr_bit_size ++;
+                if(curr_bit_size == 13)
+                {
+                  curr_bit_size = 12;
+                  bit_overflow = 1;
+                }
               }
+
+              old = code;
             }
-
-            old = code;
-          }
-          else
-          {
-            get_string(old);
-            string[str[old].length] = string[0];
-            string_length ++;
-
-            if(bit_overflow == 0)
+            else
             {
-              str[gif_empty_string].base = old;
-              str[gif_empty_string].new_char = string[0];
-              str[gif_empty_string].length = str[old].length + 1;
-              gif_empty_string ++;
-              if(gif_empty_string == (1 << curr_bit_size))
-                curr_bit_size ++;
-              if(curr_bit_size == 13)
-              {
-                curr_bit_size = 12;
-                bit_overflow = 1;
-              }
-            }
+              get_string(old);
+              string[str[old].length] = string[0];
+              string_length ++;
 
-            output_string();
-            old = code;
-          }
-        }
-        break;
+              if(bit_overflow == 0)
+              {
+                str[gif_empty_string].base = old;
+                str[gif_empty_string].new_char = string[0];
+                str[gif_empty_string].length = str[old].length + 1;
+                gif_empty_string ++;
+                if(gif_empty_string == (1 << curr_bit_size))
+                  curr_bit_size ++;
+                if(curr_bit_size == 13)
+                {
+                  curr_bit_size = 12;
+                  bit_overflow = 1;
+                }
+              }
+
+              output_string();
+              old = code;
+            }
+      }
+      break;
       case 0x21:                                            /* Extension Introducer */
+      i = pack_getc(f);
+      if(i == 0xF9)                                       /* Graphic Control Extension */
+      {
+        pack_fseek(f, 1);                                 /* skip size (it's 4) */
         i = pack_getc(f);
-        if(i == 0xF9)                                       /* Graphic Control Extension */
+        if(i & 1)                                         /* is transparency enabled? */
         {
-          pack_fseek(f, 1);                                 /* skip size (it's 4) */
-          i = pack_getc(f);
-          if(i & 1)                                         /* is transparency enabled? */
-          {
-            pack_fseek(f, 2);
-            pack_getc(f);                                   /* transparent colour */
-          }
-          else
-            pack_fseek(f, 3);
+          pack_fseek(f, 2);
+          pack_getc(f);                                   /* transparent colour */
         }
+        else
+          pack_fseek(f, 3);
+      }
+      i = pack_getc(f);
+      while(i)                                            /* skip Data Sub-blocks */
+      {
+        pack_fseek(f, i);
         i = pack_getc(f);
-        while(i)                                            /* skip Data Sub-blocks */
-        {
-          pack_fseek(f, i);
-          i = pack_getc(f);
-        }
-        break;
+      }
+      break;
       case 0x3B:                                            /* Trailer - end of data */
-        pack_fclose(f);
+      pack_fclose(f);
 
-        /* convert to correct colour depth */
-        dest_depth = _color_load_depth(8,0);
+      /* convert to correct colour depth */
+      dest_depth = _color_load_depth(8,0);
 
-        if (dest_depth != 8)
+      if (dest_depth != 8)
+      {
+        bmp2 = create_bitmap_ex(dest_depth, bmp->w, bmp->h);
+        if (!bmp2)
         {
-          bmp2 = create_bitmap_ex(dest_depth, bmp->w, bmp->h);
-          if (!bmp2)
-          {
-            destroy_bitmap(bmp);
-            return NULL;
-          }
-
-          select_palette(pal);
-          blit(bmp, bmp2, 0, 0, 0, 0, bmp->w, bmp->h);
-          unselect_palette();
-
           destroy_bitmap(bmp);
-          bmp = bmp2;
+          return NULL;
         }
 
-        return bmp;
+        select_palette(pal);
+        blit(bmp, bmp2, 0, 0, 0, 0, bmp->w, bmp->h);
+        unselect_palette();
+
+        destroy_bitmap(bmp);
+        bmp = bmp2;
+      }
+
+      return bmp;
     }
   } while(TRUE);
 

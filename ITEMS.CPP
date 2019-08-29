@@ -64,7 +64,7 @@ bool item::animate(int index)
   if(pickup&ipTIMER)
     if(++clk2 == 512)
       return true;
-  return false;
+    return false;
 }
 
 void item::draw(BITMAP *dest)
@@ -83,6 +83,7 @@ item::item(fix X,fix Y,int i,int p,int c) : sprite()
   misc=clk2=0;
   aframe=aclk=0;
   anim=flash=twohand=false;
+  dummy_int[0]=-1;
 
   if(id<0 || id>=iMax)
     return;
@@ -105,18 +106,18 @@ item::item(fix X,fix Y,int i,int p,int c) : sprite()
     hysz=20;
   }
   else if(pickup&ipBIGTRI)
-  {
-    hxofs=-8;
-    hxsz=28;
-    hyofs=-4;
-    hysz=20;
-  }
-  else
-  {
-    hxsz=1;
-    hyofs=4;
-    hysz=12;
-  }
+    {
+      hxofs=-8;
+      hxsz=28;
+      hyofs=-4;
+      hysz=20;
+    }
+    else
+    {
+      hxsz=1;
+      hyofs=4;
+      hysz=12;
+    }
 
   if(id==iFairyMoving)
   {
@@ -143,7 +144,7 @@ void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int 
   temp.aframe=aframe;
   if (flash)
   {
-    temp.flash=flash;
+    temp.flash=(flash != 0);
   }
   temp.animate(0);
   temp.draw(dest);

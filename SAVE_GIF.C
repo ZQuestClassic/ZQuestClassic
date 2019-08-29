@@ -1,6 +1,6 @@
 /* GIF Saver
- * by Paul Bartrum
- */
+  * by Paul Bartrum
+  */
 
 #ifdef MSS
 #include <mss.h>                                            /* For all those memory debugging fans ;-) */
@@ -27,7 +27,7 @@ void output(BUFFER *b, int bit_size, int code, PACKFILE *f);
 
 void clear_speed_buffer(short *speed_buffer)
 {
-  #ifdef ALLEGRO_MACOSX
+//#if defined(ALLEGRO_MACOSX) || defined(_MSC_VER)
   //OSX doesn't like the assembly below.  *shrug*
   //this is basically the same as memset(speed_buffer,-1,256*4096*2)
   //but is filling speed_buffer 4 bytes at a time instead of 1.
@@ -38,17 +38,19 @@ void clear_speed_buffer(short *speed_buffer)
     *a=-1;
     a++;
   }
+/*
   #else
-  /* clear speed buffer to -1 */
+  // clear speed buffer to -1
   __asm__("0:\n"
-    "movl %%ecx, (%%eax)\n"
-    "addl %%edx, %%eax\n"
-    "decl %%ebx\n"
-    "jne 0b\n"
-    :
-  : "a" (speed_buffer), "b" (256 * 4096 / 2), "c" (-1), "d" (4)
-    : "memory");
-  #endif
+          "movl %%ecx, (%%eax)\n"
+          "addl %%edx, %%eax\n"
+          "decl %%ebx\n"
+          "jne 0b\n"
+          :
+          : "a" (speed_buffer), "b" (256 * 4096 / 2), "c" (-1), "d" (4)
+          : "memory");
+#endif
+*/
 }
 
 void dump_buffer(BUFFER *b, PACKFILE *f)

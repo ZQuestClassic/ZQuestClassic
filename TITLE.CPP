@@ -1,4 +1,5 @@
 //--------------------------------------------------------
+//--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
 //
@@ -27,6 +28,11 @@
 //#include "jwin.h"
 #include "jwinfsel.h"
 #include "title.h"
+#include "gamedata.h"
+
+extern int loadlast;
+extern int skipcont;
+extern int skipicon;
 
 /********************************/
 /*****   NES title screen   *****/
@@ -104,15 +110,15 @@ static void cyclewaves()
 
 
     else if(wave[i]<16)
-    {
-      overtile16(framebuf,206,80,y,4,0);
-      overtile16(framebuf,207,96,y,4,0);
-    }
-    else
-    {
-      overtile16(framebuf,208,80,y,4,0);
-      overtile16(framebuf,209,96,y,4,0);
-    }
+      {
+        overtile16(framebuf,206,80,y,4,0);
+        overtile16(framebuf,207,96,y,4,0);
+      }
+      else
+      {
+        overtile16(framebuf,208,80,y,4,0);
+        overtile16(framebuf,209,96,y,4,0);
+      }
   }
 }
 
@@ -128,10 +134,10 @@ static void mainscreen(int f)
     blit(scrollbuf,framebuf,0,0,0,0,256,224);
     char tbuf[80];
     sprintf(tbuf, " 1986 NINTENDO");
-    tbuf[0]=0xBB;
+    tbuf[0]=(char)0xBB;
     textout_ex(framebuf,zfont,tbuf,104,128,13,-1);
-    sprintf(tbuf, " 2007 AG");
-    tbuf[0]=0xBC;
+    sprintf(tbuf, " 2006 AG");
+    tbuf[0]=(char)0xBC;
     textout_ex(framebuf,zfont,tbuf,104,136,13,-1);
   }
   if(f<554+192+10)
@@ -403,15 +409,15 @@ static void treasures(int f)
   y+=80;
   if(y>=0)
     for(int i=177; i<=217; i+=20)
-  {
-    if(y<240)
     {
-      puttile16(scrollbuf,i,104,y,6,0);
-      puttile16(scrollbuf,i+1,120,y,6,0);
-      puttile16(scrollbuf,i+2,136,y,6,0);
+      if(y<240)
+      {
+        puttile16(scrollbuf,i,104,y,6,0);
+        puttile16(scrollbuf,i+1,120,y,6,0);
+        puttile16(scrollbuf,i+2,136,y,6,0);
+      }
+      y+=16;
     }
-    y+=16;
-  }
   if(y<240)
     puttile16(scrollbuf,29,120,y,6,0);
 
@@ -438,7 +444,7 @@ static void NES_titlescreen()
   fcnt=0;
   trstr=0;
   set_palette(black_palette);
-  jukebox(MUSIC_TITLE);
+  jukebox(ZC_MIDI_TITLE);
   clear_bitmap(screen);
   clear_bitmap(framebuf);
   init_NES_mode();
@@ -467,7 +473,7 @@ static void NES_titlescreen()
       clear_bitmap(framebuf);
       loadtitlepal(0x36,titlepal,4);
       music_stop();
-      jukebox(MUSIC_TITLE);
+      jukebox(ZC_MIDI_TITLE);
     }
 
     advanceframe();
@@ -512,11 +518,11 @@ static void DX_mainscreen(int f)
     pic = (pic+1)%6;
     blit(bmp,framebuf, 0,0, 0,0, 256,224);
     //    text_mode(-1);
-    sprintf(tbuf, " 1986 Nintendo");
-    tbuf[0]=0xBB;
+    sprintf(tbuf, "%c1986 Nintendo",0xBB);
+    //tbuf[0]=0xBB;
     textout_ex(framebuf,font,tbuf,46,138,255,-1);
-    sprintf(tbuf, " 2007 Armageddon Games");
-    tbuf[0]=0xBC;
+    sprintf(tbuf, "%c2006 Armageddon Games",0xBC);
+    //tbuf[0]=0xBC;
     textout_ex(framebuf,font,tbuf,46,146,255,-1);
     //    text_mode(0);
   }
@@ -524,7 +530,7 @@ static void DX_mainscreen(int f)
   if(f>=680 && f<680+256 && (f%3)==0)
   {
     fade_interpolate((RGB*)dat[TITLE_DX_PAL_1].dat,black_palette,RAMpal,
-      (f-680)>>2,0,255);
+                     (f-680)>>2,0,255);
     refreshpal=true;
   }
 
@@ -546,22 +552,22 @@ static void DX_titlescreen()
   trstr=0;
   set_palette(black_palette);
 
-  jukebox(MUSIC_TITLE);
+  jukebox(ZC_MIDI_TITLE);
   /*
     if (install_mod(4) < 0) {
-      Z_message("Error : Unable to set up voices\n");
-      return;
+    Z_message("Error : Unable to set up voices\n");
+    return;
     }
 
     // load the file from a datafile.
     yea = load_mod("yea.dat#yeam");
     if (yea == NULL) {
-      Z_message("Error : Unable to load yea.dat#yeam\n");
-      return;
-  }
+    Z_message("Error : Unable to load yea.dat#yeam\n");
+    return;
+    }
 
-  play_mod(yea, TRUE);
-  */
+    play_mod(yea, TRUE);
+    */
   clear_to_color(screen,BLACK);
   clear_bitmap(framebuf);
   init_NES_mode();
@@ -587,7 +593,7 @@ static void DX_titlescreen()
       trstr=f=0;
       clear_bitmap(framebuf);
       music_stop();
-      jukebox(MUSIC_TITLE);
+      jukebox(ZC_MIDI_TITLE);
     }
 
     advanceframe();
@@ -610,13 +616,19 @@ static void DX_titlescreen()
 // first the game saving & loading system
 
 static char *SAVE_HEADER = "Zelda Classic Save File";
-static char *SAVE_FILE = "zc.sav";
+extern char *SAVE_FILE;
 
 int readsaves(gamedata *savedata, PACKFILE *f)
 {
   word item_count;
   word qstpath_len;
   word save_count;
+  char name[9];
+  byte tempbyte;
+  short tempshort;
+  //  long templong;
+  word tempword;
+  dword tempdword;
 
   if(!p_igetw(&save_count,f,true))
   {
@@ -624,164 +636,199 @@ int readsaves(gamedata *savedata, PACKFILE *f)
   }
   for (int i=0; i<save_count; i++)
   {
-    if(!pfread(savedata[i].name,sizeof(savedata[i].name),f,true))
+    if(!pfread(name,9,f,true))
     {
       return 2;
     }
-    if(!p_getc(&(savedata[i].quest),f,true))
+    set_gamedata_name(&savedata[i], name);
+    if(!p_getc(&tempbyte,f,true))
     {
       return 3;
     }
-    if(!p_igetw(&savedata[i].life,f,true))
+    set_gamedata_quest(&savedata[i], tempbyte);
+    if(!p_igetw(&tempword,f,true))
     {
       return 4;
     }
-    if(!p_igetw(&savedata[i].maxlife,f,true))
+    set_gamedata_life(&savedata[i], tempword);
+    if(!p_igetw(&tempword,f,true))
     {
       return 5;
     }
-    if(!p_igetw(&savedata[i].drupy,f,true))
+    set_gamedata_maxlife(&savedata[i], tempword);
+    if(!p_igetw(&tempshort,f,true))
     {
       return 6;
     }
-    if(!p_igetw(&savedata[i].rupies,f,true))
+    set_gamedata_drupy(&savedata[i], tempshort);
+    if(!p_igetw(&tempword,f,true))
     {
       return 7;
     }
-    if(!p_igetw(&savedata[i].deaths,f,true))
+    set_gamedata_rupies(&savedata[i], tempword);
+    if(!p_igetw(&tempword,f,true))
     {
       return 8;
     }
-    if(!p_getc(&(savedata[i].keys),f,true))
+    set_gamedata_arrows(&savedata[i], tempword);
+    if(!p_igetw(&tempword,f,true))
     {
       return 9;
     }
-    if(!p_getc(&(savedata[i].maxbombs),f,true))
+    set_gamedata_deaths(&savedata[i], tempword);
+    if(!p_getc(&tempbyte,f,true))
     {
       return 10;
     }
-    if(!p_getc(&(savedata[i].wlevel),f,true))
+    set_gamedata_keys(&savedata[i], tempbyte);
+    if(!p_getc(&tempbyte,f,true))
     {
       return 11;
     }
-    if(!p_getc(&(savedata[i].cheat),f,true))
+    set_gamedata_maxbombs(&savedata[i], tempbyte);
+    if(!p_getc(&tempbyte,f,true))
     {
       return 12;
     }
-    if(!p_igetw(&item_count,f,true))
+    set_gamedata_wlevel(&savedata[i], tempbyte);
+    if(!p_getc(&tempbyte,f,true))
     {
       return 13;
+    }
+    set_gamedata_cheat(&savedata[i], tempbyte);
+    if(!p_igetw(&item_count,f,true))
+    {
+      return 14;
     }
     for (int j=0; j<item_count; ++j)
     {
       if(!p_getc(&(savedata[i].items[j]),f,true))
       {
-        return 14;
+        return 15;
       }
     }
     if(!pfread(savedata[i].version,sizeof(savedata[i].version),f,true))
     {
-      return 15;
+      return 16;
     }
     if(!pfread(savedata[i].title,sizeof(savedata[i].title),f,true))
     {
-      return 16;
-    }
-    if(!p_getc(&(savedata[i].hasplayed),f,true))
-    {
       return 17;
     }
-    if(!p_igetl(&savedata[i].time,f,true))
+    if(!p_getc(&tempbyte,f,true))
     {
       return 18;
     }
-    if(!p_getc(&(savedata[i].timevalid),f,true))
+    set_gamedata_hasplayed(&savedata[i], tempbyte);
+    if(!p_igetl(&tempdword,f,true))
     {
       return 19;
     }
+    set_gamedata_time(&savedata[i], tempdword);
+    if(!p_getc(&tempbyte,f,true))
+    {
+      return 20;
+    }
+    set_gamedata_timevalid(&savedata[i], tempbyte);
     for (int j=0; j<MAXLEVELS; ++j)
     {
       if(!p_getc(&(savedata[i].lvlitems[j]),f,true))
       {
-        return 20;
+        return 21;
       }
     }
-    if(!p_getc(&(savedata[i].HCpieces),f,true))
-    {
-      return 21;
-    }
-    if(!p_getc(&(savedata[i].continue_scrn),f,true))
+    if(!p_getc(&tempbyte,f,true))
     {
       return 22;
     }
-    if(!p_getc(&(savedata[i].continue_dmap),f,true))
+    set_gamedata_HCpieces(&savedata[i], tempbyte);
+    if(!p_getc(&tempbyte,f,true))
     {
       return 23;
     }
-    if(!p_igetw(&savedata[i].magic,f,true))
+    set_gamedata_continue_scrn(&savedata[i], tempbyte);
+    if(!p_getc(&tempbyte,f,true))
     {
       return 24;
     }
-    if(!p_igetw(&savedata[i].maxmagic,f,true))
+    set_gamedata_continue_dmap(&savedata[i], tempbyte);
+    if(!p_igetw(&tempword,f,true))
     {
       return 25;
     }
-    if(!p_igetw(&savedata[i].dmagic,f,true))
+    set_gamedata_magic(&savedata[i], tempword);
+    if(!p_igetw(&tempword,f,true))
     {
       return 26;
     }
-    if(!p_getc(&(savedata[i].magicdrainrate),f,true))
+    set_gamedata_maxmagic(&savedata[i], tempword);
+    if(!p_igetw(&tempshort,f,true))
     {
       return 27;
     }
-    if(!p_getc(&(savedata[i].canslash),f,true))
+    set_gamedata_dmagic(&savedata[i], tempshort);
+    if(!p_getc(&tempbyte,f,true))
     {
       return 28;
     }
+    set_gamedata_magicdrainrate(&savedata[i], tempbyte);
+    if(!p_getc(&tempbyte,f,true))
+    {
+      return 29;
+    }
+    set_gamedata_canslash(&savedata[i], tempbyte);
     for (int j=0; j<MAXDMAPS; ++j)
     {
       if(!p_getc(&(savedata[i].visited[j]),f,true))
       {
-        return 29;
+        return 30;
       }
     }
-    for (int j=0; j<MAXDMAPS; ++j)
+    for (int j=0; j<MAXDMAPS*64; ++j)
     {
       if(!p_getc(&(savedata[i].bmaps[j]),f,true))
       {
-        return 29;
+        return 31;
       }
     }
     for (int j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
     {
       if(!p_igetw(&savedata[i].maps[j],f,true))
       {
-        return 31;
+        return 32;
       }
     }
     for (int j=0; j<MAXMAPS2*MAPSCRSNORMAL; ++j)
     {
       if(!p_getc(&(savedata[i].guys[j]),f,true))
       {
-        return 32;
+        return 33;
       }
     }
     if(!p_igetw(&qstpath_len,f,true))
     {
-      return 33;
+      return 34;
     }
     if(!pfread(savedata[i].qstpath,qstpath_len,f,true))
     {
-      return 34;
+      return 35;
     }
     savedata[i].qstpath[qstpath_len]=0;
     if(!pfread(savedata[i].icon,sizeof(savedata[i].icon),f,true))
     {
-      return 35;
+      return 36;
     }
     if(!pfread(savedata[i].pal,sizeof(savedata[i].pal),f,true))
     {
-      return 36;
+      return 37;
+    }
+	for (int j=0; j<MAXLEVELS; ++j)
+    {
+	  //savedata[i].lvlkeys[j]=0;
+      if(!p_getc(&(savedata[i].lvlkeys[j]),f,true))
+      {
+        return 38;
+      }
     }
   }
 
@@ -796,7 +843,9 @@ int load_savedgames()
   int ret;
   PACKFILE *f=NULL;
   char tmpbuf[L_tmpnam];
-  char *tmpfilename = tmpnam(tmpbuf);
+  temp_name(tmpbuf);
+  char *tmpfilename = (char*)malloc(L_tmpnam);
+  sprintf(tmpfilename, "%s", tmpbuf);
 
   int section_id;
   int section_version;
@@ -811,7 +860,7 @@ int load_savedgames()
   }
 
   // see if it's there
-  if (file_size_ex(fname)==0)
+  if (file_size(fname)==0)
   {
     goto newdata;
   }
@@ -864,9 +913,23 @@ int load_savedgames()
   {
     if(strlen(saves[i].qstpath))
     {
-      if(load_quest(saves+i, false) == 0)
+      if(skipicon)
       {
-        load_game_icon(saves+i);
+        for(int j=0; j<128; j++)
+        {
+          saves[i].icon[j]=0;
+        }
+        for(int j=0; j<48; j++)
+        {
+          saves[i].pal[j]=0;
+        }
+      }
+      else
+      {
+        if(load_quest(saves+i, false) == 0)
+        {
+          load_game_icon(saves+i);
+        }
       }
     }
   }
@@ -875,16 +938,16 @@ int load_savedgames()
   delete_file(tmpfilename);
   return 0;
 
-  newdata:
+newdata:
   Z_message("Save file not found.  Creating new save file.");
   goto init;
 
-  reset:
+reset:
   pack_fclose(f);
   delete_file(tmpfilename);
   Z_message("Format error.  Resetting game data... ");
 
-  init:
+init:
   int *di = (int*)saves;
   for(unsigned i=0; i<sizeof(gamedata)*MAXSAVES/sizeof(int); i++)
     *(di++) = 0;
@@ -903,148 +966,156 @@ int writesaves(gamedata *savedata, PACKFILE *f)
   for (int i=0; i<MAXSAVES; i++)
   {
     qstpath_len=strlen(savedata[i].qstpath);
-    if(!pfwrite(savedata[i].name,sizeof(savedata[i].name),f))
+    if(!pfwrite(get_gamedata_name(&savedata[i]),9,f))
     {
       return 2;
     }
-    if(!p_putc(savedata[i].quest,f))
+    if(!p_putc(get_gamedata_quest(&savedata[i]),f))
     {
       return 3;
     }
-    if(!p_iputw(savedata[i].life,f))
+    if(!p_iputw(get_gamedata_life(&savedata[i]),f))
     {
       return 4;
     }
-    if(!p_iputw(savedata[i].maxlife,f))
+    if(!p_iputw(get_gamedata_maxlife(&savedata[i]),f))
     {
       return 5;
     }
-    if(!p_iputw(savedata[i].drupy,f))
+    if(!p_iputw(get_gamedata_drupy(&savedata[i]),f))
     {
       return 6;
     }
-    if(!p_iputw(savedata[i].rupies,f))
+    if(!p_iputw(get_gamedata_rupies(&savedata[i]),f))
     {
       return 7;
     }
-    if(!p_iputw(savedata[i].deaths,f))
+    if(!p_iputw(get_gamedata_arrows(&savedata[i]),f))
     {
       return 8;
     }
-    if(!p_putc(savedata[i].keys,f))
+    if(!p_iputw(get_gamedata_deaths(&savedata[i]),f))
     {
       return 9;
     }
-    if(!p_putc(savedata[i].maxbombs,f))
+    if(!p_putc(get_gamedata_keys(&savedata[i]),f))
     {
       return 10;
     }
-    if(!p_putc(savedata[i].wlevel,f))
+    if(!p_putc(get_gamedata_maxbombs(&savedata[i]),f))
     {
       return 11;
     }
-    if(!p_putc(savedata[i].cheat,f))
+    if(!p_putc(get_gamedata_wlevel(&savedata[i]),f))
     {
       return 12;
     }
-    if(!p_iputw(item_count,f))
+    if(!p_putc(get_gamedata_cheat(&savedata[i]),f))
     {
       return 13;
     }
-    if(!pfwrite(savedata[i].items,item_count,f))
+    if(!p_iputw(item_count,f))
     {
       return 14;
     }
-    if(!pfwrite(savedata[i].version,sizeof(savedata[i].version),f))
+    if(!pfwrite(savedata[i].items,item_count,f))
     {
       return 15;
     }
-    if(!pfwrite(savedata[i].title,sizeof(savedata[i].title),f))
+    if(!pfwrite(savedata[i].version,sizeof(savedata[i].version),f))
     {
       return 16;
     }
-    if(!p_putc(savedata[i].hasplayed,f))
+    if(!pfwrite(savedata[i].title,sizeof(savedata[i].title),f))
     {
       return 17;
     }
-    if(!p_iputl(savedata[i].time,f))
+    if(!p_putc(get_gamedata_hasplayed(&savedata[i]),f))
     {
       return 18;
     }
-    if(!p_putc(savedata[i].timevalid,f))
+    if(!p_iputl(get_gamedata_time(&savedata[i]),f))
     {
       return 19;
     }
-    if(!pfwrite(savedata[i].lvlitems,MAXLEVELS,f))
+    if(!p_putc(get_gamedata_timevalid(&savedata[i]),f))
     {
       return 20;
     }
-    if(!p_putc(savedata[i].HCpieces,f))
+    if(!pfwrite(savedata[i].lvlitems,MAXLEVELS,f))
     {
       return 21;
     }
-    if(!p_putc(savedata[i].continue_scrn,f))
+    if(!p_putc(get_gamedata_HCpieces(&savedata[i]),f))
     {
       return 22;
     }
-    if(!p_putc(savedata[i].continue_dmap,f))
+    if(!p_putc(get_gamedata_continue_scrn(&savedata[i]),f))
     {
       return 23;
     }
-    if(!p_iputw(savedata[i].magic,f))
+    if(!p_putc(get_gamedata_continue_dmap(&savedata[i]),f))
     {
       return 24;
     }
-    if(!p_iputw(savedata[i].maxmagic,f))
+    if(!p_iputw(get_gamedata_magic(&savedata[i]),f))
     {
       return 25;
     }
-    if(!p_iputw(savedata[i].dmagic,f))
+    if(!p_iputw(get_gamedata_maxmagic(&savedata[i]),f))
     {
       return 26;
     }
-    if(!p_putc(savedata[i].magicdrainrate,f))
+    if(!p_iputw(get_gamedata_dmagic(&savedata[i]),f))
     {
       return 27;
     }
-    if(!p_putc(savedata[i].canslash,f))
+    if(!p_putc(get_gamedata_magicdrainrate(&savedata[i]),f))
     {
       return 28;
     }
-    if(!pfwrite(savedata[i].visited,MAXDMAPS,f))
+    if(!p_putc(get_gamedata_canslash(&savedata[i]),f))
     {
       return 29;
     }
-    if(!pfwrite(savedata[i].bmaps,MAXDMAPS,f))
+    if(!pfwrite(savedata[i].visited,MAXDMAPS,f))
     {
       return 30;
+    }
+    if(!pfwrite(savedata[i].bmaps,MAXDMAPS*64,f))
+    {
+      return 31;
     }
     for (int j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
     {
       if(!p_iputw(savedata[i].maps[j],f))
       {
-        return 31;
+        return 32;
       }
     }
     if(!pfwrite(savedata[i].guys,MAXMAPS2*MAPSCRSNORMAL,f))
     {
-      return 32;
+      return 33;
     }
     if(!p_iputw(qstpath_len,f))
     {
-      return 33;
+      return 34;
     }
     if(!pfwrite(savedata[i].qstpath,qstpath_len,f))
     {
-      return 34;
+      return 35;
     }
     if(!pfwrite(savedata[i].icon,sizeof(savedata[i].icon),f))
     {
-      return 35;
+      return 36;
     }
     if(!pfwrite(savedata[i].pal,sizeof(savedata[i].pal),f))
     {
-      return 36;
+      return 37;
+    }
+	if(!pfwrite(savedata[i].lvlkeys,MAXLEVELS,f))
+    {
+      return 38;
     }
   }
   return 0;
@@ -1056,7 +1127,7 @@ int save_savedgames()
     return 1;
 
   char tmpbuf[L_tmpnam];
-  char *tmpfilename = tmpnam(tmpbuf);
+  char *tmpfilename = temp_name(tmpbuf);
 
   PACKFILE *f = pack_fopen(tmpfilename, F_WRITE_PACKED);
   if(!f)
@@ -1112,28 +1183,67 @@ void load_game_icon(gamedata *g)
   //  int i = vbound(g->items[itype_ring],0,3);
   //  int i = high_flag(g->items[itype_ring],itype_ring,true);
   int i = high_item(imax_ring, itype_ring, true, g->items[itype_ring], true);
-  int t = QMisc.icons[i];
+  int t=0;
+  if (get_gamedata_quest(g) >= 1 && get_gamedata_quest(g) <=3)
+  {
+    t = 28;
+  }
+  else
+  {
+    t = QMisc.icons[i];
+  }
 
   if(t<0 || t>=NEWMAXTILES)
+  {
     t=0;
+  }
 
-  byte *si = tilebuf + ( (t ? t : 28) << 7 );
-
-  for(int j=0; j<128; j++)
-    g->icon[j] = *(si++);
+  byte *si = newtilebuf[t].data;
+  if(newtilebuf[t].format==tf8Bit)
+  {
+    for(int j=0; j<128; j++)
+    {
+      g->icon[j] =0;
+    }
+  }
+  else
+  {
+    for(int j=0; j<128; j++)
+    {
+      g->icon[j] = *(si++);
+    }
+  }
 
   if(t)
+  {
     si = colordata + CSET(pSprite(i+spICON1))*3;
+  }
   else
   {
     if(i)
+    {
       si = colordata + CSET(pSprite(i-1+spBLUE))*3;
+    }
     else
+    {
       si = colordata + CSET(6)*3;
+    }
   }
 
-  for(int j=0; j<48; j++)
-    g->pal[j] = *(si++);
+  if(newtilebuf[t].format==tf8Bit)
+  {
+    for(int j=0; j<48; j++)
+    {
+      g->pal[j] = 0;
+    }
+  }
+  else
+  {
+    for(int j=0; j<48; j++)
+    {
+      g->pal[j] = *(si++);
+    }
+  }
 }
 
 static void select_mode()
@@ -1162,12 +1272,13 @@ static void selectscreen()
 {
   //  text_mode(0);
   init_NES_mode();
-//  loadfullpal();
+  //  loadfullpal();
   loadlvlpal(1);
   clear_bitmap(scrollbuf);
   QMisc.colors.blueframe_tile = 238;
   QMisc.colors.blueframe_cset = 0;
-  blueframe(scrollbuf,24,48,26,20);
+//  blueframe(scrollbuf,&QMisc,24,48,26,20);
+  frame2x2(scrollbuf,&QMisc,24,48,QMisc.colors.blueframe_tile,QMisc.colors.blueframe_cset,26,20,0,1,0);
   textout_ex(scrollbuf,zfont,"- S E L E C T -",64,24,1,0);
   textout_ex(scrollbuf,zfont," NAME ",80,48,1,0);
   textout_ex(scrollbuf,zfont," LIFE ",152,48,1,0);
@@ -1200,30 +1311,34 @@ static void list_saves()
   {
     if(listpos+i<savecnt)
     {
-      game.maxlife = game.life = saves[listpos+i].maxlife;
+      set_gamedata_maxlife(game, get_gamedata_maxlife(&saves[listpos+i]));
+      set_gamedata_life(game, get_gamedata_maxlife(&saves[listpos+i]));
       //boogie!
-      lifemeter(framebuf,144,i*24+80+((game.maxlife>16*(HP_PER_HEART))?8:0));
-      textout_ex(framebuf,zfont,saves[listpos+i].name,72,i*24+72,1,0);
+      lifemeter(framebuf,144,i*24+56+((get_gamedata_maxlife(game)>16*(HP_PER_HEART))?8:0),0,0);
+      textout_ex(framebuf,zfont,get_gamedata_name(&saves[listpos+i]),72,i*24+72,1,0);
 
-      if(saves[listpos+i].quest)
-        textprintf_ex(framebuf,zfont,72,i*24+80,1,0,"%3d",saves[listpos+i].deaths);
+      if(get_gamedata_quest(&saves[listpos+i]))
+        textprintf_ex(framebuf,zfont,72,i*24+80,1,0,"%3d",get_gamedata_deaths(&saves[listpos+i]));
 
-      if(saves[listpos+i].quest==2)
+      if(get_gamedata_quest(&saves[listpos+i])==2)
         overtile16(framebuf,41,56,i*24+70,9,0);             //put sword on second quests
 
-      if(saves[listpos+i].quest==3)
+      if(get_gamedata_quest(&saves[listpos+i])==3)
       {
         overtile16(framebuf,41,56,i*24+70,9,0);             //put sword on second quests
         overtile16(framebuf,41,41,i*24+70,9,0);             //put sword on third quests
       }
       // maybe the triforce for the 4th quest?
-      textprintf_ex(framebuf,zfont,72,i*24+72,1,0,"%s",saves[listpos+i].name);
+      textprintf_ex(framebuf,zfont,72,i*24+72,1,0,"%s",get_gamedata_name(&saves[listpos+i]));
     }
 
-    byte *hold = tilebuf;
-    tilebuf = saves[listpos+i].icon;
-    overtile16(framebuf,0,48,i*24+73,i+10,0);               //link?
-    tilebuf = hold;
+    byte *hold = newtilebuf[0].data;
+    byte holdformat=newtilebuf[0].format;
+    newtilebuf[0].format=tf4Bit;
+    newtilebuf[0].data = saves[listpos+i].icon;
+    overtile16(framebuf,0,48,i*24+73,i+10,0);               //link
+    newtilebuf[0].format=holdformat;
+    newtilebuf[0].data = hold;
 
     hold = colordata;
     colordata = saves[listpos+i].pal;
@@ -1250,10 +1365,10 @@ static bool register_name()
   if(savecnt>=MAXSAVES)
     return false;
 
-  saves[savecnt].maxlife = 3*HP_PER_HEART;
-  saves[savecnt].maxbombs = 8;
-  saves[savecnt].continue_dmap=0;
-  saves[savecnt].continue_scrn=0xFF;
+  set_gamedata_maxlife(&saves[savecnt], 3*HP_PER_HEART);
+  set_gamedata_maxbombs(&saves[savecnt], 8);
+  set_gamedata_continue_dmap(&saves[savecnt], 0);
+  set_gamedata_continue_scrn(&saves[savecnt], 0xFF);
 
   int s=savecnt;
   ++savecnt;
@@ -1262,7 +1377,9 @@ static bool register_name()
   int pos=s%3;
   int y=pos*24+72;
   int x=0;
+  char name[9];
 
+  memset(name,0,9);
   register_mode();
   clear_keybuf();
   SystemKeys=false;
@@ -1276,46 +1393,82 @@ static bool register_name()
       int k=readkey();
       if(isprint(k&255))
       {
-        saves[s].name[min(x,7)]=k&0xFF;
+        name[min(x,7)]=k&0xFF;
         if(x<8)
+        {
           ++x;
+        }
         sfx(WAV_PLACE);
       }
       else
+      {
         switch(k>>8)
         {
-          case KEY_LEFT:  if(x>0)
-          { if(x==8) x=6; else --x; sfx(WAV_CHIME); }
+          case KEY_LEFT:
+          if(x>0)
+          {
+            if(x==8)
+            {
+              x=6;
+            }
+            else
+            {
+              --x;
+            }
+            sfx(WAV_CHIME);
+          }
           break;
-          case KEY_RIGHT: if(x<8 && saves[s].name[min(x,7)])
-          { ++x; sfx(WAV_CHIME); }
+          case KEY_RIGHT:
+          if(x<8 && name[min(x,7)])
+          {
+            ++x;
+            sfx(WAV_CHIME);
+          }
           break;
           case KEY_ENTER:
           {
             int ltrs=0;
-          for(int i=0; i<8; i++)
-            if(saves[s].name[i]!=' ' && saves[s].name[i]!=0)
-              ++ltrs;
-          if(ltrs)
-            done=true;
-        } break;
-        case KEY_BACKSPACE:
+            for(int i=0; i<8; i++)
+            {
+              if(name[i]!=' ' && name[i]!=0)
+              {
+                ++ltrs;
+              }
+            }
+            if(ltrs)
+            {
+              done=true;
+            }
+          }
+          break;
+          case KEY_BACKSPACE:
           if(x>0)
           {
             --x;
             for(int i=min(x,7); i<8; i++)
-              saves[s].name[i]=saves[s].name[i+1];
+            {
+              name[i]=name[i+1];
+            }
             sfx(WAV_OUCH);
           }
           break;
-        case KEY_DEL:
+          case KEY_DEL:
           for(int i=min(x,7); i<8; i++)
-            saves[s].name[i]=saves[s].name[i+1];
+          {
+            name[i]=name[i+1];
+          }
           sfx(WAV_OUCH);
           break;
+          case KEY_ESC:
+          x=-1;
+          done=true;
+          while(key[KEY_ESC]);
+          break;
+        }
       }
     }
 
+    set_gamedata_name(&saves[s],name);
     blit(scrollbuf,framebuf,0,0,0,0,256,224);
     list_saves();
 
@@ -1330,12 +1483,13 @@ static bool register_name()
 
     draw_cursor(pos,0);
     advanceframe();
-    if(rBbtn())
-    {
+    /*
+      if(rBbtn())
+      {
       x=-1;
       done=true;
-    }
-
+      }
+      */
   } while(!done && !Quit);
 
   if(x<0)
@@ -1347,30 +1501,30 @@ static bool register_name()
   {
     int quest=1;
     char buf[9];
-    strcpy(buf,saves[s].name);
+    strcpy(buf,name);
     strupr(buf);
     if(!stricmp(buf,"ZELDA"))
       quest=2;
     if(!stricmp(buf,"ALPHA"))
       quest=3;
-    saves[s].quest=quest;
+    set_gamedata_quest(&saves[s], quest);
 
     packfile_password(datapwd);
     if(load_quest(saves+s))
     {
-      saves[s].maxlife=zinit.hc*HP_PER_HEART;
+      set_gamedata_maxlife(&saves[s], zinit.hc*HP_PER_HEART);
       saves[s].items[itype_ring]=0;
       if (zinit.ring)
       {
         saves[s].items[itype_ring]=(1<<(min(zinit.ring,3)-1));
       }
       ringcolor();
-      saves[s].maxbombs=zinit.max_bombs;
+      //      set_gamedata_maxbombs(&saves[s], zinit.max_bombs);
       selectscreen();                                       // refresh palette
     }
     packfile_password(NULL);
     load_game_icon(saves+s);
-    saves[s].timevalid=1;
+    set_gamedata_timevalid(&saves[s], 1);
   }
 
   if(x<0)
@@ -1454,7 +1608,7 @@ static int get_quest_info(zquestheader *header,char *str)
   strcpy(str,"Error: Invalid quest file");
 
   char tmpbuf[L_tmpnam];
-  char *tmpfilename = tmpnam(tmpbuf);
+  char *tmpfilename = temp_name(tmpbuf);
   int ret;
   PACKFILE *f;
 
@@ -1467,6 +1621,10 @@ static int get_quest_info(zquestheader *header,char *str)
       case 1: strcpy(str,"Error: Unable to open file"); break;
       case 2: strcpy(str,"Internal error occurred"); break;
       // be sure not to delete tmpfilename now...
+    }
+    if (ret==5)                                             //old encryption?
+    {
+      ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_192B185, strstr(qstpath, ".dat#")!=NULL);
     }
     if (ret==5)                                             //old encryption?
     {
@@ -1512,19 +1670,19 @@ static int get_quest_info(zquestheader *header,char *str)
   switch (ret)
   {
     case 0:
-      break;
+    break;
     case qe_invalid:
-      strcpy(str,"Error: Invalid quest file");
-      return 0;
-      break;
+    strcpy(str,"Error: Invalid quest file");
+    return 0;
+    break;
     case qe_version:
-      strcpy(str,"Error: Invalid version");
-      return 0;
-      break;
+    strcpy(str,"Error: Invalid version");
+    return 0;
+    break;
     case qe_obsolete:
-      strcpy(str,"Error: Obsolete version");
-      return 0;
-      break;
+    strcpy(str,"Error: Obsolete version");
+    return 0;
+    break;
   }
 
   if(header->quest_number > 0)
@@ -1546,7 +1704,7 @@ static int custom_game()
 {
   zquestheader h;
   char infostr[200];
-  char path[260];
+  char path[2048];
   int ret=0;
 
   gamemode_dlg[0].dp2 = lfont;
@@ -1583,11 +1741,12 @@ static int custom_game()
 
     strcpy(path, qstpath);
     //    if(jwin_file_browse("Load Quest", path, list, &sel))
-    if(jwin_file_browse_ex("Load Quest", path, list, &sel, 1024, -1, -1, lfont))
+    if(jwin_file_browse_ex("Load Quest", path, list, &sel, 2048, -1, -1, lfont))
     {
-      strcpy(qstpath, path);
+      //      strcpy(qstpath, path);
+      replace_extension(qstpath,path,"qst",2047);
       gamemode_dlg[2].dp = get_filename(qstpath);
-//*
+      //*
       if(get_quest_info(&h,infostr)==0)
       {
         gamemode_dlg[4].dp = infostr;
@@ -1598,7 +1757,7 @@ static int custom_game()
         gamemode_dlg[4].dp = infostr;
         gamemode_dlg[5].flags = D_EXIT;
       }
-//*/
+      //*/
       gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
       gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
     }
@@ -1617,7 +1776,7 @@ static int custom_game()
 static int game_details(int file)
 {
   int pos=file%3;
-  if(saves[file].quest==0)
+  if(get_gamedata_quest(&saves[file])==0)
     return 0;
   BITMAP *info = create_bitmap_ex(8,168,32);
   clear_bitmap(info);
@@ -1641,32 +1800,32 @@ static int game_details(int file)
   textout_ex(framebuf,zfont,"QUEST",40,112,3,0);
   textout_ex(framebuf,zfont,"STATUS",40,120,3,0);
 
-  if(saves[file].quest<0xFf)
+  if(get_gamedata_quest(&saves[file])<0xFF)
   {
     textout_ex(framebuf,zfont,"Normal Game",120,104,1,0);
     textprintf_ex(framebuf,zfont,120,112,1,0,"%s Quest",
-      ordinal(saves[file].quest));
+                  ordinal(get_gamedata_quest(&saves[file])));
   }
   else
   {
     textout_ex(framebuf,zfont,"Custom Quest",120,104,1,0);
     textprintf_ex(framebuf,zfont,120,112,1,0,"%s",
-      get_filename(saves[file].qstpath));
+                  get_filename(saves[file].qstpath));
   }
 
-  if(!saves[file].hasplayed)
+  if(!get_gamedata_hasplayed(&saves[file]))
     textout_ex(framebuf,zfont,"Empty Game",120,120,1,0);
-  else if(!saves[file].timevalid)
-    textout_ex(framebuf,zfont,"Time Unknown",120,120,1,0);
-  else
-    textout_ex(framebuf,zfont,time_str_med(saves[file].time),120,120,1,0);
+  else if(!get_gamedata_timevalid(&saves[file]))
+      textout_ex(framebuf,zfont,"Time Unknown",120,120,1,0);
+    else
+      textout_ex(framebuf,zfont,time_str_med(get_gamedata_time(&saves[file])),120,120,1,0);
 
-  if(saves[file].cheat)
+  if(get_gamedata_cheat(&saves[file]))
     textout_ex(framebuf,zfont,"Used Cheats",120,128,1,0);
 
   textout_ex(framebuf,zfont,"START: PLAY GAME",56,152,1,0);
   textout_ex(framebuf,zfont,"    B: CANCEL",56,168,1,0);
-  if(!saves[file].hasplayed)
+  if(!get_gamedata_hasplayed(&saves[file]))
     textout_ex(framebuf,zfont,"    A: CUSTOM QUEST",56,184,1,0);
 
   while(!Quit)
@@ -1682,21 +1841,42 @@ static int game_details(int file)
       blit(framebuf,scrollbuf,0,0,0,0,256,224);
       return 1;
     }
-    if(!saves[file].hasplayed && rAbtn())
+    if(!get_gamedata_hasplayed(&saves[file]) && rAbtn())
     {
-      chop_path(qstpath);
-      sprintf(qstpath,"%s%s",qstpath,saves[file].qstpath);
+      //chop_path(qstpath);
+      if (is_relative_filename(saves[file].qstpath))
+      {
+        sprintf(qstpath,"%s%s",qstdir,saves[file].qstpath);
+      }
+      else
+      {
+        sprintf(qstpath,"%s", saves[file].qstpath);
+      }
+      //sprintf(qstpath,"%s%s",qstdir,saves[file].qstpath);
       //      packfile_password(datapwd);
       if(custom_game())
       {
-        saves[file].quest=0xFF;
-        strncpy(saves[file].qstpath,get_filename(qstpath),80);
+        set_gamedata_quest(&saves[file],0xFF);
+        //this next line strips the path off.  not good.
+        //strncpy(saves[file].qstpath,get_filename(qstpath),80);
+        char temppath[2048];
+        memset(temppath, 0, 2048);
+        zc_make_relative_filename(temppath, qstdir, qstpath, 2047);
+        if (temppath[0]==0) //can't make relative, go absolute
+        {
+          sprintf(saves[file].qstpath, "%s", qstpath);
+        }
+        else
+        {
+          sprintf(saves[file].qstpath, "%s", temppath);
+        }
         packfile_password(datapwd);
         load_quest(saves+file);
+
         packfile_password(NULL);
-        saves[file].maxlife=zinit.hc*HP_PER_HEART;
+        //        set_gamedata_maxbombs(&saves[file], zinit.max_bombs);
+        set_gamedata_maxlife(&saves[file], zinit.hc*HP_PER_HEART);
         saves[file].items[itype_ring]=(1<<(zinit.ring-1)); ringcolor();
-        saves[file].maxbombs=zinit.max_bombs;
         load_game_icon(saves+file);
         //      packfile_password(NULL);
         selectscreen();
@@ -1716,7 +1896,7 @@ static void select_game()
   selectscreen();
 
   savecnt=0;
-  while(savecnt<MAXSAVES && saves[savecnt].quest>0)
+  while(savecnt<MAXSAVES && get_gamedata_quest(&saves[savecnt])>0)
     ++savecnt;
 
   if(savecnt==0)
@@ -1736,12 +1916,12 @@ static void select_game()
       switch(pos)
       {
         case 3:
-          if(!register_name())
-            pos = 3;
-          else
-            pos = (savecnt-1)%3;
-          refreshpal=true;
-          break;
+        if(!register_name())
+          pos = 3;
+        else
+          pos = (savecnt-1)%3;
+        refreshpal=true;
+        break;
 
         case 4:
         if(savecnt && savecnt<MAXSAVES)
@@ -1749,11 +1929,11 @@ static void select_game()
           mode=2;
           pos=0;
           copy_mode();
-      }
-      refreshpal=true;
-      break;
+        }
+        refreshpal=true;
+        break;
 
-      case 5:
+        case 5:
         if(savecnt)
         {
           mode=3;
@@ -1763,34 +1943,35 @@ static void select_game()
         refreshpal=true;
         break;
 
-      default:
+        default:
         switch(mode)
         {
           case 0:
-            currgame=listpos+pos;
-            if(saves[currgame].quest)
-              done=true;
-            break;
+          currgame=listpos+pos;
+          loadlast=currgame+1;
+          if(get_gamedata_quest(&saves[currgame]))
+            done=true;
+          break;
 
           case 2:
-            if(copy_file(pos+listpos))
-            {
-              mode=0;
-              pos=(savecnt-1)%3;
-              refreshpal=true;
-            }
-            break;
+          if(copy_file(pos+listpos))
+          {
+            mode=0;
+            pos=(savecnt-1)%3;
+            refreshpal=true;
+          }
+          break;
 
           case 3:
-            if(delete_save(pos+listpos))
-            {
-              mode=0;
-              pos=3;
-              refreshpal=true;
-            }
-            break;
+          if(delete_save(pos+listpos))
+          {
+            mode=0;
+            pos=3;
+            refreshpal=true;
+          }
+          break;
         }
-    }
+      }
 
     if(rUp())
     {
@@ -1830,7 +2011,8 @@ static void select_game()
       if(game_details(pos+listpos))
       {
         currgame=listpos+pos;
-        if(saves[currgame].quest)
+        loadlast=currgame+1;
+        if(get_gamedata_quest(&saves[currgame]))
           done=true;
       }
       //      packfile_password(NULL);
@@ -1842,8 +2024,9 @@ static void select_game()
 /****  Main title screen routine  *****/
 /**************************************/
 
-void titlescreen()
+void titlescreen(int lsave)
 {
+
   int q=Quit;
 
   Quit=0;
@@ -1874,7 +2057,36 @@ void titlescreen()
 
   if(!Quit)
   {
-    select_game();
+    if(lsave<1)
+    {
+      if(slot_arg)
+      {
+        currgame=slot_arg2-1;
+        savecnt=0;
+        while(savecnt<MAXSAVES && get_gamedata_quest(&saves[savecnt])>0)
+          ++savecnt;
+        if (currgame>savecnt-1)
+        {
+          slot_arg=0;
+          currgame=0;
+          select_game();
+        }
+        //get_gamedata_quest(&saves[currgame]);
+        //select_game();
+      }
+      else
+      {
+        select_game();
+      }
+    }
+    else
+    {
+      currgame = lsave-1;
+      if(!(get_gamedata_quest(&saves[currgame])))
+      {
+        select_game();
+      }
+    }
   }
 
   if(!Quit)
@@ -1883,7 +2095,7 @@ void titlescreen()
   }
 }
 
-void game_over()
+void game_over(int type)
 {
   kill_sfx();
   music_stop();
@@ -1891,26 +2103,31 @@ void game_over()
   loadfullpal();
 
   if(Quit==qGAMEOVER)
-    jukebox(MUSIC_GAMEOVER);
+    jukebox(ZC_MIDI_GAMEOVER);
   Quit=0;
 
   clear_bitmap(framebuf);
   //  text_mode(-1);
   textout_ex(framebuf,zfont,"CONTINUE",88,72,QMisc.colors.text,-1);
-  textout_ex(framebuf,zfont,"SAVE",88,96,QMisc.colors.text,-1);
-  textout_ex(framebuf,zfont,"RETRY",88,120,QMisc.colors.text,-1);
+  if(!type)
+  {
+    textout_ex(framebuf,zfont,"SAVE",88,96,QMisc.colors.text,-1);
+    textout_ex(framebuf,zfont,"RETRY",88,120,QMisc.colors.text,-1);
+  }
+  else
+    textout_ex(framebuf,zfont,"RETRY",88,96,QMisc.colors.text,-1);
 
   int pos = 0;
   int f=-1;
-//  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
+  //  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
   int htile = 2;
   bool done=false;
   do
   {
     if(f==-1)
     {
-      if(rUp())   { sfx(WAV_CHINK); pos=(pos==0)?2:pos-1; }
-      if(rDown()) { sfx(WAV_CHINK); pos=(pos+1)%3; }
+      if(rUp())   { sfx(WAV_CHINK); pos=(pos==0)?2:pos-1; if(type) {if(pos==1) pos--;} }
+      if(rDown()) { sfx(WAV_CHINK); pos=(pos+1)%3; if(type) {if(pos==1) pos++;} }
       if(rSbtn()) ++f;
     }
 
@@ -1925,13 +2142,17 @@ void game_over()
         {
           case 0: textout_ex(framebuf,zfont,"CONTINUE",88,72,c,-1); break;
           case 1: textout_ex(framebuf,zfont,"SAVE",88,96,c,-1);     break;
-          case 2: textout_ex(framebuf,zfont,"RETRY",88,120,c,-1);   break;
+          case 2:
+          if(!type)
+            textout_ex(framebuf,zfont,"RETRY",88,120,c,-1);
+          else textout_ex(framebuf,zfont,"RETRY",88,96,c,-1);
+          break;
         }
       }
     }
 
     rectfill(framebuf,72,72,79,127,0);
-    puttile8(framebuf,htile,72,pos*24+72,1,0);
+    puttile8(framebuf,htile,72,pos*(type?12:24)+72,1,0);
     advanceframe();
   } while(!Quit && !done);
   reset_combo_animations();
@@ -1941,14 +2162,152 @@ void game_over()
   if(done)
   {
     Quit = pos ? qQUIT : qCONT;
-    if(pos==1)
+    if(pos==1&&(!type))
     {
-      game.cheat |= cheat;
-      saves[currgame] = game;
+      set_gamedata_cheat(game, get_gamedata_cheat(game) | cheat);
+      //      saves[currgame] = realgame;
+      //      memcpy(saves+currgame,&realgame,sizeof(gamedata));
+      memcpy(saves+currgame,game,sizeof(gamedata));
       load_game_icon(saves+currgame);
       save_savedgames();
     }
   }
+}
+
+void save_game(bool savepoint, int type)
+{
+  kill_sfx();
+  //music_stop();
+  clear_to_color(screen,BLACK);
+  loadfullpal();
+
+  //  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
+  int htile = 2;
+  bool done=false;
+  do
+  {
+    int pos = 0;
+    int f=-1;
+    bool done2=false;
+    clear_bitmap(framebuf);
+    //  text_mode(-1);
+    if(type)
+    {
+      textout_ex(framebuf,zfont,"SAVE AND QUIT",88,72,QMisc.colors.text,-1);
+    }
+    else 
+    {
+      textout_ex(framebuf,zfont,"SAVE",88,72,QMisc.colors.text,-1);
+    }
+    textout_ex(framebuf,zfont,"DON'T SAVE",88,96,QMisc.colors.text,-1);
+    textout_ex(framebuf,zfont,"QUIT",88,120,QMisc.colors.text,-1);
+    do
+    {
+      if(f==-1)
+      {
+        if(rUp())   { sfx(WAV_CHINK); pos=(pos==0)?2:pos-1; }
+        if(rDown()) { sfx(WAV_CHINK); pos=(pos+1)%3; }
+        if(rSbtn()) ++f;
+      }
+
+      if(f>=0)
+      {
+        if(++f == 65)
+          done2=true;
+        if(!(f&3))
+        {
+          int c = (f&4) ? QMisc.colors.text : QMisc.colors.caption;
+          switch(pos)
+          {
+            case 0:
+            if(type)
+              textout_ex(framebuf,zfont,"SAVE AND QUIT",88,72,c,-1);
+            else textout_ex(framebuf,zfont,"SAVE",88,72,c,-1);
+            break;
+            case 1: textout_ex(framebuf,zfont,"DON'T SAVE",88,96,c,-1);     break;
+            case 2: textout_ex(framebuf,zfont,"QUIT",88,120,c,-1);   break;
+          }
+        }
+      }
+
+      rectfill(framebuf,72,72,79,127,0);
+      puttile8(framebuf,htile,72,pos*24+72,1,0);
+      advanceframe();
+    } while(!Quit && !done2);
+    //reset_combo_animations();
+    clear_bitmap(framebuf);
+    //advanceframe();
+
+    if(done2)
+    {
+      //Quit = (pos==2) ? qQUIT : 0;
+      if(pos==1||pos==0) done=true;
+      if(pos==0)
+      {
+        if (savepoint)
+        {
+          set_gamedata_continue_scrn(game, homescr);
+          set_gamedata_continue_dmap(game, currdmap);
+          lastentrance_dmap = currdmap;
+          lastentrance = get_gamedata_continue_scrn(game);
+        }
+        set_gamedata_cheat(game, get_gamedata_cheat(game) | cheat);
+        //        saves[currgame] = realgame;
+        //      memcpy(saves+currgame,&realgame,sizeof(gamedata));
+        memcpy(saves+currgame,game,sizeof(gamedata));
+        load_game_icon(saves+currgame);
+        save_savedgames();
+        if(type) {Quit = qQUIT; done=true; skipcont=1;}
+      }
+
+      if(pos==2)
+      {
+        clear_bitmap(framebuf);
+        //  text_mode(-1);
+        textout_ex(framebuf,zfont,"ARE YOU SURE?",88,72,QMisc.colors.text,-1);
+        textout_ex(framebuf,zfont,"YES",88,96,QMisc.colors.text,-1);
+        textout_ex(framebuf,zfont,"NO",88,120,QMisc.colors.text,-1);
+        int pos2=0;
+        int g=-1;
+        bool done3=false;
+        do
+        {
+          if(g==-1)
+          {
+            if(rUp())   { sfx(WAV_CHINK); pos2=(pos2==0)?1:pos2-1; }
+            if(rDown()) { sfx(WAV_CHINK); pos2=(pos2+1)%2; }
+            if(rSbtn()) ++g;
+          }
+
+          if(g>=0)
+          {
+            if(++g == 65)
+              done3=true;
+            if(!(g&3))
+            {
+              int c = (g&4) ? QMisc.colors.text : QMisc.colors.caption;
+              switch(pos2)
+              {
+                case 0: textout_ex(framebuf,zfont,"YES",88,96,c,-1); break;
+                case 1: textout_ex(framebuf,zfont,"NO",88,120,c,-1);     break;
+                //case 2: textout_ex(framebuf,zfont,"QUIT",88,120,c,-1);   break;
+              }
+            }
+          }
+
+
+          rectfill(framebuf,72,72,79,127,0);
+          puttile8(framebuf,htile,72,pos2*24+96,1,0);
+          advanceframe();
+        } while(!Quit && !done3);
+        clear_bitmap(framebuf);
+
+        if(pos2==0) {Quit = qQUIT; done=true; skipcont=1;}
+      }
+    }
+  } while(!Quit && !done);
+  ringcolor();
+  loadlvlpal(DMaps[currdmap].color);
 }
 
 /*** end of title.cc ***/

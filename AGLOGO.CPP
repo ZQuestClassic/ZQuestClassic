@@ -90,12 +90,12 @@ static void CopyAvg(BITMAP* fire)
       if(AX>128)
         AX-=2;
       else if(AX>12)
-        AX-=4;
-      else if(AX>8)
-        AX-=2;
-      else if(AX>0)
-        --AX;
-      AX=(AX<<8)+AX;
+          AX-=4;
+        else if(AX>8)
+            AX-=2;
+          else if(AX>0)
+              --AX;
+            AX=(AX<<8)+AX;
       ((word*)fire->line[y-4])[x>>1]=AX;
       ((word*)fire->line[y-3])[x>>1]=AX;
     }
@@ -144,7 +144,7 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
     }
     else
     {
-      fade_interpolate(black_palette,pal,workpal,fadecnt--,0,255);
+      fade_interpolate(black_palette,pal,workpal,--fadecnt,0,255);
       set_palette_range(workpal,0,255,false);
     }
   } while(fadecnt>0);

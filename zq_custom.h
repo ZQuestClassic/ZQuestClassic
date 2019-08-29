@@ -25,6 +25,8 @@ int onCustomItems();
 /******  onCustomWpns  ******/
 /****************************/
 
+enum { ws_2_frame, ws_3_frame, ws_max };
+
 void edit_weapondata(int index);
 int onCustomWpns();
 int onCustomGuys();

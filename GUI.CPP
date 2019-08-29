@@ -64,8 +64,8 @@ int do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
 
   screen = orig_screen;
   blit(buffer, screen, 0, 0, 0, 0, screen->w, screen->h);
-
   position_mouse_z(0);
+
   return ret;
 }
 
@@ -101,15 +101,15 @@ int popup_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int focus_obj)
 
   ret = do_dialog(dialog, focus_obj);
 
-  if (bmp)
+ if (bmp)
   {
     scare_mouse();
     blit(bmp, screen, 0, 0, dialog->x, dialog->y, dialog->w+1, dialog->h+1);
     unscare_mouse();
     destroy_bitmap(bmp);
   }
-
   position_mouse_z(0);
+
   return ret;
 }
 
@@ -135,6 +135,7 @@ int update_dialog_through_bitmap (BITMAP* buffer, DIALOG_PLAYER *player)
   result = update_dialog(player);
   screen = orig_screen;
   blit(buffer, screen, 0, 0, 0, 0, screen->w, screen->h);
+  position_mouse_z(0);
   return result;
 }
 

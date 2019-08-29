@@ -424,12 +424,12 @@ byte nes_colors[] =
 extern byte *colordata;
 
 /* create_zc_trans_table:
- *  Constructs a translucency color table for the specified palette. The
- *  r, g, and b parameters specifiy the solidity of each color component,
- *  ranging from 0 (totally transparent) to 255 (totally solid). If the
- *  callback function is not NULL, it will be called 256 times during the
- *  calculation, allowing you to display a progress indicator.
- */
+  *  Constructs a translucency color table for the specified palette. The
+  *  r, g, and b parameters specifiy the solidity of each color component,
+  *  ranging from 0 (totally transparent) to 255 (totally solid). If the
+  *  callback function is not NULL, it will be called 256 times during the
+  *  calculation, allowing you to display a progress indicator.
+  */
 void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, int b, void (*callback)(int pos))
 {
   int tmp[768], *q;

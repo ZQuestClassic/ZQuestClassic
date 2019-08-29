@@ -21,14 +21,14 @@
 #include "zdefs.h"
 
 /*
-void movefairy(fix &x,fix &y,int misc) {
+  void movefairy(fix &x,fix &y,int misc) {
   return;
-}
+  }
 
-void killfairy(int misc) {
+  void killfairy(int misc) {
   return;
-}
-*/
+  }
+  */
 void addfairy(fix x, fix y, int id)
 {
   addenemy(x,y,eITEMFAIRY,id+0x1000);

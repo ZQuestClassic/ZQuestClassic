@@ -13,66 +13,66 @@
 //--------------------------------------------------------
 
 /*
-//DOS Graphics Modes
-   GFX_TEXT
-   GFX_AUTODETECT
-   GFX_AUTODETECT_FULLSCREEN
-   GFX_AUTODETECT_WINDOWED
-   GFX_SAFE
-   GFX_VGA
-   GFX_MODEX
-   GFX_VESA1
-   GFX_VESA2B
-   GFX_VESA2L
-   GFX_VESA3
-   GFX_VBEAF
+  //DOS Graphics Modes
+  GFX_TEXT
+  GFX_AUTODETECT
+  GFX_AUTODETECT_FULLSCREEN
+  GFX_AUTODETECT_WINDOWED
+  GFX_SAFE
+  GFX_VGA
+  GFX_MODEX
+  GFX_VESA1
+  GFX_VESA2B
+  GFX_VESA2L
+  GFX_VESA3
+  GFX_VBEAF
 
-//Windows Graphics Modes
-   GFX_TEXT
-   GFX_AUTODETECT
-   GFX_AUTODETECT_FULLSCREEN
-   GFX_AUTODETECT_WINDOWED
-   GFX_SAFE
-   GFX_DIRECTX
-   GFX_DIRECTX_ACCEL
-   GFX_DIRECTX_SOFT
-   GFX_DIRECTX_SAFE
-   GFX_DIRECTX_WIN
-   GFX_DIRECTX_OVL
-   GFX_GDI
+  //Windows Graphics Modes
+  GFX_TEXT
+  GFX_AUTODETECT
+  GFX_AUTODETECT_FULLSCREEN
+  GFX_AUTODETECT_WINDOWED
+  GFX_SAFE
+  GFX_DIRECTX
+  GFX_DIRECTX_ACCEL
+  GFX_DIRECTX_SOFT
+  GFX_DIRECTX_SAFE
+  GFX_DIRECTX_WIN
+  GFX_DIRECTX_OVL
+  GFX_GDI
 
-//Linux Graphics Modes
-   GFX_TEXT
-   GFX_AUTODETECT
-   GFX_AUTODETECT_FULLSCREEN
-   GFX_AUTODETECT_WINDOWED
-   GFX_SAFE
-   GFX_FBCON
-   GFX_VBEAF
-   GFX_SVGALIB
-   GFX_VGA
-   GFX_MODEX
+  //Linux Graphics Modes
+  GFX_TEXT
+  GFX_AUTODETECT
+  GFX_AUTODETECT_FULLSCREEN
+  GFX_AUTODETECT_WINDOWED
+  GFX_SAFE
+  GFX_FBCON
+  GFX_VBEAF
+  GFX_SVGALIB
+  GFX_VGA
+  GFX_MODEX
 
-//X-Window Graphics Modes
-   GFX_TEXT
-   GFX_AUTODETECT
-   GFX_AUTODETECT_FULLSCREEN
-   GFX_AUTODETECT_WINDOWED
-   GFX_SAFE
-   GFX_XWINDOWS
-   GFX_XWINDOWS_FULLSCREEN
-   GFX_XDGA2
-   GFX_XDGA2_SOFT
+  //X-Window Graphics Modes
+  GFX_TEXT
+  GFX_AUTODETECT
+  GFX_AUTODETECT_FULLSCREEN
+  GFX_AUTODETECT_WINDOWED
+  GFX_SAFE
+  GFX_XWINDOWS
+  GFX_XWINDOWS_FULLSCREEN
+  GFX_XDGA2
+  GFX_XDGA2_SOFT
 
-//MacOS X Drivers
-   GFX_TEXT
-   GFX_AUTODETECT
-   GFX_AUTODETECT_FULLSCREEN
-   GFX_AUTODETECT_WINDOWED
-   GFX_SAFE
-   GFX_QUARTZ_FULLSCREEN
-   GFX_QUARTZ_WINDOW
-*/
+  //MacOS X Drivers
+  GFX_TEXT
+  GFX_AUTODETECT
+  GFX_AUTODETECT_FULLSCREEN
+  GFX_AUTODETECT_WINDOWED
+  GFX_SAFE
+  GFX_QUARTZ_FULLSCREEN
+  GFX_QUARTZ_WINDOW
+  */
 
 
 
@@ -83,49 +83,41 @@
 
 #include <math.h>
 #include "zc_alleg.h"
-#include <string.h>
 
-#define ZELDA_VERSION       0x0210                          //version of the program
-#define VERSION_BUILD       1                               //build number of this version
-#define IS_BETA             0                               //is this a beta?
-#define DATE_STR            "January 1, 2007"
+#define ZELDA_VERSION       0x0211                          //version of the program
+#define VERSION_BUILD       11                              //build number of this version
+#define IS_BETA             1                               //is this a beta?
+#define DATE_STR            "January 1, 2006"
 
 #define MIN_VERSION         0x0184
 
-#define ZELDADAT_VERSION      0x0210                        //version of zelda.dat
-#define ZELDADAT_BUILD        1                             //build of zelda.dat
+#define ZELDADAT_VERSION      0x0211                        //version of zelda.dat
+#define ZELDADAT_BUILD        4                             //build of zelda.dat
 #define SFXDAT_VERSION        0x0210                        //version of sfx.dat
-#define SFXDAT_BUILD          1                             //build of sfx.dat
-#define FONTSDAT_VERSION      0x0210                        //version of fonts.dat
-#define FONTSDAT_BUILD        1                             //build of fonts.dat
-#define QSTDAT_VERSION        0x0210                        //version of fonts.dat
-#define QSTDAT_BUILD          1                             //build of fonts.dat
-#define ZQUESTDAT_VERSION     0x0210                        //version of fonts.dat
-#define ZQUESTDAT_BUILD       1                             //build of fonts.dat
+#define SFXDAT_BUILD          0                             //build of sfx.dat
+#define FONTSDAT_VERSION      0x0211                        //version of fonts.dat
+#define FONTSDAT_BUILD        8                             //build of fonts.dat
+#define QSTDAT_VERSION        0x0211                        //version of qst.dat
+#define QSTDAT_BUILD          0                             //build of qst.dat
+#define ZQUESTDAT_VERSION     0x0211                        //version of zquest.dat
+#define ZQUESTDAT_BUILD       9                             //build of zquest.dat
 
-/*
-#define ENC_METHOD_192B104  0
-#define ENC_METHOD_192B105  1
-#define ENC_METHOD_192B185  2
-#define ENC_METHOD_CURRENT  ENC_METHOD_192B185
-*/
-enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_MAX};
+enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_MAX};
 
 
 #ifdef ALLEGRO_MACOSX
-  #define KEY_ZC_LCONTROL KEY_COMMAND
-  #define KEY_ZC_RCONTROL KEY_COMMAND
+#define KEY_ZC_LCONTROL KEY_COMMAND
+#define KEY_ZC_RCONTROL KEY_COMMAND
 #else
-  #define KEY_ZC_LCONTROL KEY_LCONTROL
-  #define KEY_ZC_RCONTROL KEY_RCONTROL
+#define KEY_ZC_LCONTROL KEY_LCONTROL
+#define KEY_ZC_RCONTROL KEY_RCONTROL
 #endif
-
 
 /*
-#ifndef ALLEGRO_WIP_VERSION
+  #ifndef ALLEGRO_WIP_VERSION
   #define KEY_SLASH_PAD KEY_SLASH2
-#endif
-*/
+  #endif
+  */
 
 #ifdef ALLEGRO_DOS
 //already defined in DOS
@@ -157,68 +149,84 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_M
 #define ID_DOORS          ZC_ID('D','O','O','R')              //door combo sets
 #define ID_ITEMS          ZC_ID('I','T','E','M')              //items
 #define ID_WEAPONS        ZC_ID('W','P','N',' ')              //weapons
-#define ID_COLORS         ZC_ID('C','L','R',' ')              //not sure
-#define ID_ICONS          ZC_ID('I','C','O','N')              //not sure
+#define ID_COLORS         ZC_ID('M','C','L','R')              //misc. colors
+#define ID_ICONS          ZC_ID('I','C','O','N')              //save game icons
 #define ID_GRAPHICSPACK   ZC_ID('G','P','A','K')              //graphics pack header
 #define ID_INITDATA       ZC_ID('I','N','I','T')              //initialization data
 #define ID_GUYS           ZC_ID('G','U','Y',' ')              //guys
 #define ID_MIDIS          ZC_ID('M','I','D','I')              //midis
 #define ID_CHEATS         ZC_ID('C','H','T',' ')              //cheats
 #define ID_SAVEGAME       ZC_ID('S','V','G','M')              //save game data (used in the save game file)
+#define ID_COMBOALIASES   ZC_ID('C','M','B','A')              //combo alias
+#define ID_LINKSPRITES    ZC_ID('L','I','N','K')              //Link sprites
+#define ID_SUBSCREEN      ZC_ID('S','U','B','S')              //quest header
+#define ID_ITEMDROPSET    ZC_ID('D','R','O','P')              //quest header
 
 //Version number of the different section types
-#define V_HEADER          1
+#define V_HEADER          3
 #define V_RULES           1
 #define V_STRINGS         1
-#define V_MISC            1
+#define V_MISC            3
 #define V_TILES           1
-#define V_COMBOS          1
+#define V_COMBOS          4
 #define V_CSETS           1
-#define V_MAPS            2
-#define V_DMAPS           1
+#define V_MAPS            9
+#define V_DMAPS           2
 #define V_DOORS           1
 #define V_ITEMS           1
 #define V_WEAPONS         1
 #define V_COLORS          1
 #define V_ICONS           1
 #define V_GRAPHICSPACK    1
-#define V_INITDATA        1
-#define V_GUYS            1
+#define V_INITDATA        7
+#define V_GUYS            3
 #define V_MIDIS           1
 #define V_CHEATS          1
 #define V_SAVEGAME        1
+#define V_COMBOALIASES    1
+#define V_LINKSPRITES     2
+#define V_SUBSCREEN       1
+#define V_ITEMDROPSET     1
 
 /*
- * Compatible version number of the different section types
- * Basically, the last version number that this section type
- * is just an extension of, instead of a complete rewrite.
- * If this and the version number are the same, then this is
- * a total reworking of the section and probably won't be able
- * to be read by anything that was written for a previous version.
- */
-#define CV_HEADER       1
-#define CV_RULES        1
-#define CV_STRINGS      1
-#define CV_MISC         1
-#define CV_TILES        1
-#define CV_COMBOS       1
-#define CV_CSETS        1
-#define CV_MAPS         2
-#define CV_DMAPS        1
-#define CV_DOORS        1
-#define CV_ITEMS        1
-#define CV_WEAPONS      1
-#define CV_COLORS       1
-#define CV_ICONS        1
-#define CV_GRAPHICSPACK 1
-#define CV_INITDATA     1
-#define CV_GUYS         1
-#define CV_MIDIS        1
-#define CV_CHEATS       1
-#define CV_SAVEGAME     1
+  * Compatible version number of the different section types
+  * Basically, the last version number that this section type
+  * is just an extension of (ie. new variables are stuck on the end)
+  * instead of a complete rewrite (or variables added to the middle).
+  * If this and the version number are the same, then this is
+  * a total reworking of the section and probably won't be able
+  * to be read by anything that was written for a previous version.
+  */
+#define CV_HEADER         3
+#define CV_RULES          1
+#define CV_STRINGS        1
+#define CV_MISC           3
+#define CV_TILES          1
+#define CV_COMBOS         1
+#define CV_CSETS          1
+#define CV_MAPS           9
+#define CV_DMAPS          1
+#define CV_DOORS          1
+#define CV_ITEMS          1
+#define CV_WEAPONS        1
+#define CV_COLORS         1
+#define CV_ICONS          1
+#define CV_GRAPHICSPACK   1
+#define CV_INITDATA       1
+#define CV_GUYS           3
+#define CV_MIDIS          1
+#define CV_CHEATS         1
+#define CV_SAVEGAME       1
+#define CV_COMBOALIASES   1
+#define CV_LINKSPRITES    1
+#define CV_SUBSCREEN      1
+#define cV_ITEMDROPSET    1
 
 extern int curr_tb_page;
 extern bool triplebuffer_not_available;
+extern int playing_field_offset;
+extern int passive_subscreen_height;
+extern int passive_subscreen_offset;
 
 extern int CSET_SIZE;
 extern int CSET_SHFT;
@@ -249,7 +257,7 @@ extern int readsize, writesize;
 #define NEWMAXTILES         (TILES_PER_PAGE*TILE_PAGES)     // 32760 tiles
 #define NEWTILE_SIZE2       (NEWMAXTILES*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
 #define OLDTILE_SIZE2       (OLDMAXTILES*SINGLE_TILE_SIZE)  // 199680 bytes (new packed format, 6 pages)
-                                                            // 133120 bytes (new packed format, 4 pages)
+// 133120 bytes (new packed format, 4 pages)
 #define OLDTILE_SIZE        (TILES_PER_PAGE*4*SINGLE_TILE_SIZE)
 //#define NEWTILE_SIZE      (260*6*128) // 199680 bytes (new packed format, 6 pages)
 //#define OLDTILE_SIZE      (260*4*128) // 133120 bytes (new packed format, 4 pages)
@@ -265,9 +273,13 @@ extern int readsize, writesize;
 #define ZQ_CHEATS2       5
 #define ZQ_MAXDATA      20
 
-#define MAXMIDIS192b177 32                                  // uses bit string for midi flags, so 32 bytes
-#define MAXMIDIS        252                                 // uses bit string for midi flags, so 32 bytes
-#define MIDIFLAGS_SIZE  ((MAXMIDIS+7)>>3)
+#define MAXSCREENS 128
+#define MAXCUSTOMMIDIS192b177 32                                  // uses bit string for midi flags, so 32 bytes
+#define MAXCUSTOMMIDIS        252                                 // uses bit string for midi flags, so 32 bytes
+#define MIDIFLAGS_SIZE  ((MAXCUSTOMMIDIS+7)>>3)
+
+#define MAXMUSIC              256                                 // uses bit string for music flags, so 32 bytes
+#define MUSICFLAGS_SIZE       MAXMUSIC>>3
 
 #define MAXMAPS2        255                                 // 4 times the old number
 //#define MAXMAPS         16
@@ -289,6 +301,8 @@ extern int readsize, writesize;
 #define COMBOS_PER_PAGE 256
 #define COMBO_PAGES     255
 #define MAXCOMBOS       COMBO_PAGES*COMBOS_PER_PAGE
+#define MAXSUBSCREENITEMS	256
+#define MAXCUSTOMSUBSCREENS 128
 
 #define MAGICPERBLOCK   32
 #define PALNAMESIZE     17
@@ -354,6 +368,37 @@ extern int readsize, writesize;
 //flags4
 #define fOVERHEADTEXT     1
 #define fITEMWARP         2
+#define fTIMEDDIRECT      4                                 //Specifies timed pit warp
+#define fDISABLETIME      8
+#define fENEMYSCRTPERM    16
+#define fNOITEMRESET      32
+#define fSAVEROOM		  64
+#define fAUTOSAVE		  128
+
+//flags5
+#define fRANDOMTIMEDWARP  1
+#define fDAMAGEWITHBOOTS  2
+#define fDIRECTAWARP	  4
+#define fDIRECTSWARP	  8
+#define fTEMPSECRETS	  16
+// what is going on with 32?
+#define fTOGGLEDIVING   64
+#define fNOFFCARRYOVER  128
+
+//flags6
+#define fCAVEROOM		  1
+#define fDUNGEONROOM	  2
+#define fTRIGGERFPERM     4
+#define fCONTINUEHERE	  8
+#define fNOCONTINUEHERE   16
+#define fTRIGGERF1631	  32
+#define fTOGGLERINGDAMAGE 64
+#define fWRAPAROUNDFF	  128
+
+//flags7
+#define fLAYER3BG		  1
+#define fLAYER2BG		  2
+
 
 // enemy flags
 #define efZORA          1
@@ -399,9 +444,6 @@ enum
 // dmap types
 enum { dmDNGN, dmOVERW, dmCAVE, dmBSOVERW, dmMAX };
 
-// subscreen types
-enum { sstOLD, sstNEWSUBSCR, sstREV2, sstMAX };
-
 // dmap flags
 #define dmfCONTINUE      128
 #define dmfTYPE          127
@@ -428,7 +470,9 @@ enum
   mfFBRANG, mfSARROW, mfGARROW, mfRCANDLE, mfWANDFIRE, mfDINSFIRE,
   mfWANDMAGIC, mfREFMAGIC, mfREFFIREBALL, mfSWORD, mfWSWORD,
   mfMSWORD, mfXSWORD, mfSWORDBEAM, mfWSWORDBEAM, mfMSWORDBEAM,
-  mfXSWORDBEAM, mfHOOKSHOT, mfWAND, mfHAMMER, mfSTRIKE, mfMAX, mfPUSHED
+  mfXSWORDBEAM, mfHOOKSHOT, mfWAND, mfHAMMER, mfSTRIKE, mfBLOCKHOLE,
+  mfMAGICFAIRY, mfALLFAIRY, mfSINGLE, mfSINGLE16, 
+  mfNOENEMY, mfMAX, mfPUSHED
 };
 
 // combo types
@@ -444,7 +488,18 @@ enum
   cMIRRORSLASH, cMIRRORBACKSLASH, cMAGICPRISM, cMAGICPRISM4,
   cMAGICSPONGE, cCAVE2, cEYEBALL_A, cEYEBALL_B, cNOJUMPZONE, cBUSH,
   cFLOWERS, cTALLGRASS, cSHALLOWWATER, cLOCKBLOCK, cLOCKBLOCK2,
-  cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2, cLADDERONLY, cBSGRAVE, cMAX
+  cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2, cLADDERONLY, cBSGRAVE,
+  cCHEST, cCHEST2, cLOCKEDCHEST, cLOCKEDCHEST2, cBOSSCHEST, cBOSSCHEST2,
+  cRESET, cSAVE, cSAVE2, /*cVERTICAL,*/ cCAVEB, cCAVEC, cCAVED,
+  cSTAIRB, cSTAIRC, cSTAIRD, cPITB, cPITC, cPITD,
+  cCAVE2B, cCAVE2C, cCAVE2D, cSWIMWARPB, cSWIMWARPC, cSWIMWARPD,
+  cDIVEWARPB, cDIVEWARPC, cDIVEWARPD, cSTAIRR, cPITR,
+  cAWARPA, cAWARPB, cAWARPC, cAWARPD, cAWARPR,
+  cSWARPA, cSWARPB, cSWARPC, cSWARPD, cSWARPR, cSTRIGNOFLAG, cSTRIGFLAG,
+  cSTEP, cSTEPSAME, cSTEPALL, cSTEPCOPY, cNOENEMY, cBLOCKARROW1, cBLOCKARROW2,
+  cBLOCKARROW3, cBLOCKBRANG1, cBLOCKBRANG2, cBLOCKBRANG3, cBLOCKSBEAM, cBLOCKALL,
+  cBLOCKFIREBALL, cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE,
+  cMAX
 };
 
 #define QUESTRULES_SIZE 20
@@ -454,34 +509,42 @@ enum
 {
   qr_SOLIDBLK, qr_NOTMPNORET, qr_ALWAYSRET, qr_MEANTRAPS,
   qr_BSZELDA, qr_FADE, qr_FADECS5, qr_FASTDNGN,
-
+  //1
   qr_NOLEVEL3FIX, qr_COOLSCROLL, qr_999R, qr_4TRI,
   qr_24HC, qr_FASTFILL, qr_VIEWMAP, qr_3TRI,
-
+  //2
   qr_TIME, qr_FREEFORM, qr_KILLALL, qr_NOFLICKER,
   qr_CONTFULL, qr_RLFIX, qr_LENSHINTS, qr_LINKDUNGEONPOSFIX,
-
+  //3
   qr_HOLDITEMANIMATION, qr_HESITANTPUSHBLOCKS, qr_HIDECARRIEDITEMS, qr_SASPARKLES,
   qr_GASPARKLES, qr_MBSPARKLES, qr_FBSPARKLES, qr_NOFLASHDEATH,
-
+  //4
   qr_KEEPOLDITEMS, qr_FIREPROOFLINK, qr_OUCHBOMBS, qr_NOCLOCKS,
   qr_TEMPCLOCKS, qr_BRKBLSHLDS, qr_BRKNSHLDTILES, qr_MEANPLACEDTRAPS,
-
+  //5
   qr_PHANTOMPLACEDTRAPS, qr_ALLOWFASTMSG, qr_LINKEDCOMBOS, qr_NOGUYFIRES,
   qr_HEARTRINGFIX, qr_NOHEARTRING, qr_DODONGOCOLORFIX, qr_SWORDWANDFLIPFIX,
-
+  //6
   qr_ENABLEMAGIC, qr_MAGICWAND, qr_MAGICCANDLE, qr_MAGICBOOTS,
   qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_NEWENEMYTILES,
-
+  //7
   qr_NOROPE2FLASH, qr_NOBUBBLEFLASH, qr_GHINI2BLINK, qr_WPNANIMFIX,
   qr_PHANTOMGHINI2, qr_Z3BRANG_HSHOT, qr_NOITEMMELEE, qr_SHADOWS,
-
-  qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_FULLLTM,
+  //8
+  qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_EXPANDEDLTM,
   qr_NOPOTIONCOMBINE, qr_LINKFLICKER, qr_SHADOWSFLICKER, qr_WALLFLIERS,
-
+  //9
   qr_NOBOMBPALFLASH, qr_TRANSLUCENTNAYRUSLOVESHIELD, qr_FLICKERINGNAYRUSLOVESHIELD, qr_TRANSLUCENTNAYRUSLOVEROCKET,
-  qr_FLICKERINGNAYRUSLOVEROCKET, qr_NOSCROLLCONTINUE, qr_OLDTRIBBLES,
-
+  qr_FLICKERINGNAYRUSLOVEROCKET, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI, qr_WARPSIGNOREARRIVALPOINT,
+  //10
+  qr_LTTPCOLLISION, qr_LTTPWALK, qr_SLOWENEMYANIM, qr_TRUEARROWS, qr_NOSAVE, qr_NOCONTINUE,
+  qr_QUARTERHEART, qr_NOARRIVALPOINT, qr_NOGUYPOOF, qr_ALLOWMSGBYPASS,
+  //11  
+  qr_NODIVING, qr_LAYER12UNDERCAVE, qr_NOSCROLLCONTINUE, qr_SMARTSCREENSCROLL,
+  qr_RINGAFFECTDAMAGE, qr_ALLOW10RUPEEDROPS, qr_TRAPPOSFIX, qr_TEMPCANDLELIGHT,
+  //12
+  qr_REDPOTIONONCE,
+  
   qr_MAX
 };
 
@@ -490,7 +553,7 @@ enum
 {
   rNONE, rSP_ITEM, rINFO, rMONEY, rGAMBLE, rREPAIR, rRP_HC, rGRUMBLE,
   rTRIFORCE, rP_SHOP, rSHOP, rBOMBS, rSWINDLE, r10RUPIES, rWARP,
-  rGANON, rZELDA, rITEMPOND, rMUPGRADE, rLEARNSLASH,
+  rGANON, rZELDA, rITEMPOND, rMUPGRADE, rLEARNSLASH, rARROWS,
   rMAX
 };
 
@@ -499,11 +562,14 @@ enum { up, down, left, right, l_up, r_up, l_down, r_down };
 
 // refill stuff
 enum { REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
-enum { REFILL_POTION, REFILL_FAIRY, REFILL_TRIFORCE};
+enum { REFILL_BPOTION, REFILL_RPOTION, REFILL_FAIRY, REFILL_TRIFORCE};
 
 // magic rates
 #define LENSDRAINAMOUNT          2
 #define LENSDRAINSPEED           1
+#define BYRNADRAINAMOUNT         2
+#define BYRNADRAINSPEED          .5
+// It's a secret to everybody! ;)
 #define WANDDRAINAMOUNT          8
 #define CANDLEDRAINAMOUNT        4
 #define DINSFIREDRAINAMOUNT     32
@@ -533,11 +599,16 @@ enum                                                        // value matters bec
   iRPotion, iWhistle,iBook, iMKey, iFairyMoving,            /*30*/
   iFBrang, iXSword, iMShield, i20Rupies, i50Rupies,
   i200Rupies, iWallet500, iWallet999, iPile, iBigTri,       /*40*/
-  iSelect, iMisc1, iMisc2, iSBomb, iHCPiece,
+  iSelectA, iMisc1, iMisc2, iSBomb, iHCPiece,
   iAmulet, iFlippers, iHookshot, iLens, iHammer,            /*50*/
   iBoots, iL2Bracelet, iGArrow, iMagicC, iSMagic,
   iLMagic, iGRing, iKillAll, iL2Amulet, iDinsFire,          /*60*/
-  iFaroresWind, iNayrusLove, iBossKey, iBow2, iFairyStill, iMax
+  iFaroresWind, iNayrusLove, iBossKey, iBow2, iFairyStill,
+  i1ArrowAmmo, i5ArrowAmmo, i10ArrowAmmo, i30ArrowAmmo, iQuiver,
+  iQuiverL2, iQuiverL3, i1BombAmmo, i4BombAmmo, i8BombAmmo,
+  i30BombAmmo, iBombBag, iBombBagL2, iBombBagL3,
+  iLevelKey, iSelectB, i10Rupies, i100Rupies, iCByrna, iLongshot,
+  iMax
 };
 
 // item sets
@@ -561,7 +632,8 @@ enum
   iwFlowerClippings, iwGrassClippings, iwTallGrass, iwRipples, iwNPCs,
   wNAYRUSLOVE1A, wNAYRUSLOVE1B, wNAYRUSLOVES1A, wNAYRUSLOVES1B,
   wNAYRUSLOVE2A, wNAYRUSLOVE2B, wNAYRUSLOVES2A, wNAYRUSLOVES2B,
-  iwNayrusLoveShieldFront, iwNayrusLoveShieldBack, wMAX
+  iwNayrusLoveShieldFront, iwNayrusLoveShieldBack, iwSubscreenVine, wCBYRNA, wCBYRNASLASH,
+  wLSHEAD, wLSCHAIN_H, wLSHANDLE, wLSCHAIN_V, wMAX
 };
 
 // weapon types in game engine
@@ -569,10 +641,11 @@ enum
 {
   wNone,wSword,wBeam,wBrang,wBomb,wSBomb,wLitBomb,wLitSBomb,wArrow,
   wFire,wWhistle,wBait,wWand,wMagic,wCatching,wWind,wRefMagic,wRefFireball,
-  wEnemyWeapons,
-  ewFireball,ewArrow,ewBrang,ewSword,ewRock,ewMagic, wHammer, wHookshot,
+  wHammer, wHookshot,
   wHSHandle, wHSChain, wSSparkle, wGSparkle, wMSparkle, wFSparkle,
-  wSmack, wGArrow, ewFlame, ewWind, wPhantom
+  wSmack, wGArrow, ewFlame, ewWind, wPhantom,
+  wEnemyWeapons,
+  ewFireball,ewArrow,ewBrang,ewSword,ewRock,ewMagic
 };
 
 // phantom weapon types
@@ -585,38 +658,53 @@ enum
 
 enum
 {
-  gABEI=1,gAMA,gDUDE,gMOBLIN,gFIRE,
-  gFAIRY,gGORIYA,gZELDA,gDABEI,
-
-  eROCTO1=10,eBOCTO1,eROCTO2,eBOCTO2,eRTEK,
-  eBTEK,eRLEV,eBLEV,eRMOBLIN,eBMOBLIN,
-  eRLYNEL,eBLYNEL,ePEAHAT,eZORA,eROCK,                      /*20*/
-  eGHINI1,eGHINI2,eARMOS,
-
-  eKEESE1,eKEESE2,
-  eKEESE3,eSTALFOS,eGEL,eZOL,eROPE,                         /*30*/
-  eRGORIYA,eBGORIYA,eTRAP,eWALLM,eRDKNUT,
-  eBDKNUT,eBUBBLE,eVIRE,eLIKE,eGIBDO,                       /*40*/
-  ePOLSV,eRWIZ,eBWIZ,
-
-  eRAQUAM,eMOLDORM,
-  eDODONGO,eMANHAN,eGLEEOK1,eGLEEOK2,eGLEEOK3,eGLEEOK4,     /*50*/
-  eDIG1,eDIG3,eDIGPUP1,eDIGPUP2,eDIGPUP3,eDIGPUP4,
-  eRGOHMA,eBGOHMA,eRCENT,
-  eBCENT,ePATRA1,ePATRA2,eGANON,                            /*60*/
-  eSTALFOS2,
-  eROPE2,eRBUBBLE,eBBUBBLE,eFBALL,eITEMFAIRY,
-  eFIRE,eCOCTO,eDKNIGHT, eGELTRIB, eZOLTRIB,                /*70*/
-  eKEESETRIB, eVIRETRIB, eSDKNUT, eLAQUAM, eMANHAN2,
-  eTRAP_H, eTRAP_V, eTRAP_LR, eTRAP_UD, eFWIZ,              /*80*/
+  eNONE=0,
+  gNONE=0, gABEI, gAMA, gDUDE, gMOBLIN,
+  gFIRE, gFAIRY, gGORIYA, gZELDA, gABEI2,
+  //10
+  gEMPTY, gDUMMY1, gDUMMY2, gDUMMY3, gDUMMY4,
+  gDUMMY5, gDUMMY6, gDUMMY7, gDUMMY8, gDUMMY9,
+  //20
+  eOCTO1S=20, eOCTO2S, eOCTO1F, eOCTO2F, eTEK1,
+  eTEK2, eLEV1, eLEV2, eMOBLIN1, eMOBLIN2,
+  //30
+  eLYNEL1, eLYNEL2, ePEAHAT, eZORA, eROCK,
+  eGHINI1, eGHINI2, eARMOS, eKEESE1, eKEESE2,
+  //40
+  eKEESE3, eSTALFOS, eGEL, eZOL, eROPE,
+  eGORIYA1, eGORIYA2, eTRAP, eWALLM, eDKNUT1,
+  //50
+  eDKNUT2, eBUBBLEST, eVIRE, eLIKE, eGIBDO,
+  ePOLSV, eWIZ1, eWIZ2, eRAQUAM, eMOLDORM,
+  //60
+  eDODONGO, eMANHAN, eGLEEOK1, eGLEEOK2, eGLEEOK3,
+  eGLEEOK4, eDIG1, eDIG3, eDIGPUP1, eDIGPUP2,
+  //70
+  eDIGPUP3, eDIGPUP4, eGOHMA1, eGOHMA2, eCENT1,
+  eCENT2, ePATRA1, ePATRA2, eGANON, eSTALFOS2,
+  //80
+  eROPE2, eBUBBLESP, eBUBBLESR, eFBALL, eITEMFAIRY,
+  eFIRE, eOCTO5, eDKNUT5, eGELTRIB, eZOLTRIB,
+  //90
+  eKEESETRIB, eVIRETRIB, eDKNUT3, eLAQUAM, eMANHAN2,
+  eTRAP_H, eTRAP_V, eTRAP_LR, eTRAP_UD, eFWIZ,
+  //100
   eWWIZ, eCEILINGM, eFLOORM, ePATRABS, ePATRAL2,
-                                                            /*90*/
-  ePATRAL3, eBAT, eBATROBE, eBATROBEKING, eGLEEOK1F, eGLEEOK2F,
-  eGLEEOK3F, eGLEEOK4F, eMWIZ, eDODONGOBS, eDODONGOF, eTRIGGER,
-  eIBUBBLE, eRIBUBBLE, eBIBUBBLE, eSTALFOS3, eGOHMA3, eGOHMA4,
-  eNPCSTAND1, eNPCSTAND2, eNPCSTAND3, eNPCSTAND4, eNPCSTAND5,
-  eNPCSTAND6, eNPCWALK1, eNPCWALK2, eNPCWALK3, eNPCWALK4, eNPCWALK5,
-  eNPCWALK6, eMAXGUYS
+  ePATRAL3, eBAT, eBATROBE, eBATROBEKING, eGLEEOK1F,
+  //110
+  eGLEEOK2F, eGLEEOK3F, eGLEEOK4F, eMWIZ, eDODONGOBS,
+  eDODONGOF, eTRIGGER, eBUBBLEIT, eBUBBLEIP, eBUBBLEIR,
+  //120
+  eSTALFOS3, eGOHMA3, eGOHMA4, eNPCSTAND1, eNPCSTAND2,
+  eNPCSTAND3, eNPCSTAND4, eNPCSTAND5, eNPCSTAND6, eNPCWALK1,
+  //130
+  eNPCWALK2, eNPCWALK3, eNPCWALK4, eNPCWALK5, eNPCWALK6,
+  eBOULDER, eGORIYA3, eLEV3, eOCTO3S, eOCTO3F, 
+  //140
+  eTRAP_8WAY, eTRAP_DIAGONAL, eTRAP_SLASH_C, eTRAP_SLASH_LOS, eTRAP_BACKSLASH_C,
+  eTRAP_BACKSLASH_LOS, eTRAP_CW_C, eTRAP_CW_LOS, eTRAP_CCW_C, eTRAP_CCW_LOS,
+
+  eMAXGUYS
 };
 
 // enemy families
@@ -632,13 +720,24 @@ enum
 // enemy animation styles
 enum
 {
-  aNONE, aFLIP, a2FRM, aOCTO, aTEK, aLEV, aWALK, aZORA, aGHINI, aARMOS,
-  aROPE, aWALLM, aDWALK, aVIRE, a3FRM, aWIZZ, aAQUA, aDONGO, aMANHAN,
-  aGLEEOK, aDIG, aGHOMA, aLANM, aPHAT, aKEESE, aGANON
+  aNONE, aFLIP, aFLIPSLOW, a2FRM, a2FRMSLOW, aOCTO, aTEK, aLEV, aWALK, aZORA, aNEWZORA, aGHINI,
+  aARMOS, aROPE, aWALLM, aNEWWALLM, aDWALK, aVIRE, a3FRM, aWIZZ, aAQUA,
+  aDONGO, aMANHAN, aGLEEOK, aDIG, aGHOMA, aLANM, a2FRMPOS, a4FRM4EYE,
+  a4FRM8EYE, a4FRM4DIRF, a4FRM4DIR, a4FRM8DIR, aARMOS4, a4FRMPOS4DIR, a4FRMPOS8DIR,
+  a4FRM3TRAP, a4FRM8DIRB, aNEWTEK, aNEWPOLV, a2FRM4DIR, aNEWLEV, aNEWDWALK,
+  aNEWWIZZ, aNEWDONGO, aDONGOBS, a4FRMPOS8DIRF, a4FRMPOS4DIRF, aGANON
 };
 
 // enemy patters
 enum { pRANDOM, pSIDES };
+
+enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
+
+typedef struct tiledata
+{
+  byte format;
+  byte *data;
+} tiledata;
 
 typedef struct itemdata
 {
@@ -648,11 +747,8 @@ typedef struct itemdata
   byte frames;                                              // animation frame count
   byte speed;                                               // animation speed
   byte delay;                                               // extra delay factor (-1) for first frame
-  //byte padding;
   long ltm;                                                 // Link Tile Modifier
-  byte exp[10];                                             // not used
-  //byte padding[2];
-  // 21 bytes (uses 24)
+//  byte exp[10];                                             // not used
 } itemdata;
 
 typedef struct wpndata
@@ -663,16 +759,23 @@ typedef struct wpndata
   byte frames;                                              // animation frame count
   byte speed;                                               // animation speed
   byte type;                                                // used by certain weapons
-  byte exp;                                                 // not used
-  // 8 bytes
+//  byte exp;                                                 // not used
 } wpndata;
 
 typedef struct quest_template
 {
   char name[31];
-  char path[280];
+  char path[2048];
   //311 bytes
 } quest_template;
+
+typedef struct item_drop_object
+{
+  char name[64];
+  byte items;
+  word item[10];
+  word chance[11]; //0=none
+} item_drop_object;
 
 #define guy_bhit        0x00000001
 #define guy_invisible   0x00000002
@@ -714,84 +817,51 @@ typedef struct quest_template
 #define weak_L3brang    0x40000000
 #define lens_only       0x80000000
 
+#define guy_flashing    0x00000001
+
+//FF combo flags
+
+#define ffOVERLAY		0x00000001
+#define ffTRANS			0x00000002
+#define ffSOLID			0x00000004
+#define ffCARRYOVER		0x00000008
+#define ffSTATIONARY	0x00000010
+
+//FF combo changer flags
+
+#define ffSWAPNEXT		0x80000000
+#define ffSWAPPREV		0x40000000
+#define ffCHANGENEXT    0x20000000
+#define ffCHANGEPREV	0x10000000 
+#define ffCHANGETHIS	0x08000000
+
 typedef struct guydata
 {
   dword flags;
+  dword flags2;
   word  tile;
+  byte  width;
+  byte  height; //0=striped, 1+=rectangular
+  word  s_tile; //secondary (additional) tile(s)
+  byte  s_width;
+  byte  s_height;  //0=striped, 1+=rectangular
+  word  e_tile;
+  byte  e_width;
+  byte  e_height;
+
   short hp;
 
-  short  family, cset, anim, frate;
+  short  family, cset, anim, e_anim, frate, e_frate;
   short  dp, wdp, weapon;
 
   short  rate, hrate, step, homing, grumble;
-  short  item_set, misc1, misc2, bosspal;
+  short  item_set, misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, bgsfx, bosspal;
 
-  short  startx, starty;
-  short  foo1,foo2,foo3,foo4,foo5,foo6;
+  //  short  startx, starty;
+  //  short  foo1,foo2,foo3,foo4,foo5,foo6;
   // 56 bytes
 } guydata;
 
-typedef struct mapscr2
-{
-  byte valid;
-  byte guy;
-  word str;
-  byte room;
-  byte item;
-  byte warptype;
-  //byte padding;
-  word door_combo_set;
-  byte warpreturnx;
-  byte warpreturny;
-  byte stairx;
-  byte stairy;
-  byte itemx;
-  byte itemy;
-  byte color;
-  byte enemyflags;
-  byte door[4];
-  byte warpdmap;
-  byte warpscr;
-  byte exitdir;
-  byte _FOO3_;
-  word enemy[10];
-  byte pattern;
-  byte warparrivalx;
-  byte warparrivaly;
-  byte path[4];
-  byte sidewarptype;
-  byte sidewarpscr;
-  byte sidewarpdmap;
-  byte itemwarptype;
-  byte itemwarpdmap;
-  byte itemwarpscr;
-  word undercombo;
-  byte old_cpage;
-  byte undercset;
-  word catchall;
-  byte flags;
-  byte flags2;
-  byte flags3;
-  byte flags4;
-  byte layermap[6];
-  byte layerscreen[6];
-  byte layerxsize[6];
-  byte layerxspeed[6];
-  byte layerxdelay[6];
-  byte layerysize[6];
-  byte layeryspeed[6];
-  byte layerydelay[6];
-  byte layeropacity[6];
-  //byte padding;
-  word timedwarptics;
-  byte extra[62];
-  word secretcombo[128];
-  byte secretcset[128];
-  byte secretflag[128];
-  word data[16*11];
-  byte sflag[16*11];
-  byte cset[16*11];
-} mapscr2;
 typedef struct mapscr
 {
   byte valid;
@@ -799,11 +869,11 @@ typedef struct mapscr
   word str;
   byte room;
   byte item;
-  byte tilewarptype;
-  //byte padding;
+  byte tilewarptype[4];
   word door_combo_set;
-  byte warpreturnx;
-  byte warpreturny;
+  byte warpreturnx[4];
+  byte warpreturny[4];
+  byte warpreturnc;
   byte stairx;
   byte stairy;
   byte itemx;
@@ -811,43 +881,71 @@ typedef struct mapscr
   byte color;
   byte enemyflags;
   byte door[4];
-  byte tilewarpdmap;
-  byte tilewarpscr;
+  byte tilewarpdmap[4];
+  byte tilewarpscr[4];
   byte exitdir;
-  byte _FOO3_;
   word enemy[10];
   byte pattern;
-  byte sidewarptype;
+  byte sidewarptype[4];
   byte warparrivalx;
   byte warparrivaly;
   byte path[4];
-  byte sidewarpscr;
-  byte sidewarpdmap;
+  byte sidewarpscr[4];
+  byte sidewarpdmap[4];
+  byte sidewarpindex;
   word undercombo;
-  byte old_cpage;
   byte undercset;
   word catchall;
   byte flags;
   byte flags2;
   byte flags3;
+  byte flags4;
+  byte flags5;
+  byte flags6;
+  byte flags7;
+  byte flags8;
+  byte flags9;
+  byte flags10;
+  byte csensitive;
+  word noreset;
+  word nocarry;
   byte layermap[6];
   byte layerscreen[6];
-  byte layerxsize[6];
-  byte layerxspeed[6];
-  byte layerxdelay[6];
-  byte layerysize[6];
-  byte layeryspeed[6];
-  byte layerydelay[6];
+  //  byte layerxsize[6];
+  //  byte layerxspeed[6];
+  //  byte layerxdelay[6];
+  //  byte layerysize[6];
+  //  byte layeryspeed[6];
+  //  byte layerydelay[6];
   byte layeropacity[6];
-  //byte padding;
   word timedwarptics;
-  byte extra[62];
+  byte nextmap;
+  byte nextscr;
   word secretcombo[128];
   byte secretcset[128];
   byte secretflag[128];
   word data[16*11];
   byte sflag[16*11];
   byte cset[16*11];
+  dword numff;
+  word ffdata[32];
+  byte ffcset[32];
+  word ffdelay[32];
+  long ffx[32];
+  long ffy[32];
+  long ffxdelta[32];
+  long ffydelta[32];
+  long ffxdelta2[32];
+  long ffydelta2[32];
+  dword ffflags[32];
+  byte ffwidth[32];
+  byte ffheight[32];
+  byte fflink[32];
+
+  // for importing older quests...
+  byte old_cpage;
+  short screen_midi;
+
 } mapscr;
 
 
@@ -876,7 +974,10 @@ typedef struct newcombo
   byte speed;
   word nextcombo;
   byte nextcset;
-  byte expansion[11];
+  byte flag;
+  byte skipanim;
+  word nexttimer;
+  byte expansion[7];
   //24
 } newcombo;
 
@@ -900,7 +1001,6 @@ typedef struct ZCHEATS
 typedef struct zquestheader
 {
   char  id_str[31];
-  //byte  padding;
   //32
   short zelda_version;
   word  internal;
@@ -918,8 +1018,10 @@ typedef struct zquestheader
   char  author[65];
   //byte  padding;
   //204
-  short pwdkey;
-  char  password[30];
+  //  short pwdkey;
+  bool  dirty_password;
+  char  password[256];
+  unsigned char pwd_hash[16];
   //236
   char  minver[9];
   byte  build;
@@ -936,7 +1038,7 @@ typedef struct zquestheader
   byte  old_midi_flags[MIDIFLAGS_SIZE];
   //304
   byte  old_foo2[18];
-  char  templatepath[280];
+  char  templatepath[2048];
   //602
 } zquestheader;
 
@@ -964,24 +1066,24 @@ typedef struct DoorComboSet
   byte doorcset_u[9][4];                                    //[door type][door combo]
   word doorcombo_d[9][4];                                   //[door type][door combo]
   byte doorcset_d[9][4];                                    //[door type][door combo]
-  //238 (216)
+                                                            //238 (216)
   word doorcombo_l[9][6];                                   //[door type][door combo]
   byte doorcset_l[9][6];                                    //[door type][door combo]
   word doorcombo_r[9][6];                                   //[door type][door combo]
   byte doorcset_r[9][6];                                    //[door type][door combo]
-  //562 (324)
+                                                            //562 (324)
   word bombdoorcombo_u[2];                                  //rubble
   byte bombdoorcset_u[2];                                   //rubble
   word bombdoorcombo_d[2];                                  //rubble
   byte bombdoorcset_d[2];                                   //rubble
-  //574 (12)
+                                                            //574 (12)
   word bombdoorcombo_l[3];                                  //rubble
   byte bombdoorcset_l[3];                                   //rubble
-  //byte padding;
+                                                            //byte padding;
   word bombdoorcombo_r[3];                                  //rubble
   byte bombdoorcset_r[3];                                   //rubble
-  //byte padding;
-  //594 (18)
+                                                            //byte padding;
+                                                            //594 (18)
   word walkthroughcombo[4];                                 //[n, s, e, w]
   byte walkthroughcset[4];                                  //[n, s, e, w]
 
@@ -1010,20 +1112,37 @@ typedef struct dmap
   //132
   word minimap_1_tile;                                      //before getting map
   byte minimap_1_cset;                                      //cset for minimap 1
-  //byte padding;
+                                                            //byte padding;
   word minimap_2_tile;                                      //after getting map
   byte minimap_2_cset;                                      //cset for minimap 2
-  //byte padding;
-  //140
+                                                            //byte padding;
+                                                            //140
   word largemap_1_tile;                                     //large map
   byte largemap_1_cset;                                     //cset for large
-  //byte padding;
+                                                            //byte padding;
   word largemap_2_tile;                                     //large map
   byte largemap_2_cset;                                     //cset for large
   char tmusic[56];
+  byte tmusictrack;
+  byte active_subscreen;
+  byte passive_subscreen;
+  int emusic;
   //byte padding;
   //204
 } dmap;
+
+#define MAXCOMBOALIASES 256
+
+typedef struct combo_alias
+{
+  byte width;      // Max 15
+  byte height;     // Max 10
+  byte layermask;  // Specifies layers to be drawn
+  word combo;      // Optional thumbnail combo for the alias list
+  word cset;
+  word *combos;    // Dynamic array. Will be stored in quest.
+  byte *csets;
+} combo_alias;
 
 typedef struct shoptype
 {
@@ -1088,9 +1207,9 @@ typedef struct zcolors
   byte bs_dk, bs_goal;
   byte compass_lt, compass_dk;
   //10
-  byte subscr_bg, triframe_color;
-  byte link_dot;
+  byte subscr_bg, subscr_shadow, triframe_color;
   byte bmap_bg,bmap_fg;
+  byte link_dot;
   //15
   byte triforce_cset;
   byte triframe_cset;
@@ -1129,9 +1248,9 @@ typedef struct miscQdata
   palcycle cycles[256][3];
   //2832 (2304=3*256*3)
   windwarp wind[9];                                         // destination of whirlwind for each level
-  //2850 (18=2*2)
+                                                            //2850 (18=2*2)
   byte     triforce[8];                                     // positions of triforce pieces on subscreen
-  //2858 (8)
+                                                            //2858 (8)
   zcolors  colors;
   //3154 (296)
   word     icons[4];
@@ -1144,7 +1263,7 @@ typedef struct miscQdata
   //4512
 } miscQdata;
 
-typedef struct music
+typedef struct zcmidi
 {
   char title[20];
   //20
@@ -1157,7 +1276,13 @@ typedef struct music
   //36
   MIDI *midi;
   //40
-} music;
+} zcmidi;
+
+typedef struct emusic
+{
+  char title[20];
+  char filename[256];
+} emusic;
 
 enum
 {
@@ -1169,7 +1294,7 @@ enum
   itype_dinsfire, itype_faroreswind, itype_nayruslove, itype_bomb,
   itype_sbomb, itype_clock, itype_key, itype_magiccontainer,
   itype_triforcepiece, itype_map, itype_compass, itype_bosskey,
-  itype_max
+  itype_quiver, itype_lkey, itype_cbyrna, itype_max
 };
 
 enum {i_sword=1, i_wsword, i_msword, i_xsword, imax_sword};
@@ -1199,16 +1324,20 @@ enum {i_hammer=1, imax_hammer};
 enum {i_dinsfire=1, imax_dinsfire};
 enum {i_faroreswind=1, imax_faroreswind};
 enum {i_nayruslove=1, imax_nayruslove};
+enum {i_quiver=1, i_quiverl2, i_quiverl3, imax_quiver};
+enum {i_cbyrna=1, imax_cbyrna};
 //enum {i_clock=1, imax_clock};
 
 typedef struct gamedata
 {
-  char  name[9];
-  byte  quest;
+  char  _name[9];
+  byte  _quest;
   //10
-  short life,maxlife,drupy,rupies,deaths;
+  word _life,_maxlife;
+  short _drupy;
+  word _rupies,_arrows,_maxarrows,_deaths;
   //20
-  byte  keys,maxbombs,wlevel,cheat;
+  byte  _keys,_maxbombs,_wlevel,_cheat;
   //24
   byte  items[MAXITEMS];
   //280
@@ -1216,32 +1345,32 @@ typedef struct gamedata
   char  version[9];
   char  title[65];
   //354
-  byte  hasplayed;
+  byte  _hasplayed;
   //byte  padding;
   //356
-  dword time;
+  dword _time;
   //360
-  byte  timevalid;
+  byte  _timevalid;
   byte  lvlitems[256];
-  byte  HCpieces;
-  byte  continue_scrn;
-  byte  continue_dmap;
+  byte  lvlkeys[256];
+  byte  _HCpieces;
+  byte  _continue_scrn;
+  byte  _continue_dmap;
   //620
-  int   maxmagic;
-  int   magic;
-  int   dmagic;
-  byte  magicdrainrate;
-  byte  canslash;                                           //Link slashes instead of stabs.
-  //byte  padding[2];
-  //636
+  word  _maxmagic, _magic;
+  short _dmagic;
+  byte  _magicdrainrate;
+  byte  _canslash;                                           //Link slashes instead of stabs.
+                                                             //byte  padding[2];
+                                                             //636
   byte  visited[MAXDMAPS];
   //892 (256)
   byte  bmaps[MAXDMAPS*64];                                 // the dungeon progress maps
-  //17276 (16384)
+                                                            //17276 (16384)
   word  maps[MAXMAPS2*128];                                 // info on map changes, items taken, etc.
-  //82556 (65280)
+                                                            //82556 (65280)
   byte  guys[MAXMAPS2*128];                                 // guy counts (though dungeon guys are reset on entry)
-  //115196 (32640)
+                                                            //115196 (32640)
   char  qstpath[2048];
   byte  icon[128];
   byte  pal[48];
@@ -1258,7 +1387,7 @@ enum
 enum
 {
   idI_WAND, idI_LETTER, idI_LENS, idI_HOOKSHOT,
-  idI_BAIT, idI_HAMMER, idI_MAX
+  idI_BAIT, idI_HAMMER, idI_CBYRNA, idI_MAX
 };
 enum { idI_DFIRE, idI_FWIND, idI_NLOVE, idI_MAX2 };
 enum { idM_CONTPERCENT, idM_DOUBLEMAGIC, idM_CANSLASH, idM_MAX };
@@ -1272,14 +1401,16 @@ typedef struct zinitdata
 {
   byte raft, ladder, book, key, flippers, boots;
   byte ring, sword, shield, wallet, bracelet, amulet, bow;
+  byte quiver;
   byte more_eq[32];
   //45
   byte candle, boomerang, arrow, potion, whistle, bombs, super_bombs;
   byte wand, letter, lens, hookshot, bait, hammer, dins_fire, farores_wind;
-  byte nayrus_love, cloak;
+  byte nayrus_love, cloak, cbyrna;
   byte more_items[32];
   //94
   byte hc, start_heart, cont_heart, hcp, max_bombs, keys;
+  byte arrows, max_arrows;
   word rupies;
   byte triforce;                                            // bit flags
   byte map[32];
@@ -1288,22 +1419,51 @@ typedef struct zinitdata
   byte misc[16];
   byte sword_hearts[4];
   byte last_map;                                            //last map worked on
-  //220
+                                                            //220
   byte last_screen;                                         //last screen worked on
   byte max_magic;
   byte magic;
   byte beam_hearts[4];
   byte beam_percent;                                        //bit flags
-  //228
+                                                            //228
   byte beam_power[4];
+  byte moving_fairy_hearts;
+  byte moving_fairy_heart_percent;
+  byte stationary_fairy_hearts;
+  byte stationary_fairy_heart_percent;
+  byte moving_fairy_magic;
+  byte moving_fairy_magic_percent;
+  byte stationary_fairy_magic;
+  byte stationary_fairy_magic_percent;
+  byte blue_potion_hearts;
+  byte blue_potion_heart_percent;
+  byte red_potion_hearts;
+  byte red_potion_heart_percent;
+  byte blue_potion_magic;
+  byte blue_potion_magic_percent;
+  byte red_potion_magic;
+  byte red_potion_magic_percent;
   byte hookshot_links;
+  byte hookshot_length;
+  byte longshot_links;
+  byte longshot_length;
   byte msg_more_x, msg_more_y;
   byte subscreen;
   byte start_dmap;
-  byte linkwalkstyle;
+  byte linkanimationstyle;
   //238
-  byte expansion[98];
+  //byte expansion[98];
   //336 bytes total
+  byte level_keys[256];
+  int ss_grid_x;
+  int ss_grid_y;
+  int ss_grid_xofs;
+  int ss_grid_yofs;
+  int ss_grid_color;
+  int ss_bbox_1_color;
+  int ss_bbox_2_color;
+  int ss_flags;
+  byte subscreen_style;
 } zinitdata;
 
 
@@ -1311,6 +1471,8 @@ typedef struct zinitdata
 /**  Misc Stuff  **/
 /******************/
 
+#undef  max
+#undef  min
 #define max(a,b)  ((a)>(b)?(a):(b))
 #define min(a,b)  ((a)<(b)?(a):(b))
 
@@ -1320,7 +1482,7 @@ typedef struct zinitdata
 #define DCLICK_NOT        3
 
 template <class T>
-static inline void swap(T &a,T &b)
+  static INLINE void swap(T &a,T &b)
 {
   T c = a;
   a = b;
@@ -1353,7 +1515,7 @@ INLINE bool pfread(void *p,long n,PACKFILE *f,bool keepdata)
   }
   else
   {
-    success=(pack_fseek(f,n)==0);
+    bool success=(pack_fseek(f,n)==0);
     if (success)
     {
       readsize+=n;
@@ -1482,48 +1644,6 @@ INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
   return true;
 }
 
-INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
-{
-	long temp;
-	bool result = p_igetl(&temp,f,keepdata);
-	*(int *)p=(int)temp;
-	return result;
-}
-
-INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
-{
-	if(!f) return false;
-#ifdef NEWALLEGRO
-  if (f->normal.flags&PACKFILE_FLAG_WRITE) return false;    //must not be writing to file
-#else
-  if (f->flags&PACKFILE_FLAG_WRITE) return false;           //must not be writing to file
-#endif
-  if (pack_feof(f))
-  {
-    return false;
-  }
-  byte tempfloat[sizeof(float)];
-  if(!pfread(tempfloat,sizeof(float),f,true))
-	  return false;
-  if(keepdata)
-  {
-	memset(p, 0,sizeof(float));
-#ifdef ALLEGRO_MACOSX
-	for(int i=0; i<(int)sizeof(float); i++)
-	{
-		((byte *)p)[i] = tempfloat[i];
-	}
-#else
-	for(int i=0; i<(int)sizeof(float); i++)
-	{
-		((byte *)p)[sizeof(float)-i-1] = tempfloat[i];
-	}
-#endif
-  }
-  readsize += sizeof(float);
-  return true;
-}
-
 INLINE bool p_iputl(long c,PACKFILE *f)
 {
   if (!f) return false;
@@ -1634,12 +1754,12 @@ INLINE bool p_mputl(long c,PACKFILE *f)
   return success;
 }
 
-inline bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2)
+INLINE bool isinRect(int x,int y,int rx1,int ry1,int rx2,int ry2)
 {
   return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
 }
 
-inline void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
+INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 #endif                                                      //_ZDEFS_H_
 
 //	-lalmp3 -lalogg -lvorbisidec -laldmb -ldumb -lalleg

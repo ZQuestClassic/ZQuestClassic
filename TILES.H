@@ -13,22 +13,28 @@
 #ifndef _ZC_TILES_H_
 #define _ZC_TILES_H_
 
+#define UNPACKSIZE 256
+
 #include "zc_alleg.h"
 #include "zdefs.h"
 
-extern byte *tilebuf;
+//extern byte *tilebuf;
 extern newcombo *combobuf;
 
 // in tiles.cc
-extern byte unpackbuf[256];
+extern byte unpackbuf[UNPACKSIZE];
+extern char *tileformat_string[tfMax];
 
 void register_blank_tiles();
-word count_tiles(byte *buf);
+word count_tiles();
 word count_combos();
 void setup_combo_animations();
+void reset_combo_animation(int c);
 void reset_combo_animations();
 void animate_combos();
-void clear_tiles(byte *buf);
+bool isonline(float x1, float y1, float x2, float y2, float x3, float y3);
+void clear_tile(word tile);
+void clear_tiles();
 //void unpack_tile(int tile);
 void unpack_tile(int tile, int flip, bool force);
 
@@ -37,14 +43,18 @@ void pack_tiles(byte *buf);
 int rotate_value(int flip);
 
 void puttile8(BITMAP* dest,int tile,int x,int y,int cset,int flip);
+void oldputtile8(BITMAP* dest,int tile,int x,int y,int cset,int flip);
 void overtile8(BITMAP* dest,int tile,int x,int y,int cset,int flip);
 void puttile16(BITMAP* dest,int tile,int x,int y,int cset,int flip);
+void oldputtile16(BITMAP* dest,int tile,int x,int y,int cset,int flip);
 void overtile16(BITMAP* dest,int tile,int x,int y,int cset,int flip);
 
 void putblock8(BITMAP *dest,int tile,int x,int y,int csets[],int flip,int mask);
+void oldputblock8(BITMAP *dest,int tile,int x,int y,int csets[],int flip,int mask);
 void overblock8(BITMAP *dest,int tile,int x,int y,int csets[],int flip,int mask);
 
 void putcombo(BITMAP* dest,int x,int y,int cmbdat,int cset);
+void oldputcombo(BITMAP* dest,int x,int y,int cmbdat,int cset);
 void overcombo(BITMAP* dest,int x,int y,int cmbdat,int cset);
 void overcombo2(BITMAP* dest,int x,int y,int cmbdat,int cset);
 
@@ -59,4 +69,7 @@ void overblocktranslucent8(BITMAP *dest,int tile,int x,int y,int csets[],int fli
 
 void putcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacity);
 void overcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacity);
+
+int tilesize(byte format);
+int comboa_lmasktotal(byte layermask);
 #endif                                                      // _ZC_TILES_H_

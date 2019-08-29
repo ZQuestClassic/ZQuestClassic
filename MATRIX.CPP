@@ -13,6 +13,7 @@
 // external FONTs
 extern FONT *deffont, *mfont;
 
+
 #define MAX_COLS      256
 #define MAX_TRACERS   MAX_COLS * 2
 
@@ -21,8 +22,10 @@ extern FONT *deffont, *mfont;
 #define MED_GREEN     245
 #define DARK_GREEN    244
 
+#ifndef _MSC_VER
 #define max(a,b)  ((a)>(b)?(a):(b))
 #define min(a,b)  ((a)<(b)?(a):(b))
+#endif
 
 typedef unsigned char byte;
 
@@ -162,8 +165,8 @@ static void AddEraser(int col = -1)
   for(int i=0; i<maxtracers; i++)
   {
     if( eraser[i].speed == 0 && (col>=0 || (tracer[i].speed
-      && tracer[i].y > 5 + (_density - _speed)/2
-      && (rand() % ((7 + _density - _speed)*5 + 10)) == 0)) )
+                                            && tracer[i].y > 5 + (_density - _speed)/2
+                                            && (rand() % ((7 + _density - _speed)*5 + 10)) == 0)) )
     {
       eraser[i].x = col>=0 ? col : tracer[i].x;
       eraser[i].y = 0;
@@ -246,11 +249,11 @@ static void DrawEraser(int x, int y, int type)
   {
     for(int i=0; i<8; i++)
       for(int j=0; j<8; j++)
-    {
-      int pix = getpixel(screen, x+i, y+j);
-      if(pix == LIGHT_GREEN || pix == MED_GREEN)
-        putpixel(screen, x+i, y+j, DARK_GREEN);
-    }
+      {
+        int pix = getpixel(screen, x+i, y+j);
+        if(pix == LIGHT_GREEN || pix == MED_GREEN)
+          putpixel(screen, x+i, y+j, DARK_GREEN);
+      }
   }
 }
 

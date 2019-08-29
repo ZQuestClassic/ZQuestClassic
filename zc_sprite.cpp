@@ -21,35 +21,35 @@ void sprite::check_conveyor()
 {
   if (conveyclk<=0)
   {
-    int ctype=(combobuf[MAPDATA(x+8,y+8)].type);
+    int ctype=(combobuf[MAPCOMBO(x+8,y+8)].type);
     if((ctype>=cCVUP) && (ctype<=cCVRIGHT))
     {
       switch (ctype-cCVUP)
       {
         case up:
-          if(!_walkflag(x,y+8-2,2))
-          {
-            y=y-2;
-          }
-          break;
+        if(!_walkflag(x,y+8-2,2))
+        {
+          y=y-2;
+        }
+        break;
         case down:
-          if(!_walkflag(x,y+15+2,2))
-          {
-            y=y+2;
-          }
-          break;
+        if(!_walkflag(x,y+15+2,2))
+        {
+          y=y+2;
+        }
+        break;
         case left:
-          if(!_walkflag(x-2,y+8,1))
-          {
-            x=x-2;
-          }
-          break;
+        if(!_walkflag(x-2,y+8,1))
+        {
+          x=x-2;
+        }
+        break;
         case right:
-          if(!_walkflag(x+15+2,y+8,1))
-          {
-            x=x+2;
-          }
-          break;
+        if(!_walkflag(x+15+2,y+8,1))
+        {
+          x=x+2;
+        }
+        break;
       }
     }
   }
@@ -83,21 +83,45 @@ bool movingblock::animate(int index)
 
   if(--clk==0)
   {
+    bool bhole=false;
     blockmoving=false;
     tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]=bcombo;
     tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=cs;
-    if (tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]==mfBLOCKTRIGGER)
+    if ((tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]==mfBLOCKTRIGGER)||(combobuf[bcombo].flag==mfBLOCKTRIGGER))
     {
       trigger=true;
     }
-    tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
-    if (oldflag>=mfPUSHUDINS&&!trigger)
+    if ((tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]==mfBLOCKHOLE)||(combobuf[bcombo].flag==mfBLOCKHOLE))
+    {
+      tmpscr->data[(int(y)&0xF0)+(int(x)>>4)]+=1;
+      bhole=true;
+      //tmpscr->cset[(int(y)&0xF0)+(int(x)>>4)]=;
+    }
+    if (bhole)
+    {
+      tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfNONE;
+    }
+    else
+    {
+      int f2 = MAPCOMBOFLAG(x,y);
+      if (!((f2==mfPUSHUDINS && dir<=down) ||
+           (f2==mfPUSHLRINS && dir>=left) ||
+           (f2==mfPUSHUINS && dir==up) ||
+           (f2==mfPUSHDINS && dir==down) ||
+           (f2==mfPUSHLINS && dir==left) ||
+           (f2==mfPUSHRINS && dir==right) ||
+           (f2==mfPUSH4INS)))
+      {
+        tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=mfPUSHED;
+      }
+    }
+    if (oldflag>=mfPUSHUDINS&&oldflag&&!trigger&&!bhole)
     {
       tmpscr->sflag[(int(y)&0xF0)+(int(x)>>4)]=oldflag;
     }
     for (int i=0; i<176; i++)
     {
-      if (tmpscr->sflag[i]==mfBLOCKTRIGGER)
+      if (tmpscr->sflag[i]==mfBLOCKTRIGGER||combobuf[tmpscr->data[i]].flag==mfBLOCKTRIGGER)
       {
         trigger=false;
       }
@@ -116,9 +140,9 @@ bool movingblock::animate(int index)
       {
         hidden_entrance(0,true,true);
         if(((combobuf[bcombo].type == cPUSH_WAIT) ||
-          (combobuf[bcombo].type == cPUSH_HW) ||
-          (combobuf[bcombo].type == cPUSH_HW2) || trigger) &&
-          (!nosecretsounds))
+            (combobuf[bcombo].type == cPUSH_HW) ||
+            (combobuf[bcombo].type == cPUSH_HW2) || trigger) &&
+           (!nosecretsounds))
         {
           sfx(WAV_SECRET,128);
         }
@@ -132,9 +156,9 @@ bool movingblock::animate(int index)
       if(!isdungeon())
       {
         if(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
-          || combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2)
+           || combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2)
         {
-          setmapflag(mSECRET);
+          if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
         }
       }
     }

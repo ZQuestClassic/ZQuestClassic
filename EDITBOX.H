@@ -26,11 +26,10 @@
 #define _EDITBOX_H_
 
 #include "zc_alleg.h"
-#include <string>
-//#ifdef __cplusplus
-//extern "C"
-//{
-//#endif
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
   enum {eb_wrap_none, eb_wrap_char, eb_wrap_word};
   enum {eb_crlf_n, eb_crlf_nr, eb_crlf_r, eb_crlf_rn, eb_crlf_any};
@@ -41,8 +40,7 @@
 
   typedef struct editbox_data
   {
-   // char **text;
-	std::string text;
+    char **text;
     int showcursor;
     int lines;
     int currtextline;
@@ -62,9 +60,8 @@
     int vsbarstyle;
     int hsbarstyle;
     FONT *font;
-    //char *clipboard;
-    //int clipboardsize;
-	std::string clipboard;
+    char *clipboard;
+    int clipboardsize;
     int defaulttabsize;
     int tabunits;
     int customtabs;
@@ -77,9 +74,9 @@
     int postpaste_dontmove;
   } editbox_data;
 
-//#ifdef __cplusplus
-//}
-//#endif
+#ifdef __cplusplus
+}
+#endif
 #endif
 
 /***  The End  ***/

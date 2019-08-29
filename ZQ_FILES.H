@@ -27,6 +27,7 @@ int NewQuestFile();
 int onNew();
 int onSave();
 int onSaveAs();
+int onSaveAs210();
 int onOpen();
 int onRevert();
 int get_import_map_bias();

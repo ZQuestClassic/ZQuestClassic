@@ -26,7 +26,7 @@ decoration::decoration(fix X,fix Y,int Id,int Clk) : sprite()
 {
   x=X; y=Y; id=Id; clk=Clk;
   misc = 0;
-  yofs = 54;
+  yofs = playing_field_offset - 2;
 
 }
 
@@ -232,7 +232,7 @@ dTallGrass::dTallGrass(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 bool dTallGrass::animate(int index)
 {
   return ((COMBOTYPE(LinkX(),LinkY()+15)!=cTALLGRASS)||
-    (COMBOTYPE(LinkX()+15,LinkY()+15)!=cTALLGRASS));
+          (COMBOTYPE(LinkX()+15,LinkY()+15)!=cTALLGRASS));
 }
 
 void dTallGrass::draw(BITMAP *dest)
@@ -262,7 +262,7 @@ bool dRipples::animate(int index)
 {
   clk++;
   return ((COMBOTYPE(LinkX(),LinkY()+15)!=cSHALLOWWATER)||
-    (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER));
+          (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER));
 }
 
 void dRipples::draw(BITMAP *dest)

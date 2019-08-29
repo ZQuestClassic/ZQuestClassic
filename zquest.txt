@@ -1,8 +1,8 @@
 +--------------------------------+
-|      ZQuest v2.10 Build 1      |
-|         User Reference         |
-|   Created by Phantom Menace    |
-|  http://www.zeldaclassic.com   |
+|    ZQuest v1.92 Build 182      |
+|       User Reference           |
+|  Created by Phantom Menace     |
+| http://www.zeldaclassic.com    |
 +--------------------------------+
 
 CONTENTS:

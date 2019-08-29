@@ -106,7 +106,7 @@ void show_paused();
 void show_fps();
 bool game_vid_mode(int mode,int wait);
 void init_NES_mode();
-  
+
 extern int black_opening_count;
 extern int black_opening_x,black_opening_y;
 extern int black_opening_shape;
@@ -128,7 +128,7 @@ bool has_item(int item_type, int item);
 int high_item(int jmax, int item_type, bool consecutive, int itemcluster, bool usecluster);
 int current_item(int item_type, bool consecutive);
 int high_flag(int i, int item_type, bool consecutive);
-int item_tile_mod();
+int item_tile_mod(bool);
 int dmap_tile_mod();
 
 void jukebox(int index);
@@ -153,4 +153,7 @@ void stop_sfx(int index);
 void kill_sfx();
 int  pan(int x);
 void zc_putpixel(int layer, int x, int y, int cset, int color, int timer);
+#ifdef ALLEGRO_LINUX_GP2X
+extern bool midi_strict;
+#endif
 #endif                                                      // _ZC_SYS_H_

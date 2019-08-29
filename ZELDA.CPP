@@ -30,31 +30,53 @@
 #include "save_gif.h"
 #include "fontsdat.h"
 #include "particles.h"
+#include "gamedata.h"
 
 ZCMUSIC *zcmusic = NULL;
+zinitdata zinit;
 int colordepth;
 int db=0;
-zinitdata  zinit;
+//zinitdata  zinit;
 int detail_int[10];                                         //temporary holder for things you want to detail
 int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 int strike_hint_counter=0;
 int strike_hint_timer=0;
 int strike_hint;
+int slot_arg, slot_arg2;
+char *SAVE_FILE = "zc.sav";
 
-#ifdef ALLEGRO_DOS
-extern int three_finger_flag;
-#endif
+int passive_subscreen_height=56;
+int playing_field_offset=56;
+int passive_subscreen_offset=0;
 
-int logic_counter=0;
+void playLevelMusic();
+
+volatile int logic_counter=0;
 bool drawit=false;
 bool trip=false;
 void update_logic_counter()
 {
   ++logic_counter;
+  if(logic_counter==5) --logic_counter;
+} END_OF_FUNCTION(update_logic_counter)
+
+  int onHelp()
+{
+  //  restore_mouse();
+  //  doHelp(vc(15),vc(0));
+  return D_O_K;
+}
+int d_dropdmaplist_proc(int msg,DIALOG *d,int c)
+{
+  return D_O_K;
 }
 
-END_OF_FUNCTION(update_logic_counter)
+char *dmaplist(int index, int *list_size)
+{
+  return NULL;
+}
+int startdmapxy[6] = {0,0,0,0,0,0};
 
 /**********************************/
 /******** Global Variables ********/
@@ -68,9 +90,12 @@ COLOR_MAP trans_table;
 
 BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen;
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
-FONT       *zfont, *z3font, *deffont, *lfont, *lfont_l, *pfont, *mfont;
+FONT       *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gbzfont,
+           *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font;
 PALETTE    RAMpal;
-byte       *tilebuf, *colordata, *trashbuf;
+byte       *colordata, *trashbuf;
+//byte       *tilebuf;
+tiledata   *newtilebuf;
 newcombo   *combobuf;
 itemdata   *itemsbuf;
 wpndata    *wpnsbuf;
@@ -88,13 +113,18 @@ bool ewind_restart=false;
 word     msgclk, msgstr, msgpos, msg_count;
 word     door_combo_set_count;
 word     introclk, intropos, dmapmsgclk, linkedmsgclk;
-short    Bpos, lensclk, lenscnt;
+short    lensclk, lenscnt;
+int    Bpos;
 byte screengrid[22];
 bool halt=false;
 bool screenscrolling=false;
 bool close_button_quit=false;
+PALETTE tempbombpal;
+bool usebombpal;
 
 int readsize, writesize;
+
+combo_alias combo_aliases[MAXCOMBOALIASES];  //Temporarily here to ZC can compile. All memory from this is freed after loading the quest file.
 
 int jwin_pal[jcMAX];
 int gui_colorset=0;
@@ -107,49 +137,55 @@ int Akey,Bkey,Skey,Lkey,Rkey,Pkey,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Quit=0;
 int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density;
 int arrow_x, arrow_y, brang_x, brang_y, chainlink_x, chainlink_y;
 int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras;
-int cheat_goto_map=0, cheat_goto_screen=0, swordhearts[4], currcset;
-int gfc, gfc2, pitx, pity, refill_what, heart_beep_timer=0, new_enemy_tile_start=1580;
+int cheat_goto_dmap=0, cheat_goto_screen=0, swordhearts[4], currcset;
+int gfc, gfc2, pitx, pity, refill_what, refill_why, heart_beep_timer=0, new_enemy_tile_start=1580;
 int nets=1580, magictype=mgc_none, magiccastclk, castx, casty, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y;
 int magicdrainclk=0, conveyclk=3, memrequested=0;
 float avgfps=0;
 dword fps_secs=0;
-
+bool do_cheat_goto=false;
 int checkx, checky;
+int loadlast=0;
+int skipcont=0;
+int skipicon=0;
+
+bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true, show_layer_4=true, show_layer_5=true, show_layer_6=true, show_layer_over=true, show_layer_push=true, show_sprites=true;
+
 
 bool nosecretsounds=false;
 
 bool Throttlefps, Paused=false, Advance=false, ShowFPS, Showpal=false;
 bool Playing, FrameSkip=false, TransLayers;
-bool debug=false,debug_enabled;
+bool __debug=false,debug_enabled;
 bool refreshpal,blockpath,wand_dead,loaded_guys,freeze_guys,
-loaded_enemies,drawguys,details=false,DXtitle,watch;
+  loaded_enemies,drawguys,details=false,DXtitle,watch;
 bool darkroom=false,BSZ,COOLSCROLL;                         //,NEWSUBSCR;
 bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,
-SystemKeys=true,NESquit,volkeys,useCD=false,boughtsomething=false,
-fixed_door=false, hookshot_used=false, hookshot_frozen=false,
-pull_link=false, add_chainlink=false, del_chainlink=false, hs_fix=false,
-cheat_superman=false, gofast=false, checklink=true, didpit=false, heart_beep=true,
-pausenow=false, castnext=false, add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle,
-is_on_conveyor, activated_timed_warp=false;
+  SystemKeys=true,NESquit,volkeys,useCD=false,boughtsomething=false,
+  fixed_door=false, hookshot_used=false, hookshot_frozen=false,
+  pull_link=false, add_chainlink=false, del_chainlink=false, hs_fix=false,
+  cheat_superman=false, gofast=false, checklink=true, didpit=false, heart_beep=true,
+  pausenow=false, castnext=false, add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle,
+  is_on_conveyor, activated_timed_warp=false;
 
 int  add_asparkle=0, add_bsparkle=0;
 
 char   zeldadat_sig[52];
 char   sfxdat_sig[52];
 char   fontsdat_sig[52];
-char   cheat_goto_map_str[4];
+char   cheat_goto_dmap_str[4];
 char   cheat_goto_screen_str[3];
 short  visited[6];
 byte   guygrid[176];
 mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
-gamedata game;
+gamedata *game=NULL;
 
 //movingblock mblock2; //mblock[4]?
 //LinkClass   Link;
 
-int VidMode,resx,resy,scrx,scry;
+int resx,resy,scrx,scry;
 bool sbig;                                                  // big screen
 bool scanlines;                                             //do scanlines if sbig==1
 bool toogam=false;
@@ -157,12 +193,14 @@ bool toogam=false;
 int cheat=0;                                                // 0 = none; 1,2,3,4 = cheat level
 
 int mouse_down;                                             // used to hold the last reading of 'gui_mouse_b()' status
-int idle_count;
+int idle_count, active_count;
+
 
 // quest file data
 zquestheader QHeader;
 byte         quest_rules[QUESTRULES_SIZE];
 byte         midi_flags[MIDIFLAGS_SIZE];
+byte         music_flags[MUSICFLAGS_SIZE];
 word         map_count;
 MsgStr       *MsgStrings;
 DoorComboSet *DoorComboSets;
@@ -193,22 +231,22 @@ const char gambledat[12*6] =
   -10,-10,50, -10,-10,50, -10,-40,50, -40,-10,50
 };
 const byte stx[4][9] = {
-                         { 48, 80, 80, 96,112,144,160,160,192},
-                         { 48, 80, 80, 96,128,144,160,160,192},
-                         { 80, 80,128,128,160,160,192,192,208},
-                         { 32, 48, 48, 80, 80,112,112,160,160}
-                       };
+  { 48, 80, 80, 96,112,144,160,160,192},
+  { 48, 80, 80, 96,128,144,160,160,192},
+  { 80, 80,128,128,160,160,192,192,208},
+  { 32, 48, 48, 80, 80,112,112,160,160}
+};
 const byte sty[4][9] = {
-                         {112, 64,128, 96, 80, 96, 64,128,112},
-                         { 48, 32, 96, 64, 80, 64, 32, 96, 48},
-                         { 32,128, 64, 96, 64, 96, 48,112, 80},
-                         { 80, 48,112, 64, 96, 64, 96, 32,128}
-                       };
+  {112, 64,128, 96, 80, 96, 64,128,112},
+  { 48, 32, 96, 64, 80, 64, 32, 96, 48},
+  { 32,128, 64, 96, 64, 96, 48,112, 80},
+  { 80, 48,112, 64, 96, 64, 96, 32,128}
+};
 
 const byte ten_rupies_x[10] = {120,112,128,96,112,128,144,112,128,120};
 const byte ten_rupies_y[10] = {49,65,65,81,81,81,81,97,97,113};
 
-music tunes[MAXMUSIC] =
+zcmidi tunes[MAXMIDIS] =
 {
   // (title)                (s) (ls) (le) (l) (vol) (midi)
   { "Zelda 1 - Dungeon",     0,  -1,  -1,  1,  176,  NULL },
@@ -220,12 +258,14 @@ music tunes[MAXMUSIC] =
   { "Zelda 1 - Triforce",    0,  -1,  -1,  0,  168,  NULL },
 };
 
+emusic enhancedMusic[MAXMUSIC];
+
 void dointro ()
 {
-  if (game.visited[currdmap]!=1)
+  if (game->visited[currdmap]!=1)
   {
     dmapmsgclk=0;
-    game.visited[currdmap]=1;
+    game->visited[currdmap]=1;
     introclk=intropos=0;
   }
 }
@@ -243,6 +283,17 @@ bool bad_version(int version)
 /******* Other Source Files *******/
 /**********************************/
 
+bool get_debug()
+{
+  //return false; //remove later
+  return __debug;
+}
+
+void set_debug(bool d)
+{
+  __debug=d;
+  return;
+}
 
 
 void hit_close_button()
@@ -327,8 +378,15 @@ void ALLOFF()
     guygrid[i]=0;
   sle_clk=0;
   blockmoving=false;
+  fairy_cnt=0;
+  if (usebombpal)
+  {
+    memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+    refreshpal=true;
+    usebombpal=false;
+  }
 }
-
+void centerLink() {Link.setX(120);Link.setY(80);}
 fix  LinkX()   { return Link.getX(); }
 fix  LinkY()   { return Link.getY(); }
 int  LinkHClk() { return Link.getHClk(); }
@@ -344,7 +402,7 @@ bool  GuySuperman(int j)
   {
     return true;
   }
-  return ((enemy*)guys.spr(j))->superman;
+  return ((enemy*)guys.spr(j))->superman !=0;
 }
 
 int  GuyCount()   { return guys.Count(); }
@@ -371,7 +429,7 @@ void add_grenade(int wx, int wy, int size)
 fix distance(int x1, int y1, int x2, int y2)
 
 {
-  return (fix)sqrt(pow(abs(x1-x2),2)+pow(abs(y1-y2),2));
+  return (fix)sqrt(pow((double)abs(x1-x2),2)+pow((double)abs(y1-y2),2));
 }
 
 bool getClock() { return Link.getClock(); }
@@ -391,9 +449,9 @@ int load_quest(gamedata *g, bool report)
   tempdir=qstdir;
 #endif
 
-  if(g->quest<255)
+  if(get_gamedata_quest(g)<255)
   {
-    sprintf(qstpath,"%s%s.qst",tempdir,ordinal(g->quest));
+    sprintf(qstpath,"%s%s.qst",tempdir,ordinal(get_gamedata_quest(g)));
   }
   else
   {
@@ -408,12 +466,7 @@ int load_quest(gamedata *g, bool report)
   }
 
   packfile_password(datapwd);
-  byte skip_flags[4];
-  for (int i=0; i<4; ++i)
-  {
-    skip_flags[i]=0;
-  }
-  int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+MUSIC_COUNT,false,true,true,true,skip_flags);
+  int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true);
   packfile_password(NULL);
 
   /*
@@ -429,7 +482,7 @@ int load_quest(gamedata *g, bool report)
     }
     */
 
-  if(!g->title[0] || !g->hasplayed)
+  if(!g->title[0] || !get_gamedata_hasplayed(g))
   {
     strcpy(g->version,QHeader.version);
     strcpy(g->title,QHeader.title);
@@ -462,24 +515,6 @@ int load_quest(gamedata *g, bool report)
   return ret;
 }
 
-void get_questpwd(char *pwd)
-{
-  if(QHeader.pwdkey==0)
-    pwd[0]=0;
-  else
-  {
-    short key = QHeader.pwdkey;
-    memcpy(pwd,QHeader.password,30);
-    pwd[30]=0;
-    for(int i=0; i<30; i++)
-    {
-      pwd[i] -= key;
-      int t=key>>15;
-      key = (key<<1)+t;
-    }
-  }
-}
-
 int init_game()
 {
   //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
@@ -498,7 +533,19 @@ int init_game()
   add_nl2asparkle=false;
   add_nl2bsparkle=false;
   gofast=false;
-  srand(frame);
+  srand(time(0));
+
+  // confuse the cheaters by moving the game data to a random location
+  if (game!=NULL)
+  {
+    free(game);
+  }
+  char *dummy=(char *)malloc(rand()%64000);
+  game=(gamedata *)malloc(sizeof(gamedata));
+  //  game=&realgame;
+  free(dummy);
+
+
   for (int x=0; x<MAXITEMS; x++)
   {
     lens_hint_item[x][0]=0;
@@ -512,10 +559,12 @@ int init_game()
   }
 
   // copy saved data to RAM data
-  game = saves[currgame];
+  //  realgame = saves[currgame];
+  //  memcpy(&realgame,saves+currgame,sizeof(gamedata));
+  memcpy(game,saves+currgame,sizeof(gamedata));
 
   packfile_password(datapwd);
-  if(load_quest(&game))
+  if(load_quest(game))
   {
     Quit=qERROR;
     packfile_password(NULL);
@@ -543,11 +592,14 @@ int init_game()
       p_getc(&bld,fp,true);
       memset(password,0,32);
       pfread(password, 30, fp,true);
-      get_questpwd(pwd);
-      if (strcmp(pwd,password)==0)
-      {
+      /*
+        get-questpwd(&QHeader, pwd);
+        if (strcmp(pwd,password)==0)
+        {
         gotfromkey=true;
-      }
+        }
+        */
+      gotfromkey=check_questpwd(&QHeader, password);
       memset(password,0,32);
       memset(pwd,0,32);
     }
@@ -559,20 +611,23 @@ int init_game()
     cheat=4;
   }
 
-  BSZ = get_bit(quest_rules,qr_BSZELDA);
-  setuplinktiles(zinit.linkwalkstyle);
-  COOLSCROLL = get_bit(quest_rules,qr_COOLSCROLL);
+  BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
+  //setuplinktiles(zinit.linkanimationstyle);
+  COOLSCROLL = get_bit(quest_rules,qr_COOLSCROLL)!=0;
   //  NEWSUBSCR = get_bit(quest_rules,qr_NEWSUBSCR);
 
   //  homescr = currscr = DMaps[0].cont;
   //  currdmap = warpscr = worldscr=0;
-  if(!game.hasplayed)
+  if(!get_gamedata_hasplayed(game))
   {
-    game.continue_dmap=zinit.start_dmap;
+    set_gamedata_continue_dmap(game, zinit.start_dmap);
   }
-  currdmap = warpscr = worldscr=game.continue_dmap;
-  if (game.continue_scrn >= 0x80)
+  currdmap = warpscr = worldscr=get_gamedata_continue_dmap(game);
+
+
+  if (get_gamedata_continue_scrn(game) >= 0x80)
   {
+    //if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW || QHeader.zelda_version <= 0x190)
     if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
     {
       homescr = currscr = DMaps[currdmap].cont;
@@ -584,7 +639,7 @@ int init_game()
   }
   else
   {
-    homescr = currscr = game.continue_scrn;
+    homescr = currscr = get_gamedata_continue_scrn(game);
   }
   lastentrance = currscr;
   lastentrance_dmap = currdmap;
@@ -593,20 +648,22 @@ int init_game()
   sle_x=sle_y=newscr_clk=opendoors=Bwpn=Bpos=0;
   activated_timed_warp=false;
   fadeclk=-1;
-  game.maps[(currmap<<7)+currscr] |= mVISITED;              // mark as visited
+  game->maps[(currmap<<7)+currscr] |= mVISITED;              // mark as visited
 
   for(int i=0; i<6; i++)
   {
     visited[i]=-1;
   }
-  game.lvlitems[9]&=~liBOSS;
+  game->lvlitems[9]&=~liBOSS;
 
   ALLOFF();
   whistleclk=-1;
   clockclk=0;
   currcset=DMaps[currdmap].color;
   darkroom=false;
-  loadscr(0,currscr,up);
+  memset(tmpscr,0,sizeof(mapscr)*2);
+//loadscr(0,currscr,up);
+  loadscr(0,currscr,-1);
   putscr(scrollbuf,0,0,&tmpscr[0]);
   Link.init();
   Link.resetflags(true);
@@ -616,176 +673,173 @@ int init_game()
   ringcolor();
   loadlvlpal(DMaps[currdmap].color);
 
-  if (!game.hasplayed)
+  if (!get_gamedata_hasplayed(game))
   {
-    game.maxlife=zinit.hc*HP_PER_HEART;
+    set_gamedata_maxlife(game, min(zinit.hc,get_bit(quest_rules,qr_24HC)?24:16)*HP_PER_HEART);
     if (zinit.sword>0)
     {
-      //      game.items[itype_sword]=(1<<(zinit.sword-1));
-      game.items[itype_sword]=zinit.sword;
+      //      game->items[itype_sword]=(1<<(zinit.sword-1));
+      game->items[itype_sword]=zinit.sword;
     }
     if (zinit.boomerang>0)
     {
-      //      game.items[itype_brang]=(1<<(zinit.boomerang-1));
-      game.items[itype_brang]=zinit.boomerang;
+      //      game->items[itype_brang]=(1<<(zinit.boomerang-1));
+      game->items[itype_brang]=zinit.boomerang;
     }
-    game.items[itype_bomb]=zinit.bombs;
+    game->items[itype_bomb]=zinit.bombs;
     if (zinit.arrow>0)
     {
-      //      game.items[itype_arrow]=(1<<(zinit.arrow-1));
-      game.items[itype_arrow]=zinit.arrow;
+      //      game->items[itype_arrow]=(1<<(zinit.arrow-1));
+      game->items[itype_arrow]=zinit.arrow;
     }
     if (zinit.candle>0)
 
     {
-      //      game.items[itype_candle]=(1<<(zinit.candle-1));
-      game.items[itype_candle]=zinit.candle;
+      //      game->items[itype_candle]=(1<<(zinit.candle-1));
+      game->items[itype_candle]=zinit.candle;
     }
     if (zinit.whistle>0)
     {
-      //      game.items[itype_whistle]=(1<<(zinit.whistle-1));
-      game.items[itype_whistle]=zinit.whistle;
+      //      game->items[itype_whistle]=(1<<(zinit.whistle-1));
+      game->items[itype_whistle]=zinit.whistle;
     }
     if (zinit.potion>0)
     {
-      //      game.items[itype_potion]=(1<<(zinit.potion-1));
-      game.items[itype_potion]=zinit.potion;
+      //      game->items[itype_potion]=(1<<(zinit.potion-1));
+      game->items[itype_potion]=zinit.potion;
     }
     if (zinit.ring>0)
     {
-      //      game.items[itype_ring]=(1<<(zinit.ring-1));
-      game.items[itype_ring]=zinit.ring;
+      //      game->items[itype_ring]=(1<<(zinit.ring-1));
+      game->items[itype_ring]=zinit.ring;
       ringcolor();
     }
-    game.keys=zinit.keys;
-    game.maxbombs=zinit.max_bombs;
-    //    game.items[itype_wallet]=(1<<(zinit.wallet-1));
-    game.items[itype_wallet]=zinit.wallet;
-    game.items[itype_sbomb]=zinit.super_bombs;
-    game.HCpieces=zinit.hcp;
-    game.rupies=zinit.rupies;
+    set_gamedata_keys(game, zinit.keys);
+    set_gamedata_maxbombs(game, zinit.max_bombs);
+    //    game->items[itype_wallet]=(1<<(zinit.wallet-1));
+    game->items[itype_wallet]=zinit.wallet;
+    game->items[itype_sbomb]=zinit.super_bombs;
+    set_gamedata_HCpieces(game, zinit.hcp);
+    set_gamedata_rupies(game, zinit.rupies);
     if (zinit.letter>0)
     {
-      //      game.items[itype_letter]=(1<<(zinit.letter-1));
-      game.items[itype_letter]=zinit.letter;
+      //      game->items[itype_letter]=(1<<(zinit.letter-1));
+      game->items[itype_letter]=zinit.letter;
     }
     if (zinit.bait)
     {
-      //      game.items[itype_bait]=(1<<(zinit.bait-1));
-      game.items[itype_bait]=zinit.bait;
+      //      game->items[itype_bait]=(1<<(zinit.bait-1));
+      game->items[itype_bait]=zinit.bait;
     }
     if (zinit.wand)
     {
-      //      game.items[itype_wand]=(1<<(zinit.wand-1));
-      game.items[itype_wand]=zinit.wand;
+      //      game->items[itype_wand]=(1<<(zinit.wand-1));
+      game->items[itype_wand]=zinit.wand;
     }
     if (zinit.dins_fire)
     {
-      //      game.items[itype_dinsfire]=(1<<(i_dinsfire-1));
-      game.items[itype_dinsfire]=i_dinsfire;
+      //      game->items[itype_dinsfire]=(1<<(i_dinsfire-1));
+      game->items[itype_dinsfire]=i_dinsfire;
     }
     if (zinit.farores_wind)
     {
-      //      game.items[itype_faroreswind]=(1<<(i_faroreswind-1));
-      game.items[itype_faroreswind]=i_faroreswind;
+      //      game->items[itype_faroreswind]=(1<<(i_faroreswind-1));
+      game->items[itype_faroreswind]=i_faroreswind;
     }
     if (zinit.nayrus_love)
     {
-      //      game.items[itype_nayruslove]=(1<<(i_nayruslove-1));
-      game.items[itype_nayruslove]=i_nayruslove;
+      //      game->items[itype_nayruslove]=(1<<(i_nayruslove-1));
+      game->items[itype_nayruslove]=i_nayruslove;
     }
     if (zinit.bracelet>0)
     {
-      //      game.items[itype_bracelet]=(1<<(i_bracelet1-1));
-      game.items[itype_bracelet]=zinit.bracelet;
+      //      game->items[itype_bracelet]=(1<<(i_bracelet1-1));
+      game->items[itype_bracelet]=zinit.bracelet;
     }
     if (zinit.bow>0)
     {
-      game.items[itype_bow]=zinit.bow;
+      game->items[itype_bow]=zinit.bow;
     }
     if (zinit.shield>0)
     {
-      game.items[itype_shield]=zinit.shield;
+      game->items[itype_shield]=zinit.shield;
     }
 
-    /*
-        if (zinit.bow>0) {
-          game.misc|=iBOW;
-        }
-
-        if (zinit.shield>1) {
-          game.misc|=iSHIELD;
-          if (zinit.shield>2) {
-            game.misc|=iMSHIELD;
-          }
-        }
-
-    game.misc|=zinit.raft?iRAFT:0;
-    game.misc|=zinit.ladder?iLADDER:0;
-    game.misc|=zinit.book?iBOOK:0;
-    game.misc|=zinit.key?iMKEY:0;
-    */
     if (zinit.raft>0)
     {
-      game.items[itype_raft]=zinit.raft;
+      game->items[itype_raft]=zinit.raft;
     }
     if (zinit.ladder>0)
     {
-      game.items[itype_ladder]=zinit.ladder;
+      game->items[itype_ladder]=zinit.ladder;
     }
     if (zinit.book>0)
     {
-      game.items[itype_book]=zinit.book;
+      game->items[itype_book]=zinit.book;
     }
     if (zinit.key>0)
     {
-      game.items[itype_magickey]=zinit.key;
+      game->items[itype_magickey]=zinit.key;
     }
     if (zinit.amulet>0)
     {
-      //      game.items[itype_amulet]=(1<<(zinit.amulet-1));
-      game.items[itype_amulet]=zinit.amulet;
+      //      game->items[itype_amulet]=(1<<(zinit.amulet-1));
+      game->items[itype_amulet]=zinit.amulet;
     }
     if (zinit.flippers>0)
     {
-      //      game.items[itype_flippers]=(1<<(zinit.flippers-1));
-      game.items[itype_flippers]=zinit.flippers;
+      //      game->items[itype_flippers]=(1<<(zinit.flippers-1));
+      game->items[itype_flippers]=zinit.flippers;
     }
     if (zinit.boots>0)
     {
-      //      game.items[itype_boots]=(1<<(zinit.boots-1));
-      game.items[itype_boots]=zinit.boots;
+      //      game->items[itype_boots]=(1<<(zinit.boots-1));
+      game->items[itype_boots]=zinit.boots;
     }
 
     if (zinit.hookshot>0)
     {
-      //      game.items[itype_hookshot]=(1<<(zinit.hookshot-1));
-      game.items[itype_hookshot]=zinit.hookshot;
+      //      game->items[itype_hookshot]=(1<<(zinit.hookshot-1));
+      game->items[itype_hookshot]=zinit.hookshot;
     }
     if (zinit.lens>0)
     {
-      //      game.items[itype_lens]=(1<<(zinit.lens-1));
-      game.items[itype_lens]=zinit.lens;
+      //      game->items[itype_lens]=(1<<(zinit.lens-1));
+      game->items[itype_lens]=zinit.lens;
     }
     if (zinit.hammer>0)
     {
-      //      game.items[itype_hammer]=(1<<(zinit.hammer-1));
-      game.items[itype_hammer]=zinit.hammer;
+      //      game->items[itype_hammer]=(1<<(zinit.hammer-1));
+      game->items[itype_hammer]=zinit.hammer;
     }
+
+	if(zinit.quiver>0)
+	{
+		game->items[itype_quiver]=zinit.quiver;
+	}
 
 
     for (int i=0; i<MAXLEVELS; i++)
     {
-      game.lvlitems[i]=0;
-      game.lvlitems[i]|=get_bit(zinit.map,i)?liMAP:0;
-      game.lvlitems[i]|=get_bit(zinit.compass,i)?liCOMPASS:0;
-      game.lvlitems[i]|=get_bit(zinit.boss_key,i)?liBOSSKEY:0;
+      game->lvlitems[i]=0;
+      game->lvlitems[i]|=get_bit(zinit.map,i)?liMAP:0;
+      game->lvlitems[i]|=get_bit(zinit.compass,i)?liCOMPASS:0;
+      game->lvlitems[i]|=get_bit(zinit.boss_key,i)?liBOSSKEY:0;
+      game->lvlkeys[i]=zinit.level_keys[i];
     }
 
-    game.maxmagic=zinit.max_magic*MAGICPERBLOCK;
-    game.magic=zinit.magic*MAGICPERBLOCK;
-    game.magicdrainrate=get_bit(zinit.misc,idM_DOUBLEMAGIC)?1:2;
-    game.canslash=get_bit(zinit.misc,idM_CANSLASH)?1:0;
+    for (int i=0; i<8; i++)
+    {
+      game->lvlitems[i+1]|=get_bit(&zinit.triforce,i)?liTRIFORCE:0;
+    }
+    set_gamedata_maxmagic(game, min(zinit.max_magic,8)*MAGICPERBLOCK);
+    set_gamedata_magic(game, min(zinit.magic,zinit.max_magic)*MAGICPERBLOCK);
+    set_gamedata_magicdrainrate(game, get_bit(zinit.misc,idM_DOUBLEMAGIC)?1:2);
+    set_gamedata_canslash(game, get_bit(zinit.misc,idM_CANSLASH)?1:0);
+
+	set_gamedata_arrows(game, zinit.arrows);
+    set_gamedata_maxarrows(game, zinit.max_arrows);
+    computeMaxArrows();
 
   }
 
@@ -793,32 +847,37 @@ int init_game()
   {
     swordhearts[x]=zinit.sword_hearts[x];
   }
+  
 
-  if (!game.hasplayed)
+  if (!get_gamedata_hasplayed(game))
   {
-    game.life = zinit.start_heart*HP_PER_HEART;
+    set_gamedata_life(game, zinit.start_heart*HP_PER_HEART);
   }
   else
   {
     if(get_bit(zinit.misc,idM_CONTPERCENT))
     {
-      game.life = ((game.maxlife*zinit.cont_heart/100)/HP_PER_HEART)*HP_PER_HEART;
+      set_gamedata_life(game, ((get_gamedata_maxlife(game)*zinit.cont_heart/100)/HP_PER_HEART)*HP_PER_HEART);
     }
     else
     {
-      game.life = zinit.cont_heart*HP_PER_HEART;
+      set_gamedata_life(game, zinit.cont_heart*HP_PER_HEART);
     }
   }
-  game.hasplayed=1;
+  set_gamedata_hasplayed(game, 1);
 
   if(get_bit(quest_rules,qr_CONTFULL))
-
-    game.life = game.maxlife;
+    set_gamedata_life(game, get_gamedata_maxlife(game));
   /*
     else
-      game.life=3*HP_PER_HEART;
-  */
+    game->life=3*HP_PER_HEART;
+    */
 
+  //int type = (DMaps[currdmap].type&dmfTYPE);
+
+  update_subscreens();
+
+  load_Sitems(&QMisc);
   selectBwpn(0,0);
   selectAwpn(0);
   reset_subscr_items();
@@ -829,11 +888,13 @@ int init_game()
   show_subscreen_numbers=true;
   show_subscreen_life=true;
 
-//  for(int i=0; i<128; i++)
-//    key[i]=0;
+  //  for(int i=0; i<128; i++)
+  //    key[i]=0;
+
 
   Playing=true;
   lighting(2,Link.getDir());
+
   map_bkgsfx();
   openscreen();
   show_subscreen_numbers=true;
@@ -843,11 +904,12 @@ int init_game()
 
   if(isdungeon() && currdmap>0)
   {
-    Link.stepforward(12);
+    Link.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
   }
 
   if(!Quit)
-    play_DmapMusic();
+    //play_DmapMusic();
+    playLevelMusic();
 
   return 0;
 }
@@ -872,12 +934,12 @@ int cont_game()
   /*
     if(DMaps[currdmap].cont >= 0x80)
     {
-      homescr = currscr = DMaps[0].cont;
-      currdmap = warpscr = worldscr=0;
-      currmap = DMaps[0].map;
-      dlevel = DMaps[0].level;
+    homescr = currscr = DMaps[0].cont;
+    currdmap = warpscr = worldscr=0;
+    currmap = DMaps[0].map;
+    dlevel = DMaps[0].level;
     }
-  */
+    */
   currdmap = lastentrance_dmap;
   homescr = currscr = lastentrance;
   currmap = DMaps[currdmap].map;
@@ -889,14 +951,16 @@ int cont_game()
   }
   if(dlevel==0)
   {
-    game.lvlitems[9]&=~liBOSS;
+    game->lvlitems[9]&=~liBOSS;
   }
 
   ALLOFF();
   whistleclk=-1;
   currcset=DMaps[currdmap].color;
   darkroom=false;
-  loadscr(0,currscr,up);
+  memset(tmpscr,0,sizeof(mapscr)*2);
+//loadscr(0,currscr,up);
+  loadscr(0,currscr,-1);
   putscr(scrollbuf,0,0,&tmpscr[0]);
 
   loadfullpal();
@@ -907,23 +971,24 @@ int cont_game()
 
   if(get_bit(zinit.misc,idM_CONTPERCENT))
   {
-    game.life = ((game.maxlife*zinit.cont_heart/100)/HP_PER_HEART)*HP_PER_HEART;
+    set_gamedata_life(game, ((get_gamedata_maxlife(game)*zinit.cont_heart/100)/HP_PER_HEART)*HP_PER_HEART);
   }
   else
   {
-    game.life = zinit.cont_heart*HP_PER_HEART;
+    set_gamedata_life(game, zinit.cont_heart*HP_PER_HEART);
   }
 
   if(get_bit(quest_rules,qr_CONTFULL))
-    game.life = game.maxlife;
+    set_gamedata_life(game, get_gamedata_maxlife(game));
   /*
     else
-      game.life=3*HP_PER_HEART;
-  */
+    game->life=3*HP_PER_HEART;
+    */
 
-//  for(int i=0; i<128; i++)
-//    key[i]=0;
+  //  for(int i=0; i<128; i++)
+  //    key[i]=0;
 
+  update_subscreens();
   Playing=true;
   lighting(2,Link.getDir());
   map_bkgsfx();
@@ -934,9 +999,10 @@ int cont_game()
 
   if(!Quit)
   {
-    play_DmapMusic();
+    //play_DmapMusic();
+    playLevelMusic();
     if(isdungeon())
-      Link.stepforward(12);
+      Link.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
     newscr_clk=frame;
     activated_timed_warp=false;
   }
@@ -971,7 +1037,9 @@ void restart_level()
   ALLOFF();
   whistleclk=-1;
   darkroom=false;
-  loadscr(0,currscr,up);
+  memset(tmpscr,0,sizeof(mapscr)*2);
+//loadscr(0,currscr,up);
+  loadscr(0,currscr,-1);
   putscr(scrollbuf,0,0,&tmpscr[0]);
 
   loadfullpal();
@@ -979,17 +1047,20 @@ void restart_level()
   loadlvlpal(DMaps[currdmap].color);
   Link.init();
   lighting(2,Link.getDir());
-  map_bkgsfx();
+//  map_bkgsfx();
   openscreen();
+  map_bkgsfx();
+  
   show_subscreen_numbers=true;
   show_subscreen_life=true;
   loadguys();
 
   if(!Quit)
   {
-    play_DmapMusic();
+    //play_DmapMusic();
+    playLevelMusic();
     if(isdungeon())
-      Link.stepforward(12);
+      Link.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
     newscr_clk=frame;
     activated_timed_warp=false;
   }
@@ -1007,7 +1078,17 @@ void putintro()
   if(intropos>=72)
     return;
 
-  if(((introclk++)%6<5)&&((!cAbtn()&&!cBbtn())||(!get_bit(quest_rules,qr_ALLOWFASTMSG))))
+  if((cBbtn())&&(get_bit(quest_rules,qr_ALLOWMSGBYPASS)))
+  {
+    //finish writing out the string
+    for (;intropos<72;++intropos)
+    {
+      textprintf_ex(msgdisplaybuf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,CSET(0)+1,-1,
+                    "%c",DMaps[currdmap].intro[intropos]);
+    }
+  }
+
+  if(((introclk++)%6<5)&&((!cAbtn())||(!get_bit(quest_rules,qr_ALLOWFASTMSG))))
     return;
 
   dmapmsgclk=51;
@@ -1024,7 +1105,7 @@ void putintro()
   //rather than add yet another global variable
   set_clip_state(msgdisplaybuf, 0);
   textprintf_ex(msgdisplaybuf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,CSET(0)+1,-1,
-    "%c",DMaps[currdmap].intro[intropos]);
+                "%c",DMaps[currdmap].intro[intropos]);
 
   ++intropos;
 
@@ -1036,7 +1117,6 @@ void putintro()
   {
     //   Link.unfreeze();
     dmapmsgclk=50;
-
   }
 }
 
@@ -1050,28 +1130,27 @@ void show_details()
   {
     textprintf_ex(framebuf,font,-3,-5,WHITE,BLACK,"%-4d",whistleclk);
     textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon());
-    textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",game.time,time_str_long(game.time));
-/*
-    for(int i=0; i<guys.Count(); i++)
+    textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",get_gamedata_time(game),time_str_long(get_gamedata_time(game)));
+
+//    for(int i=0; i<guys.Count(); i++)
+//    for(int i=0; i<Lwpns.Count(); i++)
+    for(int i=0; i<items.Count(); i++)
     {
-//      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %3d",((enemy*)guys.spr(i))->id,((enemy*)guys.spr(i))->timer,((enemy*)guys.spr(i))->clk,((enemy*)guys.spr(i))->clk2);
-      textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %2d %2d",(int)((enemy*)guys.spr(i))->x, (int)((enemy*)guys.spr(i))->y, ((enemy*)guys.spr(i))->misc, ((enemy*)guys.spr(i))->clk, ((enemy*)guys.spr(i))->clk2);//, dirstr[((enemy*)guys.spr(i))->dir], dirstr[((enemy*)guys.spr(i))->clk3]);
+      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d",items.spr(i)->id);
+//      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d %3d",((weapon*)Lwpns.spr(i))->clk, ((weapon*)Lwpns.spr(i))->dead);
+//      textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %3d %3d %3d",(int)((enemy*)guys.spr(i))->x, (int)((enemy*)guys.spr(i))->y, ((enemy*)guys.spr(i))->hxofs, ((enemy*)guys.spr(i))->hyofs, ((enemy*)guys.spr(i))->hxsz, ((enemy*)guys.spr(i))->hysz);//,dirstr[((enemy*)guys.spr(i))->dir]);//, dirstr[((enemy*)guys.spr(i))->clk3]);
     }
-*/
-    for(int i=0; i<Ewpns.Count(); i++)
-    {
+
+    /*
+      for(int i=0; i<Ewpns.Count(); i++)
+      {
       sprite *s=Ewpns.spr(i);
       textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d>%3d %3d>%3d %3d<%3d %3d<%3d ",
-                                                            int(Link.getX()+0+16), int(s->x+s->hxofs),  int(Link.getY()+0+16), int(s->y+s->hyofs),
-                                                            int(Link.getX()+0), int(s->x+s->hxofs+s->hxsz), int(Link.getY()+0), int(s->y+s->hyofs+s->hysz));
-      if(halt)
-      {
-//        al_trace("/%3d %3d %3d %3d %3d %3d\n", int(s->x), int(s->hxofs), int(s->hxsz), int(s->y), int(s->hyofs),  int(s->hysz));
-        al_trace("L1 %3d %3d %3d %3d %3d %3d\n", int(Link.getX()), int(Link.getHXOfs()), int(Link.getHXSz()), int(Link.getY()), int(Link.getHYOfs()), int(Link.getHYSz()));
-        //al_trace("L2 %3d>%3d %3d>%3d %3d<%3d %3d<%3d\n", int(Link.getX()+0+16), int(s->x+s->hxofs),  int(Link.getY()+0+16), int(s->y+s->hyofs), int(Link.getX()+0), int(s->x+s->hxofs+s->hxsz), int(Link.getY()+0), int(s->y+s->hyofs+s->hysz));
+      int(Link.getX()+0+16), int(s->x+s->hxofs),  int(Link.getY()+0+16), int(s->y+s->hyofs),
+      int(Link.getX()+0), int(s->x+s->hxofs+s->hxsz), int(Link.getY()+0), int(s->y+s->hyofs+s->hysz));
       }
-    }
-//    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"yofs=%3d",detail_int[0]);
+      */
+    //    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"yofs=%3d",detail_int[0]);
   }
 }
 
@@ -1080,11 +1159,12 @@ void do_magic_casting()
   static int tempx, tempy;
   static byte linktilebuf[256];
   int ltile=0; int lflip=0;
+  bool shieldModify=true;
   switch (magictype)
   {
     case mgc_none:
-      magiccastclk=0;
-      break;
+    magiccastclk=0;
+    break;
     case mgc_dinsfire:
     {
       int flamemax=32;
@@ -1094,7 +1174,11 @@ void do_magic_casting()
         weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
         w1->step=4;
         //          Link.tile=(BSZ)?32:29;
-        linktile(&Link.tile, &Link.flip, ls_hold2, Link.getDir(), zinit.linkwalkstyle);
+        linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+        if (get_bit(quest_rules,qr_EXPANDEDLTM))
+        {
+          Link.tile+=item_tile_mod(shieldModify);
+        }
         casty=Link.getY();
       }
       if (magiccastclk==64)
@@ -1103,13 +1187,21 @@ void do_magic_casting()
         weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
         w1->step=4;
         //          Link.tile=29;
-        linktile(&Link.tile, &Link.flip, ls_hold2, Link.getDir(), zinit.linkwalkstyle);
+        linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+        if (get_bit(quest_rules,qr_EXPANDEDLTM))
+        {
+          Link.tile+=item_tile_mod(shieldModify);
+        }
         castnext=false;
       }
       if (castnext)
       {
         //          Link.tile=4;
-        linktile(&Link.tile, &Link.flip, ls_cast, Link.getDir(), zinit.linkwalkstyle);
+        linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+        if (get_bit(quest_rules,qr_EXPANDEDLTM))
+        {
+          Link.tile+=item_tile_mod(shieldModify);
+        }
         for (int flamecounter=((-1)*(flamemax/2))+1; flamecounter<((flamemax/2)+1); flamecounter++)
         {
           Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),wFire,3,8*DAMAGE_MULTIPLIER,0));
@@ -1123,7 +1215,7 @@ void do_magic_casting()
       }
 
       /*
-       */
+        */
       if ((magiccastclk++)==226)
       {
         magictype=mgc_none;
@@ -1134,12 +1226,20 @@ void do_magic_casting()
     {
       if (magiccastclk==0)
       {
-        linktile(&ltile, &lflip, ls_stab, down, zinit.linkwalkstyle);
+        linktile(&ltile, &lflip, ls_stab, down, zinit.linkanimationstyle);
+        if (get_bit(quest_rules,qr_EXPANDEDLTM))
+        {
+          ltile+=item_tile_mod(shieldModify);
+        }
         unpack_tile(ltile, lflip, true);
         memcpy(linktilebuf, unpackbuf, 256);
         tempx=Link.getX();
         tempy=Link.getY();
-        linktile(&Link.tile, &Link.flip, ls_pound, down, zinit.linkwalkstyle);
+        linktile(&Link.tile, &Link.flip, &Link.extend, ls_pound, down, zinit.linkanimationstyle);
+        if (get_bit(quest_rules,qr_EXPANDEDLTM))
+        {
+          Link.tile+=item_tile_mod(shieldModify);
+        }
       }
       if (magiccastclk>=0&&magiccastclk<64)
       {
@@ -1150,7 +1250,11 @@ void do_magic_casting()
       {
         Link.setX(tempx);
         Link.setY(tempy);
-        linktile(&Link.tile, &Link.flip, ls_stab, down, zinit.linkwalkstyle);
+        linktile(&Link.tile, &Link.flip, &Link.extend, ls_stab, down, zinit.linkanimationstyle);
+        if (get_bit(quest_rules,qr_EXPANDEDLTM))
+        {
+          Link.tile+=item_tile_mod(shieldModify);
+        }
       }
       if (magiccastclk==96)
       {
@@ -1194,7 +1298,11 @@ void do_magic_casting()
         w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
         w1->step=4;
         //          Link.tile=(BSZ)?32:29;
-        linktile(&Link.tile, &Link.flip, ls_cast, Link.getDir(), zinit.linkwalkstyle);
+        linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+        if (get_bit(quest_rules,qr_EXPANDEDLTM))
+        {
+          Link.tile+=item_tile_mod(shieldModify);
+        }
         castx=Link.getX();
       }
       if (magiccastclk==64)
@@ -1207,27 +1315,35 @@ void do_magic_casting()
         w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
         w1->step=4;
         //          Link.tile=29;
-        linktile(&Link.tile, &Link.flip, ls_cast, Link.getDir(), zinit.linkwalkstyle);
+        linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
+        if (get_bit(quest_rules,qr_EXPANDEDLTM))
+        {
+          Link.tile+=item_tile_mod(shieldModify);
+        }
         castnext=false;
       }
       if (castnext)
       {
         //          Link.tile=4;
-        linktile(&Link.tile, &Link.flip, ls_hold2, Link.getDir(), zinit.linkwalkstyle);
+        linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+        if (get_bit(quest_rules,qr_EXPANDEDLTM))
+        {
+          Link.tile+=item_tile_mod(shieldModify);
+        }
         Link.setNayrusLoveShieldClk(512);
         castnext=false;
         magiccastclk=128;
       }
 
       /*
-       */
+        */
       if ((magiccastclk++)==160)
       {
         magictype=mgc_none;
       }
     }
     break;
-  default:
+    default:
     magiccastclk=0;
     break;
   }
@@ -1254,10 +1370,11 @@ void update_hookshot()
     hs_y=Lwpns.spr(Lwpns.idFirst(wHookshot))->y;
     hs_dx=hs_x-hs_startx;
     hs_dy=hs_y-hs_starty;
-                                                            //extending
+    //extending
     if (((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==0)
     {
-      if (chainlinks.Count()<zinit.hookshot_links)          //extending chain
+      int maxchainlinks=(current_item(itype_hookshot, true)==2)?zinit.longshot_links:zinit.hookshot_links;
+      if (chainlinks.Count()<maxchainlinks)          //extending chain
       {
         if (abs(hs_dx)>=hs_xdist+8)
         {
@@ -1265,10 +1382,10 @@ void update_hookshot()
           chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, wHSChain, 0,0,Link.getDir()));
         }
         else if (abs(hs_dy)>=hs_ydist+8)
-        {
-          hs_ydist=abs(hs_y-hs_starty);
-          chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, wHSChain, 0,0,Link.getDir()));
-        }
+          {
+            hs_ydist=abs(hs_y-hs_starty);
+            chainlinks.add(new weapon((fix)hs_x, (fix)hs_y, wHSChain, 0,0,Link.getDir()));
+          }
       }                                                     //stretching chain
       else
       {
@@ -1299,71 +1416,71 @@ void update_hookshot()
       }
     }                                                       //retracting
     else if (((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==1)
-    {
-      dist_bx=(abs(hs_dx)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
-      dist_by=(abs(hs_dy)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
-      hs_w=8;
-      if (hs_dx<0)
       {
-        dist_bx=0-dist_bx;
-        hs_w=-8;
-      }
-      if (hs_dy<0)
-      {
-        dist_by=0-dist_by;
-        hs_w=-8;
-      }
-      if (Link.getDir()>down)                               //chain is moving horizontally
-      {
-        if (abs(hs_dx)-(8*chainlinks.Count())>0)            //chain is stretched
+        dist_bx=(abs(hs_dx)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
+        dist_by=(abs(hs_dy)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
+        hs_w=8;
+        if (hs_dx<0)
         {
-          for (int counter=0; counter<chainlinks.Count(); counter++)
-          {
-            chainlinks.spr(counter)->x=hs_startx+hs_w+dist_bx+(counter*(hs_w+dist_bx));
-          }
+          dist_bx=0-dist_bx;
+          hs_w=-8;
         }
+        if (hs_dy<0)
+        {
+          dist_by=0-dist_by;
+          hs_w=-8;
+        }
+        if (Link.getDir()>down)                               //chain is moving horizontally
+        {
+          if (abs(hs_dx)-(8*chainlinks.Count())>0)            //chain is stretched
+          {
+            for (int counter=0; counter<chainlinks.Count(); counter++)
+            {
+              chainlinks.spr(counter)->x=hs_startx+hs_w+dist_bx+(counter*(hs_w+dist_bx));
+            }
+          }
+          else
+          {
+            if (abs(hs_x-hs_startx)<=hs_xdist-8)
+            {
+              hs_xdist=abs(hs_x-hs_startx);
+              if (pull_link==false)
+              {
+                chainlinks.del(chainlinks.idLast(wHSChain));
+              }
+              else
+              {
+                chainlinks.del(chainlinks.idFirst(wHSChain));
+              }
+            }
+          }
+        }                                                     //chain is moving vertically
         else
         {
-          if (abs(hs_x-hs_startx)<=hs_xdist-8)
+          if (abs(hs_dy)-(8*chainlinks.Count())>0)            //chain is stretched
           {
-            hs_xdist=abs(hs_x-hs_startx);
-            if (pull_link==false)
+            for (int counter=0; counter<chainlinks.Count(); counter++)
             {
-              chainlinks.del(chainlinks.idLast(wHSChain));
-            }
-            else
-            {
-              chainlinks.del(chainlinks.idFirst(wHSChain));
+              chainlinks.spr(counter)->y=hs_starty+hs_w+dist_by+(counter*(hs_w+dist_by));
             }
           }
-        }
-      }                                                     //chain is moving vertically
-      else
-      {
-        if (abs(hs_dy)-(8*chainlinks.Count())>0)            //chain is stretched
-        {
-          for (int counter=0; counter<chainlinks.Count(); counter++)
+          else
           {
-            chainlinks.spr(counter)->y=hs_starty+hs_w+dist_by+(counter*(hs_w+dist_by));
-          }
-        }
-        else
-        {
-          if (abs(hs_y-hs_starty)<=hs_ydist-8)
-          {
-            hs_ydist=abs(hs_y-hs_starty);
-            if (pull_link==false)
+            if (abs(hs_y-hs_starty)<=hs_ydist-8)
             {
-              chainlinks.del(chainlinks.idLast(wHSChain));
-            }
-            else
-            {
-              chainlinks.del(chainlinks.idFirst(wHSChain));
+              hs_ydist=abs(hs_y-hs_starty);
+              if (pull_link==false)
+              {
+                chainlinks.del(chainlinks.idLast(wHSChain));
+              }
+              else
+              {
+                chainlinks.del(chainlinks.idFirst(wHSChain));
+              }
             }
           }
         }
       }
-    }
   }
 }
 
@@ -1376,8 +1493,8 @@ void game_loop()
       blockpath=false;
     --fadeclk;
   }
-
   animate_combos();
+  update_freeform_combos();
   mblock2.animate(0);
   items.animate();
   items.check_conveyor();
@@ -1409,16 +1526,16 @@ void game_loop()
   check_collisions();
   dryuplake();
   cycle_palette();
-  nosecretsounds=tmpscr->flags3&fNOSECRETSOUND;
+  nosecretsounds=(tmpscr->flags3&fNOSECRETSOUND)!=0;
   draw_screen(tmpscr, 0, 0);
   //  v This is in draw_screen now
-  //  putsubscr(framebuf,0,0);
+  //  put_passive_subscr(framebuf,0,0);
   if (linkedmsgclk==1)
   {
     //4 is for iwMore
     if (wpnsbuf[iwMore].tile!=0)
     {
-      putweapon(framebuf,zinit.msg_more_x, zinit.msg_more_y+56, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1]);
+      putweapon(framebuf,zinit.msg_more_x, zinit.msg_more_y+playing_field_offset, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1]);
     }
   }
 
@@ -1434,7 +1551,8 @@ void game_loop()
   }
   if (dmapmsgclk==1)
   {
-    if (!tmpscr[currscr>=128?1:0].str)
+    //    if (!tmpscr[currscr>=128?1:0].str)
+    if (!msgstr)
     {
       //these are to cancel out any keys that Link may
       //be pressing so he doesn't attack at the end of
@@ -1456,22 +1574,118 @@ void game_loop()
   }
   domoney();
   domagic();
-/*
-  if (tmpscr->layermap[2]!=0 || tmpscr->layermap[3]!=0 ||
-    tmpscr->layermap[4]!=0 || tmpscr->layermap[5]!=0 ||
-    overheadcombos(tmpscr))
-  {
-    masked_blit(msgdisplaybuf,framebuf,0,0,0,56,256,176);
-    masked_blit(pricesdisplaybuf,framebuf,0,0,0,56,256,176);
-  }
-*/
   if(lensclk)
   {
     draw_lens_over();
     --lensclk;
   }
 
-  //  putpixel(framebuf, walkflagx, walkflagy+56, vc(int(rand()%16)));
+  //  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int(rand()%16)));
+}
+
+int get_currdmap()
+{
+  return currdmap;
+}
+
+int get_dlevel()
+{
+  return dlevel;
+}
+
+int get_currscr()
+{
+  return currscr;
+}
+
+int get_homescr()
+{
+  return homescr;
+}
+
+int get_bmaps(int si)
+{
+  return game->bmaps[si];
+}
+
+word get_gamedata_maxlife()
+{
+  return get_gamedata_maxlife(game);
+}
+
+word get_gamedata_life()
+{
+  return get_gamedata_life(game);
+}
+
+byte get_gamedata_magicdrainrate()
+{
+  return get_gamedata_magicdrainrate(game);
+}
+
+word get_gamedata_maxmagic()
+{
+  return get_gamedata_maxmagic(game);
+}
+
+word get_gamedata_magic()
+{
+  return get_gamedata_magic(game);
+}
+
+byte get_gamedata_cheat()
+{
+  return get_gamedata_cheat(game);
+}
+
+byte get_gamedata_HCpieces()
+{
+  return get_gamedata_HCpieces(game);
+}
+
+byte get_gamedata_sbombs()
+{
+  return get_gamedata_sbombs(game);
+}
+
+byte get_gamedata_bombs()
+{
+  return get_gamedata_bombs(game);
+}
+
+byte get_gamedata_keys()
+{
+  return get_gamedata_keys(game);
+}
+
+byte get_gamedata_lkeys()
+{
+  return game->lvlkeys[get_dlevel()];
+}
+
+byte get_gamedata_timevalid()
+{
+  return get_gamedata_timevalid(game);
+}
+
+dword get_gamedata_time()
+{
+  return get_gamedata_time(game);
+}
+
+word get_gamedata_arrows()
+{
+  return get_gamedata_arrows(game);
+}
+
+word get_gamedata_rupies()
+{
+  return get_gamedata_rupies(game);
+}
+
+bool no_subscreen()
+{
+  return (tmpscr->flags3&fNOSUBSCR)!=0;
 }
 
 /**************************/
@@ -1479,7 +1693,14 @@ void game_loop()
 /**************************/
 
 char cfg_error[] =
-"\"ag.cfg\" not found. Please run \"agsetup.exe\"";
+  "\"ag.cfg\" not found. Please run \"agsetup.exe\"";
+
+void PopulateInitDialog();
+
+bool is_zquest()
+{
+  return false;
+}
 
 int main(int argc, char* argv[])
 {
@@ -1487,37 +1708,18 @@ int main(int argc, char* argv[])
   switch (IS_BETA)
   {
     case -1:
-      Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);break;
+    Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);break;
     case 1:
-      Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);break;
+    Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);break;
     case 0:
-      Z_title("Zelda Classic %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+    Z_title("Zelda Classic %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
   }
 
   //  Z_title("Zelda Classic %s",VerStr(ZELDA_VERSION));
 
-  // check for the ag.cfg file and 1st.qst
-  Z_message("Checking Files... ");
-  int helpsize = file_size_ex("zquest.txt");
-  if(helpsize==0)
-  {
-    Z_error("zquest.txt not found");
-  }
-  if(file_size_ex("1st.qst")==0)
-  {
-    Z_error("\"1st.qst\" not found.");
-  }
-  if(file_size_ex("2nd.qst")==0)
-  {
-    Z_error("\"2nd.qst\" not found.");
-  }
-  if(file_size_ex("3rd.qst")==0)
-  {
-    Z_error("\"3rd.qst\" not found.");
-  }
-  Z_message("OK\n");
-
   // allocate quest data buffers
+
+  PopulateInitDialog();
 
   memrequested+=4096;
   Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
@@ -1536,18 +1738,13 @@ int main(int argc, char* argv[])
 #endif
 
   Z_message("OK\n");
-
   get_qst_buffers();
 
   // initialize Allegro
 
   Z_message("Initializing Allegro... ");
-  #ifdef ALLEGRO_DOS
-  three_finger_flag = FALSE;
-  #endif
   allegro_init();
   three_finger_flag=false;
-  zcmusic_init();
   //atexit(&dumb_exit);
   //dumb_register_stdfiles();
 
@@ -1573,6 +1770,22 @@ int main(int argc, char* argv[])
   Z_message("OK\n");
 
   // allocate bitmap buffers
+  // check for the ag.cfg file and 1st.qst
+  Z_message("Checking Files... ");
+  if(!exists("1st.qst"))
+  {
+    Z_error("\"1st.qst\" not found.");
+  }
+  if(!exists("2nd.qst"))
+  {
+    Z_error("\"2nd.qst\" not found.");
+  }
+  if(!exists("3rd.qst"))
+  {
+    Z_error("\"3rd.qst\" not found.");
+  }
+  Z_message("OK\n");
+
 
   Z_message("Allocating bitmap buffers... ");
   if(used_switch(argc,argv,"-16bit"))
@@ -1592,7 +1805,7 @@ int main(int argc, char* argv[])
   msgdisplaybuf = create_bitmap_ex(8,256, 176);
   pricesdisplaybuf = create_bitmap_ex(8,256, 176);
   if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
-    || !screen2 || !msgdisplaybuf || !pricesdisplaybuf)
+     || !screen2 || !msgdisplaybuf || !pricesdisplaybuf)
     Z_error("Error");
 
   clear_bitmap(scrollbuf);
@@ -1606,30 +1819,62 @@ int main(int argc, char* argv[])
   // load game configurations
 
   load_game_configs();
+  zcmusic_init();
 
-  int mode = VidMode;                                       // from config file
+  //  int mode = VidMode;                                       // from config file
+  int tempmode=GFX_AUTODETECT;
   int res_arg = used_switch(argc,argv,"-res");
 
   if(used_switch(argc,argv,"-v0")) Throttlefps=false;
   if(used_switch(argc,argv,"-v1")) Throttlefps=true;
   /*
     if(used_switch(argc,argv,"-16bit")) {
-      colordepth=16;
+    colordepth=16;
     } else {
-      colordepth=8;
+    colordepth=8;
     }
     set_color_depth(colordepth);
-  */
+    */
   resolve_password(zeldapwd);
-  debug = debug_enabled = used_switch(argc,argv,"-d")
-    && !strcmp(get_config_string("zeldadx","debug",""),zeldapwd);
+  debug_enabled = used_switch(argc,argv,"-d") && !strcmp(get_config_string("zeldadx","debug",""),zeldapwd);
+  set_debug(debug_enabled);
 
-  bool fast_start = debug_enabled || used_switch(argc,argv,"-fast");
+  skipicon = used_switch(argc,argv,"-quickload");
+
+  int load_save=0;
+
+  load_save = used_switch(argc,argv,"-load");
+  load_save = load_save?(argc>load_save+1)?atoi(argv[load_save+1]):0:0;
+
+  if(!(used_switch(	argc,argv,"-load")))
+    if(used_switch(argc,argv,"-loadlast"))
+      load_save = loadlast;
+
+    slot_arg=used_switch(argc,argv,"-slot");
+  if (!(argc>(slot_arg+1)))
+  {
+    slot_arg=0;
+  }
+  else
+  {
+    slot_arg2=atoi(argv[slot_arg+1]);
+  }
+  int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || load_save || (slot_arg && (argc>(slot_arg+1)));
+  int save_arg=used_switch(argc,argv,"-savefile");
+  if(save_arg&&(argc>(save_arg+1)))
+  {
+    SAVE_FILE=(char *)malloc(2048);
+    sprintf(SAVE_FILE, "%s", argv[save_arg+1]);
+  }
+
+
 
   // load the data file
 
   resolve_password(datapwd);
   packfile_password(datapwd);
+
+
 
   Z_message("Loading data files:\n");
   set_color_conversion(COLORCONV_NONE);
@@ -1673,7 +1918,7 @@ int main(int argc, char* argv[])
   }
   Z_message("OK\n");
 
-  mididata = (DATAFILE*)data[MUSIC].dat;
+  mididata = (DATAFILE*)data[ZC_MIDI].dat;
 
   set_uformat(U_ASCII);
   deffont = font;
@@ -1683,8 +1928,30 @@ int main(int argc, char* argv[])
   lfont_l = (FONT*)fontsdata[FONT_LARGEPROP_L].dat;
   zfont = (FONT*)fontsdata[FONT_NES].dat;
   z3font = (FONT*)fontsdata[FONT_Z3].dat;
+  z3smallfont = (FONT*)fontsdata[FONT_Z3SMALL].dat;
   mfont = (FONT*)fontsdata[FONT_MATRIX].dat;
-  //  text_mode(0);
+  ztfont = (FONT*)fontsdata[FONT_ZTIME].dat;
+  sfont = (FONT*)fontsdata[FONT_6x6].dat;
+  spfont = (FONT*)fontsdata[FONT_6xPROP].dat;
+  ssfont1 = (FONT*)fontsdata[FONT_SUBSCREEN1].dat;
+  ssfont2 = (FONT*)fontsdata[FONT_SUBSCREEN2].dat;
+  ssfont3 = (FONT*)fontsdata[FONT_SUBSCREEN3].dat;
+  ssfont4 = (FONT*)fontsdata[FONT_SUBSCREEN4].dat;
+  gbzfont = (FONT*)fontsdata[FONT_GBZELDA].dat;
+  goronfont = (FONT*)fontsdata[FONT_GORON].dat;
+  zoranfont = (FONT*)fontsdata[FONT_ZORAN].dat;
+  hylian1font = (FONT*)fontsdata[FONT_HYLIAN1].dat;
+  hylian2font = (FONT*)fontsdata[FONT_HYLIAN2].dat;
+  hylian3font = (FONT*)fontsdata[FONT_HYLIAN3].dat;
+  hylian4font = (FONT*)fontsdata[FONT_HYLIAN4].dat;
+
+  for(int i=0; i<4; i++)
+  {
+    for(int j=0;j<MAXSUBSCREENITEMS;j++)
+    {
+      memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
+    }
+  }
 
   // load saved games
   Z_message("Loading saved games... ");
@@ -1721,15 +1988,15 @@ int main(int argc, char* argv[])
   // CD player
 
   /*
-  if(used_switch(argc,argv,"-cd"))
-  {
+    if(used_switch(argc,argv,"-cd"))
+    {
     printf("Initializing CD player... ");
     if(cd_init())
-      Z_error("Error");
+    Z_error("Error");
     printf("OK\n");
     useCD = true;
-  }
-  */
+    }
+    */
 
   // quick quit
   if(used_switch(argc,argv,"-q"))
@@ -1745,68 +2012,50 @@ int main(int argc, char* argv[])
     resx = atoi(argv[res_arg+1]);
     resy = atoi(argv[res_arg+2]);
     sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
-//    mode = GFX_AUTODETECT;
+    //    mode = GFX_AUTODETECT;
   }
   request_refresh_rate(60);
 
-  #ifdef ALLEGRO_DOS
-  if(used_switch(argc,argv,"-modex"))  mode=GFX_MODEX;
-  if(used_switch(argc,argv,"-vesa1"))  mode=GFX_VESA1;
-  if(used_switch(argc,argv,"-vesa2b")) mode=GFX_VESA2B;
-  if(used_switch(argc,argv,"-vesa2l")) mode=GFX_VESA2L;
-  if(used_switch(argc,argv,"-vesa3"))  mode=GFX_VESA3;
-  #elif defined(ALLEGRO_WINDOWS)
-
   if(used_switch(argc,argv,"-fullscreen"))
   {
-    mode = GFX_AUTODETECT_FULLSCREEN;
-    if(used_switch(argc,argv,"-directx"))
-    {
-      mode=GFX_DIRECTX;
-      if(used_switch(argc,argv,"-soft"))
-      {
-        mode=GFX_DIRECTX_SOFT;
-      }
-      else if(used_switch(argc,argv,"-safe"))
-      {
-        mode=GFX_DIRECTX_SAFE;
-      }
-    }
+    al_trace("Used switch: -fullscreen\n");
+    tempmode = GFX_AUTODETECT_FULLSCREEN;
   }
   else if(used_switch(argc,argv,"-windowed"))
-  {
-    mode=GFX_AUTODETECT_WINDOWED;
-    if(used_switch(argc,argv,"-directx"))
     {
-      mode=GFX_DIRECTX_WIN;
+      al_trace("Used switch: -windowed\n");
+      tempmode=GFX_AUTODETECT_WINDOWED;
     }
-    else if(used_switch(argc,argv,"-gdi"))
+
+    if(!game_vid_mode(tempmode,250))
     {
-      mode=GFX_GDI;
+      if (tempmode==GFX_AUTODETECT_FULLSCREEN&&resx==320&&resy==240&&sbig==0)
+      {
+        sbig=1;
+        resx=640;
+        resy=480;
+        if(!game_vid_mode(tempmode,250))
+        {
+          Z_error(allegro_error);
+        }
+      }
+      else
+      {
+        Z_error(allegro_error);
+      }
     }
-  }
-  #elif defined(ALLEGRO_LINUX)
-//  mode = GFX_AUTODETECT_WINDOWED;
-  #elif defined(ALLEGRO_MACOSX)
-//  mode = GFX_AUTODETECT_WINDOWED;
-  #endif
 
-  al_trace("Setting video mode...\n");
-  if(!game_vid_mode(mode,250))
-    Z_error(allegro_error);
-
-  al_trace("Set video mode...\n");
   real_screen=screen;
 
   /* if triple buffering isn't available, try to enable it */
   if (!(gfx_capabilities & GFX_CAN_TRIPLE_BUFFER))
   {
-     enable_triple_buffer();
+    enable_triple_buffer();
   }
 
   /* if that didn't work, give up */
   if (!(gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)) {
-     triplebuffer_not_available = TRUE;
+    triplebuffer_not_available = TRUE;
   }
 
   if(!triplebuffer_not_available)
@@ -1835,7 +2084,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  al_trace("Triplebuffer %savailable\n", triplebuffer_not_available?"not ":"");
+  Z_message("Triplebuffer %savailable\n", triplebuffer_not_available?"not ":"");
 
   set_close_button_callback((void (*)()) hit_close_button);
   set_window_title("Zelda Classic");
@@ -1860,46 +2109,51 @@ int main(int argc, char* argv[])
 
   rgb_map = &rgb_table;
 
+  // set up an initial game save slot (for the list_saves function)
+  game=(gamedata *)malloc(sizeof(gamedata));
+
   while(Quit!=qEXIT)
   {
     toogam = false;
     //    packfile_password(datapwd);
-    titlescreen();
+    titlescreen(load_save);
+    load_save=0;
     //    packfile_password(NULL);
     setup_combo_animations();
     while(!Quit)
     {
-      if (FrameSkip)
-      {
+      /*if (FrameSkip)
+        {
         while(logic_counter>0)
         {
-          --logic_counter;
-        }
-        while(logic_counter==0)
-        {
-        }
-        while(logic_counter>0)
-        {
-          --logic_counter;
-          drawit=false;
-
-          game_loop();
-          //          advanceframe();
-        }
-        drawit=true;
-        game_loop();
-        advanceframe();
-        while(logic_counter==0)
-        {
-        }
-      }
-      else
-      {
         --logic_counter;
+        }
+        while(logic_counter==0)
+        {
+        }
+        while(logic_counter>0)
+        {
+        --logic_counter;
+        drawit=false;
+
+        game_loop();
+        //          advanceframe();
+        }
         drawit=true;
         game_loop();
         advanceframe();
-      }
+        //while(logic_counter==0)
+        //{
+        //}
+        }
+        else
+        {*/
+      //--logic_counter;
+      drawit=true;
+      game_loop();
+      advanceframe();
+
+      //}
     }
     tmpscr->flags3=0;
     Playing=Paused=false;
@@ -1913,8 +2167,8 @@ int main(int argc, char* argv[])
         show_subscreen_numbers=true;
         show_subscreen_items=true;
         show_subscreen_life=true;
-        game_over();
-        introclk=intropos=0;
+        if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
+        skipcont = 0;
       } break;
       case qWON:
       {
@@ -1939,7 +2193,7 @@ int main(int argc, char* argv[])
   set_gfx_mode(GFX_TEXT,80,25,0,0);
   rest(250);
 
-  quick_quit:
+quick_quit:
 
   save_savedgames();
   save_game_configs();
@@ -1958,6 +2212,20 @@ int main(int argc, char* argv[])
   destroy_bitmap(msgdisplaybuf);
   set_clip_state(pricesdisplaybuf, 1);
   destroy_bitmap(pricesdisplaybuf);
+  for(int i=0; i<4; i++)
+  {
+    for(int j=0;j<MAXSUBSCREENITEMS;j++)
+    {
+      switch(custom_subscreen[i].objects[j].type)
+      {
+        case ssoTEXT:
+        case ssoTEXTBOX:
+        case ssoCURRENTITEMTEXT:
+        case ssoCURRENTITEMCLASSTEXT:
+        if(custom_subscreen[i].objects[j].dp1 != NULL) delete[] (char *)custom_subscreen[i].objects[j].dp1;
+      }
+    }
+  }
   zcmusic_exit();
   //  dumb_exit();
   Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
@@ -1968,4 +2236,5 @@ int main(int argc, char* argv[])
 }
 
 END_OF_MAIN()
-/*** end of zelda.cc ***/
+
+  /*** end of zelda.cc ***/

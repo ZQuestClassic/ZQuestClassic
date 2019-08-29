@@ -4,11 +4,11 @@
 #ifdef __cplusplus
 extern "C"
 {
-  #endif
+#endif
 
   int save_gif(const char *filename, BITMAP *bmp, const RGB *pal);
 
-  #ifdef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif

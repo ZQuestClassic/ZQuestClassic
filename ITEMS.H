@@ -26,14 +26,14 @@ void addfairy(fix x, fix y, int misc);
 
 class item : public sprite
 {
-  public:
-    int pickup,clk2;
-    int aclk,aframe;
-    bool flash,twohand,anim;
-    item(fix X,fix Y,int i,int p,int c);
-    virtual ~item();
-    virtual bool animate(int index);
-    virtual void draw(BITMAP *dest);
+public:
+  int pickup,clk2;
+  int aclk,aframe;
+  bool flash,twohand,anim;
+  item(fix X,fix Y,int i,int p,int c);
+  virtual ~item();
+  virtual bool animate(int index);
+  virtual void draw(BITMAP *dest);
 };
 
 // easy way to draw an item

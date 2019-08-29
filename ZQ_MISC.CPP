@@ -8,8 +8,8 @@
 //
 //--------------------------------------------------------
 
-//inline void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
-//inline void SCRFIX() {}
+//INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
+//INLINE void SCRFIX() {}
 
 #include "zq_misc.h"
 #include "zquestdat.h"
@@ -17,58 +17,63 @@
 #include "colors.h"
 #include "qst.h"
 #include "zsys.h"
+#include "zq_class.h"
 #include <string.h>
 #include <stdio.h>
 
+extern int prv_mode;
+extern void dopreview();
+
 /*
-inline int popup_menu(MENU *menu,int x,int y)
-{
+  INLINE int popup_menu(MENU *menu,int x,int y)
+  {
   while(gui_mouse_b());
   return do_menu(menu,x,y);
-}
+  }
 
-inline int bit(int val,int b)
-{
- return (val>>b)&1;
-}
+  INLINE int bit(int val,int b)
+  {
+  return (val>>b)&1;
+  }
 
-enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU };
+  enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU };
 
-#define vc(x)  ((x)+224)    // offset to 'VGA color' x
-#define dvc(x) ((x)+192)    // offset to dark 'VGA color' x
-#define lc1(x) ((x)+208)    // offset to 'level bg color' x
-#define lc2(x) ((x)+240)    // offset to 'level fg color' x
+  #define vc(x)  ((x)+224)    // offset to 'VGA color' x
+  #define dvc(x) ((x)+192)    // offset to dark 'VGA color' x
+  #define lc1(x) ((x)+208)    // offset to 'level bg color' x
+  #define lc2(x) ((x)+240)    // offset to 'level fg color' x
+  
+  #define MAXSCREENS 128
+  #define ITEMCNT   iMax
+  #define WPNCNT    wMAX
+  #define MAXROOMTYPES   rMAX
+  #define MAXWARPTYPES   wtMAX-1 // minus whistle
+  #define MAXCOMBOTYPES  cMAX
+  #define MAXFLAGS    mfMAX
+  #define zqMAXGUYS    10
+  #define MAXPATTERNS  2
+  #define MAXCUSTOMMIDIS_ZQ  4+MAXCUSTOMMIDIS
 
-#define ITEMCNT   iMax
-#define WPNCNT    wMAX
-#define MAXROOMTYPES   rMAX
-#define MAXWARPTYPES   wtMAX-1 // minus whistle
-#define MAXCOMBOTYPES  cMAX
-#define MAXFLAGS    mfMAX
-#define zqMAXGUYS    9
-#define MAXPATTERNS  2
-#define MAXMIDIS_ZQ  4+MAXMIDIS
+  #define cWALK      1
+  #define cFLAGS     2
+  #define cDARK      4
+  #define cCSET      8
+  #define cNODARK    16
+  #define cNOITEM    32
+  #define cCTYPE     64
+  #define cDEBUG     128
 
-#define cWALK      1
-#define cFLAGS     2
-#define cDARK      4
-#define cCSET      8
-#define cNODARK    16
-#define cNOITEM    32
-#define cCTYPE     64
-#define cDEBUG     128
+  #define rMAP       1
+  #define rCOMBOS    2
+  #define rSCRMAP    4
+  #define rMENU      8
+  #define rCOMBO     16
+  #define rALL       0x0FF
+  #define rCLEAR     0x100
 
-#define rMAP       1
-#define rCOMBOS    2
-#define rSCRMAP    4
-#define rMENU      8
-#define rCOMBO     16
-#define rALL       0x0FF
-#define rCLEAR     0x100
+  #define C(x)   ((x)-'a'+1)
 
-#define C(x)   ((x)-'a'+1)
-
-*/
+  */
 
 char *imgstr[6] =
 {
@@ -104,7 +109,7 @@ void load_mice()
 {
   for(int i=0; i<MOUSE_BMP_MAX; i++)
   {
-    for(int j=0; j<2; j++)
+    for(int j=0; j<3; j++)
     {
       mouse_bmp[i][j] = create_bitmap_ex(8,16,16);
       blit((BITMAP*)zcdata[BMP_MOUSE].dat,mouse_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
@@ -185,8 +190,8 @@ bool writefile(char *path,void *buf,int count)
 }
 
 /* dotted_rect: (from allegro's guiproc.c)
- *  Draws a dotted rectangle, for showing an object has the input focus.
- */
+  *  Draws a dotted rectangle, for showing an object has the input focus.
+  */
 void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
 {
   int x = ((x1+y1) & 1) ? 1 : 0;
@@ -237,11 +242,11 @@ RGB invRGB(RGB s)
 }
 
 /*
-inline RGB NESpal(int i)
-{
- return _RGB(nes_pal+(i*3));
-}
-*/
+  INLINE RGB NESpal(int i)
+  {
+  return _RGB(nes_pal+(i*3));
+  }
+  */
 
 RGB mixRGB(int r1,int g1,int b1,int r2,int g2,int b2,int ratio)
 {
@@ -325,6 +330,8 @@ void refresh_pal()
   setup_lcolors();
 }
 
+char ns_string[3];
+
 char *item_string[ITEMCNT] =
 {
   "Rupee (1)", "Rupee (5)", "Heart", "Bomb (Normal)", "Clock",
@@ -336,52 +343,57 @@ char *item_string[ITEMCNT] =
   "Potion 2 (Red)", "Whistle", "Magic Book", "Key (Magic)", "Fairy (Moving)",
   "Boomerang 3 (Fire)", "Sword 4 (Master)", "Shield 2 (Mirror)", "Rupee (20)", "Rupee (50)",
   "Rupee (200)", "Wallet 1 (500)", "Wallet 2 (999)", "Dust Pile",
-  "Triforce (Whole)", "Selection", "Misc 1", "Misc 2", "Bomb (Super)","Heart Container Piece",
-  "Amulet 1", "Flippers", "Hookshot", "Lens of Truth", "Hammer", "Boots",
+  "Triforce (Whole)", "Selection (1)", "Misc 1", "Misc 2", "Bomb (Super)","Heart Container Piece",
+  "Amulet 1", "Flippers", "Hookshot 1 (Short)", "Lens of Truth", "Hammer", "Boots",
   "Bracelet 2", "Arrow 3 (Golden)", "Magic Container", "Magic Jar 1 (Small)",
   "Magic Jar 2 (Large)", "Ring 3 (Golden)", "Kill All Enemies", "Amulet 2",
-  "Din's Fire", "Farore's Wind", "Nayru's Love", "Key (Boss)", "Bow 2 (Long)", "Fairy (Stationary)"
+  "Din's Fire", "Farore's Wind", "Nayru's Love", "Key (Boss)", "Bow 2 (Long)", "Fairy (Stationary)",
+  "Arrow Ammunition (1)", "Arrow Ammunition (5)", "Arrow Ammunition (10)", "Arrow Ammunition (30)",
+  "Quiver 1 (Small)", "Quiver 2 (Medium)", "Quiver 3 (Large)", "Bomb Ammunition (1)", "Bomb Ammunition (4)", "Bomb Ammunition (8)", "Bomb Ammunition (30)",
+  "Bomb Bag 1 (Small)", "Bomb Bag 2 (Medium)", "Bomb Bag 3 (Large)", "Key (Level Specific)", "Selection (2)", "Rupee (10)", "Rupee (100)", "Cane of Byrna",
+  "Hookshot 2 (Long)"
 };
 
 char *weapon_string[WPNCNT] =
 {
-  "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Sword 3 (Master)",
+  "Sword 1 (Wooden)", "Sword 2 (White)", "Sword 3 (Magic)", "Sword 4 (Master)",
   "Boomerang 1 (Wooden)", "Boomerang 2 (Magic)", "Boomerang 3 (Fire)", "Bomb (Normal)",
   "Bomb (Super)", "Explosion", "Arrow 1 (Wooden)", "Arrow 2 (Silver)", "Fire", "Whirlwind",
   "Bait", "Wand", "Magic", "Fireball", "Rock", "Arrow (Enemy)", "Sword (Enemy)",
-  "Magic (Enemy)", "MISC: Spawn", "MISC: Death", "MISC: Swim", "Hammer",
-  "Hookshot Head", "Hookshot Chain (Horizontal)", "Hookshot Handle", "MISC: Arrow 2 (Silver) Sparkle",
+  "Magic (Enemy)", "MISC: Spawn", "MISC: Death", "MISC: <unused>", "Hammer",
+  "Hookshot 1 (Short) Head", "Hookshot 1 (Short) Chain (Horizontal)", "Hookshot 1 (Short) Handle", "MISC: Arrow 2 (Silver) Sparkle",
   "MISC: Arrow 3 (Golden) Sparkle", "MISC: Boomerang 2 (Magic) Sparkle", "MISC: Boomerang 3 (Fire) Sparkle",
   "MISC: Hammer Impact", "Arrow 3 (Golden)", "Fire (Enemy)", "Whirlwind (Enemy)", "MISC: Magic Meter",
-  "Din's Fire (Rising)", "Din's Fire (Falling)","Din's Fire Trail (Rising)", "Din's Fire Trail (Falling)", "Hookshot Chain (Vertical)", "MISC: More...",
+  "Din's Fire (Rising)", "Din's Fire (Falling)","Din's Fire Trail (Rising)", "Din's Fire Trail (Falling)", "Hookshot 1 (Short) Chain (Vertical)", "MISC: More...",
   "MISC: Boss Marker", "MISC: Link Slash", "Sword 1 (Wooden) Slash",
   "Sword 2 (White) Slash", "Sword 3 (Magic) Slash", "Sword 4 (Master) Slash", "MISC: Shadow (Small)",
   "MISC: Shadow (Large)", "MISC: Bush Leaves", "MISC: Flower Clippings",
-  "MISC: Grass Clippings", "MISC: Tall Grass", "MISC: Ripples", "MISC: NPCs",
+  "MISC: Grass Clippings", "MISC: Tall Grass", "MISC: Ripples", "MISC: <unused>",
   "Nayru's Love (Left)", "Nayru's Love (Left, Returning)","Nayru's Love Trail (Left)", "Nayru's Love Trail (Left, Returning)",
   "Nayru's Love (Right)", "Nayru's Love (Right, Returning)","Nayru's Love Trail (Right)", "Nayru's Love Trail (Right, Returning)",
-  "Nayru's Love Shield (Front)", "Nayru's Love Shield (Back)"
+  "Nayru's Love Shield (Front)", "Nayru's Love Shield (Back)", "MISC: Subscreen Vine", "Cane of Byrna", "Cane of Byrna (Slash)",
+  "Hookshot 2 (Long) Head", "Hookshot 2 (Long) Chain (Horizontal)", "Hookshot 2 (Long) Handle", "Hookshot 2 (Long) Chain (Vertical)", 
 };
 
 char *roomtype_string[MAXROOMTYPES] =
 {
   "(None)","Special Item","Pay for Info","Secret Money","Gamble",
-  "Door Repair","Heart Container","Feed the Goriya","Level 9 Entrance",
+  "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
   "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupies",
-  "3-Stair Warp","Ganon","Zelda", "Item Pond", "Magic Upgrade", "Learn Slash"
+  "3-Stair Warp","Ganon","Zelda", "-<item pond>", "Magic Upgrade", "Learn Slash", "More Arrows"
 };
 
 char *catchall_string[MAXROOMTYPES] =
 {
   " ","Special Item","Info Type","Amount"," ","Repair Fee"," "," "," ","Shop Type",
-  "Shop Type","Price ","Price"," ","Warp Ring"," "," ", "Item Pond Type", " ",
-  " "
+  "Shop Type","Price","Price"," ","Warp Ring"," "," ", "-<item pond type>", " ",
+  " ", "Price"
 };
 
 char *warptype_string[MAXWARPTYPES] =
 {
   "Cave/Item Room","Passageway","Entrance/Exit","Scrolling Warp","Insta-Warp","Insta-Warp with Blackout","Insta-Warp with Opening Screen","Insta-Warp with Zap Effects", "Insta-Warp with Wave Effects", "Cancel Warp"
-//  "Cave/Item Room","Passageway","Entrance/Exit","Scrolling Warp","Standard","Cancel Warp"," "," ", " ", " "
+  //  "Cave/Item Room","Passageway","Entrance/Exit","Scrolling Warp","Standard","Cancel Warp"," "," ", " ", " "
 };
 
 char *warpeffect_string[MAXWARPEFFECTS] =
@@ -392,25 +404,47 @@ char *warpeffect_string[MAXWARPEFFECTS] =
 
 char *combotype_string[MAXCOMBOTYPES] =
 {
-  "(None)","Stairs","Cave (Walk Down)","Water","Armos","Grave","Dock",
+  "(None)","Stairs [A]","Cave (Walk Down) [A]","Water","Armos","Grave","Dock",
   "Undefined","Push (Wait)","Push (Heavy)","Push (Heavy, Wait)","Left Statue","Right Statue",
   "Slow Walk","Conveyor Up","Conveyor Down","Conveyor Left","Conveyor Right",
-  "Swim Warp","Dive Warp","Ladder or Hookshot","Trigger (Temporary)","Trigger (Permanent)",
-  "Win Game","Slash","Slash (->item)", "Push (Very Heavy)", "Push (Very Heavy, Wait)", "Pound",
+  "Swim Warp [A]","Dive Warp [A]","Ladder or Hookshot","Trigger (Temporary)","Trigger (Permanent)",
+  "Win Game","Slash","Slash (->Item)", "Push (Very Heavy)", "Push (Very Heavy, Wait)", "Pound",
   "Hookshot Grab", "-Hookshot Bridge", "Damage (1/2 Heart)", "Damage (1 Heart)", "Damage (2 hearts)", "Damage (4 Hearts)",
   "Center Statue", "Trap (Horizontal, Line of Sight)", "Trap (Vertical, Line of Sight)", "Trap (4-Way)",
-  "Trap (Horizontal, Constant)", "Trap (Vertical, Constant)", "Direct Warp", "Hookshot Only", "Overhead",
+  "Trap (Horizontal, Constant)", "Trap (Vertical, Constant)", "Direct Warp [A]", "Hookshot Only", "Overhead",
   "No Fly Zone", "Magic Mirror (4-Way)", "Magic Mirror (Up-Left, Down-Right)", "Magic Mirror (Up-Right, Down-Left)", "Magic Prism (3-Way)",
-  "Magic Prism (4-Way)", "Magic Sponge", "Cave (Walk Up)", "Eyeball A", "Eyeball B",
-  "No Jump Zone", "Bush", "Flowers", "Tall Grass", "Shallow Water", "Lock Block",
-  "Lock Block (Copycat)", "Boss Lock Block", "Boss Lock Block (Copycat)", "Ladder Only", "BS Grave"
+  "Magic Prism (4-Way)", "Magic Sponge", "Cave (Walk Up) [A]", "Eyeball A", "Eyeball B",
+  "No Jump Zone", "Bush", "Flowers", "Tall Grass", "Shallow Water", "Lock Block (Normal)",
+  "Lock Block (Normal, Copycat)", "Lock Block (Boss)", "Lock Block (Boss, Copycat)", "Ladder Only", "BS Grave",
+  "Treasure Chest (Normal)", "Treasure Chest (Normal, Copycat)", "Treasure Chest (Locked)",
+  "Treasure Chest (Locked, Copycat)", "Treasure Chest (Boss)", "Treasure Chest (Boss, Copycat)", "Reset Room",
+  "Save Point", "Save-Quit Point",/*, "Vertical"*/"Cave (Walk Down) [B]", "Cave (Walk Down) [C]", "Cave (Walk Down) [D]",
+  "Stairs [B]", "Stairs [C]", "Stairs [D]", "Direct Warp [B]", "Direct Warp [C]", "Direct Warp [D]",
+  "Cave (Walk Up) [B]", "Cave (Walk Up) [C]", "Cave (Walk Up) [D]", "Swim Warp [B]", "Swim Warp [C]", "Swim Warp [D]",
+  "Dive Warp [B]", "Dive Warp [C]", "Dive Warp [D]", "Stairs [Random]", "Direct Warp [Random]",
+  "Auto-Warp [A]", "Auto-Warp [B]", "Auto-Warp [C]", "Auto-Warp [D]", "Auto-Warp [Random]",
+  "Sensitive Warp [A]", "Sensitive Warp [B]", "Sensitive Warp [C]", "Sensitive Warp [D]", "Sensitive Warp [R]",
+  "Trigger (Sens. Temp)", "Trigger (Sens. Perm)", "Step->Next", "Step->Next (Same)", "Step->Next (All)", "Step->Next (Copycat)",
+  "No Enemies", "Block Arrow (Wooden)", "Block Arrow (Wood+Silver)", "Block Arrow (All)", "Block Brang (Wooden)",
+  "Block Brang (Wood+Magic)", "Block Brang (All)", "Block Sword Beam", "Block All", "Block Fireball",
+  "Damage (8 hearts)", "Damage (16 hearts)", "Damage (32 hearts)", "FF Combo Attr. Change"
 };
 
 char *flag_string[MAXFLAGS] =
 {
-  " 0 (None)"," 1 Push (Vertical, Once)"," 2 Push (4-Way, Once)"," 3 Whistle"," 4 Burn 1 (Any)",
-  " 5 Arrow 1 (Any)"," 6 Bomb (Any)"," 7 Fairy"," 8 Raft"," 9 Armos (->Secret)",
-  "10 Armos (->Item)","11 Bomb (Super)","12 Raft Branch",
+  " 0 (None)",
+  " 1 Push (Vertical, Once)",
+  " 2 Push (4-Way, Once)",
+  " 3 Whistle",
+  " 4 Burn 1 (Any)",
+  " 5 Arrow 1 (Any)",
+  " 6 Bomb (Any)",
+  " 7 Fairy (Life)",
+  " 8 Raft",
+  " 9 Armos (->Secret)",
+  "10 Armos (->Item)",
+  "11 Bomb (Super)",
+  "12 Raft Branch",
   "13 Dive for Item",
   "14 Lens Marker Flag",
   "15 Zelda",
@@ -488,60 +522,71 @@ char *flag_string[MAXFLAGS] =
   "87 Hookshot",
   "88 Wand",
   "89 Hammer",
-  "90 Strike"
+  "90 Strike",
+  "91 Block Hole",
+  "92 Fairy (Magic)",
+  "93 Fairy (All)",
+  "94 Singular",
+  "95 Singular(+16-31)",
+  "96 No Enemies"
 };
 
 // eMAXGUYS is defined in zdefs.h
 char *guy_string[eMAXGUYS] =
 {
-  "(None)","Abei","Ama","Merchant","Moblin","Fire","Fairy","Goriya","Zelda","",
-  // 010
-  "Octorok (Red, Slow)","Octorok (Blue, Slow)","Octorok (Red, Fast)","Octorok (Blue, Fast)","Tektite (Red)",
-  // 015
-  "Tektite (Blue)","Leever (Red)","Leever (Blue)","Moblin (Red)","Moblin (Black)",
+  "(None)","Abei","Ama","Merchant","Moblin","Fire","Fairy","Goriya","Zelda","Abei 2","Empty","","","","","","","","","",
   // 020
-  "Lynel (Red)","Lynel (Blue)","Peahat","Zora <slide-proof>","Rock <slide-proof>",
+  "Octorok (L1, Slow)","Octorok (L2, Slow)","Octorok (L1, Fast)","Octorok (L2, Fast)","Tektite (L1)",
   // 025
-  "Ghini 1","Ghini 2","Armos","Keese (Blue)","Keese (Red)",
+  "Tektite (L2)","Leever (L1)","Leever (L2)","Moblin (L1)","Moblin (L2)",
   // 030
-  "Keese (Level Color)","Stalfos 1","Gel (normal)","Zol (normal)","Rope 1",
+  "Lynel (L1)","Lynel (L2)","Peahat","Zora <Slide-Proof>","Rock <Slide-Proof>",
   // 035
-  "Goriya (Red)","Goriya (Blue)","-trap","Wall Master","Darknut (Red)",
+  "Ghini (L1)","Ghini (L2)","Armos","Keese (CSet 7)","Keese (CSet 8)",
   // 040
-  "Darknut (Blue)","Bubble","Vire (normal)","Like Like","Gibdo",
+  "Keese (CSet 9)","Stalfos (L1)","Gel (Normal)","Zol (Normal)","Rope (L1)",
   // 045
-  "Pols Voice","Wizzrobe (Red)","Wizzrobe (Blue)","Aquamentus (Facing Left)","Moldorm",
+  "Goriya (L1)","Goriya (L2)","Trap (4-Way) ","Wall Master","Darknut (L1)",
   // 050
-  "Dodongo","Manhandla 1","Gleeok (1 Head)","Gleeok (2 Heads)","Gleeok (3 Heads)",
+  "Darknut (L2)","Bubble (Sword, Temporary Disabling)","Vire (Normal)","Like Like","Gibdo",
   // 055
-  "Gleeok (4 Heads)","Digdogger (1 Kid)","Digdogger (3 Kids)","Digdogger Kid (1)","Digdogger Kid (2)",
+  "Pols Voice","Wizzrobe (Teleporting)","Wizzrobe (Floating)","Aquamentus (Facing Left)","Moldorm",
   // 060
-  "Digdogger Kid (3)","Digdogger Kid (4)","Gohma (Red)","Gohma (Blue)","Lanmola (Red)",
+  "Dodongo","Manhandla (L1)","Gleeok (1 Head)","Gleeok (2 Heads)","Gleeok (3 Heads)",
   // 065
-  "Lanmola (Blue)","Patra (Big Circle)","Patra (Oval)","-Ganon","Stalfos 2",
+  "Gleeok (4 Heads)","Digdogger (1 Kid)","Digdogger (3 Kids)","Digdogger Kid (1)","Digdogger Kid (2)",
   // 070
-  "Rope 2","Bubble (Red)","Bubble (Blue)","Fire Shooter","-item fairy",
+  "Digdogger Kid (3)","Digdogger Kid (4)","Gohma (L1)","Gohma (L2)","Lanmola (L1)",
   // 075
-  "Fire","Octorok (Magic)", "Darknut (Death Knight)", "Gel (Tribble)", "Zol (Tribble)",
+  "Lanmola (L2)","Patra (Big Circle)","Patra (Oval)","Ganon ","Stalfos (L2)",
   // 080
-  "Keese (Tribble)", "Vire (Tribble)", "Darknut (Splitting)", "Aquamentus (Facing Right)", "Manhandla 2",
+  "Rope (L2)","Bubble (Sword, Permanent Disabling)","Bubble (Sword, Re-enabling)","Fire Shooter","Item Fairy ",
   // 085
-  "-trap h", "-trap v", "-trap lr", "-trap ud", "Wizzrobe (Fire)",
+  "Fire","Octorok (Magic)", "Darknut (Death Knight)", "Gel (Tribble)", "Zol (Tribble)",
   // 090
-  "Wizzrobe (Wind)", "-ceiling master", "-floor master", "Patra (BS Zelda)", "Patra 2",
+  "Keese (Tribble)", "Vire (Tribble)", "Darknut (Splitting)", "Aquamentus (Facing Right)", "Manhandla 2",
   // 095
-  "Patra 3", "Bat", "Wizzrobe (Bat)", "-wizzrobe - bat2", "Gleeok (Fire, 1 Head)",
+  "Trap (Horizontal, Line of Sight) ", "Trap (Vertical, Line of Sight) ", "Trap (Horizontal, Constant) ", "Trap (Vertical, Constant) ", "Wizzrobe (Fire)",
   // 100
-  "Gleeok (Fire, 2 Heads)",  "Gleeok (Fire, 3 Heads)","Gleeok (Fire, 4 Heads)", "Wizzrobe (Mirror)", "Dodongo (BS Zelda)",
+  "Wizzrobe (Wind)", "Ceiling Master ", "Floor Master ", "Patra (BS Zelda)", "Patra (L2)",
   // 105
-  "-dodongo - fire","Trigger", "Bubble (Item, Temporary Disabling)", "Bubble (Item, Permanent Disabling)", "Bubble (Item, Re-enabling)",
+  "Patra (L3)", "Bat", "Wizzrobe (Bat)", "Wizzrobe (Bat 2) ", "Gleeok (Fire, 1 Head)",
   // 110
-  "Stalfos 3", "Gohma 3", "Gohma 4", "-NPC 1 (Standing)", "-NPC 2 (Standing)",
+  "Gleeok (Fire, 2 Heads)",  "Gleeok (Fire, 3 Heads)","Gleeok (Fire, 4 Heads)", "Wizzrobe (Mirror)", "Dodongo (BS Zelda)",
   // 115
-  "-NPC 3 (Standing)", "-NPC 4 (Standing)", "-NPC 5 (Standing)", "-NPC 6 (Standing)", "-NPC 1 (Walking)",
+  "Dodongo (Fire) ","Trigger", "Bubble (Item, Temporary Disabling)", "Bubble (Item, Permanent Disabling)", "Bubble (Item, Re-enabling)",
   // 120
-  "-NPC 2 (Walking)", "-NPC 3 (Walking)", "-NPC 4 (Walking)", "-NPC 5 (Walking)", "-NPC 6 (Walking)"
+  "Stalfos (L3)", "Gohma (L3)", "Gohma (L4)", "NPC 1 (Standing) ", "NPC 2 (Standing) ",
   // 125
+  "NPC 3 (Standing) ", "NPC 4 (Standing) ", "NPC 5 (Standing) ", "NPC 6 (Standing) ", "NPC 1 (Walking) ",
+  // 130
+  "NPC 2 (Walking) ", "NPC 3 (Walking) ", "NPC 4 (Walking) ", "NPC 5 (Walking) ", "NPC 6 (Walking) ",
+  // 135
+  "Boulder <Slide-Proof>", "Goriya (L3)", "Leever (L3)", "Octorok (L3, Slow)", "Octorok (L3, Fast)",
+  // 140
+  "Trap (8-Way) ", "Trap (Diagonal) ", "Trap (/, Constant) ", "Trap (/, Line of Sight) ", "Trap (\\, Constant) ",
+  // 145
+  "Trap (\\, Line of Sight) ", "Trap (CW, Constant) ", "Trap (CW, Line of Sight) ", "Trap (CCW, Constant) ", "Trap (CCW, Line of Sight) "
 };
 
 char *pattern_string[MAXPATTERNS] =
@@ -554,8 +599,17 @@ char *short_pattern_string[MAXPATTERNS] =
   "Random", "Sides"
 };
 
-char *midi_string[MAXMIDIS_ZQ] =
+char *midi_string[MAXCUSTOMMIDIS_ZQ] =
 {
+  "(None)",
+  "Overworld",
+  "Dungeon",
+  "Level 9",
+};
+
+char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1] =
+{
+  "Use DMap MIDI",
   "(None)",
   "Overworld",
   "Dungeon",
@@ -572,6 +626,7 @@ int onOpen2();
 int onRevert();
 int onSave();
 int onSaveAs();
+int onSaveAs210();
 int onQuestTemplates();
 
 int onUndo();
@@ -699,8 +754,17 @@ void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg,bool value);
 void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int value);
 void KeyFileName(char *kfname);
 
+
+extern int draw_mode;
+extern int alias_origin;
+
 int onSpacebar()
 {
+  if(draw_mode==3)
+  {
+    alias_origin=(alias_origin+1)%4;
+    return D_O_K;
+  }
   combo_cols=!combo_cols;
   return D_O_K;
 }
@@ -711,7 +775,7 @@ int onSnapshot()
   int num=0;
   do
   {
-    sprintf(buf, "zelda%03d.bmp", ++num);
+    sprintf(buf, "zelda%03d.gif", ++num);
   } while(num<999 && exists(buf));
 
   blit(screen,screen2,0,0,0,0,zq_screen_w,zq_screen_h);
@@ -728,15 +792,15 @@ void go()
   switch(gocnt)
   {
     case 0:
-      scare_mouse();
-      blit(screen,menu1,0,0,0,0,zq_screen_w,zq_screen_h);
-      unscare_mouse();
-      break;
+    scare_mouse();
+    blit(screen,menu1,0,0,0,0,zq_screen_w,zq_screen_h);
+    unscare_mouse();
+    break;
     case 1:
-      scare_mouse();
-      blit(screen,menu3,0,0,0,0,zq_screen_w,zq_screen_h);
-      unscare_mouse();
-      break;
+    scare_mouse();
+    blit(screen,menu3,0,0,0,0,zq_screen_w,zq_screen_h);
+    unscare_mouse();
+    break;
     default: return;
   }
   ++gocnt;
@@ -747,15 +811,15 @@ void comeback()
   switch(gocnt)
   {
     case 1:
-      scare_mouse();
-      blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-      unscare_mouse();
-      break;
+    scare_mouse();
+    blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
+    unscare_mouse();
+    break;
     case 2:
-      scare_mouse();
-      blit(menu3,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-      unscare_mouse();
-      break;
+    scare_mouse();
+    blit(menu3,screen,0,0,0,0,zq_screen_w,zq_screen_h);
+    unscare_mouse();
+    break;
     default: return;
   }
   --gocnt;
@@ -774,10 +838,10 @@ int checksave()
   switch(jwin_alert3("ZQuest",buf,NULL,NULL,"&Yes","&No","Cancel",'y','n',27,lfont))
   {
     case 1:
-      onSave();
-      return 1;
+    onSave();
+    return 1;
     case 2:
-      return 1;
+    return 1;
   }
   return 0;
 }
@@ -797,7 +861,7 @@ int onAbout()
   char buf1[40];
   char buf2[40];
   char buf3[40];
-  if(debug)
+  if(get_debug())
   {
     if (IS_BETA)
     {
@@ -816,11 +880,11 @@ int onAbout()
     switch (IS_BETA)
     {
       case -1:
-        sprintf(buf1,"ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);break;
+      sprintf(buf1,"ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);break;
       case 1:
-        sprintf(buf1,"ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);break;
+      sprintf(buf1,"ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);break;
       case 0:
-        sprintf(buf1,"ZQuest %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+      sprintf(buf1,"ZQuest %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
     }
     jwin_alert("About ZQuest",buf1,NULL,NULL,"OK", NULL, 13, 27, lfont);
   }
@@ -834,10 +898,34 @@ int onW()
   return D_O_K;
 }
 
+int onX()
+{
+  prv_mode=(prv_mode+1)%2;
+  if(prv_mode)
+  {
+    Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());
+  }
+  bool tempcb=ComboBrush!=0;
+  ComboBrush=0;
+  restore_mouse();
+  dopreview();
+  ComboBrush=tempcb;
+  return D_O_K;
+}
+
 int onF()
 {
   Flags^=cFLAGS;
   refresh(rMAP);
+  return D_O_K;
+}
+
+int onP()
+{
+  if(prv_mode)
+  {
+    Map.set_prvfreeze(((Map.get_prvfreeze()+1)%2));
+  }
   return D_O_K;
 }
 
@@ -849,13 +937,13 @@ int onQ()
     Flags |= cCTYPE;
   }
   else if(Flags&cCTYPE)
-  {
-    Flags ^= cCTYPE;
-  }
-  else
-  {
-    Flags |= cCSET;
-  }
+    {
+      Flags ^= cCTYPE;
+    }
+    else
+    {
+      Flags |= cCSET;
+    }
 
   refresh(rMAP);
   return D_O_K;
@@ -950,3 +1038,25 @@ int onIncMap();
 int onDecMap();
 
 int onDumpScr();
+
+// these are here so that copy_dialog won't choke when compiling zelda
+int d_jbutton_proc(int, DIALOG*, int)
+{
+  return D_O_K;
+}
+
+int d_kbutton_proc(int, DIALOG*, int)
+{
+  return D_O_K;
+}
+
+int d_listen_proc(int, DIALOG*, int)
+{
+  return D_O_K;
+}
+
+int d_savemidi_proc(int, DIALOG*, int)
+{
+  return D_O_K;
+}
+

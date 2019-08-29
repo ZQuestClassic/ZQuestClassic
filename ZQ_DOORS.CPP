@@ -8,6 +8,7 @@
 //
 //--------------------------------------------------------
 
+#include "gui.h"
 #include "zc_alleg.h"
 #include "zdefs.h"
 #include "jwin.h"
@@ -16,9 +17,8 @@
 #include "zq_misc.h"
 #include "tiles.h"
 #include "zq_class.h"
-#include <strings.h>
+#include <string.h>
 #include "zq_tiles.h"
-#include "gui.h"
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_combo_proc(int msg,DIALOG *d,int c);
@@ -55,6 +55,8 @@ char *doorslist(int index, int *list_size)
   return NULL;
 }
 
+static char *sidestr[4] = {"Top","Bottom","Left","Right"};
+
 void edit_door(int side)
 {
   int index=Map.CurrScr()->door[side];
@@ -72,7 +74,9 @@ void edit_door(int side)
     case 10: index=7; break;
     default: index=0;
   }
-  int ret=select_data("Select Door Type",index,doorslist,lfont);
+  char sidename[80];
+  sprintf(sidename, "Select %s Door Type", sidestr[side]);
+  int ret=select_data(sidename,index,doorslist,lfont);
   if(ret!=-1)
   {
     switch(ret)
@@ -135,26 +139,23 @@ int onDoors()
       case 3:
       case 4:
       case 5:
-        edit_door(ret-2);
-        break;
+      edit_door(ret-2);
+      break;
       case 6:
-        for (int i=0; i>4; i++)
-        {
-          Map.putdoor(i,Map.CurrScr()->door[i]);
-        }
-        done=true;
-        break;
+      for (int i=0; i>4; i++)
+      {
+        Map.putdoor(i,Map.CurrScr()->door[i]);
+      }
+      done=true;
+      break;
       case 0:
       case 7:
-        //why is this here?
-/*
-        for (int i=0; i>4; i++)
-        {
-          Map.putdoor(i,Map.CurrScr()->door[i]);
-        }
-*/
-        Map.Uhuilai();
-        done=true;
+      for (int i=0; i>4; i++)
+      {
+        Map.putdoor(i,Map.CurrScr()->door[i]);
+      }
+      Map.Uhuilai();
+      done=true;
     }
   } while(!done);
   return D_O_K;
@@ -175,15 +176,15 @@ int onDoors()
   byte doorcset_r[7][6];    //[door type][door combo]
   word bombdoorcombo_u[6];   //[door type][door combo]
   byte bombdoorcset_u[6];    //[door type][door combo]
-word bombdoorcombo_d[6];   //[door type][door combo]
-byte bombdoorcset_d[6];    //[door type][door combo]
-word bombdoorcombo_l[9];   //[door type][door combo]
-byte bombdoorcset_l[9];    //[door type][door combo]
-word bombdoorcombo_r[9];   //[door type][door combo]
-byte bombdoorcset_r[9];    //[door type][door combo]
-word walkthroughcombo[4]; //[n, s, e, w]
-byte walkthroughcset[4];  //[n, s, e, w]
-*/
+  word bombdoorcombo_d[6];   //[door type][door combo]
+  byte bombdoorcset_d[6];    //[door type][door combo]
+  word bombdoorcombo_l[9];   //[door type][door combo]
+  byte bombdoorcset_l[9];    //[door type][door combo]
+  word bombdoorcombo_r[9];   //[door type][door combo]
+  byte bombdoorcset_r[9];    //[door type][door combo]
+  word walkthroughcombo[4]; //[n, s, e, w]
+  byte walkthroughcset[4];  //[n, s, e, w]
+  */
 
 DoorComboSet working_dcs;
 
@@ -228,13 +229,13 @@ void fix_dcs(int dir)
       for (int i=0; i<dt_max-1; i++)
       {
         if ((working_dcs.doorcombo_u[i][0]!=0)&&
-          (working_dcs.doorcombo_u[i][1]==0))      //match top half
+            (working_dcs.doorcombo_u[i][1]==0))      //match top half
         {
           working_dcs.doorcombo_u[i][1]=working_dcs.doorcombo_u[i][0]+1;
           working_dcs.doorcset_u[i][1]=working_dcs.doorcset_u[i][0];
         }
         if ((working_dcs.doorcombo_u[i][2]!=0)&&
-          (working_dcs.doorcombo_u[i][3]==0))      //match bottom half
+            (working_dcs.doorcombo_u[i][3]==0))      //match bottom half
         {
           working_dcs.doorcombo_u[i][3]=working_dcs.doorcombo_u[i][2]+1;
           working_dcs.doorcset_u[i][3]=working_dcs.doorcset_u[i][2];
@@ -274,7 +275,7 @@ void fix_dcs(int dir)
         }
       }
     }
-      break;
+    break;
     case down:
     {
       //first combo copying
@@ -312,13 +313,13 @@ void fix_dcs(int dir)
       for (int i=0; i<dt_max-1; i++)
       {
         if ((working_dcs.doorcombo_d[i][0]!=0)&&
-          (working_dcs.doorcombo_d[i][1]==0))      //match top half
+            (working_dcs.doorcombo_d[i][1]==0))      //match top half
         {
           working_dcs.doorcombo_d[i][1]=working_dcs.doorcombo_d[i][0]+1;
           working_dcs.doorcset_d[i][1]=working_dcs.doorcset_d[i][0];
         }
         if ((working_dcs.doorcombo_d[i][2]!=0)&&
-          (working_dcs.doorcombo_d[i][3]==0))      //match bottom half
+            (working_dcs.doorcombo_d[i][3]==0))      //match bottom half
         {
           working_dcs.doorcombo_d[i][3]=working_dcs.doorcombo_d[i][2]+1;
           working_dcs.doorcset_d[i][3]=working_dcs.doorcset_d[i][2];
@@ -360,7 +361,7 @@ void fix_dcs(int dir)
         }
       }
     }
-      break;
+    break;
     case left:
     {
       //first combo copying
@@ -422,25 +423,25 @@ void fix_dcs(int dir)
       for (int i=0; i<dt_max-1; i++)
       {
         if ((working_dcs.doorcombo_l[i][0]!=0)&&
-          (working_dcs.doorcombo_l[i][2]==0))      //match left half - a
+            (working_dcs.doorcombo_l[i][2]==0))      //match left half - a
         {
           working_dcs.doorcombo_l[i][2]=working_dcs.doorcombo_l[i][0]+4;
           working_dcs.doorcset_l[i][2]=working_dcs.doorcset_l[i][0];
         }
         if ((working_dcs.doorcombo_l[i][2]!=0)&&
-          (working_dcs.doorcombo_l[i][4]==0))      //match left half - b
+            (working_dcs.doorcombo_l[i][4]==0))      //match left half - b
         {
           working_dcs.doorcombo_l[i][4]=working_dcs.doorcombo_l[i][2]+4;
           working_dcs.doorcset_l[i][4]=working_dcs.doorcset_l[i][2];
         }
         if ((working_dcs.doorcombo_l[i][1]!=0)&&
-          (working_dcs.doorcombo_l[i][3]==0))      //match right half - a
+            (working_dcs.doorcombo_l[i][3]==0))      //match right half - a
         {
           working_dcs.doorcombo_l[i][3]=working_dcs.doorcombo_l[i][1]+4;
           working_dcs.doorcset_l[i][3]=working_dcs.doorcset_l[i][1];
         }
         if ((working_dcs.doorcombo_l[i][3]!=0)&&
-          (working_dcs.doorcombo_l[i][5]==0))      //match right half - b
+            (working_dcs.doorcombo_l[i][5]==0))      //match right half - b
         {
           working_dcs.doorcombo_l[i][5]=working_dcs.doorcombo_l[i][3]+4;
           working_dcs.doorcset_l[i][5]=working_dcs.doorcset_l[i][3];
@@ -448,14 +449,14 @@ void fix_dcs(int dir)
       }
 
       if ((working_dcs.bombdoorcombo_l[0]!=0)&&
-        (working_dcs.bombdoorcombo_l[1]==0))       //match rubble - a
+          (working_dcs.bombdoorcombo_l[1]==0))       //match rubble - a
       {
         working_dcs.bombdoorcombo_l[1]=working_dcs.bombdoorcombo_l[0]+4;
         working_dcs.bombdoorcset_l[1]=working_dcs.bombdoorcset_l[0];
       }
       if ((working_dcs.bombdoorcombo_l[0]!=0)&&
-        (working_dcs.bombdoorcombo_l[1]!=0)&&
-        (working_dcs.bombdoorcombo_l[2]==0))       //match rubble - b
+          (working_dcs.bombdoorcombo_l[1]!=0)&&
+          (working_dcs.bombdoorcombo_l[2]==0))       //match rubble - b
       {
         working_dcs.bombdoorcombo_l[2]=working_dcs.bombdoorcombo_l[1]+4;
         working_dcs.bombdoorcset_l[2]=working_dcs.bombdoorcset_l[1];
@@ -488,7 +489,7 @@ void fix_dcs(int dir)
         }
       }
     }
-      break;
+    break;
     case right:
     {
       //first combo copying
@@ -553,25 +554,25 @@ void fix_dcs(int dir)
       for (int i=0; i<dt_max-1; i++)
       {
         if ((working_dcs.doorcombo_r[i][0]!=0)&&
-          (working_dcs.doorcombo_r[i][2]==0))      //match left half - a
+            (working_dcs.doorcombo_r[i][2]==0))      //match left half - a
         {
           working_dcs.doorcombo_r[i][2]=working_dcs.doorcombo_r[i][0]+4;
           working_dcs.doorcset_r[i][2]=working_dcs.doorcset_r[i][0];
         }
         if ((working_dcs.doorcombo_r[i][2]!=0)&&
-          (working_dcs.doorcombo_r[i][4]==0))      //match left half - b
+            (working_dcs.doorcombo_r[i][4]==0))      //match left half - b
         {
           working_dcs.doorcombo_r[i][4]=working_dcs.doorcombo_r[i][2]+4;
           working_dcs.doorcset_r[i][4]=working_dcs.doorcset_r[i][2];
         }
         if ((working_dcs.doorcombo_r[i][1]!=0)&&
-          (working_dcs.doorcombo_r[i][3]==0))      //match right half - a
+            (working_dcs.doorcombo_r[i][3]==0))      //match right half - a
         {
           working_dcs.doorcombo_r[i][3]=working_dcs.doorcombo_r[i][1]+4;
           working_dcs.doorcset_r[i][3]=working_dcs.doorcset_r[i][1];
         }
         if ((working_dcs.doorcombo_r[i][3]!=0)&&
-          (working_dcs.doorcombo_r[i][5]==0))      //match right half - b
+            (working_dcs.doorcombo_r[i][5]==0))      //match right half - b
         {
           working_dcs.doorcombo_r[i][5]=working_dcs.doorcombo_r[i][3]+4;
           working_dcs.doorcset_r[i][5]=working_dcs.doorcset_r[i][3];
@@ -579,14 +580,14 @@ void fix_dcs(int dir)
       }
 
       if ((working_dcs.bombdoorcombo_r[0]!=0)&&
-        (working_dcs.bombdoorcombo_r[1]==0))       //match rubble - a
+          (working_dcs.bombdoorcombo_r[1]==0))       //match rubble - a
       {
         working_dcs.bombdoorcombo_r[1]=working_dcs.bombdoorcombo_r[0]+4;
         working_dcs.bombdoorcset_r[1]=working_dcs.bombdoorcset_r[0];
       }
       if ((working_dcs.bombdoorcombo_r[0]!=0)&&
-        (working_dcs.bombdoorcombo_r[1]!=0)&&
-        (working_dcs.bombdoorcombo_r[2]==0))       //match rubble - b
+          (working_dcs.bombdoorcombo_r[1]!=0)&&
+          (working_dcs.bombdoorcombo_r[2]==0))       //match rubble - b
       {
         working_dcs.bombdoorcombo_r[2]=working_dcs.bombdoorcombo_r[1]+4;
         working_dcs.bombdoorcset_r[2]=working_dcs.bombdoorcset_r[1];
@@ -619,29 +620,29 @@ void fix_dcs(int dir)
         }
       }
     }
-      break;
+    break;
   }
 }
 
-static int door_north_list[] =
+static int door_top_list[] =
 {
   // dialog control number
   8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, -1
 };
 
-static int door_south_list[] =
+static int door_bottom_list[] =
 {
   // dialog control number
   70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, -1
 };
 
-static int door_west_list[] =
+static int door_left_list[] =
 {
   // dialog control number
   132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, -1
 };
 
-static int door_east_list[] =
+static int door_right_list[] =
 {
   // dialog control number
   213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, -1
@@ -650,10 +651,10 @@ static int door_east_list[] =
 static TABPANEL door_tabs[] =
 {
   // (text)
-  { "North",  D_SELECTED,  door_north_list },
-  { "South",  0,           door_south_list },
-  { "West",   0,           door_west_list },
-  { "East",   0,           door_east_list },
+  { "Top",     D_SELECTED,  door_top_list },
+  { "Bottom",  0,           door_bottom_list },
+  { "Left",    0,           door_left_list },
+  { "Right",   0,           door_right_list },
   { NULL }
 };
 
@@ -662,7 +663,7 @@ int dcs_auto_button_proc(int msg, DIALOG *d, int c);
 static DIALOG doorcomboset_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-//  { d_dummy_proc,      0,    0,      0,    0,    0,       0,      0,       0,          0,             0,       0 },
+  //  { d_dummy_proc,      0,    0,      0,    0,    0,       0,      0,       0,          0,             0,       0 },
   { jwin_win_proc,     32-8,   3,   256+16,  235,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Door Combos" },
   { dcs_auto_button_proc,     60,   213,  61,   21,   vc(14),  vc(1),  13,      0,     0,             0,       (void *) "Auto" },
   { jwin_button_proc,     130,  213,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK" },
@@ -1257,70 +1258,70 @@ int dcs_auto_button_proc(int msg, DIALOG *d, int c)
   switch (msg)
   {
     case MSG_DRAW:
-      jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
-      break;
+    jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
+    break;
 
     case MSG_WANTFOCUS:
-      return D_WANTFOCUS;
+    return D_WANTFOCUS;
 
     case MSG_KEY:
-      /* close dialog? */
+    /* close dialog? */
+    extract_dcs_dlg();
+    fix_dcs(doorcomboset_dlg[7].d1+1);
+    fill_dcs_dlg();
+    object_message(doorcomboset_dlg+7,MSG_DRAW,0);
+    if (d->flags & D_EXIT)
+    {
+      return D_CLOSE;
+    }
+    break;
+
+    case MSG_CLICK:
+    last_draw = 0;
+
+    /* track the mouse until it is released */
+    while (gui_mouse_b())
+    {
+      down = mouse_in_rect(d->x, d->y, d->w, d->h);
+
+      /* redraw? */
+      if (last_draw != down)
+      {
+        if(down)
+          d->flags |= D_SELECTED;
+        else
+          d->flags &= ~D_SELECTED;
+        scare_mouse();
+        object_message(d, MSG_DRAW, 0);
+        unscare_mouse();
+        last_draw = down;
+      }
+
+      /* let other objects continue to animate */
+      broadcast_dialog_message(MSG_IDLE, 0);
+    }
+
+    /* redraw in normal state */
+    if(down)
+    {
+      d->flags &= ~D_SELECTED;
+      scare_mouse();
+      object_message(d, MSG_DRAW, 0);
       extract_dcs_dlg();
       fix_dcs(doorcomboset_dlg[7].d1+1);
       fill_dcs_dlg();
       object_message(doorcomboset_dlg+7,MSG_DRAW,0);
-      if (d->flags & D_EXIT)
-      {
-        return D_CLOSE;
-      }
-      break;
+      unscare_mouse();
+    }
 
-    case MSG_CLICK:
-      last_draw = 0;
+    /* should we close the dialog? */
+    if(down && (d->flags & D_EXIT))
+      return D_CLOSE;
 
-      /* track the mouse until it is released */
-      while (gui_mouse_b())
-      {
-        down = mouse_in_rect(d->x, d->y, d->w, d->h);
-
-        /* redraw? */
-        if (last_draw != down)
-        {
-          if(down)
-            d->flags |= D_SELECTED;
-          else
-            d->flags &= ~D_SELECTED;
-          scare_mouse();
-          object_message(d, MSG_DRAW, 0);
-          unscare_mouse();
-          last_draw = down;
-        }
-
-        /* let other objects continue to animate */
-        broadcast_dialog_message(MSG_IDLE, 0);
-      }
-
-      /* redraw in normal state */
-      if(down)
-      {
-        d->flags &= ~D_SELECTED;
-        scare_mouse();
-        object_message(d, MSG_DRAW, 0);
-        extract_dcs_dlg();
-        fix_dcs(doorcomboset_dlg[7].d1+1);
-        fill_dcs_dlg();
-        object_message(doorcomboset_dlg+7,MSG_DRAW,0);
-        unscare_mouse();
-      }
-
-      /* should we close the dialog? */
-      if(down && (d->flags & D_EXIT))
-        return D_CLOSE;
-
-      break;
+    break;
     default:
-      jwin_button_proc(msg, d, c);
-      break;
+    jwin_button_proc(msg, d, c);
+    break;
   }
 
   return D_O_K;
@@ -1384,11 +1385,11 @@ int replacedcs();
 static DIALOG doorcombosetlist_dlg[] =
 {
   /* (dialog proc)        (x)   (y)   (w)     (h)     (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp) */
-  { jwin_win_proc,        52,   40,   216+1,  146+1,  vc(14),              vc(1),                0,       D_EXIT,     0,             0,       (void *) "Edit Door Combo Set" },
+  { jwin_win_proc,        52,   40,   216+1,  150,    vc(14),              vc(1),                0,       D_EXIT,     0,             0,       (void *) "Edit Door Combo Set" },
   { d_dummy_proc,         160,  47,   0,      8,      vc(15),              vc(1),                0,       0,          0,             0,       NULL },
-  { jwin_list_proc,       68,   65,   185,    93,     jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],   0,       D_EXIT,     0,             0,       (void *) doorcombosetlist },
-  { jwin_button_proc,     90,   162,  61,     21,     vc(14),              vc(1),                13,      D_EXIT,     0,             0,       (void *) "Edit" },
-  { jwin_button_proc,     170,  162,  61,     21,     vc(14),              vc(1),                27,      D_EXIT,     0,             0,       (void *) "Done" },
+  { jwin_list_proc,       68,   65,   185,    96,     jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],   0,       D_EXIT,     0,             0,       (void *) doorcombosetlist },
+  { jwin_button_proc,     90,   165,  61,     21,     vc(14),              vc(1),                13,      D_EXIT,     0,             0,       (void *) "Edit" },
+  { jwin_button_proc,     170,  165,  61,     21,     vc(14),              vc(1),                27,      D_EXIT,     0,             0,       (void *) "Done" },
   { d_dummy_proc,         0,    0,    0,      0,      0,                   0,                    0,       0,          -1,            0,       NULL},
   { d_keyboard_proc,      0,    0,    0,      0,      0,                   0,                    0,       0,          KEY_DEL,       0,       (void *) doorcombosetlist_del },
   { d_keyboard_proc,      0,    0,    0,      0,      0,                   0,                    'c',     0,          0,             0,       (void *) copydcs },
@@ -1470,7 +1471,7 @@ void fix_door_combo_set(word &door_combo_set, byte index)
   if(door_combo_set == index)
     door_combo_set = 0;
   else if(door_combo_set > index)
-    --door_combo_set;
+      --door_combo_set;
 }
 
 
@@ -1510,6 +1511,7 @@ int onDoorCombos()
     {
       case 2:
       case 3: doedit=true; break;
+      case 0:
       case 4: index=-1; break;
     }
     if(hasroom)

@@ -72,6 +72,10 @@ void loadfullpal()
   refreshpal=true;
 }
 
+/*void loadlvlpal256(int level)
+  {
+  byte *si = colordata + */
+
 void loadlvlpal(int level)
 {
   byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
@@ -140,6 +144,7 @@ void fade(int level,bool blackall,bool fromblack,bool total)
   int cx = fromblack ? 30 : 0;
   for(int i=0; i<=30; i+=(get_bit(quest_rules,qr_FADE))?2:1)
   {
+    logic_counter=0;
     if(get_bit(quest_rules,qr_FADE))
     {
       int dpos = (cx<<6)/30;
@@ -171,21 +176,21 @@ void fade(int level,bool blackall,bool fromblack,bool total)
         case 10: loadfadepal(level*pdLEVEL+poFADE1); break;
         case 20: loadfadepal(level*pdLEVEL+poFADE2); break;
         case 30:
-          if(blackall)
-          {
-            for(int i=0; i<pdFADE*16; i++)
-              RAMpal[CSET(2)+i]=black_palette[0];
-            refreshpal=true;
-          } else
+        if(blackall)
+        {
+          for(int i=0; i<pdFADE*16; i++)
+            RAMpal[CSET(2)+i]=black_palette[0];
+          refreshpal=true;
+        } else
           loadfadepal(level*pdLEVEL+poFADE3);
-          break;
+        break;
       }
     }
 
     if(!get_bit(quest_rules,qr_NOLEVEL3FIX) && level==3)
       RAMpal[CSET(6)+2] = NESpal(0x37);
 
-    putsubscr(framebuf,0,0);
+    //put_passive_subscr(framebuf,0,passive_subscreen_offset,false,false);
     advanceframe();
     if(Quit)
       break;
@@ -197,41 +202,13 @@ void fade(int level,bool blackall,bool fromblack,bool total)
   }
 }
 
-/*
-void lighting(int funct)
-// 1 = use candle
-// 2 = exit room
-// 3 = enter room
-{
- switch(funct) {
-  case 1:
-   if(darkroom) {
-     fade(DMaps[currdmap].color,false,true);
-     darkroom=false;
-}
-break;
-case 2:
-if(tmpscr->flags&fDARK && !darkroom) {
-fade(DMaps[currdmap].color,false,false);
-darkroom=true;
-}
-break;
-case 3:
-if(!(tmpscr->flags&fDARK) && darkroom) {
-fade(DMaps[currdmap].color,false,true);
-darkroom=false;
-}
-break;
-}
-}
-*/
-
 void lighting(int funct, int dir)
-// 1 = use candle
-// 2 = exit room
-// 3 = enter room
-// 4 = scrolling warp exit
+  // 1 = use candle
+  // 2 = exit room / candle dies
+  // 3 = enter room
+  // 4 = scrolling warp exit
 {
+  int index = (tmpscr->sidewarpindex >> (dir*2))&3;
   switch(funct)
   {
     case 1:
@@ -241,12 +218,11 @@ void lighting(int funct, int dir)
         darkroom=false;
       }
       break;
-    case 2:                                                 //currently light.  room you are going to is supposed to be dark.
+    case 2:                                                 //currently light.  room you are going to is supposed to be dark (or candle goes out).
       if(tmpscr->flags&fDARK && !darkroom)
       {
         fade(DMaps[currdmap].color,false,false,false);
         darkroom=true;
-
       }
       break;
     case 3:                                                 //currently dark.  room you are going to is supposed to be light.
@@ -258,7 +234,7 @@ void lighting(int funct, int dir)
       currcset=DMaps[currdmap].color;
       break;
     case 4:                                                 //currently light.  room you are going to is supposed to be dark.
-      if((tmpscr->flags&fDARK && !darkroom)||(DMaps[(tmpscr[((currscr<128)?0:1)].sidewarpdmap)].color!=currcset))
+      if((tmpscr->flags&fDARK && !darkroom)||(DMaps[(tmpscr[((currscr<128)?0:1)].sidewarpdmap[index])].color!=currcset))
       {
         fade(DMaps[currdmap].color,true,false,true);
         darkroom=true;
@@ -366,8 +342,8 @@ int reverse_NESpal(RGB c)
       dist = d;
       index = i;
     }
- }
- return index;
+  }
+  return index;
 }
 
 /* end of pal.cc */

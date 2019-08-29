@@ -8,8 +8,8 @@
 //
 //--------------------------------------------------------
 
-//inline void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
-//inline void SCRFIX() {}
+//INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
+//INLINE void SCRFIX() {}
 
 #ifndef _ZQ_MISC_H_
 #define _ZQ_MISC_H_
@@ -18,6 +18,7 @@
 #include "zdefs.h"
 #include "jwin.h"
 
+#define MAXSCREENS 128
 #define ITEMCNT   iMax
 #define WPNCNT    wMAX
 #define MAXROOMTYPES   rMAX
@@ -25,9 +26,8 @@
 #define MAXWARPEFFECTS   weMAX
 #define MAXCOMBOTYPES  cMAX
 #define MAXFLAGS    mfMAX
-#define zqMAXGUYS    9
 #define MAXPATTERNS  2
-#define MAXMIDIS_ZQ  4+MAXMIDIS
+#define MAXCUSTOMMIDIS_ZQ  4+MAXCUSTOMMIDIS
 
 #define cWALK      1
 #define cFLAGS     2
@@ -48,19 +48,20 @@
 
 #define C(x)   ((x)-'a'+1)
 
-inline int popup_menu(MENU *menu,int x,int y)
+INLINE int popup_menu(MENU *menu,int x,int y)
 {
   while(gui_mouse_b());
   return jwin_do_menu(menu,x,y);
 }
 
-inline int bit(int val,int b)
+INLINE int bit(int val,int b)
 {
   return (val>>b)&1;
 }
 
 enum { ftBIN=1, ftBMP, ftTIL, ftZGP, ftQSU };
 extern char *imgstr[6];
+extern char ns_string[3];
 extern char *item_string[ITEMCNT];
 extern char *weapon_string[WPNCNT];
 extern char *roomtype_string[MAXROOMTYPES];
@@ -72,7 +73,8 @@ extern char *flag_string[MAXFLAGS];
 extern char *guy_string[eMAXGUYS];
 extern char *pattern_string[MAXPATTERNS];
 extern char *short_pattern_string[MAXPATTERNS];
-extern char *midi_string[MAXMIDIS_ZQ];
+extern char *midi_string[MAXCUSTOMMIDIS_ZQ];
+extern char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1];
 extern int gocnt;
 
 int filetype(char *path);
@@ -115,6 +117,7 @@ int onOpen2();
 int onRevert();
 int onSave();
 int onSaveAs();
+int onSaveAs210();
 int onQuestTemplates();
 
 int onUndo();
@@ -125,6 +128,18 @@ int onPasteToAll();
 int onPasteAllToAll();
 int onDelete();
 int onDeleteMap();
+
+int onPasteUnderCombo();
+int onPasteSecretCombos();
+int onPasteFFCombos();
+int onPasteWarps();
+int onPasteScreenData();
+int onPasteWarpLocations();
+int onPasteDoors();
+int onPasteLayers();
+int onPasteRoom();
+int onPasteGuy();
+int onPasteEnemies();
 
 int onTemplate();
 int onDoors();
@@ -250,7 +265,9 @@ int checksave();
 int onExit();
 int onAbout();
 int onW();
+int onX();
 int onF();
+int onP();
 int onQ();
 int onL();
 int onM();

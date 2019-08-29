@@ -13,343 +13,288 @@
 //--------------------------------------------------------
 
 #include "defdata.h"
-
-// **** in zdefs.h ****
-//
-// typedef struct itemdata {
-//   word tile;
-//   byte misc;     // 0000vhtf (v:v-flip, h:h-flip, t:two hands, f:flash)
-//   byte csets;    // ffffcccc (f:flash cset, c:cset)
-//   byte frames;   // animation frame count
-//   byte speed;    // animation speed
-//   byte delay;    // extra delay factor (-1) for first frame
-//   byte exp;
-//   // 8 bytes
-// } itemdata;
-
-itemdata default_items[MAXITEMS] =
-{
-  // 0-4  : rupee,       blue rupee, heart,       bombs,    clock
-  {49,1,0x78},{49,0,7},{82,1,0x78},{50,0,7},{68,0,8},
-  // 5-9  : sword,     white sword,  magic sword,  shield,    key
-  {41,0,6},{41,0,7},{59,0,8},{40,0,6},{48,0,8},
-  // 10-14: blue candle,  red candle,  letter,    arrow,     silver arrow
-  {44,0,7},{44,0,8},{81,0,7},{45,0,6},{45,0,7},
-  // 15-19: bow,       bait,      blue ring,  red ring,   power bracelet
-  {80,0,6},{79,0,8},{58,0,7},{58,0,8},{62,0,8},
-  // 20-24: triforce,    map,       compass,   wood boomerang,  magic boomerang
-  {72,3,0x78},{81,0,8},{70,0,8},{51,0,6},{51,0,7},
-  // 25-29: wand,      raft,      ladder,    heart container,  blue potion
-  {60,0,7},{71,2,6},{76,2,6},{69,2,8},{55,0,7},
-  // 30-34: red potion,  whistle,    magic book,  magic key,   fairy,
-  {55,0,8},{37,0,8},{56,0,8},{47,0,8},{63,0,8,2,4},
-  // 35-39: fire brang,  Excalibur,  mirror shield,  20 rupies,  50 rupies
-  {51,0,8},{59,0,7},{40,0,7},{49,0,10},{49,0,11},
-  // 40-44: 200 rupies,  500 wallet,  999 wallet,  pile,       big triforce
-  {49,0,12},{0,0,6},{0,0,7},{176,0,9},{175,3,0x78},
-  // 45     selection,    misc1,    misc2,    super bomb,  HC piece
-  {39,1,0x78},{0,0,0},{0,0,0},{50,0,8},{0,0,0},
-  // 50     cross,    flippers,  hookshot,  lens,     hammer
-  {0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},
-  // 55     boots,    L2 bracelet  golden arrow    magic cont.  magic jar (sm)
-  {0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},
-  // 60     magic jar (lg)   golden ring
-  {0,0,0},{0, 0, 0}
-};
-
-/*
-static const wpndata default_wpns[MAXWPNS] = {
-// wSWORD    wWSWORD   wMSWORD   wXSWORD   wBRANG    wMBRANG   wFBRANG
-   {41,0,6}, {41,0,7}, {41,0,8}, {41,0,9}, {51,0,6}, {51,0,7}, {51,0,8},
-// wBOMB     wSBOMB    wBOOM     wARROW    wSARROW   wFIRE         wWIND
-   {50,0,7}, {50,0,8}, {73,0,7}, {45,0,6}, {45,0,7}, {65,4,8,0,6}, {83,5,6},
-// wBAIT     wWAND     wMAGIC    ewFIREBALL ewROCK     ewARROW   ewSWORD
-   {79,0,8}, {60,0,7}, {77,1,6}, {57,1,6},  {139,0,6}, {45,0,8}, {41,1,6},
-// ewMAGIC   iwSpawn   iwDeath   wHAMMER    wHSHEAD    wHSCHAIN_H wHSHANDLE
-   {77,1,6}, {73,0,7}, {66,0,7}, {0,0,0},   {0, 0, 0}, {0, 0, 0}, {0, 0, 0},
-// iwSSPARKLES  iwGSPARKLES  iwMSPARKLES  iwFSPARKLES  iwSMACK    wGARROW
-{0, 0, 0},   {0, 0, 0},   {0, 0, 0},   {0, 0, 0},   {0,0,0},   {0, 0, 0}
-// ewFLAME        ewWIND         iwMMeter     wDINSFIRE1A  wDINSFIRE1B
-{0, 0, 0},     {0, 0, 0},     {0, 0, 0},   {0, 0, 0},   {0,0,0},   {0, 0, 0}
-// wDINSFIRES1A   wDINSFIRES1B   wHSCHAIN_V
-{0, 0, 0},     {0, 0, 0},     {0, 0, 0}
-};
-*/
-
-/* **** in zdefs.h ****
-
-// item sets
-enum { isNONE, isDEFAULT, isBOMBS, isMONEY, isLIFE, isBOMB100, isSBOMB100 };
-
-// weapons (in qst data)
-enum { wSWORD,wWSWORD,wMSWORD,wXSWORD,wBRANG,wMBRANG,wFBRANG,wBOMB,
-       wSBOMB,wBOOM,wARROW,wSARROW,wFIRE,wWIND,wBAIT,wWAND,wMAGIC,
-       ewFIREBALL,ewROCK,ewARROW,ewSWORD,ewMAGIC,iwSpawn,iwDeath,
-       wHAMMER, wHOOKSHOT, iwSPARKLES, iwSMACK, wMAX };
-
-#define guy_bhit        0x00000001
-#define guy_invisible   0x00000002
-#define guy_neverret    0x00000004
-#define guy_superman    0x00000008
-
-#define guy_sbombonly   0x00000010
-#define inv_brang       0x00000020
-#define inv_bomb        0x00000040
-#define inv_sbomb       0x00000080
-
-#define inv_arrow       0x00000100
-#define inv_L2arrow     0x00000200
-#define inv_fire        0x00000400
-#define inv_wand        0x00000800
-
-#define inv_magic       0x00001000
-#define inv_hookshot    0x00002000
-#define inv_hammer      0x00004000
-#define inv_L3brang     0x00008000
-
-#define inv_L1sword     0x00010000
-#define inv_L3sword     0x00020000
-#define inv_L1beam      0x00040000
-#define inv_L3beam      0x00080000
-
-#define inv_refbeam     0x00100000
-#define inv_refmagic    0x00200000
-#define inv_refball     0x00400000
-#define inv_extra       0x00800000
-
-#define inv_front       0x01000000
-#define inv_left        0x02000000
-#define inv_right       0x04000000
-#define inv_back        0x08000000
-
-#define weak_whistle    0x10000000
-#define weak_arrow      0x20000000
-#define weak_L3brang    0x40000000
-#define lens_only       0x80000000
-
-enum { gABEI=1,gAMA,gDUDE,gMOBLIN,gFIRE,
-gFAIRY,gGORIYA,gZELDA,gDABEI,
-
-eROCTO1=10,eBOCTO1,eROCTO2,eBOCTO2,eRTEK,
-eBTEK,eRLEV,eBLEV,eRMOBLIN,eBMOBLIN,
-20   eRLYNEL,eBLYNEL,ePEAHAT,eZORA,eROCK,
-eGHINI1,eGHINI2,eARMOS,
-
-eKEESE1,eKEESE2,
-30   eKEESE3,eSTALFOS,eGEL,eZOL,eROPE,
-eRGORIYA,eBGORIYA,eTRAP,eWALLM,eRDKNUT,
-40   eBDKNUT,eBUBBLE,eVIRE,eLIKE,eGIBDO,
-ePOLSV,eRWIZ,eBWIZ,
-
-eRAQUAM,eMOLDORM,
-50   eDODONGO,eMANHAN,eGLEEOK2,eGLEEOK3,eGLEEOK4,
-eDIG1,eDIG3,eRGOHMA,eBGOHMA,eRCENT,
-60   eBCENT,ePATRA1,ePATRA2,eGANON,
-eSTALFOS2,
-eROPE2,eRBUBBLE,eBBUBBLE,eFBALL,eITEMFAIRY,
-70   eFIRE,eCOCTO,eDKNIGHT, eGELTRIB, eZOLTRIB,
-eKEESETRIB, eVIRETRIB, eSDKNUT, eLAQUAM, eMAXGUYS };
-
-*/
-
-//   flags        tile  hp                    family       cset  anim   frate   dp                  wdp                 weapon     rate hrate  step  homing  grumble  item_set       misc1  misc2  bosspal startx starty
+#include "sfx.h"
 
 guydata default_guys[eMAXGUYS] =
 {
-  // flags        tile  hp                    family       cset  anim   frate   dp                  wdp                 weapon     rate hrate  step  homing  grumble  item_set       misc1  misc2  bosspal
-  { 0x00000001,    0,   0*DAMAGE_MULTIPLIER,  0,            0,  0,         0,   0,                  0,                  0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
-  { 0x00000001,   84,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aNONE,     0,   1,                  1,                  wNone,      0,    0,     0,    0,      0,       0,             0,     0,     0},
-  { 0x00000001,   85,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aNONE,     0,   1,                  1,                  wNone,      0,    0,     0,    0,      0,       0,             0,     0,     0},
-  { 0x00000001,   86,   1*DAMAGE_MULTIPLIER,  eeGUY,        6,  aNONE,     0,   1,                  1,                  wNone,      0,    0,     0,    0,      0,       0,             0,     0,     0},
-  { 0x00000001,  116,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aNONE,     0,   1,                  1,                  wNone,      0,    0,     0,    0,      0,       0,             0,     0,     0},
-  { 0x00000008,   65,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aFLIP,    12,   1,                  1,                  wNone,      0,    0,     0,    0,      0,       0,             1,     0,     0},
-  { 0x00000008,   63,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  a2FRM,     8,   1,                  1,                  wNone,      0,    0,     0,    0,      0,       0,             0,     0,     0},
-  { 0x00000001,  130,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aNONE,     0,   1,                  1,                  wNone,      0,    0,     0,    0,      0,       0,             0,     0,     0},
-  { 0x00000001,   35,   1*DAMAGE_MULTIPLIER,  eeGUY,        6,  aNONE,     0,   1,                  1,                  wNone,      0,    0,     0,    0,      0,       0,             0,     0,     0},
-  { 0x00000001,   87,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aNONE,     0,   1,                  1,                  wNone,      0,    0,     0,    0,      0,       0,             0,     0,     0},
-  // eROCTO1
-  { 0x00000000,   92,   1*DAMAGE_MULTIPLIER,  eeSHOOT,      8,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewRock,     4,    3,    50,   64,      1,       1,             0,     0,     0},
-  { 0x00000000,   92,   2*DAMAGE_MULTIPLIER,  eeSHOOT,      7,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewRock,     4,    5,    50,   64,      2,       isBOMBS,       0,     0,     0},
-  { 0x00000000,   92,   1*DAMAGE_MULTIPLIER,  eeSHOOT,      8,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewRock,     6,    3,   100,  128,      1,       1,             0,     0,     0},
-  { 0x00000000,   92,   2*DAMAGE_MULTIPLIER,  eeSHOOT,      7,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewRock,     6,    5,   100,  128,      2,       isBOMBS,       0,     0,     0},
-  // eRTEK
-  { 0x00000000,  103,   1*DAMAGE_MULTIPLIER,  eeTEK,        8,  aTEK,     32,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       1,            24,     3,     0},
-  { 0x00000000,  103,   1*DAMAGE_MULTIPLIER,  eeTEK,        7,  aTEK,     32,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isMAGICMONEY,      80,    16,     0},
-  // eRLEV
-  { 0x00000000,   96,   2*DAMAGE_MULTIPLIER,  eeLEV,        8,  aLEV,     40,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,    50,    0,      0,       isMONEY,       0,     8,     0},
-  { 0x00000000,   96,   4*DAMAGE_MULTIPLIER,  eeLEV,        7,  aLEV,     40,   2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      8,    0,    50,    0,      0,       isMAGICMONEY,       1,     8,     0},
-  // eRMOBLIN
-  { 0x00000000,  114,   2*DAMAGE_MULTIPLIER,  eeSHOOT,      8,  aWALK,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewArrow,    5,    4,    50,  128,      3,       1,             0,     0,     0},
-  { 0x00000000,  114,   3*DAMAGE_MULTIPLIER,  eeSHOOT,      9,  aWALK,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewArrow,    8,    6,    50,  128,      4,       isBOMBS,       1,     0,     0},
-  // eRLYNEL
-  { 0x00000000,  105,   4*DAMAGE_MULTIPLIER,  eeSHOOT,      8,  aWALK,    12,   2*HP_PER_HEART/8,   4*HP_PER_HEART/8,   ewSword,    6,    4,    50,  128,      3,       isMAGICMONEY,       1,     0,     0},
-  { 0x00000000,  105,   6*DAMAGE_MULTIPLIER,  eeSHOOT,      7,  aWALK,    12,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   ewSword,    6,    4,    50,  128,      3,       isMAGICBOMBS,       1,     0,     0},
+  // flags         flags2     tile    width,   height   s_tile    s_width    s_height   etile  e_width   e_height   hp                    family       cset  anim       e_anim,            frate e_frate  dp                  wdp                 weapon     rate hrate  step  homing  grumble  item_set       misc1  misc2  misc3  misc4  misc5  misc6  misc7  misc8  misc9  misc10  bgsfx        bosspal
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,       1,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},//THESE ARE FREAKIN' GUYS!!! ~Takuya
+  { 0x00000001,  0x00000000,    84,       1,       0,        0,        0,       0,         84,       1,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aNONE,         0,                0,    0,     1,                  1,                  wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,    85,       1,       0,        0,        0,       0,         85,       1,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aNONE,         0,                0,    0,     1,                  1,                  wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,    86,       1,       0,        0,        0,       0,         86,       1,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        6,  aNONE,         0,                0,    0,     1,                  1,                  wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,   116,       1,       0,        0,        0,       0,        116,       1,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aNONE,         0,                0,    0,     1,                  1,                  wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000008,  0x00000000,    65,       1,       0,        0,        0,       0,         65,       1,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aFLIP,         aFLIPSLOW,        12,   12,    1,                  1,                  wNone,      0,    0,     0,    0,      0,       isNONE,        1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000008,  0x00000000,    63,       1,       0,        0,        0,       0,         63,       1,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  a2FRM,         a2FRMSLOW,        8,    8,     1,                  1,                  wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,   132,       1,       0,        0,        0,       0,        130,       1,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aNONE,         0,                0,    0,     1,                  1,                  wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,    35,       1,       0,        0,        0,       0,         35,       1,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        6,  aNONE,         0,                0,    0,     1,                  1,                  wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,   259,       1,       0,        0,        0,       0,        259,       1,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        0,  aNONE,         0,                0,    0,     1,                  1,                  wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1}, 
+  { 0x00000001,  0x00000000,    87,       1,       0,        0,        0,       0,         87,       1,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aNONE,         0,                0,    0,     1,                  1,                  wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,       1,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,       1,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,       1,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,       1,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,       1,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,       1,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,       1,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,       1,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,       1,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+
+   // eOCTO1S
+  { 0x00000000,  0x00000000,    92,       4,       0,        0,        0,       0,       3420,      16,        3,     1*DAMAGE_MULTIPLIER,  eeSHOOT,      8,  aOCTO,         a4FRM4DIRF,      12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewRock,     4,    3,    50,   64,      1,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eOCTO2S
+  { 0x00000000,  0x00000000,    92,       4,       0,        0,        0,       0,       3540,      16,        3,     2*DAMAGE_MULTIPLIER,  eeSHOOT,      7,  aOCTO,         a4FRM4DIRF,      12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewRock,     4,    5,    50,   64,      2,       isBOMBS,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eOCTO1F
+  { 0x00000000,  0x00000000,    92,       4,       0,        0,        0,       0,       3480,      16,        3,     1*DAMAGE_MULTIPLIER,  eeSHOOT,      8,  aOCTO,         a4FRM4DIRF,      12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewRock,     6,    3,   100,  128,      1,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eOCTO2F
+  { 0x00000000,  0x00000000,    92,       4,       0,        0,        0,       0,       3600,      16,        3,     2*DAMAGE_MULTIPLIER,  eeSHOOT,      7,  aOCTO,         a4FRM4DIRF,      12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewRock,     6,    5,   100,  128,      2,       isBOMBS,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTEK1
+  { 0x00000000,  0x00000000,   103,       2,       0,        0,        0,       0,       2340,      16,        2,     1*DAMAGE_MULTIPLIER,  eeTEK,        8,  aTEK,          aNEWTEK,         32,   32,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,   250,    0,      0,       isDEFAULT,    24,     3,    50,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTEK2
+  { 0x00000000,  0x00000000,   103,       2,       0,        0,        0,       0,       2380,      16,        2,     1*DAMAGE_MULTIPLIER,  eeTEK,        7,  aTEK,          aNEWTEK,         32,   32,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,   250,    0,      0,       isMAGICMONEY, 80,    16,    50,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eLEV1
+  { 0x00000000,  0x00000000,    96,       5,       0,        0,        0,       0,       3040,      16,        3,     2*DAMAGE_MULTIPLIER,  eeLEV,        8,  aLEV,          aNEWLEV,         40,   16,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,    50,    0,      0,       isMONEY,       0,     8,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eLEV2
+  { 0x00000000,  0x00000000,    96,       5,       0,        0,        0,       0,       3100,      16,        3,     4*DAMAGE_MULTIPLIER,  eeLEV,        7,  aLEV,          aNEWLEV,         40,   16,     2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      8,    0,    50,    0,      0,       isMAGICMONEY,  1,     8,    17,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eMOBLIN1
+  { 0x00000000,  0x00000000,   114,       4,       0,        0,        0,       0,       3840,      16,        3,     2*DAMAGE_MULTIPLIER,  eeSHOOT,      8,  aWALK,         a4FRM4DIRF,      12,   16,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewArrow,    5,    4,    50,  128,      3,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eMOBLIN2
+  { 0x00000000,  0x00000000,   114,       4,       0,        0,        0,       0,       3900,      16,        3,     3*DAMAGE_MULTIPLIER,  eeSHOOT,      9,  aWALK,         a4FRM4DIRF,      12,   16,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   ewArrow,    8,    6,    50,  128,      4,       isBOMBS,       1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eLYNEL1
+  { 0x00000000,  0x00000000,   105,       4,       0,        0,        0,       0,       4100,      16,        3,     4*DAMAGE_MULTIPLIER,  eeSHOOT,      8,  aWALK,         a4FRM4DIRF,      12,   16,     2*HP_PER_HEART/8,   4*HP_PER_HEART/8,   ewSword,    6,    4,    50,  128,      3,       isMAGICMONEY,  1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eLYNEL2
+  { 0x00000000,  0x00000000,   105,       4,       0,        0,        0,       0,       4160,      16,        3,     6*DAMAGE_MULTIPLIER,  eeSHOOT,      7,  aWALK,         a4FRM4DIRF,      12,   16,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   ewSword,    6,    4,    50,  128,      3,       isMAGICBOMBS,  1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // ePEAHAT
-  { 0x00000018,  101,   2*DAMAGE_MULTIPLIER,  eePEAHAT,     8,  aPHAT,     0,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,  112,   2*DAMAGE_MULTIPLIER,  eeZORA,       9,  aZORA,   256,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     0},
-  { 0x00000008,  118,   1*DAMAGE_MULTIPLIER,  eeROCK,       8,  a2FRM,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     0},
+  { 0x00000018,  0x00000000,   101,       2,       0,        0,        0,       0,       2300,      16,        2,     2*DAMAGE_MULTIPLIER,  eePEAHAT,     8,  a2FRMPOS,      a4FRMPOS8DIR,     0,    0,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eZORA
+  { 0x00000000,  0x00000000,   112,       2,       0,       96,        2,       0,       2460,      16,        6,     2*DAMAGE_MULTIPLIER,  eeZORA,       9,  aZORA,         aNEWZORA,       256,  256,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eROCK
+  { 0x00000008,  0x00000000,   118,       2,       0,        0,        0,       0,       3220,      16,        2,     1*DAMAGE_MULTIPLIER,  eeROCK,       8,  a2FRM,         aNEWZORA,        12,   16,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eGHINI1
-  { 0x00000000,  109,   9*DAMAGE_MULTIPLIER,  eeGHINI,      7,  aGHINI,    0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          4,    0,    50,    0,      0,       isMONEY,       0,     0,     0},
-  { 0x00000018,  109,   9*DAMAGE_MULTIPLIER,  eeGHINI,      7,  aGHINI,    0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          4,    0,     0,    0,      0,       isMONEY,       1,     0,     0},
+  { 0x00000000,  0x00000000,   109,       2,       0,        0,        0,       0,       2200,      16,        1,     9*DAMAGE_MULTIPLIER,  eeGHINI,      7,  aGHINI,        a4FRMPOS4DIR,   256,  256,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      4,    0,    50,    0,      0,       isMONEY,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eGHINI2
+  { 0x00000018,  0x00000000,   109,       2,       0,        0,        0,       0,       2220,      16,        2,     9*DAMAGE_MULTIPLIER,  eeGHINI,      7,  aGHINI,        a4FRMPOS8DIR,   256,  256,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      4,    0,     0,    0,      0,       isMONEY,       1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eARMOS
-  { 0x00000000,   88,   3*DAMAGE_MULTIPLIER,  eeARMOS,      8,  aARMOS,   16,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          6,    0,    50,  128,      0,       0,             0,     0,     0},
+  { 0x00000000,  0x00000000,    88,       4,       0,        0,        0,       0,       2260,      16,        2,     3*DAMAGE_MULTIPLIER,  eeARMOS,      8,  aARMOS,        aARMOS4,         16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      6,    0,    50,  128,      0,       isNONE,        150,   0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eKEESE1
-  { 0x00000001,  123,   1,                    eeKEESE,      7,  aKEESE,    0,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
-  { 0x00000001,  123,   1,                    eeKEESE,      8,  aKEESE,    0,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
-  { 0x00000001,  123,   1,                    eeKEESE,      9,  aKEESE,    0,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
+  { 0x00000001,  0x00000000,   123,       2,       0,        0,        0,       0,       1580,      16,        2,     1,                    eeKEESE,      7,  a2FRMPOS,      a4FRMPOS8DIR,     0,    0,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eKEESE2
+  { 0x00000001,  0x00000000,   123,       2,       0,        0,        0,       0,       1620,      16,        2,     1,                    eeKEESE,      8,  a2FRMPOS,      a4FRMPOS8DIR,     0,    0,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eKEESE3
+  { 0x00000001,  0x00000000,   123,       2,       0,        0,        0,       0,       1660,      16,        2,     1,                    eeKEESE,      9,  a2FRMPOS,      a4FRMPOS8DIR,     0,    0,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eSTALFOS
-  { 0x00000000,  125,   2*DAMAGE_MULTIPLIER,  eeWALK,       8,  aFLIP,    16,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    0,    50,  128,      0,       1,             0,     0,     0},
+  { 0x00000000,  0x00000000,   125,       1,       0,        0,        0,       0,       3960,      16,        1,     2*DAMAGE_MULTIPLIER,  eeWALK,       8,  aFLIP,         a4FRM4DIR,       16,   16,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    0,    50,  128,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eGEL
-  { 0x00000001,  120,   1,                    eeGEL,        9,  a2FRM,     4,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,   16,   100,   64,      0,       0,             0,     0,     0},
-  { 0x00000000,  137,   2*DAMAGE_MULTIPLIER,  eeZOL,        9,  a2FRM,    16,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          4,   16,    40,  144,      0,       isMONEY,       0,     0,     0},
+  { 0x00000001,  0x00000000,   120,       2,       0,        0,        0,       0,       1780,      16,        1,     1,                    eeGEL,        9,  a2FRM,         a4FRM4DIR,        4,    8,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,   16,   100,   64,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eZOL
+  { 0x00000000,  0x00000000,   137,       2,       0,        0,        0,       0,       1800,      16,        1,     2*DAMAGE_MULTIPLIER,  eeZOL,        9,  a2FRM,         a4FRM4DIR,       16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      4,   16,    40,  144,      0,       isMONEY,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eROPE
-  { 0x00000000,  126,   1*DAMAGE_MULTIPLIER,  eeROPE,       8,  aROPE,    16,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    0,    50,    0,      0,       isMONEY,       0,     0,     0},
-  // eRGORIYA
-  { 0x00000000,  130,   3*DAMAGE_MULTIPLIER,  eeGORIYA,     8,  aWALK,    12,   1*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          6,    5,    50,  128,      4,       isBOMBS,       0,     0,     0},
-  { 0x00000000,  130,   5*DAMAGE_MULTIPLIER,  eeGORIYA,     7,  aWALK,    12,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          6,    6,    50,  128,      4,       isLIFE,        0,     0,     0},
+  { 0x00000000,  0x00000000,   126,       2,       0,        0,        0,       0,       2420,      16,        1,     1*DAMAGE_MULTIPLIER,  eeROPE,       8,  aROPE,         a4FRM4DIR,       16,   16,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    0,    50,    0,      0,       isMONEY,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eGORIYA1
+  { 0x00000000,  0x00000000,   130,       4,       0,        0,        0,       0,       3720,      16,        3,     3*DAMAGE_MULTIPLIER,  eeGORIYA,     8,  aWALK,         a4FRM4DIRF,      12,   12,     1*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      6,    5,    50,  128,      4,       isBOMBS,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eGORIYA2
+  { 0x00000000,  0x00000000,   130,       4,       0,        0,        0,       0,       3780,      16,        3,     5*DAMAGE_MULTIPLIER,  eeGORIYA,     7,  aWALK,         a4FRM4DIRF,      12,   12,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      6,    6,    50,  128,      4,       isLIFE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eTRAP
-  { 0x00000008,  122,   1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,    16,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2000,      16,        3,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM3TRAP,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eWALLM
-  { 0x00000000,  128,   2*DAMAGE_MULTIPLIER,  eeWALLM,      7,  aWALLM,   16,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,    40,    0,      0,       isMONEY,       0,     0,     0},
-  // eRDKNUT
-  { 0x0100F720,  140,   4*DAMAGE_MULTIPLIER,  eeWALK,       8,  aDWALK,   16,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          5,    0,    50,  144,      0,       isMAGICBOMBS,       0,     0,     0},
-  { 0x0100F720,  140,   8*DAMAGE_MULTIPLIER,  eeWALK,       7,  aDWALK,   16,   4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          4,    0,    67,  160,      0,       isMAGICLIFE,        0,     0,     0},
-  // eBUBBLE
-  { 0x00000008,  111,   1*DAMAGE_MULTIPLIER,  eeBUBBLE,     9,  aFLIP,     8,   0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   0,          4,    0,   100,    0,      0,       0,             0,     0,     0},
+  { 0x00000000,  0x00000000,   128,       2,       0,        0,        0,       0,       2580,      16,        1,     2*DAMAGE_MULTIPLIER,  eeWALLM,      7,  aWALLM,        aNEWWALLM,       16,   16,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,    40,    0,      0,       isMONEY,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eDKNUT1
+  { 0x0100F720,  0x00000000,   140,       5,       0,      860,        5,       0,       4220,      16,        1,     4*DAMAGE_MULTIPLIER,  eeWALK,       8,  aDWALK,        aNEWDWALK,       16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      5,    0,    50,  144,      0,       isMAGICBOMBS,  0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eDKNUT2
+  { 0x0100F720,  0x00000000,   140,       5,       0,      860,        5,       0,       4240,      16,        1,     8*DAMAGE_MULTIPLIER,  eeWALK,       7,  aDWALK,        aNEWDWALK,       16,   16,     4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      4,    0,    67,  160,      0,       isMAGICLIFE,   0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eBUBBLEST
+  { 0x00000008,  0x00000001,   111,       1,       0,        0,        0,       0,       1880,      16,        1,     1*DAMAGE_MULTIPLIER,  eeBUBBLE,     9,  aFLIP,         a4FRM4DIR,        8,    8,     0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   wNone,      4,    0,   100,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eVIRE
-  { 0x00000000,  165,   4*DAMAGE_MULTIPLIER,  eeVIRE,       7,  aVIRE,    20,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          4,    0,    50,   64,      0,       isBOMBS,       0,     0,     0},
+  { 0x00000000,  0x00000000,   165,       4,       0,        0,        0,       0,       1760,      16,        1,     4*DAMAGE_MULTIPLIER,  eeVIRE,       7,  aVIRE,         a4FRM4DIR,       20,   20,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      4,    0,    50,   64,      0,       isBOMBS,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eLIKE
-  { 0x00000000,  162,   9*DAMAGE_MULTIPLIER,  eeLIKE,       8,  a3FRM,    32,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          4,    0,    50,   64,      0,       0,             0,     0,     0},
+  { 0x00000000,  0x00000000,   162,       3,       0,        0,        0,       0,       1860,      16,        1,     9*DAMAGE_MULTIPLIER,  eeLIKE,       8,  a3FRM,         a4FRM4DIR,       32,   32,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      4,    0,    50,   64,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eGIBDO
-  { 0x00000000,  136,   7*DAMAGE_MULTIPLIER,  eeWALK,       7,  aFLIP,    16,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          4,    0,    50,  128,      0,       isBOMBS,       0,     0,     0},
+  { 0x00000000,  0x00000000,   136,       1,       0,        0,        0,       0,       2140,      16,        1,     7*DAMAGE_MULTIPLIER,  eeWALK,       7,  aFLIP,         a4FRM4DIR,       16,   16,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      4,    0,    50,  128,      0,       isBOMBS,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // ePOLSV
-  { 0x20F0F4E0,  134,  10*DAMAGE_MULTIPLIER,  eePOLSV,      6,  a2FRM,    16,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          4,    0,   100,   32,      0,       isMONEY,       0,     0,     0},
-  // eRWIZ
-  { 0x0000F720,  169,   4*DAMAGE_MULTIPLIER,  eeWIZZ,       8,  aWIZZ,   256,   2*HP_PER_HEART/8,   8*HP_PER_HEART/8,   ewMagic,    0,    0,     0,    0,      0,       isBOMBS,       0,     0,     0},
-  { 0x0000F720,  169,  10*DAMAGE_MULTIPLIER,  eeWIZZ,       7,  aWIZZ,    16,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   ewMagic,    4,    0,    50,    0,      0,       1,             1,     0,     0},
+  { 0x20F0F4E0,  0x00000000,   134,       2,       0,        0,        0,       0,       2160,      16,        2,    10*DAMAGE_MULTIPLIER,  eePOLSV,      6,  a2FRM,         aNEWPOLV,        16,   16,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      4,    0,   100,   32,      0,       isMONEY,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eWIZ1
+  { 0x0000F720,  0x00000000,   169,       4,       0,        0,        0,       0,       4700,      16,        3,     4*DAMAGE_MULTIPLIER,  eeWIZZ,       8,  aWIZZ,         aNEWWIZZ,       256,  256,     2*HP_PER_HEART/8,   8*HP_PER_HEART/8,   ewMagic,    0,    0,     0,    0,      0,       isBOMBS,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eWIZ2
+  { 0x0000F720,  0x00000000,   169,       4,       0,        0,        0,       0,       4460,      16,        4,    10*DAMAGE_MULTIPLIER,  eeWIZZ,       7,  aWIZZ,         aNEWWIZZ,        16,   16,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   ewMagic,    4,    0,    50,    0,      0,       isDEFAULT,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eRAQUAM
-  { 0x00000004,  226,   6*DAMAGE_MULTIPLIER,  eeAQUA,      14,  aAQUA,     0,   2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     spAQUA },
+  { 0x00000004,  0x00000000,   226,       4,       2,        0,        0,       0,       7528,       8,        6,     6*DAMAGE_MULTIPLIER,  eeAQUA,      14,  aAQUA,         0,                0,    0,     2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_ROAR,     spAQUA },
   // eMOLDORM
-  { 0x00000004,   57,   2*DAMAGE_MULTIPLIER,  eeMOLD,       8,  aNONE,    32,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,    50,    0,      0,       0,             5,     0,     0},
+  { 0x00000004,  0x00000000,    57,       1,       0,        0,        0,       0,       2800,      16,        6,     2*DAMAGE_MULTIPLIER,  eeMOLD,       8,  aNONE,         0,               32,   32,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,    50,    0,      0,       isNONE,        5,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eDODONGO
-  { 0x00000000,  149,   8*DAMAGE_MULTIPLIER,  eeDONGO,      8,  aDONGO,    0,   2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    0,    50,   64,      0,       1,             0,     0,     0},
+  { 0x00000000,  0x00000000,   149,      10,       0,        0,        0,       0,       6700,      16,        3,     8*DAMAGE_MULTIPLIER,  eeDONGO,      8,  aDONGO,        aNEWDONGO,        0,    0,     2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    0,    50,   64,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_DODONGO,  -1},
   // eMANHAN
-  { 0x00000004,  190,   4*DAMAGE_MULTIPLIER,  eeMANHAN,     7,  aMANHAN,   0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     0},
+  { 0x00000004,  0x00000000,   190,       5,       0,        0,        0,       0,       6260,      16,        8,     4*DAMAGE_MULTIPLIER,  eeMANHAN,     7,  aMANHAN,       0,                0,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,    16,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_VADER,    -1},
   // eGLEEOK1
-  { 0x0000F7E4,  220,  10*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,   0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             1,     6,     spGLEEOK },
-  { 0x0000F7E4,  220,  10*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,   0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             2,     6,     spGLEEOK },
-  { 0x0000F7E4,  220,  10*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,   0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             3,     6,     spGLEEOK },
-  { 0x0000F7E4,  220,  10*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,   0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             4,     6,     spGLEEOK },
+  { 0x0000F7E4,  0x00000000,   220,       6,       2,      145,        4,       0,       7000,       8,        8,    10*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,       0,                0,    0,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     1,     6,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_ROAR,     spGLEEOK },
+  // eGLEEOK2
+  { 0x0000F7E4,  0x00000000,   220,       6,       2,      145,        4,       0,       7000,       8,        8,    10*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,       0,                0,    0,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     2,     6,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_ROAR,     spGLEEOK },
+  // eGLEEOK3
+  { 0x0000F7E4,  0x00000000,   220,       6,       2,      145,        4,       0,       7000,       8,        8,    10*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,       0,                0,    0,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     3,     6,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_ROAR,     spGLEEOK },
+  // eGLEEOK4
+  { 0x0000F7E4,  0x00000000,   220,       6,       2,      145,        4,       0,       7000,       8,        8,    10*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,       0,                0,    0,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     4,     6,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_ROAR,     spGLEEOK },
   // eDIG1
-  { 0x00000004,  230,   6*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,      6,   4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,    25,    0,      0,       1,             1,     0,     spDIG },
-  { 0x00000004,  230,   6*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,      6,   4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,    25,    0,      0,       1,             3,     0,     spDIG },
+  { 0x00000004,  0x00000000,   230,       4,       2,      160,        2,       0,       5580,      16,        8,     6*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,          0,                6,    8,     4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,    25,    0,      0,       isDEFAULT,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_VADER,    spDIG },
+  // eDIG3
+  { 0x00000004,  0x00000000,   230,       4,       2,      160,        2,       0,       5780,      16,        8,     6*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,          0,                6,    8,     4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,    25,    0,      0,       isDEFAULT,     3,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_VADER,    spDIG },
   // eDIGPUP1
-  { 0x00000004,  160,   8*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,     12,   4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,    25,    0,      0,       1,             1,     0,     spDIG },
-  { 0x00000004,  160,   8*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,     12,   4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,    25,    0,      0,       1,             1,     0,     spDIG },
-  { 0x00000004,  160,   8*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,     12,   4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,    25,    0,      0,       1,             1,     0,     spDIG },
-  { 0x00000004,  160,   8*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,     12,   4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,    25,    0,      0,       1,             1,     0,     spDIG },
-  // eRGOHMA
-  { 0x00FFFCE4,  180,   2*DAMAGE_MULTIPLIER,  eeGHOMA,      8,  aGHOMA,    0,   4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     0 },
-  { 0x00FFFCE4,  180,   6*DAMAGE_MULTIPLIER,  eeGHOMA,      7,  aGHOMA,    0,   4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     0 },
-  // eRCENT
-  { 0x00000000,  173,   2*DAMAGE_MULTIPLIER,  eeLANM,       8,  aLANM,     8,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          8,    0,   100,    0,      0,       1,             5,     0,     0 },
-  { 0x00000000,  173,   2*DAMAGE_MULTIPLIER,  eeLANM,       7,  aLANM,     4,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          8,    0,   200,    0,      0,       1,             5,     0,     0 },
+  { 0x00000004,  0x00000000,   160,       2,       0,        0,        0,       0,       5740,      16,        2,     8*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,          0,               12,   16,     4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,    25,    0,      0,       isDEFAULT,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           spDIG },
+  // eDIGPUP2
+  { 0x00000004,  0x00000000,   160,       2,       0,        0,        0,       0,       5940,      16,        2,     8*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,          0,               12,   16,     4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,    25,    0,      0,       isDEFAULT,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           spDIG },
+  // eDIGPUP3
+  { 0x00000004,  0x00000000,   160,       2,       0,        0,        0,       0,       5980,      16,        2,     8*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,          0,               12,   16,     4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,    25,    0,      0,       isDEFAULT,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           spDIG },
+  // eDIGPUP4
+  { 0x00000004,  0x00000000,   160,       2,       0,        0,        0,       0,       6020,      16,        2,     8*DAMAGE_MULTIPLIER,  eeDIG,       14,  aDIG,          0,               12,   16,     4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,    25,    0,      0,       isDEFAULT,     1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           spDIG },
+  // eGOHMA1
+  { 0x00FFFCE4,  0x00000000,   180,       6,       0,        0,        0,       0,       6920,      12,        1,     2*DAMAGE_MULTIPLIER,  eeGHOMA,      8,  aGHOMA,        0,                0,    0,     4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_DODONGO,  -1},
+  // eGOHMA2
+  { 0x00FFFCE4,  0x00000000,   180,       6,       0,        0,        0,       0,       6940,      12,        1,     6*DAMAGE_MULTIPLIER,  eeGHOMA,      7,  aGHOMA,        0,                0,    0,     4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_DODONGO,  -1},
+  // eCENT1
+  { 0x00000000,  0x00000000,   173,       2,       0,        0,        0,       0,       2680,      16,        3,     2*DAMAGE_MULTIPLIER,  eeLANM,       8,  aLANM,         0,                8,    8,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      8,    0,   100,    0,      0,       isDEFAULT,     5,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eCENT2
+  { 0x00000000,  0x00000000,   173,       2,       0,        0,        0,       0,       2740,      16,        3,     2*DAMAGE_MULTIPLIER,  eeLANM,       7,  aLANM,         0,                4,    4,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      8,    0,   200,    0,      0,       isDEFAULT,     5,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // ePATRA1
-  { 0x00000004,  191,  11*DAMAGE_MULTIPLIER,  eePATRA,      7,  aFLIP,     0,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          8,    0,   100,    0,      0,       1,             8,     0,     0 },
-  { 0x00000004,  191,  11*DAMAGE_MULTIPLIER,  eePATRA,      7,  aFLIP,     0,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          8,    0,   100,    0,      0,       1,             8,     0,     0 },
+  { 0x00000004,  0x00000000,   191,       3,       0,        0,        0,       0,       5020,      16,        2,    11*DAMAGE_MULTIPLIER,  eePATRA,      7,  aFLIP,         0,                4,    4,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      8,    0,   100,    0,      0,       isDEFAULT,     8,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_VADER,    -1},
+  // ePATRA2
+  { 0x00000004,  0x00000000,   191,       3,       0,        0,        0,       0,       5060,      16,        2,    11*DAMAGE_MULTIPLIER,  eePATRA,      7,  aFLIP,         0,                4,    4,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      8,    0,   100,    0,      0,       isDEFAULT,     8,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_VADER,    -1},
   // eGANON
-  { 0x00000004,  260,  16*DAMAGE_MULTIPLIER,  eeGANON,     14,  aGANON,    0,   8*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          8,    0,   100,    0,      0,       1,             0,     0,     0 },
+  { 0x00000004,  0x00000000,   260,      10,       2,        0,        0,       0,       8360,      16,        2,    16*DAMAGE_MULTIPLIER,  eeGANON,     14,  aGANON,        0,                0,    0,     8*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      8,    0,   100,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           spGANON},
   // eSTALFOS2
-  { 0x00000000,  125,   2*DAMAGE_MULTIPLIER,  eeSHOOT,      8,  aFLIP,    16,   1*HP_PER_HEART/8,   4*HP_PER_HEART/8,   ewSword,    4,    4,    50,  128,      0,       1,             0,     0,     0 },
+  { 0x00000000,  0x00000000,   125,       1,       0,        0,        0,       0,       3980,      16,        3,     2*DAMAGE_MULTIPLIER,  eeSHOOT,      8,  aFLIP,         a4FRM4DIRF,      16,   16,     1*HP_PER_HEART/8,   4*HP_PER_HEART/8,   ewSword,    4,    4,    50,  128,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eROPE2
-  { 0x00000000,  126,   4*DAMAGE_MULTIPLIER,  eeROPE,       9,  aROPE,    16,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    0,    50,    0,      0,       isMONEY,       0,     0,     0 },
-  // eRBUBBLE
-  { 0x00000008,  111,   1*DAMAGE_MULTIPLIER,  eeBUBBLE,     8,  aFLIP,     8,   0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   0,          4,    0,   100,    0,      0,       0,             1,     0,     0 },
-  { 0x00000008,  111,   1*DAMAGE_MULTIPLIER,  eeBUBBLE,     7,  aFLIP,     8,   0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   0,          4,    0,   100,    0,      0,       0,             2,     0,     0 },
+  { 0x00000000,  0x00000000,   126,       2,       0,        0,        0,       0,       2440,      16,        1,     4*DAMAGE_MULTIPLIER,  eeROPE,       9,  aROPE,         a4FRM4DIR,       16,   16,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    0,    50,    0,      0,       isMONEY,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eBUBBLESP
+  { 0x00000008,  0x00000000,   111,       1,       0,        0,        0,       0,       1900,      16,        1,     1*DAMAGE_MULTIPLIER,  eeBUBBLE,     8,  aFLIP,         a4FRM4DIR,        8,    8,     0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   wNone,      4,    0,   100,    0,      0,       isNONE,        1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eBUBBLESR
+  { 0x00000008,  0x00000000,   111,       1,       0,        0,        0,       0,       1920,      16,        1,     1*DAMAGE_MULTIPLIER,  eeBUBBLE,     7,  aFLIP,         a4FRM4DIR,        8,    8,     0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   wNone,      4,    0,   100,    0,      0,       isNONE,        2,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eFBALL
-  { 0x00000008,    0,   1*DAMAGE_MULTIPLIER,  eeFBALL,      0,  aNONE,     0,   0*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             0,     0,     0 },
+  { 0x00000008,  0x00000000,     0,       0,       0,        0,        0,       0,          0,      16,        1,     1*DAMAGE_MULTIPLIER,  eeFBALL,      0,  aNONE,         aNONE,            0,    0,     0*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eITEMFAIRY
-  { 0x00000008,    0,   1*DAMAGE_MULTIPLIER,  0,            0,  aNONE,   256,   0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   0,          0,    0,    50,    0,      0,       0,             0,     0,     0 },
+  { 0x00000008,  0x00000000,     0,       0,       0,        0,        0,       0,          0,      16,        1,     1*DAMAGE_MULTIPLIER,  0,            0,  aNONE,         aNONE,          256,  256,     0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   wNone,      0,    0,    50,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eFIRE
-  { 0x00000001,   65,   1*DAMAGE_MULTIPLIER,  0,            8,  aFLIP,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             1,     0,     0 },
+  { 0x00000001,  0x00000000,    65,       1,       0,        0,        0,       0,       3160,      16,        2,     1*DAMAGE_MULTIPLIER,  0,            8,  aFLIP,         a4FRM8EYE,       12,   16,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eCOCTO
-  { 0x00000000,   92,  20*DAMAGE_MULTIPLIER,  eeSHOOT,      9,  aOCTO,     4,  10*HP_PER_HEART/8,  20*HP_PER_HEART/8,   ewMagic,   16,    1,   200,  255,      0,       isMAGIC,       0,     0,     0 },
-  // eDKNIGHT
-  { 0x0100F720,  140,  30*DAMAGE_MULTIPLIER,  eeWALK,       9,  aDWALK,   16,  20*HP_PER_HEART/8,  40*HP_PER_HEART/8,   ewSword,   10,    0,   150,  255,      0,       isLIFE,        0,     0,     0 },
+  { 0x00000000,  0x00000000,    92,       4,       0,        0,        0,       0,       3660,      16,        3,    20*DAMAGE_MULTIPLIER,  eeSHOOT,      9,  aOCTO,         a4FRM4DIRF,       4,    4,    10*HP_PER_HEART/8,  20*HP_PER_HEART/8,   ewMagic,   16,    1,   200,  255,      0,       isMAGIC,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eDKNUT5
+  { 0x0100F720,  0x00000000,   140,       5,       0,      860,        5,       0,       4280,      16,        3,    30*DAMAGE_MULTIPLIER,  eeWALK,       9,  aDWALK,        aNEWDWALK,       16,   16,    20*HP_PER_HEART/8,  40*HP_PER_HEART/8,   ewSword,   10,    0,   150,  255,      0,       isLIFE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eGELTRIB
-  { 0x00000001,  120,   1,                    eeGELTRIB,    9,  a2FRM,     4,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,   16,   100,   64,      0,       isMAGIC,       0,     0,     0 },
-  { 0x00000000,  137,   4*DAMAGE_MULTIPLIER,  eeZOLTRIB,    9,  a2FRM,    16,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          4,   16,    40,  144,      0,       isMAGICMONEY,  0,     0,     0 },
+  { 0x00000001,  0x00000000,   120,       2,       0,        0,        0,       0,       1820,      16,        1,     1,                    eeGELTRIB,    9,  a2FRM,         a4FRM4DIR,        4,    8,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,   16,   100,   64,      0,       isMAGIC,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eZOLTRIB
+  { 0x00000000,  0x00000000,   137,       2,       0,        0,        0,       0,       1840,      16,        1,     4*DAMAGE_MULTIPLIER,  eeZOLTRIB,    9,  a2FRM,         a4FRM4DIR,        16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,     4,   16,    40,  144,      0,       isMAGICMONEY,  0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eKEESETRIB
-  { 0x00000001,  123,   1,                    eeKEESETRIB,  9,  aKEESE,    0,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       isMAGIC,       0,     0,     0 },
-  { 0x00000000,  165,   8*DAMAGE_MULTIPLIER,  eeVIRETRIB,   9,  aVIRE,    20,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          4,    0,    50,   64,      0,       isMAGICBOMBS,  0,     0,     0 },
-  // eSDKNUT
-  { 0x0100F720,  140,  16*DAMAGE_MULTIPLIER,  eeWALK,       9,  aDWALK,   16,   8*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          4,    0,   100,  200,      0,       isMAGIC,       0,     0,     0},
+  { 0x00000001,  0x00000000,   123,       2,       0,        0,        0,       0,       1700,      16,        2,     1,                    eeKEESETRIB,  9,  a2FRMPOS,      a4FRMPOS8DIR,     0,    0,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isMAGIC,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eVIRETRIB
+  { 0x00000000,  0x00000000,   165,       4,       0,        0,        0,       0,       1740,      16,        1,     8*DAMAGE_MULTIPLIER,  eeVIRETRIB,   9,  aVIRE,         a4FRM4DIR,       20,   20,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      4,    0,    50,   64,      0,       isMAGICBOMBS,  0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eDKNUT3
+  { 0x0100F720,  0x00000000,   140,       5,       0,      860,        5,       0,       4260,      16,        1,    16*DAMAGE_MULTIPLIER,  eeWALK,       9,  aDWALK,        aNEWDWALK,       16,   16,     8*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      4,    0,   100,  200,      0,       isMAGIC,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eLAQUAM
-  { 0x00000004,  226,   6*DAMAGE_MULTIPLIER,  eeAQUA,      14,  aAQUA,     0,   2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     spAQUA },
+  { 0x00000004,  0x00000000,   226,       4,       2,        0,        0,       0,       7520,       8,        6,     6*DAMAGE_MULTIPLIER,  eeAQUA,      14,  aAQUA,         0,                0,    0,     2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_ROAR,      spAQUA },
   // eMANHAN2
-  { 0x00000004,  190,   4*DAMAGE_MULTIPLIER,  eeMANHAN,     8,  aMANHAN,   0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     0},
+  { 0x00000004,  0x00000000,   190,       5,       0,        0,        0,       0,       6420,      16,       14,     4*DAMAGE_MULTIPLIER,  eeMANHAN,     8,  aMANHAN,       0,                0,    0,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,    16,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_VADER,    -1},
   // eTRAP_H
-  { 0x00000008,  122,   1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,    16,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2080,      16,        1,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM4DIR,       16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eTRAP_V
-  { 0x00000008,  122,   1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,    16,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2060,      16,        1,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM4DIR,       16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eTRAP_LR
-  { 0x00000008,  122,   1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,    16,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2120,      16,        1,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM4DIR,       16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eTRAP_UD
-  { 0x00000008,  122,   1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,    16,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2100,      16,        1,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM4DIR,       16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eFWIZ
-  { 0x0000F720,  169,  12*DAMAGE_MULTIPLIER,  eeWIZZ,       8,  aWIZZ,    16,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   ewMagic,    4,    0,    50,    0,      0,       isMAGIC,       1,     0,     0},
+  { 0x0000F720,  0x00000000,   169,       4,       0,        0,        0,       0,       4540,      16,        4,    12*DAMAGE_MULTIPLIER,  eeWIZZ,       8,  aWIZZ,         aNEWWIZZ,        16,   16,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   ewMagic,    4,    0,    50,    0,      0,       isMAGIC,       1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eWWIZ
-  { 0x0000F720,  169,  14*DAMAGE_MULTIPLIER,  eeWIZZ,       7,  aWIZZ,   256,   2*HP_PER_HEART/8,   8*HP_PER_HEART/8,   ewMagic,    0,    0,     0,    0,      0,       isMAGICBOMBS,  0,     0,     0},
+  { 0x0000F720,  0x00000000,   169,       4,       0,        0,        0,       0,       4760,      16,        3,    14*DAMAGE_MULTIPLIER,  eeWIZZ,       7,  aWIZZ,         aNEWWIZZ,       256,  256,     2*HP_PER_HEART/8,   8*HP_PER_HEART/8,   ewMagic,    0,    0,     0,    0,      0,       isMAGICBOMBS,  0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eCEILINGM
-  { 0x00000001,    0,   0*DAMAGE_MULTIPLIER,  0,            0,  0,         0,   0,                  0,                  0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,      16,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eFLOORM
-  { 0x00000001,    0,   0*DAMAGE_MULTIPLIER,  0,            0,  0,         0,   0,                  0,                  0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,      16,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // ePATRABS
-  { 0x00000004,  191,  11*DAMAGE_MULTIPLIER,  eePATRA,      7,  aFLIP,     0,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          8,    0,   100,    0,      0,       1,             8,     0,     0 },
+  { 0x00000004,  0x00000000,   191,       3,       0,        0,        0,       0,       6060,      16,       10,    11*DAMAGE_MULTIPLIER,  eePATRA,      7,  aFLIP,         0,                4,    4,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      8,    0,   100,    0,      0,       isDEFAULT,     8,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_VADER,    -1},
   // ePATRAL2
-  { 0x00000004,  191,  11*DAMAGE_MULTIPLIER,  eePATRA,      7,  aFLIP,     0,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          8,    0,   100,    0,      0,       1,             8,     0,     0 },
+  { 0x00000004,  0x00000000,   191,       3,       0,        0,        0,       0,       5180,      16,       10,    11*DAMAGE_MULTIPLIER,  eePATRA,      7,  aFLIP,         0,                4,    4,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      8,    0,   100,    0,      0,       isDEFAULT,     8,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_VADER,    -1},
   // ePATRAL3
-  { 0x00000004,  191,  11*DAMAGE_MULTIPLIER,  eePATRA,      7,  aFLIP,     0,   4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          8,    0,   100,    0,      0,       1,             8,     0,     0 },
+  { 0x00000004,  0x00000000,   191,       3,       0,        0,        0,       0,       5380,      16,       10,    11*DAMAGE_MULTIPLIER,  eePATRA,      7,  aFLIP,         0,                4,    4,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      8,    0,   100,    0,      0,       isDEFAULT,     8,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_VADER,    -1},
   // eBAT
-  { 0x00000001,  123,   4*DAMAGE_MULTIPLIER,  eeKEESE,      9,  aKEESE,    0,   3*HP_PER_HEART/8,   3*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       isMAGIC,       0,     0,     0},
+  { 0x00000001,  0x00000000,   123,       2,       0,        0,        0,       0,       4880,      16,        2,     4*DAMAGE_MULTIPLIER,  eeKEESE,      9,  a2FRMPOS,      a4FRMPOS8DIR,     0,    0,     3*HP_PER_HEART/8,   3*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isMAGIC,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eBATROBE
-  { 0x0000F720,  169,  14*DAMAGE_MULTIPLIER,  eeWIZZ,       9,  aWIZZ,   256,   2*HP_PER_HEART/8,   8*HP_PER_HEART/8,   ewMagic,    0,    0,     0,    0,      0,       isMAGICBOMBS,  0,     0,     0},
+  { 0x0000F720,  0x00000000,   169,       4,       0,        0,        0,       0,       4820,      16,        3,    14*DAMAGE_MULTIPLIER,  eeWIZZ,       9,  aWIZZ,         aNEWWIZZ,       256,  256,     2*HP_PER_HEART/8,   8*HP_PER_HEART/8,   ewMagic,    0,    0,     0,    0,      0,       isMAGICBOMBS,  0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eBATROBEKING
-  { 0x00000001,    0,   0*DAMAGE_MULTIPLIER,  0,            0,  0,         0,   0,                  0,                  0,          0,    0,     0,    0,      0,       0,             0,     0,     0},
+  { 0x00000001,  0x00000000,     0,       0,       0,        0,        0,       0,          0,      16,        1,     0*DAMAGE_MULTIPLIER,  0,            0,  0,             0,                0,    0,     0,                  0,                  0,          0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eGLEEOK1F
-  { 0x0000F7E4,  220,  15*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,   0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             1,     10,    spGLEEOK },
-  { 0x0000F7E4,  220,  15*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,   0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             2,     10,    spGLEEOK },
-  { 0x0000F7E4,  220,  15*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,   0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             3,     10,    spGLEEOK },
-  { 0x0000F7E4,  220,  15*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,   0,   2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             4,     10,    spGLEEOK },
+  { 0x0000F7E4,  0x00000000,   220,       6,       2,        0,        0,       0,       7012,       8,        8,    15*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,       0,                0,    0,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     1,     10,    0,     0,     0,     0,     0,     0,     0,     0,    WAV_ROAR,     spGLEEOKF },
+  // eGLEEOK2F
+  { 0x0000F7E4,  0x00000000,   220,       6,       2,        0,        0,       0,       7012,       8,        8,    15*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,       0,                0,    0,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     2,     10,    0,     0,     0,     0,     0,     0,     0,     0,    WAV_ROAR,     spGLEEOKF },
+  // eGLEEOK3F
+  { 0x0000F7E4,  0x00000000,   220,       6,       2,        0,        0,       0,       7012,       8,        8,    15*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,       0,                0,    0,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     3,     10,    0,     0,     0,     0,     0,     0,     0,     0,    WAV_ROAR,     spGLEEOKF },
+  // eGLEEOK4F
+  { 0x0000F7E4,  0x00000000,   220,       6,       2,        0,        0,       0,       7012,       8,        8,    15*DAMAGE_MULTIPLIER,  eeGLEEOK,    14,  aGLEEOK,       0,                0,    0,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     4,     10,    0,     0,     0,     0,     0,     0,     0,     0,    WAV_ROAR,     spGLEEOKF },
   // eMWIZ
-  { 0x0000F720,  169,  96*HP_PER_HEART/8,    eeWIZZ,       9,  aWIZZ,    16,   16*HP_PER_HEART/8,  16*HP_PER_HEART/8,  ewMagic,    4,    0,    75,    0,      0,       isMAGIC,       1,     0,     0},
+  { 0x0000F720,  0x00000000,   169,       4,       0,        0,        0,       0,       4620,      16,        4,    96*HP_PER_HEART/8,     eeWIZZ,       9,  aWIZZ,         aNEWWIZZ,        16,   16,     16*HP_PER_HEART/8,  16*HP_PER_HEART/8,  ewMagic,    4,    0,    75,    0,      0,       isMAGIC,       1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eDODONGOBS
-  { 0x00000000, 3060,   8*DAMAGE_MULTIPLIER,  eeDONGO,     14,  aDONGO,    0,   2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    0,    50,   64,      0,       1,             0,     0,     spDIG},
+  { 0x00000000,  0x00000000,  6760,      16,       4,        0,        0,       0,       6760,      16,        4,     8*DAMAGE_MULTIPLIER,  eeDONGO,     14,  aDONGOBS,      aDONGOBS,         0,    0,     2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    0,    50,   64,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_DODONGO,  spDIG},
   // eDODONGOF
-  { 0x00000000, 3060,   8*DAMAGE_MULTIPLIER,  eeDONGO,     14,  aDONGO,    0,   2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    0,    50,   64,      0,       1,             0,     0,     spDIG},
+  { 0x00000000,  0x00000000,  6840,      16,       4,        0,        0,       0,       6840,      16,        4,     8*DAMAGE_MULTIPLIER,  eeDONGO,     14,  aDONGOBS,      aDONGOBS,         0,    0,     2*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    0,    50,   64,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_DODONGO,  spDIG},
   // eTRIGGER
-  { 0x00000000,    0,   1*DAMAGE_MULTIPLIER,  0,            8,  0,         1,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       0,             0,     0,     0 },
-  // eIBUBBLE
-  { 0x00000008,  111,   1*DAMAGE_MULTIPLIER,  eeBUBBLE,     9,  aFLIP,     8,   0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   0,          4,    0,   100,    0,      0,       0,             0,     0,     0 },
-  { 0x00000008,  111,   1*DAMAGE_MULTIPLIER,  eeBUBBLE,     8,  aFLIP,     8,   0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   0,          4,    0,   100,    0,      0,       0,             1,     0,     0 },
-  { 0x00000008,  111,   1*DAMAGE_MULTIPLIER,  eeBUBBLE,     7,  aFLIP,     8,   0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   0,          4,    0,   100,    0,      0,       0,             2,     0,     0 },
+  { 0x00000000,  0x00000000,     0,       0,       0,        0,        0,       0,          0,      16,        1,     1*DAMAGE_MULTIPLIER,  0,            8,  aNONE,         aNONE,            1,    1,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eBUBBLEIT
+  { 0x00000008,  0x00000001,   111,       1,       0,        0,        0,       0,       1940,      16,        1,     1*DAMAGE_MULTIPLIER,  eeBUBBLE,     9,  aFLIP,         a4FRM4DIR,        8,    8,     0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   wNone,      4,    0,   100,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eBUBBLEIP
+  { 0x00000008,  0x00000000,   111,       1,       0,        0,        0,       0,       1960,      16,        1,     1*DAMAGE_MULTIPLIER,  eeBUBBLE,     8,  aFLIP,         a4FRM4DIR,        8,    8,     0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   wNone,      4,    0,   100,    0,      0,       isNONE,        1,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eBUBBLEIR
+  { 0x00000008,  0x00000000,   111,       1,       0,        0,        0,       0,       1980,      16,        1,     1*DAMAGE_MULTIPLIER,  eeBUBBLE,     7,  aFLIP,         a4FRM4DIR,        8,    8,     0*HP_PER_HEART/8,   0*HP_PER_HEART/8,   wNone,      4,    0,   100,    0,      0,       isNONE,        2,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eSTALFOS3
-  { 0x00000000,  125,   6*DAMAGE_MULTIPLIER,  eeSHOOT,      9,  aFLIP,     8,   3*HP_PER_HEART/8,  12*HP_PER_HEART/8,   ewSword,    4,    4,   100,  200,      0,       isMAGIC,             0,     0,     0 },
+  { 0x00000000,  0x00000000,   125,       1,       0,        0,        0,       0,       4040,      16,        3,     6*DAMAGE_MULTIPLIER,  eeSHOOT,      9,  aFLIP,         a4FRM4DIRF,       8,    8,     3*HP_PER_HEART/8,  12*HP_PER_HEART/8,   ewSword,    4,    4,   100,  200,      0,       isMAGIC,       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eGOHMA3
-  { 0x00FFFCE4,  180,  12*DAMAGE_MULTIPLIER,  eeGHOMA,      8,  aGHOMA,    0,   8*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     0 },
-  { 0x00FFFCE4,  180,  24*DAMAGE_MULTIPLIER,  eeGHOMA,      7,  aGHOMA,    0,   8*HP_PER_HEART/8,   4*HP_PER_HEART/8,   0,          0,    0,     0,    0,      0,       1,             0,     0,     0 },
+  { 0x00FFFCE4,  0x00000000,   180,       6,       0,        0,        0,       0,       6960,      12,        1,    12*DAMAGE_MULTIPLIER,  eeGHOMA,      8,  aGHOMA,        0,                0,    0,     8*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_DODONGO,  -1},
+  // eGOHMA4
+  { 0x00FFFCE4,  0x00000000,   180,       6,       0,        0,        0,       0,       6980,      12,        1,    24*DAMAGE_MULTIPLIER,  eeGHOMA,      7,  aGHOMA,        0,                0,    0,     8*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    WAV_DODONGO,  -1},
   // eNPCSTAND1
-  { 0x00000000,    0,   1*DAMAGE_MULTIPLIER,  eeGUY,        7,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,     0,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,   20,   1*DAMAGE_MULTIPLIER,  eeGUY,        7,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,     0,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,   40,   1*DAMAGE_MULTIPLIER,  eeGUY,        7,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,     0,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,   60,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,     0,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,   80,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,     0,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,  100,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,     0,    0,      0,       1,             0,     0,     0},
+  { 0x00000000,  0x00000000,     0,      16,       1,        0,        0,       0,          0,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        7,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eNPCSTAND2
+  { 0x00000000,  0x00000000,    20,      16,       1,        0,        0,       0,         20,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        7,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eNPCSTAND3
+  { 0x00000000,  0x00000000,    40,      16,       1,        0,        0,       0,         40,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        7,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eNPCSTAND4
+  { 0x00000000,  0x00000000,    60,      16,       1,        0,        0,       0,         60,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eNPCSTAND5
+  { 0x00000000,  0x00000000,    80,      16,       1,        0,        0,       0,         80,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eNPCSTAND6
+  { 0x00000000,  0x00000000,   100,      16,       1,        0,        0,       0,        100,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
   // eNPCWALK1
-  { 0x00000000,  120,   1*DAMAGE_MULTIPLIER,  eeGUY,        7,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,    50,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,  140,   1*DAMAGE_MULTIPLIER,  eeGUY,        7,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,    50,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,  160,   1*DAMAGE_MULTIPLIER,  eeGUY,        7,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,    50,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,  180,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,    50,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,  200,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,    50,    0,      0,       1,             0,     0,     0},
-  { 0x00000000,  220,   1*DAMAGE_MULTIPLIER,  eeGUY,        8,  aOCTO,    12,   1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   0,          4,    3,    50,    0,      0,       1,             0,     0,     0},
+  { 0x00000000,  0x00000000,   120,      16,       1,        0,        0,       0,        120,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        7,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,    50,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eNPCWALK2
+  { 0x00000000,  0x00000000,   140,      16,       1,        0,        0,       0,        140,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        7,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,    50,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eNPCWALK3
+  { 0x00000000,  0x00000000,   160,      16,       1,        0,        0,       0,        160,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        7,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,    50,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eNPCWALK4
+  { 0x00000000,  0x00000000,   180,      16,       1,        0,        0,       0,        180,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,    50,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eNPCWALK5
+  { 0x00000000,  0x00000000,   200,      16,       1,        0,        0,       0,        200,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,    50,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eNPCWALK6
+  { 0x00000000,  0x00000000,   220,      16,       1,        0,        0,       0,        220,      16,        1,     1*DAMAGE_MULTIPLIER,  eeGUY,        8,  a2FRM4DIR,     a4FRM4DIR,       12,   12,     1*HP_PER_HEART/8,   1*HP_PER_HEART/8,   wNone,      4,    3,    50,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eBOULDER
+  { 0x00000008,  0x00000000,  3260,       2,       0,        0,        0,       0,       3260,      16,        2,     1*DAMAGE_MULTIPLIER,  eeROCK,       8,  a2FRM,         a4FRM8DIRB,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isDEFAULT,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eGORIYA3
+  { 0x00000000,  0x00000000,   130,       4,       0,        0,        0,       0,       8480,      16,        3,     9*DAMAGE_MULTIPLIER,  eeGORIYA,     9,  aWALK,         a4FRM4DIRF,      12,   12,     4*HP_PER_HEART/8,   4*HP_PER_HEART/8,   wNone,      9,    9,    50,  128,      4,       isMAGICBOMBS,  0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eLEV3
+  { 0x00000000,  0x00000000,    96,       5,       0,        0,        0,       0,       8540,      16,        3,     8*DAMAGE_MULTIPLIER,  eeLEV,        9,  aLEV,          aNEWLEV,         40,   16,     4*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      8,    0,   300,    0,      0,       isMAGICBOMBS,  0,     9,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eOCTO3S
+  { 0x00000000,  0x00000000,    92,       4,       0,        0,        0,       0,       8600,      16,        3,     4*DAMAGE_MULTIPLIER,  eeSHOOT,      9,  aOCTO,         a4FRM4DIRF,      12,   12,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   ewFlame,    4,    3,   100,   64,      3,       isMAGICBOMBS,  0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eOCTO3F
+  { 0x00000000,  0x00000000,    92,       4,       0,        0,        0,       0,       8660,      16,        3,     4*DAMAGE_MULTIPLIER,  eeSHOOT,      9,  aOCTO,         a4FRM4DIRF,      12,   12,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   ewFlame,    4,    5,   200,   64,      3,       isMAGICBOMBS,  0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTRAP_DIAGONAL
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2000,      16,        3,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM3TRAP,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTRAP_SLASH_C
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2000,      16,        3,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM3TRAP,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTRAP_SLASH_LOS
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2000,      16,        3,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM3TRAP,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTRAP_BACKSLASH_C
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2000,      16,        3,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM3TRAP,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTRAP_BACKSLASH_LOS
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2000,      16,        3,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM3TRAP,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTRAP_CW_C
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2000,      16,        3,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM3TRAP,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTRAP_CW_LOS
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2000,      16,        3,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM3TRAP,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTRAP_CCW_C
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2000,      16,        3,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM3TRAP,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
+  // eTRAP_CCW_LOS
+  { 0x00000008,  0x00000000,   122,       1,       0,        0,        0,       0,       2000,      16,        3,     1*DAMAGE_MULTIPLIER,  eeTRAP,       7,  aNONE,         a4FRM3TRAP,      16,   16,     2*HP_PER_HEART/8,   2*HP_PER_HEART/8,   wNone,      0,    0,     0,    0,      0,       isNONE,        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    -1,           -1},
 };

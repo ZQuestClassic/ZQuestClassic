@@ -102,7 +102,6 @@ extern "C"
   int jwin_droplist_proc(int msg, DIALOG *d, int c);
   int jwin_abclist_proc(int msg, DIALOG *d, int c);
   int jwin_check_proc(int msg, DIALOG *d, int c);
-  int jwin_checkfont_proc(int msg, DIALOG *d, int c);
   int jwin_radio_proc(int msg, DIALOG *d, int c);
   int jwin_tab_proc(int msg, DIALOG *d, int c);
   int jwin_hline_proc(int msg, DIALOG *d, int c);
@@ -136,18 +135,6 @@ extern "C"
                    int src_color1, int src_color2, unsigned char dest_color1,
                    unsigned char dest_color2);
   void jwin_center_dialog(DIALOG *dialog);
-
-  void _calc_scroll_bar(int h, int height, int listsize, int offset,
-                             int *bh, int *len, int *pos);
-  void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int state);
-  void draw_arrow_button_horiz(BITMAP *dest, int x, int y, int w, int h, int up, int state);
-
-  
-  void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg);
-  void _jwin_draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int type);
-  void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset);
-
-
 #ifdef __cplusplus
 }
 #endif

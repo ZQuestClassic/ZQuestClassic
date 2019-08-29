@@ -40,7 +40,7 @@ extern void rehydratelake();
 extern void reset_pal_cycling();
 extern void cycle_palette();
 
-inline RGB NESpal(int i)
+INLINE RGB NESpal(int i)
 {
   return _RGB(nes_pal+i*3);
 }

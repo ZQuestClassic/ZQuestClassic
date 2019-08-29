@@ -1,26 +1,26 @@
 /*                 __                  __
- *                /_/\  __  __  __    /_/\  ______
- *               _\_\/ / /\/ /\/ /\  _\_\/ / ____ \ 
- *              / /\  / / / / / / / / /\  / /\_ / /\ 
- *         __  / / / / /_/ /_/ / / / / / / / / / / /
- *        / /_/ / / /_________/ / /_/ / /_/ / /_/ /
- *        \____/ /  \_________\/  \_\/  \_\/  \_\/
- *         \___\/
- *
- *
- *
- *     jwin.c
- *
- *     Windows(R) style GUI for Allegro.
- *     by Jeremy Craner
- *
- *     Most routines are adaptations of Allegro code.
- *     Allegro is by Shawn Hargreaves, et al.
- *
- *     Version: 3/22/00
- *     Allegro version: 3.1x  (don't know if it works with WIP)
- *
- */
+  *                /_/\  __  __  __    /_/\  ______
+  *               _\_\/ / /\/ /\/ /\  _\_\/ / ____ \
+  *              / /\  / / / / / / / / /\  / /\_ / /\
+  *         __  / / / / /_/ /_/ / / / / / / / / / / /
+  *        / /_/ / / /_________/ / /_/ / /_/ / /_/ /
+  *        \____/ /  \_________\/  \_\/  \_\/  \_\/
+  *         \___\/
+  *
+  *
+  *
+  *     jwin.c
+  *
+  *     Windows(R) style GUI for Allegro.
+  *     by Jeremy Craner
+  *
+  *     Most routines are adaptations of Allegro code.
+  *     Allegro is by Shawn Hargreaves, et al.
+  *
+  *     Version: 3/22/00
+  *     Allegro version: 3.1x  (don't know if it works with WIP)
+  *
+  */
 
 /* This code is not fully tested */
 
@@ -30,48 +30,44 @@
 #include <allegro/internal/aintern.h>
 #include <stdio.h>
 
+#ifndef _MSC_VER
 #define max(a,b)  ((a)>(b)?(a):(b))
 #define min(a,b)  ((a)<(b)?(a):(b))
+#endif
 
-#define MSG_BLINKCURSOR (MSG_USER + 1)
 
 int always_resize_clipboard=0;
 
 static void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg);
 int uchar_width(FONT *cfont, int c);
 
-void _find_char_in_textbox_line(textline *thetext, int wword, int tabsize, int x, int y, int w, int h, int *line, int *firstchar, int *lastchar, int findchar)
+void _find_char_in_textbox_line(char *thetext, int wword, int tabsize, int x, int y, int w, int h, int *line, int *firstchar, int *lastchar, int findchar)
 {
   int len;
   int ww = w-6;
   char s[16];
   char text[16];
   char space[16];
-  char *printed = text;
-  char *scanned = text;
-  char *oldscan = text;
+  char *printed = thetext;
+  char *scanned = thetext;
+  char *oldscan = thetext;
   char *ignore = NULL;
   char *tmp, *ptmp;
   int width;
   int noignore;
   int lastbreakchar;
   int lines=0, charcount=0, oldcount=0;
-  char *tscan=text;
+  char *tscan=thetext;
 
-  textline *currentline=thetext;
-  
   usetc(s+usetc(s, '.'), 0);
   usetc(text+usetc(text, ' '), 0);
   usetc(space+usetc(space, ' '), 0);
 
   // find the correct text
-  if (currentline != NULL)
+  if (thetext != NULL)
   {
-    if (currentline->text!=NULL)
-    {
-      printed = currentline->text;
-      scanned = currentline->text;
-    }
+    printed = thetext;
+    scanned = thetext;
   }
 
   // loop over the entire string
@@ -192,7 +188,7 @@ void _find_char_in_textbox_line(textline *thetext, int wword, int tabsize, int x
         }
         else if (wword==eb_wrap_none)
         {
-          while (ugetc(scanned)&& !is_nr(ugetc(scanned)))
+          while (ugetc(scanned)&&!is_nr(ugetc(scanned)))
           {
             tscan=scanned;
             scanned += uwidth(scanned);
@@ -256,7 +252,7 @@ void _find_char_in_textbox_line(textline *thetext, int wword, int tabsize, int x
     }
 
     // we have done a line
-    if (ugetc(printed)|| is_nr(ugetc(tscan)))
+    if (ugetc(printed)||is_nr(ugetc(tscan)))
     {
       (lines)++;
     }
@@ -269,16 +265,11 @@ void _find_char_in_textbox_line(textline *thetext, int wword, int tabsize, int x
   }
 }
 
-int is_color_font(const FONT *fnt)
-{
-  return fnt->vtable == font_vtable_color;
-}
-
 void return_negative_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 {
   /* to get the negative color, substract the color values of red, green and
-   * blue from the full (63) color value
-   */
+    * blue from the full (63) color value
+    */
   rgb->r = 63-pal[y].r;
   rgb->g = 63-pal[y].g;
   rgb->b = 63-pal[y].b;
@@ -315,10 +306,9 @@ void inv_textout_ex(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, in
     }
     tmpbmp=create_bitmap_ex(8, max_width, max_height);
     resize=0;
-
   }
 
-  if (is_color_font(f))
+  if (is_color_font((FONT *)f))
   {
     clear_to_color(tmpbmp, color_map->data[0][bg]);
     f->vtable->render(f, str, color, -1, tmpbmp, 0, 0);
@@ -342,7 +332,7 @@ void hl_textout_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int 
   ASSERT(f);
   ASSERT(s);
 
-  if (is_color_font(f))
+  if (is_color_font((FONT *)f))
   {
     fg=selfg=-1;
   }
@@ -363,9 +353,9 @@ void hl_textout_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int 
 }
 
 /* _draw_editbox:
- *  Helper function to draw a textbox object.
- */
-void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int y_offset, int wword, int tabsize, int x, int y, int w, int h, int disabled, int fore, int deselect, int disable, int *maxwidth, int selstart, int selend, int selfg, int selbg, int printtab, int printcrlf)
+  *  Helper function to draw a textbox object.
+  */
+void _draw_editbox(char *thetext, int *listsize, int draw, int x_offset, int y_offset, int wword, int tabsize, int x, int y, int w, int h, int disabled, int fore, int deselect, int disable, int *maxwidth, int selstart, int selend, int selfg, int selbg, int printtab, int printcrlf)
 {
   int fg = fore;
   int y1 = y+4-y_offset;
@@ -392,48 +382,40 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
   int charcount=0;
   *maxwidth=0;
 
-  sprintf(scanned, "NULL Text!");
-  
-  textline *currentline=thetext;
-  
   usetc(s+usetc(s, '.'), 0);
   usetc(text+usetc(text, ' '), 0);
   usetc(space+usetc(space, ' '), 0);
 
   // find the correct text
-  if (currentline != NULL)
+  if (thetext != NULL)
   {
-    if (currentline->text!=NULL)
-    {
-      printed = currentline->text;
-      scanned = currentline->text;
-    }
+    printed = thetext;
+    scanned = thetext;
   }
 
-  // do some drawing setup 
+  // do some drawing setup
   if (draw)
   {
-    // initial start blanking at the top 
+    // initial start blanking at the top
     rectfill(screen, x+2, y+2, x+w-3, y+3, deselect);
   }
 
-  // choose the text color 
+  // choose the text color
   if (disabled)
   {
     fg = disable;
   }
 
-  // loop over the entire string 
+  // loop over the entire string
   while (1)
   {
     width = 0;
 
-    // find the next break 
-    al_trace("%d: %s", currentline->next==NULL?0:1, scanned);
+    // find the next break
     while (ugetc(scanned))
     {
       tscan=scanned;
-      // check for a forced break 
+      // check for a forced break
       if (is_nr(ugetc(scanned)))
       {
         lastbreakchar=ugetc(scanned);
@@ -447,11 +429,11 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
         break;
       }
 
-      // the next character length 
+      // the next character length
       usetc(s+usetc(s, ugetc(scanned)), 0);
       len = text_length(font, s);
 
-      // modify length if its a tab 
+      // modify length if its a tab
       if (ugetc(s) == '\t')
       {
         len=(((width/tabsize)+1)*tabsize)-width;
@@ -460,20 +442,20 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
       // check for the end of a line by excess width of next char
       if (width-x_offset+((wword!=eb_wrap_none)?len:0) >= ww)
       {
-        // we have reached end of line do we go back to find start 
+        // we have reached end of line do we go back to find start
         if (wword==eb_wrap_word)                            //word wrapping
         {
-          // remember where we were 
+          // remember where we were
           oldscan = scanned;
           noignore = FALSE;
 
-          // go backwards looking for start of word 
+          // go backwards looking for start of word
           while (!uisspace(ugetc(scanned)))
           {
-            // don't wrap too far 
+            // don't wrap too far
             if (scanned == printed)
             {
-              // the whole line is filled, so stop here 
+              // the whole line is filled, so stop here
               tmp = ptmp = scanned;
               while (ptmp != oldscan)
               {
@@ -484,7 +466,7 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
               noignore = TRUE;
               break;
             }
-            // look further backwards to wrap 
+            // look further backwards to wrap
             tmp = ptmp = printed;
             while (tmp < scanned)
             {
@@ -493,7 +475,7 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
             }
             scanned = ptmp;
           }
-          // put the space at the end of the line 
+          // put the space at the end of the line
           if (!noignore)
           {
             ignore = scanned;
@@ -504,7 +486,7 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
             ignore = NULL;
           }
 
-          // check for endline at the convenient place 
+          // check for endline at the convenient place
           if (is_nr(ugetc(scanned)))
           {
             lastbreakchar=ugetc(scanned);
@@ -533,21 +515,21 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
             scanned += uwidth(scanned);
           }
         }
-        // we are done parsing the line end 
+        // we are done parsing the line end
         break;
       }
 
-      // the character can be added 
+      // the character can be added
       tscan=scanned;
       scanned += uwidth(scanned);
       width += len;
     }
-    
+
     if (width>*maxwidth)
     {
       *maxwidth=width;
     }
-    // check if we are to print it 
+    // check if we are to print it
     if ((draw) && ((line+1)*text_height(font) >= y_offset) && (y1 < (y+h-3)))
     {
       x1 = x+4-x_offset;
@@ -563,7 +545,7 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
       //only allow drawing in the text area
       set_clip_rect(screen, x+4, y+4, x+w-5, y+h-5);
 
-      // print up to the marked character 
+      // print up to the marked character
       while (printed != scanned)
       {
         if (wword==eb_wrap_none)
@@ -579,7 +561,7 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
             break;
           }
         }
-        // do special stuff for each charater 
+        // do special stuff for each charater
         switch (ugetc(printed))
         {
           case '\r':
@@ -627,29 +609,32 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
             }
             break;
 
-            // possibly expand the tabs
+          // possibly expand the tabs
           case '\t':
-            tx1=x1;                                         //xpos of tab char
-                                                            //xpos of next char
+            tx1=x1; //xpos of tab char
+            //xpos of next char
             tx1=((((tx1-x-4+x_offset)/tabsize)+1)*tabsize)+x+4-x_offset;
             rectfill(screen, x1, y1, tx1, y1+text_height(font)-1, deselect);
             _draw_tab(x1, y1, tx1, printtab, vc(7), deselect, deselect, vc(7), selstart, selend, charcount);
             x1=tx1;
             break;
-            // print a normal character
+
+          // print a normal character
           default:
             if (printed != ignore)
             {
               usetc(s+usetc(s, ugetc(printed)), 0);
               if (x1+text_length(font, s)>=0)
               {
-                hl_textout_ex(screen, font, s, x1, y1, fg, deselect, selfg, selbg, selstart, selend, charcount);
+                hl_textout_ex(screen, font, s, x1, y1, fg, deselect,
+                              selfg, selbg, selstart, selend, charcount);
               }
               x1 += text_length(font, s);
             }
+            break;
         }
 
-        // goto the next character 
+        // goto the next character
         if (printed!=scanned)
         {
           //          tscan=printed;
@@ -657,6 +642,7 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
           (charcount)++;
         }
       }
+
       // the last blank bit
       // blanks out from the end of the last character on the line
       // to the edge of the text box
@@ -670,10 +656,9 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
         set_clip_rect(screen, x+4, y+4, x+w-5, y+h-5);
       }
 
-      // print the line end 
-      //      y1 += text_height(font);
+      // print the line end
     }
-    
+
     y1 += text_height(font);
     while(printed<scanned)
     {
@@ -681,53 +666,43 @@ void _draw_editbox(textline *thetext, int *listsize, int draw, int x_offset, int
       (charcount)++;
     }
 
-    // we have done a line 
+    // we have done a line
     if (ugetc(printed)||is_nr(ugetc(tscan)))
     {
       (line)++;
     }
 
-    // check if we are at the end of the string 
+    // check if we are at the end of the string
     if (!ugetc(printed))
     {
-      if (currentline->next==NULL)
+
+      // the under blank bit
+      if (draw)
       {
-        // the under blank bit 
-        if (draw)
+        if (y1<y+h-4)
         {
-          if (y1<y+h-4)
-          {
-            //only allow drawing in the 2-pixel border between text and frame
-            set_clip_rect(screen, x+2, y+2, x+w-3, y+h-3);
-            //left side
-            rectfill(screen, x+2, y1, x+3, y+h-3, deselect);
-            //right side
-            rectfill(screen, x+w-4, y1, x+w-3, y+h-3, deselect);
-            //only allow drawing in the text area
-            set_clip_rect(screen, x+4, y+4, x+w-5, y+h-5);
-            //bottom middle
-            rectfill(screen, x+4, y1, x+w-5, y+h-5, deselect);
-          }
-  
           //only allow drawing in the 2-pixel border between text and frame
           set_clip_rect(screen, x+2, y+2, x+w-3, y+h-3);
-          //bottom
-          rectfill(screen, x+2, y+h-4, x+w-3, y+h-3, deselect);
-          //allow drawing anywhere
-          set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+          //left side
+          rectfill(screen, x+2, y1, x+3, y+h-3, deselect);
+          //right side
+          rectfill(screen, x+w-4, y1, x+w-3, y+h-3, deselect);
+          //only allow drawing in the text area
+          set_clip_rect(screen, x+4, y+4, x+w-5, y+h-5);
+          //bottom middle
+          rectfill(screen, x+4, y1, x+w-5, y+h-5, deselect);
         }
-  
-        *listsize = line;
-        //allow drawing anywhere
-//        set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
-        return;
+
+        //only allow drawing in the 2-pixel border between text and frame
+        set_clip_rect(screen, x+2, y+2, x+w-3, y+h-3);
+        //bottom
+        rectfill(screen, x+2, y+h-4, x+w-3, y+h-3, deselect);
       }
-      else
-      {
-        currentline=currentline->next;
-        printed = currentline->text;
-        scanned = currentline->text;
-      }
+
+      *listsize = line;
+      //allow drawing anywhere
+      set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+      return;
     }
   }
 }
@@ -779,10 +754,9 @@ int is_nr(int testnr)
   return 0;
 }
 
-void _focus_on_cursor(DIALOG *d, int ypos, int *yofs, int list_height, int frame_height, int xpos, int *xofs, int list_width, int frame_width)
+void _focus_on_cursor(int ypos, int *yofs, int list_height, int frame_height, int xpos, int *xofs, int list_width, int frame_width)
 {
-  int temp_xofs=*xofs;
-  int temp_yofs=*yofs;
+
   //if the bottom line of text is above the bottom of
   //the frame and the vertical offset is > 0...
   if (*yofs>0&&*yofs>list_height-frame_height)
@@ -809,13 +783,9 @@ void _focus_on_cursor(DIALOG *d, int ypos, int *yofs, int list_height, int frame
   {
     *xofs=0;
   }
-  if ((temp_xofs!=(*xofs))||(temp_yofs!=(*yofs)))
-  {
-    d->flags|=D_DIRTY;
-  }
 }
 
-void _set_cursor_visibility(int *showcur, DIALOG *d, clock_t *t, int visible)
+void _set_cursor_visibility(int *showcur, int *flags, clock_t *t, int visible)
 {
   if (visible==-1)
   {
@@ -825,8 +795,7 @@ void _set_cursor_visibility(int *showcur, DIALOG *d, clock_t *t, int visible)
   {
     *showcur=visible;
   }
-//  d->flags |= D_DIRTY;
-  object_message(d, MSG_BLINKCURSOR, 0);
+  *flags |= D_DIRTY;
   *t=clock()+(CLOCKS_PER_SEC/2);
 }
 
@@ -951,20 +920,20 @@ int _draw_crlf(int x, int y, int type, int style, int fg, int bg, int selfg, int
         case eb_crlf_r:
         case eb_crlf_rn:
           rectfill(screen, x, y, x+4, y+text_height(font)-1, bg);
-          hline(screen, x, y+(text_height(font)/2), x+4, fg);
+          _allegro_hline(screen, x, y+(text_height(font)/2), x+4, fg);
           putpixel(screen, x+1, y+(text_height(font)/2)-1, fg);
           putpixel(screen, x+1, y+(text_height(font)/2)+1, fg);
           if (text_height(font)>6)
           {
             rectfill(screen, x+5, y, x+6, y+text_height(font)-1, bg);
-            hline(screen, x+5, y+(text_height(font)/2), x+6, fg);
-            vline(screen, x+6, y+(text_height(font)/2)-3, y+(text_height(font)/2)-1, fg);
+            _allegro_hline(screen, x+5, y+(text_height(font)/2), x+6, fg);
+            _allegro_vline(screen, x+6, y+(text_height(font)/2)-3, y+(text_height(font)/2)-1, fg);
             putpixel(screen, x+2, y+(text_height(font)/2)-2, fg);
             putpixel(screen, x+2, y+(text_height(font)/2)+2, fg);
           }
           else
           {
-            vline(screen, x+4, y+(text_height(font)/2)-2, y+(text_height(font)/2)-1, fg);
+            _allegro_vline(screen, x+4, y+(text_height(font)/2)-2, y+(text_height(font)/2)-1, fg);
           }
           width=text_height(font)>6?7:5;
           break;
@@ -1041,18 +1010,18 @@ void _draw_tab(int x, int y, int tabstop, int printtab, int fg, int bg, int self
   rectfill(screen, x, y, tabstop, y+text_height(font)-1,bg);
   if (printtab)
   {
-    hline(screen, x, y+(text_height(font)/2), tabstop-1, fg);
+    _allegro_hline(screen, x, y+(text_height(font)/2), tabstop-1, fg);
     putpixel(screen, tabstop-3, y+(text_height(font)/2)-1, fg);
     putpixel(screen, tabstop-3, y+(text_height(font)/2)+1, fg);
     if (text_height(font)>6)
     {
       putpixel(screen, tabstop-4, y+(text_height(font)/2)-2, fg);
       putpixel(screen, tabstop-4, y+(text_height(font)/2)+2, fg);
-      vline(screen, tabstop-1, y+(text_height(font)/2)-3, y+(text_height(font)/2)+3, fg);
+      _allegro_vline(screen, tabstop-1, y+(text_height(font)/2)-3, y+(text_height(font)/2)+3, fg);
     }
     else
     {
-      vline(screen, tabstop-1, y+(text_height(font)/2)-2, y+(text_height(font)/2)+2, fg);
+      _allegro_vline(screen, tabstop-1, y+(text_height(font)/2)-2, y+(text_height(font)/2)+2, fg);
     }
   }
 }
@@ -1062,8 +1031,8 @@ void _draw_tab(int x, int y, int tabstop, int printtab, int fg, int bg, int self
 //d2=top line
 //height=visible lines of text
 /* _draw_scrollable_frame:
- *  Helper function to draw a frame for all objects with vertical scrollbars.
- */
+  *  Helper function to draw a frame for all objects with vertical scrollbars.
+  */
 void _draw_scrollable_frame_vh(DIALOG *d, int list_height, int y_offset, int frame_height, int list_width, int x_offset, int frame_width, int vscroll_bar_style, int hscroll_bar_style, int fg_color, int bg)
 {
   int vs_thumb_len, hs_thumb_wid, len, wid;
@@ -1071,8 +1040,8 @@ void _draw_scrollable_frame_vh(DIALOG *d, int list_height, int y_offset, int fra
   int hh, ww;
   int vs_thumb_x, vs_thumb_y;
   int hs_thumb_x, hs_thumb_y;
-  int draw_vscroll=(((list_height > frame_height)|| (vscroll_bar_style==eb_scrollbar_on))&& (vscroll_bar_style!=eb_scrollbar_off));
-  int draw_hscroll=(((list_width > frame_width)|| (hscroll_bar_style==eb_scrollbar_on))&& (hscroll_bar_style!=eb_scrollbar_off));
+  int draw_vscroll=(((list_height > frame_height)||(vscroll_bar_style==eb_scrollbar_on))&&(vscroll_bar_style!=eb_scrollbar_off));
+  int draw_hscroll=(((list_width  > frame_width )||(hscroll_bar_style==eb_scrollbar_on))&&(hscroll_bar_style!=eb_scrollbar_off));
   int vscroll_w=0, hscroll_h=0;
 
   // draw frame
@@ -1083,12 +1052,12 @@ void _draw_scrollable_frame_vh(DIALOG *d, int list_height, int y_offset, int fra
   {
     if (draw_vscroll)
     {
-      vline(screen, d->x+d->w-13, d->y+1, d->y+d->h-2, fg_color);
+      _allegro_vline(screen, d->x+d->w-13, d->y+1, d->y+d->h-2, fg_color);
       vscroll_w=12;
     }
     if (draw_hscroll)
     {
-      hline(screen, d->x+1, d->y+d->h-13, d->x+d->w-2, fg_color);
+      _allegro_hline(screen, d->x+1, d->y+d->h-13, d->x+d->w-2, fg_color);
       hscroll_h=12;
     }
     if (draw_hscroll&&draw_vscroll)
@@ -1247,8 +1216,8 @@ void _draw_scrollable_frame_vh(DIALOG *d, int list_height, int y_offset, int fra
 }
 
 /* _handle_scrollable_click:
- *  Helper to process a click on a scrollable object.
- */
+  *  Helper to process a click on a scrollable object.
+  */
 void _handle_scrollable_scroll_click_vh(DIALOG *d, int list_height, int *y_offset, int frame_height, int list_width, int *x_offset, int frame_width, int vscroll_bar_style, int hscroll_bar_style, int handle_what)
 {
   int vs_thumb_y, vs_thumb_mouse_y;
@@ -1257,8 +1226,8 @@ void _handle_scrollable_scroll_click_vh(DIALOG *d, int list_height, int *y_offse
   int vs_thumb_len, hs_thumb_wid;
   int len, wid;
 
-  int draw_vscroll=(((list_height > frame_height)|| (vscroll_bar_style==eb_scrollbar_on))&& (vscroll_bar_style!=eb_scrollbar_off));
-  int draw_hscroll=(((list_width > frame_width)|| (hscroll_bar_style==eb_scrollbar_on))&& (hscroll_bar_style!=eb_scrollbar_off));
+  int draw_vscroll=(((list_height > frame_height)||(vscroll_bar_style==eb_scrollbar_on))&&(vscroll_bar_style!=eb_scrollbar_off));
+  int draw_hscroll=(((list_width  > frame_width )||(hscroll_bar_style==eb_scrollbar_on))&&(hscroll_bar_style!=eb_scrollbar_off));
   int vscroll_w=0, hscroll_h=0;
 
   // possibly draw scrollbar
@@ -1282,8 +1251,8 @@ void _handle_scrollable_scroll_click_vh(DIALOG *d, int list_height, int *y_offse
         //length of thumb
         vs_thumb_len = (hh * frame_height + list_height/2) / list_height;
         len = (((hh * (*y_offset)) + list_height/2) / list_height)+2;
-        //        len = (hh * (*y_offset) + list_height/2) / list_height + 2;
-
+        //len = (hh * (*y_offset) + list_height/2) / list_height + 2;
+  
         if ((gui_mouse_y() >= d->y+len) && (gui_mouse_y() <= d->y+len+vs_thumb_len))
         {
           vs_thumb_mouse_y = gui_mouse_y() - len + 2;
@@ -1294,19 +1263,19 @@ void _handle_scrollable_scroll_click_vh(DIALOG *d, int list_height, int *y_offse
             {
               vs_thumb_y = list_height-frame_height;
             }
-
+  
             if (vs_thumb_y < 0)
             {
               vs_thumb_y = 0;
             }
-
+  
             if (vs_thumb_y != *y_offset)
             {
               *y_offset = vs_thumb_y;
               object_message(d, MSG_DRAW, 0);
             }
-
-            // let other objects continue to animate 
+  
+            // let other objects continue to animate
             broadcast_dialog_message(MSG_IDLE, 0);
           }
         }
@@ -1320,17 +1289,17 @@ void _handle_scrollable_scroll_click_vh(DIALOG *d, int list_height, int *y_offse
           {
             vs_thumb_y = *y_offset + frame_height;
           }
-
+  
           if (vs_thumb_y > list_height-frame_height)
           {
             vs_thumb_y = list_height-frame_height;
           }
-
+  
           if (vs_thumb_y < 0)
           {
             vs_thumb_y = 0;
           }
-
+  
           if (vs_thumb_y != *y_offset)
           {
             *y_offset = vs_thumb_y;
@@ -1343,7 +1312,7 @@ void _handle_scrollable_scroll_click_vh(DIALOG *d, int list_height, int *y_offse
         hs_thumb_wid = (ww * frame_width + list_width/2) / list_width;
         wid = (((ww * (*x_offset)) + list_width/2) / list_width)+2;
         //        len = (hh * (*y_offset) + list_height/2) / list_height + 2;
-
+  
         if ((gui_mouse_x() >= d->x+wid) && (gui_mouse_x() <= d->x+wid+hs_thumb_wid))
         {
           hs_thumb_mouse_x = gui_mouse_x() - wid + 2;
@@ -1354,19 +1323,19 @@ void _handle_scrollable_scroll_click_vh(DIALOG *d, int list_height, int *y_offse
             {
               hs_thumb_x = list_width-frame_width;
             }
-
+  
             if (hs_thumb_x < 0)
             {
               hs_thumb_x = 0;
             }
-
+  
             if (hs_thumb_x != *x_offset)
             {
               *x_offset = hs_thumb_x;
               object_message(d, MSG_DRAW, 0);
             }
-
-            // let other objects continue to animate 
+  
+            // let other objects continue to animate
             broadcast_dialog_message(MSG_IDLE, 0);
           }
         }
@@ -1380,17 +1349,17 @@ void _handle_scrollable_scroll_click_vh(DIALOG *d, int list_height, int *y_offse
           {
             hs_thumb_x = *x_offset + frame_width;
           }
-
+  
           if (hs_thumb_x > list_width-frame_width)
           {
             hs_thumb_x = list_width-frame_width;
           }
-
+  
           if (hs_thumb_x < 0)
           {
             hs_thumb_x = 0;
           }
-
+  
           if (hs_thumb_x != *x_offset)
           {
             *x_offset = hs_thumb_x;
@@ -1400,20 +1369,20 @@ void _handle_scrollable_scroll_click_vh(DIALOG *d, int list_height, int *y_offse
         break;
     }
 
-    // let other objects continue to animate 
+    // let other objects continue to animate
     broadcast_dialog_message(MSG_IDLE, 0);
   }
 }
 
 /* dotted_rect:
- *  Draws a dotted rectangle, for showing an object has the input focus.
- */
+  *  Draws a dotted rectangle, for showing an object has the input focus.
+  */
 static void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
 {
   int x = ((x1+y1) & 1) ? 1 : 0;
   int c;
 
-  // two loops to avoid bank switches 
+  // two loops to avoid bank switches
   for (c=x1; c<=x2; c++)
   {
     putpixel(screen, c, y1, (((c+y1) & 1) == x) ? fg : bg);
@@ -1431,9 +1400,9 @@ static void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
 }
 
 /* uinsert:
- *  Inserts a character at the specified index within a string, sliding
- *  following data along to make room. Returns how far the data was moved.
- */
+  *  Inserts a character at the specified index within a string, sliding
+  *  following data along to make room. Returns how far the data was moved.
+  */
 int eb_insert(char *dest, int index, char *source)
 {
   //   int w = ustrsize(source);
@@ -1459,15 +1428,15 @@ int eb_delete(char *s, int index, int w)
 }
 
 /* d_editbox_proc:
- *  A text box object. The dp field points to a char * which is the text
- *  to be displayed in the text box. If the text is long, there will be
- *  a vertical scrollbar on the right hand side of the object which can
- *  be used to scroll through the text. The default is to print the text
- *  with word wrapping, but if the D_SELECTED flag is set, the text will
- *  be printed with character wrapping. The d1 field is used internally
- *  to store the number of lines of text, and d2 is used to store how far
- *  it has scrolled through the text.
- */
+  *  A text box object. The dp field points to a char * which is the text
+  *  to be displayed in the text box. If the text is long, there will be
+  *  a vertical scrollbar on the right hand side of the object which can
+  *  be used to scroll through the text. The default is to print the text
+  *  with word wrapping, but if the D_SELECTED flag is set, the text will
+  *  be printed with character wrapping. The d1 field is used internally
+  *  to store the number of lines of text, and d2 is used to store how far
+  *  it has scrolled through the text.
+  */
 int d_editbox_proc(int msg, DIALOG *d, int c)
 {
   int height, width, vsbar_w=0, hsbar_h=0, ret = D_O_K;
@@ -1488,21 +1457,20 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
   int from_backspace=0;
   int ignore_mouse=0;
   int tabsize;
-  static textline *sharedtext_data=(textline *)malloc(sizeof(textline));
+  static char *sharedtext;
   //  static char *clipboard;
   editbox_data *ebd=(editbox_data *)(d->dp);
-  textline *currentline;
 
   static int firstrun=1;
 
   FONT *tempfont=font;
 
-  char *ccptr=ebd->text_data->text;
-  char *ccptr2=ebd->text_data->text;
+  char *ccptr=*ebd->text;
+  char *ccptr2=*ebd->text;
   //  ebd->clipboard=clipboard;
   tabsize=ebd->defaulttabsize==0?30:(ebd->tabunits==0?ebd->defaulttabsize:ebd->defaulttabsize*uchar_width(font, ' '));
-  ebd->vsbarstyle=eb_scrollbar_on;
-  ebd->hsbarstyle=eb_scrollbar_optional;
+//  ebd->vsbarstyle=eb_scrollbar_on;
+//  ebd->hsbarstyle=eb_scrollbar_optional;
   if (ebd->font)
   {
     font=ebd->font;
@@ -1527,11 +1495,13 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
   ASSERT(d);
 
   fg_color = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
-  // calculate the actual height 
+  // calculate the actual height
   height = d->h-8;
   width = d->w-8;
 
-  if (((ebd->lines*text_height(font) > height)&& (ebd->vsbarstyle!=eb_scrollbar_off))|| (ebd->vsbarstyle==eb_scrollbar_on))
+  if (((ebd->lines*text_height(font) > height)&&
+       (ebd->vsbarstyle!=eb_scrollbar_off))||
+      (ebd->vsbarstyle==eb_scrollbar_on))
   {
     vsbar_w = 12;
   }
@@ -1540,7 +1510,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
     vsbar_w = 0;
   }
 
-  if (((ebd->list_width > width)&& (ebd->hsbarstyle!=eb_scrollbar_off))|| (ebd->hsbarstyle==eb_scrollbar_on))
+  if (((ebd->list_width > width)&&(ebd->hsbarstyle!=eb_scrollbar_off))||(ebd->hsbarstyle==eb_scrollbar_on))
   {
     hsbar_h = 12;
   }
@@ -1551,19 +1521,18 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
 
   ln = (d->h-8)/text_height(font);
 
+/*
   if (msg!=MSG_IDLE&&msg!=MSG_DRAW)
   {
-    al_trace("entering switch code (%d)\n",ebd->maxlines);
-    al_trace("msg=%d\n",msg);
-    al_trace("clipboard contents:\n%s\n",ebd->clipboard);
   }
+*/
+
   switch (msg)
   {
     case MSG_START:
       //just for testing...
-      d->dp2=create_bitmap(d->w, d->h);
-      ebd->tabdisplaystyle=1;
-      ebd->crlfdisplaystyle=2;
+      ebd->tabdisplaystyle=0;
+      ebd->crlfdisplaystyle=0;
       ebd->customtabs=0;
       ebd->customtabpos=(int*)calloc(3, sizeof(int));
       ebd->customtabpos[0]=0;
@@ -1571,7 +1540,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
       //      ebd->maxlines=0;
       ebd->insertmode=0;
       //      ebd->clipboardsize=0;
-
+  
       //reset counter variables
       ebd->list_width=0;
       ebd->currchar=0;
@@ -1581,60 +1550,42 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
       ebd->selstart=0;
       ebd->selend=0;
       ebd->xofs=0;
-      ebd->wrapping=eb_wrap_none;
+      //ebd->wrapping=eb_wrap_none;
       ebd->newcrlftype=eb_crlf_n;
-      if (ebd->text_data==NULL)
+      if (ebd->text==NULL)
       {
-        al_trace("ebd->text==NULL\n");
-        ebd->text_data=sharedtext_data;
-        ebd->text_data->text=(char*)calloc(1,65536);
-        sprintf(ebd->text_data->text, "Editbox!\n");
+        ebd->text=&sharedtext;
+        *ebd->text=(char*)calloc(1,65536);
+        sprintf(*ebd->text, "Editbox!\n");
       }
-      else if (ebd->text_data->text==NULL)
-      {
-        al_trace("ebd->text==NULL\n");
-        ebd->text_data=sharedtext_data;
-        ebd->text_data->text=(char*)calloc(1,65536);
-        sprintf(ebd->text_data->text, "Editbox!\n");
-      }
-
-
+  
       ebd->yofs=0;
-      _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
-      // measure how many lines of text we contain 
-      // DONT DRAW anything 
-      _draw_editbox(ebd->text_data, &ebd->lines, 0, ebd->xofs, ebd->yofs, ebd->wrapping, tabsize, d->x, d->y, d->w, d->h, (d->flags & D_DISABLED), 0,0,0, &ebd->list_width, 0, 0, 0, 0, ebd->tabdisplaystyle, ebd->crlfdisplaystyle);
-      currentline=ebd->text_data;
-      while (currentline!=NULL)
+      _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
+      // measure how many lines of text we contain
+      // DONT DRAW anything
+      _draw_editbox(*ebd->text, &ebd->lines, 0,  ebd->xofs, ebd->yofs, ebd->wrapping, tabsize, d->x, d->y, d->w, d->h, (d->flags & D_DISABLED), 0,0,0, &ebd->list_width, 0, 0, 0, 0, ebd->tabdisplaystyle, ebd->crlfdisplaystyle);
+      ccptr=*ebd->text;
+      while (ugetc(ccptr)!=0)
       {
-        ccptr=currentline->text;
-        while (ugetc(ccptr)!=0)
-        {
-          (ebd->numchars)++;
-          ccptr+=uwidth(ccptr);
-        }
-        currentline=currentline->next;
+        (ebd->numchars)++;
+        ccptr+=uwidth(ccptr);
       }
       break;
 
-    case MSG_END:
-      destroy_bitmap((BITMAP *)d->dp2);
-      break;
-
-      // update the cursor visibility in response to idle messages
     case MSG_IDLE:
-      if ((d->flags &D_GOTFOCUS)&&(clock()>tics))
+      // update the cursor visibility in response to idle messages
+      if ((d->flags & D_GOTFOCUS)&&(clock()>tics))
       {
-        _set_cursor_visibility(&ebd->showcursor, d, &tics, -1);
+        _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, -1);
       }
       break;
 
     case MSG_DRAW:
-      // tell the object to sort of draw, but only calculate the listsize 
-                                                            // DONT DRAW anything 
-      _draw_editbox(ebd->text_data, &ebd->lines, 0, ebd->xofs, ebd->yofs, ebd->wrapping, tabsize, d->x, d->y, d->w, d->h, (d->flags & D_DISABLED), 0, 0, 0, &ebd->list_width, 0, 0, 0, 0, ebd->tabdisplaystyle, ebd->crlfdisplaystyle);
+      // tell the object to sort of draw, but only calculate the listsize
+      // DONT DRAW anything
+      _draw_editbox(*ebd->text, &ebd->lines, 0,  ebd->xofs, ebd->yofs, ebd->wrapping, tabsize, d->x, d->y, d->w, d->h, (d->flags & D_DISABLED), 0, 0, 0, &ebd->list_width, 0, 0, 0, 0, ebd->tabdisplaystyle, ebd->crlfdisplaystyle);
       //just in case the width or height changed, recalc scroll bar sizes...
-      if (((ebd->lines*text_height(font) > height)&& (ebd->vsbarstyle!=eb_scrollbar_off))|| (ebd->vsbarstyle==eb_scrollbar_on))
+      if (((ebd->lines*text_height(font) > height)&&(ebd->vsbarstyle!=eb_scrollbar_off))||(ebd->vsbarstyle==eb_scrollbar_on))
       {
         vsbar_w = 12;
       }
@@ -1642,8 +1593,8 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
       {
         vsbar_w = 0;
       }
-
-      if (((ebd->list_width > width)&& (ebd->hsbarstyle!=eb_scrollbar_off))|| (ebd->hsbarstyle==eb_scrollbar_on))
+  
+      if (((ebd->list_width > width)&&(ebd->hsbarstyle!=eb_scrollbar_off))||(ebd->hsbarstyle==eb_scrollbar_on))
       {
         hsbar_h = 12;
       }
@@ -1651,60 +1602,35 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
       {
         hsbar_h = 0;
       }
-
+  
       ln = (d->h-8)/text_height(font);
-
-      // now do the actual drawing 
-      _draw_editbox(ebd->text_data, &ebd->lines, 1, ebd->xofs, ebd->yofs, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h-hsbar_h, (d->flags & D_DISABLED), fg_color, d->bg, gui_mg_color, &ebd->list_width, ebd->selstart, ebd->selend, ebd->selfg, ebd->selbg, ebd->tabdisplaystyle, ebd->crlfdisplaystyle);
-
-      // draw the frame around 
+  
+      // now do the actual drawing
+      _draw_editbox(*ebd->text, &ebd->lines, 1, ebd->xofs, ebd->yofs, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h-hsbar_h, (d->flags & D_DISABLED), fg_color, d->bg, gui_mg_color, &ebd->list_width, ebd->selstart, ebd->selend, ebd->selfg, ebd->selbg, ebd->tabdisplaystyle, ebd->crlfdisplaystyle);
+  
+      // draw the frame around
       _draw_scrollable_frame_vh(d, (ebd->lines)*text_height(font), ebd->yofs, height-hsbar_h, ebd->list_width, ebd->xofs, width-vsbar_w, ebd->vsbarstyle, ebd->hsbarstyle, fg_color, d->bg);
-
-//      blit(screen, screen, d->x, d->y, rand()%SCREEN_W, rand()%SCREEN_H, d->w, d->h);
-      blit(screen, (BITMAP *)d->dp2, d->x, d->y, 0, 0, d->w, d->h);
-//      blit((BITMAP *)d->dp2, screen, 0, 0, rand()%SCREEN_W, rand()%SCREEN_H, d->w, d->h);
-
+  
       //draw the cursor
-      if (ebd->showcursor &&(d->flags &D_GOTFOCUS) &&(ebd->fakexpos-ebd->xofs>=0) &&(ebd->selstart==ebd->selend))
+      if (ebd->showcursor && (d->flags & D_GOTFOCUS) && (ebd->fakexpos-ebd->xofs>=0) && (ebd->selstart==ebd->selend))
       {
         //only allow drawing in the text area
         set_clip_rect(screen, d->x+4, d->y+4, d->x+d->w-5-vsbar_w, d->y+d->h-5-hsbar_h);
-        vline(screen, ebd->fakexpos+d->x+4-ebd->xofs, (ebd->currtextline*text_height(font)-ebd->yofs)+d->y+4, ((ebd->currtextline+1)*text_height(font)-ebd->yofs)+d->y+3, vc(8));
+        _allegro_vline(screen, ebd->fakexpos+d->x+4-ebd->xofs, (ebd->currtextline*text_height(font)-ebd->yofs)+d->y+4, ((ebd->currtextline+1)*text_height(font)-ebd->yofs)+d->y+3, vc(8));
         //allow drawing anywhere
         set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
       }
-      break;
-      
-    case MSG_BLINKCURSOR:
-//      blit(screen, screen, d->x, d->y, rand()%SCREEN_W, rand()%SCREEN_H, d->w, d->h);
-//      blit(screen, (BITMAP *)d->dp2, d->x, d->y, 0, 0, d->w, d->h);
-      scare_mouse();
-      blit((BITMAP *)d->dp2, screen, 0, 0, d->x, d->y, d->w, d->h);
-
-      //draw the cursor
-      if (ebd->showcursor &&(d->flags &D_GOTFOCUS) &&(ebd->fakexpos-ebd->xofs>=0) &&(ebd->selstart==ebd->selend))
-      {
-        //only allow drawing in the text area
-        set_clip_rect(screen, d->x+4, d->y+4, d->x+d->w-5-vsbar_w, d->y+d->h-5-hsbar_h);
-        vline(screen, ebd->fakexpos+d->x+4-ebd->xofs, (ebd->currtextline*text_height(font)-ebd->yofs)+d->y+4, ((ebd->currtextline+1)*text_height(font)-ebd->yofs)+d->y+3, vc(8));
-        //allow drawing anywhere
-        set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
-      }
-      unscare_mouse();
-        
       break;
 
     case MSG_CLICK:
-      {
-      // figure out if it's on the text or the scrollbar 
+      // figure out if it's on the text or the scrollbar
       if (is_in_rect(gui_mouse_x()-d->x, gui_mouse_y()-d->y, 0, 0, d->w-vsbar_w-1, d->h-hsbar_h-1))
       {
-/*        
         ignore_mouse=1;
         tempchar=-1;
         while(gui_mouse_b())
         {
-          // clicked on the text area 
+          // clicked on the text area
           ebd->currtextline=((ebd->yofs+gui_mouse_y()-4-d->y)/text_height(font));
           if (ebd->currtextline<0)
           {
@@ -1715,7 +1641,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
             ebd->currtextline=ebd->lines-1;
           }
           firstxpos=gui_mouse_x()-4-d->x+ebd->xofs;
-          _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
+          _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
           prevxpos=ebd->fakexpos=0;
           ccptr=*ebd->text+ebd->currchar;
           while (ebd->currchar<=lastchar)
@@ -1768,7 +1694,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 ebd->fakexpos+=text_length(font, temptext);
               }
             }
-
+  
             ebd->currchar=nextuchar(*ebd->text,ebd->currchar);
             ccptr=*ebd->text+ebd->currchar;
           }
@@ -1779,8 +1705,8 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
             ebd->selstart=ebd->selend;
           }
           ebd->currxpos=ebd->fakexpos;
-          _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-          _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
+          _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+          _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
           if (ebd->currchar!=tempchar)
           {
             tempchar=ebd->currchar;
@@ -1788,7 +1714,6 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
           }
         }
         ret = D_O_K;
-*/
       }
       else
       {
@@ -1797,34 +1722,31 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
         if (is_in_rect(gui_mouse_x()-d->x, gui_mouse_y()-d->y, d->w-vsbar_w, 0, d->w-1, d->h-hsbar_h-1))
         {
           _handle_scrollable_scroll_click_vh(d, (ebd->lines)*text_height(font), &ebd->yofs, height-hsbar_h, ebd->list_width, &ebd->xofs, width-vsbar_w, ebd->vsbarstyle, ebd->hsbarstyle, eb_handle_vscroll);
-        } else if (is_in_rect(gui_mouse_x()-d->x, gui_mouse_y()-d->y, 0, d->h-hsbar_h, d->w-vsbar_w-1, d->h-1))
+        }
+        else if (is_in_rect(gui_mouse_x()-d->x, gui_mouse_y()-d->y, 0, d->h-hsbar_h, d->w-vsbar_w-1, d->h-1))
         {
           _handle_scrollable_scroll_click_vh(d, (ebd->lines)*text_height(font), &ebd->yofs, height-hsbar_h, ebd->list_width, &ebd->xofs, width-vsbar_w, ebd->vsbarstyle, ebd->hsbarstyle, eb_handle_hscroll);
         }
-      }
+  
       }
       break;
 
     case MSG_CHAR:
-      {
-/*
       used = D_USED_CHAR;
-
+  
       if (ebd->lines > 0)
       {
         switch (c>>8)
         {
           case KEY_C:
-            if (key[KEY_ZC_LCONTROL]||key[KEY_ZC_RCONTROL])
+            if (key[KEY_LCONTROL]||key[KEY_RCONTROL])
             {
               //copy text to clipboard
-              al_trace("entering copy code\n");
-              al_trace("clipboard contents:\n%s\n",ebd->clipboard);
               if (ebd->selstart!=ebd->selend)
               {
                 tempselstart=ebd->selstart<ebd->selend?ebd->selstart:ebd->selend;
                 tempselend=ebd->selstart<ebd->selend?ebd->selend:ebd->selstart;
-                if ((ebd->clipboardsize<(tempselend-tempselstart)+2)|| (always_resize_clipboard))
+                if ((ebd->clipboardsize<(tempselend-tempselstart)+2)||(always_resize_clipboard))
                 {
                   if (ebd->clipboard)
                   {
@@ -1836,9 +1758,6 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 memset(ebd->clipboard,0,ebd->clipboardsize-1);
                 ebd->clipboard[ebd->clipboardsize-1]=0;
                 memcpy(ebd->clipboard, *ebd->text+tempselstart, tempselend-tempselstart);
-                al_trace("%d %d--->%d %d\n",ebd->selstart, ebd->selend, tempselstart, tempselend);
-                al_trace("clipboard contents:\n%s\n",ebd->clipboard);
-                al_trace("exiting copy code\n\n\n");
               }
             }
             else
@@ -1847,7 +1766,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
             }
             break;
           case KEY_X:
-            if (key[KEY_ZC_LCONTROL]||key[KEY_ZC_RCONTROL])
+            if (key[KEY_LCONTROL]||key[KEY_RCONTROL])
             {
               //copy text to clipboard and delete
               if (ebd->selstart!=ebd->selend)
@@ -1862,26 +1781,18 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
             }
             break;
           case KEY_V:
-            al_trace("entering paste code\n");
-            al_trace("clipboard contents:\n%s\n",ebd->clipboard);
             //            tempselstart=ebd->selstart<ebd->selend?ebd->selstart:ebd->selend;
             //            tempselend=ebd->selstart<ebd->selend?ebd->selend:ebd->selstart;
-            if (key[KEY_ZC_LCONTROL]||key[KEY_ZC_RCONTROL])
+            if (key[KEY_LCONTROL]||key[KEY_RCONTROL])
             {
               //paste text from clipboard
-              for (tempchar=0; tempchar<ustrsize(ebd->clipboard); tempchar++)
-              {
-                al_trace("src1:\n%c(%d)\n",ebd->clipboard[tempchar],ebd->clipboard[tempchar]);
-              }
-              al_trace("\n\n");
-              al_trace("src:\n%s\n\n\n\n",ebd->clipboard);
               tempchar=eb_insert(*ebd->text, ebd->currchar, ebd->clipboard);
               ebd->numchars+=tempchar;
               ebd->currchar+=tempchar;
               if (!ebd->postpaste_dontmove)                 //put cursor at end of paste area
               {
                 tempchar=ebd->currchar;
-                _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, ebd->currchar);
+                _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, ebd->currchar);
                 ebd->currxpos=0;
                 while (firstchar<ebd->currchar)
                 {
@@ -1899,43 +1810,45 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 }
                 ebd->fakexpos=ebd->currxpos;
               }
-              _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-              _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
+              _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+              _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
             }
             else
             {
               used=D_O_K;
             }
-            al_trace("exiting paste code\n\n");
             break;
           case KEY_HOME:
-            if (key[KEY_ZC_LCONTROL]||key[KEY_ZC_RCONTROL])
+            if (key[KEY_LCONTROL]||key[KEY_RCONTROL])
             {
               ebd->currchar=ebd->currxpos=ebd->currtextline=ebd->yofs=0;
             }
             else
             {
-              _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
+              _find_char_in_textbox_line(*ebd->text, ebd->wrapping,
+                                         tabsize, d->x, d->y, d->w-vsbar_w, d->h,
+                                         &ebd->currtextline, &ebd->currchar, &lastchar,
+                                         -1);
             }
-
+    
             ebd->fakexpos=ebd->currxpos=0;
-
+    
             ebd->selend=ebd->currchar;
             if (!key[KEY_LSHIFT]&&!key[KEY_RSHIFT])
             {
               ebd->selstart=ebd->selend;
             }
-
-            _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-            _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
-
+    
+            _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+            _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
+    
             break;
           case KEY_END:
-            if (key[KEY_ZC_LCONTROL]||key[KEY_ZC_RCONTROL])
+            if (key[KEY_LCONTROL]||key[KEY_RCONTROL])
             {
               ebd->currtextline=ebd->lines-1;
-            }                                               // else {
-            _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
+            }
+            _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
             prevxpos=ebd->currxpos=0;
             ccptr=*ebd->text+ebd->currchar;
             while ((ebd->currchar<=lastchar)&&!is_nr(ugetc(ccptr)))
@@ -1954,22 +1867,22 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
               ccptr=*ebd->text+ebd->currchar;
             }
             //            }
-
+    
             ebd->fakexpos=ebd->currxpos;
-
+    
             ebd->selend=ebd->currchar;
             if (!key[KEY_LSHIFT]&&!key[KEY_RSHIFT])
             {
               ebd->selstart=ebd->selend;
             }
-
-            _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-            _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
-
+    
+            _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+            _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
+    
             break;
           case KEY_PGUP:
             ebd->yofs-=(ln*text_height(font));
-            // make sure that the list stays in bounds 
+            // make sure that the list stays in bounds
             if (((ebd->yofs)/text_height(font)) > ebd->lines-ln)
             {
               ebd->yofs = (ebd->lines-ln)*text_height(font);
@@ -1987,7 +1900,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
             {
               ebd->currtextline = 0;
             }
-            _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
+            _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
             firstxpos=ebd->currxpos;
             prevxpos=ebd->fakexpos=0;
             ccptr=*ebd->text+ebd->currchar;
@@ -2012,23 +1925,23 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
               {
                 ebd->fakexpos+=text_length(font, temptext);
               }
-
+    
               ebd->currchar=nextuchar(*ebd->text,ebd->currchar);
               ccptr=*ebd->text+ebd->currchar;
             }
-
+    
             ebd->selend=ebd->currchar;
             if (!key[KEY_LSHIFT]&&!key[KEY_RSHIFT])
             {
               ebd->selstart=ebd->selend;
             }
-
-            _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-            _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
+    
+            _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+            _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
             break;
           case KEY_PGDN:
             ebd->yofs+=(ln*text_height(font));
-            // make sure that the list stays in bounds 
+            // make sure that the list stays in bounds
             if (((ebd->yofs)/text_height(font)) > ebd->lines-ln)
             {
               ebd->yofs = (ebd->lines-ln)*text_height(font);
@@ -2046,7 +1959,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
             {
               ebd->currtextline = 0;
             }
-            _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
+            _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
             firstxpos=ebd->currxpos;
             prevxpos=ebd->fakexpos=0;
             ccptr=*ebd->text+ebd->currchar;
@@ -2071,27 +1984,27 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
               {
                 ebd->fakexpos+=text_length(font, temptext);
               }
-
+    
               ebd->currchar=nextuchar(*ebd->text,ebd->currchar);
               ccptr=*ebd->text+ebd->currchar;
             }
-
+    
             ebd->selend=ebd->currchar;
             if (!key[KEY_LSHIFT]&&!key[KEY_RSHIFT])
             {
               ebd->selstart=ebd->selend;
             }
-
-            _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-            _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
-
+    
+            _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+            _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
+    
             break;
-
+  
           case KEY_UP:
             if (ebd->currtextline>0)
             {
               (ebd->currtextline)--;
-              _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
+              _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
               firstxpos=ebd->currxpos;
               prevxpos=ebd->fakexpos=0;
               ccptr=*ebd->text+ebd->currchar;
@@ -2125,16 +2038,16 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 ebd->selstart=ebd->selend;
               }
             }
-
-            _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-            _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
-
+    
+            _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+            _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
+    
             break;
           case KEY_DOWN:
             if (ebd->currtextline<ebd->lines-1)
             {
               (ebd->currtextline)++;
-              _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
+              _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
               firstxpos=ebd->currxpos;
               ebd->fakexpos=0;
               ccptr=*ebd->text+ebd->currchar;
@@ -2168,10 +2081,10 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 ebd->selstart=ebd->selend;
               }
             }
-
-            _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-            _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
-
+    
+            _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+            _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
+    
             break;
           case KEY_RIGHT:
             if (ebd->currchar<ebd->numchars)
@@ -2190,7 +2103,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 if (ebd->currtextline<ebd->lines-1)
                 {
                   (ebd->currtextline)++;
-                  _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
+                  _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &ebd->currchar, &lastchar, -1);
                   ebd->currxpos=ebd->xofs=0;
                 }
               }
@@ -2207,7 +2120,7 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 }
                 templine=ebd->currtextline;
                 ebd->currchar=nextuchar(*ebd->text,ebd->currchar);
-                _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, ebd->currchar);
+                _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, ebd->currchar);
                 if (ebd->currtextline!=templine)
                 {
                   ebd->currxpos=ebd->xofs=0;
@@ -2218,12 +2131,12 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
               {
                 ebd->selstart=ebd->selend;
               }
-
+    
             }
             ebd->fakexpos=ebd->currxpos;
-
-            _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-            _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
+    
+            _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+            _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
             break;
           case KEY_BACKSPACE:
             if (ebd->selstart!=ebd->selend)
@@ -2272,7 +2185,8 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 {
                   ebd->currchar=tempchar;
                   tempchar=nextuchar(*ebd->text,tempchar);
-                  if (ugetc(*ebd->text+tempchar)== othernr(ugetc(*ebd->text+ebd->currchar)))
+                  if (ugetc(*ebd->text+tempchar)==
+                      othernr(ugetc(*ebd->text+ebd->currchar)))
                   {
                     tempchar=nextuchar(*ebd->text,tempchar);
                   }
@@ -2286,11 +2200,11 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
               else
               {
                 ebd->currchar=prevuchar(*ebd->text,ebd->currchar);
-                _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, ebd->currchar);
+                _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, ebd->currchar);
               }
-
+    
               ebd->currxpos=0;
-              _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, -1);
+              _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, -1);
               while (firstchar<ebd->currchar)
               {
                 ccptr=*ebd->text+firstchar;
@@ -2305,10 +2219,10 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 }
                 firstchar=nextuchar(*ebd->text,firstchar);
               }
-
+    
             }
             ebd->fakexpos=ebd->currxpos;
-
+    
             if (!from_backspace)
             {
               ebd->selend=ebd->currchar;
@@ -2316,11 +2230,11 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
               {
                 ebd->selstart=ebd->selend;
               }
-              _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-              _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
+              _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+              _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
             }
             break;
-
+  
           case KEY_DEL:
             if (ebd->selstart!=ebd->selend)
             {
@@ -2332,10 +2246,10 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
               }
               eb_delete(*ebd->text, ebd->selstart, ebd->selend-ebd->selstart);
               ebd->numchars-=(ebd->selend-ebd->selstart);
-
+    
               ebd->currchar=ebd->selend=ebd->selstart;
               ebd->currxpos=0;
-              _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, ebd->currchar);
+              _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, ebd->currchar);
               while (firstchar<ebd->currchar)
               {
                 ccptr=*ebd->text+firstchar;
@@ -2367,17 +2281,18 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                     (ebd->numchars)--;
                   }
                 }
-
+    
                 uremove(*ebd->text, ebd->currchar);
                 (ebd->numchars)--;
-
+    
                 tempchar=prevuchar(*ebd->text,ebd->currchar);
                 ccptr=*ebd->text+tempchar;
                 ccptr2=*ebd->text+ebd->currchar;
-
+    
                 //if the current character and the previous character
                 //are \n and \r in any order...
-                if (is_nr(ugetc(ccptr))&& ugetc(ccptr2)==othernr(ugetc(ccptr)))
+                if (is_nr(ugetc(ccptr))&&
+                    ugetc(ccptr2)==othernr(ugetc(ccptr)))
                 {
                   //check the character before the previous character
                   tempchar=prevuchar(*ebd->text,tempchar);
@@ -2396,11 +2311,11 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 }
               }
             }
-            _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-            _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
-
+            _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+            _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
+    
             break;
-
+  
           case KEY_ENTER:
             if (ebd->selstart!=ebd->selend)
             {
@@ -2492,14 +2407,14 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
                 }
               }
             }
-
+    
             (ebd->currtextline)++;
             ebd->fakexpos=ebd->currxpos=0;
-
+    
             object_message(d, MSG_DRAW, 0);
-
-            _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-            _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
+    
+            _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+            _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
             break;
           case KEY_TAB:
             if (ebd->selstart!=ebd->selend)
@@ -2519,15 +2434,15 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
             ebd->currchar=nextuchar(*ebd->text,ebd->currchar);
             ebd->currxpos=(((ebd->currxpos/tabsize)+1)*tabsize);
             ebd->fakexpos=ebd->currxpos;
-            _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-            _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
+            _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+            _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
             break;
           default:
             used = D_O_K;
             break;
         }
-
-        // make sure that the list stays in bounds 
+  
+        // make sure that the list stays in bounds
         if (((ebd->yofs)/text_height(font)) > ebd->lines-ln)
         {
           ebd->yofs = (ebd->lines-ln)*text_height(font);
@@ -2536,21 +2451,17 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
         {
           ebd->yofs = 0;
         }
-
+  
       }
       else
       {
         used = D_O_K;
       }
-
+  
       ret = used;
-*/
-      }
       break;
 
     case MSG_UCHAR:
-      {
-/*
       if ((c >= ' ') && (uisok(c)))
       {
         if (ebd->selstart!=ebd->selend)
@@ -2578,58 +2489,49 @@ int d_editbox_proc(int msg, DIALOG *d, int c)
         }
         templine=ebd->currtextline;
         ebd->currchar=nextuchar(*ebd->text,ebd->currchar);
-        _find_char_in_textbox_line(ebd->text_data, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, ebd->currchar);
+        _find_char_in_textbox_line(*ebd->text, ebd->wrapping, tabsize, d->x, d->y, d->w-vsbar_w, d->h, &ebd->currtextline, &firstchar, &lastchar, ebd->currchar);
         if (ebd->currtextline!=templine)
         {
           ebd->currxpos=0;
         }
-
+  
         ebd->fakexpos=ebd->currxpos;
-
-        _focus_on_cursor(d, ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
-        _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
-
+  
+        _focus_on_cursor(ebd->currtextline*text_height(font), &(ebd->yofs), ebd->lines*text_height(font), d->h-hsbar_h-8, ebd->currxpos, &ebd->xofs, ebd->list_width, d->w-vsbar_w-8);
+        _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
+  
         if (ebd->font)
         {
           font=tempfont;
         }
         return D_USED_CHAR;
       }
-*/
-      }
       break;
 
     case MSG_WHEEL:
-      {
-/*
       delta = (ln > 3) ? 3 : 1;
-
-      // scroll, making sure that the list stays in bounds 
+  
+      // scroll, making sure that the list stays in bounds
       start = ebd->yofs;
       ebd->yofs = ((c > 0) ? MAX(0, ((ebd->yofs)/text_height(font))-delta) : MIN(ebd->lines-ln, ((ebd->yofs)/text_height(font))+delta))*text_height(font);
-
-      // if we changed something, better redraw... 
+  
+      // if we changed something, better redraw...
       if (ebd->yofs != start)
       {
         d->flags |= D_DIRTY;
       }
-
+  
       ret = D_O_K;
-*/
-      }
       break;
+
     case MSG_WANTFOCUS:
       ret = D_WANTFOCUS;
-      _set_cursor_visibility(&ebd->showcursor, d, &tics, 1);
+      _set_cursor_visibility(&ebd->showcursor, &(d->flags), &tics, 1);
       break;
 
     default:
       ret = D_O_K;
-  }
-  if (msg!=MSG_IDLE&&msg!=MSG_DRAW)
-  {
-    al_trace("exiting switch code\n");
-    al_trace("clipboard contents:\n%s\n\n",ebd->clipboard);
+      break;
   }
   if (ebd->font)
   {

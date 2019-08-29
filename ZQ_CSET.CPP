@@ -8,6 +8,7 @@
 //
 //--------------------------------------------------------
 
+#include "gui.h"
 #include "zc_alleg.h"
 #include "zdefs.h"
 #include "colors.h"
@@ -21,7 +22,6 @@
 #include "zq_tiles.h"
 #include "zq_misc.h"
 #include "zq_cset.h"
-#include "gui.h"
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);
@@ -90,8 +90,8 @@ void init_colormixer()
     rectfill(screen,light_x,(i<<1)+light_y,light_x+light_w-1,(i<<1)+light_y+1,i+128);
   }
 
-//  rect(screen,95,31,224,96,ed15);
-//  rect(screen,224,31,240,96,ed15);
+  //  rect(screen,95,31,224,96,ed15);
+  //  rect(screen,224,31,240,96,ed15);
   set_palette_range(RAMpal,0,255,false);
 }
 
@@ -104,7 +104,7 @@ void colormixer(int color,int gray,int ratio)
   for(int i=0; i<32; i++)
   {
     RAMpal[i+160] = mixRGB(gfx_pal[color*3],gfx_pal[color*3+1],
-      gfx_pal[color*3+2],gray,gray,gray,i<<1); //saturation
+                           gfx_pal[color*3+2],gray,gray,gray,i<<1); //saturation
     rectfill(screen,sat_x,(i<<1)+sat_y,sat_x+sat_w-1,(i<<1)+sat_y+1,i+160);
   }
 
@@ -115,9 +115,9 @@ void colormixer(int color,int gray,int ratio)
   jwin_draw_frame(screen, color_x-2, color_y-2, color_w+4, color_h+4, FR_DEEP);
   rectfill(screen,color_x,color_y,color_x+color_w-1,color_y+color_h-1,edc);
 
-  hline(screen,color_x,gray+color_y,color_x+color_w-1,edi);
-  vline(screen,color+color_x,color_y,color_y+color_h-1,edi);
-  hline(screen,sat_x,ratio+sat_y,sat_x+sat_w-1,edi);
+  _allegro_hline(screen,color_x,gray+color_y,color_x+color_w-1,edi);
+  _allegro_vline(screen,color+color_x,color_y,color_y+color_h-1,edi);
+  _allegro_hline(screen,sat_x,ratio+sat_y,sat_x+sat_w-1,edi);
   //  text_mode(ed1);
   textprintf_centre_ex(screen,font,SCREEN_W/2,color_y+color_h+10,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
   unscare_mouse();
@@ -179,6 +179,7 @@ void edit_dataset(int dataset)
   int done=0;
   do
   {
+    rest(4);
     bool setpal=false;
     int x=gui_mouse_x();
     int y=gui_mouse_y();
@@ -233,15 +234,15 @@ void edit_dataset(int dataset)
       switch(doing)
       {
         case 1:
-          color = vbound(x-color_x,0,127);
-          gray = vbound(y-light_y,0,63);
-          break;
+        color = vbound(x-color_x,0,127);
+        gray = vbound(y-light_y,0,63);
+        break;
         case 2:
-          index = vbound((x-96)>>3,0,15);
-          break;
+        index = vbound((x-96)>>3,0,15);
+        break;
         case 3:
-          ratio = vbound(y-sat_y,0,63);
-          break;
+        ratio = vbound(y-sat_y,0,63);
+        break;
       }
     }
 
@@ -273,17 +274,17 @@ void edit_dataset(int dataset)
         case KEY_F1:    doHelp(jwin_pal[jcTEXTFG],jwin_pal[jcTEXTBG]); break;
         case KEY_S:     onSnapshot(); break;
         default:
-          switch(k&255)
-          {
-            case '4':  index=(index-1)&15; break;
-            case '6':  index=(index+1)&15; break;
-            case '7':  ++RAMpal[14*16+index].r; RAMpal[14*16+index].r&=0x3F; setpal=true; break;
-            case '1':  --RAMpal[14*16+index].r; RAMpal[14*16+index].r&=0x3F; setpal=true; break;
-            case '8':  ++RAMpal[14*16+index].g; RAMpal[14*16+index].g&=0x3F; setpal=true; break;
-            case '2':  --RAMpal[14*16+index].g; RAMpal[14*16+index].g&=0x3F; setpal=true; break;
-            case '9':  ++RAMpal[14*16+index].b; RAMpal[14*16+index].b&=0x3F; setpal=true; break;
-            case '3':  --RAMpal[14*16+index].b; RAMpal[14*16+index].b&=0x3F; setpal=true; break;
-          }
+        switch(k&255)
+        {
+          case '4':  index=(index-1)&15; break;
+          case '6':  index=(index+1)&15; break;
+          case '7':  ++RAMpal[14*16+index].r; RAMpal[14*16+index].r&=0x3F; setpal=true; break;
+          case '1':  --RAMpal[14*16+index].r; RAMpal[14*16+index].r&=0x3F; setpal=true; break;
+          case '8':  ++RAMpal[14*16+index].g; RAMpal[14*16+index].g&=0x3F; setpal=true; break;
+          case '2':  --RAMpal[14*16+index].g; RAMpal[14*16+index].g&=0x3F; setpal=true; break;
+          case '9':  ++RAMpal[14*16+index].b; RAMpal[14*16+index].b&=0x3F; setpal=true; break;
+          case '3':  --RAMpal[14*16+index].b; RAMpal[14*16+index].b&=0x3F; setpal=true; break;
+        }
       }
     }
 
@@ -319,7 +320,7 @@ int pal_index(RGB *pal,RGB c)
   for(int i=0; i<256; i++)
     if(pal[i].r==c.r && pal[i].g==c.g && pal[i].b==c.b)
       return i;
-  return -1;
+    return -1;
 }
 
 void grab_dataset(int dataset)
@@ -330,7 +331,7 @@ void grab_dataset(int dataset)
 
   PALETTE tmp;
 
-  if(!pic && load_the_pic())
+  if(!pic && load_the_pic(&pic,picpal))
     return;
 
   get_palette(imagepal);
@@ -383,6 +384,7 @@ void grab_dataset(int dataset)
 
   do
   {
+    rest(1);
     int x=gui_mouse_x();
     int y=gui_mouse_y();
 
@@ -391,7 +393,7 @@ void grab_dataset(int dataset)
     if(reload)
     {
       reload=false;
-      if(load_the_pic()==2)
+      if(load_the_pic(&pic,picpal)==2)
         done=1;
       else
       {
@@ -422,16 +424,16 @@ void grab_dataset(int dataset)
       if(do_button(184,219,60,21,"File",pblack,pwhite,true))
         reload=true;
 
-    if((gui_mouse_b()&1) && isinRect(x,y,260,200,319,215))
+      if((gui_mouse_b()&1) && isinRect(x,y,260,200,319,215))
       if(do_button(260,195,60,21,"OK",pblack,pwhite,true))
         done=2;
 
-    if((gui_mouse_b()&1) && isinRect(x,y,260,224,319,239))
+      if((gui_mouse_b()&1) && isinRect(x,y,260,224,319,239))
       if(do_button(260,219,60,21,"Cancel",pblack,pwhite,true))
         done=1;
 
 
-    if(keypressed())
+      if(keypressed())
     {
       switch(readkey()>>8)
       {
@@ -442,23 +444,23 @@ void grab_dataset(int dataset)
         case KEY_DOWN:  row=(row+1)&15; break;
         case KEY_LEFT:
         case KEY_RIGHT:
-          palx = 192-palx;
-          redraw=true;
-          break;
+        palx = 192-palx;
+        redraw=true;
+        break;
         case KEY_TAB:
-          //        tmp = picpal;
-          memcpy(tmp,picpal,sizeof(picpal));
-          for(int i=0; i<16; i++)
-            tmp[(row<<4)+i] = invRGB(tmp[(row<<4)+i]);
-          for(int i=0; i<12; i++)
-          {
-            custom_vsync();
-            if(i&2)
-              set_palette(picpal);
-            else
-              set_palette(tmp);
-          }
-          break;
+        //        tmp = picpal;
+        memcpy(tmp,picpal,sizeof(picpal));
+        for(int i=0; i<16; i++)
+          tmp[(row<<4)+i] = invRGB(tmp[(row<<4)+i]);
+        for(int i=0; i<12; i++)
+        {
+          custom_vsync();
+          if(i&2)
+            set_palette(picpal);
+          else
+            set_palette(tmp);
+        }
+        break;
       }
     }
 
@@ -612,7 +614,7 @@ void draw_cset_proc(DIALOG *d)
   d_bitmap_proc(MSG_DRAW,d,0);
   //  text_mode(d->bg);
 
-//  rect(screen,d->x,(d1<<3)+d->y,d->x+d->w-1,(d2<<3)+d->y+7,FLASH);
+  //  rect(screen,d->x,(d1<<3)+d->y,d->x+d->w-1,(d2<<3)+d->y+7,FLASH);
   rect(screen,d->x,(d1<<3)+d->y,d->x+d->w-1,(d2<<3)+d->y+7,dvc(0)); //highlights currently selected cset
   int drc;
   if((d->flags & D_GOTFOCUS))
@@ -627,15 +629,15 @@ int d_cset_proc(int msg,DIALOG *d,int c)
   switch(msg)
   {
     case MSG_START:
-      d->d2 = d->d1;
-      break;
+    d->d2 = d->d1;
+    break;
 
     case MSG_WANTFOCUS:
-      return D_WANTFOCUS;
+    return D_WANTFOCUS;
 
     case MSG_DRAW:
-      draw_cset_proc(d);
-      break;
+    draw_cset_proc(d);
+    break;
 
     case MSG_CLICK:
     {
@@ -653,9 +655,9 @@ int d_cset_proc(int msg,DIALOG *d,int c)
         scare_mouse();
         draw_cset_proc(d);
         unscare_mouse();
-//sniggles
-//        ((RGB*)d->dp3)[243]=((RGB*)d->dp3)[rc[(fc++)&15]];
-//        set_palette_range(((RGB*)d->dp3),FLASH,FLASH,false);
+        //sniggles
+        //        ((RGB*)d->dp3)[243]=((RGB*)d->dp3)[rc[(fc++)&15]];
+        //        set_palette_range(((RGB*)d->dp3),FLASH,FLASH,false);
         ((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[rand()%14+dvc(1)];
         set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
       } while(gui_mouse_b());
@@ -674,44 +676,44 @@ int d_cset_proc(int msg,DIALOG *d,int c)
         case KEY_PGDN:  d->d2=((d->h)>>3)-1;             if(!shift) d->d1 = d->d2; break;
 
         case KEY_C:
-          cset_hold_cnt=0;
-          for(int row=0; row <= abs(d->d1 - d->d2); row++)
-          {
-            int d1 = min(d->d1,d->d2);
-            ++cset_hold_cnt;
-            for(int i=0; i<16*3; i++)
-              cset_hold[row][i] = *(((byte*)d->dp2)+CSET(d1+row)*3+i);
-          }
-          cset_ready=true;
-          break;
+        cset_hold_cnt=0;
+        for(int row=0; row <= abs(d->d1 - d->d2); row++)
+        {
+          int d1 = min(d->d1,d->d2);
+          ++cset_hold_cnt;
+          for(int i=0; i<16*3; i++)
+            cset_hold[row][i] = *(((byte*)d->dp2)+CSET(d1+row)*3+i);
+        }
+        cset_ready=true;
+        break;
 
 
         case KEY_V:
-          if(cset_ready)
+        if(cset_ready)
+        {
+          //         undopal=pal;
+          memcpy(undopal,pal,sizeof(pal));
+          int d1 = min(d->d1,d->d2);
+          for(int row=0; row<cset_hold_cnt && d1+row<cset_count; row++)
           {
-            //         undopal=pal;
-            memcpy(undopal,pal,sizeof(pal));
-            int d1 = min(d->d1,d->d2);
-            for(int row=0; row<cset_hold_cnt && d1+row<cset_count; row++)
-            {
-              for(int i=0; i<16*3; i++)
-                *(((byte*)d->dp2)+CSET(d1+row)*3+i) = cset_hold[row][i];
-            }
-            for(int i=0; i<cset_count; i++)
-              load_cset(pal,i,cset_first+i);
-            set_palette(pal);
+            for(int i=0; i<16*3; i++)
+              *(((byte*)d->dp2)+CSET(d1+row)*3+i) = cset_hold[row][i];
           }
-          break;
-
-        case KEY_U:
-          undo_pal();
           for(int i=0; i<cset_count; i++)
             load_cset(pal,i,cset_first+i);
           set_palette(pal);
-          break;
+        }
+        break;
+
+        case KEY_U:
+        undo_pal();
+        for(int i=0; i<cset_count; i++)
+          load_cset(pal,i,cset_first+i);
+        set_palette(pal);
+        break;
 
         default:
-          return D_O_K;
+        return D_O_K;
       }
       custom_vsync();
       scare_mouse();
@@ -831,6 +833,7 @@ int EditColors(char *caption,int first,int count,byte *label)
   colors_dlg[26].d1   =(count==pdLEVEL)?16:0;
   colors_dlg[26].dp   =(count==pdLEVEL)?palnames[(first-poLEVEL)/pdLEVEL]:NULL;
 
+  //char (*buf)[4]= new char[count][4];
   char buf[50][4];
 
   for(int i=0; i<15; i++)
@@ -845,8 +848,8 @@ int EditColors(char *caption,int first,int count,byte *label)
     }
     colors_dlg[3+i].dp=buf[i];
     colors_dlg[3+i].y=(i<<3)+colors_dlg[0].y+36;
-//sniggles
-//    colors_dlg[3+i].fg=rc[label[i+count]];
+    //sniggles
+    //    colors_dlg[3+i].fg=rc[label[i+count]];
   }
 
   colors_dlg[0].dp  = caption;
@@ -861,6 +864,7 @@ int EditColors(char *caption,int first,int count,byte *label)
   int ret=0;
   do
   {
+    rest(4);
     for(int i=0; i<count; i++)
     {
       load_cset(pal,i,i+first);
@@ -880,8 +884,8 @@ int EditColors(char *caption,int first,int count,byte *label)
     while(update_dialog(p))
     {
       custom_vsync();
-//sniggles
-//      pal[FLASH]=pal[rc[(fc++)&15]];
+      //sniggles
+      //      pal[FLASH]=pal[rc[(fc++)&15]];
       pal[dvc(0)]=pal[rand()%14+dvc(1)];
       set_palette_range(pal,dvc(0),dvc(0),false);
 
@@ -936,12 +940,13 @@ int EditColors(char *caption,int first,int count,byte *label)
     set_pal();
   }
 
-//  gui_fg_color = vc(14);
-//  gui_bg_color = vc(1);
-//  gui_mg_color = vc(9);
+  //  gui_fg_color = vc(14);
+  //  gui_bg_color = vc(1);
+  //  gui_mg_color = vc(9);
 
   comeback();
   destroy_bitmap(bmp);
+  //delete[] buf;
   return int(ret==23);
 }
 

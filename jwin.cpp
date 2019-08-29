@@ -24,10 +24,6 @@
 
 /* This code is not fully tested */
 
-#ifndef __GTHREAD_HIDE_WIN32API                             
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
 #include <ctype.h>
 #include <string.h>
 #include "zc_alleg.h"
@@ -70,13 +66,14 @@ int jwin_colors[jcMAX] =
   0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
 };
 
-int scheme[jcMAX] =
+/* all GUI objects are drawn with these colors */
+static int scheme[jcMAX] =
 {
-	0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
-	0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
+  0xC0C0C0,0xF0F0F0,0xD0D0D0,0x808080,0x404040,0x000000,
+  0x000080,0x00F0F0,0xFFFFFF,0xFFFFFF,0x000000,0x000080,0xFFFFFF
 };
 
- /*  jwin_set_colors:
+/*  jwin_set_colors:
   *   Loads a set of colors in 0xRRGGBB or 256-color-indexed format
   *   into the current color scheme using the appropriate color depth
   *   conversions.
@@ -125,49 +122,56 @@ void jwin_draw_frame(BITMAP *dest,int x,int y,int w,int h,int style)
   switch(style)
   {
     case FR_BOX:
-      c1 = jcLIGHT;
-      c2 = jcMEDLT;
-      c3 = jcMEDDARK;
-      c4 = jcDARK;
-      break;
+    c1 = jcLIGHT;
+    c2 = jcMEDLT;
+    c3 = jcMEDDARK;
+    c4 = jcDARK;
+    break;
+
     case FR_INV:
-      c1 = jcDARK;
-      c2 = jcMEDDARK;
-      c3 = jcMEDLT;
-      c4 = jcLIGHT;
-      break;
+    c1 = jcDARK;
+    c2 = jcMEDDARK;
+    c3 = jcMEDLT;
+    c4 = jcLIGHT;
+    break;
+
     case FR_DEEP:
-      c1 = jcMEDDARK;
-      c2 = jcDARK;
-      c3 = jcMEDLT;
-      c4 = jcLIGHT;
-      break;
+    c1 = jcMEDDARK;
+    c2 = jcDARK;
+    c3 = jcMEDLT;
+    c4 = jcLIGHT;
+    break;
+
     case FR_DARK:
-      c1 = jcDARK;
-      c2 = jcMEDDARK;
-      c3 = jcMEDDARK;
-      c4 = jcDARK;
-      break;
+    c1 = jcDARK;
+    c2 = jcMEDDARK;
+    c3 = jcMEDDARK;
+    c4 = jcDARK;
+    break;
+
     case FR_ETCHED:
-      c1 = jcMEDDARK;
-      c2 = jcLIGHT;
-      c3 = jcMEDDARK;
-      c4 = jcLIGHT;
-      break;
+    c1 = jcMEDDARK;
+    c2 = jcLIGHT;
+    c3 = jcMEDDARK;
+    c4 = jcLIGHT;
+    break;
+
     case FR_MEDDARK:
-      c1 = jcMEDDARK;
-      c2 = jcBOX;
-      c3 = jcBOX;
-      c4 = jcMEDDARK;
-      break;
+    c1 = jcMEDDARK;
+    c2 = jcBOX;
+    c3 = jcBOX;
+    c4 = jcMEDDARK;
+    break;
+
     case FR_WIN:
     default:
-      c1 = jcMEDLT;
-      c2 = jcLIGHT;
-      c3 = jcMEDDARK;
-      c4 = jcDARK;
-      break;
+    c1 = jcMEDLT;
+    c2 = jcLIGHT;
+    c3 = jcMEDDARK;
+    c4 = jcDARK;
+    break;
   }
+
   _allegro_hline(dest, x, y  , x+w-2, scheme[c1]);
   _allegro_vline(dest, x, y+1, y+h-2, scheme[c1]);
 
@@ -340,7 +344,7 @@ void draw_x_button(BITMAP *dest, int x, int y, int state)
   line(dest,x+1,y+6,x+7,y,  c);
 }
 
-void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int state)
+static void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int state)
 {
   int c = scheme[jcDARK];
   int ah = min(h/3, 5);
@@ -353,22 +357,6 @@ void draw_arrow_button(BITMAP *dest, int x, int y, int w, int h, int up, int sta
   for( ; i<ah; i++)
   {
     _allegro_hline(dest, x-(up?i:ah-i-1), y+i, x+(up?i:ah-i-1), c);
-  }
-}
-
-void draw_arrow_button_horiz(BITMAP *dest, int x, int y, int w, int h, int up, int state)
-{
-  int c = scheme[jcDARK];
-  int aw = min(w/3, 5);
-  int i = 0;
-
-  jwin_draw_button(dest,x,y,w,h,state,1);
-  y += h/2 - (state?0:1);
-  x += (w-aw)/2 + (state?1:0);
-
-  for( ; i<aw; i++)
-  {
-    _allegro_vline(dest, x+i,y-(up?i:aw-i-1), y+(up?i:aw-i-1), c);
   }
 }
 
@@ -411,7 +399,7 @@ static int do_x_button(BITMAP *dest, int x, int y)
 /* dotted_rect:
   *  Draws a dotted rectangle, for showing an object has the input focus.
   */
-void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg)
+static void dotted_rect(BITMAP *dest, int x1, int y1, int x2, int y2, int fg, int bg)
 {
   int x = ((x1+y1) & 1) ? 1 : 0;
   int c;
@@ -524,9 +512,6 @@ int close_dlg() { return D_CLOSE; }
 
 int jwin_frame_proc(int msg, DIALOG *d, int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
   if(msg == MSG_DRAW)
   {
     jwin_draw_frame(screen, d->x, d->y, d->w, d->h, d->d1);
@@ -537,9 +522,6 @@ int jwin_frame_proc(int msg, DIALOG *d, int c)
 
 int jwin_guitest_proc(int msg, DIALOG *d, int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
   if(msg == MSG_DRAW)
   {
     jwin_draw_frame(screen, d->x, d->y, d->w, d->h, d->d1);
@@ -556,9 +538,6 @@ int jwin_guitest_proc(int msg, DIALOG *d, int c)
   */
 int jwin_win_proc(int msg, DIALOG *d, int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
   rest(1);
   switch(msg)
   {
@@ -601,9 +580,6 @@ int jwin_win_proc(int msg, DIALOG *d, int c)
   */
 int jwin_text_proc(int msg, DIALOG *d, int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
   ASSERT(d);
   static BITMAP *dummy=create_bitmap_ex(8, 1, 1);
   switch (msg)
@@ -638,9 +614,6 @@ int jwin_text_proc(int msg, DIALOG *d, int c)
 
 int jwin_ctext_proc(int msg, DIALOG *d, int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
   ASSERT(d);
   static BITMAP *dummy=create_bitmap_ex(8, 320, 240);
   switch (msg)
@@ -675,9 +648,6 @@ int jwin_ctext_proc(int msg, DIALOG *d, int c)
 
 int jwin_rtext_proc(int msg, DIALOG *d, int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
   ASSERT(d);
   static BITMAP *dummy=create_bitmap_ex(8, 1, 1);
   switch (msg)
@@ -720,12 +690,12 @@ void jwin_draw_text_button(BITMAP *dest, int x, int y, int w, int h, char *str, 
   if(flags & D_SELECTED)
     jwin_draw_button(dest, x, y, w, h, 2, 0);
   else if( !(flags & D_GOTFOCUS) )
-    jwin_draw_button(dest, x, y, w, h, 0, 0);
-  else
-  {
-    rect(dest, x, y, x+w-1, y+h-1, scheme[jcDARK]);
-    jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
-  }
+      jwin_draw_button(dest, x, y, w, h, 0, 0);
+    else
+    {
+      rect(dest, x, y, x+w-1, y+h-1, scheme[jcDARK]);
+      jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
+    }
 
   if( !(flags & D_DISABLED) )
     gui_textout_ex(dest, str, x+w/2+g, y+h/2-text_height(font)/2+g, scheme[jcBOXFG], -1, TRUE);
@@ -752,9 +722,6 @@ bool XOR(bool a, bool b)
   */
 int jwin_button_proc(int msg, DIALOG *d, int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
   int down=0;
   int selected=(d->flags&D_SELECTED)?1:0;
   int last_draw;
@@ -1070,7 +1037,7 @@ int jwin_numedit_proc(int msg,DIALOG *d,int c)
 /*  _calc_scroll_bar:
   *   Helps find positions of buttons on the scroll bar.
   */
-void _calc_scroll_bar(int h, int height, int listsize, int offset,
+static void _calc_scroll_bar(int h, int height, int listsize, int offset,
                              int *bh, int *len, int *pos)
 {
   *bh = max( min( (h-4)/2, 14 ), 0 );
@@ -1082,7 +1049,7 @@ void _calc_scroll_bar(int h, int height, int listsize, int offset,
   *  Helper to process a click on a scrollable object.
   */
 
-void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset)
+static void _handle_jwin_scrollable_scroll_click(DIALOG *d, int listsize, int *offset)
 {
   enum { top_btn, bottom_btn, bar, top_bar, bottom_bar };
 
@@ -1733,7 +1700,7 @@ void _jwin_draw_textbox(char *thetext, int *listsize, int draw, int offset,
   //   rtm = text_mode(bg);
 
   /* loop over the entire string */
-  for(;;)
+  while (1)
   {
     width = 0;
 
@@ -2901,15 +2868,15 @@ int jwin_menu_proc(int msg, DIALOG *d, int c)
 
 static DIALOG alert_dialog[] =
 {
-  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)   (dp2)  (dp3) */
-  { jwin_win_proc,     0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
-  { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
-  { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
-  { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
-  { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
-  { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
-  { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
-  { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
+  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp) */
+  { jwin_win_proc,     0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL },
+  { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL },
+  { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL },
+  { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL },
+  { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL },
+  { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL },
+  { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL },
+  { NULL }
 };
 
 #define A_S1  1
@@ -3069,10 +3036,6 @@ int jwin_alert(char *title,char *s1, char *s2, char *s3, char *b1, char *b2, int
 
 static int d_dropcancel_proc(int msg,DIALOG *d,int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  d=d;
-  c=c;
-
   if(msg==MSG_CLICK || msg==MSG_DCLICK)
     return D_CLOSE;
   return D_O_K;
@@ -3080,14 +3043,14 @@ static int d_dropcancel_proc(int msg,DIALOG *d,int c)
 
 static DIALOG droplist_dlg[] =
 {
-  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)     (d2)      (dp)              (dp2)   (dp3)*/
-  { d_list_proc,       0,    0,    0,    0,    0,       0,      0,       D_EXIT,     0,       0,        NULL,             NULL,   NULL },
-  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,       KEY_ESC,  (void*)close_dlg, NULL,   NULL },
-  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
-  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
-  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
-  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
-  { NULL,              0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL }
+  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)     (d2)      (dp) */
+  { d_list_proc,       0,    0,    0,    0,    0,       0,      0,       D_EXIT,     0,       0,        NULL },
+  { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,       KEY_ESC,  (void*)close_dlg },
+  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL },
+  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL },
+  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL },
+  { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL },
+  { NULL }
 };
 
 static int droplist(DIALOG *d, int type)
@@ -3376,27 +3339,12 @@ int d_abclist_proc(int msg,DIALOG *d,int c)
   return ret;
 }
 
-int jwin_checkfont_proc(int msg, DIALOG *d, int c)
-{
-	
-	FONT *oldfont = font;
-	if(d->dp2)
-	{
-		font = (FONT *)d->dp2;
-	}
-	int rval = jwin_check_proc(msg, d, c);
-	font = oldfont;
-	return rval;
-}
-
 /* jwin_check_proc:
   *  Who needs C++ after all? This is derived from d_button_proc,
   *  but overrides the drawing routine to provide a check box.
   */
 int jwin_check_proc(int msg, DIALOG *d, int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
   int x;
   int bx=0, tl=0;
   int tx=d->x;
@@ -3745,18 +3693,12 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
     b2 = (col_diff+256)[((pal[val].b)-(b)) & 0x7F];
 
     /* try to grow to all directions */
-#ifdef _MSC_VER
-#pragma warning(disable:4127)
-#endif
     dopos( 0, 0, 1, 1);
     dopos( 0, 0,-1, 1);
     dopos( 1, 0, 0, 1);
     dopos(-1, 0, 0, 1);
     dopos( 0, 1, 0, 1);
     dopos( 0,-1, 0, 1);
-#ifdef _MSC_VER
-#pragma warning(default:4127)
-#endif
 
     /* faster growing of blue direction */
     if ((b > 0) && (data[first-1] == val)) {
@@ -3764,16 +3706,10 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
       first--;
       b2 = (col_diff+256)[((pal[val].b)-(b)) & 0x7F];
 
-#ifdef _MSC_VER
-#pragma warning(disable:4127)
-#endif
       dopos(-1, 0, 0, 0);
       dopos( 1, 0, 0, 0);
       dopos( 0,-1, 0, 0);
       dopos( 0, 1, 0, 0);
-#ifdef _MSC_VER
-#pragma warning(default:4127)
-#endif
 
       first++;
     }
@@ -3792,34 +3728,22 @@ void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, unsigned char 
       g2 = (col_diff    )[((pal[val].g)-(g)) & 0x7F];
       b2 = (col_diff+256)[((pal[val].b)-(b)) & 0x7F];
 
-#ifdef _MSC_VER
-#pragma warning(disable:4127)
-#endif
       dopos( 0, 0, 1, 1);
       dopos( 0, 0,-1, 1);
       dopos( 1, 0, 0, 1);
       dopos(-1, 0, 0, 1);
       dopos( 0, 1, 0, 1);
       dopos( 0,-1, 0, 1);
-#ifdef _MSC_VER
-#pragma warning(default:4127)
-#endif
 
       if ((b < 61) && (data[first + 1] == val)) {
         b += 2;
         first++;
         b2 = (col_diff+256)[((pal[val].b)-(b)) & 0x7f];
 
-#ifdef _MSC_VER
-#pragma warning(disable:4127)
-#endif
         dopos(-1, 0, 0, 0);
         dopos( 1, 0, 0, 0);
         dopos( 0,-1, 0, 0);
         dopos( 0, 1, 0, 0);
-#ifdef _MSC_VER
-#pragma warning(default:4127)
-#endif
 
         first--;
       }
@@ -4169,9 +4093,6 @@ int jwin_tab_proc(int msg, DIALOG *d, int c)
 
 int jwin_hline_proc(int msg, DIALOG *d, int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
   ASSERT(d);
   if (msg==MSG_DRAW)
   {
@@ -4183,9 +4104,6 @@ int jwin_hline_proc(int msg, DIALOG *d, int c)
 
 int jwin_vline_proc(int msg, DIALOG *d, int c)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
   ASSERT(d);
   if (msg==MSG_DRAW)
   {

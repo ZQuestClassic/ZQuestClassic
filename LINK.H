@@ -30,19 +30,20 @@
 #include "save_gif.h"
 #include "sprite.h"
 #include "zc_custom.h"
+#include "subscr.h"
 
 extern movingblock mblock2;                                 //mblock[4]?
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 
 extern const byte lsteps[8];
 
-enum { did_fairy=1, did_candle=2, did_whistle=4 };
+enum { did_fairy=1, did_candle=2, did_whistle=4, did_magic=8, did_all=16 };
 
 enum actiontype
 {
-  none, walking, attacking, freeze, holding1, holding2,
+  none, walking, attacking, freeze, landhold1, landhold2,
   rafting, gothit, inwind, scrolling, won, swimming, hopping,
-  swimhit, swimhold1, swimhold2, casting, climbcovertop,
+  swimhit, waterhold1, waterhold2, casting, climbcovertop,
   climbcoverbottom, dying
 };
 
@@ -61,7 +62,13 @@ class LinkClass : public sprite
   int attackclk,ladderx,laddery,pushing,fairyclk,refillclk,hclk;
   int warpx,warpy,holdclk,holditem,attack,swordclk,didstuff,blowcnt;
   byte skipstep,lstep,hopclk,diveclk,whirlwind;
-  byte hitdir,ladderdir,lastdir[3];
+  byte hitdir,ladderdir,lastdir[3],ladderstart;
+  int shiftdir;
+  int sdir;
+  int holddir;
+  int landswim;
+  bool ilswim;
+  bool walkable;
   actiontype action;
   int hshandle_id, hshead_id, itemclk;
   byte conveyor_flags;
@@ -71,16 +78,21 @@ class LinkClass : public sprite
   void move(int d);
   void hitlink(int hit);
   int  nextcombo(int cx,int cy,int cdir);
-  int  nextflag(int cx,int cy,int cdir);
-  bool nextcombo_wf();
-  int  lookahead(int destscr = -1);
-  int  lookaheadflag(int destscr = -1);
+  int  nextflag(int cx,int cy,int cdir, bool comboflag);
+  bool nextcombo_wf(int d);
+  bool nextcombo_solid(int d);
+  int  lookahead(int destscr = -1, int d=up);
+  int  lookaheadflag(int destscr = -1, int d=up);
   void checkhit();
   void checkscroll();
   void checkspecial();
+  void checkspecial2(int *ls);
   void checkpushblock();
   void checkbosslockblock();
   void checklockblock();
+  void checkchest();
+  void checklockedchest();
+  void checkbosschest();
   void checktouchblk();
   void checklocked();
   void checkitems();
@@ -97,14 +109,14 @@ class LinkClass : public sprite
   void walkup();
   void walkdown2();
   void walkup2();
-  bool dowarp(int type);
+  bool dowarp(int type, int index);
   void exitcave();
   void stepout();
   void masked_draw(BITMAP *dest);
   void getTriforce(int id);
   void checkstab();
-  void fairycircle();
-  void StartRefill(int refill_why);
+  void fairycircle(int type);
+  void StartRefill();
   int  EwpnHit();
   int  LwpnHit();
   void gameover();
@@ -116,7 +128,7 @@ class LinkClass : public sprite
   void check_conveyor();
   bool check_cheat_warp();
 
-  public:
+public:
 
   int DrunkClock();
   LinkClass();
@@ -125,7 +137,7 @@ class LinkClass : public sprite
   virtual bool animate(int index);
 
   void linkstep();
-  void stepforward(int steps);
+  void stepforward(int steps, bool adjust);
   void draw_under(BITMAP* dest);
 
   // called by ALLOFF()
@@ -166,9 +178,9 @@ class LinkClass : public sprite
   bool isSwimming();
   void setDontDraw(bool new_dontdraw);
   void setHClk(int newhclk);
-  int  getHClk();
+  int getHClk();
   void setNayrusLoveShieldClk(int newclk);
-  int  getNayrusLoveShieldClk();
+  int getNayrusLoveShieldClk();
 };
 
 bool isRaftFlag(int flag);
@@ -177,6 +189,7 @@ int touchcombo(int x,int y);
 extern bool did_secret;
 int selectWlevel(int d);
 bool edge_of_dmap(int side);
+void computeMaxArrows();
 
 /************************************/
 /********  More Items Code  *********/
@@ -189,7 +202,7 @@ bool canget(int id);
 void dospecialmoney(int index);
 void getitem(int id);
 void getdraggeditem(int j);
-void setup_red_screen();
+void red_shift();
 void slide_in_color(int color);
 #endif
 /*** end of link.cc ***/
