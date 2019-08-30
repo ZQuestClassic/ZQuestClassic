@@ -2895,7 +2895,7 @@ int FireSound;
 
 bool NoStepForward;
  * If set true, the player will not take two steps into NES dungeon rooms.
- * This value is reseto false, every time that the hero sprite is initialised,
+ * This value is reset to false, every time that the hero sprite is initialised,
  * and thus, should be written ideally in the hero init script.
  * !! Future versions may change when this is cleared.
 
