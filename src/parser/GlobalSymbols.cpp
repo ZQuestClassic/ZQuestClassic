@@ -2334,6 +2334,9 @@ static AccessorTable ScreenTable[] =
 	{ "WavyIn",                       ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    1,           {  ZVARTYPEID_SCREEN,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "WavyOut",                      ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    1,           {  ZVARTYPEID_SCREEN,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "OpeningWipe",                  ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    1,           {  ZVARTYPEID_SCREEN,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ClosingWipe",                  ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    1,           {  ZVARTYPEID_SCREEN,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "OpeningWipe",                  ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    2,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "ClosingWipe",                  ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    2,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "CreateLWeaponDx",              ZVARTYPEID_LWPN,          FUNCTION,     0,                                1,            0,                                    3,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Polygon",                      ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    6,           {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,         -1,     -1,     -1,     -1,     -1,  -1,                         -1,                           -1,                           -1,                           -1,                           } },
 	{ "TriggerSecret",                ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    2,           {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -3481,6 +3484,50 @@ void ScreenSymbols::generateCode()
         first->setLabel(label);
         code.push_back(first);
         code.push_back(new OZapIn());
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
+     //void ClosingWipe(screen)
+    {
+	    Function* function = getFunction("ClosingWipe", 1);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OCloseWipe());
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
+     //void OpeningWipe(screen, int)
+    {
+	    Function* function = getFunction("OpeningWipe", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+        code.push_back(new OOpenWipeShape(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
+     //void ClosingWipe(screen, int)
+    {
+	    Function* function = getFunction("ClosingWipe", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(refVar)));
+        code.push_back(new OCloseWipeShape(new VarArgument(EXP1)));
         code.push_back(new OReturn());
         function->giveCode(code);
     }

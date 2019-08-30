@@ -107,8 +107,8 @@
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 #define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 30"                    //version of the program as presented in text
 #define IS_BETA             -31                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        31
-#define DATE_STR            "29th August, 2019, 11:27GMT"
+#define VERSION_BETA        31	
+#define DATE_STR            "29th August, 2019, 10:09 AM EST"
 #define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 31"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
@@ -867,6 +867,7 @@ enum
 	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS, qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
 	//24
 	qr_OLD_SIDEVIEW_CEILING_COLLISON /* Compatibility */, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES /* Compatibility */, qr_OLD_ENEMY_KNOCKBACK_COLLISION /* Compatibility */,
+	qr_FADEBLACKWIPE,
 	
 	//ZScript Parser //room for 20 of these
 	//80

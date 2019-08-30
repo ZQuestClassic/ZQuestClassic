@@ -2110,8 +2110,19 @@ void ZapIn();
 void ZapOut();		
  * Replicates the warping screen zap effect (outbound) from a tile warp. 
 
-void OpeningWipe();	
- * Replicates the opening wipe screen effect (using the quest rule for its type) from a tile warp. 
+void OpeningWipe();
+ * Replicates the opening wipe screen effect (using the quest rule for its type) from a tile warp.
+
+void ClosingWipe();
+ * Replicates the closing wipe screen effect (using the quest rule for its type) from a tile warp.
+
+void OpeningWipe(int shape);
+ * Replicates the opening wipe screen effect from a tile warp, in any given shape
+ * Use the 'WIPE_' constants in 'std_constants.zh' for 'shape'
+
+void ClosingWipe(int shape);
+ * Replicates the closing wipe screen effect from a tile warp, in any given shape
+ * Use the 'WIPE_' constants in 'std_constants.zh' for 'shape'
 
 
 void DrawBitmapEx	( int layer, 

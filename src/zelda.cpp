@@ -1830,7 +1830,8 @@ int init_game()
     COOLSCROLL = (get_bit(quest_rules,qr_COOLSCROLL)!=0 ? 1 : 0) |
                  (get_bit(quest_rules,qr_OVALWIPE)!=0 ? 2 : 0) |
                  (get_bit(quest_rules,qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
-                 (get_bit(quest_rules,qr_SMASWIPE)!=0 ? 8 : 0);
+                 (get_bit(quest_rules,qr_SMASWIPE)!=0 ? 8 : 0) |
+                 (get_bit(quest_rules,qr_FADEBLACKWIPE)!=0 ? 16 : 0);
     identifyCFEnemies();
                  
     //  NEWSUBSCR = get_bit(quest_rules,qr_NEWSUBSCR);
@@ -3622,6 +3623,17 @@ void restoreMonoPreset(){
 		setMonochromatic(lastMonoPreset);
 		refreshpal = true;
 	}
+}
+
+void refreshTints()
+{
+	if(isMonochrome() && !lastMonoPreset)
+	{
+		setMonochrome(false);
+		setMonochrome(true);
+	}
+	restoreTint();
+	restoreMonoPreset();
 }
 
 int getTint(int color)

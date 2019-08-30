@@ -4597,6 +4597,7 @@ bool enemy::runKnockback()
 			break;
 		}
 	}
+	return true;
 }
 // changes enemy's direction, checking restrictions
 // rate:   0 = no random changes, 16 = always random change
