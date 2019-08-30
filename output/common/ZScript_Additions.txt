@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 31
-Document Revision: 29th August, 2019
+Document Revision: 30th August, 2019
 
 
 ////////////////////////////////////////////////////
@@ -2892,6 +2892,12 @@ int FireSound;
 //////////////
 ///  Hero  ///
 //////////////
+
+bool NoStepForward;
+ * If set true, the player will not take two steps into NES dungeon rooms.
+ * This value is reseto false, every time that the hero sprite is initialised,
+ * and thus, should be written ideally in the hero init script.
+ * !! Future versions may change when this is cleared.
 
 bool Gravity;
  * If set true (the default), the hero falls in sideview gravity.
