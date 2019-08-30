@@ -2003,6 +2003,7 @@ script_variable variable_list[]=
 	{ "NPCKNOCKBACKSPEED",		NPCKNOCKBACKSPEED,        0,             0 },
 	{ "NPCNOSCRIPTKB",		NPCNOSCRIPTKB,        0,             0 },
 	{ "GETRENDERTARGET",		GETRENDERTARGET,        0,             0 },
+	{ "HERONOSTEPFORWARD",		HERONOSTEPFORWARD,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

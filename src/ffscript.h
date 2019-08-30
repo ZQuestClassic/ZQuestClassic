@@ -3650,11 +3650,12 @@ enum ASM_DEFINE
 #define NPCNOSLIDE		0x1371
 #define NPCKNOCKBACKSPEED		0x1372
 #define NPCNOSCRIPTKB		0x1373
+#define HERONOSTEPFORWARD		0x1374
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1374
+#define NUMVARIABLES         	0x1375
 
 // Script types
 

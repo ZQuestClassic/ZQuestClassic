@@ -2193,6 +2193,10 @@ long get_register(const long arg)
     case LINKGRAVITY:
 	ret = ( (Link.obeys_gravity) ? 10000 : 0 );
 	break;
+    
+    case HERONOSTEPFORWARD:
+	ret = ( (FFCore.nostepforward) ? 10000 : 0 );
+	break;
         
     case LINKMP:
         ret=(int)(game->get_magic())*10000;
@@ -8157,6 +8161,10 @@ void set_register(const long arg, const long value)
     
     case LINKGRAVITY:
 	Link.obeys_gravity = ( (value) ? 1 : 0 ); 
+        break;
+    
+    case HERONOSTEPFORWARD:
+	FFCore.nostepforward = ( (value) ? 1 : 0 ); 
         break;
         
     case LINKHP:

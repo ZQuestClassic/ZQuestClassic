@@ -1035,6 +1035,7 @@ void LinkClass::init()
 		setEntryPoints(LinkX(),LinkY()); //screen entry at spawn; //This should be after the init script, so that Link->X and Link->Y set by the script
 						//are properly set by the engine.
 	}
+	FFCore.nostepforward = 0;
 }
 
 void LinkClass::draw_under(BITMAP* dest)
