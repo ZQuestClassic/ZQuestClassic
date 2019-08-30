@@ -1,5 +1,5 @@
 // std_constants.zh
-// 28th August, 2019 for ZC 2.55 Alpha 30
+// 29th August, 2019 for ZC 2.55 Alpha 31
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -2512,7 +2512,7 @@ const int WT_IWARPZAP			= 7;
 const int WT_IWARPWAVE		  	= 8;
 const int WT_NOWARP			= 9;
 
-//Warp Eddects for Link->WarpEx
+//Warp Effects for Link->WarpEx
 const int WARPEFFECT_NONE = 0;
 const int WARPEFFECT_ZAP = 1;
 const int WARPEFFECT_WAVE = 2;
