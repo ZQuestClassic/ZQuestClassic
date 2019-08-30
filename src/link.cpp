@@ -13055,6 +13055,8 @@ void LinkClass::exitcave()
 
 void LinkClass::stepforward(int steps, bool adjust)
 {
+	if ( FFCore.nostepforward ) return;
+	if ( FFCore.temp_no_stepforward ) { FFCore.temp_no_stepforward = 0; return; }
     int tx=x;           //temp x
     int ty=y;           //temp y
     int tstep=0;        //temp single step distance

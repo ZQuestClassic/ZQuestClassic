@@ -46,6 +46,8 @@
 #define warpFlagCLEARHOOKSHOT 0x2000
 #define warpFlagCLEARDECORATIONS 0x4000
 #define warpFlagCLEARPARTICLES 0x8000
+#define warpFlagNOSTEPFORWARD 0x10000
+
 
 
 //Visual Warp Effect Types for Link->WarpEx()
@@ -447,6 +449,10 @@ byte FF_msg_speed;
 byte FF_transition_type; // Can't edit, yet.
 byte FF_jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 byte FF_link_swim_speed;
+
+//Disable stepforward on dungeon dmaps
+byte nostepforward;
+byte temp_no_stepforward; 
 
 byte subscreen_scroll_speed;
 

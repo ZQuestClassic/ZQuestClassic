@@ -16988,7 +16988,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
         int warp_return_index = -1;
 	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
 	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + scrID)];
-	
+	if ( warpFlags&warpFlagNOSTEPFORWARD ) FFCore.temp_no_stepforward = 1;
 	int wx = 0, wy = 0;
 	if ( warpDestX < 0 )
 	{
@@ -22595,8 +22595,9 @@ void FFScript::init()
 	print_ZASM = zasm_debugger;
 	if ( zasm_debugger ) ZASMPrint(true);
 	
+	temp_no_stepforward = 0;
+	nostepforward = 0;
 	
-
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	coreflags = 0;

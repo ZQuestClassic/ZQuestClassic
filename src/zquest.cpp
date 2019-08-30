@@ -27637,7 +27637,13 @@ void FFScript::init()
 	print_ZASM = 0;
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
+	temp_no_stepforward = 0;
+	nostepforward = 0;
+	
 	coreflags = 0;
+	skip_ending_credits = 0;
+	for ( int q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
+	
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 
