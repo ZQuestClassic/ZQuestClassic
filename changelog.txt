@@ -1,8 +1,31 @@
 //2.55 Changes
 
 //Alpha 31
+Updated std_constants.zh with the new, and some older, but missing, WARP_FLAG_* constants.
+Added bool Hero->NoStepForward.
+	If set true, the player will not take two steps into NES dungeon rooms.
+	This value is reseto false, every time that the hero sprite is initialised,
+		and thus, should be written ideally in the hero init script.
+	Future versions may change when this is cleared.
+Added warp flag WARP_FLAG_NOSTEPFORWARD to Hero->WarpEx().
+	If set, then for this single warp instance, if the dest screen is a dungeon type, the 
+	player should not take an extra two steps on entering the room.
+	( ZoriaRPG, 30th August, 2019 )
+	
+Update fade out to have slightly more time on black
+	( Venrob, 29th August, 2019 )
+Added Guardian.zs to included npc scripts. 
 Added int Screen->GetRenderTarget();
 	( ZoriaRPG, 29th August, 2019 )
+	
+Updated std_constants enum for fade types.
+Add new wipe type: FadeBlack, which works similarly to tint to create a smooth fade to black.
+Added "Screen->ClosingWipe()", to call a closing wipe
+Added "Screen->OpeningWipe(int shape)" and "Screen->ClosingWipe(int shape)"
+	as overloaded functions which allow you to specify the shape,
+	as opposed to it being picked via which QRs are on.
+Fixed a timing issue with F6 menu scripts and "Screen->OpeningWipe()", which lead to invalid ZASM errors.
+	( Venrob, 28th August, 2019 )
 	
 Docs: Add Version Semantics & Logic Diagrams for future version planning.
 	( ZoriaRPG, 27th August, 2019 )
@@ -212,7 +235,7 @@ Merge: 2.55-typedefScoperes
 	Types can be scoperes accessed now.
 	Script Types have NOT yet been changed!
 	Known minor error- will use local type automatically even if there are conflicting types in 'using'd namespaces. Fix priority: Very Minor
-	( Venrob, 2nd August->14thAugust, 2019; Merged 14th August, 2019 )
+	( Venrob, 2nd August ->14 thAugust, 2019; Merged 14th August, 2019 )
 	
 Merge: 2.55-allowRaftingAction
 	Feat: Allow `Hero->Action = LA_RAFTING`
