@@ -1,5 +1,5 @@
 // std_constants.zh
-// 29th August, 2019 for ZC 2.55 Alpha 31
+// 30th August, 2019 for ZC 2.55 Alpha 31
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -2527,6 +2527,19 @@ const int WARP_FLAG_SETENTRANCESCREEN 	= 0x08;
 const int WARP_FLAG_SETENTRANCEDMAP 	= 0x10;
 const int WARP_FLAG_SETCONTINUESCREEN 	= 0x20;
 const int WARP_FLAG_SETCONTINUEDMAP 	= 0x40;
+
+//Manual Sprite Carryover
+const int WARP_FLAG_DONTCLEARSPRITES 	= 0x100;
+const int WARP_FLAG_CLEARITEMS 		= 0x200;
+const int WARP_FLAG_CLEARGUYS 		= 0x400;
+const int WARP_FLAG_CLEARLWEAPONS 	= 0x800;
+const int WARP_FLAG_CLEAREWEAPONS 	= 0x1000;
+const int WARP_FLAG_CLEARHOOKSHOT 	= 0x2000;
+const int WARP_FLAG_CLEARDECORATIONS 	= 0x4000;
+const int WARP_FLAG_CLEARPARTICLES 	= 0x8000;
+
+//Prevent Stepping forward in dungeon screens (experimental)
+const int WARP_FLAG_NOSTEPFORWARD	= 0x10000;
 
 //Error codes for `#ignore error`
 enum
