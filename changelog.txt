@@ -1,6 +1,11 @@
 //2.55 Changes
 
 //Alpha 31
+Added int Screen->SideWarpReturnSquare[4], int Screen->TileWarpReturnSquare[4], 
+	int mapdata->SideWarpReturnSquare[4], and int mapdata->TileWarpReturnSquare[4],
+	to get/set the return square used by tile or side warps as their return point.
+	( Venrob & ZoriaRPG, 31st August, 2019 )
+
 Updated std_constants.zh with the new, and some older, but missing, WARP_FLAG_* constants.
 Added bool Hero->NoStepForward.
 	If set true, the player will not take two steps into NES dungeon rooms.
