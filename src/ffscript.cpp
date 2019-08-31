@@ -12684,7 +12684,7 @@ case MAPDATASIDEWARPID:
 	break;
 } 
 
-case MAPNDATATWARPRETSQR:
+case MAPDATATWARPRETSQR:
 {
 	int indx = ri->d[0] / 10000;
 	if ( ((unsigned)indx) < 3)
@@ -12699,7 +12699,7 @@ case MAPNDATATWARPRETSQR:
 	{
 		mapscr *m = &TheMaps[ri->mapsref]; 
 		int wrindex = vbound(value/10000, 0, 3);
-		m->warpreturnc = (m->warpreturnc&~(3<<(indx*2))) | (m<<(indx*2));
+		m->warpreturnc = (m->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
 	}
 	break;
 }
@@ -12721,7 +12721,7 @@ case MAPDATASWARPRETSQR:
 	{
 		mapscr *m = &TheMaps[ri->mapsref]; 
 		int wrindex = vbound(value/10000, 0, 3);
-		m->warpreturnc = (m->warpreturnc&~(3<<(8+(indx*2)))) | (m<<(8+(indx*2)));
+		m->warpreturnc = (m->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
 	}
 	break;
 }
