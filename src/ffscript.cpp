@@ -28400,6 +28400,11 @@ script_variable ZASMVars[]=
 	{ "NPCKNOCKBACKSPEED",		NPCKNOCKBACKSPEED,        0,             0 },
 	{ "NPCNOSCRIPTKB",		NPCNOSCRIPTKB,        0,             0 },
 	{ "GETRENDERTARGET",		GETRENDERTARGET,        0,             0 },
+	{ "HERONOSTEPFORWARD",		HERONOSTEPFORWARD,        0,             0 },
+	{ "SCREENDATATWARPRETSQR",		SCREENDATATWARPRETSQR,        0,             0 },
+	{ "SCREENDATASWARPRETSQR",		SCREENDATASWARPRETSQR,        0,             0 },
+	{ "MAPDATATWARPRETSQR",		MAPDATATWARPRETSQR,        0,             0 },
+	{ "MAPDATASWARPRETSQR",		MAPDATASWARPRETSQR,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
