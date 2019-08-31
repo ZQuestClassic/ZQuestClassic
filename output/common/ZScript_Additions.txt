@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 31
-Document Revision: 30th August, 2019
+Document Revision: 31st August, 2019
 
 
 ////////////////////////////////////////////////////
@@ -2223,6 +2223,12 @@ int TileWarpOverlayFlags;
 int DoorComboSet;
  * The doorset used by the screen, for NES dungeon doors.
 	
+int SideWarpReturnSquare[4];
+ * The return square (A->D) used by Side Warp[A->D].
+
+int TileWarpReturnSquare[4];	
+ * The return square (A->D) used by Tile Warp[A->D].
+	
 int WarpReturnX[4];
  * The X-component for each of the four 2.50+ (blue) warp return squares.
 	
@@ -3481,7 +3487,13 @@ int TileWarpOverlayFlags;
 
 int DoorComboSet;
  * The doorset used by the screen, for NES dungeon doors.
-	
+
+int SideWarpReturnSquare[4];
+ * The return square (A->D) used by Side Warp[A->D].
+
+int TileWarpReturnSquare[4];	
+ * The return square (A->D) used by Tile Warp[A->D].
+
 int WarpReturnX[4];
  * The X-component for each of the four 2.50+ (blue) warp return squares.
 	

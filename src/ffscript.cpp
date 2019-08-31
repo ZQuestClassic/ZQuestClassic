@@ -5457,6 +5457,39 @@ case SCREENSIDEWARPID:
 	break;
 }
 
+case SCREENDATATWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		ret = -10000;
+		Z_scripterrlog("Invalid Array Index passed to Screen->TileWarpReturnSquare[]: %d\n", indx);
+		
+	}
+	else 
+	{
+		ret = ((tmpscr->warpreturnc>>(indx*2))&3) * 10000;
+	}
+	break;
+}
+
+
+case SCREENDATASWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		ret = -10000;
+		Z_scripterrlog("Invalid Array Index passed to Screen->SideWarpReturnSquare[]: %d\n", indx);
+		
+	}
+	else 
+	{
+		ret = ((tmpscr->warpreturnc>>(8+(indx*2)))&3) * 10000;
+	}
+	break;
+}
+
 case SCREENDATAFLAGS: 
 {
 	int flagid = (ri->d[0])/10000;
@@ -6231,6 +6264,51 @@ case MAPDATASIDEWARPID:
 			: -1 //Returns -1 if no warp is set
 			)*10000;
 	} 
+	break;
+}
+
+
+case MAPDATATWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		ret = -10000;
+		Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
+		
+	}
+	else if ( ri->mapsref == LONG_MAX )
+        {
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+            ret = -10000; 
+        } \
+        else 
+        { 
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		ret = ((m->warpreturnc>>(indx*2))&3) * 10000;
+	}
+	break;
+}
+
+case MAPDATASWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		ret = -10000;
+		Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
+		
+	}
+	else if ( ri->mapsref == LONG_MAX )
+        {
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+            ret = -10000; 
+        } \
+        else 
+        { 
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		ret = ((m->warpreturnc>>(8+(indx*2)))&3) * 10000;
+	}
 	break;
 }
  
@@ -11719,6 +11797,39 @@ case SCREENSIDEWARPID:
 	break;
 } 
 
+case SCREENDATATWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		 Z_scripterrlog("Invalid Array Index passed to Screen->TileWarpReturnSquare[]: %d\n", indx);
+	}
+	else
+	{
+		int wrindex = vbound(value/10000, 0, 3);
+		tmpscr->warpreturnc = (tmpscr->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
+	}
+	break;
+}
+
+//
+case SCREENDATASWARPRETSQR:
+{
+	
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		 Z_scripterrlog("Invalid Array Index passed to Screen->SideWarpReturnSquare[]: %d\n", indx);
+	}
+	else
+	{
+		int wrindex = vbound(value/10000, 0, 3);
+		tmpscr->warpreturnc = (tmpscr->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
+	}
+	break;
+}
+
+
 case SCREENDATAFLAGS: 
 {
 	int flagid = (ri->d[0])/10000;
@@ -12572,6 +12683,48 @@ case MAPDATASIDEWARPID:
 	} 
 	break;
 } 
+
+case MAPDATATWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		 Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
+	}
+	else if ( ri->mapsref == LONG_MAX )
+        {
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+        } 
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		int wrindex = vbound(value/10000, 0, 3);
+		m->warpreturnc = (m->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
+	}
+	break;
+}
+
+//
+case MAPDATASWARPRETSQR:
+{
+	
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		 Z_scripterrlog("Invalid Array Index passed to MAPDATA->SideWarpReturnSquare[]: %d\n", indx);
+	}
+	else if ( ri->mapsref == LONG_MAX )
+        {
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+        } 
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		int wrindex = vbound(value/10000, 0, 3);
+		m->warpreturnc = (m->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
+	}
+	break;
+}
 
 //Height and With are Or'd together, and need to be separate:
 /*
