@@ -52,6 +52,8 @@ Ah, and Screen->SideWarpIndex can be removed, as my Screen->SideWarpID[4] is arr
 /////////////
 /// TO-DO ///
 /////////////
+
+Do we have SetContinueScreen() and SetContinueDMap() under Game-> yet?
 	
 All size/override flags should be bool.
 
