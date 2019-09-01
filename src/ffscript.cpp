@@ -5353,7 +5353,7 @@ case SCREENDATAROOM: 		GET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
 case SCREENDATAITEM: 		GET_SCREENDATA_VAR_BYTE(item, "Item"); break;		//b
 case SCREENDATAHASITEM: 		GET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 case SCREENDATATILEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-case SCREENDATATILEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+//case SCREENDATATILEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
 case SCREENDATADOORCOMBOSET: 	GET_SCREENDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
 case SCREENDATAWARPRETX:	 	GET_SCREENDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
 case SCREENDATAWARPRETY:	 	GET_SCREENDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
@@ -5371,7 +5371,7 @@ case SCREENDATAEXITDIR: 		GET_SCREENDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//
 case SCREENDATAENEMY: 		GET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
 case SCREENDATAPATTERN: 		GET_SCREENDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
 case SCREENDATASIDEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-case SCREENDATASIDEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+//case SCREENDATASIDEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
 case SCREENDATAWARPARRIVALX: 	GET_SCREENDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
 case SCREENDATAWARPARRIVALY: 	GET_SCREENDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case SCREENDATAPATH: 		GET_SCREENDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
@@ -5475,6 +5475,36 @@ case SCREENSIDEWARPID:
 		? (tmpscr->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
 		: -1 //Returns -1 if no warp is set
 		)*10000;
+	break;
+}
+
+case SCREENDATATILEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		ret = (tmpscr->tilewarpoverlayflags & (1<<indx))?10000:0;
+	}
+	break;
+}
+
+case SCREENDATASIDEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		ret = (tmpscr->sidewarpoverlayflags & (1<<indx))?10000:0;
+	}
 	break;
 }
 
@@ -6208,7 +6238,7 @@ case MAPDATAROOM: 		GET_MAPDATA_VAR_BYTE(room, "RoomType");	break;		//b
 case MAPDATAITEM: 		GET_MAPDATA_VAR_BYTE(item, "Item"); break;		//b
 case MAPDATAHASITEM: 		GET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 case MAPDATATILEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-case MAPDATATILEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+//case MAPDATATILEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
 case MAPDATADOORCOMBOSET: 	GET_MAPDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
 case MAPDATAWARPRETX:	 	GET_MAPDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
 case MAPDATAWARPRETY:	 	GET_MAPDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
@@ -6226,7 +6256,7 @@ case MAPDATAEXITDIR: 		GET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
 case MAPDATAENEMY: 		GET_MAPDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
 case MAPDATAPATTERN: 		GET_MAPDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
 case MAPDATASIDEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-case MAPDATASIDEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+//case MAPDATASIDEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
 case MAPDATAWARPARRIVALX: 	GET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
 case MAPDATAWARPARRIVALY: 	GET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case MAPDATAPATH: 		GET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
@@ -6316,6 +6346,47 @@ case MAPDATANUMFF:
 	break;
 }
 
+case MAPDATATILEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+		ret = 0;
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+		ret = 0;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		ret = (m->tilewarpoverlayflags & (1<<indx))?10000:0;
+	}
+	break;
+}
+
+case MAPDATASIDEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+		ret = 0;
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+		ret = 0;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		ret = (m->sidewarpoverlayflags & (1<<indx))?10000:0;
+	}
+	break;
+}
 
 case MAPDATATWARPRETSQR:
 {
@@ -11729,7 +11800,7 @@ case SCREENDATAROOM: 		SET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
 case SCREENDATAITEM: 		SET_SCREENDATA_VAR_BYTE(item, "Item"); break;		//b
 case SCREENDATAHASITEM: 		SET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 case SCREENDATATILEWARPTYPE: 	SET_SCREENDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-case SCREENDATATILEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+//case SCREENDATATILEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
 case SCREENDATADOORCOMBOSET: 	SET_SCREENDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
 case SCREENDATAWARPRETX:	 	SET_SCREENDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
 case SCREENDATAWARPRETY:	 	SET_SCREENDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
@@ -11747,7 +11818,7 @@ case SCREENDATAEXITDIR: 		SET_SCREENDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//
 case SCREENDATAENEMY: 		SET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
 case SCREENDATAPATTERN: 		SET_SCREENDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
 case SCREENDATASIDEWARPTYPE: 	SET_SCREENDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-case SCREENDATASIDEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+//case SCREENDATASIDEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
 case SCREENDATAWARPARRIVALX: 	SET_SCREENDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
 case SCREENDATAWARPARRIVALY: 	SET_SCREENDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case SCREENDATAPATH: 		SET_SCREENDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
@@ -11796,6 +11867,37 @@ case SCREENDATASCRIPTDRAWS:
 	}
 	break;
 }
+
+case SCREENDATATILEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+	}
+	else
+	{
+		if ( value ) tmpscr->tilewarpoverlayflags |= (1<<indx);
+		else tmpscr->tilewarpoverlayflags &= ~(1<<indx);
+	}
+	break;
+}
+
+case SCREENDATASIDEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+	}
+	else
+	{
+		if ( value ) tmpscr->sidewarpoverlayflags |= (1<<indx);
+		else tmpscr->sidewarpoverlayflags &= ~(1<<indx);
+	}
+	break;
+}
+
 case SCREENDATATIMEDWARPTICS: 	SET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case SCREENDATANEXTMAP: 		SET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case SCREENDATANEXTSCREEN: 	SET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
@@ -12562,7 +12664,7 @@ case MAPDATAROOM: 		SET_MAPDATA_VAR_BYTE(room, "RoomType");	break;		//b
 case MAPDATAITEM: 		SET_MAPDATA_VAR_BYTE(item, "Item"); break;		//b
 case MAPDATAHASITEM: 		SET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 case MAPDATATILEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-case MAPDATATILEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+//case MAPDATATILEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
 case MAPDATADOORCOMBOSET: 	SET_MAPDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
 case MAPDATAWARPRETX:	 	SET_MAPDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
 case MAPDATAWARPRETY:	 	SET_MAPDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
@@ -12580,7 +12682,7 @@ case MAPDATAEXITDIR: 		SET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
 case MAPDATAENEMY: 		SET_MAPDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
 case MAPDATAPATTERN: 		SET_MAPDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
 case MAPDATASIDEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-case MAPDATASIDEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+//case MAPDATASIDEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
 case MAPDATAWARPARRIVALX: 	SET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
 case MAPDATAWARPARRIVALY: 	SET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case MAPDATAPATH: 		SET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
@@ -12658,6 +12760,46 @@ case MAPDATASCRIPTDRAWS:
 				tmpscr->hidescriptlayers |= (1<<indx);
 			}
 		}
+	}
+	break;
+}
+
+case MAPDATATILEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		if ( value ) m->tilewarpoverlayflags |= (1<<indx);
+		else m->tilewarpoverlayflags &= ~(1<<indx);
+	}
+	break;
+}
+
+case MAPDATASIDEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		if ( value ) m->sidewarpoverlayflags |= (1<<indx);
+		else m->sidewarpoverlayflags &= ~(1<<indx);
 	}
 	break;
 }

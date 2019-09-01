@@ -1,9 +1,18 @@
+ZASM/Instructions to Document, or to Revise
+v31.09.19
+
+//////////////////////
+/// NOW DOCUMENTED ///
+//////////////////////
 Screen-> ScriptEntry ScriptOccupancy and ExitScript appear to be totally 
 	unused; presumably intended for screen scripts that run upon entering, 
 	while occupying, and upon exiting a screen.
 
 itemdata->CollectFlags references an unused variable, but it has this comment on it: A flagset that determines of the weapon can collect an item.
 
+/////////////////
+/// UNDECIDED ///
+/////////////////
 mapscr.valid (Screen->Valid):
 	set to mVERSION in readmaps, reset_scr
 
@@ -12,8 +21,13 @@ In zquest.cpp draw(), draw_block(), flood(), fill_4, and a bunch of other functi
 So, I'd say that Screen->Valid | mVERSION is always true, and 
 	Screen->Valid | mVALID is true on INITIALIZED screens (i.e. screens where you have edited, which do not show as the default blank blue in ZQ)
 
+/////////////
+/// TO-DO ///
+/////////////
 Screen->TileWarpOverlayFlags/Screen->SideWarpOverlayFlags handle Combos Carry Over checkbox in the warp_dlg
 	probably should be bool arrays
+	
+All size/override flags should be bool.
 	
 Ah, and Screen->SideWarpIndex can be removed, as my Screen->SideWarpID[4] is array access for that var.
 
@@ -22,11 +36,21 @@ Screen-> and mapdata->
 int Valid;
  * ?
  
+ //* This seems fine? Is the ZASM incorrect? Is that what I'm reading?!
+ 
 int TileWarpOverlayFlags;
- * Combos carry over?
+ * Has to do with overlay of Link over/under combos (clipping?) with some warp types.
+ * Probably needs to be an array [4].
+ * Can we deduce wat this does and if it needs to be an array?
+	case 0:                                                 // tile warp
+        wtype = tmpscr[t].tilewarptype[index];
+        wdmap = tmpscr[t].tilewarpdmap[index];
+        wscr = tmpscr[t].tilewarpscr[index];
+        overlay = get_bit(&tmpscr[t].tilewarpoverlayflags,index)?1:0;
  
  int CSet;
  * ? The screen palette. ?
+ //* Changed to ->Palette
  
  int SideWarpOverlayFlags;
  * Carryover?

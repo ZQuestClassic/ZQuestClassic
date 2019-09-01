@@ -1,6 +1,9 @@
 //2.55 Changes
 
 //Alpha 31
+Converted int SideWarpOverlayFlags to bool SideWarpOverlay[4]
+	and int TileWarpOverlayFlags to bool TileWarpOverlay[4] for
+	both Screen-> and for mapdata->.
 Changed int Screen->NumFFCa to bool->Screen->NumFFCs[33]
 	and int mapdata->NumFFCs to bool mapdata->NumFFCs[33].
 	* The number of ffcs set up on the current screen.

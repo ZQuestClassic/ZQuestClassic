@@ -2223,8 +2223,9 @@ int TileWarpType[4];
  * The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3] respectively.
  * See std_constants.zh TWTYPE_* constants for valid types.
 	
-int TileWarpOverlayFlags;
- * Combos carry over?
+bool SideWarpOverlay[4];
+bool TileWarpOverlay[4];
+ * Set or get the overlay state for the warp ID corresponding to the index of this array.
 
 int DoorComboSet;
  * The doorset used by the screen, for NES dungeon doors.
@@ -2290,9 +2291,6 @@ int SideWarpID[4];
 int SideWarpType[4];
  * The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3] respectively.
  * See std_constants.zh SWTYPE_* constants for valid types.
-	
-int SideWarpOverlayFlags;
- * Carryover?
 
 int SideWarpScreen[4];
  * The destination screen for each of the four sidewarps.
@@ -3504,8 +3502,9 @@ int TileWarpType[4];
  * The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3] respectively.
  * See std_constants.zh TWTYPE_* constants for valid types.
 	
-int TileWarpOverlayFlags;
- * Combos carry over?
+bool SideWarpOverlay[4];
+bool TileWarpOverlay[4];
+ * Set or get the overlay state for the warp ID corresponding to the index of this array.
 
 int DoorComboSet;
  * The doorset used by the screen, for NES dungeon doors.
@@ -3575,9 +3574,6 @@ int SideWarpType[4];
  * The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3] respectively.
  * See std_constants.zh SWTYPE_* constants for valid types.
 	
-int SideWarpOverlayFlags;
- * Carryover?
-
 int SideWarpScreen[4];
  * The destination screen for each of the four sidewarps.
 	
