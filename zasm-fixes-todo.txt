@@ -54,7 +54,7 @@ Ah, and Screen->SideWarpIndex can be removed, as my Screen->SideWarpID[4] is arr
 /////////////
 
 Do we have SetContinueScreen() and SetContinueDMap() under Game-> yet?
-	
+	...SetEntrancePoint() and SetContinuePoint as setters.
 All size/override flags should be bool.
 
 //to document, remove or amend
