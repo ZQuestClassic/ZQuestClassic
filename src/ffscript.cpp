@@ -5428,8 +5428,29 @@ case SCREENDATASCREENWIDTH: 	GET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	
 case SCREENDATASCREENHEIGHT: 	GET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 case SCREENDATAENTRYX: 		GET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 case SCREENDATAENTRYY: 		GET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-case SCREENDATANUMFF: 		GET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
-
+//case SCREENDATANUMFF: 		GET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+//Number of ffcs that are in use (have valid data
+case SCREENDATANUMFF: 	
+{
+	int indx = ri->d[0] / 10000;
+	if ( !indx )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+		ret = 0;
+	}
+	else if(((unsigned)indx)>32)
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		--indx;
+		ret = (((tmpscr->numff) & (1<<indx))) ? 10000 : 0;
+		//ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+	}
+	break;
+}
 	//inita	//INT32, 32 OF THESE, EACH WITH 2
 case SCREENDATAFFINITIALISED: 	GET_SCREENDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
 case SCREENDATASCRIPTENTRY: 	GET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
@@ -6237,7 +6258,7 @@ case MAPDATASCREENWIDTH: 	GET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 case MAPDATASCREENHEIGHT: 	GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 case MAPDATAENTRYX: 		GET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 case MAPDATAENTRYY: 		GET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-case MAPDATANUMFF: 		GET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+//case MAPDATANUMFF: 		GET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
 case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(ffdata, "FFCData", 31); break;  //W, 32 OF THESE
 case MAPDATAFFCSET:         GET_MAPDATA_FFC_INDEX32(ffcset, "FFCCSet", 31); break;  //B, 32
 case MAPDATAFFDELAY:        GET_MAPDATA_FFC_INDEX32(ffdelay, "FFCDelay", 31); break;    //W, 32
@@ -6264,6 +6285,34 @@ case MAPDATASIDEWARPID:
 			: -1 //Returns -1 if no warp is set
 			)*10000;
 	} 
+	break;
+}
+//Number of ffcs that are in use (have valid data
+case MAPDATANUMFF: 	
+{
+	int indx = ri->d[0] / 10000;
+	if ( !indx )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+		ret = 0;
+	}
+	else if(((unsigned)indx)>32)
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+		ret = 0;
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+		ret = 0;
+	}
+	else
+	{
+		--indx;
+		mapscr *m = &TheMaps[ri->mapsref];
+		ret = (((m->numff) & (1<<indx))) ? 10000 : 0;
+		//ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+	}
 	break;
 }
 
@@ -11759,7 +11808,29 @@ case SCREENDATASCREENWIDTH: 	SET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	
 case SCREENDATASCREENHEIGHT: 	SET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 case SCREENDATAENTRYX: 		SET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 case SCREENDATAENTRYY: 		SET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-case SCREENDATANUMFF: 		SET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+//case SCREENDATANUMFF: 		SET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+
+case SCREENDATANUMFF: 	
+{
+	int indx = ri->d[0] / 10000;
+	if ( !indx )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+	}
+	else if(((unsigned)indx)>32)
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+	}
+	else
+	{
+		--indx;
+		if ( value ) { (((tmpscr->numff) |= (1<<indx))); }
+		else { (((tmpscr->numff) &= ~(1<<indx))); }
+		
+		//ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+	}
+	break;
+}
 
 	//inita	//INT32, 32 OF THESE, EACH WITH 2
 case SCREENDATAFFINITIALISED: 	SET_SCREENDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
@@ -12643,7 +12714,7 @@ case MAPDATASCREENWIDTH: 	SET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 case MAPDATASCREENHEIGHT: 	SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-case MAPDATANUMFF: 		SET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+//case MAPDATANUMFF: 		SET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
 case MAPDATAFFDATA:         SET_MAPDATA_FFC_INDEX32(ffdata, "FFCData", 31); break;  //W, 32 OF THESE
 case MAPDATAFFCSET:         SET_MAPDATA_FFC_INDEX32(ffcset, "FFCCSet", 31); break;  //B, 32
 case MAPDATAFFDELAY:        SET_MAPDATA_FFC_INDEX32(ffdelay, "FFCDelay", 31); break;    //W, 32
@@ -12655,6 +12726,31 @@ case MAPDATAFFXDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ffxdelta2, "FFCAx", 31); 
 case MAPDATAFFYDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ffydelta2, "FFCAy", 31); break;  //..
 case MAPDATAFFFLAGS:        SET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
 
+//Number of ffcs that are in use (have valid data
+case MAPDATANUMFF: 	
+{
+	int indx = ri->d[0] / 10000;
+	if ( !indx )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+	}
+	else if(((unsigned)indx)>32)
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+	}
+	else
+	{
+		--indx;
+		mapscr *m = &TheMaps[ri->mapsref];
+		if ( value ) { (((m->numff) |= (1<<indx))); }
+		else { (((m->numff) &= ~(1<<indx))); }
+	}
+	break;
+}
 
 case MAPDATASIDEWARPID:
 {
