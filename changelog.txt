@@ -17,8 +17,6 @@ Added alts. CarryoverMpa and CarryoverScreen for NextMap
 	what they do in ZSA.txt.
 Removed erroneous vbound for ITEMPSTRINGFLAGS and ITEMOVERRIDEFLAGS
 	that were clamping them to (msg_count-1) caused vby a copy/paste error.
-Added bool EquipmentItem;
-	This is identical to the old 'bool Keep', but with better naming.
 	( ZoriaRPG, 1st September, 2019 )
 
 Added int Screen->SideWarpReturnSquare[4], int Screen->TileWarpReturnSquare[4], 
