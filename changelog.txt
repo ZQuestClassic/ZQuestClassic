@@ -1,6 +1,10 @@
 //2.55 Changes
 
 //Alpha 31
+Added bool EquipmentItem;
+	This is identical to the old 'bool Keep', but with better naming.
+	( ZoriaRPG, 1st September, 2019 )
+
 Added int Screen->SideWarpReturnSquare[4], int Screen->TileWarpReturnSquare[4], 
 	int mapdata->SideWarpReturnSquare[4], and int mapdata->TileWarpReturnSquare[4],
 	to get/set the return square used by tile or side warps as their return point.

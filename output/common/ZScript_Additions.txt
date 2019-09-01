@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 31
-Document Revision: 31st August, 2019
+Document Revision: 1st September, 2019
 
 
 ////////////////////////////////////////////////////
@@ -3131,6 +3131,9 @@ void WarpEx(int ptr[])
 
 int ID;		
  * Returns the item number of the item in question.
+
+bool EquipmentItem;
+ * Identical to bool Keep, but with more logical naming.
 
 void RunScript(int mode);
  * Runs the script assigned to this item at any arbitrary time.
