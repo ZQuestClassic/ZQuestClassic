@@ -2362,11 +2362,11 @@ int LayerOpacity[7];
 int TimedWarpTimer;
  * The timer used by 'Time Warp Tics' in Screen Data->T.Warp
 
-int NextMap;
- * ?
+int CarroverMap;
+ * The map to where secrets on the current mapscreen carry over.
 
-int NextScreen;
- *?
+int CarryoverSreen;
+  * The screen to where secrets on the current mapscreen carry over.
 
 int SecretCombo[128];
  * The Combo IDs used by 'Secret Combos' on this screen.
@@ -3633,11 +3633,11 @@ int LayerOpacity[7];
 int TimedWarpTimer;
  * The timer used by 'Time Warp Tics' in Screen Data->T.Warp
 
-int NextMap;
- * ?
+int CarroverMap;
+ * The map to where secrets on the current mapscreen carry over.
 
-int NextScreen;
- *?
+int CarryoverSreen;
+  * The screen to where secrets on the current mapscreen carry over.
 
 int SecretCombo[128];
  * The Combo IDs used by 'Secret Combos' on this screen.
