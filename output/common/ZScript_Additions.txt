@@ -2236,7 +2236,9 @@ int WarpReturnY[4];
  * The Y-component for each of the four 2.50+ (blue) warp return squares.
 	
 int WarpReturnC;
- * ?
+ * Stores the information on warp returns, butwise.
+ * Deprecated by SideWarpReturnSquare[4] and TileWarpReturnSquare[4].
+ * The bits are DDCCBBAADDCCBBAA, where the left section is sidewarp returns, and the right is tilewarp returns.
 
 int StairsX;
  * The X component for where a Stairs secret appears on the screen.
@@ -2292,7 +2294,7 @@ int SideWarpDMap[4];
  * The destination DMap for each of the four sidewarps.
 	
 int SideWarpIndex;
- * The warp return?? If so, should this be an array, or are these ORd values?
+ * The warp return IDs. Deprecated by SideWarpID[].
 
 int WarpArrivalX;
  * The X-component for the pre-2.50 (green) arrival square.
@@ -2401,13 +2403,13 @@ int EntryY;
  * If Link is respawned by falling in water, he will appear at this Y-component. 
 
 int ScriptEntry;
- * ?
+ * Unused. Originally intended as a way to detect if ffcs should run on loading a screen.
 
 int ScriptOccupancy;
- * ?
+ * Unused. Originally intended as a way to detect if ffcs should run while a screen is active.
 
 int ExitScript;
- * ?
+ * Unused. Originally intended as a way to detect if ffcs should run on leaving a screen.
 
 int OceanSFX;
  * The 'Ambient Sound' under S.Data2. 
@@ -2436,6 +2438,7 @@ int ScreenFlags[10];
 	
 int NumFFCs;
  * ? The number of ffcs running scripts?
+ * This is slated to become bool Screen->FFCsRunning[32]
 
 //int Script; t/b/a
 
@@ -3317,7 +3320,7 @@ int SizeFlags;
  * item, overriding engine defaults.
 
 int CollectFlags;
- * ?
+ * Unused? Intended to be a flagset used when running a collect script.
 
 void GetName(int buffer[]);
  * Loads the item's name into 'buffer'.
@@ -3504,7 +3507,9 @@ int WarpReturnY[4];
  * The Y-component for each of the four 2.50+ (blue) warp return squares.
 	
 int WarpReturnC;
- * ?
+ * Stores the information on warp returns, butwise.
+ * Deprecated by SideWarpReturnSquare[4] and TileWarpReturnSquare[4].
+ * The bits are DDCCBBAADDCCBBAA, where the left section is sidewarp returns, and the right is tilewarp returns.
 
 int StairsX;
  * The X component for where a Stairs secret appears on the screen.
@@ -3563,7 +3568,7 @@ int SideWarpDMap[4];
  * The destination DMap for each of the four sidewarps.
 	
 int SideWarpIndex;
- * The warp return?? If so, should this be an array, or are these ORd values?
+ * The warp return IDs. Deprecated by SideWarpID[].
 
 int WarpArrivalX;
  * The X-component for the pre-2.50 (green) arrival square.
@@ -3672,13 +3677,13 @@ int EntryY;
  * If Link is respawned by falling in water, he will appear at this Y-component. 
 
 int ScriptEntry;
- * ?
+ * Unused. Originally intended as a way to detect if ffcs should run on loading a screen.
 
 int ScriptOccupancy;
- * ?
+ * Unused. Originally intended as a way to detect if ffcs should run while a screen is active.
 
 int ExitScript;
- * ?
+ * Unused. Originally intended as a way to detect if ffcs should run on leaving a screen.
 
 int OceanSFX;
  * The 'Ambient Sound' under S.Data2. 
@@ -3731,6 +3736,7 @@ int EFlags[3];
 
 int NumFFCs;
  * ? The number of ffcs running scripts?
+ * This is slated to become bool Screen->FFCsRunning[32]
 
 int FFCEffectWidth[32];
  * The EffectWidth variable for each of the 32 ffcs on the screen.
