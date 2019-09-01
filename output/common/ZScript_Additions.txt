@@ -2252,6 +2252,7 @@ int ItemX;
 int ItemY;
  * The Y component for the item location on the screen.
 
+int Palette;
 int CSet;
  * ? The screen palette. ?
 
@@ -2876,8 +2877,11 @@ int Frozen;
  * Returns the number of frames for which the npc remains frozen
 
 int FrozenTile;
+ * Unimplemented at this time.
+ 
 int FrozenCSet;
-
+ * Unimplemented at this time.
+ 
 int npcscript;
  * The script ID used by this NPC.
 
@@ -3523,6 +3527,7 @@ int ItemX;
 int ItemY;
  * The Y component for the item location on the screen.
 
+int Palette;
 int CSet;
  * ? The screen palette. ?
 

@@ -123,3 +123,11 @@ int Water;
 int Whistle; 
 int WinGame; 
 int BlockWeaponLevel;
+
+//npc
+int FrozenTile;
+ * Unimplemented at this time.
+ 
+int FrozenCSet;
+ * Unimplemented at this time.
+ 

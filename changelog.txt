@@ -1,6 +1,8 @@
 //2.55 Changes
 
 //Alpha 31
+Deprecated Screen->CSet and mapdata->CSet in favour
+	of Screen->Palette and mapdata->Palette.
 Added alts. CarryoverMpa and CarryoverScreen for NextMap
 	and NextScreen on Screen-> and mapdata-> pointers, and documented
 	what they do in ZSA.txt.
