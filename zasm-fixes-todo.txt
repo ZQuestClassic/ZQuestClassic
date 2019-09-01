@@ -1,9 +1,6 @@
 Screen-> ScriptEntry ScriptOccupancy and ExitScript appear to be totally 
 	unused; presumably intended for screen scripts that run upon entering, 
 	while occupying, and upon exiting a screen.
-Screen->NumFFCs is a 32-bit flagset, where each bit represents 
-	if that index'd FFC is combo 0 or not.
-	Being 32-bits, I presume the script access is not totally functional (the *10000 would truncate it)
 
 itemdata->CollectFlags references an unused variable, but it has this comment on it: A flagset that determines of the weapon can collect an item.
 
@@ -33,10 +30,6 @@ int TileWarpOverlayFlags;
  
  int SideWarpOverlayFlags;
  * Carryover?
- 
- int NumFFCs;
- * ? The number of ffcs running scripts?
- * This is slated to become bool Screen->FFCsRunning[32]
  
  //To ADD
  Screen->Script

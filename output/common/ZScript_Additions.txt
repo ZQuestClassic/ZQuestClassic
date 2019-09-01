@@ -2070,6 +2070,12 @@ int GetPointer(bool *ptr[]);
 ///  Screen  ///
 ////////////////
 
+int Script;
+ * The screendata script used for the current screen.
+
+untyped InitD[8];
+ * The eight D args used by the screendata script for the current screen.
+
 int GetRenderTarget();
  * Returns the present drawing render target ID.
  * Use in conjunction with SetRenderTarget(int) to cache the present RT, 
@@ -2437,11 +2443,11 @@ int ScreenFlags[10];
  * See std_constants.zh (SFG* for the screen flag froup, 
  *	and SFX* for the screen flag value) for more information. 
 	
-int NumFFCs;
- * ? The number of ffcs running scripts?
- * This is slated to become bool Screen->FFCsRunning[32]
-
-//int Script; t/b/a
+bool NumFFCs[33];
+ * The number of ffcs set up on the current screen.
+ * Index [0] is unused, to match internal ZQ Editor FFC numbering.
+ * Thus, this returns true/false for indices [1] through [32],
+ * which equate to FFC IDs 1 through 32 on the current mapscreen.
 
 /************************************************************************************************************/
 
@@ -3739,9 +3745,11 @@ int EFlags[3];
  * Values are:
  *
 
-int NumFFCs;
- * ? The number of ffcs running scripts?
- * This is slated to become bool Screen->FFCsRunning[32]
+int NumFFCs[33];
+ * The number of ffcs set up on the current screen.
+ * Index [0] is unused, to match internal ZQ Editor FFC numbering.
+ * Thus, this returns true/false for indices [1] through [32],
+ * which equate to FFC IDs 1 through 32 on the current mapscreen.
 
 int FFCEffectWidth[32];
  * The EffectWidth variable for each of the 32 ffcs on the screen.

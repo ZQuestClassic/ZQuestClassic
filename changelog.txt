@@ -1,6 +1,12 @@
 //2.55 Changes
 
 //Alpha 31
+Changed int Screen->NumFFCa to bool->Screen->NumFFCs[33]
+	and int mapdata->NumFFCs to bool mapdata->NumFFCs[33].
+	* The number of ffcs set up on the current screen.
+	* Index [0] is unused, to match internal ZQ Editor FFC numbering.
+	* Thus, this returns true/false for indices [1] through [32],
+	* which equate to FFC IDs 1 through 32 on the current mapscreen.
 Deprecated Screen->CSet and mapdata->CSet in favour
 	of Screen->Palette and mapdata->Palette.
 Added alts. CarryoverMpa and CarryoverScreen for NextMap
