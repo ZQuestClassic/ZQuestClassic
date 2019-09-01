@@ -20,4 +20,3 @@ Screen->TileWarpOverlayFlags/Screen->SideWarpOverlayFlags handle Combos Carry Ov
 	
 Ah, and Screen->SideWarpIndex can be removed, as my Screen->SideWarpID[4] is array access for that var.
 
-Screen->NextMap and Screen->NextScreen appear to just access this:
