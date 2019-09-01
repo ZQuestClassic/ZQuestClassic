@@ -1,0 +1,23 @@
+Screen-> ScriptEntry ScriptOccupancy and ExitScript appear to be totally 
+	unused; presumably intended for screen scripts that run upon entering, 
+	while occupying, and upon exiting a screen.
+Screen->NumFFCs is a 32-bit flagset, where each bit represents 
+	if that index'd FFC is combo 0 or not.
+	Being 32-bits, I presume the script access is not totally functional (the *10000 would truncate it)
+
+itemdata->CollectFlags references an unused variable, but it has this comment on it: A flagset that determines of the weapon can collect an item.
+
+mapscr.valid (Screen->Valid):
+	set to mVERSION in readmaps, reset_scr
+
+In zquest.cpp draw(), draw_block(), flood(), fill_4, and a bunch of other functions, it is |='d with mVALID
+
+So, I'd say that Screen->Valid | mVERSION is always true, and 
+	Screen->Valid | mVALID is true on INITIALIZED screens (i.e. screens where you have edited, which do not show as the default blank blue in ZQ)
+
+Screen->TileWarpOverlayFlags/Screen->SideWarpOverlayFlags handle Combos Carry Over checkbox in the warp_dlg
+	probably should be bool arrays
+	
+Ah, and Screen->SideWarpIndex can be removed, as my Screen->SideWarpID[4] is array access for that var.
+
+Screen->NextMap and Screen->NextScreen appear to just access this:
