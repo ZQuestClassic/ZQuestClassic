@@ -20944,7 +20944,12 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case DIREXISTS:
-			FFCore.do_checkdir();
+			FFCore.do_checkdir(true);
+			break;
+		
+		case FILEEXISTS:
+			FFCore.do_checkdir(false);
+			break;
 		
 		case NOP: //No Operation. Do nothing. -V
 			break;
@@ -23132,19 +23137,16 @@ long FFScript::getQuestHeaderInfo(int type)
     return quest_format[type];
 }
 
-bool FFScript::checkDir(const char* path)
+bool FFScript::checkPath(const char* path, const bool is_dir)
 {
     struct stat info;
 
     if(stat( path, &info ) != 0)
         return false;
-    else if(info.st_mode & S_IFDIR)
-        return true;
-    else
-        return false;
+    else return is_dir ? (info.st_mode & S_IFDIR)!=0 : (info.st_mode & S_IFDIR)==0;
 }
 
-void FFScript::do_checkdir()
+void FFScript::do_checkdir(const bool is_dir)
 {
 	int strptr = get_register(sarg1)/10000;
 	string the_string;
@@ -23153,7 +23155,7 @@ void FFScript::do_checkdir()
 	size_t last = the_string.find_last_not_of('/');
 	if(last!=string::npos)++last;
 	the_string = the_string.substr(0,last); //Kill trailing '/'
-	set_register(sarg1, checkDir(the_string.c_str()) ? 10000 : 0);
+	set_register(sarg1, checkPath(the_string.c_str(), is_dir) ? 10000 : 0);
 }
 
 //Modules
@@ -27551,6 +27553,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "CLOSEWIPE",                0,   0,   0,   0},
     { "OPENWIPESHAPE",                1,   0,   0,   0},
     { "CLOSEWIPESHAPE",                1,   0,   0,   0},
+    { "FILEEXISTS",                1,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

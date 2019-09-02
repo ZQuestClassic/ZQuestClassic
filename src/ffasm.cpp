@@ -906,6 +906,7 @@ script_command command_list[NUMCOMMANDS+1]=
     { "CLOSEWIPE",                0,   0,   0,   0},
     { "OPENWIPESHAPE",                1,   0,   0,   0},
     { "CLOSEWIPESHAPE",                1,   0,   0,   0},
+    { "FILEEXISTS",                1,   0,   0,   0},
 	
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},

@@ -4932,6 +4932,11 @@ string ODirExists::toString()
 	return "DIREXISTS " + getArgument()->toString();
 }
 
+string OFileExists::toString()
+{
+	return "FILEEXISTS " + getArgument()->toString();
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 

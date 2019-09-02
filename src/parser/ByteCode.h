@@ -8421,6 +8421,17 @@ namespace ZScript
 			return new ODirExists(a->clone());
 		}
 	};
+	
+	class OFileExists : public UnaryOpcode
+	{
+	public:
+		OFileExists(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileExists(a->clone());
+		}
+	};
 }
 
 #endif
