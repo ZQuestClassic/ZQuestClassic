@@ -166,7 +166,11 @@ void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
 void SemanticAnalyzer::caseBlock(ASTBlock& host, void*)
 {
 	// Switch to block scope.
-	scope = scope->makeChild();
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	scope = host.getScope();
 
 	// Recurse.
 	RecursiveVisitor::caseBlock(host);
@@ -201,10 +205,7 @@ void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void*)
 
 void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 {
-	// Visit children under new scope.
-	scope = scope->makeChild();
 	RecursiveVisitor::caseStmtFor(host);
-	scope = scope->getParent();
     if (breakRecursion(host)) return;
 
 	checkCast(*host.test->getReadType(scope, this), DataType::UNTYPED, &host);
