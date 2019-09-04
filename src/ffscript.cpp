@@ -7037,6 +7037,8 @@ case MAPDATAMISCD:
 //dmapdata dmd-> variables
 
 //getter
+case DMAPDATAID: ret = ri->dmapsref*10000; break; //read-only, equal to CurrentDMap
+	
 case DMAPDATAMAP: 	//byte
 {
 	ret = ((byte)DMaps[ri->dmapsref].map + 1) * 10000; break;

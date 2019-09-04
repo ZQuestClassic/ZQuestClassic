@@ -3656,11 +3656,12 @@ enum ASM_DEFINE
 #define SCREENDATASWARPRETSQR		0x1376
 #define MAPDATATWARPRETSQR		0x1377
 #define MAPDATASWARPRETSQR		0x1378
+#define DMAPDATAID		0x1379
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x1379
+#define NUMVARIABLES         	0x137A
 
 // Script types
 
