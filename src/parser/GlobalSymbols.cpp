@@ -12389,6 +12389,7 @@ static AccessorTable FileSystemTable[] =
 {
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	{ "DirExists",              ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             0,                                    2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "FileExists",             ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             0,                                    2,           {  ZVARTYPEID_FILESYSTEM,          ZVARTYPEID_CHAR,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -12413,6 +12414,21 @@ void FileSystemSymbols::generateCode()
         //pop pointer
         code.push_back(new OPopRegister(new VarArgument(refVar)));
         code.push_back(new ODirExists(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+	//bool FileExists(FileSystem, char32*)
+    {
+	    Function* function = getFunction("FileExists", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer
+        code.push_back(new OPopRegister(new VarArgument(refVar)));
+        code.push_back(new OFileExists(new VarArgument(EXP1)));
         code.push_back(new OReturn());
         function->giveCode(code);
     }

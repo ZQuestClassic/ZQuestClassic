@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 31
-Document Revision: 1st September, 2019
+Document Revision: 2nd September, 2019
 
 
 ////////////////////////////////////////////////////
@@ -1824,7 +1824,11 @@ bool IsValidArray(untyped[]);
 //////////////////
 
 bool DirExists(char32[] "filepath");
- * Returns true if the string passed to 'filepath' exists in the filesystem,
+ * Returns true if the string passed to 'filepath' is a valid directory path,
+ * relative to the current ZC path.
+
+bool FileExists(char32[] "filepath");
+ * Returns true if the string passed to 'filepath' is a valid file path,
  * relative to the current ZC path.
 
 /************************************************************************************************************/

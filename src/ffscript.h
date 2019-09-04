@@ -1185,8 +1185,8 @@ static void setLinkBigHitbox(bool v);
 	static void do_getDMapData_music(const bool v);
 	static void do_setDMapData_music(const bool v);
 	
-	static bool checkDir(const char* path);
-	static void do_checkdir();
+	static bool checkPath(const char* path, const bool is_dir);
+	static void do_checkdir(const bool is_dir);
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -2415,9 +2415,10 @@ enum ASM_DEFINE
 	CLOSEWIPE,
 	OPENWIPESHAPE,
 	CLOSEWIPESHAPE,
+	FILEEXISTS,
 
 
-	NUMCOMMANDS           //0x0166
+	NUMCOMMANDS           //0x0167
 };
 
 
