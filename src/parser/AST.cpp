@@ -379,7 +379,7 @@ ASTStmtFor::ASTStmtFor(
 		ASTStmt* setup, ASTExpr* test, ASTStmt* increment, ASTStmt* body,
 		LocationData const& location)
 	: ASTStmt(location), setup(setup), test(test), increment(increment),
-	  body(body)
+	  body(body), scope(NULL)
 {}
 
 void ASTStmtFor::execute(ASTVisitor& visitor, void* param)

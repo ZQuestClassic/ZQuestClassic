@@ -465,6 +465,11 @@ namespace ZScript
 		owning_ptr<ASTExpr> test;
 		owning_ptr<ASTStmt> increment;
 		owning_ptr<ASTStmt> body;
+		
+		Scope* getScope() {return scope;}
+		void setScope(Scope* scp) {scope = scp;}
+	private:
+		Scope* scope;
 	};
 
 	class ASTStmtWhile : public ASTStmt

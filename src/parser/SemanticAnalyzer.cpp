@@ -205,7 +205,14 @@ void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void*)
 
 void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 {
+	//Use sub-scope
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	scope = host.getScope();
 	RecursiveVisitor::caseStmtFor(host);
+	scope = scope->getParent();
     if (breakRecursion(host)) return;
 
 	checkCast(*host.test->getReadType(scope, this), DataType::UNTYPED, &host);

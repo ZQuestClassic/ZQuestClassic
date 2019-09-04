@@ -262,6 +262,11 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 
 void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 {
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	scope = host.getScope();
     //run the precondition
 	int setupRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host.setup.get(), param);
@@ -323,6 +328,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
     next->setLabel(loopend);
     addOpcode(next);
+	scope = scope->getParent();
 }
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
