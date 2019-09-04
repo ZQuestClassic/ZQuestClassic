@@ -1,5 +1,6 @@
 //--------------------------------------------------------
 //--------------------------------------------------------
+//--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
 //
@@ -12479,10 +12480,10 @@ bool LinkClass::dowarp(int type, int index)
             }
         }
         
-        else
-	{
-		dmapscriptInitialised[currdmap] = 0; //reinitialise DMap script InitD
-	}
+        //else
+	//{
+	//	dmapscriptInitialised[currdmap] = 0; //reinitialise DMap script InitD
+	//}
 	if(DMaps[currdmap].color != c)
         {
             lighting(false, true);
@@ -12990,6 +12991,8 @@ bool LinkClass::dowarp(int type, int index)
     dmap_doscript = 1;
     FFCore.deallocateAllArrays(SCRIPT_DMAP, olddmap);
     dmapScriptData.Clear();
+    dmapscriptInitialised[olddmap] = 0;
+    dmapscriptInitialised[currdmap] = 0;
     return true;
 }
 

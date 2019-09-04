@@ -18676,7 +18676,7 @@ int run_script(const byte type, const word script, const long i)
 		    //how do we clear initialised on dmap change?
 		if ( !dmapscriptInitialised[i] )
 		{
-			al_trace("dmapscriptInitialised[i] is %d\n",dmapscriptInitialised[i]);
+			Z_scripterrlog("dmapscriptInitialised[i] is %d\n",dmapscriptInitialised[i]);
 			for ( int q = 0; q < 8; q++ ) 
 			{
 				ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
