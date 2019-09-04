@@ -17427,7 +17427,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			return false;
 		}
 		
-	}
+	} 
 	//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15918);
 	//warp coordinates are wx, wy, not x, y! -Z
 	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
@@ -17752,10 +17752,6 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			    }
 			}
 			
-			else
-			{
-				dmapscriptInitialised[currdmap] = 0; //reinitialise DMap script InitD
-			}
 			if(DMaps[currdmap].color != c)
 			{
 			    lighting(false, true);
@@ -17887,6 +17883,12 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
 		dmapScriptData.Clear();
 	}
+	//if ( olddmap != currdmap ) //night be needed if dmapdata scripts call warpex?
+	FFCore.deallocateAllArrays(SCRIPT_DMAP, olddmap);
+	dmapScriptData.Clear();
+	
+	dmapscriptInitialised[olddmap] = 0;
+	dmapscriptInitialised[currdmap] = 0;
 	return true;
 	
 	
