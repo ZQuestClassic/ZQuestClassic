@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 31
-Document Revision: 2nd September, 2019
+Document Revision: 8th September, 2019
 
 
 ////////////////////////////////////////////////////
@@ -4552,6 +4552,13 @@ t/b/a
 ///  bitmap  ///
 ////////////////
 
+void DrawPlane(int layer, int rt, int srcX, int srcY, 
+		int srcW, int srcH, int destW, int destH, 
+		int angle, int cx, int cy, int space_z, int horizon, 
+		int scale_x, int scale_y);
+ * Draws a scaled 'Mode 7' style effect, line-by-line, where each raster is scaled down toward 
+ * a horizon point.
+ 
 int Width;
  * Returns the width of the bitmap, in pixels. 
  * READ-ONLY. Bitmaps cannot be resized by writing to this. 
