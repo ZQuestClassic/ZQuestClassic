@@ -12423,7 +12423,7 @@ bool eMoldorm::animate(int index)
 	int max_y = isdungeon() ? 100 : 100+32; //warning: Ugly hack. -Z
 	if ( y > (max_y) )
 	{
-		++stickclk; //Keep Moldorm from packin the bottom row.
+		++stickclk; //Keep Moldorm from pacinn the bottom row or leaving the screen via the bottom edge. -Z 8th Sept, 2019
 		//Z_scripterrlog("Stickclk is %d\n", stickclk);
 	}
 	if ( stickclk > 45 )
