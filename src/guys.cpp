@@ -12420,7 +12420,7 @@ eMoldorm::eMoldorm(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eMoldorm::animate(int index)
 {
-	int max_y = isdungeon() ? 100 : 100+32; //warning: Ugly hack. -Z
+	int max_y = isdungeon() ? 100 : 100+28; //warning: Ugly hack. -Z
 	if ( y > (max_y) )
 	{
 		++stickclk; //Keep Moldorm from pacinn the bottom row or leaving the screen via the bottom edge. -Z 8th Sept, 2019
