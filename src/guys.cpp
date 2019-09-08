@@ -342,6 +342,8 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
 	    weap_initiala[q] = d->weap_initiala[q];
     }
     
+    stickclk = 0;
+    
     dialogue_str = 0; //set by spawn flags. 
     editorflags = d->editorflags; //set by Enemy Editor 
     
@@ -661,6 +663,57 @@ bool enemy::animate(int index)
     // returns true when enemy is defeated
     return Dead(index);
 }
+bool m_walkflag_old(int dx,int dy,int special, int x=-1000, int y=-1000)
+{
+    int yg = (special==spw_floater)?8:0;
+    int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
+    
+    if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
+        return true;
+        
+    bool isInDungeon = isdungeon();
+    if(isInDungeon || special==spw_wizzrobe)
+    {
+        if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
+            return true;
+            
+        if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
+            if(special!=spw_door) // walk in door way
+                return true;
+    }
+    
+    switch(special)
+    {
+    case spw_clipbottomright:
+        if(dy>=128 || dx>=208) return true;
+        
+    case spw_clipright:
+        break; //if(x>=208) return true; break;
+        
+    case spw_wizzrobe: // fall through
+    case spw_floater: // Special case for fliers and wizzrobes - hack!
+		{
+			if(isInDungeon)
+			{
+				if(dy < 32-yg || dy >= 144) return true;
+				if(dx < 32 || dx >= 224) return true;
+			}
+			return false;
+		}
+    }
+    
+    dx&=(special==spw_halfstep)?(~7):(~15);
+    dy&=(special==spw_halfstep || tmpscr->flags7&fSIDEVIEW)?(~7):(~15);
+    
+    if(special==spw_water)
+        return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
+        
+    return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
+           groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
+}
+
+
+
 
 bool enemy::m_walkflag(int dx,int dy,int special, int dir, int input_x, int input_y)
 {
@@ -3815,6 +3868,94 @@ bool enemy::cannotpenetrate()
     return (family == eeAQUA || family == eeMANHAN || family == eeGHOMA);
 }
 
+bool enemy::canmove_old(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
+{
+    bool ok;
+    int dx = 0, dy = 0;
+    int sv = 8;
+	
+    //Why is this here??? Why is it needed???
+    s += 0.5; // Make the ints round; doesn't seem to cause any problems.
+    
+    switch(ndir)
+    {
+    case 8:
+    case up:
+        if(canfall(id) && tmpscr->flags7&fSIDEVIEW)
+            return false;
+            
+        dy = dy1-s;
+        special = (special==spw_clipbottomright)?spw_none:special;
+        ok = !m_walkflag_old(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
+        break;
+        
+    case 12:
+    case down:
+        if(canfall(id) && tmpscr->flags7&fSIDEVIEW)
+            return false;
+            
+        dy = dy2+s;
+        ok = !m_walkflag_old(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
+        break;
+        
+    case 14:
+    case left:
+        dx = dx1-s;
+        sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
+        special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
+        ok = !m_walkflag_old(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
+        break;
+        
+    case 10:
+    case right:
+        dx = dx2+s;
+        sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
+        ok = !m_walkflag_old(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
+        break;
+        
+    case 9:
+    case r_up:
+        dx = dx2+s;
+        dy = dy1-s;
+        ok = !m_walkflag_old(x,y+dy,special, x, y) && !m_walkflag_old(x+dx,y+sv,special, x, y) &&
+             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+        break;
+        
+    case 11:
+    case r_down:
+        dx = dx2+s;
+        dx = dy2+s;
+        ok = !m_walkflag_old(x,y+dy,special, x, y) && !m_walkflag_old(x+dx,y+sv,special, x, y) &&
+             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+        break;
+        
+    case 13:
+    case l_down:
+        dx = dx1-s;
+        dy = dy2+s;
+        ok = !m_walkflag_old(x,y+dy,special, x, y) && !m_walkflag_old(x+dx,y+sv,special, x, y) &&
+             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+        break;
+        
+    case 15:
+    case l_up:
+        dx = dx1-s;
+        dy = dy1-s;
+        ok = !m_walkflag_old(x,y+dy,special, x, y) && !m_walkflag_old(x+dx,y+sv,special, x, y) &&
+             !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+        break;
+        
+    default:
+        db=99;
+        return true;
+    }
+    
+    return ok;
+}
+
+
+
+
 // returns true if next step is ok, false if there is something there
 bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
 {
@@ -4139,6 +4280,109 @@ bool enemy::canmove(int ndir)
 }
 
 // 8-directional
+void enemy::newdir_8_old(int newrate,int newhoming,int special,int dx1,int dy1,int dx2,int dy2)
+{
+    int ndir=0;
+    
+    // can move straight, check if it wants to turn
+    if(canmove_old(dir,step,special,dx1,dy1,dx2,dy2))
+    {
+        if(grumble && (rand()&4)<grumble) //Homing
+        {
+            int w = Lwpns.idFirst(wBait);
+            
+            if(w>=0)
+            {
+                int bx = Lwpns.spr(w)->x;
+                int by = Lwpns.spr(w)->y;
+                
+                ndir = (bx<x) ? left : (bx!=x) ? right : 0;
+                
+                if(abs(int(y)-by)>14)
+                {
+                    if(ndir>0)  // Already left or right
+                    {
+                        // Making the diagonal directions
+                        ndir += (by<y) ? 2 : 4;
+                    }
+                    else
+                    {
+                        ndir = (by<y) ? up : down;
+                    }
+                }
+                
+                if(canmove(ndir,special))
+                {
+                    dir=ndir;
+                    return;
+                }
+            }
+        }
+        
+        // Homing added.
+        if(newhoming && (rand()&255)<newhoming)
+        {
+            ndir = lined_up(8,true);
+            
+            if(ndir>=0 && canmove(ndir,special))
+            {
+                dir=ndir;
+            }
+            
+            return;
+        }
+        
+        int r=rand();
+        
+        if(newrate>0 && !(r%newrate))
+        {
+            ndir = ((dir+((r&64)?-1:1))&7)+8;
+            int ndir2=((dir+((r&64)?1:-1))&7)+8;
+            
+            if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
+                dir=ndir;
+            else if(canmove(ndir2,step,special,dx1,dy1,dx2,dy2))
+                dir=ndir2;
+                
+            if(dir==ndir && (newrate>=4)) // newrate>=4, otherwise movement is biased toward upper-left
+                // due to numerous lost fractional components. -L
+            {
+                x.v&=0xFFFF0000;
+                y.v&=0xFFFF0000;
+            }
+        }
+        
+        return;
+    }
+    
+    // can't move straight, must turn
+    int i=0;
+    
+    for(; i<32; i++)  // Try random dir
+    {
+        ndir=(rand()&7)+8;
+        
+        if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
+            break;
+    }
+    
+    if(i==32)
+    {
+        for(ndir=8; ndir<16; ndir++)
+        {
+            if(canmove(ndir,step,special,dx1,dy1,dx2,dy2))
+                goto ok;
+        }
+        
+        ndir = (tmpscr->flags7&fSIDEVIEW) ? (rand()&1 ? left : right) : -1;  // Sideview enemies get trapped if their dir becomes -1
+    }
+    
+ok:
+    dir=ndir;
+    x.v&=0xFFFF0000;
+    y.v&=0xFFFF0000;
+}
+
 void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int dx2,int dy2)
 {
     int ndir=0;
@@ -4245,6 +4489,11 @@ ok:
 void enemy::newdir_8(int newrate,int newhoming,int special)
 {
     newdir_8(newrate,newhoming,special,0,-8,15,15);
+}
+
+void enemy::newdir_8_old(int newrate,int newhoming,int special)
+{
+    newdir_8_old(newrate,newhoming,special,0,-8,15,15);
 }
 
 // makes the enemy slide backwards when hit
@@ -4876,6 +5125,21 @@ void enemy::constant_walk_8(int newrate,int newhoming,int special)
     --clk3;
     move(step);
 }
+// 8-directional movement, aligns to 8 pixels
+void enemy::constant_walk_8_old(int newrate,int newhoming,int special)
+{
+    if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
+        return;
+        
+    if(clk3<=0)
+    {
+        newdir_8(newrate,newhoming,special);
+        clk3=int(8.0/step);
+    }
+    
+    --clk3;
+    move(step);
+}
 
 void enemy::halting_walk_8(int newrate,int newhoming, int newclk,int special,int newhrate, int haltcnt)
 {
@@ -5051,7 +5315,8 @@ int enemy::lined_up(int range, bool dir8)
     
     if(dir8)
     {
-        if(abs(lx-x)-abs(ly-y)<=range && abs(ly-y)-abs(lx-x)<=range) //Fix floating enemies not seeking link. -Tamamo
+	if(abs(lx-x)-abs(ly-y)<=range)
+        //if(abs(lx-x)-abs(ly-y)<=range && abs(ly-y)-abs(lx-x)<=range) //Fix floating enemies not seeking link. -Tamamo
         {
             if(ly<y)
             {
@@ -12139,6 +12404,8 @@ eMoldorm::eMoldorm(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     yofs=playing_field_offset;
     tile=o_tile;
     obeys_gravity = 0;
+	stickclk = 0;
+	
     /*
       if (get_bit(quest_rules,qr_NEWENEMYTILES))
       {
@@ -12153,6 +12420,18 @@ eMoldorm::eMoldorm(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 
 bool eMoldorm::animate(int index)
 {
+	int max_y = isdungeon() ? 100 : 100+32; //warning: Ugly hack. -Z
+	if ( y > (max_y) )
+	{
+		++stickclk; //Keep Moldorm from packin the bottom row.
+		//Z_scripterrlog("Stickclk is %d\n", stickclk);
+	}
+	if ( stickclk > 45 )
+	{
+		stickclk = 0;
+		newdir_8_old(rate,homing,spw_floater); //chage dir to keep from getting stuck.
+	}
+	
 
     if(clk==0)
     {
@@ -12177,7 +12456,9 @@ bool eMoldorm::animate(int index)
     {
         if(stunclk>0)
             stunclk=0;
-        constant_walk_8(rate,homing,spw_floater);
+        constant_walk_8_old(rate,homing,spw_floater);
+	
+		
         misc=dir;
         
         // If any higher-numbered segments were killed, segcnt can be too high,
