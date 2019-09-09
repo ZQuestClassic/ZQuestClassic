@@ -8460,7 +8460,7 @@ void set_register(const long arg, const long value)
           }
          break;
 	  
-	  case SETITEMSLOT:
+	case SETITEMSLOT:
 	{
 		//ri->d[1] = 1st arg
 		//ri->d[0] = 2nd arg
@@ -8471,8 +8471,8 @@ void set_register(const long arg, const long value)
 		int slot = ri->d[1]/10000;
 		int force = ri->d[2]/10000;
 		
-	    Z_scripterrlog("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
-	    Z_scripterrlog("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
+		Z_scripterrlog("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
+		Z_scripterrlog("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
 		Z_scripterrlog("SetItemSlot rid->[2] is (%i), trying to use for '%s'\n", force, "force");
 		
 		//If we add more item buttons, slot should be an int
@@ -8484,11 +8484,11 @@ void set_register(const long arg, const long value)
 				const int ITM_REQUIRE_INVENTORY = 1
 				const int ITM_REQUIRE_A_SLOT_RULE = 2
 				//Combine as flags
-		
-		
 		*/
-		if ( force == 0 ) {
-			if ( slot == 1 ) {
+		if ( force == 0 )
+		{
+			if ( slot == 1 )
+			{
 				Awpn = itm;
 				game->items_off[itm] = 0;
 				game->awpn = itm;
@@ -8502,7 +8502,8 @@ void set_register(const long arg, const long value)
 				//directItemB = directItem;
 			}
 		}
-		if ( force == 1 ) {
+		else if ( force == 1 )
+		{
 			if(slot == 1 && game->item[itm])
 			{
 				Awpn = itm;
@@ -8511,18 +8512,16 @@ void set_register(const long arg, const long value)
 				//directItemA = directItem;
 				
 			}
-			else { 
-				if ( game->item[itm] ) 
-				{
-					Bwpn = itm;
-					game->items_off[itm] = 0;
-					game->bwpn = itm;
-					//directItemB = directItem;
-				}
+			else if ( game->item[itm] ) 
+			{
+				Bwpn = itm;
+				game->items_off[itm] = 0;
+				game->bwpn = itm;
+				//directItemB = directItem;
 			}
 		}
-
-		if ( force == 2 ) {
+		else if ( force == 2 )
+		{
 			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) )
 			{
 				Awpn = itm;
@@ -8538,8 +8537,8 @@ void set_register(const long arg, const long value)
 				//directItemB = directItem;
 			}
 		}
-		
-		if ( force == 3 ) { //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
+		else if ( force == 3 ) //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
+		{
 			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm])
 			{
 				Awpn = itm;
@@ -8547,15 +8546,12 @@ void set_register(const long arg, const long value)
 				game->awpn = itm;
 				//directItemA = directItem;
 			}
-			else 
+			else if(game->item[itm])
 			{ 
-				if ( game->item[itm] ) 
-				{
-					Bwpn = itm;
-					game->items_off[itm] = 0;
-					game->bwpn = itm;
-					//directItemB = directItem;
-				}
+				Bwpn = itm;
+				game->items_off[itm] = 0;
+				game->bwpn = itm;
+				//directItemB = directItem;
 			}
 		}
 	}
@@ -8708,47 +8704,49 @@ void set_register(const long arg, const long value)
 	break;
         
     
-     case LINKITEMB:
-     {
-	if ( value/10000 < 0 ) 
+	case LINKITEMB:
 	{
-	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
-	    break;
-	}		
-	if ( value/10000 < MAXITEMS-1 ) 
-	{
-	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
-	    break;
+		if ( value/10000 < 0 ) 
+		{
+			al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+			break;
+		}		
+		if ( value/10000 > MAXITEMS-1 ) 
+		{
+			al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+			break;
+		}
+			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+		
+		
+		Bwpn = value/10000;
+		game->bwpn = value/10000;
+		game->items_off[value/10000] = 0;
+		//directItemB = directItem;
+		break;
 	}
-	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-    
 	
-	Bwpn = value/10000;
-	game->bwpn = value/10000;
-	game->items_off[value/10000] = 0;
-	//directItemB = directItem;
-	break;
-    }
-    
-    
-    case LINKITEMA:
-    {
-	if ( value/10000 < 0 ) 
-	{
-	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
-	}		
-	if ( value/10000 < MAXITEMS-1 ) 
-	{
-	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
-	}		
-	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 	
-	Awpn = value/10000;
-	game->awpn = value/10000;
-	game->items_off[value/10000] = 0;
-	//directItemB = directItem;
-	break;
-    }
+	case LINKITEMA:
+	{
+		if ( value/10000 < 0 ) 
+		{
+			Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+			break;
+		}		
+		if ( value/10000 > MAXITEMS-1 ) 
+		{
+			Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+			break;
+		}		
+		//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+		
+		Awpn = value/10000;
+		game->awpn = value/10000;
+		game->items_off[value/10000] = 0;
+		//directItemB = directItem;
+		break;
+	}
     
     case LINKTILEMOD:
     {
@@ -21370,7 +21368,7 @@ long FFScript::do_allocate_bitmap()
 void FFScript::do_isvalidbitmap()
 {
 	long UID = get_register(sarg1);
-	Z_scripterrlog("isValidBitmap() bitmap pointer value is %d\n", UID);
+	//Z_scripterrlog("isValidBitmap() bitmap pointer value is %d\n", UID);
 	if ( UID <= 0 ) set_register(sarg1, 0); 
 	else if ( scb.script_created_bitmaps[UID-10].u_bmp ) 
 		set_register(sarg1, 10000);
@@ -21379,7 +21377,7 @@ void FFScript::do_isvalidbitmap()
 void FFScript::do_isallocatedbitmap()
 {
 	long UID = get_register(sarg1);
-	Z_scripterrlog("isAllocatedBitmap() bitmap pointer value is %d\n", UID);
+	//Z_scripterrlog("isAllocatedBitmap() bitmap pointer value is %d\n", UID);
 	if ( UID <= 0 ) set_register(sarg1, 0); 
 	else
 	{
