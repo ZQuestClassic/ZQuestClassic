@@ -72,6 +72,9 @@ const int MAX_GLOBAL_VARIABLES		= 255;
 const int MAX_VARIABLES			= 255; //Vars in operation at any one time.
 const int MAX_BITSPERVARIABLE		= 18;
 
+const int MIN_ITEMDATA			= 0;
+const int MAX_ITEMDATA			= 255;
+
 const int MAX_ARRAY_POINTERS	 	= 4095; //Arrays in operation. 
 const int MAX_TILES 			= 65519;
 const int MAX_COMBOS			= 65279;
