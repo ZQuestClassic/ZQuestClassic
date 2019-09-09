@@ -4608,6 +4608,11 @@ string OClearBitmap::toString()
     return "CLEARBITMAP";
 }
 
+string OBitmapClearToColor::toString()
+{
+    return "BITMAPCLEARTOCOLOR";
+}
+
 string ORegenerateBitmap::toString()
 {
     return "REGENERATEBITMAP";

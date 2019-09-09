@@ -17064,6 +17064,13 @@ void do_drawing_command(const int script_command)
 		script_drawing_commands[j][17] = SH::read_stack(ri->sp+1); 
 		break;
 	}
+	case 	BITMAPCLEARTOCOLOR:	
+	{
+		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
+		set_user_bitmap_command_args(j, 2);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
+		break;
+	}
 	case 	REGENERATEBITMAP:	
 	{
 		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
@@ -20131,6 +20138,7 @@ int run_script(const byte type, const word script, const long i)
 		case 	READBITMAP:
 		case 	WRITEBITMAP:
 		case 	CLEARBITMAP:
+		case 	BITMAPCLEARTOCOLOR:
 		case 	REGENERATEBITMAP:
 		    do_drawing_command(scommand);
 		    break;
@@ -27556,6 +27564,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
     { "OPENWIPESHAPE",                1,   0,   0,   0},
     { "CLOSEWIPESHAPE",                1,   0,   0,   0},
     { "FILEEXISTS",                1,   0,   0,   0},
+    { "BITMAPCLEARTOCOLOR",                0,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

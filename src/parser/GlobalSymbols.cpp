@@ -8384,6 +8384,7 @@ static AccessorTable BitmapTable[] =
 	{ "Clear",                  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    2,           {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Create",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    4,           {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Polygon",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    6,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,         -1,     -1,     -1,     -1,     -1,  -1,                         -1,                           -1,                           -1,                           -1,                           } },
+	{ "ClearToColor",           ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    3,           {  ZVARTYPEID_BITMAP,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                   -1,                     -1,               -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
@@ -9073,6 +9074,22 @@ void BitmapSymbols::generateCode()
 		code.push_back(new OIsAllocatedBitmap(new VarArgument(EXP1)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
+	}
+	//void ClearToColor(bitmap, layer, color)
+	{
+		Function* function = getFunction("ClearToColor", 3);
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OBitmapClearToColor();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(2, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		
+		code.push_back(new OReturn());
+		function->giveCode(code);
+
 	}
 }
 

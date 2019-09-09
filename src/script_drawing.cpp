@@ -5543,12 +5543,22 @@ void bmp_do_clearr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	int bitid = sdci[17] - 10; 
 	if ( scb.script_created_bitmaps[bitid].u_bmp )
 		clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
-	
-	//Perhaps offer int colour?
-	//void clear_to_color(BITMAP *bitmap, int color); IDK if 'color' here is a palette index, or an RPG value.
-	//The allegro docs say: 
-	///* Clear the screen to red. */
-	//clear_to_color(bmp, makecol(255, 0, 0));
+}
+
+void bmp_do_clearcolorr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+    //sdci[1]=layer
+    //sdci[2]=color
+	//sdci[17] Bitmap Pointer
+	int pal_color = sdci[2]/10000;
+    if ( sdci[17] <= 0 )
+    {
+	Z_scripterrlog("bitmap->ClearToColor() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+	return;
+    }
+	int bitid = sdci[17] - 10; 
+	if ( scb.script_created_bitmaps[bitid].u_bmp )
+		clear_to_color(scb.script_created_bitmaps[bitid].u_bmp, pal_color);
 }
 
 
@@ -10781,6 +10791,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr* theScreen, int xoff, 
 	case 	READBITMAP: bmp_do_readr(bmp, i, sdci, xoffset, yoffset); break;
 	case 	WRITEBITMAP: bmp_do_writer(bmp, i, sdci, xoffset, yoffset); break;
 	case 	CLEARBITMAP: bmp_do_clearr(bmp, sdci, xoffset, yoffset); break;
+	case 	BITMAPCLEARTOCOLOR: bmp_do_clearcolorr(bmp, sdci, xoffset, yoffset); break;
 	case 	REGENERATEBITMAP: bmp_do_regenr(bmp, sdci, xoffset, yoffset); break;
 	
 	case 	BMPDRAWLAYERSOLIDR: do_bmpdrawlayersolidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;

@@ -7830,6 +7830,16 @@ namespace ZScript
 		}
 	};
 	
+	class OBitmapClearToColor : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapClearToColor();
+		}
+	};
+	
 	class ORegenerateBitmap : public Opcode
 	{
 	public:
