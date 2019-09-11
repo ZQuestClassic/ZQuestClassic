@@ -5575,7 +5575,7 @@ void bmp_do_regenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		h = h ^ w;
 	}
 	//sdci[17] Bitmap Pointer
-	Z_scripterrlog("bitmap->Create() pointer is: %d\n", sdci[17]);
+	//Z_scripterrlog("bitmap->Create() pointer is: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->Create() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
@@ -5605,7 +5605,7 @@ void bmp_do_readr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[8]=string
     //sdci[9]=opacity
 	//sdci[17] Bitmap Pointer
-	Z_scripterrlog("bitmap->Read() pointer is: %d\n", sdci[17]);
+	//Z_scripterrlog("bitmap->Read() pointer is: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
@@ -5669,7 +5669,7 @@ void bmp_do_writer(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
     //sdci[8]=string
     //sdci[9]=opacity
 	//sdci[17] Bitmap Pointer
-	Z_scripterrlog("bitmap->Write() pointer is: %d\n", sdci[17]);
+	//Z_scripterrlog("bitmap->Write() pointer is: %d\n", sdci[17]);
 	
     if ( sdci[17] <= 0 )
     {

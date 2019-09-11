@@ -17128,7 +17128,7 @@ void do_drawing_command(const int script_command)
 		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
 		std::strncpy(cptr, str->c_str(), str->size());
 		
-		Z_scripterrlog("WRITEBITMAP string is %s\n", cptr);
+		//Z_scripterrlog("WRITEBITMAP string is %s\n", cptr);
 		script_drawing_commands[j].SetString(str);
 		break;
 	}
@@ -21545,16 +21545,15 @@ BITMAP* FFScript::GetScriptBitmap(int id)
 
 int FFScript::get_free_bitmap()
 {
-        int num_free = scb.num_active;
-        if ( num_free < ( MAX_USER_BITMAPS-1 ) )
-        {
-		//num_free = scb.num_active; 
-            ++scb.num_active;
-		Z_scripterrlog("get_free_bitmap() found a valid free bitmap with an ID of: %d\n",num_free);
-            return scb.num_active;
-        }
+		int num_free = scb.num_active;
+		if ( num_free < ( MAX_USER_BITMAPS-1 ) )
+		{
+			++scb.num_active;
+			//Z_scripterrlog("get_free_bitmap() found a valid free bitmap with an ID of: %d\n",num_free);
+			return scb.num_active;
+		}
 	Z_scripterrlog("get_free_bitmap() could not find a valid free bitmap!%s\n"," ");
-        return 0;
+		return 0;
 }
 
 bool FFScript::cleanup_user_bitmaps()
