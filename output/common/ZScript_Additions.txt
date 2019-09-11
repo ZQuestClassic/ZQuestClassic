@@ -4588,7 +4588,7 @@ void Clear(int layer);
  *       This WILL NOT write out a specific 'layer' of a bitmap.
  *        Layers in ZC are only an expression of drawing order/sequence!
  
-void ClearToColor(int layer, int pal);
+void ClearToColor(int layer, int color);
  * Clears the bitmap to the chosen color.
  * Note: The 'layer' arg in this function is exclusively for ordering. 
  *       This WILL NOT write out a specific 'layer' of a bitmap.
