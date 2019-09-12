@@ -5010,13 +5010,13 @@ void bmp_do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if(opacity < 128)
 	{
 		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
-		overcomboblocktranslucent(bmp, xoffset+x1, yoffset+y1, sdci[5]/10000, sdci[6]/10000, 1, 1, 128);
+		overcomboblocktranslucent(refbmp, xoffset+x1, yoffset+y1, sdci[4]/10000, sdci[5]/10000, 1, 1, 128);
 
 	}
 	else
 	{
 		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
-		overcomboblock(bmp, xoffset+x1, yoffset+y1, sdci[5]/10000, sdci[6]/10000, 1, 1);
+		overcomboblock(refbmp, xoffset+x1, yoffset+y1, sdci[4]/10000, sdci[5]/10000, 1, 1);
 	}
 }
 
