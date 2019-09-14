@@ -10,6 +10,10 @@
 //1.06
 	//Added Z2 Lantern
 	//Added Version and Time/Data Information
+//1.07
+	//Added the Z2 Lantern Collect Script
+	//Attach it to any cangle (or any item) to give the passive 
+	//Z2v Lantern effect to that item.
 	
 import "ffcscript.zh"
 import "stdExtra.zh"
@@ -22,7 +26,7 @@ const int __classic_zh_YEAR 		= 2019;
 const int __classic_zh_MONTH 		= 9;
 const int __classic_zh_DAY 		= 14;
 const int __classic_zh_HOUR 		= 7;
-const int __classic_zh_MINUTE 		= 1;
+const int __classic_zh_MINUTE 		= 11;
 
 
 const int __classic_zh_ITEM_Z2LANTERN 			= 149;
@@ -676,6 +680,13 @@ ffc script DropHEARTCONTAINER
 	}	
 }
 
+//Package script, giving Z2 Lantern with Candle
+//Attach to any candle/lantern as a collect script, to give
+//out the dummy passive lantern item with it.
+item script collect_Z2_lantern
+{
+	Link->Item[__classic_zh_ITEM_Z2LANTERN] = true;
+}
 
 //Collect script for Magic Boss Key--works in a levels
 item script MagicBossKey
