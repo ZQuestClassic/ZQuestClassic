@@ -1,9 +1,33 @@
 //Classic.zh
 
+//Changes
+//1.00
+//1.01
+//1.02
+//1.03
+//1.04
+//1.05
+//1.06
+	//Added Z2 Lantern
+	//Added Version and Time/Data Information
+	
 import "ffcscript.zh"
 import "stdExtra.zh"
 import "ghost.zh"
 import "tango.zh"
+
+//Version Information; time is in GMT
+const float __classic_zh_VERSION 	= 1.06;
+const int __classic_zh_YEAR 		= 2019;
+const int __classic_zh_MONTH 		= 9;
+const int __classic_zh_DAY 		= 14;
+const int __classic_zh_HOUR 		= 7;
+const int __classic_zh_MINUTE 		= 1;
+
+
+const int __classic_zh_ITEM_Z2LANTERN 			= 149;
+const int __classic_zh_MAX_ITEMS 			= 512;
+
 
 const int I_HALFMAGIC 					= 144;
 const int I_LEARNSLASH 					= 143;
@@ -356,23 +380,32 @@ ffc script PermBlockShutters
 	}
 }
 
+void __classic_zh_do_z2_lantern()
+{
+	if ( Link->Item[__classic_zh_ITEM_Z2LANTERN] )
+	{
+		if ( !Screen->Lit ) { Screen->Lit = true; }
+	}
+}
+
 global script Active
 {
-    void run()
-    {
-        StartGhostZH();
-        Tango_Start();
+	void run()
+	{
+		StartGhostZH();
+		Tango_Start();
 	    
-        while(true)
-        {
-            UpdateGhostZH1();
-	    Tango_Update1();
-            Waitdraw();
-            UpdateGhostZH2();
-	    Tango_Update2();
-            Waitframe();
-        }
-    }
+		while(true)
+		{
+			UpdateGhostZH1();
+			Tango_Update1();
+			__classic_zh_do_z2_lantern();
+			Waitdraw();
+			UpdateGhostZH2();
+			Tango_Update2();
+			Waitframe();
+		}
+	}
 }
 
 
@@ -649,7 +682,7 @@ item script MagicBossKey
 {
 	void run()
 	{
-		for ( int q = 0; q < 512; ++q )
+		for ( int q = 0; q < __classic_zh_MAX_ITEMS; ++q )
 		{
 			Game->LItems[q] |= LI_BOSSKEY;
 		}
@@ -661,7 +694,7 @@ item script MagicMap
 {
 	void run()
 	{
-		for ( int q = 0; q < 512; ++q )
+		for ( int q = 0; q < __classic_zh_MAX_ITEMS; ++q )
 		{
 			Game->LItems[q] |= LI_MAP;
 		}
@@ -673,7 +706,7 @@ item script MagicCompass
 {
 	void run()
 	{
-		for ( int q = 0; q < 512; ++q )
+		for ( int q = 0; q < __classic_zh_MAX_ITEMS; ++q )
 		{
 			Game->LItems[q] |= LI_COMPASS;
 		}
