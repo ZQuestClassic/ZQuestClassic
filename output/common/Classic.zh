@@ -1,12 +1,101 @@
 //Classic.zh
 
+//Include Headers
 #include "ffcscript.zh"
 #include "stdExtra.zh"
 #include "ghost.zh"
 #include "tango.zh"
 
-const int __CLASSIC_ZH_VERSION = 2.03; 
+namespace classic_zh
+{
+	//Version Info:
+	const float VERSION 			= 2.10; 
+	const int DATE_DAY 			= 10;
+	const int DATE_MONTH 			= 9;
+	const int DATE_YEAR 			= 2019;
+	const int HOUR				= 9;
+	const int MINUTE			= 25;
+	
+	//System Limits
+	const int MAX_ITEMS			= 512;
+	
+	//Basic Settings
+	
+	//Invisible Combo for FFCs
+	const int CMB_INVISIBLE 		= 1;
+	
+	//Max distance to signpost, in pixels
+	const int SIGNPOST_DIST 		= 16;
+	
+	//Boss Explosion Default Settings
+	const int BOSS_EXPLODE_SPRITE 		= 88;
+	const int BOSS_EXPLODE_DUR 		= 150;
+	const int BOSS_EXPLODE_SFX 		= 61;
+	const int BOSS_EXPLODE_DELAY 		= 16;
+	const int BOSS_EXPLODE_RANDOM_MIN 	= -10;
+	const int BOSS_EXPLODE_RANDOM_MAX 	= 10;
 
+	//Boss Music Default Settings
+	const int TRK_BOSS 			= 25;
+	const int MIDI_VICTORY 			= 1;
+	const int TILE_FIREWORK 		= 10140;
+
+	//Boss Chain Screen->D[] Registers
+	const int REG_BOSS_EXPLODING 		= 1;
+	const int REG_BOSS_DEAD 		= 2;
+	const int REG_BOSS_DROPPED_HEART 	= 3;
+	const int REG_BOSS_DROPPED_TRIFORCE 	= 4;
+
+	//Returns the current version of Classic.zh
+	float getVersion() { return VERSION; }
+	
+	//Functions
+	//Returns the datestamp of the current version of Classic.zh as a compound float in format DDMM.YYYY
+	float getDate() 
+	{
+		int date = MONTH;
+		date += YEAR/10000;
+		date += ( DAY * 100 );
+		return date;
+	}
+	//Returns the timestamp of classic.zh as a compound float in the format of HH.MM
+	float getTime() 
+	{
+		int tm = MINUTE;
+		tm += HOUR*100;
+	}
+	//Returns true if an enemy is a traditional ZC Boss.
+	bool isBoss(npc n)
+	{
+		switch(n->Type)
+		{
+			case NPCT_AQUAMENTUS: return true;
+			case NPCT_MOLDORM: return true;
+			case NPCT_DODONGO: return true;
+			case NPCT_GLEEOK: return true;
+			case NPCT_DIGDOGGER: return true;
+			case NPCT_GOHMA: return true;
+			case NPCT_LANMOLA: return true;
+			case NPCT_MANHANDLA: return true;
+			case NPCT_PATRA: return true;
+			case NPCT_GANON: return true;
+			default: return false;
+		}
+	}
+}
+
+//Global Constants
+
+//Items
+const int I_HALFMAGIC 					= 144;
+const int I_LEARNSLASH 					= 143;
+
+const int I_MAGICBOSSKEY 				= 146;
+const int I_MAGICMAP 					= 147;
+const int I_MAGICCOMPASS 				= 148;
+//Need item consts for AutoLantern and 4_8_Way_Movement items. Set them up in the qst.dat!
+
+//Include Scripts
 #include "npc_scripts/bobomb.zs"
 #include "npc_scripts/daira.zs"
 #include "eweapon_scripts/daira_axe.zs"
@@ -20,41 +109,25 @@ const int __CLASSIC_ZH_VERSION = 2.03;
 #include "lweapon_scripts/firerod.zs"
 #include "lweapon_scripts/mobileBait.zs"
 
-const int I_HALFMAGIC 					= 144;
-const int I_LEARNSLASH 					= 143;
-
-const int I_MAGICBOSSKEY 				= 146;
-const int I_MAGICMAP 					= 147;
-const int I_MAGICCOMPASS 				= 148;
-
-
-const int NPC_DAIRA1 					= 177;
-const int NPC_DAIRA2 					= 178;
-
-const int _classic_zh__BOSS_EXPLODE_SPRITE 		= 88;
-const int _classic_zh__BOSS_EXPLODE_DUR 		= 150;
-const int _classic_zh__BOSS_EXPLODE_SFX 		= 61;
-const int _classic_zh__BOSS_EXPLODE_DELAY 		= 16;
-const int _classic_zh__BOSS_EXPLODE_RANDOM_MIN 		= -10;
-const int _classic_zh__BOSS_EXPLODE_RANDOM_MAX 		= 10;
-
-
-const int _classic_zh__TRK_BOSS 			= 25;
-const int _classic_zh__MIDI_VICTORY 			= 1;
-const int _classic_zh__TILE_FIREWORK 			= 10140;
-
-const int _classic_zh__REG_BOSS_EXPLODING 		= 1;
-const int _classic_zh__REG_BOSS_DEAD 			= 2;
-const int _classic_zh__REG_BOSS_DROPPED_HEART 		= 3;
-const int _classic_zh__REG_BOSS_DROPPED_TRIFORCE 	= 4;
-
-const int CMB_INVISIBLE 				= 1;
-
-item script HalfMagic
+//Scripts
+//Automatically lights dark rooms as a passive item.
+item script Z2_Lantern
 {
 	void run()
 	{
-		Game->Generic[GEN_MAGICDRAINRATE] = 1;
+		while(1)
+		{
+			unless(Screen->Lit) { Screen->Lit = true; } //Is this lighter than just writing Lit = true every frame?
+			Waitframe();
+		}
+	}
+}
+
+item script toggle_4_8_way_movement
+{
+	void run()
+	{
+		Game->FFRules[qr_LTTPWALK] = !Game->FFRules[qr_LTTPWALK];
 	}
 }
 
@@ -78,7 +151,7 @@ item script ItemSound
 {
 	void run(int s)
 	{
-		Game->PlaySound(s);
+		Audio->PlaySound(s);
 	}
 }
 
@@ -86,14 +159,13 @@ ffc script BossMusic
 {
 	void run(int reg, int origtile, int mid, int trk)
 	{
-		this->Data = CMB_INVISIBLE;
-		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DEAD ) Quit(); //Don't play victory music if we return to the screen.
-		if ( origtile < 1 ) origtile = _classic_zh__TILE_FIREWORK;
-		if ( trk < 1 ) trk = _classic_zh__TRK_BOSS;
-		if ( mid < 1 ) mid = _classic_zh__MIDI_VICTORY;
-		int filenm[]="Classic.nsf";
+		this->Data = classic_zh::CMB_INVISIBLE;
+		if ( Screen->D[reg] >= classic_zh::REG_BOSS_DEAD ) Quit(); //Don't play victory music if we return to the screen.
+		origtile = ( origtile > 0 ) ? origtile : classic_zh::TILE_FIREWORK;
+		trk = ( trk > 0 ) ? trk : classic_zh::TRK_BOSS;
+		mid = ( mid > 0 ) ? mid : classic_zh::MIDI_VICTORY;
 		Waitframes(5);
-		Game->PlayEnhancedMusic(filenm,trk);
+		Game->PlayEnhancedMusic("Classic.nsf",trk);
 		while(EnemiesAlive()) Waitframe();
 		//for ( int q = Screen->NumLWeapons(); q > 0; --q ) //the number changes, so we need to refresh...
 		for ( int q = 1; q < Screen->NumLWeapons(); ++q ) 
@@ -105,10 +177,10 @@ ffc script BossMusic
 				
 			}
 		}
-		Game->PlayMIDI(mid);
+		Audio->PlayMIDI(mid);
 		for ( int q = 0; q < 601; ++q ) Waitframe();
 		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
-		Screen->D[reg] = _classic_zh__REG_BOSS_DEAD;
+		Screen->D[reg] = classic_zh::REG_BOSS_DEAD;
 	}
 }
 
@@ -116,20 +188,20 @@ ffc script BossExplode
 {
 	void run(int reg, int spr, int dur, int sfx, int delay, int rmin, int rmax)
 	{
-		this->Data = CMB_INVISIBLE;
+		this->Data = classic_zh::CMB_INVISIBLE;
 		int type;
-		if ( spr < 1 ) spr = _classic_zh__BOSS_EXPLODE_SPRITE;
-		if ( dur < 1 ) dur = _classic_zh__BOSS_EXPLODE_DUR;
-		if ( sfx < 1 ) sfx = _classic_zh__BOSS_EXPLODE_SFX;
-		if ( delay < 1 ) delay = _classic_zh__BOSS_EXPLODE_DELAY;
-		if ( rmin < 1 ) rmin = _classic_zh__BOSS_EXPLODE_RANDOM_MIN;
-		if ( rmax < 1 ) rmax = _classic_zh__BOSS_EXPLODE_RANDOM_MAX;
+		spr = ( spr > 0 ) ? spr : classic_zh::BOSS_EXPLODE_SPRITE;
+		dur = ( dur > 0 ) ? dur : classic_zh::BOSS_EXPLODE_DUR;
+		sfx = ( sfx > 0 ) ? sfx : classic_zh::BOSS_EXPLODE_SFX;
+		delay = ( delay > 0 ) ? delay :  classic_zh::BOSS_EXPLODE_DELAY;
+		rmin = ( min > 0 ) ? rmin : classic_zh::BOSS_EXPLODE_RANDOM_MIN;
+		rmax = ( rmax > 0 ) ? rmax : classic_zh::BOSS_EXPLODE_RANDOM_MAX;
 		Waitframes(5);
 		npc boss; int x; int y; int width; int height; bool alive = true;
 		for ( int q = Screen->NumNPCs(); q > 0; --q )
 		{
 			npc n = Screen->LoadNPC(q);
-			if ( _classic_zh__isBoss(n) ) 
+			if ( classic_zh::isBoss(n) ) 
 			{
 				boss = n; 
 				width = n->TileWidth;
@@ -141,7 +213,7 @@ ffc script BossExplode
 			}
 			
 		}
-		if ( !(boss->isValid()) ) Quit();
+		unless ( (boss->isValid()) ) Quit();
 		while(alive)
 		{
 			while(boss->isValid()) //boss->HP > 0)
@@ -175,11 +247,11 @@ ffc script BossExplode
 			Waitframe();
 		}
 			
-		Screen->D[reg] = _classic_zh__REG_BOSS_EXPLODING;
+		Screen->D[reg] = classic_zh::REG_BOSS_EXPLODING;
 		for ( int q = dur; q > 0; --q )
 		{
 			//do explosions
-			Game->PlaySound(sfx);
+			Audio->PlaySound(sfx);
 			lweapon l = Screen->CreateLWeapon(LW_SPARKLE);
 			l->CollDetection = false;
 			l->UseSprite(spr);
@@ -192,44 +264,26 @@ ffc script BossExplode
 			}
 			Waitframe();
 		}
-		Screen->D[reg] = _classic_zh__REG_BOSS_DEAD;
+		Screen->D[reg] = classic_zh::REG_BOSS_DEAD;
 		Quit();
 		
 	}
 }
 
-bool _classic_zh__isBoss(npc n)
-{
-	if ( n->Type == NPCT_AQUAMENTUS ) return true;
-	if ( n->Type == NPCT_MOLDORM ) return true;
-	if ( n->Type == NPCT_DODONGO ) return true;
-	if ( n->Type == NPCT_GLEEOK ) return true;
-	if ( n->Type == NPCT_DIGDOGGER ) return true;
-	if ( n->Type == NPCT_GOHMA ) return true;
-	if ( n->Type == NPCT_LANMOLA ) return true;
-	if ( n->Type == NPCT_MANHANDLA ) return true;
-	if ( n->Type == NPCT_PATRA ) return true;
-	if ( n->Type == NPCT_GANON ) return true;
-	return false;
-}
-const int _classic_zh__SIGNPOST_DIST = 16;
 ffc script SignPost
 {
 	void run(int m, int max_dist)
 	{
-		this->Data = CMB_INVISIBLE;
-		if ( max_dist < 1 ) max_dist = _classic_zh__SIGNPOST_DIST;
+		this->Data = classic_zh::CMB_INVISIBLE;
+		if ( max_dist < 1 ) max_dist = classic_zh::SIGNPOST_DIST;
 		while(1)
 		{
 			if ( Below(this) )
 			{
-				//Trace(1);
 				if ( Facing(this) )
 				{
-					//Trace(2);
 					if ( DistXY(this, max_dist) )
 					{
-						//Trace(3);
 						if ( Link->PressA || Link->PressB )
 						{
 							Screen->Message(m);
@@ -237,16 +291,6 @@ ffc script SignPost
 					}
 				}
 			}
-			//if ( Link->Y > this->Y + 8 )
-			//{
-			//	if ( Abs(Link->X-this->X) < 8 )
-			//	{
-			//		if ( Link->PressA || Link->PressB )
-			//		{
-			//			Screen->Message(m);
-			//		}
-			//	}
-			//}
 			Waitframe();
 		}
 	}
@@ -279,7 +323,7 @@ ffc script ChangeRoomGuy
 {
 	void run(int t, int cs)
 	{
-		this->Data = CMB_INVISIBLE;
+		this->Data = classic_zh::CMB_INVISIBLE;
 		if ( t < 0 ) Quit();
 		Waitframes(4);
 		for ( int q = Screen->NumNPCs(); q > 0; --q )
@@ -300,7 +344,7 @@ ffc script PermBlockSecrets
 {
 	void run(int reg)
 	{
-		this->Data = CMB_INVISIBLE;
+		this->Data = classic_zh::CMB_INVISIBLE;
 		int cnt;
 		while(1)
 		{
@@ -308,7 +352,7 @@ ffc script PermBlockSecrets
 			{
 				Screen->State[ST_SECRET] = true;
 				Screen->TriggerSecrets();
-				Game->PlaySound(SFX_SECRET);
+				Audio->PlaySound(SFX_SECRET);
 				Quit();
 			}
 			cnt = 0; 
@@ -317,7 +361,7 @@ ffc script PermBlockSecrets
 				if ( Screen->ComboF[q] == CF_BLOCKTRIGGER ) ++cnt;
 				if ( Screen->ComboI[q] == CF_BLOCKTRIGGER ) ++cnt;
 			}
-			if ( !cnt ) 
+			unless ( cnt ) 
 			{
 				Screen->State[ST_SECRET] = true;
 				Screen->D[reg] = 1; 
@@ -336,13 +380,13 @@ ffc script PermBlockShutters
 {
 	void run(int reg)
 	{
-		this->Data = CMB_INVISIBLE;
+		this->Data = classic_zh::CMB_INVISIBLE;
 		int cnt;
 		while(1)
 		{
 			if ( Screen->D[reg] )
 			{
-				Game->PlaySound(SFX_SECRET);
+				Audio->PlaySound(SFX_SECRET);
 				//Screen->Flags[SF_SECRETS] &= ~1;
 				for ( int q = 0; q < 4; ++q )
 				{
@@ -356,7 +400,7 @@ ffc script PermBlockShutters
 				if ( Screen->ComboF[q] == CF_BLOCKTRIGGER ) ++cnt;
 				if ( Screen->ComboI[q] == CF_BLOCKTRIGGER ) ++cnt;
 			}
-			if ( !cnt ) 
+			unless ( cnt ) 
 			{
 				Screen->State[ST_SECRET] = true;
 				Screen->D[reg] = 1; 
@@ -394,9 +438,9 @@ ffc script DropTRIFORCE
 {
 	void run(int reg, int min)
 	{
-		this->Data = CMB_INVISIBLE;
-		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DROPPED_TRIFORCE ) Quit();
-		if ( min < 1 ) min = _classic_zh__REG_BOSS_DROPPED_HEART;
+		this->Data = classic_zh::CMB_INVISIBLE;
+		if ( Screen->D[reg] >= classic_zh::REG_BOSS_DROPPED_TRIFORCE ) Quit();
+		if ( min < 1 ) min = classic_zh::REG_BOSS_DROPPED_HEART;
 		item hc = Screen->CreateItem(I_TRIFORCE);
 		int yy;
 		hc->X = 1; hc->Y = 1; hc->DrawYOffset = -10000; hc->HitYOffset = -10000; hc->Z = 256;
@@ -413,11 +457,11 @@ ffc script DropTRIFORCE
 		{
 			if ( hc->Z > 8 ) ++hc->Z; //Slow its descent. 
 			if ( hc->Z == 0 && hc->Jump < 0.4) Remove(shadow);
-			if ( Collision(hc) ) Screen->D[reg] = _classic_zh__REG_BOSS_DROPPED_TRIFORCE; //If Link touches it. 
+			if ( Collision(hc) ) Screen->D[reg] = classic_zh::REG_BOSS_DROPPED_TRIFORCE; //If Link touches it. 
 			Waitframe();
 			
 		}
-		Screen->D[reg] = _classic_zh__REG_BOSS_DROPPED_TRIFORCE;
+		Screen->D[reg] = classic_zh::REG_BOSS_DROPPED_TRIFORCE;
 	}	
 }
 
@@ -425,9 +469,9 @@ ffc script DropHEARTCONTAINER
 {
 	void run(int reg, int min)
 	{
-		this->Data = CMB_INVISIBLE;
-		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DROPPED_HEART ) Quit();
-		if ( min < 1 ) min = _classic_zh__REG_BOSS_DEAD;
+		this->Data = classic_zh::CMB_INVISIBLE;
+		if ( Screen->D[reg] >= classic_zh::REG_BOSS_DROPPED_HEART ) Quit();
+		if ( min < 1 ) min = classic_zh::REG_BOSS_DEAD;
 		item hc = Screen->CreateItem(I_HEARTCONTAINER);
 		int yy;
 		hc->X = 1; hc->Y = 1; hc->DrawYOffset = -10000; hc->HitYOffset = -10000; hc->Z = 256;
@@ -446,7 +490,7 @@ ffc script DropHEARTCONTAINER
 			if ( hc->Z == 0 && hc->Jump < 0.4) Remove(shadow); 
 			Waitframe();
 		}
-		Screen->D[reg] = _classic_zh__REG_BOSS_DROPPED_HEART;
+		Screen->D[reg] = classic_zh::REG_BOSS_DROPPED_HEART;
 	}	
 }
 
@@ -456,7 +500,7 @@ item script MagicBossKey
 {
 	void run()
 	{
-		for ( int q = 0; q < 512; ++q )
+		for ( int q = 0; q < classic_zh::MAX_ITEMS; ++q )
 		{
 			Game->LItems[q] |= LI_BOSSKEY;
 		}
@@ -468,7 +512,7 @@ item script MagicMap
 {
 	void run()
 	{
-		for ( int q = 0; q < 512; ++q )
+		for ( int q = 0; q < classic_zh::MAX_ITEMS; ++q )
 		{
 			Game->LItems[q] |= LI_MAP;
 		}
@@ -480,7 +524,7 @@ item script MagicCompass
 {
 	void run()
 	{
-		for ( int q = 0; q < 512; ++q )
+		for ( int q = 0; q < classic_zh::MAX_ITEMS; ++q )
 		{
 			Game->LItems[q] |= LI_COMPASS;
 		}
