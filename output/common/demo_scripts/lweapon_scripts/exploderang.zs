@@ -6,7 +6,7 @@ lweapon script exploderang
 {
 	void run(int explosion_damage)
 	{
-		while(this->isValid)
+		while(this->isValid())
 		{
 			for ( int q = Screen->NumNPCs(); q > 0; --q )
 			{
@@ -27,5 +27,6 @@ lweapon script exploderang
 			Waitframe();
 		}
 	}
-}
+}		
+			
 					
