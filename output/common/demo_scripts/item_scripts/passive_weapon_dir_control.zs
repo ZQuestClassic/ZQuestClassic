@@ -1,5 +1,6 @@
 //Script to control the child weapon of an item, mid-flight
 //This is a passive item script and must run as such.
+//v0.1, 16th September, 2019, by ZoriaRPG.
 
 item script passive_weapon_dir_control
 {
