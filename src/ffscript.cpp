@@ -1525,9 +1525,9 @@ public:
         return checkBounds(ID, 0, MAXDMAPS-1, str);
     }
     
-    static INLINE int checkFFCIndex(const long index, const char * const str)
+    static INLINE int checkFFC(const long ffc, const char * const str)
     {
-        return checkBounds(index, 0, 31, str);
+        return checkBounds(ffc, 0, MAXFFCS-1, str);
     }
     
     static INLINE int checkComboPos(const long pos, const char * const str)
@@ -2262,88 +2262,88 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Data") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Data") != SH::_NoError) ret = -10000;
         else ret = tmpscr->ffdata[ri->ffcref]*10000;
         break;
         
     case FFSCRIPT:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Script") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Script") != SH::_NoError) ret = -10000;
         else ret = tmpscr->ffscript[ri->ffcref]*10000;
         break;
         
     case FCSET:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->CSet") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->CSet") != SH::_NoError) ret = -10000;
         else ret = tmpscr->ffcset[ri->ffcref]*10000;
         break;
         
     case DELAY:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Delay") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Delay") != SH::_NoError) ret = -10000;
         else ret = tmpscr->ffdelay[ri->ffcref]*10000;
         break;
         
     case FX:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->X") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->X") != SH::_NoError) ret = -10000;
         else ret = tmpscr->ffx[ri->ffcref];
         break;
         
     case FY:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Y") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Y") != SH::_NoError) ret = -10000;
         else ret = tmpscr->ffy[ri->ffcref];
         break;
         
     case XD:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Vx") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Vx") != SH::_NoError) ret = -10000;
         else ret = tmpscr->ffxdelta[ri->ffcref];
         break;
         
     case YD:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Vy") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Vy") != SH::_NoError) ret = -10000;
         else ret = tmpscr->ffydelta[ri->ffcref];
         break;
         
     case XD2:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Ax") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Ax") != SH::_NoError) ret = -10000;
         else ret = tmpscr->ffxdelta2[ri->ffcref];
         break;
         
     case YD2:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Ay") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Ay") != SH::_NoError) ret = -10000;
         else ret = tmpscr->ffydelta2[ri->ffcref];
         break;
         
     case FFFLAGSD:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Flags") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Flags") != SH::_NoError) ret = -10000;
         else ret=((tmpscr->ffflags[ri->ffcref] >> (ri->d[0] / 10000))&1) ? 10000 : 0;
         break;
         
     case FFCWIDTH:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->EffectWidth") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") != SH::_NoError) ret = -10000;
         else ret=((tmpscr->ffwidth[ri->ffcref]&0x3F)+1)*10000;
         break;
         
     case FFCHEIGHT:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->EffectHeight") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") != SH::_NoError) ret = -10000;
         else ret=((tmpscr->ffheight[ri->ffcref]&0x3F)+1)*10000;
         break;
         
     case FFTWIDTH:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->TileWidth") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") != SH::_NoError) ret = -10000;
         else ret=((tmpscr->ffwidth[ri->ffcref]>>6)+1)*10000;
         break;
         
     case FFTHEIGHT:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->EffectHeight") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") != SH::_NoError) ret = -10000;
         else ret=((tmpscr->ffheight[ri->ffcref]>>6)+1)*10000;
         break;
         
     case FFLINK:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Link") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Link") != SH::_NoError) ret = -10000;
         else ret=(tmpscr->fflink[ri->ffcref])*10000;
         break;
         
     case FFMISCD:
     {
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Misc") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Misc") != SH::_NoError) ret = -10000;
 	else
 	{
 		int a = ri->d[0] / 10000;
@@ -2358,7 +2358,7 @@ long get_register(const long arg)
     
     case FFINITDD:
     {
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->InitD") != SH::_NoError) ret = -10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->InitD") != SH::_NoError) ret = -10000;
         else
 	{
 		int a = ri->d[0] / 10000;
@@ -4171,12 +4171,12 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Data") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Data") != SH::_NoError) break;
         tmpscr->ffdata[ri->ffcref] = vbound(value/10000,0,MAXCOMBOS-1);
         break;
         
     case FFSCRIPT:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Script") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Script") != SH::_NoError) break;
         for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
         {
             if(arrayOwner[i]==ri->ffcref)
@@ -4199,86 +4199,86 @@ void set_register(const long arg, const long value)
         break;
         
     case FCSET:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->CSet") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->CSet") != SH::_NoError) break;
         tmpscr->ffcset[ri->ffcref] = (value/10000)&15;
         break;
         
     case DELAY:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Delay") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Delay") != SH::_NoError) break;
         tmpscr->ffdelay[ri->ffcref] = value/10000;
         break;
         
     case FX:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->X") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->X") != SH::_NoError) break;
         tmpscr->ffx[ri->ffcref] = value;
         break;
         
     case FY:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Y") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Y") != SH::_NoError) break;
         tmpscr->ffy[ri->ffcref]=value;
         break;
         
     case XD:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Vx") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Vx") != SH::_NoError) break;
         tmpscr->ffxdelta[ri->ffcref]=value;
         break;
         
     case YD:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Vy") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Vy") != SH::_NoError) break;
         tmpscr->ffydelta[ri->ffcref]=value;
         break;
         
     case XD2:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Ax") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Ax") != SH::_NoError) break;
         tmpscr->ffxdelta2[ri->ffcref]=value;
         break;
         
     case YD2:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Ay") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Ay") != SH::_NoError) break;
         tmpscr->ffydelta2[ri->ffcref]=value;
         break;
         
     case FFFLAGSD:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Flags") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Flags") != SH::_NoError) break;
         value ? tmpscr->ffflags[ri->ffcref] |=   1<<((ri->d[0])/10000)
                 : tmpscr->ffflags[ri->ffcref] &= ~(1<<((ri->d[0])/10000));
         break;
         
     case FFCWIDTH:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->EffectWidth") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") != SH::_NoError) break;
         tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
         break;
         
     case FFCHEIGHT:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->EffectHeight") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") != SH::_NoError) break;
         tmpscr->ffheight[ri->ffcref]= (tmpscr->ffheight[ri->ffcref] & ~63) | (((value/10000)-1)&63);
         break;
         
     case FFTWIDTH:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->TileWidth") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") != SH::_NoError) break;
         tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
         break;
         
     case FFTHEIGHT:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->TileHeight") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") != SH::_NoError) break;
         tmpscr->ffheight[ri->ffcref]=(tmpscr->ffheight[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
         break;
         
     case FFLINK:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Link") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Link") != SH::_NoError) break;
         (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 0, 32); //Needs to be 0 to be able to clear it. 
         break;
         
     case FFMISCD:
     {
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->Misc[]") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->Misc[]") != SH::_NoError) break;
         int a = vbound(ri->d[0]/10000,0,15);
         ffmisc[ri->ffcref][a]=value;
         break;
     }
     
     case FFINITDD:
-	if(BC::checkFFCIndex(ri->ffcref, "ffc->InitD[]") != SH::_NoError) break;
+	if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") != SH::_NoError) break;
         (tmpscr->initd[ri->ffcref][vbound(ri->d[0]/10000,0,7)])=value;
         break;
         
