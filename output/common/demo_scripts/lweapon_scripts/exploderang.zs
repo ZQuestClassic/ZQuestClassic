@@ -1,3 +1,7 @@
+//Boomerang Explodes on contact with enemy.
+//v0.1, 16th September, 2019 by ZoriaRPG
+//Do: Damage value for explosion. Defaults to damage power of boomerang + 2.
+
 lweapon script exploderang
 {
 	void run(int explosion_damage)
@@ -15,7 +19,7 @@ lweapon script exploderang
 					boom->Y = this->Y;
 					boom Dir = this->Dir;
 					boom->Step = 0;
-					boom->Damage = ( explosion_damage > 0 ) ? explosion_damage : this->Power;
+					boom->Damage = ( explosion_damage > 0 ) ? explosion_damage : (this->Power + 2);
 					this->DeadState = WDS_DEAD;
 					Remove(this);
 				}
