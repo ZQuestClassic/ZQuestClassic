@@ -1,5 +1,5 @@
 //std_functions.zh
-//1st April, 2019 for ZC 2.53.0
+//16th September, 2019 for ZC 2.53.0 R3
 
 //A
 
@@ -2817,9 +2817,9 @@ int WeaponTypeToID(int wpnt)
 	else if(wpnt == WPN_ENEMYROCK)		return EW_ROCK;
 	else if(wpnt == WPN_ENEMYMAGIC)		return EW_MAGIC;
 	else if(wpnt == WPN_ENEMYBOMB)		return EW_BOMBBLAST; //flipped bomb and lit bomb in older versions of this file. -Z ( 12th February, 2019 )
-	else if(wpnt == WPN_ENEMYSBOMB)		return EW_SBOMB;
+	else if(wpnt == WPN_ENEMYSBOMB)		return EW_SBOMBBLAST;
 	else if(wpnt == WPN_ENEMYLITBOMB)	return EW_BOMB;
-	else if(wpnt == WPN_ENEMYLITSBOMB)	return EW_SBOMBBLAST;
+	else if(wpnt == WPN_ENEMYLITSBOMB)	return EW_SBOMB;
 	else if(wpnt == WPN_ENEMYFIRETRAIL)	return EW_FIRETRAIL;
 	else if(wpnt == WPN_ENEMYFLAME2)	return EW_FIRE2;
 	else if(wpnt == WPN_ENEMYFIREBALL2)	return EW_FIREBALL2;
