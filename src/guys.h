@@ -100,6 +100,7 @@ public:
     word weaponscript;
     long weap_initiald[8];
     long weap_initiala[2];
+    byte stickclk;
    
     long dialogue_str; //WIll be set in spawn flags. 
     long editorflags; //Enemy editor flags 1 to 16
@@ -143,12 +144,15 @@ public:
     
      // returns true if next step is ok, false if there is something there
     bool canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2);
+    bool canmove_old(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2);
     bool canmove(int ndir,fix s,int special);
     bool canmove(int ndir,int special);
     bool canmove(int ndir);
     bool enemycanfall(int id);
     // 8-directional
+    void newdir_8_old(int rate,int homing, int special,int dx1,int dy1,int dx2,int dy2);
     void newdir_8(int rate,int homing, int special,int dx1,int dy1,int dx2,int dy2);
+    void newdir_8_old(int rate,int homing, int special);
     void newdir_8(int rate,int homing, int special);
     // makes the enemy slide backwards when hit
     // sclk: first byte is clk, second byte is dir
@@ -175,6 +179,7 @@ public:
     // pauses for a while after it makes a complete move (to a new square)
     void halting_walk(int rate,int homing,int special,int hrate, int haltcnt);
     // 8-directional movement, aligns to 8 pixels
+    void constant_walk_8_old(int rate,int homing,int special);
     void constant_walk_8(int rate,int homing,int special);
     // 8-directional movement, halting
     void halting_walk_8(int newrate,int newhoming, int newclk,int special,int newhrate, int haltcnt);

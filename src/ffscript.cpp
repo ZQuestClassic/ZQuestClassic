@@ -25945,6 +25945,11 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 			p_igetl(&sram_version,f,true);
 			p_igetl(&section_id,f,true);
 			Z_scripterrlog("Reading ZCSRAM, Version: %d\n", sram_version);
+			if ( sram_version > SRAM_VERSION ) //file version is greater than programme current version.
+			{
+				Z_scripterrlog("SRAM Version is from a version of ZC newer than the running version and cannot be loaded.\n");
+				return;
+			}
 			if ( section_id != temp_sram_flags )
 			{
 				Z_scripterrlog("Reading an SRAM file with a section flag mismatch!\nThe file section flags are (%d) and the specified flagset is (%d).\nThis may cause errors!\n", section_id, temp_sram_flags);
