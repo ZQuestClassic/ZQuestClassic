@@ -172,6 +172,10 @@ bool show_sprites=true;
 bool show_hitboxes = false;
 
 byte compile_tune = 0;
+word compile_success_sample = 0;
+word compile_error_sample = 0;
+word compile_finish_sample = 0;
+word compile_audio_volume = 0;
 
 // Used to find FFC script names
 extern std::map<int, pair<string,string> > ffcmap;
@@ -21346,26 +21350,30 @@ int onCompileScript()
 				case 19: playTune12(); break;
 				default: 
 				{
+					compile_success_sample = get_config_int("Compiler","compile_success_sample",20);
+					compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
 					if(sfxdat)
-					sfx_voice[28]=allocate_voice((SAMPLE*)sfxdata[20].dat);
-					else sfx_voice[28]=allocate_voice(&customsfxdata[20]);
-					voice_set_volume(sfx_voice[20], 255);
-					voice_start(sfx_voice[20]);
+					sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+					else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
+					voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
+					voice_start(sfx_voice[compile_success_sample]);
 					break;
 				}
 			}
 	    }
 	    else
 	    {
-		al_trace("Error, play err sfx.\n");
+		//al_trace("Error, play err sfx.\n");
+		    compile_error_sample = get_config_int("Compiler","compile_error_sample",20);
+		    compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
 		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 		    if(sfxdat)
-		    sfx_voice[28]=allocate_voice((SAMPLE*)sfxdata[28].dat);
-		    else sfx_voice[28]=allocate_voice(&customsfxdata[28]);
-		    voice_set_volume(sfx_voice[28], 255);
+		    sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+		    else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
+		    voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
 		//set_volume(255,-1);
 		//kill_sfx();
-		    voice_start(sfx_voice[28]);
+		    voice_start(sfx_voice[compile_error_sample]);
 		//sfx(28, 128, false,true);  
 		    
 	    }
@@ -22040,13 +22048,15 @@ int onCompileScript()
                     unlink("tmp");
 		  
 		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
+		    compile_finish_sample = get_config_int("Compiler","compile_finish_sample",34);
+		    compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
 		    if(sfxdat)
-		    sfx_voice[28]=allocate_voice((SAMPLE*)sfxdata[34].dat);
-		    else sfx_voice[28]=allocate_voice(&customsfxdata[34]);
-		    voice_set_volume(sfx_voice[34], 255);
+		    sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
+		    else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
+		    voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
 		//set_volume(255,-1);
 		//kill_sfx();
-		    voice_start(sfx_voice[28]);
+		    voice_start(sfx_voice[compile_finish_sample]);
                     jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
                     build_biffs_list();
                     build_biitems_list();
