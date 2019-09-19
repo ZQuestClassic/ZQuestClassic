@@ -190,6 +190,8 @@ extern int SnapshotFormat;
 extern int memrequested;
 extern byte Color;
 
+extern byte compile_tune;
+
 extern ZCMUSIC *zcmusic;
 extern volatile int myvsync;
 extern BITMAP *hw_screen;
