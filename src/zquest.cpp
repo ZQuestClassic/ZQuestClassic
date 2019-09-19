@@ -172,10 +172,10 @@ bool show_sprites=true;
 bool show_hitboxes = false;
 
 byte compile_tune = 0;
-word compile_success_sample = 0;
-word compile_error_sample = 0;
-word compile_finish_sample = 0;
-word compile_audio_volume = 0;
+byte compile_success_sample = 0;
+byte compile_error_sample = 0;
+byte compile_finish_sample = 0;
+byte compile_audio_volume = 0;
 
 // Used to find FFC script names
 extern std::map<int, pair<string,string> > ffcmap;
