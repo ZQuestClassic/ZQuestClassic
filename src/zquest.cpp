@@ -21380,6 +21380,16 @@ int onCompileScript()
 	    
 	    
             box_end(true);
+	    if(sfx_voice[compile_success_sample]!=-1)
+	    {
+		deallocate_voice(sfx_voice[compile_success_sample]);
+		sfx_voice[compile_success_sample]=-1;
+	    }
+	    if(sfx_voice[compile_error_sample]!=-1)
+	    {
+		deallocate_voice(sfx_voice[compile_error_sample]);
+		sfx_voice[compile_error_sample]=-1;
+	    }
             refresh(rALL);
 	    if ( compile_tune ) stopMusic();
             
@@ -22058,6 +22068,11 @@ int onCompileScript()
 		//kill_sfx();
 		    voice_start(sfx_voice[compile_finish_sample]);
                     jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		    if(sfx_voice[compile_finish_sample]!=-1)
+		    {
+			deallocate_voice(sfx_voice[compile_finish_sample]);
+			sfx_voice[compile_finish_sample]=-1;
+		    }
                     build_biffs_list();
                     build_biitems_list();
                     
