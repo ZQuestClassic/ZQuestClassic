@@ -171,6 +171,12 @@ bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
 
+byte compile_tune = 0;
+byte compile_success_sample = 0;
+byte compile_error_sample = 0;
+byte compile_finish_sample = 0;
+byte compile_audio_volume = 0;
+
 // Used to find FFC script names
 extern std::map<int, pair<string,string> > ffcmap;
 std::vector<string> asffcscripts;
@@ -21310,8 +21316,82 @@ int onCompileScript()
             gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
             ZScript::ScriptsData *result = ZScript::compile("tmp");
             unlink("tmp");
+	    if ( result )
+	    {
+		compile_tune = get_config_int("Compiler","Compile_Success_Tune",0);
+		//al_trace("Succ, play compiled sfx.\n");
+		//set_volume(255,255);
+		//al_trace("success sfx is: %s \n", sfx_init(20) ? "valid" : "invalid");
+		//kill_sfx(); //crashes
+		//sfx(20, 128, false,true);//has no volume   
+		//try_zcmusic("compile_success.smc", track, -1000);
+		//if ( (unsigned)compile_tune < 19 ) 
+		//{
+			switch(compile_tune)
+			{
+				case 1: playTune1(); break;
+				case 2: playTune2(); break;
+				case 3: playTune3(); break;
+				case 4: playTune4(); break;
+				case 5: playTune5(); break;
+				case 6: playTune6(); break;
+				case 7: playTune7(); break;
+				case 8: playTune8(); break;
+				case 9: playTune9(); break;
+				case 10: playTune10(); break;
+				case 11: playTune11(); break;
+				case 12: playTune12(); break;
+				case 13: playTune13(); break;
+				case 14: playTune14(); break;
+				case 15: playTune15(); break;
+				case 16: playTune16(); break;
+				case 17: playTune17(); break;
+				case 18: playTune18(); break;
+				case 19: playTune12(); break;
+				default: 
+				{
+					compile_success_sample = get_config_int("Compiler","compile_success_sample",20);
+					compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
+					if(sfxdat)
+					sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+					else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
+					voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
+					voice_start(sfx_voice[compile_success_sample]);
+					break;
+				}
+			}
+	    }
+	    else
+	    {
+		//al_trace("Error, play err sfx.\n");
+		    compile_error_sample = get_config_int("Compiler","compile_error_sample",20);
+		    compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
+		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
+		    if(sfxdat)
+		    sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+		    else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
+		    voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
+		//set_volume(255,-1);
+		//kill_sfx();
+		    voice_start(sfx_voice[compile_error_sample]);
+		//sfx(28, 128, false,true);  
+		    
+	    }
+	    
+	    
             box_end(true);
+	    if(sfx_voice[compile_success_sample]!=-1)
+	    {
+		deallocate_voice(sfx_voice[compile_success_sample]);
+		sfx_voice[compile_success_sample]=-1;
+	    }
+	    if(sfx_voice[compile_error_sample]!=-1)
+	    {
+		deallocate_voice(sfx_voice[compile_error_sample]);
+		sfx_voice[compile_error_sample]=-1;
+	    }
             refresh(rALL);
+	    if ( compile_tune ) stopMusic();
             
             if(result == NULL)
             {
@@ -21976,7 +22056,23 @@ int onCompileScript()
                         }
                     }
                     unlink("tmp");
+		  
+		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
+		    compile_finish_sample = get_config_int("Compiler","compile_finish_sample",34);
+		    compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
+		    if(sfxdat)
+		    sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
+		    else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
+		    voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
+		//set_volume(255,-1);
+		//kill_sfx();
+		    voice_start(sfx_voice[compile_finish_sample]);
                     jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		    if(sfx_voice[compile_finish_sample]!=-1)
+		    {
+			deallocate_voice(sfx_voice[compile_finish_sample]);
+			sfx_voice[compile_finish_sample]=-1;
+		    }
                     build_biffs_list();
                     build_biitems_list();
                     
@@ -26923,6 +27019,7 @@ int save_config_file()
 	set_config_string("ZCMODULE","current_module",moduledata.module_name);
 	set_config_string("Compiler","include_path",FFCore.includePathString);
 	set_config_string("Compiler","run_string",FFCore.scriptRunString);
+	//set_config_int("Compiler","Compile_Success_Tune",compile_tune); //Can't save here until we assign this in a dialogue. Otherwise, quitting will write it 0.
 	
     set_config_string("zquest",data_path_name,datapath2);
     set_config_string("zquest",midi_path_name,midipath2);

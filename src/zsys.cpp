@@ -1209,6 +1209,10 @@ void box_end(bool pause)
     {
         if(pause)
         {
+	    //set_volume(255,-1);
+	    //kill_sfx();
+	    //sfx(20,128, false,true);
+	
             box_eol();
             box_out("-- press a key --");
             
