@@ -1,5 +1,5 @@
 // std_constants.zh for ZC v2.53.0 and later.
-// 1st April, 2019
+// 21st September, 2019
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -1918,6 +1918,23 @@ const int SIDEWARP_A		= 0;
 const int SIDEWARP_B		= 1;
 const int SIDEWARP_C		= 2;
 const int SIDEWARP_D		= 3;
+
+
+//Combo Quadrants used for Combo Solidity and CSet2vMasks
+const int CMB_QUADRANT_UL 	= 0001b;
+const int CMB_QUADRANT_UR 	= 0100b;
+const int CMB_QUADRANT_DL 	= 0010b;
+const int CMB_QUADRANT_DR 	= 1000b;
+
+const int CMB_QUADRANT_UPLEFT 	= 0001b;
+const int CMB_QUADRANT_UPRIGHT 	= 0100b;
+const int CMB_QUADRANT_DOWNLEFT = 0010b;
+const int CMB_QUADRANT_DOWNRIGHT = 1000b;
+
+const int CMB_QUADRANT_LEFTUP 	= 0001b;
+const int CMB_QUADRANT_RIGHTUP 	= 0100b;
+const int CMB_QUADRANT_LEFTDOWN = 0010b;
+const int CMB_QUADRANT_RIGHTDOWN = 1000b;
 
 //Default Weapon Step Speeds
 //const int STEP_
