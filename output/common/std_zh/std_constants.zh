@@ -1,5 +1,5 @@
 // std_constants.zh
-// 9th September, 2019 for ZC 2.55 Alpha 32
+// 21st September, 2019 for ZC 2.55 Alpha 32
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -2399,6 +2399,22 @@ const int VOL_MIDI 	= 0;
 const int VOL_DIGI	= 1;
 const int VOL_MUSIC	= 2;
 const int VOL_SFX	= 3;
+
+//Combo Quadrants used for Combo Solidity and CSet2vMasks
+const int CMB_QUADRANT_UL 	= 0001b;
+const int CMB_QUADRANT_UR 	= 0100b;
+const int CMB_QUADRANT_DL 	= 0010b;
+const int CMB_QUADRANT_DR 	= 1000b;
+
+const int CMB_QUADRANT_UPLEFT 	= 0001b;
+const int CMB_QUADRANT_UPRIGHT 	= 0100b;
+const int CMB_QUADRANT_DOWNLEFT = 0010b;
+const int CMB_QUADRANT_DOWNRIGHT = 1000b;
+
+const int CMB_QUADRANT_LEFTUP 	= 0001b;
+const int CMB_QUADRANT_RIGHTUP 	= 0100b;
+const int CMB_QUADRANT_LEFTDOWN = 0010b;
+const int CMB_QUADRANT_RIGHTDOWN = 1000b;
 
 //Input->
 /* Defined earlier.
