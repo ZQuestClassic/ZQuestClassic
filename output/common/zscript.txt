@@ -1,5 +1,5 @@
 //Docs for 2.53.0
-//Rev. 0.7.3.4; 20th January, 2018
+//Rev. 0.7.4; 22nd September, 2019
 
 Search for !#! to find areas that require completion. 
 
@@ -2797,6 +2797,19 @@ void DrawString( 	int layer, int x, int y,
 	* Sets the target bitmap for all succesive drawing commands.
 	* These can be directly to the screen or any one of the available off-screen bitmaps,
 	* which are generally categorized as -1(screen) or 0-bitmapNumber(off-screen).
+	*
+	*	(!) See std.zh for a complete list of valid render targets (RT_*).
+	*/ Example Use: !#!
+	
+	/************************************************************************************************************/
+	
+	int GetRenderTarget();
+					
+					ZASM Instruction: 
+					GETRENDERTARGET
+
+	/**
+	* Returns the ID of the current Screen Render Target
 	*
 	*	(!) See std.zh for a complete list of valid render targets (RT_*).
 	*/ Example Use: !#!
