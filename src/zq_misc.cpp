@@ -1379,11 +1379,11 @@ int onAbout()
     {
 #if IS_BETA
         {
-            sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",VerStr(ABOUT_VERSION), VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",VerStr(ZELDA_VERSION), VERSION_BUILD);
         }
 #else
         {
-            sprintf(buf1,"ZQuest %s Build %d - DEBUG",VerStr(ABOUT_VERSION), VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Build %d - DEBUG",VerStr(ZELDA_VERSION), VERSION_BUILD);
         }
 #endif
         sprintf(buf2,"ZQuest Editor: %04X",INTERNAL_VERSION);
@@ -1394,27 +1394,52 @@ int onAbout()
     {
         switch(IS_BETA)
         {
-        case -1:
-            sprintf(buf2,"(%s Alpha Build %d)",VerStr(ABOUT_VERSION), VERSION_BUILD);
-            break;
+		case -1:
+		{
+			sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf3,"Build Date: %s",DATE_STR);
+			break;
+		}
             
-        case 1:
-            sprintf(buf2,"(%s Beta Build %d)",VerStr(ABOUT_VERSION), VERSION_BUILD);
-            break;
-            
-        case 0:
-        default:
-            sprintf(buf2,"(%s Build %d)",VerStr(ABOUT_VERSION), VERSION_BUILD);
-            break;
+		case 1:
+		{
+			sprintf(buf2,"%s Beta Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+			break;
+		}
+		
+		case 0:
+		{
+		    sprintf(buf2,"%s Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+		    sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+		    break;
+		}
+		default:
+		{
+		    if ( IS_BETA > 0 )
+		    {
+			sprintf(buf2,"%s Beta Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+		    }
+		    else
+		    {
+			sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+		    }
+		    break;
+		}
+		
         }
         
         sprintf(buf1,"ZQuest " ZELDA_VERSION_STR);
-        sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
-        jwin_alert("About ZQuest",buf1,buf2,buf3,"OK", NULL, 13, 27, lfont);
+        
+        jwin_alert("About ZQuest Editor",buf1,buf2,buf3,"OK", NULL, 13, 27, lfont);
     }
     
     return D_O_K;
 }
+
+
 
 int onShowWalkability()
 {
