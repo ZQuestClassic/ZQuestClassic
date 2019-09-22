@@ -50,6 +50,8 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
+extern FFScript FFCore;
+extern CConsoleLoggerEx zscript_coloured_console;
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -237,6 +239,8 @@ bool blank_tile_table[NEWMAXTILES];                         //keeps track of bla
 bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of blank tiles
 */
 bool ewind_restart=false;
+
+byte zscript_debugger = 0;
 
 word     msgclk, msgstr,
          msgpos,	// screen position of the next character.
@@ -745,18 +749,35 @@ void Z_scripterrlog(const char * const format,...)
     if(get_bit(quest_rules,qr_SCRIPTERRLOG))
     {
         switch(curScriptType)
+        switch(curScriptType)
         {
-        case SCRIPT_GLOBAL:
-            al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
-            break;
-            
-        case SCRIPT_FFC:
-            al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
-            break;
-            
-        case SCRIPT_ITEM:
-            al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
-            break;
+		case SCRIPT_GLOBAL:
+		    al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
+			#ifdef _WIN32
+			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
+				curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
+			#endif
+		    break;
+		    
+		case SCRIPT_FFC:
+		    al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
+		    
+			#ifdef _WIN32
+			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
+			#endif
+		break;
+		    
+		case SCRIPT_ITEM:
+		    al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+			#ifdef _WIN32
+			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+			#endif
+		break;
+        
+	
         }
         
         char buf[2048];
@@ -767,8 +788,17 @@ void Z_scripterrlog(const char * const format,...)
         va_end(ap);
         al_trace("%s",buf);
         
-        if(zconsole)
+	if(zconsole)
+	{
             printf("%s",buf);
+	}
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#endif
+	}
     }
 }
 
@@ -3022,6 +3052,10 @@ int main(int argc, char* argv[])
     {
         DebugConsole::Open();
         zconsole = true;
+    }
+    if ( zscript_debugger )
+    {
+	FFCore.ZScriptConsole(true);
     }
     
 #endif

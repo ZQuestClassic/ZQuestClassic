@@ -17,6 +17,18 @@ void clear_global_stack();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
+
+class FFScript
+{
+	
+    
+	public:
+		void ZScriptConsole(bool open);
+		void ZScriptConsolePrint(int colourformat, const char * const format,...);
+
+	private:
+};
+
 struct script_command
 {
     char name[16];
