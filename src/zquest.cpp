@@ -1002,6 +1002,23 @@ int onToggleShowInfo()
     return D_O_K;
 }
 
+void onSKey()
+{
+	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	{
+
+		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+		{
+			onSaveAs();
+		}
+		else
+		{
+			onSave();
+		}
+	}
+	else onString();
+}
+
 static DIALOG dialogs[] =
 {
     // still unused:  jm
@@ -1055,7 +1072,7 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_P,          0, (void *) onGotoPage, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Q,          0, (void *) onShowComboInfoCSet, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_R,          0, (void *) onRType, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_S,          0, (void *) onString, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_S,          0, (void *) onSKey, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_T,          0, (void *) onTiles, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_U,          0, (void *) onUndo, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_V,          0, (void *) onPaste, NULL, NULL },
@@ -23586,8 +23603,21 @@ void dopreview()
                     break;
                     
                 case KEY_S:
-                    onString();
-                    break;
+		{
+			//if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			//{
+	
+			//	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+			//	{
+			//		onSaveAs();
+			//	}
+			//	else
+			//	{
+			//		onSave();
+			//	}
+			//}
+			/*else*/ onString();
+			break;
                     
                     /*
                               case KEY_E:
@@ -23595,6 +23625,7 @@ void dopreview()
                                 refresh(rALL);
                                 break;
                     */
+		}
                 case KEY_C:
                     onCopy();
                     break;
