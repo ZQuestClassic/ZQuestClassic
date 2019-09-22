@@ -1244,7 +1244,7 @@ script_command command_list[NUMCOMMANDS+1]=
 };
 
 
-static void print_disassembly(const word scommand)
+void print_disassembly(const word scommand)
 {
     script_command s_c = command_list[scommand];
     
