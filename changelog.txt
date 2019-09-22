@@ -1,8 +1,61 @@
 ChangeLog for 2.53.0 
 
 //Release 3
+
+Fix: make print_dissassembly non-static for g++.
+	g++ doesn't like it as a static function. When I last
+		built ZC on Linux, i had to make this change.
+Added hotkeys for Save and 'Save As':
+	Control+S : Save
+	Control+Shift+S: Save As
+	S: onString (edit screen string) -- this is unchanged from the perspective 
+		of the user, although the code to run it is now different.
+Fix: Duplicate function definition for ffc bounding.
+	( ZoriaRPG, 22nd September, 2019 )
+	
+std: Added CMB_QUADRANT_* constants for combo solidity/CSet2 mask bits.
+	( Moosh, ZoriaRPG, 21st September 2019 )
+
+std.zh v1.5001
+	Fixed WeaponTypeToID() -- Moosh pointed out a transposition in this function.
+	Added nstants for version year, month, day, hour, and minute.
+	Added functions: __stdzh_getVersionDate(), __stdzh_getVersionTime().
+Rename BC::checkFFCIndex to bc::checkFFC to match 2.55.
+Add bounds check to all FFC getter/setter instructions in ZScript.
+	( ZoriaRPG, 16th September, 2019 )
+
+std: Fixed Superbombs in WeaponTypeToID() 
+	Flipped Superbomb Blast and Unexploded Weapon in WeaponTypeToID.
+	( Moosh, ZoriaRPG, 16th September, 2019 )
+	
+npc->Attributes[] is  now read/write, and correctly sized
+	to 15 total values (index 0 through index 14).
+	( ZoriaRPG, 15th September, 2019 )
+	
+Classic.zh: Added Passive Z2 Lantern Package Collect Script
+Updated Classic.zh for Release 3.
+	Added Z2 Lantern to global active script.
+	Added version information (may need adjustment. I padded this out to 1.06.)
+	Added date and time file information.
+	Added some constants, and used them.
+	( ZoriaRPG, 14th September, 2019 )
+	
 Added int GetRenderTarget()
 	( ZoriaRPG, 29th August, 2019 )
+	
+Fix: Hardcoded black in ZQ UI
+	"Preview Text", from pressing "X"
+	Small mode bottom-panel text
+	( Venrob, 23rd August, 2019 )
+	
+Fix: Allow setting doors and templates on higher MAPSCRs
+	This fix should allow setting doors and other templates on
+	MAPSCRs up to 0x87.
+	( ZoriaRPG, 1st July, 2019 )
+	
+Fixed array size for ffc->Flags[2], to [11].
+	( ZoriaRPG, 21st June, 2019 )
+	
 Added epilepsyFlashReductionto bomb palette flashes.
 Added an Epilepsy Flash Protection option to the Settings menu,
 	and to zc.cfg.
