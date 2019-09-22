@@ -29,6 +29,11 @@ FFScript FFCore;
 extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 
+using std::string;
+using std::pair;
+extern std::map<int, pair<string,string> > ffcmap;
+extern std::map<int, pair<string,string> > globalmap;
+extern std::map<int, pair<string, string> > itemmap;
 
 #ifdef _FFDEBUG
 //#include "ffdebug.h"
@@ -8002,6 +8007,41 @@ void do_set_dmap_enh_music(const bool v)
 ///----------------------------------------------------------------------------------------------------//
 //Tracing
 
+void TraceScriptIDs()
+{
+	switch(curScriptType)
+	{
+		case SCRIPT_GLOBAL:
+		    al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
+			#ifdef _WIN32
+			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): ", 
+				curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
+			#endif
+		    break;
+		    
+		case SCRIPT_FFC:
+		    al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
+		    
+			#ifdef _WIN32
+			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
+			#endif
+		break;
+		    
+		case SCRIPT_ITEM:
+		    al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+			#ifdef _WIN32
+			if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+			#endif
+		break;
+		
+	}
+}
+
+
+
 void do_trace(bool v)
 {
     long temp = SH::get_arg(sarg1, v);
@@ -8010,20 +8050,35 @@ void do_trace(bool v)
     sprintf(tmp, (temp < 0 ? "%06ld" : "%05ld"), temp);
     string s2(tmp);
     s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
+    TraceScriptIDs();
     al_trace("%s\n", s2.c_str());
     
     if(zconsole)
         printf("%s\n", s2.c_str());
+    if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
+		#endif
+	}
 }
 
 void do_tracebool(const bool v)
 {
     long temp = SH::get_arg(sarg1, v);
-    
+    TraceScriptIDs();
     al_trace("%s\n", temp ? "true": "false");
     
     if(zconsole)
         printf("%s\n", temp ? "true": "false");
+    if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", temp ? "true": "false");
+		#endif
+	}
 }
 
 void do_tracestring()
@@ -8031,10 +8086,19 @@ void do_tracestring()
     long arrayptr = get_register(sarg1) / 10000;
     string str;
     ArrayH::getString(arrayptr, str, 512);
+    TraceScriptIDs();
     al_trace("%s", str.c_str());
     
     if(zconsole)
         printf("%s", str.c_str());
+    if ( zscript_debugger ) 
+    {
+	#ifdef _WIN32
+	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", str.c_str());
+
+	#endif
+    }
 }
 
 void do_tracenl()
@@ -8043,6 +8107,13 @@ void do_tracenl()
     
     if(zconsole)
         printf("\n");
+    if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
+		#endif
+	}
 }
 
 void do_cleartrace()
@@ -8103,11 +8174,17 @@ void do_tracetobase()
         s2 += ss.str();
         break;
     }
-    
+    TraceScriptIDs();
     al_trace("%s\n", s2.c_str());
     
     if(zconsole)
         printf("%s\n", s2.c_str());
+    {
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
+		#endif
+	}
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -9450,9 +9527,6 @@ void FFScript::ZScriptConsole(bool open)
 		zscript_coloured_console.gotoxy(0,0);
 		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZScript Debug Console\n");
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
-		//coloured_console.SetAsDefaultOutput();
 		zscript_debugger = 1;
 	}
 	else

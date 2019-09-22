@@ -50,6 +50,7 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
+#include "ConsoleLogger.h"
 extern FFScript FFCore;
 extern CConsoleLoggerEx zscript_coloured_console;
 #include "init.h"
@@ -240,7 +241,6 @@ bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of bla
 */
 bool ewind_restart=false;
 
-byte zscript_debugger = 0;
 
 word     msgclk, msgstr,
          msgpos,	// screen position of the next character.
@@ -287,7 +287,7 @@ int fullscreen;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte disable_triplebuffer=0,can_triplebuffer_in_windowed_mode=0;
 byte zc_color_depth=8;
-byte use_debug_console=0, use_win32_proc=1; //windows-build configs
+byte use_debug_console=0, use_win32_proc=1, zscript_debugger = 0; //windows-build configs
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
@@ -734,6 +734,11 @@ void Z_eventlog(const char *format,...)
         
         if(zconsole)
             printf("%s",buf);
+	//Add event console here. -Z 
+	#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
+		#endif
     }
 }
 
@@ -748,7 +753,7 @@ void Z_scripterrlog(const char * const format,...)
 {
     if(get_bit(quest_rules,qr_SCRIPTERRLOG))
     {
-        switch(curScriptType)
+       
         switch(curScriptType)
         {
 		case SCRIPT_GLOBAL:
@@ -776,7 +781,7 @@ void Z_scripterrlog(const char * const format,...)
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
 			#endif
 		break;
-        
+		default: break;
 	
         }
         

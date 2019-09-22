@@ -7712,8 +7712,9 @@ static MENU misc_menu[] =
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
     //{ (char *)"1.92b163 Compat.",                     on192b163compatibility,                 NULL,                      0, NULL },
     { (char *)"Save ZC Configuration",           OnSaveZCConfig,           NULL,                      0, NULL },
-    { (char *)"Show ZScript Debugger",           onConsoleZScript,           NULL,                      0, NULL },
+    
     { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
+    { (char *)"Show ZScript Debugger",           onConsoleZScript,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
