@@ -2,6 +2,7 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+ZQ About Dialogue ow shows Build Date & Time
 Fix: make print_dissassembly non-static for g++.
 	g++ doesn't like it as a static function. When I last
 		built ZC on Linux, i had to make this change.
