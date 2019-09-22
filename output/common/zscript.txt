@@ -1566,6 +1566,17 @@ float Sqrt(float val);			ZASM Instruction:
 	*/ Example Use: !#!
 
 /************************************************************************************************************/
+
+	int Version;			ZASM Instruction: 
+					ZELDAVERSION
+	/**
+	* Returns the version of ZC Player being used to run the quest.
+	*	(!) This command requires ZC Player 2.53.0 Release 1, or later.
+	*	(!) Plaing a 2.53.x quest that uses this command in an earler version
+	*	(!) of ZC Player, will return 0.
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
 /************************************************************************************************************/
 
 //======================================
@@ -2812,6 +2823,9 @@ void DrawString( 	int layer, int x, int y,
 	* Returns the ID of the current Screen Render Target
 	*
 	*	(!) See std.zh for a complete list of valid render targets (RT_*).
+	*	(!) This command requires ZC Player 2.53.0 Release 3, or later.
+	*	(!) Plaing a 2.53.x quest that uses this command in an earler version
+	*	(!) of ZC Player, produce script errors.
 	*/ Example Use: !#!
 	
 	/************************************************************************************************************/
