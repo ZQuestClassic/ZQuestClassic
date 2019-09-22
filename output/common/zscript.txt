@@ -3111,7 +3111,8 @@ bool Flags[];			ZASM Instruction:
 				
 				
 /**
-* The FFC's set of flags. Use the FFCF_ constants in std.zh as the
+* The FFC's set of flags as an array of 11 boolean values. 
+* Use the FFCF_ constants in std.zh as the
 * index to access a particular flag.
 *
 */ Example Use: !#!
@@ -4209,8 +4210,11 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	int Attributes[];		ZASM Instruction: 
 					NPCDD
 	/**
-	* The npc's Miscellaneous Attributes, as an array of ten integers.
-	* They are read-only; while setting them is not syntactically incorrect, it does nothing.
+	* The npc's Miscellaneous Attributes, as an array of fifteen integers.
+	* As of 2.53.0 Release 3, these are read/write.
+	* In older versions are read-only and sized to ten integers.
+	* Playing a quest that writes to them in an older version of 
+	* ZC Player will do nothing.
 	*/
 
 /************************************************************************************************************/
