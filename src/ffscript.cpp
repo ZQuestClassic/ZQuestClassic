@@ -1560,11 +1560,6 @@ public:
         return checkBounds(layer, 0, 6, str);
     }
     
-    static INLINE int checkFFC(const long ffc, const char * const str)
-    {
-        return checkBounds(ffc, 0, MAXFFCS-1, str);
-    }
-    
     static INLINE int checkGuyIndex(const long index, const char * const str)
     {
         return checkBounds(index, 0, guys.Count()-1, str);
