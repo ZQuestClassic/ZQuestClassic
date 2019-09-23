@@ -1,6 +1,12 @@
 ChangeLog for 2.53.0 
 
 //Release 3
+
+Reducing the quest mapcount now also clamps the mapscreens
+	that the nine panel buttons (map_page[9]) point to, so that you cannot 
+	visit an invald map (and thus crash ZQ). 
+	( ZoriaRPG, 23rd September, 2019 )
+	
 Ported the coloured ZScript Debugging Console from 2.55 to 2.53.
 	Added class FFScript in the process. At present, it is only
 	handling the coloured console, like a struct.

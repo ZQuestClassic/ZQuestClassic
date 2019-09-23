@@ -100,7 +100,7 @@
 #define VERSION_BUILD       33                             //build number of this version
 #define ZELDA_VERSION_STR   "Omnius, 2.53 Release 3"               //version of the program as presented in text
 #define IS_BETA             0                        //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "22nd September, 2019, 13:16GMT"
+#define DATE_STR            "23rd September, 2019, 07:40GMT"
 #define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius' Release 3"
 #define COPYRIGHT_YEAR      "2019"     
                      //shown on title screen and in ending
