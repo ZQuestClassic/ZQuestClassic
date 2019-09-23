@@ -24,7 +24,6 @@
 *.lo
 
 # Generated executables
-*.exe
 *.out
 *.app
 *.i*86
