@@ -2,6 +2,9 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Added 'Clear' buttons to Joystick Button and Joystick Direction
+	panels for every JS Button. 
+	The user can now clear them to 0 as desired. 
 Updated build ID from 33 to 34
 Update ZELDAVERSION to return 2.5301 instead of 2.5300
 Updated qst.dat, adding the Z2 autolantern as an item, and 

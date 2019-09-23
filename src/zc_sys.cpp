@@ -5021,6 +5021,34 @@ void kb_clearkey(DIALOG *d)
     d->flags&=~D_SELECTED;
 }
 
+//Used by all keyboard key settings dialogues.
+void kb_clearjoystick(DIALOG *d)
+{
+    d->flags|=D_SELECTED;
+    
+    scare_mouse();
+    jwin_button_proc(MSG_DRAW,d,0);
+    jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 168, 48, FR_WIN);
+    //  text_mode(vc(11));
+    textout_centre_ex(screen, font, "Press any key to clear", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    unscare_mouse();
+    
+    clear_keybuf();
+    int k = next_press_key();
+    clear_keybuf();
+    
+    //shnarf
+    //47=f1
+    //59=esc
+//    if(k>0 && k<123 && !((k>46)&&(k<60)))
+//        *((int*)d->dp3) = k;
+	if ( k != 59 ) *((int*)d->dp3) = 0;
+        
+        
+    d->flags&=~D_SELECTED;
+}
+
 int d_kbutton_proc(int msg,DIALOG *d,int c)
 {
     switch(msg)
@@ -5048,6 +5076,24 @@ int d_k_clearbutton_proc(int msg,DIALOG *d,int c)
     case MSG_CLICK:
     
         kb_clearkey(d);
+        
+        while(gui_mouse_b())
+            clear_keybuf();
+            
+        return D_REDRAW;
+    }
+    
+    return jwin_button_proc(msg,d,c);
+}
+
+int d_j_clearbutton_proc(int msg,DIALOG *d,int c)
+{
+    switch(msg)
+    {
+    case MSG_KEY:
+    case MSG_CLICK:
+    
+        kb_clearjoystick(d);
         
         while(gui_mouse_b())
             clear_keybuf();
@@ -5433,6 +5479,19 @@ static DIALOG btn_dlg[] =
     { d_jbutton_proc,      22,   90-40,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
     { jwin_button_proc,    90,   274-40,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
     { jwin_button_proc,    170,  274-40,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
+   
+    { d_j_clearbutton_proc,      22+91,  118-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Bbtn},
+    { d_j_clearbutton_proc,      22+91,  146-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Sbtn},
+    { d_j_clearbutton_proc,      22+91,  178-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Exbtn1},
+    { d_j_clearbutton_proc,      22+91,  210-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Exbtn3},
+    { d_j_clearbutton_proc,      167+91,  90-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Lbtn},
+    { d_j_clearbutton_proc,      167+91,  118-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Rbtn},
+    { d_j_clearbutton_proc,      167+91,  146-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Pbtn},
+    { d_j_clearbutton_proc,      167+91,  178-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Exbtn2},
+    { d_j_clearbutton_proc,      167+91,  210-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Exbtn4},
+    { d_j_clearbutton_proc,      22+91,  242-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Mbtn},
+    { d_j_clearbutton_proc,      22+91,  90-40,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &Abtn},
+    
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -5461,6 +5520,11 @@ static DIALOG btndir_dlg[] =
     // 16
     { jwin_button_proc,    90,   184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
     { jwin_button_proc,    170,  184,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
+    { d_j_clearbutton_proc,      22+91,  90,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &DUbtn},
+    { d_j_clearbutton_proc,      22+91,  118,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &DDbtn},
+     { d_j_clearbutton_proc,      167+91,  90,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",   NULL, &DLbtn},
+    { d_j_clearbutton_proc,      167+91,  118,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &DRbtn},
+
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
