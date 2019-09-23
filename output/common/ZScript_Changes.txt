@@ -47,8 +47,8 @@ int GetRenderTarget();
 /// npc> //
 ///////////
 
-int Attributes[];		ZASM Instruction: 
-				NPCDD
+int Attributes[];			ZASM Instruction: 
+					NPCDD
 /**
 * The npc's Miscellaneous Attributes, as an array of fifteen integers.
 * As of 2.53.0 Release 3, these are read/write.
@@ -56,3 +56,22 @@ int Attributes[];		ZASM Instruction:
 * Playing a quest that writes to them in an older version of 
 * ZC Player will do nothing.
 */
+
+/////////////
+/// Link-> //
+/////////////
+
+
+int Equipment;				ZASM Instruction: 
+					LINKEQUIP
+				
+/**
+* Contains the item IDs of what is currently equiped to Link's A and B buttons.
+* The first 8 bits contain the A button item, and the second 8 bits contain the B button item.
+* As of 2.53.0 Release 3, this are read/write but in older versions this is read-only.
+* Playing a quest that writes to them in an older version of 
+* ZC Player will do nothing.
+* If you are not comfortable with performing binary operations,
+* you can use the functions GetEquipmentA(), GetEquipmentB(), and SetEquipment(int  int b) in std.zh.
+*
+*/ Example Use: !#!
