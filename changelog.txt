@@ -2,6 +2,7 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Updated build ID from 33 to 34
 Update ZELDAVERSION to return 2.5301 instead of 2.5300
 Updated qst.dat, adding the Z2 autolantern as an item, and 
 	add the autolantern active that item subscreens. 
