@@ -1,5 +1,5 @@
 //Docs for 2.53.0
-//Rev. 0.7.4; 22nd September, 2019
+//Rev. 0.7.5; 23rd September, 2019
 
 Search for !#! to find areas that require completion. 
 
@@ -3598,9 +3598,11 @@ int Equipment;				ZASM Instruction:
 /**
 * Contains the item IDs of what is currently equiped to Link's A and B buttons.
 * The first 8 bits contain the A button item, and the second 8 bits contain the B button item.
-* Currently it is only possible to retrieve this value and not to set it.
+* As of 2.53.0 Release 3, this are read/write but in older versions this is read-only.
+* Playing a quest that writes to them in an older version of 
+* ZC Player will do nothing.
 * If you are not comfortable with performing binary operations,
-* you can use the functions GetEquipmentA() or GetEquipmentB() in std.zh.
+* you can use the functions GetEquipmentA(), GetEquipmentB(), and SetEquipment(int  int b) in std.zh.
 *
 */ Example Use: !#!
 
