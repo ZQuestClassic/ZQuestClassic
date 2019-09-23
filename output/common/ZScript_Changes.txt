@@ -1,0 +1,58 @@
+2.53.0 Release 3 ZScript Changes
+23rd September, 2019
+
+The following ZScript instructons have been changed, or added
+to ZC v2.53.x.
+
+Some behaviour may differ if the player uses a quest with these
+insrtrcutions in an older version of ZC Player.
+
+This document detals the new/revised instructions and the ramificatons
+of using them in older ZC Player versions.
+
+You may use Version.zh to check for ZC version 2.5301 to validate that
+the player is using ZC Player 2.53.0 Release 3.
+
+/////////////
+/// Game-> //
+/////////////
+
+int Version;				ZASM Instruction: 
+					ZELDAVERSION
+/**
+* Returns the version of ZC Player being used to run the quest.
+*	(!) This command requires ZC Player 2.53.0 Release 1, or later.
+*	(!) Plaing a 2.53.x quest that uses this command in an earler version
+*	(!) of ZC Player, will return 0.
+*/ Example Use: !#!
+
+///////////////
+/// Screen-> //
+///////////////
+
+int GetRenderTarget();
+					
+					ZASM Instruction: 
+					GETRENDERTARGET
+/**
+* Returns the ID of the current Screen Render Target
+*
+*	(!) See std.zh for a complete list of valid render targets (RT_*).
+*	(!) This command requires ZC Player 2.53.0 Release 3, or later.
+*	(!) Plaing a 2.53.x quest that uses this command in an earler version
+*	(!) of ZC Player, produce script errors.
+*/ Example Use: !#!
+	
+///////////
+/// npc> //
+///////////
+
+int Attributes[];		ZASM Instruction: 
+				NPCDD
+/**
+* The npc's Miscellaneous Attributes, as an array of fifteen integers.
+* As of 2.53.0 Release 3, these are read/write.
+* In older versions are read-only and sized to ten integers.
+* Playing a quest that writes to them in an older version of 
+* ZC Player will do nothing.
+*/
