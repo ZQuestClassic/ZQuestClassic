@@ -39,6 +39,7 @@ const int I_LEARNSLASH 					= 143;
 const int I_MAGICBOSSKEY 				= 146;
 const int I_MAGICMAP 					= 147;
 const int I_MAGICCOMPASS 				= 148;
+const int I_AUTOLANTERN 				= 149;
 
 
 const int NPC_DAIRA1 					= 177;
@@ -685,7 +686,10 @@ ffc script DropHEARTCONTAINER
 //out the dummy passive lantern item with it.
 item script collect_Z2_lantern
 {
-	Link->Item[__classic_zh_ITEM_Z2LANTERN] = true;
+	void run()
+	{
+		Link->Item[__classic_zh_ITEM_Z2LANTERN] = true;
+	}
 }
 
 //Collect script for Magic Boss Key--works in a levels
