@@ -2,6 +2,8 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Updated ZCL to v2.7.2
+	Added DXGL Configuration to Video Drivers
 Added 'Clear' buttons to Joystick Button and Joystick Direction
 	panels for every JS Button. 
 	The user can now clear them to 0 as desired. 
