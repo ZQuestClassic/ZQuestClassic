@@ -95,7 +95,7 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250  //version of the program
-#define ZC_VERSION 25303 //Version ID for ZScript Game->Version
+#define ZC_VERSION 25301 //Version ID for ZScript Game->Version
 #define ABOUT_VERSION 0x0253
 #define VERSION_BUILD       33                             //build number of this version
 #define ZELDA_VERSION_STR   "Omnius, 2.53 Release 3"               //version of the program as presented in text
