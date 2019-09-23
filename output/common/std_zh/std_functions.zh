@@ -2602,6 +2602,12 @@ void SetDMapFlag(int dmap, int flag, bool state)
 	else Game->DMapFlags[dmap] &= ~flag;
 }
 
+//Writes items to both the A and the b item slots.
+void SetEquipment(int a, int b)
+{
+	Link->Equipment = (((a&0xFF)|((b&0xFF)<<8)));
+}
+
 //Sets an item's Pickup state to 'state'
 void SetItemPickup(item i, int pickup, bool state) 
 {
