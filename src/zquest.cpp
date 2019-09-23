@@ -11595,7 +11595,12 @@ int onMapCount()
         {
             saved = false;
             setMapCount2(ret+1);
-            
+	    //Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
+	    //if the user reduces the mapcount. -Z ( 23rd September, 2019 )
+	    for ( int q = 0; q < 9; q++ )
+	    {
+		map_page[q].map = ( map_page[q].map > ret ) ? ret : map_page[q].map;
+	    }
             if(willaffectlayers)
             {
                 for(int i=0; i<(ret+1)*MAPSCRS; i++)
