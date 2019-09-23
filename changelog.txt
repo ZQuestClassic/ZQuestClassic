@@ -1,7 +1,9 @@
 ChangeLog for 2.53.0 
 
 //Release 3
-
+Ported the coloured ZScript Debugging Console from 2.55 to 2.53.
+	Added class FFScript in the process. At present, it is only
+	handling the coloured console, like a struct.
 ZQ About Dialogue ow shows Build Date & Time
 Fix: make print_dissassembly non-static for g++.
 	g++ doesn't like it as a static function. When I last

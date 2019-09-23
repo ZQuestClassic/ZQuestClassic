@@ -53,6 +53,9 @@
 #include "mem_debug.h"
 #include "zconsole.h"
 
+#include "ffscript.h"
+extern FFScript FFCore;
+
 static int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
 
@@ -349,6 +352,8 @@ void load_game_configs()
     forceExit = (byte) get_config_int(cfg_sect,"force_exit",0);
     
 #ifdef _WIN32
+
+    zscript_debugger = (byte) get_config_int("CONSOLE","ZScript_Debugger",0);
     use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
     //use_win7_keyboard_fix = (byte) get_config_int(cfg_sect,"use_win7_key_fix",0);
     use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",0); //buggy
@@ -502,6 +507,7 @@ void save_game_configs()
     set_config_int(cfg_sect,"force_exit",forceExit);
     
 #ifdef _WIN32
+    set_config_int("CONSOLE","ZScript_Debugger",zscript_debugger);
     set_config_int(cfg_sect,"debug_console",use_debug_console);
     //set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
     set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
@@ -7656,6 +7662,41 @@ int onDebugConsole()
 	}
 }
 
+
+int onConsoleZScript()
+{
+	if ( !zscript_debugger ) {
+		if(jwin_alert3(
+			"WARNING: ZScript Debugger", 
+			"ENabling this will open the ZScript Debugger Console", 
+			"Depending on the size of your scripts, this will cause ZC Player to run slowly.",
+			"Are you seure that you wish to open the ZScript Debugger?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+		{
+			FFCore.ZScriptConsole(true);
+			zscript_debugger = 1;
+			save_game_configs();
+			return D_O_K;
+		}
+		
+		else return D_O_K;
+	}
+	else { 
+		
+		zscript_debugger = 0;
+		
+		save_game_configs();
+		FFCore.ZScriptConsole(false);
+		return D_O_K;
+	}
+}
+
 static MENU misc_menu[] =
 {
     { (char *)"&About...",                  onAbout,                 NULL,                      0, NULL },
@@ -7671,7 +7712,9 @@ static MENU misc_menu[] =
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
     //{ (char *)"1.92b163 Compat.",                     on192b163compatibility,                 NULL,                      0, NULL },
     { (char *)"Save ZC Configuration",           OnSaveZCConfig,           NULL,                      0, NULL },
-     { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
+    
+    { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
+    { (char *)"Show ZScript Debugger",           onConsoleZScript,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -8729,6 +8772,7 @@ void System()
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
+	misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
         
         /*
           if(!Playing || (!zcheats.flags && !debug))
@@ -9942,6 +9986,7 @@ int d_triggerbutton_proc(int, DIALOG*, int)
 {
     return D_O_K;
 }
+
 
 /*** end of zc_sys.cc ***/
 

@@ -7374,6 +7374,8 @@ void domouse()
             for(int btn=0; btn<(showedges?9:8); ++btn)
             {
                 char tbuf[10];
+		int maxmapid = 0;
+		
                 sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
                 
                 if(isinRect(x,y,mapscreen_x+(btn*16*2*mapscreensize),mapscreen_y+((showedges?13:11)*16*mapscreensize),mapscreen_x+(btn*16*2*mapscreensize)+map_page_bar[btn].w,mapscreen_y+((showedges?13:11)*16*mapscreensize)+map_page_bar[btn].h))
@@ -11014,6 +11016,12 @@ int onMapCount()
         {
             saved = false;
             setMapCount2(ret+1);
+	    //Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
+	    //if the user reduces the mapcount. -Z ( 23rd September, 2019 )
+	    for ( int q = 0; q < 9; q++ )
+	    {
+		map_page[q].map = ( map_page[q].map > ret ) ? ret : map_page[q].map;
+	    }
             
             if(willaffectlayers)
             {
