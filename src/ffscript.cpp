@@ -4882,18 +4882,19 @@ void set_register(const long arg, const long value)
 		}
 		  //int seta = (value/10000) >> 8; int setb = value/10000) & 0xFF;
         	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
-        	if(seta && get_bit(quest_rules,qr_SELECTAWPN) && game->item[seta]){
-			Awpn = value/10000;
-			game->awpn = value/10000;
-			game->items_off[value/10000] = 0;
+		//Z_scripterrlog("A is: %d\n", seta);
+		//Z_scripterrlog("A is: %d\n", setb);
+        	
+			Awpn = seta;
+			game->awpn = seta;
+			game->items_off[seta] = 0;
 			//directItemA = directItem;
-        	}
-        	if(setb && game->item[setb]){
-			Bwpn = value/10000;
-			game->bwpn = value/10000;
-			game->items_off[value/10000] = 0;
+        	
+			Bwpn = setb;
+			game->bwpn = setb;
+			game->items_off[setb] = 0;
 			//directItemB = directItem;
-        	}
+        	
 	}
 	break;
 	  
