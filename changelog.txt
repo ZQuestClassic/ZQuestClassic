@@ -2,6 +2,7 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Added SetEquipment(int a, int b) to std.zh.
 Fix: Writing Link->Equipment now works properly.
 Added an interpreter case for writing to Link->Equipment.
 Reverted build ID back to 33. We need 34->39 for future updates
