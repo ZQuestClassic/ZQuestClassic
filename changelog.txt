@@ -2,6 +2,9 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Reverted build ID back to 33. We need 34->39 for future updates
+	as 40 is 2.54, and the new number isn't being used in any 
+	manner where it is valuable. 
 Updated ZCL to v2.7.2
 	Added DXGL Configuration to Video Drivers
 Added 'Clear' buttons to Joystick Button and Joystick Direction
