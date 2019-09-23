@@ -1,5 +1,5 @@
 //std_functions.zh
-//16th September, 2019 for ZC 2.53.0 R3
+//23rd September, 2019 for ZC 2.53.0 R3
 
 //A
 
@@ -2408,6 +2408,12 @@ void SetDMapFlag(int dmap, int flag, bool state)
 {
 	if(state) Game->DMapFlags[dmap] |= flag;
 	else Game->DMapFlags[dmap] &= ~flag;
+}
+
+//Writes items to both the A and the b item slots.
+void SetEquipment(int a, int b)
+{
+	Link->Equipment = (((a&0xFF)|((b&0xFF)<<8)));
 }
 
 //Sets an item's Pickup state to 'state'

@@ -2,6 +2,7 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Fix: Writing Link->Equipment now works properly.
 Added an interpreter case for writing to Link->Equipment.
 Reverted build ID back to 33. We need 34->39 for future updates
 	as 40 is 2.54, and the new number isn't being used in any 

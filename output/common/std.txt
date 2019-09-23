@@ -1,5 +1,5 @@
-std.txt for ZC Versions 2.53.0 and higher.
-1st April, 2019
+std.txt for ZC Versions 2.53.0 Release 3 and higher.
+23rd September, 2019
 
 =================
 --- Constants ---
@@ -828,6 +828,9 @@ void NoAction(bool analogue_stick)
 void WaitNoAction()
 void WaitNoAction(int frames)
  * NoAction, then Waitframe or (equivalent of) Waitframes
+
+void SetEquipment(int a, int b)
+* Writes items to both the A and the b item slots.
 
 void ScreenCopy(int destmap, int destscr, int srcmap, int srcscr)
  * Copies the combos and csets from one screen to another.
