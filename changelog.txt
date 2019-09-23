@@ -2,6 +2,10 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Updated qst.dat, adding the Z2 autolantern as an item, and 
+	add the autolantern active that item subscreens. 
+Fixed missing run() function call in Classic.zh autolantern item
+	collect script, and add constant for I_AUTOLANTERN.
 Reducing the quest mapcount now also clamps the mapscreens
 	that the nine panel buttons (map_page[9]) point to, so that you cannot 
 	visit an invald map (and thus crash ZQ). 
