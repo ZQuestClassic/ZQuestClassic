@@ -11448,8 +11448,8 @@ int onDecScrPal()
 {
     restore_mouse();
     int c=Map.getcolor();
-    c+=255;
-    c=c%256;
+    c+=511;
+    c=c%512;
     Map.setcolor(c);
     refresh(rALL);
     return D_O_K;
@@ -11460,7 +11460,7 @@ int onIncScrPal()
     restore_mouse();
     int c=Map.getcolor();
     c+=1;
-    c=c%256;
+    c=c%512;
     Map.setcolor(c);
     refresh(rALL);
     return D_O_K;

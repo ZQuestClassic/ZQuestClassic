@@ -2,6 +2,9 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Fixed screen palette not properly wrappping from, 0 to 511 with < and > hotkeys.
+	( ZoriaRPG, 26th September, 2019 )
+	
 Added SetEquipment(int a, int b) to std.zh.
 Fix: Writing Link->Equipment now works properly.
 Added an interpreter case for writing to Link->Equipment.
