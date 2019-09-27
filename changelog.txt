@@ -2,6 +2,9 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+You can now save the currnt (single0 palette in the level
+	palette editor, then use the grab function to load it in nother quest
+	or another palette index.
 Updated Classic.zh:
 	v1.08: Added Eagle Dungeon Scripts from 1st.qst
 	v1.09: Added screen change tracking and compass beep

@@ -1338,6 +1338,9 @@ static DIALOG colors_dlg[] =
     { jwin_ctext_proc,       214,  39,   0,  8,    jwin_pal[jcBOXFG],   jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "D", NULL, NULL },
     { jwin_ctext_proc,       222,  39,   0,  8,    jwin_pal[jcBOXFG],   jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "E", NULL, NULL },
     { jwin_ctext_proc,       230,  39,   0,  8,    jwin_pal[jcBOXFG],   jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "F", NULL, NULL },
+    //43
+    { jwin_button_proc,     244,  125,  25,   21,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  's',     D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
@@ -1526,6 +1529,18 @@ int EditColors(const char *caption,int first,int count,byte *label)
         {
             undo_pal();
         }
+	if ( ret == 43 )
+	{
+		if(getname("Export Subscreen (.sub)",".png",NULL,datapath,false))
+		{
+			//bool cancel;
+			//char buf[80],buf2[80],
+			char name[13];
+			extract_name(temppath,name,FILENAME8_3);
+			save_bitmap(temppath, bmp, pal);
+			//save_bitmap("current_lvl_pal.png", bmp, pal);
+		}
+	}
     }
     while(ret<23&&ret!=0);
     
@@ -1533,6 +1548,8 @@ int EditColors(const char *caption,int first,int count,byte *label)
     {
         /* do nothing */
     }
+    
+    
     
     clear_to_color(screen,vc(0));
     set_palette(RAMpal);
