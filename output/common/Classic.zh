@@ -15,10 +15,21 @@
 	//Attach it to any cangle (or any item) to give the passive 
 	//Z2v Lantern effect to that item.
 	
+//1.08  //Added Eagle Dungeon Scripts from 1st.qst
+//1.09  //Added screen change tracking and compass beep
 import "ffcscript.zh"
 import "stdExtra.zh"
 import "ghost.zh"
 import "tango.zh"
+
+//Internal Data Array and its indices.
+int __classic_zc_internal[128];
+const int __classic_zh_WENTINTO_L1 	= 0;
+const int __classic_zh_EXITEDFROM_L1 	= 1;
+const int __classic_zh_SCREENCHANGED 	= 2;
+const int __classic_zh_LASTDMAP 	= 3;
+const int __classic_zh_LASTMAP 		= 4;
+const int __classic_zh_LASTSCR 		= 5;
 
 //Version Information; time is in GMT
 const float __classic_zh_VERSION 	= 1.06;
@@ -64,6 +75,41 @@ const int _classic_zh__REG_BOSS_DROPPED_TRIFORCE 	= 4;
 
 const int CMB_INVISIBLE 				= 1;
 
+//Z1 Level 1 Door Glitch
+ffc script EagleBugInside
+{
+	void run()
+	{
+		__classic_zc_internal[__classic_zh_WENTINTO_L1]=1;
+		if(__classic_zc_internal[__classic_zh_EXITEDFROM_L1])
+		{
+			Screen->Door[DIR_UP]=D_UNLOCKED;
+			Screen->State[ST_DOORUP]=true;
+			Game->SetScreenState(2, 0x63, ST_DOORDOWN, true);
+		}
+	}
+}
+
+ffc script EagleBugOutside
+{
+	void run()
+	{
+		if(__classic_zc_internal[__classic_zh_WENTINTO_L1])
+		__classic_zc_internal[__classic_zh_EXITEDFROM_L1]=1;
+	}
+}
+
+ffc script EagleBugEast
+{
+	void run()
+	{
+		__classic_zc_internal[__classic_zh_WENTINTO_L1]=0;
+		__classic_zc_internal[__classic_zh_EXITEDFROM_L1]=0;
+	}
+}
+
+
+//New Items
 item script HalfMagic
 {
 	void run()
@@ -399,12 +445,19 @@ global script Active
 	{
 		StartGhostZH();
 		Tango_Start();
+		__classic_zh_InitScreenUpdating();
 	    
 		while(true)
 		{
 			UpdateGhostZH1();
+			__classic_zh_UpdateScreenChange1();
 			Tango_Update1();
 			__classic_zh_do_z2_lantern();
+			if ( __classic_zc_internal[__classic_zh_SCREENCHANGED] )
+			{
+				__classic_zh_CompassBeep();
+				__classic_zh_ResetScreenChange();
+			}
 			Waitdraw();
 			UpdateGhostZH2();
 			Tango_Update2();
@@ -724,6 +777,80 @@ item script MagicCompass
 		for ( int q = 0; q < __classic_zh_MAX_ITEMS; ++q )
 		{
 			Game->LItems[q] |= LI_COMPASS;
+		}
+	}
+}
+
+
+
+//Screen update calls.
+void __classic_zh_InitScreenUpdating()
+{
+	__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
+	__classic_zc_internal[__classic_zh_LASTDMAP] = Game->GetCurDMap();
+	__classic_zc_internal[__classic_zh_LASTMAP] = Game->GetCurMap();
+	__classic_zc_internal[__classic_zh_LASTSCR] = Game->GetCurScreen();
+}
+
+void __classic_zh_UpdateScreenChange1()
+{
+	if ( __classic_zc_internal[__classic_zh_LASTSCR] != Game->GetCurScreen() )
+	{
+		__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
+		return;
+	}
+	if ( __classic_zc_internal[__classic_zh_LASTDMAP] != Game->GetCurDMap() )
+	{
+		__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
+	}
+}
+
+void __classic_zh_UpdateScreenChange2()
+{
+	__classic_zc_internal[__classic_zh_LASTDMAP] = Game->GetCurDMap();
+	__classic_zc_internal[__classic_zh_LASTSCR] = Game->GetCurScreen();
+}
+
+void __classic_zh_ResetScreenChange()
+{
+	if ( __classic_zc_internal[__classic_zh_SCREENCHANGED] )
+	{
+		__classic_zc_internal[__classic_zh_LASTDMAP] = Game->GetCurDMap();
+		__classic_zc_internal[__classic_zh_LASTSCR] = Game->GetCurScreen();
+		__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
+	}
+}
+
+void __classic_zh_ClearScreenChange()
+{
+	__classic_zc_internal[__classic_zh_SCREENCHANGED] = 0;
+}
+
+//Compass beep. Uses a soundset to the item editor D1 value on the compass item.
+//D0 sets the screen script flag to toggle to make a sound.
+void __classic_zh_CompassBeep()
+{
+	itemdata beep = Game->LoadItemData(I_COMPASS);
+	if ( ScreenFlag(SF_MISC, beep->InitD[0]+2) )
+	{
+		if ( (Game->LItems[Game->GetCurLevel()]&LI_COMPASS) )
+		{
+			if ( !Screen->State[ST_ITEM] )
+			{
+				if ( !Screen->State[ST_SPECIALITEM] )
+				{
+					if ( !Screen->State[ST_CHEST] )
+					{
+						if ( !Screen->State[ST_LOCKEDCHEST] )
+						{
+							if ( !Screen->State[ST_BOSSCHEST] )
+							{
+								Game->PlaySound(beep->InitD[1]);
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
