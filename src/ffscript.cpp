@@ -2527,10 +2527,11 @@ long get_register(const long arg)
     
     case INPUTMOUSEY:
     {
-	int tempoffset = (quakeclk > 0 ? (playing_field_offset=56+((int)(sin((double)(--quakeclk*2-frame))*4))) : (playing_field_offset));
+	int mousequakeoffset = 56+((int)(sin((double)(--quakeclk*2-frame))*4));
+	int tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
         int topOffset=(resy/2)-((112-tempoffset)*screen_scale);
         ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
-        break;
+	break;
     }
     
     case INPUTMOUSEZ:
@@ -2739,7 +2740,9 @@ long get_register(const long arg)
 			}
 			case 1: //MouseY
 			{
-				int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+				int mousequakeoffset = 56+((int)(sin((double)(--quakeclk*2-frame))*4));
+				int tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+				int topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 				rv=((gui_mouse_y()-topOffset)/screen_scale)*10000;
 				break;
 				
@@ -8995,7 +8998,9 @@ void set_register(const long arg, const long value)
     
     case INPUTMOUSEY:
     {
-        int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+        int mousequakeoffset = 56+((int)(sin((double)(--quakeclk*2-frame))*4));
+	int tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+        int topOffset=(resy/2)-((112-tempoffset)*screen_scale);
         position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
         break;
     }
@@ -9124,7 +9129,9 @@ void set_register(const long arg, const long value)
 			}
 			case 1: //MouseY
 			{
-				int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+				int mousequakeoffset = 56+((int)(sin((double)(--quakeclk*2-frame))*4));
+				int tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+				int topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 				position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
 				break;
 				
