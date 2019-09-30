@@ -5127,7 +5127,9 @@ void set_register(const long arg, const long value)
     
     case INPUTMOUSEY:
     {
-        int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+	int mousequakeoffset = 56+((int)(sin((double)(--quakeclk*2-frame))*4));
+	int tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+        int topOffset=(resy/2)-((112-tempoffset)*screen_scale);
         position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
         break;
     }
