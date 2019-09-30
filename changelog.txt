@@ -2,6 +2,14 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Applied the same changes to writing to MouseY, during Quake
+	that I applied to reading it. 
+Backported the new ZScript Compiler sound effects from 2.55.
+	You can now assign or disable these sounds in zquest.cfg, 
+	for the following events:
+		Compile Error
+		Compile Success
+		Script Slot Assign Completion
 Fixed a bug where reading the mouse Y position during Quake shaking
 	returned the wrong values.
 	( ZoriaRPG, 30th September, 2019 )
