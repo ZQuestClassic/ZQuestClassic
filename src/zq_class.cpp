@@ -6799,6 +6799,31 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
 			}
 		}
 	    }
+			if(!p_iputw(DMaps[i].active_sub_script,f))
+			{
+				new_return(34);
+			}
+			if(!p_iputw(DMaps[i].passive_sub_script,f))
+			{
+				new_return(35);
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				if(!p_iputl(DMaps[i].sub_initD[q],f))
+				{
+					new_return(36);
+				}
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				for(int w = 0; w < 65; ++w)
+				{
+					if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
+					{
+						new_return(37);
+					}
+				}
+			}
         }
         
         if(writecycle==0)

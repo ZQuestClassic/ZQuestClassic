@@ -189,7 +189,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS           12
 #define V_CSETS            4
 #define V_MAPS            22
-#define V_DMAPS            13
+#define V_DMAPS            14
 #define V_DOORS            1
 #define V_ITEMS           45
 #define V_WEAPONS          7
@@ -2226,18 +2226,21 @@ struct ffscript
 
 // Script types
 
-#define SCRIPT_NONE            -1
-#define SCRIPT_GLOBAL          0
-#define SCRIPT_FFC             1
-#define SCRIPT_SCREEN          2
-#define SCRIPT_LINK            3
-#define SCRIPT_ITEM            4
-#define SCRIPT_LWPN            5
-#define SCRIPT_NPC             6
-#define SCRIPT_SUBSCREEN       7
-#define SCRIPT_EWPN            8
-#define SCRIPT_DMAP            9
-#define SCRIPT_ITEMSPRITE      10
+#define SCRIPT_NONE                      -1
+#define SCRIPT_GLOBAL                    0
+#define SCRIPT_FFC                       1
+#define SCRIPT_SCREEN                    2
+#define SCRIPT_LINK                      3
+#define SCRIPT_ITEM                      4
+#define SCRIPT_LWPN                      5
+#define SCRIPT_NPC                       6
+#define SCRIPT_SUBSCREEN                 7
+#define SCRIPT_EWPN                      8
+#define SCRIPT_DMAP                      9
+#define SCRIPT_ITEMSPRITE                10
+#define SCRIPT_ACTIVESUBSCREEN           11
+#define SCRIPT_PASSIVESUBSCREEN          12
+
 
 
 enum
@@ -2737,6 +2740,10 @@ struct dmap
     word script;
     long initD[8];
     char initD_label[8][65];
+	word active_sub_script;
+	word passive_sub_script;
+	long sub_initD[8];
+	char sub_initD_label[8][65];
 };
 
 // DMap flags

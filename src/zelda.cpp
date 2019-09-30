@@ -60,7 +60,7 @@ extern char runningItemScripts[256];
 extern char modulepath[2048];
 
 
-extern byte dmapscriptInitialised[512];
+extern byte dmapscriptInitialised;
 
 
 #include "init.h"
@@ -410,9 +410,11 @@ extern refInfo dmapScriptData;
 extern word g_doscript;
 extern word link_doscript;
 extern word dmap_doscript;
+extern word passive_subscreen_doscript;
 extern word global_wait;
 extern bool link_waitdraw;
 extern bool dmap_waitdraw;
+extern bool passive_subscreen_waitdraw;
 
 ScriptOwner::ScriptOwner() : scriptType(SCRIPT_NONE), ownerUID(0) {}
 void ScriptOwner::clear()
@@ -1894,7 +1896,7 @@ int init_game()
     tmpscr[0].zero_memory();
     tmpscr[1].zero_memory();
     //clear initialise dmap script 
-    for ( int q = 0; q < 512; q++ ) dmapscriptInitialised[q] = 0;
+    dmapscriptInitialised = 0;
     //Script-related nonsense
     script_drawing_commands.Clear();
     
@@ -1906,6 +1908,7 @@ int init_game()
     initZScriptGlobalRAM();
     FFCore.initZScriptLinkScripts();
     FFCore.initZScriptDMapScripts();
+	FFCore.initZScriptActiveSubscreenScript();
     FFCore.initZScriptItemScripts();
     
     
@@ -2972,6 +2975,10 @@ void game_loop()
     {
         ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
     }
+    if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+    {
+        ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+    }
     
     if(!freeze && !freezemsg)
     {
@@ -3115,8 +3122,13 @@ void game_loop()
     if ( !FFCore.system_suspend[susptDMAPSCRIPT] && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
         ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-	dmap_waitdraw = false;
+		dmap_waitdraw = false;
     }
+	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	{
+		ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+		passive_subscreen_waitdraw = false;
+	}
     
     if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
