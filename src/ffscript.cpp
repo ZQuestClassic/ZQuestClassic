@@ -8442,7 +8442,7 @@ void set_register(const long arg, const long value)
         
 	case LINKEQUIP:
 	{
-		if ( quest_header_zelda_version == 0x250 && quest_header_zelda_build < 33 )
+		if ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) < 33 )
 		{
 			break;
 		}
