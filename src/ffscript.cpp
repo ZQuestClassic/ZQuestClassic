@@ -8460,8 +8460,9 @@ void set_register(const long arg, const long value)
 			game->bwpn = setb;
 			game->items_off[setb] = 0;
 			//directItemB = directItem;
-        	
+        	break;
 	}
+	
 	  
 	case SETITEMSLOT:
 	{
