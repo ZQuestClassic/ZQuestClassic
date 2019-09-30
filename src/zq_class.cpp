@@ -1433,6 +1433,22 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->old_cpage=src->old_cpage;
     dest->screen_midi=src->screen_midi;
     dest->lens_layer=src->lens_layer;
+    for ( int q = 0; q < 10; q++ ) dest->npcstrings[q]=src->npcstrings[q];
+    for ( int q = 0; q < 10; q++ ) dest->new_items[q]=src->new_items[q];
+    for ( int q = 0; q < 10; q++ ) dest->new_item_x[q]=src->new_item_x[q];
+    for ( int q = 0; q < 10; q++ ) dest->new_item_y[q]=src->new_item_y[q];
+    
+    dest->script=src->script;
+    
+    for ( int q = 0; q < 8; q++ ) dest->screeninitd[q]=src->screeninitd[q];
+    
+    dest->screen_waitdraw=src->screen_waitdraw;
+    dest->preloadscript=src->preloadscript;
+    dest->ffcswaitdraw=src->ffcswaitdraw;
+    dest->screendatascriptInitialised=src->screendatascriptInitialised;
+    dest->hidelayers=src->hidelayers;
+    dest->hidescriptlayers=src->hidescriptlayers;
+    dest->doscript=src->doscript;
 }
 
 void zmap::put_door(BITMAP *dest,int pos,int side,int type,int xofs,int yofs,bool ignorepos, int scr)
