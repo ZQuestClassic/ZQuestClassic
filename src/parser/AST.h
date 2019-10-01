@@ -22,6 +22,7 @@ namespace ZScript
 #include "y.tab.hpp"
 #include "Compiler.h"
 #include "CompileOption.h"
+#include "Scope.h"
 #include "owning_ptr.h"
 #include "owning_vector.h"
 
@@ -63,6 +64,7 @@ namespace ZScript
 	class ASTStmtFor;
 	class ASTStmtWhile;
 	class ASTStmtDo;
+	class ASTStmtRepeat;
 	class ASTStmtReturn;
 	class ASTStmtReturnVal;
 	class ASTStmtBreak;
@@ -71,6 +73,7 @@ namespace ZScript
 	// Declarations
 	class ASTDecl; // virtual
 	class ASTScript;
+	class ASTNamespace;
 	class ASTImportDecl;
 	class ASTFuncDecl;
 	class ASTDataDeclList;
@@ -78,9 +81,11 @@ namespace ZScript
 	class ASTDataDeclExtraArray;
 	class ASTDataTypeDef;
 	class ASTScriptTypeDef;
+	class ASTUsingDecl;
 	// Expressions
 	class ASTExpr; // virtual
 	class ASTExprConst;
+	class ASTExprVarInitializer;
 	class ASTExprAssign;
 	class ASTExprIdentifier;
 	class ASTExprArrow;
@@ -94,6 +99,7 @@ namespace ZScript
 	class ASTExprPreIncrement;
 	class ASTExprDecrement;
 	class ASTExprPreDecrement;
+	class ASTExprCast;
 	class ASTBinaryExpr; // virtual
 	class ASTLogExpr; // virtual
 	class ASTExprAnd;
@@ -119,6 +125,7 @@ namespace ZScript
 	class ASTShiftExpr; // virtual
 	class ASTExprLShift;
 	class ASTExprRShift;
+	class ASTTernaryExpr;
 	// Literals
 	class ASTLiteral; // virtual
 	class ASTNumberLiteral;
@@ -233,7 +240,13 @@ namespace ZScript
 		owning_vector<ASTExprConst> compileErrorCatches;
 
 		// If this node has been disabled due to an error.
-		bool disabled;
+		bool errorDisabled;
+		
+		bool isDisabled() const {return disabled_;}
+		void disable() {disabled_ = true;}
+		bool registered() const {return isRegistered;}
+		void Register() {isRegistered = true;}
+	
 	
 		// Subclass Predicates (replacing typeof and such).
 		virtual bool isTypeArrow() const {return false;}
@@ -243,6 +256,12 @@ namespace ZScript
 		virtual bool isTypeArrayDecl() const {return false;}
 		virtual bool isStringLiteral() const {return false;}
 		virtual bool isArrayLiteral() const {return false;}
+		
+	private:
+		//If this node has been disabled, for some reason or other. This will prevent any visitor from visiting the node (instant return, without error)
+		bool disabled_;
+		//If this node has been registered by RegistrationVisitor
+		bool isRegistered;
 	};
 
 
@@ -268,6 +287,10 @@ namespace ZScript
 		owning_vector<ASTDataTypeDef> dataTypes;
 		owning_vector<ASTScriptTypeDef> scriptTypes;
 		owning_vector<ASTScript> scripts;
+		owning_vector<ASTNamespace> namespaces;
+		owning_vector<ASTUsingDecl> use;
+		
+		FileScope* scope;
 	};
 
 	class ASTFloat : public AST
@@ -283,11 +306,13 @@ namespace ZScript
 		         LocationData const& location = LocationData::NONE);
 		ASTFloat(long value, Type type,
 		         LocationData const& location = LocationData::NONE);
+		ASTFloat(long ipart, long dpart,
+		         LocationData const& location = LocationData::NONE);
 		ASTFloat* clone() const {return new ASTFloat(*this);}
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
     	
-		std::pair<std::string,std::string> parseValue() const;
+		std::pair<std::string,std::string> parseValue(CompileErrorHandler* errorHandler, Scope* scope) const;
 
 		Type type;
 		std::string value;
@@ -324,7 +349,7 @@ namespace ZScript
 		virtual std::string asString() const;
 
 		CompileOptionSetting getSetting(
-				CompileErrorHandler* = NULL) const;
+				CompileErrorHandler* = NULL, Scope* scope = NULL) const;
 	
 		std::string name;
 		CompileOption option;
@@ -340,12 +365,6 @@ namespace ZScript
 	public:
 		ASTStmt(LocationData const& location = LocationData::NONE);
 		virtual ASTStmt* clone() const = 0;
-
-		bool isDisabled() const {return disabled_;}
-		void disable() {disabled_ = true;}
-	
-	private:
-		bool disabled_;
 	};
     
 	class ASTBlock : public ASTStmt
@@ -358,6 +377,11 @@ namespace ZScript
 
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTStmt> statements;
+		
+		Scope* getScope() {return scope;}
+		void setScope(Scope* scp) {scope = scp;}
+	private:
+		Scope* scope;
 	};
     
 	class ASTStmtIf : public ASTStmt
@@ -368,9 +392,14 @@ namespace ZScript
 		ASTStmtIf* clone() const {return new ASTStmtIf(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		void invert() {inverted = true;}
+		bool isInverted() const {return inverted;}
 
 		owning_ptr<ASTExpr> condition;
 		owning_ptr<ASTStmt> thenStatement;
+	private:
+		bool inverted;
 	};
 
 	class ASTStmtIfElse : public ASTStmtIf
@@ -436,6 +465,11 @@ namespace ZScript
 		owning_ptr<ASTExpr> test;
 		owning_ptr<ASTStmt> increment;
 		owning_ptr<ASTStmt> body;
+		
+		Scope* getScope() {return scope;}
+		void setScope(Scope* scp) {scope = scp;}
+	private:
+		Scope* scope;
 	};
 
 	class ASTStmtWhile : public ASTStmt
@@ -447,9 +481,13 @@ namespace ZScript
 		ASTStmtWhile* clone() const {return new ASTStmtWhile(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
+		void invert() {inverted = true;}
+		bool isInverted() const {return inverted;}
 
 		owning_ptr<ASTExpr> test;
 		owning_ptr<ASTStmt> body;
+	private:
+		bool inverted;
 	};
 
 	class ASTStmtDo : public ASTStmt
@@ -461,8 +499,24 @@ namespace ZScript
 		ASTStmtDo* clone() const {return new ASTStmtDo(*this);}
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
+		void invert() {inverted = true;}
+		bool isInverted() const {return inverted;}
 
 		owning_ptr<ASTExpr> test;
+		owning_ptr<ASTStmt> body;
+	private:
+		bool inverted;
+	};
+	
+	class ASTStmtRepeat : public ASTStmt
+	{
+	public:
+		ASTStmtRepeat(ASTExprConst* iter, ASTStmt* body, LocationData const& location = LocationData::NONE);
+		ASTStmtRepeat* clone() const {return new ASTStmtRepeat(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		owning_ptr<ASTExprConst> iter;
 		owning_ptr<ASTStmt> body;
 	};
 
@@ -532,7 +586,9 @@ namespace ZScript
 			TYPE_DATALIST,
 			TYPE_DATA,
 			TYPE_DATATYPE,
-			TYPE_SCRIPTTYPE
+			TYPE_SCRIPTTYPE,
+			TYPE_NAMESPACE,
+			TYPE_USING
 		};
 
 		ASTDecl(LocationData const& location = LocationData::NONE);
@@ -562,13 +618,45 @@ namespace ZScript
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
 		owning_vector<ASTDataTypeDef> types;
+		owning_vector<ASTUsingDecl> use;
+		
+		Script* script;
+	};
+
+	class ASTNamespace : public ASTDecl
+	{
+	public:
+		ASTNamespace(LocationData const& location = LocationData::NONE, std::string name = "");
+		ASTNamespace* clone() const {return new ASTNamespace(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		Type getDeclarationType() const /*override*/ {return TYPE_NAMESPACE;}
+		
+		void setName(std::string newname) {name = newname;}
+    
+		// Adds a declaration to the proper vector.
+		void addDeclaration(ASTDecl& declaration);
+
+		owning_vector<ASTSetOption> options;
+		owning_vector<ASTDataDeclList> variables;
+		owning_vector<ASTFuncDecl> functions;
+		owning_vector<ASTDataTypeDef> dataTypes;
+		owning_vector<ASTScriptTypeDef> scriptTypes;
+		owning_vector<ASTScript> scripts;
+		owning_vector<ASTNamespace> namespaces;
+		owning_vector<ASTUsingDecl> use;
+		std::string name;
+		
+		Namespace* namesp;
 	};
 
 	class ASTImportDecl : public ASTDecl
 	{
 	public:
 		ASTImportDecl(std::string const& filename,
-		              LocationData const& location = LocationData::NONE);
+		              LocationData const& location = LocationData::NONE,
+					  bool isInclude = false);
 		ASTImportDecl* clone() /*override*/ const {
 			return new ASTImportDecl(*this);}
     
@@ -576,13 +664,19 @@ namespace ZScript
 
 		Type getDeclarationType() const /*override*/ {return TYPE_IMPORT;}
 
+		void setFilename(std::string name) {filename_ = name;}
 		std::string const& getFilename() const {return filename_;}
 		ASTFile* getTree() {return tree_.get();}
 		ASTFile const* getTree() const {return tree_.get();}
 		void giveTree(ASTFile* tree) {tree_ = tree;}
+		bool isInclude() const {return include_;}
+		bool wasChecked() const {return checked;}
+		void check() {checked = true;}
 	
 	private:
 		std::string filename_;
+		bool checked;
+		bool include_;
 		owning_ptr<ASTFile> tree_;
 	};
 
@@ -596,11 +690,21 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
 		Type getDeclarationType() const /*override*/ {return TYPE_FUNCTION;}
+		
+		bool getFlag(int flag) const {return flags & flag;}
+		void setFlag(int flag, bool state = true);
+		int getFlags() const {return flags;}
+		bool isRun() const;
 
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
 		std::string name;
 		owning_ptr<ASTBlock> block;
+		std::string invalidMsg;
+		Function* func;
+	private:
+		int flags;
+		friend class Function;
 	};
 
 	// A line of variable/constant declarations:
@@ -619,7 +723,8 @@ namespace ZScript
 
 		std::vector<ASTDataDecl*> const& getDeclarations() const {
 			return declarations_.data();}
-		void addDeclaration(ASTDataDecl* declaration);
+		virtual void addDeclaration(ASTDataDecl* declaration);
+		virtual bool isEnum() const {return false;}
 
 		// The base type at the start of the line shared by all the declarations.
 		owning_ptr<ASTDataType> baseType;
@@ -627,6 +732,19 @@ namespace ZScript
 	private:
 		// The list of individual data declarations.
 		owning_vector<ASTDataDecl> declarations_;
+	};
+	
+	class ASTDataEnum : public ASTDataDeclList
+	{
+	public:
+		ASTDataEnum(LocationData const& location = LocationData::NONE);
+		ASTDataEnum(ASTDataEnum const&);
+		ASTDataEnum* clone() const {return new ASTDataEnum(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		virtual bool isEnum() const {return true;}
+	private:
+		long nextVal;
 	};
 
 	// Declares a single variable or constant. May or may not be inside an
@@ -643,13 +761,13 @@ namespace ZScript
 
 		Type getDeclarationType() const /*override*/ {return TYPE_DATA;}
 
-		ASTExpr* getInitializer() {return initializer_.get();}
-		ASTExpr const* getInitializer() const {return initializer_.get();}
+		ASTExprVarInitializer* getInitializer() {return initializer_.get();}
+		ASTExprVarInitializer const* getInitializer() const {return initializer_.get();}
 		void setInitializer(ASTExpr* initializer);
 
 		// Resolves the type, using either the list's or this node's own base type
 		// as appropriate.
-		DataType const* resolveType(Scope* scope);
+		DataType const* resolveType(Scope* scope, CompileErrorHandler* errorHandler);
 
 		// The list containing this declaration. Should be set by that list when
 		// this is added.
@@ -673,7 +791,7 @@ namespace ZScript
 
 	private:
 		// The initialization expression. Optional.
-		owning_ptr<ASTExpr> initializer_;
+		owning_ptr<ASTExprVarInitializer> initializer_;
 	};
 
 	bool hasSize(ASTDataDecl const&);
@@ -692,11 +810,11 @@ namespace ZScript
 		owning_vector<ASTExpr> dimensions;
 
 		// If this declares an a sized array.
-		bool hasSize() const {return dimensions.size();}
+		bool hasSize() const {return (dimensions.size());}
 
 		// Get the total size of this array at compile time.
 		optional<int> getCompileTimeSize(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -712,9 +830,26 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
 		Type getDeclarationType() const /*override*/ {return TYPE_DATATYPE;}
+		bool isCustomDataType() const {return false;}
 
 		owning_ptr<ASTDataType> type;
 		std::string name;
+	};
+	
+	class ASTCustomDataTypeDef : public ASTDataTypeDef
+	{
+	public:
+		ASTCustomDataTypeDef(ASTDataType* type = NULL,
+					std::string const& name = "",
+					ASTDataEnum* defn = NULL,
+					LocationData const& location = LocationData::NONE);
+		ASTCustomDataTypeDef* clone() const {return new ASTCustomDataTypeDef(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		bool isCustomDataType() const {return true;}
+		
+		owning_ptr<ASTDataEnum> definition;
 	};
 
 	class ASTScriptTypeDef : public ASTDecl
@@ -735,6 +870,24 @@ namespace ZScript
 		owning_ptr<ASTScriptType> oldType;
 		std::string newName;
 	};
+	
+	class ASTUsingDecl : public ASTDecl
+	{
+	public:
+		ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location = LocationData::NONE, bool always = false);
+		virtual ASTUsingDecl* clone() const {return new ASTUsingDecl(*this);}
+
+		virtual void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		Type getDeclarationType() const {return TYPE_USING;}
+		
+		ASTExprIdentifier* getIdentifier() const {return identifier;}
+		
+		bool always;
+		
+	private:
+		ASTExprIdentifier* identifier;
+	};
 
 	////////////////////////////////////////////////////////////////
 	// Expressions
@@ -746,18 +899,19 @@ namespace ZScript
 		virtual ASTExpr* clone() const = 0;
 
 		virtual bool isConstant() const = 0;
+		virtual bool isLiteral() const = 0;
 
 		// Return this expression's value if it has already been resolved at
 		// compile time.
 		virtual optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const
 		{return nullopt;}
 
 		// Returns the read or write type for this expression. Null for either
 		// means that it can't be read from/written to.
-		virtual DataType const* getReadType() const {return NULL;}
-		virtual DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	// Wrap around an expression to type it as constant.
@@ -766,20 +920,38 @@ namespace ZScript
 	public:
 		ASTExprConst(ASTExpr* content = NULL,
 		             LocationData const& location = LocationData::NONE);
-		ASTExprConst* clone() const {return new ASTExprConst(*this);}
+		virtual ASTExprConst* clone() const {return new ASTExprConst(*this);}
 
-		void execute(ASTVisitor& visitor, void* param = NULL);
+		virtual void execute(ASTVisitor& visitor, void* param = NULL);
 
 		bool isConstant() const {return true;}
+		bool isLiteral() const {return false;}
 
-		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+		virtual optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
-		DataType const* getReadType() const {
-			return content ? content->getReadType() : NULL;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return content ? content->getReadType(scope, errorHandler) : NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	
 		owning_ptr<ASTExpr> content;
+	};
+	
+	class ASTExprVarInitializer : public ASTExprConst
+	{
+	public:
+		ASTExprVarInitializer(ASTExpr* content = NULL,
+		                LocationData const& location = LocationData::NONE);
+		ASTExprVarInitializer* clone() const {return new ASTExprVarInitializer(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope)
+				const;
+		
+		bool valueIsArray(Scope* scope, CompileErrorHandler* errorHandler);
+		optional<long> value;
 	};
 
 	class ASTExprAssign : public ASTExpr
@@ -793,14 +965,15 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		bool isConstant() const {return right && right->isConstant();}
+		bool isLiteral() const {return right && right->isLiteral();}
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
-		DataType const* getReadType() const {
-			return right ? right->getReadType() : NULL;}
-		DataType const* getWriteType() const {
-			return right ? right->getWriteType() : NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return right ? right->getReadType(scope, errorHandler) : NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return right ? right->getWriteType(scope, errorHandler) : NULL;}
 	
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> right;
@@ -819,18 +992,23 @@ namespace ZScript
 
 		bool isConstant() const {return constant_;}
 		void markConstant() {constant_ = true;}
+		bool isLiteral() const {return false;}
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
-		DataType const* getReadType() const;
-		DataType const* getWriteType() const;
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
 	
-		// The identifier components separated by '.'.
+		// The identifier components separated by '.' or '::'.
 		std::vector<std::string> components;
+		//Which symbol was used to delimit each?
+		std::vector<std::string> delimiters;
 
 		// What this identifier refers to.
 		Datum* binding;
+		
+		bool noUsing;
 		
 	private:
 		bool constant_;
@@ -849,9 +1027,10 @@ namespace ZScript
 		bool isTypeArrow() const {return true;}
 
 		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const;
-		DataType const* getWriteType() const;
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
 	
 		owning_ptr<ASTExpr> left;
 		std::string right;
@@ -875,9 +1054,10 @@ namespace ZScript
 		bool isTypeIndex() const /*override*/ {return true;}
     
 		bool isConstant() const /*override*/;
+		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const /*override*/;
-		DataType const* getWriteType() const /*override*/;
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
 	
 		owning_ptr<ASTExpr> array;
 		owning_ptr<ASTExpr> index;
@@ -892,12 +1072,15 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const;
-		DataType const* getWriteType() const;
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
 	
 		owning_ptr<ASTExpr> left;
 		owning_vector<ASTExpr> parameters;
+		owning_ptr<ASTBlock> inlineBlock;
+		owning_vector<ASTDataDecl> inlineParams;
 
 		Function* binding;
 	};
@@ -910,7 +1093,11 @@ namespace ZScript
 		virtual ASTUnaryExpr* clone() const = 0;
 
 		virtual bool isConstant() const {return operand->isConstant();}
+		virtual bool isLiteral() const {return operand->isLiteral();}
 
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		
 		owning_ptr<ASTExpr> operand;
 	};
 
@@ -923,10 +1110,12 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		
+		bool done;
 	};
 
 	class ASTExprNot : public ASTUnaryExpr
@@ -938,10 +1127,10 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
-		DataType const* getReadType() const {return &DataType::BOOL;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprBitNot : public ASTUnaryExpr
@@ -953,10 +1142,10 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprIncrement : public ASTUnaryExpr
@@ -968,10 +1157,11 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {
-			return operand ? operand->getWriteType() : NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
 	};
 
 	class ASTExprPreIncrement : public ASTUnaryExpr
@@ -983,10 +1173,11 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {
-			return operand ? operand->getWriteType() : NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
 	};
 
 	class ASTExprDecrement : public ASTUnaryExpr
@@ -998,10 +1189,11 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {
-			return operand ? operand->getWriteType() : NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
 	};
 
 	class ASTExprPreDecrement : public ASTUnaryExpr
@@ -1014,10 +1206,28 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		bool isConstant() const {return false;}
+		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {
-			return operand ? operand->getWriteType() : NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
+	};
+	
+	class ASTExprCast : public ASTUnaryExpr
+	{
+	public:
+		ASTExprCast(ASTDataType* type, ASTExpr* expr, LocationData const& location = LocationData::NONE);
+		ASTExprCast* clone() const {return new ASTExprCast(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope)
+				const;
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		
+		owning_ptr<ASTDataType> type;
 	};
 
 	// virtual
@@ -1030,6 +1240,7 @@ namespace ZScript
 		virtual ASTBinaryExpr* clone() const = 0;
 
 		bool isConstant() const;
+		bool isLiteral() const {return left && left->isLiteral() && right && right->isLiteral();}
 
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> right;
@@ -1047,8 +1258,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTLogExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::BOOL;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprAnd : public ASTLogExpr
@@ -1062,7 +1273,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1077,7 +1288,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1090,8 +1301,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTRelExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::BOOL;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprGT : public ASTRelExpr
@@ -1105,7 +1316,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1120,7 +1331,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1135,7 +1346,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1150,7 +1361,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1165,7 +1376,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1180,7 +1391,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1193,8 +1404,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTAddExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprPlus : public ASTAddExpr
@@ -1208,7 +1419,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1223,7 +1434,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1236,8 +1447,8 @@ namespace ZScript
 		            LocationData const& location = LocationData::NONE);
 		virtual ASTMultExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprTimes : public ASTMultExpr
@@ -1251,7 +1462,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1266,7 +1477,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1281,7 +1492,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1293,8 +1504,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTBitExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprBitAnd : public ASTBitExpr
@@ -1307,7 +1518,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1321,7 +1532,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1335,7 +1546,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1348,8 +1559,8 @@ namespace ZScript
 				LocationData const& location = LocationData::NONE);
 		virtual ASTShiftExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprLShift : public ASTShiftExpr
@@ -1362,7 +1573,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
 	};
 
@@ -1376,8 +1587,34 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
+	};
+	
+	class ASTTernaryExpr : public ASTExpr
+	{
+	public:
+		ASTTernaryExpr(ASTExpr* left = NULL,
+		              ASTExpr* middle = NULL,
+		              ASTExpr* right = NULL,
+		              LocationData const& location = LocationData::NONE);
+		ASTTernaryExpr* clone() const {return new ASTTernaryExpr(*this);};
+
+		bool isConstant() const;
+		bool isLiteral() const {return middle && middle->isLiteral() && right && right->isLiteral();}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope)
+				const;
+
+		owning_ptr<ASTExpr> left;
+		owning_ptr<ASTExpr> middle;
+		owning_ptr<ASTExpr> right;
+
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return middle->getReadType(scope, errorHandler);}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	// Literals
@@ -1389,7 +1626,7 @@ namespace ZScript
 		ASTLiteral(LocationData const& location = LocationData::NONE);
 		virtual ASTLiteral* clone() const = 0;
 
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 
 		Literal* manager;
 	};
@@ -1405,11 +1642,35 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		bool isConstant() const {return true;}
+		bool isLiteral() const {return true;}
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const;
-		DataType const* getReadType() const {return &DataType::FLOAT;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		
+		void negate();
+	
+		owning_ptr<ASTFloat> value;
+	};
+	
+	class ASTCharLiteral : public ASTLiteral
+	{
+	public:
+		ASTCharLiteral(
+				ASTFloat* value = NULL,
+				LocationData const& location = LocationData::NONE);
+		ASTCharLiteral* clone() const {return new ASTCharLiteral(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		bool isConstant() const {return true;}
+		bool isLiteral() const {return true;}
+
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope)
+				const;
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::CHAR;}
 	
 		owning_ptr<ASTFloat> value;
 	};
@@ -1425,12 +1686,13 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		bool isConstant() const {return true;}
+		bool isLiteral() const {return true;}
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler, Scope* scope)
 				const {
-			return value ? 10000L : 0L;}
-		DataType const* getReadType() const {return &DataType::BOOL;}
+					return value ? (*ZScript::lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
 	
 		bool value;
 	};
@@ -1454,8 +1716,9 @@ namespace ZScript
 		bool isStringLiteral() const /*override*/ {return true;}
 
 		bool isConstant() const /*override*/ {return true;}
+		bool isLiteral() const {return true;}
 
-		DataTypeArray const* getReadType() const /*override*/;
+		DataTypeArray const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
 		
 		// The data declaration that this literal may be part of. If NULL that
 		// means this is not part of a data declaration. This should be managed by
@@ -1477,8 +1740,9 @@ namespace ZScript
 		bool isArrayLiteral() const {return true;}
 
 		bool isConstant() const {return true;}
+		bool isLiteral() const {return true;}
 
-		DataTypeArray const* getReadType() const {return readType_;}
+		DataTypeArray const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return readType_;}
 		void setReadType(DataTypeArray const* type) {readType_ = type;}
 
 		// The data declaration that this literal may be part of. If NULL that
@@ -1509,8 +1773,13 @@ namespace ZScript
 		virtual std::string asString() const;
 
 		virtual bool isConstant() const {return true;}
+		bool isLiteral() const {return false;} //Despite being an `ASTLiteral`, this is NOT a literal. Why is this under ASTLiteral? -V
 
-		virtual DataType const* getReadType() const {
+		
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope)
+				const;
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
 			return &DataType::FLOAT;}
 
 		std::string name;
@@ -1551,9 +1820,12 @@ namespace ZScript
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		DataType const& resolve(Scope& scope);
+		DataType const& resolve(Scope& scope, CompileErrorHandler* errorHandler);
 
 		owning_ptr<DataType> type;
+		int constant_;
+	private:
+		bool wasResolved;
 	};
 }
 

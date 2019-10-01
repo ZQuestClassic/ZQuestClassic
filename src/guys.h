@@ -49,9 +49,6 @@ void screen_combo_modify_postroutine(mapscr *s, int pos);
 // Find the IDs of enemies spawned by combos and flags. Called once on loading a quest.
 void identifyCFEnemies();
 
-// Let's make sure this check is consistent, shall we?
-#define ON_SIDEPLATFORM (_walkflag(x+4,y+16,0) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)))
-
 /**********************************/
 /*******  Enemy Base Class  *******/
 /**********************************/
@@ -100,16 +97,26 @@ public:
     long new_weapon[32]; //Reserved for weapon patterns and args.
     word npcscript; 
     long initD[8], initA[2];
-    
+    word weaponscript;
+    long weap_initiald[8];
+    long weap_initiala[2];
+    byte stickclk;
+   
     long dialogue_str; //WIll be set in spawn flags. 
     long editorflags; //Enemy editor flags 1 to 16
+	
+	bool immortal;
+	bool noSlide;
     
     int getScriptUID();
     void setScriptUID(int new_id);
+    //void explode(int type);
     
     fix  getX();
     fix  getY();
     int  getID();
+    
+    
     enemy(fix X,fix Y,int Id,int Clk);                      // : sprite()
     virtual ~enemy();
     
@@ -126,6 +133,7 @@ public:
     virtual void kickbucket();
     // Stop BG SFX only if no other enemy is playing it
     void stop_bgsfx(int index);
+    bool m_walkflag(int dx,int dy,int special, int dir, int x=-1000,int y=-1000);
     // Take damage or ignore it
     virtual int takehit(weapon *w);
     // override hit detection to check for invicibility, stunned, etc
@@ -133,58 +141,26 @@ public:
     virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
     virtual bool hit(weapon *w);
     virtual void break_shield() {}; // Overridden by types that can have shields
-    virtual bool ignore_msg_freeze()
-    {
-        return false;
-    }
     
-
-protected:
-    int  clk2,sclk;
-    int  starting_hp;
-    int  ox, oy;
-    word  s_tile; //secondary (additional) tile(s)
-    
-    // to allow for different sfx on defeating enemy
-    virtual void death_sfx();
-    virtual void move(fix dx,fix dy);
-    virtual void removearmos(int ax,int ay);
-    virtual void move(fix s);
-    void leave_item();
-    
-    // take damage or ignore it
-    virtual bool hitshield(int wpnx, int wpny, int xdir);
-    virtual int defend(int wpnId, int *power, int edef);
-    //virtual int defend_wdmg(int wpnId, int dmg, int edef);
-    bool candamage(int power, int edef);
-    int defenditemclass(int wpnId, int *power);
-    
-    bool dont_draw();
-    // base drawing function to be used by all derived classes instead of
-    // sprite::draw()
-    virtual void draw(BITMAP *dest);
-    // similar to the overblock function--can do up to a 32x32 sprite
-    void drawblock(BITMAP *dest,int mask);
-    virtual void drawshadow(BITMAP *dest, bool translucent);
-    void masked_draw(BITMAP *dest,int mx,int my,int mw,int mh);
-    
-    //                         --==**==--
-    //   Movement routines that can be used by derived classes as needed
-    //                         --==**==--
-    void fix_coords(bool bound=false);
-    // returns true if next step is ok, false if there is something there
+     // returns true if next step is ok, false if there is something there
     bool canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2);
+    bool canmove_old(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2);
     bool canmove(int ndir,fix s,int special);
     bool canmove(int ndir,int special);
     bool canmove(int ndir);
+    bool enemycanfall(int id);
     // 8-directional
+    void newdir_8_old(int rate,int homing, int special,int dx1,int dy1,int dx2,int dy2);
     void newdir_8(int rate,int homing, int special,int dx1,int dy1,int dx2,int dy2);
+    void newdir_8_old(int rate,int homing, int special);
     void newdir_8(int rate,int homing, int special);
     // makes the enemy slide backwards when hit
     // sclk: first byte is clk, second byte is dir
-    bool slide();
+    int slide();
     bool can_slide();
     bool fslide();
+	virtual bool knockback(int time, int dir, int speed);
+	virtual bool runKnockback();
     // changes enemy's direction, checking restrictions
     // rate:   0 = no random changes, 16 = always random change
     // homing: 0 = none, 256 = always
@@ -203,6 +179,7 @@ protected:
     // pauses for a while after it makes a complete move (to a new square)
     void halting_walk(int rate,int homing,int special,int hrate, int haltcnt);
     // 8-directional movement, aligns to 8 pixels
+    void constant_walk_8_old(int rate,int homing,int special);
     void constant_walk_8(int rate,int homing,int special);
     // 8-directional movement, halting
     void halting_walk_8(int newrate,int newhoming, int newclk,int special,int newhrate, int haltcnt);
@@ -237,6 +214,57 @@ protected:
     void tiledir_big(int ndir, bool fourdir);
     // Enemies that cannot ever be penetrated by weapons
     bool cannotpenetrate();
+	bool isOnSideviewPlatform(); //This handles large enemies, too!
+    
+    virtual bool ignore_msg_freeze()
+    {
+        return false;
+    }
+    
+
+protected:
+    int  clk2,sclk;
+    int  starting_hp;
+    int  ox, oy;
+    word  s_tile; //secondary (additional) tile(s)
+    
+    // to allow for different sfx on defeating enemy
+    virtual void death_sfx();
+    virtual void move(fix dx,fix dy);
+    virtual void removearmos(int ax,int ay);
+    virtual void move(fix s);
+    void leave_item();
+    
+    // take damage or ignore it
+    virtual bool hitshield(int wpnx, int wpny, int xdir);
+    virtual int defend(int wpnId, int *power, int edef);
+//New 2.55 Weapon System
+    int weaponToDefence(int wid);
+    int getWeaponID(weapon *w);
+    int resolveEnemyDefence(weapon *w);
+    virtual int defendNew(int wpnId, int *power, int edef);
+    //virtual int defend_wdmg(int wpnId, int dmg, int edef);
+    bool candamage(int power, int edef);
+    int defenditemclass(int wpnId, int *power);
+    int defenditemclassNew(int wpnId, int *power, weapon *w);
+    
+    bool dont_draw();
+    // base drawing function to be used by all derived classes instead of
+    // sprite::draw()
+    virtual void draw(BITMAP *dest);
+    virtual void drawzcboss(BITMAP *dest);
+    virtual void old_draw(BITMAP *dest);
+    // similar to the overblock function--can do up to a 32x32 sprite
+    void drawblock(BITMAP *dest,int mask);
+    virtual void drawshadow(BITMAP *dest, bool translucent);
+    void masked_draw(BITMAP *dest,int mx,int my,int mw,int mh);
+    
+    //                         --==**==--
+    //   Movement routines that can be used by derived classes as needed
+    //                         --==**==--
+    void fix_coords(bool bound=false);
+   
+    
     
 private:
     bool shieldCanBlock;
@@ -283,6 +311,30 @@ public:
     int clk4;
     bool shield;
     eOther(fix X,fix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
+    virtual bool animate(int index);
+    virtual void draw(BITMAP *dest);
+    virtual int takehit(weapon *w);
+    virtual void break_shield();
+};
+
+class eScript : public enemy
+{
+public:
+    int clk4;
+    bool shield;
+    eScript(fix X,fix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
+    virtual bool animate(int index);
+    virtual void draw(BITMAP *dest);
+    virtual int takehit(weapon *w);
+    virtual void break_shield();
+};
+
+class eFriendly : public enemy
+{
+public:
+    int clk4;
+    bool shield;
+    eFriendly(fix X,fix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
     virtual int takehit(weapon *w);
@@ -692,6 +744,7 @@ public:
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
     virtual int defend(int wpnId, int *power, int edef);
+    virtual int defendNew(int wpnId, int *power, int edef);
 };
 
 // segment class
@@ -713,6 +766,7 @@ public:
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
     virtual int defend(int wpnId, int *power, int edef);
+    virtual int defendNew(int wpnId, int *power, int edef);
 };
 
 // segment class

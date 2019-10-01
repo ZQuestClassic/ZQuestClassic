@@ -7,6 +7,8 @@
 #include "DataStructs.h"
 #include "Types.h"
 #include "Scope.h"
+#include "../ffscript.h"
+extern FFScript FFCore;
 
 using namespace std;
 using namespace ZScript;
@@ -56,6 +58,18 @@ Script* Program::addScript(
 	return script;
 }
 
+Namespace* Program::addNamespace(ASTNamespace& node, Scope& parentScope, CompileErrorHandler* handler)
+{
+	Namespace* namesp = createNamespace(*this, parentScope, node, handler);
+	if(!namesp) return NULL;
+	
+	for(vector<Namespace*>::iterator it = namespaces.begin();
+		it != namespaces.end(); ++it)
+		if(namesp == *it) return namesp; //Already registered, don't re-register.
+	namespaces.push_back(namesp);
+	return namesp;
+}
+
 vector<Function*> Program::getUserGlobalFunctions() const
 {
 	vector<Function*> functions = rootScope_->getLocalFunctions();
@@ -76,8 +90,21 @@ vector<Function*> Program::getUserFunctions() const
 	     it != functions.end();)
 	{
 		Function& function = **it;
-		if (!function.node) it = functions.erase(it);
+		if (function.isInternal()) it = functions.erase(it);
 		else ++it;
+	}
+	return functions;
+}
+
+vector<Function*> Program::getInternalFunctions() const
+{
+	vector<Function*> functions = getFunctions(*this);
+	for (vector<Function*>::iterator it = functions.begin();
+	     it != functions.end();)
+	{
+		Function& function = **it;
+		if (function.isInternal()) ++it;
+		else it = functions.erase(it);
 	}
 	return functions;
 }
@@ -180,7 +207,8 @@ BuiltinScript* ZScript::createScript(
 
 Function* ZScript::getRunFunction(Script const& script)
 {
-	return getOnly<Function*>(script.getScope().getLocalFunctions("run"))
+	//ret//urn getOnly<Function*>(script.getScope().getLocalFunctions("run"))
+	return getOnly<Function*>(script.getScope().getLocalFunctions(FFCore.scriptRunString))
 		.value_or(NULL);
 }
 
@@ -189,6 +217,23 @@ optional<int> ZScript::getLabel(Script const& script)
 	if (Function* run = getRunFunction(script))
 		return run->getLabel();
 	return nullopt;
+}
+
+////////////////////////////////////////////////////////////////
+// ZScript::Namespace
+
+Namespace::Namespace(ASTNamespace& namesp)
+	: name(namesp.name)
+{}
+
+Namespace* ZScript::createNamespace(
+		Program& program, Scope& parentScope, ASTNamespace& node,
+		CompileErrorHandler* errorHandler)
+{
+	NamespaceScope* scope = parentScope.makeNamespaceChild(node);
+	Namespace* namesp = scope->namesp;
+
+	return namesp;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -253,6 +298,16 @@ Variable::Variable(
 	           : nullopt)
 {
 	node.manager = this;
+}
+
+optional<long> Variable::getCompileTimeValue(bool getinitvalue) const
+{
+	if(getinitvalue)
+	{
+		ASTExprVarInitializer* init = node.getInitializer();
+		return init ? init->value : nullopt;
+	}
+	return nullopt;
 }
 
 // ZScript::BuiltinVariable
@@ -367,10 +422,10 @@ string FunctionSignature::asString() const
 // ZScript::Function
 
 Function::Function(DataType const* returnType, string const& name,
-				   vector<DataType const*> paramTypes, int id)
+				   vector<DataType const*> paramTypes, int id, int flags)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes),
-	  id(id), label(nullopt)
+	  id(id), label(nullopt), flags(flags)
 {}
 
 Function::~Function()
@@ -417,9 +472,11 @@ bool Function::isTracing() const
 
 bool ZScript::isRun(Function const& function)
 {
+	//al_trace("Parser sees run string as: %s\n", FFCore.scriptRunString);
 	return function.internalScope->getParent()->isScript()
 		&& *function.returnType == DataType::ZVOID
-		&& function.name == "run";
+		&& (!( strcmp(function.name.c_str(), FFCore.scriptRunString )))
+		&& (!(function.getFlag(FUNCFLAG_INLINE))) ;
 }
 
 int ZScript::getStackSize(Function const& function)

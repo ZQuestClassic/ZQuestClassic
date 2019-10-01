@@ -7,6 +7,8 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 
+#define MAX_SCRIPT_REGISTERS 1024
+
 namespace ZScript
 {
 	class CompileErrorHandler;
@@ -14,12 +16,15 @@ namespace ZScript
 	class TypeStore;
 	class Program;
 	class Script;
+	class Namespace;
 	class Variable;
 	class BuiltinVariable;
 	class Function;
 	class Scope;
 	class RootScope;
+	class FileScope;
 	class ScriptScope;
+	class NamespaceScope;
 	class FunctionScope;
 	
 	////////////////////////////////////////////////////////////////
@@ -37,20 +42,25 @@ namespace ZScript
 		RootScope& getScope() const {return *rootScope_;}
 
 		std::vector<Script*> scripts;
+		std::vector<Namespace*> namespaces;
 		Script* getScript(std::string const& name) const;
 		Script* getScript(ASTScript* node) const;
-		Script* addScript(ASTScript&, Scope&, CompileErrorHandler*);
+		Script* addScript(ASTScript& node, Scope& parentScope, CompileErrorHandler* handler);
+		Namespace* addNamespace(
+			ASTNamespace& node, Scope& parentScope, CompileErrorHandler* handler);
 
 		// Gets the non-internal (user-defined) global scope functions.
 		std::vector<Function*> getUserGlobalFunctions() const;
 
 		// Gets all user-defined functions.
 		std::vector<Function*> getUserFunctions() const;
+		// Gets all non-user-defined functions
+		std::vector<Function*> getInternalFunctions() const;
 
 		// Return a list of all errors in the script declaration.
 		std::vector<CompileError const*> getErrors() const;
 		// Does this script have a declaration error?
-		bool hasError() const {return getErrors().size();}
+		bool hasError() const {return (getErrors().size());}
 
 	private:
 		std::map<std::string, Script*> scriptsByName_;
@@ -139,6 +149,29 @@ namespace ZScript
 	Function* getRunFunction(Script const&);
 	optional<int> getLabel(Script const&);
 
+	
+	////////////////////////////////////////////////////////////////
+	// Namespace
+	
+	class Namespace
+	{
+		friend Namespace* createNamespace(Program& program, Scope& parentScope, ASTNamespace& node, CompileErrorHandler* errorHandler);
+		
+	public:
+		Namespace(ASTNamespace& namesp);
+		std::string const& getName() const {return name;}
+		NamespaceScope& getScope() {return *scope;}
+		NamespaceScope const& getScope() const {return *scope;}
+		void setScope(NamespaceScope* newscope) {scope = newscope;}
+		
+	private:
+		
+		NamespaceScope* scope;
+		std::string name;
+	};
+	
+	Namespace* createNamespace(Program& program, Scope& parentScope, ASTNamespace& node, CompileErrorHandler* errorHandler = NULL);
+	
 	////////////////////////////////////////////////////////////////
 	// Datum
 	
@@ -159,13 +192,15 @@ namespace ZScript
 		virtual optional<std::string> getName() const {return nullopt;}
 		
 		// Get the value at compile time.
-		virtual optional<long> getCompileTimeValue() const {return nullopt;}
+		virtual optional<long> getCompileTimeValue(bool getinitvalue = false) const {return nullopt;}
 
 		// Get the declaring node.
 		virtual AST* getNode() const {return NULL;}
 		
 		// Get the global register this uses.
 		virtual optional<int> getGlobalId() const {return nullopt;}
+		
+		virtual bool isBuiltIn() const {return false;}
 		
 	protected:
 		Datum(Scope& scope, DataType const& type);
@@ -207,7 +242,7 @@ namespace ZScript
 		optional<std::string> getName() const {return node.name;}
 		ASTDataDecl* getNode() const {return &node;}
 		optional<int> getGlobalId() const {return globalId;}
-
+		optional<long> getCompileTimeValue(bool getinitvalue = false) const;
 	private:
 		Variable(Scope& scope, ASTDataDecl& node, DataType const& type);
 
@@ -226,6 +261,8 @@ namespace ZScript
 		optional<std::string> getName() const {return name;}
 		optional<int> getGlobalId() const {return globalId;}
 
+		virtual bool isBuiltIn() const {return true;}
+		
 	private:
 		BuiltinVariable(Scope&, DataType const&, std::string const& name);
 
@@ -243,7 +280,7 @@ namespace ZScript
 
 		optional<std::string> getName() const;
 
-		optional<long> getCompileTimeValue() const {return value;}
+		optional<long> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		ASTDataDecl* getNode() const {return &node;}
 	
@@ -263,8 +300,10 @@ namespace ZScript
 				CompileErrorHandler* = NULL);
 
 		optional<std::string> getName() const {return name;}
-		optional<long> getCompileTimeValue() const {return value;}
+		optional<long> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
+		virtual bool isBuiltIn() const {return true;}
+		
 	private:
 		BuiltinConstant(Scope&, DataType const&,
 		                std::string const& name, long value);
@@ -302,9 +341,8 @@ namespace ZScript
 	class Function
 	{
 	public:
-		
 		Function(DataType const* returnType, std::string const& name,
-		         std::vector<DataType const*> paramTypes, int id);
+		         std::vector<DataType const*> paramTypes, int id, int flags = 0);
 		~Function();
 		
 		DataType const* returnType;
@@ -314,7 +352,7 @@ namespace ZScript
 
 		ASTFuncDecl* node;
 		FunctionScope* internalScope;
-		BuiltinVariable* thisVar;
+		Datum* thisVar;
 
 		// Get the opcodes.
 		std::vector<Opcode*> const& getCode() const {return ownedCode;}
@@ -330,16 +368,27 @@ namespace ZScript
 		// If this is a script level function, return that script.
 		Script* getScript() const;
 
+		int numParams() const {return paramTypes.size();}
 		int getLabel() const;
-
-		// If this is a tracing function (enabled by #option trace)
+		void setFlag(int flag, bool state = true)
+		{
+			if(node) state ? node->flags |= flag : node->flags &= ~flag;
+			state ? flags |= flag : flags &= ~flag;
+		}
+		bool getFlag(int flag) const {return flags & flag;}
+		
+		bool isInternal() const {return !node;};
+		
+		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
 		
 	private:
 		mutable optional<int> label;
+		int flags;
 
 		// Code implementing this function.
 		std::vector<Opcode*> ownedCode;
+		friend class ASTFuncDecl;
 	};
 
 	// Is this function a "run" function?

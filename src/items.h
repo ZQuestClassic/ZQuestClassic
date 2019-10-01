@@ -27,6 +27,7 @@ void killfairy(int misc);
 int addenemy(int x,int y,int id,int clk);
 bool addfairy(fix x, fix y, int misc3, int id);
 bool can_drop(fix x, fix y);
+void item_fall(fix& x, fix& y, fix& fall);
 int select_dropitem(int item_set, int x, int y);
 bool is_side_view();
 
@@ -42,6 +43,9 @@ public:
     word pickup_string_flags;
     //int script_UID;
     int overrideFLAGS; //Override flags.
+    long family;
+    byte lvl;
+    int linked_parent;
     //int weapoverrideFLAGS; 
     
     //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.

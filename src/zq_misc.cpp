@@ -501,8 +501,8 @@ const char *flag_string[MAXFLAGS] =
     "158 Drop Bosskey (Scripted)",
     "159 Spawn NPC (Scripted)",
     "160 SwitchHook Spot (Scripted)",
-    "161 mf161",
-    "162 mf162","163 mf163","164 mf164","165 mf165","166 mf166","167 mf167","168 mf168","169 mf169",
+    "161 Sideview Ladder",
+    "162 Sideview Platform","163 mf163","164 mf164","165 mf165","166 mf166","167 mf167","168 mf168","169 mf169",
     "170 mf170","171 mf171","172 mf172","173 mf173","174 mf174","175 mf175","176 mf176","177 mf177","178 mf178","179 mf179",
     "180 mf180","181 mf181","182 mf182","183 mf183","184 mf184","185 mf185","186 mf186","187 mf187","188 mf188","189 mf189",
     "190 mf190","191 mf191","192 mf192","193 mf193","194 mf194","195 mf195","196 mf196","197 mf197","198 mf198","199 mf199",
@@ -997,7 +997,15 @@ const char *enetype_string[eeMAX] =
     "(None)",
     "-Fairy",
     "Other (Floating)",
-    "Other"
+    "Other",
+    "-max250",
+    "Custom 01", "Custom 02", "Custom 03", "Custom 04", "Custom 05",
+    "Custom 06", "Custom 07", "Custom 08", "Custom 09", "Custom 10",
+    "Custom 11", "Custom 12", "Custom 13", "Custom 14", "Custom 15",
+    "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20",
+    "Friendly NPC 01", "Friendly NPC 02", "Friendly NPC 03", "Friendly NPC 04",
+    "Friendly NPC 05", "Friendly NPC 06", "Friendly NPC 07",
+    "Friendly NPC 08", "Friendly NPC 09", "Friendly NPC 10"
 };
 
 const char *eneanim_string[aMAX] =
@@ -1116,12 +1124,12 @@ const char *walkmisc9_string[e9tARMOS+1] =
 
 const char *pattern_string[MAXPATTERNS] =
 {
-    "Spawn (Classic)", "Enter from Sides (Consecutive)", "Enter from Sides (Random)", "Fall From Ceiling (Classic)", "Fall From Ceiling (Random)", "Spawn (Random)"
+    "Spawn (Classic)", "Enter from Sides (Consecutive)", "Enter from Sides (Random)", "Fall From Ceiling (Classic)", "Fall From Ceiling (Random)", "Spawn (Random)", "Spawn No Enemies"
 };
 
 const char *short_pattern_string[MAXPATTERNS] =
 {
-    "Spawn (C)", "Sides", "Sides (R)", "Ceiling (C)", "Ceiling (R)", "Spawn (R)"
+    "Spawn (C)", "Sides", "Sides (R)", "Ceiling (C)", "Ceiling (R)", "Spawn (R)", "No Spawning"
 };
 
 const char *midi_string[MAXCUSTOMMIDIS_ZQ] =
@@ -1341,6 +1349,7 @@ int onClearQuestFilepath()
 		lfont) == 1)	
 	{
 		ZQ_ClearQuestPath();
+		save_config_file();
 		return D_O_K;
 	}
 	else return D_O_K;	
@@ -1349,18 +1358,18 @@ int onClearQuestFilepath()
 
 int onSnapshot()
 {
-    char buf[26];
+    char buf[200];
     int num=0;
     
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "../../../zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        sprintf(buf, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     blit(screen,screen2,0,0,0,0,zq_screen_w,zq_screen_h);
     PALETTE RAMpal2;
@@ -1481,23 +1490,46 @@ int onAbout()
     {
         switch(IS_BETA)
         {
-        case -1:
-            sprintf(buf2,"(%s Alpha Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-            break;
+		case -1:
+		{
+			sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf3,"Build Date: %s",DATE_STR);
+			break;
+		}
             
-        case 1:
-            sprintf(buf2,"(%s Beta Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-            break;
-            
-        case 0:
-        default:
-            sprintf(buf2,"(%s Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-            break;
+		case 1:
+		{
+			sprintf(buf2,"%s Beta Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+			break;
+		}
+		
+		case 0:
+		{
+		    sprintf(buf2,"%s Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+		    sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+		    break;
+		}
+		default:
+		{
+		    if ( IS_BETA > 0 )
+		    {
+			sprintf(buf2,"%s Beta Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+		    }
+		    else
+		    {
+			sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+		    }
+		    break;
+		}
+		
         }
         
         sprintf(buf1,"ZQuest " ZELDA_VERSION_STR);
-        sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
-        jwin_alert("About ZQuest",buf1,buf2,buf3,"OK", NULL, 13, 27, lfont);
+        
+        jwin_alert("About ZQuest Editor",buf1,buf2,buf3,"OK", NULL, 13, 27, lfont);
     }
     
     return D_O_K;

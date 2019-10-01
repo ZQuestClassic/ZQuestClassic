@@ -41,6 +41,9 @@ void unsetmapflag(int flag = 32);
 bool getmapflag(int flag = 32); // 32 = mBELOW
 int WARPCODE(int dmap,int scr,int dw);
 void update_combo_cycling();
+bool isSVLadder(int x, int y);
+bool isSVPlatform(int x, int y);
+bool checkSVLadderPlatform(int x, int y);
 bool iswater(int combo);
 bool iswater_type(int type);
 bool isGrassType(int type);
@@ -95,6 +98,7 @@ void loadscr(int tmp,int destdmap,int scr,int ldir,bool overlay);
 void putscr(BITMAP* dest,int x,int y,mapscr* screen);
 void putscrdoors(BITMAP *dest,int x,int y,mapscr* screen);
 bool _walkflag(int x,int y,int cnt);
+bool _walkflag(int x,int y,int cnt, int mscid);
 bool water_walkflag(int x,int y,int cnt);
 bool hit_walkflag(int x,int y,int cnt);
 void map_bkgsfx(bool on);

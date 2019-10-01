@@ -33,6 +33,8 @@
 #include "ffasm.h"
 #include "defdata.h"
 #include "zc_malloc.h"
+#include "ffscript.h"
+extern FFScript FFCore;
 
 extern int ex;
 extern void reset_itembuf(itemdata *item, int id);
@@ -53,6 +55,8 @@ extern int jwin_lscheck_proc(int msg,DIALOG *d,int c);
 extern int biw_cnt;
 extern int biic_cnt;
 
+extern ZModule zcm;
+extern zcmodule moduledata;
 
 
 #ifdef _MSC_VER
@@ -301,66 +305,76 @@ struct ItemNameInfo
 static ItemNameInfo inameinf[]=
 {
     //itemclass                       power                                     misc1                                       misc2                                           misc3                                   misc4                                   misc5                              misc6                              misc7                              misc8                              misc9                                        misc10                                  flag1                                   flag2                                   flag3                                                                   flag4                                   flag5                                   wpn1 (Sprites[0])                            wpn2 (Sprites[1])                               wpn3 (Sprites[2])                               wpn4 (Sprites[3])                               wpn5 (Sprites[4])                               wpn6 (Sprites[5])                               wpn7 (Sprites[6])                               wpn8 (Sprites[7])                               wpn9 (Sprites[8])                               wpn10 (Sprites[9])                              action sound                               flag6,                                          flag7,                                                                            flag8,                                          flag9,                                                      flag10,                                         flag11.                                         flag12,                                         flag13,                                         flag14,                                         flag15,                                         flag16               },
-    { itype_fairy,                    NULL,                                     (char *)"HP Regained:",                     (char *)"MP Regained:",                         (char *)"Step Speed:",                  NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"HP. R. Is Percent",            (char *)"MP. R. Is Percent",            NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Item Drop Sound:",                NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_triforcepiece,            NULL,                                     (char *)"Cutscene MIDI:",                   (char *)"Cutscene Type (0-1):",                 NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Side Warp Out",                NULL,                                   (char *)"Removes Sword Jinxes",                                         (char *)"Removes Item Jinxes",          NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_shield,                   NULL,                                     (char *)"Block Flags:",                     (char *)"Reflect Flags:",                       NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"De/Reflection Sound:",            NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_agony,                    (char *)"Sensitivity:",                   (char *)"Vibration Frequency",              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_wealthmedal,              NULL,                                     (char *)"Discount Amount:",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"D. A. Is Percent",             NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_cbyrna,                   (char *)"Beam Damage:",                   (char *)"Beam Speed Divisor:",              (char *)"Orbit Radius:",                        (char *)"Number Of Beams:",             (char *)"Melee Damage:",                NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        (char *)"Slash Sound:",                 (char *)"Penetrates Enemies",           (char *)"Invincible Link",              (char *)"No Melee Attack",                                              (char *)"Can Slash",                    NULL,                                   (char *)"Stab Sprite:",                      (char *)"Slash Sprite:",                        (char *)"Beam Sprite:",                         (char *)"Sparkle Sprite:",                      (char *)"Damaging Sparkle Sprite:",             NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Orbit Sound:",                    (char *)"Melee Weapons Use Magic Cost",         (char *)"Doesn't Pick Up Dropped Items",                                          (char *)"Flip Right-Facing Slash",              NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_whispring,                (char *)"Jinx Divisor:",                  (char *)"Jinx Type:",                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Perm. Jinx Are Temp.",         NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_ladder,                   (char *)"Four-Way:",                      NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_magickey,                 (char *)"Dungeon Level:",                 NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Lesser D. Levels Also",        NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_wallet,                   (char *)"Infinite Supply:",               (char *)"Increase Amount:",                 (char *)"Delay Duration:",                      NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_quiver,                   (char *)"Infinite Supply:",               (char *)"Increase Amount:",                 (char *)"Delay Duration:",                      NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_bombbag,                  (char *)"Infinite Supply:",               (char *)"Increase Amount:",                 (char *)"Delay Duration:",                      NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Super Bombs Also",             NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_quakescroll2,             (char *)"Damage Multiplier:",             (char *)"Stun Duration:",                   (char *)"Stun Radius:",                         NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Quake Sound:",                    NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_quakescroll,              (char *)"Damage Multiplier:",             (char *)"Stun Duration:",                   (char *)"Stun Radius:",                         NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Quake Sound:",                    NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_perilscroll,              NULL,                                     (char *)"Maximum Hearts:",                  NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_spinscroll2,              (char *)"Damage Multiplier:",             (char *)"Number of Spins:",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Spinning Sound:",                 NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_spinscroll,               (char *)"Damage Multiplier:",             (char *)"Number of Spins:",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Spinning Sound:",                 NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_clock,                    NULL,                                     (char *)"Duration (0 = Infinite):",         NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_magicring,                (char *)"Infinite Magic:",                (char *)"Increase Amount:",                 (char *)"Delay Duration:",                      NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_heartring,                NULL,                                     (char *)"Increase Amount:",                 (char *)"Delay Duration:",                      NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
+    { itype_fairy,                    NULL,                                     (char *)"HP Regained:",                     (char *)"MP Regained:",                         (char *)"Step Speed:",                  NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"HP. R. Is Percent",            (char *)"MP. R. Is Percent",            NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Item Drop Sound:",                NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_triforcepiece,            NULL,                                     (char *)"Cutscene MIDI:",                   (char *)"Cutscene Type (0-1):",                 NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Side Warp Out",                NULL,                                   (char *)"Removes Sword Jinxes",                                         (char *)"Removes Item Jinxes",          NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_shield,                   NULL,                                     (char *)"Block Flags:",                     (char *)"Reflect Flags:",                       NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"De/Reflection Sound:",            NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_agony,                    (char *)"Sensitivity:",                   (char *)"Vibration Frequency",              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_wealthmedal,              NULL,                                     (char *)"Discount Amount:",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"D. A. Is Percent",             NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_cbyrna,                   (char *)"Beam Damage:",                   (char *)"Beam Speed Divisor:",              (char *)"Orbit Radius:",                        (char *)"Number Of Beams:",             (char *)"Melee Damage:",                NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        (char *)"Slash Sound:",                 (char *)"Penetrates Enemies",           (char *)"Invincible Link",              (char *)"No Melee Attack",                                              (char *)"Can Slash",                    NULL,                                   (char *)"Stab Sprite:",                      (char *)"Slash Sprite:",                        (char *)"Beam Sprite:",                         (char *)"Sparkle Sprite:",                      (char *)"Damaging Sparkle Sprite:",             NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Orbit Sound:",                    (char *)"Melee Weapons Use Magic Cost",         (char *)"Doesn't Pick Up Dropped Items",                                          (char *)"Flip Right-Facing Slash",              NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_whispring,                (char *)"Jinx Divisor:",                  (char *)"Jinx Type:",                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Perm. Jinx Are Temp.",         NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_ladder,                   (char *)"Four-Way:",                      NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_magickey,                 (char *)"Dungeon Level:",                 NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Lesser D. Levels Also",        NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_wallet,                   (char *)"Infinite Supply:",               (char *)"Increase Amount:",                 (char *)"Delay Duration:",                      NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_quiver,                   (char *)"Infinite Supply:",               (char *)"Increase Amount:",                 (char *)"Delay Duration:",                      NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_bombbag,                  (char *)"Infinite Supply:",               (char *)"Increase Amount:",                 (char *)"Delay Duration:",                      NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Super Bombs Also",             NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_quakescroll2,             (char *)"Damage Multiplier:",             (char *)"Stun Duration:",                   (char *)"Stun Radius:",                         NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Quake Sound:",                    NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_quakescroll,              (char *)"Damage Multiplier:",             (char *)"Stun Duration:",                   (char *)"Stun Radius:",                         NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Quake Sound:",                    NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_perilscroll,              NULL,                                     (char *)"Maximum Hearts:",                  NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_spinscroll2,              (char *)"Damage Multiplier:",             (char *)"Number of Spins:",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Spinning Sound:",                 NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_spinscroll,               (char *)"Damage Multiplier:",             (char *)"Number of Spins:",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Spinning Sound:",                 NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_clock,                    NULL,                                     (char *)"Duration (0 = Infinite):",         NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_magicring,                (char *)"Infinite Magic:",                (char *)"Increase Amount:",                 (char *)"Delay Duration:",                      NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_heartring,                NULL,                                     (char *)"Increase Amount:",                 (char *)"Delay Duration:",                      NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
     //itemclass                       power                                     misc1                                       misc2                                           misc3                                   misc4                                   misc5                              misc6                              misc7                              misc8                              misc9                                        misc10                                  flag1                                   flag2                                   flag3                                                                   flag4                                   flag5                                   wpn1                                         wpn2                                            wpn3                                            wpn4                                            wpn5                                            wpn6                                            wpn7                                            wpn8                                            wpn9                                            wpn10                                           action sound                               flag6,                                          flag7,                                                                            flag8,                                          flag9,                                                      flag10,                                         flag11.                                         flag12,                                         flag13,                                         flag14,                                         flag15,                                         flag16               },
-    { itype_chargering,               NULL,                                     (char *)"Charging Duration:",               (char *)"Magic C. Duration:",                   NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_hoverboots,               NULL,                                     (char *)"Hover Duration:",                  NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   (char *)"Halo Sprite:",                      NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Hovering Sound:",                 NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_rocs,                     (char *)"Height Multiplier:",             NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Jumping Sound:",                  NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_sbomb,                    (char *)"Damage:",                        (char *)"Fuse Duration (0 = Remote):",      (char *)"Max. On Screen:",                      (char *)"Damage to Link:",              NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   (char *)"Explosion Hurts Link",         NULL,                                                                   NULL,                                   NULL,                                   (char *)"Bomb Sprite:",                      (char *)"Explosion Sprite:",                    NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Explosion Sound:",                NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_bomb,                     (char *)"Damage:",                        (char *)"Fuse Duration (0 = Remote):",      (char *)"Max. On Screen:",                      (char *)"Damage to Link:",              NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Use 1.92 Timing",              (char *)"Explosion Hurts Link",         NULL,                                                                   NULL,                                   NULL,                                   (char *)"Bomb Sprite:",                      (char *)"Explosion Sprite:",                    NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Explosion Sound:",                NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_nayruslove,               NULL,                                     (char *)"Duration:",                        NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Rocket Flickers",              (char *)"Translucent Rocket",           (char *)"Translucent Shield",                                           (char *)"Shield Flickers",              NULL,                                   (char *)"Left Rocket Sprite:",               (char *)"L. Rocket Return Sprite:",             (char *)"L. Rocket Sparkle Sprite:",            (char *)"L. Return Sparkle Sprite:",            (char *)"Shield Sprite (2x2, Over):",           (char *)"Right Rocket Sprite:",                 (char *)"R. Rocket Return Sprite:",             (char *)"R. Rocket Sparkle Sprite:",            (char *)"R. Return Sparkle Sprite:",            (char *)"Shield Sprite (2x2, Under):",          (char *)"Shield Sound:",                   NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_faroreswind,              NULL,                                     (char *)"Warp Animation (0-2):",            NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Wind Sound:",                     NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_dinsfire,                 (char *)"Damage:",                        (char *)"Number of Flames:",                (char *)"Circle Width:",                        NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   (char *)"Don't Provide Light",          (char *)"Falls in Sideview",                                            NULL,                                   (char *)"Temporary Light",              (char *)"Rocket Up Sprite:",                 (char *)"Rocket Down Sprite:",                  (char *)"R. Up Sparkle Sprite:",                (char *)"R. Down Sparkle Sprite:",              (char *)"Flame Sprite:",                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Ring Sound:",                     NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_hammer,                   (char *)"Damage:",                        NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   (char *)"No Melee Attack",                                              NULL,                                   NULL,                                   (char *)"Hammer Sprite:",                    (char *)"Smack Sprite:",                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Pound Sound:",                    NULL,                                           (char *)"Doesn't Pick Up Dropped Items",                                          NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_lens,                     NULL,                                     (char *)"Lens Width:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Show Hints",                   (char *)"Hide Secret Combos",           (char *)"No X-Ray for Items",                                           (char *)"Show Raft Paths",              (char *)"Show Invis. Enemies",          NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Activation Sound:",               NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_hookshot,                 (char *)"Damage:",                        (char *)"Chain Length:",                    (char *)"Chain Links:",                         (char *)"Block Flags:",                 (char *)"Reflect Flags:",               NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Handle Damage",             (char *)"Allow Diagonal",               NULL,                                                                   (char *)"Pick Up Anything",             (char *)"Drags Items",                  (char *)"Tip Sprite:",                       (char *)"Chain Sprite (H):",                    (char *)"Chain Sprite (V):",                    (char *)"Handle Sprite:",                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Firing Sound:",                   (char *)"Reflects Enemy Projectiles",           (char *)"Pick Up Keys: The hookshot will retrieve normal keys, and level keys.",  NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_boots,                    (char *)"Damage Combo Level:",            NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Not Solid Combos",             (char *)"Iron",                         NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_bracelet,                 (char *)"Push Combo Level:",              NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Once Per Screen",              NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_book,                     (char *)"M. Damage:",                     (char *)"W. Damage:",                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Fire Magic",                   (char *)"Override Wand",                (char *)"Fire Doesn't Hurt Link",                                       NULL,                                   (char *)"Temporary Light",              (char *)"Magic Sprite:",                     (char *)"Flame Sprite:",                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Firing Sound:",                   NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_ring,                     (char *)"Damage Divisor:",                (char *)"Link Sprite Pal:",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Affects Damage Combos",        NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_wand,                     (char *)"Damage:",                        (char *)"M. Damage",                        (char *)"W. Type:",                             (char *)"W. Speed:",                    (char *)"W. Range:",                    (char *)"Move Effect:",            (char *)"Mvt Arg1:",               (char *)"Mvt Arg2:",               (char *)"No. of Clones:",          (char *)"Clone Pattern:",                    (char *)"Slash Sound:",                 (char *)"Allow Magic w/o Book",         (char *)"Wand Moves",                   (char *)"No Melee Attack",                                              (char *)"Can Slash",                    (char *)"Quick",                        (char *)"Stab Sprite:",                      (char *)"Slash Sprite:",                        (char *)"Projectile Sprite:",                   (char *)"Projectile Misc:",                     NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Firing Sound:",                   (char *)"Melee Weapons Use Magic Cost",         (char *)"Doesn't Pick Up Dropped Items",                                          (char *)"Flip Right-Facing Slash",              NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_bait,                     NULL,                                     (char *)"Duration:",                        NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   (char *)"Bait Sprite:",                      NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Baiting Sound:",                  NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_potion,                   NULL,                                     (char *)"HP Regained:",                     (char *)"MP Regained:",                         NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"HP R. Is Percent",             (char *)"MP R. Is Percent",             (char *)"Removes Sword Jinxes",                                         (char *)"Removes Item Jinxes",          NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_whistle,                  NULL,                                     (char *)"Whirlwind Direction:",             (char *)"Warp Ring:",                           NULL,                                   NULL,                                   (char *)"Weapon Damage",           NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"One W.Wind Per Scr.",          (char *)"Has Damage",                   (char *)"Whirlwinds Reflect off Prism/Mirror Combos",                   NULL,                                   NULL,                                   (char *)"Whirlwind Sprite:",                 NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Music Sound:",                    NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_candle,                   (char *)"Damage:",                        (char *)"Damage to Link:",                  NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Once Per Screen",              (char *)"Don't Provide Light",          (char *)"Fire Doesn't Hurt Link",                                       (char *)"Can Slash",                    (char *)"Temporary Light",              (char *)"Stab Sprite:",                      (char *)"Slash Sprite:",                        (char *)"Flame Sprite:",                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Firing Sound:",                   NULL,                                           NULL,                                                                             (char *)"Flip Right-Facing Slash",              NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_arrow,                    (char *)"Damage:",                        (char *)"Duration (0 = Infinite):",         NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Penetrate Enemies",            (char *)"Allow Item Pickup",            NULL,                                                                   (char *)"Pick Up Anything",             NULL,                                   (char *)"Arrow Sprite:",                     (char *)"Sparkle Sprite:",                      (char *)"Damaging Sparkle Sprite:",             NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Firing Sound:",                   NULL,                                           (char *)"Pick Up Keys: The arrows will retrieve normal keys, and level keys.",    NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_brang,                    (char *)"Damage:",                        (char *)"Range (0 = Infinite):",            NULL,                                           (char *)"Block Flags:",                 (char *)"Reflect Flags:",               NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Corrected Animation",          (char *)"Directional Sprites",          (char *)"Do Not Return",                                                (char *)"Pick Up Anything",             (char *)"Drags Items",                  (char *)"Boomerang Sprite:",                 (char *)"Sparkle Sprite:",                      (char *)"Damaging Sparkle Sprite:",             NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Spinning Sound:",                 (char *)"Reflects Enemy Projectiles",           (char *)"Pick Up Keys: The boomerang will retrieve normal keys, and level keys.", NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_sword,                    (char *)"Damage:",                        (char *)"Beam Hearts:",                     (char *)"Beam Damage:",                         NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"B.H. Is Percent",              (char *)"B.D. Is Percent",              (char *)"B. Penetrates Enemies",                                        (char *)"Can Slash",                    (char *)"Quick",                        (char *)"Stab Sprite:",                      (char *)"Slash Sprite:",                        (char *)"Beam Sprite:",                         NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char*)"Slash/Stab Sound",                 (char *)"Melee Weapons Use Magic Cost",         (char *)"Doesn't Pick Up Dropped Items",                                          (char *)"Flip Right-Facing Slash",              (char *)"Sword Beams Reflect off Prism/Mirror Combos",      (char *)"Walk slowly while charging",           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_whimsicalring,            (char *)"Damage Bonus:",                  (char *)"Chance (1 in n):",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Whimsy Sound:",                   NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_perilring,                (char *)"Damage Divisor:",                (char *)"Maximum Hearts:",                  NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_stompboots,               (char *)"Damage:",                        NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_bow,                      (char *)"Arrow Speed:",                   NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_script1,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_script2,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_script3,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_script4,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_script5,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_script6,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_script7,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_script8,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_script9,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_script10,                 (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_icerod,                   (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-    { itype_flippers,                 NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Diving",                    NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
+    { itype_chargering,               NULL,                                     (char *)"Charging Duration:",               (char *)"Magic C. Duration:",                   NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_hoverboots,               NULL,                                     (char *)"Hover Duration:",                  NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   (char *)"Halo Sprite:",                      NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Hovering Sound:",                 NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_rocs,                     (char *)"Jump Power:",                    NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Jump is Power/100",            NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Jumping Sound:",                  NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_sbomb,                    (char *)"Damage:",                        (char *)"Fuse Duration (0 = Remote):",      (char *)"Max. On Screen:",                      (char *)"Damage to Link:",              NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   (char *)"Explosion Hurts Link",         NULL,                                                                   NULL,                                   NULL,                                   (char *)"Bomb Sprite:",                      (char *)"Explosion Sprite:",                    NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Explosion Sound:",                NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_bomb,                     (char *)"Damage:",                        (char *)"Fuse Duration (0 = Remote):",      (char *)"Max. On Screen:",                      (char *)"Damage to Link:",              NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Use 1.92 Timing",              (char *)"Explosion Hurts Link",         NULL,                                                                   NULL,                                   NULL,                                   (char *)"Bomb Sprite:",                      (char *)"Explosion Sprite:",                    NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Explosion Sound:",                NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_nayruslove,               NULL,                                     (char *)"Duration:",                        NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Rocket Flickers",              (char *)"Translucent Rocket",           (char *)"Translucent Shield",                                           (char *)"Shield Flickers",              NULL,                                   (char *)"Left Rocket Sprite:",               (char *)"L. Rocket Return Sprite:",             (char *)"L. Rocket Sparkle Sprite:",            (char *)"L. Return Sparkle Sprite:",            (char *)"Shield Sprite (2x2, Over):",           (char *)"Right Rocket Sprite:",                 (char *)"R. Rocket Return Sprite:",             (char *)"R. Rocket Sparkle Sprite:",            (char *)"R. Return Sparkle Sprite:",            (char *)"Shield Sprite (2x2, Under):",          (char *)"Shield Sound:",                   NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_faroreswind,              NULL,                                     (char *)"Warp Animation (0-2):",            NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Wind Sound:",                     NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_dinsfire,                 (char *)"Damage:",                        (char *)"Number of Flames:",                (char *)"Circle Width:",                        NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   (char *)"Don't Provide Light",          (char *)"Falls in Sideview",                                            NULL,                                   (char *)"Temporary Light",              (char *)"Rocket Up Sprite:",                 (char *)"Rocket Down Sprite:",                  (char *)"R. Up Sparkle Sprite:",                (char *)"R. Down Sparkle Sprite:",              (char *)"Flame Sprite:",                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Ring Sound:",                     NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_hammer,                   (char *)"Damage:",                        NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   (char *)"No Melee Attack",                                              NULL,                                   NULL,                                   (char *)"Hammer Sprite:",                    (char *)"Smack Sprite:",                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Pound Sound:",                    NULL,                                           (char *)"Doesn't Pick Up Dropped Items",                                          NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_lens,                     NULL,                                     (char *)"Lens Width:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Show Hints",                   (char *)"Hide Secret Combos",           (char *)"No X-Ray for Items",                                           (char *)"Show Raft Paths",              (char *)"Show Invis. Enemies",          NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Activation Sound:",               NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_hookshot,                 (char *)"Damage:",                        (char *)"Chain Length:",                    (char *)"Chain Links:",                         (char *)"Block Flags:",                 (char *)"Reflect Flags:",               NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Handle Damage",             (char *)"Allow Diagonal",               NULL,                                                                   (char *)"Pick Up Anything",             (char *)"Drags Items",                  (char *)"Tip Sprite:",                       (char *)"Chain Sprite (H):",                    (char *)"Chain Sprite (V):",                    (char *)"Handle Sprite:",                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Firing Sound:",                   (char *)"Reflects Enemy Projectiles",           (char *)"Pick Up Keys: The hookshot will retrieve normal keys, and level keys.",  NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_boots,                    (char *)"Damage Combo Level:",            NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Not Solid Combos",             (char *)"Iron",                         NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_bracelet,                 (char *)"Push Combo Level:",              NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Once Per Screen",              NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_book,                     (char *)"M. Damage:",                     (char *)"W. Damage:",                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Fire Magic",                   (char *)"Override Wand",                (char *)"Fire Doesn't Hurt Link",                                       NULL,                                   (char *)"Temporary Light",              (char *)"Magic Sprite:",                     (char *)"Flame Sprite:",                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Firing Sound:",                   NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_ring,                     (char *)"Damage Divisor:",                (char *)"Link Sprite Pal:",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Affects Damage Combos",        (char *)"Divisor is Percentage Multiplier", NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_wand,                     (char *)"Damage:",                        (char *)"M. Damage",                        (char *)"W. Type:",                             (char *)"W. Speed:",                    (char *)"W. Range:",                    (char *)"Move Effect:",            (char *)"Mvt Arg1:",               (char *)"Mvt Arg2:",               (char *)"No. of Clones:",          (char *)"Clone Pattern:",                    (char *)"Slash Sound:",                 (char *)"Allow Magic w/o Book",         (char *)"Wand Moves",                   (char *)"No Melee Attack",                                              (char *)"Can Slash",                    (char *)"Quick",                        (char *)"Stab Sprite:",                      (char *)"Slash Sprite:",                        (char *)"Projectile Sprite:",                   (char *)"Projectile Misc:",                     NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Firing Sound:",                   (char *)"Melee Weapons Use Magic Cost",         (char *)"Doesn't Pick Up Dropped Items",                                          (char *)"Flip Right-Facing Slash",              NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_bait,                     NULL,                                     (char *)"Duration:",                        NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   (char *)"Bait Sprite:",                      NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Baiting Sound:",                  NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_potion,                   NULL,                                     (char *)"HP Regained:",                     (char *)"MP Regained:",                         NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"HP R. Is Percent",             (char *)"MP R. Is Percent",             (char *)"Removes Sword Jinxes",                                         (char *)"Removes Item Jinxes",          NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_whistle,                  NULL,                                     (char *)"Whirlwind Direction:",             (char *)"Warp Ring:",                           NULL,                                   NULL,                                   (char *)"Weapon Damage",           NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"One W.Wind Per Scr.",          (char *)"Has Damage",                   (char *)"Whirlwinds Reflect off Prism/Mirror Combos",                   NULL,                                   NULL,                                   (char *)"Whirlwind Sprite:",                 NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Music Sound:",                    NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_candle,                   (char *)"Damage:",                        (char *)"Damage to Link:",                  NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Once Per Screen",              (char *)"Don't Provide Light",          (char *)"Fire Doesn't Hurt Link",                                       (char *)"Can Slash",                    (char *)"Temporary Light",              (char *)"Stab Sprite:",                      (char *)"Slash Sprite:",                        (char *)"Flame Sprite:",                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Firing Sound:",                   NULL,                                           NULL,                                                                             (char *)"Flip Right-Facing Slash",              NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_arrow,                    (char *)"Damage:",                        (char *)"Duration (0 = Infinite):",         NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Penetrate Enemies",            (char *)"Allow Item Pickup",            NULL,                                                                   (char *)"Pick Up Anything",             NULL,                                   (char *)"Arrow Sprite:",                     (char *)"Sparkle Sprite:",                      (char *)"Damaging Sparkle Sprite:",             NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Firing Sound:",                   NULL,                                           (char *)"Pick Up Keys: The arrows will retrieve normal keys, and level keys.",    NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_brang,                    (char *)"Damage:",                        (char *)"Range (0 = Infinite):",            NULL,                                           (char *)"Block Flags:",                 (char *)"Reflect Flags:",               NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"Corrected Animation",          (char *)"Directional Sprites",          (char *)"Do Not Return",                                                (char *)"Pick Up Anything",             (char *)"Drags Items",                  (char *)"Boomerang Sprite:",                 (char *)"Sparkle Sprite:",                      (char *)"Damaging Sparkle Sprite:",             NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Spinning Sound:",                 (char *)"Reflects Enemy Projectiles",           (char *)"Pick Up Keys: The boomerang will retrieve normal keys, and level keys.", (char *)"Triggers 'Fire(Any)'",                 NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_sword,                    (char *)"Damage:",                        (char *)"Beam Hearts:",                     (char *)"Beam Damage:",                         NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"B.H. Is Percent",              (char *)"B.D. Is Percent",              (char *)"B. Penetrates Enemies",                                        (char *)"Can Slash",                    (char *)"Quick",                        (char *)"Stab Sprite:",                      (char *)"Slash Sprite:",                        (char *)"Beam Sprite:",                         NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char*)"Slash/Stab Sound",                 (char *)"Melee Weapons Use Magic Cost",         (char *)"Doesn't Pick Up Dropped Items",                                          (char *)"Flip Right-Facing Slash",              (char *)"Sword Beams Reflect off Prism/Mirror Combos",      (char *)"Walk slowly while charging",           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_whimsicalring,            (char *)"Damage Bonus:",                  (char *)"Chance (1 in n):",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Whimsy Sound:",                   NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_perilring,                (char *)"Damage Divisor:",                (char *)"Maximum Hearts:",                  NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   (char *)"Divisor is Percentage Multiplier", NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_stompboots,               (char *)"Damage:",                        NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_bow,                      (char *)"Arrow Speed:",                   NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_script1,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_script2,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_script3,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_script4,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_script5,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_script6,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_script7,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_script8,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_script9,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_script10,                 (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_custom1,                 NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_custom2,                 NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                 NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_custom3,                 NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                  NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_custom4,                 NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_custom5,                 NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_custom6,                 NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_custom7,                 NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_custom8,                 NULL,                     NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_custom9,                 NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_custom10,                NULL,                      NULL,                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_icerod,                  (char *)"W. Power:",                      (char *)"Step Speed:",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Gfx Flip",                  NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
+    { itype_flippers,                 NULL,                                     (char *)"Dive Length:",                     (char *)"Dive Cooldown:",                       NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   (char *)"No Diving",                    (char *)"Cancellable Diving",           NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           (char *)"Constant Script"                 },
       
     { -1,                             NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 }
 };
@@ -422,14 +436,14 @@ static int itemdata_action_list[] =
     // dialog control number
     /*131, 132,*/ 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156,
 	157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 199,200, 
-	262,263,
+	262,263, 317,
 	-1
 };
 
 static int itemdata_scriptargs_list[] =
 {
     // dialog control number
-    101, 102, 131, 132, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, -1
+    101, 102, 131, 132, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 315, 316, -1
 };
 
 static int itemdata_itemsize_list[] =
@@ -444,10 +458,25 @@ static int itemdata_weaponsize_list[] =
 	228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254, -1
 };
 
+static int itemdata_weaponproperty_list[] =
+{
+    // dialog control number
+	293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,
+	-1
+};
+
 static int itemdata_weaponargs_list[] =
 {
     // dialog control number
     199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215,216,217,218,219,220, -1
+};
+
+static int itemdata_weaponscript_list[] =
+{
+    // dialog control number
+	275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,
+	292,
+	-1
 };
 
 
@@ -460,8 +489,10 @@ static TABPANEL itemdata_tabs[] =
     { (char *)"Pickup",       0,             itemdata_pickup_list,        0, NULL },
     { (char *)"Action",       0,             itemdata_action_list,        0, NULL },
     { (char *)"Scripts",      0,             itemdata_scriptargs_list,    0, NULL },
+    { (char *)"W. Script",      0,             itemdata_weaponscript_list,    0, NULL },
     { (char *)"Size",      0,             itemdata_itemsize_list,    0, NULL },
    //  { (char *)"Weapon",      0,             itemdata_weaponargs_list,    0, NULL },
+    { (char *)"Weapon",      0,             itemdata_weaponproperty_list,    0, NULL },
     { (char *)"Weapon Size",      0,             itemdata_weaponsize_list,    0, NULL },
     { NULL,                   0,             NULL,                        0, NULL }
 };
@@ -477,7 +508,10 @@ const char *itemdata_weaponlist(int index, int *list_size)
     {
         bound(index,0,40);
         
-        switch(index)
+	if ( moduledata.player_weapon_names[index][0] == '-' ) return "n/a";
+	else return (char *)moduledata.player_weapon_names[index];
+    /*
+	switch(index)
         {
 
 	case 0: return "None";
@@ -538,6 +572,7 @@ const char *itemdata_weaponlist(int index, int *list_size)
           //  sprintf(counterlist_str_buf,"Script %d",index-7);
           //  return counterlist_str_buf;
         }
+	*/
     }
     
     *list_size = 41;
@@ -554,7 +589,10 @@ const char *itemdata_weapontypelist(int index, int *list_size)
     {
         bound(index,0,40);
         
-        switch(index)
+	if ( moduledata.player_weapon_names[index][0] == '-' ) return "n/a";
+	else return (char *)moduledata.player_weapon_names[index];
+	/*
+	switch(index)
         {
 	case 0: return "None";
 	case 1: return "Sword"; 
@@ -614,6 +652,7 @@ const char *itemdata_weapontypelist(int index, int *list_size)
           //  sprintf(counterlist_str_buf,"Script %d",index-7);
           //  return counterlist_str_buf;
         }
+	*/
     }
     
     *list_size = 41;
@@ -663,8 +702,9 @@ const char *counterlist(int index, int *list_size)
     if(index >= 0)
     {
         bound(index,0,32);
-        
-        switch(index)
+        return (char *)moduledata.counter_names[index];
+        /*
+	switch(index)
         {
         case 0:
             return "None";
@@ -745,6 +785,7 @@ const char *counterlist(int index, int *list_size)
             sprintf(counterlist_str_buf,"Script %d",index-7);
             return counterlist_str_buf;
         }
+	*/
     }
     
     *list_size = 33;
@@ -833,6 +874,22 @@ const char *defenselist(int index, int *list_size)
 	case edTRIGGERSECRETS: //Triggers screen secrets. 
 		return "Trigger Screen Secrets";
 	
+	case edSPLIT: 
+		return "Split";
+	case edREPLACE: return "Transform";
+	
+	case edSUMMON: 
+		return "Summon";
+	
+	case edEXPLODESMALL: 
+		return "Bomb Explosion";
+	
+	case edEXPLODELARGE: 
+		return "Superbomb Explosion";
+	
+	case edEXPLODEHARMLESS: 
+		return "Harmless Explosion";
+	
 	case edFREEZE: //Hit by ice.. 
 		return "Freeze Solid";
 	
@@ -882,6 +939,36 @@ const char *itemscriptdroplist(int index, int *list_size)
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData itemscript_list(itemscriptdroplist, &pfont);
+
+const char *itemspritescriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = biitemsprites_cnt;
+        return NULL;
+    }
+    
+    return biditemsprites[index].first.c_str();
+}
+
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData itemspritescript_list(itemspritescriptdroplist, &pfont);
+
+const char *lweaponscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bilweapons_cnt;
+        return NULL;
+    }
+    
+    return bilweapons[index].first.c_str();
+}
+
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
 
 static DIALOG itemdata_special_dlg[] =
 {
@@ -1030,8 +1117,8 @@ static DIALOG itemdata_dlg[] =
     { jwin_edit_proc,         107,     80,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
     
     //101
-    { jwin_text_proc,          112+10,    47+38,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pickup Script:",                            NULL,   NULL                  },
-    { jwin_droplist_proc,      112+10,    47+38+10,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,          112+10+20+34+1-4,    10+39+32+3+8-5,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pickup Script:",                            NULL,   NULL                  },
+    { jwin_droplist_proc,      112+10+20+34-4,    10+47+40-5+7-5,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemscript_list,                   NULL,   NULL 				   },
     //{ jwin_edit_proc,          55,     98,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //103
     { jwin_text_proc,          8,    102,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sound:",                              NULL,   NULL                  },
@@ -1072,8 +1159,8 @@ static DIALOG itemdata_dlg[] =
     { d_dummy_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                 },
     
     //131
-    { jwin_text_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10,  47+38+10*2 + 18,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4,  10+29+12+7,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemscript_list,                   NULL,   NULL 				   },
     //{ jwin_edit_proc,          55,     44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     { jwin_text_proc,           8,     48,     44,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Cost:",                              NULL,   NULL                  },
     { jwin_edit_proc,         32,     44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
@@ -1137,28 +1224,49 @@ static DIALOG itemdata_dlg[] =
     { d_dummy_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                 },
     
     //179
-    { jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
-    { jwin_text_proc,       6+10,   47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
-    { jwin_text_proc,       6+10,   65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
-    { jwin_text_proc,       6+10,   83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
-    { jwin_text_proc,       6+10,  101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
-    { jwin_text_proc,       6+10,  119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
-    { jwin_text_proc,       6+10,  137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
-    { jwin_text_proc,       6+10,  155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
-    { jwin_edit_proc,      34+10,   25+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   43+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   61+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   79+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   97+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  115+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  133+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  151+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
+    //{ jwin_edit_proc,      34+10,   25+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,   43+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,   61+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,   79+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,   97+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,  115+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,  133+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,  151+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    
+    
     //195
-    { jwin_text_proc,       112+10,  29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A1:", NULL, NULL },
-    { jwin_text_proc,       112+10,  47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A2:", NULL, NULL },
+    { jwin_text_proc,       212+10-16+50, 10+137+20+4,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A1:", NULL, NULL },
+    { jwin_text_proc,       212+10-16+50,  10+155+20+4,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A2:", NULL, NULL },
     //197
-    { jwin_edit_proc,      140+10,  25+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      140+10,  43+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      140+10,  10+137+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      140+10,  10+155+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      212+10+50,  10+137+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      212+10+50,  10+155+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
     //199
     //Magic Cost Timer, 199
     { jwin_text_proc,         145,     48,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Timer:",                              NULL,   NULL                  },
@@ -1277,7 +1385,66 @@ static DIALOG itemdata_dlg[] =
     { jwin_check_proc,        6,     172,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[13]",                        NULL,   NULL                  },
     { jwin_check_proc,        6,    182,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[14]",                        NULL,   NULL                  },
     { jwin_check_proc,        6,    192,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[15]",                        NULL,   NULL                  },
-    
+    //275 Weapon Scripts
+    {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    //283
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //291
+    { jwin_text_proc,           112+10+20+34+1-4,  10+29+12+7,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &lweaponscript_list,                   NULL,   NULL 				   },
+    //293 --weapon editor
+    { jwin_text_proc,           8,     50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_list,						 NULL,   NULL 				   },
+    //295
+    { jwin_text_proc,           8,     70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Default Defense",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &defense_list,						 NULL,   NULL 				   },
+    //297
+    { jwin_text_proc,           8,     90,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Pattern",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     107,     88,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_pattern_llist,						 NULL,   NULL 				   },
+    //299
+    { jwin_text_proc,           8,     110,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 1:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         107,     108,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //301
+    { jwin_text_proc,           8,     130,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 2:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         107,     128,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //303
+    { jwin_text_proc,           8,     150,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Range:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         107,     148,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //305
+    { jwin_text_proc,           8,     170,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Duration:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         107,     168,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //307
+     { jwin_text_proc,           177,     110,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 3:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     108,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //309
+    { jwin_text_proc,           177,     130,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 4:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     128,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //311
+    { jwin_text_proc,           177,     150,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Other 1:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     148,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //313
+    { jwin_text_proc,           177,     170,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Other 2:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     168,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //315 item sprite script
+    { jwin_text_proc,          112+10+20+34+1-4,    10+39+32+3+8-5+28,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprite Script:",                            NULL,   NULL                  },
+    { jwin_droplist_proc,      112+10+20+34-4,    10+47+40-5+7-5+28,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemspritescript_list,                   NULL,   NULL 				   },
+    //317 validate cost flag
+    { jwin_check_proc,        120,     62,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Only Validate Cost",                        NULL,   NULL                  },
+	
     { NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
 
@@ -1727,7 +1894,26 @@ void setLabels(int iclass)
 void itemdata_help(int id)
 {
     if(id < 0 || id > itype_max) return;
+
+    al_trace("Current item class name is: %s\n",(char *)moduledata.item_editor_type_names[id]);
+    al_trace("Current item class value is: %d\n",id);
+    al_trace("Current help string pt 1 is: %s\n",(char *)moduledata.itemclass_help_strings[id*3]);
+    al_trace("Current help string pt 2 is: %s\n",(char *)moduledata.itemclass_help_strings[id*3+1]);
+    al_trace("Current help string pt 3 is: %s\n",(char *)moduledata.itemclass_help_strings[id*3+2]);
+	
+    //if ( id < itype_last )
+    //{
+	jwin_alert((char *)moduledata.item_editor_type_names[id], (char *)moduledata.itemclass_help_strings[id*3],(char *)moduledata.itemclass_help_strings[(id*3)+1],
+		(char *)moduledata.itemclass_help_strings[(id*3)+2],"O&K",NULL,'k',0,lfont);
+    //}
+    //else
+    //{
+	
+	//jwin_alert("Undefined Item Class",(char *)moduledata.itemclass_help_strings[id*3],(char *)moduledata.itemclass_help_strings[(id*3)+1],
+	//	(char *)moduledata.itemclass_help_strings[(id*3)+2],"O&K",NULL,'k',0,lfont);
+    //}
     
+    	/*
     if(id >= itype_custom1 && id <= itype_custom20)
     {
         jwin_alert(itype_names[id],"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","","O&K",NULL,'k',0,lfont);
@@ -1740,6 +1926,7 @@ void itemdata_help(int id)
         jwin_alert(itype_names[id],itemclass_help_string[id*3],itemclass_help_string[1+(id*3)],itemclass_help_string[2+(id*3)],"O&K",NULL,'k',0,lfont);
     else // Beyond itype_custom20...
         jwin_alert(itype_names[id],itemclass_help_string[(id-20)*3],itemclass_help_string[1+((id-20)*3)],itemclass_help_string[2+((id-20)*3)],"O&K",NULL,'k',0,lfont);
+	*/
 }
 
 void test_item(itemdata test, int x, int y)
@@ -1834,8 +2021,40 @@ void edit_itemdata(int index)
 	char i_pickupstring[8]; //item pickup type
 	
     char i_weap_tileh[8], i_weap_tilew[8], i_weap_hxofs[8], i_weap_hyofs[8], i_weap_hxsz[8], i_weap_hysz[8], i_weap_hzsz[8], i_weap_xofs[8], i_weap_yofs[8]; //weapon sizing
+    char item_initd_labels[8][65];
+    char weapon_initd_labels[8][65];
+	char weap_initdvals[8][13];
+	
+	//Weapon Scripts for lweapons
+    int j = 0; build_bilweapons_list(); //lweapon scripts lister
+	
+	for(j = 0; j < bilweapons_cnt; j++)
+	{
+		if(bilweapons[j].second == itemsbuf[index].weaponscript -1)
+		{
+			itemdata_dlg[292].d1 = j; 
+			break;
+		}
+	}
     
+	for ( int q = 0; q < 8; q++ )
+	{
+	    
+		sprintf(weap_initdvals[q],"%.4f",itemsbuf[index].weap_initiald[q]/10000.0);
+	 
+		itemdata_dlg[283+q].dp = weap_initdvals[q];
+	}
     
+	for ( int q = 0; q < 8; q++ )
+	{
+		//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, itemsbuf[index].initD_label[q]);
+		strcpy(weapon_initd_labels[q], itemsbuf[index].weapon_initD_label[q]);
+		if ( weapon_initd_labels[q][0] == NULL ) sprintf(weapon_initd_labels[q],"InitD[%d]",q);
+		itemdata_dlg[275+q].dp = weapon_initd_labels[q];
+		//sprintf();
+	    
+	}
+	
     sprintf(itemnumstr,"Item %d: %s", index, item_string[index]);
     sprintf(fcs,"%d",itemsbuf[index].csets>>4);
     sprintf(frm,"%d",itemsbuf[index].frames);
@@ -1862,6 +2081,16 @@ void edit_itemdata(int index)
     sprintf(pow,"%d",itemsbuf[index].power);
     sprintf(asn,"%d",itemsbuf[index].usesound);
     sprintf(name,"%s",item_string[index]);
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+	//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
+	strcpy(item_initd_labels[q], itemsbuf[index].initD_label[q]);
+	if ( item_initd_labels[q][0] == NULL ) sprintf(item_initd_labels[q],"InitD[%d]",q);
+	itemdata_dlg[179+q].dp = item_initd_labels[q];
+	//sprintf();
+	    
+    }
     
     //Magic cost timer
     sprintf(mgtimer, "%d", itemsbuf[index].magiccosttimer);
@@ -1925,7 +2154,7 @@ void edit_itemdata(int index)
     //pickup string flaga
     itemdata_dlg[260].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS) ? D_SELECTED : 0;
     itemdata_dlg[261].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP) ? D_SELECTED : 0;
-    /*
+    
     //New itemdata vars
     sprintf(wrange,"%d",itemsbuf[index].weaprange);
     sprintf(wdur,"%d",itemsbuf[index].weapduration);
@@ -1938,7 +2167,7 @@ void edit_itemdata(int index)
     sprintf(warg4,"%d",itemsbuf[index].weap_pattern[4]);
     sprintf(warg5,"%d",itemsbuf[index].weap_pattern[5]);
     sprintf(warg6,"%d",itemsbuf[index].weap_pattern[6]);
-  */
+  
     
     sprintf(name,"%s",item_string[index]);
     
@@ -2030,6 +2259,7 @@ void edit_itemdata(int index)
     itemdata_dlg[136].dp = asn;
     itemdata_dlg[137].flags = (itemsbuf[index].flags&ITEM_DOWNGRADE) ? D_SELECTED : 0;
     itemdata_dlg[138].flags = (itemsbuf[index].flags&ITEM_RUPEE_MAGIC) ? D_SELECTED : 0;
+    itemdata_dlg[317].flags = (itemsbuf[index].flags&ITEM_VALIDATEONLY) ? D_SELECTED : 0;
     
     //Magic cost timer
     itemdata_dlg[200].dp = mgtimer;
@@ -2142,7 +2372,8 @@ void edit_itemdata(int index)
     itemdata_dlg[198].dp = da[9];
     
     build_biitems_list();
-    int script = 0, pickupscript = 0;
+    build_biitemsprites_list();
+    int script = 0, pickupscript = 0, the_spritescript = 0;
     
     for(int j = 0; j < biitems_cnt; j++)
     {
@@ -2150,28 +2381,40 @@ void edit_itemdata(int index)
             script = j;
             
         if(biitems[j].second == itemsbuf[index].collect_script - 1)
-            pickupscript = j;
+            pickupscript = j; //sprite script goes after this
+	
+	
+    }
+    for ( int q = 0; q < biitemsprites_cnt; q++)
+    {
+	if(biditemsprites[q].second == itemsbuf[index].sprite_script -1)
+	{
+            the_spritescript = q; //sprite script goes after this
+		//al_trace("Item has sprite script: %d\n", q);
+	}
+	    
     }
     
     itemdata_dlg[102].d1 = pickupscript;
     itemdata_dlg[132].d1 = script;
-    /*
+    itemdata_dlg[316].d1 = the_spritescript;
+    
     //These cannot be .dp. That crashes ZQuest; but they are not being retained when changed. -Z
-     itemdata_dlg[200].d1 = itemsbuf[index].useweapon;
-    itemdata_dlg[202].d1 = itemsbuf[index].usedefence;
-    itemdata_dlg[204].d1 = itemsbuf[index].weap_pattern[0];
+     itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
+    itemdata_dlg[296].d1 = itemsbuf[index].usedefence;
+    itemdata_dlg[298].d1 = itemsbuf[index].weap_pattern[0];
     
     //.dp is correcxt here, and these now work, and are retained. -Z
-    itemdata_dlg[206].dp = warg1; //itemsbuf[index].weap_pattern[1];
-    itemdata_dlg[208].dp = warg2; //itemsbuf[index].weap_pattern[2];
-    itemdata_dlg[210].dp = wrange; //itemsbuf[index].weaprange;
-    itemdata_dlg[212].dp = wdur; //itemsbuf[index].weapduration;
+    itemdata_dlg[300].dp = warg1; //itemsbuf[index].weap_pattern[1]; //move arg 1
+    itemdata_dlg[302].dp = warg2; //itemsbuf[index].weap_pattern[2]; //move arg 2
+    itemdata_dlg[304].dp = wrange; //itemsbuf[index].weaprange;
+    itemdata_dlg[306].dp = wdur; //itemsbuf[index].weapduration;
     
-     itemdata_dlg[214].dp = warg3; //itemsbuf[index].weap_pattern[1];
-    itemdata_dlg[216].dp = warg4; //itemsbuf[index].weap_pattern[2];
-    itemdata_dlg[218].dp = warg5; //itemsbuf[index].weaprange;
-    itemdata_dlg[220].dp = warg6; //itemsbuf[index].weapduration;
-    */
+     itemdata_dlg[308].dp = warg3; 
+    itemdata_dlg[310].dp = warg4; 
+    itemdata_dlg[312].dp = warg5; 
+    itemdata_dlg[314].dp = warg6; 
+    
     int ret;
     itemdata test;
     memset(&test, 0, sizeof(itemdata));
@@ -2201,6 +2444,7 @@ void edit_itemdata(int index)
         test.script = biitems[itemdata_dlg[132].d1].second + 1;
         test.playsound = vbound(atoi(snd), 0, 255); //Why was this clamped to 127? Someone dropped the ball. -Z
         test.collect_script = biitems[itemdata_dlg[102].d1].second + 1;
+        test.sprite_script = biditemsprites[itemdata_dlg[316].d1].second + 1;
         test.misc1  = atoi(ms1);
         test.misc2  = atoi(ms2);
         test.misc3  = atoi(ms3);
@@ -2273,14 +2517,14 @@ void edit_itemdata(int index)
 	if(itemdata_dlg[254].flags & D_SELECTED) test.weapoverrideFLAGS |= itemdataOVERRIDE_DRAW_Y_OFFSET;
         
 	//New itemdata vars -Z
-	/*
+	
 	//! These now store in the editor, but if you change the values, save the quest, and reload, 
 	//! ZQuest crashes on reading items (bad token)
-	test.usedefence =  itemdata_dlg[202].d1; //atoi(wdef);
+	test.usedefence =  itemdata_dlg[296].d1; //atoi(wdef);
 	test.weaprange = vbound(atoi(wrange),0,214747);
 	test.weapduration = vbound(atoi(wdur),0,214747);
-	test.useweapon = itemdata_dlg[200].d1;; //atoi(wweap);
-	test.weap_pattern[0] = itemdata_dlg[204].d1;; //atoi(wptrn);
+	test.useweapon = itemdata_dlg[294].d1;; //atoi(wweap);
+	test.weap_pattern[0] = itemdata_dlg[298].d1;; //atoi(wptrn);
 	test.weap_pattern[1] = vbound(atoi(warg1),-214747, 214747);
 	test.weap_pattern[2] =  vbound(atoi(warg2),-214747, 214747);
 	
@@ -2288,7 +2532,7 @@ void edit_itemdata(int index)
 	test.weap_pattern[4] =  vbound(atoi(warg4),-214747, 214747);
 	test.weap_pattern[5] =  vbound(atoi(warg5),-214747, 214747);
 	test.weap_pattern[6] =  vbound(atoi(warg6),-214747, 214747);
-        */
+        
         if(itemdata_dlg[14].flags & D_SELECTED)
             test.flags |= ITEM_GAMEDATA;
             
@@ -2359,6 +2603,9 @@ void edit_itemdata(int index)
             
         if(itemdata_dlg[138].flags & D_SELECTED)
             test.flags |= ITEM_RUPEE_MAGIC;
+		
+        if(itemdata_dlg[317].flags & D_SELECTED)
+            test.flags |= ITEM_VALIDATEONLY;
             
         test.csets  |= (atoi(fcs)&15)<<4;
         test.frames = zc_min(atoi(frm),255);
@@ -2381,9 +2628,23 @@ void edit_itemdata(int index)
             
         test.initiala[0] = vbound(atoi(da[8])*10000,0,320000);
         test.initiala[1] = vbound(atoi(da[9])*10000,0,320000);
+	
+	for ( int q = 0; q < 8; q++ )
+        {
+	    strcpy(test.initD_label[q], item_initd_labels[q]);
+        }
+	
+	//begin lweapon scripts
+        test.weaponscript = bilweapons[itemdata_dlg[292].d1].second + 1; 
+	for ( int q = 0; q < 8; q++ )
+	{
+		test.weap_initiald[q] = vbound(ffparse(weap_initdvals[q]),-2147483647, 2147483647);
+		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
+	}
         
         if(ret == 40)
         {
+	    //al_trace("Pressed Help for item family: %d", test.family);
             itemdata_help(test.family);
         }
         
@@ -2419,9 +2680,10 @@ void edit_itemdata(int index)
             sprintf(amt,"%d",test.amount&0x4000?-(test.amount&0x3FFF):test.amount&0x3FFF);
             sprintf(fmx,"%d",test.max);
             sprintf(max,"%d",test.setmax);
-            pickupscript = test.script;
+            script = test.script;
             sprintf(snd,"%d",test.playsound);
             pickupscript = test.collect_script;
+		the_spritescript = test.sprite_script;
             sprintf(ms1,"%ld",test.misc1);
             sprintf(ms2,"%ld",test.misc2);
             sprintf(ms3,"%ld",test.misc3);
@@ -2438,7 +2700,7 @@ void edit_itemdata(int index)
             sprintf(asn,"%d",test.usesound);
 	    
 	    //New itemdata vars -Z
-	    /*
+	    
 	    sprintf(wrange,"%d",test.weaprange);
 	    sprintf(wdur,"%d",test.weapduration);
 	    sprintf(wdef,"%d",test.usedefence);
@@ -2446,7 +2708,11 @@ void edit_itemdata(int index)
 	    sprintf(wptrn,"%d",test.weap_pattern[0]);
 	    sprintf(warg1,"%d",test.weap_pattern[1]);
 	    sprintf(warg2,"%d",test.weap_pattern[2]);
-	    */
+	    sprintf(warg3,"%d",test.weap_pattern[3]);
+	    sprintf(warg4,"%d",test.weap_pattern[4]);
+	    sprintf(warg5,"%d",test.weap_pattern[5]);
+	    sprintf(warg6,"%d",test.weap_pattern[6]);
+	    
             sprintf(zname, "zz%03d", index);
             sprintf(name,"%s",index<iLast?old_item_string[index]:zname);
             
@@ -2527,6 +2793,7 @@ void edit_itemdata(int index)
             itemdata_dlg[98].dp = fmx;
             itemdata_dlg[100].dp = max;
             itemdata_dlg[102].d1 = pickupscript;
+            itemdata_dlg[316].d1 = the_spritescript;
             itemdata_dlg[104].dp = snd;
             itemdata_dlg[106].dp = hrt;
             
@@ -2540,27 +2807,25 @@ void edit_itemdata(int index)
             itemdata_dlg[136].dp = asn;
             itemdata_dlg[137].flags = (test.flags&ITEM_DOWNGRADE) ? D_SELECTED : 0;
             itemdata_dlg[138].flags = (test.flags&ITEM_RUPEE_MAGIC) ? D_SELECTED : 0;
+            itemdata_dlg[137].flags = (test.flags&ITEM_VALIDATEONLY) ? D_SELECTED : 0;
 	    
 	    
 	    //Magic cost timer:
 	    itemdata_dlg[200].dp = mgtimer;
 	    
-            /*
-	    //! These now store in the editor, but if you change the values, save the quest, and reload, 
-	//! ZQuest crashes on reading items (bad token)
-			//string or int here? -Z
-			itemdata_dlg[200].d1 = test.useweapon; //atoi(wweap);
-			    itemdata_dlg[202].d1 = test.usedefence; //atoi(wdef);
-			    itemdata_dlg[204].d1 = test.weap_pattern[0]; //atoi(wptrn);
-			    itemdata_dlg[206].dp = warg1; //test.weap_pattern[1]; //atoi(warg1);
-			    itemdata_dlg[208].dp = warg2; //test.weap_pattern[2]; //atoi(warg2);
-			    itemdata_dlg[210].dp = wrange; //test.weaprange; //atoi(wrange);
-			    itemdata_dlg[212].dp = wdur;// = test.weapduration; //atoi(wdur);
-			    itemdata_dlg[214].dp = warg3; //test.weap_pattern[1]; //atoi(warg1);
-			    itemdata_dlg[216].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
-			    itemdata_dlg[218].dp = warg5; //test.weaprange; //atoi(wrange);
-			    itemdata_dlg[220].dp = warg6;// = test.weapduration; //atoi(wdur);
-	*/
+           
+	    itemdata_dlg[294].d1 = test.useweapon; //atoi(wweap);
+	    itemdata_dlg[296].d1 = test.usedefence; //atoi(wdef);
+	    itemdata_dlg[298].d1 = test.weap_pattern[0]; //atoi(wptrn);
+	    itemdata_dlg[300].dp = warg1; //test.weap_pattern[1]; //atoi(warg1);
+	    itemdata_dlg[302].dp = warg2; //test.weap_pattern[2]; //atoi(warg2);
+	    itemdata_dlg[304].dp = wrange; //test.weaprange; //atoi(wrange);
+	    itemdata_dlg[306].dp = wdur;// = test.weapduration; //atoi(wdur);
+	    itemdata_dlg[308].dp = warg3; //test.weap_pattern[1]; //atoi(warg1);
+	    itemdata_dlg[310].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
+	    itemdata_dlg[312].dp = warg5; //test.weaprange; //atoi(wrange);
+	    itemdata_dlg[314].dp = warg6;// = test.weapduration; //atoi(wdur);
+	
             for(int j=0; j<biw_cnt; j++)
             {
                 if(biw[j].i == test.wpn)
@@ -2892,12 +3157,17 @@ static int enemy_script_tabs_list[] =
 
 static int enemy_scripts_list[] =
 {
+    
+    334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,
     -1
 };
 
-static int enemy_scripts_initdata_list[] =
+static int enemy_weapon_scripts_list[] =
 {
-    -1
+	353,354,355,356,357,358,359,360,
+	361,362,363,364,365,366,367,368,
+	369,370,
+	-1
 };
 static int enemy_movement_list[] =
 {
@@ -3060,8 +3330,8 @@ static TABPANEL enemy_movement_tabs[] =
 
 static TABPANEL enemy_script_tabs[] =
 {
-    { (char *)"Script",	 D_SELECTED,               enemy_scripts_list,   0, NULL },
-    { (char *)"Initial Data",	 0,               enemy_scripts_initdata_list,   0, NULL },
+    { (char *)"Action Script",	 D_SELECTED,               enemy_scripts_list,   0, NULL },
+    { (char *)"Weapon Script",	 0,               enemy_weapon_scripts_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
@@ -3119,7 +3389,7 @@ static TABPANEL enedata_tabs[] =
    // { (char *)"Sound Effects",	 0,               enemy_sounds_tabs_list,   0, NULL },
     { (char *)"Graphics",	 0,               enemy_graphics_tabs_list,   0, NULL },
     { (char *)"Attributes",	 0,               enemy_attributes_tabs_list,   0, NULL },
-    { (char *)"Script",	 0,               enemy_script_tabs_list,   0, NULL },
+    { (char *)"Scripts",	 0,               enemy_script_tabs_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
@@ -3133,12 +3403,34 @@ void build_bief_list()
     
     for(int i=start; i<eeMAX; i++)
     {
-        if(enetype_string[i][0]!='-')
-        {
-            bief[bief_cnt].s = (char *)enetype_string[i];
-            bief[bief_cnt].i = i;
-            ++bief_cnt;
-        }
+	//Load enemy names from the module
+        //if(moduledata.enem_type_names[i][0]!='-')
+	if (moduledata.enem_type_names[i][0]!=NULL)
+	{
+		if(moduledata.enem_type_names[i][0]!='-')
+		{
+			//load these from the module
+		   // bief[bief_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+		    //bief[bief_cnt].s = (char *)enetype_string[i];
+		    bief[bief_cnt].s = (char *)moduledata.enem_type_names[i];
+		    bief[bief_cnt].i = i;
+		    ++bief_cnt;
+		}
+	}
+	else //not set in the module file, so use the default
+	{
+		if(enetype_string[i][0]!='-')
+		{
+			//load these from the module
+		   // bief[bief_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+		    //bief[bief_cnt].s = (char *)enetype_string[i];
+		    bief[bief_cnt].s = (char *)enetype_string[i];
+		    bief[bief_cnt].i = i;
+		    ++bief_cnt;
+		}
+		
+	}
+		
     }
     
     // No alphabetic sorting for this list
@@ -3165,7 +3457,7 @@ const char *enetypelist(int index, int *list_size)
     return bief[index].s;
 }
 
-list_data_struct biea[wMAX];
+list_data_struct biea[aMAX];
 int biea_cnt=-1;
 
 void build_biea_list()
@@ -3174,12 +3466,25 @@ void build_biea_list()
     
     for(int i=start; i<aMAX; i++)
     {
-        if(eneanim_string[i][0]!='-')
-        {
-            biea[biea_cnt].s = (char *)eneanim_string[i];
-            biea[biea_cnt].i = i;
-            ++biea_cnt;
-        }
+	    
+	if ( moduledata.enem_anim_type_names[1][0] != NULL )
+	{
+		if(eneanim_string[i][0]!='-')
+		{
+		    biea[biea_cnt].s = (char *)moduledata.enem_anim_type_names[i];
+		    biea[biea_cnt].i = i;
+		    ++biea_cnt;
+		}
+	}
+	else
+	{
+		if(eneanim_string[i][0]!='-')
+		{
+		    biea[biea_cnt].s = (char *)eneanim_string[i];
+		    biea[biea_cnt].i = i;
+		    ++biea_cnt;
+		}
+	}
     }
     
     for(int i=start; i<biea_cnt-1; i++)
@@ -3222,9 +3527,11 @@ void build_biew_list()
     
     for(int i=0; i<wMax-wEnemyWeapons; i++)
     {
-        if(eweapon_string[i][0]!='-')
+        //if(eweapon_string[i][0]!='-')
+        if(moduledata.enemy_weapon_names[i][0]!='-')
         {
-            biew[biew_cnt].s = (char *)eweapon_string[i];
+            //biew[biew_cnt].s = (char *)eweapon_string[i];
+            biew[biew_cnt].s = (char *)moduledata.enemy_weapon_names[i];
             biew[biew_cnt].i = i;
             ++biew_cnt;
         }
@@ -3301,7 +3608,8 @@ const char *walkmisc9list(int index, int *list_size)
     if(index>=0)
     {
         bound(index,0,e9tARMOS);
-        return walkmisc9_string[index];
+        //return walkmisc9_string[index];
+        return (char *)moduledata.walkmisc9_names[index];
     }
     
     *list_size = e9tARMOS+1;
@@ -3576,10 +3884,10 @@ static EnemyNameInfo enameinf[]=
         { (void*)&walkmisc1_list, (void*)&walkmisc2_list, NULL, NULL, NULL, NULL, (void*)&walkmisc7_list, NULL, (void*)&walkmisc9_list, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",
 		(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",
-		(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"BFlags[12]:",(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3590,10 +3898,10 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, (void*)&gleeokmisc3_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3604,10 +3912,10 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&digdoggermisc10_list },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3618,10 +3926,10 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, NULL, (void*)&patramisc4_list, (void*)&patramisc5_list, NULL, NULL, NULL, NULL, (void*)&patramisc10_list },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3632,10 +3940,10 @@ static EnemyNameInfo enameinf[]=
         { (void*)&walkmisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3646,10 +3954,10 @@ static EnemyNameInfo enameinf[]=
         { (void*)&gohmamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3660,10 +3968,10 @@ static EnemyNameInfo enameinf[]=
         { (void*)&aquamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3674,10 +3982,10 @@ static EnemyNameInfo enameinf[]=
         { NULL, (void*)&manhandlamisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3688,10 +3996,10 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",
 		(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",
-		(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"BFlags[12]:",(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3702,10 +4010,10 @@ static EnemyNameInfo enameinf[]=
         { NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3716,10 +4024,10 @@ static EnemyNameInfo enameinf[]=
         { (void*)&wizzrobemisc1_list, (void*)&wizzrobemisc2_list, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3730,10 +4038,10 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&dodongomisc10_list },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3744,10 +4052,10 @@ static EnemyNameInfo enameinf[]=
         { (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
+		(char *)"Acceleration Factor",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3758,10 +4066,10 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3772,10 +4080,10 @@ static EnemyNameInfo enameinf[]=
         { (void*)&leevermisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3786,10 +4094,10 @@ static EnemyNameInfo enameinf[]=
         { (void*)&noyesmisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3800,10 +4108,10 @@ static EnemyNameInfo enameinf[]=
         { (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3814,10 +4122,10 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&rockmisc1_list },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3828,108 +4136,528 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
 	}	
     },
     {
-        eeGHINI, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeGHINI, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
+		(char *)"Acceleration Factor",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
 	}	
     },
     {
-        eePEAHAT, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eePEAHAT, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
+		(char *)"Acceleration Factor",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
 	}	
     },
     {
-        eeZORA, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeZORA, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
 	}	
     },
     {
-        eeSPINTILE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeSPINTILE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
 	}	
     },
     {
-        eeFIRE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeFIRE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
 	}	
     },
     {
-        eeOTHER, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeOTHER, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
 	}	
     },
     {
-        eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeSCRIPT01, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT02, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT03, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT04, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT05, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT06, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT07, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT08, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT09, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT10, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT11, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT12, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT13, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT14, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT15, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT16, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT17, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT18, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT19, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeSCRIPT20, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeFFRIENDLY01, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeFFRIENDLY02, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeFFRIENDLY03, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeFFRIENDLY04, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeFFRIENDLY05, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeFFRIENDLY06, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeFFRIENDLY07, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeFFRIENDLY08, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeFFRIENDLY09, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeFFRIENDLY10, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3942,8 +4670,8 @@ static EnemyNameInfo enameinf[]=
 		(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",
 		(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"Use Editor Defenses",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Death Shot Item ID",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Death Shot Item ID",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3954,10 +4682,10 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
-		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
+		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -3987,10 +4715,38 @@ std::map<int, EnemyNameInfo *> *getEnemyNameMap()
     return enamemap;
 }
 
+const char *npcscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = binpcs_cnt;
+        return NULL;
+    }
+    
+    return binpcs[index].first.c_str();
+}
+static ListData npcscript_list(npcscriptdroplist, &font);
+
 static ListData itemset_list(itemsetlist, &font);
 static ListData eneanim_list(eneanimlist, &font);
 static ListData enetype_list(enetypelist, &font);
 static ListData eweapon_list(eweaponlist, &font);
+
+
+const char *eweaponscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bieweapons_cnt;
+        return NULL;
+    }
+    
+    return bieweapons[index].first.c_str();
+}
+
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData eweaponscript_list(eweaponscriptdroplist, &pfont);
 
 
 static ListData walkerspawn_list(walkerspawnlist, &font);
@@ -4651,6 +5407,73 @@ static DIALOG enedata_dlg[] =
     {  jwin_edit_proc,        6,     56+(18*6),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 //334
+    { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
+    
+    { jwin_droplist_proc,      112+10+20+34+1-6,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34-4,   10+29+12+7,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
+	//337
+    //npc Script InitD Labels (not editable)
+    //{ jwin_text_proc,       6+10,   10+29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   10+47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   10+65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   10+83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
+    
+    //editable npc script InitD fields
+    //337
+    {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    //{ jwin_edit_proc,       6+10,   10+29+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,   10+47+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,   10+65+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,   10+83+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+101+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+119+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+137+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+155+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+   
+    //NPC InitD Data fields
+    //345
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //353
+    {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    
+    { jwin_text_proc,           112+10+20+34+1-4,  10+29+12+7,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "EWeapon Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &eweaponscript_list,                   NULL,   NULL 				   },
+    
     /*
 	  // 248 scripts
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
@@ -4721,23 +5544,24 @@ void setEnemyLabels(int family)
     //Enemy Attribute Labels, starting at 11
     for ( int q = 10; q < 16; q++ ) //check these numbers! -Z
     {
-	if(inf->flags[q]!=NULL)
+	if(inf->attributes[q]!=NULL)
             {
                 enedata_dlg[288+(q-10)].dp = (char*)inf->attributes[q];
             }
     }
     for ( int q = 16; q < 24; q++ ) //check these numbers! -Z
     {
-	if(inf->flags[q]!=NULL)
+	int w = 0;
+	if(inf->attributes[q]!=NULL)
             {
-                enedata_dlg[310+(q-16)].dp = (char*)inf->attributes[q];
+                enedata_dlg[302+(q-16)].dp = (char*)inf->attributes[q];
             }
     }
     for ( int q = 24; q < 32; q++ ) //check these numbers! -Z
     {
-	if(inf->flags[q]!=NULL)
+	if(inf->attributes[q]!=NULL)
             {
-                enedata_dlg[327+(q-24)].dp = (char*)inf->attributes[q];
+                enedata_dlg[319+(q-24)].dp = (char*)inf->attributes[q];
             }
     }
     
@@ -4898,6 +5722,7 @@ int d_ecstile_proc(int msg,DIALOG *d,int c)
 
 void edit_enemydata(int index)
 {
+    //guysbuf[index].script = 1;
     char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
          frt[8], efr[8], bsp[8];
     char w[8],h[8],sw[8],sh[8],ew[8],eh[8];
@@ -4906,8 +5731,71 @@ void edit_enemydata(int index)
     char attribs[32][8];
     char enemynumstr[75];
     char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
-	char weapsprite[8];
-    build_biw_list();
+	char weapsprite[8]; char npc_initd_labels[8][65];
+	char weapon_initd_labels[8][65];
+	char weap_initdvals[8][13];
+    
+	char initdvals[8][13];
+    //begin npc script
+    int j = 0; build_binpcs_list(); //npc scripts lister
+    for(j = 0; j < binpcs_cnt; j++)
+    {
+        if(binpcs[j].second == guysbuf[index].script -1)
+        {
+            enedata_dlg[335].d1 = j; 
+            break;
+        } 
+    }
+    
+    int j2 = 0; 
+    build_bieweapons_list(); //lweapon scripts lister
+    for(j2 = 0; j2 < bieweapons_cnt; j2++)
+    {
+		if(bieweapons[j2].second == guysbuf[index].weaponscript -1)
+		{
+			enedata_dlg[370].d1 = j2; 
+			break;
+		}
+    }
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+	//NPC InitD
+	sprintf(initdvals[q],"%.4f",guysbuf[index].initD[q]/10000.0);
+	 
+	enedata_dlg[345+q].dp = initdvals[q];
+    }
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+	    
+		sprintf(weap_initdvals[q],"%.4f",guysbuf[index].weap_initiald[q]/10000.0);
+	 
+		enedata_dlg[361+q].dp = weap_initdvals[q];
+    }
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+	//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
+	strcpy(npc_initd_labels[q], guysbuf[index].initD_label[q]);
+	if ( npc_initd_labels[q][0] == NULL ) sprintf(npc_initd_labels[q],"InitD[%d]",q);
+	enedata_dlg[337+q].dp = npc_initd_labels[q];
+	//sprintf();
+	    
+    }
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+		//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
+		strcpy(weapon_initd_labels[q], guysbuf[index].weapon_initD_label[q]);
+		if ( weapon_initd_labels[q][0] == NULL ) sprintf(weapon_initd_labels[q],"InitD[%d]",q);
+		enedata_dlg[353+q].dp = weapon_initd_labels[q];
+		//sprintf();
+	    
+    }
+
+    //end npc script
+    
     //disable the missing dialog items!
     //else they will lurk in the background
     //stealing mouse focus -DD
@@ -5145,6 +6033,13 @@ void edit_enemydata(int index)
     //sprintf(sfx,"%d",guysbuf[index].bgsfx);
     enedata_dlg[182].d1= (int)guysbuf[index].bgsfx;
     enedata_dlg[183].d1= (int)guysbuf[index].hitsfx;
+    if ( ( enedata_dlg[183].d1 == 0 ) && FFCore.getQuestHeaderInfo(vZelda) < 0x250 || (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 ) && FFCore.getQuestHeaderInfo(vBuild) < 32 ) )
+    {
+	    //If no user-set hit sound was in place, and the quest was made in a version before 2.53.0 Gamma 2:
+		enedata_dlg[183].d1 = WAV_EHIT; //Fix quests using the wrong hit sound when loading this. 
+		//Force SFX_HIT here. 
+	    
+    }
     enedata_dlg[184].d1= (int)guysbuf[index].deadsfx;
     
     //2.6 Enemy Weapon Sprite -Z
@@ -5353,6 +6248,8 @@ void edit_enemydata(int index)
         
         ret = zc_popup_dialog(enedata_dlg,3);
         
+        
+        
         test.tile  = enedata_dlg[247].d1;
         test.cset = enedata_dlg[247].d2;
         test.s_tile  = enedata_dlg[248].d1;
@@ -5532,10 +6429,37 @@ void edit_enemydata(int index)
             test.editorflags |= ENEMY_FLAG15;
 	if(enedata_dlg[269].flags & D_SELECTED)
             test.editorflags |= ENEMY_FLAG16;
+        
+        //begin npc scripts
+        test.script = binpcs[enedata_dlg[335].d1].second + 1; 
+	for ( int q = 0; q < 8; q++ )
+	{
+		test.initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
+		
+		test.weap_initiald[q] = vbound(ffparse(weap_initdvals[q]),-2147483647, 2147483647);
+		//vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
+		strcpy(test.initD_label[q], npc_initd_labels[q]);
+		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
+	}
+	//eweapon script
+	test.weaponscript = bieweapons[enedata_dlg[370].d1].second + 1; 
+	
+	
+        //end npc scripts
 	
         if(ret==252) //OK Button
         {
             strcpy(guy_string[index],name);
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		test.initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
+		
+		test.weap_initiald[q] = vbound(ffparse(weap_initdvals[q]),-2147483647, 2147483647);
+		//test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+		//test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
+		strcpy(test.initD_label[q], npc_initd_labels[q]);
+		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
+	    }
             guysbuf[index] = test;
             saved = false;
         }
@@ -5632,7 +6556,9 @@ int onCustomEnemies()
         else
         {
             if(index != 0)
+            {
                 edit_enemydata(index);
+            }
         }
         
         index = select_enemy("Select Enemy",index,true,true,foo);

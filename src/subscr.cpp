@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "gc.h"
+#include "ffscript.h"
 
 bool show_subscreen_dmap_dots=true;
 bool show_subscreen_numbers=true;
@@ -30,6 +31,7 @@ bool new_sel=false;
 
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern LinkClass   Link;
+extern FFScript FFCore;
 
 subscreen_group *current_subscreen_active;
 subscreen_group *current_subscreen_passive;
@@ -2167,7 +2169,7 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
       */
     if(tile==0)
     {
-        tile=misc->colors.new_blueframe_tile;
+	tile= FFCore.getQuestHeaderInfo(vZelda) >= 0x250 ? misc->colors.new_blueframe_tile : misc->colors.blueframe_tile;
     }
     
     int t8 = tile<<2;
@@ -2647,11 +2649,11 @@ void lifemeter(BITMAP *dest,int x,int y,int tile,bool bs_style)
         {
             if(get_bit(quest_rules,qr_QUARTERHEART))
             {
-                if(i+((HP_PER_HEART/4)*3)>=game->get_life()) tile=(wpnsbuf[iwQuarterHearts].newtile*4)+2;
+                if(i+((HP_PER_HEART/4)*3)>=game->get_life()) tile= FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? (wpnsbuf[iwQuarterHearts].newtile*4)+2 : (wpnsbuf[iwQuarterHearts].tile*4)+2;
                 
                 if(i+(HP_PER_HEART/2)>=game->get_life()) tile=1;
                 
-                if(i+((HP_PER_HEART/4)*1)>=game->get_life()) tile=(wpnsbuf[iwQuarterHearts].newtile*4)+3;
+                if(i+((HP_PER_HEART/4)*1)>=game->get_life()) tile= FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? (wpnsbuf[iwQuarterHearts].newtile*4)+3 : (wpnsbuf[iwQuarterHearts].tile*4)+3;
             }
             else if(i+(HP_PER_HEART/2)>=game->get_life()) tile=1;
             
@@ -2826,7 +2828,7 @@ void magicmeter(BITMAP *dest,int x,int y)
     if(game->get_maxmagic()==0) return;
     
     int tile;
-    int mmtile=wpnsbuf[iwMMeter].newtile;
+    int mmtile=FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? wpnsbuf[iwMMeter].newtile : wpnsbuf[iwMMeter].tile;
     int mmcset=wpnsbuf[iwMMeter].csets&15;
     overtile8(dest,(mmtile*4)+2,x-8,y,mmcset,0);
     
@@ -3100,7 +3102,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
                 
                 if(displaysubscreenitem(itemtype, d))
                 {
-                    Sitems.spr(i)->draw(dest);
+                    Sitems.spr(i)->drawzcboss(dest);
                 }
                 
                 if(itemtype!=itype_bowandarrow)
@@ -3129,7 +3131,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
         Sitems.spr(overridecheck)->x = x;
         Sitems.spr(overridecheck)->y = y;
         Sitems.spr(overridecheck)->yofs=0;
-        Sitems.spr(overridecheck)->draw(dest);
+        Sitems.spr(overridecheck)->drawzcboss(dest);
     }
 }
 
@@ -3502,7 +3504,10 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             {
             case sso2X2FRAME:
             {
+		//al_trace("2x2 Frame tile is: %d\n",css->objects[i].d1);
+		    //in 1.92 and earlier, the 2x2 frame object was tile 278
                 frame2x2(dest, misc, x, y, css->objects[i].d1, subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
+                //frame2x2(dest, misc, x, y, FFCore.getQuestHeaderInfo(vZelda) < 0x193 ? 278 : css->objects[i].d1, subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
             }
             break;
             
@@ -3743,11 +3748,11 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                     switch(css->objects[i].d2)
                     {
                     case ssmstSSVINETILE:
-                        t=wpnsbuf[iwSubscreenVine].newtile*4;
+                        t= FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? wpnsbuf[iwSubscreenVine].newtile*4 : wpnsbuf[iwSubscreenVine].tile*4;
                         break;
                         
                     case ssmstMAGICMETER:
-                        t=wpnsbuf[iwMMeter].newtile*4;
+                        t=FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? wpnsbuf[iwMMeter].newtile*4 : wpnsbuf[iwMMeter].tile*4;
                         break;
                         
                     default:
@@ -3820,7 +3825,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                         
                         if(temptile)
                         {
-                            tempsel->draw(dest);
+                            tempsel->drawzcboss(dest);
                             tempsel->tile=temptile;
                         }
                         
@@ -3895,7 +3900,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
                 break;
             }
             
-            Aitem->draw(dest);
+            Aitem->drawzcboss(dest);
         }
         
         break;
@@ -3927,7 +3932,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
                 break;
             }
             
-            Bitem->draw(dest);
+            Bitem->drawzcboss(dest);
         }
         
         break;

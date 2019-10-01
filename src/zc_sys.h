@@ -13,6 +13,7 @@
 #define _ZC_SYS_H_
 
 #include "zdefs.h"
+#include "jwinfsel.h"
 extern MENU the_menu[];
 
 void large_dialog(DIALOG *d);
@@ -25,18 +26,25 @@ void Z_init_sound();
 
 void load_game_configs();
 void save_game_configs();
+int zc_load_zmod_module_file();
+bool zc_getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
+bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 
 extern bool midi_paused;
+#ifdef _WIN32
+void do_DwmFlush();
+#endif
 
 void draw_lens_under(BITMAP *dest, bool layer);
 void draw_lens_over();
 void fix_menu();
 int onFullscreenMenu();
 void f_Quit(int type);
-void advanceframe(bool allowwavy, bool sfxcleaup = true);
+void advanceframe(bool allowwavy, bool sfxcleaup = true, bool allowF6Script = true);
 void updatescr(bool allowwavy);
 void syskeys();
 void checkQuitKeys();
+bool CheatModifierKeys();
 void System();
 void system_pal();
 void switch_out_callback();
@@ -44,6 +52,8 @@ void switch_in_callback();
 void game_pal();
 int  onSave();
 int  onQuit();
+int  onTryQuitMenu();
+int  onTryQuit(bool inMenu = false);
 int  onReset();
 int  onExit();
 void fix_dialogs();
@@ -54,18 +64,24 @@ int onCheatArrows();
 int  next_press_key();
 int  next_press_btn();
 bool joybtn(int b);
-bool ReadKey(int k);
+bool zc_readkey(int k, bool ignoreDisable = false);
+bool zc_getkey(int k, bool ignoreDisable = false);
+bool zc_disablekey(int k, bool val);
 void eat_buttons();
 
 extern bool control_state[18];
+extern bool disable_control[18];
 extern bool drunk_toggle_state[11];
+extern bool disabledKeys[127];
 extern bool button_press[18];
+extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
 
 extern bool button_hold[18];
 
 void load_control_state();
 extern int sfx_voice[WAV_COUNT];
 
+bool getInput(int btn, bool press = false, bool drunk = false, bool ignoreDisable = false);
 bool Up();
 bool Down();
 bool Left();
@@ -132,7 +148,7 @@ bool DrunkrPbtn();
 
 int after_time();
 
-enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosMAX};
+enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
 
 void go();
 void comeback();
@@ -153,9 +169,11 @@ void wavyout(bool showlink);
 void wavyin();
 void blackscr(int fcnt,bool showsubscr);
 void black_opening(BITMAP *dest,int x,int y,int a,int max_a);
-void close_black_opening(int x, int y, bool wait);
-void open_black_opening(int x, int y, bool wait);
-void openscreen();
+void black_fade(int fadeamnt);
+void close_black_opening(int x, int y, bool wait, int shape = -1);
+void open_black_opening(int x, int y, bool wait, int shape = -1);
+void openscreen(int shape = -1);
+void closescreen(int shape = -1);
 int  TriforceCount();
 
 bool item_disabled(int item);
@@ -171,6 +189,10 @@ int item_tile_mod(bool);
 int dmap_tile_mod();
 
 bool try_zcmusic(char *filename, int track, int midi);
+bool try_zcmusic_ex(char *filename, int track, int midi);
+int get_zcmusicpos();
+void set_zcmusicpos(int position);
+void set_zcmusicspeed(int speed);
 void jukebox(int index);
 void jukebox(int index,int loop);
 void play_DmapMusic();

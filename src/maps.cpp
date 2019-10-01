@@ -33,6 +33,8 @@
 #include "link.h"
 #include "guys.h"
 #include "ffscript.h"
+extern refInfo screenScriptData;
+extern FFScript FFCore;
 #include "particles.h"
 #include "mem_debug.h"
 
@@ -779,6 +781,41 @@ bool iswater_type(int type)
 bool iswater(int combo)
 {
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
+}
+
+bool isSVLadder(int x, int y)
+{
+	if(x<0 || x>255 || y<0 || y>175)
+        return false;
+	
+    mapscr *s1, *s2;
+    s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:tmpscr;
+    s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:tmpscr;
+	
+    int combo = COMBOPOS(x,y);
+    return (tmpscr->sflag[combo] == mfSIDEVIEWLADDER) || (combobuf[tmpscr->data[combo]].flag == mfSIDEVIEWLADDER) ||
+		(s1->sflag[combo] == mfSIDEVIEWLADDER) || (combobuf[s1->data[combo]].flag == mfSIDEVIEWLADDER) ||
+		(s2->sflag[combo] == mfSIDEVIEWLADDER) || (combobuf[s2->data[combo]].flag == mfSIDEVIEWLADDER);
+}
+
+bool isSVPlatform(int x, int y)
+{
+	if(x<0 || x>255 || y<0 || y>175)
+        return false;
+	
+    mapscr *s1, *s2;
+    s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:tmpscr;
+    s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:tmpscr;
+	
+    int combo = COMBOPOS(x,y);
+    return (tmpscr->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[tmpscr->data[combo]].flag == mfSIDEVIEWPLATFORM) ||
+		(s1->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[s1->data[combo]].flag == mfSIDEVIEWPLATFORM) ||
+		(s2->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[s2->data[combo]].flag == mfSIDEVIEWPLATFORM);
+}
+
+bool checkSVLadderPlatform(int x, int y)
+{
+	return isSVPlatform(x,y) || (isSVLadder(x,y) && !isSVLadder(x,y-16));
 }
 
 bool isstepable(int combo)                                  //can use ladder on it
@@ -1821,11 +1858,18 @@ void update_freeform_combos()
                     continue;
                     
                 // Ignore this changer? (ffposx and ffposy are last changer position)
-                if(tmpscr->ffx[j]/10000==ffposx[i]&&tmpscr->ffy[j]/10000==ffposy[i])
+                if((tmpscr->ffx[j]/10000==ffposx[i]&&tmpscr->ffy[j]/10000==ffposy[i]) || tmpscr->ffflags[i]&ffIGNORECHANGER)
                     continue;
                     
                 if((isonline(tmpscr->ffx[i], tmpscr->ffy[i], ffprvx[i],ffprvy[i], tmpscr->ffx[j], tmpscr->ffy[j]) || // Along the line, or...
-                        (tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) && // At exactly the same position, and...
+                        //(tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) && // At exactly the same position, and...
+			( // At exactly the same position, 
+				(tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) 
+				||
+				//or imprecision and close enough
+				( (tmpscr->ffflags[i]&ffIMPRECISIONCHANGER) && ((abs(tmpscr->ffx[i] - tmpscr->ffx[j]) < 10000) && abs(tmpscr->ffy[i] - tmpscr->ffy[j]) < 10000) )
+			)
+		&& //and...
                         (ffprvx[i]>-10000000 && ffprvy[i]>-10000000)) // This isn't the first frame on this screen
                 {
                     if(tmpscr->ffflags[j]&ffCHANGETHIS)
@@ -2143,7 +2187,9 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
         {
             if(layer->ffdata[i])
             {
-                if(!(layer->ffflags[i]&ffCHANGER) && (!(layer->ffflags[i]&ffLENSVIS) || lensclk))
+                if(!(layer->ffflags[i]&ffCHANGER) //If FFC is a changer, don't draw
+					&& !((layer->ffflags[i]&ffLENSINVIS) && lensclk) //If lens is active and ffc is invis to lens, don't draw
+					&& (!(layer->ffflags[i]&ffLENSVIS) || lensclk)) //If FFC does not require lens, or lens is active, draw
                 {
                     if(scrolling && (layer->ffflags[i] & ffCARRYOVER) != 0 && tempscreen == 3)
                         continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
@@ -2710,9 +2756,11 @@ void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen
         showlayer = false;
     }
     
+	
     if(showlayer)
     {
-        do_scrolling_layer(bmp, type, layer, x, y, scrolling, tempscreen);
+		if(!(type >= 0 && (layer->hidelayers & (1 << (type+1)))))
+			do_scrolling_layer(bmp, type, layer, x, y, scrolling, tempscreen);
         
         if(drawprimitives && type >= 0 && type <= 5)
         {
@@ -2815,7 +2863,11 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
 
 void draw_screen(mapscr* this_screen, bool showlink)
 {
-
+	if(GameFlags & GAMEFLAG_SCRIPTMENU_ACTIVE)
+	{
+		FFCore.doScriptMenuDraws();
+		return;
+	}
     //The Plan:
 	//0: Set sideview gravity from dmaps. -Z
     //1. Draw some layers onto scrollbuf with clipping
@@ -2880,7 +2932,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     putscr(scrollbuf,0,playing_field_offset,this_screen);
     
     // Lens hints, then primitives, then particles.
-    if((lensclk || (get_debug() && key[KEY_L])) && !get_bit(quest_rules, qr_OLDLENSORDER))
+    if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_bit(quest_rules, qr_OLDLENSORDER))
     {
         draw_lens_under(scrollbuf, false);
     }
@@ -2994,7 +3046,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     putscrdoors(scrollbuf,0,playing_field_offset,this_screen);
     
     // Lens hints, doors etc.
-    if(lensclk || (get_debug() && key[KEY_L]))
+    if(lensclk || (get_debug() && zc_getkey(KEY_L)))
     {
         if(get_bit(quest_rules, qr_OLDLENSORDER))
         {
@@ -3835,6 +3887,32 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     tmpscr[tmp].sflag = TheMaps[currmap*MAPSCRS+scr].sflag;
     tmpscr[tmp].cset = TheMaps[currmap*MAPSCRS+scr].cset;
     
+    //screen / screendata script
+    FFCore.clear_screen_stack();
+    screenScriptData.Clear();
+    FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
+    if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
+    {
+	    tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
+	    al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
+	    //if ( !tmpscr[tmp].screendatascriptInitialised )
+	    //{
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			tmpscr[tmp].screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
+		    }
+	    //}
+	tmpscr[tmp].screendatascriptInitialised = 0;
+	tmpscr[tmp].doscript = 1;
+    }
+    else
+    {
+	tmpscr[tmp].script = 0;
+	tmpscr[tmp].screendatascriptInitialised = 0;
+	tmpscr[tmp].doscript = 0;
+    }
+    
+    
     tmpscr[tmp].data.resize(_mapsSize, 0);
     tmpscr[tmp].sflag.resize(_mapsSize, 0);
     tmpscr[tmp].cset.resize(_mapsSize, 0);
@@ -3877,11 +3955,13 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     if(tmp==0)
     {
         // Before loading new FFCs, deallocate the arrays used by those that aren't carrying over
-        for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
-        {
-            if(arrayOwner[i]<32 && (!(ffscr.ffflags[arrayOwner[i]]&ffCARRYOVER) || ffscr.flags5&fNOFFCARRYOVER))
-                deallocateArray(i);
-        }
+	
+	for(int ffid = 0; ffid < 32; ++ffid)
+	{
+		if(!(ffscr.flags5&fNOFFCARRYOVER) && (ffscr.ffflags[ffid]&ffCARRYOVER)) continue;
+		FFCore.deallocateAllArrays(SCRIPT_FFC, ffid, false); //false means this does not require 'qr_ALWAYS_DEALLOCATE_ARRAYS' to be checked. -V
+	}
+	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
         
         for(int i = 0; i < 32; i++)
         {
@@ -4284,20 +4364,23 @@ void loadscr2(int tmp,int scr,int)
 
 void putscr(BITMAP* dest,int x,int y, mapscr* scrn)
 {
-    if(scrn->valid==0||!show_layer_0)
+    if(scrn->valid==0||!show_layer_0||scrn->hidelayers & 1)
     {
         rectfill(dest,x,y,x+255,y+175,0);
         return;
     }
-    
-    for(int i=0; i<176; i++)
-    {
-        if(scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER2BG || DMaps[currdmap].flags&dmfLAYER3BG)
-        {
+	
+	if(scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER2BG || DMaps[currdmap].flags&dmfLAYER3BG)
+	{
+		for(int i=0; i<176; ++i)
+		{
             overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
-        }
-        else
-        {
+		}
+	}
+	else
+	{
+		for(int i=0; i<176; ++i)
+		{
             putcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
         }
     }
@@ -4384,6 +4467,83 @@ bool _walkflag(int x,int y,int cnt)
     else
     {
         c  = combobuf[tmpscr->data[bx]];
+        c1 = combobuf[s1->data[bx]];
+        c2 = combobuf[s2->data[bx]];
+        dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+                  (iswater_type(c2.type))) && DRIEDLAKE);
+        b=1;
+        
+        if(y&8) b<<=1;
+    }
+    
+    return ((c.walk&b)||(c1.walk&b)||(c2.walk&b)) ? !dried : false;
+}
+
+//used by mapdata->isSolid(x,y) in ZScript:
+bool _walkflag(int x,int y,int cnt, int mapref)
+{
+    //  walkflagx=x; walkflagy=y;
+    if(get_bit(quest_rules,qr_LTTPWALK))
+    {
+        if(x<0||y<0) return false;
+        
+        if(x>255) return false;
+        
+        if(x>247&&cnt==2) return false;
+        
+        if(y>175) return false;
+    }
+    else
+    {
+        if(x<0||y<0) return false;
+        
+        if(x>248) return false;
+        
+        if(x>240&&cnt==2) return false;
+        
+        if(y>168) return false;
+    }
+    
+    mapscr *m = &TheMaps[mapref]; 
+    
+    mapscr *s1, *s2;
+    
+    if ( m->layermap[0] > 0 )
+    {
+	    s1 = &TheMaps[(m->layermap[0]*MAPSCRS + m->layerscreen[0])];
+    }
+    else s1 = m;
+    
+    if ( m->layermap[1] > 0 )
+    {
+	    s2 = &TheMaps[(m->layermap[1]*MAPSCRS + m->layerscreen[1])];
+    }
+    else s2 = m;
+    
+    int bx=(x>>4)+(y&0xF0);
+    newcombo c = combobuf[m->data[bx]];
+    newcombo c1 = combobuf[s1->data[bx]];
+    newcombo c2 = combobuf[s2->data[bx]];
+    bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+                   (iswater_type(c2.type))) && DRIEDLAKE);
+    int b=1;
+    
+    if(x&8) b<<=2;
+    
+    if(y&8) b<<=1;
+    
+    if(((c.walk&b) || (c1.walk&b) || (c2.walk&b)) && !dried)
+        return true;
+        
+    if(cnt==1) return false;
+    
+    ++bx;
+    
+    if(!(x&8))
+        b<<=2;
+    else
+    {
+        c  = combobuf[m->data[bx]];
         c1 = combobuf[s1->data[bx]];
         c2 = combobuf[s2->data[bx]];
         dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
@@ -4791,7 +4951,7 @@ void ViewMap()
         advanceframe(false, false);
         
         
-        if(rSbtn())
+        if(getInput(btnS, true, false, true)) //rSbtn
             done = true;
             
     }

@@ -8,6 +8,8 @@
 
 %x COMMENT
 %x STRING
+%x IMPORTING
+%x IMPORTSTR
 %s HASH
 
 %{
@@ -55,6 +57,9 @@ yycol += yyleng + 1; \
 qstr << CHAR; \
 break
 
+#define TERMINATE \
+BEGIN( INITIAL ); \
+return 0
 %}
 
  /* Keywords */
@@ -66,7 +71,10 @@ switch		TOKEN( SWITCH );
 case		TOKEN( CASE );
 default		TOKEN( DEFAULT );
 return		TOKEN( RETURN );
-import		TOKEN( IMPORT );
+import		{
+	BEGIN( IMPORTING ); //Handle the string following 'import' specially
+	TOKEN( IMPORT );
+}
 true		TOKEN( ZTRUE );
 false		TOKEN( ZFALSE );
 while		TOKEN( WHILE );
@@ -76,16 +84,31 @@ continue	TOKEN( CONTINUE );
 const		TOKEN( ZCONST );
 do		TOKEN( DO );
 typedef		TOKEN( TYPEDEF );
-EXPECT_ERROR	TOKEN( EXPECTERROR );
-EXPECT_WARNING	TOKEN( EXPECTERROR );
+"#ignore error"		TOKEN( EXPECTERROR );
+"#IGNORE ERROR"		TOKEN( EXPECTERROR );
+"#ignore warning"	TOKEN( EXPECTERROR );
+"#IGNORE WARNING"	TOKEN( EXPECTERROR );
+catch			TOKEN( EXPECTERROR );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
 "#define"		TOKEN( DEFINE );
+enum			TOKEN( ENUM );
+namespace		TOKEN( NAMESPACE );
+using			TOKEN( USING );
+always			TOKEN( ALWAYS );
+asm				TOKEN( ZASM );
+zasm			TOKEN( ZASM );
+until			TOKEN( UNTIL );
+unless			TOKEN( UNLESS );
+repeat			TOKEN( REPEAT );
+inline			TOKEN( INLINE );
 
  /* Types */
 void		TOKEN( ZVOID );
+untyped		TOKEN( UNTYPED );
 bool		TOKEN( ZBOOL );
 float		TOKEN( ZFLOAT );
 int		TOKEN( ZFLOAT );
+char32		TOKEN( ZCHAR );
 bitmap		TOKEN( BITMAP );
 cheat		TOKEN( CHEAT );
 combodata	TOKEN( COMBO );
@@ -111,11 +134,20 @@ shopdata	TOKEN( SHOP );
 spritedata	TOKEN( SPRITE );
 musicdata		TOKEN( TUNE );
 warpring	TOKEN( WARPRING );
+screendata	TOKEN( SCREEN );
+player	TOKEN( LINK );
+link	TOKEN( LINK );
+hero	TOKEN( LINK );
+itemsprite	TOKEN( ITEMSPRITE );
+file	TOKEN( FILE );
+subscreendata	TOKEN( SUBSCREENDATA );
 
  /* Syntax */
 ","		TOKEN( COMMA );
 "."		TOKEN( DOT );
 ";"		TOKEN( SEMICOLON );
+"::"	TOKEN( SCOPERES );
+".."	TOKEN( SCOPERES );
 ":"		TOKEN( COLON );
 "("		TOKEN( LPAREN );
 ")"		TOKEN( RPAREN );
@@ -123,13 +155,17 @@ warpring	TOKEN( WARPRING );
 "]"		TOKEN( RBRACKET );
 "{"		TOKEN( LBRACE );
 "}"		TOKEN( RBRACE );
+"?"		TOKEN( QMARK ); //for ternary
 
  /* Operators (in order of operations) */
 "->"		TOKEN( ARROW );
 "++"		TOKEN( INCREMENT );
 "--"		TOKEN( DECREMENT );
 "!"		TOKEN( NOT );
+not		TOKEN( NOT );
 "~"		TOKEN( BITNOT );
+compl		TOKEN( BITNOT );
+bitnot		TOKEN( BITNOT );
 "*"		TOKEN( TIMES );
 "/"		TOKEN( DIVIDE );
 "%"		TOKEN( MODULO );
@@ -142,13 +178,22 @@ warpring	TOKEN( WARPRING );
 ">"		TOKEN( GT );
 ">="		TOKEN( GE );
 "=="		TOKEN( EQ );
+"equals"	TOKEN( EQ );
 "!="		TOKEN( NE );
+not_eq		TOKEN( NE );
+not_equal		TOKEN( NE );
 "&"		TOKEN( BITAND );
+bitand		TOKEN( BITAND );
 "^"		TOKEN( BITXOR );
+xor		TOKEN( BITXOR );
 "|"		TOKEN( BITOR );
+bitor		TOKEN( BITOR );
 "&&"		TOKEN( AND );
+and		TOKEN( AND );
 "||"		TOKEN( OR );
+or		TOKEN( OR );
 "="		TOKEN( ASSIGN );
+":="		TOKEN( ASSIGN );
 "+="		TOKEN( PLUSASSIGN );
 "-="		TOKEN( MINUSASSIGN );
 "*="		TOKEN( TIMESASSIGN );
@@ -157,10 +202,18 @@ warpring	TOKEN( WARPRING );
 "<<="		TOKEN( LSHIFTASSIGN );
 ">>="		TOKEN( RSHIFTASSIGN );
 "&="		TOKEN( BITANDASSIGN );
+and_eq		TOKEN( BITANDASSIGN );
+and_equal		TOKEN( BITANDASSIGN );
 "^="		TOKEN( BITXORASSIGN );
+xor_eq		TOKEN( BITXORASSIGN );
+xor_equal		TOKEN( BITXORASSIGN );
 "|="		TOKEN( BITORASSIGN );
+or_eq		TOKEN( BITORASSIGN );
+or_equal		TOKEN( BITORASSIGN );
 "&&="		TOKEN( ANDASSIGN );
 "||="		TOKEN( ORASSIGN );
+ /*	cast		TOKEN( CAST );	*/
+ /*	static_cast		TOKEN( CAST );	*/
 
  /* Line Comments */
 "//".*		/* hit end of file */
@@ -181,7 +234,7 @@ warpring	TOKEN( WARPRING );
 	"*"+"/"			ADVANCE; BEGIN( INITIAL );
 	<<EOF>>			{
 		yymsg("WARNING: Comment does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 }
 
@@ -189,11 +242,14 @@ warpring	TOKEN( WARPRING );
 <INITIAL>"#"		BEGIN( HASH ); TOKEN( HASH );
 <HASH>{
 	\\\n		NEWLINE;
-	\n		NEWLINE; BEGIN( INITIAL ); TOKEN( ENDLINE );
+	\n			NEWLINE; BEGIN( INITIAL ); TOKEN( ENDLINE );
 	option		TOKEN( OPTION );
+	include		BEGIN( IMPORTING ); TOKEN( INCLUDE );
 	inherit		TOKEN( INHERIT );
-	on		TOKEN( ZTRUE );
-	off		TOKEN( ZFALSE );
+	on			TOKEN( ZTRUE );
+	off			TOKEN( ZFALSE );
+	error		VALUE( NUMBER, ASTFloat("2", ASTFloat::TYPE_DECIMAL, yylloc) );
+	warn		VALUE( NUMBER, ASTFloat("3", ASTFloat::TYPE_DECIMAL, yylloc) );
 }
 
  /* Strings */
@@ -207,7 +263,7 @@ warpring	TOKEN( WARPRING );
 <STRING>{
 	<<EOF>>			{
 		yymsg("ERROR: String does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	[^\"\n\\]*		ADVANCE; qstr << yytext;
 	[^\"\n\\]*\n		NEWLINE; qstr << yytext;
@@ -217,19 +273,54 @@ warpring	TOKEN( WARPRING );
 		qstr << yytext;
 		// Read in the escaped character.
 		register int c = yyinput();
-		switch (c) {
-		case 'a': ESC_CHAR('\a');
-		case 'b': ESC_CHAR('\b');
-		case 'f': ESC_CHAR('\f');
-		case 'n': ESC_CHAR('\n');
-		case 'r': ESC_CHAR('\r');
-		case 't': ESC_CHAR('\t');
-		case 'v': ESC_CHAR('\v');
-		case '\n': NEWLINE; break;
-		case EOF:
-			yymsg("ERROR: String does not end.", srow, scol);
-			return 0;
-		default: ESC_CHAR((char)c);
+		switch (c)
+    {
+			case 'a': ESC_CHAR('\a');
+			case 'b': ESC_CHAR('\b');
+			case 'f': ESC_CHAR('\f');
+			case 'n': ESC_CHAR('\n');
+			case 'r': ESC_CHAR('\r');
+			case 't': ESC_CHAR('\t');
+			case 'v': ESC_CHAR('\v');
+			case '\n': NEWLINE; break;
+			case 'x':
+			{
+				std::stringstream escstr;
+				escstr.str("");
+				int ch = yyinput();
+				if((ch >= '0' && ch <= '9')||(ch>='a'&&ch<='f')||(ch>='A'&&ch<='F'))
+					escstr << ((char)ch);
+				else
+				{
+					yymsg("ERROR: Hex-insert escape code '\\x' has no value.", srow, scol);
+					TERMINATE;
+				}
+				ch = yyinput();
+				if((ch >= '0' && ch <= '9')||(ch>='a'&&ch<='f')||(ch>='A'&&ch<='F'))
+					escstr << ((char)ch);
+				else
+				{
+					unput(ch);
+					//yymsg("ERROR: Hex-insert escape code '\\x' has one digit. These must have exactly two digits", srow, scol);
+					//TERMINATE;
+				}
+				std::stringstream buf;
+				int temp;
+				buf << std::hex << escstr.str();
+				buf >> temp;
+				ESC_CHAR((char)temp);
+			}
+			case EOF:
+				yymsg("ERROR: String does not end.", srow, scol);
+				TERMINATE;
+			case '\'':
+			case '\\':
+			case '\"':
+			case '\?':
+				ESC_CHAR((char)c);
+			default:
+				yymsg("ERROR: Unknown escape character.", srow, scol);
+				TERMINATE;
 		}
 	}
 	[^\"\n\\]*\"		{
@@ -245,6 +336,45 @@ warpring	TOKEN( WARPRING );
 		return TOK_QUOTEDSTRING;
 	}
 }
+ /* Import String */
+ <IMPORTING>{
+	<<EOF>>			{
+		yymsg("ERROR: Import/include without string", srow, scol);
+		TERMINATE;
+	}
+	[^\"\n]*\n]		{ //newline, without open quotation
+		yymsg("ERROR: Import/include without string", srow, scol);
+		TERMINATE;
+	}
+	\" {
+		BEGIN( IMPORTSTR );
+		qstr.str(""); /* Clear qstr */
+		srow = yyrow;
+		scol = yycol;
+		ADVANCE;
+	}
+ }
+ 
+ <IMPORTSTR>{
+	<<EOF>>			{
+		yymsg("ERROR: String does not end.", srow, scol);
+		TERMINATE;
+	}
+	[^\"\n]*		ADVANCE; qstr << yytext;
+	[^\"\n]*\n		NEWLINE; qstr << yytext;
+	[^\"\n]*\"		{
+		ADVANCE;
+		yytext[yyleng - 1] = 0; /* Remove the '"'. */
+		qstr << yytext;
+		BEGIN( INITIAL );
+		yylloc.first_line = srow;
+		yylloc.first_column = scol;
+		yylloc.last_line = yyrow;
+		yylloc.last_column = yycol;
+		yylval = new ASTString(qstr.str(), yylloc);
+		return TOK_IMPORTSTRING;
+	}
+ }
 
  /* Identifier */
 [_a-zA-Z][_a-zA-Z0-9]*	{
@@ -267,12 +397,73 @@ warpring	TOKEN( WARPRING );
 	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
 }
 
+\'\\[^\n]\'	{
+	switch(yytext[yyleng-2])
+	{
+		case 'a':
+			yytext[yyleng-3] = '\a';
+			break;
+		case 'b':
+			yytext[yyleng-3] = '\b';
+			break;
+		case 'f':
+			yytext[yyleng-3] = '\f';
+			break;
+		case 'n':
+			yytext[yyleng-3] = '\n';
+			break;
+		case 'r':
+			yytext[yyleng-3] = '\r';
+			break;
+		case 't':
+			yytext[yyleng-3] = '\t';
+			break;
+		case 'v':
+			yytext[yyleng-3] = '\v';
+			break;
+		case '\'':
+		case '\\':
+		case '\"':
+		case '\?':
+			yytext[yyleng-3] = yytext[yyleng-2];
+			break;
+		default:
+			yymsg("ERROR: Unknown escape character.", srow, scol);
+			TERMINATE;
+	}
+	yytext[yyleng-2] = yytext[yyleng-1];
+	yytext[yyleng-1] = 0;
+	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
+}
+
+\'\\x[0-9a-fA-F][0-9a-fA-F]?\' {
+	int x = yytext[yyleng-3]=='x' ? yyleng-3 : yyleng-4;
+	std::stringstream escstr;
+	escstr.str("");
+	escstr << yytext[x+1];
+	if(yytext[x+2]!='\'')
+		escstr << yytext[x+2];
+	std::stringstream buf;
+	int temp;
+	buf << std::hex << escstr.str();
+	buf >> temp;
+	yytext[x-1] = (char)temp;
+	yytext[x] = '\'';
+	//Clear the extra space
+	for(int q = x+1; q < yyleng; ++q)
+		yytext[q] = 0;
+	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
+}
+
  /* Whitespace */
 [ \t\r]*\n	NEWLINE;
 [ \t\r]+	ADVANCE;
 
  /* Error */
-.		yymsg("WARNING: Unknown Character");
+ .		{
+	yymsg("WARNING: Unknown Character");
+	TERMINATE;
+}
 
 %%
 

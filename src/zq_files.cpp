@@ -605,7 +605,7 @@ int PickRuleset()
             {
                 qr_FREEFORM, qr_SAFEENEMYFADE, qr_ITEMSONEDGES, qr_LINKDUNGEONPOSFIX, qr_RLFIX,
                 qr_NOLEVEL3FIX, qr_BOMBHOLDFIX, qr_HOLDNOSTOPMUSIC, qr_CAVEEXITNOSTOPMUSIC,
-                qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, qr_WPNANIMFIX, qr_PUSHBLOCKCSETFIX,
+                qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, /*qr_WPNANIMFIX,*/ qr_PUSHBLOCKCSETFIX,
                 qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
                 qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS, qr_NOFLICKER, qr_FIREPROOFLINK2,
                 qr_NOITEMOFFSET, qr_LADDERANYWHERE, -1
@@ -808,6 +808,7 @@ int onOpen()
     setup_combo_animations();
     setup_combo_animations2();
     Map.setCurrMap(zinit.last_map);
+    Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
     Map.setCurrScr(zinit.last_screen);
     Map.setCanPaste(false);
     Map.setCanUndo(false);

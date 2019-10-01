@@ -10,14 +10,6 @@ namespace ZScript
 	class SemanticAnalyzer : public RecursiveVisitor
 	{
 	public:
-		// Used as a parameter to signal that no val is needed.
-		static void* const paramNone;
-		// Used as a parameter to signal that the rval is needed.
-		static void* const paramRead;
-		// Used as a parameter to signal that the lval is needed.
-		static void* const paramWrite;
-		// Used as a parameter to signal that both lval and rval are needed.
-		static void* const paramReadWrite;
 
 		SemanticAnalyzer(ZScript::Program& program);
 
@@ -25,6 +17,7 @@ namespace ZScript
 		// Cases
 		void caseFile(ASTFile& host, void* = NULL);
 		void caseSetOption(ASTSetOption& host, void* param = NULL);
+		void caseUsing(ASTUsingDecl& host, void* param = NULL);
 		// Statements
 		void caseBlock(ASTBlock& host, void* = NULL);
 		void caseStmtIf(ASTStmtIf& host, void* = NULL);
@@ -36,14 +29,19 @@ namespace ZScript
 		void caseStmtReturnVal(ASTStmtReturnVal& host, void* = NULL);
 		// Declarations
 		void caseDataTypeDef(ASTDataTypeDef& host, void* = NULL);
+		void caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* = NULL);
 		void caseScriptTypeDef(ASTScriptTypeDef& host, void* = NULL);
 		void caseDataDeclList(ASTDataDeclList& host, void* = NULL);
+		void caseDataEnum(ASTDataEnum& host, void* = NULL);
 		void caseDataDecl(ASTDataDecl& host, void* = NULL);
 		void caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void* = NULL);
 		void caseFuncDecl(ASTFuncDecl& host, void* = NULL);
 		void caseScript(ASTScript& host, void* = NULL);
+		void caseNamespace(ASTNamespace& host, void* = NULL);
+		void caseImportDecl(ASTImportDecl& host, void* = NULL);
 		// Expressions
 		void caseExprConst(ASTExprConst& host, void* = NULL);
+		void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* = NULL);
 		void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
 		void caseExprArrow(ASTExprArrow& host, void* = NULL);
@@ -74,27 +72,26 @@ namespace ZScript
 		void caseExprBitXor(ASTExprBitXor& host, void* = NULL);
 		void caseExprLShift(ASTExprLShift& host, void* = NULL);
 		void caseExprRShift(ASTExprRShift& host, void* = NULL);
+		void caseExprTernary(ASTTernaryExpr& host, void* = NULL);
 		// Literals
 		void caseStringLiteral(ASTStringLiteral& host, void* = NULL);
 		void caseArrayLiteral(ASTArrayLiteral& host, void* = NULL);
 		void caseOptionValue(ASTOptionValue& host, void* = NULL);
 
-		////////////////
-		bool hasFailed() const {return failure;}
-
 	private:
 		ZScript::Program& program;
-		// Current scope.
-		ZScript::Scope* scope;
 		// Current function return type.
 		ZScript::DataType const* returnType;
 
+		std::vector<Function*> inlineStack;
+		
 		bool deprecateGlobals;
 
 		// Signal a compile error if source can't be cast to target.
 		void checkCast(ZScript::DataType const& sourceType,
 		               ZScript::DataType const& targetType,
-		               AST* node = NULL);
+		               AST* node = NULL,
+		               bool twoWay = false);
 
 		void analyzeFunctionInternals(ZScript::Function& function);
 

@@ -142,7 +142,7 @@ float SafeSqrt(float val, float specifyNegRet){
 //Safely sets an equipment item, without lagging ZC. 
 //Sets an item 'itm' true if it is false, and false if it is true.
 void SetLinkItem(int itm){
-	if ( !Link->Item[itm] ) Link->Item[itm] = true;
+	unless ( Link->Item[itm] ) Link->Item[itm] = true;
 	else if ( Link->Item[itm] ) Link->Item[itm] = false;
 }
 
@@ -160,9 +160,8 @@ void SetLinkItem(int itm, bool state){
 //Mayne next version. 
 void TraceArray(int arr){
 	TraceNL();
-	int _spc[2]=" ";
 	for ( int q = 0; q < SizeOfArray(arr); q++ ) {
-		Trace(arr[q]); TraceS(_spc);
+		Trace(arr[q]); TraceS(" ");
 		if ( q % 10 == 0 ) TraceNL();
 	}
 }
@@ -170,30 +169,25 @@ void TraceArray(int arr){
 //Trace the indices of a Boolean array, with a space between each. max 20 per line. 
 void TraceArrayB(bool arr, int size){
 	TraceNL();
-	int _spc[2]=" ";
 	for ( int q = 0; q < size; q++ ) {
-		TraceB(arr[q]); TraceS(_spc);
+		TraceB(arr[q]); TraceS(" ");
 		if ( q % 10 == 0 ) TraceNL();
 	}
 }
 
 void TraceArray(int arr, bool verbose){
 	if ( verbose ) 	{
-		int str[]="Tracing array with Pointer: ";
-		TraceNL(); TraceS(str); Trace(arr); TraceNL();
+		TraceNL(); TraceS("Tracing array with Pointer: "); Trace(arr); TraceNL();
 
 		for ( int q = 0; q < SizeOfArray(arr); q++ ) {
-			int str2[]="Index: ";
-			int str3[]="is : ";
-			TraceS(str2); Trace(q); TraceS(str3); Trace(arr[q]);
+			TraceS("Index: "); Trace(q); TraceS("is : "); Trace(arr[q]);
 			TraceNL();
 		}
 	}
 	else {
 		TraceNL();
-		int _spc[2]=" ";
 		for ( int q = 0; q < SizeOfArray(arr); q++ ) {
-			Trace(arr[q]); TraceS(_spc);
+			Trace(arr[q]); TraceS(" ");
 			if ( q % 10 == 0 ) TraceNL();
 		}
 	}
@@ -203,23 +197,17 @@ void TraceArray(int arr, bool verbose){
 void TraceArrayB(bool arr, int size, bool verbose){
 	if ( verbose ) {
 		//ZScript has no facility to read a pointer ID of an array with a type of bool, ffc, item, *weapon, or itemdata.
-		//int str[]="Tracing array with Pointer: ";
-		int str[]="Tracing Boolean Array: ";
-		TraceNL(); TraceS(str); TraceNL();
+		TraceNL(); TraceS("Tracing Boolean Array: "); TraceNL();
 		
-		int _spc[2]=" ";
 		for ( int q = 0; q < size; q++ ) {
-			int str2[]="Index: ";
-			int str3[]="is : ";
-			TraceS(str2); Trace(q); TraceS(str3); TraceB(arr[q]); TraceS(_spc);
+			TraceS("Index: "); Trace(q); TraceS("is : "); TraceB(arr[q]); TraceS(" ");
 			TraceNL();
 		}
 	}
 	else {
 		TraceNL();
-		int _spc[2]=" ";
 		for ( int q = 0; q < size; q++ ) {
-			TraceB(arr[q]); TraceS(_spc);
+			TraceB(arr[q]); TraceS(" ");
 			if ( q % 10 == 0 ) TraceNL();
 		}	
 	}
@@ -524,9 +512,9 @@ void NoPress(bool stick){
 
 int DirX(int dir) {
 	// Is a diagonal.
-	if (dir & 100b) return Cond(dir & 001b, Sin(45), Sin(45)*-1);
+	if (dir & 100b) return ((dir & 001b) ? Sin(45) : -Sin(45));
 	// Is horizontal.
-	if (dir & 010b) return Cond(dir & 001b, 1, -1);
+	if (dir & 010b) return ((dir & 001b) ? 1 : -1);
 	return 0;
 }
 
@@ -537,9 +525,9 @@ int DirX(int dir) {
 // in the given direction from origin.
 int DirY(int dir) {
 	// Is a diagonal.
-	if (dir & 100b) return Cond(dir & 010b, Sin(45), Sin(45)*-1);
+	if (dir & 100b) return ((dir & 010b) ? Sin(45) : -Sin(45));
 	// Is vertical.
-	if (!(dir & 010b)) return Cond(dir & 001b, 1, -1);
+	unless ((dir & 010b)) return ((dir & 001b) ? 1 : -1);
 	return 0;
 }
 
@@ -859,8 +847,7 @@ void SetLayerComboS(int layer, int pos, int solidity, bool layer0) {
 		if ( layer == 1 ) 
 		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
 		else if ( layer > 1 ) {
-			int str[]="Setting solidity on layers higher than 1 causes this version of ZC to crash.";
-			TraceS(str);
+			TraceS("Setting solidity on layers higher than 1 causes this version of ZC to crash.");
 		}
 	}
 	else Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
@@ -1001,7 +988,7 @@ int CenterY(item i, bool usehitbox) {
 int CenterX(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset) { 
 	int lx = anLWeapon->X;
 	if ( usehitbox ) lx += anLWeapon->HitWidth/2;
-	if ( !usehitbox ) lx += 8*anLWeapon->TileWidth;
+	unless ( usehitbox ) lx += 8*anLWeapon->TileWidth;
 	if ( trueoffset ) lx += anLWeapon->HitXOffset;
 	if ( drawoffset ) lx += anLWeapon->DrawXOffset;
 	return lx;
@@ -1012,7 +999,7 @@ int CenterX(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 int CenterY(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset) { 
 	int ly = anLWeapon->Y;
 	if ( usehitbox ) ly += anLWeapon->HitHeight/2;
-	if ( !usehitbox ) ly += 8*anLWeapon->TileHeight;
+	unless ( usehitbox ) ly += 8*anLWeapon->TileHeight;
 	if ( trueoffset ) ly += anLWeapon->HitYOffset;
 	if ( drawoffset ) ly += anLWeapon->DrawYOffset;
 	return ly;
@@ -1023,7 +1010,7 @@ int CenterY(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 int CenterX(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset) { 
 	int ex = anEWeapon->X;
 	if ( usehitbox ) ex += anEWeapon->HitWidth/2;
-	if ( !usehitbox ) ex += 8*anEWeapon->TileWidth;
+	unless ( usehitbox ) ex += 8*anEWeapon->TileWidth;
 	if ( trueoffset ) ex += anEWeapon->HitXOffset;
 	if ( drawoffset ) ex += anEWeapon->DrawXOffset;
 	return ex;
@@ -1034,7 +1021,7 @@ int CenterX(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 int CenterY(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset) { 
 	int ey = anEWeapon->Y;
 	if ( usehitbox ) ey += anEWeapon->HitHeight/2;
-	if ( !usehitbox ) ey += 8*anEWeapon->TileHeight;
+	unless ( usehitbox ) ey += 8*anEWeapon->TileHeight;
 	if ( trueoffset ) ey += anEWeapon->HitYOffset;
 	if ( drawoffset ) ey += anEWeapon->DrawYOffset;
 	return ey;
@@ -1045,7 +1032,7 @@ int CenterY(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 int CenterX(npc n, bool usehitbox, bool trueoffset, bool drawoffset) { 
 	int nx = n->X;
 	if ( usehitbox ) nx += n->HitWidth/2;
-	if ( !usehitbox ) nx += 8*n->TileWidth;
+	unless ( usehitbox ) nx += 8*n->TileWidth;
 	if ( trueoffset ) nx += n->HitXOffset;
 	if ( drawoffset ) nx += n->DrawXOffset;
 	return nx;
@@ -1056,7 +1043,7 @@ int CenterX(npc n, bool usehitbox, bool trueoffset, bool drawoffset) {
 int CenterY(npc n, bool usehitbox, bool trueoffset, bool drawoffset) { 
 	int ny = n->Y;
 	if ( usehitbox ) ny += n->HitHeight/2;
-	if ( !usehitbox ) ny += 8*n->TileHeight;
+	unless ( usehitbox ) ny += 8*n->TileHeight;
 	if ( trueoffset ) ny += n->HitYOffset;
 	if ( drawoffset ) ny += n->DrawYOffset;
 	return ny;
@@ -1067,7 +1054,7 @@ int CenterY(npc n, bool usehitbox, bool trueoffset, bool drawoffset) {
 int CenterX(item i, bool usehitbox, bool trueoffset, bool drawoffset) { 
 	int ix = i->X;
 	if ( usehitbox ) ix += i->HitWidth/2;
-	if ( !usehitbox ) ix += 8*i->TileWidth;
+	unless ( usehitbox ) ix += 8*i->TileWidth;
 	if ( trueoffset ) ix += i->HitXOffset;
 	if ( drawoffset ) ix += i->DrawXOffset;
 	return ix;
@@ -1078,7 +1065,7 @@ int CenterX(item i, bool usehitbox, bool trueoffset, bool drawoffset) {
 int CenterY(item i, bool usehitbox, bool trueoffset, bool drawoffset) { 
 	int iy = i->Y;
 	if ( usehitbox ) iy += i->HitHeight/2;
-	if ( !usehitbox ) iy += 8*i->TileHeight;
+	unless ( usehitbox ) iy += 8*i->TileHeight;
 	if ( trueoffset ) iy += i->HitYOffset;
 	if ( drawoffset ) iy += i->DrawYOffset;
 	return iy;
@@ -1253,8 +1240,8 @@ bool Collision(int cmb){
 	c[1] = Link->Y+Link->HitYOffset+Link->DrawYOffset;
 	c[2] = c[0]+(Link->HitWidth);
 	c[3] = c[1]+(Link->HitHeight);
-	if ( !RectCollision( ComboX(cmb), ComboY(cmb), (ComboX(cmb)+16), (ComboY(cmb)+16), c[0], c[1], c[2], c[3]) ) return false;
-	else if ( !(Distance(CenterLinkX(), CenterLinkY(), (ComboX(cmb)+8), (ComboY(cmb)+8)) < 8) ) return false;
+	unless ( RectCollision( ComboX(cmb), ComboY(cmb), (ComboX(cmb)+16), (ComboY(cmb)+16), c[0], c[1], c[2], c[3]) ) return false;
+	else unless ( (Distance(CenterLinkX(), CenterLinkY(), (ComboX(cmb)+8), (ComboY(cmb)+8)) < 8) ) return false;
 	return true;
 }
 
@@ -1331,8 +1318,7 @@ void SetLayerComboS(int layer, int pos, int solidity, bool layer0) {
 		if ( layer == 1 ) 
 		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
 		else if ( layer > 1 ) {
-			int str[]="Setting solidity on layers higher than 1 causes this version of ZC to crash.";
-			TraceS(str);
+			TraceS("Setting solidity on layers higher than 1 causes this version of ZC to crash.");
 		}
 	}
 	else Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);

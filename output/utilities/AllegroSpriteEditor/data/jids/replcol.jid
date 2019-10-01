@@ -1,0 +1,25 @@
+<!-- ASE - Allegro Sprite Editor -->
+<!-- Copyright (C) 2001-2009 by David Capello -->
+<jinete>
+<window text="Replace Color" name="replace_color">
+  <box horizontal>
+    <box vertical expansive>
+      <box horizontal expansive>
+        <box vertical homogeneous>
+          <label text="From:" />
+          <label text="To:" />
+        </box>
+        <box vertical homogeneous expansive name="color_buttons_box" />
+      </box>
+      <label text="Fuzziness:" />
+      <slider min=0 max=255 name="fuzziness" />
+    </box>
+    <box vertical>
+      <button text="&OK" name="button_ok" magnetic />
+      <button text="&Cancel" />
+      <box name="target" />
+      <check text="&Preview" name="preview" />
+    </box>
+  </box>
+</window>
+</jinete>

@@ -29,6 +29,8 @@ struct AccessorTable
     int setorget;
     int var;
     int numindex;
+	int funcFlags;
+	int numParams;
     int params[20];
 };
 
@@ -45,10 +47,10 @@ protected:
 	LibrarySymbols() : refVar(0) {}
     int refVar;
 
-	ZScript::Function* getFunction(string const& name) const;
+	ZScript::Function* getFunction(string const& name, int numParams) const;
 
 private:
-    map<string, ZScript::Function*> functions;
+	map<std::pair<string, int>, ZScript::Function*> functions;
 	
 	// Generates the code for functions which can't be auto generated.
 	virtual void generateCode() = 0;
@@ -353,6 +355,21 @@ private:
     void generateCode();
 };
 
+//Filesystem->
+class FileSystemSymbols : public LibrarySymbols
+{
+public:
+    static FileSystemSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static FileSystemSymbols singleton;
+    FileSystemSymbols();
+    void generateCode();
+};
+
 //Input->
 class InputSymbols : public LibrarySymbols
 {
@@ -563,6 +580,33 @@ private:
     void generateCode();
 };
 
+class FileSymbols : public LibrarySymbols
+{
+public:
+    static FileSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static FileSymbols singleton;
+    FileSymbols();
+    void generateCode();
+};
+
+class SubscreenDataSymbols : public LibrarySymbols
+{
+public:
+    static SubscreenDataSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static SubscreenDataSymbols singleton;
+    SubscreenDataSymbols();
+    void generateCode();
+};
 
 #endif
 

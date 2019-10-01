@@ -51,6 +51,18 @@
 #include "gamedata.h"
 #include "ffscript.h"
 extern FFScript FFCore; //the core script engine.
+#ifdef _WIN32
+	#include "ConsoleLogger.h"
+#endif
+extern ZModule zcm; //modules
+extern zcmodule moduledata;
+extern char runningItemScripts[256];
+extern char modulepath[2048];
+
+
+extern byte dmapscriptInitialised[512];
+
+
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -83,17 +95,27 @@ int db=0;
 int detail_int[10];                                         //temporary holder for things you want to detail
 int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
+int cheat_modifier_keys[4]; //two options each, default either control and either shift
 int strike_hint_counter=0;
 int strike_hint_timer=0;
 int strike_hint;
 int slot_arg, slot_arg2;
 char *SAVE_FILE = (char *)"zc.sav";
-
+int previous_DMap = -1;
 CScriptDrawingCommands script_drawing_commands;
 
 using std::string;
 using std::pair;
 extern std::map<int, pair<string,string> > ffcmap;
+extern std::map<int, pair<string,string> > globalmap;
+extern std::map<int, pair<string, string> > itemmap;
+extern std::map<int, pair<string, string> > npcmap;
+extern std::map<int, pair<string, string> > ewpnmap;
+extern std::map<int, pair<string, string> > lwpnmap;
+extern std::map<int, pair<string, string> > linkmap;
+extern std::map<int, pair<string, string> > dmapmap;
+extern std::map<int, pair<string, string> > screenmap;
+extern std::map<int, pair<string, string> > itemspritemap;
 
 int zq_screen_w, zq_screen_h;
 int passive_subscreen_height=56;
@@ -148,8 +170,8 @@ void throttleFPS()
 #ifdef _WIN32           // TEMPORARY!! -Trying to narrow down a win10 bug that affects performance.
     timeBeginPeriod(1); // Basically, jist is that other programs can affect the FPS of ZC in weird ways. (making it better for example... go figure)
 #endif
-
-    if(Throttlefps ^ (key[KEY_TILDE]!=0))
+    
+    if( (Throttlefps ^ (zc_getkey(KEY_TILDE)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) )
     {
         if(zc_vsync == FALSE)
         {
@@ -167,6 +189,7 @@ void throttleFPS()
         {
             vsync();
         }
+	
     }
 #ifdef _WIN32
     timeEndPeriod(1);
@@ -215,7 +238,7 @@ bool triplebuffer_not_available=false;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf;
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
            *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont,
@@ -302,13 +325,14 @@ int fullscreen;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte disable_triplebuffer=0,can_triplebuffer_in_windowed_mode=0;
 byte zc_color_depth=8;
-byte use_debug_console=0, use_win32_proc=1; //windows-build configs
+byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
 int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 bool analog_movement=true;
 int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
+unsigned long GameFlags=0;
 int js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
 int js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
 int js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
@@ -372,22 +396,41 @@ ffscript *globalscripts[NUMSCRIPTGLOBAL];
 //If only...
 ffscript *guyscripts[NUMSCRIPTGUYS];
 ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
+ffscript *dmapscripts[NUMSCRIPTSDMAP];
+ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 
-extern refInfo globalScriptData;
+extern refInfo globalScriptData[NUMSCRIPTGLOBAL];
+extern refInfo linkScriptData;
+extern refInfo screenScriptData;
+extern refInfo dmapScriptData;
 extern word g_doscript;
-extern bool global_wait;
+extern word link_doscript;
+extern word dmap_doscript;
+extern word global_wait;
+extern bool link_waitdraw;
+extern bool dmap_waitdraw;
+
+ScriptOwner::ScriptOwner() : scriptType(SCRIPT_NONE), ownerUID(0) {}
+void ScriptOwner::clear()
+{
+	scriptType = SCRIPT_NONE;
+	ownerUID = 0;
+}
 
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
-byte arrayOwner[MAX_ZCARRAY_SIZE];
+ScriptOwner arrayOwner[MAX_ZCARRAY_SIZE];
 
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
 
 DebugConsole DebugConsole::singleton = DebugConsole();
+ZASMSTackTrace ZASMSTackTrace::singleton = ZASMSTackTrace();
 
 
 void setZScriptVersion(int s_version)
@@ -400,7 +443,7 @@ void initZScriptArrayRAM(bool firstplay)
     for(word i = 0; i < MAX_ZCARRAY_SIZE; i++)
     {
         localRAM[i].Clear();
-        arrayOwner[i]=255;
+        arrayOwner[i].clear();
     }
     
     if(game->globalRAM.size() != 0)
@@ -438,9 +481,21 @@ void initZScriptArrayRAM(bool firstplay)
 
 void initZScriptGlobalRAM()
 {
-    g_doscript = 1;
-    globalScriptData.Clear();
-    clear_global_stack();
+	g_doscript = 0xFFFF; //Set all scripts active
+	global_wait = 0; //Clear waitdraws
+	for(int q = 0; q < NUMSCRIPTGLOBAL; ++q)
+	{
+		globalScriptData[q].Clear();
+		clear_global_stack(q);
+	}
+}
+
+void initZScriptGlobalScript(int ID)
+{
+	g_doscript |= (1<<ID);
+	global_wait &= ~(1<<ID);
+	globalScriptData[ID].Clear();
+	clear_global_stack(ID);
 }
 
 dword getNumGlobalArrays()
@@ -866,7 +921,7 @@ void dismissmsg()
 
 void dointro()
 {
-    if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0)
+    if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0 || FFCore.emulation[emu250DMAPINTOREPEAT])
     {
         dmapmsgclk=0;
         game->visited[currdmap]=1;
@@ -915,9 +970,27 @@ void hit_close_button()
     return;
 }
 
+
+
+// Yay, more extern globals.
+extern byte curScriptType;
+extern word curScriptNum;
+extern std::map<int, std::pair<std::string, std::string> > ffcmap;
+extern std::map<int, std::pair<std::string, std::string> > globalmap;
+extern std::map<int, std::pair<std::string, std::string> > itemmap;
+extern std::map<int, std::pair<std::string, std::string> > npcmap;
+extern std::map<int, std::pair<std::string, std::string> > ewpnmap;
+extern std::map<int, std::pair<std::string, std::string> > lwpnmap;
+extern std::map<int, std::pair<std::string, std::string> > linkmap;
+extern std::map<int, std::pair<std::string, std::string> > dmapmap;
+extern std::map<int, std::pair<std::string, std::string> > screenmap;
+extern std::map<int, std::pair<std::string, std::string> > itemspritemap;
+
+extern CConsoleLoggerEx zscript_coloured_console;
+
 void Z_eventlog(const char *format,...)
 {
-    if(get_bit(quest_rules,qr_LOG))
+    if(get_bit(quest_rules,qr_LOG) || DEVLEVEL > 1)
     {
         char buf[2048];
         
@@ -929,33 +1002,110 @@ void Z_eventlog(const char *format,...)
         
         if(zconsole)
             printf("%s",buf);
+	//Add event console here. -Z 
+	#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
+		#endif
     }
 }
 
-// Yay, more extern globals.
-extern byte curScriptType;
-extern word curScriptNum;
-extern std::map<int, std::pair<std::string, std::string> > ffcmap;
-extern std::map<int, std::pair<std::string, std::string> > globalmap;
-extern std::map<int, std::pair<std::string, std::string> > itemmap;
-
 void Z_scripterrlog(const char * const format,...)
 {
-    if(get_bit(quest_rules,qr_SCRIPTERRLOG))
+    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 1)
     {
         switch(curScriptType)
         {
         case SCRIPT_GLOBAL:
             al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
+			curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
+		#endif
             break;
+	
+	case SCRIPT_LINK:
+            al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].second.c_str()); }
+		#endif    
+	break;
+	
+	case SCRIPT_LWPN:
+            al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());}
+		#endif    
+	break;
+	
+	case SCRIPT_EWPN:
+            al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].second.c_str());}
+		#endif    
+	break;
+	
+	case SCRIPT_NPC:
+            al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].second.c_str());}
+		#endif    
+	break;
             
         case SCRIPT_FFC:
             al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
-            break;
+	    
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
+		#endif
+	break;
             
         case SCRIPT_ITEM:
             al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
-            break;
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+		#endif
+	break;
+        
+	case SCRIPT_DMAP:
+            al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());
+	    
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());}
+		#endif
+	break;
+	
+	case SCRIPT_ITEMSPRITE:
+            al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].second.c_str());}
+		#endif
+	break;
+        
+	case SCRIPT_SCREEN:
+            al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].second.c_str());}
+		#endif
+	break;
+	
+	case SCRIPT_SUBSCREEN:
+            al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+		#ifdef _WIN32
+		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+		#endif
+	break;
         }
         
         char buf[2048];
@@ -967,7 +1117,17 @@ void Z_scripterrlog(const char * const format,...)
         al_trace("%s",buf);
         
         if(zconsole)
+	{
             printf("%s",buf);
+	}
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+		#endif
+	}
+	
     }
 }
 
@@ -990,6 +1150,7 @@ LinkClass   Link;
 #include "ending.h"
 
 #include "zc_sys.h"
+//extern byte refresh_select_screen;
 
 // Wait... this is only used by ffscript.cpp!?
 void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid)
@@ -1254,7 +1415,18 @@ int load_quest(gamedata *g, bool report)
     if(g->get_quest()<255)
     {
         // Check the ZC directory first for 1st-4th quests; check qstdir if they're not there
-        sprintf(qstpath, "%s.qst", ordinal(g->get_quest()));
+	switch(g->get_quest())
+	{
+		case 1: sprintf(qstpath, moduledata.quests[0], ordinal(g->get_quest())); break;
+		case 2: sprintf(qstpath, moduledata.quests[1], ordinal(g->get_quest())); break;
+		case 3: sprintf(qstpath, moduledata.quests[2], ordinal(g->get_quest())); break;
+		case 4: sprintf(qstpath, moduledata.quests[3], ordinal(g->get_quest())); break;
+		case 5: sprintf(qstpath, moduledata.quests[4], ordinal(g->get_quest())); break;
+			
+		default: break;
+	}
+        
+	//was sprintf(qstpath, "%s.qst", ordinal(g->get_quest()));
         
         if(!exists(qstpath))
         {
@@ -1424,6 +1596,8 @@ int init_game()
     srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.kb_typing_mode = false;
+	
+	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
@@ -1446,6 +1620,7 @@ int init_game()
     add_nl2bsparkle=false;
     gofast=false;
     FFCore.init();
+    FFCore.user_bitmaps_init();
     cheat=0;
     wavy=quakeclk=0;
     show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
@@ -1655,7 +1830,8 @@ int init_game()
     COOLSCROLL = (get_bit(quest_rules,qr_COOLSCROLL)!=0 ? 1 : 0) |
                  (get_bit(quest_rules,qr_OVALWIPE)!=0 ? 2 : 0) |
                  (get_bit(quest_rules,qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
-                 (get_bit(quest_rules,qr_SMASWIPE)!=0 ? 8 : 0);
+                 (get_bit(quest_rules,qr_SMASWIPE)!=0 ? 8 : 0) |
+                 (get_bit(quest_rules,qr_FADEBLACKWIPE)!=0 ? 16 : 0);
     identifyCFEnemies();
                  
     //  NEWSUBSCR = get_bit(quest_rules,qr_NEWSUBSCR);
@@ -1666,9 +1842,10 @@ int init_game()
     {
         game->set_continue_dmap(zinit.start_dmap);
         resetItems(game,&zinit,true);
+	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 ) { game->set_maxbombs(8); al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), FFCore.getQuestHeaderInfo(vZelda)); }
     }
     
-    currdmap = warpscr = worldscr=game->get_continue_dmap();
+    previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
     init_dmap();
     
     if(game->get_continue_scrn() >= 0x80)
@@ -1716,7 +1893,8 @@ int init_game()
     
     tmpscr[0].zero_memory();
     tmpscr[1].zero_memory();
-    
+    //clear initialise dmap script 
+    for ( int q = 0; q < 512; q++ ) dmapscriptInitialised[q] = 0;
     //Script-related nonsense
     script_drawing_commands.Clear();
     
@@ -1726,6 +1904,10 @@ int init_game()
     
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();
+    FFCore.initZScriptLinkScripts();
+    FFCore.initZScriptDMapScripts();
+    FFCore.initZScriptItemScripts();
+    
     
     //Run the init script or the oncontinue script with the highest priority.
     //GLobal Script Init ~Init
@@ -1733,15 +1915,15 @@ int init_game()
     if(firstplay)
     {
         memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
     }
     else
     {
 	    //Global script OnContinue
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
     }
 */
-    global_wait=false;
+    global_wait=0;
     
     //loadscr(0,currscr,up);
     loadscr(0,currdmap,currscr,-1,false);
@@ -1750,11 +1932,25 @@ int init_game()
     
     //preloaded freeform combos
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
-    FFCore.init(); ///Initialise new ffscript engine core. 
-    Link.init();
-    Link.resetflags(true);
-    Link.setEntryPoints(LinkX(),LinkY());
-    if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); }
+	FFCore.init(); ///Initialise new ffscript engine core. 
+	Link.init();
+	if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
+	{
+		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
+		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
+									//positional data, sprites, tiles, csets, invisibility states, and the like.
+			FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
+		}
+		FFCore.initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script.
+		Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
+						//are properly set by the engine.
+	}
+	Link.resetflags(true); //This should probably occur after running Link's init script. 
+    
     
     copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
     loadfullpal();
@@ -1835,15 +2031,22 @@ int init_game()
     
     
     
-    if(firstplay)
-    {
-        memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
-    }
-    else
-    {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
-    }
+    //if(firstplay)
+    //{
+    //    memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
+    //    ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
+	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
+    //}
+    //else
+	if(!firstplay)
+	{
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
+		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
+	}
+	//Run after Init/onSaveLoad, regardless of firstplay -V
+	FFCore.runOnLaunchEngine();
+	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
+	
     
     if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
     openscreen();
@@ -1864,7 +2067,10 @@ int init_game()
         playLevelMusic();
         
     
-    initZScriptGlobalRAM(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
+    FFCore.initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     ffscript_engine(true);  //Here is a much safer place...
     
     return 0;
@@ -1957,6 +2163,11 @@ int cont_game()
     //  for(int i=0; i<128; i++)
     //    key[i]=0;
     
+	//Run onContGame script -V
+	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
+	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
+	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME);
+	
     update_subscreens();
     Playing=true;
     map_bkgsfx(true);
@@ -1978,7 +2189,10 @@ int cont_game()
         activated_timed_warp=false;
     }
     
-    initZScriptGlobalRAM();
+    initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
+    FFCore.initZScriptLinkScripts();
+    FFCore.initZScriptDMapScripts();
+    FFCore.initZScriptItemScripts();
     return 0;
 }
 
@@ -2658,9 +2872,24 @@ void do_dcounters()
             sfx(WAV_MSG);
     }
 }
-
+#define F7 46+7
+//bool zasmstacktrace = false;
 void game_loop()
 {
+	
+	//for ( int qq = 0; qq < 256; qq++ )
+    //{
+	    
+	// al_trace("ZC Init: LWeapon Script (0), Instruction (%d) is: %d\n", qq,lwpnscripts[0][qq].command); 
+	    
+    //}
+    //for ( int qq = 0; qq < 256; qq++ )
+    //{
+	    
+	// al_trace("ZC Init: LWeapon Script (1), Instruction (%d) is: %d\n", qq,lwpnscripts[1][qq].command); 
+	    
+    //}
+    
     //clear Link's last hits 
     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing these here makes checking them fail both before and after waitdraw.
     //Link.ClearhitLinkUIDs();
@@ -2714,26 +2943,34 @@ void game_loop()
     #if LOGGAMELOOP > 0
     al_trace("game_loop is calling: %s\n", "animate_combos()\n");
     #endif
-    animate_combos();
+    if ( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
     #if LOGGAMELOOP > 0
     al_trace("game_loop is calling: %s\n", "load_control_state()\n");
     #endif
-    load_control_state();
+    if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
     
     if(!freezemsg)
     {
-        script_drawing_commands.Clear();
+        if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
     }
     
     if(!freezeff)
     {
-        update_freeform_combos();
+        if ( !FFCore.system_suspend[susptUPDATEFFC] ) update_freeform_combos();
     }
     
     // Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
-    if(!freezemsg && g_doscript)
+    if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
     {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+    }
+    if(!FFCore.system_suspend[susptLINKACTIVE] && !freezemsg && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+    {
+        ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
+    }
+    if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+    {
+        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
     }
     
     if(!freeze && !freezemsg)
@@ -2741,77 +2978,97 @@ void game_loop()
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "mblock2.animate()\n");
 	#endif
-        mblock2.animate(0);
+        if ( !FFCore.system_suspend[susptMOVINGBLOCKS] )  mblock2.animate(0);
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.animate()\n");
 	#endif
-        items.animate();
+        if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] )  FFCore.itemSpriteScriptEngine();
+	if ( !FFCore.system_suspend[susptITEMS] ) items.animate();
+	
+	    //Can't be called in items.animate(), as ZQuest also uses this function.
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
 	#endif
-        items.check_conveyor();
+        if ( !FFCore.system_suspend[susptCONVEYORSITEMS] ) items.check_conveyor();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "guys.animate()\n");
 	#endif
-        guys.animate();
+        if ( !FFCore.system_suspend[susptGUYS] ) guys.animate();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "roaming_item()\n");
 	#endif
-        roaming_item();
+        if ( !FFCore.system_suspend[susptROAMINGITEM] ) roaming_item();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "dragging_item()\n");
 	#endif
-        dragging_item();
+        if ( !FFCore.system_suspend[susptDRAGGINGITEM] ) dragging_item();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
 	#endif
-        Ewpns.animate();
+        if ( !FFCore.system_suspend[susptEWEAPONS] ) Ewpns.animate();
+	if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngine();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is setting: %s\n", "checklink=true()\n");
 	#endif
-        checklink = true;
+        if ( !FFCore.system_suspend[susptLINK] ) checklink = true;
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
 	#endif
-        clear_script_one_frame_conditions(); //the timing on this may need adjustment. 
+        
+	if ( !FFCore.system_suspend[susptONEFRAMECONDS] )  clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
 	
-        for(int i = 0; i < (gofast ? 8 : 1); i++)
-        {
-	    #if LOGGAMELOOP > 0
-	al_trace("game_loop is at: %s\n", "if(Link.animate(0)\n");
-	#endif
-            if(Link.animate(0))
-            {
-                if(!Quit)
-                {
-                    Quit = qGAMEOVER;
-                }
-                
-                return;
-            }
-            
-            checklink=false;
-        }
+	if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )  FFCore.itemScriptEngine(); //run before lweapon scripts
+	
+	if ( !FFCore.system_suspend[susptLINK] )
+	{
+		for(int i = 0; i < (gofast ? 8 : 1); i++)
+		{
+		    #if LOGGAMELOOP > 0
+		al_trace("game_loop is at: %s\n", "if(Link.animate(0)\n");
+		#endif
+		    if(Link.animate(0))
+		    {
+			if(!Quit)
+			{
+			    Quit = qGAMEOVER;
+			}
+			
+			return;
+		    }
+		    
+		    checklink=false;
+		}
+	}
+	//FFCore.itemScriptEngine(); //run before lweapon scripts
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
 	#endif
-        do_magic_casting();
+	Link.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
+        if ( !FFCore.system_suspend[susptMAGICCAST] ) do_magic_casting();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
 	#endif
-        Lwpns.animate();
+	//perhaps add sprite.waitdraw, and call sprite script here too?
+        //FFCore.lweaponScriptEngine();
+	if ( !FFCore.system_suspend[susptLWEAPONS] ) Lwpns.animate();
+	
+	//FFCore.lweaponScriptEngine();
+        #if LOGGAMELOOP > 0
+	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
+	#endif
+      
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
 	#endif
-        decorations.animate();
+        if ( !FFCore.system_suspend[susptDECORATIONS] ) decorations.animate();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "particles.animate()\n");
 	#endif
-        particles.animate();
+        if ( !FFCore.system_suspend[susptPARTICLES] ) particles.animate();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "update_hookshot()\n");
 	#endif
-        update_hookshot();
+        if ( !FFCore.system_suspend[susptHOOKSHOT] ) update_hookshot();
         
         if(conveyclk<=0)
         {
@@ -2822,35 +3079,79 @@ void game_loop()
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "check_collisions()\n");
 	#endif
-        check_collisions();
+        if ( !FFCore.system_suspend[susptCOLLISIONS] ) check_collisions();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "dryuplake()\n");
 	#endif
-        dryuplake();
+        if ( !FFCore.system_suspend[susptLAKES] ) dryuplake();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "cycle_palette()\n");
 	#endif
-        cycle_palette();
+        if ( !FFCore.system_suspend[susptPALCYCLE] ) cycle_palette();
     }
     else if(freezemsg)
     {
         for(int i=0; i<guys.Count(); i++)
+	{
             if(((enemy*)guys.spr(i))->ignore_msg_freeze())
-                guys.spr(i)->animate(i);
+	    {
+                if ( !FFCore.system_suspend[susptGUYS] ) guys.spr(i)->animate(i);
+	    }
+        }
     }
     #if LOGGAMELOOP > 0
 	al_trace("game_loop at: %s\n", "if(global_wait)\n");
 	#endif
-    if(global_wait)
+    if( !FFCore.system_suspend[susptGLOBALGAME] && (global_wait & (1<<GLOBAL_SCRIPT_GAME)) )
     {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-        global_wait=false;
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+        global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
     }
+    if ( !FFCore.system_suspend[susptLINKACTIVE] && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    {
+	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
+	    link_waitdraw = false;
+    }
+    if ( !FFCore.system_suspend[susptDMAPSCRIPT] && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    {
+        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+	dmap_waitdraw = false;
+    }
+    
+    if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    {
+	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
+	tmpscr->screen_waitdraw = 0;	    
+    }
+    
+    for ( int q = 0; q < 32; ++q )
+    {
+	//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
+	if ( tmpscr->ffcswaitdraw&(1<<q) )
+	{
+		//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
+		if(tmpscr->ffscript[q] != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+		{
+			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
+			tmpscr->ffcswaitdraw &= ~(1<<q);
+		}
+	}
+    }
+    
+    //Waitdraw for item scripts. 
+    if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] ) FFCore.itemScriptEngineOnWaitdraw();
+    
+    //Sprite scripts on Waitdraw
+    if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngineOnWaitdraw();
+    if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) FFCore.itemSpriteScriptEngineOnWaitdraw();
+    
+    
+    
     
     #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "draw_screen()\n");
 	#endif
-    draw_screen(tmpscr);
+    if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr);
     
     //clear Link's last hits 
     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
@@ -2995,7 +3296,7 @@ void game_loop()
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "if(lensclk)\n");
 	#endif
-        if(lensclk)
+        if(lensclk && !FFCore.system_suspend[susptLENS])
         {
             draw_lens_over();
             --lensclk;
@@ -3004,7 +3305,7 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "if(quakeclk)\n");
 	#endif
         // Earthquake!
-        if(quakeclk>0)
+        if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
         {
             playing_field_offset=56+((int)(sin((double)(--quakeclk*2-frame))*4));
         }
@@ -3013,6 +3314,11 @@ void game_loop()
             playing_field_offset=56;
         }
         
+	if ( previous_DMap != currdmap )
+	{
+		FFCore.initZScriptDMapScripts();
+		previous_DMap = currdmap;
+	}
         // Other effects in zc_sys.cpp
     }
     
@@ -3116,6 +3422,7 @@ void setMonochrome(bool v){
 
 enum { colourNONE, colourGREY, colourRED, colourGREEN, colourBLUE, colourVIOLET, colourTEAL, colourAMBER, colourCYAN };
 enum { baseUNIFORM, baseDISTRIBUTED = 1000 };
+enum { tint_r, tint_g, tint_b, tint_bool_dist};
 
 short int lastMonoPreset = 0; // The current Monochrome preset loaded
 short int lastCustomTint[4] = {0,0,0,0}; // The current custom tint information. 0/1/2: R/G/B, 3: Base
@@ -3317,6 +3624,22 @@ void restoreMonoPreset(){
 		refreshpal = true;
 	}
 }
+
+void refreshTints()
+{
+	if(isMonochrome() && !lastMonoPreset)
+	{
+		setMonochrome(false);
+		setMonochrome(true);
+	}
+	restoreTint();
+	restoreMonoPreset();
+}
+
+int getTint(int color)
+{
+	return lastCustomTint[color];
+}
 /**************************/
 /********** Main **********/
 /**************************/
@@ -3416,56 +3739,72 @@ bool setGraphicsMode(bool windowed)
 
 int onFullscreen()
 {
-    PALETTE oldpal;
-    get_palette(oldpal);
-    
-    show_mouse(NULL);
-    bool windowed=is_windowed_mode()!=0;
-    
-    // these will become ultra corrupted no matter what.
-    Triplebuffer.Destroy();
-    
-    bool success=setGraphicsMode(!windowed);
-    if(success)
-        fullscreen=!fullscreen;
-    else
+    if(jwin_alert3(
+			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
+			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
+			(is_windowed_mode()) ? "We strongly advise saving your game before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
+			(is_windowed_mode()) ? "Do you wish to continue to fullscreen mode?" : NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		lfont) == 1)	
     {
-        // Try to restore the previous mode, then...
-        success=setGraphicsMode(windowed);
-        if(!success)
-        {
-            Z_message("Failed to set video mode.\n");
-            Z_message(allegro_error);
-            exit(1);
-        }
-    }
-    
-    /* ZC will crash going from fullscreen to windowed mode if triple buffer is left unchecked. -Gleeok  */
-    if(Triplebuffer.GFX_can_triple_buffer())
-    {
-        Triplebuffer.Create();
-        Z_message("Triplebuffer enabled \n");
-    }
-    else
-        Z_message("Triplebuffer disabled \n");
-    
-    //Everything set?
-    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
-    
-    set_palette(oldpal);
-    gui_mouse_focus=0;
-    show_mouse(screen);
-    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:SWITCH_BACKGROUND);
-//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
-//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
+	    PALETTE oldpal;
+	    get_palette(oldpal);
+	    
+	    show_mouse(NULL);
+	    bool windowed=is_windowed_mode()!=0;
+	    
+	    // these will become ultra corrupted no matter what.
+	    Triplebuffer.Destroy();
+	    
+	    bool success=setGraphicsMode(!windowed);
+	    if(success)
+		fullscreen=!fullscreen;
+	    else
+	    {
+		// Try to restore the previous mode, then...
+		success=setGraphicsMode(windowed);
+		if(!success)
+		{
+		    Z_message("Failed to set video mode.\n");
+		    Z_message(allegro_error);
+		    exit(1);
+		}
+	    }
+	    
+	    /* ZC will crash going from fullscreen to windowed mode if triple buffer is left unchecked. -Gleeok  */
+	    if(Triplebuffer.GFX_can_triple_buffer())
+	    {
+		Triplebuffer.Create();
+		Z_message("Triplebuffer enabled \n");
+	    }
+	    else
+		Z_message("Triplebuffer disabled \n");
+	    
+	    //Everything set?
+	    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
+	    
+	    set_palette(oldpal);
+	    gui_mouse_focus=0;
+	    show_mouse(screen);
+	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:SWITCH_BACKGROUND);
+	//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
+	//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 
-    return D_REDRAW;
+	    return D_REDRAW;
+    }
+    else return D_O_K;
 }
 
 int main(int argc, char* argv[])
 {
     bool onlyInstance=true;
-    
+//	refresh_select_screen = 0;
+    memset(modulepath, 0, sizeof(modulepath));
 #ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
     if(!is_only_instance("zc.lck"))
     {
@@ -3480,8 +3819,17 @@ int main(int argc, char* argv[])
     {
     
     case -1:
+    {
         Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+        //Print the current time to allegro.log as a test.
+        
+        //for (int q = 0; q < curTimeLAST; q++) 
+        //{
+        //    int t_time_v = FFCore.getTime(q);
+        //}
+	    
         break;
+    }
         
     case 1:
         Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
@@ -3621,6 +3969,13 @@ int main(int argc, char* argv[])
         load_game_configs();
         save_game_configs();
     }
+    //Set up MODULES: This must occur before trying to load the default quests, as the 
+    //data for quest names and so forth is set by the MODULE file!
+    //strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module", moduledata.module_name));
+    //al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name);
+    zcm.init(true);
+    zcm.load(false);
+    
     
     
 #ifdef _WIN32
@@ -3630,6 +3985,10 @@ int main(int argc, char* argv[])
     {
         DebugConsole::Open();
         zconsole = true;
+    }
+    if ( zscript_debugger )
+    {
+	FFCore.ZScriptConsole(true);
     }
     
 #endif
@@ -3678,6 +4037,10 @@ int main(int argc, char* argv[])
     
     Z_message("OK\n");
     
+    
+    
+    
+    
     // check for the included quest files
     if(!standalone_mode)
     {
@@ -3685,46 +4048,57 @@ int main(int argc, char* argv[])
         
         char path[2048];
         
-        append_filename(path, qstdir, "1st.qst", 2048);
+	    
+	for ( int q = 0; q < moduledata.max_quest_files; q++ )
+	{
+		append_filename(path, qstdir, moduledata.quests[q], 2048);
+		if(!exists(moduledata.quests[q]) && !exists(path))
+		{
+		    Z_error("%s not found.\n", moduledata.quests[q]);
+		    quit_game();
+		}
+	}	
+	/*
+        append_filename(path, qstdir, moduledata.quests[0], 2048);
         
-        if(!exists("1st.qst") && !exists(path))
+        if(!exists(moduledata.quests[0]) && !exists(path))
         {
             Z_error("\"1st.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "2nd.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[1], 2048);
         
-        if(!exists("2nd.qst") && !exists(path))
+        if(!exists(moduledata.quests[1]) && !exists(path))
         {
             Z_error("\"2nd.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "3rd.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[2], 2048);
         
-        if(!exists("3rd.qst") && !exists(path))
+        if(!exists(moduledata.quests[2]) && !exists(path))
         {
             Z_error("\"3rd.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "4th.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[3], 2048);
         
-        if(!exists("4th.qst") && !exists(path))
+        if(!exists(moduledata.quests[3]) && !exists(path))
         {
             Z_error("\"4th.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "5th.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[4], 2048);
         
-        if(!exists("5th.qst") && !exists(path))
+        if(!exists(moduledata.quests[4]) && !exists(path))
         {
             Z_error("\"5th.qst\" not found.");
             quit_game();
         }
-        
+        */
         Z_message("OK\n");
     }
     
@@ -3792,6 +4166,7 @@ int main(int argc, char* argv[])
     msgdisplaybuf = create_bitmap_ex(8,256, 176);
     msgbmpbuf = create_bitmap_ex(8, 512+16, 512+16);
     pricesdisplaybuf = create_bitmap_ex(8,256, 176);
+	script_menu_buf = create_bitmap_ex(8,256,224);
     
     if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
             || !screen2 || !msgdisplaybuf || !pricesdisplaybuf)
@@ -3899,10 +4274,10 @@ int main(int argc, char* argv[])
     sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
     sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
     
-    packfile_password(NULL); // Temporary measure. -L
+    packfile_password(""); // Temporary measure. -L
     Z_message("Zelda.Dat...");
     
-    if((data=load_datafile("zelda.dat"))==NULL)
+    if((data=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
     {
         Z_error("failed");
         quit_game();
@@ -3919,7 +4294,7 @@ int main(int argc, char* argv[])
     
     Z_message("Fonts.Dat...");
     
-    if((fontsdata=load_datafile("fonts.dat"))==NULL)
+    if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -3938,7 +4313,7 @@ int main(int argc, char* argv[])
     
     Z_message("SFX.Dat...");
     
-    if((sfxdata=load_datafile("sfx.dat"))==NULL)
+    if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -4065,31 +4440,31 @@ int main(int argc, char* argv[])
         guy_string[i] = new char[64];
     }
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new ffscript[1];
         ffscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         itemscripts[i] = new ffscript[1];
         itemscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         guyscripts[i] = new ffscript[1];
         guyscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         wpnscripts[i] = new ffscript[1];
         wpnscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         screenscripts[i] = new ffscript[1];
         screenscripts[i][0].command = 0xFFFF;
@@ -4101,11 +4476,35 @@ int main(int argc, char* argv[])
         globalscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
     }
+    
+     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
+    }
+     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    
+     for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        dmapscripts[i] = new ffscript[1];
+        dmapscripts[i][0].command = 0xFFFF;
+    }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        itemspritescripts[i] = new ffscript[1];
+        itemspritescripts[i][0].command = 0xFFFF;
+    }
+    
+    
     
     //script drawing bitmap allocation
     zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
@@ -4190,13 +4589,14 @@ int main(int argc, char* argv[])
     
     //request_refresh_rate(60);
     
+    //is the config file wrong (not zc.cfg!) here? -Z
     if(used_switch(argc,argv,"-fullscreen") ||
-            (!used_switch(argc, argv, "-windowed") && get_config_int("zeldadx","fullscreen",1)==1))
+            (!used_switch(argc, argv, "-windowed") && get_config_int("zeldadx","fullscreen",0)==1))
     {
         al_trace("Used switch: -fullscreen\n");
         tempmode = GFX_AUTODETECT_FULLSCREEN;
     }
-    else if(used_switch(argc,argv,"-windowed") || get_config_int("zeldadx","fullscreen",1)==0)
+    else if(used_switch(argc,argv,"-windowed") || get_config_int("zeldadx","fullscreen",0)==0)
     {
         al_trace("Used switch: -windowed\n");
         tempmode=GFX_AUTODETECT_WINDOWED;
@@ -4356,6 +4756,7 @@ int main(int argc, char* argv[])
     
 #endif
     
+    
     while(Quit!=qEXIT)
     {
         // this is here to continually fix the keyboard repeat
@@ -4368,98 +4769,132 @@ int main(int argc, char* argv[])
         setup_combo_animations();
         setup_combo_animations2();
         
-        while(!Quit)
-        {
+		while(Quit<=0)
+		{
 #ifdef _WIN32
-        
-            if(use_win32_proc != FALSE)
-            {
-                win32data.Update(0);
-            }
-            
-#endif
-            game_loop();
-            advanceframe(true);
 		
-	     //clear Link's last hits 
-	     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
+			if(use_win32_proc != FALSE)
+			{
+				win32data.Update(0);
+			}
+			
+#endif
+			game_loop();
+			//Perpetual item Script:
+			FFCore.newScriptEngine();
+			
+			FFCore.runF6Engine();
+		
+			//clear Link's last hits 
+			//for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
 									//to read before or after waitdraw in scripts. 
-        }
+		}
         
         tmpscr->flags3=0;
         Playing=Paused=false;
-        
-        switch(Quit)
-        {
-        case qQUIT:
-        case qGAMEOVER:
-        {
-            playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
-            show_subscreen_dmap_dots=true;
-            show_subscreen_numbers=true;
-            show_subscreen_items=true;
-            show_subscreen_life=true;
-            show_ff_scripts=false;
-            introclk=intropos=0;
-            
-            initZScriptGlobalRAM();
-		
-	    //Run Global script OnExit
-            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
-            
-            if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
-            
-		
-	    
-            skipcont = 0;
-		
-		
-		//restore user volume settings
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	//Clear active script array ownership
+        FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+        FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+		switch(Quit)
 		{
-			master_volume(-1,((long)FFCore.usr_midi_volume));
+			case qSAVE:
+			case qSAVECONT:
+			case qCONT:
+			case qQUIT:
+			case qGAMEOVER:
+			{
+				playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
+				show_subscreen_dmap_dots=true;
+				show_subscreen_numbers=true;
+				show_subscreen_items=true;
+				show_subscreen_life=true;
+				show_ff_scripts=false;
+				introclk=intropos=0;
+				for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
+				initZScriptGlobalScript(GLOBAL_SCRIPT_END);
+				FFCore.initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
+				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
+				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
+			
+				//Run Global script OnExit
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
+			   
+				if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
+				
+				if(Quit==qSAVE)
+				{
+					save_game(false);
+				}
+				else if(Quit==qSAVECONT)
+				{
+					save_game(false);
+					Quit = qCONT;
+				}
+				
+				skipcont = 0;
+				
+				//restore user volume settings
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+				{
+					master_volume(-1,((long)FFCore.usr_midi_volume));
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+				{
+					master_volume((long)(FFCore.usr_digi_volume),1);
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+				{
+					emusic_volume = (long)FFCore.usr_music_volume;
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+				{
+					sfx_volume = (long)FFCore.usr_sfx_volume;
+				}
+				if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+				{
+					pan_style = (long)FFCore.usr_panstyle;
+				}
+			}
+			break;
+			
+			case qWON:
+			{
+				show_subscreen_dmap_dots=true;
+				show_subscreen_numbers=true;
+				show_subscreen_items=true;
+				show_subscreen_life=true;
+				for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
+				initZScriptGlobalScript(GLOBAL_SCRIPT_END);
+				FFCore.initZScriptLinkScripts(); //get ready for the onWin script
+				FFCore.initZScriptDMapScripts();
+				FFCore.initZScriptItemScripts();
+				//Run global script OnExit
+				//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN); //runs in ending()
+				//while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
+				//We need a special routine for win and death link scripts. Otherwise, they work. 
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
+			
+			
+			
+				ending();
+			}
+			break;
 		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-		{
-			master_volume((long)(FFCore.usr_digi_volume),1);
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-		{
-			emusic_volume = (long)FFCore.usr_music_volume;
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-		{
-			sfx_volume = (long)FFCore.usr_sfx_volume;
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-		{
-			pan_style = (long)FFCore.usr_panstyle;
-		}
-        }
-        break;
-        
-        case qWON:
-        {
-            show_subscreen_dmap_dots=true;
-            show_subscreen_numbers=true;
-            show_subscreen_items=true;
-            show_subscreen_life=true;
-            
-            initZScriptGlobalRAM();
-	    //Run global script OnExit
-            ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
-		
-		
-            ending();
-        }
-        break;
-        
-        }
+        FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		//Restore original palette before exiting for any reason!
         setMonochrome(false);
 		doClearTint();
 		Link.setDontDraw(0);
-		
+		if(Quit != qCONT)
+		{
+			memset(disabledKeys, 0, sizeof(disabledKeys));
+			memset(disable_control, 0, sizeof(disable_control));
+		}
+		//Deallocate ALL ZScript arrays on ANY exit.
+		FFCore.deallocateAllArrays();
+		GameFlags = 0; //Clear game flags on ANY exit
         kill_sfx();
         music_stop();
         clear_to_color(screen,BLACK);
@@ -4506,7 +4941,7 @@ quick_quit:
     Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
     
     __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
-    
+    skipcont = 0;
     if(forceExit) //fix for the allegro at_exit() hang.
         exit(0);
         
@@ -4570,6 +5005,7 @@ void quit_game()
     destroy_bitmap(msgdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
     destroy_bitmap(pricesdisplaybuf);
+	destroy_bitmap(script_menu_buf);
     
     al_trace("Subscreens... \n");
     
@@ -4621,39 +5057,52 @@ void quit_game()
     
     al_trace("Script buffers... \n");
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         if(ffscripts[i]!=NULL) delete [] ffscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         if(itemscripts[i]!=NULL) delete [] itemscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         if(guyscripts[i]!=NULL) delete [] guyscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete [] screenscripts[i];
     }
+    
     
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
         if(globalscripts[i]!=NULL) delete [] globalscripts[i];
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
     }
     
     delete zscriptDrawingRenderTarget;
@@ -4676,6 +5125,13 @@ void quit_game()
     //if(TheMaps != NULL) zc_free(TheMaps);
     //if(ZCMaps != NULL) zc_free(ZCMaps);
     //  dumb_exit();
+}
+
+bool isSideViewGravity(int t)
+{
+	
+	return ((tmpscr[t].flags7 & fSIDEVIEW)!=0 || (DMaps[currdmap].sideview));
+	
 }
 
 

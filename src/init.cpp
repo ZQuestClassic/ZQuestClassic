@@ -29,6 +29,10 @@
 #include "init.h"
 #include "zelda.h"
 #include "mem_debug.h"
+#include "zquest.h"
+//extern ZModule zcm;
+extern zcmodule moduledata;
+
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -40,6 +44,9 @@
 #define vc(x)  ((x)+224)                                    // offset to 'VGA color' x (row 14)
 
 //using namespace std;
+
+//modules
+
 
 extern int jwin_pal[jcMAX];
 extern FONT *sfont2;
@@ -1223,10 +1230,10 @@ void PopulateInitDialog()
     initPopulate(i, jwin_text_proc,            12,    105,    104,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Continue HP:",                               NULL,   NULL);
     initPopulate(i, d_dummy_proc,              12,    123,     48,      8,    vc(15),                 vc(1),                   0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,              12,    141,     64,      8,    vc(15),                 vc(1),                   0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,            95,     65,     21,     16,    vc(12),                 vc(1),                   0,    0,              2,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,           112,     83,     21,     16,    vc(12),                 vc(1),                   0,    0,              2,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,            71,    101,     26,     16,    vc(12),                 vc(1),                   0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, d_dummy_proc,              40,    119,     26,     16,    vc(12),                 vc(1),                   0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,            95,     65,     21,     16,    vc(12),                 vc(1),                   0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,           112,     83,     21,     16,    vc(12),                 vc(1),                   0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,            71,    101,     26,     16,    vc(12),                 vc(1),                   0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_dummy_proc,              40,    119,     26,     16,    vc(12),                 vc(1),                   0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,              50,    137,     36,     16,    vc(12),                 vc(1),                   0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_check_proc,           99,    105,     25,      9,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) "%",                                          NULL,   NULL);
     initPopulate(i, jwin_text_proc,           126,     69,     64,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Pieces:",                                    NULL,   NULL);
@@ -1252,8 +1259,8 @@ void PopulateInitDialog()
     initPopulate(i, jwin_text_proc,           176-24,    119,    113,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Magic (" stringize(MAGICPERBLOCK) " per block) ",   NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          191-10,    129,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          232-10,    129,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,           180-10,    139,     26,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,           221-10,    139,     26,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,           180-10-5,    139,     34,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,           221-10-5,    139,     34,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_check_proc,          180,    159,     25,      9,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) "Double",                                     NULL,   NULL);
     
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
@@ -1263,7 +1270,7 @@ void PopulateInitDialog()
     initPopulate(i, d_dummy_proc,              96,    141,     64,      8,    vc(15),                 vc(1),                   0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,             122,    137,     36,     16,    vc(12),                 vc(1),                   0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,            19,    139,    176,      9,    vc(15),                 vc(11),                  0,    0,              0,             0, (void *) "Super Bomb Ratio",                           NULL,   NULL);
-    initPopulate(i, d_bombratioedit_proc,      25,    149,     21,     16,    0,                      0,                       0,    0,              2,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, d_bombratioedit_proc,      25,    149,     21,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
     // 1700
     initPopulate(i, jwin_text_proc,            12,     51,    128,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Gravity:",                                   NULL,   NULL);
     initPopulate(i, jwin_text_proc,            89,     51,    144,      8,    vc(15),                 vc(1),                   0,    0,              0,             0, (void *) "Terminal Velocity:",                         NULL,   NULL);
@@ -1537,17 +1544,19 @@ void build_biic_list()
 
     for(int i=start; i<itype_last; i++)
     {
-        std::string name = std::string(itype_names[i]);
+        //std::string name = std::string(itype_names[i]);
+        std::string name = std::string(moduledata.item_editor_type_names[i]);
 	    
 	    
         
         while(famnames.find(name) != famnames.end())
         {
-            name += ' ';
+            name += ' '; 
         }
         
         fams[name] = i;
         famnames.insert(name);
+	
     }
     
     /*
@@ -1567,6 +1576,7 @@ void build_biic_list()
     
     for(int i=itype_last; i<itype_max; i++)
     {
+	/*
 	char *name = new char[10];
 	    
 	if ( i == 256 ) sprintf(name, "Script 01");
@@ -1593,6 +1603,34 @@ void build_biic_list()
         fams[sname] = i;
         famnames.insert(sname);
         delete[] name;
+	*/
+	//expanded names
+	if (moduledata.item_editor_type_names[i][0] != NULL ) //std::string name = std::string(moduledata.item_editor_type_names[i]);
+	{
+	    
+		std::string name = std::string(moduledata.item_editor_type_names[i]);
+		while(famnames.find(name) != famnames.end())
+		{
+		    name += ' '; 
+		}
+		
+		fams[name] = i;
+		famnames.insert(name);
+	}
+	else 
+	{
+		char *name = new char[10];
+		sprintf(name, "zz%03d", i);
+		std::string sname(name);
+		while(famnames.find(sname) != famnames.end())
+		{
+		    sname += ' ';
+		}
+		
+		fams[sname] = i;
+		famnames.insert(sname);
+		delete[] name;
+	}
     }
     /*
     //Set up new/special weapons for 2.54 and above. 
@@ -1850,6 +1888,7 @@ int doInit(zinitdata *local_zinit)
         local_zinit->nBombs=vbound(atoi(bombstring),0,0xFFFF);
         local_zinit->nBombmax=vbound(atoi(maxbombstring),0,0xFFFF);
         local_zinit->nSbombs=vbound(atoi(sbombstring),0,0xFFFF);
+        local_zinit->nSBombmax=vbound(atoi(sbombstring),0,0xFFFF);
         local_zinit->nArrows=vbound(atoi(arrowstring),0,0xFFFF);
         local_zinit->nArrowmax=vbound(atoi(maxarrowstring),0,0xFFFF);
         
@@ -2051,7 +2090,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     //Then set up the counters
     game2->set_bombs(zinit2->nBombs);
     
-    if(zinit2->nBombs > 0 && zinit2->nSBombmax > 0) game2->set_item(iBombs, true);
+    if(zinit2->nBombs > 0 && zinit2->nBombmax > 0) game2->set_item(iBombs, true);
     
     game2->set_keys(zinit2->keys);
     game2->set_sbombs(zinit2->nSbombs);

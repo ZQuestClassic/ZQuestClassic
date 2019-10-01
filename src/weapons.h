@@ -49,8 +49,10 @@ public:
     bool bounce, ignoreLink;
     word flash,wid,aframe,csclk;
     int o_tile, o_cset, o_speed, o_type, frames, o_flip;
+	byte script_wrote_otile;
     int temp1;
     bool behind;
+	byte linkedItem;
 
 	//!Dimentio: More variables? That suuuuuure won't break anything. Nope.
     int count1; 
@@ -66,9 +68,6 @@ public:
     int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
     int weaprange; //default range -Z
     int weapduration; //default duration, 0 = infinite. 
-    word weaponscript; //Running script. -Z
-    long initiald[8];
-    byte initiala[2];
     long clocks[WEAPON_CLOCKS];
     long tilemod;
     byte drawlayer;
@@ -85,7 +84,8 @@ public:
     int script_UID;
     int getScriptUID();
     void setScriptUID(int new_id);
-    
+    bool isLinkWeapon();
+    bool isLinkMelee();
     //2.6 ZScript -Z
     int scriptrange,blastsfx;
     
@@ -95,18 +95,24 @@ public:
     
     //Used only by ffscript! No not make readable by scripts!
     byte ScriptGenerated; //Used to permit creating LinkClass weapons, or other weapon types that the engine does not control.
+    byte isLWeapon;
+	bool weapon_dying_frame; //a last_hurrah for weapons -V
     
-    weapon(weapon const & other);
+    
+    weapon(weapon const &other);
     //weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
-    weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false, byte script_gen=0);
+    weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false, byte script_gen=0, byte isLW=0);
+    weapon(fix X,fix Y,fix Z,int Id,int usesprite, int Dir, int step, int prntid, int height, int width, int a, int b, int c, int d, int e, int f, int g);
     virtual ~weapon();
     void LOADGFX(int wpn);
     bool Dead();
     bool isScriptGenerated();
     bool clip();
     bool blocked();
+    void runscript(int index);
     virtual bool blocked(int xOffset, int yOffset);
     virtual bool animate(int index);
+    virtual bool animateandrunscript(int index);
     virtual void onhit(bool clipped);
     virtual void onhit(bool clipped, int special, int linkdir);
     // override hit detection to check for invicibility, etc

@@ -12,6 +12,12 @@
 #ifndef _ZDEFS_H_
 #define _ZDEFS_H_
 
+#define DEVLEVEL 2
+#define COLLECT_SCRIPT_ITEM_ZERO -32767
+
+//DEVLEVEL 1: Ignore passwd
+//DEVLEVEL 2: +More verbose logging. 
+
 //Conditional Debugging Compilation
 //Script related
 #define _FFDEBUG
@@ -97,14 +103,14 @@
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       41                              //build number of this version
+#define VERSION_BUILD       47                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.55 Alpha, PureZC Expo 2018 Edition"                    //version of the program as presented in text
-#define IS_BETA             -1                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        1
-#define DATE_STR            "20th October, 2018"
-#define ZELDA_ABOUT_STR 	    "ZC Player 'Necromancer', 2018 PureZC Expo Edition"
-#define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
+#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 32"                    //version of the program as presented in text
+#define IS_BETA             -32                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        32	
+#define DATE_STR            "22nd September, 2019, 10:22GMT"
+#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 32"
+#define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
 
@@ -118,6 +124,11 @@
 #define QSTDAT_BUILD          30                            //build of qst.dat
 #define ZQUESTDAT_VERSION     0x0211                        //version of zquest.dat
 #define ZQUESTDAT_BUILD       18                            //build of zquest.dat
+
+#define MAX_INTERNAL_QUESTS 	5
+
+#define MAX_SCRIPT_REGISTERS 1024
+#define MAX_SCRIPT_REGISTERS_250 256
 
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
 
@@ -173,28 +184,28 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           3
 #define V_RULES           15
 #define V_STRINGS          6
-#define V_MISC             10
+#define V_MISC             11
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           11
+#define V_COMBOS           12
 #define V_CSETS            4
-#define V_MAPS            19
-#define V_DMAPS            11
+#define V_MAPS            22
+#define V_DMAPS            13
 #define V_DOORS            1
-#define V_ITEMS           43
+#define V_ITEMS           45
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        19
-#define V_GUYS            38
+#define V_GUYS            41
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        11
+#define V_SAVEGAME        12
 #define V_COMBOALIASES     3
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         7
+#define V_FFSCRIPT         14
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -224,7 +235,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_ICONS           1
 #define CV_GRAPHICSPACK    1
 #define CV_INITDATA       15
-#define CV_GUYS            3
+#define CV_GUYS            4
 #define CV_MIDIS           3
 #define CV_CHEATS          1
 #define CV_SAVEGAME        5
@@ -300,6 +311,14 @@ extern bool fake_pack_writing;
 #define MAXCUSTOMMIDIS        252                                 // uses bit string for midi flags, so 32 bytes
 #define MIDIFLAGS_SIZE  ((MAXCUSTOMMIDIS+7)>>3)
 #define MAXCUSTOMTUNES        252
+//Midi offsets
+//The offset from dmap/mapscr-> midi/screen_midi to currmidi
+#define MIDIOFFSET_DMAP		(ZC_MIDI_COUNT-4)
+#define MIDIOFFSET_MAPSCR	(ZC_MIDI_COUNT-4)
+//The offset from currmidi to ZScript MIDI values
+#define MIDIOFFSET_ZSCRIPT	(ZC_MIDI_COUNT-1)
+//Use together as `(MIDIOFFSET_DMAP-MIDIOFFSET_ZSCRIPT)` to go from `dmap` directly to `zscript`
+
 
 #define MAXMUSIC              256                                 // uses bit string for music flags, so 32 bytes
 #define MUSICFLAGS_SIZE       MAXMUSIC>>3
@@ -578,16 +597,14 @@ enum
 	//140
 	mfSCRITPTW7TRIG, mfSCRITPTW8TRIG, mfSCRITPTW9TRIG, mfSCRITPTW10TRIG, mfTROWEL, 
 	//145
-	mfTROWELNEXT, mfTROWELSPECIALITEM,mfSLASHPOT, 	mcLIFTPOT,	mfLIFTORSLASH, 
+	mfTROWELNEXT, mfTROWELSPECIALITEM,mfSLASHPOT, 	mfLIFTPOT,	mfLIFTORSLASH, 
 	//150
 	mfLIFTROCK, 	mfLIFTROCKHEAVY, mfDROPITEM, 	mfSPECIALITEM, 	mfDROPKEY, 
 	//155
-	mfDROPLKEY, 	mfDROPCOMPASS, 	mfDROPMAP, 	mcDROPBOSSKEY, mfSPAWNNPC, 
+	mfDROPLKEY, 	mfDROPCOMPASS, 	mfDROPMAP, 	mfDROPBOSSKEY, mfSPAWNNPC, 
 	//160
-	mfSWITCHHOOK, 	mf161,
-    
-    
-    mf162, mf163, mf164, mf165, mf166, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
+	mfSWITCHHOOK, 	mfSIDEVIEWLADDER, mfSIDEVIEWPLATFORM,
+    mf163, mf164, mf165, mf166, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
     mf175, mf176, mf177, mf178, mf179, mf180, mf181, mf182, mf183, mf184, mf185, mf186, mf187, 
     mf188, mf189, mf190, mf191, mf192, mf193, mf194, mf195, mf196, mf197, mf198, mf199, mf200,
     mf201, mf202, mf203, mf204, mf205, mf206, mf207, mf208, mf209, mf210, mf211, mf212, mf213,
@@ -786,7 +803,7 @@ enum
     qr_ENABLEMAGIC, qr_MAGICWAND_DEP/*DEPRECATED*/, qr_MAGICCANDLE_DEP/*DEPRECATED*/, qr_MAGICBOOTS_DEP/*DEPRECATED*/,
     qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_NEWENEMYTILES,
     // 8
-    qr_NOROPE2FLASH_DEP/*DEPRECATED*/, qr_NOBUBBLEFLASH_DEP/*DEPRECATED*/, qr_GHINI2BLINK_DEP, qr_WPNANIMFIX /* UNIMPLEMENTED */,
+    qr_NOROPE2FLASH_DEP/*DEPRECATED*/, qr_NOBUBBLEFLASH_DEP/*DEPRECATED*/, qr_GHINI2BLINK_DEP, qr_BITMAPOFFSETFIX, /* UNIMPLEMENTED */
     qr_PHANTOMGHINI2_DEP/*DEPRECATED*/, qr_Z3BRANG_HSHOT, qr_NOITEMMELEE/*DEPRECATED*/, qr_SHADOWS,
     // 9
     qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_EXPANDEDLTM,
@@ -822,22 +839,63 @@ enum
     qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility */, qr_SHOPCHEAT, qr_HOOKSHOTDOWNBUG /* Compatibility */,
     qr_OLDHOOKSHOTGRAB /* Compatibility */, qr_PEAHATCLOCKVULN /* Compatibility */, qr_VERYFASTSCROLLING, qr_OFFSCREENWEAPONS /* Compatibility */,
     // 20
-    qr_BROKENSTATUES /* Compatibility */, qr_NOSCRIPTSDURINGSCROLL /* Not Implemented */, qr_ITEMPICKUPSETSBELOW /* Compatibility */,
+    qr_BROKENSTATUES /* Compatibility */, qr_BOMBCHUSUPERBOMB,
+    qr_ITEMPICKUPSETSBELOW /* Compatibility */,
     
     qr_NOGANONINTRO, //bugfix//
     qr_MELEEMAGICCOST/*DEPRECATED*/,
     qr_OLDMIRRORCOMBOS,
     qr_BROKENBOOKCOST,
     qr_OLDSIDEVIEWSPIKES,
+    //21
 	qr_OLDINFMAGIC/* Compatibility */, //Infinite magic prevents items from draining rupees
-	qr_NEVERDISABLEAMMOONSUBSCREEN,
+	qr_NEVERDISABLEAMMOONSUBSCREEN, qr_ITEMSCRIPTSKEEPRUNNING,
+	qr_SCRIPTSRUNINLINKSTEPFORWARD, /*qr_SCRIPTDRAWSINCANCELWARP,*/ qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,
+	qr_DYINGENEMYESDONTHURTLINK, //t.b.a
+	qr_SIDEVIEWTRIFORCECELLAR,
+	//22
+	qr_OUTOFBOUNDSENEMIES,
+	qr_EPILEPSY,
+	qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
+	qr_SMARTDROPS,
+	qr_NO_L_R_BUTTON_INVENTORY_SWAP,
+	qr_USE_EX1_EX2_INVENTORYSWAP,
+	qr_NOFASTMODE,
+	qr_OLD_F6 /* Compatibility */,
+	//23
+	qr_BROKEN_ASKIP_Y_FRAMES /* Compatibility */, qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY /* Compatibility */, qr_SIDEVIEWLADDER_FACEUP, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS,
+	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS, qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, qr_DOWN_DOESNT_GRAB_LADDERS, qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
+	//24
+	qr_OLD_SIDEVIEW_CEILING_COLLISON /* Compatibility */, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES /* Compatibility */, qr_OLD_ENEMY_KNOCKBACK_COLLISION /* Compatibility */,
+	qr_FADEBLACKWIPE,
+	
+	//ZScript Parser //room for 20 of these
+	//80
+	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
+	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
+	qr_PARSER_SHORT_CIRCUIT, //Default off.
+	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
+	qr_LINKXY_IS_FLOAT,
+	qr_PARSER_TRUE_INT_SIZE, //Default on
+	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
+	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
+	//81
+	qr_OLDSPRITEDRAWS, qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT,
+	qr_OLDCREATEBITMAP_ARGS, qr_OLDQUESTMISC, qr_PARSER_FORCE_INLINE, qr_CLEARINITDONSCRIPTCHANGE,
+	//82
+	qr_NOFFCWAITDRAW, qr_NOITEMWAITDRAW, qr_TRACESCRIPTIDS, qr_FIXDRUNKINPUTS,
+	qr_32BIT_BINARY, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM, qr_DISALLOW_SETTING_RAFTING,
+	//83
+	qr_WEAPONS_EXTRA_FRAME,
+	
     qr_MAX
 };
 
 // Unsaved compatibility rules
 enum extraRules
 {
-    er_BITMAPOFFSET, er_SHORTDGNWALK,
+    er_BITMAPOFFSET, //to be deprecated by qr_BITMAPOFFSETFIX
+	er_SHORTDGNWALK,
 	er_MAGICCOSTSWORD, //BEAMS Only
 	er_BROKENCHARINTDRAWING, //pre-2.53 fix to DrawInteger() and DrarCharacter() -Z
 	er_SETENEMYWEAPONSPRITESONWPNCHANGE, //er_OLDSIDEVIEWSPIKES,
@@ -934,6 +992,17 @@ enum                                                        // value matters bec
 #define shSCRIPT	0x080
 #define shFIREBALL2	0x100 // Boss fireball, not ewFireball2
 
+
+//emulation patches
+enum 
+{ 
+	emuITEMPERSEG, emuGRIDCOLLISION, emuOLDTRIBBLES, emu190LINKSPRITES, emuCOPYSWIMSPRITES, emu210WINDROBES,
+	emu250DMAPINTOREPEAT, emuFIXTRIFORCECELLAR, emuNOFLIPFIRETRAIL, emuSWORDTRIGARECONTINUOUS, emu8WAYSHOTSFX, emu210BOMBCHU, emu192b163, 
+	emuEPILEPSY, emuLAST
+		
+};
+
+
 // item sets
 enum
 {
@@ -1022,10 +1091,12 @@ enum
 	//35
     wScript5, wScript6, wScript7, wScript8,
 	//39
-    wScript9, wScript10, wIce, //wSound // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
-	//wThrowRock, wPot //Thrown pot or rock -Z
-	//wLit //Lightning or Electric -Z
-	//wBombos, wEther, wQuake -Z
+    wScript9, wScript10, wIce, wFlame, //ice rod, fire rod
+    wSound, // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+	wThrowRock, wPot, //Thrown pot or rock -Z
+	wLit, //Lightning or Electric -Z
+	wBombos, wEther, wQuake,// -Z
+	wSword180, wSwordLA, 
     // Enemy weapons
     wEnemyWeapons=128,
     //129
@@ -1116,11 +1187,20 @@ enum
     eeGUY=0, eeWALK,
     eeSHOOT/*DEPRECATED*/,
     eeTEK, eeLEV, eePEAHAT, eeZORA, eeROCK,
+	//8
     eeGHINI, eeARMOS/*DEPRECATED*/, eeKEESE, eeGEL/*DEPRECATED*/, eeZOL/*DEPRECATED*/, eeROPE/*DEPRECATED*/, eeGORIYA/*DEPRECATED*/, eeTRAP,
+	//16
     eeWALLM, eeBUBBLE/*DEPRECATED*/, eeVIRE/*DEPRECATED*/, eeLIKE/*DEPRECATED*/, eePOLSV/*DEPRECATED*/, eeWIZZ, eeAQUA, eeMOLD,
+	//24
     eeDONGO, eeMANHAN, eeGLEEOK, eeDIG, eeGHOMA, eeLANM, eePATRA, eeGANON,
+	//32
     eePROJECTILE, eeGELTRIB/*DEPRECATED*/, eeZOLTRIB/*DEPRECATED*/, eeVIRETRIB/*DEPRECATED*/, eeKEESETRIB/*DEPRECATED*/, eeSPINTILE, eeNONE,
-    eeFAIRY, eeFIRE, eeOTHER,
+	//39
+    eeFAIRY, eeFIRE, eeOTHER, eeMAX250, //eeFire is Other (Floating), eeOther is Other in the Editor.
+    eeSCRIPT01, eeSCRIPT02, eeSCRIPT03, eeSCRIPT04, eeSCRIPT05, eeSCRIPT06, eeSCRIPT07, eeSCRIPT08, eeSCRIPT09, eeSCRIPT10,
+    eeSCRIPT11, eeSCRIPT12, eeSCRIPT13, eeSCRIPT14, eeSCRIPT15, eeSCRIPT16, eeSCRIPT17, eeSCRIPT18, eeSCRIPT19, eeSCRIPT20,
+    eeFFRIENDLY01, eeFFRIENDLY02, eeFFRIENDLY03, eeFFRIENDLY04, eeFFRIENDLY05, eeFFRIENDLY06, eeFFRIENDLY07, eeFFRIENDLY08,
+    eeFFRIENDLY09, eeFFRIENDLY10,
     eeMAX
 };
 
@@ -1223,42 +1303,42 @@ enum
 // New defence outcomes. 
 enum
 {
-    edNORMAL, // Take damage (or stun)
-    edHALFDAMAGE, // Take half damage
-    edQUARTDAMAGE, // Take 0.25 damage
-    edSTUNONLY, // Stun instead of taking damage.
-    edSTUNORCHINK, // If damage > 0, stun instead. Else, bounce off.
-    edSTUNORIGNORE, // If damage > 0, stun instead. Else, ignore.
-    edCHINKL1, // Bounces off, plays SFX_CHINK
-    edCHINKL2, // Bounce off unless damage >= 2
-    edCHINKL4, // Bounce off unless damage >= 4
-    edCHINKL6, // Bounce off unless damage >= 6
-    edCHINKL8, // Bounce off unless damage >= 8
-    edCHINK, // Bounces off, plays SFX_CHINK
-    edIGNOREL1, // Ignore unless damage > 1.
-    edIGNORE, // Do Nothing
-    ed1HKO, // One-hit knock-out
-	edCHINKL10, //If damage is less than 10 : IMPLEMENTED -Z
-	ed2x, //Double damage : IMPLEMENTED -Z
-	ed3x, //Triple Damage : IMPLEMENTED -Z
-	ed4x, //4x damage : IMPLEMENTED -Z
-	edHEAL, //recover the weapon damage in HP : IMPLEMENTED -Z
-	edTRIGGERSECRETS, //Triggers screen secrets. : IMPLEMENTED -Z
+    edNORMAL, // : IMPLEMENTED : Take damage (or stun)
+    edHALFDAMAGE, // : IMPLEMENTED : Take half damage
+    edQUARTDAMAGE, // : IMPLEMENTED : Take 0.25 damage
+    edSTUNONLY, // : IMPLEMENTED : Stun instead of taking damage.
+    edSTUNORCHINK, // : IMPLEMENTED : If damage > 0, stun instead. Else, bounce off.
+    edSTUNORIGNORE, // : IMPLEMENTED : If damage > 0, stun instead. Else, ignore.
+    edCHINKL1, // : IMPLEMENTED : Bounces off, plays SFX_CHINK
+    edCHINKL2, // : IMPLEMENTED : Bounce off unless damage >= 2
+    edCHINKL4, //: IMPLEMENTED : Bounce off unless damage >= 4
+    edCHINKL6, // : IMPLEMENTED : Bounce off unless damage >= 6
+    edCHINKL8, // : IMPLEMENTED : Bounce off unless damage >= 8
+    edCHINK, // : IMPLEMENTED : Bounces off, plays SFX_CHINK
+    edIGNOREL1, // : IMPLEMENTED : Ignore unless damage > 1.
+    edIGNORE, // : IMPLEMENTED : Do Nothing
+    ed1HKO, // : IMPLEMENTED : One-hit knock-out
+	edCHINKL10, //: IMPLEMENTED : If damage is less than 10
+	ed2x, // : IMPLEMENTED : Double damage.
+	ed3x, // : IMPLEMENTED : Triple Damage.
+	ed4x, // : IMPLEMENTED : 4x damage.
+	edHEAL, // : IMPLEMENTED : Gain the weapon damage in HP.
+	edTRIGGERSECRETS, // : IMPLEMENTED : Triggers screen secrets.
 	edFREEZE, //Freeze solid
 	edMSG_NOT_ENABLED, //A message for 'The following are not yet enabled.
 	edMSG_LINE, //An entry for the hiriz line in THE zq PULLDOWN
 	edLEVELDAMAGE, //Damage * item level
 	edLEVELREDUCTION, //Damage / item level
 	
-	edSPLIT, //causes the enemy to split if it has a split attribute
+	edSPLIT, //: IMPLEMENTED : causes the enemy to split if it has a split attribute
 	edREPLACE, //replaced by next in list?
 	edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by 
 	edLEVELCHINK3, //If item level is < 3: the item that generates it (itemdata::level stored to
 	edLEVELCHINK4, //If item level is < 4: weapon::level, or something similar; then a check to
 	edLEVELCHINK5, //If item level is < 5: read weapon::level in hit detection. 
 	edSHOCK, //buzz blob
-	edEXPLODESMALL, //ew bombblast
-	edEXPLODELARGE, //super bomb blast
+	edEXPLODESMALL, //: IMPLEMENTED : ew bombblast
+	edEXPLODELARGE, //: IMPLEMENTED : super bomb blast
 	edSTONE, //deadrock
 	
 	edBREAKSHIELD, //break the enemy shield
@@ -1266,16 +1346,17 @@ enum
 	edSPECIALDROP, //but where to define it?
 	edINCREASECOUNTER, //but where to define the counter
 	edREDUCECOUNTER, //same problem
-	edEXPLODEHARMLESS, //boss death explosion
+	edEXPLODEHARMLESS, //: IMPLEMENTED : boss death explosion; needs different sprites?
 	edKILLNOSPLIT, //If sufficient damage to kill it, a splitting enemy just dies.
 	edTRIBBLE, //Tribbles on hit. 
-	edFIREBALL, //Makes a 1x1 fireball
-	edFIREBALLLARGE, //Makes a 3x3 fireball
-	edSUMMON, //Summons a number of enemies as defined by the summon properties of the npc. 
+	edFIREBALL, //Makes a 1x1 fireball; Z3 Gibdo
+	edFIREBALLLARGE, //Makes a 3x3  Z3 Gibdo for large npcs. 
+	edSUMMON, //: IMPLEMENTED : Summons a number of enemies as defined by the summon properties of the npc. 
 	//edSAVE, edRETRY, edCRASHZC // Sanity Check Required. -Z
 	edWINGAME, //Wand of Gamelon. 
 	edJUMP, //Z3 stalfos
 	edEATLINK, //-G //Is this practical? We need specisal npc mvoement for it. -Z
+	edSHOWMESSAGE, //Shows a ZString when hit. e.g., Z3 Ganon
 	
     edLAST
 };
@@ -1284,7 +1365,7 @@ enum
 
 
 // enemy patters
-enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR };
+enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
 
 enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
@@ -1376,30 +1457,31 @@ struct itemdata
     byte fam_type;	//level										// What type in this family the item is
     long power;	// Damage, height, etc. //changed from byte to int in V_ITEMS 31
     long flags;
-#define ITEM_GAMEDATA    0x0001  // Whether this item sets the corresponding gamedata value or not
-#define ITEM_EDIBLE      0x0002  // can be eaten by Like Like
-#define ITEM_COMBINE     0x0004  // blue potion + blue potion = red potion
-#define ITEM_DOWNGRADE   0x0008
-#define ITEM_FLAG1   0x0010
-#define ITEM_FLAG2   0x0020
-#define ITEM_KEEPOLD     0x0040
-#define ITEM_RUPEE_MAGIC 0x0080
-#define ITEM_UNUSED       0x0100
-#define ITEM_GAINOLD     0x0200
-#define ITEM_FLAG3     0x0400
-#define ITEM_FLAG4     0x0800
-#define ITEM_FLAG5     0x1000
-#define ITEM_FLAG6     0x2000
-#define ITEM_FLAG7     0x4000
-#define ITEM_FLAG8     0x8000
-#define ITEM_FLAG9     0x10000
-#define ITEM_FLAG10     0x20000
-#define ITEM_FLAG11     0x40000
-#define ITEM_FLAG12     0x80000
-#define ITEM_FLAG13     0x100000
-#define ITEM_FLAG14     0x200000
-#define ITEM_FLAG15     0x400000
-#define ITEM_FLAG16     0x800000
+#define ITEM_GAMEDATA    0x00000001  // Whether this item sets the corresponding gamedata value or not
+#define ITEM_EDIBLE      0x00000002  // can be eaten by Like Like
+#define ITEM_COMBINE     0x00000004  // blue potion + blue potion = red potion
+#define ITEM_DOWNGRADE   0x00000008
+#define ITEM_FLAG1   0x00000010
+#define ITEM_FLAG2   0x00000020
+#define ITEM_KEEPOLD     0x00000040
+#define ITEM_RUPEE_MAGIC 0x00000080
+#define ITEM_UNUSED       0x00000100
+#define ITEM_GAINOLD     0x00000200
+#define ITEM_FLAG3     0x00000400
+#define ITEM_FLAG4     0x00000800
+#define ITEM_FLAG5     0x00001000
+#define ITEM_FLAG6     0x00002000
+#define ITEM_FLAG7     0x00004000
+#define ITEM_FLAG8     0x00008000
+#define ITEM_FLAG9     0x00010000
+#define ITEM_FLAG10     0x00020000
+#define ITEM_FLAG11     0x00040000
+#define ITEM_FLAG12     0x00080000
+#define ITEM_FLAG13     0x00100000
+#define ITEM_FLAG14     0x00200000
+#define ITEM_FLAG15     0x00400000
+#define ITEM_FLAG16     0x00800000
+#define ITEM_VALIDATEONLY	0x01000000
 
 
 
@@ -1488,6 +1570,13 @@ struct itemdata
     int magiccosttimer; //TImer for timed magic costs. 
     char cost_counter; //replaces mp cost with a list
     
+    char initD_label[8][65];
+    char weapon_initD_label[8][65];
+    char sprite_initD_label[8][65];
+    
+    long sprite_initiald[INITIAL_D];
+    byte sprite_initiala[INITIAL_A];
+    word sprite_script;
 };
 
 struct wpndata
@@ -1600,6 +1689,9 @@ struct item_drop_object
 #define ffSCRIPTRESET	0x00000100 //Script resets when carried over.
 #define ffETHEREAL      0x00000200 //Does not occlude combo and flags on the screen
 #define ffIGNOREHOLDUP  0x00000400 //Updated even while Link is holding an item
+#define ffIGNORECHANGER  0x00000800 //Ignore changers
+#define ffIMPRECISIONCHANGER  0x00001000 //Ignore changers
+#define ffLENSINVIS		0x00002000 //Visible, but not to the Lens of Truth
 
 //FF combo changer flags
 
@@ -1623,7 +1715,8 @@ struct item_drop_object
 #define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
 
-#define MAX_NPC_ATRIBUTES 15
+#define MAX_NPC_ATRIBUTES 31
+
 
 struct guydata
 {
@@ -1674,9 +1767,16 @@ struct guydata
     long new_weapon[32]; //Reserved for weapon patterns and args.
     long initD[8], initA[2];
     
-    word npcscript; //For future npc action scripts. 
+    word script; //For future npc action scripts. 
     //short parentCore; //Probably not needed here. -Z
     long editorflags;
+    
+    char initD_label[8][65];
+    char weapon_initD_label[8][65];
+    
+    word weaponscript;
+    long weap_initiald[INITIAL_D];
+    byte weap_initiala[INITIAL_A];
     
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
@@ -1697,6 +1797,7 @@ struct guydata
     
 };
 
+
 class refInfo
 {
 public:
@@ -1710,10 +1811,12 @@ public:
     
     byte ffcref, idata; //current object pointers
     dword itemref, guyref, lwpn, ewpn;
-	dword mapsref, screenref, npcdataref, bitmapref, spritesref, combosref, dmapsref, zmsgref, shopsref, untypedref;
+	dword mapsref, screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
+	dword fileref, subscreenref, comboidref;
+	int combosref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -1722,6 +1825,13 @@ public:
     {
         pc = 0, sp = 0, scriptflag = 0;
         ffcref = 0, idata = 0, itemref = 0, guyref = 0, lwpn = 0, ewpn = 0;
+	mapsref = 0, screenref = 0, npcdataref = 0, bitmapref = 0, spritesref = 0, combosref = 0, dmapsref = 0, 
+	    zmsgref = 0, shopsref = 0, untypedref = 0,
+		dropsetref = 0, pondref = 0, warpringref = 0, doorsref = 0, zcoloursref = 0, rgbref = 0, 
+		paletteref = 0, palcycleref = 0, tunesref = 0,
+		gamedataref = 0, cheatsref = 0; 
+		fileref = 0, subscreenref = 0;
+		comboidref = 0;
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
     }
@@ -1741,6 +1851,15 @@ public:
         pc = rhs.pc, sp = rhs.sp, scriptflag = rhs.scriptflag;
         ffcref = rhs.ffcref, idata = rhs.idata;
         itemref = rhs.itemref, guyref = rhs.guyref, lwpn = rhs.lwpn, ewpn = rhs.ewpn;
+	    
+	    mapsref = rhs.mapsref, screenref = rhs.screenref, npcdataref = rhs.npcdataref, 
+	    bitmapref = rhs.bitmapref, spritesref = rhs.spritesref, combosref = rhs.combosref, dmapsref = rhs.dmapsref, 
+	    zmsgref = rhs.zmsgref, shopsref = rhs.shopsref, untypedref = rhs.untypedref,
+		dropsetref = rhs.dropsetref, pondref = rhs.pondref, warpringref = rhs.warpringref, 
+		doorsref = rhs.doorsref, zcoloursref = rhs.zcoloursref, rgbref = rhs.rgbref, 
+		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
+		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
+		fileref = rhs.fileref, subscreenref = rhs.subscreenref;
         memcpy(d, rhs.d, 8 * sizeof(long));
         memcpy(a, rhs.a, 2 * sizeof(long));
         return *this;
@@ -1895,6 +2014,18 @@ struct mapscr
     signed short new_item_x[10];
     signed short new_item_y[10];
     
+    
+    word script;
+    long screeninitd[8];
+    byte screen_waitdraw;
+    byte preloadscript;
+    unsigned long ffcswaitdraw;
+    byte screendatascriptInitialised;
+    
+	byte hidelayers;
+	byte hidescriptlayers;
+	byte doscript;
+	
     void zero_memory()
     {
         //oh joy, this will be fun...
@@ -2049,7 +2180,17 @@ struct mapscr
         for ( int q = 0; q < 10; q++ ) new_items[q] = 0;
         for ( int q = 0; q < 10; q++ ) new_item_x[q] = 0;
         for ( int q = 0; q < 10; q++ ) new_item_y[q] = 0;
+	
+	script = 0;
+	doscript = 0;
+	for ( int q = 0; q < 8; q++) screeninitd[q] = 0;
+	preloadscript = 0;
         
+	screen_waitdraw = 0;
+	ffcswaitdraw = 0;
+	screendatascriptInitialised = 0;
+	hidelayers = 0;
+	hidescriptlayers = 0;
         data.assign(176,0);
         sflag.assign(176,0);
         cset.assign(176,0);
@@ -2095,6 +2236,8 @@ struct ffscript
 #define SCRIPT_NPC             6
 #define SCRIPT_SUBSCREEN       7
 #define SCRIPT_EWPN            8
+#define SCRIPT_DMAP            9
+#define SCRIPT_ITEMSPRITE      10
 
 
 enum
@@ -2276,6 +2419,7 @@ struct newcombo
 	long usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
 	long triggerflags[3]; //96 bits
 	long triggerlevel; //32 bits
+	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//long triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
 		//Thus, a weapon level affects all triggers for that combo type. 
@@ -2366,6 +2510,8 @@ enum { msLINKED };
 #define MSGC_CTRSETPC    15 // 2 args
 #define MSGC_GIVEITEM    16 // 1 arg
 #define MSGC_TAKEITEM    17 // 1 arg
+#define MSGC_WARP    18 // 6 args (dmap, screen, x, y, effect, sound
+#define MSGC_SETSCREEND    19 // 4 args (dmap, screen, reg, value)
 #define MSGC_SFX	20 // 1 arg
 #define MSGC_MIDI	21 // 1 arg
 #define MSGC_NAME	22 // 0 args, disabled
@@ -2588,6 +2734,9 @@ struct dmap
     //long init_d[8];
     //long script;
     char sideview;
+    word script;
+    long initD[8];
+    char initD_label[8][65];
 };
 
 // DMap flags
@@ -2751,6 +2900,7 @@ struct miscQdata
     long questmisc[32]; //Misc init values for the user. Used by scripts.
     char questmisc_strings[32][128]; //needs to be memset then data allocated from IntiData
 	//We probably want a way to access these in ZScript by their string, or to get the strings stored.
+    long zscript_last_compiled_version;
 };
 
 #define MFORMAT_MIDI 0
@@ -3035,7 +3185,7 @@ struct gamedata
     byte  icon[128];
     byte  pal[48];
     long  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
-    long  global_d[256];                                      // script-controlled global variables
+    long  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
     std::vector< ZCArray <long> > globalRAM;
     
     byte awpn, bwpn;											// Currently selected weapon slots
@@ -3292,6 +3442,99 @@ struct zcmap
     bool subpTrans;
 };
 
+enum controls //Args for 'getInput()'
+{
+	//control_state indeces
+	btnUp, btnDown, btnLeft, btnRight, btnA, btnB, btnS, btnL, btnR, btnP, btnEx1, btnEx2, btnEx3, btnEx4, btnAxisUp, btnAxisDown, btnAxisLeft, btnAxisRight,
+	//Other controls
+	btnM, btnF12, btnF11, btnF5, btnQ, btnI
+};
+
+///////////////
+/// MODULES ///
+///////////////
+
+enum { zelda_dat, zquest_dat, fonts_dat, sfx_dat, qst_dat };
+
+enum {
+    sels_tile_frame, sels_tile_questicon_1A, sels_tile_questicon_1B, sels_tile_questicon_2A,
+    sels_tile_questicon_2B, sels_tile_questicon_3A, sels_tile_questicon_3B, sels_tile_questicon_4A, 
+    sels_tile_questicon_4B, sels_tile_questicon_5A, sels_tile_questicon_5B, sels_tile_questicon_6A, 
+    sels_tile_questicon_6B, sels_tile_questicon_7A, sels_tile_questicon_7B, sels_tile_questicon_8A, 
+    sels_tile_questicon_8B, sels_tile_questicon_9A, sels_tile_questicon_9B, sels_tile_questicon_10A, 
+    sels_tile_questicon_10B, 
+    //x positions
+    sels_tile_questicon_1A_X, sels_tile_questicon_1B_X, sels_tile_questicon_2A_X, sels_tile_questicon_2B_X,
+    sels_tile_questicon_3A_X, sels_tile_questicon_3B_X, sels_tile_questicon_4A_X, sels_tile_questicon_4B_X, 
+    sels_tile_questicon_5A_X, sels_tile_questicon_5B_X, sels_tile_questicon_6A_X, sels_tile_questicon_6B_X, 
+    sels_tile_questicon_7A_X, sels_tile_questicon_7B_X, sels_tile_questicon_8A_X, sels_tile_questicon_8B_X, 
+    sels_tile_questicon_9A_X, sels_tile_questicon_9B_X, sels_tile_questicon_10A_X, sels_tile_questicon_10B_X,
+	
+	
+    sels_cursor_tile, sels_heart_tile, sels_linktile, draw_link_first,
+    sels_tile_LAST
+};
+
+enum {
+    sels_tile_frame_cset, sels_tile_questicon_1A_cset, sels_tile_questicon_1B_cset, sels_tile_questicon_2A_cset,
+    sels_tile_questicon_2B_cset, sels_tile_questicon_3A_cset, sels_tile_questicon_3B_cset, sels_tile_questicon_4A_cset, 
+    sels_tile_questicon_4B_cset, sels_tile_questicon_5A_cset, sels_tile_questicon_5B_cset, sels_tile_questicon_6A_cset, 
+    sels_tile_questicon_6B_cset, sels_tile_questicon_7A_cset, sels_tile_questicon_7B_cset, sels_tile_questicon_8A_cset, 
+    sels_tile_questicon_8B_cset, sels_tile_questicon_9A_cset, sels_tile_questicon_9B_cset, sels_tile_questicon_10A_cset, 
+    sels_tile_questicon_10B_cset, change_cset_on_quest_3, 
+	sels_cusror_cset, sels_heart_tilettile_cset, sels_link_cset,
+	
+	sels_tile_cset_LAST
+	
+};
+
+struct zcmodule
+{
+	char module_name[2048]; //filepath for current zcmodule file
+	char quests[10][255]; //first five quests, filenames
+	char skipnames[10][255]; //name entry passwords
+	char datafiles[5][255]; //qst.dat, zquest.dat, fonts.dat, sfx.dat, zelda.dat
+
+	byte old_quest_serial_flow; //Do we go from 3rd to 5th, 
+		//and from 5th to 4th, or just 1->2->3->4->5
+	//If this is 0, we do quests in strict order.
+	//if it is 1, then we use the old hardcoded quest flow.
+	
+	int max_quest_files;
+	int title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
+	
+	char enem_type_names[eeMAX][255];
+	char enem_anim_type_names[aMAX][255];
+	char item_editor_type_names[itype_max][255];
+	char combo_type_names[cMAX][255];
+	char combo_flag_names[mfMAX][255];
+	char roomtype_names[rMAX][255];
+	char walkmisc7_names[e7tEATHURT+1][255];
+	char walkmisc9_names[e9tARMOS+1][255];
+	char guy_type_names[gDUMMY1][255];
+	char enemy_weapon_names[wMax-wEnemyWeapons][255];
+	char player_weapon_names[wIce+1][255];
+	char counter_names[33][255];
+	
+	char itemclass_help_strings[itype_max*3][512];
+	
+	char base_NSF_file[1024];
+	char copyright_strings[3][2048];
+	int copyright_string_vars[10*3]; //font, 104,136,13,-1
+	char animate_NES_title;
+	char delete_quest_data_on_wingame[20]; //Do we purge items, scripts, and other data when moving to the next quest?
+        
+        int select_screen_tiles[sels_tile_LAST];
+        char select_screen_tile_csets[sels_tile_cset_LAST];
+	byte refresh_title_screen;
+        
+
+}; //zcmodule
+
+
+#define titleScreen250 0
+#define titleScreen210 11
+#define titleScreenMAIN 21
 
 /******************/
 /**  Misc Stuff  **/
@@ -3301,6 +3544,10 @@ struct zcmap
 #undef  min*/
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
+
+//GameFlags
+#define GAMEFLAG_TRYQUIT	0x01
+#define GAMEFLAG_SCRIPTMENU_ACTIVE	0x02
 
 #define DCLICK_START      0
 #define DCLICK_RELEASE    1
@@ -3816,15 +4063,27 @@ extern void removeFromItemCache(int itemid);
 #define NUMSCRIPTITEM		256
 #define NUMSCRIPTGUYS		256
 #define NUMSCRIPTWEAPONS	256
-#define NUMSCRIPTGLOBAL		4
+#define NUMSCRIPTGLOBAL		7
+#define NUMSCRIPTGLOBAL253		4
 #define NUMSCRIPTGLOBALOLD	3
-#define NUMSCRIPTLINK		3
+#define NUMSCRIPTLINKOLD		3
+#define NUMSCRIPTLINK		5
 #define NUMSCRIPTSCREEN		256
+#define NUMSCRIPTSDMAP		256
+#define NUMSCRIPTSITEMSPRITE		256
 
 #define GLOBAL_SCRIPT_INIT 		0
 #define GLOBAL_SCRIPT_GAME		1
 #define GLOBAL_SCRIPT_END		2
-#define GLOBAL_SCRIPT_CONTINUE 	3
+#define GLOBAL_SCRIPT_ONSAVELOAD	3
+#define GLOBAL_SCRIPT_ONLAUNCH		4
+#define GLOBAL_SCRIPT_ONCONTGAME	5
+#define GLOBAL_SCRIPT_F6	6
+
+#define SCRIPT_LINK_INIT 1
+#define SCRIPT_LINK_ACTIVE 2
+#define SCRIPT_LINK_DEATH 3
+#define SCRIPT_LINK_WIN 4
 
 //Link Internal Flags
 #define LF_PAID_SWORD_COST		0x01

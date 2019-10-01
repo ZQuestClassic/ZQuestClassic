@@ -1,5 +1,5 @@
 //Docs for 2.53.0
-//Rev. 0.7.3.4; 20th January, 2018
+//Rev. 0.7.5; 23rd September, 2019
 
 Search for !#! to find areas that require completion. 
 
@@ -1566,6 +1566,17 @@ float Sqrt(float val);			ZASM Instruction:
 	*/ Example Use: !#!
 
 /************************************************************************************************************/
+
+	int Version;			ZASM Instruction: 
+					ZELDAVERSION
+	/**
+	* Returns the version of ZC Player being used to run the quest.
+	*	(!) This command requires ZC Player 2.53.0 Release 1, or later.
+	*	(!) Plaing a 2.53.x quest that uses this command in an earler version
+	*	(!) of ZC Player, will return 0.
+	*/ Example Use: !#!
+
+/************************************************************************************************************/
 /************************************************************************************************************/
 
 //======================================
@@ -2803,6 +2814,22 @@ void DrawString( 	int layer, int x, int y,
 	
 	/************************************************************************************************************/
 	
+	int GetRenderTarget();
+					
+					ZASM Instruction: 
+					GETRENDERTARGET
+
+	/**
+	* Returns the ID of the current Screen Render Target
+	*
+	*	(!) See std.zh for a complete list of valid render targets (RT_*).
+	*	(!) This command requires ZC Player 2.53.0 Release 3, or later.
+	*	(!) Plaing a 2.53.x quest that uses this command in an earler version
+	*	(!) of ZC Player, produce script errors.
+	*/ Example Use: !#!
+	
+	/************************************************************************************************************/
+	
 	void DrawBitmap	( int layer, 
 			int bitmap_id, 
 			int source_x, int source_y, int source_w, int source_h, 
@@ -3084,7 +3111,8 @@ bool Flags[];			ZASM Instruction:
 				
 				
 /**
-* The FFC's set of flags. Use the FFCF_ constants in std.zh as the
+* The FFC's set of flags as an array of 11 boolean values. 
+* Use the FFCF_ constants in std.zh as the
 * index to access a particular flag.
 *
 */ Example Use: !#!
@@ -3570,9 +3598,11 @@ int Equipment;				ZASM Instruction:
 /**
 * Contains the item IDs of what is currently equiped to Link's A and B buttons.
 * The first 8 bits contain the A button item, and the second 8 bits contain the B button item.
-* Currently it is only possible to retrieve this value and not to set it.
+* As of 2.53.0 Release 3, this are read/write but in older versions this is read-only.
+* Playing a quest that writes to them in an older version of 
+* ZC Player will do nothing.
 * If you are not comfortable with performing binary operations,
-* you can use the functions GetEquipmentA() or GetEquipmentB() in std.zh.
+* you can use the functions GetEquipmentA(), GetEquipmentB(), and SetEquipment(int  int b) in std.zh.
 *
 */ Example Use: !#!
 
@@ -4182,8 +4212,11 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	int Attributes[];		ZASM Instruction: 
 					NPCDD
 	/**
-	* The npc's Miscellaneous Attributes, as an array of ten integers.
-	* They are read-only; while setting them is not syntactically incorrect, it does nothing.
+	* The npc's Miscellaneous Attributes, as an array of fifteen integers.
+	* As of 2.53.0 Release 3, these are read/write.
+	* In older versions are read-only and sized to ten integers.
+	* Playing a quest that writes to them in an older version of 
+	* ZC Player will do nothing.
 	*/
 
 /************************************************************************************************************/

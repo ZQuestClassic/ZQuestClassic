@@ -7,6 +7,7 @@
 /* declarations */
 %{
 #include "../precompiled.h"
+#include "parserDefs.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <cassert>
@@ -74,7 +75,7 @@ extern YYLTYPE noloc;
 
 %glr-parser
 %expect 1
-%expect-rr 26
+//%expect-rr 26
 %error-verbose
 %start Init
 %parse-param {ZScript::ASTFile*& root}
@@ -103,11 +104,23 @@ extern YYLTYPE noloc;
 %token EXPECTERROR
 %token OPTIONVALUE
 %token DEFINE
+%token ENUM
+%token NAMESPACE
+%token USING
+%token ALWAYS
+%token ZASM
+%token INCLUDE
+%token UNTIL
+%token UNLESS
+%token REPEAT
+%token INLINE
 
  // Types
 %token ZVOID
+%token UNTYPED
 %token ZBOOL
 %token ZFLOAT
+%token ZCHAR
 %token BITMAP
 %token CHEAT
 %token COMBO
@@ -133,11 +146,17 @@ extern YYLTYPE noloc;
 %token SPRITE
 %token TUNE
 %token WARPRING
+%token SCREEN
+%token LINK
+%token ITEMSPRITE
+%token FILE
+%token SUBSCREENDATA
 
  // Syntax
 %token COMMA
 %token DOT
 %token SEMICOLON
+%token SCOPERES
 %token COLON
 %token LPAREN
 %token RPAREN
@@ -145,6 +164,7 @@ extern YYLTYPE noloc;
 %token RBRACKET
 %token LBRACE
 %token RBRACE
+%token QMARK
 
  // Operators
 %token ARROW
@@ -169,6 +189,7 @@ extern YYLTYPE noloc;
 %token BITORASSIGN
 %token ANDASSIGN
 %token ORASSIGN
+%token CAST
 
  // Hash Only
 %token HASH
@@ -179,6 +200,7 @@ extern YYLTYPE noloc;
  // Others
 %token IDENTIFIER
 %token QUOTEDSTRING
+%token IMPORTSTRING
 %token SINGLECHAR
 %token NUMBER
 
@@ -205,11 +227,15 @@ Global_List :
 
 Global_Statement :
 	Import {$$ = $1;}
+	| Namespace {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| ScriptTypeDef SEMICOLON {$$ = $1;}
 	| Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
 	| Script {$$ = $1;}
+	| DataEnum SEMICOLON {$$ = $1;}
+	| Using SEMICOLON {$$ = $1;}
+	| AlwaysUsing SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Global_Statement {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
@@ -218,12 +244,143 @@ Global_Statement :
 	;
 
 ////////////////////////////////////////////////////////////////
+// Namespace Declaration
+
+Namespace :
+	NAMESPACE Scoperes_Identifier_List LBRACE RBRACE {
+		ASTExprIdentifier* idens = (ASTExprIdentifier*)$2;
+		ASTNamespace* namesp = new ASTNamespace(@$, idens->components.front());
+		std::vector<std::string> components = idens->components;
+		if(components.size() > 1)
+			for(std::vector<std::string>::const_iterator it = components.begin() + 1;
+				it != components.end(); ++it)
+			{
+				string name = *it;
+				ASTNamespace* subsp = new ASTNamespace(@$, name);
+				namesp->namespaces.push_back(subsp);
+			}
+		delete idens;
+		$$ = namesp;
+	}
+	| NAMESPACE Scoperes_Identifier_List LBRACE Namespace_Block_List RBRACE {
+		ASTExprIdentifier* idens = (ASTExprIdentifier*)$2;
+		std::vector<std::string> components = idens->components;
+		std::string name = components.front();
+		int size = idens->components.size();
+		if(size == 1)
+		{
+			ASTNamespace* namesp = (ASTNamespace*)$4;
+			namesp->setName(name);
+			namesp->location = @$;
+			delete idens;
+			$$ = namesp;
+		}
+		else if(size == 2)
+		{
+			ASTNamespace* top = new ASTNamespace(@$, name);
+			ASTNamespace* namesp = (ASTNamespace*)$4;
+			namesp->setName(components[1]);
+			namesp->location = @$;
+			top->namespaces.push_back(namesp);
+			delete idens;
+			$$ = top;
+		}
+		else
+		{
+			ASTNamespace* top = new ASTNamespace(@$, name);
+			ASTNamespace* temp = top;
+			ASTNamespace* temp2;
+			ASTNamespace* namesp = (ASTNamespace*)$4;
+			namesp->setName(components.back());
+			components.pop_back();
+			namesp->location = @$;
+			for(std::vector<std::string>::const_iterator it = components.begin() + 1;
+				it != components.end(); ++it)
+			{
+				name = *it;
+				temp2 = new ASTNamespace(@$, name);
+				temp->namespaces.push_back(temp2);
+				temp = temp2;
+			}
+			temp->namespaces.push_back(namesp);
+			delete idens;
+			$$ = top;
+		}
+	}
+	;
+
+Namespace_Block_List :
+	Namespace_Block_List Namespace_Statement {
+		ASTNamespace* namesp = (ASTNamespace*)$1;
+		ASTDecl* declaration = (ASTDecl*)$2;
+		namesp->addDeclaration(*declaration);
+		namesp->location = @$;
+		$$ = namesp;}
+	| Namespace_Block_List Option {
+		ASTNamespace* namesp = (ASTNamespace*)$1;
+		ASTSetOption* option = (ASTSetOption*)$2;
+		namesp->options.push_back(option);
+		namesp->location = @$;
+		$$ = namesp;
+		if (!namesp->variables.empty()
+		    || !namesp->functions.empty()
+		    || !namesp->dataTypes.empty()
+		    || !namesp->scriptTypes.empty()) {
+			yymsg("WARNING: Options should come before everything else.");}}
+	| Namespace_Statement {
+		ASTNamespace* namesp = new ASTNamespace(@$);
+		ASTDecl* declaration = (ASTDecl*)$1;
+		namesp->addDeclaration(*declaration);
+		$$ = namesp;}
+	| Option {
+		ASTNamespace* namesp = new ASTNamespace(@$);
+		ASTSetOption* option = (ASTSetOption*)$1;
+		namesp->options.push_back(option);
+		$$ = namesp;}
+	;
+
+Namespace_Statement :
+	Namespace {$$ = $1;}
+	| DataTypeDef SEMICOLON {$$ = $1;}
+	| ScriptTypeDef SEMICOLON {$$ = $1;}
+	| Data SEMICOLON {$$ = $1;}
+	| Function {$$ = $1;}
+	| Script {$$ = $1;}
+	| DataEnum SEMICOLON {$$ = $1;}
+	| Using SEMICOLON {$$ = $1;}
+	| EXPECTERROR LPAREN Expression_Constant RPAREN Namespace_Statement {
+		ASTExprConst* errorId = (ASTExprConst*)$3;
+		ASTDecl* declaration = (ASTDecl*)$5;
+		declaration->compileErrorCatches.push_back(errorId);
+		$$ = declaration;}
+	;
+	
+// Using
+
+Using :
+	USING NAMESPACE Scoperes_Identifier_List {
+		ASTExprIdentifier* idlist = (ASTExprIdentifier*)$3;
+		$$ = new ASTUsingDecl(idlist, @$);
+	};
+	
+AlwaysUsing :
+	ALWAYS USING NAMESPACE Scoperes_Identifier_List {
+		ASTExprIdentifier* idlist = (ASTExprIdentifier*)$4;
+		$$ = new ASTUsingDecl(idlist, @$, true);
+	};
+
+////////////////////////////////////////////////////////////////
 // Import Declaration
 
-Import : IMPORT QUOTEDSTRING {
-	ASTString* str = (ASTString*)$2;
-	$$ = new ASTImportDecl(str->getValue(), @$);
-	delete str;}
+Import :
+	IMPORT IMPORTSTRING {
+		ASTString* str = (ASTString*)$2;
+		$$ = new ASTImportDecl(str->getValue(), @$);
+		delete str;}
+	| HASH INCLUDE IMPORTSTRING {
+		ASTString* str = (ASTString*)$3;
+		$$ = new ASTImportDecl(str->getValue(), @$, true);
+		delete str;}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -245,23 +402,48 @@ Option :
 		$$ = new ASTSetOption(
 				name->getValue(), CompileOptionSetting::Default, @$);
 		delete name;}
+	| HASH OPTION DEFAULT Expression_Constant ENDLINE {
+		ASTExprConst* expr = (ASTExprConst*)$4;
+		$$ = new ASTSetOption("default", expr, @$);}
+	| HASH OPTION DEFAULT INHERIT ENDLINE {
+		$$ = new ASTSetOption(
+				"default", CompileOptionSetting::Inherit, @$);}
+	| HASH OPTION DEFAULT DEFAULT ENDLINE {
+		$$ = new ASTSetOption(
+				"default", CompileOptionSetting::Default, @$);}
 	;
 
 ////////////////////////////////////////////////////////////////
 // Type Declaration
 
-DataTypeDef : TYPEDEF DataType IDENTIFIER {
+DataTypeDef : StandardDataTypedef {$$ = $1;}
+	| EnumDataTypedef {$$ = $1;}
+	;
+
+StandardDataTypedef : TYPEDEF DataType IDENTIFIER {
 	ASTDataType* type = (ASTDataType*)$2;
 	ASTString* name = (ASTString*)$3;
 	$$ = new ASTDataTypeDef(type, name->getValue(), @1);
 	delete name;}
 	;
+	
+EnumDataTypedef : ENUM IDENTIFIER LBRACE Enum_Block RBRACE {
+	ASTDataEnum* en = (ASTDataEnum*)$4;
+	ASTString* identifier = (ASTString*)$2;
+	$$ = new ASTCustomDataTypeDef(NULL, identifier->getValue(), en, @$);
+	delete identifier;}
 
-DataType :
-	ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
-//	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
+DataType : ZCONST DataType {
+		ASTDataType* dtype = (ASTDataType*)$2;
+		++dtype->constant_; //Increment the number of `const` keywords. If >1, this will produce an error later.
+		$$ = dtype;
+	}
+	//Standard types
+	| ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
+	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
 	| ZFLOAT {$$ = new ASTDataType(DataType::FLOAT, @$);}
+	| ZCHAR {$$ = new ASTDataType(DataType::CHAR, @$);}
 	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
 	| CHEAT {$$ = new ASTDataType(DataType::CHEATS, @$);}
 	| COMBO {$$ = new ASTDataType(DataType::COMBOS, @$);}
@@ -285,13 +467,15 @@ DataType :
 	| RGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
 	| SHOP {$$ = new ASTDataType(DataType::SHOPDATA, @$);}
 	| SPRITE {$$ = new ASTDataType(DataType::SPRITEDATA, @$);}
+	| FILE {$$ = new ASTDataType(DataType::FILE, @$);}
+	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
-	| IDENTIFIER {
-			ASTString *name = (ASTString*)$1;
-			$$ = new ASTDataType(DataTypeUnresolved(name->getValue()), @$);
-			delete name;}
-	| ZCONST ZFLOAT {$$ = new ASTDataType(new DataTypeConstFloat(), @$);}
+	//Typedef types
+	| Identifier_List {
+			ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
+			$$ = new ASTDataType(DataTypeUnresolved(iden), @$);
+			}
 	;
 
 ScriptTypeDef : SCRIPT TYPEDEF Script_Type IDENTIFIER {
@@ -377,7 +561,18 @@ Data_Element_Array_Element_Size_List :
 // Function Declaration
 
 Function :
-	DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN
+	INLINE Function
+	{
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if(func->getFlag(FUNCFLAG_INLINE))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Duplicate `inline`.";
+		}
+		else func->setFlag(FUNCFLAG_INLINE);
+		$$ = func;
+	}
+	| DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN
 		Statement_Block
 	{
 		ASTDataType* returnType = (ASTDataType*)$1;
@@ -443,6 +638,16 @@ Script_Type :
 	GLOBAL {$$ = new ASTScriptType(ScriptType::global, @$);}
 	| FFC {$$ = new ASTScriptType(ScriptType::ffc, @$);}
 	| ITEM {$$ = new ASTScriptType(ScriptType::item, @$);}
+	| EWEAPON {$$ = new ASTScriptType(ScriptType::eweapon, @$);}
+	| LWEAPON {$$ = new ASTScriptType(ScriptType::lweapon, @$);}
+	| NPC {$$ = new ASTScriptType(ScriptType::npc, @$);}
+	| SCREEN {$$ = new ASTScriptType(ScriptType::screendata, @$);}
+	| DMAP {$$ = new ASTScriptType(ScriptType::dmapdata, @$);}
+	| LINK {$$ = new ASTScriptType(ScriptType::link, @$);}
+	| ITEMSPRITE {$$ = new ASTScriptType(ScriptType::itemsprite, @$);}
+	| UNTYPED {$$ = new ASTScriptType(ScriptType::untyped, @$);}
+	| SUBSCREENDATA {$$ = new ASTScriptType(ScriptType::subscreendata, @$);}
+	| COMBO {$$ = new ASTScriptType(ScriptType::combodata, @$);}
 	| IDENTIFIER {
 		ASTString* name = static_cast<ASTString*>($1);
 		$$ = new ASTScriptType(name->getValue(), @$);
@@ -487,6 +692,8 @@ Script_Block_Element :
 	Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
+	| DataEnum SEMICOLON {$$ = $1;}
+	| Using SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Script_Block_Element {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
@@ -501,6 +708,8 @@ Statement :
 	// Declarations
 	Data SEMICOLON {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
+	| DataEnum SEMICOLON {$$ = $1;}
+	| Using SEMICOLON {$$ = $1;}
 	// Normal Statements
 	| Expression SEMICOLON {$$ = $1;}
 	| Statement_Block {$$ = $1;}
@@ -509,6 +718,7 @@ Statement :
 	| Statement_For {$$ = $1;}
 	| Statement_While {$$ = $1;}
 	| Statement_Do {$$ = $1;}
+	| Statement_Repeat {$$ = $1;}
 	| Statement_Return SEMICOLON {$$ = $1;}
 	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@$);}
 	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@$);}
@@ -520,6 +730,7 @@ Statement_NoSemicolon:
 	// Declarations
 	Data {$$ = $1;}
 	| DataTypeDef {$$ = $1;}
+	| DataEnum {$$ = $1;}
 	// Normal Statements
 	| Expression {$$ = $1;}
 	| Statement_Block {$$ = $1;}
@@ -566,14 +777,23 @@ Statement_Block_List :
 	;
 
 Statement_If :
-	IF LPAREN Expression RPAREN Statement {
-		ASTExpr* cond = (ASTExpr*)$3;
-		ASTStmt* stmt = (ASTStmt*)$5;
+	IF If_Body {$$ = $2;}
+	| UNLESS If_Body {
+		ASTStmtIf* stmt = (ASTStmtIf*)$2;
+		stmt->invert();
+		$$ = stmt;
+	}
+	;
+	
+If_Body :
+	LPAREN Expression RPAREN Statement {
+		ASTExpr* cond = (ASTExpr*)$2;
+		ASTStmt* stmt = (ASTStmt*)$4;
 		$$ = new ASTStmtIf(cond, stmt, @$);}
-	| IF LPAREN Expression RPAREN Statement ELSE Statement {
-		ASTExpr* test = (ASTExpr*)$3;
-		ASTStmt* thenStatement = (ASTStmt*)$5;
-		ASTStmt* elseStatement = (ASTStmt*)$7;
+	| LPAREN Expression RPAREN Statement ELSE Statement {
+		ASTExpr* test = (ASTExpr*)$2;
+		ASTStmt* thenStatement = (ASTStmt*)$4;
+		ASTStmt* elseStatement = (ASTStmt*)$6;
 		$$ = new ASTStmtIfElse(test, thenStatement, elseStatement, @$);}
 	;
 
@@ -643,6 +863,12 @@ Statement_While :
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
 		$$ = new ASTStmtWhile(test, body, @$);}
+	| UNTIL LPAREN Expression RPAREN Statement {
+		ASTExpr* test = (ASTExpr*)$3;
+		ASTStmt* body = (ASTStmt*)$5;
+		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, @$);
+		stmt->invert();
+		$$ = stmt;}
 	;
 	
 Statement_Do :
@@ -650,8 +876,20 @@ Statement_Do :
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
 		$$ = new ASTStmtDo(test, body, @$);}
+	| DO Statement UNTIL LPAREN Expression RPAREN {
+		ASTStmt* body = (ASTStmt *)$2;
+		ASTExpr* test = (ASTExpr*)$5;
+		ASTStmtDo* stmt = new ASTStmtDo(test, body, @$);
+		stmt->invert();
+		$$ = stmt;}
 	;
 
+Statement_Repeat :
+	REPEAT LPAREN Expression_Constant RPAREN Statement {
+		ASTExprConst* expr = (ASTExprConst*)$3;
+		ASTStmt* body = (ASTStmt*)$5;
+		$$ = new ASTStmtRepeat(expr, body, @$);}
+	;
 
 Statement_Return :
 	RETURN Expression {
@@ -668,18 +906,155 @@ Statement_CompileError :
 		$$ = statement;}
 	;
 
+DataEnum:
+	ENUM LBRACE Enum_Block RBRACE {$$ = $3;};
+	
+Enum_Block:
+	Enum_Block COMMA Data_Element {
+			ASTDataEnum* list = (ASTDataEnum*)$1;
+			ASTDataDecl* element = (ASTDataDecl*)$3;
+			list->addDeclaration(element);
+			list->location = @$;
+			$$ = list;}
+	| Data_Element {
+			ASTDataDecl* element = (ASTDataDecl*)$1;
+			ASTDataEnum* list = new ASTDataEnum(@$);
+			list->addDeclaration(element);
+			$$ = list;}
+	;
+
+	/*Enum_Block COMMA IDENTIFIER {
+		ASTDataEnum* en = (ASTDataEnum*)$1;
+		ASTString* name = (ASTString*)$3;
+		ASTDataDecl* element = new ASTDataDecl(@$);
+		element->name = name->getValue();
+		en->add(element);
+		$$ = en;}
+	| Enum_Block COMMA IDENTIFIER ASSIGN Expression_Constant {
+		ASTDataEnum* en = (ASTDataEnum*)$1;
+		ASTString* name = (ASTString*)$3;
+		ASTDataDecl* element = new ASTDataDecl(@$);
+		element->name = name->getValue();
+		ASTExprConst* value = (ASTExprConst*)$5;
+		element->setInitializer(value);
+		en->add(element);
+		$$ = en;}
+	| IDENTIFIER {
+		ASTDataEnum* en = new ASTDataEnum(@$);
+		ASTString* name = (ASTString*)$1;
+		ASTDataDecl* element = new ASTDataDecl(@$);
+		element->name = name->getValue();
+		en->add(element);
+		$$ = en;}
+	| IDENTIFIER ASSIGN Expression_Constant {
+		ASTDataEnum* en = new ASTDataEnum(@$);
+		ASTString* name = (ASTString*)$1;
+		ASTDataDecl* element = new ASTDataDecl(@$);
+		element->name = name->getValue();
+		ASTExprConst* value = (ASTExprConst*)$3;
+		element->setInitializer(value);
+		en->add(element);
+		$$ = en;}*/
+	
 ////////////////////////////////////////////////////////////////
 // Expression Helpers
 
 Identifier_List :
-	Identifier_List DOT Identifier {
+	Mixed_Identifier_List {$$ = $1;}
+	| idlist_scopres {$$ = $1;}
+	| idlist_dot {$$ = $1;}
+	| Ambigious_Iden_List {$$ = $1;}
+	;
+	
+Scoperes_Identifier_List:
+	idlist_scopres {$$ = $1;}
+	| Ambigious_Iden_List {$$ = $1;}
+	;
+	
+/*Dot_Identifier_List:
+	idlist_dot {$$ = $1;}
+	| Ambigious_Iden_List {$$ = $1}
+	;*/
+
+Mixed_Identifier_List:
+	Mixed_Identifier_List DOT Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back(".");
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
-	| Identifier {
+	| idlist_scopres DOT Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back(".");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	| Mixed_Identifier_List SCOPERES Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back("::");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	| idlist_dot SCOPERES Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back("::");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	;
+	
+idlist_scopres:
+	idlist_scopres SCOPERES Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back("::");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	| Ambigious_Iden_List SCOPERES Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back("::");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	| SCOPERES Ambigious_Iden_List {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$2;
+		identifier->noUsing = true;
+		$$ = identifier;}
+	;
+	
+idlist_dot:
+	idlist_dot DOT Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back(".");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	| Ambigious_Iden_List DOT Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back(".");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	;
+	
+Ambigious_Iden_List:
+	Identifier {
 		ASTString* name = (ASTString*)$1;
 		$$ = new ASTExprIdentifier(name->getValue(), @$);
 		delete name;}
@@ -687,41 +1062,16 @@ Identifier_List :
 
 Identifier :
 	IDENTIFIER {$$ = $1;}
-	| BITMAP {$$ = new ASTString("bitmap", @$);}
-	| CHEAT {$$ = new ASTString("cheat", @$);}
-	| COMBO {$$ = new ASTString("combo", @$);}
-	| DOORSET {$$ = new ASTString("doorset", @$);}
-	| DROPSET {$$ = new ASTString("dropset", @$);}
-	| DMAP {$$ = new ASTString("dmap", @$);}
-	| EWEAPON {$$ = new ASTString("eweapon", @$);}
-	| FFC {$$ = new ASTString("ffc", @$);}
-	| GAMEDATA {$$ = new ASTString("gamedata", @$);}
-	| ITEM {$$ = new ASTString("item", @$);}
-	| ITEMCLASS {$$ = new ASTString("itemdata", @$);}
-	| LWEAPON {$$ = new ASTString("lweapon", @$);}
-	| MAP {$$ = new ASTString("map", @$);}
-	| MESSAGE {$$ = new ASTString("message", @$);}
-	| MISCCOLOR {$$ = new ASTString("misccolor", @$);}
-	| NPC {$$ = new ASTString("npc", @$);}
-	| NPCDATA {$$ = new ASTString("npcdata", @$);}
-	| PALCYCLE {$$ = new ASTString("palcycle", @$);}
-	| PALETTE {$$ = new ASTString("palette", @$);}
-	| POND {$$ = new ASTString("pond", @$);}
-	| RGB {$$ = new ASTString("rgb", @$);}
-	| SHOP {$$ = new ASTString("shop", @$);}
-	| SPRITE {$$ = new ASTString("sprite", @$);}
-	| TUNE {$$ = new ASTString("tune", @$);}
-	| WARPRING {$$ = new ASTString("warpring", @$);}
 	;
 
-Expr_2_Call :
-	Expr_2 LPAREN RPAREN {
+Expr_3_Call :
+	Expr_3 LPAREN RPAREN {
 		ASTExprCall* call = new ASTExprCall(@$);
 		ASTExpr* left = (ASTExpr*)$1;
 		call->left = left;
 		call->location = @$;
 		$$ = call;}
-	| Expr_2 LPAREN Expr_2_Call_Parameters RPAREN {
+	| Expr_3 LPAREN Expr_3_Call_Parameters RPAREN {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExprCall* call = (ASTExprCall*)$3;
 		call->left = left;
@@ -729,8 +1079,8 @@ Expr_2_Call :
 		$$ = call;}
 	;
 
-Expr_2_Call_Parameters :
-	Expr_2_Call_Parameters COMMA Expression {
+Expr_3_Call_Parameters :
+	Expr_3_Call_Parameters COMMA Expression {
 		ASTExprCall* call = (ASTExprCall*)$1;
 		ASTExpr* e = (ASTExpr*)$3;
 		call->parameters.push_back(e);
@@ -751,137 +1101,165 @@ Expr_1 :
 	Identifier_List {$$ = $1;}
 	| Literal {$$ = $1;}
 	| LPAREN Expression RPAREN {$$ = $2;}
-	;
 
 Expr_2 : Expr_1 {$$ = $1;}
+	//Casting
+	//cast<type>(expr) //Not using this, yet at least. -V
+	/*| CAST LT DataType GT LPAREN Expr_2 RPAREN {
+		ASTDataType* type = (ASTDataType*)$3;
+		ASTExpr* expr = (ASTExpr*)$6;
+		ASTExprCast* cast = new ASTExprCast(type, expr, @$);
+		cast->operand = expr;
+		$$ = cast;}*/
+	//<type>expr
+	| LT DataType GT Expr_2 {
+		ASTDataType* type = (ASTDataType*)$2;
+		ASTExpr* expr = (ASTExpr*)$4;
+		ASTExprCast* cast = new ASTExprCast(type, expr, @$);
+		cast->operand = expr;
+		$$ = cast;}
+	;
+
+Expr_3 : Expr_2 {$$ = $1;}
   // Post Increment
-	| Expr_2 INCREMENT {POSTFIX(ASTExprIncrement, $$, $1, @$)}
+	| Expr_3 INCREMENT {POSTFIX(ASTExprIncrement, $$, $1, @$)}
   // Post Decrement
-	| Expr_2 DECREMENT {POSTFIX(ASTExprDecrement, $$, $1, @$)}
+	| Expr_3 DECREMENT {POSTFIX(ASTExprDecrement, $$, $1, @$)}
   // Function Call
-	| Expr_2_Call {$$ = $1;}
+	| Expr_3_Call {$$ = $1;}
 	// Subscript
-	| Expr_2 LBRACKET Expression RBRACKET {
+	| Expr_3 LBRACKET Expression RBRACKET {
 		BINARY(ASTExprIndex, $$, $1, $3, @$);}
 	// Access
-	| Expr_2 ARROW IDENTIFIER {
+	| Expr_3 ARROW IDENTIFIER {
 			ASTExpr* left = (ASTExpr*)$1;
 			ASTString* right = (ASTString*)$3;
 			$$ = new ASTExprArrow(left, right->getValue(), @$);
 			delete right;}
 	;
 
-Expr_3 : Expr_2 {$$ = $1;}
+Expr_4 : Expr_3 {$$ = $1;}
 	// Pre Increment
-	| INCREMENT Expr_3 {PREFIX(ASTExprPreIncrement, $$, $2, @$)}
+	| INCREMENT Expr_4 {PREFIX(ASTExprPreIncrement, $$, $2, @$)}
 	// Pre Decrement
-	| DECREMENT Expr_3 {PREFIX(ASTExprPreDecrement, $$, $2, @$)}
+	| DECREMENT Expr_4 {PREFIX(ASTExprPreDecrement, $$, $2, @$)}
 	// Unary Minus
-	| MINUS Expr_3 {PREFIX(ASTExprNegate, $$, $2, @$)}
+	| MINUS Expr_4 {PREFIX(ASTExprNegate, $$, $2, @$)}
 	// Logical Not
-	| NOT Expr_3 {PREFIX(ASTExprNot, $$, $2, @$)}
+	| NOT Expr_4 {PREFIX(ASTExprNot, $$, $2, @$)}
 	// Bitwise Not
-	| BITNOT Expr_3 {PREFIX(ASTExprBitNot, $$, $2, @$)}
+	| BITNOT Expr_4 {PREFIX(ASTExprBitNot, $$, $2, @$)}
 	;
 
-Expr_4 : Expr_3 {$$ = $1;} // None used.
-
-Expr_5 : Expr_4 {$$ = $1;}
-	// Multiplication
-	| Expr_5 TIMES Expr_4 {BINARY(ASTExprTimes, $$, $1, $3, @$)}
-	// Division
-	| Expr_5 DIVIDE Expr_4 {BINARY(ASTExprDivide, $$, $1, $3, @$)}
-	// Remainder
-	| Expr_5 MODULO Expr_4 {BINARY(ASTExprModulo, $$, $1, $3, @$)}
-	;
+Expr_5 : Expr_4 {$$ = $1;} // None used.
 
 Expr_6 : Expr_5 {$$ = $1;}
-	// Addition
-	| Expr_6 PLUS Expr_5 {BINARY(ASTExprPlus, $$, $1, $3, @$)}
-	// Subtraction
-	| Expr_6 MINUS Expr_5 {BINARY(ASTExprMinus, $$, $1, $3, @$)}
+	// Multiplication
+	| Expr_6 TIMES Expr_5 {BINARY(ASTExprTimes, $$, $1, $3, @$)}
+	// Division
+	| Expr_6 DIVIDE Expr_5 {BINARY(ASTExprDivide, $$, $1, $3, @$)}
+	// Remainder
+	| Expr_6 MODULO Expr_5 {BINARY(ASTExprModulo, $$, $1, $3, @$)}
 	;
 
 Expr_7 : Expr_6 {$$ = $1;}
-	// Left Shift
-	| Expr_7 LSHIFT Expr_6 {BINARY(ASTExprLShift, $$, $1, $3, @$)}
-	// Right Shift
-	| Expr_7 RSHIFT Expr_6 {BINARY(ASTExprRShift, $$, $1, $3, @$)}
+	// Addition
+	| Expr_7 PLUS Expr_6 {BINARY(ASTExprPlus, $$, $1, $3, @$)}
+	// Subtraction
+	| Expr_7 MINUS Expr_6 {BINARY(ASTExprMinus, $$, $1, $3, @$)}
 	;
 
 Expr_8 : Expr_7 {$$ = $1;}
-	// Less Than
-	| Expr_8 LT Expr_7 {BINARY(ASTExprLT, $$, $1, $3, @$)}
-	// Less Than or Equal
-	| Expr_8 LE Expr_7 {BINARY(ASTExprLE, $$, $1, $3, @$)}
-	// Greater Than
-	| Expr_8 GT Expr_7 {BINARY(ASTExprGT, $$, $1, $3, @$)}
-	// Greater Than or Equal
-	| Expr_8 GE Expr_7 {BINARY(ASTExprGE, $$, $1, $3, @$)}
+	// Left Shift
+	| Expr_8 LSHIFT Expr_7 {BINARY(ASTExprLShift, $$, $1, $3, @$)}
+	// Right Shift
+	| Expr_8 RSHIFT Expr_7 {BINARY(ASTExprRShift, $$, $1, $3, @$)}
 	;
 
 Expr_9 : Expr_8 {$$ = $1;}
-	// Equality
-	| Expr_9 EQ Expr_8 {BINARY(ASTExprEQ, $$, $1, $3, @$)}
-	// Inequality
-	| Expr_9 NE Expr_8 {BINARY(ASTExprNE, $$, $1, $3, @$)}
+	// Less Than
+	| Expr_9 LT Expr_8 {BINARY(ASTExprLT, $$, $1, $3, @$)}
+	// Less Than or Equal
+	| Expr_9 LE Expr_8 {BINARY(ASTExprLE, $$, $1, $3, @$)}
+	// Greater Than
+	| Expr_9 GT Expr_8 {BINARY(ASTExprGT, $$, $1, $3, @$)}
+	// Greater Than or Equal
+	| Expr_9 GE Expr_8 {BINARY(ASTExprGE, $$, $1, $3, @$)}
 	;
 
 Expr_10 : Expr_9 {$$ = $1;}
-	// Bitwise And
-	| Expr_10 BITAND Expr_9 {BINARY(ASTExprBitAnd, $$, $1, $3, @$)}
+	// Equality
+	| Expr_10 EQ Expr_9 {BINARY(ASTExprEQ, $$, $1, $3, @$)}
+	// Inequality
+	| Expr_10 NE Expr_9 {BINARY(ASTExprNE, $$, $1, $3, @$)}
 	;
 
 Expr_11 : Expr_10 {$$ = $1;}
-	// Bitwise Xor
-	| Expr_11 BITXOR Expr_10 {BINARY(ASTExprBitXor, $$, $1, $3, @$)}
+	// Bitwise And
+	| Expr_11 BITAND Expr_10 {BINARY(ASTExprBitAnd, $$, $1, $3, @$)}
 	;
 
 Expr_12 : Expr_11 {$$ = $1;}
-	// Bitwise Or
-	| Expr_12 BITOR Expr_11 {BINARY(ASTExprBitOr, $$, $1, $3, @$)}
+	// Bitwise Xor
+	| Expr_12 BITXOR Expr_11 {BINARY(ASTExprBitXor, $$, $1, $3, @$)}
 	;
 
 Expr_13 : Expr_12 {$$ = $1;}
-	// Logical And
-	| Expr_13 AND Expr_12 {BINARY(ASTExprAnd, $$, $1, $3, @$)}
+	// Bitwise Or
+	| Expr_13 BITOR Expr_12 {BINARY(ASTExprBitOr, $$, $1, $3, @$)}
 	;
 
 Expr_14 : Expr_13 {$$ = $1;}
-	// Logical Or
-	| Expr_14 OR Expr_13 {BINARY(ASTExprOr, $$, $1, $3, @$)}
+	// Logical And
+	| Expr_14 AND Expr_13 {BINARY(ASTExprAnd, $$, $1, $3, @$)}
 	;
 
 Expr_15 : Expr_14 {$$ = $1;}
+	// Logical Or
+	| Expr_15 OR Expr_14 {BINARY(ASTExprOr, $$, $1, $3, @$)}
+	;
+	
+Expr_16 : Expr_15 {$$ = $1;}
+	//Ternary
+	| Expr_15 QMARK Expr_16 COLON Expr_16
+	{
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* middle = (ASTExpr*)$3;
+		ASTExpr* right = (ASTExpr*)$5;
+		$$ = new ASTTernaryExpr(left, middle, right, @$);
+	}
+	;
+
+Expr_17 : Expr_16 {$$ = $1;}
 	// Assignment
-	| Expr_14 ASSIGN Expr_15 {BINARY(ASTExprAssign, $$, $1, $3, @$)}
+	| Expr_16 ASSIGN Expr_17 {BINARY(ASTExprAssign, $$, $1, $3, @$)}
 	// Addition Assignment
-	| Expr_14 PLUSASSIGN Expr_15 {SHORTCUT(ASTExprPlus, $$, $1, $3, @$, @3)}
+	| Expr_16 PLUSASSIGN Expr_17 {SHORTCUT(ASTExprPlus, $$, $1, $3, @$, @3)}
 	// Subtraction Assignment
-	| Expr_14 MINUSASSIGN Expr_15 {SHORTCUT(ASTExprMinus, $$, $1, $3, @$, @3)}
+	| Expr_16 MINUSASSIGN Expr_17 {SHORTCUT(ASTExprMinus, $$, $1, $3, @$, @3)}
 	// Multiplication Assignment
-	| Expr_14 TIMESASSIGN Expr_15 {SHORTCUT(ASTExprTimes, $$, $1, $3, @$, @3)}
+	| Expr_16 TIMESASSIGN Expr_17 {SHORTCUT(ASTExprTimes, $$, $1, $3, @$, @3)}
 	// Division Assignment
-	| Expr_14 DIVIDEASSIGN Expr_15 {SHORTCUT(ASTExprDivide, $$, $1, $3, @$, @3)}
+	| Expr_16 DIVIDEASSIGN Expr_17 {SHORTCUT(ASTExprDivide, $$, $1, $3, @$, @3)}
 	// Modulus Assignment
-	| Expr_14 MODULOASSIGN Expr_15 {SHORTCUT(ASTExprModulo, $$, $1, $3, @$, @3)}
+	| Expr_16 MODULOASSIGN Expr_17 {SHORTCUT(ASTExprModulo, $$, $1, $3, @$, @3)}
 	// Left Shift Assignment
-	| Expr_14 LSHIFTASSIGN Expr_15 {SHORTCUT(ASTExprLShift, $$, $1, $3, @$, @3)}
+	| Expr_16 LSHIFTASSIGN Expr_17 {SHORTCUT(ASTExprLShift, $$, $1, $3, @$, @3)}
 	// Right Shift Assignment
-	| Expr_14 RSHIFTASSIGN Expr_15 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
+	| Expr_16 RSHIFTASSIGN Expr_17 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
 	// Bitwise And Assignment
-	| Expr_14 BITANDASSIGN Expr_15 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
+	| Expr_16 BITANDASSIGN Expr_17 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
 	// Bitwise Xor Assignment
-	| Expr_14 BITXORASSIGN Expr_15 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
+	| Expr_16 BITXORASSIGN Expr_17 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
 	// Bitwise Or Assignment
-	| Expr_14 BITORASSIGN Expr_15 {SHORTCUT(ASTExprBitOr, $$, $1, $3, @$, @3)}
+	| Expr_16 BITORASSIGN Expr_17 {SHORTCUT(ASTExprBitOr, $$, $1, $3, @$, @3)}
 	// Logical And Assignment
-	| Expr_14 ANDASSIGN Expr_15 {SHORTCUT(ASTExprAnd, $$, $1, $3, @$, @3)}
+	| Expr_16 ANDASSIGN Expr_17 {SHORTCUT(ASTExprAnd, $$, $1, $3, @$, @3)}
 	// Logical Or Assignment
-	| Expr_14 ORASSIGN Expr_15 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
+	| Expr_16 ORASSIGN Expr_17 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
 		 ;
 
-Expression : Expr_15 {$$ = $1;};
+Expression : Expr_17 {$$ = $1;};
 
 Expression_Constant :
 	Expression {
@@ -901,7 +1279,7 @@ Literal :
 		char val[15];
 		sprintf(val, "%d", as->getValue().at(1));
 		ASTFloat* number = new ASTFloat(val, (ASTFloat::Type)0, @$);
-		$$ = new ASTNumberLiteral(number, @$);}
+		$$ = new ASTCharLiteral(number, @$);}
 	| Literal_String {$$ = $1;}
 	| Literal_Bool {$$ = $1;}
 	| Literal_Array {$$ = $1;}
@@ -932,7 +1310,7 @@ Literal_Bool :
 
 Literal_Array :
 	// (int[5]){1, 2, 3}
-	LPAREN DataType LBRACKET Expression_Constant RBRACKET RPAREN
+	LT DataType LBRACKET Expression_Constant RBRACKET GT
 		  LBRACE Literal_Array_Body RBRACE
 	{
 		ASTDataType* type = (ASTDataType*)$2;
@@ -944,7 +1322,7 @@ Literal_Array :
 		$$ = al;
 	}
 	// (int[]){1, 2, 3}
-	| LPAREN DataType LBRACKET RBRACKET RPAREN
+	| LT DataType LBRACKET RBRACKET GT
 		  LBRACE Literal_Array_Body RBRACE
 	{
 		ASTDataType* type = (ASTDataType*)$2;
@@ -954,8 +1332,8 @@ Literal_Array :
 		$$ = al;
 	}
 	// (int[5]){}
-	| LPAREN DataType LBRACKET Expression_Constant RBRACKET
-		  RPAREN LBRACE RBRACE
+	| LT DataType LBRACKET Expression_Constant RBRACKET
+		  GT LBRACE RBRACE
 	{
 		ASTDataType* type = (ASTDataType*)$2;
 		ASTExpr* size = (ASTExpr*)$4;
@@ -964,12 +1342,6 @@ Literal_Array :
 		al->size = size;
 		$$ = al;
 	}
-	// (int[]){}
-	| LPAREN DataType LBRACKET RBRACKET RPAREN LBRACE RBRACE {
-		ASTDataType* type = (ASTDataType*)$2;
-		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
-		al->type = type;
-		$$ = al;}
 	// {1, 2, 3}
 	| LBRACE Literal_Array_Body RBRACE {
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$2;

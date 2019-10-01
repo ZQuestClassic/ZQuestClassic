@@ -29,12 +29,12 @@ extern byte        quest_rules[QUESTRULES_SIZE];
 //BITMAP* tilebuf[NEWMAXTILES];
 tiledata *newtilebuf, *grabtilebuf;
 newcombo *combobuf;
-word animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
-word animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
-word animated_combos;
-word animated_combo_table2[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
-word animated_combo_table24[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
-word animated_combos2;
+int animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
+int animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
+int animated_combos;
+int animated_combo_table2[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
+int animated_combo_table24[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
+int animated_combos2;
 bool blank_tile_table[NEWMAXTILES];                         //keeps track of blank tiles
 bool used_tile_table[NEWMAXTILES];                          //keeps track of used tiles
 bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of blank tile quarters
@@ -255,6 +255,28 @@ void reset_combo_animations2()
 
 extern void update_combo_cycling();
 
+//Returns true if 'tile' is the LAST tile in the animation defined by the other parameters.
+bool combocheck(long originalTile, long tile, byte skipx, byte skipy, byte frames)
+{
+	if(get_bit(quest_rules, qr_BROKEN_ASKIP_Y_FRAMES))
+	{
+		//This is the old calculation for this, which is just wrong.
+		return (tile-(frames+((frames-1)*skipx)+(skipy*TILES_PER_ROW)) >=originalTile-1);
+	}
+	//New calculation, which actually works properly
+    long temp = originalTile;
+    for(int q = 1; q < frames; ++q)
+    {
+        long temp2 = temp;
+        temp += 1+skipx;
+        
+        if((temp/TILES_PER_ROW)!=(temp2/TILES_PER_ROW))
+            temp+=skipy*TILES_PER_ROW;
+        if(tile<temp) return false;
+    }
+    return true;
+}
+
 void animate_combos()
 {
     update_combo_cycling();
@@ -265,11 +287,8 @@ void animate_combos()
         
         if(animated_combo_table4[x][1]>=combobuf[y].speed)      //time to animate
         {
-            //this is a mess.
-            if(combobuf[y].tile-
-                    (combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim)+
-                     (combobuf[y].skipanimy*TILES_PER_ROW))
-                    >=animated_combo_table[y][1]-1)
+			if(combocheck(animated_combo_table[y][1],combobuf[y].tile,
+				combobuf[y].skipanim,combobuf[y].skipanimy,combobuf[y].frames))
             {
                 combobuf[y].tile=animated_combo_table[y][1];        //reset tile
             }

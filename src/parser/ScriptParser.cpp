@@ -18,14 +18,17 @@
 #include "Scope.h"
 #include "SemanticAnalyzer.h"
 #include "BuildVisitors.h"
+#include "RegistrationVisitor.h"
 #include "ZScript.h"
 using namespace std;
 using namespace ZScript;
+
+extern char ZQincludePaths[MAX_INCLUDE_PATHS][512];
 //#define PARSER_DEBUG
 
 ScriptsData* compile(string const& filename);
 
-#ifdef PARSER_DEBUG
+#if PARSER_DEBUG < 0
 int main(int argc, char *argv[])
 {
 	if (argc < 2) return -1;
@@ -63,33 +66,40 @@ ScriptsData* ZScript::compile(string const& filename)
 	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 		return NULL;
     
-	box_out("Pass 3: Analyzing Code");
-	box_eol();
-    
 	SimpleCompileErrorHandler handler;
 	Program program(*root, &handler);
 	if (handler.hasError())
 		return NULL;
+	
+	box_out("Pass 3: Registration");
+	box_eol();
 
+	RegistrationVisitor regVisitor(program);
+	if(regVisitor.hasFailed()) return NULL;
+	
+	box_out("Pass 4: Analyzing Code");
+	box_eol();
+	
 	SemanticAnalyzer semanticAnalyzer(program);
-	if (semanticAnalyzer.hasFailed())
+	if (semanticAnalyzer.hasFailed() || semanticAnalyzer.hasSkipFailed()
+		|| regVisitor.hasSkipFailed())
 		return NULL;
     
 	FunctionData fd(program);
-	if (fd.globalVariables.size() > 256)
+	if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
 	{
 		box_out_err(CompileError::TooManyGlobal(NULL));
 		return NULL;
 	}
     
-	box_out("Pass 4: Generating object code");
+	box_out("Pass 5: Generating object code");
 	box_eol();
     
 	auto_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 	if (!id.get())
 		return NULL;
     
-	box_out("Pass 5: Assembling");
+	box_out("Pass 6: Assembling");
 	box_eol();
 
 	ScriptParser::assemble(id.get());
@@ -139,7 +149,51 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 		ASTImportDecl& importDecl = **it;
 
 		// Parse the imported file.
-		string filename = prepareFilename(importDecl.getFilename());
+		string* fname = NULL;
+		string includePath;
+		string importname = prepareFilename(importDecl.getFilename());
+		if(!importDecl.isInclude()) //Check root dir first for imports
+		{
+			FILE* f = fopen(importname.c_str(), "r");
+			if(f)
+			{
+				fclose(f);
+				fname = &importname;
+			}
+		}
+		if(!fname)
+		{
+			// Scan include paths
+			int importfound = importname.find_first_not_of("/\\");
+			if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
+			{
+				if(importfound != 0)
+					importname = importname.substr(importfound); //Remove leading `/` and `\`
+				//Convert the include string to a proper import path
+				for ( int q = 0; q < MAX_INCLUDE_PATHS && !fname; ++q ) //Loop through all include paths, or until valid file is found
+				{
+					if( ZQincludePaths[q][0] != '\0' )
+					{
+						includePath = &*ZQincludePaths[q];
+						//Add a `/` to the end of the include path, if it is missing
+						int lastnot = includePath.find_last_not_of("/\\");
+						int last = includePath.find_last_of("/\\");
+						if(lastnot != string::npos)
+						{
+							if(last == string::npos || last < lastnot)
+								includePath += "/";
+						}
+						includePath = prepareFilename(includePath + importname);
+						FILE* f = fopen(includePath.c_str(), "r");
+						if(!f) continue;
+						fclose(f);
+						fname = &includePath;
+					}
+				}
+			}
+		}
+		//
+		string filename = fname ? *fname : prepareFilename(importname); //Check root dir last, if nothing has been found yet.
 		auto_ptr<ASTFile> imported(parseFile(filename));
 		if (!imported.get())
 		{
@@ -161,6 +215,7 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 {
 	Program& program = fdata.program;
+	Scope* scope = &program.getScope();
 	TypeStore* typeStore = &program.getTypeStore();
 	vector<Datum*>& globalVariables = fdata.globalVariables;
 
@@ -189,7 +244,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         
 		OpcodeContext oc(typeStore);
         
-		BuildOpcodes bo;
+		BuildOpcodes bo(scope);
 		node.execute(bo, &oc);
 		if (bo.hasError()) failure = true;
 		appendElements(rval->globalsInit, oc.initCode);
@@ -207,13 +262,17 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 	     it != funs.end(); ++it)
 	{
 		Function& function = **it;
+		if(function.getFlag(FUNCFLAG_INLINE)) continue; //Skip inline func decls, they are handled at call location -V
 		ASTFuncDecl& node = *function.node;
 
 		bool isRun = ZScript::isRun(function);
 		string scriptname;
 		Script* functionScript = function.getScript();
 		if (functionScript)
+		{
 			scriptname = functionScript->getName();
+		}
+		scope = function.internalScope;
         
 		vector<Opcode *> funccode;
         
@@ -229,6 +288,86 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		if (isRun)
 		{
 			ScriptType type = program.getScript(scriptname)->getType();
+			
+			if (type == ScriptType::ffc )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFFFC)));
+				
+				
+			}
+			else if (type == ScriptType::item )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFITEMCLASS)));
+				
+			}
+			else if (type == ScriptType::npc )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFNPC)));
+				
+			}
+			else if (type == ScriptType::lweapon )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFLWPN)));
+			}
+			else if (type == ScriptType::eweapon )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFEWPN)));
+				
+			}
+			else if (type == ScriptType::dmapdata )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFDMAPDATA)));
+			
+			}
+			else if (type == ScriptType::itemsprite)
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							new VarArgument(REFITEM)));
+			}
+			else if (type == ScriptType::subscreendata)
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							new VarArgument(REFSUBSCREEN)));
+			}
+			else if (type == ScriptType::combodata)
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							new VarArgument(REFCOMBODATA)));
+			}
+			/* Do we want these here--ever? -Z
+			else if (type == ScriptType::link )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(link?)));
+				
+			}
+			else if (type == ScriptType::screen )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(tempscr?)));
+				
+			}
+				*/
+				
+		
+			/*
 			if (type == ScriptType::ffc)
 				funccode.push_back(
 						new OSetRegister(new VarArgument(EXP2),
@@ -237,7 +376,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 				funccode.push_back(
 						new OSetRegister(new VarArgument(EXP2),
 						                 new VarArgument(REFITEMCLASS)));
-            
+			*/
 			funccode.push_back(new OPushRegister(new VarArgument(EXP2)));
 		}
         
@@ -249,7 +388,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		funccode.push_back(new OSetRegister(new VarArgument(SFRAME),
 		                                    new VarArgument(SP)));
 		OpcodeContext oc(typeStore);
-		BuildOpcodes bo;
+		BuildOpcodes bo(scope);
 		node.execute(bo, &oc);
         
 		if (bo.hasError()) failure = true;
@@ -324,6 +463,7 @@ void ScriptParser::assemble(IntermediateData *id)
 	{
 		Script& script = **it;
 		if (script.getName() == "~Init") continue;
+		if(script.getType() == ScriptType::untyped) continue;
 		Function& run = *getRunFunction(script);
 		int numparams = getRunFunction(script)->paramTypes.size();
 		script.code = assembleOne(program, run.getCode(), numparams);
@@ -425,7 +565,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 	return rval;
 }
 
-pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
+pair<long,bool> ScriptParser::parseLong(pair<string, string> parts, Scope* scope)
 {
 	// Not sure if this should really check for negative numbers;
 	// in most contexts, that's checked beforehand. parts only
@@ -433,6 +573,7 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	bool negative=false;
 	pair<long, bool> rval;
 	rval.second=true;
+	bool intOneLarger = *lookupOption(*scope, CompileOption::OPT_TRUE_INT_SIZE) != 0;
     
 	if(parts.first.data()[0]=='-')
 	{
@@ -453,8 +594,15 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	}
     
 	int firstpart = atoi(parts.first.c_str());
-    
-	if(firstpart > 214747)
+	if(intOneLarger) //MAX_INT should be 214748, but if that is the value, there should be no float component. -V
+	{
+		if(firstpart > 214748)
+		{
+			firstpart = 214748;
+			rval.second = false;
+		}
+	}
+	else if(firstpart > 214747)
 	{
 		firstpart = 214747;
 		rval.second = false;
@@ -464,15 +612,16 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	//add fractional part; tricky!
 	int fpart = 0;
     
+	
 	while(parts.second.length() < 4)
 		parts.second += "0";
-        
+		
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		fpart *= 10;
 		fpart += parts.second[i] - '0';
 	}
-    
+	
 	/*for(unsigned int i=0; i<4; i++)
 	  {
 	  fpart*=10;
@@ -481,6 +630,14 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	  tmp[1] = 0;
 	  fpart += atoi(tmp);
 	  }*/
+	  
+	if(intOneLarger && firstpart == 214748 && (negative ? fpart > 3648 : fpart > 3647))
+	{
+		fpart = negative ? 3648 : 3647;
+		rval.second = false;
+	}
+	
+	
 	rval.first = intval + fpart;
 	if(negative)
 		rval.first = -rval.first;

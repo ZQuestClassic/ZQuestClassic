@@ -89,6 +89,9 @@ class LinkClass : public sprite
         {
             return newhopclk;
         }
+	
+	
+	
         int getHopDir()
         {
             return newhopdir;
@@ -176,7 +179,9 @@ class LinkClass : public sprite
     
     void execute(WalkflagInfo info);
     
-    bool autostep,superman,inwallm,tapping,stomping,last_hurrah;
+    
+public:
+	bool autostep,superman,inwallm,tapping,stomping,last_hurrah;
     int refilling,
         ladderx,
         laddery,
@@ -236,7 +241,7 @@ class LinkClass : public sprite
     bool diagonalMovement;
     bool bigHitbox;
     byte defence[wMax];
-    
+    void check_slash_block(weapon *w);
     
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
     int hurtsfx; //Link's Hurt SOund
@@ -246,8 +251,12 @@ class LinkClass : public sprite
 	int last_lens_id;// The item ID of the last Lens of Truth type item used
     
 	long misc_internal_link_flags;// Flags to hold data temporarily for misc handling
-	
+	int last_cane_of_byrna_item_id;
+	bool on_sideview_ladder;
     // Methods below here.
+    void explode(int type);
+    int getTileModifier();
+    void setTileModifier(int ntemod);
     void movelink();
     void move(int d);
     void hitlink(int hit);
@@ -257,6 +266,7 @@ class LinkClass : public sprite
     bool nextcombo_solid(int d);
     int  lookahead(int d);
     int  lookaheadflag(int d);
+    bool  lookaheadraftflag(int d);
     void checkhit();
     bool checkdamagecombos(int dx, int dy);
     bool checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer = -1, bool solid = false);
@@ -285,10 +295,10 @@ class LinkClass : public sprite
     
     int get_scroll_step(int scrolldir);
     int get_scroll_delay(int scrolldir);
-public:
-    void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames);
-private:
+    void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames, bool waitdraw);
     void scrollscr(int dir,int destscr = -1, int destdmap = -1);
+    
+private:
     void walkdown(bool opening);
     void walkup(bool opening);
     void walkdown2(bool opening);
@@ -305,10 +315,11 @@ private:
     void Start250Refill(int refillWhat);
     int  EwpnHit();
     int  LwpnHit();
-    void gameover();
+    void heroDeathAnimation();
     void ganon_intro();
     void saved_Zelda();
     void check_slash_block(int bx, int by);
+    
     void check_wand_block(int bx, int by);
     void check_pound_block(int bx, int by);
     void check_conveyor();
@@ -365,6 +376,10 @@ public:
     void setX(int new_x);
     void setY(int new_y);
     void setZ(int new_Z);
+    
+    void setXdbl(double new_x);
+    void setYdbl(double new_y);
+    void setZdbl(double new_Z);
     void setFall(fix new_fall);
     void setClimbCoverX(int new_x);
     void setClimbCoverY(int new_y);
@@ -443,6 +458,10 @@ public:
 	
 	int getLastLensID();	
 	void setLastLensID(int p_item);
+	void cleanupByrna();
+	bool getOnSideviewLadder();
+	void setOnSideviewLadder(bool val);
+	bool canSideviewLadder(bool down = false);
 };
 
 bool isRaftFlag(int flag);

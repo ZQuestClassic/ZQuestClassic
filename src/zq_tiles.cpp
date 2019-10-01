@@ -34,6 +34,8 @@
 #include "questReport.h"
 #include "mem_debug.h"
 
+extern zcmodule moduledata;
+
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
@@ -273,6 +275,7 @@ void merge_tiles(int dest_tile, int src_quarter1, int src_quarter2, int src_quar
 
 static void make_combos(int startTile, int endTile, int cs)
 {
+	 al_trace("inside make_combos()\n");
     int startCombo=0;
     
     if(!select_combo_2(startCombo,cs))
@@ -301,6 +304,7 @@ static void make_combos(int startTile, int endTile, int cs)
 
 static void make_combos_rect(int top, int left, int numRows, int numCols, int cs)
 {
+	//al_trace("inside make_combos_rect()\n");
     int startCombo=0;
     
     if(!select_combo_2(startCombo, cs))
@@ -312,6 +316,7 @@ static void make_combos_rect(int top, int left, int numRows, int numCols, int cs
     
     if(!edit_combo(startCombo, false, cs))
     {
+	    al_trace("make_combos_rect() early return\n");
         combobuf[startCombo].tile=temp;
         return;
     }
@@ -357,7 +362,7 @@ int d_combo_proc(int msg,DIALOG *d,int c);
 
 void go_tiles()
 {
-    for(dword i=0; i<NEWMAXTILES; ++i)
+    for(int i=0; i<NEWMAXTILES; ++i)
     {
         newundotilebuf[i].format=newtilebuf[i].format;
         
@@ -4181,6 +4186,7 @@ void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *
     }
 }
 
+//Grabber is not grabbing to tile pages beyond pg. 252 right now. -ZX 18th June, 2019 
 void grab_tile(int tile,int &cs)
 {
     int window_xofs=0;
@@ -4801,7 +4807,7 @@ void grab_tile(int tile,int &cs)
         {
             for(int x=0; x<selwidth; x++)
             {
-                word temptile=tile+((TILES_PER_ROW*y)+x);
+                int temptile=tile+((TILES_PER_ROW*y)+x);
                 int format=(bp==8) ? tf8Bit : tf4Bit;
                 
                 if(newtilebuf[temptile].data!=NULL)
@@ -5204,6 +5210,10 @@ static MENU select_tile_rc_menu[] =
     { (char *)"Blank?",  NULL,  NULL, 0, NULL },
     { (char *)"",        NULL,  NULL, 0, NULL },
     { (char *)"View\t ", NULL,  select_tile_view_menu, 0, NULL },
+    { (char *)"Overlay",  NULL,  NULL, 0, NULL },
+    { (char *)"H-Flip",  NULL,  NULL, 0, NULL },
+    { (char *)"V-Flip",  NULL,  NULL, 0, NULL },
+    { (char *)"Create Combos",  NULL,  NULL, 0, NULL },
     { NULL,              NULL,  NULL, 0, NULL }
 };
 
@@ -8982,8 +8992,10 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
             break;
             
             case KEY_M:
+		    //al_trace("mass combo key pressed, type == %d\n",type);
                 if(type==0)
                 {
+			 //al_trace("mass combo key pressed, copy == %d\n",copy);
                     if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
                     {
                         go_tiles();
@@ -8994,9 +9006,13 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                         // I don't know what this was supposed to be doing before.
                         // It didn't work in anything like a sensible way.
                         if(rect_sel)
+			{
                             make_combos_rect(top, left, rows, columns, cs);
+			}
                         else
+			{
                             make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+			}
                     }
                     
                     redraw=true;
@@ -9396,6 +9412,84 @@ REDRAW:
             case 9:
                 show_blank_tile(tile);
                 break;
+	    
+	    case 12: //overlay
+		    overlay_tile(newtilebuf,tile,copy,cs,0);
+		    break;
+	    
+	    case 13: //h-flip
+	    {
+		flip^=1;
+		go_tiles();
+		
+		if(type==0)
+		{
+		    normalize(tile,tile2,rect_sel,flip);
+		    flip=0;
+		}
+		
+		redraw=true;   
+		break;
+		    
+	      }
+	      
+	      case 14: //h-flip
+	      {
+			if(copy==-1)
+			{
+			    if(type!=2)
+			    {
+				flip^=2;
+				go_tiles();
+				
+				if(type==0)
+				{
+				    normalize(tile,tile2,rect_sel,flip);
+				    flip=0;
+				}
+			    }
+			}
+			else
+			{
+			    go_tiles();
+			    saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
+			}
+			
+			redraw=true;
+		break;
+		    
+	      }
+		    
+	    
+	    case 15: //mass combo
+	    {
+		if(type==0)
+                {
+			 //al_trace("mass combo key pressed, copy == %d\n",copy);
+                    if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
+                    {
+                        go_tiles();
+                        saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
+                    }
+                    else if(copy==-1)
+                    {
+                        // I don't know what this was supposed to be doing before.
+                        // It didn't work in anything like a sensible way.
+                        if(rect_sel)
+			{
+                            make_combos_rect(top, left, rows, columns, cs);
+			}
+                        else
+			{
+                            make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
+			}
+                    }
+                    
+                    redraw=true;
+                }
+		    
+	    }
+		    break;
                 
             default:
                 redraw=false;
@@ -11061,16 +11155,38 @@ void build_bict_list()
     bict[0].i = 0;
     bict_cnt=1;
     
-    for(int i=1; i<cMAX; i++)
+    for(int i=0; i<cMAX; i++)
     {
 //    if(combotype_string[i][0]!='-')
-        if(combo_class_buf[i].name[0]!='-')
-        {
-//      bict[bict_cnt].s = combotype_string[i];
-            bict[bict_cnt].s = combo_class_buf[i].name;
-            bict[bict_cnt].i = i;
-            ++bict_cnt;
-        }
+	if ( moduledata.combo_type_names[i][0] != NULL )
+	{
+		//al_trace("copying over module combo type ID %d to bict[%d]",i,i);
+		if(moduledata.combo_type_names[i][0]!='-')
+		{
+			bict[bict_cnt].s = (char *)moduledata.combo_type_names[i];
+			//al_trace("the module value for combo ID %d, type is: %s\n",i,(char *)moduledata.combo_type_names[i]);
+			//al_trace("built in combo ID %d has a string of %s for its type\n",i,bict[bict_cnt].s);
+			bict[bict_cnt].i = i;
+			++bict_cnt;
+		}
+		
+	}
+        else
+	{
+		if ( i == 0 ) 
+		{
+			bict[bict_cnt].s = (char *)"(None)";
+			continue;
+		}
+		if(combo_class_buf[i].name[0]!='-')
+		{
+	//      bict[bict_cnt].s = combotype_string[i];
+		    bict[bict_cnt].s = combo_class_buf[i].name;
+		    bict[bict_cnt].i = i;
+		    ++bict_cnt;
+		}
+	}
+	
     }
     
     for(int i=1; i<bict_cnt-1; i++)
@@ -11117,7 +11233,7 @@ static int combo_data_list[] =
 static int combo_attributes_list[] =
 {
     // dialog control number
-     45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,-1
+     45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,102,103,-1
 };
 
 static int combo_trigger_list[] =
@@ -11222,16 +11338,16 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,        144+22,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Misc. Flag 0x80",                      NULL,   NULL                  },
     //55
     { jwin_text_proc,           8+22+16,    30+16+4,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    30-4+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_edit_proc,         98,    30-4+16+4,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //57
     { jwin_text_proc,           8+22+16,    45+16+4+4,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    45-4+16+4+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_edit_proc,         98,    45-4+16+4+4,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //59
     { jwin_text_proc,           8+22+16,    60+16+4+8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    60-4+16+4+8,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_edit_proc,         98,    60-4+16+4+8,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //61
     { jwin_text_proc,           8+22+16,    75+16+4+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
-    { jwin_edit_proc,         98,    75-4+16+4+12,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_edit_proc,         98,    75-4+16+4+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           11,    0,  NULL,                                           NULL,   NULL                  },
     //63 Triggered By Weapon Types
     { jwin_check_proc,        8+22+16,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
     { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
@@ -11285,6 +11401,10 @@ static DIALOG combo_dlg[] =
    // { jwin_edit_proc,         8+22+16,    135+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
    // { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
     //104
+    //102
+    { jwin_text_proc,           8+22+16,    90+16+4+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Label:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    90-4+16+4+12,     50,     16,    vc(12),                 vc(1),                   0,       0,           10,    0,  NULL,                                           NULL,   NULL                  },
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -11405,6 +11525,7 @@ bool edit_combo(int c,bool freshen,int cs)
     char attrib2[8];
     char attrib3[8];
     char minlevel[8];
+    char the_label[11];
     
     char combonumstr[25];
     
@@ -11420,7 +11541,10 @@ bool edit_combo(int c,bool freshen,int cs)
     
     sprintf(combonumstr,"Combo %d", c);
     sprintf(cset_str,"%d",csets);
+    //int temptile = curr_combo.tile;
+    //int temptile2 = NEWMAXTILES - temptile;
     sprintf(frm,"%d",vbound(curr_combo.frames,0,NEWMAXTILES-curr_combo.tile));
+    //al_trace("frm is: %s\n",frm);
     sprintf(spd,"%d",curr_combo.speed);
     sprintf(skip,"%d",curr_combo.skipanim);
     sprintf(skipy,"%d",curr_combo.skipanimy);
@@ -11430,6 +11554,7 @@ bool edit_combo(int c,bool freshen,int cs)
     sprintf(attrib2,"%d",curr_combo.attributes[2]);
     sprintf(attrib3,"%d",curr_combo.attributes[3]);
     sprintf(minlevel,"%d",curr_combo.triggerlevel);
+    strcpy(the_label, curr_combo.label);
     
     combo_dlg[13].dp = cset_str;
     
@@ -11539,6 +11664,8 @@ bool edit_combo(int c,bool freshen,int cs)
     combo_dlg[60].dp = attrib2;
     combo_dlg[62].dp = attrib3;
     combo_dlg[88].dp = minlevel;
+    
+    combo_dlg[103].dp = the_label;
     
     
     int index=0;
@@ -11755,8 +11882,8 @@ bool edit_combo(int c,bool freshen,int cs)
         int bound = (NEWMAXTILES-curr_combo.tile+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy)/
                     (1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
                     
-        //curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
-        curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
+        curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
+        //curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
         
         curr_combo.speed = vbound(atoi(spd),0,255);  //bind to size of byte! -Z
         curr_combo.type = bict[combo_dlg[25].d1].i;
@@ -11778,6 +11905,7 @@ bool edit_combo(int c,bool freshen,int cs)
         curr_combo.animflags = 0;
         curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
         curr_combo.animflags |= (combo_dlg[42].flags & D_SELECTED) ? AF_CYCLE : 0;
+        strcpy(curr_combo.label, the_label);
         combobuf[c] = curr_combo;
     }
     
@@ -11788,7 +11916,7 @@ bool edit_combo(int c,bool freshen,int cs)
     
     setup_combo_animations();
     setup_combo_animations2();
-    return (ret==1);
+    return (ret==2);
 }
 
 int d_itile_proc(int msg,DIALOG *d,int)

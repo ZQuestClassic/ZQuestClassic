@@ -8,6 +8,9 @@
 #include <assert.h>
 #include <sstream>
 
+#include "../ffscript.h"
+extern FFScript FFCore;
+
 using std::pair;
 using std::string;
 using std::ostringstream;
@@ -24,7 +27,7 @@ string LocationData::asString() const
 		out << fname << " ";
 	if (first_line == last_line)
 	{
-		out << "Line " << first_line << " ";
+		out << "Line " << first_line << " @ ";
 		if (first_column == last_column)
 			out << "Column " << first_column;
 		else
@@ -33,9 +36,9 @@ string LocationData::asString() const
 	}
 	else
 	{
-		out << "Line " << first_line << " Column " << first_column
+		out << "Line " << first_line << " @ Column " << first_column
 		    << " - "
-		    << "Line " << last_line << " Column " << last_column;
+		    << "Line " << last_line << " @ Column " << last_column;
 	}
 	return out.str();
 }
@@ -45,12 +48,12 @@ string LocationData::asString() const
 // AST
 
 AST::AST(LocationData const& location)
-	: location(location), disabled(false)
+	: location(location), errorDisabled(false), disabled_(false), isRegistered(false)
 {}
 
 // ASTFile
 
-ASTFile::ASTFile(LocationData const& location) : AST(location) {}
+ASTFile::ASTFile(LocationData const& location) : AST(location), scope(NULL) {}
 
 void ASTFile::execute(ASTVisitor& visitor, void* param)
 {
@@ -84,6 +87,12 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDecl::TYPE_SCRIPTTYPE:
 		scriptTypes.push_back(static_cast<ASTScriptTypeDef*>(declaration));
 		break;
+	case ASTDecl::TYPE_NAMESPACE:
+		namespaces.push_back(static_cast<ASTNamespace*>(declaration));
+		break;
+	case ASTDecl::TYPE_USING:
+		use.push_back(static_cast<ASTUsingDecl*>(declaration));
+		break;
 	}
 }
 
@@ -94,7 +103,8 @@ bool ASTFile::hasDeclarations() const
 		|| !functions.empty()
 		|| !dataTypes.empty()
 		|| !scriptTypes.empty()
-		|| !scripts.empty();
+		|| !scripts.empty()
+		|| !namespaces.empty();
 }
 
 // ASTFloat
@@ -122,12 +132,23 @@ ASTFloat::ASTFloat(long value, Type type, LocationData const& location)
 	ASTFloat::value = string(tmp);
 }
 
+ASTFloat::ASTFloat(long ipart, long dpart, LocationData const& location)
+	: AST(location), type(TYPE_DECIMAL), negative(false)
+{
+	char tmp[13];
+	if(dpart)
+		sprintf(tmp,"%ld.%04ld",ipart,dpart);
+	else
+		sprintf(tmp,"%ld",ipart);
+	value = string(tmp);
+}
+
 void ASTFloat::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseFloat(*this, param);
 }
 
-pair<string, string> ASTFloat::parseValue() const
+pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Scope* scope) const
 {
 	string f = value;
 	string intpart;
@@ -195,7 +216,7 @@ pair<string, string> ASTFloat::parseValue() const
 		//trim off the 'b'
 		f = f.substr(0,f.size()-1);
 		long val2=0;
-
+		
 		for(unsigned int i=0; i<f.size(); i++)
 		{
 			char b = f.at(i);
@@ -205,10 +226,21 @@ pair<string, string> ASTFloat::parseValue() const
 
 		if(negative && val2 > 0) val2 *= -1;
 
-		char temp[60];
-		sprintf(temp, "%ld", val2);
-		intpart = temp;
-		fpart = "";
+		if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT) != 0)
+		{
+			char temp[60];
+			sprintf(temp, "%ld", val2/10000);
+			intpart = temp;
+			sprintf(temp, "%04ld", abs(val2%10000));
+			fpart = temp;
+		}
+		else
+		{
+			char temp[60];
+			sprintf(temp, "%ld", val2);
+			intpart = temp;
+			fpart = "";
+		}
 		break;
 	}
 	}
@@ -261,11 +293,11 @@ string ASTSetOption::asString() const
 }
 
 CompileOptionSetting ASTSetOption::getSetting(
-		CompileErrorHandler* handler) const
+		CompileErrorHandler* handler, Scope* scope) const
 {
 	if (expr.get())
 	{
-		if (optional<long> value = expr->getCompileTimeValue(handler))
+		if (optional<long> value = expr->getCompileTimeValue(handler, scope))
 			return CompileOptionSetting(*value);
 		handler->handleError(CompileError::ExprNotConstant(this));
 		return CompileOptionSetting::Invalid;
@@ -280,13 +312,13 @@ CompileOptionSetting ASTSetOption::getSetting(
 // ASTStmt
 
 ASTStmt::ASTStmt(LocationData const& location)
-	: AST(location), disabled_(false)
+	: AST(location)
 {}
 
 // ASTBlock
 
-ASTBlock::ASTBlock(LocationData const& location) : ASTStmt(location) {}
-    
+ASTBlock::ASTBlock(LocationData const& location) : ASTStmt(location), scope(NULL) {}
+
 void ASTBlock::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseBlock(*this, param);
@@ -297,7 +329,7 @@ void ASTBlock::execute(ASTVisitor& visitor, void* param)
 ASTStmtIf::ASTStmtIf(ASTExpr* condition,
 					 ASTStmt* thenStatement,
 					 LocationData const& location)
-	: ASTStmt(location), condition(condition), thenStatement(thenStatement)
+	: ASTStmt(location), condition(condition), thenStatement(thenStatement), inverted(false)
 {}
 
 void ASTStmtIf::execute(ASTVisitor& visitor, void* param)
@@ -347,7 +379,7 @@ ASTStmtFor::ASTStmtFor(
 		ASTStmt* setup, ASTExpr* test, ASTStmt* increment, ASTStmt* body,
 		LocationData const& location)
 	: ASTStmt(location), setup(setup), test(test), increment(increment),
-	  body(body)
+	  body(body), scope(NULL)
 {}
 
 void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
@@ -359,7 +391,7 @@ void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 
 ASTStmtWhile::ASTStmtWhile(
 		ASTExpr* test, ASTStmt* body, LocationData const& location)
-	: ASTStmt(location), test(test), body(body)
+	: ASTStmt(location), test(test), body(body), inverted(false)
 {}
 
 void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
@@ -371,12 +403,24 @@ void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
 
 ASTStmtDo::ASTStmtDo(
 		ASTExpr* test, ASTStmt* body, LocationData const& location)
-	: ASTStmt(location), test(test), body(body)
+	: ASTStmt(location), test(test), body(body), inverted(false)
 {}
 
 void ASTStmtDo::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseStmtDo(*this, param);
+}
+
+// ASTStmtRepeat
+
+ASTStmtRepeat::ASTStmtRepeat(
+		ASTExprConst* iter, ASTStmt* body, LocationData const& location)
+	: ASTStmt(location), iter(iter), body(body)
+{}
+
+void ASTStmtRepeat::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseStmtRepeat(*this, param);
 }
 
 // ASTStmtReturn
@@ -447,7 +491,7 @@ ASTDecl::ASTDecl(LocationData const& location)
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
-	: ASTDecl(location), type(NULL), name("") {}
+	: ASTDecl(location), type(NULL), name(""), script(NULL) {}
 
 void ASTScript::execute(ASTVisitor& visitor, void* param)
 {
@@ -467,14 +511,56 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 	case ASTDecl::TYPE_DATATYPE:
 		types.push_back(static_cast<ASTDataTypeDef*>(&declaration));
 		break;
+	case ASTDecl::TYPE_USING:
+		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
+		break;
 	}
+}
+
+// ASTNamespace
+
+ASTNamespace::ASTNamespace(LocationData const& location, std::string name)
+	: ASTDecl(location), name(name), namesp(NULL)
+{}
+
+void ASTNamespace::addDeclaration(ASTDecl& declaration)
+{
+	switch (declaration.getDeclarationType())
+	{
+	case ASTDecl::TYPE_SCRIPT:
+		scripts.push_back(static_cast<ASTScript*>(&declaration));
+		break;
+	case ASTDecl::TYPE_FUNCTION:
+		functions.push_back(static_cast<ASTFuncDecl*>(&declaration));
+		break;
+	case ASTDecl::TYPE_DATALIST:
+		variables.push_back(static_cast<ASTDataDeclList*>(&declaration));
+		break;
+	case ASTDecl::TYPE_DATATYPE:
+		dataTypes.push_back(static_cast<ASTDataTypeDef*>(&declaration));
+		break;
+	case ASTDecl::TYPE_SCRIPTTYPE:
+		scriptTypes.push_back(static_cast<ASTScriptTypeDef*>(&declaration));
+		break;
+	case ASTDecl::TYPE_NAMESPACE:
+		namespaces.push_back(static_cast<ASTNamespace*>(&declaration));
+		break;
+	case ASTDecl::TYPE_USING:
+		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
+		break;
+	}
+}
+
+void ASTNamespace::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseNamespace(*this, param);
 }
 
 // ASTImportDecl
 
 ASTImportDecl::ASTImportDecl(
-		string const& filename, LocationData const& location)
-	: ASTDecl(location), filename_(filename)
+		string const& filename, LocationData const& location, bool isInclude)
+	: ASTDecl(location), filename_(filename), include_(isInclude), checked(false)
 {}
 
 void ASTImportDecl::execute(ASTVisitor& visitor, void* param)
@@ -485,12 +571,42 @@ void ASTImportDecl::execute(ASTVisitor& visitor, void* param)
 // ASTFuncDecl
 
 ASTFuncDecl::ASTFuncDecl(LocationData const& location)
-	: ASTDecl(location), returnType(NULL), block(NULL)
+	: ASTDecl(location), returnType(NULL), block(NULL), flags(0), invalidMsg(""), func(NULL)
 {}
 
 void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseFuncDecl(*this, param);
+}
+
+void ASTFuncDecl::setFlag(int flag, bool state)
+{
+	switch(flag)
+	{
+		case FUNCFLAG_INLINE:
+			if(state)
+			{
+				setFlag(FUNCFLAG_INVALID);
+				invalidMsg += " Only internal functions may be inline at this time.";
+				return;
+			}
+			/*if(state && isRun())
+			{
+				setFlag(FUNCFLAG_INVALID);
+				ostringstream oss;
+				string runstr(FFCore.scriptRunString);
+				oss << " void " << runstr << "() functions cannot be `inline`!";
+				invalidMsg += oss.str();
+				return;
+			}*/
+	}
+	if(func) state ? func->flags |= flag : func->flags &= ~flag;
+	state ? flags |= flag : flags &= ~flag;
+}
+
+bool ASTFuncDecl::isRun() const
+{
+	return name == FFCore.scriptRunString;
 }
 
 // ASTDataDeclList
@@ -503,10 +619,14 @@ ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 	: ASTDecl(other),
 	  baseType(other.baseType)
 {
-	for (vector<ASTDataDecl*>::const_iterator it =
-		     other.declarations_.begin();
+	for (vector<ASTDataDecl*>::const_iterator it = other.declarations_.begin();
 	     it != other.declarations_.end(); ++it)
-		addDeclaration(*it);
+	{
+		ASTDataDecl* decl = (*it)->clone();
+		if(decl->baseType)
+			decl->baseType.release();
+		addDeclaration(decl);
+	}
 }
 
 ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
@@ -517,7 +637,12 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
     declarations_.clear();
 	for (vector<ASTDataDecl*>::const_iterator it = rhs.declarations_.begin();
 	     it != rhs.declarations_.end(); ++it)
-		addDeclaration(*it);
+	{
+		ASTDataDecl* decl = (*it)->clone();
+		if(decl->baseType)
+			decl->baseType.release();
+		addDeclaration(decl);
+	}
 	
 	return *this;
 }
@@ -536,6 +661,23 @@ void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
 	declarations_.push_back(declaration);
 }
 
+// ASTDataEnum
+
+ASTDataEnum::ASTDataEnum(LocationData const& location)
+	: ASTDataDeclList(location), nextVal(0)
+{
+	baseType = new ASTDataType(DataType::CFLOAT, location);
+}
+
+ASTDataEnum::ASTDataEnum(ASTDataEnum const& other)
+	: ASTDataDeclList(other)
+{}
+
+void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseDataEnum(*this, param);
+}
+
 // ASTDataDecl
 
 ASTDataDecl::ASTDataDecl(LocationData const& location)
@@ -550,7 +692,8 @@ ASTDataDecl::ASTDataDecl(ASTDataDecl const& other)
 	  name(other.name),
 	  extraArrays(other.extraArrays)
 {
-	setInitializer(other.initializer_.clone());
+	if(other.initializer_)
+		setInitializer(other.initializer_.clone());
 }
 
 ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
@@ -574,7 +717,14 @@ void ASTDataDecl::execute(ASTVisitor& visitor, void* param)
 
 void ASTDataDecl::setInitializer(ASTExpr* initializer)
 {
-	initializer_ = initializer;
+	if(ASTExprVarInitializer* init = dynamic_cast<ASTExprVarInitializer*>(initializer))
+	{
+		initializer_ = init;
+	}
+	else
+	{
+		initializer_ = new ASTExprVarInitializer(initializer, initializer->location);
+	}
 
 	// Give a string or array literal a reference back to this object so it
 	// can grab size information.
@@ -590,13 +740,18 @@ void ASTDataDecl::setInitializer(ASTExpr* initializer)
 	}
 }
 
-DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope)
+DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHandler* errorHandler)
 {
 	TypeStore& typeStore = scope->getTypeStore();
 
 	// First resolve the base type.
 	ASTDataType* baseTypeNode = list ? list->baseType.get() : baseType.get();
-	DataType const* type = &baseTypeNode->resolve(*scope);
+	DataType const* type = &baseTypeNode->resolve(*scope, errorHandler);
+	if(baseTypeNode->errorDisabled)
+	{
+		errorDisabled = true;
+		return type;
+	}
 
 	// If we have any arrays, tack them onto the base type.
 	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
@@ -630,7 +785,7 @@ void ASTDataDeclExtraArray::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<int> ASTDataDeclExtraArray::getCompileTimeSize(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (dimensions.size() == 0) return nullopt;
@@ -639,7 +794,7 @@ optional<int> ASTDataDeclExtraArray::getCompileTimeSize(
 		 it != dimensions.end(); ++it)
 	{
 		ASTExpr& expr = **it;
-		if (optional<long> value = expr.getCompileTimeValue(errorHandler))
+		if (optional<long> value = expr.getCompileTimeValue(errorHandler, scope))
 			size *= *value / 10000L;
 		else
 			return nullopt;
@@ -659,6 +814,19 @@ void ASTDataTypeDef::execute(ASTVisitor& visitor, void* param)
 	visitor.caseDataTypeDef(*this, param);
 }
 
+//ASTCustomDataTypeDef
+
+ASTCustomDataTypeDef::ASTCustomDataTypeDef(
+		ASTDataType* type, std::string const& name, ASTDataEnum* defn,
+			LocationData const& location)
+		: ASTDataTypeDef(type, name, location), definition(defn)
+{}
+
+void ASTCustomDataTypeDef::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseCustomDataTypeDef(*this, param);
+}
+
 // ASTScriptTypeDef
 
 ASTScriptTypeDef::ASTScriptTypeDef(ASTScriptType* oldType,
@@ -670,6 +838,17 @@ ASTScriptTypeDef::ASTScriptTypeDef(ASTScriptType* oldType,
 void ASTScriptTypeDef::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseScriptTypeDef(*this, param);
+}
+
+// ASTUsingDecl
+
+ASTUsingDecl::ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location, bool always)
+	: ASTDecl(location), identifier(iden), always(always)
+{}
+
+void ASTUsingDecl::execute(ASTVisitor& visitor, void* param)
+{
+	return visitor.caseUsing(*this, param);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -693,10 +872,37 @@ void ASTExprConst::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprConst::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
-	return content ? content->getCompileTimeValue(errorHandler) : nullopt;
+	return content ? content->getCompileTimeValue(errorHandler, scope) : nullopt;
+}
+
+// ASTExprVarInitializer
+
+ASTExprVarInitializer::ASTExprVarInitializer(ASTExpr* content, LocationData const& location)
+	: ASTExprConst(content, location), value(nullopt)
+{}
+
+void ASTExprVarInitializer::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseVarInitializer(*this, param);
+}
+
+optional<long> ASTExprVarInitializer::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+		const
+{
+	if(scope->isGlobal() || scope->isScript())
+		return value;
+	else
+		return value ? value : content->getCompileTimeValue(errorHandler, scope);
+}
+
+bool ASTExprVarInitializer::valueIsArray(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	DataType const* type = getReadType(scope, errorHandler);
+	return type && type->isArray();
 }
 
 // ASTExprAssign
@@ -711,17 +917,17 @@ void ASTExprAssign::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprAssign::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
-	return right ? right->getCompileTimeValue(errorHandler) : nullopt;
+	return right ? right->getCompileTimeValue(errorHandler, scope) : nullopt;
 }
 
 // ASTExprIdentifier
 
 ASTExprIdentifier::ASTExprIdentifier(string const& name,
 									 LocationData const& location)
-	: ASTExpr(location), binding(NULL), constant_(false)
+	: ASTExpr(location), binding(NULL), constant_(false), noUsing(false)
 {
 	if (name != "") components.push_back(name);
 }
@@ -734,29 +940,31 @@ void ASTExprIdentifier::execute(ASTVisitor& visitor, void* param)
 string ASTExprIdentifier::asString() const
 {
 	string s = components.front();
+	vector<string>::const_iterator del = delimiters.begin();
 	for (vector<string>::const_iterator it = components.begin() + 1;
 	   it != components.end();
 	   ++it)
 	{
-		s = s + "." + *it;
+		s = s + *del + *it;
+		++del;
 	}
 
 	return s;
 }
 
 optional<long> ASTExprIdentifier::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
-	return binding ? binding->getCompileTimeValue() : nullopt;
+	return binding ? binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()) : nullopt;
 }
 
-DataType const* ASTExprIdentifier::getReadType() const
+DataType const* ASTExprIdentifier::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return binding ? &binding->type : NULL;
 }
 
-DataType const* ASTExprIdentifier::getWriteType() const
+DataType const* ASTExprIdentifier::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return binding ? &binding->type : NULL;
 }
@@ -781,12 +989,12 @@ string ASTExprArrow::asString() const
 	return s;
 }
 
-DataType const* ASTExprArrow::getReadType() const
+DataType const* ASTExprArrow::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return readFunction ? readFunction->returnType : NULL;
 }
 
-DataType const* ASTExprArrow::getWriteType() const
+DataType const* ASTExprArrow::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return writeFunction ? writeFunction->paramTypes.back() : NULL;
 }
@@ -809,9 +1017,9 @@ bool ASTExprIndex::isConstant() const
 	return array->isConstant() && index->isConstant();
 }
 
-DataType const* ASTExprIndex::getReadType() const
+DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	DataType const* type = array->getReadType();
+	DataType const* type = array->getReadType(scope, errorHandler);
 	if (type && type->isArray() && !array->isTypeArrow())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
@@ -820,9 +1028,9 @@ DataType const* ASTExprIndex::getReadType() const
 	return type;
 }
 
-DataType const* ASTExprIndex::getWriteType() const
+DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	DataType const* type = array->getWriteType();
+	DataType const* type = array->getWriteType(scope, errorHandler);
 	if (type && type->isArray() && !array->isTypeArrow())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
@@ -842,12 +1050,12 @@ void ASTExprCall::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprCall(*this, param);
 }
 
-DataType const* ASTExprCall::getReadType() const
+DataType const* ASTExprCall::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return binding ? binding->returnType : NULL;
 }
 
-DataType const* ASTExprCall::getWriteType() const
+DataType const* ASTExprCall::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return NULL;
 }
@@ -861,7 +1069,7 @@ ASTUnaryExpr::ASTUnaryExpr(LocationData const& location)
 // ASTExprNegate
 
 ASTExprNegate::ASTExprNegate(LocationData const& location)
-	: ASTUnaryExpr(location)
+	: ASTUnaryExpr(location), done(false)
 {}
 
 void ASTExprNegate::execute(ASTVisitor& visitor, void* param)
@@ -870,12 +1078,12 @@ void ASTExprNegate::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprNegate::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!operand) return nullopt;
-	if (optional<long> value = operand->getCompileTimeValue())
-		return -*value;
+	if (optional<long> value = operand->getCompileTimeValue(errorHandler, scope))
+		return done ? *value : -*value;
 	return nullopt;
 }
 
@@ -891,12 +1099,12 @@ void ASTExprNot::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprNot::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!operand) return nullopt;
-	if (optional<long> value = operand->getCompileTimeValue())
-		return *value ? 0L : 10000L;
+	if (optional<long> value = operand->getCompileTimeValue(errorHandler, scope))
+		return *value ? 0L : (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L);
 	return nullopt;
 }
 
@@ -912,12 +1120,16 @@ void ASTExprBitNot::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprBitNot::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!operand) return nullopt;
-	if (optional<long> value = operand->getCompileTimeValue())
+	if (optional<long> value = operand->getCompileTimeValue(errorHandler, scope))
+	{
+		if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+			return ~*value;
 		return ~(*value / 10000L) * 10000L;
+	}
 	return nullopt;
 }
 
@@ -965,6 +1177,31 @@ void ASTExprPreDecrement::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprPreDecrement(*this, param);
 }
 
+// ASTExprCast
+
+ASTExprCast::ASTExprCast(ASTDataType* type, ASTExpr* expr, LocationData const& location)
+	: ASTUnaryExpr(location), type(type)
+{}
+
+void ASTExprCast::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprCast(*this, param);
+}
+
+optional<long> ASTExprCast::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+		const
+{
+	if (!operand) return nullopt;
+	return operand->getCompileTimeValue(errorHandler, scope);
+}
+
+DataType const* ASTExprCast::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	DataType const* result = &(*type).resolve(*scope, errorHandler);
+	return result;
+}
+
 // ASTBinaryExpr
 
 ASTBinaryExpr::ASTBinaryExpr(ASTExpr* left, ASTExpr* right,
@@ -999,15 +1236,17 @@ void ASTExprAnd::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprAnd::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if(short_circuit && !*leftValue) return 0L; //Cut it short if we already know the result, and the option is on.
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue && *rightValue) ? 10000L : 0L;
+	return (*leftValue && *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprOr
@@ -1023,15 +1262,17 @@ void ASTExprOr::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprOr::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	if(short_circuit && *leftValue) return 10000L; //Cut it short if we already know the result, and the option is on.
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue || *rightValue) ? 10000L : 0L;
+	return (*leftValue || *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTRelExpr
@@ -1054,15 +1295,15 @@ void ASTExprGT::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprGT::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue > *rightValue) ? 10000L : 0L;
+	return (*leftValue > *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprGE
@@ -1078,15 +1319,15 @@ void ASTExprGE::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprGE::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue >= *rightValue) ? 10000L : 0L;
+	return (*leftValue >= *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprLT
@@ -1102,15 +1343,15 @@ void ASTExprLT::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprLT::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue < *rightValue) ? 10000L : 0L;
+	return (*leftValue < *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprLE
@@ -1126,15 +1367,15 @@ void ASTExprLE::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprLE::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue <= *rightValue) ? 10000L : 0L;
+	return (*leftValue <= *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprEQ
@@ -1150,15 +1391,15 @@ void ASTExprEQ::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprEQ::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue == *rightValue) ? 10000L : 0L;
+	return (*leftValue == *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTExprNE
@@ -1174,15 +1415,15 @@ void ASTExprNE::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprNE::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-	return (*leftValue != *rightValue) ? 10000L : 0L;
+	return (*leftValue != *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
 // ASTAddExpr
@@ -1205,13 +1446,13 @@ void ASTExprPlus::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprPlus::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return *leftValue + *rightValue;
 }
@@ -1229,13 +1470,13 @@ void ASTExprMinus::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprMinus::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return *leftValue - *rightValue;
 }
@@ -1260,13 +1501,13 @@ void ASTExprTimes::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprTimes::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
 	return long(*leftValue * (*rightValue / 10000.0));
@@ -1285,13 +1526,13 @@ void ASTExprDivide::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprDivide::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
 	if (*rightValue == 0)
@@ -1300,7 +1541,14 @@ optional<long> ASTExprDivide::getCompileTimeValue(
 			errorHandler->handleError(CompileError::DivByZero(this));
 		return nullopt;
 	}
-	return *leftValue / *rightValue * 10000L;
+	
+	if(*lookupOption(*scope, CompileOption::OPT_TRUNCATE_DIVISION_BY_LITERAL_BUG)
+		&& left->isLiteral() && right->isLiteral())
+	{
+		return *leftValue / *rightValue * 10000L;
+	}
+	
+	return static_cast<long>((*leftValue * 1.0) / (*rightValue * 1.0) * (10000L));
 }
 
 // ASTExprModulo
@@ -1316,13 +1564,13 @@ void ASTExprModulo::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprModulo::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
 	if (*rightValue == 0)
@@ -1354,15 +1602,16 @@ void ASTExprBitAnd::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprBitAnd::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		return *leftValue & *rightValue;
 	return ((*leftValue / 10000L) & (*rightValue / 10000L)) * 10000L;
 }
 
@@ -1379,15 +1628,17 @@ void ASTExprBitOr::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprBitOr::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		return *leftValue | *rightValue;
 	return ((*leftValue / 10000L) | (*rightValue / 10000L)) * 10000L;
 }
 
@@ -1404,15 +1655,17 @@ void ASTExprBitXor::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprBitXor::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		return *leftValue ^ *rightValue;
 	return ((*leftValue / 10000L) ^ (*rightValue / 10000L)) * 10000L;
 }
 
@@ -1436,21 +1689,24 @@ void ASTExprLShift::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprLShift::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
-
+	
 	if (*rightValue % 10000L)
 	{
 		if (errorHandler)
 			errorHandler->handleError(CompileError::ShiftNotInt(this));
 		rightValue = (*rightValue / 10000L) * 10000L;
 	}
+
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		return *leftValue << (*rightValue / 10000L);
 	
 	return ((*leftValue / 10000L) << (*rightValue / 10000L)) * 10000L;
 }
@@ -1468,13 +1724,13 @@ void ASTExprRShift::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTExprRShift::getCompileTimeValue(
-		CompileErrorHandler* errorHandler)
+		CompileErrorHandler* errorHandler, Scope* scope)
 		const
 {
 	if (!left || !right) return nullopt;
-	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 
 	if (*rightValue % 10000L)
@@ -1483,8 +1739,53 @@ optional<long> ASTExprRShift::getCompileTimeValue(
 			errorHandler->handleError(CompileError::ShiftNotInt(this));
 		rightValue = (*rightValue / 10000L) * 10000L;
 	}
+
+	if(*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT))
+		return *leftValue >> (*rightValue / 10000L);
 	
 	return ((*leftValue / 10000L) >> (*rightValue / 10000L)) * 10000L;
+}
+
+// ASTTernaryExpr
+
+ASTTernaryExpr::ASTTernaryExpr(ASTExpr* left, ASTExpr* middle, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExpr(location), left(left), middle(middle), right(right)
+{}
+
+bool ASTTernaryExpr::isConstant() const
+{
+	if (left && !left->isConstant()) return false;
+	if (middle && !middle->isConstant()) return false;
+	if (right && !right->isConstant()) return false;
+	return true;
+}
+
+void ASTTernaryExpr::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprTernary(*this, param);
+}
+
+optional<long> ASTTernaryExpr::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+		const
+{
+	if (!left || !middle || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	if (!leftValue) return nullopt;
+	optional<long> middleValue = middle->getCompileTimeValue(errorHandler, scope);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	
+	if(*leftValue)
+	{
+		if(!middleValue) return nullopt;
+		return *middleValue;
+	}
+	else
+	{
+		if (!rightValue) return nullopt;
+		return *rightValue;
+	}
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1509,10 +1810,40 @@ void ASTNumberLiteral::execute(ASTVisitor& visitor, void* param)
 }
 
 optional<long> ASTNumberLiteral::getCompileTimeValue(
-	CompileErrorHandler* errorHandler) const
+	CompileErrorHandler* errorHandler, Scope* scope) const
 {
 	if (!value) return nullopt;
-    pair<long, bool> val = ScriptParser::parseLong(value->parseValue());
+    pair<long, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
+	
+    if (!val.second && errorHandler)
+	    errorHandler->handleError(
+			    CompileError::ConstTrunc(this, value->value.c_str()));
+
+	return val.first;
+}
+
+void ASTNumberLiteral::negate()
+{
+	if(value) value.get()->negative = true;
+}
+
+// ASTCharLiteral
+
+ASTCharLiteral::ASTCharLiteral(
+		ASTFloat* value, LocationData const& location)
+	: ASTLiteral(location), value(value)
+{}
+
+void ASTCharLiteral::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseCharLiteral(*this, param);
+}
+
+optional<long> ASTCharLiteral::getCompileTimeValue(
+	CompileErrorHandler* errorHandler, Scope* scope) const
+{
+	if (!value) return nullopt;
+    pair<long, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
 
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
@@ -1569,7 +1900,7 @@ void ASTStringLiteral::execute (ASTVisitor& visitor, void* param)
 	visitor.caseStringLiteral(*this, param);
 }
 
-DataTypeArray const* ASTStringLiteral::getReadType() const
+DataTypeArray const* ASTStringLiteral::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return &DataType::STRING;
 }
@@ -1624,6 +1955,16 @@ void ASTOptionValue::execute(ASTVisitor& visitor, void* param)
 	visitor.caseOptionValue(*this, param);
 }
 
+optional<long> ASTOptionValue::getCompileTimeValue(
+	CompileErrorHandler* errorHandler, Scope* scope) const
+{
+	if (!scope) return nullopt;
+	if (optional<long> value = lookupOption(*scope, option))
+		return value;
+	errorHandler->handleError(CompileError::UnknownOption(this, name));
+	return nullopt;
+}
+
 std::string ASTOptionValue::asString() const
 {
 	return "OPTION_VALUE(" + *option.getName() + ")";
@@ -1657,23 +1998,37 @@ ScriptType ZScript::resolveScriptType(ASTScriptType const& node,
 // ASTDataType
 
 ASTDataType::ASTDataType(DataType* type, LocationData const& location)
-	: AST(location), type(type)
+	: AST(location), type(type->clone()), constant_(0), wasResolved(false)
 {}
 
 ASTDataType::ASTDataType(DataType const& type, LocationData const& location)
-	: AST(location), type(type.clone())
+	: AST(location), type(type.clone()), constant_(0), wasResolved(false)
 {}
 
 void ASTDataType::execute(ASTVisitor& visitor, void* param)
-{
+{	
 	visitor.caseDataType(*this, param);
 }
 
-DataType const& ASTDataType::resolve(ZScript::Scope& scope)
+DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler)
 {
-	DataType* resolved = type->resolve(scope);
-	if (resolved && type != resolved)
+	
+	DataType* resolved = type->resolve(scope, errorHandler);
+	if(resolved && constant_ && !wasResolved)
+	{
+		string name = resolved->getName();
+		DataType* constType = resolved->getConstType() ? resolved->getConstType()->clone() : NULL;
+		if(constant_>1 || !constType)
+		{
+			errorHandler->handleError(CompileError::ConstAlreadyConstant(this, name));
+			return *type; //Can't null this, it breaks stuff! Don't know why! -V
+		}
+		if (constType && type != constType)
+			type.reset(constType);
+	}
+	else if (resolved && type != resolved)
 		type.reset(resolved);
+	wasResolved = true;
 	return *type;
 }
 

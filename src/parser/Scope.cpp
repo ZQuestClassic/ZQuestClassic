@@ -1,4 +1,5 @@
 #include "../precompiled.h"
+#include "parserDefs.h"
 #include "Scope.h"
 
 #include <set>
@@ -15,11 +16,15 @@ using namespace ZScript;
 
 Scope::Scope(TypeStore& typeStore)
 	: typeStore_(typeStore), name_(nullopt)
-{}
+{
+	id = ScopeID++;
+}
 
 Scope::Scope(TypeStore& typeStore, string const& name)
 	: typeStore_(typeStore), name_(name)
-{}
+{
+	id = ScopeID++;
+}
 
 void Scope::invalidateStackSize()
 {
@@ -29,52 +34,106 @@ void Scope::invalidateStackSize()
 
 // Inheritance
 
-Scope* ZScript::getDescendant(Scope const& scope, vector<string> const& names)
+Scope* ZScript::getDescendant(Scope const& scope, vector<string> const& names, vector<string> const& delimiters)
 {
 	Scope* child = const_cast<Scope*>(&scope);
+	vector<string>::const_iterator del = delimiters.begin();
 	for (vector<string>::const_iterator it = names.begin();
 	     child && it != names.end(); ++it)
+	{
 		child = child->getChild(*it);
+		string str = *del;
+		//Only allow `.` for scripts, and `::` for namespaces, when delimiting scope. -V
+		if(!child || (child->isScript() && str.compare(".")) || (child->isNamespace() && str.compare("::")))
+			return NULL;
+		++del;
+	}
 	return child;
 }
 
-Scope* ZScript::lookupScope(Scope const& scope, string const& name)
+Scope* ZScript::lookupScope(Scope const& scope, string const& name, bool noUsing, AST& host, CompileErrorHandler* errorHandler)
 {
 	Scope* current = const_cast<Scope*>(&scope);
-	while (current)
+	Scope* first = current;
+	Scope* found = NULL;
+	while (current && !found)
 	{
 		if (Scope* child = current->getChild(name))
-	return child;
-
-		if (optional<string> const& currentName = current->getName())
-			if (*currentName == name)
-				return current;
+		{
+			if(current->isFile() || current->isRoot()) //Only continue if the scope was file/root
+				found = child;
+			else return child;
+		}
 
 		current = current->getParent();
 	}
-
-	return NULL;
+	if(!noUsing)//handle Using Namespaces
+	{
+		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(*first);
+		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+			it != namespaces.end(); ++it)
+		{
+			Scope* usingscope = *it;
+			if (Scope* child = usingscope->getChild(name))
+			{
+				if(found && found != child)
+					errorHandler->handleError(CompileError::TooManyVar(&host, name));
+				
+				found = child;
+			}
+		}
+	}
+	return found;
 }
 
-Scope* ZScript::lookupScope(Scope const& scope, vector<string> const& names)
+Scope* ZScript::lookupScope(Scope const& scope, vector<string> const& names, vector<string> const& delimiters, bool noUsing, AST& host, CompileErrorHandler* errorHandler)
 {
 	// Travel as far up the tree as needed for the first scope.
-	Scope* current = lookupScope(scope, names.front());
+	Scope* current = lookupScope(scope, names.front(), noUsing, host, errorHandler);
 	if (!current) return NULL;
-	if (names.size() == 1) return current;
-
+	//string str = ;
+	if(current->isScript() && delimiters.front().compare(".") || current->isNamespace() && delimiters.front().compare("::"))
+			return NULL;
 	// Descend with the rest of the names from the first found scope.
 	vector<string> restOfNames(++names.begin(), names.end());
-	return getDescendant(*current, restOfNames);
+	vector<string> restOfDelimiters(++delimiters.begin(), delimiters.end());
+	return getDescendant(*current, restOfNames, restOfDelimiters);
 }
 
-vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& names)
+vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& names, vector<std::string> const& delimiters, bool noUsing)
 {
 	vector<Scope*> scopes;
 	for (Scope* current = const_cast<Scope*>(&scope);
 	     current; current = current->getParent())
-		if (Scope* descendant = getDescendant(*current, names))
+	{
+		if(current->isRoot() && scopes.size() != 0)
+			break;
+		if (Scope* descendant = getDescendant(*current, names, delimiters))
 			scopes.push_back(descendant);
+	}
+	if(!noUsing)
+	{
+		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
+		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+			it != namespaces.end(); ++it)
+		{
+			if (Scope* descendant = getDescendant(**it, names, delimiters))
+				scopes.push_back(descendant);
+		}
+	}
+	return scopes;
+}
+
+vector<Scope*> ZScript::lookupUsingScopes(Scope const& scope, vector<string> const& names, vector<std::string> const& delimiters)
+{
+	vector<Scope*> scopes;
+	vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
+	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+		it != namespaces.end(); ++it)
+	{
+		if (Scope* descendant = getDescendant(**it, names, delimiters))
+			scopes.push_back(descendant);
+	}
 	return scopes;
 }
 
@@ -89,12 +148,67 @@ RootScope* ZScript::getRoot(Scope const& scope)
 // Lookup
 
 DataType const* ZScript::lookupDataType(
-	Scope const& scope, string const& name)
+	Scope const& scope, string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool isTypedefCheck, bool forceSkipUsing)
 {
-	for (Scope const* current = &scope;
-	     current; current = current->getParent())
-		if (DataType const* type = current->getLocalDataType(name))
-			return type;
+	DataType const* type = NULL;
+	Scope const* current = &scope;
+	for (; current; current = current->getParent())
+	{
+		DataType const* temp = current->getLocalDataType(name);
+		if(!type)
+		{
+			//Only continue if this var was found at the file scope or higher.
+			if(current->isFile() || current->isRoot())
+				type = temp;
+			else if(temp)
+				return temp;
+		}
+		else if(temp)
+		{
+			//Don't give a duplication warning on RootScope! -V
+			if(current->isRoot())
+				break;
+			if(type->compare(*temp))
+			{
+				if(!isTypedefCheck)errorHandler->handleError(CompileError::TooManyType(&host, name));
+				return NULL;
+			}
+		}
+		if(isTypedefCheck && !current->isFile()) return type; //Only check current scope, and root for file, for typedefs
+	}
+	if(host.noUsing || forceSkipUsing || isTypedefCheck) return type; //End early
+	vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
+	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+		it != namespaces.end(); ++it)
+	{
+		NamespaceScope* nsscope = *it;
+		DataType const* temp = nsscope->getLocalDataType(name);
+		if(!type)
+			type = temp;
+		else if(temp)
+		{
+			if(type->compare(*temp))
+			{
+				errorHandler->handleError(CompileError::TooManyType(&host, name));
+				return NULL;
+			}
+		}
+	}
+	return type;
+}
+
+DataType const* ZScript::lookupDataType(
+	Scope const& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool isTypedefCheck)
+{
+	vector<string> names = host.components;
+	if (names.size() == 0)
+		return NULL;
+	else if (names.size() == 1)
+		return lookupDataType(scope, names[0], host, errorHandler, isTypedefCheck);
+	vector<string> childNames(names.begin(), --names.end());
+	if (Scope* child = lookupScope(scope, childNames, host.delimiters, host.noUsing, host, errorHandler))
+		return lookupDataType(*child, names.back(), host, errorHandler, isTypedefCheck, true); //lookupScope() handles UsingNamespaces; don't allow using to occur again! -V
+
 	return NULL;
 }
 
@@ -116,25 +230,58 @@ ZClass* ZScript::lookupClass(Scope const& scope, string const& name)
 	return NULL;
 }
 
-Datum* ZScript::lookupDatum(Scope const& scope, string const& name)
+Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool forceSkipUsing)
 {
-	for (Scope const* current = &scope;
-	     current; current = current->getParent())
-		if (Datum* datum = current->getLocalDatum(name))
-			return datum;
-	return NULL;
+	Datum* datum = NULL;
+	Scope const* current = &scope;
+	for (; current; current = current->getParent())
+	{
+		Datum* temp = current->getLocalDatum(name);
+		if(!datum)
+		{
+			//Only continue if this var was found at the file scope or higher.
+			if(current->isFile() || current->isRoot())
+				datum = temp;
+			else if(temp)
+				return temp;
+		}
+		else if(temp)
+		{
+			//Don't give a duplication warning on RootScope! -V
+			if(current->isRoot())
+				break;
+			if(&datum != &temp)
+				errorHandler->handleError(CompileError::TooManyVar(&host, name));
+		}
+	}
+	if(host.noUsing || forceSkipUsing) return datum; //End early
+	vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
+	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+		it != namespaces.end(); ++it)
+	{
+		NamespaceScope* nsscope = *it;
+		Datum* temp = nsscope->getLocalDatum(name);
+		if(!datum)
+			datum = temp;
+		else if(temp)
+		{
+			if(&datum != &temp)
+				errorHandler->handleError(CompileError::TooManyVar(&host, name));
+		}
+	}
+	return datum;
 }
 
-Datum* ZScript::lookupDatum(Scope const& scope, vector<string> const& names)
+Datum* ZScript::lookupDatum(Scope& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler)
 {
+	vector<string> names = host.components;
 	if (names.size() == 0)
 		return NULL;
 	else if (names.size() == 1)
-		return lookupDatum(scope, names[0]);
-
+		return lookupDatum(scope, names[0], host, errorHandler);
 	vector<string> childNames(names.begin(), --names.end());
-	if (Scope* child = lookupScope(scope, childNames))
-		return lookupDatum(*child, names.back());
+	if (Scope* child = lookupScope(scope, childNames, host.delimiters, host.noUsing, host, errorHandler))
+		return lookupDatum(*child, names.back(), host, errorHandler, true); //lookupScope() handles UsingNamespaces; don't allow using to occur again! -V
 
 	return NULL;
 }
@@ -157,6 +304,7 @@ Function* ZScript::lookupSetter(Scope const& scope, string const& name)
 	return NULL;
 }
 
+/* Nothing calls this. Commenting it out so it can stay for reference. Not updating it, though. -V
 Function* ZScript::lookupFunction(Scope const& scope,
                          FunctionSignature const& signature)
 {
@@ -165,43 +313,122 @@ Function* ZScript::lookupFunction(Scope const& scope,
 		if (Function* function = current->getLocalFunction(signature))
 			return function;
 	return NULL;
-}
+}*/
 
-vector<Function*> ZScript::lookupFunctions(Scope const& scope, string const& name)
+vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing)
 {
 	set<Function*> functions;
-	for (Scope const* current = &scope;
-	     current; current = current->getParent())
+	Scope const* current = &scope;
+	bool foundFile = false;
+	//Standard lookup loop
+	for (; current; current = current->getParent())
 	{
+		if(current->isFile() || (current->isRoot() && !foundFile))
+		{
+			if(!functions.empty()) noUsing = true;
+		}
+		if(current->isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
+		trimBadFunctions(currentFunctions, parameterTypes);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
+	}
+	if(!noUsing)
+	{
+		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
+		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+			it != namespaces.end(); ++it)
+		{
+			NamespaceScope* nsscope = *it;
+			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
+			trimBadFunctions(currentFunctions, parameterTypes);
+			functions.insert(currentFunctions.begin(), currentFunctions.end());
+		}
+		current = &scope;
 	}
 	return vector<Function*>(functions.begin(), functions.end());
 }
 
 vector<Function*> ZScript::lookupFunctions(
-		Scope const& scope, vector<string> const& names)
+		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing)
 {
 	if (names.size() == 0)
 		return vector<Function*>();
 	else if (names.size() == 1)
-		return lookupFunctions(scope, names[0]);
+		return lookupFunctions(scope, names[0], parameterTypes, noUsing);
 
 	vector<Function*> functions;
 	string const& name = names.back();
 
 	vector<string> ancestry(names.begin(), --names.end());
-	vector<Scope*> scopes = lookupScopes(scope, ancestry);
+	vector<Scope*> scopes = lookupScopes(scope, ancestry, delimiters, true); //Don't include using scopes
+	vector<Scope*> usingScopes = lookupUsingScopes(scope, ancestry, delimiters); //get ONLY using scopes
+	//Check all non-using scopes for valid function matches
+	bool foundFile = false;
 	for (vector<Scope*>::const_iterator it = scopes.begin();
 	     it != scopes.end(); ++it)
 	{
 		Scope& current = **it;
+		if(current.isFile() || (current.isRoot() && !foundFile))
+		{
+			if(!functions.empty()) noUsing = true; //If there are local matches, don't check using
+		}
+		if(current.isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current.getLocalFunctions(name);
+		trimBadFunctions(currentFunctions, parameterTypes);
 		functions.insert(functions.end(),
 		                 currentFunctions.begin(), currentFunctions.end());
 	}
+	if(!noUsing)
+	{
+		//Check using functions
+		for (vector<Scope*>::const_iterator it = usingScopes.begin();
+			 it != usingScopes.end(); ++it)
+		{
+			Scope& current = **it;
+			vector<Function*> currentFunctions = current.getLocalFunctions(name);
+			trimBadFunctions(currentFunctions, parameterTypes);
+			functions.insert(functions.end(),
+							 currentFunctions.begin(), currentFunctions.end());
+		}
+	}
 
 	return functions;
+}
+
+inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes)
+{
+	// Filter out invalid functions.
+	for (vector<Function*>::iterator it = functions.begin();
+		 it != functions.end();)
+	{
+		Function& function = **it;
+
+		// Match against parameter count.
+		if (function.paramTypes.size() != parameterTypes.size())
+		{
+			it = functions.erase(it);
+			continue;
+		}
+
+		// Check parameter types.
+		bool parametersMatch = true;
+		for (int i = 0; i < parameterTypes.size(); ++i)
+		{
+			if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
+			{
+				parametersMatch = false;
+				break;
+			}
+		}
+		if (!parametersMatch)
+		{
+			it = functions.erase(it);
+			continue;
+		}
+
+		// Keep function.
+		++it;
+	}
 }
 
 optional<long> ZScript::lookupOption(Scope const& scope, CompileOption option)
@@ -217,6 +444,35 @@ optional<long> ZScript::lookupOption(Scope const& scope, CompileOption option)
 		return *setting.getValue();
 	}
 	return *option.getDefault();
+}
+
+vector<NamespaceScope*> ZScript::lookupUsingNamespaces(Scope const& scope)
+{
+	Scope* first = const_cast<Scope*>(&scope);
+	Scope* current = first;
+	set<NamespaceScope*> namespaceSet;
+	bool foundFile = false;
+	for (; current; current = current->getParent())
+	{
+		if(current->isRoot()) break; //Don't check RootScope here!
+		vector<NamespaceScope*> currentNamespaces = current->getUsingNamespaces();
+		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+		if(current->isFile())
+		{
+			foundFile = true;
+			break; //Don't go to parent file!
+		}
+	}
+	if(!foundFile && !first->isRoot()) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) - Also, don't get this for root. That crashes. -V
+	{
+		vector<NamespaceScope*> currentNamespaces = first->getFile()->getUsingNamespaces();
+		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+	}
+	//Get `always using` things
+	vector<NamespaceScope*> currentNamespaces = getRoot(*first)->getUsingNamespaces();
+	namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+	vector<NamespaceScope*> result(namespaceSet.begin(), namespaceSet.end());
+	return result;
 }
 
 // Stack
@@ -271,20 +527,20 @@ vector<Function*> ZScript::getFunctionsInBranch(Scope const& scope)
 {
 	typedef vector<Function*> (Scope::*Call)() const;
 	Call call = static_cast<Call>(&Scope::getLocalFunctions);
-	return getInBranch<Function*>(scope, call);
+	return getInBranch<Function*>(scope, call, true);
 }
 
 ////////////////////////////////////////////////////////////////
 // Basic Scope
 
-BasicScope::BasicScope(Scope* parent)
-	: Scope(parent->getTypeStore()), parent_(parent),
+BasicScope::BasicScope(Scope* parent, FileScope* parentFile)
+	: Scope(parent->getTypeStore()), parent_(parent), parentFile_(parentFile),
 	  stackDepth_(parent->getLocalStackDepth()),
 	  defaultOption_(CompileOptionSetting::Inherit)
 {}
 
-BasicScope::BasicScope(Scope* parent, string const& name)
-	: Scope(parent->getTypeStore(), name), parent_(parent),
+BasicScope::BasicScope(Scope* parent, FileScope* parentFile, string const& name)
+	: Scope(parent->getTypeStore(), name), parent_(parent), parentFile_(parentFile),
 	  stackDepth_(parent->getLocalStackDepth()),
 	  defaultOption_(CompileOptionSetting::Inherit)
 {}
@@ -322,6 +578,107 @@ vector<Scope*> BasicScope::getChildren() const
 	vector<Scope*> results = anonymousChildren_;
 	appendElements(results, getSeconds<Scope*>(children_));
 	return results;
+}
+
+ScriptScope* BasicScope::getScript()
+{
+	if(isScript())
+	{
+		Scope* temp = this;
+		return static_cast<ScriptScope*>(temp);
+	}
+	for(Scope* parent = getParent(); parent; parent = parent->getParent())
+	{
+		if(parent->isScript()) return dynamic_cast<ScriptScope*>(parent);
+	}
+	return NULL;
+}
+
+int BasicScope::useNamespace(vector<std::string> names, vector<std::string> delimiters, bool noUsing)
+{
+	if (names.size() == 1)
+		return useNamespace(names[0], noUsing);
+	NamespaceScope* namesp = NULL;
+	int numMatches = 0;
+
+	string const& name = names.back();
+
+	vector<string> ancestry(names.begin(), --names.end());
+	vector<Scope*> scopes = lookupScopes(*this, ancestry, delimiters, noUsing); //lookupScopes handles usingNamespaces!
+	for (vector<Scope*>::const_iterator it = scopes.begin();
+	     it != scopes.end(); ++it)
+	{
+		Scope& current = **it;
+		Scope* tmp = current.getChild(name);
+		if(!tmp || !tmp->isNamespace()) continue;
+		namesp = static_cast<NamespaceScope*>(tmp);
+		++numMatches;
+	}
+	//
+	if(namesp)
+	{
+		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(*this);
+		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+			it != namespaces.end(); ++it)
+		{
+			if(*it == namesp) return -1; //Already using this namespace! -V
+		}
+	}
+	if(!namesp) return 0;
+	if(numMatches == 1)
+		usingNamespaces.push_back(namesp);
+	return numMatches;
+}
+
+int BasicScope::useNamespace(std::string name, bool noUsing)
+{
+	NamespaceScope* namesp = NULL;
+	int numMatches = 0;
+	if(Scope* scope = getRoot(*this)->getChild(name))
+	{
+		if(scope->isNamespace())
+		{
+			namesp = static_cast<NamespaceScope*>(scope);
+			++numMatches;
+		}
+	}
+	if(!isFile() && !isRoot())
+	{
+		if(Scope* scope = getChild(name))
+		{
+			if(scope->isNamespace())
+			{
+				namesp = static_cast<NamespaceScope*>(scope);
+				++numMatches;
+			}
+		}
+	}
+	if(!noUsing)
+	{
+		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(*this); //Lookup parent using namespaces as well! -V
+		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+			it != namespaces.end(); ++it)
+		{
+			NamespaceScope* scope = *it;
+			if(namesp)
+			{
+				//Return -1 for duplicate namespaces
+				if(&scope == &namesp) return -1;
+			}
+			if(Scope* scope2 = scope->getChild(name))
+			{
+				if(scope2->isNamespace())
+				{
+					namesp = static_cast<NamespaceScope*>(scope2);
+					++numMatches;
+				}
+			}
+		}
+	}
+	if(!numMatches) return 0;
+	if(numMatches == 1)
+		usingNamespaces.push_back(namesp);
+	return numMatches;
 }
 
 // Lookup Local
@@ -409,7 +766,7 @@ map<CompileOption, CompileOptionSetting> BasicScope::getLocalOptions() const
 
 Scope* BasicScope::makeChild()
 {
-	Scope* child = new BasicScope(this);
+	Scope* child = new BasicScope(this, getFile());
 	anonymousChildren_.push_back(child);
 	return child;
 }
@@ -417,7 +774,7 @@ Scope* BasicScope::makeChild()
 Scope* BasicScope::makeChild(string const& name)
 {
 	if (find<Scope*>(children_, name)) return NULL;
-	Scope* child = new BasicScope(this, name);
+	Scope* child = new BasicScope(this, getFile(), name);
 	children_[name] = child;
 	return child;
 }
@@ -425,6 +782,9 @@ Scope* BasicScope::makeChild(string const& name)
 FileScope* BasicScope::makeFileChild(string const& filename)
 {
 	FileScope* child = new FileScope(this, filename);
+	//parentFile_ for a FileScope should be the FileScope itself, but this cannot be done within the constructor.
+	//Thus, `setFile()` must be called AFTER the constructor, to set this correctly. Not doing so causes invalid data, and crashes. -V
+	child->setFile();
 	anonymousChildren_.push_back(child);
 	return child;
 }
@@ -433,14 +793,29 @@ ScriptScope* BasicScope::makeScriptChild(Script& script)
 {
 	string name = script.getName();
 	if (find<Scope*>(children_, name)) return NULL;
-	ScriptScope* child = new ScriptScope(this, script);
+	ScriptScope* child = new ScriptScope(this, getFile(), script);
 	children_[name] = child;
 	return child;
 }
 
+NamespaceScope* BasicScope::makeNamespaceChild(ASTNamespace& node)
+{
+	string name = node.name;
+	if (Scope* scope = getChild(name))
+	{
+		if(scope->isNamespace()) return static_cast<NamespaceScope*>(scope);
+		else return NULL;
+	}
+	Namespace* namesp = new Namespace(node);
+	NamespaceScope* result = new NamespaceScope(this, getFile(), namesp);
+	namesp->setScope(result);
+	children_[name] = result;
+	return result;
+}
+
 FunctionScope* BasicScope::makeFunctionChild(Function& function)
 {
-	FunctionScope* child = new FunctionScope(this, function);
+	FunctionScope* child = new FunctionScope(this, getFile(), function);
 	anonymousChildren_.push_back(child);
 	return child;
 }
@@ -464,7 +839,7 @@ bool BasicScope::addScriptType(
 
 Function* BasicScope::addGetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, AST* node)
+		vector<DataType const*> const& paramTypes, int flags, AST* node)
 {
 	if (find<Function*>(getters_, name)) return NULL;
 
@@ -476,7 +851,7 @@ Function* BasicScope::addGetter(
 
 Function* BasicScope::addSetter(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, AST* node)
+		vector<DataType const*> const& paramTypes, int flags, AST* node)
 {
 	if (find<Function*>(setters_, name)) return NULL;
 
@@ -488,14 +863,14 @@ Function* BasicScope::addSetter(
 
 Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
-		vector<DataType const*> const& paramTypes, AST* node)
+		vector<DataType const*> const& paramTypes, int flags, AST* node)
 {
 	FunctionSignature signature(name, paramTypes);
 	if (find<Function*>(functionsBySignature_, signature))
 		return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
+			returnType, name, paramTypes, ScriptParser::getUniqueFuncID(), flags);
 	fun->internalScope = makeFunctionChild(*fun);
 	
 	functionsByName_[name].push_back(fun);
@@ -551,9 +926,9 @@ optional<int> BasicScope::getLocalStackOffset(Datum const& datum) const
 // FileScope
 
 FileScope::FileScope(Scope* parent, string const& filename)
-	: BasicScope(parent), filename_(filename)
+	: BasicScope(parent, NULL), filename_(filename)
 {
-	defaultOption_ = CompileOptionSetting::Default;
+	//defaultOption_ = CompileOptionSetting::Default; //No, let it default to `Inherit`. -V
 }
 
 Scope* FileScope::makeChild(std::string const& name)
@@ -562,6 +937,44 @@ Scope* FileScope::makeChild(std::string const& name)
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerChild(name, result))
 		result = NULL;
+	return result;
+}
+
+ScriptScope* FileScope::makeScriptChild(Script& script)
+{
+	ScriptScope* result = BasicScope::makeScriptChild(script);
+	if (!result) return NULL;
+	if (!getRoot(*this)->registerChild(script.getName(), result))
+		result = NULL;
+	return result;
+}
+
+NamespaceScope* FileScope::makeNamespaceChild(ASTNamespace& node)
+{
+	string name = node.name;
+	if (Scope* scope = find<Scope*>(children_, name).value_or(NULL))
+	{
+		if(scope->isNamespace())
+		{
+			NamespaceScope* result = static_cast<NamespaceScope*>(scope);
+			return result;
+		}
+		else return NULL;
+	}
+	if (Scope* scope = getRoot(*this)->getChild(name))
+	{
+		if(scope->isNamespace())
+		{
+			NamespaceScope* result = static_cast<NamespaceScope*>(scope);
+			return result;
+		}
+		else return NULL;
+	}
+	Namespace* namesp = new Namespace(node);
+	NamespaceScope* result = new NamespaceScope(getRoot(*this), getFile(), namesp);
+	namesp->setScope(result);
+	children_[name] = result;
+	getRoot(*this)->registerChild(name, result);
 	return result;
 }
 
@@ -583,10 +996,10 @@ bool FileScope::addScriptType(string const& name, ScriptType type, AST* node)
 
 Function* FileScope::addGetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, AST* node)
+		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
 {
 	Function* result = BasicScope::addGetter(
-			returnType, name, paramTypes, node);
+			returnType, name, paramTypes, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerGetter(name, result))
 		result = NULL;
@@ -595,10 +1008,10 @@ Function* FileScope::addGetter(
 
 Function* FileScope::addSetter(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, AST* node)
+		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
 {
 	Function* result = BasicScope::addSetter(
-			returnType, name, paramTypes, node);
+			returnType, name, paramTypes, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerSetter(name, result))
 		result = NULL;
@@ -607,10 +1020,10 @@ Function* FileScope::addSetter(
 
 Function* FileScope::addFunction(
 		DataType const* returnType, std::string const& name,
-		std::vector<DataType const*> const& paramTypes, AST* node)
+		std::vector<DataType const*> const& paramTypes, int flags, AST* node)
 {
 	Function* result = BasicScope::addFunction(
-			returnType, name, paramTypes, node);
+			returnType, name, paramTypes, flags, node);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerFunction(result))
 		result = NULL;
@@ -676,6 +1089,8 @@ RootScope::RootScope(TypeStore& typeStore)
 
 	// Add builtin pointers.
 	BuiltinConstant::create(*this, DataType::LINK, "Link", 0);
+	BuiltinConstant::create(*this, DataType::LINK, "Hero", 0);
+	BuiltinConstant::create(*this, DataType::LINK, "Player", 0);
 	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 0);
 	BuiltinConstant::create(*this, DataType::GAME, "Game", 0);
 	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 0);
@@ -701,6 +1116,7 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 0);
 	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 0);
 	BuiltinConstant::create(*this, DataType::CHEATS, "Cheats", 0);
+	BuiltinConstant::create(*this, DataType::FILESYSTEM, "FileSystem", 0);
 }
 
 optional<int> RootScope::getRootStackSize() const
@@ -828,6 +1244,8 @@ bool RootScope::registerChild(string const& name, Scope* child)
 	return true;
 }
 
+
+
 bool RootScope::registerDataType(string const& name, DataType const* type)
 {
 	if (getLocalDataType(name)) return false;
@@ -879,18 +1297,53 @@ bool RootScope::registerFunction(Function* function)
 	return true;
 }
 
+bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler)
+{
+	if(node->wasChecked()) return true;
+	node->check();
+	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
+	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, node->getFilename()).value_or(NULL))
+	{
+		node->disable(); //Disable node.
+		switch(headerGuard)
+		{
+			case OPT_ERROR:
+			{
+				errorHandler->handleError(CompileError::HeaderGuardErr(first, first->getFilename()));
+				errorHandler->handleError(CompileError::HeaderGuardErr(node, node->getFilename()));
+				return false; //Error, halt.
+			}
+			
+			case OPT_WARN:
+			{
+				errorHandler->handleError(CompileError::HeaderGuardWarn(first, first->getFilename(), "Using"));
+				errorHandler->handleError(CompileError::HeaderGuardWarn(node, node->getFilename(), "Skipping"));
+				return false; //Warn, and do not allow import
+			}
+				
+			default: //OPT_ON, or any invalid value, if the user sets it as such.
+			{
+				return false; //No message, guard against the duplicate import.
+			}
+				
+		}
+	}
+	importsByName_[node->getFilename()] = node;
+	return true; //Allow import
+}
+
 ////////////////////////////////////////////////////////////////
 // ScriptScope
 
-ScriptScope::ScriptScope(Scope* parent, Script& script)
-	: BasicScope(parent, script.getName()), script(script)
+ScriptScope::ScriptScope(Scope* parent, FileScope* parentFile, Script& script)
+	: BasicScope(parent, parentFile, script.getName()), script(script)
 {}
 
 ////////////////////////////////////////////////////////////////
 // FunctionScope
 
-FunctionScope::FunctionScope(Scope* parent, Function& function)
-	: BasicScope(parent, function.name), function(function)
+FunctionScope::FunctionScope(Scope* parent, FileScope* parentFile, Function& function)
+	: BasicScope(parent, parentFile, function.name), function(function)
 {
 	// Functions have their own stack.
 	stackDepth_ = 0;
@@ -905,6 +1358,20 @@ optional<int> FunctionScope::getRootStackSize() const
 	}
 	return stackSize;
 }
+
+////////////////////////////////////////////////////////////////
+// NamespaceScope
+
+NamespaceScope::NamespaceScope(Scope* parent, FileScope* parentFile, Namespace* namesp)
+	: BasicScope(parent, parentFile, namesp->getName()), namesp(namesp)
+{}
+
+////////////////////////////////////////////////////////////////
+// InlineScope
+
+InlineScope::InlineScope(Scope* parent, FileScope* parentFile, ASTExprCall* node, ASTBlock* block)
+	: BasicScope(parent, parentFile), node(node), block(block)
+{}
 
 ////////////////////////////////////////////////////////////////
 // ZClass

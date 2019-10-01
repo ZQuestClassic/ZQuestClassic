@@ -1,3 +1,4 @@
+
 //--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
@@ -29,6 +30,8 @@
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
 #include "mem_debug.h"
+#include "particles.h"
+sprite_list particles;
 void setZScriptVersion(int) { } //bleh...
 
 #include <png.h>
@@ -145,6 +148,8 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 using std::vector;
 
 FFScript FFCore;
+ZModule zcm;
+zcmodule moduledata;
 
 void do_previewtext();
 
@@ -166,6 +171,12 @@ bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
 
+byte compile_tune = 0;
+byte compile_success_sample = 0;
+byte compile_error_sample = 0;
+byte compile_finish_sample = 0;
+byte compile_audio_volume = 0;
+
 // Used to find FFC script names
 extern std::map<int, pair<string,string> > ffcmap;
 std::vector<string> asffcscripts;
@@ -173,6 +184,25 @@ extern std::map<int, pair<string,string> > globalmap;
 std::vector<string> asglobalscripts;
 extern std::map<int, pair<string, string> > itemmap;
 std::vector<string> asitemscripts;
+
+
+extern std::map<int, pair<string, string> > npcmap;
+std::vector<string> asnpcscripts;
+extern std::map<int, pair<string, string> > ewpnmap;
+std::vector<string> aseweaponscripts;
+extern std::map<int, pair<string, string> > lwpnmap;
+std::vector<string> aslweaponscripts;
+extern std::map<int, pair<string, string> > linkmap;
+std::vector<string> aslinkscripts;
+extern std::map<int, pair<string, string> > dmapmap;
+std::vector<string> asdmapscripts;
+extern std::map<int, pair<string, string> > screenmap;
+std::vector<string> asscreenscripts;
+
+extern std::map<int, pair<string, string> > itemspritemap;
+std::vector<string> asitemspritescripts;
+
+char ZQincludePaths[MAX_INCLUDE_PATHS][512];
 
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
@@ -299,15 +329,20 @@ ffscript *ffscripts[NUMSCRIPTFFC];
 ffscript *itemscripts[NUMSCRIPTITEM];
 ffscript *guyscripts[NUMSCRIPTGUYS];
 ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *globalscripts[NUMSCRIPTGLOBAL];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
+ffscript *dmapscripts[NUMSCRIPTSDMAP];
+ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];
 
 extern std::string zScript;
 char zScriptBytes[512];
+char zLastVer[512] = { 0 };
 SAMPLE customsfxdata[WAV_COUNT];
 unsigned char customsfxflag[WAV_COUNT>>3];
 int sfxdat=1;
@@ -442,8 +477,6 @@ void myvsync_callback()
 
 END_OF_FUNCTION(myvsync_callback)
 
-
-
 // quest data
 zquestheader header;
 byte                quest_rules[QUESTRULES_NEW_SIZE];
@@ -471,6 +504,8 @@ char                fontsdat_sig[52];
 char                zquestdat_sig[52];
 char                qstdat_sig[52];
 char                sfxdat_sig[52];
+char		    qstdat_str[2048];
+miscQdata           QMisc;
 
 int gme_track=0;
 
@@ -558,8 +593,7 @@ static MENU file_menu[] =
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Import\t ",                 NULL,                      import_menu,              0,            NULL   },
     { (char *)"&Export\t ",                 NULL,                      export_menu,              0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+    //separator { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -675,10 +709,11 @@ static MENU quest_menu[] =
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Graphics\t ",               NULL,                      graphics_menu,            0,            NULL   },
     { (char *)"A&udio\t ",                  NULL,                      audio_menu,               0,            NULL   },
-    { (char *)"S&cripts\t ",                NULL,                      script_menu,              0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Template",                  onTemplates,               NULL,                     0,            NULL   },
     { (char *)"De&faults\t ",               NULL,                      defs_menu,                0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Misc[]",               onQMiscValues,                      NULL,                0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -783,6 +818,15 @@ static MENU view_menu[] =
 
 int onSelectFFCombo();
 
+static MENU room_menu[] =
+{
+  { (char *)"&Guy\tG",                    onGuy,                     NULL,                     0,            NULL   },
+    { (char *)"&Message String\tS",         onString,                  NULL,                     0,            NULL   },
+    { (char *)"&Room Type\tR",              onRType,                   NULL,                     0,            NULL   },
+    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     0,   	       NULL   }, //Allow setting a generic catch-a;;. or clearing it mamnually.
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU data_menu[] =
 {
     { (char *)"&Screen Data\tF9",           onScrData,                 NULL,                     0,            NULL   },
@@ -795,14 +839,15 @@ static MENU data_menu[] =
     { (char *)"&Doors\tF6",                 onDoors,                   NULL,                     0,            NULL   },
     { (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Guy\tG",                    onGuy,                     NULL,                     0,            NULL   },
-    { (char *)"&Message String\tS",         onString,                  NULL,                     0,            NULL   },
-    { (char *)"&Room Type\tR",              onRType,                   NULL,                     0,            NULL   },
-    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     0,   	       NULL   }, //Allow setting a generic catch-a;;. or clearing it mamnually.
+    { (char *)"Room Data",                   NULL,                      room_menu,                0,            NULL   },
+    
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
     { (char *)"&Enemies\tE",                onEnemies,                 NULL,                     0,            NULL   },
     { (char *)"&Palette\tF4",               onScreenPalette,           NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Script",                   onScreenScript,                    NULL,                     0,            NULL   },
+    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -848,18 +893,108 @@ static MENU etc_menu[] =
     { (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
     { (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
     { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
+    { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-MENU the_menu[] =
+static MENU media_menu[] =
 {
+	{ (char *)"The Travels of Link",        NULL,                      tunes_menu,               0,            NULL   },
+    { (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
+    { (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
+    { (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+
+};
+
+
+
+//New ZScript Menu for 2.55 Alpha 16
+static MENU zscript_menu[] =
+{
+    { (char *)"Compile &ZScript...",        onCompileScript,           NULL,                     0,            NULL   },
+    //divider
+    	
+        { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
+    { (char *)"&Quest Script Settings",        onZScriptSettings,           NULL,                     0,            NULL   },
+    //divider
+        { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Import ASM &FFC Script",     onImportFFScript,          NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Item Script",    onImportItemScript,        NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Global Script",  onImportGScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &NPC Script",  onImportNPCScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &LWeapon Script",  onImportLWPNScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &EWeapon Script",  onImportEWPNScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Hero Script",  onImportHEROScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &DMap Script",  onImportDMapScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Screen Script",  onImportSCREENScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM ItemS&prite Script",  onImportITEMSPRITEScript,           NULL,                     0,            NULL   },
+//{ (char *)"Set Include Path",        onZScriptSetIncludePath,           NULL,                     0,            NULL   },
+
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+//New Modules Menu for 2.55+
+static MENU module_menu[] =
+{
+    { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
+    //divider
+   
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU etc_menu_smallmode[] =
+{
+    { (char *)"&Help",                      onHelp,                    NULL,                     0,            NULL   },
+    { (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
+    { (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
+    { (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
+    { (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
+    { (char *)"Media",        NULL,                      media_menu,               0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+   { (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
+    { (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
+    { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
+     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
+    { (char *)"ZScript",        NULL,                      zscript_menu,               0,            NULL   },
+    
+    { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+MENU the_menu_large[] =
+{
+    
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
     { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
     { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
     { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
-    { (char *)"Et&c",                       NULL, (MENU *) etc_menu,        0,            NULL   },
+    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
+    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
+    { (char *)"Et&c",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+MENU the_menu[] =
+{
+    { (char *)"&ZQuest",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
+    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
+    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
+    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
+    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
+    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
+    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
+    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
+    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
+
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -881,81 +1016,97 @@ extern int zqwin_scale;
 
 int onFullScreen()
 {
-    int old_scale = zqwin_scale;
-#ifdef ALLEGRO_DOS
-    return D_O_K;
-#endif
-    get_palette(RAMpal);
-    show_mouse(NULL);
-    scrtmp = screen;
-    screen = hw_screen;
-    hw_screen = scrtmp;
-    bool windowed=is_windowed_mode()!=0;
-    
-    if(windowed)
+	
+    if(jwin_alert3(
+			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
+			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
+			(is_windowed_mode()) ? "We strongly advise saving your quest before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
+			(is_windowed_mode()) ? "Do you wish to continue to fullscreen mode?" : NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		lfont) == 1)	
     {
-        zqwin_set_scale(1);
+	    int old_scale = zqwin_scale;
+	#ifdef ALLEGRO_DOS
+	    return D_O_K;
+	#endif
+	    get_palette(RAMpal);
+	    show_mouse(NULL);
+	    scrtmp = screen;
+	    screen = hw_screen;
+	    hw_screen = scrtmp;
+	    bool windowed=is_windowed_mode()!=0;
+	    
+	    if(windowed)
+	    {
+		zqwin_set_scale(1);
+	    }
+	    else
+	    {
+		zqwin_set_scale(scale_arg);
+	    }
+	    
+	    int ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+	    
+	    if(ret!=0)
+	    {
+		if(zqwin_scale==1&&windowed)
+		{
+		    zqwin_set_scale(2);
+		    ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+		    
+		    if(ret!=0)
+		    {
+			zqwin_set_scale(scale_arg);
+			ret=set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+			
+			if(ret!=0)
+			{
+			    Z_message("Can't set video mode (%d).\n", ret);
+			    Z_message(allegro_error);
+			    //quit_game();
+			    exit(1);
+			}
+		    }
+		}
+		else
+		{
+		    zqwin_set_scale(old_scale);
+		    ret=set_gfx_mode(GFX_AUTODETECT_FULLSCREEN,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+		    
+		    if(ret!=0)
+		    {
+			Z_message("Can't set video mode (%d).\n", ret);
+			Z_message(allegro_error);
+			// quit_game();
+			exit(1);
+		    }
+		}
+	    }
+	    
+	    scrtmp = hw_screen;
+	    hw_screen = screen;
+	    screen = scrtmp;
+	    set_palette(RAMpal);
+	    gui_mouse_focus=0;
+	    gui_bg_color=jwin_pal[jcBOX];
+	    gui_fg_color=jwin_pal[jcBOXFG];
+	    gui_mg_color=jwin_pal[jcMEDDARK];
+	    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	    //zqwin_set_scale(zq_scale);
+	    set_palette(RAMpal);
+	    position_mouse(zq_screen_w/2,zq_screen_h/2);
+	    show_mouse(screen);
+	    set_display_switch_mode(SWITCH_BACKGROUND);
+	    set_display_switch_callback(SWITCH_OUT, switch_out);
+	    set_display_switch_callback(SWITCH_IN, switch_in);
+	    return D_REDRAW;
     }
-    else
-    {
-        zqwin_set_scale(scale_arg);
-    }
-    
-    int ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-    
-    if(ret!=0)
-    {
-        if(zqwin_scale==1&&windowed)
-        {
-            zqwin_set_scale(2);
-            ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-            
-            if(ret!=0)
-            {
-                zqwin_set_scale(scale_arg);
-                ret=set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-                
-                if(ret!=0)
-                {
-                    Z_message("Can't set video mode (%d).\n", ret);
-                    Z_message(allegro_error);
-                    //quit_game();
-                    exit(1);
-                }
-            }
-        }
-        else
-        {
-            zqwin_set_scale(old_scale);
-            ret=set_gfx_mode(GFX_AUTODETECT_FULLSCREEN,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-            
-            if(ret!=0)
-            {
-                Z_message("Can't set video mode (%d).\n", ret);
-                Z_message(allegro_error);
-                // quit_game();
-                exit(1);
-            }
-        }
-    }
-    
-    scrtmp = hw_screen;
-    hw_screen = screen;
-    screen = scrtmp;
-    set_palette(RAMpal);
-    gui_mouse_focus=0;
-    gui_bg_color=jwin_pal[jcBOX];
-    gui_fg_color=jwin_pal[jcBOXFG];
-    gui_mg_color=jwin_pal[jcMEDDARK];
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    //zqwin_set_scale(zq_scale);
-    set_palette(RAMpal);
-    position_mouse(zq_screen_w/2,zq_screen_h/2);
-    show_mouse(screen);
-    set_display_switch_mode(SWITCH_BACKGROUND);
-    set_display_switch_callback(SWITCH_OUT, switch_out);
-    set_display_switch_callback(SWITCH_IN, switch_in);
-    return D_REDRAW;
+    else return D_O_K;
 }
 
 int onEnter()
@@ -1016,10 +1167,28 @@ int onToggleShowInfo()
     return D_O_K;
 }
 
+void onSKey()
+{
+	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	{
+
+		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+		{
+			onSaveAs();
+		}
+		else
+		{
+			onSave();
+		}
+	}
+	else onString();
+}
+
 static DIALOG dialogs[] =
 {
     // still unused:  jm
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
+    //{ d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, ((is_large) ? (void *) the_menu_large : (void *) the_menu), NULL, NULL },
     { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
     
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
@@ -1069,7 +1238,7 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_P,          0, (void *) onGotoPage, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Q,          0, (void *) onShowComboInfoCSet, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_R,          0, (void *) onRType, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_S,          0, (void *) onString, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_S,          0, (void *) onSKey, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_T,          0, (void *) onTiles, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_U,          0, (void *) onUndo, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_V,          0, (void *) onPaste, NULL, NULL },
@@ -1077,6 +1246,7 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_X,          0, (void *) onPreviewMode, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Y,          0, (void *) onCompileScript, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Z,          0, (void *) onSnapshot, NULL, NULL },
+    //{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       0,          0, (void *) onPasteAllToAll, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '0',     0,       0,              0, (void *) on0, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '1',     0,       0,              0, (void *) on1, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '2',     0,       0,              0, (void *) on2, NULL, NULL },
@@ -1608,11 +1778,15 @@ int onH()
 
 int onPaste()
 {
-    {
-        Map.Paste();
-        refresh(rALL);
-    }
-    return D_O_K;
+	if ( (key[KEY_LSHIFT] || key[KEY_RSHIFT]) && !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL])  return onPasteAll();
+	else if ((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ) && !key[KEY_LSHIFT] && !key[KEY_RSHIFT] ) return onPasteToAll();
+	else if ( (key[KEY_LSHIFT] || key[KEY_RSHIFT]) && (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]) ) return onPasteAllToAll();
+	else
+	{
+		Map.Paste();
+		refresh(rALL);
+	}
+	return D_O_K;
 }
 
 int onPasteAll()
@@ -1765,7 +1939,8 @@ int onIncMap()
     int m=Map.getCurrMap();
     int oldcolor=Map.getcolor();
     Map.setCurrMap(m+1>=map_count?0:m+1);
-    
+    Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
+    Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     if(m!=Map.getCurrMap())
     {
         memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
@@ -1787,6 +1962,8 @@ int onDecMap()
     int m=Map.getCurrMap();
     int oldcolor=Map.getcolor();
     Map.setCurrMap((m-1<0)?map_count-1:zc_min(m-1,map_count-1));
+    Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
+    Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     
     if(m!=Map.getCurrMap())
     {
@@ -2713,7 +2890,184 @@ int stopMusic()
     return D_O_K;
 }
 
+static int gamemisc1_list[] =
+{
+	5,6,7,8,
+	9,10,11,12,
+	13,14,15,16,
+	17,18,19,20,
+	
+	37,38,39,40,
+	41,42,43,44,
+	45,46,47,48,
+	49,50,51,52,
+	-1
+};
+
+// Yep, a whole tab for one rule.
+static int gamemisc2_list[] =
+{
+    21,22,23,24,
+	25,26,27,28,
+	29,30,31,32,
+	33,34,35,36,
+	
+	53,54,55,56,
+	57,58,59,60,
+	61,62,63,64,
+	65,66,67,68,
+	-1
+};
+
+static TABPANEL gamemisc_tabs[] =
+{
+    // (text)
+    { (char *)" Misc[0]...Misc[15] ",     D_SELECTED, gamemisc1_list, 0, NULL },
+    { (char *)" Misc[16]...Misc[31] ",     0,          gamemisc2_list, 0, NULL },
+    { NULL,              0,          NULL,            0, NULL }
+};
+
+
 #include "zq_files.h"
+//to do: Make string boxes larger, and split into two tabs. 
+static DIALOG gamemiscarray_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
+    
+{ jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Game->Misc[]", NULL, NULL },
+    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
+    { jwin_tab_proc,         5,   26,   300,  202,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
+    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+    
+    //5
+    { jwin_edit_proc,     10,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //8
+    { jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+120,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //13
+    { jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //18
+    { jwin_edit_proc,     160,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //23
+    { jwin_edit_proc,     10,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     10,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //28
+    { jwin_edit_proc,     10,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+20,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //33
+    { jwin_edit_proc,     160,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+100,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     160,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //36
+    { jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //38
+    { jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //43
+    { jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    
+    { jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //48
+    { jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //53
+    { jwin_edit_proc,     101, 42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //58
+    { jwin_edit_proc,     101,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     101,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+20,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+40,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //63
+    { jwin_edit_proc,     261,  42+60,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+80,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+100,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+120,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     261,  42+140,   40,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //68
+    { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
+    { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
+    
+    { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void EditGameMiscArray()
+{
+	gamemiscarray_dlg[0].dp2=lfont;
+	char miscvalue[32][14];
+	char miscvalue_labels[32][65];
+	memset(miscvalue, 0, sizeof(miscvalue));
+	memset(miscvalue_labels, 0, sizeof(miscvalue_labels));
+	for ( int q = 0; q < 32; q++ )
+	{
+		sprintf(miscvalue[q],"%.4f",misc.questmisc[q]/10000.0);
+		gamemiscarray_dlg[37+q].dp = miscvalue[q];
+		
+		strcpy(miscvalue_labels[q], misc.questmisc_strings[q]);
+		if ( miscvalue_labels[q][0] == NULL ) sprintf(miscvalue_labels[q],"Misc[%d]",q);
+		gamemiscarray_dlg[5+q].dp = miscvalue_labels[q];
+		
+	}
+	//also questmisc_strings
+	int ret;
+	if(is_large)
+		large_dialog(gamemiscarray_dlg);
+        
+	do
+	{
+		ret = zc_popup_dialog(gamemiscarray_dlg,65);
+		for ( int q = 0; q < 32; q++ )
+		{
+			misc.questmisc[q] = vbound(ffparse(miscvalue[q]),-2147483647, 2147483647);
+			strcpy(misc.questmisc_strings[q], miscvalue_labels[q]);
+		}
+		
+	}
+	while(ret==68);
+}
+
+int onQMiscValues()
+{
+    EditGameMiscArray();
+    saved=false;
+    return D_O_K;
+}
+
 
 int onTemplates()
 {
@@ -2872,19 +3226,19 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
 
 int mapMaker(BITMAP * _map, PALETTE _mappal)
 {
-    char buf[50];
+    char buf[200];
     int num=0;
     
     do
     {
 #ifdef ALLEGRO_MACOSX
-        snprintf(buf, 50, "../../../zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        snprintf(buf, 200, "../../../zquest_map%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        snprintf(buf, 50, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        snprintf(buf, 200, "zquest_map%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
-        buf[49]='\0';
+        buf[199]='\0';
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     save_bitmap(buf,_map,_mappal);
     
@@ -3415,12 +3769,12 @@ void drawpanel(int pnl)
             set_clip_rect(menu1,panel[0].x,panel[0].y,panel[0].x+panel[0].w-5,panel[0].y+46);
             extract_name(filepath,name,FILENAME8__);
             textprintf_disabled(menu1,pfont,panel[0].x+1,panel[0].y+3,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"File:");
-            textprintf_ex(menu1,pfont,panel[0].x+1,panel[0].y+13,vc(0),-1,"%s",shortname);
+            textprintf_ex(menu1,pfont,panel[0].x+1,panel[0].y+13,jwin_pal[jcTEXTFG],-1,"%s",shortname);
             textprintf_disabled(menu1,pfont,panel[0].x+1,panel[0].y+24,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Combo:");
-            textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Combo: "),panel[0].y+24,vc(0),-1,"%d",Combo);
+            textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Combo: "),panel[0].y+24,jwin_pal[jcTEXTFG],-1,"%d",Combo);
             textprintf_disabled(menu1,pfont,panel[0].x+1,panel[0].y+34,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Type:");
-//        textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Type: "),panel[0].y+34,vc(0),-1,"%s",combotype_string[combobuf[Combo].type]);
-            textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Type: "),panel[0].y+34,vc(0),-1,"%s",combo_class_buf[combobuf[Combo].type].name);
+//        textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Type: "),panel[0].y+34,jwin_pal[jcTEXTFG],-1,"%s",combotype_string[combobuf[Combo].type]);
+            textprintf_ex(menu1,pfont,panel[0].x+1+text_length(pfont, "Type: "),panel[0].y+34,jwin_pal[jcTEXTFG],-1,"%s",combo_class_buf[combobuf[Combo].type].name);
             textprintf_centre_disabled(menu1,spfont,panel[0].x+panel[0].w-76,panel[0].y+3,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Combo");
             jwin_draw_frame(menu1,panel[0].x+panel[0].w-86,panel[0].y+9,20, 20, FR_DEEP);
             put_combo(menu1,panel[0].x+panel[0].w-84,panel[0].y+11,Combo,CSet,0,0);
@@ -3580,9 +3934,10 @@ void drawpanel(int pnl)
             textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+8,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Guy:");
             textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+16,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"String:");
             textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+24,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Room:");
-            textprintf_ex(menu1,pfont,panel[3].x+40-16,panel[3].y+8,jwin_pal[jcBOXFG],-1,"%s",guy_string[scr->guy]);
+            textprintf_ex(menu1,pfont,panel[3].x+40-16,panel[3].y+8,jwin_pal[jcBOXFG],-1,"%s",moduledata.guy_type_names[scr->guy]);
             textprintf_ex(menu1,pfont,panel[3].x+40-6,panel[3].y+16,jwin_pal[jcBOXFG],-1,"%s",shortbuf);
-            textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",roomtype_string[scr->room]);
+            //textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",roomtype_string[scr->room]);
+            textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",(char *)moduledata.roomtype_names[scr->room]);
             int rtype=scr->room;
             
             if(strcmp(catchall_string[rtype]," "))
@@ -4742,6 +5097,10 @@ void refresh(int flags)
         
         if(Map.getLayerTargetMap() > 0)
         {
+	    Map.setlayertarget(); //Now the text does not carry over when changing maps, but shifting back, it does not **re-appear** until you change screens.
+                //It was also required to set some updates in onDecMap and onIncMap. #
+		//This fixes Screen Info not displaying properly when changing maps. -Z 
+		//Needed to refresh the screen info. -Z ( 26th March, 2019 )
             int m = Map.getLayerTargetMultiple();
             sprintf(buf,"Used as a layer by screen %d:%02X",Map.getLayerTargetMap(),Map.getLayerTargetScr());
             char buf2[16];
@@ -6809,6 +7168,86 @@ static MENU draw_block_menu[] =
     { NULL,                              NULL,            NULL,    0, NULL }
 };
 
+static MENU paste_screen_menu[] =
+{
+    { (char *)"Paste All",                     onPasteAll,  NULL,    0, NULL },
+    { (char *)"Paste to All",                     onPasteToAll,  NULL,    0, NULL },
+    { (char *)"Paste All to All",                     onPasteAllToAll,  NULL,    0, NULL },
+    { NULL,                              NULL,            NULL,    0, NULL }
+};
+
+ void onRCSelectCombo(int c)
+ {
+	    int drawmap, drawscr;
+	    
+	    if(CurrentLayer==0)
+	    {
+		drawmap=Map.getCurrMap();
+		drawscr=Map.getCurrScr();
+	    }
+	    else
+	    {
+		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+		
+		if(drawmap<0)
+		{
+		    return;
+		}
+	    }
+	    
+	   Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+}
+
+ void onRCScrollToombo(int c)
+ {
+	    int drawmap, drawscr;
+	    
+	    if(CurrentLayer==0)
+	    {
+		drawmap=Map.getCurrMap();
+		drawscr=Map.getCurrScr();
+	    }
+	    else
+	    {
+		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+		
+		if(drawmap<0)
+		{
+		    return;
+		}
+	    }
+	    
+	    
+		First[current_combolist]=vbound((Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),0,MAXCOMBOS-(combolist[0].w*combolist[0].h));
+	    
+}
+
+static MENU rc_menu_combo[] =
+{
+       { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
+    { (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
+    { (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
+    { (char *)"Replace All",             NULL,  NULL,              0, NULL },
+    { (char *)"Draw Block",		       NULL,  draw_block_menu,	0, NULL },
+    { (char *)"Set Brush Width\t ",      NULL,  brush_width_menu,  0, NULL },
+    { (char *)"Set Brush Height\t ",     NULL,  brush_height_menu, 0, NULL },
+    { (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
+    { NULL,                              NULL,            NULL,    0, NULL }
+};
+
+static MENU rc_menu_screen[] =
+{
+{ (char *)"Copy Screen",                        onCopy,  NULL,              0, NULL },
+    { (char *)"Paste Screen",                        onPaste,  NULL,              0, NULL },
+    { (char *)"Paste...",                        NULL,  paste_screen_menu,              0, NULL },
+    { (char *)"Adv. Paste",                        NULL,  paste_menu,              0, NULL },
+    { (char *)"Paste Special",                        NULL,  paste_item_menu,              0, NULL },
+    { NULL,                              NULL,            NULL,    0, NULL }
+};
+
+
 static MENU draw_rc_menu[] =
 {
     { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
@@ -6826,6 +7265,32 @@ static MENU draw_rc_menu[] =
     { (char *)"",                        NULL,  NULL,              0, NULL },
     { (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
     { (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
+    { (char *)"",                        NULL,  NULL,              0, NULL },
+    { (char *)"Screen",                        NULL,  rc_menu_screen,              0, NULL },
+    { (char *)"ZScript",                        NULL,  zscript_menu,              0, NULL },
+    
+    { NULL,                              NULL,  NULL,              0, NULL }
+};
+
+static MENU draw_rc_menu_truncated[] =
+{
+    { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
+    { (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
+    { (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
+    { (char *)"",                        NULL,  NULL,              0, NULL },
+    { (char *)"Replace All",             NULL,  NULL,              0, NULL },
+    { (char *)"Draw Block",		       NULL,  draw_block_menu,	0, NULL },
+    { (char *)"Set Brush Width\t ",      NULL,  brush_width_menu,  0, NULL },
+    { (char *)"Set Brush Height\t ",     NULL,  brush_height_menu, 0, NULL },
+    { (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
+    { (char *)"",                        NULL,  NULL,              0, NULL },
+    { (char *)"Follow Tile Warp",        NULL,  NULL,              0, NULL },
+    { (char *)"Edit Tile Warp",          NULL,  NULL,              0, NULL },
+    { (char *)"",                        NULL,  NULL,              0, NULL },
+    { (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
+    { (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
+    { (char *)"Screen",                        NULL,  rc_menu_screen,              0, NULL },
+    
     { NULL,                              NULL,  NULL,              0, NULL }
 };
 
@@ -7612,25 +8077,31 @@ void domouse()
             if((isinRect(x,y,panel[0].x+panel[0].w-28,panel[0].y+32,panel[0].x+panel[0].w-28+24,panel[0].y+32+5) && menutype==m_block && !mouse_down) ||
                     (isinRect(x,y,panel[6].x+panel[6].w-28,panel[6].y+36,panel[6].x+panel[6].w-28+24,panel[6].y+36+5) && menutype==m_layers && !mouse_down))
             {
-                CSet=wrap(CSet+1,0,11);
-                refresh(rCOMBOS+rMENU+rCOMBO);
+		if ( !is_large )
+		{
+			CSet=wrap(CSet+1,0,11);
+			refresh(rCOMBOS+rMENU+rCOMBO);
+		}
             }
             
             if(isinRect(x,y,panel[0].x+panel[0].w-32,panel[0].y+39,panel[0].x+panel[0].w-32+28,panel[0].y+39+5) && menutype==m_block && !mouse_down)
             {
-                bool validlayer=false;
-                
-                while(!validlayer)
-                {
-                    CurrentLayer=wrap(CurrentLayer+1,0,6);
-                    
-                    if((CurrentLayer==0)||(Map.CurrScr()->layermap[CurrentLayer-1]))
-                    {
-                        validlayer=true;
-                    }
-                }
-                
-                refresh(rMENU);
+		if ( !is_large )
+		{
+			bool validlayer=false;
+			
+			while(!validlayer)
+			{
+			    CurrentLayer=wrap(CurrentLayer+1,0,6);
+			    
+			    if((CurrentLayer==0)||(Map.CurrScr()->layermap[CurrentLayer-1]))
+			    {
+				validlayer=true;
+			    }
+			}
+			
+			refresh(rMENU);
+		}
             }
             
             for(int j=0; j<3; ++j)
@@ -7953,7 +8424,7 @@ void domouse()
                     draw_rc_menu[11].flags = draw_rc_menu[10].flags = D_DISABLED;
                 }
                 
-                int m = popup_menu(draw_rc_menu,x,y);
+                int m = popup_menu(is_large ? draw_rc_menu : draw_rc_menu_truncated,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
                 
                 switch(m)
                 {
@@ -8266,10 +8737,12 @@ void domouse()
                         if(draw_mode != dm_alias)
                         {
                             favorite_combos[f]=-1;
+				saved = false;
                         }
                         else
                         {
                             favorite_comboaliases[f]=-1;
+				saved = false;
                         }
                         
                         break;
@@ -9551,12 +10024,12 @@ void ilist_rclick_func(int index, int x, int y);
 DIALOG ilist_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,   0,       NULL, NULL, NULL },
+    { jwin_win_proc,     60-12,   40,   200+24+24,  148+20,  vc(14),  vc(1),  0,       D_EXIT,          0,   0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,            0,       NULL, NULL, NULL },
     { d_ilist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG], 0, D_EXIT, 0,  0,  NULL, NULL, NULL },
-    { jwin_button_proc,     90,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  163,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { jwin_button_proc,     220,   163,  61,   21,   vc(14),  vc(1),  13,     D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,     90,   163+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,     170,  163+20,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
+    { jwin_button_proc,     220,   163+20,  61,   21,   vc(14),  vc(1),  13,     D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL,  NULL }
 };
 
@@ -9827,9 +10300,9 @@ void build_bir_list()
     
     for(int i=0; i<rMAX; i++)
     {
-        if(roomtype_string[i][0]!='-')
+        if(moduledata.roomtype_names[i][0]!='-')
         {
-            bir[bir_cnt].s = (char *)roomtype_string[i];
+            bir[bir_cnt].s = (char *)moduledata.roomtype_names[i];
             bir[bir_cnt].i = i;
             ++bir_cnt;
         }
@@ -10396,6 +10869,129 @@ static DIALOG scrdata_dlg[] =
     { NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
 
+
+
+const char *screenscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = biscreens_cnt;
+        return NULL;
+    }
+    
+    return biscreens[index].first.c_str();
+}
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData screenscript_list(screenscriptdroplist, &pfont);
+
+
+#include "zq_files.h"
+//to do: Make string boxes larger, and split into two tabs. 
+static DIALOG screenscript_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
+    
+{ jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Screen Script", NULL, NULL },
+    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         5,   26,   300,  202,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
+    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
+    
+    //5
+    { jwin_text_proc,           10,    42+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[0]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+20+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+40+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[2]:",                      NULL,   NULL                  },
+    
+    
+    //8
+    { jwin_text_proc,           10,    42+60+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[3]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+80+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[4]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+100+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[5]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+120+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[6]:",                      NULL,   NULL                  },
+    { jwin_text_proc,           10,    42+140+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[7]:",                      NULL,   NULL                  },
+    
+    //13
+     { jwin_edit_proc,     60,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+     { jwin_edit_proc,     60,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //18
+    { jwin_edit_proc,     60,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     60,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
+    //21
+    { jwin_text_proc,          112+10+20+34+1-4,    42+2,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                            NULL,   NULL                  },
+    //22
+    { jwin_droplist_proc,      112+10+20+34-4,    42+10,     120,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &screenscript_list,                   NULL,   NULL 				   },
+   
+    { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
+    { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
+    
+    { jwin_check_proc,          112+10+20+34-4,    42+30,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Run On Screen Init",   NULL,   NULL                  },
+    
+    { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+void EditScreenScript()
+{
+	screenscript_dlg[0].dp2=lfont;
+	char initd[8][16];
+	int script = 0;
+
+	mapscr *theMap = &TheMaps[Map.getCurrMap()*MAPSCRS+Map.getCurrScr()];
+	
+	build_biscreens_list();
+	memset(initd, 0, sizeof(initd));
+	for ( int q = 0; q < biscreens_cnt; q++)
+	{
+		if(biscreens[q].second == theMap->script -1)
+		{
+			script = q; //sprite script goes after this
+			//al_trace("Item has sprite script: %d\n", q);
+		}
+		
+	}
+	screenscript_dlg[22].d1 = script;
+	screenscript_dlg[25].flags = Map.CurrScr()->preloadscript ? D_SELECTED : 0;
+	
+	for ( int q = 0; q < 8; q++ )
+	{
+	    
+		sprintf(initd[q],"%.4f",theMap->screeninitd[q]/10000.0);
+	 
+		screenscript_dlg[13+q].dp = initd[q];
+	}
+	int ret;
+	if(is_large)
+		large_dialog(screenscript_dlg);
+        
+	do
+	{
+		ret = zc_popup_dialog(screenscript_dlg,23);
+		build_biscreens_list();
+		theMap->script = biscreens[screenscript_dlg[22].d1].second + 1;
+		
+		if(screenscript_dlg[25].flags & D_SELECTED)
+			theMap->preloadscript = 1;
+		else 
+			theMap->preloadscript = 0;
+		
+		for(int j=0; j<8; j++)
+			theMap->screeninitd[j] = vbound(ffparse(initd[j]),-2147483647, 2147483647);
+		
+	}
+	while(ret==22);//press OK
+}
+
+int onScreenScript()
+{
+    EditScreenScript();
+    saved=false;
+    return D_O_K;
+}
+
 int onScrData()
 {
     restore_mouse();
@@ -10737,8 +11333,9 @@ const char *flaglist(int index, int *list_size)
     {
         if(index>=MAXFLAGS)
             index=MAXFLAGS-1;
-            
-        return flag_string[index];
+	
+	return (char *)moduledata.combo_flag_names[index];
+        //return flag_string[index];
     }
     
     *list_size=MAXFLAGS;
@@ -10998,7 +11595,12 @@ int onMapCount()
         {
             saved = false;
             setMapCount2(ret+1);
-            
+	    //Prevent the nine 'last mapscreen' buttons from pointing to invlid locations
+	    //if the user reduces the mapcount. -Z ( 23rd September, 2019 )
+	    for ( int q = 0; q < 9; q++ )
+	    {
+		map_page[q].map = ( map_page[q].map > ret ) ? ret : map_page[q].map;
+	    }
             if(willaffectlayers)
             {
                 for(int i=0; i<(ret+1)*MAPSCRS; i++)
@@ -11320,7 +11922,7 @@ int onCatchall()
         return D_O_K;
     }
     
-    if(data_menu[13].flags==D_DISABLED)
+    if(room_menu[3].flags==D_DISABLED)
     {
         return D_O_K;
     }
@@ -11424,8 +12026,8 @@ int onDecScrPal()
 {
     restore_mouse();
     int c=Map.getcolor();
-    c+=255;
-    c=c%256;
+    c+=511;
+    c=c%512;
     Map.setcolor(c);
     refresh(rALL);
     return D_O_K;
@@ -11436,7 +12038,7 @@ int onIncScrPal()
     restore_mouse();
     int c=Map.getcolor();
     c+=1;
-    c=c%256;
+    c=c%512;
     Map.setcolor(c);
     refresh(rALL);
     return D_O_K;
@@ -11575,12 +12177,52 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
             blit(bigbmp,screen,0,0,x+2,y+2,w,h);
             destroy_bitmap(bigbmp);
         }
+        //Item editor power display in Select Item dialogue. 
         if(bii[d->d1].i>=0)
         {
             textprintf_ex(screen,spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i);
             
             textprintf_ex(screen,spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
+            textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Lev:    ");
+            textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam:    ");
+           // textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile:    ");
+            textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile:    ");
+            textprintf_ex(screen,spfont,x,y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet:    ");
+            textprintf_ex(screen,spfont,x,y+56*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Scripts:    ");
+            textprintf_ex(screen,spfont,x,y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Act:    ");
+            textprintf_ex(screen,spfont,x,y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pkp:    ");
+            textprintf_ex(screen,spfont,x,y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Spr:    ");
+            textprintf_ex(screen,spfont,x,y+80*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Wpn:    ");
+		char itempower[10]; char itemlvl[10]; char itmtile[16]; char itmcset[10]; char itmfam[10];
+		char ascript[10];
+		char pscript[10];
+		char sscript[10];
+		char wscript[10];
+		sprintf(itempower, "%03d", itemsbuf[bii[d->d1].i].power); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(itemlvl, "%03d", itemsbuf[bii[d->d1].i].fam_type); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(itmtile, "%03d", itemsbuf[bii[d->d1].i].tile); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(itmcset, "%03d", itemsbuf[bii[d->d1].i].csets); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(itmfam, "%03d", itemsbuf[bii[d->d1].i].family); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(ascript, "%03d", itemsbuf[bii[d->d1].i].script); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(pscript, "%03d", itemsbuf[bii[d->d1].i].collect_script); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(sscript, "%03d", itemsbuf[bii[d->d1].i].sprite_script); //Give leading zeros so that we don't have graphical corruption in the display. 
+		sprintf(wscript, "%03d", itemsbuf[bii[d->d1].i].weaponscript); //Give leading zeros so that we don't have graphical corruption in the display. 
+            //textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
+	     textprintf_ex(screen,spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"T: %d  ",itemsbuf[bii[d->d1].i].tile);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itemlvl);
+	    //textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"LV: %d  ",itemsbuf[bii[d->d1].i].family_type);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmfam);
+	    //textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"F: %d  ",itemsbuf[bii[d->d1].i].family);
+           
+	    //textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmtile);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmcset);
+	    //Scripts
+	    textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",ascript);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",pscript);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",sscript);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+80*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",wscript);
         }
         
         // Might be a bit confusing for new users
@@ -12631,6 +13273,15 @@ static int editdmap_flags_list[] =
     110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,-1
 };
 
+static int editdmap_scripts_list[] =
+{
+    // dialog control number
+	130,131,132,133,134,135,136,137,138,139,
+	140,141,142,143,144,145,146,
+	147, 
+	-1
+};
+
 static TABPANEL editdmap_tabs[] =
 {
     // (text)
@@ -12640,6 +13291,7 @@ static TABPANEL editdmap_tabs[] =
     { (char *)"Maps",           0,           editdmap_subscreenmaps_list,  0,  NULL },
     { (char *)"Flags",          0,           editdmap_flags_list,          0,  NULL },
     { (char *)"Disable",        0, 		   editdmap_disableitems_list,   0,  NULL },
+    { (char *)"Scripts",        0, 		   editdmap_scripts_list,   0,  NULL },
     { NULL,                     0,           NULL,                         0,  NULL }
 };
 
@@ -12689,10 +13341,27 @@ static ListData dmaptracknum_list(dmaptracknumlist, &font);
 static ListData type_list(typelist, &font);
 static ListData gotomap_list(gotomaplist, &font);
 
+
+const char *dmapscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bidmaps_cnt;
+        return NULL;
+    }
+    
+    return bidmaps[index].first.c_str();
+}
+
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData dmapscript_list(dmapscriptdroplist, &pfont);
+
+
 static DIALOG editdmap_dlg[] =
 {
     // (dialog proc)                (x)     (y)     (w)     (h)     (fg)                    (bg)                 (key)     (flags)   (d1)           (d2)   (dp)                                                   (dp2)                 (dp3)
-    {  jwin_win_proc,                 0,      0,    312,    256,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    D_EXIT,      0,             0, (void *) "DMap Editor",                                NULL,                 NULL                  },
+    {  jwin_win_proc,                 0,      0,    320,    256,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    D_EXIT,      0,             0, (void *) "DMap Editor",                                NULL,                 NULL                  },
     {  jwin_button_proc,             89,    218,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "OK",                                         NULL,                 NULL                  },
     {  jwin_button_proc,            164,    218,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        27,    D_EXIT,      0,             0, (void *) "Cancel",                                     NULL,                 NULL                  },
     {  jwin_text_proc,               10,     29,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Name: ",                                     NULL,                 NULL                  },
@@ -12847,7 +13516,42 @@ static DIALOG editdmap_dlg[] =
     {  jwin_check_proc,              12,    175,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Enable Sideview on All Screens",      NULL,                 NULL                  },
     {  jwin_check_proc,              12,    185,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Layer 3 is Background on All Screens",      NULL,                 NULL                  },
     {  jwin_check_proc,              12,    195,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Layer 2 is Background on All Screens",      NULL,                 NULL                  },
-   
+    //130
+    /*
+     { jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
+    { jwin_text_proc,       6+10,   47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
+    { jwin_text_proc,       6+10,   65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
+    { jwin_text_proc,       6+10,   83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
+    { jwin_text_proc,       6+10,  101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
+    { jwin_text_proc,       6+10,  119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
+    { jwin_text_proc,       6+10,  137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
+    { jwin_text_proc,       6+10,  155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
+   */
+    //130
+    // If I make it possible to edit these, too, they'd be here. -Z
+    {  jwin_edit_proc,         6+10-4-2,     10+29+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+47+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+65+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+83+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+101+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+119+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    //138
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //146
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    
+    
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
@@ -12857,6 +13561,20 @@ void editdmap(int index)
     char *tmfname;
     byte gridstring[8];
     static int xy[2];
+	
+	char initdvals[8][13]; //script
+	char initd_labels[8][65];
+	
+	for ( int q = 0; q < 8; q++ )
+	{
+		strcpy(initd_labels[q], DMaps[index].initD_label[q]);
+		if ( initd_labels[q][0] == NULL ) sprintf(initd_labels[q],"InitD[%d]",q);
+		editdmap_dlg[130+q].dp = initd_labels[q];
+	    
+	}
+    
+	
+	
     sprintf(levelstr,"%d",DMaps[index].level);
     sprintf(dmapnumstr,"Edit DMap (%d)",index);
     sprintf(compassstr,"%02X",DMaps[index].compass);
@@ -12865,6 +13583,27 @@ void editdmap(int index)
     sprintf(dmap_name,"%s",DMaps[index].name);
     sprintf(dmap_intro,"%s",DMaps[index].intro);
     sprintf(tmusicstr,"%s",DMaps[index].tmusic);
+	
+	//dmap script
+	int j = 0; build_bidmaps_list(); //lweapon scripts lister
+	
+	for(j = 0; j < bidmaps_cnt; j++)
+	{
+		if(bidmaps[j].second == DMaps[index].script -1)
+		{
+			editdmap_dlg[147].d1 = j; 
+			break;
+		}
+	}
+    
+	for ( int q = 0; q < 8; q++ )
+	{
+	    
+		sprintf(initdvals[q],"%.4f",DMaps[index].initD[q]/10000.0);
+	 
+		editdmap_dlg[138+q].dp = initdvals[q];
+	}
+	
     editdmap_dlg[0].dp=dmapnumstr;
     editdmap_dlg[0].dp2=lfont;
     editdmap_dlg[4].dp=dmap_name;
@@ -13118,6 +13857,21 @@ void editdmap(int index)
         DMaps[index].flags = f;
 	
 	DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
+	DMaps[index].script = bidmaps[editdmap_dlg[147].d1].second + 1; 
+	
+	//for ( int q = 0; q < 8; ++q )
+	//{
+	//	strcpy(initd_labels[q], editdmap_dlg[130+q].dp);
+	//}
+	
+	for ( int q = 0; q < 8; q++ )
+	{
+		DMaps[index].initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
+		////initd_labels
+		sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
+//		strcpy(DMaps[index].initD_label[q], initd_labels[q]);
+		//vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+	}
     }
 }
 
@@ -16222,15 +16976,15 @@ void build_bie_list(bool hide)
 
 void build_big_list(bool hide)
 {
-    big[0].s = (char *)"(None)";
-    big[0].i = 0;
-    big_cnt=1;
-    
-    for(int i=gABEI; i<gDUMMY1; i++)
+    //big[0].s = (char *)"(None)";
+    //big[0].i = 0;
+    //big_cnt=1;
+    big_cnt=0;
+    for(int i=0; i<gDUMMY1; i++)
     {
-        if(guy_string[i][strlen(guy_string[i])-1]!=' ' || !hide)
+        if(moduledata.guy_type_names[i][0]!=' ' || !hide)
         {
-            big[big_cnt].s = (char *)guy_string[i];
+            big[big_cnt].s = (char *)moduledata.guy_type_names[i];
             big[big_cnt].i = i;
             ++big_cnt;
         }
@@ -16274,12 +17028,12 @@ void elist_rclick_func(int index, int x, int y);
 DIALOG elist_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     50,   40,   200+24+24,  145,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    { jwin_win_proc,     50,   40,   200+24+24,  145+20,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { d_enelist_proc,    62,   68,   188,  88,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { jwin_button_proc,     220,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,     90,   160+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,     170,  160+20,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
+    { jwin_button_proc,     220,   160+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -16434,12 +17188,26 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
             rectfill(screen, x, y+20*(is_large?2:1), x+int(w*(is_large?1.5:1))-1, y+32*(is_large?2:1)-1, vc(4));
         */
         textprintf_ex(screen,is_large?font:spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d   ",id);
+	
+	textprintf_ex(screen,is_large?font:spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile: %d   ",guysbuf[id].tile);
+	
+	textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sTil: %d   ",guysbuf[id].s_tile);
+	textprintf_ex(screen,is_large?font:spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"eTil: %d   ",guysbuf[id].e_tile);
         
-        textprintf_ex(screen,is_large?font:spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP :");
-        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].hp);
+        textprintf_ex(screen,is_large?font:spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP: ");
+        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].hp);
         
-        textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg:");
-        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].dp);
+        textprintf_ex(screen,is_large?font:spfont,x,y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg: ");
+        textprintf_ex(screen,is_large?font:spfont,x+int(14*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].dp);
+	
+	
+	
+	textprintf_ex(screen,is_large?font:spfont,x,y+56*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam: %d   ",guysbuf[id].family);
+	textprintf_ex(screen,is_large?font:spfont,x,y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Drop: %d   ",guysbuf[id].item_set);
+	textprintf_ex(screen,is_large?font:spfont,x,y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Script: %d   ",guysbuf[id].script);
+	textprintf_ex(screen,is_large?font:spfont,x,y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"WScript: %d   ",guysbuf[id].weaponscript);
+    
+	
     }
     
     return ret;
@@ -16602,19 +17370,19 @@ unsigned char check[2] = { (unsigned char)'\x81',0 };
 static DIALOG enemy_dlg[] =
 {
     /* (dialog proc)         (x)     (y)    (w)     (h)     (fg)                    (bg)                   (key)    (flags)      (d1)        (d2)  (dp) */
-    { jwin_win_proc,          0,      0,    240,    190,    vc(14),                 vc(1),                   0,       D_EXIT,     0,           0, (void *) "Enemies",          NULL,   NULL  },
+    { jwin_win_proc,          0,      0,    256,    190+10,    vc(14),                 vc(1),                   0,       D_EXIT,     0,           0, (void *) "Enemies",          NULL,   NULL  },
     { d_timer_proc,           0,      0,      0,      0,    0,                      0,                       0,       0,          0,           0,  NULL,                        NULL,   NULL  },
     { d_enelistnoabc_proc,        14,     24,    188,     97,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,     0,           0, (void *) &enemy_dlg_list,    NULL,   NULL  },
-    { jwin_button_proc,      12,    130,    109,     21,    vc(14),                 vc(1),                   'e',     D_EXIT,     0,           0, (void *) "Paste &Enemies",   NULL,   NULL  },
+    { jwin_button_proc,      12,    130+10,    109,     21,    vc(14),                 vc(1),                   'e',     D_EXIT,     0,           0, (void *) "Paste &Enemies",   NULL,   NULL  },
     { d_dummy_proc,          210,    24,     20,     20,    vc(11),                 vc(1),                   0,       0,          0,           0,  NULL,                        NULL,   NULL  },
-    { jwin_button_proc,     127,    130,     42,     21,    vc(14),                 vc(1),                   'f',     D_EXIT,     0,           0, (void *) "&Flags",           NULL,   NULL  },
-    { jwin_button_proc,     175,    130,     53,     21,    vc(14),                 vc(1),                   'p',     D_EXIT,     0,           0, (void *) "&Pattern",         NULL,   NULL  },
+    { jwin_button_proc,     127,    130+10,     42,     21,    vc(14),                 vc(1),                   'f',     D_EXIT,     0,           0, (void *) "&Flags",           NULL,   NULL  },
+    { jwin_button_proc,     175,    130+10,     53,     21,    vc(14),                 vc(1),                   'p',     D_EXIT,     0,           0, (void *) "&Pattern",         NULL,   NULL  },
     { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       'c',     0,          0,           0, (void *) close_dlg,          NULL,   NULL  },
     { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       'v',     0,          0,           0, (void *) close_dlg,          NULL,   NULL  },
     { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_DEL,     0, (void *) close_dlg,          NULL,   NULL  },
     // 10
-    { jwin_button_proc,      50,    156,     61,     21,    vc(14),                 vc(1),                  'k',       D_EXIT,     0,           0, (void *) "O&K",               NULL,   NULL  },
-    { jwin_button_proc,     130,    156,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,     0,           0, (void *) "Cancel",           NULL,   NULL  },
+    { jwin_button_proc,      50,    156+10,     61,     21,    vc(14),                 vc(1),                  'k',       D_EXIT,     0,           0, (void *) "O&K",               NULL,   NULL  },
+    { jwin_button_proc,     130,    156+10,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,     0,           0, (void *) "Cancel",           NULL,   NULL  },
     { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                      27,       0,          0,           0, (void *) close_dlg,          NULL,   NULL  },
     { jwin_text_proc,         4,    208,      8,      8,    vc(14),                 vc(1),                   0,       0,          0,           0, (void *) check,              NULL,   NULL  },
     { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_F1,      0, (void *) onHelp,             NULL,   NULL  },
@@ -16866,7 +17634,7 @@ int onHeader()
     strcpy(minver,header.minver);
     strcpy(author,header.author);
     strcpy(title,header.title);
-    
+    //header_dlg[17].flags |= D_GOTFOCUS
     header_dlg[0].dp2 = lfont;
     header_dlg[3].dp = zver_str;
     header_dlg[5].dp = q_num;
@@ -16885,11 +17653,62 @@ int onHeader()
         large_dialog(password_dlg);
     }
     
-    int ret;
+    int ret = -1;
     
     do
     {
-        ret=zc_popup_dialog(header_dlg,-1);
+        ret=zc_popup_dialog(header_dlg,17);
+	    
+	if ( key[KEY_ENTER] )
+	{
+		for ( int q = 0; q < 22; q++ )
+		{
+			if ( header_dlg[q].flags&D_GOTFOCUS )
+			{
+				key[KEY_ENTER] = 0; 
+				//Always save if the proc type is a text edit field. 
+				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
+				{
+					ret = 17; //always SAVE on Enter key from A TEXT PROC
+					break;
+				}
+				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
+				else ret = q;
+				break;
+			}
+		}
+		//if ( ret == -1 )
+		//{
+		//	key[KEY_ENTER] = 0; 
+		//	ret = 17;
+		//}
+	}
+	if ( key[KEY_ENTER_PAD] )
+	{
+		//if ( ret == -1 )
+		//{
+		//	key[KEY_ENTER_PAD] = 0; 
+		//	ret = 17;
+		//}
+		for ( int q = 0; q < 22; q++ )
+		{
+			if ( header_dlg[q].flags&D_GOTFOCUS )
+			{
+				key[KEY_ENTER_PAD] = 0; 
+				//Always save if the proc type is a text edit field. 
+				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
+				{
+					ret = 17; //always SAVE on Enter key from A TEXT PROC
+					break;
+				}
+				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
+				else ret = q;
+				break;
+			}
+		}
+	}
+		
+	//if (zc_readkey(KEY_ENTER)||zc_readkey(KEY_ENTER_PAD) && ret == -1) ret = 17; 
         
         if(ret==20)
             questrev_help();
@@ -17639,78 +18458,100 @@ int getcurrentcomboalias();
 
 int onOrgComboAliases()
 {
-    char cSrc[4];
-    char cDest[4];
-    int iSrc;
-    int iDest;
+    char cSrc[8];
+    char cDest[8];
+	strcpy(cSrc,"0");
+	strcpy(cDest,"0");
+    int iSrc = 0;
+    int iDest = 0;
     
-    sprintf(cSrc,"0");
-    sprintf(cDest,"0");
+    //sprintf(cSrc,"0");
+    //sprintf(cDest,"0");
     orgcomboa_dlg[0].dp2=lfont;
     orgcomboa_dlg[6].dp= cSrc;
     orgcomboa_dlg[7].dp= cDest;
-    
+    int ret = 1;
     if(is_large)
         large_dialog(orgcomboa_dlg);
-        
-    int ret = zc_popup_dialog(orgcomboa_dlg,-1);
-    
-    if(ret!=1) return ret;
-    
-    iSrc=atoi((char*) orgcomboa_dlg[6].dp);
-    iDest=atoi((char*) orgcomboa_dlg[7].dp);
-    
-    if(iSrc<0 || iSrc > MAXCOMBOALIASES-1)
+    do
     {
-        char buf[60];
-        snprintf(buf, 60, "Invalid source (range 0-%d)", MAXCOMBOALIASES-1);
-        buf[59]='\0';
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-        return ret;
+	    iSrc = atoi((char*)orgcomboa_dlg[6].dp);
+	    iDest = atoi((char*)orgcomboa_dlg[7].dp);
+	    //al_trace("iSrc is: %d\n",iSrc);
+	    //al_trace("iDest is: %d\n",iDest);
+	    ret = zc_popup_dialog(orgcomboa_dlg,-1);
+	    //al_trace("Initial ret value is %d\n", ret);
+	    
+	    if(ret!=1) return ret;
+	    char src_alias[10];
+	    char dest_alias[10];
+	    //while(ret == 1)
+	    
+		    strcpy(src_alias, (char*) orgcomboa_dlg[6].dp);
+		    strcpy(dest_alias, (char*) orgcomboa_dlg[7].dp);
+		    //al_trace("Source Alias: %s\n", src_alias);
+		    //al_trace("Dest Alias: %s\n", dest_alias);
+		    iSrc = atoi(src_alias);
+		    iDest = atoi(dest_alias);
+		    //iSrc=atoi((char*) orgcomboa_dlg[6].dp);
+		    //iDest=atoi((char*) orgcomboa_dlg[7].dp);
+		    //al_trace("Combo alias src is: %d\n", iSrc);
+		    //al_trace("Combo alias dest is: %d\n", iDest);
+		    //if(iSrc<0 || iSrc > MAXCOMBOALIASES-1)
+		    if((atoi((char*) orgcomboa_dlg[6].dp))<0 || (atoi((char*) orgcomboa_dlg[6].dp)) > MAXCOMBOALIASES-1)
+		    {
+			char buf[100];
+			snprintf(buf, 100, "Invalid source (range 0-%d)", MAXCOMBOALIASES-1);
+			buf[99]='\0';
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			ret = 1;
+		    }
+		    
+		    // 10,11=ins, del
+		    if(orgcomboa_dlg[10].flags & D_SELECTED)  //insert
+		    {
+			for(int j=MAXCOMBOALIASES-1; j>(atoi((char*) orgcomboa_dlg[6].dp)); --j)  copyComboAlias(j-1,j);
+			
+			ret = -1;
+		    }
+		    
+		    if(orgcomboa_dlg[11].flags & D_SELECTED)  //delete
+		    {
+			for(int j=(atoi((char*) orgcomboa_dlg[6].dp)); j<MAXCOMBOALIASES-1; ++j)  copyComboAlias(j+1,j);
+			
+			ret = -1;
+		    }
+		    
+		    if((atoi((char*) orgcomboa_dlg[6].dp)) == (atoi((char*) orgcomboa_dlg[7].dp)))
+		    {
+			jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+			ret = 1;
+		    }
+		    
+		    if((atoi((char*) orgcomboa_dlg[7].dp)) < 0 || (atoi((char*) orgcomboa_dlg[7].dp)) > MAXCOMBOALIASES-1)
+		    {
+			char buf[100];
+			snprintf(buf, 100, "Invalid dest (range 0-%d)", MAXCOMBOALIASES-1);
+			buf[99]='\0';
+			
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			ret = 1;
+		    }
+		    
+		    if(orgcomboa_dlg[3].flags & D_SELECTED)  //copy
+		    {
+			copyComboAlias((atoi((char*) orgcomboa_dlg[6].dp)),(atoi((char*) orgcomboa_dlg[7].dp)));
+			ret = -1;
+		    }
+		    
+		    if(orgcomboa_dlg[5].flags & D_SELECTED)  //swap
+		    {
+			swapComboAlias((atoi((char*) orgcomboa_dlg[6].dp)),(atoi((char*) orgcomboa_dlg[7].dp)));
+			ret = -1;
+		    }
+	    //}
     }
-    
-    // 10,11=ins, del
-    if(orgcomboa_dlg[10].flags & D_SELECTED)  //insert
-    {
-        for(int j=MAXCOMBOALIASES-1; j>iSrc; --j)  copyComboAlias(j-1,j);
-        
-        return ret;
-    }
-    
-    if(orgcomboa_dlg[11].flags & D_SELECTED)  //delete
-    {
-        for(int j=iSrc; j<MAXCOMBOALIASES-1; ++j)  copyComboAlias(j+1,j);
-        
-        return ret;
-    }
-    
-    if(iSrc == iDest)
-    {
-        jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-        return ret;
-    }
-    
-    if(iDest < 0 || iDest > MAXCOMBOALIASES-1)
-    {
-        char buf[60];
-        snprintf(buf, 60, "Invalid dest (range 0-%d)", MAXCOMBOALIASES-1);
-        buf[59]='\0';
-        
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-        return ret;
-    }
-    
-    if(orgcomboa_dlg[3].flags & D_SELECTED)  //copy
-    {
-        copyComboAlias(iSrc,iDest);
-    }
-    
-    if(orgcomboa_dlg[5].flags & D_SELECTED)  //swap
-    {
-        swapComboAlias(iSrc,iDest);
-    }
-    
-    
+    while(ret==1);
     return ret;
 }
 
@@ -18504,7 +19345,7 @@ static int ffcombo_data_list[] =
 
 static int ffcombo_flag_list[] =
 {
-    31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,-1
+    31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,78,79,80,81,-1
 };
 
 static int ffcombo_arg_list[] =
@@ -18621,6 +19462,12 @@ static DIALOG ffcombo_dlg[] =
     { jwin_edit_proc,      140+10,  43+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
     { jwin_text_proc,      220, 151+20,   24,    36,   0,        0,       0,       0,          0,             0, (void*) "", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //78 new ffc flags
+    { jwin_check_proc,    154+10,  45+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Ign. Changers", NULL, NULL },
+    { jwin_check_proc,    154+10,  55+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Solid", NULL, NULL },
+    { jwin_check_proc,    154+10,  65+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Imprecision", NULL, NULL },
+    { jwin_check_proc,    154+10,  75+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Inv. to Lens", NULL, NULL },
+  
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -18730,6 +19577,26 @@ script_struct biffs[NUMSCRIPTFFC]; //ff script
 int biffs_cnt = -1;
 script_struct biitems[NUMSCRIPTFFC]; //item script
 int biitems_cnt = -1;
+script_struct binpcs[NUMSCRIPTGUYS]; //npc script
+int binpcs_cnt = -1;
+
+script_struct bilweapons[NUMSCRIPTWEAPONS]; //lweapon script
+int bilweapons_cnt = -1;
+
+script_struct bieweapons[NUMSCRIPTWEAPONS]; //eweapon script
+int bieweapons_cnt = -1;
+
+script_struct bilinks[NUMSCRIPTLINK]; //link script
+int bilinks_cnt = -1;
+
+script_struct biscreens[NUMSCRIPTSCREEN]; //screen (screendata) script
+int biscreens_cnt = -1;
+
+script_struct bidmaps[NUMSCRIPTSDMAP]; //dmap (dmapdata) script
+int bidmaps_cnt = -1;
+
+script_struct biditemsprites[NUMSCRIPTSITEMSPRITE]; //dmap (dmapdata) script
+int biitemsprites_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biffs_list()
@@ -18774,6 +19641,308 @@ void build_biffs_list()
             biffs_cnt = i+1;
 }
 
+//npc scripts
+void build_binpcs_list()
+{
+    binpcs[0].first = "(None)";
+    binpcs[0].second = -1;
+    binpcs_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTGUYS - 1; i++)
+    {
+        if(npcmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << npcmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        binpcs[binpcs_cnt].first = ss.str();
+        binpcs[binpcs_cnt].second = i;
+        binpcs_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=binpcs_cnt; i<NUMSCRIPTGUYS; i++)
+    {
+        binpcs[i].first="";
+        binpcs[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < binpcs_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < binpcs_cnt; j++)
+        {
+            if(stricmp(binpcs[i].first.c_str(),binpcs[j].first.c_str()) > 0 && strcmp(binpcs[j].first.c_str(),""))
+                zc_swap(binpcs[i],binpcs[j]);
+        }
+    }
+    
+    binpcs_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTGUYS; i++)
+        if(binpcs[i].first.length() > 0)
+            binpcs_cnt = i+1;
+}
+
+
+//lweapon scripts
+void build_bilweapons_list()
+{
+    bilweapons[0].first = "(None)";
+    bilweapons[0].second = -1;
+    bilweapons_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
+    {
+        if(lwpnmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << lwpnmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bilweapons[bilweapons_cnt].first = ss.str();
+        bilweapons[bilweapons_cnt].second = i;
+        bilweapons_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bilweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
+    {
+        bilweapons[i].first="";
+        bilweapons[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bilweapons_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bilweapons_cnt; j++)
+        {
+            if(stricmp(bilweapons[i].first.c_str(),bilweapons[j].first.c_str()) > 0 && strcmp(bilweapons[j].first.c_str(),""))
+                zc_swap(bilweapons[i],bilweapons[j]);
+        }
+    }
+    
+    bilweapons_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+        if(bilweapons[i].first.length() > 0)
+            bilweapons_cnt = i+1;
+}
+
+//eweapon scripts
+void build_bieweapons_list()
+{
+    bieweapons[0].first = "(None)";
+    bieweapons[0].second = -1;
+    bieweapons_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
+    {
+        if(ewpnmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << ewpnmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bieweapons[bieweapons_cnt].first = ss.str();
+        bieweapons[bieweapons_cnt].second = i;
+        bieweapons_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bieweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
+    {
+        bieweapons[i].first="";
+        bieweapons[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bieweapons_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bieweapons_cnt; j++)
+        {
+            if(stricmp(bieweapons[i].first.c_str(),bieweapons[j].first.c_str()) > 0 && strcmp(bieweapons[j].first.c_str(),""))
+                zc_swap(bieweapons[i],bieweapons[j]);
+        }
+    }
+    
+    bieweapons_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+        if(bieweapons[i].first.length() > 0)
+            bieweapons_cnt = i+1;
+}
+
+//link scripts
+void build_bilinks_list()
+{
+    bilinks[0].first = "(None)";
+    bilinks[0].second = -1;
+    bilinks_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTLINK - 1; i++)
+    {
+        if(linkmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << linkmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bilinks[bilinks_cnt].first = ss.str();
+        bilinks[bilinks_cnt].second = i;
+        bilinks_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bilinks_cnt; i<NUMSCRIPTLINK; i++)
+    {
+        bilinks[i].first="";
+        bilinks[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bilinks_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bilinks_cnt; j++)
+        {
+            if(stricmp(bilinks[i].first.c_str(),bilinks[j].first.c_str()) > 0 && strcmp(bilinks[j].first.c_str(),""))
+                zc_swap(bilinks[i],bilinks[j]);
+        }
+    }
+    
+    bilinks_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTLINK; i++)
+        if(bilinks[i].first.length() > 0)
+            bilinks_cnt = i+1;
+}
+
+//dmap scripts
+void build_bidmaps_list()
+{
+    bidmaps[0].first = "(None)";
+    bidmaps[0].second = -1;
+    bidmaps_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTSDMAP - 1; i++)
+    {
+        if(dmapmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << dmapmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bidmaps[bidmaps_cnt].first = ss.str();
+        bidmaps[bidmaps_cnt].second = i;
+        bidmaps_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bidmaps_cnt; i<NUMSCRIPTSDMAP; i++)
+    {
+        bidmaps[i].first="";
+        bidmaps[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bidmaps_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bidmaps_cnt; j++)
+        {
+            if(stricmp(bidmaps[i].first.c_str(),bidmaps[j].first.c_str()) > 0 && strcmp(bidmaps[j].first.c_str(),""))
+                zc_swap(bidmaps[i],bidmaps[j]);
+        }
+    }
+    
+    bidmaps_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+        if(bidmaps[i].first.length() > 0)
+            bidmaps_cnt = i+1;
+}
+
+//screen scripts
+void build_biscreens_list()
+{
+    biscreens[0].first = "(None)";
+    biscreens[0].second = -1;
+    biscreens_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTSCREEN - 1; i++)
+    {
+        if(screenmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << screenmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        biscreens[biscreens_cnt].first = ss.str();
+        biscreens[biscreens_cnt].second = i;
+        biscreens_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=biscreens_cnt; i<NUMSCRIPTSCREEN; i++)
+    {
+        biscreens[i].first="";
+        biscreens[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < biscreens_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < biscreens_cnt; j++)
+        {
+            if(stricmp(biscreens[i].first.c_str(),biscreens[j].first.c_str()) > 0 && strcmp(biscreens[j].first.c_str(),""))
+                zc_swap(biscreens[i],biscreens[j]);
+        }
+    }
+    
+    biscreens_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTSCREEN; i++)
+        if(biscreens[i].first.length() > 0)
+            biscreens_cnt = i+1;
+}
+
+//screen scripts
+void build_biitemsprites_list()
+{
+    biditemsprites[0].first = "(None)";
+    biditemsprites[0].second = -1;
+    biitemsprites_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTSITEMSPRITE - 1; i++)
+    {
+        if(itemspritemap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << itemspritemap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        biditemsprites[biitemsprites_cnt].first = ss.str();
+        biditemsprites[biitemsprites_cnt].second = i;
+        biitemsprites_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=biitemsprites_cnt; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        biditemsprites[i].first="";
+        biditemsprites[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < biitemsprites_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < biitemsprites_cnt; j++)
+        {
+            if(stricmp(biditemsprites[i].first.c_str(),biditemsprites[j].first.c_str()) > 0 && strcmp(biditemsprites[j].first.c_str(),""))
+                zc_swap(biditemsprites[i],biditemsprites[j]);
+        }
+    }
+    
+    biitemsprites_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
+        if(biditemsprites[i].first.length() > 0)
+            biitemsprites_cnt = i+1;
+}
+
 void build_biitems_list()
 {
     biitems[0].first = "(None)";
@@ -18816,6 +19985,28 @@ const char *ffscriptlist(int index, int *list_size)
     }
     
     return biffs[index].first.c_str();
+}
+
+const char *lweaponscriptlist(int index, int *list_size)
+{
+    if(index < 0)
+    {
+        *list_size = bilweapons_cnt;
+        return NULL;
+    }
+    
+    return bilweapons[index].first.c_str();
+}
+
+const char *npcscriptlist(int index, int *list_size)
+{
+    if(index < 0)
+    {
+        *list_size = binpcs_cnt;
+        return NULL;
+    }
+    
+    return binpcs[index].first.c_str();
 }
 
 static char itemscript_str_buf[32];
@@ -18901,17 +20092,23 @@ const char *gscriptlist2(int index, int *list_size)
             buf[19]='\0';
         }
         
-        if(index==0)
-            sprintf(gscript_str_buf2,"Initialization: %s", buf);
-            
-        if(index==1)
-            sprintf(gscript_str_buf2,"Active: %s", buf);
-            
-        if(index==2)
-            sprintf(gscript_str_buf2,"onExit: %s", buf);
-            
-        if(index==3)
-            sprintf(gscript_str_buf2,"onContinue: %s", buf);
+        switch(index)
+        {
+            case GLOBAL_SCRIPT_INIT:
+                sprintf(gscript_str_buf2,"Initialization: %s", buf); break;
+            case GLOBAL_SCRIPT_GAME:
+                sprintf(gscript_str_buf2,"Active: %s", buf); break;
+            case GLOBAL_SCRIPT_END:
+                sprintf(gscript_str_buf2,"onExit: %s", buf); break;
+            case GLOBAL_SCRIPT_ONSAVELOAD:
+                sprintf(gscript_str_buf2,"onSaveLoad: %s", buf); break;
+            case GLOBAL_SCRIPT_ONLAUNCH:
+                sprintf(gscript_str_buf2,"onLaunch: %s", buf); break;
+            case GLOBAL_SCRIPT_ONCONTGAME:
+                sprintf(gscript_str_buf2,"onContGame: %s", buf); break;
+            case GLOBAL_SCRIPT_F6:
+                sprintf(gscript_str_buf2,"onF6Menu: %s", buf); break;
+        }
             
         return gscript_str_buf2;
     }
@@ -18928,17 +20125,25 @@ static DIALOG compile_dlg[] =
     { jwin_win_proc,		0,		0,		200,	118,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile ZScript", NULL, NULL },
     { jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
     { jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	'e',	D_EXIT,	0,	0,	(void *) "&Edit", NULL, NULL },
-    { jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'i',	D_EXIT,	0,	0,	(void *) "&Import", NULL, NULL },
+    { jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'l',	D_EXIT,	0,	0,	(void *) "&Load", NULL, NULL },
     { jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes, NULL, NULL },
     { jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
     { jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+     { jwin_text_proc,		8,		25,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zLastVer, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,   NULL,  NULL }
 };
 
 static int as_ffc_list[] = { 4, 5, 6, -1};
 static int as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not place my message only on the global tab? ~Joe
 static int as_item_list[] = { 10, 11, 12, -1};
+static int as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
+static int as_lweapon_list[] = { 21, 22, 23, -1}; //lweapon scripts TAB
+static int as_eweapon_list[] = { 24, 25, 26, -1}; //eweapon scripts TAB
+static int as_link_list[] = { 27, 28, 29, -1}; //link scripts TAB
+static int as_screen_list[] = { 30, 31, 32, -1}; //screendata scripts TAB
+static int as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
+static int as_itemsprite_list[] = { 36, 37, 38, -1}; //dmapdata scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -18946,6 +20151,13 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"FFC",     D_SELECTED,  as_ffc_list,    0, NULL },
     { (char *)"Global",	 0,         as_global_list, 0, NULL },
     { (char *)"Item",		 0,         as_item_list,   0, NULL },
+    { (char *)"NPC",		 0,         as_npc_list,   0, NULL },
+    { (char *)"LWeapon",		 0,         as_lweapon_list,   0, NULL },
+    { (char *)"EWeapon",		 0,         as_eweapon_list,   0, NULL },
+    { (char *)"Hero",		 0,         as_link_list,   0, NULL },
+    { (char *)"DMap",		 0,         as_dmap_list,   0, NULL },
+    { (char *)"Screen",		 0,         as_screen_list,   0, NULL },
+    { (char *)"Item Sprite",		 0,         as_itemsprite_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -18981,6 +20193,82 @@ const char *assignitemlist(int index, int *list_size)
     
     return itemmap[index].first.c_str();
 }
+const char *assignnpclist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)npcmap.size();
+        return NULL;
+    }
+    
+    return npcmap[index].first.c_str();
+}
+
+const char *assignlweaponlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)lwpnmap.size();
+        return NULL;
+    }
+    
+    return lwpnmap[index].first.c_str();
+}
+
+const char *assigneweaponlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)ewpnmap.size();
+        return NULL;
+    }
+    
+    return ewpnmap[index].first.c_str();
+}
+
+const char *assignlinklist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)linkmap.size();
+        return NULL;
+    }
+    
+    return linkmap[index].first.c_str();
+}
+
+const char *assigndmaplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)dmapmap.size();
+        return NULL;
+    }
+    
+    return dmapmap[index].first.c_str();
+}
+
+const char *assignscreenlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)screenmap.size();
+        return NULL;
+    }
+    
+    return screenmap[index].first.c_str();
+}
+
+const char *assignitemspritelist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)itemspritemap.size();
+        return NULL;
+    }
+    
+    return itemspritemap[index].first.c_str();
+}
 
 const char *assignffcscriptlist(int index, int *list_size)
 {
@@ -19015,38 +20303,544 @@ const char *assignitemscriptlist(int index, int *list_size)
     return asitemscripts[index].c_str();
 }
 
+const char *assignnpcscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asnpcscripts.size();
+        return NULL;
+    }
+    
+    return asnpcscripts[index].c_str();
+}
+
+const char *assignlweaponscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)aslweaponscripts.size();
+        return NULL;
+    }
+    
+    return aslweaponscripts[index].c_str();
+}
+
+const char *assigneweaponscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)aseweaponscripts.size();
+        return NULL;
+    }
+    
+    return aseweaponscripts[index].c_str();
+}
+
+const char *assignlinkscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)aslinkscripts.size();
+        return NULL;
+    }
+    
+    return aslinkscripts[index].c_str();
+}
+
+const char *assigndmapscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asdmapscripts.size();
+        return NULL;
+    }
+    
+    return asdmapscripts[index].c_str();
+}
+
+const char *assignscreenscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asscreenscripts.size();
+        return NULL;
+    }
+    
+    return asscreenscripts[index].c_str();
+}
+
+const char *assignitemspritescriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asitemspritescripts.size();
+        return NULL;
+    }
+    
+    return asitemspritescripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
 static ListData assignglobalscript_list(assignglobalscriptlist, &font);
 static ListData assignitem_list(assignitemlist, &font);
 static ListData assignitemscript_list(assignitemscriptlist, &font);
+static ListData assignnpc_list(assignnpclist, &font);
+static ListData assignnpcscript_list(assignnpcscriptlist, &font);
+static ListData assignlweapon_list(assignlweaponlist, &font);
+static ListData assignlweaponscript_list(assignlweaponscriptlist, &font);
+static ListData assigneweapon_list(assigneweaponlist, &font);
+static ListData assigneweaponscript_list(assigneweaponscriptlist, &font);
 
+static ListData assignlink_list(assignlinklist, &font);
+static ListData assignlinkscript_list(assignlinkscriptlist, &font);
+
+static ListData assigndmap_list(assigndmaplist, &font);
+static ListData assigndmapscript_list(assigndmapscriptlist, &font);
+
+static ListData assignscreen_list(assignscreenlist, &font);
+static ListData assignscreenscript_list(assignscreenscriptlist, &font);
+
+static ListData assignitemsprite_list(assignitemspritelist, &font);
+static ListData assignitemspritescript_list(assignitemspritescriptlist, &font);
+	
 static DIALOG assignscript_dlg[] =
 {
     //						x		y		w		h		fg		bg		key	flags	d1	d2	dp
-    { jwin_win_proc,		  0,	0,		320,	220,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Assign Compiled Script", NULL, NULL },
-    { jwin_tab_proc,		  6,	25,		308,	130,	0,		0,		0,	0,		0,  0,  assignscript_tabs, NULL, (void*)assignscript_dlg },
+    { jwin_win_proc,		  0,	0,		330,	220,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Assign Compiled Script", NULL, NULL },
+    { jwin_tab_proc,		  6,	25,		330-12,	130,	0,		0,		0,	0,		0,  0,  assignscript_tabs, NULL, (void*)assignscript_dlg },
     { jwin_button_proc,	  251,	191,	61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
     { jwin_button_proc,	  182,	191,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffc_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
+    //6
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobal_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobalscript_list, NULL, NULL },
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobalscript_list, NULL, NULL },
+    //9
+    { jwin_button_proc,	  154+5,	93,	15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitem_list, NULL, NULL },
-    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemscript_list, NULL, NULL },
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
-    
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemscript_list, NULL, NULL },
+    //12
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //13
     { jwin_check_proc,      22,  195,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
     { jwin_text_proc,       22,  158,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked", NULL, NULL },
     { jwin_text_proc,       22,  168,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with ** were not found in the buffer and will not function.", NULL, NULL },
+    //16
     { jwin_text_proc,       22,  178,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //npc scripts
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpc_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpcscript_list, NULL, NULL },
+    //20
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //21
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweapon_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweaponscript_list, NULL, NULL },
+    //23
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //24
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigneweapon_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigneweaponscript_list, NULL, NULL },
+    //26
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //27
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlink_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlinkscript_list, NULL, NULL },
+    //29
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //30
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignscreen_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignscreenscript_list, NULL, NULL },
+    //32
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //33
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigndmap_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigndmapscript_list, NULL, NULL },
+    //35
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //36
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemsprite_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemspritescript_list, NULL, NULL },
+    //38
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
 };
+
+static int zscript_settings_scripts_list[] =
+{
+	6, 18, 22, -1
+};
+
+static int zscript_settings_instructions_list[] =
+{
+	7, 8, 15, 16, 19, 20, 23, -1
+};
+
+static int zscript_settings_objects_list[] =
+{
+	12, 13, 14, 24, -1
+};
+
+static int zscript_settings_drawing_list[] =
+{
+	9, 11, -1
+};
+
+static int zscript_settings_bugfixes_list[] =
+{
+	10, 17, 21, -1
+};
+
+static TABPANEL zscript_settings_tabs[] =
+{
+    // (text)
+    { (char *)" Scripts ",         D_SELECTED,  zscript_settings_scripts_list, 0, NULL },
+    { (char *)" Instructions ",    0,           zscript_settings_instructions_list, 0, NULL },
+    { (char *)" Objects ",         0,           zscript_settings_objects_list, 0, NULL },
+    { (char *)" Drawing ",         0,           zscript_settings_drawing_list, 0, NULL },
+    { (char *)" Bugfixes ",        0,           zscript_settings_bugfixes_list, 0, NULL },
+    { NULL,              0,           NULL,             0, NULL }
+};
+
+static DIALOG zscript_settings_dlg[] =
+{
+	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Settings", NULL, NULL },
+	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+	{ jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) zscript_settings_tabs, NULL, (void *)zscript_settings_dlg },
+	// 3
+	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+	
+	// rules //6
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Item Script Waitdraw()", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No FFC Waitdraw()", NULL, NULL },
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
+	// 10
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fix Scripts Running During Scrolling", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
+	{ jwin_check_proc,      10, 33+10,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Have Shadows", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Have Shadows", NULL, NULL },
+	// 15
+	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old eweapon->Parent", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Args for CreateBitmap() and bitmap->Create()", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Game->Misc[] is not *10000", NULL, NULL },
+	{ jwin_check_proc,      10, 33+20,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Clear InitD[] on Script Change", NULL, NULL },
+	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Print Script Metadata on Traces", NULL, NULL },
+	// 20
+	{ jwin_check_proc,      10, 33+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing to INPUT Overrides Drunk State", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Always Deallocate Arrays", NULL, NULL },
+	{ jwin_check_proc,      10, 33+30,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hero OnDeath script runs AFTER engine death animation", NULL, NULL },
+	{ jwin_check_proc,      10, 33+70,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Don't Allow Setting Action to Rafting", NULL, NULL },
+	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons Live One Extra Frame With WDS_DEAD", NULL, NULL },
+	
+	
+	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+
+static int zscriptrules[] =
+{
+    qr_ITEMSCRIPTSKEEPRUNNING, qr_NOITEMWAITDRAW, qr_NOFFCWAITDRAW, 
+	qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,qr_LINKXY_IS_FLOAT,
+	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS,qr_OLDQUESTMISC,qr_CLEARINITDONSCRIPTCHANGE,
+	qr_TRACESCRIPTIDS,qr_FIXDRUNKINPUTS, qr_ALWAYS_DEALLOCATE_ARRAYS, qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,
+	qr_DISALLOW_SETTING_RAFTING, qr_WEAPONS_EXTRA_FRAME,
+    -1
+};
+
+int onZScriptSettings()
+{
+    if(is_large)
+        large_dialog(zscript_settings_dlg);
+        
+    zscript_settings_dlg[0].dp2=lfont;
+    
+    for(int i=0; zscriptrules[i]!=-1; i++)
+    {
+        zscript_settings_dlg[i+6].flags = get_bit(quest_rules,zscriptrules[i]) ? D_SELECTED : 0;
+    }
+    
+    int ret = zc_popup_dialog(zscript_settings_dlg,4);
+    
+    if(ret==4)
+    {
+        saved=false;
+        
+        for(int i=0; zscriptrules[i]!=-1; i++)
+        {
+            set_bit(quest_rules, zscriptrules[i], zscript_settings_dlg[i+6].flags & D_SELECTED);
+        }
+    }
+    
+    return D_O_K;
+}
+
+static int compiler_tab_list_global[] =
+{
+	10,11,12,13,14,15,16,18,19,20,21,
+	-1
+};
+
+static int compiler_tab_list_quest[] =
+{
+    6,7,8,9,17,22,23,
+	-1
+};
+
+static TABPANEL compiler_options_tabs[] =
+{
+    // (text)
+    { (char *)"Global Options",  D_SELECTED,  compiler_tab_list_global, 0, NULL },
+    { (char *)"Quest-Specific Options",  0,           compiler_tab_list_quest, 0, NULL },
+    { NULL,         0,           NULL, 0, NULL }
+};
+
+
+//static char zcompiler_halttype_str_buf[32];
+
+const char *zcompiler_haltlist(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,1);
+        
+	switch(index)
+        {
+        case 0:
+            return "Halt";
+            
+        case 1:
+            return "Do Not Halt";
+        }
+	
+    }
+    
+    *list_size = 2;
+    return NULL;
+}
+
+static ListData zcompiler_halt_list(zcompiler_haltlist, &pfont);
+
+const char *zcompiler_guardlist(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,3);
+        
+	switch(index)
+        {
+        case 0:
+            return "Disable";
+            
+        case 1:
+            return "Enable";
+	
+	case 2:
+            return "Error, Enable";
+	
+	case 3:
+            return "Warn, Enable";
+        }
+	
+    }
+    
+    *list_size = 4;
+    return NULL;
+}
+
+static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
+
+
+const char *zcompiler_num_include_paths(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,MAX_INCLUDE_PATHS);
+        
+	switch(index)
+        {
+            
+	case 0:
+	    return "0";
+        case 1:
+            return "1";
+	case 2:
+            return "2";
+	case 3:
+            return "3";
+	case 4:
+            return "4";
+	case 5:
+            return "5";
+        }
+	
+    }
+    
+    *list_size = MAX_INCLUDE_PATHS+1;
+    return NULL;
+}
+
+static ListData zcompiler_number_include_paths_list(zcompiler_num_include_paths, &pfont);
+
+
+
+
+char tempincludepath[(MAX_INCLUDE_PATHS+1)*512];
+char temprunstring[21];
+
+static DIALOG zscript_parser_dlg[] =
+{
+    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    //{ d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+    { jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) compiler_options_tabs,     NULL, (void *)zscript_parser_dlg },
+    // 3
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    
+    // rules //6
+    { jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
+    { jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
+    { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
+    { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
+    //10
+    { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
+    { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
+   
+    { jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": On Error",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_halt_list,						 NULL,   NULL 				   },
+    { jwin_text_proc,           86,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": Header Guard",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
+    { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) "Include Paths:",                  NULL,   NULL                  },
+    //17
+    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True MAX_INT sizing", NULL, NULL },
+   
+    { jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": Max Include Paths",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_number_include_paths_list,						 NULL,   NULL 				   },
+    
+    //20 run function
+    { jwin_edit_proc,    16,  102-11,   50,  16,   vc(11),  vc(1),  0,       0,          64,            0,       temprunstring, NULL, NULL },
+    { jwin_text_proc,           68,     102-8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) "void run()' label:",                  NULL,   NULL                  },
+    { d_dummy_proc,      10, 32+60+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Inline all possible functions", NULL, NULL },
+    { jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
+    
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+
+static int zscripparsertrules[] =
+{
+	qr_PARSER_250DIVISION,
+	qr_PARSER_NO_LOGGING,
+	qr_PARSER_SHORT_CIRCUIT,
+	qr_PARSER_BOOL_TRUE_DECIMAL,
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	qr_PARSER_TRUE_INT_SIZE,
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	qr_PARSER_FORCE_INLINE,
+	qr_32BIT_BINARY,
+    -1
+};
+
+int onZScriptCompilerSettings()
+{
+    if(is_large)
+        large_dialog(zscript_parser_dlg);
+        
+    zscript_parser_dlg[0].dp2=lfont;
+    
+    zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
+    zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
+    zscript_parser_dlg[19].d1 = get_config_int("Compiler","number_of_include_paths",5);
+    
+    //memset(tempincludepath,0,sizeof(tempincludepath));
+    strcpy(tempincludepath,FFCore.includePathString);
+    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+    zscript_parser_dlg[10].dp = tempincludepath;
+    
+    //run label
+    strcpy(temprunstring,FFCore.scriptRunString);
+    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+    zscript_parser_dlg[20].dp = temprunstring;
+   
+    for(int i=0; zscripparsertrules[i]!=-1; i++)
+    {
+	    //This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
+	    //These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
+	    for ( int q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
+	    {
+		if ( compiler_tab_list_global[q] == i ) continue;
+		    
+	    }
+        zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
+    }
+    
+ 
+    
+    int ret = zc_popup_dialog(zscript_parser_dlg,4);
+    
+    if(ret==4)
+    {
+        saved=false;
+        
+        for(int i=0; zscripparsertrules[i]!=-1; i++)
+        {
+            set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
+        }
+	al_trace("Current include path string: %s\n", tempincludepath);
+	memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
+	strcpy(FFCore.includePathString,tempincludepath);
+	//set_config_string("Compiler","include_path",FFCore.includePathString);
+	set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
+	set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+	set_config_int("Compiler","number_of_include_paths",zscript_parser_dlg[19].d1);
+	memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
+	strcpy(FFCore.scriptRunString,temprunstring);
+	al_trace("Run string set to: %s\n",FFCore.scriptRunString);
+	save_config_file();
+	FFCore.updateIncludePaths();
+        memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
+	
+	
+    }
+    
+    return D_O_K;
+}
+
+void centre_zscript_dialogs()
+{
+    jwin_center_dialog(zscript_settings_dlg);
+    jwin_center_dialog(zscript_parser_dlg);
+}
 
 //editbox_data zscript_edit_data;
 
@@ -19122,6 +20916,322 @@ static DIALOG gscript_sel_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
+//npc script slots
+static char npcscript_str_buf2[32];
+
+const char *npcscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(npcmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, npcmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(npcscript_str_buf2,"%d: %s",index+1, buf);
+        return npcscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTGUYS-1);
+    return NULL;
+}
+
+
+static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
+
+static DIALOG npcscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &npcscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+//lweapon scripts
+static char lweaponscript_str_buf2[32];
+
+const char *lweaponscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(lwpnmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, lwpnmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(lweaponscript_str_buf2,"%d: %s",index+1, buf);
+        return lweaponscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTWEAPONS-1);
+    return NULL;
+}
+
+
+static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font);
+
+static DIALOG lweaponscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &lweaponscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+static char eweaponscript_str_buf2[32];
+
+const char *eweaponscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(ewpnmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, ewpnmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(eweaponscript_str_buf2,"%d: %s",index+1, buf);
+        return eweaponscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTWEAPONS-1);
+    return NULL;
+}
+
+static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
+
+static DIALOG eweaponscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &eweaponscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+static char linkscript_str_buf2[32];
+
+const char *linkscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,3);
+        
+        if(linkmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, linkmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+	
+	if(index==0)
+            sprintf(linkscript_str_buf2,"Init: %s", buf);
+            
+        if(index==1)
+            sprintf(linkscript_str_buf2,"Active: %s", buf);
+	
+	if(index==2)
+            sprintf(linkscript_str_buf2,"Death: %s", buf);
+            
+        
+        //sprintf(linkscript_str_buf2,"%d: %s",index+1, buf);
+        return linkscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTLINK-1);
+    return NULL;
+}
+
+static char itemspritescript_str_buf2[32];
+
+const char *itemspritescriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(itemspritemap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, itemspritemap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(itemspritescript_str_buf2,"%d: %s",index+1, buf);
+        return itemspritescript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTSITEMSPRITE-1);
+    return NULL;
+}
+
+
+static ListData linkscript_sel_dlg_list(linkscriptlist2, &font);
+
+static DIALOG linkscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &linkscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+static char dmapscript_str_buf2[32];
+
+const char *dmapscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(dmapmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, dmapmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(dmapscript_str_buf2,"%d: %s",index+1, buf);
+        return dmapscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTSDMAP-1);
+    return NULL;
+}
+
+static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font);
+
+static DIALOG dmapscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &dmapscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+//static char itemspritescript_str_buf2[32];
+/*
+const char *itemspritescriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(itemspritemap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, itemspritemap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(itemspritescript_str_buf2,"%d: %s",index+1, buf);
+        return itemspritescript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTSITEMSPRITE-1);
+    return NULL;
+}
+*/
+static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font);
+
+static DIALOG itemspritescript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &itemspritescript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+static char screenscript_str_buf2[32];
+
+const char *screenscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(screenmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, screenmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(screenscript_str_buf2,"%d: %s",index+1, buf);
+        return screenscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTSCREEN-1);
+    return NULL;
+}
+
+static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
+
+static DIALOG screenscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &screenscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+
 
 int onCompileScript()
 {
@@ -19133,6 +21243,7 @@ int onCompileScript()
     for(;;) //while(true)
     {
         sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
+	sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
         int ret = zc_popup_dialog(compile_dlg,5);
         
         switch(ret)
@@ -19185,7 +21296,7 @@ int onCompileScript()
         case 6:
             //Export
         {
-            if(!getname("Save ZScript (.z)", "z", NULL,datapath,false))
+            if(!getname("Save ZScript (.zs)", "zs", NULL,datapath,false))
                 break;
                 
             if(exists(temppath))
@@ -19227,8 +21338,82 @@ int onCompileScript()
             gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
             ZScript::ScriptsData *result = ZScript::compile("tmp");
             unlink("tmp");
+	    if ( result )
+	    {
+		compile_tune = get_config_int("Compiler","Compile_Success_Tune",0);
+		//al_trace("Succ, play compiled sfx.\n");
+		//set_volume(255,255);
+		//al_trace("success sfx is: %s \n", sfx_init(20) ? "valid" : "invalid");
+		//kill_sfx(); //crashes
+		//sfx(20, 128, false,true);//has no volume   
+		//try_zcmusic("compile_success.smc", track, -1000);
+		//if ( (unsigned)compile_tune < 19 ) 
+		//{
+			switch(compile_tune)
+			{
+				case 1: playTune1(); break;
+				case 2: playTune2(); break;
+				case 3: playTune3(); break;
+				case 4: playTune4(); break;
+				case 5: playTune5(); break;
+				case 6: playTune6(); break;
+				case 7: playTune7(); break;
+				case 8: playTune8(); break;
+				case 9: playTune9(); break;
+				case 10: playTune10(); break;
+				case 11: playTune11(); break;
+				case 12: playTune12(); break;
+				case 13: playTune13(); break;
+				case 14: playTune14(); break;
+				case 15: playTune15(); break;
+				case 16: playTune16(); break;
+				case 17: playTune17(); break;
+				case 18: playTune18(); break;
+				case 19: playTune12(); break;
+				default: 
+				{
+					compile_success_sample = get_config_int("Compiler","compile_success_sample",20);
+					compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
+					if(sfxdat)
+					sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+					else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
+					voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
+					voice_start(sfx_voice[compile_success_sample]);
+					break;
+				}
+			}
+	    }
+	    else
+	    {
+		//al_trace("Error, play err sfx.\n");
+		    compile_error_sample = get_config_int("Compiler","compile_error_sample",20);
+		    compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
+		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
+		    if(sfxdat)
+		    sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+		    else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
+		    voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
+		//set_volume(255,-1);
+		//kill_sfx();
+		    voice_start(sfx_voice[compile_error_sample]);
+		//sfx(28, 128, false,true);  
+		    
+	    }
+	    
+	    
             box_end(true);
+	    if(sfx_voice[compile_success_sample]!=-1)
+	    {
+		deallocate_voice(sfx_voice[compile_success_sample]);
+		sfx_voice[compile_success_sample]=-1;
+	    }
+	    if(sfx_voice[compile_error_sample]!=-1)
+	    {
+		deallocate_voice(sfx_voice[compile_error_sample]);
+		sfx_voice[compile_error_sample]=-1;
+	    }
             refresh(rALL);
+	    if ( compile_tune ) stopMusic();
             
             if(result == NULL)
             {
@@ -19246,12 +21431,56 @@ int onCompileScript()
             asglobalscripts.push_back("<none>");
             asitemscripts.clear();
             asitemscripts.push_back("<none>");
+            asnpcscripts.clear();
+            asnpcscripts.push_back("<none>");
+            aseweaponscripts.clear();
+            aseweaponscripts.push_back("<none>");
+            aslweaponscripts.clear();
+            aslweaponscripts.push_back("<none>");
+            aslinkscripts.clear();
+            aslinkscripts.push_back("<none>");
+            asdmapscripts.clear();
+            asdmapscripts.push_back("<none>");
+            asscreenscripts.clear();
+            asscreenscripts.push_back("<none>");
+	    asitemspritescripts.clear();
+            asitemspritescripts.push_back("<none>");
             
             for (std::map<string, ZScript::ScriptType>::iterator it =
 	                 stypes.begin(); it != stypes.end(); ++it)
             {
 	            string const& name = it->first;
 	            ZScript::ScriptType type = it->second;
+                    if ( type == ZScript::ScriptType::ffc )
+                    {        asffcscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::item )
+                    {        asitemscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::npc )
+                    {        asnpcscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::eweapon )
+                    {        aseweaponscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::lweapon )
+                    {        aslweaponscripts.push_back(name); } 
+                    else if ( type == ZScript::ScriptType::link )
+                    {        aslinkscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::dmapdata )
+                    {        asdmapscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::screendata )
+                    {        asscreenscripts.push_back(name); }
+		    else if ( type == ZScript::ScriptType::itemsprite )
+                    {        asitemspritescripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::global )
+                    {
+                        if (name != "~Init")
+                        {
+                            asglobalscripts.push_back(name);
+                        }
+                    }
+                        
+                        
+                        
+                    
+                    /*
 	            if (type == ZScript::ScriptType::ffc)
                     asffcscripts.push_back(name);
 	            else if (type == ZScript::ScriptType::item)
@@ -19261,7 +21490,13 @@ int onCompileScript()
 	                     // script, bad things could happen
 	                     && name != "~Init")
 		            asglobalscripts.push_back(name);
+                    */
             }
+	    
+	    //scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
+	    misc.zscript_last_compiled_version = V_FFSCRIPT;
+	    FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
+	    al_trace("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
             
             assignscript_dlg[0].dp2 = lfont;
             assignscript_dlg[4].d1 = -1;
@@ -19295,10 +21530,20 @@ int onCompileScript()
                     const char* asterisks;
                     switch(i)
                     {
-                        case 0: format="Initialization: %s%s%s"; break;
-                        case 1: format="Active: %s%s%s"; break;
-                        case 2: format="onExit: %s%s%s"; break;
-                        case 3: format="onContinue: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_INIT:
+                            format="Initialization: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_GAME:
+                            format="Active: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_END:
+                            format="onExit: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONSAVELOAD:
+                            format="onSaveLoad: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONLAUNCH:
+                            format="onLaunch: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_ONCONTGAME:
+                            format="onContGame: %s%s%s"; break;
+                        case GLOBAL_SCRIPT_F6:
+                            format="onF6Menu: %s%s%s"; break;
                     }
                     if(globalmap[i].second == "")
                         asterisks="";
@@ -19319,6 +21564,97 @@ int onCompileScript()
                     else // Previously loaded script not found
                         sprintf(temp, "Slot %d: **%s**", i+1, itemmap[i].second.c_str());
                     itemmap[i].first = temp;
+                }
+                
+                for(int i = 0; i < NUMSCRIPTGUYS-1; i++)
+                {
+                    if(npcmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(npcmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, npcmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, npcmap[i].second.c_str());
+                    npcmap[i].first = temp;
+                } 
+                for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
+                {
+                    if(ewpnmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(ewpnmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, ewpnmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, ewpnmap[i].second.c_str());
+                    ewpnmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
+                {
+                    if(lwpnmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(lwpnmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, lwpnmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, lwpnmap[i].second.c_str());
+                    lwpnmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTLINK-1; i++)
+                {
+			/*
+                    if(linkmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(linkmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, linkmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, linkmap[i].second.c_str());
+                    linkmap[i].first = temp;
+			*/
+		    char buffer[64];
+                    const char* format;
+                    const char* asterisks;
+                    switch(i)
+                    {
+                        case 0: format="Init: %s%s%s"; break;
+                        case 1: format="Active: %s%s%s"; break;
+                        case 2: format="onDeath: %s%s%s"; break;
+                        case 3: format="onWin: %s%s%s"; break;
+                    }
+                    if(linkmap[i].second == "")
+                        asterisks="";
+                    else if(scripts.find(linkmap[i].second) != scripts.end())
+                        asterisks="";
+                    else // Unloaded
+                        asterisks="**";
+                    snprintf(buffer, 50, format, asterisks, linkmap[i].second.c_str(), asterisks);
+                    linkmap[i].first=buffer;
+                }
+                for(int i = 0; i < NUMSCRIPTSCREEN-1; i++)
+                {
+                    if(screenmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(screenmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, screenmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, screenmap[i].second.c_str());
+                    screenmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTSDMAP-1; i++)
+                {
+                    if(dmapmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(dmapmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, dmapmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, dmapmap[i].second.c_str());
+                    dmapmap[i].first = temp;
+                }
+		for(int i = 0; i < NUMSCRIPTSITEMSPRITE-1; i++)
+                {
+                    if(itemspritemap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(itemspritemap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, itemspritemap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, itemspritemap[i].second.c_str());
+                    itemspritemap[i].first = temp;
                 }
                 
                 if(is_large)
@@ -19461,9 +21797,304 @@ int onCompileScript()
                             itemscripts[it->first+1][0].command = 0xFFFF;
                         }
                     }
-                    
+                    for(std::map<int, pair<string,string> >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&guyscripts[it->first+1],"tmp",false);
+                        }
+                        else if(guyscripts[it->first+1])
+                        {
+                            delete[] guyscripts[it->first+1];
+                            guyscripts[it->first+1] = new ffscript[1];
+                            guyscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&lwpnscripts[it->first+1],"tmp",false);
+                        }
+                        else if(lwpnscripts[it->first+1])
+                        {
+                            delete[] lwpnscripts[it->first+1];
+                            lwpnscripts[it->first+1] = new ffscript[1];
+                            lwpnscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&ewpnscripts[it->first+1],"tmp",false);
+                        }
+                        else if(ewpnscripts[it->first+1])
+                        {
+                            delete[] ewpnscripts[it->first+1];
+                            ewpnscripts[it->first+1] = new ffscript[1];
+                            ewpnscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&linkscripts[it->first+1],"tmp",false);
+                        }
+                        else if(linkscripts[it->first+1])
+                        {
+                            delete[] linkscripts[it->first+1];
+                            linkscripts[it->first+1] = new ffscript[1];
+                            linkscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&dmapscripts[it->first+1],"tmp",false);
+                        }
+                        else if(dmapscripts[it->first+1])
+                        {
+                            delete[] dmapscripts[it->first+1];
+                            dmapscripts[it->first+1] = new ffscript[1];
+                            dmapscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&screenscripts[it->first+1],"tmp",false);
+                        }
+                        else if(screenscripts[it->first+1])
+                        {
+                            delete[] screenscripts[it->first+1];
+                            screenscripts[it->first+1] = new ffscript[1];
+                            screenscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+		    for(std::map<int, pair<string,string> >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&itemspritescripts[it->first+1],"tmp",false);
+                        }
+                        else if(itemspritescripts[it->first+1])
+                        {
+                            delete[] itemspritescripts[it->first+1];
+                            itemspritescripts[it->first+1] = new ffscript[1];
+                            itemspritescripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
                     unlink("tmp");
+		  
+		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
+		    compile_finish_sample = get_config_int("Compiler","compile_finish_sample",34);
+		    compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
+		    if(sfxdat)
+		    sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
+		    else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
+		    voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
+		//set_volume(255,-1);
+		//kill_sfx();
+		    voice_start(sfx_voice[compile_finish_sample]);
                     jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		    if(sfx_voice[compile_finish_sample]!=-1)
+		    {
+			deallocate_voice(sfx_voice[compile_finish_sample]);
+			sfx_voice[compile_finish_sample]=-1;
+		    }
                     build_biffs_list();
                     build_biitems_list();
                     
@@ -19477,7 +22108,7 @@ int onCompileScript()
                     
                     return D_O_K;
                 }
-                
+                //Left off here for the day. -Z
                 case 6:
                     //<<, FFC
                 {
@@ -19546,6 +22177,146 @@ int onCompileScript()
                     
                     break;
                 }
+		case 20:
+                    //<<, NPC
+                {
+                    int lind = assignscript_dlg[18].d1;
+                    int rind = assignscript_dlg[19].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asnpcscripts[rind] == "<none>")
+                    {
+                        npcmap[lind].second = "";
+                    }
+                    else
+                    {
+                        npcmap[lind].second = asnpcscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 23:
+                    //<<, LWeapon
+                {
+                    int lind = assignscript_dlg[21].d1;
+                    int rind = assignscript_dlg[22].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(aslweaponscripts[rind] == "<none>")
+                    {
+                        lwpnmap[lind].second = "";
+                    }
+                    else
+                    {
+                        lwpnmap[lind].second = aslweaponscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 26:
+                    //<<, EWeapon
+                {
+                    int lind = assignscript_dlg[24].d1;
+                    int rind = assignscript_dlg[25].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(aseweaponscripts[rind] == "<none>")
+                    {
+                        ewpnmap[lind].second = "";
+                    }
+                    else
+                    {
+                        ewpnmap[lind].second = aseweaponscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 29:
+                    //<<, Link
+                {
+                    int lind = assignscript_dlg[27].d1;
+                    int rind = assignscript_dlg[28].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(aslinkscripts[rind] == "<none>")
+                    {
+                        linkmap[lind].second = "";
+                    }
+                    else
+                    {
+                        linkmap[lind].second = aslinkscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 32:
+                    //<<, Screendata
+                {
+                    int lind = assignscript_dlg[30].d1;
+                    int rind = assignscript_dlg[31].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asscreenscripts[rind] == "<none>")
+                    {
+                        screenmap[lind].second = "";
+                    }
+                    else
+                    {
+                        screenmap[lind].second = asscreenscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 35:
+                    //<<, dmapdata
+                {
+                    int lind = assignscript_dlg[33].d1;
+                    int rind = assignscript_dlg[34].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asdmapscripts[rind] == "<none>")
+                    {
+                        dmapmap[lind].second = "";
+                    }
+                    else
+                    {
+                        dmapmap[lind].second = asdmapscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 38:
+                    //<<, itemsprite
+                {
+                    int lind = assignscript_dlg[36].d1;
+                    int rind = assignscript_dlg[37].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asitemspritescripts[rind] == "<none>")
+                    {
+                        itemspritemap[lind].second = "";
+                    }
+                    else
+                    {
+                        itemspritemap[lind].second = asitemspritescripts[rind];
+                    }
+                    
+                    break;
+                }
                 }
             }
             
@@ -19555,6 +22326,36 @@ int onCompileScript()
     
 // return D_O_K;//unreachable
 }
+
+//The Dialogue that loads a ZMOD Module File
+int load_zmod_module_file()
+{
+	
+    if(!getname("Load Module (.zmod)","zmod",NULL,datapath,false))
+        return D_O_K;
+    
+    FILE *tempmodule = fopen(temppath,"r");
+            
+            if(tempmodule == NULL)
+            {
+                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                return -1;
+            }
+	    
+	    
+	    //Set the module path:
+	    memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
+	    strcpy(moduledata.module_name, temppath);
+	    al_trace("New Module Path is: %s \n", moduledata.module_name);
+	    set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	    //save_game_configs();
+	    zcm.init(true); //Load the module values.
+		
+	    return D_O_K;
+}
+
+
+
 
 int onImportFFScript()
 {
@@ -19579,6 +22380,207 @@ int onImportFFScript()
                 ffcmap[ffscript_sel_dlg[5].d1].second="ASM script";
                 
             build_biffs_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportNPCScript()
+{
+    char name[20]="";
+    
+    npcscript_sel_dlg[0].dp2 = lfont;
+    npcscript_sel_dlg[2].dp = name;
+    npcscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(npcscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(npcscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&guyscripts[npcscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)npcscript_sel_dlg[2].dp)>0)
+                npcmap[npcscript_sel_dlg[5].d1].second=(char *)npcscript_sel_dlg[2].dp;
+            else
+                npcmap[npcscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_binpcs_list();
+        }
+    }
+    
+    return D_O_K;
+}
+int onImportITEMSPRITEScript()
+{
+    char name[20]="";
+    
+    itemspritescript_sel_dlg[0].dp2 = lfont;
+    itemspritescript_sel_dlg[2].dp = name;
+    itemspritescript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(itemspritescript_sel_dlg);
+        
+    int ret=zc_popup_dialog(itemspritescript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&itemspritescripts[itemspritescript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)itemspritescript_sel_dlg[2].dp)>0)
+                itemspritemap[itemspritescript_sel_dlg[5].d1].second=(char *)itemspritescript_sel_dlg[2].dp;
+            else
+                itemspritemap[itemspritescript_sel_dlg[5].d1].second="ASM script";
+                
+            build_biitemsprites_list();
+        }
+    }
+    
+    return D_O_K;
+}
+int onImportSCREENScript()
+{
+    char name[20]="";
+    
+    screenscript_sel_dlg[0].dp2 = lfont;
+    screenscript_sel_dlg[2].dp = name;
+    screenscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(screenscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(screenscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&screenscripts[screenscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)screenscript_sel_dlg[2].dp)>0)
+                screenmap[screenscript_sel_dlg[5].d1].second=(char *)screenscript_sel_dlg[2].dp;
+            else
+                screenmap[screenscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_biscreens_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportHEROScript()
+{
+    char name[20]="";
+    
+    linkscript_sel_dlg[0].dp2 = lfont;
+    linkscript_sel_dlg[2].dp = name;
+    linkscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(linkscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(linkscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&linkscripts[linkscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)linkscript_sel_dlg[2].dp)>0)
+                linkmap[linkscript_sel_dlg[5].d1].second=(char *)linkscript_sel_dlg[2].dp;
+            else
+                linkmap[linkscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bilinks_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportDMapScript()
+{
+    char name[20]="";
+    
+    dmapscript_sel_dlg[0].dp2 = lfont;
+    dmapscript_sel_dlg[2].dp = name;
+    dmapscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(dmapscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(dmapscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&dmapscripts[dmapscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)dmapscript_sel_dlg[2].dp)>0)
+                dmapmap[dmapscript_sel_dlg[5].d1].second=(char *)dmapscript_sel_dlg[2].dp;
+            else
+                dmapmap[dmapscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bidmaps_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportEWPNScript()
+{
+    char name[20]="";
+    
+    eweaponscript_sel_dlg[0].dp2 = lfont;
+    eweaponscript_sel_dlg[2].dp = name;
+    eweaponscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(eweaponscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(eweaponscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&ewpnscripts[eweaponscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)eweaponscript_sel_dlg[2].dp)>0)
+                ewpnmap[eweaponscript_sel_dlg[5].d1].second=(char *)eweaponscript_sel_dlg[2].dp;
+            else
+                ewpnmap[eweaponscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bieweapons_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportLWPNScript()
+{
+    char name[20]="";
+    
+    lweaponscript_sel_dlg[0].dp2 = lfont;
+    lweaponscript_sel_dlg[2].dp = name;
+    lweaponscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(lweaponscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(lweaponscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&lwpnscripts[lweaponscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)lweaponscript_sel_dlg[2].dp)>0)
+                lwpnmap[lweaponscript_sel_dlg[5].d1].second=(char *)lweaponscript_sel_dlg[2].dp;
+            else
+                lwpnmap[lweaponscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bilweapons_list();
         }
     }
     
@@ -19730,11 +22732,16 @@ int onEditFFCombo(int ffcombo)
     ffcombo_dlg[41].flags = (f&ffETHEREAL) ? D_SELECTED : 0;
     ffcombo_dlg[42].flags = (f&ffIGNOREHOLDUP) ? D_SELECTED : 0;
     
+    ffcombo_dlg[78].flags = (f&ffIGNORECHANGER) ? D_SELECTED : 0;
+    ffcombo_dlg[79].flags = (f&ffSOLID) ? D_SELECTED : 0;
+    ffcombo_dlg[80].flags = (f&ffIMPRECISIONCHANGER) ? D_SELECTED : 0;
+    
     ffcombo_dlg[49].flags = (f&ffSWAPNEXT) ? D_SELECTED : 0;
     ffcombo_dlg[50].flags = (f&ffSWAPPREV) ? D_SELECTED : 0;
     ffcombo_dlg[51].flags = (f&ffCHANGENEXT) ? D_SELECTED : 0;
     ffcombo_dlg[52].flags = (f&ffCHANGEPREV) ? D_SELECTED : 0;
     ffcombo_dlg[53].flags = (f&ffCHANGETHIS) ? D_SELECTED : 0;
+    ffcombo_dlg[81].flags = (f&ffLENSINVIS) ? D_SELECTED : 0;
     
     if(is_large)
         large_dialog(ffcombo_dlg);
@@ -19803,6 +22810,11 @@ int onEditFFCombo(int ffcombo)
         f |= (ffcombo_dlg[51].flags&D_SELECTED) ? ffCHANGENEXT : 0;
         f |= (ffcombo_dlg[52].flags&D_SELECTED) ? ffCHANGEPREV : 0;
         f |= (ffcombo_dlg[53].flags&D_SELECTED) ? ffCHANGETHIS : 0;
+	
+        f |= (ffcombo_dlg[78].flags&D_SELECTED) ? ffIGNORECHANGER : 0;
+        f |= (ffcombo_dlg[79].flags&D_SELECTED) ? ffSOLID : 0;
+        f |= (ffcombo_dlg[80].flags&D_SELECTED) ? ffIMPRECISIONCHANGER : 0;
+        f |= (ffcombo_dlg[81].flags&D_SELECTED) ? ffLENSINVIS : 0;
         Map.CurrScr()->ffflags[ffcombo] = f;
         
         if(Map.CurrScr()->ffdata[ffcombo]!=0)
@@ -21288,6 +24300,13 @@ void switch_in()
         
     BITMAP *ts=screen;
     screen=menu1;
+    /*
+    if (!is_large) 
+	{
+		dialogs[0].dp = (void *) the_menu;
+	}
+	else dialogs[0].dp = (void *) the_menu_large;
+    */
     jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
     screen=ts;
     zcmusic_pause(zcmusic, ZCM_RESUME);
@@ -21403,9 +24422,12 @@ int main(int argc,char **argv)
     switch(IS_BETA)
     {
     case -1:
+    {
         Z_title("ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-        break;
+        //Print the current time to allegro.log as a test.
         
+        break;
+    }
     case 1:
         Z_title("ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
         break;
@@ -21581,6 +24603,12 @@ int main(int argc,char **argv)
     
     Z_message("OK\n");                                      // Initializing Allegro...
     
+    //Initialise MODULES
+    //We'll read the data files from them, in the future, so this MUST occur here!
+    zcm.init(true);
+    //zcm.load(true);
+    zcm.debug();
+    
     Z_message("Loading data files:\n");
     
     resolve_password(datapwd);
@@ -21591,7 +24619,7 @@ int main(int argc,char **argv)
     
     Z_message("Fonts.Dat...");
     
-    if((fontsdata=load_datafile("fonts.dat"))==NULL)
+    if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -21607,20 +24635,26 @@ int main(int argc,char **argv)
     
     Z_message("ZQuest.Dat...");
     
-    if((zcdata=load_datafile("zquest.dat"))==NULL)
+    if((zcdata=load_datafile(moduledata.datafiles[zquest_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
     }
     
-    datafile_str=(char *)"zquest.dat";
+    datafile_str=moduledata.datafiles[zquest_dat];
     Z_message("OK\n");
     
+    sprintf(qstdat_str,moduledata.datafiles[qst_dat]);
+    strcat(qstdat_str,"#_SIGNATURE");
+    //al_trace("qstdat_str is: %s\n", qstdat_str);
     
     sprintf(qstdat_sig,"QST.Dat %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);
     
     Z_message("QST.Dat...");
-    PACKFILE *f=pack_fopen_password("qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+    
+    //PACKFILE *f=pack_fopen_password("qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+    //PACKFILE *f=pack_fopen_password("classic_qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+    PACKFILE *f=pack_fopen_password(qstdat_str, F_READ_PACKED, datapwd);
     
     if(!f)
     {
@@ -21660,7 +24694,7 @@ int main(int argc,char **argv)
     
     Z_message("SFX.Dat...");
     
-    if((sfxdata=load_datafile("sfx.dat"))==NULL)
+    if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
     {
         Z_error("failed %s", allegro_error);
         quit_game();
@@ -22364,7 +25398,12 @@ int main(int argc,char **argv)
                   tempmode, get_color_depth(), zq_screen_w*zqwin_scale, zq_screen_h*zqwin_scale);
         //Z_message("OK\n");
     }
-    
+    //check and log RTC date and time
+
+        for (int q = 0; q < curTimeLAST; q++) 
+        {
+            int t_time_v = FFCore.getTime(q);
+        }
     scrtmp = screen;
     hw_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
     screen = hw_screen;
@@ -22772,46 +25811,64 @@ int main(int argc,char **argv)
         memset(guy_string[i], 0, 64);
     }
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new ffscript[1];
         ffscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         itemscripts[i] = new ffscript[1];
         itemscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         guyscripts[i] = new ffscript[1];
         guyscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         screenscripts[i] = new ffscript[1];
         screenscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
         globalscripts[i] = new ffscript[1];
         globalscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        dmapscripts[i] = new ffscript[1];
+        dmapscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        itemspritescripts[i] = new ffscript[1];
+        itemspritescripts[i][0].command = 0xFFFF;
     }
     
     zScript = std::string();
@@ -22976,7 +26033,15 @@ int main(int argc,char **argv)
     time(&auto_save_time_start);
     
     FFCore.init();
-    
+	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
+	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
+	/*
+	if (!is_large) 
+	{
+		dialogs[0].dp = (void *) the_menu;
+	}
+	else dialogs[0].dp = (void *) the_menu_large;
+        */
     while(!quit)
     {
     
@@ -22997,8 +26062,14 @@ int main(int argc,char **argv)
 #endif
         
         check_autosave();
-        
-        
+        /*
+	if (!is_large) 
+	{
+		dialogs[0].dp = (void *) the_menu;
+	}
+	else
+		dialogs[0].dp = (void *) the_menu_large;
+        */
         ++alignment_arrow_timer;
         
         if(alignment_arrow_timer>63)
@@ -23010,13 +26081,13 @@ int main(int argc,char **argv)
         {
             static char ca_menu_str[40];
             sprintf(ca_menu_str,"%s\tA",catchall_string[Map.CurrScr()->room]);
-            data_menu[13].text=ca_menu_str;
-            data_menu[13].flags=commands[cmdCatchall].flags=0;
+            room_menu[3].text=ca_menu_str;
+            room_menu[3].flags=commands[cmdCatchall].flags=0;
         }
         else
         {
-            data_menu[13].text=(char *)"Catch All\tA";
-            data_menu[13].flags=commands[cmdCatchall].flags=D_DISABLED;
+            room_menu[3].text=(char *)"Catch All\tA";
+            room_menu[3].flags=commands[cmdCatchall].flags=D_DISABLED;
         }
         
         file_menu[2].flags =
@@ -23070,10 +26141,12 @@ int main(int argc,char **argv)
                     commands[cmdDelete].flags = (Map.CurrScr()->valid&mVALID) ? 0 : D_DISABLED;
                     
         tool_menu[0].flags =
-            data_menu[7].flags =
-                commands[cmdTemplate].flags =
-                    commands[cmdDoors].flags = (Map.getCurrScr()<TEMPLATE) ? 0 : D_DISABLED;
+            //data_menu[7].flags = //Allow setting doors on template screens > 0x82. -Z ( 24th March, 2019 )
+                commands[cmdTemplate].flags = (Map.getCurrScr()<TEMPLATE) ? 0 : D_DISABLED;
                     
+	data_menu[7].flags = //Allow setting doors on template screens > 0x82. -Z ( 1st July, 2019 )
+		commands[cmdDoors].flags = (Map.getCurrScr()<0x88) ? 0 : D_DISABLED;
+		
         defs_menu[1].flags =
             commands[cmdDefault_Tiles].flags = 0;
             
@@ -23265,39 +26338,53 @@ void quit_game()
     
     al_trace("Cleaning script buffer. \n");
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         if(ffscripts[i]!=NULL) delete [] ffscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         if(itemscripts[i]!=NULL) delete [] itemscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         if(guyscripts[i]!=NULL) delete [] guyscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete [] screenscripts[i];
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
         if(globalscripts[i]!=NULL) delete [] globalscripts[i];
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        if(itemspritescripts[i]!=NULL) delete [] itemspritescripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");
@@ -23410,6 +26497,7 @@ void center_zquest_dialogs()
     jwin_center_dialog(warp_dlg);
     jwin_center_dialog(warpring_dlg);
     jwin_center_dialog(wlist_dlg);
+    centre_zscript_dialogs();
 }
 
 
@@ -23466,21 +26554,21 @@ void do_animations()
 void do_previewtext()
 {
     //Put in help areas
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+3,vc(0),-1,"%s",help_list[help_pos]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+8+3,vc(0),-1,"%s",help_list[help_pos+1]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+16+3,vc(0),-1,"%s",help_list[help_pos+2]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+24+3,vc(0),-1,"%s",help_list[help_pos+3]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+32+3,vc(0),-1,"%s",help_list[help_pos+4]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+8+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+1]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+16+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+2]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+24+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+3]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+32+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+4]);
     
     if(!is_large) return;
     
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+40+3,vc(0),-1,"%s",help_list[help_pos+5]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+48+3,vc(0),-1,"%s",help_list[help_pos+6]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+56+3,vc(0),-1,"%s",help_list[help_pos+7]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+64+3,vc(0),-1,"%s",help_list[help_pos+8]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+72+3,vc(0),-1,"%s",help_list[help_pos+9]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+81+3,vc(0),-1,"%s",help_list[help_pos+10]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+90+3,vc(0),-1,"%s",help_list[help_pos+11]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+40+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+5]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+48+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+6]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+56+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+7]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+64+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+8]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+72+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+9]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+81+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+10]);
+    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+90+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+11]);
 }
 
 
@@ -23950,6 +27038,11 @@ int save_config_file()
     chop_path(imagepath2);
     chop_path(tmusicpath2);
     
+	set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	set_config_string("Compiler","include_path",FFCore.includePathString);
+	set_config_string("Compiler","run_string",FFCore.scriptRunString);
+	//set_config_int("Compiler","Compile_Success_Tune",compile_tune); //Can't save here until we assign this in a dialogue. Otherwise, quitting will write it 0.
+	
     set_config_string("zquest",data_path_name,datapath2);
     set_config_string("zquest",midi_path_name,midipath2);
     set_config_string("zquest",image_path_name,imagepath2);
@@ -24333,6 +27426,7 @@ command_pair commands[cmdMAX]=
     { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    },
     { "Save ZQuest Settings",              0, (intF) onSaveZQuestSettings                                    },
     { "Clear Quest Filepath",              0, (intF) onClearQuestFilepath                                    },
+    { "Script Settings",              0, (intF) onZScriptSettings                                   },
     
 
 };
@@ -24519,8 +27613,10 @@ void clear_tooltip()
 void ZQ_ClearQuestPath(){
 	//last_quest_name = "";
 	//SetAllegroString last_quest_name ""
-	set_config_string("zquest",last_quest_name,NULL);
-	strcpy(filepath,get_config_string("zquest",last_quest_name,""));
+	set_config_string("zquest","win_last_quest",NULL);
+	strcpy(filepath,get_config_string("zquest","win_last_quest",""));
+	
+	
 	
 }
 
@@ -24656,7 +27752,17 @@ int FFScript::GetScriptObjectUID(int type)
 
 void FFScript::init()
 {
+	for ( int q = 0; q < wexLast; q++ ) warpex[q] = 0;
+	print_ZASM = 0;
+	numscriptdraws = 0;
+	max_ff_rules = qr_MAX;
+	temp_no_stepforward = 0;
+	nostepforward = 0;
+	
 	coreflags = 0;
+	skip_ending_credits = 0;
+	for ( int q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
+	
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 
@@ -24684,7 +27790,58 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
+	FFCore.user_bitmaps_init();
+	initIncludePaths();
+	initRunString();
 	
+}
+
+void FFScript::updateIncludePaths()
+{
+	memset(includePaths,0,sizeof(includePaths));
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	{
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		{
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
+		}
+		++pos;
+		dest = 0;
+	}
+}
+
+void FFScript::initRunString()
+{
+	memset(scriptRunString,0,sizeof(scriptRunString));
+	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
+	al_trace("Run is set to: %s \n",includePathString);
+}
+
+void FFScript::initIncludePaths()
+{
+	memset(includePaths,0,sizeof(includePaths));
+	memset(includePathString,0,sizeof(includePathString));
+	strcpy(includePathString,get_config_string("Compiler","include_path","include/"));
+	includePathString[((MAX_INCLUDE_PATHS+1)*512)-1] = '\0';
+	al_trace("Full path string is: %s\n",includePathString);
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	{
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		{
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
+		}
+		++pos;
+		dest = 0;
+	}
+
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+		al_trace("Include path %d: %s\n",q,includePaths[q]);
 }
 
 void FFScript::setFFRules()
@@ -24740,5 +27897,1265 @@ void FFScript::setLinkTile(int t)
 	FF_link_tile = vbound(t, 0, NEWMAXTILES);
 }
 
+int FFScript::getTime(int type)
+{
+	//struct tm *tm_struct = localtime(time(NULL));
+	struct tm * tm_struct;
+	time_t rawtime;
+	time (&rawtime);
+	tm_struct = localtime (&rawtime);
+	
+	switch(type)
+	{
+		case curyear:
+		{
+			int year = tm_struct->tm_year + 1900;        /* year */
+			//year format starts at 1900, so we add it to the return
+			//al_trace("The current year is: %d\n",year);
+			return year;
+			
+		}
+		case curmonth:
+		{
+			int month = tm_struct->tm_mon +1;         /* month */
+			//Months start at 0, but we want 1->12
+			//al_trace("The current month is: %d\n",month);
+			return month;
+		}
+		case curday_month:
+		{
+			int day_month = tm_struct->tm_mday;        /* day of the month */
+			//al_trace("The current day of the month is: %d\n",day_month);
+			return day_month;
+		}
+		case curday_week: 
+		{
+			int day_week = tm_struct->tm_wday;        /* day of the week */
+			//al_trace("The current day of the week is: %d\n",day_week);
+			return day_week;
+		}
+		case curhour:
+		{
+			int hour = tm_struct->tm_hour;        /* hours */
+			//al_trace("The current hour is: %d\n",hour);
+			return hour;
+		}
+		case curminute: 
+		{
+			int minutes = tm_struct->tm_min;         /* minutes */
+			//al_trace("The current hour is: %d\n",minutes);
+			return minutes;
+		}
+		case cursecond:
+		{
+			int secs = tm_struct->tm_sec;         /* seconds */
+			//al_trace("The current second is: %d\n",secs);
+			return secs;
+		}
+		case curdayyear:
+		{
+			int day_year = tm_struct->tm_yday;        /* day in the year */
+			//al_trace("The current day out of the year is: %d\n",day_year);
+			return day_year;
+		}
+		case curDST:
+		{
+			int isDST = tm_struct->tm_isdst;       /* daylight saving time */
+			//al_trace("The current DSTis: %d\n",isDST);
+			return isDST;
+		}
+		default: return -1;
+		
+	}
+}
+
+const char *itemclass_help_string_cats[itype_max*3]=
+		{
+			"ichs_0_0", "ichs_0_1", "ichs_0_2", "ichs_1_0", "ichs_1_1", "ichs_1_2", "ichs_2_0", "ichs_2_1", "ichs_2_2", "ichs_3_0", "ichs_3_1", "ichs_3_2", "ichs_4_0", "ichs_4_1", "ichs_4_2", "ichs_5_0", "ichs_5_1", "ichs_5_2", "ichs_6_0", "ichs_6_1", "ichs_6_2", "ichs_7_0", "ichs_7_1", "ichs_7_2", "ichs_8_0", "ichs_8_1", "ichs_8_2", "ichs_9_0", "ichs_9_1", "ichs_9_2", "ichs_10_0", "ichs_10_1", "ichs_10_2", "ichs_11_0", "ichs_11_1", "ichs_11_2", "ichs_12_0", "ichs_12_1", "ichs_12_2", "ichs_13_0", "ichs_13_1", "ichs_13_2", "ichs_14_0", "ichs_14_1", "ichs_14_2", "ichs_15_0", "ichs_15_1", "ichs_15_2", "ichs_16_0", "ichs_16_1", "ichs_16_2", 
+			"ichs_17_0", "ichs_17_1", "ichs_17_2", "ichs_18_0", "ichs_18_1", "ichs_18_2", "ichs_19_0", "ichs_19_1", "ichs_19_2", "ichs_20_0", "ichs_20_1", "ichs_20_2", "ichs_21_0", "ichs_21_1", "ichs_21_2", "ichs_22_0", "ichs_22_1", "ichs_22_2", "ichs_23_0", "ichs_23_1", "ichs_23_2", "ichs_24_0", "ichs_24_1", "ichs_24_2", "ichs_25_0", "ichs_25_1", "ichs_25_2", "ichs_26_0", "ichs_26_1", "ichs_26_2", "ichs_27_0", "ichs_27_1", "ichs_27_2", "ichs_28_0", "ichs_28_1", "ichs_28_2", "ichs_29_0", "ichs_29_1", "ichs_29_2", "ichs_30_0", "ichs_30_1", "ichs_30_2", "ichs_31_0", "ichs_31_1", "ichs_31_2", "ichs_32_0", "ichs_32_1", "ichs_32_2", 
+			"ichs_33_0", "ichs_33_1", "ichs_33_2", "ichs_34_0", "ichs_34_1", "ichs_34_2", "ichs_35_0", "ichs_35_1", "ichs_35_2", "ichs_36_0", "ichs_36_1", "ichs_36_2", "ichs_37_0", "ichs_37_1", "ichs_37_2", "ichs_38_0", "ichs_38_1", "ichs_38_2", "ichs_39_0", "ichs_39_1", "ichs_39_2", "ichs_40_0", "ichs_40_1", "ichs_40_2", "ichs_41_0", "ichs_41_1", "ichs_41_2", "ichs_42_0", "ichs_42_1", "ichs_42_2", "ichs_43_0", "ichs_43_1", "ichs_43_2", "ichs_44_0", "ichs_44_1", "ichs_44_2", "ichs_45_0", "ichs_45_1", "ichs_45_2", "ichs_46_0", "ichs_46_1", "ichs_46_2", "ichs_47_0", "ichs_47_1", "ichs_47_2", "ichs_48_0", "ichs_48_1", "ichs_48_2", 
+			"ichs_49_0", "ichs_49_1", "ichs_49_2", "ichs_50_0", "ichs_50_1", "ichs_50_2", "ichs_51_0", "ichs_51_1", "ichs_51_2", "ichs_52_0", "ichs_52_1", "ichs_52_2", "ichs_53_0", "ichs_53_1", "ichs_53_2", "ichs_54_0", "ichs_54_1", "ichs_54_2", "ichs_55_0", "ichs_55_1", "ichs_55_2", "ichs_56_0", "ichs_56_1", "ichs_56_2", "ichs_57_0", "ichs_57_1", "ichs_57_2", "ichs_58_0", "ichs_58_1", "ichs_58_2", "ichs_59_0", "ichs_59_1", "ichs_59_2", "ichs_60_0", "ichs_60_1", "ichs_60_2", "ichs_61_0", "ichs_61_1", "ichs_61_2", "ichs_62_0", "ichs_62_1", "ichs_62_2", "ichs_63_0", "ichs_63_1", "ichs_63_2", "ichs_64_0", "ichs_64_1", "ichs_64_2", 
+			"ichs_65_0", "ichs_65_1", "ichs_65_2", "ichs_66_0", "ichs_66_1", "ichs_66_2", "ichs_67_0", "ichs_67_1", "ichs_67_2", "ichs_68_0", "ichs_68_1", "ichs_68_2", "ichs_69_0", "ichs_69_1", "ichs_69_2", "ichs_70_0", "ichs_70_1", "ichs_70_2", "ichs_71_0", "ichs_71_1", "ichs_71_2", "ichs_72_0", "ichs_72_1", "ichs_72_2", "ichs_73_0", "ichs_73_1", "ichs_73_2", "ichs_74_0", "ichs_74_1", "ichs_74_2", "ichs_75_0", "ichs_75_1", "ichs_75_2", "ichs_76_0", "ichs_76_1", "ichs_76_2", "ichs_77_0", "ichs_77_1", "ichs_77_2", "ichs_78_0", "ichs_78_1", "ichs_78_2", "ichs_79_0", "ichs_79_1", "ichs_79_2", "ichs_80_0", "ichs_80_1", "ichs_80_2", 
+			"ichs_81_0", "ichs_81_1", "ichs_81_2", "ichs_82_0", "ichs_82_1", "ichs_82_2", "ichs_83_0", "ichs_83_1", "ichs_83_2", "ichs_84_0", "ichs_84_1", "ichs_84_2", "ichs_85_0", "ichs_85_1", "ichs_85_2", "ichs_86_0", "ichs_86_1", "ichs_86_2", "ichs_87_0", "ichs_87_1", "ichs_87_2", "ichs_88_0", "ichs_88_1", "ichs_88_2", "ichs_89_0", "ichs_89_1", "ichs_89_2", "ichs_90_0", "ichs_90_1", "ichs_90_2", "ichs_91_0", "ichs_91_1", "ichs_91_2", "ichs_92_0", "ichs_92_1", "ichs_92_2", "ichs_93_0", "ichs_93_1", "ichs_93_2", "ichs_94_0", "ichs_94_1", "ichs_94_2", "ichs_95_0", "ichs_95_1", "ichs_95_2", "ichs_96_0", "ichs_96_1", "ichs_96_2", 
+			"ichs_97_0", "ichs_97_1", "ichs_97_2", "ichs_98_0", "ichs_98_1", "ichs_98_2", "ichs_99_0", "ichs_99_1", "ichs_99_2", "ichs_100_0", "ichs_100_1", "ichs_100_2", "ichs_101_0", "ichs_101_1", "ichs_101_2", "ichs_102_0", "ichs_102_1", "ichs_102_2", "ichs_103_0", "ichs_103_1", "ichs_103_2", "ichs_104_0", "ichs_104_1", "ichs_104_2", "ichs_105_0", "ichs_105_1", "ichs_105_2", "ichs_106_0", "ichs_106_1", "ichs_106_2", "ichs_107_0", "ichs_107_1", "ichs_107_2", "ichs_108_0", "ichs_108_1", "ichs_108_2", "ichs_109_0", "ichs_109_1", "ichs_109_2", "ichs_110_0", "ichs_110_1", "ichs_110_2", "ichs_111_0", "ichs_111_1", "ichs_111_2", "ichs_112_0", "ichs_112_1", "ichs_112_2", 
+			"ichs_113_0", "ichs_113_1", "ichs_113_2", "ichs_114_0", "ichs_114_1", "ichs_114_2", "ichs_115_0", "ichs_115_1", "ichs_115_2", "ichs_116_0", "ichs_116_1", "ichs_116_2", "ichs_117_0", "ichs_117_1", "ichs_117_2", "ichs_118_0", "ichs_118_1", "ichs_118_2", "ichs_119_0", "ichs_119_1", "ichs_119_2", "ichs_120_0", "ichs_120_1", "ichs_120_2", "ichs_121_0", "ichs_121_1", "ichs_121_2", "ichs_122_0", "ichs_122_1", "ichs_122_2", "ichs_123_0", "ichs_123_1", "ichs_123_2", "ichs_124_0", "ichs_124_1", "ichs_124_2", "ichs_125_0", "ichs_125_1", "ichs_125_2", "ichs_126_0", "ichs_126_1", "ichs_126_2", "ichs_127_0", "ichs_127_1", "ichs_127_2", "ichs_128_0", "ichs_128_1", "ichs_128_2", 
+			"ichs_129_0", "ichs_129_1", "ichs_129_2", "ichs_130_0", "ichs_130_1", "ichs_130_2", "ichs_131_0", "ichs_131_1", "ichs_131_2", "ichs_132_0", "ichs_132_1", "ichs_132_2", "ichs_133_0", "ichs_133_1", "ichs_133_2", "ichs_134_0", "ichs_134_1", "ichs_134_2", "ichs_135_0", "ichs_135_1", "ichs_135_2", "ichs_136_0", "ichs_136_1", "ichs_136_2", "ichs_137_0", "ichs_137_1", "ichs_137_2", "ichs_138_0", "ichs_138_1", "ichs_138_2", "ichs_139_0", "ichs_139_1", "ichs_139_2", "ichs_140_0", "ichs_140_1", "ichs_140_2", "ichs_141_0", "ichs_141_1", "ichs_141_2", "ichs_142_0", "ichs_142_1", "ichs_142_2", "ichs_143_0", "ichs_143_1", "ichs_143_2", "ichs_144_0", "ichs_144_1", "ichs_144_2", 
+			"ichs_145_0", "ichs_145_1", "ichs_145_2", "ichs_146_0", "ichs_146_1", "ichs_146_2", "ichs_147_0", "ichs_147_1", "ichs_147_2", "ichs_148_0", "ichs_148_1", "ichs_148_2", "ichs_149_0", "ichs_149_1", "ichs_149_2", "ichs_150_0", "ichs_150_1", "ichs_150_2", "ichs_151_0", "ichs_151_1", "ichs_151_2", "ichs_152_0", "ichs_152_1", "ichs_152_2", "ichs_153_0", "ichs_153_1", "ichs_153_2", "ichs_154_0", "ichs_154_1", "ichs_154_2", "ichs_155_0", "ichs_155_1", "ichs_155_2", "ichs_156_0", "ichs_156_1", "ichs_156_2", "ichs_157_0", "ichs_157_1", "ichs_157_2", "ichs_158_0", "ichs_158_1", "ichs_158_2", "ichs_159_0", "ichs_159_1", "ichs_159_2", "ichs_160_0", "ichs_160_1", "ichs_160_2", 
+			"ichs_161_0", "ichs_161_1", "ichs_161_2", "ichs_162_0", "ichs_162_1", "ichs_162_2", "ichs_163_0", "ichs_163_1", "ichs_163_2", "ichs_164_0", "ichs_164_1", "ichs_164_2", "ichs_165_0", "ichs_165_1", "ichs_165_2", "ichs_166_0", "ichs_166_1", "ichs_166_2", "ichs_167_0", "ichs_167_1", "ichs_167_2", "ichs_168_0", "ichs_168_1", "ichs_168_2", "ichs_169_0", "ichs_169_1", "ichs_169_2", "ichs_170_0", "ichs_170_1", "ichs_170_2", "ichs_171_0", "ichs_171_1", "ichs_171_2", "ichs_172_0", "ichs_172_1", "ichs_172_2", "ichs_173_0", "ichs_173_1", "ichs_173_2", "ichs_174_0", "ichs_174_1", "ichs_174_2", "ichs_175_0", "ichs_175_1", "ichs_175_2", "ichs_176_0", "ichs_176_1", "ichs_176_2", 
+			"ichs_177_0", "ichs_177_1", "ichs_177_2", "ichs_178_0", "ichs_178_1", "ichs_178_2", "ichs_179_0", "ichs_179_1", "ichs_179_2", "ichs_180_0", "ichs_180_1", "ichs_180_2", "ichs_181_0", "ichs_181_1", "ichs_181_2", "ichs_182_0", "ichs_182_1", "ichs_182_2", "ichs_183_0", "ichs_183_1", "ichs_183_2", "ichs_184_0", "ichs_184_1", "ichs_184_2", "ichs_185_0", "ichs_185_1", "ichs_185_2", "ichs_186_0", "ichs_186_1", "ichs_186_2", "ichs_187_0", "ichs_187_1", "ichs_187_2", "ichs_188_0", "ichs_188_1", "ichs_188_2", "ichs_189_0", "ichs_189_1", "ichs_189_2", "ichs_190_0", "ichs_190_1", "ichs_190_2", "ichs_191_0", "ichs_191_1", "ichs_191_2", "ichs_192_0", "ichs_192_1", "ichs_192_2", 
+			"ichs_193_0", "ichs_193_1", "ichs_193_2", "ichs_194_0", "ichs_194_1", "ichs_194_2", "ichs_195_0", "ichs_195_1", "ichs_195_2", "ichs_196_0", "ichs_196_1", "ichs_196_2", "ichs_197_0", "ichs_197_1", "ichs_197_2", "ichs_198_0", "ichs_198_1", "ichs_198_2", "ichs_199_0", "ichs_199_1", "ichs_199_2", "ichs_200_0", "ichs_200_1", "ichs_200_2", "ichs_201_0", "ichs_201_1", "ichs_201_2", "ichs_202_0", "ichs_202_1", "ichs_202_2", "ichs_203_0", "ichs_203_1", "ichs_203_2", "ichs_204_0", "ichs_204_1", "ichs_204_2", "ichs_205_0", "ichs_205_1", "ichs_205_2", "ichs_206_0", "ichs_206_1", "ichs_206_2", "ichs_207_0", "ichs_207_1", "ichs_207_2", "ichs_208_0", "ichs_208_1", "ichs_208_2", 
+			"ichs_209_0", "ichs_209_1", "ichs_209_2", "ichs_210_0", "ichs_210_1", "ichs_210_2", "ichs_211_0", "ichs_211_1", "ichs_211_2", "ichs_212_0", "ichs_212_1", "ichs_212_2", "ichs_213_0", "ichs_213_1", "ichs_213_2", "ichs_214_0", "ichs_214_1", "ichs_214_2", "ichs_215_0", "ichs_215_1", "ichs_215_2", "ichs_216_0", "ichs_216_1", "ichs_216_2", "ichs_217_0", "ichs_217_1", "ichs_217_2", "ichs_218_0", "ichs_218_1", "ichs_218_2", "ichs_219_0", "ichs_219_1", "ichs_219_2", "ichs_220_0", "ichs_220_1", "ichs_220_2", "ichs_221_0", "ichs_221_1", "ichs_221_2", "ichs_222_0", "ichs_222_1", "ichs_222_2", "ichs_223_0", "ichs_223_1", "ichs_223_2", "ichs_224_0", "ichs_224_1", "ichs_224_2", 
+			"ichs_225_0", "ichs_225_1", "ichs_225_2", "ichs_226_0", "ichs_226_1", "ichs_226_2", "ichs_227_0", "ichs_227_1", "ichs_227_2", "ichs_228_0", "ichs_228_1", "ichs_228_2", "ichs_229_0", "ichs_229_1", "ichs_229_2", "ichs_230_0", "ichs_230_1", "ichs_230_2", "ichs_231_0", "ichs_231_1", "ichs_231_2", "ichs_232_0", "ichs_232_1", "ichs_232_2", "ichs_233_0", "ichs_233_1", "ichs_233_2", "ichs_234_0", "ichs_234_1", "ichs_234_2", "ichs_235_0", "ichs_235_1", "ichs_235_2", "ichs_236_0", "ichs_236_1", "ichs_236_2", "ichs_237_0", "ichs_237_1", "ichs_237_2", "ichs_238_0", "ichs_238_1", "ichs_238_2", "ichs_239_0", "ichs_239_1", "ichs_239_2", "ichs_240_0", "ichs_240_1", "ichs_240_2", 
+			"ichs_241_0", "ichs_241_1", "ichs_241_2", "ichs_242_0", "ichs_242_1", "ichs_242_2", "ichs_243_0", "ichs_243_1", "ichs_243_2", "ichs_244_0", "ichs_244_1", "ichs_244_2", "ichs_245_0", "ichs_245_1", "ichs_245_2", "ichs_246_0", "ichs_246_1", "ichs_246_2", "ichs_247_0", "ichs_247_1", "ichs_247_2", "ichs_248_0", "ichs_248_1", "ichs_248_2", "ichs_249_0", "ichs_249_1", "ichs_249_2", "ichs_250_0", "ichs_250_1", "ichs_250_2", "ichs_251_0", "ichs_251_1", "ichs_251_2", "ichs_252_0", "ichs_252_1", "ichs_252_2", "ichs_253_0", "ichs_253_1", "ichs_253_2", "ichs_254_0", "ichs_254_1", "ichs_254_2", "ichs_255_0", "ichs_255_1", "ichs_255_2", "ichs_256_0", "ichs_256_1", "ichs_256_2", 
+			"ichs_257_0", "ichs_257_1", "ichs_257_2", "ichs_258_0", "ichs_258_1", "ichs_258_2", "ichs_259_0", "ichs_259_1", "ichs_259_2", "ichs_260_0", "ichs_260_1", "ichs_260_2", "ichs_261_0", "ichs_261_1", "ichs_261_2", "ichs_262_0", "ichs_262_1", "ichs_262_2", "ichs_263_0", "ichs_263_1", "ichs_263_2", "ichs_264_0", "ichs_264_1", "ichs_264_2", "ichs_265_0", "ichs_265_1", "ichs_265_2", "ichs_266_0", "ichs_266_1", "ichs_266_2", "ichs_267_0", "ichs_267_1", "ichs_267_2", "ichs_268_0", "ichs_268_1", "ichs_268_2", "ichs_269_0", "ichs_269_1", "ichs_269_2", "ichs_270_0", "ichs_270_1", "ichs_270_2", "ichs_271_0", "ichs_271_1", "ichs_271_2", "ichs_272_0", "ichs_272_1", "ichs_272_2", 
+			"ichs_273_0", "ichs_273_1", "ichs_273_2", "ichs_274_0", "ichs_274_1", "ichs_274_2", "ichs_275_0", "ichs_275_1", "ichs_275_2", "ichs_276_0", "ichs_276_1", "ichs_276_2", "ichs_277_0", "ichs_277_1", "ichs_277_2", "ichs_278_0", "ichs_278_1", "ichs_278_2", "ichs_279_0", "ichs_279_1", "ichs_279_2", "ichs_280_0", "ichs_280_1", "ichs_280_2", "ichs_281_0", "ichs_281_1", "ichs_281_2", "ichs_282_0", "ichs_282_1", "ichs_282_2", "ichs_283_0", "ichs_283_1", "ichs_283_2", "ichs_284_0", "ichs_284_1", "ichs_284_2", "ichs_285_0", "ichs_285_1", "ichs_285_2", "ichs_286_0", "ichs_286_1", "ichs_286_2", "ichs_287_0", "ichs_287_1", "ichs_287_2", "ichs_288_0", "ichs_288_1", "ichs_288_2", 
+			"ichs_289_0", "ichs_289_1", "ichs_289_2", "ichs_290_0", "ichs_290_1", "ichs_290_2", "ichs_291_0", "ichs_291_1", "ichs_291_2", "ichs_292_0", "ichs_292_1", "ichs_292_2", "ichs_293_0", "ichs_293_1", "ichs_293_2", "ichs_294_0", "ichs_294_1", "ichs_294_2", "ichs_295_0", "ichs_295_1", "ichs_295_2", "ichs_296_0", "ichs_296_1", "ichs_296_2", "ichs_297_0", "ichs_297_1", "ichs_297_2", "ichs_298_0", "ichs_298_1", "ichs_298_2", "ichs_299_0", "ichs_299_1", "ichs_299_2", "ichs_300_0", "ichs_300_1", "ichs_300_2", "ichs_301_0", "ichs_301_1", "ichs_301_2", "ichs_302_0", "ichs_302_1", "ichs_302_2", "ichs_303_0", "ichs_303_1", "ichs_303_2", "ichs_304_0", "ichs_304_1", "ichs_304_2", 
+			"ichs_305_0", "ichs_305_1", "ichs_305_2", "ichs_306_0", "ichs_306_1", "ichs_306_2", "ichs_307_0", "ichs_307_1", "ichs_307_2", "ichs_308_0", "ichs_308_1", "ichs_308_2", "ichs_309_0", "ichs_309_1", "ichs_309_2", "ichs_310_0", "ichs_310_1", "ichs_310_2", "ichs_311_0", "ichs_311_1", "ichs_311_2", "ichs_312_0", "ichs_312_1", "ichs_312_2", "ichs_313_0", "ichs_313_1", "ichs_313_2", "ichs_314_0", "ichs_314_1", "ichs_314_2", "ichs_315_0", "ichs_315_1", "ichs_315_2", "ichs_316_0", "ichs_316_1", "ichs_316_2", "ichs_317_0", "ichs_317_1", "ichs_317_2", "ichs_318_0", "ichs_318_1", "ichs_318_2", "ichs_319_0", "ichs_319_1", "ichs_319_2", "ichs_320_0", "ichs_320_1", "ichs_320_2", 
+			"ichs_321_0", "ichs_321_1", "ichs_321_2", "ichs_322_0", "ichs_322_1", "ichs_322_2", "ichs_323_0", "ichs_323_1", "ichs_323_2", "ichs_324_0", "ichs_324_1", "ichs_324_2", "ichs_325_0", "ichs_325_1", "ichs_325_2", "ichs_326_0", "ichs_326_1", "ichs_326_2", "ichs_327_0", "ichs_327_1", "ichs_327_2", "ichs_328_0", "ichs_328_1", "ichs_328_2", "ichs_329_0", "ichs_329_1", "ichs_329_2", "ichs_330_0", "ichs_330_1", "ichs_330_2", "ichs_331_0", "ichs_331_1", "ichs_331_2", "ichs_332_0", "ichs_332_1", "ichs_332_2", "ichs_333_0", "ichs_333_1", "ichs_333_2", "ichs_334_0", "ichs_334_1", "ichs_334_2", "ichs_335_0", "ichs_335_1", "ichs_335_2", "ichs_336_0", "ichs_336_1", "ichs_336_2", 
+			"ichs_337_0", "ichs_337_1", "ichs_337_2", "ichs_338_0", "ichs_338_1", "ichs_338_2", "ichs_339_0", "ichs_339_1", "ichs_339_2", "ichs_340_0", "ichs_340_1", "ichs_340_2", "ichs_341_0", "ichs_341_1", "ichs_341_2", "ichs_342_0", "ichs_342_1", "ichs_342_2", "ichs_343_0", "ichs_343_1", "ichs_343_2", "ichs_344_0", "ichs_344_1", "ichs_344_2", "ichs_345_0", "ichs_345_1", "ichs_345_2", "ichs_346_0", "ichs_346_1", "ichs_346_2", "ichs_347_0", "ichs_347_1", "ichs_347_2", "ichs_348_0", "ichs_348_1", "ichs_348_2", "ichs_349_0", "ichs_349_1", "ichs_349_2", "ichs_350_0", "ichs_350_1", "ichs_350_2", "ichs_351_0", "ichs_351_1", "ichs_351_2", "ichs_352_0", "ichs_352_1", "ichs_352_2", 
+			"ichs_353_0", "ichs_353_1", "ichs_353_2", "ichs_354_0", "ichs_354_1", "ichs_354_2", "ichs_355_0", "ichs_355_1", "ichs_355_2", "ichs_356_0", "ichs_356_1", "ichs_356_2", "ichs_357_0", "ichs_357_1", "ichs_357_2", "ichs_358_0", "ichs_358_1", "ichs_358_2", "ichs_359_0", "ichs_359_1", "ichs_359_2", "ichs_360_0", "ichs_360_1", "ichs_360_2", "ichs_361_0", "ichs_361_1", "ichs_361_2", "ichs_362_0", "ichs_362_1", "ichs_362_2", "ichs_363_0", "ichs_363_1", "ichs_363_2", "ichs_364_0", "ichs_364_1", "ichs_364_2", "ichs_365_0", "ichs_365_1", "ichs_365_2", "ichs_366_0", "ichs_366_1", "ichs_366_2", "ichs_367_0", "ichs_367_1", "ichs_367_2", "ichs_368_0", "ichs_368_1", "ichs_368_2", 
+			"ichs_369_0", "ichs_369_1", "ichs_369_2", "ichs_370_0", "ichs_370_1", "ichs_370_2", "ichs_371_0", "ichs_371_1", "ichs_371_2", "ichs_372_0", "ichs_372_1", "ichs_372_2", "ichs_373_0", "ichs_373_1", "ichs_373_2", "ichs_374_0", "ichs_374_1", "ichs_374_2", "ichs_375_0", "ichs_375_1", "ichs_375_2", "ichs_376_0", "ichs_376_1", "ichs_376_2", "ichs_377_0", "ichs_377_1", "ichs_377_2", "ichs_378_0", "ichs_378_1", "ichs_378_2", "ichs_379_0", "ichs_379_1", "ichs_379_2", "ichs_380_0", "ichs_380_1", "ichs_380_2", "ichs_381_0", "ichs_381_1", "ichs_381_2", "ichs_382_0", "ichs_382_1", "ichs_382_2", "ichs_383_0", "ichs_383_1", "ichs_383_2", "ichs_384_0", "ichs_384_1", "ichs_384_2", 
+			"ichs_385_0", "ichs_385_1", "ichs_385_2", "ichs_386_0", "ichs_386_1", "ichs_386_2", "ichs_387_0", "ichs_387_1", "ichs_387_2", "ichs_388_0", "ichs_388_1", "ichs_388_2", "ichs_389_0", "ichs_389_1", "ichs_389_2", "ichs_390_0", "ichs_390_1", "ichs_390_2", "ichs_391_0", "ichs_391_1", "ichs_391_2", "ichs_392_0", "ichs_392_1", "ichs_392_2", "ichs_393_0", "ichs_393_1", "ichs_393_2", "ichs_394_0", "ichs_394_1", "ichs_394_2", "ichs_395_0", "ichs_395_1", "ichs_395_2", "ichs_396_0", "ichs_396_1", "ichs_396_2", "ichs_397_0", "ichs_397_1", "ichs_397_2", "ichs_398_0", "ichs_398_1", "ichs_398_2", "ichs_399_0", "ichs_399_1", "ichs_399_2", "ichs_400_0", "ichs_400_1", "ichs_400_2", 
+			"ichs_401_0", "ichs_401_1", "ichs_401_2", "ichs_402_0", "ichs_402_1", "ichs_402_2", "ichs_403_0", "ichs_403_1", "ichs_403_2", "ichs_404_0", "ichs_404_1", "ichs_404_2", "ichs_405_0", "ichs_405_1", "ichs_405_2", "ichs_406_0", "ichs_406_1", "ichs_406_2", "ichs_407_0", "ichs_407_1", "ichs_407_2", "ichs_408_0", "ichs_408_1", "ichs_408_2", "ichs_409_0", "ichs_409_1", "ichs_409_2", "ichs_410_0", "ichs_410_1", "ichs_410_2", "ichs_411_0", "ichs_411_1", "ichs_411_2", "ichs_412_0", "ichs_412_1", "ichs_412_2", "ichs_413_0", "ichs_413_1", "ichs_413_2", "ichs_414_0", "ichs_414_1", "ichs_414_2", "ichs_415_0", "ichs_415_1", "ichs_415_2", "ichs_416_0", "ichs_416_1", "ichs_416_2", 
+			"ichs_417_0", "ichs_417_1", "ichs_417_2", "ichs_418_0", "ichs_418_1", "ichs_418_2", "ichs_419_0", "ichs_419_1", "ichs_419_2", "ichs_420_0", "ichs_420_1", "ichs_420_2", "ichs_421_0", "ichs_421_1", "ichs_421_2", "ichs_422_0", "ichs_422_1", "ichs_422_2", "ichs_423_0", "ichs_423_1", "ichs_423_2", "ichs_424_0", "ichs_424_1", "ichs_424_2", "ichs_425_0", "ichs_425_1", "ichs_425_2", "ichs_426_0", "ichs_426_1", "ichs_426_2", "ichs_427_0", "ichs_427_1", "ichs_427_2", "ichs_428_0", "ichs_428_1", "ichs_428_2", "ichs_429_0", "ichs_429_1", "ichs_429_2", "ichs_430_0", "ichs_430_1", "ichs_430_2", "ichs_431_0", "ichs_431_1", "ichs_431_2", "ichs_432_0", "ichs_432_1", "ichs_432_2", 
+			"ichs_433_0", "ichs_433_1", "ichs_433_2", "ichs_434_0", "ichs_434_1", "ichs_434_2", "ichs_435_0", "ichs_435_1", "ichs_435_2", "ichs_436_0", "ichs_436_1", "ichs_436_2", "ichs_437_0", "ichs_437_1", "ichs_437_2", "ichs_438_0", "ichs_438_1", "ichs_438_2", "ichs_439_0", "ichs_439_1", "ichs_439_2", "ichs_440_0", "ichs_440_1", "ichs_440_2", "ichs_441_0", "ichs_441_1", "ichs_441_2", "ichs_442_0", "ichs_442_1", "ichs_442_2", "ichs_443_0", "ichs_443_1", "ichs_443_2", "ichs_444_0", "ichs_444_1", "ichs_444_2", "ichs_445_0", "ichs_445_1", "ichs_445_2", "ichs_446_0", "ichs_446_1", "ichs_446_2", "ichs_447_0", "ichs_447_1", "ichs_447_2", "ichs_448_0", "ichs_448_1", "ichs_448_2", 
+			"ichs_449_0", "ichs_449_1", "ichs_449_2", "ichs_450_0", "ichs_450_1", "ichs_450_2", "ichs_451_0", "ichs_451_1", "ichs_451_2", "ichs_452_0", "ichs_452_1", "ichs_452_2", "ichs_453_0", "ichs_453_1", "ichs_453_2", "ichs_454_0", "ichs_454_1", "ichs_454_2", "ichs_455_0", "ichs_455_1", "ichs_455_2", "ichs_456_0", "ichs_456_1", "ichs_456_2", "ichs_457_0", "ichs_457_1", "ichs_457_2", "ichs_458_0", "ichs_458_1", "ichs_458_2", "ichs_459_0", "ichs_459_1", "ichs_459_2", "ichs_460_0", "ichs_460_1", "ichs_460_2", "ichs_461_0", "ichs_461_1", "ichs_461_2", "ichs_462_0", "ichs_462_1", "ichs_462_2", "ichs_463_0", "ichs_463_1", "ichs_463_2", "ichs_464_0", "ichs_464_1", "ichs_464_2", 
+			"ichs_465_0", "ichs_465_1", "ichs_465_2", "ichs_466_0", "ichs_466_1", "ichs_466_2", "ichs_467_0", "ichs_467_1", "ichs_467_2", "ichs_468_0", "ichs_468_1", "ichs_468_2", "ichs_469_0", "ichs_469_1", "ichs_469_2", "ichs_470_0", "ichs_470_1", "ichs_470_2", "ichs_471_0", "ichs_471_1", "ichs_471_2", "ichs_472_0", "ichs_472_1", "ichs_472_2", "ichs_473_0", "ichs_473_1", "ichs_473_2", "ichs_474_0", "ichs_474_1", "ichs_474_2", "ichs_475_0", "ichs_475_1", "ichs_475_2", "ichs_476_0", "ichs_476_1", "ichs_476_2", "ichs_477_0", "ichs_477_1", "ichs_477_2", "ichs_478_0", "ichs_478_1", "ichs_478_2", "ichs_479_0", "ichs_479_1", "ichs_479_2", "ichs_480_0", "ichs_480_1", "ichs_480_2", 
+			"ichs_481_0", "ichs_481_1", "ichs_481_2", "ichs_482_0", "ichs_482_1", "ichs_482_2", "ichs_483_0", "ichs_483_1", "ichs_483_2", "ichs_484_0", "ichs_484_1", "ichs_484_2", "ichs_485_0", "ichs_485_1", "ichs_485_2", "ichs_486_0", "ichs_486_1", "ichs_486_2", "ichs_487_0", "ichs_487_1", "ichs_487_2", "ichs_488_0", "ichs_488_1", "ichs_488_2", "ichs_489_0", "ichs_489_1", "ichs_489_2", "ichs_490_0", "ichs_490_1", "ichs_490_2", "ichs_491_0", "ichs_491_1", "ichs_491_2", "ichs_492_0", "ichs_492_1", "ichs_492_2", "ichs_493_0", "ichs_493_1", "ichs_493_2", "ichs_494_0", "ichs_494_1", "ichs_494_2", "ichs_495_0", "ichs_495_1", "ichs_495_2", "ichs_496_0", "ichs_496_1", "ichs_496_2", 
+			"ichs_497_0", "ichs_497_1", "ichs_497_2", "ichs_498_0", "ichs_498_1", "ichs_498_2", "ichs_499_0", "ichs_499_1", "ichs_499_2", "ichs_500_0", "ichs_500_1", "ichs_500_2", "ichs_501_0", "ichs_501_1", "ichs_501_2", "ichs_502_0", "ichs_502_1", "ichs_502_2", "ichs_503_0", "ichs_503_1", "ichs_503_2", "ichs_504_0", "ichs_504_1", "ichs_504_2", "ichs_505_0", "ichs_505_1", "ichs_505_2", "ichs_506_0", "ichs_506_1", "ichs_506_2", "ichs_507_0", "ichs_507_1", "ichs_507_2", "ichs_508_0", "ichs_508_1", "ichs_508_2", "ichs_509_0", "ichs_509_1", "ichs_509_2", "ichs_510_0", "ichs_510_1", "ichs_510_2", "ichs_511_0", "ichs_511_1", "ichs_511_2"
+		};
+
+		
+		const char *itemclass_help_string_defaults[itype_max*3] =
+		{
+		    "Link's most versatile weapon. When wielded, it can","stab, slash and fire sword beams. It is used to","perform several Tiger Scroll techniques, too.",
+		    "When wielded, it flies out, hurting enemies, and","collecting items, before returning to Link. Can be","thrown diagonally. Can optionally drop damaging sparkles.",
+		    "When wielded, it flies and collects items before","hitting an enemy. Requires the Bow. Expends either 1 rupee","or 1 arrow ammo. Can drop damaging sparkles.",
+		    "When wielded, a damaging flame drifts out, which","lights dark screens until it expires. Can optionally","have wand-style stab and slash sprites.",
+		    "When wielded, plays strange music and summons a","whirlwind that warps you to the Warp Ring locations.","Can also dry Water combos on specific screens.",
+		    "When wielded, drops bait that attracts Walking Enemies","depending on their Hunger stat. Removed when used","in 'Feed The Goriya' room types.",
+		    "When wielded in 'Potion Shop' room types, activates","the shop and all other Potion Shops in the quest.","Is overridden by Potions if you have them.",
+		    "When wielded, Link regains hearts and/or magic.","Can also cure jinxes, depending on the Quest Rules.","",
+		    "When wielded, shoots damaging magic. The magic","is affected by your current Magic Book item. Can also","damage enemies by stabbing and slashing.",
+		    "Divides the damage that Link takes, and changes his palette.","If a magic cost is set, Link loses magic when he takes","damage, and the item is disabled without magic.",
+		    "Can provide infinite rupees to Link,","or provide a regenerating supply of rupees.","Typically also set to increase his Rupee max.",
+		    "Also called the Cross, this makes invisible","enemies visible. Currently does not affect Ganon.","",
+		    "When Link isn't wielding an item, this deflects or","reflects enemy projectiles from the front.","The Block Flags are listed on the Wiki.",
+		    "Required to wield the Arrow. This affects the speed of","the arrow fired. The Action settings are not used.","",
+		    "Allows Link to traverse Raft Paths. When at a Raft","Branch combo flag, hold the arrow keys to","decide which path the raft will take.",
+		    "Used to cross Water combos and certain combo types.","If Four-Way > 1, Link can step sideways off the ladder.","",
+		    "Affects the sprite and damage of the magic shot","by the Wand. If 'Fire Magic' is set, a 1-damage flame is","created at the place where the magic stops.",
+		    "Provides unlimited keys in a specific dungeon","level, or all dungeon levels up to a point.","The Action settings are not used.",
+		    "Allows Link to push Heavy or Very Heavy push block","combos. Can be limited to one push per screen.","The Action settings are not used.",
+		    "Allows Link to swim in Water combos. The Power","and Action settings are not used.","",
+		    "Prevents damage from certain Damage combos. Can","require magic to use, which is drained as","Link touches the combos.",
+		    "When wielded, shoots a hook and chain that collects","items and hurt enemies, before retracting back to","Link. Best used with the Hookshot Grab combo type.",
+		    "When wielded, restricts your vision and reveals","certain combo flags, as well as hiding or","showing certain layers on a screen.",
+		    "When wielded, pounds and breaks Walking Enemies'","shields. It is used to perform the Quake Hammer","and Super Quake techniques, too.",
+		    "When wielded, casts a spell which sends out","a wide ring of flames from Link's body.","Link is invincible while casting the spell.",
+		    "When wielded, teleports Link to the","Continue screen of the current DMap.","",
+		    "When wielded, casts a spell which surrounds Link","with a magic shield that nullifies all","damage taken until it expires.",
+		    "When wielded, places a bomb which explodes to","momentarily hurt foes. Expends 1 bomb ammo. Remote bombs only","explode when you press the button again after placing.",
+		    "Similar to Bomb, but has a much larger blast","radius, and expends 1 super bomb ammo.","",
+		    "When collected, freezes most enemies and makes","Link invincible for a limited time.","",
+		    "No built-in effect, but is typically set to","increase your Key count by 1 when collected.","",
+		    "No built-in effect, but is typically set to","increase your maximum Magic by 32 when collected.","",
+		    "When collected, enables the Triforce for the","current dungeon level and plays a cutscene. May warp","Link out using the current screen's Side Warp A.",
+		    "When collected, enables the Subscreen Map","for the current dungeon level.","",
+		    "When collected, enables the Compass","for the current dungeon level.","",
+		    "When collected, enables the Boss Key","for the current dungeon level, letting Link unlock","Boss Lock Blocks, Boss Chest combos and Boss doors.",
+		    "Can provide infinite arrow ammo to Link,","or provide a regenerating supply of ammo.","Typically also set to increase his arrow ammo max.",
+		    "When collected, increases the Level-Specific","Key count for the current dungeon level. These","keys are used in place of normal keys if possible.",
+		    "When wielded, creates one or more beams that circle Link.","Beams can be dismissed by pressing the button again.","Can optionally have wand-style stab and slash sprites.",
+		    "No built-in effect, but is typically set to","increase your Rupee count when collected.","",
+		    "No built-in effect, but is typically set to","increase your Arrow ammo when collected.","",
+		    "Flies around the screen at a certain speed.","When collected, Link regains hearts and/or magic.","Can also cure jinxes, depending on the Quest Rules.",
+		    "No built-in effect, but is typically set to","increase your Magic when collected.","",
+		    "No built-in effect, but is typically set to","restore Link's hearts when collected.","",
+		    "No built-in effect, but is typically set to","increase Link's max. health when collected.","",
+		    "When collected, increases Link's Heart Piece count by 1.","If the 'Per HC' amount (in Init Data) is reached,","Link's max. health is increased by 1 heart.",
+		    "When collected, all beatable enemies on the","screen are instantly and silently killed.","",
+		    "No built-in effect, but is typically set to","increase Link's bomb ammo when collected.","",
+		    "Can provide infinite bomb ammo to Link,","or provide a regenerating supply of ammo.","Typically also set to increase his bomb ammo max.",
+		    "When wielded, Link jumps into the air through","the 'Z-axis', with an initial Jump speed","of 0.8 times the Height Multiplier.",
+		    "When Link is at the apex of a jump, he hovers","in the air for a specified time. In sideview,","can be dismissed by pressing Down.",
+		    "When wielding the Sword, Link can hold the button","to tap solid combos to find bombable locations","and release to spin the sword around him.",
+		    "When performing a Spin Attack with a sword that","can fire beams, four beams are released","from the sword during each spin.",
+		    "When wielding the Hammer, Link can hold the","button and release to pound for extra damage,","and stunning most nearby ground enemies.",
+		    "Reduces the duration of jinxes given by certain","enemies, or (if Divisor is 0) prevents them entirely.","The Action settings are not used.",
+		    "Reduces the time it takes to charge the","Spin Attack/Quake Hammer (Charging) and","Hurricane Spin/Super Quake (Magic C.) abilities.",
+		    "Enables the Sword to fire sword beams","when Link's health is below a certain amount.","The Action settings are not used.",
+		    "In Shop room types, shop prices are multiplied","by the Discount Amount, making the items cheaper.","",
+		    "Gradually restores Link's health in certain","quantities over a certain duration.","The Action settings are not used.",
+		    "Gradually restores Link's magic in certain quantities","over a certain duration. Can also provide","infinite magic to Link. The Action settings are unused.",
+		    "After charging the Spin Attack, holding down the","button longer enables a stronger attack","with faster and more numerous spins.",
+		    "After charging the Quake Hammer, holding down the","button longer enables a stronger attack","which stuns more enemies for longer.",
+		    "Link's sprite faintly vibrates when he stands","on or near secret-triggering combo flags.","Sensitivity increases the distance at which it works.",
+		    "If Link, while jumping, lands on an enemy,","that enemy takes a certain amount of","damage, instead of damaging Link.",
+		    "The Sword, Wand and Hammer will occasionally do","increased damage in a single strike.","",
+		    "Divides the damage that Link takes when his","health is below a certain level.","",
+		    "These items have no built-in effect.","They will not be dropped in an Item Drop Set.","",
+		    //ic67 to 86, custom IC
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    //ic87
+		    "Displays the bow and arrow together as a single item.","No item should use this class; it is intended","for use in subscreens only.",
+		    "Represents either the letter or a potion, whichever is","available at the moment. No item should use this class;","It is intended for use in subscreens only.",
+		    "This item class is", "reserved for future", "versions of ZC", //ic_last, 89
+		    //90
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		
+			//256 == script01
+			"This item class is used to create", "LW_SCRIPT_01 type lweapons with", "properties defined by the Item Editor.",
+			//257 == script02
+			"This item class is used to create", "LW_SCRIPT_02 type lweapons with", "properties defined by the Item Editor.",
+			//258 == script03
+			"This item class is used to create", "LW_SCRIPT_03 type lweapons with", "properties defined by the Item Editor.",
+			//258 == script04
+			"This item class is used to create", "LW_SCRIPT_04 type lweapons with", "properties defined by the Item Editor.",
+			//259 == script05
+			"This item class is used to create", "LW_SCRIPT_05 type lweapons with", "properties defined by the Item Editor.",
+			//260 == script06
+			"This item class is used to create", "LW_SCRIPT_06 type lweapons with", "properties defined by the Item Editor.",
+			//261 == script07
+			"This item class is used to create", "LW_SCRIPT_07 type lweapons with", "properties defined by the Item Editor.",
+			//262 == script08
+			"This item class is used to create", "LW_SCRIPT_08 type lweapons with", "properties defined by the Item Editor.",
+			//263 == script09
+			"This item class is used to create", "LW_SCRIPT_09 type lweapons with", "properties defined by the Item Editor.",
+			//264 == script10
+			"This item class is used to create", "LW_SCRIPT_10 type lweapons with", "properties defined by the Item Editor.",
+			//265 == icerod
+			"This item class is", "reserved for the Ice Rod", "in a future version of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			//270
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			//300
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			//400
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			//500
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC"
+			    
+	};
+
+//ZModule Functions
+
+
+void ZModule::init(bool d) //bool default
+{
+	
+	
+	memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
+	memset(moduledata.quests, 0, sizeof(moduledata.quests));
+	memset(moduledata.skipnames, 0, sizeof(moduledata.skipnames));
+	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
+	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
+	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
+	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.enem_anim_type_names));
+	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
+	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
+	
+	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
+	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
+	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
+	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
+	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
+	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
+	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
+	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
+	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
+	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
+	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
+	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
+	memset(moduledata.select_screen_tile_csets, 0, sizeof(moduledata.select_screen_tile_csets));
+	memset(moduledata.select_screen_tiles, 0, sizeof(moduledata.select_screen_tiles));
+	moduledata.old_quest_serial_flow = 0;
+	moduledata.max_quest_files = 0;
+	moduledata.animate_NES_title = 0;
+	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
+	moduledata.refresh_title_screen = 0;
+	
+	//strcpy(moduledata.module_name,"default.zmod");
+	//al_trace("Module name set to %s\n",moduledata.module_name);
+	//We load the current module name from zc.cfg or zquest.cfg!
+	//Otherwise, we don't know what file to access to load the module vars! 
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
+	al_trace("The Current ZQuest Editor Module is: %s\n",moduledata.module_name); 
+		
+	if ( d )
+	{
+		
+		//zcm path
+		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
+		//al_trace("Module name set to %s\n",moduledata.module_name);
+		
+		//quests
+		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
+		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",5);
+		//al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
+		//al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
+		strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
+		//al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
+		strcpy(moduledata.quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
+		//al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
+		strcpy(moduledata.quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
+		//al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
+		strcpy(moduledata.quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
+		//al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
+		strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
+		//al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
+		
+		//quest skip names
+		strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
+		//al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
+		strcpy(moduledata.skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
+		//al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
+		strcpy(moduledata.skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
+		//al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
+		strcpy(moduledata.skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
+		//al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
+		strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
+		//al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
+		
+		//datafiles
+		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
+		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
+		strcpy(moduledata.datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
+		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
+		strcpy(moduledata.datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
+		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
+		strcpy(moduledata.datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
+		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
+		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
+		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
+		
+		
+		strcpy(moduledata.base_NSF_file,get_config_string("DATAFILES","base_NSF_file","zelda.nsf"));
+		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
+		
+		moduledata.title_track = get_config_int("DATAFILES","title_track",0);
+		moduledata.ending_track = get_config_int("DATAFILES","ending_track",1);
+		moduledata.tf_track = get_config_int("DATAFILES","tf_track",5);
+		moduledata.gameover_track = get_config_int("DATAFILES","gameover_track",0);
+		moduledata.dungeon_track = get_config_int("DATAFILES","dungeon_track",0);
+		moduledata.overworld_track = get_config_int("DATAFILES","overworld_track",0);
+		moduledata.lastlevel_track = get_config_int("DATAFILES","lastlevel_track",0);
+		
+		const char enemy_family_strings[eeMAX][255] =
+		{
+			"ee_family_guy","ee_family_walk","ee_family_shoot","ee_family_tek","ee_family_lev",
+			"ee_family_pea","ee_family_zor","ee_family_rock","ee_family_gh","ee_family_arm",
+			//10
+			"ee_family_ke","ee_family_ge","ee_family_zl","ee_family_rp","ee_family_gor",
+			"ee_family_trap","ee_family_wm","ee_family_jinx","ee_family_vir","ee_family_rike",
+			//20
+			"ee_family_pol","ee_family_wiz","ee_family_aqu","ee_family_mold","ee_family_dod",
+			"ee_family_mhd","ee_family_glk","ee_family_dig","ee_family_goh","ee_family_lan",
+			//30
+			"ee_family_pat","ee_family_gan","ee_family_proj","ee_family_gtrib","ee_family_ztrib",
+			"ee_family_vitrib","ee_family_ketrib","ee_family_spintile","ee_family_none","ee_family_faerie",
+			//40
+			"ee_family_otherflt","ee_family_other", "max250",
+			"Custom_01", "Custom_02", "Custom_03", "Custom_04", "Custom_05",
+			"Custom_06", "Custom_07", "Custom_08", "Custom_09", "Custom_10",
+			"Custom_11", "Custom_12", "Custom_13", "Custom_14", "Custom_15",
+			"Custom_16", "Custom_17", "Custom_18", "Custom_19", "Custom_20",
+			"Friendly_NPC_01", "Friendly_NPC_02", "Friendly_NPC_03", "Friendly_NPC_04",
+			"Friendly_NPC_05", "Friendly_NPC_06", "Friendly_NPC_07",
+			"Friendly_NPC_08", "Friendly_NPC_09", "Friendly_NPC_10"
+		};
+		
+		const char default_enemy_types[eeMAX][255] =
+		{
+		    "-Guy","Walking Enemy","-Unused","Tektite","Leever",
+			"Peahat","Zora","Rock","Ghini","-Unused",
+			"Keese","-Unused","-Unused","-Unused","-Unused",//goriya
+			"Trap","Wall Master","-Unused","-Unused","-Unused",//likelike
+			"-Unused","Wizzrobe","Aquamentus","Moldorm","Dodongo",
+			"Manhandla","Gleeok","Digdogger","Gohma","Lanmola",
+			"Patra","Ganon","Projectile Shooter","-Unused","-Unused",//zol trib
+			"-Unused","-Unused","Spin Tile","(None)","-Fairy","Other (Floating)","Other",
+			"-max250",
+  		        "Custom 01", "Custom 02", "Custom 03", "Custom 04", "Custom 05",
+		        "Custom 06", "Custom 07", "Custom 08", "Custom 09", "Custom 10",
+		        "Custom 11", "Custom 12", "Custom 13", "Custom 14", "Custom 15",
+		        "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20",
+		        "Friendly NPC 01", "Friendly NPC 02", "Friendly NPC 03", "Friendly NPC 04",
+		        "Friendly NPC 05", "Friendly NPC 06", "Friendly NPC 07",
+		        "Friendly NPC 08", "Friendly NPC 09", "Friendly NPC 10"
+		};
+		for ( int q = 0; q < eeMAX; q++ )
+		{
+			strcpy(moduledata.enem_type_names[q],get_config_string("ENEMIES",enemy_family_strings[q],default_enemy_types[q]));
+			//al_trace("Enemy family ID %d is: %s\n", q, moduledata.enem_type_names[q]);
+		}
+		const char default_enemy_anims[aMAX][255] =
+		{
+			"(None)","Flip","-Unused","2-Frame","-Unused",
+			"Octorok (NES)","Tektite (NES)","Leever (NES)","Walker","Zora (NES)",
+			"Zora (4-Frame)","Ghini","Armos (NES)","Rope","Wall Master (NES)",
+			"Wall Master (4-Frame)","Darknut (NES)","Vire","3-Frame","Wizzrobe (NES)",
+			"Aquamentus","Dodongo (NES)","Manhandla","Gleeok","Digdogger",
+			"Gohma","Lanmola","2-Frame Flying","4-Frame 4-Dir + Tracking","4-Frame 8-Dir + Tracking",
+			"4-Frame 4-Dir + Firing","4-Frame 4-Dir","4-Frame 8-Dir + Firing","Armos (4-Frame)","4-Frame Flying 4-Dir",
+			"4-Frame Flying 8-Dir","-Unused","4-Frame 8-Dir Big","Tektite (4-Frame)","3-Frame 4-Dir",
+			"2-Frame 4-Dir","Leever (4-Frame)","2-Frame 4-Dir + Tracking","Wizzrobe (4-Frame)","Dodongo (4-Frame)",
+			"Dodongo BS (4-Frame)","4-Frame Flying 8-Dir + Firing","4-Frame Flying 4-Dir + Firing","4-Frame","Ganon",
+			"2-Frame Big"
+		};
+		const char enemy_anim_strings[aMAX][255] =
+		{
+			"ea_none","ea_flip","ea_unused1","ea_2frame","ea_unused2",
+			"ea_oct","ea_tek","ea_lev","ea_walk","ea_zor",
+			"ea_zor4","ea_gh","ea_arm","ea_rp","ea_wm",
+			"ea_wm4","ea_dkn","ea_vir", "ea_3f","ea_wiz",
+			"ea_aqu","ea_dod","ea_mhn","ea_gkl","ea_dig",
+			"ea_goh","ea_lan","ea_fly2","ea_4f4dT","ea_4f8dT",
+			"ea_4f4dF","ea_4f4d","ea_4f8dF","ea_arm","ea_fly_4f4d",
+			"ea_fly4f8d","ea_unused3","ea_4f8dLG","ea_tek4","ea_3f4d",
+			"ea_2f4d","ea_lev4","ea_2f4dT","ea_wiz4","ea_dod4",
+			"ea_bsdod","ea_fly4f4dT","ea_fly_4f4dF","ea_4f","ea_gan",
+			"ea_2fLG"
+		};
+		for ( int q = 0; q < aMAX; q++ )
+		{
+			strcpy(moduledata.enem_anim_type_names[q],get_config_string("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
+			//al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
+		}
+		
+		
+		//item editor
+		
+		//item families
+		const char default_itype_strings[itype_max][255] = 
+		{ 
+			"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
+			"Bait", "Letters", "Potions", "Wands", "Rings", 
+			"Wallets", "Amulets", "Shields", "Bows", "Rafts",
+			"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
+			"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
+			"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
+			"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
+			"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
+			"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
+			"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items", 
+			"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings", 
+			"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", 
+			"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings", 
+			"Peril Rings", "Non-gameplay Items", "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03",
+			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
+			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
+			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
+			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)", "zz089"
+		};
+						     
+		const char itype_fields[itype_max][255] =
+		{
+			"ic_sword","ic_brang", "ic_arrow","ic_cand","ic_whis",
+			"ic_meat", "ic_rx", "ic_potion", 
+			"ic_wand","ic_armour","ic_wallet","ic_amul","ic_shield",
+			//10
+			"ic_bow","ic_raft","ic_ladder","ic_spellbook","ic_mkey",
+			"ic_glove","ic_flip","ic_boot","ic_grapple","ic_lens",
+			//20
+			"ic_hammer","ic_firespell","ic_exitspell","ic_shieldspell","ic_bomb",
+			"ic_sbomb","ic_fobwatch","ic_key","ic_mcp","ic_mcguf",
+			//30
+			"ic_map","ic_compass","ic_bkey","ic_quiv","ic_lkey",
+			"ic_cane","ic_money","ic_ammow_arrow","ic_faerie","ic_magic",
+			//40
+			"ic_health","ic_hc","ic_hcp","ic_killall","ic_ammo_bomb",
+			"ic_bombbag","ic_feath","ic_hover","ic_spinat","ic_crossbeam",
+			//50
+			"ic_quakeham","ic_ring_whisp","ic_ring_charge","ic_perilbeam","ic_wmedal",
+			"ic_ring_hp","ic_ring_mp","ic_multispin","ic_supquake","ic_dowse",
+			//60
+			"ic_stomp","ic_ring_crit","ic_ring_peril","ic_ngongameplay","ic_cic01",
+			"ic_cic02","ic_cic03","ic_cic04","ic_cic05","ic_cic06",
+			//70
+			"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
+			"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
+			//80
+			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle","ic_last",
+			
+			"ic_89","ic_90","ic_91","ic_92","ic_93","ic_94","ic_95","ic_96","ic_97","ic_98","ic_99","ic_100","ic_101","ic_102","ic_103","ic_104",
+			"ic_105","ic_106","ic_107","ic_108","ic_109","ic_111","ic_112","ic_113","ic_114","ic_115","ic_116","ic_117","ic_118","ic_119","ic_120","ic_121",
+			"ic_122","ic_123","ic_124","ic_125","ic_126","ic_127","ic_128","ic_129","ic_130","ic_131","ic_132","ic_133","ic_134","ic_135","ic_136","ic_137",
+			"ic_138","ic_139","ic_140","ic_141","ic_142","ic_143","ic_144","ic_145","ic_146","ic_147","ic_148","ic_149","ic_150","ic_151","ic_152","ic_153",
+			"ic_154","ic_155","ic_156","ic_157","ic_158","ic_159","ic_160","ic_161","ic_162","ic_163","ic_164","ic_165","ic_166","ic_167","ic_168","ic_169",
+			"ic_170","ic_171","ic_172","ic_173","ic_174","ic_175","ic_176","ic_177","ic_178","ic_179","ic_180","ic_181","ic_182","ic_183","ic_184","ic_185",
+			"ic_186","ic_187","ic_188","ic_189","ic_190","ic_191","ic_192","ic_193","ic_194","ic_195","ic_196","ic_197","ic_198","ic_199","ic_200","ic_201",
+			"ic_202","ic_203","ic_204","ic_205","ic_206","ic_207","ic_208","ic_209","ic_210","ic_211","ic_212","ic_213","ic_214","ic_215","ic_216","ic_217",
+			"ic_218","ic_219","ic_220","ic_221","ic_222","ic_223","ic_224","ic_225","ic_226","ic_227","ic_228","ic_229","ic_230","ic_231","ic_232","ic_233",
+			"ic_234","ic_235","ic_236","ic_237","ic_238","ic_239","ic_240","ic_241","ic_242","ic_243","ic_244","ic_245","ic_246","ic_247","ic_248","ic_249",
+			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255","ic_256","ic_257","ic_258","ic_259","ic_260","ic_261","ic_262","ic_263","ic_264","ic_265",
+			"ic_266","ic_267","ic_267","ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
+			"ic_286","ic_287","ic_288","ic_289","ic_290","ic_291","ic_292","ic_293","ic_294","ic_295","ic_296","ic_297","ic_298","ic_299","ic_300","ic_301","ic_302","ic_303","ic_304",
+			"ic_305","ic_306","ic_307","ic_308","ic_309","ic_311","ic_312","ic_313","ic_314","ic_315","ic_316","ic_317","ic_318","ic_319","ic_320","ic_321",
+			"ic_322","ic_323","ic_324","ic_325","ic_326","ic_327","ic_328","ic_329","ic_330","ic_331","ic_332","ic_333","ic_334","ic_335","ic_336","ic_337",
+			"ic_338","ic_339","ic_340","ic_341","ic_342","ic_343","ic_344","ic_345","ic_346","ic_347","ic_348","ic_349","ic_350","ic_351","ic_352","ic_353",
+			"ic_354","ic_355","ic_356","ic_357","ic_358","ic_359","ic_360","ic_361","ic_362","ic_363","ic_364","ic_365","ic_366","ic_367","ic_368","ic_369",
+			"ic_370","ic_371","ic_372","ic_373","ic_374","ic_375","ic_376","ic_377","ic_378","ic_379","ic_380","ic_381","ic_382","ic_383","ic_384","ic_385",
+			"ic_386","ic_387","ic_388","ic_389","ic_390","ic_391","ic_392","ic_393","ic_394","ic_395","ic_396","ic_397","ic_398","ic_399","ic_400","ic_401","ic_402","ic_403","ic_404",
+			"ic_405","ic_406","ic_407","ic_408","ic_409","ic_411","ic_412","ic_413","ic_414","ic_415","ic_416","ic_417","ic_418","ic_419","ic_420","ic_421",
+			"ic_422","ic_423","ic_424","ic_425","ic_426","ic_427","ic_428","ic_429","ic_430","ic_431","ic_432","ic_433","ic_434","ic_435","ic_436","ic_437",
+			"ic_438","ic_439","ic_440","ic_441","ic_442","ic_443","ic_444","ic_445","ic_446","ic_447","ic_448","ic_449","ic_450","ic_451","ic_452","ic_453",
+			"ic_454","ic_455","ic_456","ic_457","ic_458","ic_459","ic_460","ic_461","ic_462","ic_463","ic_464","ic_465","ic_466","ic_467","ic_468","ic_469",
+			"ic_470","ic_471","ic_472","ic_473","ic_474","ic_475","ic_476","ic_477","ic_478","ic_479","ic_480","ic_481","ic_482","ic_483","ic_484","ic_485",
+			"ic_486","ic_487","ic_488","ic_489","ic_490","ic_491","ic_492","ic_493","ic_494","ic_495","ic_496","ic_497","ic_498","ic_499","ic_500","ic_501","ic_502","ic_503","ic_504",
+			"ic_505","ic_506","ic_507","ic_508","ic_509","ic_511"
+		};
+		for ( int q = 0; q < itype_max; q++ )
+		{
+			strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
+			//al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
+		}
+		
+		//combo editor
+		const char combo_name_fields[cMAX][255]=
+		{
+		    "cNONE", "cSTAIR", "cCAVE", "cWATER", "cSTATUE", "cGRAVE", "cDOCK",
+		    "cUNDEF", "cPUSH_WAIT", "cPUSH_HEAVY", "cPUSH_HW", "cL_STATUE", "cR_STATUE",
+		    "cWALKSLOW", "cCVUP", "cCVDOWN", "cCVLEFT", "cCVRIGHT", "cSWIMWARP", "cDIVEWARP",
+		    "cLADDERORGRAPPLE", "cTRIGNOFLAG", "cTRIGFLAG", "cWINGAME", "cSLASH", "cSLASHITEM",
+		    "cPUSH_HEAVY2", "cPUSH_HW2", "cPOUND", "cHSGRAB", "cHSBRIDGE", "cDAMAGE1",
+		    "cDAMAGE2", "cDAMAGE3", "cDAMAGE4", "cC_STATUE", "cTRAP_H", "cTRAP_V", "cTRAP_4",
+		    "cTRAP_LR", "cTRAP_UD", "cPIT", "cGRAPPLEONLY", "cOVERHEAD", "cNOFLYZONE", "cMIRROR",
+		    "cMIRRORSLASH", "cMIRRORBACKSLASH", "cMAGICPRISM", "cMAGICPRISM4",
+		    "cMAGICSPONGE", "cCAVE2", "cEYEBALL_A", "cEYEBALL_B", "cNOJUMPZONE", "cBUSH",
+		    "cFLOWERS", "cTALLGRASS", "cSHALLOWWATER", "cLOCKBLOCK", "cLOCKBLOCK2",
+		    "cBOSSLOCKBLOCK", "cBOSSLOCKBLOCK2", "cLADDERONLY", "cBSGRAVE",
+		    "cCHEST", "cCHEST2", "cLOCKEDCHEST", "cLOCKEDCHEST2", "cBOSSCHEST", "cBOSSCHEST2",
+		    "cRESET", "cSAVE", "cSAVE2", "cCAVEB", "cCAVEC", "cCAVED",
+		    "cSTAIRB", "cSTAIRC", "cSTAIRD", "cPITB", "cPITC", "cPITD",
+		    "cCAVE2B", "cCAVE2C", "cCAVE2D", "cSWIMWARPB", "cSWIMWARPC", "cSWIMWARPD",
+		    "cDIVEWARPB", "cDIVEWARPC", "cDIVEWARPD", "cSTAIRR", "cPITR",
+		    "cAWARPA", "cAWARPB", "cAWARPC", "cAWARPD", "cAWARPR",
+		    "cSWARPA", "cSWARPB", "cSWARPC", "cSWARPD", "cSWARPR", "cSTRIGNOFLAG", "cSTRIGFLAG",
+		    "cSTEP", "cSTEPSAME", "cSTEPALL", "cSTEPCOPY", "cNOENEMY", "cBLOCKARROW1", "cBLOCKARROW2",
+		    "cBLOCKARROW3", "cBLOCKBRANG1", "cBLOCKBRANG2", "cBLOCKBRANG3", "cBLOCKSBEAM", "cBLOCKALL",
+		    "cBLOCKFIREBALL", "cDAMAGE5", "cDAMAGE6", "cDAMAGE7", "cCHANGE", "cSPINTILE1", "cSPINTILE2",
+		    "cSCREENFREEZE", "cSCREENFREEZEFF", "cNOGROUNDENEMY", "cSLASHNEXT", "cSLASHNEXTITEM", "cBUSHNEXT",
+		    "cSLASHTOUCHY", "cSLASHITEMTOUCHY", "cBUSHTOUCHY", "cFLOWERSTOUCHY", "cTALLGRASSTOUCHY",
+		    "cSLASHNEXTTOUCHY", "cSLASHNEXTITEMTOUCHY", "cBUSHNEXTTOUCHY", "cEYEBALL_4", "cTALLGRASSNEXT",
+		    "cSCRIPT1", "cSCRIPT2", "cSCRIPT3", "cSCRIPT4", "cSCRIPT5",
+		    "cSCRIPT6", "cSCRIPT7", "cSCRIPT8", "cSCRIPT9", "cSCRIPT10",
+		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
+		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20"
+		    
+		};
+		
+		for ( int q = 0; q < cMAX; q++ )
+		{
+			strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],""));
+			//al_trace("Combo ID %d TYPE is: %s\n", q, moduledata.combo_type_names[q]);
+		}
+		
+		//map flags
+		
+		const char map_flag_cats[mfMAX][256]=
+		{
+			"mfNONE","mfPUSHUD","mfPUSH4","mfWHISTLE","mfBCANDLE","mfARROW","mfBOMB","mfFAIRY","mfRAFT","mfSTATUE_SECRET","mfSTATUE_ITEM","mfSBOMB","mfRAFT_BRANCH","mfDIVE_ITEM","mfLENSMARKER","mfWINGAME",
+			"mfSECRETS01","mfSECRETS02","mfSECRETS03","mfSECRETS04","mfSECRETS05","mfSECRETS06","mfSECRETS07","mfSECRETS08","mfSECRETS09","mfSECRETS10","mfSECRETS11","mfSECRETS12","mfSECRETS13","mfSECRETS14","mfSECRETS15","mfSECRETS16",
+			"mfTRAP_H","mfTRAP_V","mfTRAP_4","mfTRAP_LR","mfTRAP_UD","mfENEMY0","mfENEMY1","mfENEMY2","mfENEMY3","mfENEMY4","mfENEMY5","mfENEMY6","mfENEMY7","mfENEMY8","mfENEMY9","mfPUSHLR",
+			"mfPUSHU","mfPUSHD","mfPUSHL","mfPUSHR","mfPUSHUDNS","mfPUSHLRNS","mfPUSH4NS","mfPUSHUNS","mfPUSHDNS","mfPUSHLNS","mfPUSHRNS","mfPUSHUDINS","mfPUSHLRINS","mfPUSH4INS","mfPUSHUINS","mfPUSHDINS",
+			"mfPUSHLINS","mfPUSHRINS","mfBLOCKTRIGGER","mfNOBLOCKS","mfBRANG","mfMBRANG","mfFBRANG","mfSARROW","mfGARROW","mfRCANDLE","mfWANDFIRE","mfDINSFIRE","mfWANDMAGIC","mfREFMAGIC","mfREFFIREBALL","mfSWORD",
+			"mfWSWORD","mfMSWORD","mfXSWORD","mfSWORDBEAM","mfWSWORDBEAM","mfMSWORDBEAM","mfXSWORDBEAM","mfGRAPPLE","mfWAND","mfHAMMER","mfSTRIKE","mfBLOCKHOLE","mfMAGICFAIRY","mfALLFAIRY","mfSINGLE","mfSINGLE16",
+			"mfNOENEMY","mfNOGROUNDENEMY","mfSCRIPT1","mfSCRIPT2","mfSCRIPT3","mfSCRIPT4","mfSCRIPT5","mfRAFT_BOUNCE","mfPUSHED","mfSCRIPT6","mfSCRIPT7","mfSCRIPT8","mfSCRIPT9","mfSCRIPT10","mfSCRIPT11","mfSCRIPT12",
+			"mfSCRIPT13","mfSCRIPT14","mfSCRIPT15","mfSCRIPT16","mfSCRIPT17","mfSCRIPT18","mfSCRIPT19","mfSCRIPT20","mfPITHOLE","mfPITFALLFLOOR","mfLAVA","mfICE","mfICEDAMAGE","mfDAMAGE1","mfDAMAGE2","mfDAMAGE4",
+			"mfDAMAGE8","mfDAMAGE16","mfDAMAGE32","mfFREEZEALL","mfFREZEALLANSFFCS","mfFREEZEFFCSOLY","mfSCRITPTW1TRIG","mfSCRITPTW2TRIG","mfSCRITPTW3TRIG","mfSCRITPTW4TRIG","mfSCRITPTW5TRIG","mfSCRITPTW6TRIG","mfSCRITPTW7TRIG","mfSCRITPTW8TRIG","mfSCRITPTW9TRIG","mfSCRITPTW10TRIG",
+			"mfTROWEL","mfTROWELNEXT","mfTROWELSPECIALITEM","mfSLASHPOT","mfLIFTPOT","mfLIFTORSLASH","mfLIFTROCK","mfLIFTROCKHEAVY","mfDROPITEM","mfSPECIALITEM","mfDROPKEY","mfDROPLKEY","mfDROPCOMPASS","mfDROPMAP","mfDROPBOSSKEY","mfSPAWNNPC",
+			"mfSWITCHHOOK","mfSIDEVIEWLADDER","mfSIDEVIEWPLATFORM","mf163","mf164","mf165","mf166","mf167","mf168","mf169","mf170","mf171","mf172","mf173","mf174","mf175",
+			"mf176","mf177","mf178","mf179","mf180","mf181","mf182","mf183","mf184","mf185","mf186","mf187","mf188","mf189","mf190","mf191",
+			"mf192","mf193","mf194","mf195","mf196","mf197","mf198","mf199","mf200","mf201","mf202","mf203","mf204","mf205","mf206","mf207",
+			"mf208","mf209","mf210","mf211","mf212","mf213","mf214","mf215","mf216","mf217","mf218","mf219","mf220","mf221","mf222","mf223",
+			"mf224","mf225","mf226","mf227","mf228","mf229","mf230","mf231","mf232","mf233","mf234","mf235","mf236","mf237","mf238","mf239",
+			"mf240","mf241","mf242","mf243","mf244","mf245","mf246","mf247","mf248","mf249","mf250","mf251","mf252","mf253","mf254","mfEXTENDED"
+		};
+		const char map_flag_default_string[mfMAX][255] =
+		{
+		    "  0 (None)",    "  1 Push Block (Vertical, Trigger)",    "  2 Push Block (4-Way, Trigger)",    "  3 Whistle Trigger",    "  4 Burn Trigger (Any)",    "  5 Arrow Trigger (Any)",    "  6 Bomb Trigger (Any)",    "  7 Fairy Ring (Life)",
+		    "  8 Raft Path",    "  9 Armos -> Secret",    " 10 Armos/Chest -> Item",    " 11 Bomb (Super)",    " 12 Raft Branch",    " 13 Dive -> Item",    " 14 Lens Marker",    " 15 Zelda (Win Game)",
+		    " 16 Secret Tile 0",    " 17 Secret Tile 1",    " 18 Secret Tile 2",    " 19 Secret Tile 3",    " 20 Secret Tile 4",    " 21 Secret Tile 5",    " 22 Secret Tile 6",    " 23 Secret Tile 7",
+		    " 24 Secret Tile 8",    " 25 Secret Tile 9",    " 26 Secret Tile 10",    " 27 Secret Tile 11",    " 28 Secret Tile 12",    " 29 Secret Tile 13",    " 30 Secret Tile 14",    " 31 Secret Tile 15",
+		    " 32 Trap (Horizontal, Line of Sight)",    " 33 Trap (Vertical, Line of Sight)",    " 34 Trap (4-Way, Line of Sight)",    " 35 Trap (Horizontal, Constant)",    " 36 Trap (Vertical, Constant)",    " 37 Enemy 0",    " 38 Enemy 1",    " 39 Enemy 2",
+		    " 40 Enemy 3",    " 41 Enemy 4",    " 42 Enemy 5",    " 43 Enemy 6",    " 44 Enemy 7",    " 45 Enemy 8",    " 46 Enemy 9",    " 47 Push Block (Horiz, Once, Trigger)",
+		    " 48 Push Block (Up, Once, Trigger)",    " 49 Push Block (Down, Once, Trigger)",    " 50 Push Block (Left, Once, Trigger)",    " 51 Push Block (Right, Once, Trigger)",    " 52 Push Block (Vert, Once)",    " 53 Push Block (Horizontal, Once)",    " 54 Push Block (4-Way, Once)",    " 55 Push Block (Up, Once)",
+		    " 56 Push Block (Down, Once)",    " 57 Push Block (Left, Once)",    " 58 Push Block (Right, Once)",    " 59 Push Block (Vertical, Many)",    " 60 Push Block (Horizontal, Many)",    " 61 Push Block (4-Way, Many)",    " 62 Push Block (Up, Many)",    " 63 Push Block (Down, Many)",
+		    " 64 Push Block (Left, Many)",    " 65 Push Block (Right, Many)",    " 66 Block Trigger",    " 67 No Push Blocks",    " 68 Boomerang Trigger (Any)",    " 69 Boomerang Trigger (Magic +)",    " 70 Boomerang Trigger (Fire)",    " 71 Arrow Trigger (Silver +)",
+		    " 72 Arrow Trigger (Golden)",    " 73 Burn Trigger (Red Candle +)",    " 74 Burn Trigger (Wand Fire)",    " 75 Burn Trigger (Din's Fire)",    " 76 Magic Trigger (Wand)",    " 77 Magic Trigger (Reflected)",    " 78 Fireball Trigger (Reflected)",    " 79 Sword Trigger (Any)",
+		    " 80 Sword Trigger (White +)",    " 81 Sword Trigger (Magic +)",    " 82 Sword Trigger (Master)",    " 83 Sword Beam Trigger (Any)",    " 84 Sword Beam Trigger (White +)",    " 85 Sword Beam Trigger (Magic +)",    " 86 Sword Beam Trigger (Master)",    " 87 Hookshot Trigger",
+		    " 88 Wand Trigger",    " 89 Hammer Trigger",    " 90 Strike Trigger",    " 91 Block Hole (Block -> Next)",    " 92 Fairy Ring (Magic)",    " 93 Fairy Ring (All)",    " 94 Trigger -> Self Only",    " 95 Trigger -> Self, Secret Tiles",
+		    " 96 No Enemies",    " 97 No Ground Enemies",    " 98 General Purpose 1 (Scripts)",    " 99 General Purpose 2 (Scripts)",    "100 General Purpose 3 (Scripts)",    "101 General Purpose 4 (Scripts)",    "102 General Purpose 5 (Scripts)",    "103 Raft Bounce",
+		     "104 Pushed",    "105 General Purpose 6 (Scripts)",    "106 General Purpose 7 (Scripts)",    "107 General Purpose 8 (Scripts)",    "108 General Purpose 9 (Scripts)",    "109 General Purpose 10 (Scripts)",    "110 General Purpose 11 (Scripts)",    "111 General Purpose 12 (Scripts)",
+		    "112 General Purpose 13 (Scripts)",    "113 General Purpose 14 (Scripts)",    "114 General Purpose 15 (Scripts)",    "115 General Purpose 16 (Scripts)",    "116 General Purpose 17 (Scripts)",    "117 General Purpose 18 (Scripts)",    "118 General Purpose 19 (Scripts)",    "119 General Purpose 20 (Scripts)",
+		    "120 Pit or Hole (Scripted)",    "121 Pit or Hole, Fall Down Floor (Scripted)",    "122 Fire or Lava (Scripted)",    "123 Ice (Scripted)",    "124 Ice, Damaging (Scripted)",    "125 Damage-1 (Scripted)",    "126 Damage-2 (Scripted)",    "127 Damage-4 (Scripted)",
+		    "128 Damage-8 (Scripted)",    "129 Damage-16 (Scripted)",    "130 Damage-32 (Scripted)",    "131 Freeze Screen (Unimplemented)",    "132 Freeze Screen, Except FFCs (Unimplemented)",    "133 Freeze FFCs Only (Unimplemented)",    "134 Trigger LW_SCRIPT1 (Unimplemented)",    "135 Trigger LW_SCRIPT2 (Unimplemented)",
+		    "136 Trigger LW_SCRIPT3 (Unimplemented)",    "137 Trigger LW_SCRIPT4 (Unimplemented)",    "138 Trigger LW_SCRIPT5 (Unimplemented)",    "139 Trigger LW_SCRIPT6 (Unimplemented)",    "140 Trigger LW_SCRIPT7 (Unimplemented)",    "141 Trigger LW_SCRIPT8 (Unimplemented)",    "142 Trigger LW_SCRIPT9 (Unimplemented)",    "143 Trigger LW_SCRIPT10 (Unimplemented)",
+		    "144 Dig Spot (Scripted)",    "145 Dig Spot, Next (Scripted)",    "146 Dig Spot, Special Item (Scripted)",    "147 Pot, Slashable (Scripted)",    "148 Pot, Liftable (Scripted)",    "149 Pot, Slash or Lift (Scripted)",    "150 Rock, Lift Normal (Scripted)",    "151 Rock, Lift Heavy (Scripted)",
+		    "152 Dropset Item (Scripted)",    "153 Special Item (Scripted)",    "154 Drop Key (Scripted)",    "155 Drop level-Specific Key (Scripted)",    "156 Drop Compass (Scripted)",    "157 Drop Map (Scripted)",    "158 Drop Bosskey (Scripted)",    "159 Spawn NPC (Scripted)",
+		    "160 SwitchHook Spot (Scripted)",    "161 Sideview Ladder",    "162 Sideview Platform","163 mf163","164 mf164","165 mf165","166 mf166","167 mf167","168 mf168","169 mf169",    "170 mf170","171 mf171","172 mf172","173 mf173","174 mf174","175 mf175","176 mf176","177 mf177","178 mf178","179 mf179",
+		    "180 mf180","181 mf181","182 mf182","183 mf183","184 mf184","185 mf185","186 mf186","187 mf187","188 mf188","189 mf189",    "190 mf190","191 mf191","192 mf192","193 mf193","194 mf194","195 mf195","196 mf196","197 mf197","198 mf198","199 mf199",
+		    "200 mf200","201 mf201","202 mf202","203 mf203","204 mf204","205 mf205","206 mf206","207 mf207","208 mf208","209 mf209",    "210 mf210","211 mf211","212 mf212","213 mf213","214 mf214","215 mf215","216 mf216","217 mf217","218 mf218","219 mf219",
+		    "220 mf220","221 mf221","222 mf222","223 mf223","224 mf224","225 mf225","226 mf226","227 mf227","228 mf228","229 mf229",    "230 mf230","231 mf231","232 mf232","233 mf233","234 mf234","235 mf235","236 mf236","237 mf237","238 mf238","239 mf239",
+		    "240 mf240","241 mf241","242 mf242","243 mf243","244 mf244","245 mf245","246 mf246","247 mf247","248 mf248","249 mf249",    "250 mf250","251 mf251","252 mf252","253 mf253","254 mf254",
+		    "255 Extended (Extended Flag Editor)"
+		};
+		for ( int q = 0; q < mfMAX; q++ )
+		{
+			strcpy(moduledata.combo_flag_names[q],get_config_string("MAPFLAGS",map_flag_cats[q],map_flag_default_string[q]));
+			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.combo_flag_names[q]);
+		}
+		const char roomtype_cats[rMAX][256] =
+		{
+			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
+			"rQUESTOBJ","rP_SHOP","rSHOP","rBOMBS","rSWINDLE","r10RUPIES","rWARP","rMAINBOSS","rWINGAME",
+			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE"
+		};
+		const char roomtype_defaults[rMAX][255] =
+		{
+		    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
+		    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+		    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+		};
+		for ( int q = 0; q < rMAX; q++ )
+		{
+			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
+			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
+		}
+		
+		const char enemy_walk_type_defaults[e9tARMOS+1][255] =
+		{
+		    "Normal", "Rope", "Vire", "Pols Voice", "Armos"
+		};
+
+		const char enemy_walk_style_cats[e9tARMOS+1][255]=
+		{
+			"wsNormal","wsCharge","wsHopSplit","wsHop","wsStatue"
+		};
+		for ( int q = 0; q < e9tARMOS+1; q++ )
+		{
+			strcpy(moduledata.walkmisc9_names[q],get_config_string("ENEMYWALKSTYLE",enemy_walk_style_cats[q],enemy_walk_type_defaults[q]));
+			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.walkmisc9_names[q]);
+		}
+		const char guy_types[gDUMMY1][255]=
+		{
+			"gNONE", "gOLDMAN", "gOLDWOMAN", "gDUDE", "gORC",
+		    "gFIRE", "gFAIRY", "gGRUMBLE", "gPRINCESS", "gOLDMAN2",
+		    "gEMPTY"
+		};
+
+		const char guy_default_names[gDUMMY1][255]=
+		{
+			"(None)","Abei","Ama","Merchant","Moblin","Fire",
+			"Fairy","Goriya","Zelda","Abei 2","Empty"
+		};
+		for ( int q = 0; q < gDUMMY1; q++ )
+		{
+			strcpy(moduledata.guy_type_names[q],get_config_string("GUYS",guy_types[q],guy_default_names[q]));
+			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.guy_type_names[q]);
+		}
+		
+		const char enemy_weapon_cats[wMax-wEnemyWeapons][255]=
+		{
+			"ewNone",
+			"ewFireball",
+			"ewArrow",
+			"ewBrang",
+			"ewSword",
+			"ewRock",
+			"ewMagic",
+			"ewBomb",
+			"ewSBomb",
+			"ewLitBomb",
+			"ewLitSBomb",
+			"ewFireTrail",
+			"ewFlame",
+			"ewWind",
+			"ewFlame2",
+			"ewFlame2Trail",
+			"ewIce",
+			"ewFireball2"
+		};
+		
+		const char enemy_weapon_default_names[wMax-wEnemyWeapons][255]=
+		{
+			"(None)",
+			"Fireball",
+			"Arrow",
+			"Boomerang",
+			"Sword",
+			"Rock",
+			"Magic",
+			"Bomb Blast",
+			"Super Bomb Blast",
+			"Lit Bomb",
+			"Lit Super Bomb",
+			"Fire Trail",
+			"Flame",
+			"Wind",
+			"Flame 2",
+			"-Flame 2 Trail <unused>",
+			"-Ice <unused>",
+			"Fireball (Rising)"
+		};
+		
+		for ( int q = 0; q < sizeof(enemy_weapon_default_names)/255; q++ )
+		{
+			strcpy(moduledata.enemy_weapon_names[q],get_config_string("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
+			//al_trace("EWeapon ID %d is: %s\n", q, moduledata.enemy_weapon_names[q]);
+		}
+		const char lweapon_cats[wIce+1][255]=
+		{
+			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",
+			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
+			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
+			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
+			"lwCane","lwRefBeam", "lwStomp","lwScript1", "lwScript2", "lwScript3", 
+			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
+		};
+		const char lweapon_default_names[wIce+1][255]=
+		{
+			"(None)","Sword","Sword Beam","Boomerang","Bomb","Super Bomb","Lit Bomb",
+			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
+			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshit", "-HSHandle", 
+			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
+			"Cane of Byrna","Reflected Sword Beam", "-Stomp","Script1", "Script2", "Script3", 
+			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
+		};
+		for ( int q = 0; q < wIce+1; q++ )
+		{
+			strcpy(moduledata.player_weapon_names[q],get_config_string("LEAPONS",lweapon_cats[q],lweapon_default_names[q]));
+			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
+		}
+		const char counter_cats[33][255]=
+		{
+			"crNONE","crLIFE","crMONEY","crBOMBS","crARROWS","crMAGIC","crKEYS",
+			"crSBOMBS","crCUSTOM1","crCUSTOM2","crCUSTOM3","crCUSTOM4","crCUSTOM5","crCUSTOM6",
+			"crCUSTOM7","crCUSTOM8","crCUSTOM9","crCUSTOM10","crCUSTOM11","crCUSTOM12","crCUSTOM13",
+			"crCUSTOM14","crCUSTOM15","crCUSTOM16","crCUSTOM17","crCUSTOM18","crCUSTOM19",
+			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
+		};
+
+		const char counter_default_names[33][255]=
+		{
+			"None","Life","Rupees", "Bombs","Arrows","Magic",
+			"Keys","Super Bombs","Custom 1","Custom 2","Custom 3",
+			"Custom 4","Custom 5","Custom 6","Custom 7","Custom 8",
+			"Custom 9","Custom 10","Custom 11","Custom 12",
+			"Custom 13","Custom 14","Custom 15","Custom 16","Custom 17",
+			"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22"
+			"Custom 23","Custom 24","Custom 25"	
+		};
+		for ( int q = 0; q < 33; q++ )
+		{
+			strcpy(moduledata.counter_names[q],get_config_string("COUNTERS",counter_cats[q],counter_default_names[q]));
+			//al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
+		}
+		
+		for ( int q = 0; q < itype_max*3; q++ )
+		{
+			char temp_help_str[512];
+			strcpy(temp_help_str,get_config_string("ITEMHELP",itemclass_help_string_cats[q],""));
+			if ( temp_help_str[0] == NULL ) 
+			{
+				strcpy(temp_help_str,itemclass_help_string_defaults[q]);
+			}
+			if ( temp_help_str[0] == '-' )
+			{
+				strcpy(temp_help_str,"");
+			}
+			strcpy(moduledata.itemclass_help_strings[q],temp_help_str);
+			//strcpy(moduledata.itemclass_help_strings[q],get_config_string("ITEMHELP",itemclass_help_string_cats[q],itemclass_help_string_defaults[q]));
+			//al_trace("Item Help String %d is: %s\n", q, moduledata.itemclass_help_strings[q]);
+		}
+	}
+	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
+	
+}
+
+//Prints out the current Module struct data to allegro.log
+void ZModule::debug()
+{
+	//al_trace("Module field: %s, is: %s\n", "module_name", moduledata.module_name);
+	//al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
+	
+	//quests
+	/*
+	al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
+	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata.quests[0]);
+	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata.quests[1]);
+	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata.quests[2]);
+	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata.quests[3]);
+	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata.quests[4]);
+	
+	//skip codes
+	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata.skipnames[0]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata.skipnames[1]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata.skipnames[2]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata.skipnames[3]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata.skipnames[4]);
+
+	//datafiles
+	al_trace("Module field: %s, is: %s\n", "datafiles[zelda_dat]",moduledata.datafiles[zelda_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[zquest_dat]",moduledata.datafiles[zquest_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[fonts_dat]",moduledata.datafiles[fonts_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[sfx_dat]",moduledata.datafiles[sfx_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[qst_dat]",moduledata.datafiles[qst_dat]);
+	*/
+}
+
+void ZModule::load(bool zquest)
+{
+	set_config_file(moduledata.module_name);
+	//load config settings
+	if ( zquest )
+	{
+		al_trace("ZModule::load() was called by: %s\n","ZQuest");
+		//load ZQuest section data
+		set_config_file("zquest.cfg"); //shift back when done
+	}
+	else
+	{
+		al_trace("ZModule::load() was called by: %s\n","ZC Player");
+		//load ZC section data
+		set_config_file("zc.cfg"); //shift back when done
+	}
+	
+}
+
 /* end */
 
+long FFScript::getQuestHeaderInfo(int type)
+{
+    return quest_format[type];
+}
+
+
+script_bitmaps scb;
+
+//script_bitmaps scb;
+void FFScript::user_bitmaps_init()
+{
+	scb.num_active = 0;
+	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
+	{
+		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
+		{
+			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
+		}
+		scb.script_created_bitmaps[q].width = 0;
+		scb.script_created_bitmaps[q].height = 0;
+		scb.script_created_bitmaps[q].depth = 0;
+		scb.script_created_bitmaps[q].u_bmp = NULL;
+	}
+}
+
+void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways){}
+
+void FFScript::deallocateAllArrays(){}

@@ -1,5 +1,5 @@
-//std_keyboard.zh for ZC 2.54
-//Version ID: 28OCT017
+//std_keyboard.zh for ZC 2.55
+//Document Revision: 16th May, 2019
 
 /* 
 
@@ -15,22 +15,22 @@ const int KEYBOARD_LAYOUT_UK = 1;
 const int KEYBOARD_LAYOUT_EU = 2;
 
 //Special Circumstance Characters to store in strings if needed. 
-const int CHAR_ERROR 		= -1;
-const int CHAR_BACKSPC 		= -2; 
-const int CHAR_DELETE 		= -4; 
-const int CHAR_HOMEKEY 		= -8;
-const int CHAR_ENDKEY 		= -16;
-const int CHAR_PAGEUP 		= -32;
-const int CHAR_PAGEDOWN 	= -64;
-const int CHAR_ARROW_U 		= -128;
-const int CHAR_ARROW_L 		= -256;
+const char32 CHAR_ERROR 		= -1;
+const char32 CHAR_BACKSPC 		= -2; 
+const char32 CHAR_DELETE 		= -4; 
+const char32 CHAR_HOMEKEY 		= -8;
+const char32 CHAR_ENDKEY 		= -16;
+const char32 CHAR_PAGEUP 		= -32;
+const char32 CHAR_PAGEDOWN 	= -64;
+const char32 CHAR_ARROW_U 		= -128;
+const char32 CHAR_ARROW_L 		= -256;
 
-const int CHAR_ARROW_D 		= -512;
-const int CHAR_ARROW_R 		= -1024;
-const int CHAR_PRINTSCREEN 	= -2048;
-const int CHAR_PAUSE 		= -4096;
+const char32 CHAR_ARROW_D 		= -512;
+const char32 CHAR_ARROW_R 		= -1024;
+const char32 CHAR_PRINTSCREEN 	= -2048;
+const char32 CHAR_PAUSE 		= -4096;
 
-const int CHAR_NONE = 0;
+const char32 CHAR_NONE = 0;
 
 //8192 for special modifiers?
 
@@ -43,7 +43,8 @@ const float KEYBOARD_REPEAT_RATE = 6; //frames per keypress. 3 == 1/20 second
 
 //Checks if a key was pressed. If it was, it returns its char value. 
 //Returns CHAR_NONE / false if key was not pressed.
-int CheckKeyToChar(int key){
+char32 CheckKeyToChar(int key)
+{
 	if ( KeyPress(key) ) {
 		return KeyToChar(key);
 	}
@@ -59,1179 +60,320 @@ key presses from being read as joystick inputs.
 */
 
 //This should be a ZScript function, as Input->ReadKey() -Z
-bool ReadKey(int key){
-	NoAction();
+bool ReadKey(int key)
+{
+	//NoAction();
 	return Input->ReadKey[key];
 }
 
 bool KeyPress(int key){ return Input->Key[key]; }
 
-int GetKeyPress(int key){
-	if ( ReadKey(key) ) return KeyToChar(key);
+char32 GetKeyPress(int key)
+{
+	if ( Input->ReadKey[key] ) return KeyToChar(key);
 	else return -1; //Is this safe? Should we return 0, which is null?
 }
 
 //Returns modifier keys
-bool PressShift() { return (( Input->Key[KEY_LSHIFT] || Input->Key[KEY_RSHIFT] ) != 0);}
-bool PressControl(){ return (( Input->Key[KEY_LCONTROL] || Input->Key[KEY_RCONTROL] ) != 0);}
-bool CapsLock() { return Input->Key[KEY_CAPSLOCK]; }
-bool NumLock() { return Input->Key[KEY_NUMLOCK]; }
-bool PressWin() { return (( Input->Key[KEY_LWIN] || Input->Key[KEY_RWIN] ) != 0);}
-bool PressApple() { return (( Input->Key[KEY_LWIN] || Input->Key[KEY_RWIN] ) != 0);}
-bool PressCommand() { return Input->Key[KEY_COMMAND]; }
+bool PressShift() { return (Input->ModifierKeys&KB_SHIFT_FLAG); }
+bool PressControl(){ return (Input->ModifierKeys&KB_CTRL_FLAG); }
+bool PressAlt(){ return (Input->ModifierKeys&KB_ALT_FLAG); }
+bool CapsLock() { return (Input->ModifierKeys&KB_CAPSLOCK_FLAG); }
+bool NumLock()  { return (Input->ModifierKeys&KB_NUMLOCK_FLAG); }
+bool ScrollLock()  { return (Input->ModifierKeys&KB_SCROLOCK_FLAG); }
+bool PressWin()  { return ((Input->ModifierKeys&KB_LWIN_FLAG)||(Input->ModifierKeys&KB_RWIN_FLAG)); }
+bool PressRightWin()  { return (Input->ModifierKeys&KB_RWIN_FLAG); }
+bool PressLeftWin()  { return (Input->ModifierKeys&KB_LWIN_FLAG); }
+bool PressApple() { return (Input->ModifierKeys&KB_COMMAND_FLAG); }
+bool PressCommand()  { return (Input->ModifierKeys&KB_COMMAND_FLAG); }
+bool InAltSequence()  { return (Input->ModifierKeys&KB_INALTSEQ_FLAG); }
+bool AccentShift(int n)  { return (Input->ModifierKeys&(KB_INALTSEQ_FLAG+((n-1)*0x1000))); }
 bool PressAltGR() { return Input->Key[KEY_ALTGR]; }
 
 //Is this Linux only?
-bool PressLinuxMenu() { return Input->Key[KEY_MENU]; }
+bool PressLinuxMenu()  { return (Input->ModifierKeys&KB_MENU_FLAG); }
 
 //Note that these keys are used by the ZC Ui. You can read them this way, but you should not expect
 //a user to utilise them, for input, without some kind of interupt system.
-bool FKey(int f){ if ( f > 0 && f < 13 ) return Input->Key[46+f]; else return false; }
-bool EscKey() { return Input->Key[KEY_ESC]; } 
+// Input->DisableKey[] can be used to disable F keys, aside from F7,F8,F9. -V
+bool FKey(int f){ if ( f > 0 && f < 13 ) return Input->ReadKey[46+f]; else return false; }
+bool EscKey() { return Input->ReadKey[KEY_ESC]; } 
 
 
 
 //converts a key to its proper char (int, in ZScript).
-int KeyToChar(int key) { return KeyToChar(key,false,false); }
+char32 KeyToChar(int key) { return KeyToChar(key,(Input->ModifierKeys&KB_SHIFT_FLAG),(Input->ModifierKeys&KB_CAPSLOCK_FLAG)); }
 //bool caps ==true : caps acts as shift, == false, standard
-int KeyToChar(int key, bool shifted) { return KeyToChar(key,shifted,false); }
+char32 KeyToChar(int key, bool shifted) { return KeyToChar(key,shifted,(Input->ModifierKeys&KB_CAPSLOCK_FLAG)); }
 
-int KeyToChar(int key, bool shifted, bool caps){
-	TraceS("KeyToChar bool shifted is: "); TraceB(shifted);
+char32 KeyToChar(int key, bool shifted, bool caps)
+{
+	//TraceS("KeyToChar bool shifted is: "); TraceB(shifted);
 	if ( shifted )
 	{
-		if ( key == KEY_A ) return 'A';
-		if ( key == KEY_B ) return 'B';
-		if ( key == KEY_C ) return 'C';
-		if ( key == KEY_D ) return 'D';
-		if ( key == KEY_E ) return 'E';
-		if ( key == KEY_F ) return 'F';
-		if ( key == KEY_G ) return 'G';
-		if ( key == KEY_H ) return 'H';
-		if ( key == KEY_I ) return 'I';
-		if ( key == KEY_J ) return 'J';
-		if ( key == KEY_K ) return 'K';
-		if ( key == KEY_L ) return 'L';
-		if ( key == KEY_M ) return 'M';
-		if ( key == KEY_N ) return 'N';
-		if ( key == KEY_O ) return 'O';
-		if ( key == KEY_P ) return 'P';
-		if ( key == KEY_Q ) return 'Q';
-		if ( key == KEY_R ) return 'R';
-		if ( key == KEY_S ) return 'S';
-		if ( key == KEY_T ) return 'T';
-		if ( key == KEY_U ) return 'U';
-		if ( key == KEY_V ) return 'V';
-		if ( key == KEY_W ) return 'W';
-		if ( key == KEY_X ) return 'X';
-		if ( key == KEY_Y ) return 'Y';
-		if ( key == KEY_Z ) return 'Z';
-		//Shiften numeric row
-										
-		//if (  key > 26 ) 
-		//{
-			//if bool caps is set, and caps lock is on, read as shift
-			//|| ( Input->Key[KEY_CAPSLOCK] && caps ) ) ){
-		if ( key == KEY_1 ) return '!';
-		if ( key == KEY_0 ) return ')';
-		if ( key == KEY_2 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '@';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_DQUOTE;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_DQUOTE;
-			}
-		}
-		if ( key == KEY_3 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '#';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_POUNDS;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '#';
-			}
-		}
-		if ( key == KEY_4 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '$';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '$';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_EURO;
-			}
-		}
-		if ( key == KEY_5 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '%';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '%';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '%';
-			}
-		}
-		if ( key == KEY_6 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '^';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '^';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '^';
-			}
-		}
-		if ( key == KEY_7 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '&';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '&';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '&';
-			}
-		}
-		if ( key == KEY_8 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '*';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '*';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '*';
-			}
-		}
-		if ( key == KEY_9 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '(';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '(';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '(';
-			}
-		}
-		if ( key == KEY_TILDE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '~';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '~';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '~';
-			}
-		}
-		if ( key == KEY_MINUS ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '_';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '_';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '_';
-			}
-		}
-		if ( key == KEY_EQUALS ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '+';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '+';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '+';
-			}
-		}
-		if ( key == KEY_BACKSPACE ) { //-2 is backspace
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -2;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -2;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -2;
-			}
-		}
-		if ( key == KEY_TAB ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return CHAR_TAB;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_TAB;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_TAB;
-			}
-		}
-		if ( key == KEY_OPENBRACE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '{';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '{';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '{';
-			}
-		}
-		if ( key == KEY_CLOSEBRACE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '}';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '}';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '}';
-			}
-		}
-		if ( key == KEY_ENTER ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return CHAR_CR;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_CR;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_CR;
-			}
-		}
-		if ( key == KEY_COLON ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return ':';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return ':';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return ':';
-			}
-		}
-		if ( key == KEY_SEMICOLON ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return ':';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return ':';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return ':';
-			}
-		}
-		if ( key == KEY_QUOTE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '"';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '@';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '@';
-			}
-		}
-		if ( key == KEY_BACKSLASH ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '|';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '|';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '|';
-			}
-		}
-		if ( key == KEY_BACKSLASH2 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '|';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '|';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '|';
-			}
-		}
-		if ( key == KEY_COMMA ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '<';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '<';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '<';
-			}
-		}
-		if ( key == KEY_STOP ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '>';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '>';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '>';
-			}
-		}
-		if ( key == KEY_SLASH ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '?';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '?';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '?';
-			}
-		}
-		if ( key == KEY_SPACE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return ' ';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return ' ';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return ' ';
-			}
-		}
-		if ( key == KEY_DEL ) { //-4 is delete
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -4;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -4;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -4;
-			}
-		}
-		if ( key == KEY_HOME ) { //-8 is home
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -8;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -8;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -8;
-			}
-		}
-		if ( key == KEY_END ) { //-16 is 'end'
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -16;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -16;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -16;
-			}
-		}
-		if ( key == KEY_PGUP ) { //-32 
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -32;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -32;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -32;
-			}
-		}
-		if ( key == KEY_PGDN ) { //-64
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -64;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -64;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -64;
-			}
-		}
-		if ( key == KEY_UP ) { //ARROWS
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -128;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -128;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -128;
-			}
-		}
-		if ( key == KEY_LEFT ) { //ARROWS
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -256;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -256;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -256;
-			}
-		}
-		if ( key == KEY_DOWN ) { //ARROWS
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -512;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -512;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -512;
-			}
-		}
-		if ( key == KEY_RIGHT ) { //ARROWS
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -1024;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -1024;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -1024;
-			}
-		}
-		if ( key == KEY_SLASH_PAD ) { //Start Numeric Pad 
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '/';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '/';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '/';
-			}
-		}
-		if ( key == KEY_ASTERISK ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '*';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '*';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '*';
-			}
-		}
-		if ( key == KEY_MINUS_PAD ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '-';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '-';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '-';
-			}
-		}
-		if ( key == KEY_PLUS_PAD ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '+';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '+';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '+';
-			}
-		}
-		if ( key == KEY_DEL_PAD ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -4;
-			}
+		switch(key)
+		{
+			case KEY_A: return 'A';
+			case KEY_B: return 'B';
+			case KEY_C: return 'C';
+			case KEY_D: return 'D';
+			case KEY_E: return 'E';
+			case KEY_F: return 'F';
+			case KEY_G: return 'G';
+			case KEY_H: return 'H';
+			case KEY_I: return 'I';
+			case KEY_J: return 'J';
+			case KEY_K: return 'K';
+			case KEY_L: return 'L';
+			case KEY_M: return 'M';
+			case KEY_N: return 'N';
+			case KEY_O: return 'O';
+			case KEY_P: return 'P';
+			case KEY_Q: return 'Q';
+			case KEY_R: return 'R';
+			case KEY_S: return 'S';
+			case KEY_T: return 'T';
+			case KEY_U: return 'U';
+			case KEY_V: return 'V';
+			case KEY_W: return 'W';
+			case KEY_X: return 'X';
+			case KEY_Y: return 'Y';
+			case KEY_Z: return 'Z';
+		
+			case KEY_1: return '!';
+			case KEY_0: return ')';
+			case KEY_2: 
+			{
+				switch(KEYBOARD_TYPE)
+				{
+					case KEYBOARD_LAYOUT_US: return '@';
+					case KEYBOARD_LAYOUT_UK: return '"';
+					case KEYBOARD_LAYOUT_EU: return '"';
+				}
+			}
+			case KEY_3:
+			{
+				switch(KEYBOARD_TYPE)
+				{
+					case KEYBOARD_LAYOUT_US: return '#';
+					case KEYBOARD_LAYOUT_UK: return CHAR_POUNDS;
+					case KEYBOARD_LAYOUT_EU: return '#';
+				}
+			}
+		
+			case KEY_4:
+			{
+				switch(KEYBOARD_TYPE)
+				{
+					case KEYBOARD_LAYOUT_US: return '$';
+					case KEYBOARD_LAYOUT_UK: return '$';
+					case KEYBOARD_LAYOUT_EU: return CHAR_EURO;
+				}
+			}
+			case KEY_5: return '%';
+			case KEY_6: return '^';
+			case KEY_7: return '&';
+			case KEY_8: return '*';
+			case KEY_9: return '(';
+			case KEY_TILDE: return '~';
+			case KEY_MINUS: return '_';
+			case KEY_EQUALS: return '+';
+			case KEY_BACKSPACE: return CHAR_BACKSPC; //-2 is backspace
+			case KEY_TAB: return CHAR_TAB;
+			case KEY_OPENBRACE: return '{';
+			case KEY_CLOSEBRACE: return '}';
+			case KEY_ENTER: return CHAR_CR;
+			case KEY_COLON: return ':';
+			case KEY_SEMICOLON: return ':';
+			case KEY_QUOTE: 
+			{
+				switch(KEYBOARD_TYPE)
+				{
+					case KEYBOARD_LAYOUT_US: return '"';
+					case KEYBOARD_LAYOUT_UK: return '@';
+					case KEYBOARD_LAYOUT_EU: return '@';
+				}
+			}
+			case KEY_BACKSLASH: return '|';
+			case KEY_BACKSLASH2: return '|';
+			case KEY_COMMA: return '<';
+			case KEY_STOP: return '>';
+			case KEY_SLASH: return '?';
+			case KEY_SPACE: return ' ';
+			case KEY_DEL: return CHAR_DELETE; //-4 is delete
+			case KEY_HOME: return CHAR_HOMEKEY; //-8 is home
+			case KEY_END: return CHAR_ENDKEY; //-16 is 'end'
+			case KEY_PGUP: return CHAR_PAGEUP; //-32 
+			case KEY_PGDN: return CHAR_PAGEDOWN; //-64
+			case KEY_UP: return CHAR_ARROW_U; //ARROWS
+			case KEY_LEFT: return CHAR_ARROW_L; //ARROWS
+			case KEY_DOWN: return CHAR_ARROW_D; //ARROWS
+			case KEY_RIGHT: return CHAR_ARROW_R; //ARROWS
+			case KEY_SLASH_PAD: return '/';
+			case KEY_ASTERISK: return '*';
+			case KEY_MINUS_PAD: return '-';
+			case KEY_PLUS_PAD: return '+';
+			case KEY_DEL_PAD: return CHAR_DELETE;
+			case KEY_ENTER_PAD: return CHAR_CR;
+			case KEY_PRTSCR: return CHAR_PRINTSCREEN;
+			case KEY_PAUSE: return CHAR_PAUSE;
+			case KEY_CIRCUMFLEX: return '^';
+			case KEY_COLON2: return ':';
+			
+			default: return CHAR_ERROR;
 			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -4;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -4;
-			}
-		}
-		if ( key == KEY_ENTER_PAD ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return CHAR_CR;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_CR;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_CR;
-			}
-		}
-		if ( key == KEY_PRTSCR ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -2048;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -2048;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -2048;
-			}
-		}
-		if ( key == KEY_PAUSE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -4096;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -4096;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -4096;
-			}
-		}
-		if ( key == KEY_CIRCUMFLEX ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '^';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '^';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '^';
-			}
-		}
-		if ( key == KEY_COLON2 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return ':';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return ':';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return ':';
-			}
 		}
 			
 	}
-		
-		
-		
-		/*
-		if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-			
-		}
-		
-		if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-			
-		}
-		
-		if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-			
-		}
-		*/
 	//End modifier keys
-	else {
-		//otherwise no modifier
-		if ( key == KEY_A ) return 'a';
-		if ( key == KEY_B ) return 'b';
-		if ( key == KEY_C ) return 'c';
-		if ( key == KEY_D ) return 'd';
-		if ( key == KEY_E ) return 'e';
-		if ( key == KEY_F ) return 'f';
-		if ( key == KEY_G ) return 'g';
-		if ( key == KEY_H ) return 'h';
-		if ( key == KEY_I ) return 'i';
-		if ( key == KEY_J ) return 'j';
-		if ( key == KEY_K ) return 'k';
-		if ( key == KEY_L ) return 'l';
-		if ( key == KEY_M ) return 'm';
-		if ( key == KEY_N ) return 'n';
-		if ( key == KEY_O ) return 'o';
-		if ( key == KEY_P ) return 'p';
-		if ( key == KEY_Q ) return 'q';
-		if ( key == KEY_R ) return 'r';
-		if ( key == KEY_S ) return 's';
-		if ( key == KEY_T ) return 't';
-		if ( key == KEY_U ) return 'u';
-		if ( key == KEY_V ) return 'v';
-		if ( key == KEY_W ) return 'w';
-		if ( key == KEY_X ) return 'x';
-		if ( key == KEY_Y ) return 'y';
-		if ( key == KEY_Z ) return 'z';
-		
-		if ( key == KEY_0 || key == KEY_0_PAD ) return '0';
-		if ( key == KEY_1 || key == KEY_1_PAD ) return '1';
-		if ( key == KEY_2 || key == KEY_2_PAD ) return '2';
-		if ( key == KEY_3 || key == KEY_3_PAD ) return '3';
-		if ( key == KEY_4 || key == KEY_4_PAD ) return '4';
-		if ( key == KEY_5 || key == KEY_5_PAD ) return '5';
-		if ( key == KEY_6 || key == KEY_6_PAD ) return '6';
-		if ( key == KEY_7 || key == KEY_7_PAD ) return '7';
-		if ( key == KEY_8 || key == KEY_8_PAD ) return '8';
-		if ( key == KEY_9 || key == KEY_9_PAD ) return '9';
-		
-
-		if ( key == KEY_TILDE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '`';
-			}
+	else //not shifted
+	{
+		if ( caps )
+		{
+			switch(key)
+			{
 			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '`';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '`';
+				case KEY_A : return 'A';
+				case KEY_B : return 'B';
+				case KEY_C : return 'C';
+				case KEY_D : return 'D';
+				case KEY_E : return 'E';
+				case KEY_F : return 'F';
+				case KEY_G : return 'G';
+				case KEY_H : return 'H';
+				case KEY_I : return 'I';
+				case KEY_J : return 'J';
+				case KEY_K : return 'K';
+				case KEY_L : return 'L';
+				case KEY_M : return 'M';
+				case KEY_N : return 'N';
+				case KEY_O : return 'O';
+				case KEY_P : return 'P';
+				case KEY_Q : return 'Q';
+				case KEY_R : return 'R';
+				case KEY_S : return 'S';
+				case KEY_T : return 'T';
+				case KEY_U : return 'U';
+				case KEY_V : return 'V';
+				case KEY_W : return 'W';
+				case KEY_X : return 'X';
+				case KEY_Y : return 'Y';
+				case KEY_Z : return 'Z';
+				default: return CHAR_ERROR;
 			}
 		}
-		if ( key == KEY_MINUS ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '-';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '-';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '-';
-			}
-		}
-		if ( key == KEY_EQUALS ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '=';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '=';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '=';
-			}
-		}
-		if ( key == KEY_BACKSPACE ) { //-2 is backspace
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -2;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -2;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -2;
-			}
-		}
-		if ( key == KEY_TAB ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return CHAR_TAB;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_TAB;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_TAB;
-			}
-		}
-		if ( key == KEY_OPENBRACE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '[';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '[';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '[';
-			}
-		}
-		if ( key == KEY_CLOSEBRACE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return ']';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return ']';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return ']';
-			}
-		}
-		if ( key == KEY_ENTER ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return CHAR_LF;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_LF;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_LF;
-			}
-		}
-		if ( key == KEY_COLON ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return ';';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return ';';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return ';';
-			}
-		}
-		if ( key == KEY_SEMICOLON ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return ';';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return ';';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return ';';
-			}
-		}
-		if ( key == KEY_QUOTE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return CHAR_QUOTE;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_QUOTE;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_QUOTE;
-			}
-		}
-		if ( key == KEY_BACKSLASH ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return CHAR_BSLASH;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_BSLASH;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_BSLASH;
-			}
-		}
-		if ( key == KEY_BACKSLASH2 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return CHAR_BSLASH;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_BSLASH;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_BSLASH;
-			}
-		}
-		if ( key == KEY_COMMA ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return ',';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return ',';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return ',';
-			}
-		}
-		if ( key == KEY_STOP ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '.';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '.';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '.';
-			}
-		}
-		if ( key == KEY_SLASH ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '/';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '/';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '/';
-			}
-		}
-		if ( key == KEY_SPACE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return ' ';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return ' ';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return ' ';
-			}
-		}
-		if ( key == KEY_DEL ) { //-4 is delete
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -4;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -4;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -4;
-			}
-		}
-		if ( key == KEY_HOME ) { //-8 is home
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -8;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -8;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -8;
-			}
-		}
-		if ( key == KEY_END ) { //-16 is 'end'
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -16;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -16;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -16;
-			}
-		}
-		if ( key == KEY_PGUP ) { //-32 
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -32;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -32;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -32;
-			}
-		}
-		if ( key == KEY_PGDN ) { //-64
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -64;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -64;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -64;
-			}
-		}
-		if ( key == KEY_UP ) { //ARROWS
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -128;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -128;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -128;
-			}
-		}
-		if ( key == KEY_LEFT ) { //ARROWS
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -256;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -256;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -256;
-			}
-		}
-		if ( key == KEY_DOWN ) { //ARROWS
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -512;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -512;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -512;
-			}
-		}
-		if ( key == KEY_RIGHT ) { //ARROWS
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -1024;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -1024;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -1024;
-			}
-		}
-		if ( key == KEY_SLASH_PAD ) { //Start Numeric Pad 
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '/';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '/';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '/';
-			}
-		}
-		if ( key == KEY_ASTERISK ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '*';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '*';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '*';
-			}
-		}
-		if ( key == KEY_MINUS_PAD ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '-';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '-';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '-';
-			}
-		}
-		if ( key == KEY_PLUS_PAD ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '+';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '+';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '+';
-			}
-		}
-		if ( key == KEY_DEL_PAD ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -4;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -4;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -4;
-			}
-		}
-		if ( key == KEY_ENTER_PAD ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return CHAR_LF;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return CHAR_LF;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return CHAR_LF;
-			}
-		}
-		if ( key == KEY_PRTSCR ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -2048;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -2048;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -2048;
-			}
-		}
-		if ( key == KEY_PAUSE ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return -4096;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return -4096;
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return -4096;
-			}
-		}
-		if ( key == KEY_CIRCUMFLEX ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return '^';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return '^';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return '^';
-			}
-		}
-		if ( key == KEY_COLON2 ) {
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
-				return ':';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
-				return ':';
-			}
-			
-			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
-				return ':';
+		else
+		{
+			//otherwise no modifier
+			switch(key)
+			{
+				case KEY_A: return 'a';
+				case KEY_B: return 'b';
+				case KEY_C: return 'c';
+				case KEY_D: return 'd';
+				case KEY_E: return 'e';
+				case KEY_F: return 'f';
+				case KEY_G: return 'g';
+				case KEY_H: return 'h';
+				case KEY_I: return 'i';
+				case KEY_J: return 'j';
+				case KEY_K: return 'k';
+				case KEY_L: return 'l';
+				case KEY_M: return 'm';
+				case KEY_N: return 'n';
+				case KEY_O: return 'o';
+				case KEY_P: return 'p';
+				case KEY_Q: return 'q';
+				case KEY_R: return 'r';
+				case KEY_S: return 's';
+				case KEY_T: return 't';
+				case KEY_U: return 'u';
+				case KEY_V: return 'v';
+				case KEY_W: return 'w';
+				case KEY_X: return 'x';
+				case KEY_Y: return 'y';
+				case KEY_Z: return 'z';
+				
+				case KEY_0: return '0';
+				case KEY_0_PAD: return '0';
+				case KEY_1: return '1'; 
+				case KEY_1_PAD: return '1';
+				case KEY_2: return '2';
+				case KEY_2_PAD: return '2';
+				case KEY_3: return '3';
+				case KEY_3_PAD: return '3';
+				case KEY_4: return '4';
+				case KEY_4_PAD: return '4';
+				case KEY_5: return '5';
+				case KEY_5_PAD: return '5';
+				case KEY_6: return '6';
+				case KEY_6_PAD: return '6';
+				case KEY_7: return '7';
+				case KEY_7_PAD: return '7';
+				case KEY_8: return '8';
+				case KEY_8_PAD: return '8';
+				case KEY_9: return '9';
+				case KEY_9_PAD: return '9';
+				
+				case  KEY_TILDE:
+				{
+					switch(KEYBOARD_TYPE)
+					{
+						
+						case KEYBOARD_LAYOUT_US:
+						case KEYBOARD_LAYOUT_UK:
+						case KEYBOARD_LAYOUT_EU:
+						default:
+							return '`';
+					}
+				}
+				case  KEY_MINUS: return '-';
+				case  KEY_EQUALS: return '=';
+				case  KEY_BACKSPACE: return CHAR_BACKSPC; //-2 is backspace
+				case  KEY_TAB: return CHAR_TAB;
+				case  KEY_OPENBRACE: return '[';
+				case  KEY_CLOSEBRACE: return ']';
+				case  KEY_ENTER: return CHAR_LF;
+				case  KEY_COLON: return ':';
+				case  KEY_SEMICOLON: return ';';
+				case  KEY_QUOTE:
+				{
+					switch(KEYBOARD_TYPE)
+					{
+						
+						case KEYBOARD_LAYOUT_US:
+						case KEYBOARD_LAYOUT_UK:
+						case KEYBOARD_LAYOUT_EU:
+						default:
+							return '\'';
+					}
+				}
+				case  KEY_BACKSLASH: return '\\';
+				case  KEY_BACKSLASH2: return '\\';
+				case  KEY_COMMA: return ',';
+				case  KEY_STOP: return '.';
+				case  KEY_SLASH: return '/';
+				case  KEY_SPACE: return ' ';
+				case  KEY_DEL: return CHAR_DELETE;  //-4 is delete
+				case  KEY_HOME: return CHAR_HOMEKEY; //-8 is home
+				case  KEY_END: return CHAR_ENDKEY;//-16 is 'end'
+				case  KEY_PGUP: return CHAR_PAGEUP; //-32 
+				case  KEY_PGDN: return CHAR_PAGEDOWN; //-64
+				case  KEY_UP: return CHAR_ARROW_U; //ARROWS
+				case  KEY_LEFT: return CHAR_ARROW_L; //ARROWS
+				case  KEY_DOWN:return CHAR_ARROW_D; //ARROWS
+				case  KEY_RIGHT: return CHAR_ARROW_R;//ARROWS
+				case  KEY_SLASH_PAD: return '/'; //Start Numeric Pad 
+				case  KEY_ASTERISK: return '*';
+				case  KEY_MINUS_PAD: return '-';
+				case  KEY_PLUS_PAD: return '+';
+				case  KEY_DEL_PAD: return CHAR_DELETE;
+				case  KEY_ENTER_PAD: return '\n';
+				case  KEY_PRTSCR: return CHAR_PRINTSCREEN;
+				case  KEY_PAUSE: return CHAR_PAUSE;
+				case  KEY_CIRCUMFLEX: return '^';
+				case  KEY_COLON2: return ':';
+				default: return CHAR_ERROR;
 			}
 		}
 	}
@@ -1369,3 +511,21 @@ const int KEY_MENU         = 123;
 const int KEY_SCRLOCK      = 124;
 const int KEY_NUMLOCK      = 125;
 const int KEY_CAPSLOCK     = 126;
+
+//Key Modifier Constants -- DO NOT MODIFY!
+
+const int KB_SHIFT_FLAG 	= 0x0001;
+const int KB_CTRL_FLAG 		= 0x0002;
+const int KB_ALT_FLAG 		= 0x0004;
+const int KB_LWIN_FLAG 		= 0x0008;
+const int KB_RWIN_FLAG 		= 0x0010;
+const int KB_MENU_FLAG  	= 0x0020;
+const int KB_COMMAND_FLAG  	= 0x0040;
+const int KB_SCROLOCK_FLAG  	= 0x0100;
+const int KB_NUMLOCK_FLAG 	= 0x0200;
+const int KB_CAPSLOCK_FLAG 	= 0x0400;
+const int KB_INALTSEQ_FLAG 	= 0x0800;
+const int KB_ACCENT1_FLAG 	= 0x1000; 
+const int KB_ACCENT2_FLAG 	= 0x2000; 
+const int KB_ACCENT3_FLAG 	= 0x4000; 
+const int KB_ACCENT4_FLAG 	= 0x8000; 

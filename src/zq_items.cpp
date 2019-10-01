@@ -45,6 +45,11 @@ bool can_drop(fix, fix)
     return false;
 }
 
+void item_fall(fix&, fix&, fix&)
+{
+	return;
+}
+
 int select_dropitem(int, int, int)
 {
     return 0;

@@ -31,6 +31,9 @@
 #include "gamedata.h"
 #include "ffscript.h"
 extern FFScript FFCore;
+extern ZModule zcm; //modules
+extern zcmodule moduledata;
+extern word link_doscript;
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -104,7 +107,7 @@ namespace
         { "You finished a",   72, 816, white },
         { "custom quest.",    76, 832, white },
         { "ZELDA CLASSIC",    76, 880, white },
-        { "\2741999-2017",    88, 896, white },
+        { "\2741999-2019",    88, 896, white },
         { "Armageddon Games", 64, 912, blue }
     };
 }
@@ -172,6 +175,7 @@ void endingpal()
 
 void ending()
 {
+	
     /*
       *************************
       * WIN THE GAME SEQUENCE *
@@ -208,11 +212,16 @@ void ending()
     chainlinks.clear();
     decorations.clear();
     
-    music_stop();
-    kill_sfx();
-    sfx(WAV_ZELDA);
-    Quit=0;
     
+    kill_sfx();
+    
+    Quit=0;
+    //do
+	//{
+		
+	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
+	//	FFCore.Waitframe();
+	//}while(link_doscript);
     game->set_cheat(game->get_cheat() | (cheat>1)?1:0);
     
     draw_screen_clip_rect_x1=0;
@@ -224,6 +233,13 @@ void ending()
     
     for(int f=0; f<365; f++)
     {
+	script_drawing_commands.Clear();
+	if ( link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
+	{
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
+		--f; load_control_state(); goto adv;
+	}
+	if ( f == 0 ) { sfx(WAV_ZELDA); music_stop(); }
         if(f==363)
         {
             //363  WIPE complete, DOT out, A/B items out
@@ -250,9 +266,9 @@ void ending()
             draw_screen_clip_rect_x2-=8;
             //draw_screen_clip_rect_show_guys=true;
         }
-        
+        adv:
         draw_screen(tmpscr);
-        advanceframe(true);
+        advanceframe(true,true,false);
         
         if(Quit) return;
     }
@@ -260,6 +276,8 @@ void ending()
     clear_bitmap(msgdisplaybuf);
     draw_screen(tmpscr);
     advanceframe(true);
+    
+    if ( FFCore.skip_ending_credits ) goto credits_skip;
     
     draw_screen_clip_rect_x1=0;
     draw_screen_clip_rect_x2=255;
@@ -294,6 +312,8 @@ void ending()
     
     for(int f=408; f<927; f++)
     {
+	//Z_scripterrlog("f = %d and link_doscript = %d\n", f, link_doscript);
+	//if ( link_doscript ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
         /*
           668  LINK out, ZELDA out
           669  LINK in (TRIFORCE overhead), ZELDA in (TRIFORCE overhead)
@@ -307,7 +327,7 @@ void ending()
           */
         if(f==668)
         {
-            rectfill(framebuf,120,129,152,145,0);
+            rectfill(framebuf,120,127,152,145,0); //y1 == 129 was showing tiny bits left over from Link's sprite. 
             blit(framebuf, tmp_bmp, 120,113, 0,0, 32,32);
         }
         
@@ -348,7 +368,7 @@ void ending()
         if(f==861)
         {
             blit(scrollbuf,framebuf,0,0,0,playing_field_offset!=0?168:0,256,passive_subscreen_height);
-            try_zcmusic((char*)"zelda.nsf", 1, ZC_MIDI_ENDING);
+            try_zcmusic((char*)moduledata.base_NSF_file, moduledata.ending_track, ZC_MIDI_ENDING);
             
             for(int y=0; y<224; y++)
             {
@@ -537,7 +557,7 @@ void ending()
         }
         
         load_control_state();
-        rSbtn();
+        getInput(btnS, true, false, true);//rSbtn();
     }
     
     do
@@ -563,7 +583,9 @@ void ending()
         
         load_control_state();
     }
-    while(!rSbtn());
+    while(!getInput(btnS, true, false, true)); //rSbtn()
+    
+    credits_skip:
     
     if(game->get_quest()>0 && game->get_quest()<=5)
     {
@@ -585,11 +607,14 @@ void ending()
     //restore user volume if it was changed by script
     if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
     {
-	master_volume(-1,((long)FFCore.usr_midi_volume));
+	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+	midi_volume = FFCore.usr_midi_volume;
+//	master_volume(-1,FFCore.usr_midi_volume);
     }
     if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
     {
-	master_volume((long)(FFCore.usr_digi_volume),1);
+	digi_volume = FFCore.usr_digi_volume;
+	//master_volume((long)(FFCore.usr_digi_volume),1);
     }
     if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
     {
@@ -609,6 +634,7 @@ void ending()
         zcmusic_unload_file(zcmusic);
         zcmusic = NULL;
     }
+    FFCore.skip_ending_credits = 0;
     
 //  setPackfilePassword(datapwd);
     load_quest(game);
@@ -630,25 +656,34 @@ void inc_quest()
 	strcpy(name,game->get_name());
 	// Go to quest 3 if you got some heart containers,
 	// or quest 4 if you got them all.
-	int quest;
-    
-	if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
-		quest = 4;
-	else
-		quest = zc_min(game->get_quest()+1,5);
-
-	if(game->get_quest()==3 && game->get_maxlife()>=HP_PER_HEART*16)
-		quest = 4;
-        
+	int quest = game->get_quest(); //Don't leave uninitialised. 
+	
 	int deaths = game->get_deaths();
+	
+	if ( moduledata.old_quest_serial_flow )
+	{
+		if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
+			quest = zc_min(4,moduledata.max_quest_files);// 4;
+		else
+			quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);
 
-	// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
-	if(game->get_quest()==3 && deaths == 0)
-		quest = 5;
+		if(game->get_quest()==3 && game->get_maxlife()>=HP_PER_HEART*16)
+			quest = zc_min(4,moduledata.max_quest_files);// 4;
+        
+		
 
-	// Likewise, if you beat the 5th but died, go back to the 4th.
-	if(game->get_quest()==5 && deaths > 0)
-		quest = 4;
+		// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
+		if(game->get_quest()==3 && deaths == 0)
+			quest = zc_min(5,moduledata.max_quest_files);// 4;
+
+		// Likewise, if you beat the 5th but died, go back to the 4th.
+		if(game->get_quest()==5 && deaths > 0)
+			quest = zc_min(4,moduledata.max_quest_files);// 4;
+	}
+	else
+	{
+		quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);
+	}
 
 	game->Clear();
     

@@ -8,6 +8,7 @@
 #include "../zsyssimple.h"
 #include "AST.h"
 #include "CompilerUtils.h"
+#include "parserDefs.h"
 XTableHelper XH;
 #include <cstdarg>
 #include <cstdio>
@@ -269,8 +270,12 @@ string CompileError::toString() const
 	
 	ostringstream oss;
 
+	// Output location data.
+	if (AST const* source = pimpl_->getSource())
+	    oss << "\n" << source->location.asString();
+
 	// Error or warning?
-	oss << (isStrict() ? "Error" : "Warning");
+	oss << " - " << (isStrict() ? "Error" : "Warning");
 
 	// Error Code and Id
 	oss << " " << entry.code
@@ -279,10 +284,6 @@ string CompileError::toString() const
 
 	// Message.
 	oss << pimpl_->getMessage();
-
-	// Output location data.
-	if (AST const* source = pimpl_->getSource())
-	    oss << "\n    @ " << source->location.asString();
 
 	return oss.str();
 }
@@ -293,6 +294,14 @@ void ZScript::box_out_err(CompileError const& error)
 {
 	box_out_nl(error.toString().c_str());
 	box_eol();
+}
+
+void ZScript::logDebugMessage(const char* msg)
+{
+	#if PARSER_DEBUG > 0
+	box_out("Debug: "); box_out(msg);
+	box_eol();
+	#endif
 }
 
 ////////////////////////////////////////////////////////////////

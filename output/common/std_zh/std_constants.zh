@@ -1,5 +1,5 @@
-// std_constants.zh for ZC v2.53.0 and later.
-// 10th September, 2017
+// std_constants.zh
+// 21st September, 2019 for ZC 2.55 Alpha 32
 // Contains required constants for std.zh and ZScript functions.
 
 typedef const int define;
@@ -13,7 +13,7 @@ const float PI				= 3.1416;
 const float PI2				= 6.2832;
 const float E				= 2.7183;
 
-const int NULL				= 0;
+const untyped NULL				= 0;
 
 const float RADIAN 			= 57.2958; //Multiplication value for converting degrees to radians.
 const float DEGREE			= 0.0174; //Multiplication value for converting radians to degrees. 
@@ -25,16 +25,17 @@ const float SQRT_MAX			= 463.4095; //The largest square root thet ZC can return.
 ////////////////////////////
 /// ZC Minimums and Maximums
 
-const float MAX_CONSTANT		= 214747.9999;
-const float MAX_FLOAT			= 214747.9999;
+const float MAX_CONSTANT		= 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
 //const float MAX_VARIABLE		= 214748.3648; //Obviously this is truncated as a constant. Equal to ((2^31)-1)/10000
-const float MIN_CONSTANT		= -214747.9999; 
+const float MIN_CONSTANT		= -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
 
 
 const int MAX_SCRIPTDRAWINGCOMMANDS	= 1000;
-const int MAX_INT 			= 214747;
-const int MIN_INT 			= -214747;
-const int MIN_FLOAT 			= -214747.9999;
+
+const int MAX_INT = 214747 + (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
+const int MIN_INT = -214747 - (OPTION_VALUE(TRUE_INT_SIZE) ? 1 : 0);
+const int MAX_FLOAT = 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
+const int MIN_FLOAT = -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
 
 const int MAX_COUNTER 			= 32768; //or is this 32767, counting 0?
 const int MIN_COUNTER 			= -32768; //" -32767
@@ -71,6 +72,9 @@ const int MAX_GLOBAL_VARIABLES		= 255;
 const int MAX_VARIABLES			= 255; //Vars in operation at any one time.
 const int MAX_BITSPERVARIABLE		= 18;
 
+const int MIN_ITEMDATA			= 0;
+const int MAX_ITEMDATA			= 255;
+
 const int MAX_ARRAY_POINTERS	 	= 4095; //Arrays in operation. 
 const int MAX_TILES 			= 65519;
 const int MAX_COMBOS			= 65279;
@@ -93,6 +97,14 @@ const int MAX_FFC_W 			= 4; //Four tiles wide
 const int MAX_FFC_H 			= 4; //Four tiles high
 const int MAX_FFC_EFFECT_W		= 64; //Sixty-four pixels wide.
 const int MAX_FFC_EFFECT_H		= 64; //Sixty four pixels high. 
+
+//Default array sizes
+const int INIT_D_SIZE			= 8;
+const int INIT_A_SIZE			= 2;
+const int MISC_SIZE			= 32;
+const int NPC_ATTRIBUTES_SIZE		= 32;
+const int ITEM_ATTRIBUTES_SIZE		= 10;
+const int GAMEMISC_SIZE 		= 32;
 
 /////////////////////
 /// Screen Dimensions
@@ -461,15 +473,15 @@ const int MB_RIGHTCLICK			= 0x2;
 const int MB_MIDDLECLICK		= 0x4; //Keep in in mind that not all mice/touchpads have a middle mouse button
 
 //Controller buttons
-const int CB_UP 	= 0; 
+const int CB_UP		= 0;
 const int CB_DOWN	= 1;
 const int CB_LEFT	= 2;
 const int CB_RIGHT	= 3;
-const int CB_A		= 4;
+const int CB_A 		= 4;
 const int CB_B		= 5;
-const int CB_L		= 6;
-const int CB_R		= 7;
-const int CB_START	= 8;
+const int CB_START	= 6;
+const int CB_L		= 7;
+const int CB_R		= 8;
 const int CB_MAP	= 9;
 const int CB_EX1	= 10;
 const int CB_EX2	= 11;
@@ -479,6 +491,11 @@ const int CB_STICKUP	= 14;
 const int CB_STICKDOWN	= 15;
 const int CB_STICKLEFT	= 16;
 const int CB_STICKRIGHT	= 17;
+const int CB_AXIS_UP	= 14;
+const int CB_AXIS_DOWN	= 15;
+const int CB_AXIS_LEFT	= 16;
+const int CB_AXIS_RIGHT	= 17;
+const int CB_MAX	= 18;
 
 
 
@@ -1509,6 +1526,79 @@ const int FONT_TRS		= 67;
 const int FONT_Z2		= 68;	//Zelda 2 plus custom lowercase.
 const int FONT_LISA		= 69;	//Lisa OS System Font
 
+//Font heights, in pixels, for the above fonts:
+define FONT_Z1_HEIGHT = 8;
+define FONT_Z3_HEIGHT = 16;
+define FONT_Z3SMALL_HEIGHT = 6;
+define FONT_DEF_HEIGHT = 8;
+define FONT_L_HEIGHT = 13;
+define FONT_L2_HEIGHT = 13;
+define FONT_P_HEIGHT = 8;
+define FONT_MATRIX_HEIGHT = 8;
+define FONT_ZTIME_HEIGHT = 6;
+define FONT_S_HEIGHT = 6;
+define FONT_S2_HEIGHT = 6;
+define FONT_SP_HEIGHT = 6;
+define FONT_SUBSCREEN1_HEIGHT = 8;
+define FONT_SUBSCREEN2_HEIGHT = 8;
+define FONT_SUBSCREEN3_HEIGHT = 8;
+define FONT_SUBSCREEN4_HEIGHT = 8;
+define FONT_GBLA_HEIGHT = 8;
+define FONT_LA_HEIGHT = 8;
+define FONT_GORON_HEIGHT = 15;
+define FONT_ZORAN_HEIGHT = 15;
+define FONT_HYLIAN1_HEIGHT = 15;
+define FONT_HYLIAN2_HEIGHT = 24;
+define FONT_HYLIAN3_HEIGHT = 21;
+define FONT_HYLIAN4_HEIGHT = 18;
+define FONT_GBORACLE_HEIGHT = 15;
+define FONT_GBORACLEP_HEIGHT = 15;
+define FONT_DSPHANTOM_HEIGHT = 15;
+define FONT_DSPHANTOMP_HEIGHT = 15;
+define FONT_ATARI800_HEIGHT = 16;
+define FONT_ACORN_HEIGHT = 8;
+define FONT_ADOS_HEIGHT = 8;
+define FONT_ALLEGRO_HEIGHT = 8;
+define FONT_APPLE2_HEIGHT = 8;
+define FONT_APPLE2_80COL_HEIGHT = 16;
+define FONT_APPLE2GS_HEIGHT = 12;
+define FONT_AQUARIUS_HEIGHT = 8;
+define FONT_ATARI400_HEIGHT = 8;
+define FONT_C64_HEIGHT = 8;
+define FONT_C64_HIRES_HEIGHT = 16;
+define FONT_CGA_HEIGHT = 8;
+define FONT_COCO_HEIGHT = 16;
+define FONT_COCO2_HEIGHT = 16;
+define FONT_COUPE_HEIGHT = 8;
+define FONT_CPC_HEIGHT = 12;
+define FONT_FANTASY_HEIGHT = 18;
+define FONT_FDS_KANA_HEIGHT = 8;
+define FONT_FDSLIKE_HEIGHT = 8;
+define FONT_FDS_ROMAN_HEIGHT = 8;
+define FONT_FF_HEIGHT = 8;
+define FONT_FUTHARK_HEIGHT = 8;
+define FONT_GAIA_HEIGHT = 16;
+define FONT_HIRA_HEIGHT = 8;
+define FONT_JP_HEIGHT = 16;
+define FONT_KONG_HEIGHT = 8;
+define FONT_MANA_HEIGHT = 12;
+define FONT_MARIOLAND_HEIGHT = 8;
+define FONT_MOT_HEIGHT = 12;
+define FONT_MSX0_HEIGHT = 8;
+define FONT_MSX1_HEIGHT = 8;
+define FONT_PET_HEIGHT = 8;
+define FONT_PSTART_HEIGHT = 8;
+define FONT_SATURN_HEIGHT = 16;
+define FONT_SCIFI_HEIGHT = 8;
+define FONT_SHERWOOD_HEIGHT = 16;
+define FONT_SINQL_HEIGHT = 8;
+define FONT_SPECTRUM_HEIGHT = 8;
+define FONT_SPECTRUM_LG_HEIGHT = 16;
+define FONT_TI99_HEIGHT = 8;
+define FONT_TRS_HEIGHT = 16;
+define FONT_Z2_HEIGHT = 8;
+define FONT_LISA_HEIGHT = 8;
+
 // PrintString Text Formats. Use with Screen->DrawString.
 const int TF_NORMAL             = 0; // treats the left-most char as (x)
 const int TF_CENTERED           = 1; // prints the string centered on (x)
@@ -1724,19 +1814,6 @@ const int SL_LWPNS              = 3; // Link's weapons
 const int SL_DECORATIONS        = 4; // Grass clippings, Hover boots glow, etc.
 const int SL_PARTICLES          = 5; // Farore's Wind particles
 
-//Warp types. Use with Screen->SetSideWarp
-const int WT_CAVE			= 0;
-const int WT_PASSAGE			= 1;
-const int WT_ENTRANCEEXIT		= 2;
-const int WT_SCROLLING			= 3;
-const int WT_IAWARP			= 4;
-const int WT_IWARPBLACKOUT		= 5;
-const int WT_IWARPOPENWIPE		= 6;
-const int WT_IWARPZAP			= 7;
-const int WT_IWARPWAVE		  	= 8;
-const int WT_NOWARP			= 9;
-
-
 ///////////////////
 /// Link Properties
 
@@ -1786,6 +1863,7 @@ const int CF_ARMOSITEM          = 10;
 const int CF_SBOMB              = 11;
 const int CF_RAFTBRANCH         = 12;
 const int CF_DIVEITEM           = 13;
+const int CF_LENSMARKER			= 14;
 const int CF_ZELDA              = 15;
 const int CF_SECRETS01          = 16;
 const int CF_SECRETS02          = 17;
@@ -2096,30 +2174,36 @@ const int CT_ZELDA              = 23;
 /// FFC Properties
 
 //FFC Flags. To be used as indices into ffc->Flags[].
-const int FFCF_OVERLAY          = 0; // Draw Over (draw between layers 4 and 5)
-const int FFCF_TRANS            = 1; // Translucent
-const int FFCF_SOLID            = 2; // Unused
-const int FFCF_CARRYOVER        = 3; // Carry Over
-const int FFCF_STATIONARY       = 4; // Stationary
-const int FFCF_CHANGER          = 5; // Is A Changer
-const int FFCF_PRELOAD          = 6; // Run Script On Screen Init
-const int FFCF_LENSVIS          = 7; // Only Visible to Lens of Truth
-const int FFCF_RESET            = 8; // Script Resets When Carried Over
-const int FFCF_ETHEREAL         = 9; // The FFC's Combo Type is ignored.
-const int FFCF_IGNOREHOLDUP     = 10; // The FFC is updated while Link is holding up an item
+const int FFCF_OVERLAY          	= 0; // Draw Over (draw between layers 4 and 5)
+const int FFCF_TRANS            	= 1; // Translucent
+const int FFCF_SOLID            	= 2; // Solidity (Partially Implemented)
+const int FFCF_CARRYOVER        	= 3; // Carry Over
+const int FFCF_STATIONARY       	= 4; // Stationary
+const int FFCF_CHANGER          	= 5; // Is A Changer
+const int FFCF_PRELOAD          	= 6; // Run Script On Screen Init
+const int FFCF_LENSVIS          	= 7; // Only Visible to Lens of Truth
+const int FFCF_RESET            	= 8; // Script Resets When Carried Over
+const int FFCF_ETHEREAL         	= 9; // The FFC's Combo Type is ignored.
+const int FFCF_IGNOREHOLDUP     	= 10; // The FFC is updated while Link is holding up an item
+const int FFCF_IGNORECHANGER     	= 11; // The FFC ignores changers
+const int FFCF_IMPRECISIONCHANGER     	= 12; // The FFC is affected by changers if it is within 1px on both axis, not subpixel alignment.
+const int FFCF_LENSINVIS	     	= 13; // Not visible to the lens of truth
 
 //FFC Bitwise Flags. To be used for bitwise checking of mapdata->FFCFlags[].
-const int FFCBF_OVERLAY   	    = 0x001;
-const int FFCBF_TRANS           = 0x002;
-const int FFCBF_SOLID           = 0x004;
-const int FFCBF_CARRYOVER       = 0x008;
-const int FFCBF_STATIONARY      = 0x010;
-const int FFCBF_CHANGER         = 0x020;
-const int FFCBF_PRELOAD         = 0x040;
-const int FFCBF_LENSVIS         = 0x080;
-const int FFCBF_RESET           = 0x100;
-const int FFCBF_ETHEREAL        = 0x200;
-const int FFCBF_IGNOREHOLDUP    = 0x400;
+const int FFCBF_OVERLAY   		= 0x001;
+const int FFCBF_TRANS           	= 0x002;
+const int FFCBF_SOLID           	= 0x004;
+const int FFCBF_CARRYOVER       	= 0x008;
+const int FFCBF_STATIONARY      	= 0x010;
+const int FFCBF_CHANGER         	= 0x020;
+const int FFCBF_PRELOAD         	= 0x040;
+const int FFCBF_LENSVIS         	= 0x080;
+const int FFCBF_RESET           	= 0x100;
+const int FFCBF_ETHEREAL        	= 0x200;
+const int FFCBF_IGNOREHOLDUP    	= 0x400;
+const int FFCBF_IGNORECHANGER   	= 0x800;
+const int FFCBF_IMPRECISIONCHANGER    	= 0x1000;
+const int FFCBF_LENSINVIS	   	= 0x2000;
 
 
 //Aim-type constants, for use with AimEWeapon
@@ -2136,6 +2220,7 @@ const int TILEWARP_A 		= 0;
 const int TILEWARP_B		= 1;
 const int TILEWARP_C		= 2;
 const int TILEWARP_D		= 3;
+const int SIDEWARP_NONE 	= -1;
 const int SIDEWARP_A		= 0;
 const int SIDEWARP_B		= 1;
 const int SIDEWARP_C		= 2;
@@ -2315,6 +2400,22 @@ const int VOL_DIGI	= 1;
 const int VOL_MUSIC	= 2;
 const int VOL_SFX	= 3;
 
+//Combo Quadrants used for Combo Solidity and CSet2vMasks
+const int CMB_QUADRANT_UL 	= 0001b;
+const int CMB_QUADRANT_UR 	= 0100b;
+const int CMB_QUADRANT_DL 	= 0010b;
+const int CMB_QUADRANT_DR 	= 1000b;
+
+const int CMB_QUADRANT_UPLEFT 	= 0001b;
+const int CMB_QUADRANT_UPRIGHT 	= 0100b;
+const int CMB_QUADRANT_DOWNLEFT = 0010b;
+const int CMB_QUADRANT_DOWNRIGHT = 1000b;
+
+const int CMB_QUADRANT_LEFTUP 	= 0001b;
+const int CMB_QUADRANT_RIGHTUP 	= 0100b;
+const int CMB_QUADRANT_LEFTDOWN = 0010b;
+const int CMB_QUADRANT_RIGHTDOWN = 1000b;
+
 //Input->
 /* Defined earlier.
 const int CB_UP		= 0;
@@ -2378,10 +2479,10 @@ const float DIR16_RADS_RIGHTUP 	= 5.4978;
 const float DIR16_RADS_RIGHTUPUP 	= 5.1141;
 
 //DMap Types for use with dmapdata->Type
-define DMAP_DUNGEON = 0;
-define DMAP_OVERWORLD = 1;
-define DMAP_CAVE = 2;
-define DMAP_BSOVERWORLD = 3;
+const int DMAP_DUNGEON = 0;
+const int DMAP_OVERWORLD = 1;
+const int DMAP_CAVE = 2;
+const int DMAP_BSOVERWORLD = 3;
 
 /*Monochrome Tints and modes
 	for use with Graphics->Monochrome(int mode)
@@ -2392,6 +2493,7 @@ define DMAP_BSOVERWORLD = 3;
 	Graphics->Monochrome(TINT_NONE); 
 */
 
+//Tint Options
 const int TINT_NONE = 0;
 const int TINT_GREY = 1;
 const int TINT_RED = 2;
@@ -2403,3 +2505,326 @@ const int TINT_AMBER = 7;
 const int TINT_CYAN = 8;
 const int TINT_MODE_UNIFORM = 0;
 const int TINT_MODE_DISTRIBUTED = 1000;
+
+//System Real Time Clock (RTC) categories for GetSystemTime(int category)
+const int RTC_YEAR		= 0;
+const int RTC_MONTH	= 1;
+const int RTC_DAYOFMONTH	= 2;
+const int RTC_DAYOFWEEK	= 3;
+const int RTC_HOUR		= 4;
+const int RTC_MINUTE	= 5;
+const int RTC_SECOND	= 6;
+const int RTC_DAYOFYEAR	= 7;
+const int RTC_DAYLIGHTTIME	= 8;
+const int RTC_LAST		= 9;
+
+//Warp types. Use with Screen->SetSideWarp
+//and Link->WarpEx()
+const int WT_CAVE			= 0;
+const int WT_PASSAGE			= 1;
+const int WT_ENTRANCEEXIT		= 2;
+const int WT_SCROLLING			= 3;
+const int WT_IWARP			= 4;
+const int WT_IWARPBLACKOUT		= 5;
+const int WT_IWARPOPENWIPE		= 6;
+const int WT_IWARPZAP			= 7;
+const int WT_IWARPWAVE		  	= 8;
+const int WT_NOWARP			= 9;
+
+//Warp Effects for Link->WarpEx
+const int WARPEFFECT_NONE = 0;
+const int WARPEFFECT_ZAP = 1;
+const int WARPEFFECT_WAVE = 2;
+const int WARPEFFECT_INSTANT = 3;
+const int WARPEFFECT_OPENWIPE = 4;
+
+//Warp Flags for Link->WarpEx()
+const int WARP_FLAG_PLAYSOUNDS 		= 0x02;
+const int WARP_FLAG_PLAYMUSIC 		= 0x04;
+const int WARP_FLAG_SCRIPTDRAW 		= 0x01;
+const int WARP_FLAG_SETENTRANCESCREEN 	= 0x08;
+const int WARP_FLAG_SETENTRANCEDMAP 	= 0x10;
+const int WARP_FLAG_SETCONTINUESCREEN 	= 0x20;
+const int WARP_FLAG_SETCONTINUEDMAP 	= 0x40;
+
+//Manual Sprite Carryover
+const int WARP_FLAG_DONTCLEARSPRITES 	= 0x100;
+const int WARP_FLAG_CLEARITEMS 		= 0x200;
+const int WARP_FLAG_CLEARGUYS 		= 0x400;
+const int WARP_FLAG_CLEARLWEAPONS 	= 0x800;
+const int WARP_FLAG_CLEAREWEAPONS 	= 0x1000;
+const int WARP_FLAG_CLEARHOOKSHOT 	= 0x2000;
+const int WARP_FLAG_CLEARDECORATIONS 	= 0x4000;
+const int WARP_FLAG_CLEARPARTICLES 	= 0x8000;
+
+//Prevent Stepping forward in dungeon screens (experimental)
+const int WARP_FLAG_NOSTEPFORWARD	= 0x10000;
+
+//Error codes for `#ignore error`
+enum
+{
+	_ERR_CANTOPENSOURCE,
+	_ERR_CANTOPENIMPORT,
+	_ERR_IMPORTRECURSION,
+	_ERR_IMPORTBADSCOPE,
+	_ERR_FUNCTIONREDEF,
+	_ERR_FUNCTIONVOIDPARAM,
+	_ERR_SCRIPTREDEF,
+	_ERR_VOIDVAR,
+	_ERR_VARREDEF,
+	_ERR_VARUNDECLARED,
+	_ERR_FUNCUNDECLARED,
+	_ERR_SCRIPTNORUN,
+	_ERR_SCRIPTRUNNOTVOID,
+	_ERR_SCRIPTNUMNOTINT,
+	_ERR_SCRIPTNUMTOOBIG,
+	_ERR_SCRIPTNUMREDEF,
+	_ERR_IMPLICITCAST,
+	_ERR_ILLEGALCAST,
+	_ERR_VOIDEXPR,
+	_ERR_DIVBYZERO,
+	_ERR_CONSTTRUNC,
+	_ERR_NOFUNCMATCH,
+	_ERR_TOOFUNCMATCH,
+	_ERR_FUNCBADRETURN,
+	_ERR_TOOMANYGLOBAL,
+	_ERR_SHIFTNOTINT,
+	_ERR_REFVAR,
+	_ERR_ARROWNOTPOINTER,
+	_ERR_ARROWNOFUNC,
+	_ERR_ARROWNOVAR,
+	_ERR_TOOMANYRUN,
+	_ERR_INDEXNOTINT,
+	_ERR_SCRIPTBADTYPE,
+	_ERR_BREAKBAD,
+	_ERR_CONTINUEBAD,
+	_ERR_CONSTREDEF,
+	_ERR_LVALCONST,
+	_ERR_BADGLOBALINIT,
+	_ERR_DEPRECATEDGLOBAL,
+	_ERR_VOIDARR,
+	_ERR_REFARR,
+	_ERR_ARRREDEF,
+	_ERR_ARRAYTOOSMALL,
+	_ERR_ARRAYLISTTOOLARGE,
+	_ERR_ARRAYLISTSTRINGTOOLARGE,
+	_ERR_NONINTEGERARRAYSIZE,
+	_ERR_EXPRNOTCONSTANT,
+	_ERR_UNRESOLVEDTYPE,
+	_ERR_CONSTUNINITIALIZED,
+	_ERR_CONSTASSIGN,
+	_ERR_EMPTYARRAYLITERAL,
+	_ERR_DIMENSIONMISMATCH,
+	_ERR_ARRAYLITERALRESIZE,
+	_ERR_MISSINGCOMPILEERROR,
+	_ERR_UNIMPLEMENTEDFEATURE,
+	_ERR_UNKNOWNOPTION,
+	_ERR_NOREADTYPE,
+	_ERR_NOWRITETYPE,
+	_ERR_UNRESOLVEDSCRIPTTYPE,
+	_ERR_REDEFSCRIPTTYPE,
+	_ERR_ARRAYINVALIDSIZE,
+	_ERR_ARRAYDECIMAL,
+	_ERR_CONSTNOTCONSTANT,
+	_ERR_TOOMANYUSING,
+	_ERR_DUPLICATEUSING,
+	_ERR_TOOMANYVAR,
+	_ERR_HEADERGUARDERR,
+	_ERR_HEADERGUARDWARN,
+	_ERR_REDEFDATATYPE,
+	_ERR_CONSTALREADYCONSTANT
+};
+
+
+enum ffruletype
+{
+    // 1st byte out of 20
+    qr_SOLIDBLK, qr_NOTMPNORET, qr_ALWAYSRET, qr_MEANTRAPS,
+    qr_BSZELDA, qr_FADE, qr_FADECS5, qr_FASTDNGN,
+    // 2
+    qr_NOLEVEL3FIX, qr_COOLSCROLL, qr_NOSCROLL, qr_4TRI,
+    qr_EXPLICIT_RAFTING, qr_FASTFILL, qr_CAVEEXITNOSTOPMUSIC, qr_3TRI,
+    // 3
+    qr_TIME, qr_FREEFORM, qr_KILLALL, qr_NOFLICKER,
+    qr_CONTFULL_DEP/*DEPRECATED*/, qr_RLFIX, qr_LENSHINTS, /*DEPRECATED*/ 
+    qr_LINKDUNGEONPOSFIX,
+    // 4
+    qr_HOLDITEMANIMATION, qr_HESITANTPUSHBLOCKS, qr_HIDECARRIEDITEMS, qr_FFCSCROLL,
+    qr_RAFTLENS, /*DEPRECATED*/  
+	qr_SMOOTHVERTICALSCROLLING, qr_WHIRLWINDMIRROR, qr_NOFLASHDEATH,
+    // 5
+    qr_HOLDNOSTOPMUSIC, qr_FIREPROOFLINK, qr_OUCHBOMBS, qr_NOCLOCKS_DEP/*DEPRECATED*/,
+    qr_TEMPCLOCKS_DEP/*DEPRECATED*/, qr_BRKBLSHLDS_DEP/*DEPRECATED*/, qr_BRKNSHLDTILES, qr_MEANPLACEDTRAPS,
+    // 6
+    qr_PHANTOMPLACEDTRAPS, qr_ALLOWFASTMSG, qr_LINKEDCOMBOS/*DEPRECATED*/, qr_NOGUYFIRES,
+    qr_HEARTRINGFIX, qr_NOHEARTRING, qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX,
+    // 7
+    qr_ENABLEMAGIC, qr_MAGICWAND_DEP/*DEPRECATED*/, qr_MAGICCANDLE_DEP/*DEPRECATED*/, qr_MAGICBOOTS_DEP/*DEPRECATED*/,
+    qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_NEWENEMYTILES,
+    // 8
+    qr_NOROPE2FLASH_DEP/*DEPRECATED*/, qr_NOBUBBLEFLASH_DEP/*DEPRECATED*/, qr_GHINI2BLINK_DEP, qr_BITMAPOFFSETFIX, /* UNIMPLEMENTED */
+    qr_PHANTOMGHINI2_DEP/*DEPRECATED*/, qr_Z3BRANG_HSHOT, qr_NOITEMMELEE/*DEPRECATED*/, qr_SHADOWS,
+    // 9
+    qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_EXPANDEDLTM,
+    qr_NOPOTIONCOMBINE_DEP/*DEPRECATED*/, qr_LINKFLICKER, qr_SHADOWSFLICKER, qr_WALLFLIERS,
+    // 10
+    qr_NOBOMBPALFLASH, qr_HEARTSREQUIREDFIX, qr_PUSHBLOCKCSETFIX, qr_TRANSLUCENTNAYRUSLOVEROCKET_DEP/*DEPRECATED*/,
+    qr_FLICKERINGNAYRUSLOVEROCKET_DEP/*DEPRECATED*/, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI, qr_WARPSIGNOREARRIVALPOINT,
+    // 11
+    qr_LTTPCOLLISION, qr_LTTPWALK, qr_SLOWENEMYANIM_DEP/*DEPRECATED*/, qr_TRUEARROWS,
+    qr_NOSAVE, qr_NOCONTINUE, qr_QUARTERHEART, qr_NOARRIVALPOINT,
+    // 12
+    qr_NOGUYPOOF, qr_ALLOWMSGBYPASS, qr_NODIVING, qr_LAYER12UNDERCAVE,
+    qr_NOSCROLLCONTINUE, qr_SMARTSCREENSCROLL, qr_RINGAFFECTDAMAGE/*DEPRECATED*/, qr_ALLOW10RUPEEDROPS_DEP/*DEPRECATED*/,
+    // 13
+    qr_TRAPPOSFIX, qr_TEMPCANDLELIGHT, qr_REDPOTIONONCE_DEP/*DEPRECATED*/, qr_OLDSTYLEWARP,
+    qr_NOBORDER, qr_OLDTRIBBLES_DEP/*DEPRECATED*/, qr_REFLECTROCKS /*DEPRECATED*/, qr_OLDPICKUP,
+    // 14
+    qr_ENEMIESZAXIS, qr_SAFEENEMYFADE, qr_MORESOUNDS, qr_BRANGPICKUP,
+    qr_HEARTPIECEINCR_DEP/*DEPRECATED*/, qr_ITEMSONEDGES, qr_EATSMALLSHIELD_DEP/*DEPRECATED*/, qr_MSGFREEZE,
+    // 15
+    qr_SLASHFLIPFIX/*DEPRECATED*/, qr_FIREMAGICSPRITE_DEP/*DEPRECATED*/, qr_SLOWCHARGINGWALK/*DEPRECATED*/, qr_NOWANDMELEE/*DEPRECATED*/,
+    qr_SLOWBOMBFUSES_DEP/*DEPRECATED*/, qr_SWORDMIRROR, qr_SELECTAWPN, qr_LENSSEESENEMIES, /*DEPRECATED*/ 
+    // 16
+    qr_INSTABURNFLAGS, qr_DROWN, qr_MSGDISAPPEAR, qr_SUBSCREENOVERSPRITES,
+    qr_BOMBDARKNUTFIX, qr_LONGBOMBBOOM_DEP/*DEPRECATED*/, qr_OFFSETEWPNCOLLISIONFIX, qr_DMGCOMBOLAYERFIX,
+    // 17
+    qr_ITEMSINPASSAGEWAYS, qr_LOG, qr_FIREPROOFLINK2, qr_NOITEMOFFSET,
+    qr_ITEMBUBBLE, qr_GOTOLESSNOTEQUAL /* Compatibility */, qr_LADDERANYWHERE, qr_HOOKSHOTLAYERFIX,
+    // 18
+    qr_REPLACEOPENDOORS /* Compatibility */, qr_OLDLENSORDER /* Compatibility */, qr_NOFAIRYGUYFIRES /* Compatibility */, qr_SCRIPTERRLOG,
+    qr_TRIGGERSREPEAT /* Compatibility */, qr_ENEMIESFLICKER, qr_OVALWIPE, qr_TRIANGLEWIPE,
+    // 19
+    qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility */, qr_SHOPCHEAT, qr_HOOKSHOTDOWNBUG /* Compatibility */,
+    qr_OLDHOOKSHOTGRAB /* Compatibility */, qr_PEAHATCLOCKVULN /* Compatibility */, qr_VERYFASTSCROLLING, qr_OFFSCREENWEAPONS /* Compatibility */,
+    // 20
+    qr_BROKENSTATUES /* Compatibility */, qr_BOMBCHUSUPERBOMB,
+    qr_ITEMPICKUPSETSBELOW /* Compatibility */,
+    
+    qr_NOGANONINTRO, //bugfix//
+    qr_MELEEMAGICCOST/*DEPRECATED*/,
+    qr_OLDMIRRORCOMBOS,
+    qr_BROKENBOOKCOST,
+    qr_OLDSIDEVIEWSPIKES,
+    //21
+	qr_OLDINFMAGIC/* Compatibility */, //Infinite magic prevents items from draining rupees
+	qr_NEVERDISABLEAMMOONSUBSCREEN, qr_ITEMSCRIPTSKEEPRUNNING,
+	qr_SCRIPTSRUNINLINKSTEPFORWARD, /*qr_SCRIPTDRAWSINCANCELWARP,*/ qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,
+	qr_DYINGENEMYESDONTHURTLINK, //t.b.a
+	qr_SIDEVIEWTRIFORCECELLAR,
+	//22
+	qr_OUTOFBOUNDSENEMIES,
+	qr_EPILEPSY,
+	qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
+	qr_SMARTDROPS,
+	qr_NO_L_R_BUTTON_INVENTORY_SWAP,
+	qr_USE_EX1_EX2_INVENTORYSWAP,
+	qr_NOFASTMODE,
+	qr_OLD_F6,
+	
+	
+	//ZScript Parser //room for 20 of these
+	//80
+	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
+	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
+	qr_PARSER_SHORT_CIRCUIT, //Default off.
+	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
+	qr_LINKXY_IS_FLOAT,
+	qr_PARSER_TRUE_INT_SIZE, //Default on
+	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
+	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
+	//81
+	qr_OLDSPRITEDRAWS,
+	qr_WEAPONSHADOWS, qr_ITEMSHADOWS, qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS,
+	qr_OLDQUESTMISC, 
+	qr_PARSER_FORCE_INLINE,
+	qr_CLEARINITDONSCRIPTCHANGE,
+	//82
+	qr_NOFFCWAITDRAW,
+	qr_NOITEMWAITDRAW,
+	qr_TRACESCRIPTIDS,
+	qr_FIXDRUNKINPUTS,
+	qr_32BIT_BINARY,
+	qr_ALWAYS_DEALLOCATE_ARRAYS,
+	qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,
+    qr_MAX
+};
+
+//Flags for SaveSRAM() and LoadSRAM()
+ const int SRAM_ALL	 	=	0;
+ const int SRAM_NPCDATA 	=	0x01;
+ const int SRAM_ITEMDATA 	=	0x02;
+ const int SRAM_SPRITEDATA 	=	0x04;
+ const int SRAM_COMBODATA 	=	0x08;
+ const int SRAM_DMAPDATA 	=	0x10;
+ const int SRAM_MAPDATA 	=	0x20;
+
+enum EnemyPattern
+{
+	PATTERN_STANDARD,
+	PATTERN_SIDES,
+	PATTERN_SIDES_RANDOM,
+	PATTERN_CEILING,
+	PATTERN_CEILING_RANDOM,
+	PATTERN_STANDARD_RANDOM,
+	PATTERN_NO_SPAWNING
+};
+
+//MIDI values, used for 'Screen->MIDI', 'dmapdata->MIDI', 'mapdata->MIDI', 'Audio->PlayMIDI'
+enum
+{
+    MIDI_USE_DMAP = -4, //ONLY for 'Screen->MIDI' and 'mapdata->MIDI'
+    MIDI_NONE,
+    MIDI_OVERWORLD,
+    MIDI_DUNGEON,
+    MIDI_LEVEL9 //==0, cannot be played by 'Audio->PlayMIDI'
+};
+
+
+
+enum linkspritetype { LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr, 
+	LSprswimspr, LSprdivespr, LSprpoundspr,
+LSprjumpspr, LSprchargespr, LSprcastingspr, 
+	LSprholdspr1, LSprholdspr2, LSprholdsprw1, LSprholdsprw2, LSprlast };
+
+	
+
+//suspend types
+enum { 
+	//Typical processes that we want to pause, similar to ALLOFF()
+	
+	//0 : Combo animation
+	susptCOMBOANIM,
+	
+	//1->5 Main Sprite animation by type
+	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptLINK, 
+	
+	//6 : FFC (e.g. movement, changers, but not scripts)
+	susptUPDATEFFC, //ffcs
+	
+	//7->8 : Sprite subclasses
+	susptDECORATIONS, susptPARTICLES, //sprite subclasses
+	
+	//9->10: Palette events
+	susptPALCYCLE, susptLAKES, //lake dries up
+	
+	//11->15 : game system events
+	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
+
+	//16->26 Script Types
+	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
+	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
+	susptSUBSCREENSCRIPTS, //26
+	
+	//27->29 : Moving items
+	susptCONVEYORSITEMS, susptDRAGGINGITEM, susptROAMINGITEM,
+	//30->34 : Misc
+	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
+	//35
+	susptLAST };
+
+enum openingWipeShape
+{
+	WIPE_CIRCLE, WIPE_OVAL, WIPE_TRIANGLE,
+	WIPE_SMAS, WIPE_FADEBLACK, WIPE_MAX
+};

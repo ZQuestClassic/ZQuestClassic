@@ -30,6 +30,7 @@
 int isFullScreen();
 int onFullscreen();
 
+
 #define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
 
 #define MAX_IDLE      72000                                 // 20 minutes
@@ -64,7 +65,7 @@ int onFullscreen();
 /******** Enums & Structs ********/
 /*********************************/
 
-enum { qQUIT=1, qRESET, qEXIT, qGAMEOVER, qCONT, qWON, qERROR };
+enum { qQUIT=1, qRESET, qEXIT, qGAMEOVER, qCONT, qSAVE, qSAVECONT, qWON, qERROR };
 
 // "special" walk flags
 enum
@@ -205,6 +206,7 @@ void shiftColour(int rshift, int gshift, int bshift, int base);
 void doClearTint();
 void restoreTint();
 void restoreMonoPreset();
+void refreshTints();
 
 void doGFXMonohue(int _r, int _g, int _b, bool m);
 void doTint(int _r, int _g, int _b);
@@ -238,7 +240,12 @@ INLINE void sfx(int index,int pan)
     sfx(index,vbound(pan, 0, 255) ,false);
 }
 
+bool isSideViewGravity(int t);
+
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
+
+//Script Clearing
+void initZScriptGlobalScript(int ID);
 
 /**********************************/
 /******** Global Variables ********/
@@ -259,7 +266,7 @@ extern int strike_hint;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
-extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgbmpbuf, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp;
+extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgbmpbuf, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp, *script_menu_buf;
 extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
 extern FONT  *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
@@ -340,7 +347,7 @@ extern int fullscreen;
 extern byte disable_triplebuffer, can_triplebuffer_in_windowed_mode;
 extern byte frame_rest_suggest, forceExit, zc_vsync;
 extern byte zc_color_depth;
-extern byte use_debug_console, use_win32_proc; //windows only
+extern byte use_debug_console, console_on_top, use_win32_proc, zasm_debugger, zscript_debugger; //windows only
 
 #ifdef _SCRIPT_COUNTER
 void update_script_counter();
@@ -358,6 +365,7 @@ extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
 extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 extern bool analog_movement;
 extern int joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
+extern unsigned long GameFlags;
 extern int js_stick_1_x_stick, js_stick_1_x_axis, js_stick_1_x_offset;
 extern int js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
 extern int js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
@@ -401,21 +409,33 @@ extern mapscr tmpscr[2];
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];
-extern ffscript *ffscripts[512];
-extern ffscript *itemscripts[256];
+extern ffscript *ffscripts[NUMSCRIPTFFC];
+extern ffscript *itemscripts[NUMSCRIPTITEM];
 extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
 
-extern ffscript *guyscripts[256];
-extern ffscript *wpnscripts[256];
-extern ffscript *linkscripts[3];
-extern ffscript *screenscripts[256];
+extern ffscript *guyscripts[NUMSCRIPTGUYS];
+extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *linkscripts[NUMSCRIPTLINK];
+extern ffscript *screenscripts[NUMSCRIPTSCREEN];
+extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
+extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int sfxdat;
+
+struct ScriptOwner
+{
+	ScriptOwner();
+	byte scriptType;
+	unsigned long ownerUID;
+	void clear();
+};
 
 #define MAX_ZCARRAY_SIZE	4096
 typedef ZCArray<long> ZScriptArray;
 extern ZScriptArray localRAM[MAX_ZCARRAY_SIZE];
-extern byte arrayOwner[MAX_ZCARRAY_SIZE];
+extern ScriptOwner arrayOwner[MAX_ZCARRAY_SIZE];
 
 dword getNumGlobalArrays();
 

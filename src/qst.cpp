@@ -38,7 +38,11 @@
 #include "ffscript.h"
 //FFScript FFCore;
 extern FFScript FFCore;
+extern ZModule zcm;
+extern zcmodule moduledata;
 //FFSCript   FFEngine;
+
+int temp_ffscript_version = 0;
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -78,11 +82,20 @@ string				             zScript;
 std::map<int, pair<string,string> > ffcmap;
 std::map<int, pair<string,string> > globalmap;
 std::map<int, pair<string,string> > itemmap;
-
+std::map<int, pair<string, string> > npcmap;
+std::map<int, pair<string, string> > ewpnmap;
+std::map<int, pair<string, string> > lwpnmap;
+std::map<int, pair<string, string> > linkmap;
+std::map<int, pair<string, string> > dmapmap;
+std::map<int, pair<string, string> > screenmap;
+std::map<int, pair<string, string> > itemspritemap;
+void free_newtilebuf();
 bool combosread=false;
 bool mapsread=false;
 bool fixffcs=false;
 bool fixpolsvoice=false;
+
+char qstdat_string[2048] = { 0 };
 
 int memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
 
@@ -655,7 +668,9 @@ bool valid_zqt(const char *filename)
 
 PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
 {
-	char tmpfilename[32];
+	char tmpfilename[64]; 	// This WAS [32]. I had to increase its size to prevent crashes 
+				// when changing qst.dat to a longer filename in the module file! -Z
+		
 	temp_name(tmpfilename);
 	char percent_done[30];
 	int current_method=0;
@@ -673,10 +688,26 @@ PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefil
 	}
     
 	box_out("Loading Quest: ");
-	if(strncasecmp(filename, "qst.dat", 7)!=0)
+	//if(strncasecmp(filename, "qst.dat", 7)!=0)
+	//int qstdat_str_size = 0;
+	//for ( int q = 0; q < 255; q++ ) //find the length of the string
+	//{
+	//	if ( moduledata.datafiles[qst_dat][q] != 0 ) qstdat_str_size++;
+	//	else break;
+	//}
+	//if(strncasecmp(filename, moduledata.datafiles[qst_dat], 7)!=0)
+	al_trace("Trying to do strncasecmp() when loading a quest\n");
+	int qstdat_filename_size = strlen(moduledata.datafiles[qst_dat]);
+	al_trace("Filename size of qst.dat file %s is %d.\n", moduledata.datafiles[qst_dat], qstdat_filename_size);
+	//if(strncasecmp(filename, moduledata.datafiles[qst_dat], qstdat_filename_size)!=0)
+	if(strcmp(filename, moduledata.datafiles[qst_dat])!=0)
+	{
 		box_out(filename);
+	}
 	else
+	{
 		box_out("new quest"); // Or whatever
+	}
 	box_out("...");
 	box_eol();
 	box_eol();
@@ -802,10 +833,13 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     int open_error=0;
     deletefilename[0]=0;
     
+	sprintf(qstdat_string,moduledata.datafiles[qst_dat]);
+	strcat(qstdat_string,"#NESQST_NEW_QST");
     if(Header->templatepath[0]==0)
     {
-        filename=(char *)zc_malloc(23);
-        sprintf(filename, "qst.dat#NESQST_NEW_QST");
+        filename=(char *)zc_malloc(2048);
+        //sprintf(filename, "qst.dat#NESQST_NEW_QST");
+        sprintf(filename, qstdat_string);
     }
     else
     {
@@ -1200,6 +1234,7 @@ int get_qst_buffers()
     memrequested+=(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)));
     Z_message("Allocating tile buffer (%s)... ", byte_conversion2(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)),memrequested,-1,-1));
     
+    free_newtilebuf();
     if((newtilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
         return 0;
         
@@ -1284,6 +1319,7 @@ void free_newtilebuf()
                 zc_free(newtilebuf[i].data);
                 
         zc_free(newtilebuf);
+	newtilebuf = 0;
     }
 }
 
@@ -1297,6 +1333,7 @@ void free_grabtilebuf()
                 if(grabtilebuf[i].data) zc_free(grabtilebuf[i].data);
                 
             zc_free(grabtilebuf);
+	    grabtilebuf = 0;
         }
     }
 }
@@ -1907,6 +1944,9 @@ void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd)
 
 bool check_questpwd(zquestheader *Header, char *pwd)
 {
+    #if DEVLEVEL > 1 
+	return true;
+    #endif
     cvs_MD5Context ctx;
     unsigned char md5sum[16];
     
@@ -2076,7 +2116,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             return qe_invalid;
         }
-        
+	
         get_questpwd(temp_pwd, temp_pwdkey, temp_pwd2);
         cvs_MD5Init(&ctx);
         cvs_MD5Update(&ctx, (const unsigned char*)temp_pwd2, (unsigned)strlen(temp_pwd2));
@@ -2346,6 +2386,9 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
+	
+        
+	
     }
     
     if(keepdata==true)
@@ -2508,6 +2551,31 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(quest_rules, qr_OFFSCREENWEAPONS, 1);
     }
     
+    //Bombchu fix.
+    if(tempheader.zelda_version == 0x250)
+    {
+	    if ( tempheader.build == 24 ) //2.50.0
+	    {
+		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+		    FFCore.emulation[emu210BOMBCHU] = 1;
+	    }
+	    if ( tempheader.build == 28 ) //2.50.1
+	    {
+		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+		    FFCore.emulation[emu210BOMBCHU] = 1;
+	    }
+	    if ( tempheader.build == 29 ) //2.50.2
+	    {
+		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+		    FFCore.emulation[emu210BOMBCHU] = 0;
+	    }
+	    if ( tempheader.build == 30 ) //2.50.3RC1
+	    {
+		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+		    FFCore.emulation[emu210BOMBCHU] = 0;
+	    }
+    }
+    
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
     {
         // qr_OFFSETEWPNCOLLISIONFIX
@@ -2596,6 +2664,115 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
     {
         set_bit(extra_rules, er_BITMAPOFFSET, 1);
+        set_bit(quest_rules, qr_BITMAPOFFSETFIX, 1);
+    }
+    //required because quest templates also used this bit, although
+    //it never did anything, before. -Z
+    if ( tempheader.zelda_version == 0x250 )
+    {
+	    if( tempheader.build == 29 || tempheader.build == 30 || tempheader.build == 31 )
+	    {
+		set_bit(extra_rules, er_BITMAPOFFSET, 0);
+		set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
+	    }
+    }
+    if ( tempheader.zelda_version == 0x254 )
+    {
+	set_bit(extra_rules, er_BITMAPOFFSET, 0);
+	set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
+    }
+    if ( tempheader.zelda_version == 0x255 && tempheader.build < 42 ) //QR was added to 255 in this build.
+    {
+	set_bit(extra_rules, er_BITMAPOFFSET, 0);
+	set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
+    }
+    //optimise fast drawing for older versions.
+    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 42) )
+    {
+	set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);    
+    }
+    //Old eweapon->Parent (was added in 2.54, Alpha 19)
+    //The change was made in build 43, but I'm setting this to < 42, because quests made in 42 would benefit from this change, and
+    //older quests can set the rule by hand. We need a new qst.dat again.
+    if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 42) )
+    {
+	set_bit(quest_rules, qr_OLDEWPNPARENT, 1);    
+    }
+    if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
+    {
+	set_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS, 1);    
+    }
+    if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 45) )
+    {
+	set_bit(quest_rules, qr_OLDQUESTMISC, 1);    
+    }
+    if ( tempheader.zelda_version < 0x254 )
+    {
+	set_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS, 0);  
+	set_bit(quest_rules, qr_OLDEWPNPARENT, 0); 	    
+	set_bit(quest_rules, qr_OLDQUESTMISC, 0); 	    
+    }
+    
+    //item scripts continue to run
+    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
+    {
+	set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 0);  	    
+	set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 0);  	    
+	set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 0);
+	set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 0);  	    
+	set_bit(quest_rules, qr_DYINGENEMYESDONTHURTLINK, 0);  	    
+	set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);  
+	set_bit(quest_rules, qr_LINKXY_IS_FLOAT, 0);
+    }
+    
+    
+    
+    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
+    {
+	set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);  	    
+	  	    
+    }
+    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
+    {
+	set_bit(quest_rules, qr_TRACESCRIPTIDS, 0);      
+	set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);      
+	set_bit(quest_rules, qr_PARSER_BOOL_TRUE_DECIMAL, 1);   
+	set_bit(quest_rules,qr_PARSER_250DIVISION,1);
+	set_bit(quest_rules,qr_PARSER_BOOL_TRUE_DECIMAL,1);
+	set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
+	set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
+	set_bit(quest_rules,qr_32BIT_BINARY,0);
+	if ( get_bit(quest_rules, qr_SELECTAWPN) ) 
+	{
+		set_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP,1); 
+		//In < 2.55a27, if you had an A+B subscreen, L and R didn't shift through inventory.
+		//Now they **do**, unless you disable that behaviour.
+		//For the sake of compatibility, old quests with the A+B subscreen rule enabed
+		//now enable the disable L/R item swap on load.
+	}
+	  	    
+    }
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
+	{
+		//Compatibility: Setting the hero's action to rafting was previously disallowed, though legal for scripts to attempt.
+		set_bit(quest_rules, qr_DISALLOW_SETTING_RAFTING, 1);
+		//Compatibility: The calculation for when to loop an animation did not factor in ASkipY correctly, resulting in
+		//animations ending earlier than they should.
+		set_bit(quest_rules, qr_BROKEN_ASKIP_Y_FRAMES, 1);
+		//Enemies would ignore solidity on the top half of combos
+		set_bit(quest_rules, qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, 1);
+		//Ceiling collison was a bit wonky, including hitting your head before you are near the ceiling or clipping into it slightly.
+		set_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON, 1);
+		//If an itemdata had a 'frames' of 0, items created of that data would ignore all changes to 'frames'
+		set_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES, 1);
+		//Collision used some odd calculations before, and enemies could not be hit back into the top row or left column
+		set_bit(quest_rules, qr_OLD_ENEMY_KNOCKBACK_COLLISION, 1);
+	}
+    if ( tempheader.zelda_version < 0x255 )
+    {
+	  set_bit(quest_rules, qr_NOFFCWAITDRAW, 1);  
+	  set_bit(quest_rules, qr_NOITEMWAITDRAW, 1);  
+	  
     }
     //Sideview spikes in 2.50.0
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
@@ -2627,6 +2804,20 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules, qr_OLDINFMAGIC, 1);
 	}
 	
+	if((tempheader.zelda_version < 0x250)) //2.10 and earlier allowed the triforce to Warp Link out of Item Cellars in Dungeons. -Z (15th March, 2019 )
+	{
+		set_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR,1);
+	}
+	
+	if((tempheader.zelda_version < 0x255))
+	{
+		
+	}
+	
+    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
+	{
+		set_bit(quest_rules,qr_OLD_F6,1);
+	}
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
@@ -3897,6 +4088,55 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
         }
 	if(s_version < 10) tempDMap.sideview = 0;
         
+	//Dmap Scripts
+	if(s_version >= 12)
+        {
+            if(!p_igetw(&tempDMap.script,f,keepdata))
+            {
+                return qe_invalid;
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_igetl(&tempDMap.initD[q],f,keepdata))
+                {
+                return qe_invalid;
+                }    
+		    
+	    }
+        }
+	if ( s_version < 12 )
+	{
+		tempDMap.script = 0;
+		for ( int q = 0; q < 8; q++ )
+		{
+			tempDMap.initD[q] = 0;
+		}
+	}
+	
+	if(s_version >= 13)
+        {
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		for ( int w = 0; w < 65; w++ )
+		{
+			if(!p_getc(&tempDMap.initD_label[q][w],f,keepdata))
+			{
+				return qe_invalid;
+			} 
+		}
+		    
+	    }
+        }
+	if ( s_version < 13 )
+	{
+		tempDMap.script = 0;
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+				tempDMap.initD_label[q][w] = 0;
+		}
+	}
+	
         if(keepdata==true)
         {
             memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
@@ -4907,6 +5147,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     
     memset(&temp_misc.questmisc, 0, sizeof(long)*32);
     memset(&temp_misc.questmisc_strings, 0, sizeof(char)*4096);
+    memset(&temp_misc.zscript_last_compiled_version, 0, sizeof(long));
     
     //v9 includes quest misc[32]
     if(s_version >= 9)
@@ -4923,6 +5164,18 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
                     return qe_invalid;
 	}
     }
+    
+    if(s_version >= 11 )
+    {
+	    if(!p_igetl(&temp_misc.zscript_last_compiled_version,f,true))
+                    return qe_invalid;
+    }
+    else if(s_version < 11 )
+    {
+	    temp_misc.zscript_last_compiled_version = -1;
+    }
+   
+    FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
     
     if(keepdata==true)
     {
@@ -5675,6 +5928,62 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 				//What controlled this before? -Z
 				//lensflagNOXRAY New option, not an old rule. -Z
 			}
+		}
+		if ( s_version >= 44 )  //! cost counter
+		{
+			for ( int q = 0; q < 8; q++ )
+			{
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&(tempitem.initD_label[q][w]),f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&(tempitem.weapon_initD_label[q][w]),f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+				if(!p_igetl(&(tempitem.sprite_initiald[q]),f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+			}
+			for ( int q = 0; q < 2; q++ )
+			{
+				if(!p_getc(&(tempitem.sprite_initiala[q]),f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			//Pickup Type
+			if(!p_igetw(&tempitem.sprite_script,f,true))
+                        {
+                            return qe_invalid;
+                        }
+		}
+		if ( s_version < 44 ) //InitD Labels and Sprite Script Data
+		{
+			for ( int q = 0; q < 8; q++ )
+			{
+				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
+				sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
+				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
+				tempitem.sprite_initiald[q] = 0;
+			}
+			for ( int q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
+			tempitem.sprite_script = 0;
 		}
 		
 		
@@ -6458,13 +6767,13 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			{
 				if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
 				{
-					tempitem.flags |= ITEM_FLAG3;
-					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-					else tempitem.flags &= ~ITEM_FLAG4;
+					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
 				}
 				else
 				{
-					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+					tempitem.flags |= ITEM_FLAG3;
+					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+					else tempitem.flags &= ~ITEM_FLAG4;
 				}
 			}
 			else if(tempitem.family == itype_triforcepiece)
@@ -6549,6 +6858,15 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			{
 				if(get_bit(quest_rules,qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
 				else tempitem.flags &= ~ITEM_FLAG3;
+			}
+		}
+		
+		if( s_version < 45 )
+		{
+			if(tempitem.family == itype_flippers)
+			{
+				tempitem.misc1 = 50; //Dive length, default 50 frames -V
+				tempitem.misc2 = 30; //Dive cooldown, default 30 frames -V
 			}
 		}
 		
@@ -6736,7 +7054,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
 		    return qe_invalid;
 		}	    
 	}
-	if ( s_version < 7 ) 
+	if ( s_version < 7 && Header->zelda_version >= 0x193 ) 
 	{
 		tempweapon.newtile = tempweapon.tile;
 	}
@@ -6748,6 +7066,12 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
         }
+	
+	if ( Header->zelda_version < 0x193 ) 
+	{
+		tempweapon.newtile = tempweapon.tile;
+		//al_trace("Reading a tempwpn tile ID (%d) from a quest built in: %x", tempweapon.tile, Header->zelda_version);
+	}
         
         if(s_version < 6)
         {
@@ -6980,7 +7304,15 @@ int init_combo_classes()
     for(int i=0; i<cMAX; i++)
     {
         combo_class_buf[i] = default_combo_classes[i];
-        continue;
+	if ( moduledata.combo_type_names[i][0] != NULL )
+	{
+		//al_trace("Copying over a combo type name from a module: %s\n",(char *)moduledata.combo_type_names[i]);
+		for ( int q = 0; q < 64; q++ )
+		{
+			combo_class_buf[i].name[q] = moduledata.combo_type_names[i][q];
+		}
+	}
+	    continue;
         /*
             al_trace("===== %03d (%s)=====\n", i, ctype_name[i]);
             al_trace("name:  %s\n", combo_class_buf[i].name);
@@ -8453,13 +8785,20 @@ int setupsubscreens()
     return 0;
 }
 
-extern ffscript *ffscripts[512];
-extern ffscript *itemscripts[256];
-extern ffscript *guyscripts[256];
-extern ffscript *wpnscripts[256];
+extern ffscript *ffscripts[NUMSCRIPTFFC];
+extern ffscript *itemscripts[NUMSCRIPTITEM];
+extern ffscript *guyscripts[NUMSCRIPTGUYS];
+extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
-extern ffscript *linkscripts[3];
-extern ffscript *screenscripts[256];
+extern ffscript *linkscripts[NUMSCRIPTLINK];
+extern ffscript *screenscripts[NUMSCRIPTSCREEN];
+extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
+extern ffscript *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+//ffscript *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
+
+
 
 int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
@@ -8491,6 +8830,10 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     //ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
     setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
+    temp_ffscript_version = s_version;
+    //miscQdata *the_misc;
+    if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
+    al_trace("Loaded scripts last compiled in ZScript version: %d\n", (FFCore.quest_format[vLastCompile]));
     
     //finally...  section data
     for(int i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
@@ -8523,21 +8866,49 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             if(ret != 0) return qe_invalid;
         }
         
+	
         for(int i = 0; i < NUMSCRIPTSCREEN; i++)
         {
             ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i]);
             
             if(ret != 0) return qe_invalid;
         }
-        
-        if(s_version > 4)
-        {
-            for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
+	
+        if(s_version > 13)
+		{
+            for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
             {
                 ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i]);
                 
                 if(ret != 0) return qe_invalid;
             }
+		}
+		else if(s_version > 4)
+        {
+            for(int i = 0; i < NUMSCRIPTGLOBAL253; ++i)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+            
+            if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_ONLAUNCH];
+                
+            globalscripts[GLOBAL_SCRIPT_ONLAUNCH] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_ONLAUNCH][0].command = 0xFFFF;
+            
+            if(globalscripts[GLOBAL_SCRIPT_ONCONTGAME] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_ONCONTGAME];
+                
+            globalscripts[GLOBAL_SCRIPT_ONCONTGAME] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_ONCONTGAME][0].command = 0xFFFF;
+            
+            if(globalscripts[GLOBAL_SCRIPT_F6] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_F6];
+                
+            globalscripts[GLOBAL_SCRIPT_F6] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_F6][0].command = 0xFFFF;
         }
         else
         {
@@ -8548,19 +8919,107 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 if(ret != 0) return qe_invalid;
             }
             
-            if(globalscripts[GLOBAL_SCRIPT_CONTINUE] != NULL)
-                delete [] globalscripts[GLOBAL_SCRIPT_CONTINUE];
+            if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
+                delete [] globalscripts[GLOBAL_SCRIPT_ONSAVELOAD];
                 
-            globalscripts[GLOBAL_SCRIPT_CONTINUE] = new ffscript[1];
-            globalscripts[GLOBAL_SCRIPT_CONTINUE][0].command = 0xFFFF;
+            globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] = new ffscript[1];
+            globalscripts[GLOBAL_SCRIPT_ONSAVELOAD][0].command = 0xFFFF;
         }
         
-        for(int i = 0; i < NUMSCRIPTLINK; i++)
+	if(s_version > 10) //expanded the number of Link scripts to 5. 
         {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
+		for(int i = 0; i < NUMSCRIPTLINK; i++)
+		{
+		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i]);
+		    
+		    if(ret != 0) return qe_invalid;
+		}
         }
+	else
+	{
+		for(int i = 0; i < NUMSCRIPTLINKOLD; i++)
+		{
+		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i]);
+		    
+		    if(ret != 0) return qe_invalid;
+		}
+		if(linkscripts[3] != NULL)
+                delete [] linkscripts[3];
+                
+		linkscripts[3] = new ffscript[1];
+		linkscripts[3][0].command = 0xFFFF;
+		
+		if(linkscripts[4] != NULL)
+                delete [] linkscripts[4];
+                
+		linkscripts[4] = new ffscript[1];
+		linkscripts[4][0].command = 0xFFFF;
+	}
+        if(s_version > 8 && s_version < 10)
+        {
+            
+            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i]);
+            
+                if(ret != 0) return qe_invalid;
+            }
+            
+        }
+	if(s_version >= 10)
+        {
+            
+            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+	    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i]);
+            
+                if(ret != 0) return qe_invalid;
+            }
+            
+        }
+	if(s_version >=12)
+	{
+		for(int i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
+		{
+			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemspritescripts[i]);
+                
+			if(ret != 0) return qe_invalid;
+		}
+		
+	}
+        /*
+        else //Is this trip really necessary?
+        {
+            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                
+                ewpnscripts[i] = NULL;
+            }
+            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            {
+                dmapscripts[i] = NULL;
+            }
+        }
+        */
+        
     }
     
     if(s_version > 2)
@@ -8616,8 +9075,8 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 {
                     globalmap[id].second = "";
                     
-                    if(globalscripts[GLOBAL_SCRIPT_CONTINUE] != NULL)
-                        globalscripts[GLOBAL_SCRIPT_CONTINUE][0].command = 0xFFFF;
+                    if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
+                        globalscripts[GLOBAL_SCRIPT_ONSAVELOAD][0].command = 0xFFFF;
                 }
                 else
                 {
@@ -8645,6 +9104,161 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 //fix this too
                 if(keepdata && id <NUMSCRIPTITEM-1)
                     itemmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+        	//(v9+)
+	//npc scripts
+	if(s_version > 8)
+        {
+            word numnpcbindings;
+            p_igetw(&numnpcbindings, f, true);
+            
+            for(int i=0; i<numnpcbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTGUYS-1)
+                    npcmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//
+	//lweapon
+	if(s_version > 8)
+        {
+            word numlwpnbindings;
+            p_igetw(&numlwpnbindings, f, true);
+            
+            for(int i=0; i<numlwpnbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTWEAPONS-1)
+                    lwpnmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//eweapon
+	if(s_version > 8)
+        {
+            word numewpnbindings;
+            p_igetw(&numewpnbindings, f, true);
+            
+            for(int i=0; i<numewpnbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTWEAPONS-1)
+                    ewpnmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//link
+	if(s_version > 8)
+        {
+            word numlinkbindings;
+            p_igetw(&numlinkbindings, f, true);
+            
+            for(int i=0; i<numlinkbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTLINK-1)
+                    linkmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//dmaps
+	if(s_version > 8)
+        {
+            word numdmapbindings;
+            p_igetw(&numdmapbindings, f, true);
+            
+            for(int i=0; i<numdmapbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTSDMAP-1)
+                    dmapmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+		//screen
+	if(s_version > 8)
+        {
+            word numscreenbindings;
+            p_igetw(&numscreenbindings, f, true);
+            
+            for(int i=0; i<numscreenbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTSDMAP-1)
+                    screenmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	if(s_version > 11)
+        {
+            word numspritebindings;
+            p_igetw(&numspritebindings, f, true);
+            
+            for(int i=0; i<numspritebindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTSDMAP-1)
+                    itemspritemap[id].second = buf;
                     
                 delete[] buf;
             }
@@ -8684,6 +9298,8 @@ void reset_scripts()
         if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
     }
     
+    
+    
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete [] screenscripts[i];
@@ -8699,6 +9315,20 @@ void reset_scripts()
         if(linkscripts[i]!=NULL) delete [] linkscripts[i];
     }
     
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
+    }
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
@@ -8740,6 +9370,28 @@ void reset_scripts()
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
+    }
+    
+     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
+    }
+     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    
+     for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        dmapscripts[i] = new ffscript[1];
+        dmapscripts[i][0].command = 0xFFFF;
+    }
+    for(int i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        itemspritescripts[i] = new ffscript[1];
+        itemspritescripts[i][0].command = 0xFFFF;
     }
 }
 
@@ -8803,6 +9455,7 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
             if(keepdata)
             {
                 (*script)[j].command = temp_script.command;
+		    //al_trace("Current FFScript XCommand Being Read: %d\n", (*script)[j].command);
                 (*script)[j].arg1 = temp_script.arg1;
                 (*script)[j].arg2 = temp_script.arg2;
                 // I'll comment this out until the whole routine is finished using ptr
@@ -9127,7 +9780,7 @@ extern const char *old_guy_string[OLDMAXGUYS];
 int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     dword dummy;
-    word dummy2;
+    word guy_cversion;
     word guyversion=0;
     
     if(Header->zelda_version >= 0x193)
@@ -9141,11 +9794,11 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	FFCore.quest_format[vGuys] = guyversion;
 	
         //al_trace("Guys version %d\n", guyversion);
-        if(!p_igetw(&dummy2,f,true))
+        if(!p_igetw(&guy_cversion,f,true))
         {
             return qe_invalid;
         }
-        
+        al_trace("Guy CVersion is: %d\n", guy_cversion);
         //section size
         if(!p_igetl(&dummy,f,true))
         {
@@ -9247,21 +9900,32 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             guysbuf[eDODONGO].bosspal=spDIG;
         }
     }
- //2.10 fixes   
-    // Not sure when this first changed, but it's necessary for 2.10, at least
+ // Not sure when this first changed, but it's necessary for 2.10, at least
+    // @TODO: @BUG:1.92 - 1.84? Figure this out exactly for the final 2.50 release.
+//2.10 Fixes  
+     if((Header->zelda_version <= 0x255) || (Header->zelda_version == 0x255 && Header->build < 47) )
+    {
+	guysbuf[eWPOLSV].defense[edefWhistle] = ed1HKO;
+    }
     if(Header->zelda_version <= 0x210)
     {
         guysbuf[eGLEEOK1F].misc6 = 16;
         guysbuf[eGLEEOK2F].misc6 = 16;
         guysbuf[eGLEEOK3F].misc6 = 16;
         guysbuf[eGLEEOK4F].misc6 = 16;
-        
-        guysbuf[eWIZ1].misc4 = 1;
+	    
+        guysbuf[eWIZ1].misc4 = 1; //only set the enemy that needs backward compat, not all of them.
         guysbuf[eBATROBE].misc4 = 1;
-        guysbuf[eSUMMONER].misc4 = 1;
+        //guysbuf[eSUMMONER].misc4 = 1;
         guysbuf[eWWIZ].misc4 = 1;
-	guysbuf[eDODONGO].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+	    guysbuf[eDODONGO].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
 	guysbuf[eDODONGOBS].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+    }
+    if(Header->zelda_version == 0x190)
+    {
+	al_trace("Setting Tribble Properties for Version: %x", Header->zelda_version);
+	guysbuf[eKEESETRIB].misc3 = eVIRE; //1.90 and earlier, keese and gel tribbles grew up into 
+	guysbuf[eGELTRIB].misc3 = eZOL; //normal vires, and zols -Z (16th January, 2019 )
     }
     
     // The versions here may not be correct
@@ -9271,12 +9935,33 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eCENT1].misc3 = 0;
         guysbuf[eCENT2].misc3 = 0;
         guysbuf[eMOLDORM].misc2 = 0;
+	//guysbuf[eKEESETRIB].misc3 = eVIRE; //1.90 and earlier, keese and gel tribbles grew up into 
+	//guysbuf[eGELTRIB].misc3 = eZOL; //normal vires, and zols -Z (16th January, 2019 )
     }
     else if(Header->zelda_version <= 0x210)
     {
         guysbuf[eCENT1].misc3 = 1;
         guysbuf[eCENT2].misc3 = 1;
         guysbuf[eMOLDORM].misc2 = 0;
+    }
+    
+    if ( Header->zelda_version < 0x211 ) //Default rest rates for phantom ghinis, peahats and keese in < 2.50 quests
+    {
+	guysbuf[eKEESE1].misc16 = 120;
+	guysbuf[eKEESE2].misc16 = 120;
+	guysbuf[eKEESE3].misc16 = 120;
+	guysbuf[eKEESETRIB].misc16 = 120;
+	guysbuf[eKEESE1].misc17 = 16;
+	guysbuf[eKEESE2].misc17 = 16;
+	guysbuf[eKEESE3].misc17 = 16;
+	guysbuf[eKEESETRIB].misc17 = 16;
+	    
+	guysbuf[ePEAHAT].misc16 = 80;
+	guysbuf[ePEAHAT].misc17 = 16;
+	    
+	guysbuf[eGHINI2].misc16 = 120;
+	guysbuf[eGHINI2].misc17 = 10;	
+	    
     }
     
     if(guyversion<=2)
@@ -9976,10 +10661,11 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				return qe_invalid;
 			}
 		}
-		if(!p_igetw(&(tempguy.npcscript),f,keepdata))
+		if(!p_igetw(&(tempguy.script),f,keepdata))
 		{
 			return qe_invalid;
 		} 
+                //al_trace("NPC Script ID is: %d\n",tempguy.script);
 		for ( int q = 0; q < 8; q++ )
 		{
 			if(!p_igetl(&(tempguy.initD[q]),f,keepdata))
@@ -10028,8 +10714,85 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		tempguy.misc15 = 0; 
 	    }
 	    
+	    if ( guyversion >= 39 )
+	    {
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&(tempguy.initD_label[q][w]),f,keepdata))
+				{
+					return qe_invalid;
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&(tempguy.weapon_initD_label[q][w]),f,keepdata))
+				{
+					return qe_invalid;
+				} 
+			}
+		}
+		    
+		    
+	    }
+	    if ( guyversion < 39 ) //apply old InitD strings to both
+	    {
+		al_trace("Populating InitD Label Fields for NPCS\n");
+		for ( int q = 0; q < 8; q++ )
+		{
+			sprintf(tempguy.initD_label[q],"InitD[%d]",q);
+			sprintf(tempguy.weapon_initD_label[q],"InitD[%d]",q);
+		}
+	    }
+	    if ( guyversion >= 40 )
+	    {
+		    if(!p_igetw(&(tempguy.weaponscript),f,keepdata))
+		    {
+				return qe_invalid;
+		    } 
+	    }
+	    if ( guyversion < 40 ) 
+	    {
+		    tempguy.weaponscript = 0;
+	    }
+	    //eweapon script InitD
+	    if ( guyversion >= 41 )
+	    {
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			    if(!p_igetl(&(tempguy.weap_initiald[q]),f,keepdata))
+			    {
+					return qe_invalid;
+			    } 
+		    }
+		    if ( guy_cversion < 4 )
+		    {
+			if ( tempguy.family == eeKEESE )
+			{
+
+				if ( !tempguy.misc1 )
+				{
+					tempguy.misc16 = 120;
+					tempguy.misc17 = 16;
+					
+				}
+			}
+			if ( tempguy.family == eePEAHAT )
+			{	
+				tempguy.misc16 = 80;
+				tempguy.misc17 = 16;
+			}
+
+			if ( tempguy.family == eeGHINI )
+			{	
+				tempguy.misc16 = 120;
+				tempguy.misc17 = 10;
+			}			
+			    
+		    }
+	    }
 	    
-	    //All ports of QRs to Enemy Editor Flags go HERE! -Z
 	    
 	    
 	    //default weapon sprites (quest version < 2.54)
@@ -10126,7 +10889,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		
 		//NPC Script attributes.
-		tempguy.npcscript = 0; //No scripted enemies existed. -Z
+		tempguy.script = 0; //No scripted enemies existed. -Z
 		for ( int q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
 		for ( int q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
 		
@@ -10232,7 +10995,33 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    {
 		    if ( tempguy.hitsfx == 0 ) tempguy.hitsfx = 11;
 	    }
-	 
+	    //Keese and bat halt rates.
+	    if ( guyversion < 42 && guy_cversion < 4  ) 
+	    {
+		    
+			if ( tempguy.family == eeKEESE )
+			{
+
+				if ( !tempguy.misc1 )
+				{
+					tempguy.misc16 = 120;
+					tempguy.misc17 = 16;
+					
+				}
+			}
+			if ( tempguy.family == eePEAHAT )
+			{	
+				tempguy.misc16 = 80;
+				tempguy.misc17 = 16;
+			}
+			if ( tempguy.family == eeGHINI )
+			{	
+				tempguy.misc16 = 120;
+				tempguy.misc17 = 10;
+			}			
+			    
+		    
+	    }
 		
 	    
             //miscellaneous other corrections
@@ -12109,6 +12898,65 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 		} 
 	}
     }
+    if ( version < 19 )
+    {
+	for ( int q = 0; q < 10; q++ ) 
+	{
+	    temp_mapscr->npcstrings[q] = 0;
+	    temp_mapscr->new_items[q] = 0;
+	    temp_mapscr->new_item_x[q] = 0;
+	    temp_mapscr->new_item_y[q] = 0;
+	}
+    }
+    if ( version >= 20 )
+    {
+	if(!p_igetw(&(temp_mapscr->script),f,true))
+	{
+		return qe_invalid;
+	} 
+	for ( int q = 0; q < 8; q++)
+	{
+		if(!p_igetl(&(temp_mapscr->screeninitd[q]),f,true))
+		{
+			return qe_invalid;
+		}
+	}		
+    }
+    if ( version < 20 )
+    {
+	temp_mapscr->script = 0;
+	for ( int q = 0; q < 8; q++) temp_mapscr->screeninitd[q] = 0;
+    }
+    if ( version >= 21 )
+    {
+	if(!p_getc(&(temp_mapscr->preloadscript),f,true))
+	{
+		return qe_invalid;
+	}       
+    }
+    if ( version < 21 )
+    {
+	temp_mapscr->preloadscript = 0;    
+    }
+    //all builds with version > 20 need this. -Z
+    temp_mapscr->ffcswaitdraw = 0;
+    
+    if ( version >= 22 ) //26th June, 2019; Layer Visibility
+    {
+	if(!p_getc(&(temp_mapscr->hidelayers ),f,true))
+	{
+		return qe_invalid;
+	} 
+	if(!p_getc(&(temp_mapscr->hidescriptlayers  ),f,true))
+	{
+		return qe_invalid;
+	}      
+    }
+    if ( version < 22 )
+    {
+	temp_mapscr->hidelayers = 0;    
+	temp_mapscr->hidescriptlayers = 0;    
+    }
     
     //Dodongos in 2.10 used the boss roar, not the dodongo sound. -Z
     //May be any version before 2.11. -Z
@@ -12599,6 +13447,23 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 			return qe_invalid;
 		}
 	}
+	if(section_version>=12) //combo label
+	{
+	    for ( int q = 0; q < 11; q++ )
+		{
+		    if(!p_getc(&temp_combo.label[q],f,true))
+		    {
+			return qe_invalid;
+		    }
+		}
+	}
+	if(section_version<12) //combo label
+	{
+	    for ( int q = 0; q < 11; q++ )
+		{
+		    temp_combo.label[q] = 0;
+		}
+	}
         if(version < 0x193)
         {
             for(int q=0; q<11; q++)
@@ -13084,7 +13949,8 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     byte *temp_tile = new byte[tilesize(tf32Bit)];
 	
     //Tile Expansion
-    if ( build < 41 ) 
+    //if ( version >= 0x254 && build >= 41 )
+    if (version < 0x254 && build < 41)
     {
 	    //al_trace("Build was < 41 when reading tiles\n");
 	    max_tiles = ZC250MAXTILES;
@@ -13170,11 +14036,14 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         
         tiles_used=zc_min(tiles_used, max_tiles);
         
-	if ( version < 0x254 && build < 41 )
+	//if ( version < 0x254 || ( version >= 0x254 && build < 41 )) //don't do this, it crashes ZQuest. -Z
+	//if ( version < 0x254 && build < 41 )
+	if ( version < 0x254 || (version == 0x254 && build < 41) )
+	//if ( build < 41 )
 	{
 		tiles_used=zc_min(tiles_used, ZC250MAXTILES-start_tile);
 	}
-	else 
+	else //2.55
 	{
 		tiles_used = zc_min(tiles_used,NEWMAXTILES-start_tile); 
 	}
@@ -13225,7 +14094,6 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 		for ( int q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
 		{
 			
-			buf[q].data=(byte *)zc_malloc(tilesize(tf4Bit));
 			//memcpy(buf[q].data,temp_tile,tilesize(buf[q].format));
 			reset_tile(buf,q,tf4Bit);
 			
@@ -13249,7 +14117,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     if(keepdata==true)
     {
 	    //al_trace("calling reset_tile()");
-	if ( build < 41 ) 
+	if ( version < 0x254 || ( version >= 0x254 && build < 41 ))
 	{
 		for(int i=start_tile+tiles_used; i<max_tiles; ++i)
 		{
@@ -13275,7 +14143,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
                 byte tempbyte;
                 int floattile=wpnsbuf[iwSwim].tile;
                 
-                for(int i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order
+                for(int i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order //does this include swim tiles?
                 {
                     tempbyte=buf[23].data[i];
                     buf[23].data[i]=buf[24].data[i];
@@ -13283,7 +14151,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
                     buf[25].data[i]=buf[26].data[i];
                     buf[26].data[i]=tempbyte;
                 }
-                
+                //swim tiles are out of order, too, but nobody cared? -Z 
                 for(int i=0; i<tilesize(tf4Bit); i++)
                 {
                     tempbyte=buf[floattile+11].data[i];
@@ -14802,6 +15670,36 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
         temp_zinit.max_rupees=999;
         temp_zinit.rupies=999;
     }
+    if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
+    {
+	//temp_zinit.items[iBombBag] = true; //No, this is 30 max bombs!
+	temp_zinit.max_bombs = 8;
+    }
+    al_trace("About to copy over new init data values for quest made in: %x\n", Header->zelda_version);
+    //time to ensure that we port all new values properly:
+    if(Header->zelda_version < 0x255)
+    {
+	temp_zinit.nBombs = temp_zinit.bombs;
+	//al_trace("Copied over %s\n", "nbombs");
+	temp_zinit.nSbombs = temp_zinit.super_bombs;
+	    //al_trace("Copied over %s\n", "nSbombs");
+	temp_zinit.nBombmax = temp_zinit.max_bombs;
+	    //al_trace("Copied over %s\n", "nBombmax");
+	    
+	    //al_trace("temp_zinit.max_bombs is %d\n", temp_zinit.max_bombs);
+	    //al_trace("temp_zinit.bomb_ratio is %d\n", temp_zinit.bomb_ratio);
+	if(Header->zelda_version < 0x250)
+	{//bomb ratio is 0 at this point in 2.50 quests for some reason. -Z ( 23rd March, 2019 )
+		temp_zinit.nSBombmax = temp_zinit.bomb_ratio > 0 ? ( temp_zinit.max_bombs/temp_zinit.bomb_ratio ) : (temp_zinit.max_bombs/4);
+	    //al_trace("Copied over %s\n", "nSBombmax");
+	}
+	temp_zinit.nArrows = temp_zinit.arrows;
+	    //al_trace("Copied over %s\n", "nArrows");
+	temp_zinit.nArrowmax = temp_zinit.max_arrows;
+	    //al_trace("Copied over %s\n", "nArrowmax");
+    }	
+    
+    
     
     if(keepdata==true)
     {
@@ -15128,6 +16026,16 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         globalmap.clear();
         ffcmap.clear();
         itemmap.clear();
+        //new script types
+        //new script types -- prevent carrying over to a quest that you load after reading them
+        //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
+        npcmap.clear();
+        ewpnmap.clear();
+        lwpnmap.clear();
+        linkmap.clear();
+        dmapmap.clear();
+        screenmap.clear();
+        itemspritemap.clear();
         
         for(int i=0; i<NUMSCRIPTFFC-1; i++)
         {
@@ -15145,6 +16053,37 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         for(int i=0; i<NUMSCRIPTITEM-1; i++)
         {
             itemmap[i] = pair<string,string>("","");
+        }
+        
+        //new script types -- prevent carrying over to a quest that you load after reading them
+        //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
+        for(int i=0; i<NUMSCRIPTGUYS-1; i++)
+        {
+            npcmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
+        {
+            lwpnmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
+        {
+            ewpnmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTLINK-1; i++)
+        {
+            linkmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTSDMAP-1; i++)
+        {
+            dmapmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTSCREEN-1; i++)
+        {
+            screenmap[i] = pair<string,string>("","");
+        }
+	for(int i=0; i<NUMSCRIPTSITEMSPRITE-1; i++)
+        {
+            itemspritemap[i] = pair<string,string>("","");
         }
         
         reset_scripts();

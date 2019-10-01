@@ -21,6 +21,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseSetOption(ASTSetOption& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseUsing(ASTUsingDecl& host, void* param = NULL) {
+			caseDefault(host, param);}
 		// Statements
 		virtual void caseBlock(ASTBlock& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -38,6 +40,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseStmtDo(ASTStmtDo& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseStmtRepeat(ASTStmtRepeat& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseStmtReturn(ASTStmtReturn& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseStmtReturnVal(
@@ -52,12 +56,16 @@ namespace ZScript
 		// Declarations
 		virtual void caseScript(ASTScript& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseNamespace(ASTNamespace& host, void* param = NULL){
+			caseDefault(host, param);}
 		virtual void caseImportDecl(ASTImportDecl& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseFuncDecl(ASTFuncDecl& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseDataDeclList(
 				ASTDataDeclList& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseDataEnum(ASTDataEnum& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseDataDecl(ASTDataDecl& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -66,11 +74,15 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseDataTypeDef(ASTDataTypeDef& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseScriptTypeDef(ASTScriptTypeDef& host,
 		                               void* param = NULL) {
 			caseDefault(host, param);}
 		// Expressions
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -100,6 +112,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseExprPreDecrement(
 				ASTExprPreDecrement& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseExprCast(ASTExprCast& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprAnd(ASTExprAnd& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -137,9 +151,14 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseExprRShift(ASTExprRShift& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseExprTernary(ASTTernaryExpr& host, void* param = NULL) {
+			caseDefault(host, param);}
 		// Literals
 		virtual void caseNumberLiteral(
 				ASTNumberLiteral& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseCharLiteral(
+				ASTCharLiteral& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseBoolLiteral(
 				ASTBoolLiteral& host, void* param = NULL) {
@@ -158,6 +177,10 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseDataType(ASTDataType& host, void* param = NULL) {
 			caseDefault(host, param);}
+			
+	protected:
+		//Current scope
+		ZScript::Scope* scope;
 	};
 
 	////////////////////////////////////////////////////////////////
@@ -166,7 +189,16 @@ namespace ZScript
 	class RecursiveVisitor : public ASTVisitor, public CompileErrorHandler
 	{
 	public:
-		RecursiveVisitor() : failure(false), breakNode(NULL) {}
+		// Used as a parameter to signal that no val is needed.
+		static void* const paramNone;
+		// Used as a parameter to signal that the rval is needed.
+		static void* const paramRead;
+		// Used as a parameter to signal that the lval is needed.
+		static void* const paramWrite;
+		// Used as a parameter to signal that both lval and rval are needed.
+		static void* const paramReadWrite;
+		
+		RecursiveVisitor() : failure(false), breakNode(NULL), failure_skipped(false) {}
 	
 		// Mark as having failed.
 		void fail() {failure = true;}
@@ -211,19 +243,24 @@ namespace ZScript
 		virtual void caseStmtFor(ASTStmtFor& host, void* param = NULL);
 		virtual void caseStmtWhile(ASTStmtWhile& host, void* param = NULL);
 		virtual void caseStmtDo(ASTStmtDo& host, void* param = NULL);
+		virtual void caseStmtRepeat(ASTStmtRepeat& host, void* param = NULL);
 		virtual void caseStmtReturnVal(
 				ASTStmtReturnVal& host, void* param = NULL);
 		// Declarations
 		virtual void caseScript(ASTScript& host, void* param = NULL);
+		virtual void caseNamespace(ASTNamespace& host, void* param = NULL);
 		virtual void caseImportDecl(ASTImportDecl& host, void* param = NULL);
 		virtual void caseFuncDecl(ASTFuncDecl& host, void* param = NULL);
 		virtual void caseDataDeclList(ASTDataDeclList& host, void* param = NULL);
+		virtual void caseDataEnum(ASTDataEnum& host, void* param = NULL);
 		virtual void caseDataDecl(ASTDataDecl& host, void* param = NULL);
 		virtual void caseDataDeclExtraArray(
 				ASTDataDeclExtraArray& host, void* param = NULL);
 		virtual void caseDataTypeDef(ASTDataTypeDef&, void* param = NULL);
+		virtual void caseCustomDataTypeDef(ASTCustomDataTypeDef&, void* param = NULL);
 		// Expressions
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL);
+		virtual void caseVarInitializer(ASTExprVarInitializer& host, void* param = NULL);
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL);
 		virtual void caseExprArrow(ASTExprArrow& host, void* param = NULL);
 		virtual void caseExprIndex(ASTExprIndex& host, void* param = NULL);
@@ -239,6 +276,7 @@ namespace ZScript
 				ASTExprDecrement& host, void* param = NULL);
 		virtual void caseExprPreDecrement(
 				ASTExprPreDecrement& host, void* param = NULL);
+		virtual void caseExprCast(ASTExprCast& host, void* = NULL);
 		virtual void caseExprAnd(ASTExprAnd& host, void* param = NULL);
 		virtual void caseExprOr(ASTExprOr& host, void* param = NULL);
 		virtual void caseExprGT(ASTExprGT& host, void* param = NULL);
@@ -257,16 +295,27 @@ namespace ZScript
 		virtual void caseExprBitXor(ASTExprBitXor& host, void* param = NULL);
 		virtual void caseExprLShift(ASTExprLShift& host, void* param = NULL);
 		virtual void caseExprRShift(ASTExprRShift& host, void* param = NULL);
+		virtual void caseExprTernary(ASTTernaryExpr& host, void* param = NULL);
 		// Literals
 		virtual void caseNumberLiteral(
 				ASTNumberLiteral& host, void* param = NULL);
+		virtual void caseCharLiteral(
+				ASTCharLiteral& host, void* param = NULL);
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
-
+		
+		bool hasFailed() const {return failure;}
+		bool hasSkipFailed() const {return failure_skipped;}
+		
 	protected:
 		// Returns true if we have failed or for some other reason must break out
 		// of recursion. Should be called with the current node and param between
 		// each action that can fail.
 		virtual bool breakRecursion(AST& host, void* param = NULL) const;
+		virtual bool breakRecursion(void* param = NULL) const;
+		
+		// Call this when a node relies on a child node. If the child is disabled, the parent must also be disabled, or else it can crash.
+		static void syncDisable(AST& parent, AST const& child);
+		static void syncDisable(AST& parent, AST const* child);
 
 		// Current stack of visited nodes.
 		std::vector<AST*> recursionStack;
@@ -276,6 +325,9 @@ namespace ZScript
 	
 		// Set to true if any errors have occured.
 		bool failure;
+		
+		// Set to true if any errors have occured, but `NO_ERROR_HALT` was set.
+		bool failure_skipped;
 	};
 }
 

@@ -34,6 +34,8 @@ extern int conveyclk;
 /**********************************/
 /******* Sprite Base Class ********/
 /**********************************/
+// Forward reference
+class refInfo;
 
 class sprite
 {
@@ -48,6 +50,7 @@ public:
     {
         return uid;
     }
+    
     fix x,y,z,fall;
     int tile,shadowtile,cs,flip,c_clk,clk,misc;
     
@@ -75,33 +78,53 @@ public:
     long miscellaneous[32];
     byte scriptcoldet;
     int wpnsprite; //wpnsprite is new for 2.6 -Z
-    //long stack[256];
+    long stack[MAX_SCRIPT_REGISTERS];
+    byte initialised;
     //Are you kidding? Really? 256 * sizeof(long) = 2048 bytes = 2kb of wasted memory for every sprite, and it'll never
     //even get used because item scripts only run for one frame. Gah! Maybe when we have npc scripts, not not now...
-    
-    //refInfo scriptData; //For when we have npc scripts maybe
-    /*long d[8];
-    long a[2];
-    byte ffcref;
-    dword itemref;
-    dword guyref;
-    dword lwpnref;
-    dword ewpnref;
-    byte sp;
-    word pc;
+    refInfo scriptData; //For when we have npc scripts maybe
+    //long d[8];
+    //long a[2];
+    //byte ffcref;
+    //dword itemref;
+    //dword guyref;
+    //dword lwpnref;
+    //dword ewpnref;
+    //byte sp;
+    //word pc;
     dword scriptflag;
     word doscript;
-    byte itemclass;*/
-    //byte guyclass; //Not implemented
+    byte waitdraw;
+    //byte itemclass;
+    //byte guyclass; 
     //byte lwpnclass;
     //byte ewpnclass;
-    
+    word script;
+    word weaponscript;
+    long initD[8];
+    long initA[2];
+    long weap_initd[8];
+    long weap_inita[2];
+    int scripttile;
+    signed char scriptflip;
+    byte do_animation;
+    int rotation;
+    int scale; 
+    byte obeys_gravity;
+	byte knockbackflags;
+#define FLAG_NOSLIDE 0x01
+#define FLAG_NOSCRIPTKNOCKBACK 0x02
+	byte knockbackSpeed;
+	int script_knockback_clk;
+	int script_knockback_speed;
     
     sprite();
     sprite(sprite const & other);
     sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs);
     virtual ~sprite();
     virtual void draw(BITMAP* dest);                        // main layer
+    virtual void drawzcboss(BITMAP* dest);                        // main layer
+    virtual void old_draw(BITMAP* dest);                        // main layer
     virtual void draw8(BITMAP* dest);                       // main layer
     virtual void drawcloaked(BITMAP* dest);                 // main layer
     virtual void drawshadow(BITMAP* dest, bool translucent);// main layer
@@ -120,6 +143,10 @@ public:
     virtual int hitdir(int tx,int ty,int txsz,int tysz,int dir);
     virtual void move(fix dx,fix dy);
     virtual void move(fix s);
+	virtual bool knockback(int time, int dir, int speed);
+	virtual bool runKnockback();
+    void explode(int mode);
+    //void explode(int type);
 };
 
 /***************************************************************************/
@@ -128,7 +155,7 @@ public:
 /********** Sprite List ***********/
 /**********************************/
 
-#define SLMAX 255
+#define SLMAX 255*256
 
 class sprite_list
 {

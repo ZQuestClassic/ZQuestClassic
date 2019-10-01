@@ -53,6 +53,7 @@ public:
     bool CanPaste();
     int  CopyScr();
     int  getCopyFFC();
+    void setCopyFFC(int n);
     void Ugo();
     void Uhuilai();
     void Copy();

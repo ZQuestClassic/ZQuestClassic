@@ -94,6 +94,80 @@ public:
 };
 
 
+class ZASMSTackTrace //Really half-ass singleton class. Do not instantiate this object.
+{
+private:
+    bool isOpen;
+    static ZASMSTackTrace singleton;
+public:
+    ZASMSTackTrace() : isOpen(false)
+    {
+    }
+    
+    ~ZASMSTackTrace()
+    {
+        Close();
+    }
+    
+    static void Close()
+    {
+        if(singleton.isOpen)
+            ::FreeConsole();
+            
+        singleton.isOpen = false;
+    }
+    
+    static void Open()
+    {
+        if(singleton.isOpen)
+            return;
+            
+        singleton.isOpen = true;
+        
+        const int MAX_ZASM_LINES = 32768;
+        
+        CONSOLE_SCREEN_BUFFER_INFO console_info;
+        int hConHandle;
+        long lStdHandle;
+        
+        ::AllocConsole();
+        ::SetConsoleTitle("ZASM Stack");
+        
+        
+        // set the screen buffer to be big enough to scroll text
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &console_info);
+        console_info.dwSize.Y = MAX_ZASM_LINES;
+        SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), console_info.dwSize);
+        
+        
+        // redirect unbuffered STDOUT to the console
+        lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
+        hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+        *stdout = *_fdopen(hConHandle, "w");
+        setvbuf(stdout, NULL, _IONBF, 0);
+        
+        
+        // redirect unbuffered STDIN to the console
+        lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
+        hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+        *stdin = *_fdopen(hConHandle, "r");
+        setvbuf(stdin, NULL, _IONBF, 0);
+        
+        
+        // redirect unbuffered STDERR to the console
+        lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
+        hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+        *stderr = *_fdopen(hConHandle, "w");
+        setvbuf(stderr, NULL, _IONBF, 0);
+        
+        
+        //for cout, wcout, cin, wcin, wcerr, cerr, wclog and clog
+        std::ios::sync_with_stdio();
+    }
+    
+};
+
+
 #ifdef _MSC_VER
 #pragma warning ( default : 4996 )
 #endif
@@ -107,6 +181,14 @@ public:
     static void Open() {}
     static void Close() {}
     static DebugConsole singleton;
+};
+
+class ZASMSTackTrace
+{
+public:
+    static void Open() {}
+    static void Close() {}
+    static ZASMSTackTrace singleton;
 };
 
 #endif // not _WIN32

@@ -303,6 +303,24 @@ int get_bit(byte *bitstr,int bit)
     return ((*bitstr) >> (bit&7))&1;
 }
 
+
+void set_bitl(long bitstr,int bit,byte val)
+{
+	if ( val ) //intel u32
+	{
+		bitstr |= (1<<bit);
+	}
+	else bitstr &= ~(1<<bit);
+}
+
+int get_bitl(long bitstr,int bit)
+{
+    return bitstr&(1<<bit); //intel u32
+    //bitstr += bit>>3;
+    //return ((bitstr) >> (bit&7))&1;
+}
+
+
 void Z_error(const char *format,...)
 {
     char buf[256];
@@ -1191,6 +1209,10 @@ void box_end(bool pause)
     {
         if(pause)
         {
+	    //set_volume(255,-1);
+	    //kill_sfx();
+	    //sfx(20,128, false,true);
+	
             box_eol();
             box_out("-- press a key --");
             

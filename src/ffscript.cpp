@@ -10,14 +10,776 @@
 #include <sstream>
 #include <math.h>
 #include <cstdio>
+//
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+//
 
 #include "ffasm.h"
 #include "zc_sys.h"
+extern byte use_dwm_flush;
 #include "zc_math.h"
 #include "zc_array.h"
 #include "ffscript.h"
+#include "zc_subscr.h"
+#include <time.h>
+//#include "zc_sys.h"
+#include "script_drawing.h"
+CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
 zquestheader ZCheader;
+ZModule zcm;
+zcmodule moduledata;
+script_bitmaps scb;
+
+FONT *get_zc_font(int index);
+
+const char scripttypenames[11][40]=
+{
+	"Global Script", "FFC Script", "Screen Script", "Hero Script", 
+	"Item Script", "LWeapon Script", "NPC Script", 
+	"Subscreen Script", "EWeapon Script", "DMap Script", "Itemsprite Script"
+};
+
+
+int CScriptDrawingCommands::GetCount()
+{
+	al_trace("current number of draws is: %d\n", count);
+	return count;
+}
+//Advances the game frame without checking 'Quit' variable status.
+//Used for making scripts such as Link's onWin and onDeath scripts
+//run for multiple frames.
+void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
+{
+    if(zcmusic!=NULL)
+    {
+        zcmusic_poll();
+    }
+    
+    while(Paused && !Advance && !Quit)
+    {
+        // have to call this, otherwise we'll get an infinite loop
+        syskeys();
+        // to keep fps constant
+        updatescr(allowwavy);
+        throttleFPS();
+        
+#ifdef _WIN32
+        
+        if(use_dwm_flush)
+        {
+            do_DwmFlush();
+        }
+        
+#endif
+        
+        // to keep music playing
+        if(zcmusic!=NULL)
+        {
+            zcmusic_poll();
+        }
+    }
+    
+    //if(Quit)
+        //return;
+        /*
+    if(Playing && game->get_time()<MAXTIME)
+        game->change_time(1);
+        */
+    Advance=false;
+    ++frame;
+    
+    syskeys();
+    // Someday... maybe install a Turbo button here?
+    updatescr(allowwavy);
+    throttleFPS();
+    
+#ifdef _WIN32
+    
+    if(use_dwm_flush)
+    {
+        do_DwmFlush();
+    }
+    
+#endif
+    
+    //textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
+    if(sfxcleanup)
+        sfx_cleanup();
+}
+
+#ifdef _WIN32
+// ConsoleLogger.cpp: implementation of the CConsoleLogger class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "ConsoleLogger.h"
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
+
+
+
+// CTOR: reset everything
+CConsoleLogger::CConsoleLogger()
+{
+	InitializeCriticalSection();
+	m_name[0]=0;
+	m_hPipe = INVALID_HANDLE_VALUE;
+}
+
+// DTOR: delete everything
+CConsoleLogger::~CConsoleLogger()
+{
+	DeleteCriticalSection();
+	
+	// Notice: Because we want the pipe to stay alive until all data is passed,
+	//         it's better to avoid closing the pipe here....
+	//Close();
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Create: create a new console (logger) with the following OPTIONAL attributes:
+//
+// lpszWindowTitle : window title
+// buffer_size_x   : width
+// buffer_size_y   : height
+// logger_name     : pipe name . the default is f(this,time)
+// helper_executable: which (and where) is the EXE that will write the pipe's output
+//////////////////////////////////////////////////////////////////////////
+long CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
+							int			buffer_size_x/*=-1*/,int buffer_size_y/*=-1*/,
+							const char	*logger_name/*=NULL*/,
+							const char	*helper_executable/*=NULL*/)
+{
+	
+	// Ensure there's no pipe connected
+	if (m_hPipe != INVALID_HANDLE_VALUE)
+	{
+		DisconnectNamedPipe(m_hPipe);
+		CloseHandle(m_hPipe);
+		m_hPipe=INVALID_HANDLE_VALUE;
+	}
+	strcpy(m_name,"\\\\.\\pipe\\");
+
+	
+	if (!logger_name)
+	{	// no name was give , create name based on the current address+time
+		// (you can modify it to use PID , rand() ,...
+		unsigned long now = GetTickCount();
+		logger_name = m_name+ strlen(m_name);
+		sprintf((char*)logger_name,"logger%d_%lu",(int)this,now);
+	}
+	else
+	{	// just use the given name
+		strcat(m_name,logger_name);
+	}
+
+	
+	// Create the pipe
+	m_hPipe = CreateNamedPipe( 
+		  m_name,					// pipe name 
+		  PIPE_ACCESS_OUTBOUND,		// read/write access, we're only writing...
+		  PIPE_TYPE_MESSAGE |       // message type pipe 
+		  PIPE_READMODE_BYTE|		// message-read mode 
+		  PIPE_WAIT,                // blocking mode 
+		  1,						// max. instances  
+		  32768,						// output buffer size 
+		  0,						// input buffer size (we don't read data, so 0 is fine)
+		  1,						// client time-out 
+		  NULL);                    // no security attribute 
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+	{	// failure
+		MessageBox(NULL,"CreateNamedPipe failed","ConsoleLogger failed",MB_OK);
+		return -1;
+	}
+
+	// Extra console : create another process , it's role is to display the pipe's output
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	GetStartupInfo(&si);
+	
+	char cmdline[MAX_PATH];;
+	if (!helper_executable)
+		helper_executable=
+			( get_config_int("CONSOLE","console_on_top",0) ) 
+			? "ZConsole_OnTop.exe"
+			: "ZConsole.exe"; //DEFAULT_HELPER_EXE
+	sprintf(cmdline,"%s %s",helper_executable,logger_name);
+	BOOL bRet = CreateProcess(NULL,cmdline,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
+	if (!bRet)
+	{	// on failure - try to get the path from the environment
+		char *path = getenv("ConsoleLoggerHelper");
+		if (path)
+		{
+			sprintf(cmdline,"%s %s",path,logger_name);
+			bRet = CreateProcess(NULL,cmdline,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
+		}
+		if (!bRet)
+		{
+			MessageBox(NULL,"Helper executable not found","ConsoleLogger failed",MB_OK);
+			CloseHandle(m_hPipe);
+			m_hPipe = INVALID_HANDLE_VALUE;
+			return -1;
+		}
+	}
+	
+	
+	BOOL bConnected = ConnectNamedPipe(m_hPipe, NULL) ? 
+		 TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
+	if (!bConnected)
+	{
+		MessageBox(NULL,"ConnectNamedPipe failed","ConsoleLogger failed",MB_OK);
+		
+		CloseHandle(m_hPipe);
+		m_hPipe = INVALID_HANDLE_VALUE;
+		return -1;
+	}
+	
+	DWORD cbWritten;
+
+	//////////////////////////////////////////////////////////////////////////
+	// In order to easily add new future-features , i've chosen to pass the "extra"
+	// parameters just the HTTP protocol - via textual "headers" .
+	// the last header should end with NULL
+	//////////////////////////////////////////////////////////////////////////
+	
+
+	char buffer[128];
+	// Send title
+	if (!lpszWindowTitle)	lpszWindowTitle=m_name+9;
+	sprintf(buffer,"TITLE: %s\r\n",lpszWindowTitle);
+	WriteFile(m_hPipe,buffer,strlen(buffer),&cbWritten,NULL);
+	if (cbWritten!=strlen(buffer))
+	{
+		MessageBox(NULL,"WriteFile failed(1)","ConsoleLogger failed",MB_OK);
+		DisconnectNamedPipe(m_hPipe);
+		CloseHandle(m_hPipe);
+		m_hPipe=INVALID_HANDLE_VALUE;
+		return -1;
+	}
+
+	
+	if (buffer_size_x!=-1 && buffer_size_y!=-1)
+	{	// Send buffer-size
+		sprintf(buffer,"BUFFER-SIZE: %dx%d\r\n",buffer_size_x,buffer_size_y);
+		WriteFile(m_hPipe,buffer,strlen(buffer),&cbWritten,NULL);
+		if (cbWritten!=strlen(buffer))
+		{
+			MessageBox(NULL,"WriteFile failed(2)","ConsoleLogger failed",MB_OK);
+			DisconnectNamedPipe(m_hPipe);
+			CloseHandle(m_hPipe);
+			m_hPipe=INVALID_HANDLE_VALUE;
+			return -1;
+		}
+	}
+
+	// Send more headers. you can override the AddHeaders() function to 
+	// extend this class
+	if (AddHeaders())
+	{	
+		DisconnectNamedPipe(m_hPipe);
+		CloseHandle(m_hPipe);
+		m_hPipe=INVALID_HANDLE_VALUE;
+		return -1;
+	}
+
+
+
+	// send NULL as "end of header"
+	buffer[0]=0;
+	WriteFile(m_hPipe,buffer,1,&cbWritten,NULL);
+	if (cbWritten!=1)
+	{
+		MessageBox(NULL,"WriteFile failed(3)","ConsoleLogger failed",MB_OK);
+		DisconnectNamedPipe(m_hPipe);
+		CloseHandle(m_hPipe);
+		m_hPipe=INVALID_HANDLE_VALUE;
+		return -1;
+	}
+	return 0;
+}
+
+
+// Close and disconnect
+long CConsoleLogger::Close(void)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE || m_hPipe==NULL)
+		return -1;
+	else
+		return DisconnectNamedPipe( m_hPipe );
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// print: print string lpszText with size iSize
+// if iSize==-1 (default) , we'll use strlen(lpszText)
+// 
+// this is the fastest way to print a simple (not formatted) string
+//////////////////////////////////////////////////////////////////////////
+inline int CConsoleLogger::print(const char *lpszText,int iSize/*=-1*/)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+		return -1;
+	return _print(lpszText,(iSize==-1) ? strlen(lpszText) : iSize);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// printf: print a formatted string
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::printf(const char *format,...)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+		return -1;
+
+	int ret;
+	char tmp[1024];
+
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[ret]=0;
+
+
+	va_end(argList);
+
+
+	return _print(tmp,ret);
+
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// set the default (CRT) printf() to use this logger
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::SetAsDefaultOutput(void)
+{
+	int hConHandle = _open_osfhandle(/*lStdHandle*/ (long)m_hPipe, _O_TEXT);
+	if (hConHandle==-1)
+		return -2;
+	FILE *fp = _fdopen( hConHandle, "w" );
+	if (!fp)
+		return -3;
+	*stdout = *fp;
+	return setvbuf( stdout, NULL, _IONBF, 0 );
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Reset the CRT printf() to it's default
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::ResetDefaultOutput(void)
+{
+	long lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
+	if (lStdHandle ==  (long)INVALID_HANDLE_VALUE)
+		return -1;
+	int hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+	if (hConHandle==-1)
+		return -2;
+	FILE *fp = _fdopen( hConHandle, "w" );
+	if (!fp)
+		return -3;
+	*stdout = *fp;
+	return setvbuf( stdout, NULL, _IONBF, 0 );
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// _print: print helper
+// we use the thread-safe funtion "SafeWriteFile()" to output the data
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLogger::_print(const char *lpszText,int iSize)
+{
+	DWORD dwWritten=(DWORD)-1;
+	
+	return (!SafeWriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
+		|| (int)dwWritten!=iSize) ? -1 : (int)dwWritten;
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// Implementation of the derived class: CConsoleLoggerEx
+//////////////////////////////////////////////////////////////////////////
+
+// ctor: just set the default color
+CConsoleLoggerEx::CConsoleLoggerEx()
+{
+	m_dwCurrentAttributes = COLOR_WHITE | COLOR_BACKGROUND_BLACK;
+}
+
+
+	
+//////////////////////////////////////////////////////////////////////////
+// override the _print.
+// first output the "command" (which is COMMAND_PRINT) and the size,
+// and than output the string itself	
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_print(const char *lpszText,int iSize)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	
+	DWORD command_plus_size = (COMMAND_PRINT <<24)| iSize;
+	EnterCriticalSection();
+	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
+		|| dwWritten != sizeof(DWORD))
+	{
+		LeaveCriticalSection();
+		return -1;
+	}
+	
+	int iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
+		|| (int)dwWritten!=iSize) ? -1 : (int)dwWritten;
+	LeaveCriticalSection();
+	return iRet;
+}
+
+	
+//////////////////////////////////////////////////////////////////////////
+// cls: clear screen  (just sends the COMMAND_CLEAR_SCREEN)
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(void)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	DWORD command = COMMAND_CLEAR_SCREEN<<24;
+	SafeWriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cls(DWORD) : clear screen with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::cls(DWORD color)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	DWORD command = COMMAND_COLORED_CLEAR_SCREEN<<24;
+	EnterCriticalSection();
+	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+	WriteFile (m_hPipe, &color,sizeof(DWORD),&dwWritten,NULL);
+	LeaveCriticalSection();
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol() : clear till the end of current line
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(void)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	DWORD command = COMMAND_CLEAR_EOL<<24;
+	SafeWriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+}	
+
+//////////////////////////////////////////////////////////////////////////
+// clear_eol(DWORD) : clear till the end of current line with specific color
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::clear_eol(DWORD color)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	DWORD command = COMMAND_COLORED_CLEAR_EOL<<24;
+	EnterCriticalSection();
+	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+	WriteFile (m_hPipe, &color,sizeof(DWORD),&dwWritten,NULL);
+	LeaveCriticalSection();
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// gotoxy(x,y) : sets the cursor to x,y location
+//////////////////////////////////////////////////////////////////////////
+void CConsoleLoggerEx::gotoxy(int x,int y)
+{
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
+	DWORD command = COMMAND_GOTOXY<<24;
+	EnterCriticalSection();
+	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+	command = (x<<16)  | y;
+	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
+	LeaveCriticalSection();
+}	
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(attr,str,...) : prints a formatted string with the "attributes" color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+		return -1;
+
+	int ret;
+	char tmp[1024];
+
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[ret]=0;
+
+
+	va_end(argList);
+
+
+	return _cprint(attributes,tmp,ret);
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// cprintf(str,...) : prints a formatted string with current color
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::cprintf(const char *format,...)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+		return -1;
+
+	int ret;
+	char tmp[1024];
+
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[ret]=0;
+
+
+	va_end(argList);
+
+
+	return _cprint(m_dwCurrentAttributes,tmp,ret);
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// the _cprintf() helper . do the actual output
+//////////////////////////////////////////////////////////////////////////
+int CConsoleLoggerEx::_cprint(int attributes,const char *lpszText,int iSize)
+{
+	
+	DWORD dwWritten=(DWORD)-1;
+	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
+	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_CPRINT) , and 3 bytes for size
+	DWORD command_plus_size = (COMMAND_CPRINT <<24)| iSize;
+	EnterCriticalSection();
+	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
+		|| dwWritten != sizeof(DWORD))
+	{
+		LeaveCriticalSection();
+		return -1;
+	}
+	
+	command_plus_size = attributes;	// reuse of the prev variable
+	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
+		|| dwWritten != sizeof(DWORD))
+	{
+		LeaveCriticalSection();
+		return -1;
+	}
+	
+	int iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
+		|| (int)dwWritten!=iSize) ? -1 : (int)dwWritten;
+	LeaveCriticalSection();
+	return iRet;
+}
+
+
+
+#endif
+
+
+#ifdef _WIN32
+CConsoleLoggerEx coloured_console;
+CConsoleLoggerEx zscript_coloured_console;
+#endif
+
+
+const char script_types[11][16]=
+{
+	"global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
+	"eweapon", "dmapdata", "itemsprite"
+};
+	
+	
+	
+int FFScript::UpperToLower(std::string s)
+{
+	if ( s.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		return 0;
+	}
+	for ( int q = 0; q < s.size(); ++q )
+	{
+		if ( s.at(q) >= 'A' || s.at(q) <= 'Z' )
+		{
+			s.at(q) += 32;
+		}
+	}
+	return 1;
+}
+
+int FFScript::LowerToUpper(std::string s)
+{
+	if ( s.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		return 0;
+	}
+	for ( int q = 0; q < s.size(); ++q )
+	{
+		if ( s.at(q) >= 'a' || s.at(q) <= 'z' )
+		{
+			s.at(q) -= 32;
+		}
+	}
+	return 1;
+}
+
+int FFScript::ConvertCase(std::string s)
+{
+	if ( s.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s.size());
+		return 0;
+	}
+	for ( int q = 0; q < s.size(); ++q )
+	{
+		if ( s[q] >= 'a' || s[q] <= 'z' )
+		{
+			s[q] -= 32;
+		}
+		else if ( s[q] >= 'A' || s[q] <= 'Z' )
+		{
+			s[q] += 32;
+		}
+	}
+	Z_scripterrlog("FFScript::ConvertCase(std::string s), post-conversion, string is: %s\n", s.c_str());
+	return 1;
+}
+
+bool FFScript::isNumber(char chr)
+{
+	if ( chr >= '0' )
+	{
+		if ( chr <= '9' ) return true;
+	}
+	return false;
+}
+
+int FFScript::ilen(char *p)
+{
+	int ret = 0; int pos = 0;
+	if(p[pos] == '-')
+		ret++;
+	for(; FFCore.isNumber(p[pos + ret]); ++ret);
+	return ret;
+}
+
+int FFScript::zc_strlen(char *p)
+{
+   int count = 0;
+ 
+    while(*p!='\0')
+    {
+        count++;
+        p++;
+    }
+ 
+    return count;
+}
+
+int FFScript::atox(char *ip_str)
+{
+	char tmp[2]={'2','\0'};
+	int op_val=0, i=0, ip_len = FFCore.zc_strlen(ip_str);
+
+	if(strncmp(ip_str, "0x", 2) == 0)
+	{
+		ip_str +=2;
+		ip_len -=2;
+	}
+
+	for(i=0;i<ip_len;i++)
+	{
+		op_val *= 0x10;
+		switch(ip_str[i])
+		{
+			case 'a':
+			op_val += 0xa;
+			break;
+			case 'b':
+			op_val += 0xb;
+			break;
+			case 'c':
+			op_val += 0xc;
+			break;
+			case 'd':
+			op_val += 0xd;
+			break;
+			case 'e':
+			op_val += 0xe;
+			break;
+			case 'f':
+			op_val += 0xf;
+			break;
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+			tmp[0] = ip_str[i];
+			op_val += atoi(tmp);
+			break;
+			default :
+			op_val += 0x0;
+			break;
+		}
+	}
+	return op_val;
+}
+
+char runningItemScripts[256] = {0};
+byte itemScriptsWaitdraw[256] = {0};
+ 
+//item *FFCore.temp_ff_item = NULL;
+//enemy *FFCore.temp_ff_enemy = NULL;
+//weapon *FFCore.temp_ff_lweapon = NULL;
+//weapon *FFCore.temp_ff_eweapon = NULL;
+
 //miscQdata *Misc;
 
 #include "zelda.h"
@@ -27,7 +789,7 @@ zquestheader ZCheader;
 //extern int directItemB = -1;
 
 #include "guys.h"
-
+//enemy enemyclass;
 #include "gamedata.h"
 #include "zc_init.h"
 #include "zsys.h"
@@ -78,9 +840,18 @@ extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
 extern std::map<int, std::pair<string,string> > itemmap;
 extern std::map<int, std::pair<string,string> > globalmap;
+extern std::map<int, std::pair<string, string> > itemmap;
+extern std::map<int, std::pair<string, string> > npcmap;
+extern std::map<int, std::pair<string, string> > ewpnmap;
+extern std::map<int, std::pair<string, string> > lwpnmap;
+extern std::map<int, std::pair<string, string> > linkmap;
+extern std::map<int, std::pair<string, string> > dmapmap;
+extern std::map<int, std::pair<string, string> > screenmap;
+extern std::map<int, std::pair<string, string> > itemspritemap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
+PALETTE tempblackpal; //Used for storing the palette while fading to black
 
 FFScript ffengine;
 
@@ -111,32 +882,114 @@ byte curScriptType;
 word curScriptNum;
 
 //Global script data
-refInfo globalScriptData;
-word g_doscript = 1;
-bool global_wait = false;
+refInfo globalScriptData[NUMSCRIPTGLOBAL];
+refInfo linkScriptData;
+refInfo screenScriptData;
+refInfo dmapScriptData;
+word g_doscript = 0xFFFF;
+word link_doscript = 1;
+word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
+word global_wait = 0;
+bool link_waitdraw = false;
+bool dmap_waitdraw = false;
+word item_doscript[256] = {0};
+word item_collect_doscript[256] = {0};
+byte dmapscriptInitialised[512] = {0};
+//Sprite script data
+refInfo itemScriptData[256];
+refInfo itemCollectScriptData[256];
+byte itemscriptInitialised[256]={0};
+refInfo npcScriptData[256];
+refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
+refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
+refInfo itemactiveScriptData[256];
 
-//Item script data
-refInfo itemScriptData;
+//char runningItemScripts[256] = {0};
 
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
-long(*stack)[256] = NULL;
-long ffc_stack[32][256];
-long global_stack[256];
-long item_stack[256];
+
+long(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
+long ffc_stack[32][MAX_SCRIPT_REGISTERS];
+long global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
+long item_stack[256][MAX_SCRIPT_REGISTERS];
+long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
+long link_stack[MAX_SCRIPT_REGISTERS];
+long dmap_stack[MAX_SCRIPT_REGISTERS];
+long screen_stack[MAX_SCRIPT_REGISTERS];
 refInfo ffcScriptData[32];
 
 void clear_ffc_stack(const byte i)
 {
-    memset(ffc_stack[i], 0, 256 * sizeof(long));
+    memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
-void clear_global_stack()
+
+void clear_global_stack(const byte i)
 {
-    memset(global_stack, 0, 256 * sizeof(long));
+    memset(global_stack[i], 0, sizeof(global_stack[i]));
 }
+
+void FFScript::clear_screen_stack()
+{
+    memset(screen_stack, 0, sizeof(screen_stack));
+}
+
+void clear_link_stack()
+{
+    memset(link_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+}
+
+void clear_dmap_stack()
+{
+    memset(dmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+}
+
+
+void FFScript::initZScriptDMapScripts()
+{
+    dmap_doscript = 1;
+    dmapScriptData.Clear();
+    clear_dmap_stack();
+}
+
+void FFScript::initZScriptLinkScripts()
+{
+    link_doscript = 1;
+	link_waitdraw = false;
+    linkScriptData.Clear();
+    clear_link_stack();
+}
+
+void clear_item_stack(int i)
+{
+    memset(item_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    memset(item_collect_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+}
+
+void FFScript::initZScriptItemScripts()
+{
+	for ( int q = 0; q < 256; q++ )
+	{
+		if ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] ) item_doscript[q] = 1;
+		else item_doscript[q] = 0;
+		item_collect_doscript[q] = 0;
+		itemScriptData[q].Clear();
+		itemCollectScriptData[q].Clear();
+		clear_item_stack(q);
+	}
+}
+
+/*
+void FFScript::initZScriptItemScripts()
+{
+    dmap_doscript = 1;
+    dmapScriptData.Clear();
+    clear_dmap_stack();
+}
+*/
 
 //ScriptHelper
 class SH
@@ -385,7 +1238,8 @@ public:
     
     static INLINE int checkGuyID(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, MAXGUYS-1, str);
+        //return checkBounds(ID, 0, MAXGUYS-1, str); //Can't create NPC ID 0
+        return checkBounds(ID, 1, MAXGUYS-1, str);
     }
     
     static INLINE int checkItemID(const long ID, const char * const str)
@@ -435,6 +1289,9 @@ public:
 //           Pointer Handling Functions          //
 ///------------------------------------------------//
 //MUST call AND check load functions before trying to use other functions
+
+
+    
 
 //Guy Helper
 class GuyH : public SH
@@ -580,6 +1437,17 @@ public:
         return _NoError;
     }
     
+    static int getItemIndex(const long iid)
+    {
+        for(word i = 0; i < items.Count(); i++)
+        {
+            if(items.spr(i)->getUID() == iid)
+                return i;
+        }
+        
+        return -1;
+    }
+    
     static INLINE item* getItem()
     {
         return tempitem;
@@ -620,6 +1488,17 @@ public:
         return _NoError;
     }
     
+    static int getLWeaponIndex(const long lwid)
+    {
+        for(word i = 0; i < Lwpns.Count(); i++)
+        {
+            if(Lwpns.spr(i)->getUID() == lwid)
+                return i;
+        }
+        
+        return -1;
+    }
+    
     static INLINE weapon *getWeapon()
     {
         return tempweapon;
@@ -658,6 +1537,17 @@ public:
         }
         
         return _NoError;
+    }
+    
+    static int getEWeaponIndex(const long ewid)
+    {
+        for(word i = 0; i < Ewpns.Count(); i++)
+        {
+            if(Ewpns.spr(i)->getUID() == ewid)
+                return i;
+        }
+        
+        return -1;
     }
     
     static INLINE weapon *getWeapon()
@@ -760,6 +1650,23 @@ public:
         {
             str += char(a[i] / 10000);
             num_chars--;
+        }
+    }
+    
+    //Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
+    //Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
+    //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+    static void getValues2(const long ptr, long* arrayPtr, word num_values) //a hack -Z
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return;
+            
+        for(word i = 0; BC::checkUserArrayIndex(i, ArrayH::getSize(ptr)+1) == _NoError && num_values != 0; i++)
+        {
+            arrayPtr[i] = (a[i] / 10000);
+            num_values--;
         }
     }
     
@@ -915,14 +1822,14 @@ public:
     }
 };
 
-// Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
+// Called to deallocate arrays when a script stops running
 void deallocateArray(const long ptrval)
 {
     if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
         Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
     else
     {
-        arrayOwner[ptrval] = 255;
+        arrayOwner[ptrval].clear();
         
         if(localRAM[ptrval].Size() == 0)
             Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
@@ -936,6 +1843,43 @@ void deallocateArray(const long ptrval)
             size = size;
         }
     }
+}
+
+void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways)
+{
+	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS))
+	{
+		//Keep 2.50.2 behavior if QR unchecked.
+		switch(scriptType)
+		{
+			case SCRIPT_FFC:
+			case SCRIPT_ITEM:
+			case SCRIPT_GLOBAL:
+				return;
+		}
+	}
+	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
+	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	{
+		if(arrayOwner[i].scriptType == scriptType && arrayOwner[i].ownerUID==UID)
+		{
+			deallocateArray(i);
+			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[scriptType], UID);
+		}
+	}
+}
+
+void FFScript::deallocateAllArrays()
+{
+	//No QR check here- always deallocate on quest exit.
+	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	{
+		if(localRAM[i].Size() > 0)
+		{
+			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[arrayOwner[i].scriptType], arrayOwner[i].ownerUID);
+			deallocateArray(i);
+		}
+	}
 }
 
 item *checkItem(long iid)
@@ -1062,7 +2006,7 @@ long get_register(const long arg)
     
     switch(arg)
     {
-	    
+	
 	//Debug->Null()
     case DONULL: 
 	ret = 0;
@@ -1079,69 +2023,86 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
-        ret = tmpscr->ffdata[ri->ffcref]*10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
+		ret = tmpscr->ffdata[ri->ffcref]*10000;
         break;
         
     case FFSCRIPT:
-        ret = tmpscr->ffscript[ri->ffcref]*10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
+		ret = tmpscr->ffscript[ri->ffcref]*10000;
         break;
         
     case FCSET:
+		if(BC::checkFFC(ri->ffcref, "ffc->CSet") == SH::_NoError)
         ret = tmpscr->ffcset[ri->ffcref]*10000;
         break;
         
     case DELAY:
-        ret = tmpscr->ffdelay[ri->ffcref]*10000;
+	if(BC::checkFFC(ri->ffcref, "ffc->Delay") == SH::_NoError)
+		ret = tmpscr->ffdelay[ri->ffcref]*10000;
         break;
         
     case FX:
-        ret = tmpscr->ffx[ri->ffcref];
+	if(BC::checkFFC(ri->ffcref, "ffc->X") == SH::_NoError)
+		ret = tmpscr->ffx[ri->ffcref];
         break;
         
     case FY:
-        ret = tmpscr->ffy[ri->ffcref];
+	if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
+		ret = tmpscr->ffy[ri->ffcref];
         break;
         
     case XD:
-        ret = tmpscr->ffxdelta[ri->ffcref];
+	if(BC::checkFFC(ri->ffcref, "ffc->Vx") == SH::_NoError)
+		ret = tmpscr->ffxdelta[ri->ffcref];
         break;
         
     case YD:
+	if(BC::checkFFC(ri->ffcref, "ffc->Vy") == SH::_NoError)
         ret = tmpscr->ffydelta[ri->ffcref];
         break;
     case FFCID:
+	if(BC::checkFFC(ri->ffcref, "ffc->ID") == SH::_NoError)
         ret=(ri->ffcref*10000)+10000;
         break;
         
     case XD2:
+	if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
         ret = tmpscr->ffxdelta2[ri->ffcref];
         break;
         
     case YD2:
+	if(BC::checkFFC(ri->ffcref, "ffc->Ay") == SH::_NoError)
         ret = tmpscr->ffydelta2[ri->ffcref];
         break;
         
     case FFFLAGSD:
+	if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
         ret=((tmpscr->ffflags[ri->ffcref] >> (ri->d[0] / 10000))&1) ? 10000 : 0;
         break;
         
     case FFCWIDTH:
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
         ret=((tmpscr->ffwidth[ri->ffcref]&0x3F)+1)*10000;
         break;
         
     case FFCHEIGHT:
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
         ret=((tmpscr->ffheight[ri->ffcref]&0x3F)+1)*10000;
         break;
         
     case FFTWIDTH:
+	if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
         ret=((tmpscr->ffwidth[ri->ffcref]>>6)+1)*10000;
         break;
         
     case FFTHEIGHT:
+	if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
         ret=((tmpscr->ffheight[ri->ffcref]>>6)+1)*10000;
         break;
         
     case FFLINK:
+	if(BC::checkFFC(ri->ffcref, "ffc->Link") == SH::_NoError)
         ret=(tmpscr->fflink[ri->ffcref])*10000;
         break;
         
@@ -1152,7 +2113,10 @@ long get_register(const long arg)
         if(BC::checkMisc(a, "ffc->Misc") != SH::_NoError)
             ret = -10000;
         else
-            ret = ffmisc[ri->ffcref][a];
+	{
+		if(BC::checkFFC(ri->ffcref, "ffc->Misc[]") == SH::_NoError)
+			ret = ffmisc[ri->ffcref][a];
+	}
     }
     break;
     
@@ -1163,25 +2127,52 @@ long get_register(const long arg)
         if(BC::checkBounds(a, 0, 7, "ffc->InitD") != SH::_NoError)
             ret = -10000;
         else
-            ret = tmpscr->initd[ri->ffcref][a];
+	{
+		if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
+		ret = tmpscr->initd[ri->ffcref][a];
+	}
     }
     break;
     
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        ret = long(Link.getX()) * 10000;
-        break;
+    {
+	    if (get_bit(quest_rules,qr_LINKXY_IS_FLOAT))
+	    {
+		    //double lx = (double)Link.getX();
+		    //Z_scripterrlog("lx: %f\n", lx);
+		   
+		    //ret = lx * 10000;
+		    //fix lx = Link.getX();
+		    //Z_scripterrlog("lx: %d\n", lx);
+		    ret = (double)Link.getX()*10000;
+	    }
+	    else ret = long(Link.getX()) * 10000;
 
+        break;
+    }
         
     case LINKY:
-        ret = long(Link.getY()) * 10000;
+    {
+	    if (get_bit(quest_rules,qr_LINKXY_IS_FLOAT))
+	    {
+		    ret = (double)Link.getY()*10000;
+	    }
+	    else ret = long(Link.getY()) * 10000;
+
         break;
-        
+    }    
     case LINKZ:
-        ret = long(Link.getZ()) * 10000;
+    {
+	    if (get_bit(quest_rules,qr_LINKXY_IS_FLOAT))
+	    {
+		    ret = (double)Link.getZ()*10000;
+	    }
+	    else ret = long(Link.getZ()) * 10000;
+
         break;
-        
+    } 
     case LINKJUMP:
         // -fall/100*10000, but doing it that way screwed up the result
         ret = long(-Link.getFall()) * 100;
@@ -1198,6 +2189,14 @@ long get_register(const long arg)
     case LINKHP:
         ret=(int)(game->get_life())*10000;
         break;
+    
+    case LINKGRAVITY:
+	ret = ( (Link.obeys_gravity) ? 10000 : 0 );
+	break;
+    
+    case HERONOSTEPFORWARD:
+	ret = ( (FFCore.nostepforward) ? 10000 : 0 );
+	break;
         
     case LINKMP:
         ret=(int)(game->get_magic())*10000;
@@ -1240,6 +2239,10 @@ long get_register(const long arg)
         
     case LINKINVINC:
         ret = (int)(Link.scriptcoldet)*10000;
+        break;
+    
+    case LINKENGINEANIMATE:
+        ret = (int)(Link.do_animation)*10000;
         break;
         
     case LINKLADDERX:
@@ -1299,7 +2302,31 @@ long get_register(const long arg)
         ret = (int)(Link.get_defence(vbound(ri->d[0]/10000,0,255)))* 10000;
         break;
         
-        
+       
+    case LINKROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"Link->Rotation");
+		ret = -1; break;
+	}
+        ret = (int)(Link.rotation)*10000;
+        break;
+    
+    case LINKSCALE:
+    {
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"Link->Scale");
+		ret = -1; break;
+	}
+	//al_trace("Link's scale is: %d\n", Link.scale);
+        ret = (int)(Link.scale*100.0);
+        break;
+    }
+    
+
     case LINKHXOFS:
         ret = (int)(Link.hxofs)*10000;
         break;
@@ -1400,6 +2427,10 @@ long get_register(const long arg)
 	ret = Awpn *10000;
 	break;
     
+    case LINKTILEMOD:
+	ret = Link.getTileModifier() * 10000;
+	break;
+    
     case LINKDIAG:
 	ret=Link.getDiagMove()?10000:0;
 	break;
@@ -1407,6 +2438,10 @@ long get_register(const long arg)
     case LINKBIGHITBOX:
 	ret=Link.getBigHitbox()?10000:0;
 	break;
+	
+	case LINKCLIMBING:
+		ret = Link.getOnSideviewLadder()?10000:0;
+		break;
     
     
 ///----------------------------------------------------------------------------------------------------//
@@ -1492,9 +2527,11 @@ long get_register(const long arg)
     
     case INPUTMOUSEY:
     {
-        int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+	int mousequakeoffset = 56+((int)(sin((double)(--quakeclk*2-frame))*4));
+	int tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+        int topOffset=(resy/2)-((112-tempoffset)*screen_scale);
         ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
-        break;
+	break;
     }
     
     case INPUTMOUSEZ:
@@ -1577,7 +2614,17 @@ long get_register(const long arg)
         ret=button_press[17]?10000:0;
         break;
         
-    case BUTTONPRESS:
+    case FFRULE:
+		// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
+	{
+		//Read-only
+		int ruleid = vbound((ri->d[0]/10000),0,qr_MAX);
+		ret = get_bit(quest_rules,ruleid)?10000:0;
+		
+	}
+	break;
+	
+	case BUTTONPRESS:
 		// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
 	{
 		//Read-only
@@ -1614,15 +2661,62 @@ long get_register(const long arg)
 		ret = pressed?10000:0;
 	}
 	break;
+	
+	case KEYMODIFIERS:
+	{
+		ret = (key_shifts*10000);
+		break;
+	}
+	
+	case KEYBINDINGS:
+	{
+		int keyid = ri->d[0]/10000;
+		switch(keyid)
+		{
+			case 0: ret = DUkey * 10000; break;
+			case 1: ret = DDkey * 10000; break; 
+			case 2: ret = DLkey * 10000; break;
+			case 3: ret = DRkey * 10000; break;
+			case 4: ret = Akey * 10000; break;
+			case 5: ret = Bkey * 10000; break;
+			case 6: ret = Skey * 10000; break;
+			case 7: ret = Lkey * 10000; break;
+			case 8: ret = Rkey * 10000; break;
+			case 9: ret = Pkey * 10000; /*map*/ break; 
+			case 10: ret = Exkey1 * 10000; break;
+			case 11: ret = Exkey2 * 10000; break;
+			case 12: ret = Exkey3 * 10000; break;
+			case 13: ret = Exkey4 * 10000; break;
+			
+			default: { Z_scripterrlog("Invalid index [%d] passed to Input->KeyBindings[]\n", keyid); ret = 0; break; }
+		}
+		break;
+	}
 
 	case READKEY:
 	{
 		//Game->ReadKey(int key), also clears it. 
 		int keyid = ri->d[0]/10000;
-		bool pressed = ReadKey(keyid);
+		bool pressed = zc_readkey(keyid, true);
 		ret = pressed?10000:0;
 	}
 	break;
+	
+	case DISABLEKEY:
+	{
+		//Input->DisableKey(int key)
+		int keyid = ri->d[0]/10000;
+		ret = disabledKeys[keyid]?10000:0;
+		break;
+	}
+	
+	case DISABLEBUTTON:
+	{
+		//Input->DisableButton(int cb)
+		int cbid = ri->d[0]/10000;
+		ret = disable_control[cbid]?10000:0;
+		break;
+	}
 
 	case JOYPADPRESS:
 	{
@@ -1646,7 +2740,9 @@ long get_register(const long arg)
 			}
 			case 1: //MouseY
 			{
-				int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+				int mousequakeoffset = 56+((int)(sin((double)(--quakeclk*2-frame))*4));
+				int tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+				int topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 				rv=((gui_mouse_y()-topOffset)/screen_scale)*10000;
 				break;
 				
@@ -1687,10 +2783,59 @@ long get_register(const long arg)
         
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
-    case ITEMX:
+    case ITEMSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"item->Scale");
+		ret = -1; break;
+	}
         if(0!=(s=checkItem(ri->itemref)))
         {
-            ret=((int)((item*)(s))->x)*10000;
+            ret=((int)((item*)(s))->scale)*100.0;
+        }
+        
+        break;
+	
+	case ITEMX:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+	    if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+	    {
+		ret=((double)((item*)(s))->x)*10000;    
+	    }
+            else ret=((int)((item*)(s))->x)*10000;
+        }
+        
+        break;
+	
+	case ITEMSPRITESCRIPT:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+	    ret=((int)((item*)(s))->script)*10000;
+        }
+	
+	case ITEMSPRITEINITD:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+	    int a = vbound(ri->d[0]/10000,0,7);
+	    ret=((int)((item*)(s))->initD[a]);
+        }
+        
+        break;
+	
+	case ITEMFAMILY:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((int)((item*)(s))->family)*10000;
+        }
+        
+        break;
+	
+	case ITEMLEVEL:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((int)((item*)(s))->lvl)*10000;
         }
         
         break;
@@ -1706,7 +2851,12 @@ long get_register(const long arg)
     case ITEMY:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            ret=((int)((item*)(s))->y)*10000;
+	    if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+	    {
+		ret=((double)((item*)(s))->y)*10000;    
+	    }
+            else 
+		ret=((int)((item*)(s))->y)*10000;
         }
         
         break;
@@ -1714,7 +2864,12 @@ long get_register(const long arg)
     case ITEMZ:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            ret=((int)((item*)(s))->z)*10000;
+	    if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+	    {
+		ret=((double)((item*)(s))->z)*10000;    
+	    }
+            else 
+		ret=((int)((item*)(s))->z)*10000;
         }
         
         break;
@@ -1722,7 +2877,7 @@ long get_register(const long arg)
     case ITEMJUMP:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            ret = long((-((item*)(s))->fall / fix(100.0))  * 10000);
+            ret = long(((item*)(s))->fall) * -100.0;
         }
         
         break;
@@ -1731,6 +2886,14 @@ long get_register(const long arg)
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->drawstyle*10000;
+        }
+        
+        break;
+      
+    case ITEMGRAVITY:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((((item*)(s))->obeys_gravity) ? 10000 : 0);
         }
         
         break;
@@ -1747,6 +2910,22 @@ long get_register(const long arg)
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((item*)(s))->tile*10000;
+        }
+        
+        break;
+		
+	case ITEMSCRIPTTILE:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((item*)(s))->scripttile*10000;
+        }
+        
+        break;
+		
+	case ITEMSCRIPTFLIP:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((item*)(s))->scriptflip*10000;
         }
         
         break;
@@ -1860,7 +3039,21 @@ long get_register(const long arg)
         }
         
         break;
+
+	case ITEMROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"item->Rotation");
+		ret = -1; break;
+	}
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=(((item*)(s))->rotation)*10000;
+        }
         
+        break;
+
     case ITEMHYOFS:
         if(0!=(s=checkItem(ri->itemref)))
         {
@@ -1936,6 +3129,10 @@ long get_register(const long arg)
     case ITEMCOUNT:
         ret=(items.Count())*10000;
         break;
+    
+    case GETRENDERTARGET:
+        ret=(zscriptDrawingRenderTarget->GetCurrentRenderTarget())*10000;
+        break;
         
     case ITEMEXTEND:
         if(0!=(s=checkItem(ri->itemref)))
@@ -1958,8 +3155,9 @@ long get_register(const long arg)
         {
             int a = vbound(ri->d[0]/10000,0,31);
             ret=(((item*)(s))->miscellaneous[a]);
-            break;
+            
         }
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //Itemdata Variables
@@ -2013,7 +3211,7 @@ long get_register(const long arg)
     {
 	    
 	int a = vbound((ri->d[0] / 10000),0,7);
-        ret=(itemsbuf[ri->idata].weap_initiald[a])*10000;
+        ret=(itemsbuf[ri->idata].weap_initiald[a]);
     }
     break;
     case IDATAWEAPHXOFS:
@@ -2254,9 +3452,13 @@ long get_register(const long arg)
       case IDATADOWNGRADE:
         ret=(itemsbuf[ri->idata].flags & ITEM_DOWNGRADE)?10000:0;
         break;
+	  //Only validate the cost, don't charge it
+      case IDATAVALIDATE:
+        ret=(itemsbuf[ri->idata].flags & ITEM_VALIDATEONLY)?10000:0;
+        break;
       //->Flags[5]
       case IDATAFLAGS: {
-	    int index = vbound(ri->d[0]/10000,0,4);
+	    int index = vbound(ri->d[0]/10000,0,15);
 		switch(index){
 		    case 0:
 			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG1)?10000:0;
@@ -2372,6 +3574,9 @@ long get_register(const long arg)
         
     case NPCCOLLDET:
         GET_NPC_VAR_INT(scriptcoldet, "npc->ColDetection") break;
+    
+    case NPCENGINEANIMATE:
+        GET_NPC_VAR_INT(do_animation, "npc->Animation") break;
         
     case NPCSTUN:
         GET_NPC_VAR_INT(stunclk, "npc->Stun") break;
@@ -2396,6 +3601,12 @@ long get_register(const long arg)
         
     case NPCTILE:
         GET_NPC_VAR_INT(tile, "npc->Tile") break;
+    
+    case NPCSCRIPTTILE:
+        GET_NPC_VAR_INT(scripttile, "npc->ScriptTile") break;
+        
+    case NPCSCRIPTFLIP:
+        GET_NPC_VAR_INT(scriptflip, "npc->ScriptFlip") break;
         
     case NPCWEAPON:
         GET_NPC_VAR_INT(wpn, "npc->Weapon") break;
@@ -2429,7 +3640,16 @@ long get_register(const long arg)
         
     case NPCHZSZ:
         GET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
-        
+    
+    case NPCROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"npc->Rotation");
+		ret = -1; break;
+	}
+        GET_NPC_VAR_INT(rotation, "npc->Rotation") break;
+
     case NPCTXSZ:
         GET_NPC_VAR_INT(txsz, "npc->TileWidth") break;
         
@@ -2446,13 +3666,72 @@ long get_register(const long arg)
 }
 
     case NPCX:
-        GET_NPC_VAR_FIX(x, "npc->X") break;
+	//GET_NPC_VAR_FIX(x, "npc->X") break;     
+    {
+	if(GuyH::loadNPC(ri->guyref, "X") != SH::_NoError) 
+	{
+		ret = -10000; 
+	}
+	else 
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret = (double(GuyH::getNPC()->x) * 10000); 
+		}
+		else
+		{
+			ret = (long(GuyH::getNPC()->x) * 10000);   
+		}
+	}
+	break;
+
+	
+    }
+    
+       
         
     case NPCY:
-        GET_NPC_VAR_FIX(y, "npc->Y") break;
+        //GET_NPC_VAR_FIX(y, "npc->Y") break;
+    {
+	if(GuyH::loadNPC(ri->guyref, "Y") != SH::_NoError) 
+	{
+		ret = -10000; 
+	}
+	else 
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret = (double(GuyH::getNPC()->y) * 10000); 
+		}
+		else
+		{
+			ret = (long(GuyH::getNPC()->y) * 10000);   
+		}
+	}
+	break;
+    }
+    
         
     case NPCZ:
-        GET_NPC_VAR_FIX(z, "npc->Z") break;
+        //GET_NPC_VAR_FIX(z, "npc->Z") break;
+    {
+	if(GuyH::loadNPC(ri->guyref, "Z") != SH::_NoError) 
+	{
+		ret = -10000; 
+	}
+	else 
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret = (double(GuyH::getNPC()->z) * 10000); 
+		}
+		else
+		{
+			ret = (long(GuyH::getNPC()->z) * 10000);   
+		}
+	}
+	break;
+    }
         
     case NPCXOFS:
         GET_NPC_VAR_FIX(xofs, "npc->DrawXOffset") break;
@@ -2469,15 +3748,66 @@ long get_register(const long arg)
         if(GuyH::loadNPC(ri->guyref, "npc->Jump") != SH::_NoError)
             ret = -10000;
         else
-            ret = (long(-GuyH::getNPC()->fall / fix(100.0)) * 10000);
+            ret = long(GuyH::getNPC()->fall) * -100.0;
             
         break;
+	
+	
+	case NPCSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"npc->Scale");
+		ret = -1; break;
+	}
+        if(GuyH::loadNPC(ri->guyref, "npc->Scale") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = (long(GuyH::getNPC()->scale) * 100.0);
+            
+        break;
+	
+	case NPCIMMORTAL:
+        if(GuyH::loadNPC(ri->guyref, "npc->Immortal") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = GuyH::getNPC()->immortal ? 10000 : 0;
+		break;
+	
+	case NPCNOSLIDE:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoSlide") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = (GuyH::getNPC()->knockbackflags & FLAG_NOSLIDE) ? 10000 : 0;
+		break;
+	
+	case NPCNOSCRIPTKB:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoScriptKnockback") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = (GuyH::getNPC()->knockbackflags & FLAG_NOSCRIPTKNOCKBACK) ? 10000 : 0;
+		break;
+	
+	case NPCKNOCKBACKSPEED:
+        if(GuyH::loadNPC(ri->guyref, "npc->SlideSpeed") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = GuyH::getNPC()->knockbackSpeed * 10000;
+		break;
         
     case NPCSTEP:
         if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
             ret = -10000;
         else
             ret = long(GuyH::getNPC()->step * fix(100.0)) * 10000;
+            
+        break;
+	
+    case NPCGRAVITY:
+        if(GuyH::loadNPC(ri->guyref, "npc->Gravity") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = ((GuyH::getNPC()->obeys_gravity) ? 10000 : 0);
             
         break;
 	
@@ -2565,7 +3895,7 @@ long get_register(const long arg)
 				ret = GuyH::getNPC()->hitby[indx]; // * 10000; //do not multiply by 10000! UIDs are not *10000!
 				break;
 			}
-			default: { al_trace("Invalid index used for npc->HitBy[%d]. /n", indx); ret = -10000; break; }
+			default: { Z_scripterrlog("Invalid index used for npc->HitBy[%d]. /n", indx); ret = -10000; break; }
 		}
 		break;
 	}
@@ -2597,13 +3927,40 @@ long get_register(const long arg)
             ret = GuyH::getNPC()->miscellaneous[a];
     }
     break;
+    case NPCINITD:
+    {
+        int a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") != SH::_NoError )
+            ret = -10000;
+        else
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		ret = (int)GuyH::getNPC()->initD[a];
+	}
+    }
+    break;
+    
+    case NPCSCRIPT:
+    {
+        int a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->Script") != SH::_NoError )
+            ret = -10000;
+        else
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		ret = (int)GuyH::getNPC()->script * 10000;
+	}
+    }
+    break;
     
     case NPCDD: //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     {
         int a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Attributes") != SH::_NoError ||
-                BC::checkBounds(a, 0, 15, "npc->Attributes") != SH::_NoError)
+                BC::checkBounds(a, 0, ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ? 31 : 15 ), "npc->Attributes") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPCDMisc(a) * 10000;
@@ -2681,16 +4038,21 @@ long get_register(const long arg)
 				}
 			}
 		}
+		else
+		{
+			ret = -10000;
+			break;
+		}
 	}
 	
 	case NPCFROZENTILE:
-        GET_NPC_VAR_INT(frozentile, "npc->FrozenTile") break;
+        GET_NPC_VAR_INT(frozentile, "npc->FrozenTile"); break;
 	
 	case NPCFROZENCSET:
-        GET_NPC_VAR_INT(frozencset, "npc->FrozenCSet") break;
+        GET_NPC_VAR_INT(frozencset, "npc->FrozenCSet"); break;
 	
 	case NPCFROZEN:
-        GET_NPC_VAR_INT(frozenclock, "npc->Frozen") break;
+        GET_NPC_VAR_INT(frozenclock, "npc->Frozen"); break;
 	
 	
 case NPCBEHAVIOUR: {
@@ -2749,33 +4111,71 @@ case NPCBEHAVIOUR: {
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
-    case LWPNX:
+    case LWPNSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"lweapon->Scale");
+		ret = -1; break;
+	}
+        if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
+            ret=((int)((weapon*)(s))->scale)*100.0;
+            
+        break;
+	
+	case LWPNX:
         if(0!=(s=checkLWpn(ri->lwpn,"X")))
-            ret=((int)((weapon*)(s))->x)*10000;
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->x)*10000;  
+		}
+		else 
+			ret=((int)((weapon*)(s))->x)*10000;
+	}
             
         break;
         
     case LWPNY:
         if(0!=(s=checkLWpn(ri->lwpn,"Y")))
-            ret=((int)((weapon*)(s))->y)*10000;
-            
-        break;
+        {
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->y)*10000;  
+		}
+		else 
+			ret=((int)((weapon*)(s))->y)*10000;
+	}
+	break;
         
     case LWPNZ:
         if(0!=(s=checkLWpn(ri->lwpn,"Z")))
-            ret=((int)((weapon*)(s))->z)*10000;
+        {
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->z)*10000;  
+		}
+		else 
+			ret=((int)((weapon*)(s))->z)*10000;
+	}
             
         break;
         
     case LWPNJUMP:
         if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
-            ret = long((-((weapon*)(s))->fall / fix(100.0)) * 100000);
+            ret = long(((weapon*)(s))->fall) * -100.0;
             
         break;
         
     case LWPNDIR:
         if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
             ret=((weapon*)(s))->dir*10000;
+            
+        break;
+     
+    case LWPNGRAVITY:
+        if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
+            ret= (((weapon*)(s))->obeys_gravity) ? 10000 : 0;
             
         break;
         
@@ -2836,6 +4236,18 @@ case NPCBEHAVIOUR: {
     case LWPNTILE:
         if(0!=(s=checkLWpn(ri->lwpn,"Tile")))
             ret=((weapon*)(s))->tile*10000;
+            
+        break;
+	
+    case LWPNSCRIPTTILE:
+        if(0!=(s=checkLWpn(ri->lwpn,"ScriptTile")))
+            ret=((weapon*)(s))->scripttile*10000;
+            
+        break;
+	
+    case LWPNSCRIPTFLIP:
+        if(0!=(s=checkLWpn(ri->lwpn,"ScriptFlip")))
+            ret=((weapon*)(s))->scriptflip*10000;
             
         break;
         
@@ -2978,6 +4390,12 @@ case NPCBEHAVIOUR: {
             
         break;
 	
+    case LWPNENGINEANIMATE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
+            ret=(((weapon*)(s))->do_animation)*10000;
+            
+        break;
+	
     case LWPNPARENT:
         if(0!=(s=checkLWpn(ri->lwpn,"Parent")))
             ret=(((weapon*)(s))->parentitem)*10000;
@@ -2990,43 +4408,118 @@ case NPCBEHAVIOUR: {
             
         break;
 	
+    case LWPNSCRIPT:
+        if(0!=(s=checkLWpn(ri->lwpn,"Script")))
+            ret=(((weapon*)(s))->weaponscript)*10000;
+            
+        break;
+	
+	case LWPNUSEWEAPON:
+        if(0!=(s=checkLWpn(ri->lwpn,"Weapon")))
+            ret=(((weapon*)(s))->useweapon)*10000;
+            
+        break;
+	
+	case LWPNUSEDEFENCE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Defense")))
+            ret=(((weapon*)(s))->usedefence)*10000;
+            
+        break;
+	
+	case LWPNINITD:
+	{
+		int a = vbound((ri->d[0] / 10000),0,7);
+		if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
+		{
+			ret=(((weapon*)(s))->weap_initd[a]);
+		}
+		break;
+	}
+	
     case LWEAPONSCRIPTUID:
 	if(0!=(s=checkLWpn(ri->lwpn,"ScriptUID")))
             ret=(((weapon*)(s))->script_UID); //literal, not *10000
             
         break;
-	
-    
+
+	case LWPNROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"lweapon->Rotation");
+		ret = -1; break;
+	}
+        if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
+            ret=((weapon*)(s))->rotation*10000;
+            
+        break;
+
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
-    case EWPNX:
-        if(0!=(s=checkEWpn(ri->ewpn, "X")))
-            ret=((int)((weapon*)(s))->x)*10000;
+    case EWPNSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"eweapon->Scale");
+		ret = -1; break;
+	}
+        if(0!=(s=checkEWpn(ri->ewpn, "Scale")))
+            ret=((int)((weapon*)(s))->scale)*100.0;
             
+        break;
+
+	case EWPNX:
+        if(0!=(s=checkEWpn(ri->ewpn, "X")))
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->x)*10000;
+		}
+		else 
+			ret=((int)((weapon*)(s))->x)*10000;
+	}
         break;
         
     case EWPNY:
         if(0!=(s=checkEWpn(ri->ewpn, "Y")))
-            ret=((int)((weapon*)(s))->y)*10000;
-            
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->y)*10000;
+		}
+		else 
+			 ret=((int)((weapon*)(s))->y)*10000;
+	}
         break;
         
     case EWPNZ:
         if(0!=(s=checkEWpn(ri->ewpn, "Z")))
-            ret=((int)((weapon*)(s))->z)*10000;
-            
+	{
+		if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+		{
+			ret=((double)((weapon*)(s))->z)*10000;
+		}
+		else 
+			ret=((int)((weapon*)(s))->z)*10000;
+	}
         break;
         
     case EWPNJUMP:
         if(0!=(s=checkEWpn(ri->ewpn, "Jump")))
-            ret = long((-((weapon*)(s))->fall / fix(100.0)) * 100000);
+            ret = long(((weapon*)(s))->fall) * -100.0;
             
         break;
         
     case EWPNDIR:
         if(0!=(s=checkEWpn(ri->ewpn, "Dir")))
             ret=((weapon*)(s))->dir*10000;
+            
+        break;
+        
+    case EWPNGRAVITY:
+        if(0!=(s=checkEWpn(ri->ewpn, "Gravity")))
+            ret=((((weapon*)(s))->obeys_gravity) ? 10000 : 0);
             
         break;
         
@@ -3083,6 +4576,18 @@ case NPCBEHAVIOUR: {
             ret=((weapon*)(s))->tile*10000;
             
         break;
+	
+    case EWPNSCRIPTTILE:
+        if(0!=(s=checkEWpn(ri->ewpn,"ScriptTile")))
+            ret=((weapon*)(s))->scripttile*10000;
+            
+        break;
+    
+    case EWPNSCRIPTFLIP:
+        if(0!=(s=checkEWpn(ri->ewpn,"ScriptFlip")))
+            ret=((weapon*)(s))->scriptflip*10000;
+            
+        break;
         
     case EWPNCSET:
         if(0!=(s=checkEWpn(ri->ewpn,"CSet")))
@@ -3125,7 +4630,19 @@ case NPCBEHAVIOUR: {
             ret=((weapon*)(s))->flip*10000;
             
         break;
-        
+
+	case EWPNROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"eweapon->Rotation");
+		break;
+	}
+        if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
+            ret=((weapon*)(s))->rotation*10000;
+            
+        break;
+
     case EWPNCOUNT:
         ret=Ewpns.Count()*10000;
         break;
@@ -3222,11 +4739,17 @@ case NPCBEHAVIOUR: {
             ret=(((weapon*)(s))->scriptcoldet)*10000;
             
         break;
+    
+    case EWPNENGINEANIMATE:
+        if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
+            ret=(((weapon*)(s))->do_animation)*10000;
+            
+        break;
 	
     case EWPNPARENT:
         if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
-            ret=(((weapon*)(s))->parentid)*10000;
-            
+            ret= ((get_bit(quest_rules,qr_OLDEWPNPARENT)) ? (((weapon*)(s))->parentid)*10000 : (((weapon*)(s))->parentid));
+	
         break;
 	
     case EWEAPONSCRIPTUID:
@@ -3234,6 +4757,22 @@ case NPCBEHAVIOUR: {
             ret=(((weapon*)(s))->script_UID); //literal, not *10000
             
         break;
+	
+	case EWPNSCRIPT:
+        if(0!=(s=checkEWpn(ri->ewpn,"Script")))
+            ret=(((weapon*)(s))->weaponscript)*10000;
+            
+        break;
+	
+	case EWPNINITD:
+	{
+		int a = vbound((ri->d[0] / 10000),0,7);
+		if(0!=(s=checkEWpn(ri->ewpn,"InitD[]")))
+		{
+			ret=(((weapon*)(s))->weap_initd[a]);
+		}
+		break;
+	}
 	
 	/*
 	case LWEAPONSCRIPTUID:
@@ -3277,9 +4816,25 @@ case NPCBEHAVIOUR: {
     case ZELDABUILD:
 	ret = (int)VERSION_BUILD*10000;
 	break;
+    
+    case ZSCRIPTVERSION: 
+    {
+	ret = (FFCore.quest_format[vLastCompile]) * 10000;
+    }
+    
     case ZELDABETA:
-	ret = (int)VERSION_BETA*10000;
+    {
+	if ( (FFCore.quest_format[vLastCompile]) < 13 )
+	{
+		
+		ret = VERSION_BETA*10000;
+	}
+	else 
+	{
+		ret = (int)IS_BETA*10000;
+	}
 	break;
+    }
     case GAMEDEATHS:
         ret=game->get_deaths()*10000;
         break;
@@ -3302,6 +4857,14 @@ case NPCBEHAVIOUR: {
     
     case TYPINGMODE:
         ret=FFCore.kb_typing_mode?10000:0;
+        break;
+    
+    case SKIPCREDITS:
+        ret=FFCore.skip_ending_credits?10000:0;
+        break;
+    
+    case SKIPF6:
+        ret=get_bit(quest_rules,qr_NOCONTINUE)?10000:0;
         break;
         
     case GAMESTANDALONE:
@@ -3357,7 +4920,7 @@ case NPCBEHAVIOUR: {
 	}
 	else
 	{
-		ret = QMisc.questmisc[indx];
+		ret = QMisc.questmisc[indx]*((get_bit(quest_rules,qr_OLDQUESTMISC)) ? 10000 : 1);
 	}
 	break;
     }
@@ -3368,7 +4931,11 @@ case NPCBEHAVIOUR: {
     case DISABLEDITEM:
 	ret = (game->items_off[(ri->d[0])/10000] ? 10000 : 0);
 	break;
-        
+    case GAMESUSPEND:
+    {
+	ret = (( FFCore.system_suspend[(ri->d[0])/10000] ) ? 10000 : 0);
+	break;
+    }
     case GAMELITEMSD:
         ret=game->lvlitems[(ri->d[0])/10000]*10000;
         break;
@@ -3412,6 +4979,10 @@ case NPCBEHAVIOUR: {
         ret=currscr*10000;
         break;
         
+    case ALLOCATEBITMAPR:
+        ret=FFCore.do_allocate_bitmap();
+        break;
+        
     case GETMIDI:
         ret=(currmidi-(ZC_MIDI_COUNT-1))*10000;
         break;
@@ -3424,7 +4995,7 @@ case NPCBEHAVIOUR: {
     break;
     
     case GAMEMAXMAPS:
-	ret = (map_count-1)*10000;
+	ret = (map_count)*10000;
 	break;
     case GAMENUMMESSAGES:
 	ret = (msg_count-1) * 10000; 
@@ -3743,14 +5314,15 @@ else \
 	#define GET_SCREENDATA_LAYER_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
-		if(indx < 0 || indx > indexbound ) \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if(indx < 1 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			ret = (tmpscr->member[indx] *10000); \
+			ret = (tmpscr->member[indx-1] *10000); \
 		} \
 	} \
 	
@@ -3773,7 +5345,6 @@ else \
 	#define GET_SCREENDATA_FLAG(member, str, indexbound) \
 	{ \
 		long flag =  (value/10000);  \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		ret = (tmpscr->member&flag) ? 10000 : 0); \
 	} \
 
@@ -3785,7 +5356,7 @@ case SCREENDATAROOM: 		GET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
 case SCREENDATAITEM: 		GET_SCREENDATA_VAR_BYTE(item, "Item"); break;		//b
 case SCREENDATAHASITEM: 		GET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 case SCREENDATATILEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-case SCREENDATATILEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+//case SCREENDATATILEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
 case SCREENDATADOORCOMBOSET: 	GET_SCREENDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
 case SCREENDATAWARPRETX:	 	GET_SCREENDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
 case SCREENDATAWARPRETY:	 	GET_SCREENDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
@@ -3803,7 +5374,7 @@ case SCREENDATAEXITDIR: 		GET_SCREENDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//
 case SCREENDATAENEMY: 		GET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
 case SCREENDATAPATTERN: 		GET_SCREENDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
 case SCREENDATASIDEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-case SCREENDATASIDEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+//case SCREENDATASIDEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
 case SCREENDATAWARPARRIVALX: 	GET_SCREENDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
 case SCREENDATAWARPARRIVALY: 	GET_SCREENDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case SCREENDATAPATH: 		GET_SCREENDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
@@ -3817,9 +5388,37 @@ case SCREENDATACATCHALL:	 	GET_SCREENDATA_VAR_INT32(catchall,	"Catchall"); break
 case SCREENDATACSENSITIVE: 	GET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
 case SCREENDATANORESET: 		GET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
 case SCREENDATANOCARRY: 		GET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
-case SCREENDATALAYERMAP:	 	GET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-case SCREENDATALAYERSCREEN: 	GET_SCREENDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
-case SCREENDATALAYEROPACITY: 	GET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case SCREENDATALAYERMAP:	 	GET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
+case SCREENDATALAYERSCREEN: 	GET_SCREENDATA_LAYER_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
+case SCREENDATALAYEROPACITY: 	GET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
+case SCREENDATALAYERINVIS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 6 )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->LayerInvisible[]: %d\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		ret = ((tmpscr->hidelayers >> indx) & 1) *10000;
+	}
+	break;
+}
+case SCREENDATASCRIPTDRAWS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 7 )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->HideScriptLayer[]: %d\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+	}
+	break;
+}
 case SCREENDATATIMEDWARPTICS: 	GET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case SCREENDATANEXTMAP: 		GET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case SCREENDATANEXTSCREEN: 	GET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
@@ -3832,8 +5431,29 @@ case SCREENDATASCREENWIDTH: 	GET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	
 case SCREENDATASCREENHEIGHT: 	GET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 case SCREENDATAENTRYX: 		GET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 case SCREENDATAENTRYY: 		GET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-case SCREENDATANUMFF: 		GET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
-
+//case SCREENDATANUMFF: 		GET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+//Number of ffcs that are in use (have valid data
+case SCREENDATANUMFF: 	
+{
+	int indx = ri->d[0] / 10000;
+	if ( !indx )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+		ret = 0;
+	}
+	else if(((unsigned)indx)>32)
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		--indx;
+		ret = (((tmpscr->numff) & (1<<indx))) ? 10000 : 0;
+		//ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+	}
+	break;
+}
 	//inita	//INT32, 32 OF THESE, EACH WITH 2
 case SCREENDATAFFINITIALISED: 	GET_SCREENDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
 case SCREENDATASCRIPTENTRY: 	GET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
@@ -3843,9 +5463,86 @@ case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;
 case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
 case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
 case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
-case SCREENDATASCREENMIDI: 	GET_SCREENDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
+case SCREENDATASCREENMIDI:
+{
+	ret = ((tmpscr->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
+	break;
+}
 case SCREENDATALENSLAYER:	 	GET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+
+case SCREENSIDEWARPID: 
+{
+	int indx = ri->d[0] / 10000;
 	
+	ret = (((tmpscr->flags2 >> indx) & 1)
+		? (tmpscr->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
+		: -1 //Returns -1 if no warp is set
+		)*10000;
+	break;
+}
+
+case SCREENDATATILEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		ret = (tmpscr->tilewarpoverlayflags & (1<<indx))?10000:0;
+	}
+	break;
+}
+
+case SCREENDATASIDEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		ret = (tmpscr->sidewarpoverlayflags & (1<<indx))?10000:0;
+	}
+	break;
+}
+
+case SCREENDATATWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		ret = -10000;
+		Z_scripterrlog("Invalid Array Index passed to Screen->TileWarpReturnSquare[]: %d\n", indx);
+		
+	}
+	else 
+	{
+		ret = ((tmpscr->warpreturnc>>(indx*2))&3) * 10000;
+	}
+	break;
+}
+
+
+case SCREENDATASWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		ret = -10000;
+		Z_scripterrlog("Invalid Array Index passed to Screen->SideWarpReturnSquare[]: %d\n", indx);
+		
+	}
+	else 
+	{
+		ret = ((tmpscr->warpreturnc>>(8+(indx*2)))&3) * 10000;
+	}
+	break;
+}
 
 case SCREENDATAFLAGS: 
 {
@@ -3885,6 +5582,10 @@ case SCREENDATAFLAGS:
     case SDDD:
         ret=FFScript::get_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1] / 10000);
         break;
+    
+    case LINKOTILE:
+        ret=FFCore.getLinkOTile(ri->d[0]/10000, ri->d[1] / 10000);
+        break;
         
     case SDDDD:
         ret=FFScript::get_screen_d(ri->d[1] / 10000 + ((ri->d[0]/10000)<<7), ri->d[2] / 10000);
@@ -3894,6 +5595,76 @@ case SCREENDATAFLAGS:
         ret=tmpscr->door[ri->d[0]/10000]*10000;
         break;
     
+    case SCREENSCRIPT:
+        ret=tmpscr->script*10000;
+        break;
+    
+    case SCREENINITD:
+	ret = tmpscr->screeninitd[ri->d[0]/10000];
+	break;
+    
+    case MAPDATAINITDARRAY:
+    {
+	if ( ri->mapsref == LONG_MAX ) 
+	{ 
+		Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[0]/10000); 
+		break; 
+	} 
+	else 
+	{ 
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		ret = m->screeninitd[ri->d[0]/10000];
+	} 
+	break;
+    }
+    
+    case MAPDATALAYERINVIS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 6 )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->LayerInvisible[]: %d\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		if ( ri->mapsref == LONG_MAX )
+		{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","LayerInvisible");
+				ret = -10000;
+		}
+		else
+		{
+			mapscr *m = &TheMaps[ri->mapsref];
+			ret = ((m->hidelayers >> indx) & 1) *10000;
+		}
+	}
+	break;
+}
+case MAPDATASCRIPTDRAWS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 6 )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->DisableScriptDraws[]: %d\n", indx);
+		ret = 0;
+	}
+	else
+	{
+		if ( ri->mapsref == LONG_MAX )
+		{
+				Z_scripterrlog("Script attempted to use a mapdata->DisableScriptDraws on a pointer that is uninitialised\n");
+				ret = -10000;
+		}
+		else
+		{
+			mapscr *m = &TheMaps[ri->mapsref];
+			ret = ((m->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+		}
+	}
+	break;
+}
+
     
     //These use the same method as GetScreenD -Z
     case SCREENWIDTH:
@@ -4017,9 +5788,16 @@ case SCREENCATCH:
 		//Z_scripterrlog("GetLinkExtend rid->[2] is (%i), trying to use for '%s'\n", ri->d[2], "ri->d[2]");
 	    //Z_scripterrlog("GetLinkExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
 	    //Z_scripterrlog("GetLinkExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
-	
-		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,false,1,Link.getUID()));
-		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+		if ( Lwpns.Count() < 256 )
+		{
+			Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,false,1,Link.getUID(),1));
+			ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+		}
+		else
+		{
+			Z_scripterrlog("Tried to create too many LWeapons on the screen. The current LWeapon count is: %d\n", Lwpns.Count());
+			ri->lwpn = LONG_MAX;
+		}
 		
 		/* Z_scripterrlog("CreateLWeaponDx ri->d[0] is (%i), trying to use for '%s'\n", ID, "ID");
 	    Z_scripterrlog("CreateLWeaponDx ri->d[1] is (%i), trying to use for '%s'\n", itemid, "itemid");
@@ -4124,9 +5902,7 @@ case SCREENCATCH:
         
     case DEBUGSP:
     {
-	int r = -1;
-	if ( ri->sp ) r = ri->sp;
-        ret = r * 10000;
+        ret = SH::read_stack(ri->sp) * 10000;
     }   
         break;
     case DEBUGGDR:
@@ -4155,12 +5931,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 //mapdata m-> variables
     #define	GET_MAPDATA_VAR_INT32(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4174,12 +5945,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 
 	#define	GET_MAPDATA_VAR_INT16(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4193,12 +5959,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 
 	#define	GET_MAPDATA_VAR_BYTE(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4215,17 +5976,12 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			if ( ri->mapsref == 0 ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			if ( ri->mapsref == LONG_MAX ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 				ret = -10000; \
@@ -4243,17 +5999,12 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			if ( ri->mapsref == 0 ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			if ( ri->mapsref == LONG_MAX ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 				ret = -10000; \
@@ -4271,17 +6022,12 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			if ( ri->mapsref == 0 ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			if ( ri->mapsref == LONG_MAX ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 				ret = -10000; \
@@ -4313,19 +6059,15 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 	#define GET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
-		if(indx < 0 || indx > indexbound ) \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if(indx < 1 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			if ( ri->mapsref == 0 ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			if ( ri->mapsref == LONG_MAX ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 				ret = -10000; \
@@ -4333,7 +6075,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 			else \
 			{ \
 				mapscr *m = &TheMaps[ri->mapsref]; \
-				ret = (m->member[indx] *10000); \
+				ret = (m->member[indx-1] *10000); \
 			} \
 		} \
 	} \
@@ -4343,17 +6085,12 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			if ( ri->mapsref == 0 ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			if ( ri->mapsref == LONG_MAX ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 				ret = -10000; \
@@ -4369,12 +6106,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 	#define GET_MAPDATA_FLAG(member, str) \
 	{ \
 		long flag =  (value/10000);  \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4388,12 +6120,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 	
 	#define GET_SCREENDATA_COMBO_VAR(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4411,12 +6138,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 
 	#define GET_MAPDATA_COMBO_VAR_BUF(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4440,7 +6162,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
             Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
             ret = -10000; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             ret = -10000; \
@@ -4460,7 +6182,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
             Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
             ret = -10000; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             ret = -10000; \
@@ -4480,7 +6202,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
             Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
             ret = -10000; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             ret = -10000; \
@@ -4494,6 +6216,14 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 	
 case LOADMAPDATA:
         ret=FFScript::loadMapData();
+        break;
+
+case NPCCOLLISION:
+        ret=FFCore.npc_collision();
+        break;
+
+case NPCLINEDUP:
+        ret=FFCore.npc_linedup();
         break;
 
 case CREATEBITMAP:
@@ -4511,7 +6241,7 @@ case MAPDATAROOM: 		GET_MAPDATA_VAR_BYTE(room, "RoomType");	break;		//b
 case MAPDATAITEM: 		GET_MAPDATA_VAR_BYTE(item, "Item"); break;		//b
 case MAPDATAHASITEM: 		GET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 case MAPDATATILEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-case MAPDATATILEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+//case MAPDATATILEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
 case MAPDATADOORCOMBOSET: 	GET_MAPDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
 case MAPDATAWARPRETX:	 	GET_MAPDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
 case MAPDATAWARPRETY:	 	GET_MAPDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
@@ -4529,11 +6259,12 @@ case MAPDATAEXITDIR: 		GET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
 case MAPDATAENEMY: 		GET_MAPDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
 case MAPDATAPATTERN: 		GET_MAPDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
 case MAPDATASIDEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-case MAPDATASIDEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+//case MAPDATASIDEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
 case MAPDATAWARPARRIVALX: 	GET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
 case MAPDATAWARPARRIVALY: 	GET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case MAPDATAPATH: 		GET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
 case MAPDATASIDEWARPSC: 	GET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
+case MAPDATAINITD:	 	GET_MAPDATA_VAR_INDEX32(screeninitd, "InitD", 8); break;	//w, 4 of these
 case MAPDATASIDEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 case MAPDATASIDEWARPINDEX: 	GET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
 case MAPDATAUNDERCOMBO: 	GET_MAPDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
@@ -4543,22 +6274,24 @@ case MAPDATACATCHALL:	 	GET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
 case MAPDATACSENSITIVE: 	GET_MAPDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
 case MAPDATANORESET: 		GET_MAPDATA_VAR_INT32(noreset, "NoReset"); break;	//W
 case MAPDATANOCARRY: 		GET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
-case MAPDATALAYERMAP:	 	GET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-case MAPDATALAYERSCREEN: 	GET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
-case MAPDATALAYEROPACITY: 	GET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case MAPDATALAYERMAP:	 	GET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
+case MAPDATALAYERSCREEN: 	GET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
+case MAPDATALAYEROPACITY: 	GET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
 case MAPDATATIMEDWARPTICS: 	GET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case MAPDATANEXTMAP: 		GET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case MAPDATANEXTSCREEN: 	GET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
 case MAPDATASECRETCOMBO: 	GET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
 case MAPDATASECRETCSET: 	GET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 case MAPDATASECRETFLAG: 	GET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
+
 case MAPDATAVIEWX: 		GET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+case MAPDATASCRIPT: 		GET_MAPDATA_VAR_INT32(script, "Script"); break;	//W
 case MAPDATAVIEWY: 		GET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
 case MAPDATASCREENWIDTH: 	GET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 case MAPDATASCREENHEIGHT: 	GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 case MAPDATAENTRYX: 		GET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 case MAPDATAENTRYY: 		GET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-case MAPDATANUMFF: 		GET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+//case MAPDATANUMFF: 		GET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
 case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(ffdata, "FFCData", 31); break;  //W, 32 OF THESE
 case MAPDATAFFCSET:         GET_MAPDATA_FFC_INDEX32(ffcset, "FFCCSet", 31); break;  //B, 32
 case MAPDATAFFDELAY:        GET_MAPDATA_FFC_INDEX32(ffdelay, "FFCDelay", 31); break;    //W, 32
@@ -4569,13 +6302,146 @@ case MAPDATAFFYDELTA:       GET_MAPDATA_FFCPOS_INDEX32(ffydelta, "FFCVy", 31); b
 case MAPDATAFFXDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ffxdelta2, "FFCAx", 31); break;  //..
 case MAPDATAFFYDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ffydelta2, "FFCAy", 31); break;  //..
 case MAPDATAFFFLAGS:        GET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
+case MAPDATASIDEWARPID: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","SideWarpID");
+		ret = -10000;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		ret = (((m->flags2 >> indx) & 1)
+			? (m->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
+			: -1 //Returns -1 if no warp is set
+			)*10000;
+	} 
+	break;
+}
+//Number of ffcs that are in use (have valid data
+case MAPDATANUMFF: 	
+{
+	int indx = ri->d[0] / 10000;
+	if ( !indx )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+		ret = 0;
+	}
+	else if(((unsigned)indx)>32)
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+		ret = 0;
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+		ret = 0;
+	}
+	else
+	{
+		--indx;
+		mapscr *m = &TheMaps[ri->mapsref];
+		ret = (((m->numff) & (1<<indx))) ? 10000 : 0;
+		//ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+	}
+	break;
+}
+
+case MAPDATATILEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+		ret = 0;
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+		ret = 0;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		ret = (m->tilewarpoverlayflags & (1<<indx))?10000:0;
+	}
+	break;
+}
+
+case MAPDATASIDEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+		ret = 0;
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+		ret = 0;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		ret = (m->sidewarpoverlayflags & (1<<indx))?10000:0;
+	}
+	break;
+}
+
+case MAPDATATWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		ret = -10000;
+		Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
+		
+	}
+	else if ( ri->mapsref == LONG_MAX )
+        {
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+            ret = -10000; 
+        } \
+        else 
+        { 
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		ret = ((m->warpreturnc>>(indx*2))&3) * 10000;
+	}
+	break;
+}
+
+case MAPDATASWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		ret = -10000;
+		Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
+		
+	}
+	else if ( ri->mapsref == LONG_MAX )
+        {
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+            ret = -10000; 
+        } \
+        else 
+        { 
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		ret = ((m->warpreturnc>>(8+(indx*2)))&3) * 10000;
+	}
+	break;
+}
  
 case MAPDATAFFWIDTH:       
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
         ret = -10000;
+	break;
     }
     else
     {
@@ -4599,10 +6465,11 @@ case MAPDATAFFWIDTH:
 //GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");  //B, 32 OF THESE
 case MAPDATAFFHEIGHT:      
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX  )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
         ret = -10000;
+	break;
     }
     else
     {
@@ -4625,10 +6492,11 @@ case MAPDATAFFHEIGHT:
 //GET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"  //B, 32 OF THESE
 case MAPDATAFFEFFECTWIDTH:     
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX  )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
         ret = -10000;
+	break;
     }
     else
     {
@@ -4649,10 +6517,11 @@ case MAPDATAFFEFFECTWIDTH:
 //GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");    //B, 32 OF THESE
 case MAPDATAFFEFFECTHEIGHT:
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX  )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
         ret = -10000;
+	break;
     }
     else
     {
@@ -4678,61 +6547,79 @@ case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(ffscript, "FFCScript", 31); 
 case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//SetFFCInitD(ffindex, d, value)
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	int ffid = (ri->d[0]/10000) -1;
-	int indx = ri->d[1]/10000;
-		
-	if ( (unsigned)ffid > 31 ) 
+	if ( ri->mapsref == LONG_MAX  )
 	{
-	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-	    ret = -10000;
-	}
-	else if ( (unsigned)indx > 7 )
-	{
-	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
-            ret = -10000;
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
+		ret = -10000;
+		break;
 	}
 	else
-	{ 
-	    ret = (m->initd[ffid][indx]);
-	}
-	
-	//int ffindex = ri->d[0]/10000;
-	//int d = ri->d[1]/10000;
-	//int v = (value/10000);
-	
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		int ffid = (ri->d[0]/10000) -1;
+		int indx = ri->d[1]/10000;
+			
+		if ( (unsigned)ffid > 31 ) 
+		{
+		    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+		    ret = -10000;
+		}
+		else if ( (unsigned)indx > 7 )
+		{
+		    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		    ret = -10000;
+		}
+		else
+		{ 
+		    ret = (m->initd[ffid][indx]);
+		}
+		
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+	}	
 	break;
 }	
-	
+
+
 
 //initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
 
 case MAPDATAINITA: 		
 	//same form as SetScreenD
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	//int ffindex = ri->d[0]/10000;
-	//int d = ri->d[1]/10000;
-	//int v = (value/10000);
-	
-	int ffid = (ri->d[0]/10000) -1;
-	int indx = ri->d[1]/10000;
-		
-	if ( (unsigned)ffid > 31 ) 
+	if ( ri->mapsref == LONG_MAX  )
 	{
-	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-	    ret = -10000;
-	}
-	else if ( (unsigned)indx > 1 )
-	{
-	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
-            ret = -10000;
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
+		ret = -10000;
+		break;
 	}
 	else
-	{ 
-	    ret = (m->inita[ffid][indx]);
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		
+		int ffid = (ri->d[0]/10000) -1;
+		int indx = ri->d[1]/10000;
+			
+		if ( (unsigned)ffid > 31 ) 
+		{
+		    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+		    ret = -10000;
+		}
+		else if ( (unsigned)indx > 1 )
+		{
+		    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		    ret = -10000;
+		}
+		else
+		{ 
+		    ret = (m->inita[ffid][indx]);
+		}
+		break;
 	}
-	break;
 }	
 
 	//inita	//INT32, 32 OF THESE, EACH WITH 2
@@ -4744,8 +6631,41 @@ case MAPDATAOCEANSFX:	 	GET_MAPDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
 case MAPDATABOSSSFX: 		GET_MAPDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
 case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
 case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
-case MAPDATASCREENMIDI: 	GET_MAPDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
+case MAPDATASCREENMIDI:
+{
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","MIDI");
+		ret = -10000;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		ret = ((m->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
+	}
+	break;
+}
 case MAPDATALENSLAYER:	 	GET_MAPDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+case MAPDATAMAP:
+{
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Map");
+		ret = -10000;
+	}
+	ret = (ri->mapsref / MAPSCRS + 1) * 10000;
+	break;
+}
+case MAPDATASCREEN:
+{
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Screen");
+		ret = -10000;
+	}
+	ret = (ri->mapsref % MAPSCRS) * 10000;
+	break;
+}
 	
 
 case MAPDATAFLAGS: 
@@ -4780,8 +6700,9 @@ case MAPDATAFLAGS:
 case MAPDATAMISCD:
 {
 	int indx = (ri->d[0])/10000;
-	
-	if(indx < 0 || indx > 9)
+	int mi = ri->mapsref;
+	mi -= 8*((ri->mapsref) / MAPSCRS);
+	if( ((unsigned)indx) > 7 )
 	{
 		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
 		ret = -10000;
@@ -4789,43 +6710,192 @@ case MAPDATAMISCD:
 	}
 	else 
 	{
-	    ret = (game->screen_d[ri->mapsref][indx]) * 10000;
+	    ret = (game->screen_d[mi][indx]) * 10000;
 	    break;
 	}
 }
 
     case MAPDATACOMBODD:
-        GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
+    {
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboD[]()",ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboD[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = m->data[pos] * 10000;
+			break;
+		}
+		
+	}
+        //GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
+    }
         
     case MAPDATACOMBOCD:
-        GET_SCREENDATA_COMBO_VAR(cset,  "mapdata->ComboC") break;
+    {
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboC[]()",ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboC[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = m->cset[pos] * 10000;
+			break;
+		}
+		
+	}
+    }
+        //GET_SCREENDATA_COMBO_VAR(cset,  "mapdata->ComboC") break;
         
     case MAPDATACOMBOFD:
-        GET_SCREENDATA_COMBO_VAR(sflag, "mapdata->ComboF") break;
+    {
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboF[]()",ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboF[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = m->sflag[pos] * 10000;
+			break;
+		}
+		
+	}
+    }
+        //GET_SCREENDATA_COMBO_VAR(sflag, "mapdata->ComboF") break;
         
 
         
     case MAPDATACOMBOTD:
-        GET_MAPDATA_COMBO_VAR_BUF(type, "mapdata->ComboT") break;
+    {
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboT[]()",ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboT[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = combobuf[m->data[pos]].type * 10000;
+			break;
+		}
+		
+	}
+    }
+        //GET_MAPDATA_COMBO_VAR_BUF(type, "mapdata->ComboT") break;
         
     case MAPDATACOMBOID:
-        GET_MAPDATA_COMBO_VAR_BUF(flag, "mapdata->ComboI") break;
+    {
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboI[]()",ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboI[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = combobuf[m->data[pos]].flag * 10000;
+			break;
+		}
+		
+	}
+        //GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
+    }
+        //GET_MAPDATA_COMBO_VAR_BUF(flag, "mapdata->ComboI") break;
         
     case MAPDATACOMBOSD:
     {
-        int pos = ri->d[0] / 10000;
-	mapscr *m = &TheMaps[ri->mapsref];
-        
-        if(BC::checkComboPos(pos, "mapdata->ComboS") != SH::_NoError)
-            ret = -10000;
-        else
-            ret = (combobuf[m->data[pos]].walk & 0xF) * 10000;
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboS[]()", ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboS[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = (combobuf[m->data[pos]].walk & 0xF) * 10000;
+			break;
+		}
+		
+	}
     }
-    break;
     
     case MAPDATASCREENSTATED:
     {
-        ret=((game->maps[ri->mapsref]>>((ri->d[0]/10000)))&1)?10000:0;
+	int mi = ri->mapsref;
+	mi -= 8*((ri->mapsref) / MAPSCRS);
+        ret=((game->maps[mi]>>((ri->d[0]/10000)))&1)?10000:0;
     }
     break;
     case MAPDATASCREENFLAGSD:
@@ -4970,6 +7040,8 @@ case MAPDATAMISCD:
 //dmapdata dmd-> variables
 
 //getter
+case DMAPDATAID: ret = ri->dmapsref*10000; break; //read-only, equal to CurrentDMap
+	
 case DMAPDATAMAP: 	//byte
 {
 	ret = ((byte)DMaps[ri->dmapsref].map + 1) * 10000; break;
@@ -4990,9 +7062,13 @@ case DMAPDATAPALETTE:	//word
 {
 	ret = ((word)DMaps[ri->dmapsref].color) * 10000; break;
 }
+case DMAPSCRIPT:	//word
+{
+	ret = (DMaps[ri->dmapsref].script) * 10000; break;
+}
 case DMAPDATAMIDI:	//byte
 {
-	ret = ((byte)DMaps[ri->dmapsref].midi) * 10000; break;
+	ret = (DMaps[ri->dmapsref].midi-MIDIOFFSET_DMAP) * 10000; break;
 }
 case DMAPDATACONTINUE:	//byte
 {
@@ -5013,10 +7089,25 @@ case DMAPDATAGRID:	//byte[8] --array
 	{
 		Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx);
 		ret = -10000;
+		break;
 	}
 	else
 	{
 		ret = ((byte)DMaps[ri->dmapsref].grid[indx]) * 10000;  break;
+	}
+}
+case DMAPINITD:	//byte[8] --array
+{
+	int indx = ri->d[0] / 10000;
+	if ( indx < 0 || indx > 7 ) 
+	{
+		Z_scripterrlog("Invalid index supplied to dmapdata->InitD[]: %d\n", indx);
+		ret = -10000;
+		break;
+	}
+	else
+	{
+		ret = DMaps[ri->dmapsref].initD[indx]; break;
 	}
 }
 case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
@@ -5033,6 +7124,7 @@ case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATAMINIMAPCSET:	//byte - two of these, so let's do MinimapCSet[2]
 {
@@ -5078,6 +7170,7 @@ case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATAMUISCTRACK:	//byte
 {
@@ -5119,10 +7212,14 @@ case MESSAGEDATANEXT: //W
 	long ID = ri->zmsgref;	
 
 	if(BC::checkMessage(ID, "messagedata->Next") != SH::_NoError)
-		ret = -10000;
+	{
+		ret = -10000; break;
+	}
 	else 
+	{
 		ret = ((int)MsgStrings[ID].nextstring) * 10000;
-	break;
+		break;
+	}
 }	
 
 case MESSAGEDATATILE: //W
@@ -5460,18 +7557,18 @@ case COMBODSKIPANIM:		GET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;				//C
 case COMBODNEXTTIMER:		GET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;				//W
 case COMBODAKIMANIMY:		GET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;				//C
 case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;				//C
-case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6);				//C , 6 INDICES
-case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); 				//LONG, 4 INDICES, INDIVIDUAL VALUES
+case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;				//C , 6 INDICES
+case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
-case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);				//LONG 3 INDICES AS FLAGSETS
+case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
-
+case COMBODATAID: 		ret = (ri->combosref*10000); break;
 //COMBOCLASS STRUCT
 //case COMBODNAME:		//CHAR[64], STRING
 case COMBODBLOCKNPC:		GET_COMBOCLASS_VAR_BYTE(block_enemies, "BlockNPC"); break;			//C
 case COMBODBLOCKHOLE:		GET_COMBOCLASS_VAR_BYTE(block_hole, "BlockHole"); break;			//C
 case COMBODBLOCKTRIG:		GET_COMBOCLASS_VAR_BYTE(block_trigger,	"BlockTrigger"); break; 		//C
-case COMBODBLOCKWEAPON:		GET_COMBOCLASS_BYTE_INDEX(block_weapon,	"BlockWeapon[]", 32); 			//C, 32 INDICES
+case COMBODBLOCKWEAPON:		GET_COMBOCLASS_BYTE_INDEX(block_weapon,	"BlockWeapon[]", 32); break;		//C, 32 INDICES
 case COMBODCONVXSPEED:		GET_COMBOCLASS_VAR_DWORD(conveyor_x_speed, "ConveyorSpeedX"); break;		//SHORT
 case COMBODCONVYSPEED:		GET_COMBOCLASS_VAR_DWORD(conveyor_y_speed, "ConveyorSpeedY"); break;		//SHORT
 case COMBODSPAWNNPC:		GET_COMBOCLASS_VAR_DWORD(create_enemy, "SpawnNPC"); break;			//W
@@ -5495,7 +7592,7 @@ case COMBODMODHPDELAY:		GET_COMBOCLASS_VAR_BYTE(modify_hp_delay, "DamageDelay");
 case COMBODMODHPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_hp_type,	"DamageType"); break; 			//C
 case COMBODNMODMPAMOUNT:	GET_COMBOCLASS_VAR_DWORD(modify_mp_amount, "MagicAmount"); break;		//SHORT
 case COMBODMODMPDELAY:		GET_COMBOCLASS_VAR_BYTE(modify_mp_delay, "MagicDelay"); break;			//C
-case COMBODMODMPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType");				//C
+case COMBODMODMPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType");	break;			//C
 case COMBODNOPUSHBLOCK:		GET_COMBOCLASS_VAR_BYTE(no_push_blocks, "NoPushBlocks"); break;			//C
 case COMBODOVERHEAD:		GET_COMBOCLASS_VAR_BYTE(overhead, "Overhead"); break;				//C
 case COMBODPLACENPC:		GET_COMBOCLASS_VAR_BYTE(place_enemy, "PlaceNPC"); break;			//C
@@ -5513,7 +7610,7 @@ case COMBODSLOWWALK:		GET_COMBOCLASS_VAR_BYTE(slow_movement, "SlowWalk"); break;
 case COMBODSTATUETYPE:		GET_COMBOCLASS_VAR_BYTE(statue_type, "Statue"); break;				//C
 case COMBODSTEPTYPE:		GET_COMBOCLASS_VAR_BYTE(step_type, "Step"); break;				//C
 case COMBODSTEPCHANGEINTO:	GET_COMBOCLASS_VAR_INT(step_change_to, "StepChange"); break;			//LONG
-case COMBODSTRIKEWEAPONS:	GET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32);			//BYTE, 32 INDICES. 
+case COMBODSTRIKEWEAPONS:	GET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32); break;			//BYTE, 32 INDICES. 
 case COMBODSTRIKEREMNANTS:	GET_COMBOCLASS_VAR_INT(strike_remnants,	"StrikeRemnants"); break;		//LONG
 case COMBODSTRIKEREMNANTSTYPE:	GET_COMBOCLASS_VAR_BYTE(strike_remnants_type, "StrikeRemnantsType"); break;	//C
 case COMBODSTRIKECHANGE:	GET_COMBOCLASS_VAR_INT(strike_change, "StrikeChange"); break;			//LONG
@@ -5539,7 +7636,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 //npcdata nd->member variable
 	#define	GET_NPCDATA_VAR_INT32(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
@@ -5552,7 +7649,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 
 	#define	GET_NPCDATA_VAR_BYTE(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
@@ -5565,7 +7662,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	
 	#define	GET_NPCDATA_VAR_INT16(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
@@ -5579,12 +7676,12 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define GET_NPCDATA_VAR_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 				ret = -10000; \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 				ret = -10000; \
@@ -5598,12 +7695,12 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define GET_NPCDATA_BYTE_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 				ret = -10000; \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 				ret = -10000; \
@@ -5617,7 +7714,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define GET_NPCDATA_FLAG(member, str, indexbound) \
 	{ \
 		long flag =  (value/10000);  \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -5665,10 +7762,14 @@ case NPCDATAHYOFS: GET_NPCDATA_VAR_INT32(hyofs, "HitYOffset"); break;
 case NPCDATAHITWIDTH: GET_NPCDATA_VAR_INT32(hxsz, "HitWidth"); break;
 case NPCDATAHITHEIGHT: GET_NPCDATA_VAR_INT32(hysz, "HitHeight"); break;
 case NPCDATAHITZ: GET_NPCDATA_VAR_INT32(hzsz, "HitZHeight"); break;
+case NPCDATASCRIPT: GET_NPCDATA_VAR_INT32(script, "Script"); break;
 case NPCDATATILEWIDTH: GET_NPCDATA_VAR_INT32(txsz, "TileWidth"); break;
 case NPCDATATILEHEIGHT: GET_NPCDATA_VAR_INT32(tysz, "TileHeight"); break;
 case NPCDATAWPNSPRITE: GET_NPCDATA_VAR_INT32(wpnsprite, "WeaponSprite"); break;
+case NPCDATAWEAPONSCRIPT: GET_NPCDATA_VAR_INT32(weaponscript, "WeaponScript"); break;
 case NPCDATADEFENSE: GET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
+case NPCDATAINITD: GET_NPCDATA_VAR_INDEX(initD, "InitD", 8); break;
+case NPCDATAWEAPONINITD: GET_NPCDATA_VAR_INDEX(weap_initiald, "WeaponInitD", 8); break;
 case NPCDATASIZEFLAG: GET_NPCDATA_VAR_INT32(SIZEflags, "SizeFlags"); break;
 
 case NPCDATAFROZENTILE: GET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
@@ -5797,6 +7898,7 @@ case NPCDATASHIELD:
 	{ 
 		Z_scripterrlog("Invalid NPC ID passed to npcdata->Shield[]: %d\n", (ri->npcdataref*10000)); 
 		ret = -10000; 
+		break;
 	} 
 	else 
 	{ 
@@ -5836,6 +7938,30 @@ case NPCDATASHIELD:
 		}
 	} 
 }
+
+case NPCMATCHINITDLABEL: 	 //Same form as SetScreenD()
+	//bool npcdata->MatchInitDLabel("label", d)
+{
+	
+	if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
+	{ 
+		Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), "MatchInitDLabel()"); 
+		ret = 0; 
+		break;
+	} 
+	
+	long arrayptr = get_register(sarg1) / 10000;
+	long init_d_index = get_register(sarg2) / 10000;
+	
+	string name;
+	int num=-1;
+	ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
+	
+	bool match = (!( strcmp(name.c_str(), guysbuf[ri->npcdataref].initD_label[init_d_index] )));
+	
+	ret = ( match ? 10000 : 0 );
+	break;
+}	
     
     
 ///----------------------------------------------------------------------------------------------------//
@@ -5844,28 +7970,27 @@ case NPCDATASHIELD:
 case AUDIOVOLUME:
 {
 	int indx = ri->d[0] / 10000;
-	int r;
 	switch(indx)
 	{
 		
 		case 0: //midi volume
 		{
-			r = FFScript::do_getMIDI_volume() * 10000;
+			ret = FFScript::do_getMIDI_volume() * 10000;
 			break;
 		}
 		case 1: //digi volume
 		{
-			r = FFScript::do_getDIGI_volume() * 10000;
+			ret = FFScript::do_getDIGI_volume() * 10000;
 			break;
 		}
 		case 2: //emh music volume
 		{
-			r = FFScript::do_getMusic_volume() * 10000;
+			ret = FFScript::do_getMusic_volume() * 10000;
 			break;
 		}
 		case 3: //sfx volume
 		{
-			r = FFScript::do_getSFX_volume() * 10000;
+			ret = FFScript::do_getSFX_volume() * 10000;
 			break;
 		}
 		default:
@@ -5875,8 +8000,6 @@ case AUDIOVOLUME:
 			break;
 		}
 	}
-	
-	ret = r; break;
 }
 
 case AUDIOPAN:
@@ -5886,6 +8009,40 @@ case AUDIOPAN:
 }
 
 
+///----------------------------------------------------------------------------------------------------//
+//Graphics->
+
+case NUMDRAWS:
+	ret = FFCore.numscriptdraws * 10000;
+        break;
+
+case MAXDRAWS:
+	ret = MAX_SCRIPT_DRAWING_COMMANDS * 10000;
+        break;
+
+case BITMAPWIDTH:
+{
+	//if ( scb.script_created_bitmaps[ri->bitmapref].u_bmp ) 
+	//{
+	//	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->w * 10000;
+	//}
+	//else ret = 0;
+	ret = scb.script_created_bitmaps[ri->bitmapref-10].width * 10000;
+	break;
+}
+
+case BITMAPHEIGHT:
+{
+	//Z_scripterrlog("BITMAPHEI|GHT ri->BitmapRef is %d\n", ri->bitmapref);
+	//Z_scripterrlog("ref bitmap height: %d\n", scb.script_created_bitmaps[ri->bitmapref-10].u_bmp->h);
+	//if ( scb.script_created_bitmaps[ri->bitmapref].u_bmp )
+	//{
+	//	ret = scb.script_created_bitmaps[ri->bitmapref].u_bmp->h * 10000;
+	//}
+	//else ret = 0;
+	ret = scb.script_created_bitmaps[ri->bitmapref-10].height * 10000;
+	break;
+}
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case REFFFC:
@@ -5936,6 +8093,8 @@ case AUDIOPAN:
     case REFPALCYCLE: ret = ri->palcycleref; break;
     case REFGAMEDATA: ret = ri->gamedataref; break;
     case REFCHEATS: ret = ri->cheatsref; break;
+    case REFFILE: ret = ri->fileref; break;
+    case REFSUBSCREEN: ret = ri->subscreenref; break;
    
         
     case SP:
@@ -5962,12 +8121,13 @@ case AUDIOPAN:
     {
         if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
         else if(arg >= A(0) && arg <= A(1))		ret = ri->a[arg - A(0)];
-        else if(arg >= GD(0) && arg <= GD(255))	ret = game->global_d[arg - GD(0)];
+        else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	ret = game->global_d[arg - GD(0)];
         
         break;
     }
     }
     
+    if ( zasm_debugger ) FFCore.ZASMPrintVarGet(arg, ret);
     return ret;
 }
 
@@ -5976,6 +8136,7 @@ case AUDIOPAN:
 
 void set_register(const long arg, const long value)
 {
+	if ( zasm_debugger ) FFCore.ZASMPrintVarSet(arg, value);
 	//Macros
 	
 	#define	SET_SPRITEDATA_VAR_INT(member, str) \
@@ -6016,6 +8177,7 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
+	if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
         tmpscr->ffdata[ri->ffcref] = vbound(value/10000,0,MAXCOMBOS-1);
         break;
         
@@ -6027,87 +8189,102 @@ void set_register(const long arg, const long value)
         FFScript::do_changeffcscript(true);
         break;
     
-   case FFSCRIPT:
-        for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
-        {
-            if(arrayOwner[i]==ri->ffcref)
-                deallocateArray(i);
-        }
-        
-        tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
-        
-        for(int i=0; i<16; i++)
-            ffmisc[ri->ffcref][i] = 0;
-            
-        for(int i=0; i<2; i++)
-            tmpscr->inita[ri->ffcref][i] = 0;
-            
-        for(int i=0; i<8; i++)
-            tmpscr->initd[ri->ffcref][i] = 0;
-            
-        ffcScriptData[ri->ffcref].Clear();
-        tmpscr->initialized[ri->ffcref] = false;
-        break;
+	case FFSCRIPT:
+		if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
+		{
+			
+			tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+			if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+			{
+				for(int i=0; i<2; i++)
+					tmpscr->inita[ri->ffcref][i] = 0;
+				
+				for(int i=0; i<8; i++)
+					tmpscr->initd[ri->ffcref][i] = 0;
+			}
+			for(int i=0; i<16; i++)
+				ffmisc[ri->ffcref][i] = 0;
+			
+			ffcScriptData[ri->ffcref].Clear();
+			FFScript::deallocateAllArrays(SCRIPT_FFC, ri->ffcref);
+			tmpscr->initialized[ri->ffcref] = false;
+		}
+		break;
         
         
     case FCSET:
+	if(BC::checkFFC(ri->ffcref, "ffc->CSet") == SH::_NoError)
         tmpscr->ffcset[ri->ffcref] = (value/10000)&15;
         break;
         
     case DELAY:
+	if(BC::checkFFC(ri->ffcref, "ffc->Delay") == SH::_NoError)
         tmpscr->ffdelay[ri->ffcref] = value/10000;
         break;
         
     case FX:
+	if(BC::checkFFC(ri->ffcref, "ffc->X") == SH::_NoError)
         tmpscr->ffx[ri->ffcref] = value;
         break;
         
     case FY:
+	if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
         tmpscr->ffy[ri->ffcref]=value;
         break;
         
     case XD:
+	if(BC::checkFFC(ri->ffcref, "ffc->Vx") == SH::_NoError)
         tmpscr->ffxdelta[ri->ffcref]=value;
         break;
         
     case YD:
+	if(BC::checkFFC(ri->ffcref, "ffc->Vy") == SH::_NoError)
         tmpscr->ffydelta[ri->ffcref]=value;
         break;
     
     case FFCID:
+	//if(BC::checkFFC(ri->ffcref, "ffc->ID") != SH::_NoError)
         ri->ffcref = vbound((value-10000)/10000, 0, 31);
         break;
         
     case XD2:
+	if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
         tmpscr->ffxdelta2[ri->ffcref]=value;
         break;
         
     case YD2:
+	if(BC::checkFFC(ri->ffcref, "ffc->Ay") == SH::_NoError)
         tmpscr->ffydelta2[ri->ffcref]=value;
         break;
         
     case FFFLAGSD:
+	if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
         value ? tmpscr->ffflags[ri->ffcref] |=   1<<((ri->d[0])/10000)
                 : tmpscr->ffflags[ri->ffcref] &= ~(1<<((ri->d[0])/10000));
         break;
         
     case FFCWIDTH:
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
         tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
         break;
         
     case FFCHEIGHT:
+	if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
         tmpscr->ffheight[ri->ffcref]= (tmpscr->ffheight[ri->ffcref] & ~63) | (((value/10000)-1)&63);
         break;
         
     case FFTWIDTH:
+	if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
         tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
         break;
         
     case FFTHEIGHT:
+	if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
         tmpscr->ffheight[ri->ffcref]=(tmpscr->ffheight[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
         break;
         
     case FFLINK:
+	if(BC::checkFFC(ri->ffcref, "ffc->Link") == SH::_NoError)
         (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 0, 32); // Allow "ffc->Link = 0" to unlink ffc.
 	//0 is none, setting this before made it impssible to clear it. -Z
         break;
@@ -6115,11 +8292,13 @@ void set_register(const long arg, const long value)
     case FFMISCD:
     {
         int a = vbound(ri->d[0]/10000,0,15);
+	if(BC::checkFFC(ri->ffcref, "ffc->Misc[]")== SH::_NoError)
         ffmisc[ri->ffcref][a]=value;
         break;
     }
     
     case FFINITDD:
+	if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
         (tmpscr->initd[ri->ffcref][vbound(ri->d[0]/10000,0,7)])=value;
         break;
     
@@ -6128,16 +8307,43 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        Link.setX(value/10000);
-        break;
+    {
+	if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+	{
+		Link.setXdbl(value/10000.0);
+	}
+	else
+	{
+		Link.setX(value/10000);
+	}
+    }
+    break;
         
     case LINKY:
-        Link.setY(value/10000);
-        break;
+    {
+	if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+	{
+		Link.setYdbl(value/10000.0);
+	}
+	else
+	{
+		Link.setY(value/10000);
+	}
+    }
+    break;
         
     case LINKZ:
-        Link.setZ(value/10000);
-        break;
+    {
+	if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+	{
+		Link.setZdbl(value/10000.0);
+	}
+	else
+	{
+		Link.setZ(value/10000);
+	}
+    }
+    break;
         
     case LINKJUMP:
         Link.setFall(fix((-value * (100.0)) / 10000.0));
@@ -6154,6 +8360,14 @@ void set_register(const long arg, const long value)
     
     case LINKHITDIR:
         Link.setHitDir(value / 10000);
+        break;
+    
+    case LINKGRAVITY:
+	Link.obeys_gravity = ( (value) ? 1 : 0 ); 
+        break;
+    
+    case HERONOSTEPFORWARD:
+	FFCore.nostepforward = ( (value) ? 1 : 0 ); 
         break;
         
     case LINKHP:
@@ -6195,11 +8409,30 @@ void set_register(const long arg, const long value)
             // If the Cane of Byrna is being removed, cancel its effect.
             if(value==0 && itemID==current_item_id(itype_cbyrna))
                 stopCaneOfByrna();
+	    
+	    //Stop current script if set false.
+	    if ( !value && item_doscript[itemID] )
+	    {
+		item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+		//itemScriptData[itemID].Clear(); //Don't clear here, causes crash if is current item!
+	    }
+	    else if ( value && !item_doscript[itemID] )
+	    {
+		//Clear the item refInfo and stack for use.
+		itemScriptData[itemID].Clear();
+		memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
+		    
+	    }
             
             bool settrue = ( value != 0 );
 		    
 	    //Sanity check to prevent setting the item if the value would be the same. -Z
-	    if ( game->item[itemID] != settrue ) game->set_item(itemID,(value != 0));
+	    if ( game->item[itemID] != settrue ) 
+	    {
+		    
+		    game->set_item(itemID,(value != 0));
+	    }
                     
             //resetItems(game); - Is this really necessary? ~Joe123
             if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) 
@@ -6210,27 +8443,31 @@ void set_register(const long arg, const long value)
         }
         break;
         
-         case LINKEQUIP:
-          {
-        
+	case LINKEQUIP:
+	{
+		if ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) < 33 )
+		{
+			break;
+		}
 		  //int seta = (value/10000) >> 8; int setb = value/10000) & 0xFF;
         	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
-        	if(seta && get_bit(quest_rules,qr_SELECTAWPN) && game->item[seta]){
-			Awpn = value/10000;
-			game->awpn = value/10000;
-			game->items_off[value/10000] = 0;
+		//Z_scripterrlog("A is: %d\n", seta);
+		//Z_scripterrlog("A is: %d\n", setb);
+        	
+			Awpn = seta;
+			game->awpn = seta;
+			game->items_off[seta] = 0;
 			//directItemA = directItem;
-        	}
-        	if(setb && game->item[setb]){
-			Bwpn = value/10000;
-			game->bwpn = value/10000;
-			game->items_off[value/10000] = 0;
+        	
+			Bwpn = setb;
+			game->bwpn = setb;
+			game->items_off[setb] = 0;
 			//directItemB = directItem;
-        	}
-          }
-         break;
+        	break;
+	}
+	
 	  
-	  case SETITEMSLOT:
+	case SETITEMSLOT:
 	{
 		//ri->d[1] = 1st arg
 		//ri->d[0] = 2nd arg
@@ -6241,8 +8478,8 @@ void set_register(const long arg, const long value)
 		int slot = ri->d[1]/10000;
 		int force = ri->d[2]/10000;
 		
-	    Z_scripterrlog("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
-	    Z_scripterrlog("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
+		Z_scripterrlog("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
+		Z_scripterrlog("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
 		Z_scripterrlog("SetItemSlot rid->[2] is (%i), trying to use for '%s'\n", force, "force");
 		
 		//If we add more item buttons, slot should be an int
@@ -6254,11 +8491,11 @@ void set_register(const long arg, const long value)
 				const int ITM_REQUIRE_INVENTORY = 1
 				const int ITM_REQUIRE_A_SLOT_RULE = 2
 				//Combine as flags
-		
-		
 		*/
-		if ( force == 0 ) {
-			if ( slot == 1 ) {
+		if ( force == 0 )
+		{
+			if ( slot == 1 )
+			{
 				Awpn = itm;
 				game->items_off[itm] = 0;
 				game->awpn = itm;
@@ -6272,7 +8509,8 @@ void set_register(const long arg, const long value)
 				//directItemB = directItem;
 			}
 		}
-		if ( force == 1 ) {
+		else if ( force == 1 )
+		{
 			if(slot == 1 && game->item[itm])
 			{
 				Awpn = itm;
@@ -6281,18 +8519,16 @@ void set_register(const long arg, const long value)
 				//directItemA = directItem;
 				
 			}
-			else { 
-				if ( game->item[itm] ) 
-				{
-					Bwpn = itm;
-					game->items_off[itm] = 0;
-					game->bwpn = itm;
-					//directItemB = directItem;
-				}
+			else if ( game->item[itm] ) 
+			{
+				Bwpn = itm;
+				game->items_off[itm] = 0;
+				game->bwpn = itm;
+				//directItemB = directItem;
 			}
 		}
-
-		if ( force == 2 ) {
+		else if ( force == 2 )
+		{
 			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) )
 			{
 				Awpn = itm;
@@ -6308,8 +8544,8 @@ void set_register(const long arg, const long value)
 				//directItemB = directItem;
 			}
 		}
-		
-		if ( force == 3 ) { //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
+		else if ( force == 3 ) //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
+		{
 			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm])
 			{
 				Awpn = itm;
@@ -6317,15 +8553,12 @@ void set_register(const long arg, const long value)
 				game->awpn = itm;
 				//directItemA = directItem;
 			}
-			else 
+			else if(game->item[itm])
 			{ 
-				if ( game->item[itm] ) 
-				{
-					Bwpn = itm;
-					game->items_off[itm] = 0;
-					game->bwpn = itm;
-					//directItemB = directItem;
-				}
+				Bwpn = itm;
+				game->items_off[itm] = 0;
+				game->bwpn = itm;
+				//directItemB = directItem;
 			}
 		}
 	}
@@ -6337,6 +8570,10 @@ void set_register(const long arg, const long value)
         
     case LINKINVINC:
         Link.scriptcoldet=(value/10000);
+        break;
+    
+    case LINKENGINEANIMATE:
+        Link.do_animation=(value/10000);
         break;
         
     case LINKSWORDJINX:
@@ -6390,7 +8627,31 @@ void set_register(const long arg, const long value)
     case LINKHXOFS:
         (Link.hxofs)=(fix)(value/10000);
         break;
-        
+
+    case LINKROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"Link->Rotation");
+		break;
+	}
+        (Link.rotation)=(value/10000);
+        break;
+    
+    case LINKSCALE:
+    {
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"Link->Scale");
+		break;
+	}
+        (Link.scale)=(value/100.0);
+	//al_trace("Link.scale is: %d\n", Link.scale);
+	//al_trace("Trying to set Link.scale to: %d\n", value/100.0);
+        break;
+    }
+
     case LINKHYOFS:
         (Link.hyofs)=(fix)(value/10000);
         break;
@@ -6450,46 +8711,55 @@ void set_register(const long arg, const long value)
 	break;
         
     
-     case LINKITEMB:
-     {
-	if ( value/10000 < 0 ) 
+	case LINKITEMB:
 	{
-	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
-	    break;
-	}		
-	if ( value/10000 < MAXITEMS-1 ) 
-	{
-	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
-	    break;
+		if ( value/10000 < 0 ) 
+		{
+			al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+			break;
+		}		
+		if ( value/10000 > MAXITEMS-1 ) 
+		{
+			al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+			break;
+		}
+			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+		
+		
+		Bwpn = value/10000;
+		game->bwpn = value/10000;
+		game->items_off[value/10000] = 0;
+		//directItemB = directItem;
+		break;
 	}
-	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-    
 	
-	Bwpn = value/10000;
-	game->bwpn = value/10000;
-	game->items_off[value/10000] = 0;
-	//directItemB = directItem;
-	break;
-    }
+	
+	case LINKITEMA:
+	{
+		if ( value/10000 < 0 ) 
+		{
+			Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+			break;
+		}		
+		if ( value/10000 > MAXITEMS-1 ) 
+		{
+			Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+			break;
+		}		
+		//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+		
+		Awpn = value/10000;
+		game->awpn = value/10000;
+		game->items_off[value/10000] = 0;
+		//directItemB = directItem;
+		break;
+	}
     
-    
-    case LINKITEMA:
+    case LINKTILEMOD:
     {
-	if ( value/10000 < 0 ) 
-	{
-	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
-	}		
-	if ( value/10000 < MAXITEMS-1 ) 
-	{
-	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
-	}		
-	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-	
-	Awpn = value/10000;
-	game->awpn = value/10000;
-	game->items_off[value/10000] = 0;
-	//directItemB = directItem;
+	Link.setTileModifier(value/10000);
 	break;
+	    
     }
 
 
@@ -6500,10 +8770,10 @@ void set_register(const long arg, const long value)
 	Link.setStunClock(value/10000);
 	break;
       case LINKSCRIPTTILE:
-	script_link_sprite=(value/10000);
+	script_link_sprite=vbound((value/10000), -1, NEWMAXTILES-1);
 	break;
       case LINKSCRIPFLIP:
-	script_link_flip=(value/10000);
+	script_link_flip=vbound((value/10000),-1,256);
 	break;
     
       case GAMESETA:
@@ -6535,61 +8805,89 @@ void set_register(const long arg, const long value)
         case LINKBIGHITBOX:
 	    Link.setBigHitbox((value/10000)?1:0);
 	break;
+	
+	case LINKCLIMBING:
+		Link.setOnSideviewLadder(value!=0?true:false);
+		break;
 ///----------------------------------------------------------------------------------------------------//
 //Input States
     case INPUTSTART:
+    {
         control_state[6]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[6]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[6]=false;
         break;
+    }
         
     case INPUTMAP:
+    {
         control_state[9]=((value/10000)!=0)?true:false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) 
         drunk_toggle_state[9]=false;
         break;
+    }
         
     case INPUTUP:
+    {
         control_state[0]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[0]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[0]=false;
         break;
+    }
         
     case INPUTDOWN:
+    {
         control_state[1]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[1]=false;
+	if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) 
+		drunk_toggle_state[1]=false;
         break;
+    }
         
     case INPUTLEFT:
+    {
         control_state[2]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[2]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[2]=false;
         break;
+    }
         
     case INPUTRIGHT:
+    {
         control_state[3]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[3]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[3]=false;
         break;
+    }
         
     case INPUTA:
+    {
         control_state[4]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[4]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[4]=false;
 	break;
+    }
         
     case INPUTB:
+    {
         control_state[5]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[5]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[5]=false;
         break;
+    }
         
     case INPUTL:
+    {
         control_state[7]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[7]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[7]=false;
         break;
+    }
         
     case INPUTR:
+    {
         control_state[8]=((value/10000)!=0)?true:false;
-        drunk_toggle_state[8]=false;
+        if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[8]=false;
         break;
+    }
         
     case INPUTEX1:
+    {
         control_state[10]=((value/10000)!=0)?true:false;
         break;
+    }
         
     case INPUTEX2:
         control_state[11]=((value/10000)!=0)?true:false;
@@ -6700,7 +8998,9 @@ void set_register(const long arg, const long value)
     
     case INPUTMOUSEY:
     {
-        int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+        int mousequakeoffset = 56+((int)(sin((double)(--quakeclk*2-frame))*4));
+	int tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+        int topOffset=(resy/2)-((112-tempoffset)*screen_scale);
         position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
         break;
     }
@@ -6709,13 +9009,22 @@ void set_register(const long arg, const long value)
         position_mouse_z(value/10000);
         break;
     
-    case BUTTONPRESS:
+	case FFRULE:
+	{
+		//Read-only
+		int ruleid = vbound((ri->d[0]/10000),0,qr_MAX);
+		set_bit(quest_rules, ruleid, (value?true:false));
+	}
+	break;
+	
+	case BUTTONPRESS:
 		// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
 	{
 		//Read-only
 		int button = vbound((ri->d[0]/10000),0,17);
 		button_press[button]=((value/10000)!=0)?true:false;
-		
+		if ( button < 11 && get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
+        
 	}
 	break;
 
@@ -6724,7 +9033,7 @@ void set_register(const long arg, const long value)
 		//Read-only
 		int button = vbound((ri->d[0]/10000),0,17);
 		control_state[button]=((value/10000)!=0)?true:false;
-		
+		if ( button < 11 && get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
 	}
 	break;
 
@@ -6747,6 +9056,66 @@ void set_register(const long arg, const long value)
 	}
 	break;
 	
+	case SIMULATEKEYPRESS:
+	{	//Game->KeyPressed[], read-only
+		//if ( !keypressed() ) break; //Don;t return values set by setting Link->Input/Press
+		//hmm...no, this won;t return properly for modifier keys. 
+		int keyid = ri->d[0]/10000;
+		//key = vbound(key,0,n);
+		if (value/10000) simulate_keypress(keyid << 8);
+	}
+	break;
+	
+	case KEYMODIFIERS:
+	{
+		key_shifts = ( value/10000 );
+		break;
+	}
+	
+	case KEYBINDINGS:
+	{
+		int keyid = ri->d[0]/10000;
+		switch(keyid)
+		{
+			case 0: DUkey = ( value/10000 ); break;
+			case 1: DDkey = ( value/10000 ); break; 
+			case 2: DLkey = ( value/10000 ); break;
+			case 3: DRkey = ( value/10000 ); break;
+			case 4: Akey = ( value/10000 ); break;
+			case 5: Bkey = ( value/10000 ); break;
+			case 6: Skey = ( value/10000 ); break;
+			case 7: Lkey = ( value/10000 ); break;
+			case 8: Rkey = ( value/10000 ); break;
+			case 9: Pkey = ( value/10000 ); /*map*/ break; 
+			case 10: Exkey1 = ( value/10000 ); break;
+			case 11: Exkey2 = ( value/10000 ); break;
+			case 12: Exkey3 = ( value/10000 ); break;
+			case 13: Exkey4 = ( value/10000 ); break;
+			
+			default: { Z_scripterrlog("Invalid index [%d] passed to Input->KeyBindings[]\n", keyid); break; }
+		}
+		break;
+	}
+	
+	case DISABLEKEY:
+	{
+		//Input->DisableKey(int key, bool disable)
+		int keyid = ri->d[0]/10000;
+		if(!zc_disablekey(keyid, value))
+		{
+			//Z_scripterrlog("The key %d passed to Input->DisableKey[] is system-reserved, and cannot be disabled\n",keyid);
+		}
+		break;
+	}
+	
+	case DISABLEBUTTON:
+	{
+		//Input->DisableButton(int cb, bool disable)
+		int cbid = ri->d[0]/10000;
+		disable_control[cbid] = value?true:false;
+		break;
+	}
+	
 	case MOUSEARR:
 	{	
 		int indx = (ri->d[0]/10000);
@@ -6760,7 +9129,9 @@ void set_register(const long arg, const long value)
 			}
 			case 1: //MouseY
 			{
-				int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+				int mousequakeoffset = 56+((int)(sin((double)(--quakeclk*2-frame))*4));
+				int tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+				int topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 				position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
 				break;
 				
@@ -6772,25 +9143,20 @@ void set_register(const long arg, const long value)
 			}
 			case 3: //Left Click
 			{
-				int tmp = gui_mouse_b();
-				tmp |= 0x01;
-				mouse_b = tmp;
-				//rv=((gui_mouse_b()&0x1))*10000;
+				if ( value ) mouse_b |= 1;
+				else mouse_b &= ~1;
 				break;
 			}
 			case 4: //Right Click
 			{
-				int tmp = gui_mouse_b();
-				tmp |= 0x02;
-				mouse_b = tmp;
-				//rv=((gui_mouse_b()&0x2))*10000;
+				if ( value ) mouse_b |= 2;
+				else mouse_b &= ~2;
 				break;
 			}
 			case 5: //Middle Click
 			{
-				int tmp = gui_mouse_b();
-				tmp |= 0x04;
-				mouse_b = tmp;
+				if ( value ) mouse_b |= 4;
+				else mouse_b &= ~4;
 				break;
 			}
 			default:
@@ -6805,10 +9171,27 @@ void set_register(const long arg, const long value)
         
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
+	
+	case ITEMFAMILY:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+		(((item *)s)->family)=value/10000;
+        }
+        
+        break;
+	
+	case ITEMLEVEL:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+		(((item *)s)->lvl)=value/10000;
+        }
+        
+        break;
+	
     case ITEMX:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            (s->x)=(fix)(value/10000);
+            (s->x)=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
             // Move the Fairy enemy as well.
             if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
@@ -6816,11 +9199,33 @@ void set_register(const long arg, const long value)
         }
         
         break;
+	
+	case ITEMSPRITESCRIPT:
+		FFScript::deallocateAllArrays(SCRIPT_ITEMSPRITE, ri->itemref);
+		if(0!=(s=checkItem(ri->itemref)))
+		{
+			(s->script)=(value/10000);
+		}
+        break;
+	
+	case ITEMSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"item->Scale");
+		break;
+	}
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (s->scale)=(fix)(value/100.0);
+        }
+        
+        break;
         
     case ITEMY:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            (s->y)=(fix)(value/10000);
+            (s->y)=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
             // Move the Fairy enemy as well.
             if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
@@ -6856,6 +9261,24 @@ void set_register(const long arg, const long value)
         
         break;
         
+     case ITEMSPRITEINITD:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+		
+	    int a = vbound(ri->d[0]/10000,0,7);
+            (((item *)s)->initD[a])=value;
+        }
+        
+        break;
+        
+    case ITEMGRAVITY:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+	    (((item *)s)->obeys_gravity)=((value) ? 1 : 0);
+        }
+        
+        break;
+        
     case ITEMID:
         if(0!=(s=checkItem(ri->itemref)))
         {
@@ -6872,6 +9295,20 @@ void set_register(const long arg, const long value)
         }
         
         break;
+		
+    case ITEMSCRIPTTILE:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (((item *)s)->scripttile)=vbound(value/10000,-1,NEWMAXTILES-1);
+        }
+		break;
+        
+    case ITEMSCRIPTFLIP:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (((item *)s)->scriptflip)=vbound((value/10000),-1,127);
+        }
+		break;
 	
     case ITEMPSTRING:
         if(0!=(s=checkItem(ri->itemref)))
@@ -6884,7 +9321,7 @@ void set_register(const long arg, const long value)
     case ITEMPSTRINGFLAGS:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            (((item *)s)->pickup_string_flags)=vbound(value/10000,0,(msg_count-1));
+            (((item *)s)->pickup_string_flags)=(value/10000);
         }
         
         break;
@@ -6892,7 +9329,7 @@ void set_register(const long arg, const long value)
     case ITEMOVERRIDEFLAGS:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            (((item *)s)->overrideFLAGS)=vbound(value/10000,0,(msg_count-1));
+            (((item *)s)->overrideFLAGS)=(value/10000);
         }
         
         break;
@@ -6990,6 +9427,20 @@ void set_register(const long arg, const long value)
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->hxofs=value/10000;
+        }
+        
+        break;
+        
+	case ITEMROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"item->Rotation");
+		break;
+	}
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ((item*)(s))->rotation=value/10000;
         }
         
         break;
@@ -7187,7 +9638,7 @@ void set_register(const long arg, const long value)
     {
 	    
 	int a = vbound((ri->d[0] / 10000),0,7);
-	(itemsbuf[ri->idata].weap_initiald[a])=(value/10000);
+	(itemsbuf[ri->idata].weap_initiald[a])=(value);
     }
     break;
     case IDATAWEAPHXOFS:
@@ -7303,16 +9754,20 @@ void set_register(const long arg, const long value)
     //My additions begin here. -Z
     //Stack item to gain next level
     case IDATACOMBINE:
-		(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_COMBINE:0; 
+		(value) ? (itemsbuf[ri->idata].flags)|=ITEM_COMBINE: (itemsbuf[ri->idata].flags)&= ~ITEM_COMBINE;
 		break;
     //using a level of an item downgrades to a lower one
 	case IDATADOWNGRADE:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_DOWNGRADE:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_DOWNGRADE: (itemsbuf[ri->idata].flags)&= ~ITEM_DOWNGRADE;
+		break;
+	  //Only validate the cost, don't charge it
+	case IDATAVALIDATE:
+		(value) ? (itemsbuf[ri->idata].flags)|=ITEM_VALIDATEONLY: (itemsbuf[ri->idata].flags)&= ~ITEM_VALIDATEONLY;
 		break;
 
 	//Flags[5]
 	case IDATAFLAGS: {
-	    int index = vbound(ri->d[0]/10000,0,4);
+	    int index = vbound(ri->d[0]/10000,0,15);
 		switch(index){
 		    case 0:
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG1 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG1; 
@@ -7372,28 +9827,29 @@ void set_register(const long arg, const long value)
 	}
 	//Keep Old in editor
 	case IDATAKEEPOLD:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_KEEPOLD:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_KEEPOLD : (itemsbuf[ri->idata].flags)&= ~ITEM_KEEPOLD;
 		break;
 	//Ruppes for magic
 	case IDATARUPEECOST:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_RUPEE_MAGIC:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_RUPEE_MAGIC : (itemsbuf[ri->idata].flags)&= ~ITEM_RUPEE_MAGIC;
 		break;
 	//can be eaten
 	case IDATAEDIBLE:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_EDIBLE:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_EDIBLE : (itemsbuf[ri->idata].flags)&= ~ITEM_EDIBLE;
 		break;
 	//Reserving this for item editor stuff. 
 	case IDATAFLAGUNUSED:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_UNUSED:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_UNUSED : (itemsbuf[ri->idata].flags)&= ~ITEM_UNUSED;
 		break;
 	//gain lower level items
 	case IDATAGAINLOWER:
-	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAINOLD:0; 
+	      (value) ? (itemsbuf[ri->idata].flags)|=ITEM_GAINOLD : (itemsbuf[ri->idata].flags)&= ~ITEM_GAINOLD;
 		break;
 	//Set the action script
 	case IDATASCRIPT:
-        itemsbuf[ri->idata].script=vbound(value/10000,1,255);
-        break;
+		FFScript::deallocateAllArrays(SCRIPT_ITEM, ri->idata);
+		itemsbuf[ri->idata].script=vbound(value/10000,0,255);
+		break;
     
       /*
       case ITEMMISCD:
@@ -7444,23 +9900,23 @@ void set_register(const long arg, const long value)
 			itemsbuf[ri->idata].wpn=vbound(value/10000, 0, 255);
 		    break;
 		    case 1:
-			itemsbuf[ri->idata].wpn2=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn2=vbound(value/10000, 0, 255); break;
 		    case 2:
-			itemsbuf[ri->idata].wpn3=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn3=vbound(value/10000, 0, 255); break;
 		    case 3:
-			itemsbuf[ri->idata].wpn4=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn4=vbound(value/10000, 0, 255); break;
 		    case 4:
-			itemsbuf[ri->idata].wpn5=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn5=vbound(value/10000, 0, 255); break;
 		    case 5:
-			itemsbuf[ri->idata].wpn6=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn6=vbound(value/10000, 0, 255); break;
 		    case 6:
-			itemsbuf[ri->idata].wpn7=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn7=vbound(value/10000, 0, 255); break;
 		    case 7:
-			itemsbuf[ri->idata].wpn8=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn8=vbound(value/10000, 0, 255); break;
 		    case 8:
-			itemsbuf[ri->idata].wpn9=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn9=vbound(value/10000, 0, 255); break;
 		    case 9:
-			itemsbuf[ri->idata].wpn10=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn10=vbound(value/10000, 0, 255); break;
 		    
 		    default: 
 			    break;
@@ -7473,12 +9929,17 @@ void set_register(const long arg, const long value)
         itemsbuf[ri->idata].ltm=value/10000;
         break;
 	//Pickup script
-    case IDATAPSCRIPT:
-        itemsbuf[ri->idata].collect_script=(value/10000, 1, 255);
-        break;
+	case IDATAPSCRIPT:
+	{
+		//Need to get collect script ref, not standard idata ref!
+		const long new_ref = ri->idata!=0 ? -(ri->idata) : COLLECT_SCRIPT_ITEM_ZERO;
+		FFScript::deallocateAllArrays(SCRIPT_ITEM,new_ref);
+		itemsbuf[ri->idata].collect_script=vbound(value/10000, 0, 255);
+		break;
+	}
     //pickup string
     case IDATAPSTRING:
-        itemsbuf[ri->idata].pstring=(value/10000, 1, 255);
+        itemsbuf[ri->idata].pstring=vbound(value/10000, 1, 255);
         break;
     //magic cost
      case IDATAMAGCOST:
@@ -7534,21 +9995,35 @@ void set_register(const long arg, const long value)
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
-    case LWPNX:
-        if(0!=(s=checkLWpn(ri->lwpn,"X")))
-            ((weapon*)s)->x=(fix)(value/10000);
+    
+    case LWPNSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"lweapon->Scale");
+		break;
+	}
+        if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
+            ((weapon*)s)->scale=(fix)(value/100.0);
             
         break;
+	
+    case LWPNX:
+        if(0!=(s=checkLWpn(ri->lwpn,"X")))
+            ((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+		break;
+	
+	
         
     case LWPNY:
         if(0!=(s=checkLWpn(ri->lwpn,"Y")))
-            ((weapon*)s)->y=(fix)(value/10000);
+            ((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
         break;
         
     case LWPNZ:
         if(0!=(s=checkLWpn(ri->lwpn,"Z")))
-            ((weapon*)s)->z=zc_max((fix)(value/10000),(fix)0);
+            ((weapon*)s)->z=zc_max((fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)),(fix)0);
             
         break;
         
@@ -7561,6 +10036,12 @@ void set_register(const long arg, const long value)
     case LWPNDIR:
         if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
             ((weapon*)s)->dir=(value/10000);
+            
+        break;
+     
+    case LWPNGRAVITY:
+        if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
+            ((weapon*)s)->obeys_gravity = ((value) ? 10000 : 0);
             
         break;
         
@@ -7622,6 +10103,18 @@ void set_register(const long arg, const long value)
             ((weapon*)s)->tile=(value/10000);
             
         break;
+	
+    case LWPNSCRIPTTILE:
+        if(0!=(s=checkLWpn(ri->lwpn,"ScriptTile")))
+            ((weapon*)s)->scripttile=vbound((value/10000),-1,NEWMAXTILES-1);
+            
+        break;
+	
+    case LWPNSCRIPTFLIP:
+        if(0!=(s=checkLWpn(ri->lwpn,"ScriptFlip")))
+            ((weapon*)s)->scriptflip=vbound((value/10000),-1,127);
+            
+        break;
         
     case LWPNCSET:
         if(0!=(s=checkLWpn(ri->lwpn,"CSet")))
@@ -7664,6 +10157,18 @@ void set_register(const long arg, const long value)
             ((weapon*)s)->flip=(value/10000);
             
         break;
+
+	case LWPNROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"lweapon->Rotation");
+		break;
+	}
+        if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
+            ((weapon*)s)->rotation=(value/10000);
+            
+        break;
         
     case LWPNEXTEND:
         if(0!=(s=checkLWpn(ri->lwpn,"Extend")))
@@ -7673,8 +10178,12 @@ void set_register(const long arg, const long value)
         
     case LWPNOTILE:
         if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
+	{
+	//Z_scripterrlog("LWPNOTILE before write: %d\n", ((weapon*)s)->o_tile);
             ((weapon*)s)->o_tile=(value/10000);
-            
+            ((weapon*)s)->script_wrote_otile=1;
+	//Z_scripterrlog("LWPNOTILE after write: %d\n", ((weapon*)s)->o_tile);
+	}
         break;
         
     case LWPNOCSET:
@@ -7758,13 +10267,19 @@ void set_register(const long arg, const long value)
             
         break;
 	
+    case LWPNENGINEANIMATE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
+            (((weapon*)(s))->do_animation)=value/10000;
+            
+        break;
+	
     case LWPNPARENT:
     {
 	    //int pitm = (vbound(value/10000,1,(MAXITEMS-1)));
 	    //Z_scripterrlog("Attempting to set ParentItem to: %d\n", pitm); 
 				
         if(0!=(s=checkLWpn(ri->lwpn,"Parent")))
-            (((weapon*)(s))->parentitem)=(vbound(value/10000,1,(MAXITEMS-1)));
+            (((weapon*)(s))->parentitem)=(vbound(value/10000,-1,(MAXITEMS-1)));
     }
         break;
 
@@ -7773,24 +10288,71 @@ void set_register(const long arg, const long value)
             (((weapon*)(s))->type)=value/10000;
             
         break;
+	
+	case LWPNSCRIPT:
+		if(0!=(s=checkLWpn(ri->lwpn,"Script")))
+		{
+			FFScript::deallocateAllArrays(SCRIPT_LWPN, ri->lwpn);
+			(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+			if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+			{
+				for(int q=0; q<8; q++)
+					(((weapon*)(s))->weap_initd[q]) = 0;
+			}
+		}  
+		break;
+	
+	case LWPNUSEWEAPON:
+        if(0!=(s=checkLWpn(ri->lwpn,"Weapon")))
+		(((weapon*)(s))->useweapon)=vbound(value/10000,0,255);
+            
+        break;
+	
+	case LWPNUSEDEFENCE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Defense")))
+		(((weapon*)(s))->usedefence)=vbound(value/10000,0,255);
+            
+        break;
+	
+	case LWPNINITD:
+	{
+		int a = vbound((ri->d[0] / 10000),0,7);
+		if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
+		{
+			(((weapon*)(s))->weap_initd[a])=value;
+		}
+		break;
+	}
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
-    case EWPNX:
+    case EWPNSCALE:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"eweapon->Scale");
+		break;
+	}
+        if(0!=(s=checkEWpn(ri->ewpn,"Scale")))
+            ((weapon*)s)->scale=(fix)(value/100.0);
+            
+        break;
+	
+	case EWPNX:
         if(0!=(s=checkEWpn(ri->ewpn,"X")))
-            ((weapon*)s)->x=(fix)(value/10000);
+            ((weapon*)s)->x=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
         break;
         
     case EWPNY:
         if(0!=(s=checkEWpn(ri->ewpn,"Y")))
-            ((weapon*)s)->y=(fix)(value/10000);
+            ((weapon*)s)->y=(fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
         break;
         
     case EWPNZ:
         if(0!=(s=checkEWpn(ri->ewpn,"Z")))
-            ((weapon*)s)->z=zc_max((fix)(value/10000),(fix)0);
+            ((weapon*)s)->z=zc_max((fix)(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)),(fix)0);
             
         break;
         
@@ -7803,6 +10365,12 @@ void set_register(const long arg, const long value)
     case EWPNDIR:
         if(0!=(s=checkEWpn(ri->ewpn,"Dir")))
             ((weapon*)s)->dir=(value/10000);
+            
+        break;
+      
+    case EWPNGRAVITY:
+        if(0!=(s=checkEWpn(ri->ewpn,"Gravity")))
+            ((weapon*)s)->obeys_gravity=((value) ? 1 : 0);
             
         break;
         
@@ -7860,6 +10428,18 @@ void set_register(const long arg, const long value)
             
         break;
         
+    case EWPNSCRIPTTILE:
+        if(0!=(s=checkEWpn(ri->ewpn,"ScriptTile")))
+            ((weapon*)s)->scripttile=vbound((value/10000),-1, NEWMAXTILES-1);
+            
+        break;
+	
+    case EWPNSCRIPTFLIP:
+        if(0!=(s=checkEWpn(ri->ewpn,"ScriptFlip")))
+            ((weapon*)s)->scriptflip=vbound((value/10000),-1, 127);
+            
+        break;
+        
     case EWPNCSET:
         if(0!=(s=checkEWpn(ri->ewpn,"CSet")))
             ((weapon*)s)->cs=(value/10000)&15;
@@ -7899,6 +10479,18 @@ void set_register(const long arg, const long value)
     case EWPNFLIP:
         if(0!=(s=checkEWpn(ri->ewpn,"Flip")))
             ((weapon*)s)->flip=(value/10000);
+            
+        break;
+       
+	case EWPNROTATION:
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"eweapon->Rotation");
+		break;
+	}
+        if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
+            ((weapon*)s)->rotation=(value/10000);
             
         break;
         
@@ -7995,11 +10587,40 @@ void set_register(const long arg, const long value)
             
         break;
 	
-   case EWPNPARENT:
-        if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
-            (((weapon*)(s))->parentid)=vbound((value/10000),0,511);
+    case EWPNENGINEANIMATE:
+        if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
+            (((weapon*)(s))->do_animation)=value/10000;
             
         break;
+	
+   case EWPNPARENT:
+        if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
+            (((weapon*)(s))->parentid)= ( (get_bit(quest_rules,qr_OLDEWPNPARENT)) ? value / 10000 : value );
+            
+        break;
+	
+	case EWPNSCRIPT:
+		if(0!=(s=checkEWpn(ri->ewpn,"Script")))
+		{
+			FFScript::deallocateAllArrays(SCRIPT_EWPN, ri->ewpn);
+			(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+			if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+			{
+				for(int q=0; q<8; q++)
+					(((weapon*)(s))->weap_initd[q]) = 0;
+			}
+		}
+		break;
+	
+	case EWPNINITD:
+	{
+		int a = vbound((ri->d[0] / 10000),0,7);
+		if(0!=(s=checkEWpn(ri->ewpn,"InitD[]")))
+		{
+			(((weapon*)(s))->weap_initd[a])=value;
+		}
+		break;
+	}
         
 ///----------------------------------------------------------------------------------------------------//
 //NPC Variables
@@ -8009,24 +10630,81 @@ void set_register(const long arg, const long value)
     {
         if(GuyH::loadNPC(ri->guyref, "npc->X") == SH::_NoError)
         {
-            GuyH::getNPC()->x = fix(value / 10000);
+            GuyH::getNPC()->x = fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
             
             if(GuyH::hasLink())
-                Link.setX(fix(value / 10000));
+                Link.setX(fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)));
         }
     }
     break;
+    
+    case NPCSCALE:
+    {
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"npc->Scale");
+		break;
+	}
+        if(GuyH::loadNPC(ri->guyref, "npc->Scale") == SH::_NoError)
+        {
+            GuyH::getNPC()->scale = (value / 100.0);
+        }
+    }
+    break;
+	
+	case NPCIMMORTAL:
+        if(GuyH::loadNPC(ri->guyref, "npc->Immortal") == SH::_NoError)
+		{
+            GuyH::getNPC()->immortal = (value ? true : false);
+		}
+		break;
+	
+	case NPCNOSLIDE:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoSlide") == SH::_NoError)
+		{
+			if(value)
+			{
+				GuyH::getNPC()->knockbackflags |= FLAG_NOSLIDE;
+			}
+			else
+			{
+				GuyH::getNPC()->knockbackflags &= ~FLAG_NOSLIDE;
+			}
+		}
+		break;
+	
+	case NPCNOSCRIPTKB:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoScriptKnockback") == SH::_NoError)
+		{
+			if(value)
+			{
+				GuyH::getNPC()->knockbackflags |= FLAG_NOSCRIPTKNOCKBACK;
+			}
+			else
+			{
+				GuyH::getNPC()->knockbackflags &= ~FLAG_NOSCRIPTKNOCKBACK;
+			}
+		}
+		break;
+	
+	case NPCKNOCKBACKSPEED:
+        if(GuyH::loadNPC(ri->guyref, "npc->NoKnockback") == SH::_NoError)
+		{
+            GuyH::getNPC()->knockbackSpeed = vbound(value/10000, 0, 255);
+		}
+		break;
     
     case NPCY:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->Y") == SH::_NoError)
         {
             fix oldy = GuyH::getNPC()->y;
-            GuyH::getNPC()->y = fix(value / 10000);
-            GuyH::getNPC()->floor_y += ((value / 10000) - oldy);
+            GuyH::getNPC()->y = fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
+            GuyH::getNPC()->floor_y += ((value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)) - oldy);
             
             if(GuyH::hasLink())
-                Link.setY(fix(value / 10000));
+                Link.setY(fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)));
         }
     }
     break;
@@ -8040,10 +10718,10 @@ void set_register(const long arg, const long value)
                 if(value < 0)
                     GuyH::getNPC()->z = fix(0);
                 else
-                    GuyH::getNPC()->z = fix(value / 10000);
+                    GuyH::getNPC()->z = fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
                     
                 if(GuyH::hasLink())
-                    Link.setZ(fix(value / 10000));
+                    Link.setZ(fix(value / ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)));
             }
         }
     }
@@ -8069,6 +10747,13 @@ void set_register(const long arg, const long value)
     }
     break;
     
+    case NPCGRAVITY:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->Gravity") == SH::_NoError)
+            GuyH::getNPC()->obeys_gravity = ((value) ? 1 : 0);
+    }
+    break;
+    
     case NPCXOFS:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->DrawXOffset") == SH::_NoError)
@@ -8080,6 +10765,19 @@ void set_register(const long arg, const long value)
     {
         if(GuyH::loadNPC(ri->guyref, "npc->DrawYOffset") == SH::_NoError)
             GuyH::getNPC()->yofs = fix(value / 10000) + playing_field_offset;
+    }
+    break;
+    
+    case NPCROTATION:
+    {
+	if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+	{
+		Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
+			"npc->Rotation");
+		break;
+	}
+        if(GuyH::loadNPC(ri->guyref, "npc->Rotation") == SH::_NoError)
+            GuyH::getNPC()->rotation = (value / 10000);
     }
     break;
     
@@ -8175,6 +10873,9 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case NPCCOLLDET:
         SET_NPC_VAR_INT(scriptcoldet, "npc->CollDetection") break;
         
+    case NPCENGINEANIMATE:
+        SET_NPC_VAR_INT(do_animation, "npc->Animation") break;
+        
     case NPCSTUN:
         SET_NPC_VAR_INT(stunclk, "npc->Stun") break;
         
@@ -8229,6 +10930,20 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         if(GuyH::loadNPC(ri->guyref, "npc->Tile") == SH::_NoError &&
                 BC::checkTile(tile, "npc->Tile") == SH::_NoError)
             GuyH::getNPC()->tile = tile;
+    }
+    break;
+    
+    case NPCSCRIPTTILE:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->ScriptTile") == SH::_NoError)
+            GuyH::getNPC()->scripttile = vbound((value/10000),-1, NEWMAXTILES-1);
+    }
+    break;
+    
+    case NPCSCRIPTFLIP:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->ScriptFlip") == SH::_NoError )
+            GuyH::getNPC()->scriptflip = vbound(value/10000, -1, 127);
     }
     break;
     
@@ -8327,13 +11042,43 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     break;
     
+    case NPCINITD:
+    {
+	long a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		//e->initD[a] = value; 
+		GuyH::getNPC()->initD[a] = value;
+	}
+    }
+    break;
+    
+    case NPCSCRIPT:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->Script") == SH::_NoError)
+	{
+		FFScript::deallocateAllArrays(SCRIPT_NPC, ri->guyref);
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		//e->initD[a] = value; 
+		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		{
+			for(int q=0; q<8; q++)
+				GuyH::getNPC()->initD[q] = 0;
+		}
+		GuyH::getNPC()->script = vbound((value/10000), 0, NUMSCRIPTGUYS-1);
+	}
+    }
+    break;
+    
     //npc->Attributes[] setter -Z
     case NPCDD:
     {
         long a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
-                BC::checkBounds(a, 0, 15, "npc->Attributes") == SH::_NoError)
+                BC::checkBounds(a, 0, 31, "npc->Attributes") == SH::_NoError)
 	
 	switch(a){
 		case 0: GuyH::getNPC()->dmisc1 = value / 10000; break;
@@ -8445,11 +11190,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	}
 	
 	case NPCFROZENTILE:
-        SET_NPC_VAR_INT(frozentile, "npc->FrozenTile") break;
+        SET_NPC_VAR_INT(frozentile, "npc->FrozenTile"); break;
 	case NPCFROZENCSET:
-        SET_NPC_VAR_INT(frozencset, "npc->FrozenCSet") break;
+        SET_NPC_VAR_INT(frozencset, "npc->FrozenCSet"); break;
 	case NPCFROZEN:
-        SET_NPC_VAR_INT(frozenclock, "npc->Frozen") break;
+        SET_NPC_VAR_INT(frozenclock, "npc->Frozen"); break;
 	
 	case NPCBEHAVIOUR: 
 	{
@@ -8541,6 +11286,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
 
+    case ZSCRIPTVERSION:
+    {
+	    (FFCore.quest_format[vLastCompile]) = value/10000;
+	    break;
+    }
     
     case GAMEDEATHS:
         game->set_deaths(value/10000);
@@ -8566,6 +11316,16 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case TYPINGMODE:
         FFCore.kb_typing_mode = ((value/10000)?true:false);
         break;
+    
+    case SKIPCREDITS:
+        FFCore.skip_ending_credits = ((value/10000)?true:false);
+        break;
+    
+    case SKIPF6:
+        set_bit(quest_rules,qr_NOCONTINUE,((value/10000)?1:0));
+        break;
+    
+    
         
     case GAMEGUYCOUNT:
     {
@@ -8610,11 +11370,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	int indx = ri->d[0]/10000;
 	if ( indx < 0 || indx > 31 )
 	{
-		Z_scripterrlog("Invalud index used to access Game->Misc: %d\n", indx);
+		Z_scripterrlog("Invalid index used to access Game->Misc: %d\n", indx);
 	}
 	else 
 	{
-		QMisc.questmisc[indx] = value;
+		QMisc.questmisc[indx] = (value/((get_bit(quest_rules,qr_OLDQUESTMISC)) ? 10000 : 1));
 	}
 	break;
     }
@@ -8625,6 +11385,12 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case DISABLEDITEM:
 	game->items_off[(ri->d[0])/10000]=value/10000;
 	break;
+    
+    case GAMESUSPEND:
+    {
+	FFCore.system_suspend[(ri->d[0])/10000]= ( (value) ? 1 : 0 );
+	break;
+    }
         
     case GAMELITEMSD:
         game->lvlitems[(ri->d[0])/10000]=value/10000;
@@ -8741,7 +11507,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         if(pos >= 0 && pos < 176)
         {
             screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr->data[pos]=(value/10000);
+            tmpscr->data[pos]=vbound(value/10000,0,MAXCOMBOS);
             screen_combo_modify_postroutine(tmpscr,pos);
         }
     }
@@ -8825,15 +11591,15 @@ case COMBODDM:
         long scr = zc_max(m*MAPSCRS+sc,0);
         
         if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
-        
+        long combo = vbound(value/10000,0,MAXCOMBOS);
         if(scr==(currmap*MAPSCRS+currscr))
             screen_combo_modify_preroutine(tmpscr,pos);
             
-        TheMaps[scr].data[pos]=value/10000;
+        TheMaps[scr].data[pos]=combo;
         
         if(scr==(currmap*MAPSCRS+currscr))
         {
-            tmpscr->data[pos] = value/10000;
+            tmpscr->data[pos] = combo;
             screen_combo_modify_postroutine(tmpscr,pos);
         }
         
@@ -8843,7 +11609,7 @@ case COMBODDM:
         {
             //if (layr==(currmap*MAPSCRS+currscr))
             //  screen_combo_modify_preroutine(tmpscr,pos);
-            tmpscr2[layr].data[pos]=value/10000;
+            tmpscr2[layr].data[pos]=combo;
             //if (layr==(currmap*MAPSCRS+currscr))
             //  screen_combo_modify_postroutine(tmpscr,pos);
         }
@@ -8991,7 +11757,29 @@ case COMBODDM:
 	#define SET_SCREENDATA_LAYER_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
-		tmpscr->member[indx] = vbound((value / 10000),0,255); \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if(indx < 1 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
+		} \
+		else tmpscr->member[indx-1] = vbound((value / 10000),0,255); \
+	}
+	///max screen id is higher! vbound properly... -Z
+	#define SET_SCREENDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		int scrn_id = value/10000; \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if(indx < 1 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
+		} \
+		else if ( scrn_id > MAPSCRS ) \
+		{ \
+			Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
+			Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
+		} \
+		else tmpscr->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
 	}
 	
 	#define SET_SCREENDATA_FLAG(member, str) \
@@ -9023,7 +11811,7 @@ case SCREENDATAROOM: 		SET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
 case SCREENDATAITEM: 		SET_SCREENDATA_VAR_BYTE(item, "Item"); break;		//b
 case SCREENDATAHASITEM: 		SET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 case SCREENDATATILEWARPTYPE: 	SET_SCREENDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-case SCREENDATATILEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+//case SCREENDATATILEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
 case SCREENDATADOORCOMBOSET: 	SET_SCREENDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
 case SCREENDATAWARPRETX:	 	SET_SCREENDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
 case SCREENDATAWARPRETY:	 	SET_SCREENDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
@@ -9041,7 +11829,7 @@ case SCREENDATAEXITDIR: 		SET_SCREENDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//
 case SCREENDATAENEMY: 		SET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
 case SCREENDATAPATTERN: 		SET_SCREENDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
 case SCREENDATASIDEWARPTYPE: 	SET_SCREENDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-case SCREENDATASIDEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+//case SCREENDATASIDEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
 case SCREENDATAWARPARRIVALX: 	SET_SCREENDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
 case SCREENDATAWARPARRIVALY: 	SET_SCREENDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case SCREENDATAPATH: 		SET_SCREENDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
@@ -9056,8 +11844,71 @@ case SCREENDATACSENSITIVE: 	SET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); b
 case SCREENDATANORESET: 		SET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
 case SCREENDATANOCARRY: 		SET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
 case SCREENDATALAYERMAP:	 	SET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-case SCREENDATALAYERSCREEN: 	SET_SCREENDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
+case SCREENDATALAYERSCREEN: 	SET_SCREENDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
 case SCREENDATALAYEROPACITY: 	SET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case SCREENDATALAYERINVIS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 6 )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->LayerInvisible[]: %d\n", indx);
+	}
+	else
+	{
+		if(value)
+			tmpscr->hidelayers |= (1<<indx);
+		else
+			tmpscr->hidelayers &= ~(1<<indx);
+	}
+	break;
+}
+case SCREENDATASCRIPTDRAWS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 7 )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->HideScriptLayer[]: %d\n", indx);
+	}
+	else
+	{
+		if(value)
+			tmpscr->hidescriptlayers &= ~(1<<indx);
+		else
+			tmpscr->hidescriptlayers |= (1<<indx);
+	}
+	break;
+}
+
+case SCREENDATATILEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+	}
+	else
+	{
+		if ( value ) tmpscr->tilewarpoverlayflags |= (1<<indx);
+		else tmpscr->tilewarpoverlayflags &= ~(1<<indx);
+	}
+	break;
+}
+
+case SCREENDATASIDEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+	}
+	else
+	{
+		if ( value ) tmpscr->sidewarpoverlayflags |= (1<<indx);
+		else tmpscr->sidewarpoverlayflags &= ~(1<<indx);
+	}
+	break;
+}
+
 case SCREENDATATIMEDWARPTICS: 	SET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case SCREENDATANEXTMAP: 		SET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case SCREENDATANEXTSCREEN: 	SET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
@@ -9070,7 +11921,29 @@ case SCREENDATASCREENWIDTH: 	SET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	
 case SCREENDATASCREENHEIGHT: 	SET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 case SCREENDATAENTRYX: 		SET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 case SCREENDATAENTRYY: 		SET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-case SCREENDATANUMFF: 		SET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+//case SCREENDATANUMFF: 		SET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+
+case SCREENDATANUMFF: 	
+{
+	int indx = ri->d[0] / 10000;
+	if ( !indx )
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+	}
+	else if(((unsigned)indx)>32)
+	{
+		Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+	}
+	else
+	{
+		--indx;
+		if ( value ) { (((tmpscr->numff) |= (1<<indx))); }
+		else { (((tmpscr->numff) &= ~(1<<indx))); }
+		
+		//ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+	}
+	break;
+}
 
 	//inita	//INT32, 32 OF THESE, EACH WITH 2
 case SCREENDATAFFINITIALISED: 	SET_SCREENDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
@@ -9081,9 +11954,65 @@ case SCREENDATAOCEANSFX:	 	SET_SCREENDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;
 case SCREENDATABOSSSFX: 		SET_SCREENDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
 case SCREENDATASECRETSFX:	 	SET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
 case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
-case SCREENDATASCREENMIDI: 	SET_SCREENDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
+case SCREENDATASCREENMIDI:
+{
+	tmpscr->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
+	break;
+}
 case SCREENDATALENSLAYER:	 	SET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
 	
+case SCREENSIDEWARPID:
+{
+	int indx = ri->d[0] / 10000; //dir
+	
+	int new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
+	if(new_warp_return == -1)
+	{
+		tmpscr->flags2 &= ~(1<<indx); //Unset the "Enabled" flag for this dir
+		tmpscr->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir as well.
+	}
+	else
+	{
+		tmpscr->flags2 |= 1<<indx; //Set the "Enabled" flag for this dir
+		tmpscr->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir bits
+		tmpscr->sidewarpindex |= (new_warp_return<<(2*indx)); //Set the new dir
+	}
+	
+	break;
+} 
+
+case SCREENDATATWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		 Z_scripterrlog("Invalid Array Index passed to Screen->TileWarpReturnSquare[]: %d\n", indx);
+	}
+	else
+	{
+		int wrindex = vbound(value/10000, 0, 3);
+		tmpscr->warpreturnc = (tmpscr->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
+	}
+	break;
+}
+
+//
+case SCREENDATASWARPRETSQR:
+{
+	
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		 Z_scripterrlog("Invalid Array Index passed to Screen->SideWarpReturnSquare[]: %d\n", indx);
+	}
+	else
+	{
+		int wrindex = vbound(value/10000, 0, 3);
+		tmpscr->warpreturnc = (tmpscr->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
+	}
+	break;
+}
+
 
 case SCREENDATAFLAGS: 
 {
@@ -9343,6 +12272,28 @@ break;
         FFScript::set_screen_d(ri->d[1]/10000 + ((ri->d[0]/10000)<<7), ri->d[2]/10000, value);
         break;
         
+    case SCREENINITD:
+	tmpscr->screeninitd[ri->d[0]/10000] = value;
+	break;
+    
+	case SCREENSCRIPT:
+	{
+		FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
+		
+		if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+		{
+			for(int q=0; q<8; q++)
+				tmpscr->screeninitd[q] = 0;
+		}
+		screenScriptData.Clear();
+		tmpscr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+		break;
+	}
+    
+    case MAPDATAINITD:
+        tmpscr->screeninitd[ri->d[0]/10000]=value;
+        break;
+    
     case SCRDOORD:
         tmpscr->door[ri->d[0]/10000]=value/10000;
         putdoor(scrollbuf,0,ri->d[0]/10000,value/10000,true,true);
@@ -9394,7 +12345,7 @@ break;
         break;
     
     case DEBUGSP:
-        ri->sp = vbound((value / 10000),0,256);
+        SH::write_stack(ri->sp,vbound((value / 10000),0,MAX_SCRIPT_REGISTERS-1));
         break;
         
     case DEBUGREFFFC:
@@ -9460,14 +12411,10 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 ///----------------------------------------------------------------------------------------------------//
 //mapdata m-> Variables
 	//mapdata m-> Variables
+	
 	#define	SET_MAPDATA_VAR_INT32(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -9481,12 +12428,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 	
 	#define	SET_MAPDATA_VAR_INT16(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -9500,12 +12442,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 
 	#define	SET_MAPDATA_VAR_BYTE(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -9522,15 +12459,10 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			break; \
 		} \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -9547,15 +12479,10 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			break; \
 		} \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -9572,15 +12499,10 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			break; \
 		} \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -9592,20 +12514,64 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 	}\
 	
+	#define SET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if(indx < 1 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
+			break; \
+		} \
+		if ( ri->mapsref == LONG_MAX ) \
+		{ \
+			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
+			break; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			m->member[indx-1] = vbound((value / 10000),0,255); \
+		} \
+	} \
+	
+	#define SET_MAPDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		int scrn_id = value/10000; \
+		if(indx < 1 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
+			break; \
+		} \
+		if ( ri->mapsref == LONG_MAX ) \
+		{ \
+			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
+			break; \
+		} \
+		else if ( scrn_id > MAPSCRS ) \
+		{ \
+			Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
+			Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
+			break; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			m->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
+		} \
+	}\
+	
 	#define SET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			break; \
 		} \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -9620,12 +12586,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 	#define SET_MAPDATA_FLAG(member, str) \
 	{ \
 		long flag =  (value/10000);  \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -9649,7 +12610,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
             Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
             break; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             break; \
@@ -9669,7 +12630,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
             Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
             break; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             break; \
@@ -9695,7 +12656,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
             Z_scripterrlog("Invalid value assigned to mapdata->%s[]: %d\n", (indx+1), str); \
             break; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             break; \
@@ -9714,7 +12675,7 @@ case MAPDATAROOM: 		SET_MAPDATA_VAR_BYTE(room, "RoomType");	break;		//b
 case MAPDATAITEM: 		SET_MAPDATA_VAR_BYTE(item, "Item"); break;		//b
 case MAPDATAHASITEM: 		SET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 case MAPDATATILEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
-case MAPDATATILEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+//case MAPDATATILEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
 case MAPDATADOORCOMBOSET: 	SET_MAPDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
 case MAPDATAWARPRETX:	 	SET_MAPDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
 case MAPDATAWARPRETY:	 	SET_MAPDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
@@ -9732,11 +12693,128 @@ case MAPDATAEXITDIR: 		SET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
 case MAPDATAENEMY: 		SET_MAPDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
 case MAPDATAPATTERN: 		SET_MAPDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
 case MAPDATASIDEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
-case MAPDATASIDEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+//case MAPDATASIDEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
 case MAPDATAWARPARRIVALX: 	SET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
 case MAPDATAWARPARRIVALY: 	SET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 case MAPDATAPATH: 		SET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
 case MAPDATASIDEWARPSC: 	SET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
+case MAPDATAINITDARRAY:	 	
+{
+	
+	if ( ri->mapsref == LONG_MAX ) 
+	{ 
+		Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[0]/10000); 
+		break; 
+	} 
+	else 
+	{ 
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		m->screeninitd[ri->d[0]/10000] = value;
+	} 
+	break;
+}
+
+
+case MAPDATALAYERINVIS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 6 )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->LayerInvisible[]: %d\n", indx);
+		break;
+	}
+	else
+	{
+		
+		if ( ri->mapsref == LONG_MAX )
+		{
+			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","LayerInvisible");
+			break;
+		}
+		else
+		{
+			mapscr *m = &TheMaps[ri->mapsref];
+			if(value)
+			{
+				tmpscr->hidelayers |= (1<<indx);
+			}
+			else
+			{
+				tmpscr->hidelayers &= ~(1<<indx);
+			}
+		}
+	}
+	break;
+}
+case MAPDATASCRIPTDRAWS: 	
+{
+	int indx = ri->d[0] / 10000;
+	if(indx < 0 || indx > 7 )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->DisableScriptDraw[]: %d\n", indx);
+	}
+	else
+	{
+		if ( ri->mapsref == LONG_MAX )
+		{
+			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","DisableScriptDraw");
+			break;
+		}
+		else
+		{	mapscr *m = &TheMaps[ri->mapsref];
+			if(value)
+			{
+				tmpscr->hidescriptlayers &= ~(1<<indx);
+			}
+			else
+			{
+				tmpscr->hidescriptlayers |= (1<<indx);
+			}
+		}
+	}
+	break;
+}
+
+case MAPDATATILEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to TileWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		if ( value ) m->tilewarpoverlayflags |= (1<<indx);
+		else m->tilewarpoverlayflags &= ~(1<<indx);
+	}
+	break;
+}
+
+case MAPDATASIDEWARPOVFLAGS: 
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) > 3 ) 
+	{
+		Z_scripterrlog("Invalid index passed to SideWarpOverlayFlags[%d].\n. Valid indices are [0] through [3].\n", indx);
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		if ( value ) m->sidewarpoverlayflags |= (1<<indx);
+		else m->sidewarpoverlayflags &= ~(1<<indx);
+	}
+	break;
+}
+
 case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 case MAPDATASIDEWARPINDEX: 	SET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
 case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
@@ -9749,9 +12827,9 @@ case MAPDATANOCARRY: 		SET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
 //! Layer arrays should be a size of 7, and return the current screen / map / and OP_OPAQUE 
 //! if you try to read 0, so that they correspond to actual layer IDs. 
 //! 
-case MAPDATALAYERMAP:	 	SET_MAPDATA_BYTE_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-case MAPDATALAYERSCREEN: 	SET_MAPDATA_BYTE_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
-case MAPDATALAYEROPACITY: 	SET_MAPDATA_BYTE_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case MAPDATALAYERMAP:	 	SET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
+case MAPDATALAYERSCREEN: 	SET_MAPDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
+case MAPDATALAYEROPACITY: 	SET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
 case MAPDATATIMEDWARPTICS: 	SET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case MAPDATANEXTMAP: 		SET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case MAPDATANEXTSCREEN: 	SET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
@@ -9759,12 +12837,37 @@ case MAPDATASECRETCOMBO: 	SET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 12
 case MAPDATASECRETCSET: 	SET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 case MAPDATASECRETFLAG: 	SET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
 case MAPDATAVIEWX: 		SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+case MAPDATASCRIPT:
+{
+	if ( ri->mapsref == LONG_MAX ) 
+	{ 
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","Script"); 
+		break; 
+	} 
+	else 
+	{ 
+		//FFScript::deallocateAllArrays(SCRIPT_SCREEN, ri->mapsref);//Mapdata never updates a running script, so does not need this deallocation block.
+		
+		mapscr *m = &TheMaps[ri->mapsref];
+        
+		/*if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE)) //Mapdata never updates a running script. Why would it clear `tmpscr`, in any case?
+		{
+			for(int q=0; q<8; q++)
+				tmpscr->screeninitd[q] = 0;
+		}*/
+		
+		/*screenScriptData.Clear();*/ //Mapdata never updates a running script. Why would it clear the current screen script's data, in any case?
+		m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+	} 
+	break;
+	
+}
 case MAPDATAVIEWY: 		SET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
 case MAPDATASCREENWIDTH: 	SET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
 case MAPDATASCREENHEIGHT: 	SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-case MAPDATANUMFF: 		SET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+//case MAPDATANUMFF: 		SET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
 case MAPDATAFFDATA:         SET_MAPDATA_FFC_INDEX32(ffdata, "FFCData", 31); break;  //W, 32 OF THESE
 case MAPDATAFFCSET:         SET_MAPDATA_FFC_INDEX32(ffcset, "FFCCSet", 31); break;  //B, 32
 case MAPDATAFFDELAY:        SET_MAPDATA_FFC_INDEX32(ffdelay, "FFCDelay", 31); break;    //W, 32
@@ -9775,13 +12878,110 @@ case MAPDATAFFYDELTA:       SET_MAPDATA_FFCPOS_INDEX32(ffydelta, "FFCVy", 31); b
 case MAPDATAFFXDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ffxdelta2, "FFCAx", 31); break;  //..
 case MAPDATAFFYDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ffydelta2, "FFCAy", 31); break;  //..
 case MAPDATAFFFLAGS:        SET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
+
+//Number of ffcs that are in use (have valid data
+case MAPDATANUMFF: 	
+{
+	int indx = ri->d[0] / 10000;
+	if ( !indx )
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+	}
+	else if(((unsigned)indx)>32)
+	{
+		Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+	}
+	else if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","NumFFCs[]");
+	}
+	else
+	{
+		--indx;
+		mapscr *m = &TheMaps[ri->mapsref];
+		if ( value ) { (((m->numff) |= (1<<indx))); }
+		else { (((m->numff) &= ~(1<<indx))); }
+	}
+	break;
+}
+
+case MAPDATASIDEWARPID:
+{
+	
+	int indx = ri->d[0] / 10000; //dir
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","SideWarpID"); 
+		break; 
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		int new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
+		if(new_warp_return == -1)
+		{
+			m->flags2 &= ~(1<<indx); //Unset the "Enabled" flag for this dir
+			m->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir as well.
+		}
+		else
+		{
+			m->flags2 |= 1<<indx; //Set the "Enabled" flag for this dir
+			m->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir bits
+			m->sidewarpindex |= (new_warp_return<<(2*indx)); //Set the new dir
+		}
+	} 
+	break;
+} 
+
+case MAPDATATWARPRETSQR:
+{
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		 Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
+	}
+	else if ( ri->mapsref == LONG_MAX )
+        {
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+        } 
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		int wrindex = vbound(value/10000, 0, 3);
+		m->warpreturnc = (m->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
+	}
+	break;
+}
+
+//
+case MAPDATASWARPRETSQR:
+{
+	
+	int indx = ri->d[0] / 10000;
+	if ( ((unsigned)indx) < 3)
+	{
+		 Z_scripterrlog("Invalid Array Index passed to MAPDATA->SideWarpReturnSquare[]: %d\n", indx);
+	}
+	else if ( ri->mapsref == LONG_MAX )
+        {
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+        } 
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		int wrindex = vbound(value/10000, 0, 3);
+		m->warpreturnc = (m->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
+	}
+	break;
+}
+
 //Height and With are Or'd together, and need to be separate:
 /*
  //TileWidth ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
 */
 case MAPDATAFFWIDTH:       
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
         break;
@@ -9810,7 +13010,7 @@ case MAPDATAFFWIDTH:
 //SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");  //B, 32 OF THESE
 case MAPDATAFFHEIGHT:      
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
         break;
@@ -9840,7 +13040,7 @@ case MAPDATAFFHEIGHT:
 //SET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"  //B, 32 OF THESE
 case MAPDATAFFEFFECTWIDTH:     
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
         break;
@@ -9868,7 +13068,7 @@ case MAPDATAFFEFFECTWIDTH:
 //SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");    //B, 32 OF THESE
 case MAPDATAFFEFFECTHEIGHT:
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
         break;
@@ -9900,26 +13100,34 @@ case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(ffscript, "FFCScript", 
 case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//SetFFCInitD(ffindex, d, value)
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	//int ffindex = ri->d[0]/10000;
-	//int d = ri->d[1]/10000;
-	//int v = (value/10000);
-	int ffid = (ri->d[0]/10000) -1;
-	int indx = ri->d[1]/10000;
-		
-	if ( (unsigned)ffid > 31 ) 
+	if ( ri->mapsref == LONG_MAX )
 	{
-	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-	}
-	else if ( (unsigned)indx > 7 )
-	{
-	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitD()");
+		break;
 	}
 	else
-	{ 
-	     m->initd[ffid][indx] = value;
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int ffid = (ri->d[0]/10000) -1;
+		int indx = ri->d[1]/10000;
+			
+		if ( (unsigned)ffid > 31 ) 
+		{
+		    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+		}
+		else if ( (unsigned)indx > 7 )
+		{
+		    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		}
+		else
+		{ 
+		     m->initd[ffid][indx] = value;
+		}
+		break;
 	}
-	break;
 }	
 	
 
@@ -9929,27 +13137,35 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 case MAPDATAINITA: 		
 	//same form as SetScreenD
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	//int ffindex = ri->d[0]/10000;
-	//int d = ri->d[1]/10000;
-	//int v = (value/10000);
-	int ffid = (ri->d[0]/10000) -1;
-	int indx = ri->d[1]/10000;
-		
-	if ( (unsigned)ffid > 31 ) 
+	if ( ri->mapsref == LONG_MAX )
 	{
-	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-	}
-	else if ( (unsigned)indx > 7 )
-	{
-	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitA()");
+		break;
 	}
 	else
-	{ 
-	     m->inita[ffid][indx] = value;
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int ffid = (ri->d[0]/10000) -1;
+		int indx = ri->d[1]/10000;
+			
+		if ( (unsigned)ffid > 31 ) 
+		{
+		    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+		}
+		else if ( (unsigned)indx > 7 )
+		{
+		    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		}
+		else
+		{ 
+		     m->inita[ffid][indx] = value;
+		}
+		
+		break;
 	}
-	
-	break;
 }	
 	
 case MAPDATAFFINITIALISED: 	SET_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
@@ -9960,7 +13176,20 @@ case MAPDATAOCEANSFX:	 	SET_MAPDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
 case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
 case MAPDATASECRETSFX:	 	SET_MAPDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
 case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
-case MAPDATASCREENMIDI: 	SET_MAPDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
+case MAPDATASCREENMIDI:
+{
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n","MIDI");
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref];
+		m->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
+	}
+	break;
+}
 case MAPDATALENSLAYER:	 	SET_MAPDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
 	
 
@@ -9995,14 +13224,16 @@ case MAPDATAFLAGS:
 case MAPDATAMISCD:
 {
 	int indx = (ri->d[0])/10000;
-	if(indx < 0 || indx > 7)
+	int mi = ri->mapsref;
+	mi -= 8*((ri->mapsref) / MAPSCRS);
+	if( ((unsigned)indx) > 7 )
 	{
 		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
 		break;
 	}
 	else 
 	{
-		game->screen_d[ri->mapsref][indx] = value/10000;
+		game->screen_d[mi][indx] = value/10000;
 		break;
 	}
 }
@@ -10015,7 +13246,7 @@ case MAPDATAMISCD:
         if(pos >= 0 && pos < 176)
         {
             screen_combo_modify_preroutine(m,pos);
-            m->data[pos]=(value/10000);
+            m->data[pos]=vbound(value/10000,0,MAXCOMBOS);
             screen_combo_modify_postroutine(m,pos);
         }
     }
@@ -10091,7 +13322,9 @@ case MAPDATAMISCD:
 
     case MAPDATASCREENSTATED:
     {
-        (value)?setmapflag(ri->mapsref, 1<<((ri->d[0])/10000)) : unsetmapflag(ri->mapsref, 1 << ((ri->d[0]) / 10000));
+	int mi = ri->mapsref;
+	mi -= 8*((ri->mapsref) / MAPSCRS);
+        (value)?setmapflag(mi, 1<<((ri->d[0])/10000)) : unsetmapflag(mi, 1 << ((ri->d[0]) / 10000));
     }
     break;
     
@@ -10107,16 +13340,19 @@ case MAPDATAMISCD:
 		if ( indx < 0 || indx > 2 ) 
 		{ 
 			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Item"); 
+			break;
 		} 
 		else 
 		{ 
 			if ( isInfo ) 
 			{ 
 				Z_scripterrlog("Attempted to write an 'item' to an infoshop, using shop ID: %d\n", ri->shopsref); 
+				break;
 			} 
 			else 
 			{ 
 				QMisc.shop[ref].item[indx] = (byte)(vbound((value/10000), 0, 255)); 
+				break;
 			} 
 		} 
 	} 
@@ -10131,16 +13367,18 @@ case MAPDATAMISCD:
 		if ( indx < 0 || indx > 2 ) 
 		{ 
 			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+			break;
 		} 
 		else 
 		{ 
 			if ( isInfo ) 
 			{ 
 				Z_scripterrlog("Attempted to write 'hasitem' to an infoshop, using shop ID: %d\n", ri->shopsref); 
+				break;
 			} 
 			else 
 			{ 
-				QMisc.shop[ref].hasitem[indx] = (byte)(vbound((value/10000), 0, 255)); 
+				QMisc.shop[ref].hasitem[indx] = (byte)(vbound((value/10000), 0, 255)); break;
 			} 
 		} 
 	} 
@@ -10155,16 +13393,19 @@ case MAPDATAMISCD:
 		if ( indx < 0 || indx > 2 ) 
 		{ 
 			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Price"); 
+			break;
 		} 
 		else 
 		{ 
 			if ( isInfo ) 
 			{ 
 				QMisc.shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+				break;
 			} 
 			else 
 			{ 
 				QMisc.shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+				break;
 			} 
 		} 
 	} 
@@ -10186,16 +13427,19 @@ case SHOPDATASTRING:
 			if ( indx < 0 || indx > 2 ) 
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+				break;
 			} 
 			else 
 			{ 
 				if ( isInfo ) 
 				{ 
 					QMisc.info[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
+					break;
 				} 
 				else 
 				{ 
 					QMisc.shop[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
+					break;
 				} 
 			} 
 	
@@ -10230,7 +13474,7 @@ case DMAPDATAPALETTE:	//word
 }
 case DMAPDATAMIDI:	//byte
 {
-	DMaps[ri->dmapsref].midi = ((byte)(value / 10000)); break;
+	DMaps[ri->dmapsref].midi = ((byte)((value / 10000)+MIDIOFFSET_DMAP)); break;
 }
 case DMAPDATACONTINUE:	//byte
 {
@@ -10239,6 +13483,11 @@ case DMAPDATACONTINUE:	//byte
 case DMAPDATATYPE:	//byte
 {
 	DMaps[ri->dmapsref].type = ((byte)(value / 10000)); break;
+}
+case DMAPSCRIPT:	//byte
+{
+	FFScript::deallocateAllArrays(SCRIPT_DMAP, ri->dmapsref);
+	DMaps[ri->dmapsref].type = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 }
 case DMAPDATASIDEVIEW:	//byte, treat as bool
 {
@@ -10256,6 +13505,18 @@ case DMAPDATAGRID:	//byte[8] --array
 		DMaps[ri->dmapsref].grid[indx] = ((byte)(value / 10000)); break;
 	}
 }
+case DMAPINITD:
+{
+	int indx = ri->d[0] / 10000;
+	if ( indx < 0 || indx > 7 ) 
+	{
+		Z_scripterrlog("Invalid index supplied to dmapdata->InitD[]: %d\n", indx); break;
+	}
+	else
+	{
+		DMaps[ri->dmapsref].initD[indx] = value; break;
+	}
+}
 case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
 {
 	int indx = ri->d[0] / 10000;
@@ -10269,6 +13530,7 @@ case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATAMINIMAPCSET:	//byte - two of these, so let's do MinimapCSet[2]
 {
@@ -10283,6 +13545,7 @@ case DMAPDATAMINIMAPCSET:	//byte - two of these, so let's do MinimapCSet[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATALARGEMAPTILE:	//word -- two of these, so let's to LargemapTile[2]
 {
@@ -10297,6 +13560,7 @@ case DMAPDATALARGEMAPTILE:	//word -- two of these, so let's to LargemapTile[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
 {
@@ -10311,6 +13575,7 @@ case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATAMUISCTRACK:	//byte
 {
@@ -10684,11 +13949,13 @@ case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;					//C
 case COMBODNEXTTIMER:	SET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;					//W
 case COMBODAKIMANIMY:	SET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;					//C
 case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;					//C
-case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6);					//C , 6 INDICES
-case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); 					//LONG, 4 INDICES, INDIVIDUAL VALUES
+case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;					//C , 6 INDICES
+case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
-case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);				//LONG 3 INDICES AS FLAGSETS
+case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
+
+
 
 //COMBOCLASS STRUCT
 //case COMBODNAME:		//CHAR[64], STRING
@@ -10719,13 +13986,13 @@ case COMBODMODHPDELAY:		SET_COMBOCLASS_VAR_BYTE(modify_hp_delay, "DamageDelay");
 case COMBODMODHPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_hp_type,	"DamageType"); break; 			//C
 case COMBODNMODMPAMOUNT:	SET_COMBOCLASS_VAR_DWORD(modify_mp_amount, "MagicAmount"); break;		//SHORT
 case COMBODMODMPDELAY:		SET_COMBOCLASS_VAR_BYTE(modify_mp_delay, "MagicDelay"); break;			//C
-case COMBODMODMPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType"); 				//C
+case COMBODMODMPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType"); break;				//C
 case COMBODNOPUSHBLOCK:		SET_COMBOCLASS_VAR_BYTE(no_push_blocks, "NoPushBlocks"); break;			//C
 case COMBODOVERHEAD:		SET_COMBOCLASS_VAR_BYTE(overhead, "Overhead"); break;				//C
 case COMBODPLACENPC:		SET_COMBOCLASS_VAR_BYTE(place_enemy, "PlaceNPC"); break;			//C
 case COMBODPUSHDIR:		SET_COMBOCLASS_VAR_BYTE(push_direction,	"PushDir"); break; 			//C
 case COMBODPUSHWAIT:		SET_COMBOCLASS_VAR_BYTE(push_wait, "PushDelay"); break;				//C
-case COMBODPUSHHEAVY:		SET_COMBOCLASS_VAR_BYTE(push_weight, "PushHeavy");				//C
+case COMBODPUSHHEAVY:		SET_COMBOCLASS_VAR_BYTE(push_weight, "PushHeavy"); break;				//C
 case COMBODPUSHED:		SET_COMBOCLASS_VAR_BYTE(pushed, "Pushed"); break;				//C
 case COMBODRAFT:		SET_COMBOCLASS_VAR_BYTE(raft, "Raft"); break;					//C
 case COMBODRESETROOM:		SET_COMBOCLASS_VAR_BYTE(reset_room, "ResetRoom"); break;			//C
@@ -10737,7 +14004,7 @@ case COMBODSLOWWALK:		SET_COMBOCLASS_VAR_BYTE(slow_movement, "SlowWalk"); break;
 case COMBODSTATUETYPE:		SET_COMBOCLASS_VAR_BYTE(statue_type, "Statue"); break;				//C
 case COMBODSTEPTYPE:		SET_COMBOCLASS_VAR_BYTE(step_type, "Step"); break;				//C
 case COMBODSTEPCHANGEINTO:	SET_COMBOCLASS_VAR_INT(step_change_to, "StepChange"); break;			//LONG
-case COMBODSTRIKEWEAPONS:	SET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32);			//BYTE, 32 INDICES. 
+case COMBODSTRIKEWEAPONS:	SET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32); break;			//BYTE, 32 INDICES. 
 case COMBODSTRIKEREMNANTS:	SET_COMBOCLASS_VAR_INT(strike_remnants,	"StrikeRemnants"); break;		//LONG
 case COMBODSTRIKEREMNANTSTYPE:	SET_COMBOCLASS_VAR_BYTE(strike_remnants_type, "StrikeRemnantsType"); break;	//C
 case COMBODSTRIKECHANGE:	SET_COMBOCLASS_VAR_INT(strike_change, "StrikeChange"); break;			//LONG
@@ -10762,7 +14029,7 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	
 #define	SET_NPCDATA_VAR_INT(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -10774,7 +14041,7 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	
 	#define	SET_NPCDATA_VAR_DWORD(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -10786,7 +14053,7 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 
 	#define	SET_NPCDATA_VAR_BYTE(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -10799,11 +14066,11 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define SET_NPCDATA_VAR_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 			} \
@@ -10816,11 +14083,11 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define SET_NPCDATA_BYTE_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 			} \
@@ -10833,13 +14100,13 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define SET_NPCDATA_FLAG(member, str) \
 	{ \
 		long flag =  (value/10000);  \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
 		else \
 		{ \
-			if ( flag != 0 ) \
+			if ( flag ) \
 			{ \
 				guysbuf[ri->npcdataref].member|=flag; \
 			} \
@@ -10857,6 +14124,7 @@ case NPCDATASWIDTH: SET_NPCDATA_VAR_BYTE(s_width, "SWidth"); break;
 case NPCDATASHEIGHT: SET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
 case NPCDATAETILE: SET_NPCDATA_VAR_INT(e_tile, "ExTile"); break;
 case NPCDATAEWIDTH: SET_NPCDATA_VAR_BYTE(e_width, "ExWidth"); break;
+case NPCDATASCRIPT: SET_NPCDATA_VAR_BYTE(script, "Script"); break;
 case NPCDATAEHEIGHT: SET_NPCDATA_VAR_BYTE(e_height, "ExHeight"); break;
 case NPCDATAHP: SET_NPCDATA_VAR_DWORD(hp, "HP"); break;
 case NPCDATAFAMILY: SET_NPCDATA_VAR_DWORD(family, "Family"); break;
@@ -10888,7 +14156,10 @@ case NPCDATAHITZ: SET_NPCDATA_VAR_INT(hzsz, "HitZHeight"); break;
 case NPCDATATILEWIDTH: SET_NPCDATA_VAR_INT(txsz, "TileWidth"); break;
 case NPCDATATILEHEIGHT: SET_NPCDATA_VAR_INT(tysz, "TileHeight"); break;
 case NPCDATAWPNSPRITE: SET_NPCDATA_VAR_INT(wpnsprite, "WeaponSprite"); break;
+case NPCDATAWEAPONSCRIPT: SET_NPCDATA_VAR_INT(weaponscript, "WeaponScript"); break;
 case NPCDATADEFENSE: SET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
+case NPCDATAWEAPONINITD: SET_NPCDATA_VAR_INDEX(weap_initiald, "WeaponInitD", 8); break;
+case NPCDATAINITD: SET_NPCDATA_VAR_INDEX(initD, "InitD", 8); break;
 case NPCDATASIZEFLAG: SET_NPCDATA_VAR_INT(SIZEflags, "SizeFlags"); break;
 
 case NPCDATAFROZENTILE: SET_NPCDATA_VAR_INT(frozentile, "FrozenTile"); break;
@@ -11027,6 +14298,7 @@ case NPCDATASHIELD:
 	if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
 	{ 
 		Z_scripterrlog("Invalid NPC ID passed to npcdata->Shield[]: %d\n", (ri->npcdataref*10000));
+		break;
 	} 
 	else 
 	{ 
@@ -11063,6 +14335,7 @@ case NPCDATASHIELD:
 				break;
 			}
 		}
+		break;
 	} 
 }
 
@@ -11142,8 +14415,10 @@ case AUDIOPAN:
 ///----------------------------------------------------------------------------------------------------//
 //Graphics->
 
+	case NUMDRAWS:
+	break;
 	
-	
+	case MAXDRAWS: break;
 	
 
 ///----------------------------------------------------------------------------------------------------//
@@ -11215,7 +14490,7 @@ case AUDIOPAN:
     {
         if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
         else if(arg >= A(0) && arg <= A(1))		ri->a[arg - A(0)] = value;
-        else if(arg >= GD(0) && arg <= GD(255))	game->global_d[arg-GD(0)] = value;
+        else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	game->global_d[arg-GD(0)] = value;
         
         break;
     }
@@ -11230,14 +14505,74 @@ case AUDIOPAN:
 ///----------------------------------------------------------------------------------------------------//
 //Internal (to ZScript)
 
-void do_set(const bool v, byte whichFFC)
+void do_set(const bool v, const byte whichType, const long whichUID)
 {
-    // Trying to change the current script?
-    if(sarg1==FFSCRIPT && ri->ffcref==whichFFC)
-        return;
-        
-    long temp = SH::get_arg(sarg2, v);
-    set_register(sarg1, temp);
+	bool allowed = true;
+	switch(whichType) //Check for objects attempting to change own script
+	{
+		//case SCRIPT_GLOBAL:
+		
+		case SCRIPT_FFC:
+			if(sarg1==FFSCRIPT && ri->ffcref==whichUID)
+				allowed = false;
+			break;
+		
+		case SCRIPT_SCREEN:
+			if(sarg1==SCREENSCRIPT) //Only 1 screen script running at a time, no UID check needed
+				allowed = false;
+			break;
+		
+		//case SCRIPT_LINK:
+		
+		case SCRIPT_ITEM:
+		{
+			bool collect = ( ( whichUID < 1 ) || (whichUID == COLLECT_SCRIPT_ITEM_ZERO) );
+			long new_UID = ( collect ) ? (( whichUID != COLLECT_SCRIPT_ITEM_ZERO ) ? (whichUID * -1) : 0) : whichUID;
+			
+			if(collect)
+			{
+				if(sarg1==IDATAPSCRIPT && ri->idata==new_UID)
+					allowed = false;
+			}
+			else if(sarg1==IDATASCRIPT && ri->idata==new_UID)
+				allowed = false;
+			break;
+		}
+		
+		case SCRIPT_LWPN:
+			if(sarg1==LWPNSCRIPT && ri->lwpn==whichUID)
+				allowed = false;
+			break;
+			
+		case SCRIPT_NPC:
+			if(sarg1==NPCSCRIPT && ri->guyref==whichUID)
+				allowed = false;
+			break;
+		
+		//case SCRIPT_SUBSCREEN:
+		
+		case SCRIPT_EWPN:
+			if(sarg1==EWPNSCRIPT && ri->ewpn==whichUID)
+				allowed = false;
+			break;
+		
+		case SCRIPT_DMAP:
+			if(sarg1==DMAPSCRIPT && ri->dmapsref==whichUID)
+				allowed = false;
+			break;
+		
+		case SCRIPT_ITEMSPRITE:
+			if(sarg1==ITEMSPRITESCRIPT && ri->itemref==whichUID)
+				allowed = false;
+			break;
+	}   
+	if(!allowed)
+	{
+		Z_scripterrlog("Script attemtped to change own object's script! This has been ignored.\n");
+		return;
+	}
+	long temp = SH::get_arg(sarg2, v);
+	set_register(sarg1, temp);
 }
 
 void do_push(const bool v)
@@ -11287,7 +14622,7 @@ void do_comp(const bool v)
     else                ri->scriptflag &= ~TRUEFLAG;
 }
 
-void do_allocatemem(const bool v, const bool local, const byte i)
+void do_allocatemem(const bool v, const bool local, const byte type, const unsigned long UID)
 {
     const long size = SH::get_arg(sarg2, v) / 10000;
     dword ptrval;
@@ -11318,8 +14653,10 @@ void do_allocatemem(const bool v, const bool local, const byte i)
             for(dword j = 0; j < (dword)size; j++)
                 a[j] = 0; //initialize array
                 
-            // Keep track of which FFC created the array so we know which to deallocate when changing screens
-            arrayOwner[ptrval]=i;
+            // Keep track of which object created the array so we know which to deallocate
+	    //Z_eventlog("Allocating array %d to script %s, %d\n", ptrval, script_types[type], UID);
+            arrayOwner[ptrval].scriptType = type;
+	    arrayOwner[ptrval].ownerUID = UID;
         }
     }
     else
@@ -11587,6 +14924,34 @@ void do_rnd(const bool v)
 		set_register(sarg1, 0); // Just return 0. (Do not log an error)
 }
 
+void do_srnd(const bool v)
+{
+	unsigned int seed = SH::get_arg(sarg1, v); //Do not `/10000`- allow the decimal portion to be used! -V
+	srand(seed);
+}
+
+void do_srndrnd()
+{
+	//Randomize the seed to the current system time, + or - the product of 2 random numbers.
+	int seed = time(0) + ((rand() * rand()) * ((rand() % 2) ? 1 : -1));
+	seed = vbound(seed, -2147479999, 2147479999); //Don't allow it to be outside ZScript range, so it can be returned.
+	set_register(sarg1, seed);
+	srand(seed);
+}
+
+//Returns the system Real-Time-Clock value for a specific type. 
+void FFScript::getRTC(const bool v)
+{
+	//long type = get_register(sarg1) / 10000;
+	//Z_scripterrlog("FFCore.getRTC() type == %d\n",type);
+	//int time = getTime(type);
+	//Z_scripterrlog("FFCore.getRTC() time == %d\n",time);
+	//Z_scripterrlog("FFCore.getRTC() time * 10000 == %d\n",time);
+	//set_register(sarg1, getTime((byte)(SH::get_arg(sarg2, v) / 10000)) * 10000);
+	set_register(sarg1, getTime((get_register(sarg1) / 10000)) * 10000);
+}
+
+
 void do_factorial(const bool v)
 {
     long temp;
@@ -11666,6 +15031,13 @@ void do_and(const bool v)
     set_register(sarg1, (temp2 & temp) * 10000);
 }
 
+void do_and32(const bool v)
+{
+    long temp = SH::get_arg(sarg2, v);
+    long temp2 = get_register(sarg1);
+    set_register(sarg1, (temp2 & temp));
+}
+
 void do_or(const bool v)
 {
     long temp = SH::get_arg(sarg2, v) / 10000;
@@ -11673,11 +15045,25 @@ void do_or(const bool v)
     set_register(sarg1, (temp2 | temp) * 10000);
 }
 
+void do_or32(const bool v)
+{
+    long temp = SH::get_arg(sarg2, v);
+    long temp2 = get_register(sarg1);
+    set_register(sarg1, (temp2 | temp));
+}
+
 void do_xor(const bool v)
 {
     long temp = SH::get_arg(sarg2, v) / 10000;
     long temp2 = get_register(sarg1) / 10000;
     set_register(sarg1, (temp2 ^ temp) * 10000);
+}
+
+void do_xor32(const bool v)
+{
+    long temp = SH::get_arg(sarg2, v);
+    long temp2 = get_register(sarg1);
+    set_register(sarg1, (temp2 ^ temp));
 }
 
 void do_nand(const bool v)
@@ -11713,6 +15099,12 @@ void do_bitwisenot(const bool v)
     set_register(sarg1, (~temp) * 10000);
 }
 
+void do_bitwisenot32(const bool v)
+{
+    long temp = SH::get_arg(sarg1, v);
+    set_register(sarg1, (~temp));
+}
+
 void do_lshift(const bool v)
 {
     long temp = SH::get_arg(sarg2, v) / 10000;
@@ -11720,11 +15112,89 @@ void do_lshift(const bool v)
     set_register(sarg1, (temp2 << temp) * 10000);
 }
 
+void do_lshift32(const bool v)
+{
+    long temp = SH::get_arg(sarg2, v) / 10000;
+    long temp2 = get_register(sarg1);
+    set_register(sarg1, (temp2 << temp));
+}
+
 void do_rshift(const bool v)
 {
     long temp = SH::get_arg(sarg2, v) / 10000;
     long temp2 = get_register(sarg1) / 10000;
     set_register(sarg1, (temp2 >> temp) * 10000);
+}
+
+void do_rshift32(const bool v)
+{
+    long temp = SH::get_arg(sarg2, v) / 10000;
+    long temp2 = get_register(sarg1);
+    set_register(sarg1, (temp2 >> temp));
+}
+
+///----------------------------------------------------------------------------------------------------//
+//Casting
+
+void do_boolcast(const bool isFloat)
+{
+	set_register(sarg1, (get_register(sarg1) ? (isFloat ? 1 : 10000) : 0));
+}
+
+///----------------------------------------------------------------------------------------------------//
+//Text ptr functions
+void do_fontheight()
+{
+	int font = get_register(sarg1)/10000;
+	ri->d[2] = text_height(get_zc_font(font))*10000;
+}
+
+void do_strwidth()
+{
+	int strptr = get_register(sarg1)/10000;
+	int font = get_register(sarg2)/10000;
+	string the_string;
+	ArrayH::getString(strptr, the_string, 512);
+	ri->d[2] = text_length(get_zc_font(font), the_string.c_str())*10000;
+}
+
+void do_charwidth()
+{
+	char chr = get_register(sarg1)/10000;
+	int font = get_register(sarg2)/10000;
+	char *cstr = new char[2];
+	cstr[0] = chr;
+	cstr[1] = '\0';
+	ri->d[2] = text_length(get_zc_font(font), cstr)*10000;
+	delete[] cstr;
+}
+
+void do_msgwidth(int msg)
+{
+	if(BC::checkMessage(msg, "Text->MessageWidth()") != SH::_NoError)
+	{
+		ri->d[2] = -10000;
+		return;
+	}
+	char *cstr = new char[MSGSIZE+1];
+	strcpy(cstr,MsgStrings[msg].s);
+	for(int q = MSGSIZE; q >= 0; --q) //trim trailing spaces
+	{
+		if(cstr[q]==' ')cstr[q]=0;
+		else if(cstr[q]!=0) break;
+	}
+	ri->d[2] = text_length(get_zc_font(MsgStrings[msg].font), cstr)*10000;
+	delete[] cstr;
+}
+
+void do_msgheight(int msg)
+{
+	if(BC::checkMessage(msg, "Text->MessageHeight()") != SH::_NoError)
+	{
+		ri->d[2] = -10000;
+		return;
+	}
+	ri->d[2] = text_height(get_zc_font(MsgStrings[msg].font))*10000;
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -11828,6 +15298,24 @@ void do_issolid()
     int y = int(ri->d[1] / 10000);
     
     set_register(sarg1, (_walkflag(x, y, 1) ? 10000 : 0));
+}
+
+void do_mapdataissolid()
+{
+	if ( ri->mapsref == LONG_MAX  )
+	{
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolid()");
+		set_register(sarg1,10000);
+	}
+	else
+	{
+		//mapscr *m = &TheMaps[ri->mapsref]; 
+		int x = int(ri->d[0] / 10000);
+		int y = int(ri->d[1] / 10000);
+    
+    
+		set_register(sarg1, (_walkflag(x, y, 1, ri->mapsref) ? 10000 : 0));
+	}
 }
 
 void do_setsidewarp()
@@ -12016,6 +15504,17 @@ void do_getscreeneflags()
         return;
         
     set_register(sarg1, get_screeneflags(&TheMaps[map * MAPSCRS + scrn], flagset));
+}
+
+void FFScript::do_graphics_getpixel()
+{
+    long bitmap_pointer     = (ri->d[2])-10;
+    long xpos  = ri->d[1] / 10000;
+    long ypos = ri->d[0] / 10000;
+    
+    if ( scb.script_created_bitmaps[bitmap_pointer].u_bmp )
+	set_register(sarg1, getpixel(scb.script_created_bitmaps[bitmap_pointer].u_bmp, xpos, ypos));
+    else set_register(sarg1, -10000);
 }
 
 //Some of these need to be reduced to two inputs. -Z
@@ -12493,6 +15992,33 @@ void do_getscreennpc()
 ///----------------------------------------------------------------------------------------------------//
 //Pointer handling
 
+void do_isvalidarray()
+{
+	long ptr = get_register(sarg1)/10000;
+	
+	
+	if(ptr <= 0) //invalid pointer
+	{
+            set_register(sarg1,0); return;
+	}
+            
+        if(ptr >= MAX_ZCARRAY_SIZE) //check global
+        {
+            dword gptr = ptr - MAX_ZCARRAY_SIZE;
+            
+            if(gptr > game->globalRAM.size())
+	    {
+		    set_register(sarg1,0); return;
+	    }
+	    else set_register(sarg1,(game->globalRAM[gptr].Size() == 0) ? 0 : 10000); return;
+	}
+	   
+        else
+        {
+		set_register(sarg1,(localRAM[ptr].Size() == 0) ? 0 : 10000); 
+	}
+}
+
 void do_isvaliditem()
 {
     long IID = get_register(sarg1);
@@ -12734,7 +16260,8 @@ void FFScript::do_loaddmapdata(const bool v)
 
 void FFScript::do_getDMapData_dmapname(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetName()") != SH::_NoError)
@@ -12746,7 +16273,8 @@ void FFScript::do_getDMapData_dmapname(const bool v)
 
 void FFScript::do_setDMapData_dmapname(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
 
     string filename_str;
@@ -12762,7 +16290,8 @@ void FFScript::do_setDMapData_dmapname(const bool v)
 
 void FFScript::do_getDMapData_dmaptitle(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
@@ -12774,7 +16303,8 @@ void FFScript::do_getDMapData_dmaptitle(const bool v)
 
 void FFScript::do_setDMapData_dmaptitle(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
@@ -12789,7 +16319,8 @@ void FFScript::do_setDMapData_dmaptitle(const bool v)
 
 void FFScript::do_getDMapData_dmapintro(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
@@ -12801,7 +16332,8 @@ void FFScript::do_getDMapData_dmapintro(const bool v)
 
 void FFScript::do_setDMapData_dmapintro(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
@@ -12816,7 +16348,8 @@ void FFScript::do_setDMapData_dmapintro(const bool v)
 
 void FFScript::do_getDMapData_music(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetMusic()") != SH::_NoError)
@@ -12828,7 +16361,8 @@ void FFScript::do_getDMapData_music(const bool v)
 
 void FFScript::do_setDMapData_music(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
@@ -12901,7 +16435,7 @@ void FFScript::do_loadcombodata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > (MAXCOMBOS-1) )
+    if ( (unsigned)ID > (MAXCOMBOS-1) )
     {
 	Z_scripterrlog("Invalid Combo ID passed to Game->LoadComboData: %d\n", ID);
 	ri->combosref = 0;
@@ -12926,7 +16460,7 @@ void FFScript::do_loadmapdata(const bool v)
 	ri->mapsref = 0;
 	
     }
-    else if ( _scr < 0 || _scr > 129 ) //0x00 to 0x81 -Z
+    else if ( (unsigned)_scr > 129 ) //0x00 to 0x81 -Z
     {
 	Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", _scr);
 	ri->mapsref = 0;
@@ -12941,7 +16475,7 @@ void FFScript::do_loadshopdata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > 255 )
+    if ( (unsigned)ID > 255 )
     {
 	Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
 	ri->shopsref = 0;
@@ -12956,7 +16490,7 @@ void FFScript::do_loadinfoshopdata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > 255 )
+    if ( (unsigned)ID > 255 )
     {
 	Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
 	ri->shopsref = 0;
@@ -13005,7 +16539,7 @@ void FFScript::do_loadspritedata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > (MAXWPNS-1) )
+    if ( (unsigned)ID > (MAXWPNS-1) )
     {
 	Z_scripterrlog("Invalid Sprite ID passed to Game->LoadSpriteData: %d\n", ID);
 	ri->spritesref = 0; 
@@ -13020,7 +16554,7 @@ void FFScript::do_loadscreendata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > (MAXSCREENS-1) )
+    if ( (unsigned)ID > (MAXSCREENS-1) )
     {
 	Z_scripterrlog("Invalid Map ID passed to Game->LoadScreenData: %d\n", ID);
 	ri->screenref = 0; 
@@ -13033,14 +16567,24 @@ void FFScript::do_loadscreendata(const bool v)
 void FFScript::do_loadbitmapid(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
-    
-    if ( ID < MIN_INTERNAL_BITMAP || ID > MAX_INTERNAL_BITMAP )
+    switch(ID)
     {
-	Z_scripterrlog("Invalid Bitmap ID passed to Game->Load BitmapID: %d\n", ID);
-	ri->bitmapref = 0; 
+	case -1:
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+	case 6:
+		ri->bitmapref = ID+10; break;
+	default:
+	{
+		Z_scripterrlog("Invalid Bitmap ID passed to Game->Load BitmapID: %d\n", ID);
+		ri->bitmapref = 0; break;
+	}
     }
-
-    else ri->bitmapref = ID;
+    
     //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
@@ -13050,8 +16594,28 @@ void do_createlweapon(const bool v)
     
     if(BC::checkWeaponID(ID, "Screen->CreateLWeapon") != SH::_NoError)
         return;
-        
-    Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID()));
+    
+	if ( Lwpns.Count() < 256 )
+	{
+			Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
+			ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+			//Lwpns.spr(Lwpns.Count() - 1)->LOADGFX(0);
+			//Lwpns.spr(Lwpns.Count() - 1)->ScriptGenerated = 1;
+			//Lwpns.spr(Lwpns.Count() - 1)->isLWeapon = 1;
+			weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+			w->LOADGFX(0);
+			w->ScriptGenerated = 1;
+			w->isLWeapon = 1;
+			Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
+	}
+	else
+	{
+		ri->lwpn = LONG_MAX;
+		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
+	}
+	return; //do not use the old code, below here. 
+        //old version is below
+    Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
 		
     //addLwpn(0, 0, 0, ID, 0, 0, 0, Link.getUID());
     
@@ -13075,6 +16639,13 @@ void do_createeweapon(const bool v)
         return;
 		
     addEwpn(0, 0, 0, ID, 0, 0, 0, -1,1); //Param 9 marks it as script-generated.
+    //Ewpns.spr(Ewpns.Count() - 1)->LOADGFX(0);
+    //Ewpns.spr(Ewpns.Count() - 1)->ScriptGenerated = 1;
+    //Ewpns.spr(Ewpns.Count() - 1)->isLWeapon = 0;
+    weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+    w->LOADGFX(0);
+    w->ScriptGenerated = 1;
+    w->isLWeapon = 0;
     //addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
     
     if(Ewpns.Count() < 1)
@@ -13164,6 +16735,14 @@ INLINE void set_drawing_command_args(const int j, const word numargs)
         script_drawing_commands[j][k] = SH::read_stack(ri->sp + (numargs - k));
 }
 
+INLINE void set_user_bitmap_command_args(const int j, const word numargs)
+{
+	//ri->bitmapref = SH::read_stack(ri->sp+numargs);
+	//Z_scripterrlog("Current drawing bitmap ref is: %d\n", ri->bitmapref );
+    for(int k = 1; k <= numargs; k++)
+        script_drawing_commands[j][k] = SH::read_stack(ri->sp + (numargs - k));
+}
+
 void do_drawing_command(const int script_command)
 {
     int j = script_drawing_commands.GetNext();
@@ -13203,28 +16782,169 @@ void do_drawing_command(const int script_command)
         set_drawing_command_args(j, 8);
         break;
     
-    case PIXELARRAYR:
-        set_drawing_command_args(j, 5);
-        break;
+	case PIXELARRAYR:
+	{
+		set_drawing_command_args(j, 5);
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		//for ( int q = 0; q < 6; q++ ) 
+		//{ 
+		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//}
+		int arrayptr = script_drawing_commands[j][2]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->PutPixels(). Aborting.", arrayptr);
+			break;
+		}
+		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		int sz = ArrayH::getSize(arrayptr);
+		//FFCore.getSize(script_drawing_commands[j][2]/10000);
+		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		v->resize(sz, 0);
+		long* pos = &v->at(0);
+		
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+		script_drawing_commands[j].SetVector(v);
+		break;
+	}
     
     case TILEARRAYR:
-        set_drawing_command_args(j, 2);
-        break;
+    {
+		set_drawing_command_args(j, 2);
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		//for ( int q = 0; q < 6; q++ ) 
+		//{ 
+		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//}
+		int arrayptr = script_drawing_commands[j][2]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawTiles(). Aborting.", arrayptr);
+			break;
+		}
+		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		int sz = ArrayH::getSize(arrayptr);
+		//FFCore.getSize(script_drawing_commands[j][2]/10000);
+		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		v->resize(sz, 0);
+		long* pos = &v->at(0);
+		
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+		script_drawing_commands[j].SetVector(v);
+		break;
+        }
         
     case LINESARRAY:
-        set_drawing_command_args(j, 2);
-        break;
+	{
+		set_drawing_command_args(j, 2);
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		//for ( int q = 0; q < 6; q++ ) 
+		//{ 
+		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//}
+		int arrayptr = script_drawing_commands[j][2]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->Lines(). Aborting.", arrayptr);
+			break;
+		}
+		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		int sz = ArrayH::getSize(arrayptr);
+		//FFCore.getSize(script_drawing_commands[j][2]/10000);
+		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		v->resize(sz, 0);
+		long* pos = &v->at(0);
+		
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+		script_drawing_commands[j].SetVector(v);
+		break;
+        }
+    
+    /*
+    historical-old-master
+    set_drawing_command_args(j, 6);
+			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+			long* ptr = (long*)script_drawing_commands.AllocateDrawBuffer(3 * count * sizeof(long));
+			long* p = ptr;
+
+			FFCore.getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+			FFCore.getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+			FFCore.getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+			script_drawing_commands[j].SetPtr(ptr);
+    */
+        // Unused
+        //const int index = script_drawing_commands[j][19] = j;
+        
+        //std::array    *aptr = script_drawing_commands.GetString();
+        //ArrayH::getString(script_drawing_commands[j][2] / 10000, *aptr);
+        //script_drawing_commands[j].SetArray(aptr);
+        //set_drawing_command_args(j, 2);
+        //break;
         
     case COMBOARRAYR:
-        set_drawing_command_args(j, 2);
-        break;
+     {
+		set_drawing_command_args(j, 2);
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		//for ( int q = 0; q < 6; q++ ) 
+		//{ 
+		//	Z_scripterrlog("PIXELARRAY script_drawing_commands[j][%d] is %d\n", q, script_drawing_commands[j][q]);
+		//}
+		int arrayptr = script_drawing_commands[j][2]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->DrawCombos(). Aborting.", arrayptr);
+			break;
+		}
+		//Z_scripterrlog("Pixelarray array pointer is: %d\n", arrayptr);
+		int sz = ArrayH::getSize(arrayptr);
+		//FFCore.getSize(script_drawing_commands[j][2]/10000);
+		//Z_scripterrlog("Pixelarray size is: %d\n", sz);
+		v->resize(sz, 0);
+		long* pos = &v->at(0);
+		
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, sz);
+		script_drawing_commands[j].SetVector(v);
+		break;
+        }
+	case POLYGONR:
+	{
+		set_drawing_command_args(j, 5);
+		    
+		int arrayptr = script_drawing_commands[j][3]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+			break;
+		}
+		int sz = ArrayH::getSize(arrayptr);
+		    
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		v->resize(sz, 0);
+		
+		long* pos = &v->at(0);
+		
+		
+		FFCore.getValues(script_drawing_commands[j][3] / 10000, pos, sz);
+		script_drawing_commands[j].SetVector(v);
+	}
+	    break;
         
     case DRAWTILER:
         set_drawing_command_args(j, 15);
         break;
         
+    case DRAWTILECLOAKEDR:
+        set_drawing_command_args(j, 7);
+        break;
+        
     case DRAWCOMBOR:
         set_drawing_command_args(j, 16);
+        break;
+        
+    case DRAWCOMBOCLOAKEDR:
+        set_drawing_command_args(j, 7);
         break;
         
     case FASTTILER:
@@ -13273,19 +16993,29 @@ void do_drawing_command(const int script_command)
         
     case QUAD3DR:
     {
+	set_drawing_command_args(j, 8);
+	int arrayptr = script_drawing_commands[j][2]/10000;
+	int sz = ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][3]/10000;
+	sz += ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][4]/10000;
+	sz += ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][5]/10000;
+	sz += ArrayH::getSize(arrayptr);
         std::vector<long> *v = script_drawing_commands.GetVector();
-        v->resize(26, 0);
+        v->resize(sz, 0);
         
         long* pos = &v->at(0);
         long* uv = &v->at(12);
         long* col = &v->at(20);
         long* size = &v->at(24);
         
-        set_drawing_command_args(j, 8);
-        ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 12);
-        ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 8);
-        ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 4);
-        ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+        
+        FFCore.getValues((script_drawing_commands[j][2] / 10000), pos, 12);
+        FFCore.getValues((script_drawing_commands[j][3] / 10000), uv, 8);
+        FFCore.getValues((script_drawing_commands[j][4] / 10000), col, 4);
+        //FFCore.getValues2(script_drawing_commands[j][5] / 10000, size, 2);
+        FFCore.getValues((script_drawing_commands[j][5] / 10000), size, 2);
         
         script_drawing_commands[j].SetVector(v);
     }
@@ -13293,19 +17023,30 @@ void do_drawing_command(const int script_command)
     
     case TRIANGLE3DR:
     {
+	set_drawing_command_args(j, 8);
+	    
+	int arrayptr = script_drawing_commands[j][2]/10000;
+	int sz = ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][3]/10000;
+	sz += ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][4]/10000;
+	sz += ArrayH::getSize(arrayptr);
+	arrayptr = script_drawing_commands[j][5]/10000;
+	sz += ArrayH::getSize(arrayptr);
+	    
         std::vector<long> *v = script_drawing_commands.GetVector();
-        v->resize(20, 0);
+        v->resize(sz, 0);
         
         long* pos = &v->at(0);
         long* uv = &v->at(9);
         long* col = &v->at(15);
         long* size = &v->at(18);
         
-        set_drawing_command_args(j, 8);
-        ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
-        ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 6);
-        ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
-        ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+        
+        FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 8);
+        FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 6);
+        FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 3);
+        FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
         
         script_drawing_commands[j].SetVector(v);
     }
@@ -13323,33 +17064,116 @@ void do_drawing_command(const int script_command)
     }
     break;
     
-     case 	BMPRECTR:	set_drawing_command_args(j, 12); break;
-	case 	BMPCIRCLER:	set_drawing_command_args(j, 11); break;
-	case 	BMPARCR:	set_drawing_command_args(j, 14); break;
-	case 	BMPELLIPSER:	set_drawing_command_args(j, 12); break;
-	case 	BMPLINER:	set_drawing_command_args(j, 11); break;
-	case 	BMPSPLINER:	set_drawing_command_args(j, 11); break;
-	case 	BMPPUTPIXELR:	set_drawing_command_args(j, 8); break;
-	case 	BMPDRAWTILER:	set_drawing_command_args(j, 15); break;
-	case 	BMPDRAWCOMBOR:	set_drawing_command_args(j, 16); break;
-	case 	BMPFASTTILER:	set_drawing_command_args(j, 6); break;
-	case 	BMPFASTCOMBOR:	set_drawing_command_args(j, 6); break;
-	case 	BMPDRAWCHARR:	set_drawing_command_args(j, 10); break;
-	case 	BMPDRAWINTR:	set_drawing_command_args(j, 11); break;
+     case 	BMPRECTR:	
+		set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12); break;
+		//Pop the args off the stack first. Then pop the pointer and push it to sdci[17]. 
+		//The pointer for the bitmap variable (its literal value) is always ri->sp+numargs, so, with 12 args, it is sp+12. 
+	case 	CLEARBITMAP:	
+	{
+		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
+		set_user_bitmap_command_args(j, 1);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+1); 
+		break;
+	}
+	case 	BITMAPCLEARTOCOLOR:	
+	{
+		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
+		set_user_bitmap_command_args(j, 2);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
+		break;
+	}
+	case 	REGENERATEBITMAP:	
+	{
+		//Z_scripterrlog("Calling %s\n","CLEARBITMAP");
+		set_user_bitmap_command_args(j, 3);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
+		break;
+	}
+	case BMPPOLYGONR:
+	{
+		set_user_bitmap_command_args(j, 5);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+5); 
+		int arrayptr = script_drawing_commands[j][3]/10000;
+		if ( !arrayptr ) //Don't crash because of vector size.
+		{
+			Z_scripterrlog("Invalid array pointer %d passed to Screen->Polygon(). Aborting.", arrayptr);
+			break;
+		}
+		int sz = ArrayH::getSize(arrayptr);
+		    
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		v->resize(sz, 0);
+		
+		long* pos = &v->at(0);
+		
+		
+		FFCore.getValues(script_drawing_commands[j][3] / 10000, pos, sz);
+		script_drawing_commands[j].SetVector(v);
+	}
+	    break;
+	case 	READBITMAP:	
+	{
+		//Z_scripterrlog("Calling %s\n","READBITMAP");
+		set_user_bitmap_command_args(j, 2);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+2); 
+		string *str = script_drawing_commands.GetString();
+		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
+		
+		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
+		std::strncpy(cptr, str->c_str(), str->size());
+		
+		Z_scripterrlog("READBITMAP string is %s\n", cptr);
+		
+		script_drawing_commands[j].SetString(str);
+		break;
+	}
+	case 	WRITEBITMAP:	
+	{
+		//Z_scripterrlog("Calling %s\n","WRITEBITMAP");
+		set_user_bitmap_command_args(j, 3);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); 
+		std::string *str = script_drawing_commands.GetString();
+		ArrayH::getString(script_drawing_commands[j][2] / 10000, *str);
+		
+		
+		char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
+		std::strncpy(cptr, str->c_str(), str->size());
+		
+		//Z_scripterrlog("WRITEBITMAP string is %s\n", cptr);
+		script_drawing_commands[j].SetString(str);
+		break;
+	}
+	case 	BMPCIRCLER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11);  break;
+	case 	BMPARCR:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14);  break;
+	case 	BMPELLIPSER:	set_user_bitmap_command_args(j, 12); script_drawing_commands[j][17] = SH::read_stack(ri->sp+12);  break;
+	case 	BMPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
+	case 	BMPSPLINER:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
+	case 	BMPPUTPIXELR:	set_user_bitmap_command_args(j, 8); script_drawing_commands[j][17] = SH::read_stack(ri->sp+8); break;
+	case 	BMPDRAWTILER:	set_user_bitmap_command_args(j, 15); script_drawing_commands[j][17] = SH::read_stack(ri->sp+15); break;
+	case 	BMPDRAWTILECLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
+	case 	BMPDRAWCOMBOR:	set_user_bitmap_command_args(j, 16); script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
+	case 	BMPDRAWCOMBOCLOAKEDR:	set_user_bitmap_command_args(j, 7); script_drawing_commands[j][17] = SH::read_stack(ri->sp+7); break;
+	case 	BMPFASTTILER:	set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+	case 	BMPFASTCOMBOR:  set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+	case 	BMPDRAWCHARR:	set_user_bitmap_command_args(j, 10); script_drawing_commands[j][17] = SH::read_stack(ri->sp+10); break;
+	case 	BMPDRAWINTR:	set_user_bitmap_command_args(j, 11); script_drawing_commands[j][17] = SH::read_stack(ri->sp+11); break;
 	case 	BMPDRAWSTRINGR:	
 	{
-		set_drawing_command_args(j, 9);
+		set_user_bitmap_command_args(j, 9);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
 		// Unused
 		//const int index = script_drawing_commands[j][19] = j;
 		
 		string *str = script_drawing_commands.GetString();
 		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
 		script_drawing_commands[j].SetString(str);
-		break;
+		
 	}
-	case 	BMPQUADR:	set_drawing_command_args(j, 15); break;
+	break;
+	case 	BMPQUADR:	set_user_bitmap_command_args(j, 16);  script_drawing_commands[j][17] = SH::read_stack(ri->sp+16); break;
 	case 	BMPQUAD3DR:
-	 {
+	{
+		set_drawing_command_args(j, 9);
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		v->resize(26, 0);
 		
@@ -13358,18 +17182,22 @@ void do_drawing_command(const int script_command)
 		long* col = &v->at(20);
 		long* size = &v->at(24);
 		
-		set_drawing_command_args(j, 8);
-		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 12);
-		ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 8);
-		ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 4);
-		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+		
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 12);
+		FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 8);
+		FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 4);
+		FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
 		
 		script_drawing_commands[j].SetVector(v);
-		break;
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
+		
 	}
-	case 	BMPTRIANGLER:	set_drawing_command_args(j, 13); break;
+	break;
+	case 	BMPTRIANGLER:	set_user_bitmap_command_args(j, 14); script_drawing_commands[j][17] = SH::read_stack(ri->sp+14); break;
 	case 	BMPTRIANGLE3DR:
 	{
+		set_drawing_command_args(j, 9);
+		
 		std::vector<long> *v = script_drawing_commands.GetVector();
 		v->resize(20, 0);
 		
@@ -13378,19 +17206,62 @@ void do_drawing_command(const int script_command)
 		long* col = &v->at(15);
 		long* size = &v->at(18);
 		
-		set_drawing_command_args(j, 8);
-		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
-		ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 6);
-		ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
-		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+		
+		FFCore.getValues(script_drawing_commands[j][2] / 10000, pos, 8);
+		FFCore.getValues(script_drawing_commands[j][3] / 10000, uv, 6);
+		FFCore.getValues(script_drawing_commands[j][4] / 10000, col, 3);
+		FFCore.getValues(script_drawing_commands[j][5] / 10000, size, 2);
 		
 		script_drawing_commands[j].SetVector(v);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+9);
 		break;
 	}
-	//case 	BMPPOLYGONR:
-	case 	BMPDRAWLAYERR: 	set_drawing_command_args(j, 8); break;
-	case 	BMPDRAWSCREENR:	set_drawing_command_args(j, 6); break;
-	case 	BMPBLIT:	set_drawing_command_args(j, 16); break;
+	
+	case 	BMPDRAWLAYERR:
+	case 	BMPDRAWLAYERSOLIDR: 
+	case 	BMPDRAWLAYERCFLAGR: 
+	case 	BMPDRAWLAYERCTYPER: 
+	case 	BMPDRAWLAYERCIFLAGR: 
+	case 	BMPDRAWLAYERSOLIDITYR: set_user_bitmap_command_args(j, 9); script_drawing_commands[j][17] = SH::read_stack(ri->sp+9); break;
+	case 	BMPDRAWSCREENR:
+	case 	BMPDRAWSCREENSOLIDR:
+	case 	BMPDRAWSCREENSOLID2R:
+	case 	BMPDRAWSCREENCOMBOFR:
+	case 	BMPDRAWSCREENCOMBOIR:
+	case 	BMPDRAWSCREENCOMBOTR:
+		set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
+	case 	BITMAPGETPIXEL:
+	{
+		for(int q = 0; q < 20; q++)
+		{
+			Z_scripterrlog("getpixel SH::read_stack(ri->sp+%d) is: %d\n", q, SH::read_stack(ri->sp+q));
+		}
+		set_user_bitmap_command_args(j, 3); script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); break;
+	}
+	case 	BMPBLIT:	
+	{
+		set_user_bitmap_command_args(j, 16); 
+		//for(int q = 0; q < 8; ++q )
+		//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
+		break;
+	}
+	case 	BMPBLITTO:	
+	{
+		set_user_bitmap_command_args(j, 16); 
+		//for(int q = 0; q < 8; ++q )
+		//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+16);
+		break;
+	}
+	case 	BMPMODE7:	
+	{
+		set_user_bitmap_command_args(j, 13); 
+		//for(int q = 0; q < 8; ++q )
+		//Z_scripterrlog("FFscript blit() ri->d[%d] is: %d\n", q, ri->d[q]);
+		script_drawing_commands[j][17] = SH::read_stack(ri->sp+13);
+		break;
+	}
     
     
     }
@@ -13429,67 +17300,694 @@ int FFScript::do_get_internal_uid_eweapon(int index)
 	return ((int)Ewpns.spr(index)->getUID());
 }
 
+static inline bool is_Side_view()
+{
+    return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
+}
+
+void FFScript::AlloffLimited(int flagset)
+{
+    clear_bitmap(msgdisplaybuf);
+    set_clip_state(msgdisplaybuf, 1);
+    
+    
+    clear_bitmap(pricesdisplaybuf);
+    set_clip_state(pricesdisplaybuf, 1);
+    
+    if(items.idCount(iPile))
+    {
+        loadlvlpal(DMaps[currdmap].color);
+    }
+    
+    /*
+    
+	#define warpFlagCLEARITEMS 0x200
+	#define warpFlagCLEARGUYS 0x400
+	#define warpFlagCLEARLWEAPONS 0x800
+	#define warpFlagCLEAREWEAPONS 0x1000
+	#define warpFlagCLEARHOOKSHOT 0x2000
+	#define warpFlagCLEARDECORATIONS 0x4000
+	#define warpFlagCLEARPARTICLES 0x8000
+    */
+    
+    if ( (flagset&warpFlagCLEARITEMS) ) items.clear();
+    if ( (flagset&warpFlagCLEARGUYS) ) guys.clear();
+    if ( (flagset&warpFlagCLEARLWEAPONS) ) Lwpns.clear();
+    if ( (flagset&warpFlagCLEAREWEAPONS) ) Ewpns.clear();
+    if ( (flagset&warpFlagCLEARHOOKSHOT) ) 
+    {
+	    chainlinks.clear();
+	    Link.reset_hookshot();
+    }
+    if ( (flagset&warpFlagCLEARDECORATIONS) ) decorations.clear();
+    if ( (flagset&warpFlagCLEARPARTICLES) ) particles.clear();
+    clearScriptHelperData();
+    
+    
+    
+    clearScriptHelperData();
+   
+    lensclk = 0;
+    lensid=-1;
+    drawguys=Udown=Ddown=Ldown=Rdown=Adown=Bdown=Sdown=true;
+    
+    if(watch && !cheat_superman)
+    {
+        Link.setClock(false);
+    }
+    
+    //  if(watch)
+    //    Link.setClock(false);
+    watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
+    
+    for(int i=0; i<176; i++)
+        guygrid[i]=0;
+        
+    sle_clk=0;
+    
+    if(usebombpal)
+    {
+        memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+        refreshpal=true;
+        usebombpal=false;
+    }
+	
+	
+}
+
+//enum { warpFlagDONTKILLSCRIPTDRAWS, warpFlagDONTKILLSOUNDS, warpFlagDONTKILLMUSIC };
+//enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectMozaic, warpEffectOpen }; 
+//valid warpTypes: tile, side, exit, cancel, instant
+bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir)
+{
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpType", warpType);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "dmapID", dmapID);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "scrID", scrID);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpDestX", warpDestX);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpDestY", warpDestY);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpEffect", warpEffect);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpSound", warpSound);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "warpFlags", warpFlags);
+	Z_scripterrlog("FFScript::warp_link() arg %s is: %d \n", "linkFacesDir", linkFacesDir);
+	byte t = 0;
+	t=(currscr<128)?0:1;
+	bool overlay=false;
+	bool intradmap = (dmapID == currdmap);
+	int olddmap = currdmap;
+	//if ( intradmap ) 
+	//{
+	//	initZScriptDMapScripts();    //Not needed.
+	//}
+	if ( (unsigned)dmapID >= MAXDMAPS ) return false;
+	if ( (unsigned)scrID > MAXSCREENS ) return false;
+	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
+	int mapID = (DMaps[dmapID].map+1);
+        int warp_return_index = -1;
+	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
+	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + scrID)];
+	if ( warpFlags&warpFlagNOSTEPFORWARD ) FFCore.temp_no_stepforward = 1;
+	int wx = 0, wy = 0;
+	if ( warpDestX < 0 )
+	{
+		Z_scripterrlog("WarpEx() was set to warp return point:%d\n", warpDestY); 
+		if ( (unsigned)warpDestY < 4 )
+		{
+			wx = m->warpreturnx[warpDestY];
+			wy = m->warpreturny[warpDestY];
+			Z_scripterrlog("WarpEx Return Point X is: %d\n",wx);
+			Z_scripterrlog("WarpEx Return Point Y is: %d\n",wy);
+		}
+		else
+		{
+			if ( (unsigned)warpDestY == 5 )
+			{
+				//Pit warp
+				wx = Link.getX();
+				wy = Link.getY();
+			}
+			else
+			{
+				Z_scripterrlog("Invalid Warp Return Square Type (%d) provided as an arg to Link->WarpEx().\n",warpDestY);
+				return false;
+			}
+		}
+	}
+	else 
+	{
+		if ( (unsigned)warpDestX < 256 && (unsigned)warpDestY < 176 )
+		{
+			wx = warpDestX;
+			wy = warpDestY;
+		}
+		else
+		{
+			Z_scripterrlog("Invalid pixel coordinates of x = %d, y = %d, supplied to Link->WarpEx()\n",warpDestX,warpDestY);
+			return false;
+		}
+		
+	} 
+	//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15918);
+	//warp coordinates are wx, wy, not x, y! -Z
+	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
+	int wrindex = 0;
+	//we also need to check if dmaps are sideview here! -Z
+	//Likewise, we need to add that check to the normal Link:;dowarp(0
+	bool wasSideview = isSideViewGravity(t); //((tmpscr[t].flags7 & fSIDEVIEW)!=0 || DMaps[currdmap].sideview) && !ignoreSideview;
+	//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15925);
+	//Z_scripterrlog("FFCore.warp_link war type is: %d \n", warpType);
+	
+	//int last_entr_scr = -1;
+	//int last_entr_dmap = -1;
+	
+	if ( warpType < wtEXIT ) warpType = wtIWARP; //Sanity check. We can't use wtCave, or wtPassage, with scritped warps at present.
+	
+	switch(warpType)
+	{
+		
+		//wtCAVE, wtPASS, wtEXIT, wtSCROLL, wtIWARP, wtIWARPBLK, wtIWARPOPEN,
+		//wtIWARPZAP, wtIWARPWAVE, wtNOWARP, wtWHISTLE, wtMAX
+			
+		
+		case wtIWARP:
+		case wtIWARPBLK:
+		case wtIWARPOPEN:
+		case wtIWARPZAP:
+		case wtIWARPWAVE: 
+		{
+			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15936);
+			bool wasswimming = (Link.getAction()==swimming);
+			int olddiveclk = Link.diveclk;
+			if ( !(warpFlags&warpFlagDONTCLEARSPRITES) )
+			{
+				ALLOFF();
+			}
+			else FFCore.AlloffLimited(warpFlags);
+			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
+			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
+			sfx(warpSound);
+			if(wasswimming)
+			{
+				Link.setAction(swimming); FFCore.setLinkAction(swimming);
+				Link.diveclk = olddiveclk;
+			}
+			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15948);
+			switch(warpEffect)
+			{
+				case warpEffectZap: zapout(); break;
+				case warpEffectWave: wavyout(false); break;
+				case warpEffectInstant: 
+				{
+				    //bool b2 = COOLSCROLL&&cavewarp;
+				    //blackscr(30,b2?false:true);
+				    blackscr(30,true);
+				    break;
+				}
+				case warpEffectMozaic: 
+				{
+					
+					break;
+				}
+				case warpEffectOpen:
+				{
+					
+					break;
+				}
+				case warpEffectNONE:
+				default: break;
+			}
+			//Z_scripterrlog("FFCore.warp_link reached line: %d \n", 15973);
+			int c = DMaps[currdmap].color;
+			currdmap = dmapID;
+			dlevel = DMaps[currdmap].level;
+			currmap = DMaps[currdmap].map;
+			init_dmap();
+			update_subscreens(dmapID);
+			
+			ringcolor(false);
+			
+			if(DMaps[currdmap].color != c)
+			    loadlvlpal(DMaps[currdmap].color);
+			    
+			homescr = currscr = scrID + DMaps[currdmap].xoff;
+			
+			lightingInstant(); // Also sets naturaldark
+			
+			loadscr(0,currdmap,currscr,-1,overlay);
+			
+			Link.x = (fix)wx;
+			Link.y = (fix)wy;
+			
+			if ( linkFacesDir != -1 )
+			{
+				if((int)Link.x==(fix)0)  
+				{
+					Link.dir=right;
+				}
+				if((int)Link.x==(fix)240) 
+				{
+					Link.dir=left;
+				}
+				
+				if((int)Link.y==(fix)0)   
+				{
+					Link.dir=down;
+				}
+				
+				if((int)Link.y==(fix)160) 
+				{
+					Link.dir=up;
+				}
+			}
+			
+			markBmap(Link.dir^1);
+			
+			if(iswater(MAPCOMBO((int)Link.x,(int)Link.y+8)) && _walkflag((int)Link.x,(int)Link.y+8,0) && current_item(itype_flippers))
+			{
+			    Link.hopclk=0xFF;
+			    Link.attackclk = Link.charging = Link.spins = 0;
+			    Link.setAction(swimming); FFCore.setLinkAction(swimming);
+			}
+			else
+			{
+			    Link.setAction(none); FFCore.setLinkAction(none);
+			}
+			    
+			//preloaded freeform combos
+			ffscript_engine(true);
+			
+			putscr(scrollbuf,0,0,tmpscr);
+			putscrdoors(scrollbuf,0,0,tmpscr);
+			
+			switch(warpEffect)
+			{
+				case warpEffectZap:  zapin(); break;
+				case warpEffectWave: wavyin(); break;
+				case warpEffectMozaic: 
+				{
+					
+					break;
+				}
+				case warpEffectOpen:
+				{
+					openscreen();
+					break;
+				}
+				case warpEffectNONE:
+				default: break;
+			}
+			show_subscreen_life=true;
+			show_subscreen_numbers=true;
+			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) Play_Level_Music();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			Link.setEntryPoints((int)Link.x,(int)Link.y);
+			
+			break;
+		}
+		
+		
+		case wtEXIT:
+		{
+			//Z_scripterrlog("%s was called with a warp type of Entrance/Exit\n", "Link->WarpEx()");
+			lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
+			ALLOFF();
+			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
+			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
+			sfx(warpSound);
+			blackscr(30,false);
+			currdmap = dmapID;
+			dlevel=DMaps[currdmap].level;
+			currmap=DMaps[currdmap].map;
+			init_dmap();
+			update_subscreens(dmapID);
+			loadfullpal();
+			ringcolor(false);
+			loadlvlpal(DMaps[currdmap].color);
+			//lastentrance_dmap = currdmap;
+			homescr = currscr = scrID + DMaps[currdmap].xoff;
+			loadscr(0,currdmap,currscr,-1,overlay);
+			
+			if(tmpscr->flags&fDARK)
+			{
+			    if(get_bit(quest_rules,qr_FADE))
+			    {
+				interpolatedfade();
+			    }
+			    else
+			    {
+				loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
+			    }
+			    
+			    darkroom=naturaldark=true;
+			}
+			else
+			{
+			    darkroom=naturaldark=false;
+			}
+			
+			
+			//Move Link's coordinates
+			Link.x = (fix)wx;
+			Link.y = (fix)wy;
+			//set his dir
+			if ( linkFacesDir != -1 ) 
+			{
+				Link.dir=down; //could be = linkFacesDir
+			
+				if((int)Link.x==(fix)0)  
+				{			
+					Link.dir = right;
+				} 
+				
+				if((int)Link.x==(fix)240) 
+				{
+					Link.dir = left;
+				}
+				
+				if((int)Link.y==(fix)0)   
+				{
+					Link.dir = down;
+				}
+				
+				if((int)Link.y==(fix)160)
+				{	
+					Link.dir = up;
+				}
+			}
+			
+			if(dlevel)
+			{
+			    // reset enemy kill counts
+			    for(int i=0; i<128; i++)
+			    {
+				game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
+				game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
+			    }
+			}
+			
+			markBmap(Link.dir^1);
+			//preloaded freeform combos
+			ffscript_engine(true);
+			Link.reset_hookshot();
+			
+			if(isdungeon())
+			{
+			    openscreen();
+			    if(get_bit(extra_rules, er_SHORTDGNWALK)==0)
+				Link.stepforward(Link.diagonalMovement?11:12, false);
+			    else
+				// Didn't walk as far pre-1.93, and some quests depend on that
+				Link.stepforward(8, false);
+			}
+			else
+			{
+			    openscreen();
+			}
+			
+			show_subscreen_life=true;
+			show_subscreen_numbers=true;
+			Play_Level_Music();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			Link.setEntryPoints((int)Link.x,(int)Link.y);
+			
+			for(int i=0; i<6; i++)
+			    visited[i]=-1;
+			    
+			//last_entr_scr = scrID;
+			//last_entr_dmap = dmapID;
+			
+			break;
+			
+		}
+		case wtSCROLL:                                          // scrolling warp
+		{
+			int c = DMaps[currdmap].color;
+			currmap = DMaps[dmapID].map;
+			update_subscreens(dmapID);
+			
+			dlevel = DMaps[dmapID].level;
+			    //check if Link has the map for the new location before updating the subscreen. ? -Z
+			    //This works only in one direction, if Link had a map, to not having one.
+			    //If Link does not have a map, and warps somewhere where he does, then the map still briefly shows. 
+			update_subscreens(dmapID);
+			    
+			if ( has_item(itype_map, dlevel) ) 
+			{
+				//Blank the map during an intra-dmap scrolling warp. 
+				dlevel = -1; //a hack for the minimap. This works!! -Z
+			}
+			    
+			// fix the scrolling direction, if it was a tile or instant warp
+			Link.sdir = vbound(Link.dir,0,3);
+			
+			
+			Link.scrollscr(Link.sdir, scrID+DMaps[dmapID].xoff, dmapID);
+			dlevel = DMaps[dmapID].level; //Fix dlevel and draw the map (end hack). -Z
+			
+			Link.reset_hookshot();
+			
+			if(!intradmap)
+			{
+			    currdmap = dmapID;
+			    dlevel = DMaps[currdmap].level;
+			    homescr = currscr = scrID + DMaps[dmapID].xoff;
+			    init_dmap();
+			    
+			    
+			    if(((wx>0||wy>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
+			    {
+				if(dlevel)
+				{
+				    lastentrance = currscr;
+				}
+				else
+				{
+				    lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+				}
+				
+				lastentrance_dmap = dmapID;
+			    }
+			}
+			
+			if(DMaps[currdmap].color != c)
+			{
+			    lighting(false, true);
+			}
+			
+			Play_Level_Music();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			break;
+		}
+		//Cannot use these types with scripts, or with strings. 
+		case wtCAVE:
+		case wtPASS:
+		case wtWHISTLE:
+		default: 
+		{
+			Z_scripterrlog("Invalid warp type (%d) supplied to Hero->WarpEx()!. Cannot warp!!\n", warpType);
+			return false;
+		}
+	}
+	// Stop Link from drowning!
+	if(Link.getAction()==drowning)
+	{
+		Link.drownclk=0;
+		Link.setAction(none); FFCore.setLinkAction(none);
+	}
+	    
+	// But keep him swimming if he ought to be!
+	if(Link.getAction()!=rafting && iswater(MAPCOMBO((int)Link.x,(int)Link.y+8)) && (_walkflag((int)Link.x,(int)Link.y+8,0) || get_bit(quest_rules,qr_DROWN))
+		    && (current_item(itype_flippers)) && (Link.getAction()!=inwind))
+	{
+		Link.hopclk=0xFF;
+		Link.setAction(swimming); FFCore.setLinkAction(swimming);
+	}
+	    
+	newscr_clk=frame;
+	activated_timed_warp=false;
+	eat_buttons();
+	    
+	if(warpType!=wtIWARP) { Link.attackclk=0; }
+		
+	Link.didstuff=0;
+	map_bkgsfx(true);
+	loadside=Link.dir^1;
+	whistleclk=-1;
+	    
+	if((int)Link.z>0 && is_Side_view())
+	{
+		Link.y-=Link.z;
+		Link.z=0;
+	}
+	else if(!is_Side_view())
+	{
+		Link.fall=0;
+	}
+	    
+	// If warping between top-down and sideview screens,
+	// fix enemies that are carried over by Full Screen Warp
+	const bool tmpscr_is_sideview = is_Side_view();
+	    
+	if(!wasSideview && tmpscr_is_sideview)
+	{
+		for(int i=0; i<guys.Count(); i++)
+		{
+		    if(guys.spr(i)->z > 0)
+		    {
+			guys.spr(i)->y -= guys.spr(i)->z;
+			guys.spr(i)->z = 0;
+		    }
+		    
+		    if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+			guys.spr(i)->yofs += 2;
+		}
+	}
+	else if(wasSideview && !tmpscr_is_sideview)
+	{
+		for(int i=0; i<guys.Count(); i++)
+		{
+		    if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+			guys.spr(i)->yofs -= 2;
+		}
+	}
+	if ( warpType == wtEXIT )
+	{
+		//game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+		game->set_continue_scrn(scrID);
+		game->set_continue_dmap(dmapID);
+		lastentrance = scrID;
+		//Z_scripterrlog("Setting Last Entrance to: %d\n", scrID);
+		//Z_scripterrlog("lastentrance = %d\n",lastentrance);
+		lastentrance_dmap = dmapID;
+		//Z_scripterrlog("Setting Last Entrance DMap to: %d\n", dmapID);
+		//Z_scripterrlog("lastentrance_dmap = %d\n",lastentrance_dmap);
+		//lastentrance_dmap = currdmap;
+		//lastentrance = game->get_continue_scrn();
+	}
+	else
+	{
+		if ( (warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = scrID;
+		if ( (warpFlags&warpFlagSETENTRANCEDMAP) ) lastentrance_dmap = dmapID;
+		if ( (warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(scrID);
+		if ( (warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmapID);
+		
+		
+	}
+	if(tmpscr->flags4&fAUTOSAVE)
+	{
+		save_game(true,0);
+	}
+	    
+	if(tmpscr->flags6&fCONTINUEHERE)
+	{
+		lastentrance_dmap = currdmap;
+		lastentrance = homescr;
+	}
+	    
+	update_subscreens();
+	verifyBothWeapons();
+	Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,currscr,
+                        warpType==wtEXIT ? "Entrance/Exit" :
+                        warpType==wtSCROLL ? "Scrolling Warp" :
+                        warpType==wtNOWARP ? "Cancel Warp" :
+                        "Insta-Warp");
+                        
+	eventlog_mapflags();
+	if ( !(warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) )
+	{
+		dmap_doscript = 1;
+		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
+		dmapScriptData.Clear();
+	}
+	//if ( olddmap != currdmap ) //night be needed if dmapdata scripts call warpex?
+	FFCore.deallocateAllArrays(SCRIPT_DMAP, olddmap);
+	dmapScriptData.Clear();
+	
+	dmapscriptInitialised[olddmap] = 0;
+	dmapscriptInitialised[currdmap] = 0;
+	return true;
+	
+	
+	
+}
+
 void FFScript::do_adjustvolume(const bool v)
 {
-	long perc = SH::get_arg(sarg1, v) / 10000;
-	int temp_midi;
-	int temp_digi;
-	int temp_mus;
+	long perc = (SH::get_arg(sarg1, v) / 10000);
+	float pct = perc / 100.0;
+	Z_scripterrlog("pct is: %f\n",pct);
+	float temp_midi = 0;
+	float temp_digi = 0;
+	float temp_mus = 0;
 	if ( !(coreflags&FFCORE_SCRIPTED_MIDI_VOLUME) ) 
 	{
+		Z_scripterrlog("FFCORE_SCRIPTED_MIDI_VOLUME: wasn't set\n");
 		temp_midi = do_getMIDI_volume();
-		usr_midi_volume = temp_midi;
+		Z_scripterrlog("temp_midi is %f\n", temp_midi);
+		usr_midi_volume = do_getMIDI_volume();
+		Z_scripterrlog("usr_midi_volume stored as %d\n", usr_midi_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_MIDI_VOLUME,true);
 	}
 	else 
 	{
-		temp_midi = usr_midi_volume;
+		temp_midi = (float)usr_midi_volume;
 	}
 	if ( !(coreflags&FFCORE_SCRIPTED_DIGI_VOLUME) ) 
 	{
 		temp_digi = do_getDIGI_volume();
-		usr_digi_volume = temp_digi;
+		usr_digi_volume = do_getDIGI_volume();
+		Z_scripterrlog("usr_music_volume stored as %d\n", usr_digi_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_DIGI_VOLUME,true);
 	}
 	else
 	{
-		temp_digi = usr_digi_volume;
+		temp_digi = (float)usr_digi_volume;
 	}
 	if ( !(coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME) ) 
 	{
 		temp_mus = do_getMusic_volume();
-		usr_music_volume = temp_mus;
+		usr_music_volume = do_getMusic_volume();
+		Z_scripterrlog("usr_music_volume stored as %d\n", usr_music_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_MUSIC_VOLUME,true);
 	}
 	else
 	{
-		temp_mus = usr_music_volume;
+		temp_mus = (float)usr_music_volume;
 	}
-	temp_midi = ( (temp_midi / 100 ) * perc );
-	temp_digi = ( (temp_digi / 100 ) * perc );
-	temp_mus = ( (temp_mus / 100 ) * perc );
-	do_setMIDI_volume(temp_midi);
-	do_setDIGI_volume(temp_digi);
-	do_setMusic_volume(temp_mus);
+	
+	temp_midi *= pct;
+	temp_digi *= pct;
+	temp_mus *= pct;
+	Z_scripterrlog("temp_midi is: %f\n",temp_midi);
+	Z_scripterrlog("temp_digi is: %f\n",temp_digi);
+	Z_scripterrlog("temp_mus is: %f\n",temp_mus);
+	do_setMIDI_volume((int)temp_midi);
+	do_setDIGI_volume((int)temp_digi);
+	do_setMusic_volume((int)temp_mus);
+	
 
 }
 
 void FFScript::do_adjustsfxvolume(const bool v)
 {
-	long perc = SH::get_arg(sarg1, v) / 10000;
-	int temp_sfx;
+	long perc = (SH::get_arg(sarg1, v) / 10000);
+	float pct = perc / 100.0;
+	float temp_sfx = 0;
 	if ( !(coreflags&FFCORE_SCRIPTED_SFX_VOLUME) ) 
 	{
 		temp_sfx = do_getSFX_volume();
-		usr_sfx_volume = temp_sfx;
+		usr_sfx_volume = (int)temp_sfx;
+		Z_scripterrlog("usr_sfx_volume stored as %d\n", usr_sfx_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_SFX_VOLUME,true);
 	}
 	else 
 	{
-		temp_sfx = usr_sfx_volume;
+		temp_sfx = (float)usr_sfx_volume;
 	}
-	temp_sfx = ( (temp_sfx / 100 ) * perc );
-	do_setSFX_volume(temp_sfx);
+	temp_sfx *= pct;
+	do_setSFX_volume((int)temp_sfx);
 }
 	
 
@@ -13553,6 +18051,47 @@ void do_enh_music(bool v)
     }
 }
 
+void FFScript::do_playogg_ex(const bool v)
+{
+    long arrayptr = SH::get_arg(sarg1, v) / 10000;
+    long track = (SH::get_arg(sarg2, v) / 10000)-1;
+    
+    if(arrayptr == 0)
+        music_stop();
+    else // Pointer to a string..
+    {
+        string filename_str;
+        char filename_char[256];
+        bool ret;
+        ArrayH::getString(arrayptr, filename_str, 256);
+        strncpy(filename_char, filename_str.c_str(), 255);
+        filename_char[255]='\0';
+        ret=try_zcmusic_ex(filename_char, track, -1000);
+        set_register(sarg2, ret ? 10000 : 0);
+    }
+}
+
+void FFScript::do_set_oggex_position(const bool v)
+{
+    long newposition = SH::get_arg(sarg1, v) / 10;
+    
+    set_zcmusicpos(newposition);
+}
+
+void FFScript::go_get_oggex_position()
+{
+    int pos = get_zcmusicpos()*10;
+    al_trace("ZC OGG Position is %d\n", pos);
+    set_register(sarg1, pos);
+}
+
+void FFScript::do_set_oggex_speed(const bool v)
+{
+    long newspeed = SH::get_arg(sarg1, v) / 10;
+    
+    set_zcmusicspeed(newspeed);
+}
+
 void do_get_enh_music_filename(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -13596,116 +18135,6 @@ void do_set_dmap_enh_music(const bool v)
 
 
 
-///----------------------------------------------------------------------------------------------------//
-//Tracing
-
-void do_trace(bool v)
-{
-    long temp = SH::get_arg(sarg1, v);
-    
-    char tmp[100];
-    sprintf(tmp, (temp < 0 ? "%06ld" : "%05ld"), temp);
-    string s2(tmp);
-    s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
-    al_trace("%s\n", s2.c_str());
-    
-    if(zconsole)
-        printf("%s\n", s2.c_str());
-}
-
-void do_tracebool(const bool v)
-{
-    long temp = SH::get_arg(sarg1, v);
-    
-    al_trace("%s\n", temp ? "true": "false");
-    
-    if(zconsole)
-        printf("%s\n", temp ? "true": "false");
-}
-
-void do_tracestring()
-{
-    long arrayptr = get_register(sarg1) / 10000;
-    string str;
-    ArrayH::getString(arrayptr, str, 512);
-    al_trace("%s", str.c_str());
-    
-    if(zconsole)
-        printf("%s", str.c_str());
-}
-
-void do_tracenl()
-{
-    al_trace("\n");
-    
-    if(zconsole)
-        printf("\n");
-}
-
-void do_cleartrace()
-{
-    zc_trace_clear();
-}
-
-string inttobase(word base, long x, word mindigits)
-{
-    static const char coeff[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    
-    string s2;
-    word digits = zc_max(mindigits - 1, word(floor(log(double(x)) / log(double(base)))));
-    
-    for(int i = digits; i >= 0; i--)
-    {
-        s2 += coeff[word(floor(x / pow(double(base), i))) % base];
-    }
-    
-    return s2;
-}
-
-void do_tracetobase()
-{
-    long x = SH::read_stack(ri->sp + 2) / 10000;
-    unsigned long base = vbound(SH::read_stack(ri->sp + 1) / 10000, 2, 36);
-    unsigned long mindigits = zc_max(1, SH::read_stack(ri->sp) / 10000);
-    
-    string s2 = x < 0 ? "-": "";
-    
-    switch(base)
-    {
-    case 8:
-        s2 += '0';
-        break;
-        
-    case 16:
-        s2 += "0x";
-        break;
-    }
-    
-    s2 += inttobase(base, int(fabs(double(x))), mindigits);
-    
-    switch(base)
-    {
-    case 8:
-    case 10:
-    case 16:
-        break;
-        
-    case 2:
-        s2 += 'b';
-        break;
-        
-    default:
-        std::stringstream ss;
-        ss << " (Base " << base << ')';
-        s2 += ss.str();
-        break;
-    }
-    
-    al_trace("%s\n", s2.c_str());
-    
-    if(zconsole)
-        printf("%s\n", s2.c_str());
-}
 
 ///----------------------------------------------------------------------------------------------------//
 //Array & string related
@@ -13886,6 +18315,21 @@ void do_getnpcname()
         Z_scripterrlog("Array supplied to 'npc->GetName' not large enough\n");
 }
 
+//npcdata->GetName
+void FFScript::do_getnpcdata_getname()
+{
+    long arrayptr = get_register(sarg1) / 10000;
+    int npc_id = ri->npcdataref;
+    if((unsigned)npc_id > 511)
+    {
+	Z_scripterrlog("Invalid npc ID (%d) passed to npcdata->GetName().\n", npc_id);
+	return;
+    }
+        
+    if(ArrayH::setArray(arrayptr, guy_string[npc_id]) == SH::_Overflow)
+        Z_scripterrlog("Array supplied to 'npcdata->GetName()' not large enough\n");
+}
+
 void do_getffcscript()
 {
     long arrayptr = get_register(sarg1) / 10000;
@@ -13893,7 +18337,7 @@ void do_getffcscript()
     int num=-1;
     ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         if(strcmp(name.c_str(), ffcmap[i].second.c_str())==0)
         {
@@ -13905,6 +18349,25 @@ void do_getffcscript()
     set_register(sarg1, num * 10000);
 }
 
+void do_npc_link_in_range()
+{
+	int dist = get_register(sarg1) / 10000;
+	Z_scripterrlog("LinkInrange dist is: %d\n", dist);
+	//bool in_range = false;
+	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
+	{
+		//long range = (ri->d[0] / 10000);
+		//bool dir8 = (ri->d[1]);
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		//in_range = (e->LinkInRange(dist));
+		Z_scripterrlog("LinkInRange returned: %s\n", (GuyH::getNPC()->LinkInRange(dist) ? "true" : "false"));
+		bool in_range = GuyH::getNPC()->LinkInRange(dist);
+		//set_register(sarg2, in_range ? 10000 : 0); //This isn't setting the right value, it seems. 
+		//set_register(sarg1, (in_range ? 10000 : 0));
+		set_register(sarg1, 0);
+	}
+	else set_register(sarg1, 0);
+}
 
 void do_getitemscript()
 {
@@ -14027,7 +18490,7 @@ void do_combotile(const bool v)
 ///----------------------------------------------------------------------------------------------------//
 
 // Let's do this
-int run_script(const byte type, const word script, const byte i)
+int run_script(const byte type, const word script, const long i)
 {
     if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
         return 1;
@@ -14052,63 +18515,223 @@ int run_script(const byte type, const word script, const byte i)
     
     switch(type)
     {
-    case SCRIPT_FFC:
-    {
-        ri = &(ffcScriptData[i]);
-        
-        curscript = ffscripts[script];
-        stack = &(ffc_stack[i]);
-        
-        if(!tmpscr->initialized[i])
-        {
-            memcpy(ri->d, tmpscr->initd[i], 8 * sizeof(long));
-            memcpy(ri->a, tmpscr->inita[i], 2 * sizeof(long));
-        }
-        
-        ri->ffcref = i; //'this' pointer
-    }
-    break;
-    
-    case SCRIPT_ITEM:
-    {
-        ri = &itemScriptData;
-        ri->Clear(); //Only runs for one frame so we just zero it out
-	    //What would happen if we don't do this? -Z
-        
-        curscript = itemscripts[script];
-        stack = &item_stack;
-        memset(stack, 0, 256 * sizeof(long)); //zero here too //and don't do this? -Z
-	    //If we can make item scripts capable of running for more than one frame, then we can
-	    //copy the behaviour to npcs, weapons, and items.
-	    //In theory, if we keep the screen caps on these, then we would have 256 or 512 stacks
-	    //for each type at all times. That's an awful lot of wasted RAM.
-	    //Suggestions? -Z
-        
-        memcpy(ri->d, itemsbuf[i].initiald, 8 * sizeof(long));
-        memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
-        
-        ri->idata = i; //'this' pointer
-        
-    }
-    break;
-    //Only one global stack? -Z
-    //No curscript? -Z
-    //With two extra stacks, we could have dmap and screen scripts. -Z
-    
-    case SCRIPT_GLOBAL:
-    {
-        ri = &globalScriptData;
-        
-        curscript = globalscripts[script];
-        stack = &global_stack;
-	    //
-    }
-    break;
-    
-    default:
-        al_trace("No other scripts are currently supported\n");
-        return 1;
-        break;
+	    //Z_scripterrlog("The script type is: %d\n", type);
+	    case SCRIPT_FFC:
+	    {
+		ri = &(ffcScriptData[i]);
+		
+		curscript = ffscripts[script];
+		stack = &(ffc_stack[i]);
+		
+		if(!tmpscr->initialized[i])
+		{
+		    memcpy(ri->d, tmpscr->initd[i], 8 * sizeof(long));
+		    memcpy(ri->a, tmpscr->inita[i], 2 * sizeof(long));
+		}
+		
+		ri->ffcref = i; //'this' pointer
+	    }
+	    break;
+	    case SCRIPT_NPC:
+	    {
+			int npc_index = GuyH::getNPCIndex(i);
+			enemy *w = (enemy*)guys.spr(npc_index);
+			
+		        ri = &(guys.spr(GuyH::getNPCIndex(i))->scriptData);
+			
+			curscript = guyscripts[guys.spr(GuyH::getNPCIndex(i))->script];
+			
+			stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
+			
+			enemy *wa = (enemy*)guys.spr(GuyH::getNPCIndex(i));
+			ri->guyref = wa->getUID();
+			
+			if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
+			{
+				al_trace("(guys.spr(GuyH::getNPCIndex(i))->initialised) is %d\n",(guys.spr(GuyH::getNPCIndex(i))->initialised));
+				
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = wa->initD[q];
+				}
+				guys.spr(GuyH::getNPCIndex(i))->initialised = 1;
+			}
+	    }
+	    break;
+	    
+	    case SCRIPT_LWPN:
+	    {
+			int lwpn_index = LwpnH::getLWeaponIndex(i);
+			weapon *w = (weapon*)Lwpns.spr(lwpn_index);
+			ri = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->scriptData);
+			
+			curscript = lwpnscripts[Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript];
+		
+			stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->stack);
+			
+			weapon *wa = (weapon*)Lwpns.spr(LwpnH::getLWeaponIndex(i));
+			ri->lwpn = wa->getUID();
+			
+			if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
+			{
+				al_trace("(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised) is %d\n",(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised));
+				for ( int q = 0; q < 8; q++ ) 
+				{
+	
+					ri->d[q] = Lwpns.spr(LwpnH::getLWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
+				}
+				Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 1;
+			}
+			
+	    }
+	    break;
+	    
+	    case SCRIPT_EWPN:
+	    {
+			int ewpn_index = EwpnH::getEWeaponIndex(i);
+
+			weapon *w = (weapon*)Ewpns.spr(ewpn_index);
+			ri = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->scriptData);
+			
+			curscript = ewpnscripts[Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript];
+			
+			
+			stack = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->stack);
+			
+			weapon *wa = (weapon*)Ewpns.spr(EwpnH::getEWeaponIndex(i));
+			ri->ewpn = wa->getUID();
+			if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
+			{
+				al_trace("(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised) is %d\n",(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised));
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					
+					ri->d[q] = Ewpns.spr(EwpnH::getEWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
+				}
+				Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 1;
+			}
+			
+	    }
+	    break;
+	    
+	    case SCRIPT_ITEMSPRITE:
+	    {
+			int the_index = ItemH::getItemIndex(i);
+			
+			item *w = (item*)items.spr(the_index);
+			ri = &(items.spr(ItemH::getItemIndex(i))->scriptData);
+		
+			curscript = itemspritescripts[items.spr(ItemH::getItemIndex(i))->script]; //Set the editor sprite script field to 'script'
+				
+			stack = &(items.spr(ItemH::getItemIndex(i))->stack);
+			
+			item *wa = (item*)items.spr(ItemH::getItemIndex(i));
+			ri->itemref = wa->getUID();
+			if (!(items.spr(ItemH::getItemIndex(i))->initialised))
+			{
+				al_trace("(items.spr(ItemH::getItemIndex(i))->initialised) is %d\n",(items.spr(ItemH::getItemIndex(i))->initialised));
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					
+					ri->d[q] = items.spr(ItemH::getItemIndex(i))->initD[q]; //w->initiald[q];
+				}
+				items.spr(ItemH::getItemIndex(i))->initialised = 1;
+			}
+			
+	    }
+	    break;
+	    
+	    case SCRIPT_ITEM:
+	    {
+		int new_i = 0;
+		bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+		new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+		
+		ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
+		
+		curscript = itemscripts[script];
+		stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
+		
+		if ( !(itemscriptInitialised[new_i]) )
+		{
+		    al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
+			memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(long));
+			memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(long));
+			itemscriptInitialised[new_i] = 1;
+		}			
+		ri->idata = ( collect ) ? new_i : i; //'this' pointer
+		
+	    }
+	    break;
+	    //Only one global stack? -Z
+	    //No curscript? -Z
+	    //With two extra stacks, we could have dmap and screen scripts. -Z
+	    
+	    case SCRIPT_GLOBAL:
+	    {
+		ri = &globalScriptData[script];
+		
+		curscript = globalscripts[script];
+		stack = &global_stack[script];
+		    //
+	    }
+	    break;
+	    
+	    case SCRIPT_LINK:
+	    {
+		ri = &linkScriptData;
+		
+		curscript = linkscripts[script];
+		stack = &link_stack;
+		    //
+	    }
+	    break;
+	    
+	    case SCRIPT_DMAP:
+	    {
+		ri = &dmapScriptData;
+		curscript = dmapscripts[script];
+		stack = &dmap_stack;
+		ri->dmapsref = i;
+		    //how do we clear initialised on dmap change?
+		if ( !dmapscriptInitialised[i] )
+		{
+			Z_scripterrlog("dmapscriptInitialised[i] is %d\n",dmapscriptInitialised[i]);
+			for ( int q = 0; q < 8; q++ ) 
+			{
+				ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
+			}
+			dmapscriptInitialised[i] = 1;
+		}
+	    }
+	    break;
+	    
+	    case SCRIPT_SCREEN:
+	    {
+		ri = &(screenScriptData);
+		curscript = screenscripts[script];
+		stack = &(screen_stack);
+		if ( !tmpscr->screendatascriptInitialised )
+		    
+		{
+			al_trace("tmpscr->screendatascriptInitialised is %d\n",tmpscr->screendatascriptInitialised);
+			for ( int q = 0; q < 8; q++ ) 
+			{
+				ri->d[q] = tmpscr->screeninitd[q];// * 10000;
+			}
+			tmpscr->screendatascriptInitialised = 1;
+		}
+		 
+	    }
+	    break;
+	    
+	    
+	    default:
+	    {
+		al_trace("No other scripts are currently supported\n");
+		return 1;
+		break;
+	    }
     }
     
     dword pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
@@ -14164,1641 +18787,2200 @@ int run_script(const byte type, const word script, const byte i)
         start_time = script_counter;
 #endif
 #endif
-        
+      
+        if ( zasm_debugger ) FFCore.ZASMPrintCommand(scommand);
         switch(scommand)
         {
-        case QUIT:
-            scommand = 0xFFFF;
-            break;
-            
-        case GOTO:
-            pc = sarg1;
-            increment = false;
-            break;
-            
-        case GOTOR:
-        {
-            pc = (get_register(sarg1) / 10000) - 1;
-            increment = false;
-        }
-        break;
-        
-        case GOTOTRUE:
-            if(ri->scriptflag & TRUEFLAG)
-            {
-                pc = sarg1;
-                increment = false;
-            }
-            
-            break;
-            
-        case GOTOFALSE:
-            if(!(ri->scriptflag & TRUEFLAG))
-            {
-                pc = sarg1;
-                increment = false;
-            }
-            
-            break;
-            
-        case GOTOMORE:
-            if(ri->scriptflag & MOREFLAG)
-            {
-                pc = sarg1;
-                increment = false;
-            }
-            
-            break;
-            
-        case GOTOLESS:
-            if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
-            {
-                pc = sarg1;
-                increment = false;
-            }
-            
-            break;
-            
-        case LOOP:
-        {
-            if(get_register(sarg2) > 0)
-            {
-                pc = sarg1;
-                increment = false;
-            }
-            else
-            {
-                set_register(sarg1, sarg1 - 1);
-            }
-        }
-        break;
-
-        case RETURN:
-        {
-            pc = SH::read_stack(ri->sp) - 1;
-            ++ri->sp;
-            increment = false;
-            break;
-        }
-        
-        case SETTRUE:
-            set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 1 : 0);
-            break;
-            
-        case SETFALSE:
-            set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 1);
-            break;
-            
-        case SETMORE:
-            set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 1 : 0);
-            break;
-            
-        case SETLESS:
-            set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
-                                 || (ri->scriptflag & TRUEFLAG)) ? 1 : 0);
-            break;
-            
-        case NOT:
-            do_not(false);
-            break;
-            
-        case COMPAREV:
-            do_comp(true);
-            break;
-            
-        case COMPARER:
-            do_comp(false);
-            break;
-            
-        case SETV:
-            do_set(true, type==SCRIPT_FFC ? i : -1);
-            break;
-            
-        case SETR:
-            do_set(false, type==SCRIPT_FFC ? i : -1);
-            break;
-            
-        case PUSHR:
-            do_push(false);
-            break;
-            
-        case PUSHV:
-            do_push(true);
-            break;
-            
-        case POP:
-            do_pop();
-            break;
-            
-        case LOADI:
-            do_loadi();
-            break;
-            
-        case STOREI:
-            do_storei();
-            break;
-            
-        case LOAD1:
-            do_loada(0);
-            break;
-            
-        case LOAD2:
-            do_loada(1);
-            break;
-            
-        case SETA1:
-            do_seta(0);
-            break;
-            
-        case SETA2:
-            do_seta(1);
-            break;
-            
-        case ALLOCATEGMEMR:
-            if(type == SCRIPT_GLOBAL) do_allocatemem(false, false, type==SCRIPT_FFC?i:255);
-            
-            break;
-            
-        case ALLOCATEGMEMV:
-            if(type == SCRIPT_GLOBAL) do_allocatemem(true, false, type==SCRIPT_FFC?i:255);
-            
-            break;
-            
-        case ALLOCATEMEMR:
-            do_allocatemem(false, true, type==SCRIPT_FFC?i:255);
-            break;
-            
-        case ALLOCATEMEMV:
-            do_allocatemem(true, true, type==SCRIPT_FFC?i:255);
-            break;
-            
-        case DEALLOCATEMEMR:
-            do_deallocatemem();
-            break;
-            
-        case ARRAYSIZE:
-            do_arraysize();
-            break;
-         case ARRAYSIZEB:
-            do_arraysize();
-            break;
-	case ARRAYSIZEF:
-            do_arraysize();
-            break;
-	case ARRAYSIZEN:
-            do_arraysize();
-            break;
-	case ARRAYSIZEI:
-            do_arraysize();
-            break;
-	case ARRAYSIZEID:
-            do_arraysize();
-            break;
-	case ARRAYSIZEL:
-            do_arraysize();
-            break;
-	case ARRAYSIZEE:
-            do_arraysize();
-            break;
-	
-        case GETFFCSCRIPT:
-            do_getffcscript();
-            break;
-	case GETITEMSCRIPT:
-            do_getitemscript();
-            break;
-            
-            
-        case ADDV:
-            do_add(true);
-            break;
-            
-        case ADDR:
-            do_add(false);
-            break;
-            
-        case SUBV:
-            do_sub(true);
-            break;
-            
-        case SUBR:
-            do_sub(false);
-            break;
-            
-        case MULTV:
-            do_mult(true);
-            break;
-            
-        case MULTR:
-            do_mult(false);
-            break;
-            
-        case DIVV:
-            do_div(true);
-            break;
-            
-        case DIVR:
-            do_div(false);
-            break;
-            
-        case MODV:
-            do_mod(true);
-            break;
-            
-        case MODR:
-            do_mod(false);
-            break;
-            
-        case SINV:
-            do_trig(true, 0);
-            break;
-            
-        case SINR:
-            do_trig(false, 0);
-            break;
-            
-        case COSV:
-            do_trig(true, 1);
-            break;
-            
-        case COSR:
-            do_trig(false, 1);
-            break;
-            
-        case TANV:
-            do_trig(true, 2);
-            break;
-            
-        case TANR:
-            do_trig(false, 2);
-            break;
-            
-        case ARCSINR:
-            do_asin(false);
-            break;
-            
-        case ARCCOSR:
-            do_acos(false);
-            break;
-            
-        case ARCTANR:
-            do_arctan();
-            break;
-            
-        case ABSR:
-            do_abs(false);
-            break;
-            
-        case MINR:
-            do_min(false);
-            break;
-            
-        case MINV:
-            do_min(true);
-            break;
-            
-        case MAXR:
-            do_max(false);
-            break;
-            
-        case MAXV:
-            do_max(true);
-            break;
-            
-        case RNDR:
-            do_rnd(false);
-            break;
-            
-        case RNDV:
-            do_rnd(true);
-            break;
-            
-        case FACTORIAL:
-            do_factorial(false);
-            break;
-            
-        case SQROOTV:
-            do_sqroot(true);
-            break;
-            
-        case SQROOTR:
-            do_sqroot(false);
-            break;
-            
-        case POWERR:
-            do_power(false);
-            break;
-            
-        case POWERV:
-            do_power(true);
-            break;
-            
-        case IPOWERR:
-            do_ipower(false);
-            break;
-            
-        case IPOWERV:
-            do_ipower(true);
-            break;
-            
-        case LOG10:
-            do_log10(false);
-            break;
-            
-        case LOGE:
-            do_naturallog(false);
-            break;
-            
-        case ANDR:
-            do_and(false);
-            break;
-            
-        case ANDV:
-            do_and(true);
-            break;
-            
-        case ORR:
-            do_or(false);
-            break;
-            
-        case ORV:
-            do_or(true);
-            break;
-            
-        case XORR:
-            do_xor(false);
-            break;
-            
-        case XORV:
-            do_xor(true);
-            break;
-            
-        case NANDR:
-            do_nand(false);
-            break;
-            
-        case NANDV:
-            do_nand(true);
-            break;
-            
-        case NORR:
-            do_nor(false);
-            break;
-            
-        case NORV:
-            do_nor(true);
-            break;
-            
-        case XNORR:
-            do_xnor(false);
-            break;
-            
-        case XNORV:
-            do_xnor(true);
-            break;
-            
-        case BITNOT:
-            do_bitwisenot(false);
-            break;
-            
-        case LSHIFTR:
-            do_lshift(false);
-            break;
-            
-        case LSHIFTV:
-            do_lshift(true);
-            break;
-            
-        case RSHIFTR:
-            do_rshift(false);
-            break;
-            
-        case RSHIFTV:
-            do_rshift(true);
-            break;
-            
-        case TRACER:
-            do_trace(false);
-            break;
-            
-        case TRACEV:
-            do_trace(true);
-            break;
-            
-        case TRACE2R:
-            do_tracebool(false);
-            break;
-	
-	//Zap and Wavy Effects
-	case FXWAVYR:
-	    FFCore.do_fx_wavy(false);
-	    break;
-	case FXZAPR:
-	    FFCore.do_fx_zap(false);
-	    break;
-	//Zap and Wavy Effects
-	case FXWAVYV:
-	    FFCore.do_fx_wavy(true);
-	    break;
-	case FXZAPV:
-	    FFCore.do_fx_zap(true);
-	    break;
-	case GREYSCALER:
-		FFCore.do_greyscale(false);
-		break;
-	case GREYSCALEV:
-		FFCore.do_greyscale(true);
-		break;
-	case MONOCHROMER:
-		FFCore.do_monochromatic(false);
-		break;
-	case MONOCHROMEV:
-		FFCore.do_monochromatic(true);
-		break;
-            
-        case TRACE2V:
-            do_tracebool(true);
-            break;
-            
-        case TRACE3:
-            do_tracenl();
-            break;
-            
-        case TRACE4:
-            do_cleartrace();
-            break;
-            
-        case TRACE5:
-            do_tracetobase();
-            break;
-            
-        case TRACE6:
-            do_tracestring();
-            break;
-            
-        case WARP:
-            do_warp(true);
-            break;
-            
-        case WARPR:
-            do_warp(false);
-            break;
-            
-        case PITWARP:
-            do_pitwarp(true);
-            break;
-            
-        case PITWARPR:
-            do_pitwarp(false);
-            break;
-            
-        case BREAKSHIELD:
-            do_breakshield();
-            break;
-            
-        case SELECTAWPNV:
-            do_selectweapon(true, true);
-            break;
-            
-        case SELECTAWPNR:
-            do_selectweapon(false, true);
-            break;
-            
-        case SELECTBWPNV:
-            do_selectweapon(true, false);
-            break;
-            
-        case SELECTBWPNR:
-            do_selectweapon(false, false);
-            break;
-            
-        case PLAYSOUNDR:
-            do_sfx(false);
-            break;
-            
-        case PLAYSOUNDV:
-            do_sfx(true);
-            break;
-	
-	case ADJUSTSFXVOLUMER: FFCore.do_adjustsfxvolume(false); break;
-	case ADJUSTSFXVOLUMEV: FFCore.do_adjustsfxvolume(true); break;	
-	case ADJUSTVOLUMER: FFCore.do_adjustvolume(false); break;
-	case ADJUSTVOLUMEV: FFCore.do_adjustvolume(true); break;
-		
-	case TRIGGERSECRETR:
-            FFScript::do_triggersecret(false);
-            break;
-            
-        case TRIGGERSECRETV:
-            FFScript::do_triggersecret(true);
-            break;
-            
-        case PLAYMIDIR:
-            do_midi(false);
-            break;
-            
-        case PLAYMIDIV:
-            do_midi(true);
-            break;
-            
-        case PLAYENHMUSIC:
-            do_enh_music(false);
-            break;
-            
-        case GETMUSICFILE:
-            do_get_enh_music_filename(false);
-            break;
-            
-        case GETMUSICTRACK:
-            do_get_enh_music_track(false);
-            break;
-            
-        case SETDMAPENHMUSIC:
-            do_set_dmap_enh_music(false);
-            break;
-	
-	// Audio->
-	
-	case ENDSOUNDR:
-            stop_sfx(false);
-            break;
-            
-        case ENDSOUNDV:
-            stop_sfx(true);
-            break;
-	
-	case PAUSESOUNDR:
-            pause_sfx(false);
-            break;
-            
-        case PAUSESOUNDV:
-            pause_sfx(true);
-            break;
-	
-	case RESUMESOUNDR:
-            resume_sfx(false);
-            break;
-            
-        case RESUMESOUNDV:
-            resume_sfx(true);
-            break;
-	
-	
-	
-	case PAUSESFX:
-	{
-		int sound = ri->d[0]/10000;
-		pause_sfx(sound);
-		
-	}
-	break;
-
-	case RESUMESFX:
-	{
-		int sound = ri->d[0]/10000;
-		resume_sfx(sound);
-	}
-	break;
-
-	case ADJUSTSFX:
-	{
-		int sound = ri->d[2]/10000;
-		int pan = ri->d[1];
-		// control_state[6]=((value/10000)!=0)?true:false;
-		bool loop = ((ri->d[0]/10000)!=0)?true:false;
-		//SFXBackend.adjust_sfx(sound,pan,loop);
-		
-		//! adjust_sfx was not ported to the new back end!!! -Z
-	}
-	break;
-
-
-	case CONTINUESFX:
-	{
-		int sound = ri->d[0]/10000;
-		//Backend::sfx->cont_sfx(sound);
-		
-		//! cont_sfx was not ported to the new back end!!!
-		// I believe this restarted the loop. 
-		resume_sfx(sound);
-		//What was the old instruction, again? Did it exist? -Z
-		//continue_sfx(sound);
-	}
-	break;	
-
-	
-	/*
-	case STOPITEMSOUND:
-		void stop_item_sfx(int family)
-	*/
-	
-	case PAUSEMUSIC:
-		//What was the instruction prior to adding backends?
-	//! The pauseAll() function pauses sfx, not music, so this instruction is not doing what I intended. -Z
-		//Check AllOff() -Z
-	//zcmusic_pause(ZCMUSIC* zcm, int pause); is in zcmusic.h
-		midi_paused = true; 
-		//pause_all_sfx();
-	
-		//Backend::sfx->pauseAll();
-		break;
-	case RESUMEMUSIC:
-		//What was the instruction prior to adding backends?
-		//Check AllOff() -Z
-		//resume_all_sfx();
-		midi_paused = false; 
-		//Backend::sfx->resumeAll();
-		break;
-	
-	//!!! typecasting
-	case LWPNARRPTR:
-	case EWPNARRPTR:
-	case ITEMARRPTR:
-	case IDATAARRPTR:
-	case FFCARRPTR:
-	case BOOLARRPTR:
-	case NPCARRPTR:
-		
-	case LWPNARRPTR2:
-	case EWPNARRPTR2:
-	case ITEMARRPTR2:
-	case IDATAARRPTR2:
-	case FFCARRPTR2:
-	case BOOLARRPTR2:
-	case NPCARRPTR2:
-	FFScript::do_typedpointer_typecast(false);
-	break;
-            
-        case MSGSTRR:
-            do_message(false);
-            break;
-            
-        case MSGSTRV:
-            do_message(true);
-            break;
-            
-        case ITEMNAME:
-            do_getitemname();
-            break;
-            
-        case NPCNAME:
-            do_getnpcname();
-            break;
-            
-        case GETSAVENAME:
-            do_getsavename();
-            break;
-            
-        case SETSAVENAME:
-            do_setsavename();
-            break;
-            
-        case GETMESSAGE:
-            do_getmessage(false);
-            break;
-	case SETMESSAGE:
-            do_setmessage(false);
-            break;
-            
-        case GETDMAPNAME:
-            do_getdmapname(false);
-            break;
-            
-        case GETDMAPTITLE:
-            do_getdmaptitle(false);
-            break;
-            
-        case GETDMAPINTRO:
-            do_getdmapintro(false);
-            break;
-            
-	case SETDMAPNAME:
-            do_setdmapname(false);
-            break;
-            
-        case SETDMAPTITLE:
-            do_setdmaptitle(false);
-            break;
-	
-        case SETDMAPINTRO:
-            do_setdmapintro(false);
-            break;
-	
-        case LOADLWEAPONR:
-            do_loadlweapon(false);
-            break;
-            
-        case LOADLWEAPONV:
-            do_loadlweapon(true);
-            break;
-            
-        case LOADEWEAPONR:
-            do_loadeweapon(false);
-            break;
-            
-        case LOADEWEAPONV:
-            do_loadeweapon(true);
-            break;
-            
-        case LOADITEMR:
-            do_loaditem(false);
-            break;
-            
-        case LOADITEMV:
-            do_loaditem(true);
-            break;
-            
-        case LOADITEMDATAR:
-            do_loaditemdata(false);
-            break;
-	
-	//New Datatypes
-	case LOADSHOPR:
-            FFScript::do_loadshopdata(false);
-            break;
-        case LOADSHOPV:
-            FFScript::do_loadshopdata(true);
-            break;
-	
-	case LOADINFOSHOPR:
-            FFScript::do_loadinfoshopdata(false);
-            break;
-        case LOADINFOSHOPV:
-            FFScript::do_loadinfoshopdata(true);
-            break;
-	case LOADNPCDATAR:
-            FFScript::do_loadnpcdata(false);
-            break;
-        case LOADNPCDATAV:
-            FFScript::do_loadnpcdata(true);
-            break;
-	
-	case LOADCOMBODATAR:
-            FFScript::do_loadcombodata(false);
-            break;
-        case LOADCOMBODATAV:
-            FFScript::do_loadcombodata(true);
-            break;
-	
-	case LOADMAPDATAR:
-            FFScript::do_loadmapdata(false);
-            break;
-        case LOADMAPDATAV:
-            FFScript::do_loadmapdata(true);
-            break;
-	
-	case LOADSPRITEDATAR:
-            FFScript::do_loadspritedata(false);
-            break;
-        case LOADSPRITEDATAV:
-            FFScript::do_loadspritedata(true);
-            break;
-	
-	case LOADSCREENDATAR:
-            FFScript::do_loadscreendata(false);
-            break;
-        case LOADSCREENDATAV:
-            FFScript::do_loadscreendata(true);
-            break;
-	
-	case LOADBITMAPDATAR:
-            FFScript::do_loadbitmapid(false);
-            break;
-        case LOADBITMAPDATAV:
-            FFScript::do_loadbitmapid(true);
-            break;
-	
-//functions
-case LOADDMAPDATAR: //command
-	FFScript::do_loaddmapdata(false); break;
-case LOADDMAPDATAV: //command
-	FFScript::do_loaddmapdata(true); break;
-
-
-case DMAPDATAGETNAMER: //command
-	FFScript::do_getDMapData_dmapname(false); break;
-case DMAPDATAGETNAMEV: //command
-	FFScript::do_getDMapData_dmapname(true); break;
-
-case DMAPDATASETNAMER: //command
-	FFScript::do_setDMapData_dmapname(false); break;
-case DMAPDATASETNAMEV: //command
-	FFScript::do_setDMapData_dmapname(true); break;
-
-
-
-case DMAPDATAGETTITLER: //command
-	FFScript::do_getDMapData_dmaptitle(false); break;
-case DMAPDATAGETTITLEV: //command
-	FFScript::do_getDMapData_dmaptitle(true); break;
-case DMAPDATASETTITLER: //command
-	FFScript::do_setDMapData_dmaptitle(false); break;
-case DMAPDATASETTITLEV: //command
-	FFScript::do_setDMapData_dmaptitle(true); break;
-
-
-case DMAPDATAGETINTROR: //command
-	FFScript::do_getDMapData_dmapintro(false); break;
-case DMAPDATAGETINTROV: //command
-	FFScript::do_getDMapData_dmapintro(true); break;
-case DMAPDATANSETITROR: //command
-	FFScript::do_setDMapData_dmapintro(false); break;
-case DMAPDATASETINTROV: //command
-	FFScript::do_setDMapData_dmapintro(true); break;
-
-
-case DMAPDATAGETMUSICR: //command, string to load a music file
-	FFScript::do_getDMapData_music(false); break;
-case DMAPDATAGETMUSICV: //command, string to load a music file
-	FFScript::do_getDMapData_music(true); break;
-case DMAPDATASETMUSICR: //command, string to load a music file
-	FFScript::do_setDMapData_music(false); break;
-case DMAPDATASETMUSICV: //command, string to load a music file
-	FFScript::do_setDMapData_music(true); break;
-
-	case LOADMESSAGEDATAR: //COMMAND
-	FFScript::do_loadmessagedata(false);
-            break;
-	case LOADMESSAGEDATAV: //COMMAND
-	FFScript::do_loadmessagedata(false);
-            break;
-	
-
-	case MESSAGEDATASETSTRINGR: //command
-	FFScript::do_messagedata_setstring(false);
-            break;
-	case MESSAGEDATASETSTRINGV: //command
-	FFScript::do_messagedata_setstring(false);
-            break;
-	
-	case MESSAGEDATAGETSTRINGR: //command
-	FFScript::do_messagedata_getstring(false);
-            break;
-	case MESSAGEDATAGETSTRINGV: //command
-	FFScript::do_messagedata_getstring(false);
-            break;	
-        case LOADITEMDATAV:
-            do_loaditemdata(true);
-            break;
-            
-        case LOADNPCR:
-            do_loadnpc(false);
-            break;
-            
-        case LOADNPCV:
-            do_loadnpc(true);
-            break;
-            
-        case CREATELWEAPONR:
-            do_createlweapon(false);
-            break;
-            
-        case CREATELWEAPONV:
-            do_createlweapon(true);
-            break;
-            
-        case CREATEEWEAPONR:
-            do_createeweapon(false);
-            break;
-            
-        case CREATEEWEAPONV:
-            do_createeweapon(true);
-            break;
-            
-        case CREATEITEMR:
-            do_createitem(false);
-            break;
-            
-        case CREATEITEMV:
-            do_createitem(true);
-            break;
-            
-        case CREATENPCR:
-            do_createnpc(false);
-            break;
-            
-        case CREATENPCV:
-            do_createnpc(true);
-            break;
-            
-        case ISVALIDITEM:
-            do_isvaliditem();
-            break;
-            
-        case ISVALIDNPC:
-            do_isvalidnpc();
-            break;
-            
-        case ISVALIDLWPN:
-            do_isvalidlwpn();
-            break;
-            
-        case ISVALIDEWPN:
-            do_isvalidewpn();
-            break;
-            
-        case LWPNUSESPRITER:
-            do_lwpnusesprite(false);
-            break;
-            
-        case LWPNUSESPRITEV:
-            do_lwpnusesprite(true);
-            break;
-            
-        case EWPNUSESPRITER:
-            do_ewpnusesprite(false);
-            break;
-            
-        case EWPNUSESPRITEV:
-            do_ewpnusesprite(true);
-            break;
-            
-        case CLEARSPRITESR:
-            do_clearsprites(false);
-            break;
-            
-        case CLEARSPRITESV:
-            do_clearsprites(true);
-            break;
-            
-        case ISSOLID:
-            do_issolid();
-            break;
-            
-        case SETSIDEWARP:
-            do_setsidewarp();
-            break;
-            
-        case SETTILEWARP:
-            do_settilewarp();
-            break;
-            
-        case GETSIDEWARPDMAP:
-            do_getsidewarpdmap(false);
-            break;
-            
-        case GETSIDEWARPSCR:
-            do_getsidewarpscr(false);
-            break;
-            
-        case GETSIDEWARPTYPE:
-            do_getsidewarptype(false);
-            break;
-            
-        case GETTILEWARPDMAP:
-            do_gettilewarpdmap(false);
-            break;
-            
-        case GETTILEWARPSCR:
-            do_gettilewarpscr(false);
-            break;
-            
-        case GETTILEWARPTYPE:
-            do_gettilewarptype(false);
-            break;
-            
-        case LAYERSCREEN:
-            do_layerscreen();
-            break;
-            
-        case LAYERMAP:
-            do_layermap();
-            break;
-            
-        case SECRETS:
-            do_triggersecrets();
-            break;
-            
-        case GETSCREENFLAGS:
-            do_getscreenflags();
-            break;
-            
-        case GETSCREENEFLAGS:
-            do_getscreeneflags();
-            break;
-	
-	case GETSCREENDOOR:
-            do_getscreendoor();
-            break;
-	
-	case GETSCREENENEMY:
-            do_getscreennpc();
-            break;
-	
-	//screendata and mapdata
-	    case SETSCREENENEMY:
-	    { //void SetScreenEnemy(int map, int screen, int index, int value);
-		
+		case QUIT:
+		    scommand = 0xFFFF;
+		    break;
 		    
+		case GOTO:
+		    pc = sarg1;
+		    increment = false;
+		    break;
+		    
+		case GOTOR:
+		{
+		    pc = (get_register(sarg1) / 10000) - 1;
+		    increment = false;
+		}
+		break;
+		
+		case GOTOTRUE:
+		    if(ri->scriptflag & TRUEFLAG)
+		    {
+			pc = sarg1;
+			increment = false;
+		    }
+		    
+		    break;
+		    
+		case GOTOFALSE:
+		    if(!(ri->scriptflag & TRUEFLAG))
+		    {
+			pc = sarg1;
+			increment = false;
+		    }
+		    
+		    break;
+		    
+		case GOTOMORE:
+		    if(ri->scriptflag & MOREFLAG)
+		    {
+			pc = sarg1;
+			increment = false;
+		    }
+		    
+		    break;
+		    
+		case GOTOLESS:
+		    if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
+		    {
+			pc = sarg1;
+			increment = false;
+		    }
+		    
+		    break;
+		    
+		case LOOP:
+		{
+		    if(get_register(sarg2) > 0)
+		    {
+			pc = sarg1;
+			increment = false;
+		    }
+		    else
+		    {
+			set_register(sarg1, sarg1 - 1);
+		    }
+		}
+		break;
+
+		case RETURN:
+		{
+		    pc = SH::read_stack(ri->sp) - 1;
+		    ++ri->sp;
+		    increment = false;
+		    break;
+		}
+		
+		case SETTRUE:
+		    set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 1 : 0);
+		    break;
+		    
+		case SETFALSE:
+		    set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 1);
+		    break;
+		    
+		case SETMORE:
+		    set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 1 : 0);
+		    break;
+		    
+		case SETLESS:
+		    set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
+					 || (ri->scriptflag & TRUEFLAG)) ? 1 : 0);
+		    break;
+		
+		case SETTRUEI:
+		    set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 10000 : 0);
+		    break;
+		    
+		case SETFALSEI:
+		    set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 0 : 10000);
+		    break;
+		    
+		case SETMOREI:
+		    set_register(sarg1, (ri->scriptflag & MOREFLAG) ? 10000 : 0);
+		    break;
+		    
+		case SETLESSI:
+		    set_register(sarg1, (!(ri->scriptflag & MOREFLAG)
+					 || (ri->scriptflag & TRUEFLAG)) ? 10000 : 0);
+		    break;
+		    
+		case NOT:
+		    do_not(false);
+		    break;
+		    
+		case COMPAREV:
+		    do_comp(true);
+		    break;
+		    
+		case COMPARER:
+		    do_comp(false);
+		    break;
+		    
+		case SETV:
+		    do_set(true, type, i);
+		    break;
+		    
+		case SETR:
+		    do_set(false, type, i);
+		    break;
+		    
+		case PUSHR:
+		    do_push(false);
+		    break;
+		    
+		case PUSHV:
+		    do_push(true);
+		    break;
+		    
+		case POP:
+		    do_pop();
+		    break;
+		    
+		case LOADI:
+		    do_loadi();
+		    break;
+		    
+		case STOREI:
+		    do_storei();
+		    break;
+		    
+		case LOAD1:
+		    do_loada(0);
+		    break;
+		    
+		case LOAD2:
+		    do_loada(1);
+		    break;
+		    
+		case SETA1:
+		    do_seta(0);
+		    break;
+		    
+		case SETA2:
+		    do_seta(1);
+		    break;
+		    
+		case ALLOCATEGMEMR:
+		    if(type == SCRIPT_GLOBAL) do_allocatemem(false, false, type, i);
+		    
+		    break;
+		    
+		case ALLOCATEGMEMV:
+		    if(type == SCRIPT_GLOBAL) do_allocatemem(true, false, type, i);
+		    
+		    break;
+		    
+		case ALLOCATEMEMR:
+		    do_allocatemem(false, true, type, i);
+		    break;
+		    
+		case ALLOCATEMEMV:
+		    do_allocatemem(true, true, type, i);
+		    break;
+		    
+		case DEALLOCATEMEMR:
+		    do_deallocatemem();
+		    break;
+		    
+		case SAVEGAMESTRUCTS:
+		    FFCore.do_savegamestructs(false,false);
+		    break;
+		case READGAMESTRUCTS:
+		    FFCore.do_loadgamestructs(false,false);
+		    break;
+		case ARRAYSIZE:
+		    do_arraysize();
+		    break;
+		 case ARRAYSIZEB:
+		    do_arraysize();
+		    break;
+		case ARRAYSIZEF:
+		    do_arraysize();
+		    break;
+		case ARRAYSIZEN:
+		    do_arraysize();
+		    break;
+		case ARRAYSIZEI:
+		    do_arraysize();
+		    break;
+		case ARRAYSIZEID:
+		    do_arraysize();
+		    break;
+		case ARRAYSIZEL:
+		    do_arraysize();
+		    break;
+		case ARRAYSIZEE:
+		    do_arraysize();
+		    break;
+		
+		case GETFFCSCRIPT:
+		    do_getffcscript();
+		    break;
+		case GETITEMSCRIPT:
+		    do_getitemscript();
+		    break;
+		    
+		case CASTBOOLI:
+			do_boolcast(false);
+			break;
+			
+		case CASTBOOLF:
+			do_boolcast(true);
+			break;
+		    
+		case ADDV:
+		    do_add(true);
+		    break;
+		    
+		case ADDR:
+		    do_add(false);
+		    break;
+		    
+		case SUBV:
+		    do_sub(true);
+		    break;
+		    
+		case SUBR:
+		    do_sub(false);
+		    break;
+		    
+		case MULTV:
+		    do_mult(true);
+		    break;
+		    
+		case MULTR:
+		    do_mult(false);
+		    break;
+		    
+		case DIVV:
+		    do_div(true);
+		    break;
+		    
+		case DIVR:
+		    do_div(false);
+		    break;
+		    
+		case MODV:
+		    do_mod(true);
+		    break;
+		    
+		case MODR:
+		    do_mod(false);
+		    break;
+		    
+		case SINV:
+		    do_trig(true, 0);
+		    break;
+		    
+		case SINR:
+		    do_trig(false, 0);
+		    break;
+		    
+		case COSV:
+		    do_trig(true, 1);
+		    break;
+		    
+		case COSR:
+		    do_trig(false, 1);
+		    break;
+		    
+		case TANV:
+		    do_trig(true, 2);
+		    break;
+		    
+		case TANR:
+		    do_trig(false, 2);
+		    break;
+		
+		case STRINGLENGTH:
+			FFCore.do_strlen(false);
+			break;
+		    
+		case ARCSINR:
+		    do_asin(false);
+		    break;
+		    
+		case ARCCOSR:
+		    do_acos(false);
+		    break;
+		    
+		case ARCTANR:
+		    do_arctan();
+		    break;
+		
+		//Text ptr functions
+		case FONTHEIGHTR:
+			do_fontheight();
+			break;
+		case STRINGWIDTHR:
+			do_strwidth();
+			break;
+		case CHARWIDTHR:
+			do_charwidth();
+			break;
+		case MESSAGEWIDTHR:
+			do_msgwidth(get_register(sarg1)/10000);
+			break;
+		case MESSAGEHEIGHTR:
+			do_msgheight(get_register(sarg1)/10000);
+			break;
+		//
+		
+		//String.h functions 2.55 Alpha 23
+		case STRINGCOMPARE: FFCore.do_strcmp(); break;
+		case STRINGCOPY: FFCore.do_strcpy(false,false); break;
+		case ARRAYCOPY: FFCore.do_arraycpy(false,false); break;
+		case STRINGNCOMPARE: FFCore.do_strncmp(); break;
+		
+		//More string.h functions, 19th May, 2019 
+		case XLEN: FFCore.do_xlen(false); break;
+		case XTOI: FFCore.do_xtoi(false); break;
+		case ILEN: FFCore.do_ilen(false); break;
+		case ATOI: FFCore.do_atoi(false); break;
+		case STRCSPN: FFCore.do_strcspn(); break;
+		case STRSTR: FFCore.do_strstr(); break;
+		case XTOA: FFCore.do_xtoa(); break;
+		case ITOA: FFCore.do_itoa(); break;
+		case STRCAT: FFCore.do_strcat(); break;
+		case STRSPN: FFCore.do_strspn(); break;
+		case STRCHR: FFCore.do_strchr(); break;
+		case STRRCHR: FFCore.do_strrchr(); break;
+		case XLEN2: FFCore.do_xlen2(); break;
+		case XTOI2: FFCore.do_xtoi2(); break;
+		case ILEN2: FFCore.do_ilen2(); break;
+		case ATOI2: FFCore.do_atoi2(); break;
+		case REMCHR2: FFCore.do_remchr2(); break;
+		case UPPERTOLOWER: FFCore.do_UpperToLower(false); break;
+		case LOWERTOUPPER: FFCore.do_LowerToUpper(false); break;
+		case CONVERTCASE: FFCore.do_ConvertCase(false); break;
+			
+		case GETNPCSCRIPT:	FFCore.do_getnpcscript(); break;
+		case GETLWEAPONSCRIPT:	FFCore.do_getlweaponscript(); break;
+		case GETEWEAPONSCRIPT:	FFCore.do_geteweaponscript(); break;
+		case GETHEROSCRIPT:	FFCore.do_getheroscript(); break;
+		case GETGLOBALSCRIPT:	FFCore.do_getglobalscript(); break;
+		case GETDMAPSCRIPT:	FFCore.do_getdmapscript(); break;
+		case GETSCREENSCRIPT:	FFCore.do_getscreenscript(); break;
+		case GETSPRITESCRIPT:	FFCore.do_getitemspritescript(); break;
+		case GETUNTYPEDSCRIPT:	FFCore.do_getuntypedscript(); break;
+		case GETSUBSCREENSCRIPT:FFCore.do_getsubscreenscript(); break;
+		case GETNPCBYNAME:	FFCore.do_getnpcbyname(); break;
+		case GETITEMBYNAME:	FFCore.do_getitembyname(); break;
+		case GETCOMBOBYNAME:	FFCore.do_getcombobyname(); break;
+		case GETDMAPBYNAME:	FFCore.do_getdmapbyname(); break;
+		    
+		case ABSR:
+		    do_abs(false);
+		    break;
+		    
+		case MINR:
+		    do_min(false);
+		    break;
+		    
+		case MINV:
+		    do_min(true);
+		    break;
+		    
+		case MAXR:
+		    do_max(false);
+		    break;
+		    
+		case MAXV:
+		    do_max(true);
+		    break;
+		    
+		case RNDR:
+		    do_rnd(false);
+		    break;
+		    
+		case RNDV:
+		    do_rnd(true);
+		    break;
+			
+		case SRNDR:
+			do_srnd(false);
+			break;
+			
+		case SRNDV:
+			do_srnd(true);
+			break;
+			
+		case SRNDRND:
+			do_srndrnd();
+			break;
+		
+		case GETRTCTIMER:
+		    FFCore.getRTC(false);
+		    break;
+		case GETRTCTIMEV:
+		    FFCore.getRTC(true);
+		    break;
+		    
+		case FACTORIAL:
+		    do_factorial(false);
+		    break;
+		    
+		case SQROOTV:
+		    do_sqroot(true);
+		    break;
+		    
+		case SQROOTR:
+		    do_sqroot(false);
+		    break;
+		    
+		case POWERR:
+		    do_power(false);
+		    break;
+		    
+		case POWERV:
+		    do_power(true);
+		    break;
+		    
+		case IPOWERR:
+		    do_ipower(false);
+		    break;
+		    
+		case IPOWERV:
+		    do_ipower(true);
+		    break;
+		    
+		case LOG10:
+		    do_log10(false);
+		    break;
+		    
+		case LOGE:
+		    do_naturallog(false);
+		    break;
+		    
+		case ANDR:
+		    do_and(false);
+		    break;
+		    
+		case ANDV:
+		    do_and(true);
+		    break;
+		    
+		case ORR:
+		    do_or(false);
+		    break;
+		    
+		case ORV:
+		    do_or(true);
+		    break;
+		    
+		case XORR:
+		    do_xor(false);
+		    break;
+		    
+		case XORV:
+		    do_xor(true);
+		    break;
+		    
+		case NANDR:
+		    do_nand(false);
+		    break;
+		    
+		case NANDV:
+		    do_nand(true);
+		    break;
+		    
+		case NORR:
+		    do_nor(false);
+		    break;
+		    
+		case NORV:
+		    do_nor(true);
+		    break;
+		    
+		case XNORR:
+		    do_xnor(false);
+		    break;
+		    
+		case XNORV:
+		    do_xnor(true);
+		    break;
+		    
+		case BITNOT:
+		    do_bitwisenot(false);
+		    break;
+		    
+		case LSHIFTR:
+		    do_lshift(false);
+		    break;
+		    
+		case LSHIFTV:
+		    do_lshift(true);
+		    break;
+		    
+		case RSHIFTR:
+		    do_rshift(false);
+		    break;
+		    
+		case RSHIFTV:
+		    do_rshift(true);
+		    break;
+		    
+		case ANDR32:
+		    do_and32(false);
+		    break;
+		    
+		case ANDV32:
+		    do_and32(true);
+		    break;
+		    
+		case ORR32:
+		    do_or32(false);
+		    break;
+		    
+		case ORV32:
+		    do_or32(true);
+		    break;
+		    
+		case XORR32:
+		    do_xor32(false);
+		    break;
+		    
+		case XORV32:
+		    do_xor32(true);
+		    break;
+		    
+		case BITNOT32:
+		    do_bitwisenot32(false);
+		    break;
+		    
+		case LSHIFTR32:
+		    do_lshift32(false);
+		    break;
+		    
+		case LSHIFTV32:
+		    do_lshift32(true);
+		    break;
+		    
+		case RSHIFTR32:
+		    do_rshift32(false);
+		    break;
+		    
+		case RSHIFTV32:
+		    do_rshift32(true);
+		    break;
+		    
+		case TRACER:
+		    FFCore.do_trace(false);
+		    break;
+		    
+		case TRACEV:
+		    FFCore.do_trace(true);
+		    break;
+		    
+		case TRACE2R:
+		    FFCore.do_tracebool(false);
+		    break;
+		
+		//Zap and Wavy Effects
+		case FXWAVYR:
+		    FFCore.do_fx_wavy(false);
+		    break;
+		case FXZAPR:
+		    FFCore.do_fx_zap(false);
+		    break;
+		//Zap and Wavy Effects
+		case FXWAVYV:
+		    FFCore.do_fx_wavy(true);
+		    break;
+		case FXZAPV:
+		    FFCore.do_fx_zap(true);
+		    break;
+		case GREYSCALER:
+			FFCore.do_greyscale(false);
+			break;
+		case GREYSCALEV:
+			FFCore.do_greyscale(true);
+			break;
+		case MONOCHROMER:
+			FFCore.do_monochromatic(false);
+			break;
+		case MONOCHROMEV:
+			FFCore.do_monochromatic(true);
+			break;
+		    
+		case TRACE2V:
+		    FFCore.do_tracebool(true);
+		    break;
+		    
+		case TRACE3:
+		    FFCore.do_tracenl();
+		    break;
+		    
+		case TRACE4:
+		    FFCore.do_cleartrace();
+		    break;
+		    
+		case TRACE5:
+		    FFCore.do_tracetobase();
+		    break;
+		    
+		case TRACE6:
+		    FFCore.do_tracestring();
+		    break;
+		    
+		case WARP:
+		    do_warp(true);
+		    break;
+		    
+		case WARPR:
+		    do_warp(false);
+		    break;
+		    
+		case PITWARP:
+		    do_pitwarp(true);
+		    break;
+		    
+		case PITWARPR:
+		    do_pitwarp(false);
+		    break;
+		    
+		case BREAKSHIELD:
+		    do_breakshield();
+		    break;
+		    
+		case SELECTAWPNV:
+		    do_selectweapon(true, true);
+		    break;
+		    
+		case SELECTAWPNR:
+		    do_selectweapon(false, true);
+		    break;
+		    
+		case SELECTBWPNV:
+		    do_selectweapon(true, false);
+		    break;
+		    
+		case SELECTBWPNR:
+		    do_selectweapon(false, false);
+		    break;
+		    
+		case PLAYSOUNDR:
+		    do_sfx(false);
+		    break;
+		    
+		case PLAYSOUNDV:
+		    do_sfx(true);
+		    break;
+		
+		case ADJUSTSFXVOLUMER: FFCore.do_adjustsfxvolume(false); break;
+		case ADJUSTSFXVOLUMEV: FFCore.do_adjustsfxvolume(true); break;	
+		case ADJUSTVOLUMER: FFCore.do_adjustvolume(false); break;
+		case ADJUSTVOLUMEV: FFCore.do_adjustvolume(true); break;
+			
+		case TRIGGERSECRETR:
+		    FFScript::do_triggersecret(false);
+		    break;
+		    
+		case TRIGGERSECRETV:
+		    FFScript::do_triggersecret(true);
+		    break;
+		    
+		case PLAYMIDIR:
+		    do_midi(false);
+		    break;
+		    
+		case PLAYMIDIV:
+		    do_midi(true);
+		    break;
+		    
+		case PLAYENHMUSIC:
+		    do_enh_music(false);
+		    break;
+		    
+		case GETMUSICFILE:
+		    do_get_enh_music_filename(false);
+		    break;
+		    
+		case GETMUSICTRACK:
+		    do_get_enh_music_track(false);
+		    break;
+		    
+		case SETDMAPENHMUSIC:
+		    do_set_dmap_enh_music(false);
+		    break;
+		
+		// Audio->
+		
+		case ENDSOUNDR:
+		    stop_sfx(false);
+		    break;
+		    
+		case ENDSOUNDV:
+		    stop_sfx(true);
+		    break;
+		
+		case PAUSESOUNDR:
+		    pause_sfx(false);
+		    break;
+		    
+		case PAUSESOUNDV:
+		    pause_sfx(true);
+		    break;
+		
+		case RESUMESOUNDR:
+		    resume_sfx(false);
+		    break;
+		    
+		case RESUMESOUNDV:
+		    resume_sfx(true);
+		    break;
+		
+		
+		
+		case PAUSESFX:
+		{
+			int sound = ri->d[0]/10000;
+			pause_sfx(sound);
+			
+		}
+		break;
+
+		case RESUMESFX:
+		{
+			int sound = ri->d[0]/10000;
+			resume_sfx(sound);
+		}
+		break;
+
+		case ADJUSTSFX:
+		{
+			int sound = ri->d[2]/10000;
+			int pan = ri->d[1];
+			// control_state[6]=((value/10000)!=0)?true:false;
+			bool loop = ((ri->d[0]/10000)!=0)?true:false;
+			//SFXBackend.adjust_sfx(sound,pan,loop);
+			
+			//! adjust_sfx was not ported to the new back end!!! -Z
+		}
+		break;
+
+
+		case CONTINUESFX:
+		{
+			int sound = ri->d[0]/10000;
+			//Backend::sfx->cont_sfx(sound);
+			
+			//! cont_sfx was not ported to the new back end!!!
+			// I believe this restarted the loop. 
+			resume_sfx(sound);
+			//What was the old instruction, again? Did it exist? -Z
+			//continue_sfx(sound);
+		}
+		break;	
+
+		
+		/*
+		case STOPITEMSOUND:
+			void stop_item_sfx(int family)
+		*/
+		
+		case PAUSEMUSIC:
+			//What was the instruction prior to adding backends?
+		//! The pauseAll() function pauses sfx, not music, so this instruction is not doing what I intended. -Z
+			//Check AllOff() -Z
+		//zcmusic_pause(ZCMUSIC* zcm, int pause); is in zcmusic.h
+			midi_paused = true; 
+			//pause_all_sfx();
+		
+			//Backend::sfx->pauseAll();
+			break;
+		case RESUMEMUSIC:
+			//What was the instruction prior to adding backends?
+			//Check AllOff() -Z
+			//resume_all_sfx();
+			midi_paused = false; 
+			//Backend::sfx->resumeAll();
+			break;
+		
+		//!!! typecasting
+		case LWPNARRPTR:
+		case EWPNARRPTR:
+		case ITEMARRPTR:
+		case IDATAARRPTR:
+		case FFCARRPTR:
+		case BOOLARRPTR:
+		case NPCARRPTR:
+			
+		case LWPNARRPTR2:
+		case EWPNARRPTR2:
+		case ITEMARRPTR2:
+		case IDATAARRPTR2:
+		case FFCARRPTR2:
+		case BOOLARRPTR2:
+		case NPCARRPTR2:
+		FFScript::do_typedpointer_typecast(false);
+		break;
+		    
+		case MSGSTRR:
+		    do_message(false);
+		    break;
+		    
+		case MSGSTRV:
+		    do_message(true);
+		    break;
+		    
+		case ITEMNAME:
+		    do_getitemname();
+		    break;
+		    
+		case NPCNAME:
+		    do_getnpcname();
+		    break;
+		
+		case NPCDATAGETNAME:
+		    FFCore.do_getnpcdata_getname();
+		    break;
+		    
+		case GETSAVENAME:
+		    do_getsavename();
+		    break;
+		    
+		case SETSAVENAME:
+		    do_setsavename();
+		    break;
+		    
+		case GETMESSAGE:
+		    do_getmessage(false);
+		    break;
+		case SETMESSAGE:
+		    do_setmessage(false);
+		    break;
+		    
+		case GETDMAPNAME:
+		    do_getdmapname(false);
+		    break;
+		    
+		case GETDMAPTITLE:
+		    do_getdmaptitle(false);
+		    break;
+		    
+		case GETDMAPINTRO:
+		    do_getdmapintro(false);
+		    break;
+		    
+		case SETDMAPNAME:
+		    do_setdmapname(false);
+		    break;
+		    
+		case SETDMAPTITLE:
+		    do_setdmaptitle(false);
+		    break;
+		
+		case SETDMAPINTRO:
+		    do_setdmapintro(false);
+		    break;
+		
+		case LOADLWEAPONR:
+		    do_loadlweapon(false);
+		    break;
+		    
+		case LOADLWEAPONV:
+		    do_loadlweapon(true);
+		    break;
+		    
+		case LOADEWEAPONR:
+		    do_loadeweapon(false);
+		    break;
+		    
+		case LOADEWEAPONV:
+		    do_loadeweapon(true);
+		    break;
+		    
+		case LOADITEMR:
+		    do_loaditem(false);
+		    break;
+		    
+		case LOADITEMV:
+		    do_loaditem(true);
+		    break;
+		    
+		case LOADITEMDATAR:
+		    do_loaditemdata(false);
+		    break;
+		
+		//New Datatypes
+		case LOADSHOPR:
+		    FFScript::do_loadshopdata(false);
+		    break;
+		case LOADSHOPV:
+		    FFScript::do_loadshopdata(true);
+		    break;
+		
+		case LOADINFOSHOPR:
+		    FFScript::do_loadinfoshopdata(false);
+		    break;
+		case LOADINFOSHOPV:
+		    FFScript::do_loadinfoshopdata(true);
+		    break;
+		case LOADNPCDATAR:
+		    FFScript::do_loadnpcdata(false);
+		    break;
+		case LOADNPCDATAV:
+		    FFScript::do_loadnpcdata(true);
+		    break;
+		
+		case LOADCOMBODATAR:
+		    FFScript::do_loadcombodata(false);
+		    break;
+		case LOADCOMBODATAV:
+		    FFScript::do_loadcombodata(true);
+		    break;
+		
+		case LOADMAPDATAR:
+		    FFScript::do_loadmapdata(false);
+		    break;
+		case LOADMAPDATAV:
+		    FFScript::do_loadmapdata(true);
+		    break;
+		
+		case LOADSPRITEDATAR:
+		    FFScript::do_loadspritedata(false);
+		    break;
+		case LOADSPRITEDATAV:
+		    FFScript::do_loadspritedata(true);
+		    break;
+		
+		case LOADSCREENDATAR:
+		    FFScript::do_loadscreendata(false);
+		    break;
+		case LOADSCREENDATAV:
+		    FFScript::do_loadscreendata(true);
+		    break;
+		
+		case LOADBITMAPDATAR:
+		    FFScript::do_loadbitmapid(false);
+		    break;
+		
+		
+		case LOADBITMAPDATAV:
+		    FFScript::do_loadbitmapid(true);
+		    break;
+		
+	//functions
+	case LOADDMAPDATAR: //command
+		FFScript::do_loaddmapdata(false); break;
+	case LOADDMAPDATAV: //command
+		FFScript::do_loaddmapdata(true); break;
+
+
+	case DMAPDATAGETNAMER: //command
+		FFScript::do_getDMapData_dmapname(false); break;
+	case DMAPDATAGETNAMEV: //command
+		FFScript::do_getDMapData_dmapname(true); break;
+
+	case DMAPDATASETNAMER: //command
+		FFScript::do_setDMapData_dmapname(false); break;
+	case DMAPDATASETNAMEV: //command
+		FFScript::do_setDMapData_dmapname(true); break;
+
+
+
+	case DMAPDATAGETTITLER: //command
+		FFScript::do_getDMapData_dmaptitle(false); break;
+	case DMAPDATAGETTITLEV: //command
+		FFScript::do_getDMapData_dmaptitle(true); break;
+	case DMAPDATASETTITLER: //command
+		FFScript::do_setDMapData_dmaptitle(false); break;
+	case DMAPDATASETTITLEV: //command
+		FFScript::do_setDMapData_dmaptitle(true); break;
+
+
+	case DMAPDATAGETINTROR: //command
+		FFScript::do_getDMapData_dmapintro(false); break;
+	case DMAPDATAGETINTROV: //command
+		FFScript::do_getDMapData_dmapintro(true); break;
+	case DMAPDATANSETITROR: //command
+		FFScript::do_setDMapData_dmapintro(false); break;
+	case DMAPDATASETINTROV: //command
+		FFScript::do_setDMapData_dmapintro(true); break;
+
+
+	case DMAPDATAGETMUSICR: //command, string to load a music file
+		FFScript::do_getDMapData_music(false); break;
+	case DMAPDATAGETMUSICV: //command, string to load a music file
+		FFScript::do_getDMapData_music(true); break;
+	case DMAPDATASETMUSICR: //command, string to load a music file
+		FFScript::do_setDMapData_music(false); break;
+	case DMAPDATASETMUSICV: //command, string to load a music file
+		FFScript::do_setDMapData_music(true); break;
+
+		case LOADMESSAGEDATAR: //COMMAND
+		FFScript::do_loadmessagedata(false);
+		    break;
+		case LOADMESSAGEDATAV: //COMMAND
+		FFScript::do_loadmessagedata(false);
+		    break;
+		
+
+		case MESSAGEDATASETSTRINGR: //command
+		FFScript::do_messagedata_setstring(false);
+		    break;
+		case MESSAGEDATASETSTRINGV: //command
+		FFScript::do_messagedata_setstring(false);
+		    break;
+		
+		case MESSAGEDATAGETSTRINGR: //command
+		FFScript::do_messagedata_getstring(false);
+		    break;
+		case MESSAGEDATAGETSTRINGV: //command
+		FFScript::do_messagedata_getstring(false);
+		    break;	
+		case LOADITEMDATAV:
+		    do_loaditemdata(true);
+		    break;
+		    
+		case LOADNPCR:
+		    do_loadnpc(false);
+		    break;
+		    
+		case LOADNPCV:
+		    do_loadnpc(true);
+		    break;
+		    
+		case CREATELWEAPONR:
+		    do_createlweapon(false);
+		    break;
+		    
+		case CREATELWEAPONV:
+		    do_createlweapon(true);
+		    break;
+		    
+		case CREATEEWEAPONR:
+		    do_createeweapon(false);
+		    break;
+		    
+		case CREATEEWEAPONV:
+		    do_createeweapon(true);
+		    break;
+		    
+		case CREATEITEMR:
+		    do_createitem(false);
+		    break;
+		    
+		case CREATEITEMV:
+		    do_createitem(true);
+		    break;
+		    
+		case CREATENPCR:
+		    do_createnpc(false);
+		    break;
+		    
+		case CREATENPCV:
+		    do_createnpc(true);
+		    break;
+		    
+		case ISVALIDARRAY:
+			do_isvalidarray();
+			break;
+		    
+		case ISVALIDITEM:
+		    do_isvaliditem();
+		    break;
+		
+		case ISVALIDBITMAP:
+		    FFCore.do_isvalidbitmap();
+		    break;
+		
+		case ISALLOCATEDBITMAP:
+		    FFCore.do_isallocatedbitmap();
+		    break;
+		    
+		case ISVALIDNPC:
+		    do_isvalidnpc();
+		    break;
+		    
+		case ISVALIDLWPN:
+		    do_isvalidlwpn();
+		    break;
+		    
+		case ISVALIDEWPN:
+		    do_isvalidewpn();
+		    break;
+		    
+		case LWPNUSESPRITER:
+		    do_lwpnusesprite(false);
+		    break;
+		    
+		case LWPNUSESPRITEV:
+		    do_lwpnusesprite(true);
+		    break;
+		    
+		case EWPNUSESPRITER:
+		    do_ewpnusesprite(false);
+		    break;
+		    
+		case EWPNUSESPRITEV:
+		    do_ewpnusesprite(true);
+		    break;
+		    
+		case CLEARSPRITESR:
+		    do_clearsprites(false);
+		    break;
+		    
+		case CLEARSPRITESV:
+		    do_clearsprites(true);
+		    break;
+		    
+		case ISSOLID:
+		    do_issolid();
+		    break;
+		
+		case MAPDATAISSOLID:
+		    do_mapdataissolid();
+		    break;
+		    
+		case SETSIDEWARP:
+		    do_setsidewarp();
+		    break;
+		    
+		case SETTILEWARP:
+		    do_settilewarp();
+		    break;
+		    
+		case GETSIDEWARPDMAP:
+		    do_getsidewarpdmap(false);
+		    break;
+		    
+		case GETSIDEWARPSCR:
+		    do_getsidewarpscr(false);
+		    break;
+		    
+		case GETSIDEWARPTYPE:
+		    do_getsidewarptype(false);
+		    break;
+		    
+		case GETTILEWARPDMAP:
+		    do_gettilewarpdmap(false);
+		    break;
+		    
+		case GETTILEWARPSCR:
+		    do_gettilewarpscr(false);
+		    break;
+		    
+		case GETTILEWARPTYPE:
+		    do_gettilewarptype(false);
+		    break;
+		    
+		case LAYERSCREEN:
+		    do_layerscreen();
+		    break;
+		    
+		case LAYERMAP:
+		    do_layermap();
+		    break;
+		    
+		case SECRETS:
+		    do_triggersecrets();
+		    break;
+		    
+		case GETSCREENFLAGS:
+		    do_getscreenflags();
+		    break;
+		    
+		case GETSCREENEFLAGS:
+		    do_getscreeneflags();
+		    break;
+		
+		case GRAPHICSGETPIXEL:
+		    FFCore.do_graphics_getpixel();
+		    break;
+		
+		case GETSCREENDOOR:
+		    do_getscreendoor();
+		    break;
+		
+		case GETSCREENENEMY:
+		    do_getscreennpc();
+		    break;
+		
+		//screendata and mapdata
+		    case SETSCREENENEMY:
+		    { //void SetScreenEnemy(int map, int screen, int index, int value);
+			
+			    
+				long map     = (ri->d[1] / 10000) - 1; 
+				long scrn  = ri->d[2] / 10000; 
+				long index = ri->d[0] / 10000; 
+				int nn = ri->d[3]/10000; 
+			
+			   // int x;
+			    
+			   // Z_scripterrlog("rid->[3] is (%i), trying to use for '%s'\n", nn, "nn");
+			   // Z_scripterrlog("rid->[2] is (%i), trying to use for '%s'\n", scrn, "scrn");
+			   // Z_scripterrlog("rid->[1] is (%i), trying to use for '%s'\n", map, "map");
+			   // Z_scripterrlog("rid->[0] is (%i), trying to use for '%s'\n", index, "index");
+				
+				if(BC::checkMapID(map, "Game->SetScreenEnemy(...map...)") != SH::_NoError ||
+					BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEnemy(...screen...)") != SH::_NoError ||
+					BC::checkBounds(index, 0, 9, "Game->SetScreenEnemy(...index...)") != SH::_NoError)
+					return -10000;
+				
+			//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
+			//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
+				FFScript::set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+				
+				
+				
+		    }
+		    break;
+		    
+		    case SETSCREENDOOR:
+		    { //void SetScreenDoor(int map, int screen, int index, int value);
 			long map     = (ri->d[1] / 10000) - 1; 
 			long scrn  = ri->d[2] / 10000; 
 			long index = ri->d[0] / 10000; 
 			int nn = ri->d[3]/10000; 
-		
-		   // int x;
+				
+				if(BC::checkMapID(map, "Game->SetScreenDoor(...map...)") != SH::_NoError ||
+					BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenDoor(...screen...)") != SH::_NoError ||
+					BC::checkBounds(index, 0, 3, "Game->SetScreenDoor(...doorindex...)") != SH::_NoError)
+				{
+					return -10000; break;
+				}
+				else
+				{
+					FFScript::set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+					break;
+				}
+				
+		    }
 		    
-		   // Z_scripterrlog("rid->[3] is (%i), trying to use for '%s'\n", nn, "nn");
-		   // Z_scripterrlog("rid->[2] is (%i), trying to use for '%s'\n", scrn, "scrn");
-		   // Z_scripterrlog("rid->[1] is (%i), trying to use for '%s'\n", map, "map");
-		   // Z_scripterrlog("rid->[0] is (%i), trying to use for '%s'\n", index, "index");
-			
-			if(BC::checkMapID(map, "Game->SetScreenEnemy(...map...)") != SH::_NoError ||
-				BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEnemy(...screen...)") != SH::_NoError ||
-				BC::checkBounds(index, 0, 9, "Game->SetScreenEnemy(...index...)") != SH::_NoError)
-				return -10000;
-			
-		//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
-		//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
-			FFScript::set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
-			
-			
-			
-	    }
-	    break;
-	    
-	    case SETSCREENDOOR:
-	    { //void SetScreenDoor(int map, int screen, int index, int value);
-		long map     = (ri->d[1] / 10000) - 1; 
-		long scrn  = ri->d[2] / 10000; 
-		long index = ri->d[0] / 10000; 
-		int nn = ri->d[3]/10000; 
-			
-			if(BC::checkMapID(map, "Game->SetScreenDoor(...map...)") != SH::_NoError ||
-				BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenDoor(...screen...)") != SH::_NoError ||
-				BC::checkBounds(index, 0, 3, "Game->SetScreenDoor(...doorindex...)") != SH::_NoError)
-				return -10000;
-	      
-			FFScript::set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
-			
-	    }
-            
-	case GETSCREENLAYOP:
-            do_getscreenLayerOpacity();
-            break;
-	case GETSCREENSECCMB:
-	    do_getscreenSecretCombo();
-            break;
-	case GETSCREENSECCST:
-	    do_getscreenSecretCSet();
-            break;
-	case GETSCREENSECFLG:
-	    do_getscreenSecretFlag();
-            break;
-	case GETSCREENLAYMAP:
-	    do_getscreenLayerMap();
-            break;
-	case GETSCREENLAYSCR:
-	    do_getscreenLayerscreen();
-            break;
-	case GETSCREENPATH:
-	    do_getscreenPath();
-            break;
-	case GETSCREENWARPRX:
-	    do_getscreenWarpReturnX();
-            break;
-	case GETSCREENWARPRY:
-	    do_getscreenWarpReturnY();
-            break;
+		case GETSCREENLAYOP:
+		    do_getscreenLayerOpacity();
+		    break;
+		case GETSCREENSECCMB:
+		    do_getscreenSecretCombo();
+		    break;
+		case GETSCREENSECCST:
+		    do_getscreenSecretCSet();
+		    break;
+		case GETSCREENSECFLG:
+		    do_getscreenSecretFlag();
+		    break;
+		case GETSCREENLAYMAP:
+		    do_getscreenLayerMap();
+		    break;
+		case GETSCREENLAYSCR:
+		    do_getscreenLayerscreen();
+		    break;
+		case GETSCREENPATH:
+		    do_getscreenPath();
+		    break;
+		case GETSCREENWARPRX:
+		    do_getscreenWarpReturnX();
+		    break;
+		case GETSCREENWARPRY:
+		    do_getscreenWarpReturnY();
+		    break;
 
-        case COMBOTILE:
-            do_combotile(false);
-            break;
-            
-        case RECTR:
-        case CIRCLER:
-        case ARCR:
-        case ELLIPSER:
-        case LINER:
-        case PUTPIXELR:
-        case PIXELARRAYR:
-        case TILEARRAYR:
-        case LINESARRAY:
-        case COMBOARRAYR:
-        case DRAWTILER:
-        case DRAWCOMBOR:
-        case DRAWCHARR:
-        case DRAWINTR:
-        case QUADR:
-        case TRIANGLER:
-        case QUAD3DR:
-        case TRIANGLE3DR:
-        case FASTTILER:
-        case FASTCOMBOR:
-        case DRAWSTRINGR:
-        case SPLINER:
-        case BITMAPR:
-	case BITMAPEXR:
-        case DRAWLAYERR:
-        case DRAWSCREENR:
-	case 	BMPRECTR:	
-	case 	BMPCIRCLER:
-	case 	BMPARCR:
-	case 	BMPELLIPSER:
-	case 	BMPLINER:
-	case 	BMPSPLINER:
-	case 	BMPPUTPIXELR:
-	case 	BMPDRAWTILER:
-	case 	BMPDRAWCOMBOR:
-	case 	BMPFASTTILER:
-	case 	BMPFASTCOMBOR:
-	case 	BMPDRAWCHARR:
-	case 	BMPDRAWINTR:
-	case 	BMPDRAWSTRINGR:
-	case 	BMPQUADR:
-	case 	BMPQUAD3DR:
-	case 	BMPTRIANGLER:
-	case 	BMPTRIANGLE3DR:
-	case 	BMPPOLYGONR:
-	case 	BMPDRAWLAYERR: 
-	case 	BMPDRAWSCREENR:
-	case 	BMPBLIT:
-            do_drawing_command(scommand);
-            break;
-            
-        case COPYTILEVV:
-            do_copytile(true, true);
-            break;
-            
-        case COPYTILEVR:
-            do_copytile(true, false);
-            break;
-            
-        case COPYTILERV:
-            do_copytile(false, true);
-            break;
-            
-        case COPYTILERR:
-            do_copytile(false, false);
-            break;
-            
-        case SWAPTILEVV:
-            do_swaptile(true, true);
-            break;
-            
-        case SWAPTILEVR:
-            do_swaptile(true, false);
-            break;
-            
-        case SWAPTILERV:
-            do_swaptile(false, true);
-            break;
-            
-        case SWAPTILERR:
-            do_swaptile(false, false);
-            break;
-            
-        case CLEARTILEV:
-            do_cleartile(true);
-            break;
-            
-        case CLEARTILER:
-            do_cleartile(false);
-            break;
-            
-        case OVERLAYTILEVV:
-            do_overlaytile(true, true);
-            break;
-            
-        case OVERLAYTILEVR:
-            do_overlaytile(true, false);
-            break;
-            
-        case OVERLAYTILERV:
-            do_overlaytile(false, true);
-            break;
-            
-        case OVERLAYTILERR:
-            do_overlaytile(false, false);
-            break;
-            
-        case FLIPROTTILEVV:
-            do_fliprotatetile(true, true);
-            break;
-            
-        case FLIPROTTILEVR:
-            do_fliprotatetile(true, false);
-            break;
-            
-        case FLIPROTTILERV:
-            do_fliprotatetile(false, true);
-            break;
-            
-        case FLIPROTTILERR:
-            do_fliprotatetile(false, false);
-            break;
-            
-        case GETTILEPIXELV:
-            do_gettilepixel(true);
-            break;
-            
-        case GETTILEPIXELR:
-            do_gettilepixel(false);
-            break;
-            
-        case SETTILEPIXELV:
-            do_settilepixel(true);
-            break;
-            
-        case SETTILEPIXELR:
-            do_settilepixel(false);
-            break;
-            
-        case SHIFTTILEVV:
-            do_shifttile(true, true);
-            break;
-            
-        case SHIFTTILEVR:
-            do_shifttile(true, false);
-            break;
-            
-        case SHIFTTILERV:
-            do_shifttile(false, true);
-            break;
-            
-        case SHIFTTILERR:
-            do_shifttile(false, false);
-            break;
-            
-        case SETRENDERTARGET:
-            do_set_rendertarget(true);
-            break;
-            
-        case GAMEEND:
-            Quit = qQUIT;
-            skipcont = 1;
-            scommand = 0xFFFF;
-            break;
-            
-        case SAVE:
-            if(scriptCanSave)
-            {
-                save_game(false);
-                scriptCanSave=false;
-            }
-            break;
-            
-        case SAVESCREEN:
-            do_showsavescreen();
-            break;
-            
-        case SAVEQUITSCREEN:
-            save_game(false, 1);
-            break;
-            
-            //Not Implemented
-        case ELLIPSE2:
-        case FLOODFILL:
-            break;
-            
-        case SETCOLORB:
-        case SETDEPTHB:
-        case GETCOLORB:
-        case GETDEPTHB:
-            break;
-            
-        case ENQUEUER:
-            do_enqueue(false);
-            break;
-            
-        case ENQUEUEV:
-            do_enqueue(true);
-            break;
-            
-        case DEQUEUE:
-            do_dequeue(false);
-            break;
-	
-	//Visual Effects
-	case WAVYIN:
-		FFScript::do_wavyin();
-		break;
-	case WAVYOUT:
-		FFScript::do_wavyout();
-		break;
-	case ZAPIN:
-		FFScript::do_zapin();
-		break;
-	case ZAPOUT:
-		FFScript::do_zapout();
-		break;
-	case OPENWIPE:
-		FFScript::do_openscreen();
-		break;
-	
-	//Monochrome
-	case GREYSCALEON:
-		setMonochrome(true);
-		break;
-	case GREYSCALEOFF:
-		setMonochrome(false);
-		break;
-	
-	case TINT:
-	{
-            FFCore.Tint();
-            break;
-	}
-	
-	case CLEARTINT:
-	{
-            FFCore.clearTint();
-            break;
-	}
-	
-	case MONOHUE:
-	{
-            FFCore.gfxmonohue();
-            break;
-	}
-	
-	//case NPCData
-	
-	case 	GETNPCDATATILE: FFScript::getNPCData_tile(); break;
-	case	GETNPCDATAEHEIGHT: FFScript::getNPCData_e_height(); break;
-	case 	GETNPCDATAFLAGS: FFScript::getNPCData_flags(); break;
-	case	GETNPCDATAFLAGS2: FFScript::getNPCData_flags2(); break;
-	case	GETNPCDATAWIDTH: FFScript::getNPCData_flags2(); break;
-	case	GETNPCDATAHEIGHT: FFScript::getNPCData_flags2(); break;
-	case	GETNPCDATASTILE: FFScript::getNPCData_s_tile(); break;
-	case	GETNPCDATASWIDTH: FFScript::getNPCData_s_width(); break;
-	case	GETNPCDATASHEIGHT: FFScript::getNPCData_s_height(); break;
-	case	GETNPCDATAETILE: FFScript::getNPCData_e_tile(); break;
-	case	GETNPCDATAEWIDTH: FFScript::getNPCData_e_width(); break;
-	case	GETNPCDATAHP: FFScript::getNPCData_hp(); break;
-	case	GETNPCDATAFAMILY: FFScript::getNPCData_family(); break;
-	case	GETNPCDATACSET: FFScript::getNPCData_cset(); break;
-	case	GETNPCDATAANIM: FFScript::getNPCData_anim(); break;
-	case	GETNPCDATAEANIM: FFScript::getNPCData_e_anim(); break;
-	case	GETNPCDATAFRAMERATE: FFScript::getNPCData_frate(); break;
-	case	GETNPCDATAEFRAMERATE: FFScript::getNPCData_e_frate(); break;
-	case	GETNPCDATATOUCHDMG: FFScript::getNPCData_dp(); break;
-	case	GETNPCDATAWPNDAMAGE: FFScript::getNPCData_wdp(); break;
-	case	GETNPCDATAWEAPON: FFScript::getNPCData_wdp(); break;
-	case	GETNPCDATARANDOM: FFScript::getNPCData_rate(); break;
-	case	GETNPCDATAHALT: FFScript::getNPCData_hrate(); break;
-	case	GETNPCDATASTEP: FFScript::getNPCData_step(); break;
-	case	GETNPCDATAHOMING: FFScript::getNPCData_homing(); break;
-	case	GETNPCDATAHUNGER: FFScript::getNPCData_grumble(); break;
-	case	GETNPCDATADROPSET: FFScript::getNPCData_item_set(); break;
-	case	GETNPCDATABGSFX: FFScript::getNPCData_bgsfx(); break;
-	case	GETNPCDATADEATHSFX: FFScript::getNPCData_deadsfx(); break; 
-	case	GETNPCDATAXOFS: FFScript::getNPCData_xofs(); break;
-	case	GETNPCDATAYOFS: FFScript::getNPCData_yofs(); break;
-	case	GETNPCDATAZOFS: FFScript::getNPCData_zofs(); break;
-	case	GETNPCDATAHXOFS: FFScript::getNPCData_hxofs(); break;
-	case	GETNPCDATAHYOFS: FFScript::getNPCData_hyofs(); break;
-	case	GETNPCDATAHITWIDTH: FFScript::getNPCData_hxsz(); break;
-	case	GETNPCDATAHITHEIGHT: FFScript::getNPCData_hysz(); break;
-	case	GETNPCDATAHITZ: FFScript::getNPCData_hzsz(); break;
-	case	GETNPCDATATILEWIDTH: FFScript::getNPCData_txsz(); break;
-	case	GETNPCDATATILEHEIGHT: FFScript::getNPCData_tysz(); break;
-	case	GETNPCDATAWPNSPRITE: FFScript::getNPCData_wpnsprite(); break;
-	//case	GETNPCDATASCRIPTDEF: FFScript::getNPCData_scriptdefence(); break; //2.future cross-compat. 
-	case	GETNPCDATADEFENSE: FFScript::getNPCData_defense(); break; 
-	case	GETNPCDATASIZEFLAG: FFScript::getNPCData_SIZEflags(); break;
-	case	GETNPCDATAATTRIBUTE: FFScript::getNPCData_misc(); break;
-	case	GETNPCDATAHITSFX: FFScript::getNPCData_hitsfx(); break;
+		case COMBOTILE:
+		    do_combotile(false);
+		    break;
+		    
+		case RECTR:
+		case CIRCLER:
+		case ARCR:
+		case ELLIPSER:
+		case LINER:
+		case PUTPIXELR:
+		case PIXELARRAYR:
+		case TILEARRAYR:
+		case LINESARRAY:
+		case COMBOARRAYR:
+		case DRAWTILER:
+		case DRAWTILECLOAKEDR:
+		case DRAWCOMBOR:
+		case DRAWCOMBOCLOAKEDR:
+		case DRAWCHARR:
+		case DRAWINTR:
+		case QUADR:
+		case TRIANGLER:
+		case QUAD3DR:
+		case TRIANGLE3DR:
+		case FASTTILER:
+		case FASTCOMBOR:
+		case DRAWSTRINGR:
+		case SPLINER:
+		case BITMAPR:
+		case BITMAPEXR:
+		case DRAWLAYERR:
+		case DRAWSCREENR:
+		case POLYGONR:
+			do_drawing_command(scommand);
+		    break;
 		
-	case	SETNPCDATAFLAGS: FFScript::setNPCData_flags(); break;
-	case	SETNPCDATAFLAGS2: FFScript::setNPCData_flags2(); break;
-	case	SETNPCDATAWIDTH: FFScript::setNPCData_width(); break;
-	case	SETNPCDATAHEIGHT: FFScript::setNPCData_height(); break;
-	case	SETNPCDATASTILE: FFScript::setNPCData_s_tile(); break;
-	case	SETNPCDATASWIDTH: FFScript::setNPCData_s_width(); break;
-	case	SETNPCDATASHEIGHT: FFScript::setNPCData_s_height(); break;
-	case	SETNPCDATAETILE: FFScript::setNPCData_e_tile(); break;
-	case	SETNPCDATAEWIDTH: FFScript::setNPCData_e_width(); break;
-	case	SETNPCDATAHP: FFScript::setNPCData_hp(); break;
-	case	SETNPCDATAFAMILY: FFScript::setNPCData_family(); break;
-	case	SETNPCDATACSET: FFScript::setNPCData_cset(); break;
-	case	SETNPCDATAANIM: FFScript::setNPCData_anim(); break;
-	case	SETNPCDATAEANIM: FFScript::setNPCData_e_anim(); break;
-	case	SETNPCDATAFRAMERATE: FFScript::setNPCData_frate(); break;
-	case	SETNPCDATAEFRAMERATE: FFScript::setNPCData_e_frate(); break;
-	case	SETNPCDATATOUCHDMG: FFScript::setNPCData_dp(); break;
-	case	SETNPCDATAWPNDAMAGE: FFScript::setNPCData_wdp(); break;
-	case	SETNPCDATAWEAPON: FFScript::setNPCData_weapon(); break;
-	case	SETNPCDATARANDOM: FFScript::setNPCData_rate(); break;
-	case	SETNPCDATAHALT: FFScript::setNPCData_hrate(); break;
-	case	SETNPCDATASTEP: FFScript::setNPCData_step(); break;
-	case	SETNPCDATAHOMING: FFScript::setNPCData_homing(); break;
-	case	SETNPCDATAHUNGER: FFScript::setNPCData_grumble(); break;
-	case	SETNPCDATADROPSET: FFScript::setNPCData_item_set(); break;
-	case	SETNPCDATABGSFX: FFScript::setNPCData_bgsfx(); break;
-	case	SETNPCDATADEATHSFX: FFScript::setNPCData_hitsfx(); break;
-	case	SETNPCDATAXOFS: FFScript::setNPCData_xofs(); break;
-	case	SETNPCDATAYOFS: FFScript::setNPCData_yofs(); break;
-	case	SETNPCDATAZOFS: FFScript::setNPCData_zofs(); break;
-	case	SETNPCDATAHXOFS: FFScript::setNPCData_hxofs(); break;
-	case	SETNPCDATAHYOFS: FFScript::setNPCData_hyofs(); break;
-	case	SETNPCDATAHITWIDTH: FFScript::setNPCData_hxsz(); break;
-	case	SETNPCDATAHITHEIGHT: FFScript::setNPCData_hysz(); break;
-	case	SETNPCDATAHITZ: FFScript::setNPCData_hzsz(); break;
-	case	SETNPCDATATILEWIDTH: FFScript::setNPCData_txsz(); break;
-	case	SETNPCDATATILEHEIGHT: FFScript::setNPCData_tysz(); break;
-	case	SETNPCDATAWPNSPRITE: FFScript::setNPCData_wpnsprite(); break;
-	case	SETNPCDATAHITSFX: FFScript::setNPCData_hitsfx(); break;
-	case	SETNPCDATATILE: FFScript::setNPCData_tile(); break;
-	case	SETNPCDATAEHEIGHT: FFScript::setNPCData_e_height(); break;
-	
-	
-	
-	
-
+		case 	BMPRECTR:	
+		case 	BMPCIRCLER:
+		case 	BMPARCR:
+		case 	BMPELLIPSER:
+		case 	BMPLINER:
+		case 	BMPSPLINER:
+		case 	BMPPUTPIXELR:
+		case 	BMPDRAWTILER:
+		case 	BMPDRAWTILECLOAKEDR:
+		case 	BMPDRAWCOMBOR:
+		case 	BMPDRAWCOMBOCLOAKEDR:
+		case 	BMPFASTTILER:
+		case 	BMPFASTCOMBOR:
+		case 	BMPDRAWCHARR:
+		case 	BMPDRAWINTR:
+		case 	BMPDRAWSTRINGR:
+		case 	BMPQUADR:
+		case 	BMPQUAD3DR:
+		case 	BMPTRIANGLER:
+		case 	BMPTRIANGLE3DR:
+		case 	BMPPOLYGONR:
+		case 	BMPDRAWLAYERR: 
+		case 	BMPDRAWLAYERSOLIDR: 
+		case 	BMPDRAWLAYERCFLAGR: 
+		case 	BMPDRAWLAYERCTYPER: 
+		case 	BMPDRAWLAYERCIFLAGR: 
+		case 	BMPDRAWLAYERSOLIDITYR: 
+		case 	BMPDRAWSCREENR:
+		case 	BMPDRAWSCREENSOLIDR:
+		case 	BMPDRAWSCREENSOLID2R:
+		case 	BMPDRAWSCREENCOMBOFR:
+		case 	BMPDRAWSCREENCOMBOIR:
+		case 	BMPDRAWSCREENCOMBOTR:
+		case 	BITMAPGETPIXEL:
+		case 	BMPBLIT:
+		case 	BMPBLITTO:
+		case 	BMPMODE7:
+		case 	READBITMAP:
+		case 	WRITEBITMAP:
+		case 	CLEARBITMAP:
+		case 	BITMAPCLEARTOCOLOR:
+		case 	REGENERATEBITMAP:
+		    do_drawing_command(scommand);
+		    break;
+		    
+		case COPYTILEVV:
+		    do_copytile(true, true);
+		    break;
+		    
+		case COPYTILEVR:
+		    do_copytile(true, false);
+		    break;
+		    
+		case COPYTILERV:
+		    do_copytile(false, true);
+		    break;
+		    
+		case COPYTILERR:
+		    do_copytile(false, false);
+		    break;
+		    
+		case SWAPTILEVV:
+		    do_swaptile(true, true);
+		    break;
+		    
+		case SWAPTILEVR:
+		    do_swaptile(true, false);
+		    break;
+		    
+		case SWAPTILERV:
+		    do_swaptile(false, true);
+		    break;
+		    
+		case SWAPTILERR:
+		    do_swaptile(false, false);
+		    break;
+		    
+		case CLEARTILEV:
+		    do_cleartile(true);
+		    break;
+		    
+		case CLEARTILER:
+		    do_cleartile(false);
+		    break;
+		    
+		case OVERLAYTILEVV:
+		    do_overlaytile(true, true);
+		    break;
+		    
+		case OVERLAYTILEVR:
+		    do_overlaytile(true, false);
+		    break;
+		    
+		case OVERLAYTILERV:
+		    do_overlaytile(false, true);
+		    break;
+		    
+		case OVERLAYTILERR:
+		    do_overlaytile(false, false);
+		    break;
+		    
+		case FLIPROTTILEVV:
+		    do_fliprotatetile(true, true);
+		    break;
+		    
+		case FLIPROTTILEVR:
+		    do_fliprotatetile(true, false);
+		    break;
+		    
+		case FLIPROTTILERV:
+		    do_fliprotatetile(false, true);
+		    break;
+		    
+		case FLIPROTTILERR:
+		    do_fliprotatetile(false, false);
+		    break;
+		    
+		case GETTILEPIXELV:
+		    do_gettilepixel(true);
+		    break;
+		    
+		case GETTILEPIXELR:
+		    do_gettilepixel(false);
+		    break;
+		    
+		case SETTILEPIXELV:
+		    do_settilepixel(true);
+		    break;
+		    
+		case SETTILEPIXELR:
+		    do_settilepixel(false);
+		    break;
+		    
+		case SHIFTTILEVV:
+		    do_shifttile(true, true);
+		    break;
+		    
+		case SHIFTTILEVR:
+		    do_shifttile(true, false);
+		    break;
+		    
+		case SHIFTTILERV:
+		    do_shifttile(false, true);
+		    break;
+		    
+		case SHIFTTILERR:
+		    do_shifttile(false, false);
+		    break;
+		    
+		case SETRENDERTARGET:
+		    do_set_rendertarget(true);
+		    break;
+		    
+		case GAMEEND:
+		    Quit = qQUIT;
+		    skipcont = 1;
+		    scommand = 0xFFFF;
+		    break;
 		
-//	case	SETNPCDATASCRIPTDEF  : FFScript::setNPCData_scriptdefence(); break;
-	case 	SETNPCDATADEFENSE : FFScript::setNPCData_defense(ri->d[2]); break;
-	case 	SETNPCDATASIZEFLAG : FFScript::setNPCData_SIZEflags(ri->d[2]); break;
-	case 	SETNPCDATAATTRIBUTE : FFScript::setNPCData_misc(ri->d[2]); break;
-	
-	
-	//ComboData
-	
-	case	GCDBLOCKENEM:  FFScript::getComboData_block_enemies(); break;
-	case	GCDBLOCKHOLE:  FFScript::getComboData_block_hole(); break;
-	case	GCDBLOCKTRIG:  FFScript::getComboData_block_trigger(); break;
-	case	GCDCONVEYSPDX:  FFScript::getComboData_conveyor_x_speed(); break;
-	case	GCDCONVEYSPDY:  FFScript::getComboData_conveyor_y_speed(); break;
-	case	GCDCREATEENEM:  FFScript::getComboData_create_enemy(); break;
-	case	GCDCREATEENEMWH:  FFScript::getComboData_create_enemy_when(); break;
-	case	GCDCREATEENEMCH:  FFScript::getComboData_create_enemy_change(); break;
-	case	GCDDIRCHTYPE:  FFScript::getComboData_directional_change_type(); break;
-	case	GCDDISTCHTILES:  FFScript::getComboData_distance_change_tiles(); break;
-	case	GCDDIVEITEM:  FFScript::getComboData_dive_item(); break;
-	case	GCDDOCK:  FFScript::getComboData_dock(); break;
-	case	GCDFAIRY:  FFScript::getComboData_fairy(); break;
-	case	GCDFFCOMBOATTRIB:  FFScript::getComboData_ff_combo_attr_change(); break;
-	case	GCDFOOTDECOTILE:  FFScript::getComboData_foot_decorations_tile(); break;
-	case	GCDFOOTDECOTYPE:  FFScript::getComboData_foot_decorations_type(); break;
-	case	GCDHOOKSHOTGRAB:  FFScript::getComboData_hookshot_grab_point(); break;
-	case	GCDLADDERPASS:  FFScript::getComboData_ladder_pass(); break;
-	case	GCDLOCKBLOCKTYPE:  FFScript::getComboData_lock_block_type(); break;
-	case	GCDLOCKBLOCKCHANGE:  FFScript::getComboData_lock_block_change(); break;
-	case	GCDMAGICMIRRORTYPE:  FFScript::getComboData_magic_mirror_type(); break;
-	case	GCDMODIFYHPAMOUNT:  FFScript::getComboData_modify_hp_amount(); break;
-	case	GCDMODIFYHPDELAY:  FFScript::getComboData_modify_hp_delay(); break;
-	case	GCDMODIFYHPTYPE:  FFScript::getComboData_modify_hp_type(); break;
-	case	GCDMODIFYMPAMOUNT:  FFScript::getComboData_modify_mp_amount(); break;
-	case	GCDMODIFYMPDELAY:  FFScript::getComboData_modify_mp_delay(); break;
-	case	GCDMODIFYMPTYPE:  FFScript::getComboData_modify_mp_type(); break;
-	case	GCDNOPUSHBLOCKS:  FFScript::getComboData_no_push_blocks(); break;
-	case	GCDOVERHEAD:  FFScript::getComboData_overhead(); break;
-	case	GCDPLACEENEMY:  FFScript::getComboData_place_enemy(); break;
-	case	GCDPUSHDIR:  FFScript::getComboData_push_direction(); break;
-	case	GCDPUSHWEIGHT:  FFScript::getComboData_push_weight(); break;
-	case	GCDPUSHWAIT:  FFScript::getComboData_push_wait(); break;
-	case	GCDPUSHED:  FFScript::getComboData_pushed(); break;
-	case	GCDRAFT:  FFScript::getComboData_raft(); break;
-	case	GCDRESETROOM:  FFScript::getComboData_reset_room(); break;
-	case	GCDSAVEPOINT:  FFScript::getComboData_save_point_type(); break;
-	case	GCDSCREENFREEZE:  FFScript::getComboData_screen_freeze_type(); break;
-	case	GCDSECRETCOMBO:  FFScript::getComboData_secret_combo(); break;
-	case	GCDSINGULAR:  FFScript::getComboData_singular(); break;
-	case	GCDSLOWMOVE:  FFScript::getComboData_slow_movement(); break;
-	case	GCDSTATUE:  FFScript::getComboData_statue_type(); break;
-	case	GCDSTEPTYPE:  FFScript::getComboData_step_type(); break;
-	case	GCDSTEPCHANGETO:  FFScript::getComboData_step_change_to(); break;
-	case	GCDSTRIKEREMNANTS:  FFScript::getComboData_strike_remnants(); break;
-	case	GCDSTRIKEREMNANTSTYPE:  FFScript::getComboData_strike_remnants_type(); break;
-	case	GCDSTRIKECHANGE:  FFScript::getComboData_strike_change(); break;
-	case	GCDSTRIKECHANGEITEM:  FFScript::getComboData_strike_item(); break;
-	case	GCDTOUCHITEM:  FFScript::getComboData_touch_item(); break;
-	case	GCDTOUCHSTAIRS:  FFScript::getComboData_touch_stairs(); break;
-	case	GCDTRIGGERTYPE:  FFScript::getComboData_trigger_type(); break;
-	case	GCDTRIGGERSENS:  FFScript::getComboData_trigger_sensitive(); break;
-	case	GCDWARPTYPE:  FFScript::getComboData_warp_type(); break;
-	case	GCDWARPSENS:  FFScript::getComboData_warp_sensitive(); break;
-	case	GCDWARPDIRECT:  FFScript::getComboData_warp_direct(); break;
-	case	GCDWARPLOCATION:  FFScript::getComboData_warp_location(); break;
-	case	GCDWATER:  FFScript::getComboData_water(); break;
-	case	GCDWHISTLE:  FFScript::getComboData_whistle(); break;
-	case	GCDWINGAME:  FFScript::getComboData_win_game(); break;
-	case	GCDBLOCKWEAPLVL:  FFScript::getComboData_block_weapon_lvl(); break;
-	case	GCDTILE:  FFScript::getComboData_tile(); break;
-	case	GCDFLIP:  FFScript::getComboData_flip(); break;
-	case	GCDWALK:  FFScript::getComboData_walk(); break;
-	case	GCDTYPE:  FFScript::getComboData_type(); break;
-	case	GCDCSETS:  FFScript::getComboData_csets(); break;
-	case	GCDFOO:  FFScript::getComboData_foo(); break;
-	case	GCDFRAMES:  FFScript::getComboData_frames(); break;
-	case	GCDSPEED:  FFScript::getComboData_speed(); break;
-	case	GCDNEXTCOMBO:  FFScript::getComboData_nextcombo(); break;
-	case	GCDNEXTCSET:  FFScript::getComboData_nextcset(); break;
-	case	GCDFLAG:  FFScript::getComboData_flag(); break;
-	case	GCDSKIPANIM:  FFScript::getComboData_skipanim(); break;
-	case	GCDNEXTTIMER:  FFScript::getComboData_nexttimer(); break;
-	case	GCDSKIPANIMY:  FFScript::getComboData_skipanimy(); break;
-	case	GCDANIMFLAGS:  FFScript::getComboData_animflags(); break;
-	case	GCDBLOCKWEAPON:  FFScript::getComboData_block_weapon(); break;
-	case	GCDEXPANSION:  FFScript::getComboData_expansion(); break;
-	case	GCDSTRIKEWEAPONS:  FFScript::getComboData_strike_weapons(); break;
-	case	SCDBLOCKENEM:  FFScript::setComboData_block_enemies(); break;
-	case	SCDBLOCKHOLE:  FFScript::setComboData_block_hole(); break;
-	case	SCDBLOCKTRIG:  FFScript::setComboData_block_trigger(); break;
-	case	SCDCONVEYSPDX:  FFScript::setComboData_conveyor_x_speed(); break;
-	case	SCDCONVEYSPDY:  FFScript::setComboData_conveyor_y_speed(); break;
-	case	SCDCREATEENEM:  FFScript::setComboData_create_enemy(); break;
-	case	SCDCREATEENEMWH:  FFScript::setComboData_create_enemy_when(); break;
-	case	SCDCREATEENEMCH:  FFScript::setComboData_create_enemy_change(); break;
-	case	SCDDIRCHTYPE:  FFScript::setComboData_directional_change_type(); break;
-	case	SCDDISTCHTILES:  FFScript::setComboData_distance_change_tiles(); break;
-	case	SCDDIVEITEM:  FFScript::setComboData_dive_item(); break;
-	case	SCDDOCK:  FFScript::setComboData_dock(); break;
-	case	SCDFAIRY:  FFScript::setComboData_fairy(); break;
-	case	SCDFFCOMBOATTRIB:  FFScript::setComboData_ff_combo_attr_change(); break;
-	case	SCDFOOTDECOTILE:  FFScript::setComboData_foot_decorations_tile(); break;
-	case	SCDFOOTDECOTYPE:  FFScript::setComboData_foot_decorations_type(); break;
-	case	SCDHOOKSHOTGRAB:  FFScript::setComboData_hookshot_grab_point(); break;
-	case	SCDLADDERPASS:  FFScript::setComboData_ladder_pass(); break;
-	case	SCDLOCKBLOCKTYPE:  FFScript::setComboData_lock_block_type(); break;
-	case	SCDLOCKBLOCKCHANGE:  FFScript::setComboData_lock_block_change(); break;
-	case	SCDMAGICMIRRORTYPE:  FFScript::setComboData_magic_mirror_type(); break;
-	case	SCDMODIFYHPAMOUNT:  FFScript::setComboData_modify_hp_amount(); break;
-	case	SCDMODIFYHPDELAY:  FFScript::setComboData_modify_hp_delay(); break;
-	case	SCDMODIFYHPTYPE:  FFScript::setComboData_modify_hp_type(); break;
-	case	SCDMODIFYMPAMOUNT:  FFScript::setComboData_modify_mp_amount(); break;
-	case	SCDMODIFYMPDELAY:  FFScript::setComboData_modify_mp_delay(); break;
-	case	SCDMODIFYMPTYPE:  FFScript::setComboData_modify_mp_type(); break;
-	case	SCDNOPUSHBLOCKS:  FFScript::setComboData_no_push_blocks(); break;
-	case	SCDOVERHEAD:  FFScript::setComboData_overhead(); break;
-	case	SCDPLACEENEMY:  FFScript::setComboData_place_enemy(); break;
-	case	SCDPUSHDIR:  FFScript::setComboData_push_direction(); break;
-	case	SCDPUSHWEIGHT:  FFScript::setComboData_push_weight(); break;
-	case	SCDPUSHWAIT:  FFScript::setComboData_push_wait(); break;
-	case	SCDPUSHED:  FFScript::setComboData_pushed(); break;
-	case	SCDRAFT:  FFScript::setComboData_raft(); break;
-	case	SCDRESETROOM:  FFScript::setComboData_reset_room(); break;
-	case	SCDSAVEPOINT:  FFScript::setComboData_save_point_type(); break;
-	case	SCDSCREENFREEZE:  FFScript::setComboData_screen_freeze_type(); break;
-	case	SCDSECRETCOMBO:  FFScript::setComboData_secret_combo(); break;
-	case	SCDSINGULAR:  FFScript::setComboData_singular(); break;
-	case	SCDSLOWMOVE:  FFScript::setComboData_slow_movement(); break;
-	case	SCDSTATUE:  FFScript::setComboData_statue_type(); break;
-	case	SCDSTEPTYPE:  FFScript::setComboData_step_type(); break;
-	case	SCDSTEPCHANGETO:  FFScript::setComboData_step_change_to(); break;
-	case	SCDSTRIKEREMNANTS:  FFScript::setComboData_strike_remnants(); break;
-	case	SCDSTRIKEREMNANTSTYPE:  FFScript::setComboData_strike_remnants_type(); break;
-	case	SCDSTRIKECHANGE:  FFScript::setComboData_strike_change(); break;
-	case	SCDSTRIKECHANGEITEM:  FFScript::setComboData_strike_item(); break;
-	case	SCDTOUCHITEM:  FFScript::setComboData_touch_item(); break;
-	case	SCDTOUCHSTAIRS:  FFScript::setComboData_touch_stairs(); break;
-	case	SCDTRIGGERTYPE:  FFScript::setComboData_trigger_type(); break;
-	case	SCDTRIGGERSENS:  FFScript::setComboData_trigger_sensitive(); break;
-	case	SCDWARPTYPE:  FFScript::setComboData_warp_type(); break;
-	case	SCDWARPSENS:  FFScript::setComboData_warp_sensitive(); break;
-	case	SCDWARPDIRECT:  FFScript::setComboData_warp_direct(); break;
-	case	SCDWARPLOCATION:  FFScript::setComboData_warp_location(); break;
-	case	SCDWATER:  FFScript::setComboData_water(); break;
-	case	SCDWHISTLE:  FFScript::setComboData_whistle(); break;
-	case	SCDWINGAME:  FFScript::setComboData_win_game(); break;
-	case	SCDBLOCKWEAPLVL:  FFScript::setComboData_block_weapon_lvl(); break;
-	case	SCDTILE:  FFScript::setComboData_tile(); break;
-	case	SCDFLIP:  FFScript::setComboData_flip(); break;
-	case	SCDWALK:  FFScript::setComboData_walk(); break;
-	case	SCDTYPE:  FFScript::setComboData_type(); break;
-	case	SCDCSETS:  FFScript::setComboData_csets(); break;
-	case	SCDFOO:  FFScript::setComboData_foo(); break;
-	case	SCDFRAMES:  FFScript::setComboData_frames(); break;
-	case	SCDSPEED:  FFScript::setComboData_speed(); break;
-	case	SCDNEXTCOMBO:  FFScript::setComboData_nextcombo(); break;
-	case	SCDNEXTCSET:  FFScript::setComboData_nextcset(); break;
-	case	SCDFLAG:  FFScript::setComboData_flag(); break;
-	case	SCDSKIPANIM:  FFScript::setComboData_skipanim(); break;
-	case	SCDNEXTTIMER:  FFScript::setComboData_nexttimer(); break;
-	case	SCDSKIPANIMY:  FFScript::setComboData_skipanimy(); break;
-	case	SCDANIMFLAGS:  FFScript::setComboData_animflags(); break;
-	case	SCDBLOCKWEAPON:  FFScript::setComboData_block_weapon(ri->d[2]); break;
-	case	SCDEXPANSION:  FFScript::setComboData_expansion(ri->d[2]); break;
-	case	SCDSTRIKEWEAPONS:  FFScript::setComboData_strike_weapons(ri->d[2]); break;
+		case GAMECONTINUE:
+		    reset_combo_animations();
+		    reset_combo_animations2();
+		
+		    Quit = qCONT;
+		    skipcont = 1;
+			//cont_game();
+		    scommand = 0xFFFF;
+		    break;
+			
+		case GAMESAVEQUIT:
+			Quit = qSAVE;
+			skipcont = 1;
+			scommand =0xFFFF;
+			break;
+			
+		case GAMESAVECONTINUE:
+			Quit = qSAVECONT;
+			skipcont = 1;
+			scommand =0xFFFF;
+			break;
+		    
+		case SAVE:
+		    if(scriptCanSave)
+		    {
+			save_game(false);
+			scriptCanSave=false;
+			
+		    }
+		    break;
+		    
+		case SAVESCREEN:
+		    do_showsavescreen();
+		    break;
+		
+		case SHOWF6SCREEN:
+		    onTryQuit();
+		    break;
+		    
+		case SAVEQUITSCREEN:
+		    save_game(false, 1);
+		    break;
+		    
+		    //Not Implemented
+		case ELLIPSE2:
+		case FLOODFILL:
+		    break;
+		    
+		case SETCOLORB:
+		case SETDEPTHB:
+		case GETCOLORB:
+		case GETDEPTHB:
+		    break;
+		    
+		case ENQUEUER:
+		    do_enqueue(false);
+		    break;
+		    
+		case ENQUEUEV:
+		    do_enqueue(true);
+		    break;
+		    
+		case DEQUEUE:
+		    do_dequeue(false);
+		    break;
+		
+		//Visual Effects
+		case WAVYIN:
+			FFScript::do_wavyin();
+			break;
+		case WAVYOUT:
+			FFScript::do_wavyout();
+			break;
+		case ZAPIN:
+			FFScript::do_zapin();
+			break;
+		case ZAPOUT:
+			FFScript::do_zapout();
+			break;
+		case OPENWIPE:
+		{
+			FFScript::do_openscreen();
+			break;
+		}
+		case CLOSEWIPE:
+		{
+			FFScript::do_closescreen();
+			break;
+		}
+		case OPENWIPESHAPE:
+		{
+			FFScript::do_openscreenshape();
+			break;
+		}
+		case CLOSEWIPESHAPE:
+		{
+			FFScript::do_closescreenshape();
+			break;
+		}
+		
+		//Monochrome
+		case GREYSCALEON:
+			setMonochrome(true);
+			break;
+		case GREYSCALEOFF:
+			setMonochrome(false);
+			break;
+		
+		case TINT:
+		{
+		    FFCore.Tint();
+		    break;
+		}
+		
+		case CLEARTINT:
+		{
+		    FFCore.clearTint();
+		    break;
+		}
+		
+		case MONOHUE:
+		{
+		    FFCore.gfxmonohue();
+		    break;
+		}
+		
+		case LINKWARPEXR:
+		{
+			
+			FFCore.do_warp_ex(false);
+			//terminate sprite scripts
+			//switch(type)
+			//{
+			//	case SCRIPT_NPC:
+			//	case SCRIPT_LWPN:
+			//	case SCRIPT_EWPN:
+			//	case SCRIPT_ITEMSPRITE:
+			//	{
+			//		Z_scripterrlog("Hero->WarpEx() cannot be called from script type %s. Ignoring the call.\n", scripttypenames[type]);
+			//		break;
+			//	}
+			//	default: 
+			//	{
+			//		FFCore.do_warp_ex(false);
+			//		break;
+			//	}
+			//}
+			break;
+			
+		}
+		
+		case LINKEXPLODER:
+		{
+		    int mode = get_register(sarg1) / 10000;
+		    if ( (unsigned) mode > 2 ) 
+		    {
+			    Z_scripterrlog("Invalid mode (%d) passed to Link->Explode(int mode)\n",mode);
+		    }
+		    else Link.explode(mode);
+		    break;
+		}
+		case NPCEXPLODER:
+		{
+		    
+		    int mode = get_register(sarg1) / 10000;
+			al_trace("Called npc->Explode(%d), for enemy index %d\n", mode, ri->guyref);
+		    if ( (unsigned) mode > 2 ) 
+		    {
+			    Z_scripterrlog("Invalid mode (%d) passed to npc->Explode(int mode)\n",mode);
+		    }
+		    else
+		    {
+			    if(GuyH::loadNPC(ri->guyref, "npc->Explode()") == SH::_NoError)
+			    {
+				al_trace("npc->Explode() is loading the npc into a pointer.\n");
+				//enemy *e = (enemy*)guys.spr(ri->guyref);
+				al_trace("npc->Explode() is calling enemy::explode.\n");
+				//(enemy *) guys.explode(eid);
+				//e->explode(mode);
+				    //enemy *en=GuyH::getNPC();
+				    //en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
+					guys.spr(GuyH::getNPCIndex(ri->guyref))->explode(mode);
+			    }
+		    }
+		    break;
+		}
+		
+		case ITEMEXPLODER:
+		{
+		    
+		    int mode = get_register(sarg1) / 10000;
+			al_trace("Called item->Explode(%d), for item index %d\n", mode, ri->itemref);
+		    if ( (unsigned) mode > 2 ) 
+		    {
+			    Z_scripterrlog("Invalid mode (%d) passed to item->Explode(int mode)\n",mode);
+		    }
+		    else
+		    {
+			    if(ItemH::loadItem(ri->itemref, "item->Explode()") == SH::_NoError)
+			    {
+					items.spr(ItemH::getItemIndex(ri->itemref))->explode(mode);
+			    }
+		    }
+		    break;
+		}
+		case LWEAPONEXPLODER:
+		{
+		    
+		    int mode = get_register(sarg1) / 10000;
+			al_trace("Called lweapon->Explode(%d), for lweapon index %d\n", mode, ri->lwpn);
+		    if ( (unsigned) mode > 2 ) 
+		    {
+			    Z_scripterrlog("Invalid mode (%d) passed to lweapon->Explode(int mode)\n",mode);
+		    }
+		    else
+		    {
+			    if(LwpnH::loadWeapon(ri->itemref, "lweapon->Explode()") == SH::_NoError)
+			    {
+					Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn))->explode(mode);
+			    }
+		    }
+		    break;
+		}
+		case EWEAPONEXPLODER:
+		{
+		    
+		    int mode = get_register(sarg1) / 10000;
+			al_trace("Called eweapon->Explode(%d), for eweapon index %d\n", mode, ri->ewpn);
+		    if ( (unsigned) mode > 2 ) 
+		    {
+			    Z_scripterrlog("Invalid mode (%d) passed to eweapon->Explode(int mode)\n",mode);
+		    }
+		    else
+		    {
+			    if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Explode()") == SH::_NoError)
+			    {
+					Ewpns.spr(EwpnH::getEWeaponIndex(ri->lwpn))->explode(mode);
+			    }
+		    }
+		    break;
+		}
+		
+		case RUNITEMSCRIPT:
+		{
+			int itemid = ri->idata;
+			int mode = get_register(sarg1) / 10000;
+			Z_scripterrlog("Trying to run the script on item: %d\n",itemid);
+			Z_scripterrlog("The script ID is: %d\n",itemsbuf[itemid].script);
+			Z_scripterrlog("Runitemscript mode is: %d\n", mode);
+			switch(mode)
+			{
+				case 0:
+				{
+					item_doscript[itemid] = 4;
+					break;
+				}
+				case 1:
+				{
+					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+					{
+						if ( !item_doscript[itemid] ) 
+						{
+							for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
+							itemScriptData[itemid].Clear();
+							item_doscript[itemid] = 1;
+							//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
+						}
+						else
+						{
+							//Rob, clear the stack here, clear refinfo, and set up to run again on the next frame from the beginning.
+						}
+					}
+					break;
+				}
+				case 2:
+				default:
+				{
+					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+					{
+						if (item_doscript[itemid] != 2 )item_doscript[itemid] = 2;
+					}
+					break;
+				}
+				/*
+				case 0:
+				{
+					item_doscript[itemid] = 0;
+					break;
+				}
+				default:
+				{
+				
+					if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+					{
+						//itemScriptData[itemid].Clear();
+						//for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
+						//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+						item_doscript[itemid] = 2;
+					}
+					break;
+				}
+				*/
+			}
+			break;
+		}
+		
+		//case NPCData
+		
+		case 	GETNPCDATATILE: FFScript::getNPCData_tile(); break;
+		case	GETNPCDATAEHEIGHT: FFScript::getNPCData_e_height(); break;
+		case 	GETNPCDATAFLAGS: FFScript::getNPCData_flags(); break;
+		case	GETNPCDATAFLAGS2: FFScript::getNPCData_flags2(); break;
+		case	GETNPCDATAWIDTH: FFScript::getNPCData_flags2(); break;
+		case	GETNPCDATAHEIGHT: FFScript::getNPCData_flags2(); break;
+		case	GETNPCDATASTILE: FFScript::getNPCData_s_tile(); break;
+		case	GETNPCDATASWIDTH: FFScript::getNPCData_s_width(); break;
+		case	GETNPCDATASHEIGHT: FFScript::getNPCData_s_height(); break;
+		case	GETNPCDATAETILE: FFScript::getNPCData_e_tile(); break;
+		case	GETNPCDATAEWIDTH: FFScript::getNPCData_e_width(); break;
+		case	GETNPCDATAHP: FFScript::getNPCData_hp(); break;
+		case	GETNPCDATAFAMILY: FFScript::getNPCData_family(); break;
+		case	GETNPCDATACSET: FFScript::getNPCData_cset(); break;
+		case	GETNPCDATAANIM: FFScript::getNPCData_anim(); break;
+		case	GETNPCDATAEANIM: FFScript::getNPCData_e_anim(); break;
+		case	GETNPCDATAFRAMERATE: FFScript::getNPCData_frate(); break;
+		case	GETNPCDATAEFRAMERATE: FFScript::getNPCData_e_frate(); break;
+		case	GETNPCDATATOUCHDMG: FFScript::getNPCData_dp(); break;
+		case	GETNPCDATAWPNDAMAGE: FFScript::getNPCData_wdp(); break;
+		case	GETNPCDATAWEAPON: FFScript::getNPCData_wdp(); break;
+		case	GETNPCDATARANDOM: FFScript::getNPCData_rate(); break;
+		case	GETNPCDATAHALT: FFScript::getNPCData_hrate(); break;
+		case	GETNPCDATASTEP: FFScript::getNPCData_step(); break;
+		case	GETNPCDATAHOMING: FFScript::getNPCData_homing(); break;
+		case	GETNPCDATAHUNGER: FFScript::getNPCData_grumble(); break;
+		case	GETNPCDATADROPSET: FFScript::getNPCData_item_set(); break;
+		case	GETNPCDATABGSFX: FFScript::getNPCData_bgsfx(); break;
+		case	GETNPCDATADEATHSFX: FFScript::getNPCData_deadsfx(); break; 
+		case	GETNPCDATAXOFS: FFScript::getNPCData_xofs(); break;
+		case	GETNPCDATAYOFS: FFScript::getNPCData_yofs(); break;
+		case	GETNPCDATAZOFS: FFScript::getNPCData_zofs(); break;
+		case	GETNPCDATAHXOFS: FFScript::getNPCData_hxofs(); break;
+		case	GETNPCDATAHYOFS: FFScript::getNPCData_hyofs(); break;
+		case	GETNPCDATAHITWIDTH: FFScript::getNPCData_hxsz(); break;
+		case	GETNPCDATAHITHEIGHT: FFScript::getNPCData_hysz(); break;
+		case	GETNPCDATAHITZ: FFScript::getNPCData_hzsz(); break;
+		case	GETNPCDATATILEWIDTH: FFScript::getNPCData_txsz(); break;
+		case	GETNPCDATATILEHEIGHT: FFScript::getNPCData_tysz(); break;
+		case	GETNPCDATAWPNSPRITE: FFScript::getNPCData_wpnsprite(); break;
+		//case	GETNPCDATASCRIPTDEF: FFScript::getNPCData_scriptdefence(); break; //2.future cross-compat. 
+		case	GETNPCDATADEFENSE: FFScript::getNPCData_defense(); break; 
+		case	GETNPCDATASIZEFLAG: FFScript::getNPCData_SIZEflags(); break;
+		case	GETNPCDATAATTRIBUTE: FFScript::getNPCData_misc(); break;
+		case	GETNPCDATAHITSFX: FFScript::getNPCData_hitsfx(); break;
+			
+		case	SETNPCDATAFLAGS: FFScript::setNPCData_flags(); break;
+		case	SETNPCDATAFLAGS2: FFScript::setNPCData_flags2(); break;
+		case	SETNPCDATAWIDTH: FFScript::setNPCData_width(); break;
+		case	SETNPCDATAHEIGHT: FFScript::setNPCData_height(); break;
+		case	SETNPCDATASTILE: FFScript::setNPCData_s_tile(); break;
+		case	SETNPCDATASWIDTH: FFScript::setNPCData_s_width(); break;
+		case	SETNPCDATASHEIGHT: FFScript::setNPCData_s_height(); break;
+		case	SETNPCDATAETILE: FFScript::setNPCData_e_tile(); break;
+		case	SETNPCDATAEWIDTH: FFScript::setNPCData_e_width(); break;
+		case	SETNPCDATAHP: FFScript::setNPCData_hp(); break;
+		case	SETNPCDATAFAMILY: FFScript::setNPCData_family(); break;
+		case	SETNPCDATACSET: FFScript::setNPCData_cset(); break;
+		case	SETNPCDATAANIM: FFScript::setNPCData_anim(); break;
+		case	SETNPCDATAEANIM: FFScript::setNPCData_e_anim(); break;
+		case	SETNPCDATAFRAMERATE: FFScript::setNPCData_frate(); break;
+		case	SETNPCDATAEFRAMERATE: FFScript::setNPCData_e_frate(); break;
+		case	SETNPCDATATOUCHDMG: FFScript::setNPCData_dp(); break;
+		case	SETNPCDATAWPNDAMAGE: FFScript::setNPCData_wdp(); break;
+		case	SETNPCDATAWEAPON: FFScript::setNPCData_weapon(); break;
+		case	SETNPCDATARANDOM: FFScript::setNPCData_rate(); break;
+		case	SETNPCDATAHALT: FFScript::setNPCData_hrate(); break;
+		case	SETNPCDATASTEP: FFScript::setNPCData_step(); break;
+		case	SETNPCDATAHOMING: FFScript::setNPCData_homing(); break;
+		case	SETNPCDATAHUNGER: FFScript::setNPCData_grumble(); break;
+		case	SETNPCDATADROPSET: FFScript::setNPCData_item_set(); break;
+		case	SETNPCDATABGSFX: FFScript::setNPCData_bgsfx(); break;
+		case	SETNPCDATADEATHSFX: FFScript::setNPCData_hitsfx(); break;
+		case	SETNPCDATAXOFS: FFScript::setNPCData_xofs(); break;
+		case	SETNPCDATAYOFS: FFScript::setNPCData_yofs(); break;
+		case	SETNPCDATAZOFS: FFScript::setNPCData_zofs(); break;
+		case	SETNPCDATAHXOFS: FFScript::setNPCData_hxofs(); break;
+		case	SETNPCDATAHYOFS: FFScript::setNPCData_hyofs(); break;
+		case	SETNPCDATAHITWIDTH: FFScript::setNPCData_hxsz(); break;
+		case	SETNPCDATAHITHEIGHT: FFScript::setNPCData_hysz(); break;
+		case	SETNPCDATAHITZ: FFScript::setNPCData_hzsz(); break;
+		case	SETNPCDATATILEWIDTH: FFScript::setNPCData_txsz(); break;
+		case	SETNPCDATATILEHEIGHT: FFScript::setNPCData_tysz(); break;
+		case	SETNPCDATAWPNSPRITE: FFScript::setNPCData_wpnsprite(); break;
+		case	SETNPCDATAHITSFX: FFScript::setNPCData_hitsfx(); break;
+		case	SETNPCDATATILE: FFScript::setNPCData_tile(); break;
+		case	SETNPCDATAEHEIGHT: FFScript::setNPCData_e_height(); break;
+		
+		
+		
+		
 
-	//SpriteData
-	
-	//case	GETSPRITEDATASTRING: 
-	case	GETSPRITEDATATILE: FFScript::getSpriteDataTile();
-	case	GETSPRITEDATAMISC: FFScript::getSpriteDataCSets();
-	case	GETSPRITEDATACGETS: FFScript::getSpriteDataCSets();
-	case	GETSPRITEDATAFRAMES: FFScript::getSpriteDataFrames();
-	case	GETSPRITEDATASPEED: FFScript::getSpriteDataSpeed();
-	case	GETSPRITEDATATYPE: FFScript::getSpriteDataType();
+			
+	//	case	SETNPCDATASCRIPTDEF  : FFScript::setNPCData_scriptdefence(); break;
+		case 	SETNPCDATADEFENSE : FFScript::setNPCData_defense(ri->d[2]); break;
+		case 	SETNPCDATASIZEFLAG : FFScript::setNPCData_SIZEflags(ri->d[2]); break;
+		case 	SETNPCDATAATTRIBUTE : FFScript::setNPCData_misc(ri->d[2]); break;
+		
+		
+		//ComboData
+		
+		case	GCDBLOCKENEM:  FFScript::getComboData_block_enemies(); break;
+		case	GCDBLOCKHOLE:  FFScript::getComboData_block_hole(); break;
+		case	GCDBLOCKTRIG:  FFScript::getComboData_block_trigger(); break;
+		case	GCDCONVEYSPDX:  FFScript::getComboData_conveyor_x_speed(); break;
+		case	GCDCONVEYSPDY:  FFScript::getComboData_conveyor_y_speed(); break;
+		case	GCDCREATEENEM:  FFScript::getComboData_create_enemy(); break;
+		case	GCDCREATEENEMWH:  FFScript::getComboData_create_enemy_when(); break;
+		case	GCDCREATEENEMCH:  FFScript::getComboData_create_enemy_change(); break;
+		case	GCDDIRCHTYPE:  FFScript::getComboData_directional_change_type(); break;
+		case	GCDDISTCHTILES:  FFScript::getComboData_distance_change_tiles(); break;
+		case	GCDDIVEITEM:  FFScript::getComboData_dive_item(); break;
+		case	GCDDOCK:  FFScript::getComboData_dock(); break;
+		case	GCDFAIRY:  FFScript::getComboData_fairy(); break;
+		case	GCDFFCOMBOATTRIB:  FFScript::getComboData_ff_combo_attr_change(); break;
+		case	GCDFOOTDECOTILE:  FFScript::getComboData_foot_decorations_tile(); break;
+		case	GCDFOOTDECOTYPE:  FFScript::getComboData_foot_decorations_type(); break;
+		case	GCDHOOKSHOTGRAB:  FFScript::getComboData_hookshot_grab_point(); break;
+		case	GCDLADDERPASS:  FFScript::getComboData_ladder_pass(); break;
+		case	GCDLOCKBLOCKTYPE:  FFScript::getComboData_lock_block_type(); break;
+		case	GCDLOCKBLOCKCHANGE:  FFScript::getComboData_lock_block_change(); break;
+		case	GCDMAGICMIRRORTYPE:  FFScript::getComboData_magic_mirror_type(); break;
+		case	GCDMODIFYHPAMOUNT:  FFScript::getComboData_modify_hp_amount(); break;
+		case	GCDMODIFYHPDELAY:  FFScript::getComboData_modify_hp_delay(); break;
+		case	GCDMODIFYHPTYPE:  FFScript::getComboData_modify_hp_type(); break;
+		case	GCDMODIFYMPAMOUNT:  FFScript::getComboData_modify_mp_amount(); break;
+		case	GCDMODIFYMPDELAY:  FFScript::getComboData_modify_mp_delay(); break;
+		case	GCDMODIFYMPTYPE:  FFScript::getComboData_modify_mp_type(); break;
+		case	GCDNOPUSHBLOCKS:  FFScript::getComboData_no_push_blocks(); break;
+		case	GCDOVERHEAD:  FFScript::getComboData_overhead(); break;
+		case	GCDPLACEENEMY:  FFScript::getComboData_place_enemy(); break;
+		case	GCDPUSHDIR:  FFScript::getComboData_push_direction(); break;
+		case	GCDPUSHWEIGHT:  FFScript::getComboData_push_weight(); break;
+		case	GCDPUSHWAIT:  FFScript::getComboData_push_wait(); break;
+		case	GCDPUSHED:  FFScript::getComboData_pushed(); break;
+		case	GCDRAFT:  FFScript::getComboData_raft(); break;
+		case	GCDRESETROOM:  FFScript::getComboData_reset_room(); break;
+		case	GCDSAVEPOINT:  FFScript::getComboData_save_point_type(); break;
+		case	GCDSCREENFREEZE:  FFScript::getComboData_screen_freeze_type(); break;
+		case	GCDSECRETCOMBO:  FFScript::getComboData_secret_combo(); break;
+		case	GCDSINGULAR:  FFScript::getComboData_singular(); break;
+		case	GCDSLOWMOVE:  FFScript::getComboData_slow_movement(); break;
+		case	GCDSTATUE:  FFScript::getComboData_statue_type(); break;
+		case	GCDSTEPTYPE:  FFScript::getComboData_step_type(); break;
+		case	GCDSTEPCHANGETO:  FFScript::getComboData_step_change_to(); break;
+		case	GCDSTRIKEREMNANTS:  FFScript::getComboData_strike_remnants(); break;
+		case	GCDSTRIKEREMNANTSTYPE:  FFScript::getComboData_strike_remnants_type(); break;
+		case	GCDSTRIKECHANGE:  FFScript::getComboData_strike_change(); break;
+		case	GCDSTRIKECHANGEITEM:  FFScript::getComboData_strike_item(); break;
+		case	GCDTOUCHITEM:  FFScript::getComboData_touch_item(); break;
+		case	GCDTOUCHSTAIRS:  FFScript::getComboData_touch_stairs(); break;
+		case	GCDTRIGGERTYPE:  FFScript::getComboData_trigger_type(); break;
+		case	GCDTRIGGERSENS:  FFScript::getComboData_trigger_sensitive(); break;
+		case	GCDWARPTYPE:  FFScript::getComboData_warp_type(); break;
+		case	GCDWARPSENS:  FFScript::getComboData_warp_sensitive(); break;
+		case	GCDWARPDIRECT:  FFScript::getComboData_warp_direct(); break;
+		case	GCDWARPLOCATION:  FFScript::getComboData_warp_location(); break;
+		case	GCDWATER:  FFScript::getComboData_water(); break;
+		case	GCDWHISTLE:  FFScript::getComboData_whistle(); break;
+		case	GCDWINGAME:  FFScript::getComboData_win_game(); break;
+		case	GCDBLOCKWEAPLVL:  FFScript::getComboData_block_weapon_lvl(); break;
+		case	GCDTILE:  FFScript::getComboData_tile(); break;
+		case	GCDFLIP:  FFScript::getComboData_flip(); break;
+		case	GCDWALK:  FFScript::getComboData_walk(); break;
+		case	GCDTYPE:  FFScript::getComboData_type(); break;
+		case	GCDCSETS:  FFScript::getComboData_csets(); break;
+		case	GCDFOO:  FFScript::getComboData_foo(); break;
+		case	GCDFRAMES:  FFScript::getComboData_frames(); break;
+		case	GCDSPEED:  FFScript::getComboData_speed(); break;
+		case	GCDNEXTCOMBO:  FFScript::getComboData_nextcombo(); break;
+		case	GCDNEXTCSET:  FFScript::getComboData_nextcset(); break;
+		case	GCDFLAG:  FFScript::getComboData_flag(); break;
+		case	GCDSKIPANIM:  FFScript::getComboData_skipanim(); break;
+		case	GCDNEXTTIMER:  FFScript::getComboData_nexttimer(); break;
+		case	GCDSKIPANIMY:  FFScript::getComboData_skipanimy(); break;
+		case	GCDANIMFLAGS:  FFScript::getComboData_animflags(); break;
+		case	GCDBLOCKWEAPON:  FFScript::getComboData_block_weapon(); break;
+		case	GCDEXPANSION:  FFScript::getComboData_expansion(); break;
+		case	GCDSTRIKEWEAPONS:  FFScript::getComboData_strike_weapons(); break;
+		case	SCDBLOCKENEM:  FFScript::setComboData_block_enemies(); break;
+		case	SCDBLOCKHOLE:  FFScript::setComboData_block_hole(); break;
+		case	SCDBLOCKTRIG:  FFScript::setComboData_block_trigger(); break;
+		case	SCDCONVEYSPDX:  FFScript::setComboData_conveyor_x_speed(); break;
+		case	SCDCONVEYSPDY:  FFScript::setComboData_conveyor_y_speed(); break;
+		case	SCDCREATEENEM:  FFScript::setComboData_create_enemy(); break;
+		case	SCDCREATEENEMWH:  FFScript::setComboData_create_enemy_when(); break;
+		case	SCDCREATEENEMCH:  FFScript::setComboData_create_enemy_change(); break;
+		case	SCDDIRCHTYPE:  FFScript::setComboData_directional_change_type(); break;
+		case	SCDDISTCHTILES:  FFScript::setComboData_distance_change_tiles(); break;
+		case	SCDDIVEITEM:  FFScript::setComboData_dive_item(); break;
+		case	SCDDOCK:  FFScript::setComboData_dock(); break;
+		case	SCDFAIRY:  FFScript::setComboData_fairy(); break;
+		case	SCDFFCOMBOATTRIB:  FFScript::setComboData_ff_combo_attr_change(); break;
+		case	SCDFOOTDECOTILE:  FFScript::setComboData_foot_decorations_tile(); break;
+		case	SCDFOOTDECOTYPE:  FFScript::setComboData_foot_decorations_type(); break;
+		case	SCDHOOKSHOTGRAB:  FFScript::setComboData_hookshot_grab_point(); break;
+		case	SCDLADDERPASS:  FFScript::setComboData_ladder_pass(); break;
+		case	SCDLOCKBLOCKTYPE:  FFScript::setComboData_lock_block_type(); break;
+		case	SCDLOCKBLOCKCHANGE:  FFScript::setComboData_lock_block_change(); break;
+		case	SCDMAGICMIRRORTYPE:  FFScript::setComboData_magic_mirror_type(); break;
+		case	SCDMODIFYHPAMOUNT:  FFScript::setComboData_modify_hp_amount(); break;
+		case	SCDMODIFYHPDELAY:  FFScript::setComboData_modify_hp_delay(); break;
+		case	SCDMODIFYHPTYPE:  FFScript::setComboData_modify_hp_type(); break;
+		case	SCDMODIFYMPAMOUNT:  FFScript::setComboData_modify_mp_amount(); break;
+		case	SCDMODIFYMPDELAY:  FFScript::setComboData_modify_mp_delay(); break;
+		case	SCDMODIFYMPTYPE:  FFScript::setComboData_modify_mp_type(); break;
+		case	SCDNOPUSHBLOCKS:  FFScript::setComboData_no_push_blocks(); break;
+		case	SCDOVERHEAD:  FFScript::setComboData_overhead(); break;
+		case	SCDPLACEENEMY:  FFScript::setComboData_place_enemy(); break;
+		case	SCDPUSHDIR:  FFScript::setComboData_push_direction(); break;
+		case	SCDPUSHWEIGHT:  FFScript::setComboData_push_weight(); break;
+		case	SCDPUSHWAIT:  FFScript::setComboData_push_wait(); break;
+		case	SCDPUSHED:  FFScript::setComboData_pushed(); break;
+		case	SCDRAFT:  FFScript::setComboData_raft(); break;
+		case	SCDRESETROOM:  FFScript::setComboData_reset_room(); break;
+		case	SCDSAVEPOINT:  FFScript::setComboData_save_point_type(); break;
+		case	SCDSCREENFREEZE:  FFScript::setComboData_screen_freeze_type(); break;
+		case	SCDSECRETCOMBO:  FFScript::setComboData_secret_combo(); break;
+		case	SCDSINGULAR:  FFScript::setComboData_singular(); break;
+		case	SCDSLOWMOVE:  FFScript::setComboData_slow_movement(); break;
+		case	SCDSTATUE:  FFScript::setComboData_statue_type(); break;
+		case	SCDSTEPTYPE:  FFScript::setComboData_step_type(); break;
+		case	SCDSTEPCHANGETO:  FFScript::setComboData_step_change_to(); break;
+		case	SCDSTRIKEREMNANTS:  FFScript::setComboData_strike_remnants(); break;
+		case	SCDSTRIKEREMNANTSTYPE:  FFScript::setComboData_strike_remnants_type(); break;
+		case	SCDSTRIKECHANGE:  FFScript::setComboData_strike_change(); break;
+		case	SCDSTRIKECHANGEITEM:  FFScript::setComboData_strike_item(); break;
+		case	SCDTOUCHITEM:  FFScript::setComboData_touch_item(); break;
+		case	SCDTOUCHSTAIRS:  FFScript::setComboData_touch_stairs(); break;
+		case	SCDTRIGGERTYPE:  FFScript::setComboData_trigger_type(); break;
+		case	SCDTRIGGERSENS:  FFScript::setComboData_trigger_sensitive(); break;
+		case	SCDWARPTYPE:  FFScript::setComboData_warp_type(); break;
+		case	SCDWARPSENS:  FFScript::setComboData_warp_sensitive(); break;
+		case	SCDWARPDIRECT:  FFScript::setComboData_warp_direct(); break;
+		case	SCDWARPLOCATION:  FFScript::setComboData_warp_location(); break;
+		case	SCDWATER:  FFScript::setComboData_water(); break;
+		case	SCDWHISTLE:  FFScript::setComboData_whistle(); break;
+		case	SCDWINGAME:  FFScript::setComboData_win_game(); break;
+		case	SCDBLOCKWEAPLVL:  FFScript::setComboData_block_weapon_lvl(); break;
+		case	SCDTILE:  FFScript::setComboData_tile(); break;
+		case	SCDFLIP:  FFScript::setComboData_flip(); break;
+		case	SCDWALK:  FFScript::setComboData_walk(); break;
+		case	SCDTYPE:  FFScript::setComboData_type(); break;
+		case	SCDCSETS:  FFScript::setComboData_csets(); break;
+		case	SCDFOO:  FFScript::setComboData_foo(); break;
+		case	SCDFRAMES:  FFScript::setComboData_frames(); break;
+		case	SCDSPEED:  FFScript::setComboData_speed(); break;
+		case	SCDNEXTCOMBO:  FFScript::setComboData_nextcombo(); break;
+		case	SCDNEXTCSET:  FFScript::setComboData_nextcset(); break;
+		case	SCDFLAG:  FFScript::setComboData_flag(); break;
+		case	SCDSKIPANIM:  FFScript::setComboData_skipanim(); break;
+		case	SCDNEXTTIMER:  FFScript::setComboData_nexttimer(); break;
+		case	SCDSKIPANIMY:  FFScript::setComboData_skipanimy(); break;
+		case	SCDANIMFLAGS:  FFScript::setComboData_animflags(); break;
+		case	SCDBLOCKWEAPON:  FFScript::setComboData_block_weapon(ri->d[2]); break;
+		case	SCDEXPANSION:  FFScript::setComboData_expansion(ri->d[2]); break;
+		case	SCDSTRIKEWEAPONS:  FFScript::setComboData_strike_weapons(ri->d[2]); break;
 
-	//case	SETSPRITEDATASTRING:
-	case	SETSPRITEDATATILE: FFScript::setSpriteDataTile();
-	case	SETSPRITEDATAMISC: FFScript::setSpriteDataMisc();
-	case	SETSPRITEDATACSETS: FFScript::setSpriteDataCSets();
-	case	SETSPRITEDATAFRAMES: FFScript::setSpriteDataFrames();
-	case	SETSPRITEDATASPEED: FFScript::setSpriteDataSpeed();
-	case	SETSPRITEDATATYPE: FFScript::setSpriteDataType();
-	
-	//Game over Screen
-	case	SETCONTINUESCREEN: FFScript::FFChangeSubscreenText();
-	case	SETCONTINUESTRING: FFScript::FFSetSaveScreenSetting();
-	
-	
-	
-        default:
-            Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
-            break;
-        }
+		//SpriteData
+		
+		//case	GETSPRITEDATASTRING: 
+		case	GETSPRITEDATATILE: FFScript::getSpriteDataTile(); break;
+		case	GETSPRITEDATAMISC: FFScript::getSpriteDataCSets(); break;
+		case	GETSPRITEDATACGETS: FFScript::getSpriteDataCSets(); break;
+		case	GETSPRITEDATAFRAMES: FFScript::getSpriteDataFrames(); break;
+		case	GETSPRITEDATASPEED: FFScript::getSpriteDataSpeed(); break;
+		case	GETSPRITEDATATYPE: FFScript::getSpriteDataType(); break;
+
+		//case	SETSPRITEDATASTRING:
+		case	SETSPRITEDATATILE: FFScript::setSpriteDataTile(); break;
+		case	SETSPRITEDATAMISC: FFScript::setSpriteDataMisc(); break;
+		case	SETSPRITEDATACSETS: FFScript::setSpriteDataCSets(); break;
+		case	SETSPRITEDATAFRAMES: FFScript::setSpriteDataFrames(); break;
+		case	SETSPRITEDATASPEED: FFScript::setSpriteDataSpeed(); break;
+		case	SETSPRITEDATATYPE: FFScript::setSpriteDataType(); break;
+		
+		//Game over Screen
+		case	SETCONTINUESCREEN: FFScript::FFChangeSubscreenText(); break;
+		case	SETCONTINUESTRING: FFScript::FFSetSaveScreenSetting(); break;
+		
+		//new npc functions for npc scripts
+		
+		case NPCDEAD:
+		    FFCore.do_isdeadnpc();
+		    break;
+		
+		case NPCCANSLIDE:
+		    FFCore.do_canslidenpc();
+		    break;
+		
+		case NPCSLIDE:
+		    FFCore.do_slidenpc();
+		    break;
+		
+		case NPCKICKBUCKET:
+		    FFCore.do_npckickbucket();
+		    break;
+		
+		case NPCSTOPBGSFX:
+		    FFCore.do_npc_stopbgsfx();
+		    break;
+		
+		case NPCATTACK:
+		    FFCore.do_npcattack();
+		    break;
+		
+		case NPCNEWDIR:
+		    FFCore.do_npc_newdir();
+		    break;
+		
+		case NPCCONSTWALK:
+		    FFCore.do_npc_constwalk();
+		    break;
+		
+		
+		
+		case NPCVARWALK:
+		    FFCore.do_npc_varwalk();
+		    break;
+		
+		case NPCVARWALK8:
+		    FFCore.do_npc_varwalk8();
+		    break;
+		
+		case NPCCONSTWALK8:
+		    FFCore.do_npc_constwalk8();
+		    break;
+		
+		case NPCHALTWALK:
+		    FFCore.do_npc_haltwalk();
+		    break;
+		
+		case NPCHALTWALK8:
+		    FFCore.do_npc_haltwalk8();
+		    break;
+		
+		case NPCFLOATWALK:
+		    FFCore.do_npc_floatwalk();
+		    break;
+		
+		case NPCFIREBREATH:
+		    FFCore.do_npc_breathefire();
+		    break;
+		
+		case NPCNEWDIR8:
+		    FFCore.do_npc_newdir8();
+		    break;
+		
+		case NPCLINKINRANGE:
+		    FFCore.do_npc_link_in_range(false);
+		    break;
+		
+		case NPCCANMOVE:
+		    FFCore.do_npc_canmove(false);
+		    break;
+		
+		case NPCHITWITH:
+		    FFCore.do_npc_simulate_hit(false);
+		    break;
+			
+		case NPCKNOCKBACK:
+			FFCore.do_npc_knockback(false);
+			break;
+		
+		case NPCGETINITDLABEL:
+		    FFCore.get_npcdata_initd_label(false);
+		    break;
+		
+		case NPCADD:
+		    FFCore.do_npc_add(false);
+		    break;
+		
+		case PLAYENHMUSICEX:
+		    FFCore.do_playogg_ex(false);
+		    break;
+		    
+		case GETENHMUSICPOS:
+		    FFCore.go_get_oggex_position();
+		    break;
+		    
+		case SETENHMUSICPOS:
+		    FFCore.do_set_oggex_position(false);
+		    break;
+		    
+		case SETENHMUSICSPEED:
+		    FFCore.do_set_oggex_speed(false);
+		    break;
+		
+		case DIREXISTS:
+			FFCore.do_checkdir(true);
+			break;
+		
+		case FILEEXISTS:
+			FFCore.do_checkdir(false);
+			break;
+		
+		case NOP: //No Operation. Do nothing. -V
+			break;
+		
+		default:
+		{
+		    Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
+		    break;
+		}
+	}
                
 #ifdef _SCRIPT_COUNTER
         end_time = script_counter;
@@ -15820,34 +21002,216 @@ case DMAPDATASETMUSICV: //command, string to load a music file
     if(!scriptCanSave)
         scriptCanSave=true;
     
+    //Decide if item scripts called from idata->RunScript should still run:
+    /*
+    for ( int q = 0; q < 256; q++ )
+    {
+	switch(runningItemScripts[q])
+	{
+		case 2: //stop running
+		{
+			item_doscript[i] = 0;
+		   
+			itemScriptData[i].Clear();
+			memset(item_stack[i], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		   
+			break; 
+		}
+		case 3: //keep running
+			break;
+	}
+	    
+    }
+    */
+    /* NOT NEEDED
+    if(scommand == WAITFRAME)
+    {
+        switch(type)
+        {
+		case SCRIPT_ITEM:
+		{
+			if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+			{
+				scommand = QUIT;
+				item_doscript[i] = 0;
+				itemScriptData[i].Clear();
+				memset(item_stack[i], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+				break;
+			}
+		}
+		default: break;
+	}
+    }
+    */
     if(scommand == WAITDRAW)
     {
         switch(type)
         {
         case SCRIPT_GLOBAL:
-            global_wait = true;
+            global_wait |= (1<<i);
             break;
             
+	case SCRIPT_LINK:
+		link_waitdraw = true;
+		break;
+	
+	case SCRIPT_DMAP:
+		dmap_waitdraw = true;
+		break;
+	
+	case SCRIPT_SCREEN:
+		tmpscr->screen_waitdraw = 1;
+		break;
+	
+	case SCRIPT_ITEM:
+	{
+		if ( !get_bit(quest_rules, qr_NOITEMWAITDRAW) ) { itemScriptsWaitdraw[i] = 1; }
+		break;
+	}
+	
+	/* Not just yet.
+	case SCRIPT_NPC:
+	{
+		guys.spr(GuyH::getNPCIndex(i))->waitdraw = 1;
+		break;
+	}
+	case SCRIPT_LWPN:
+	{
+		Lwpns.spr(LwpnH::getLWeaponIndex(i))->waitdraw = 1;
+		break;
+	}
+	*/
+	case SCRIPT_EWPN:
+	{
+	
+		Ewpns.spr(EwpnH::getEWeaponIndex(i))->waitdraw = 1;
+		break;
+	}
+	case SCRIPT_ITEMSPRITE:
+	{
+		items.spr(ItemH::getItemIndex(i))->waitdraw = 1;
+		break;
+	}
+	
+	case SCRIPT_FFC:
+	{
+		if ( !(get_bit(quest_rules, qr_NOFFCWAITDRAW)) )
+		{
+		//Z_scripterrlog("FFScript: FFC (%d) issued WAITDRAW\n", i);
+			tmpscr->ffcswaitdraw |= (1<<i);
+		//set_bitl(tmpscr->ffcswaitdraw, i, 1);
+		}
+		else
+		{
+			Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", "ffc, with Script Rule 'No FFC Waitdraw() enabled!");
+		}
+		break;
+	}
+	
         default:
-            Z_scripterrlog("Waitdraw can only be used in the active global script\n");
+            Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", script_types[type]);
             break;
         }
     }
     
     if(scommand == 0xFFFF) //Quit/command list end reached/bad command
     {
+	
         switch(type)
         {
-        case SCRIPT_FFC:
-            tmpscr->ffscript[i] = 0;
-            break;
-            
-        case SCRIPT_GLOBAL:
-            g_doscript = 0;
-            break;
-            
-        case SCRIPT_ITEM:
-            break; //item scripts aren't gonna go again anyway
+		case SCRIPT_FFC:
+		    tmpscr->ffscript[i] = 0;
+		    FFScript::deallocateAllArrays(type, i);
+		    break;
+		    
+		case SCRIPT_GLOBAL:
+		    g_doscript &= ~(1<<i);
+		    FFScript::deallocateAllArrays(type, i);
+		    break;
+		
+		case SCRIPT_LINK:
+		    link_doscript = 0;
+		    FFScript::deallocateAllArrays(type, i);
+		    break;
+		
+		case SCRIPT_DMAP:
+		    dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
+		    dmapscriptInitialised[i] = 0;
+		    FFScript::deallocateAllArrays(type, i);
+		    break;
+		    
+		case SCRIPT_ITEM:
+		{
+			Z_scripterrlog("Item script reached quit/end of scope\n");
+			int new_i = 0;
+			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+			
+			if ( !collect )
+			{
+				if ( (itemsbuf[i].flags&ITEM_FLAG16) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
+				item_doscript[new_i] = 0;
+				for ( int q = 0; q < 1024; q++ ) item_stack[new_i][q] = 0xFFFF;
+				itemScriptData[new_i].Clear();
+			}
+			else
+			{
+				item_collect_doscript[new_i] = 0;
+				for ( int q = 0; q < 1024; q++ ) item_collect_stack[new_i][q] = 0xFFFF;
+				itemCollectScriptData[new_i].Clear();
+			}
+			FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
+			Z_scripterrlog("Item script reached quit/end of scope for new_i: %d\n",new_i);
+			itemscriptInitialised[new_i] = 0;
+			
+			break; //item scripts aren't gonna go again anyway
+		}
+		case SCRIPT_NPC:
+		{
+			guys.spr(GuyH::getNPCIndex(i))->doscript = 0;
+			guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
+			guys.spr(GuyH::getNPCIndex(i))->initialised = 0;
+			FFScript::deallocateAllArrays(type, i);
+
+			break;
+		}
+		case SCRIPT_LWPN:
+		{
+			Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
+			Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
+			Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 0;
+			FFScript::deallocateAllArrays(type, i);
+			
+			break;
+		}
+		case SCRIPT_EWPN:
+		{
+		
+			Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
+			Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
+			Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 0;
+			FFScript::deallocateAllArrays(type, i);
+			
+			break;
+		}
+		case SCRIPT_ITEMSPRITE:
+		{
+		
+			items.spr(ItemH::getItemIndex(i))->doscript = 0;
+			items.spr(ItemH::getItemIndex(i))->script = 0;
+			items.spr(ItemH::getItemIndex(i))->initialised = 0;
+			FFScript::deallocateAllArrays(type, i);
+			
+			break;
+		}
+		case SCRIPT_SCREEN:
+		{
+		    tmpscr->script = 0;
+		    tmpscr->screendatascriptInitialised = 0;
+		    tmpscr->doscript = 0;
+		    FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
+		    break;
+		} 
         }
     }
     else
@@ -15867,11 +21231,26 @@ case DMAPDATASETMUSICV: //command, string to load a music file
     remove_int(update_script_counter);
 #endif
     
+    
     return 0;
 }
 
+//This keeps ffc scripts running beyond the first frame. 
 int ffscript_engine(const bool preload)
 {
+    //run screen script, first
+	//Z_scripterrlog("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
+	if(( preload && tmpscr->preloadscript) || !preload )
+	{
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		{
+			if ( tmpscr->script > 0 && tmpscr->doscript )
+			{
+				ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+			}
+			
+		}
+	}
     for(byte i = 0; i < MAXFFCS; i++)
     {
         if(tmpscr->ffscript[i] == 0)
@@ -15887,6 +21266,7 @@ int ffscript_engine(const bool preload)
         tmpscr->initialized[i] = true;
     }
     
+    
     return 0;
 }
 
@@ -15894,19 +21274,165 @@ int ffscript_engine(const bool preload)
 
 ///----------------------------------------------------------------------------------------------------
 
-script_bitmaps scb;
+
+void FFScript::do_write_bitmap()
+{
+	for ( int q = 0; q < 16; q++)
+	Z_scripterrlog("do_write_bitmap stack sp+%d: %d\n", q, SH::read_stack(ri->sp+q));
+	long arrayptr = get_register(sarg2) / 10000;
+	string filename_str;
+
+	ArrayH::getString(arrayptr, filename_str, 512);
+	int ref = ri->bitmapref-10;
+	Z_scripterrlog("WriteBitmap() filename is %s\n",filename_str.c_str());
+	Z_scripterrlog("WriteBitmap ri->bitmapref is: %d\n",ref );
+	if ( ref <= 0 )
+	{
+		if (ref == -2 )
+		{
+			save_bitmap(filename_str.c_str(), framebuf, RAMpal);
+			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+		}
+		else
+		{
+			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
+		}
+	}
+	else if ( ref >= 7 )
+	{
+		if ( scb.script_created_bitmaps[ref].u_bmp ) 
+		{
+			save_bitmap(filename_str.c_str(), scb.script_created_bitmaps[ri->bitmapref-10].u_bmp, RAMpal);
+			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+		}
+		else
+		{
+			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
+		}
+	}
+	else
+	{
+		if ( zscriptDrawingRenderTarget->GetBitmapPtr(ref) ) 
+		{
+			save_bitmap(filename_str.c_str(), zscriptDrawingRenderTarget->GetBitmapPtr(ref), RAMpal);
+			Z_scripterrlog("Wrote image file %s\n",filename_str.c_str());
+		}
+		else
+		{
+			Z_scripterrlog("WriteBitmap() failed to write image file %s\n",filename_str.c_str());
+		}
+	}
+}
+
+void FFScript::set_sarg1(int v)
+{
+	set_register(sarg1, v);
+}
+
+void FFScript::do_readbitmap(const bool v)
+{	
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+
+	string filename_str;
+
+	ArrayH::getString(arrayptr, filename_str, 512);
+	Z_scripterrlog("ReadBitmap() filename is %s\n",filename_str.c_str());
+	int bit_id = 0;
+        do
+	{
+		bit_id = FFCore.get_free_bitmap();
+	} while (bit_id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
+        if ( bit_id > 0 )
+        {
+		int bit_id = FFCore.get_free_bitmap();
+		scb.script_created_bitmaps[bit_id].u_bmp = load_bitmap(filename_str.c_str(), RAMpal);
+		if ( scb.script_created_bitmaps[bit_id].u_bmp ) 
+		{
+			ri->bitmapref = bit_id+10;  //set_register(sarg1, bit_id);
+			Z_scripterrlog("Read a bitmap to pointer: %d\n",bit_id+10);
+			Z_scripterrlog("Height is: %d\n",scb.script_created_bitmaps[bit_id].u_bmp->h);
+			Z_scripterrlog("Width is: %d\n",scb.script_created_bitmaps[bit_id].u_bmp->w);
+		}
+		else 
+		{ 
+			ri->bitmapref = 0; 
+			//set_register(sarg1, 0);
+			--scb.num_active; //Free the struct element, because we didn't use it. 
+			Z_scripterrlog("ReadBitmap failed to properly load bitmap filename %s\n", filename_str.c_str());
+		}
+	}
+	else 
+	{ 
+		ri->bitmapref = 0; 
+		//set_register(sarg1, 0);
+		Z_scripterrlog("ReadBitmap failed to acquire a free bitmap.\n");
+	}
+    
+    //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
+}
+
 
 //script_bitmaps scb;
+
+long FFScript::do_allocate_bitmap()
+{	
+	int bit_id = 0;
+        do
+	{
+		bit_id = FFCore.get_free_bitmap();
+	} while (bit_id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
+        if ( bit_id < MAX_USER_BITMAPS ) return bit_id+10;
+	else return 0;
+}
+void FFScript::do_isvalidbitmap()
+{
+	long UID = get_register(sarg1);
+	//Z_scripterrlog("isValidBitmap() bitmap pointer value is %d\n", UID);
+	if ( UID <= 0 ) set_register(sarg1, 0); 
+	else if ( scb.script_created_bitmaps[UID-10].u_bmp ) 
+		set_register(sarg1, 10000);
+	else set_register(sarg1, 0);
+}
+void FFScript::do_isallocatedbitmap()
+{
+	long UID = get_register(sarg1);
+	//Z_scripterrlog("isAllocatedBitmap() bitmap pointer value is %d\n", UID);
+	if ( UID <= 0 ) set_register(sarg1, 0); 
+	else
+	{
+		UID-=10;
+		if ( UID <= highest_valid_user_bitmap() || UID < firstUserGeneratedBitmap)
+			set_register(sarg1, 10000);
+		else set_register(sarg1, 0);
+	}
+}
+
 void FFScript::user_bitmaps_init()
 {
 	scb.num_active = 0;
 	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
 	{
-	    scb.script_created_bitmaps[q].width = 0;
-            scb.script_created_bitmaps[q].height = 0;
-            scb.script_created_bitmaps[q].depth = 0;
-            scb.script_created_bitmaps[q].u_bmp = NULL;
+		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
+		{
+			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
+		}
+		scb.script_created_bitmaps[q].width = 0;
+		scb.script_created_bitmaps[q].height = 0;
+		scb.script_created_bitmaps[q].depth = 0;
+		scb.script_created_bitmaps[q].u_bmp = NULL;
 		
+	}
+}
+
+void FFScript::user_bitmaps_destroy()
+{
+	scb.num_active = 0;
+	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
+	{
+		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
+		{
+			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
+		}
 	}
 }
 
@@ -15914,14 +21440,22 @@ long FFScript::do_create_bitmap()
 {
 	Z_scripterrlog("Begin running FFCore.do_create_bitmap()\n");
 	//CreateBitmap(h,w)
-	long h = (ri->d[0] / 10000);
-	long w = (ri->d[1]/10000);
+	long w = (ri->d[1] / 10000);
+	long h = (ri->d[0]/10000);
+	if ( get_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS) )
+	{
+		//flip height and width
+		h = h ^ w;
+		w = h ^ w; 
+		h = h ^ w;
+	}
+	
 	//sanity checks
 	int id = 0;
 	
 	if ( highest_valid_user_bitmap() >= (MAX_USER_BITMAPS-1) )
 	{
-		ri->bitmapref = 0;
+		//ri->bitmapref = 0;
 		Z_scripterrlog("Script attempted to create a bitmap, but no bitmaps are available. Setting ri->bitmapref to: %d\n", ri->bitmapref);
 		return id;
 	}
@@ -15937,11 +21471,19 @@ long FFScript::do_create_bitmap()
 		//}
 		//else
 		//{	
-			ri->bitmapref = id; 
-			
-			Z_eventlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
-			Z_scripterrlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
-			return id;
+			if ( id == 0 )
+			{
+				Z_scripterrlog("FFCore.do_create_bitmap() id is %d\n", id);
+				return -2; //ri->bitmapref = -2;
+			}
+			else
+			{
+				return id+10; //ri->bitmapref = id+10; 
+				
+				Z_eventlog("Script created bitmap ID %d, pointer (%d) with height of %d and width of %d\n", id, ri->bitmapref, h,w);
+	
+			}
+			return id+10;
 		//}
 	}
 }
@@ -15953,11 +21495,11 @@ int FFScript::highest_valid_user_bitmap()
 
 long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
 {
-	int id;
+	int id = 0;
         do
 	{
 		id = get_free_bitmap();
-	} while (id < rtBMP6+1); //be sure not to overlay with system bitmaps!
+	} while (id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
         if ( id > 0 )
         {
             scb.script_created_bitmaps[id].width = w;
@@ -15966,9 +21508,14 @@ long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
             scb.script_created_bitmaps[id].u_bmp = create_bitmap_ex(d,w,h);
 	    clear_bitmap(scb.script_created_bitmaps[id].u_bmp);
         }
+	if ( id == 0 ) 
+	{
+		Z_scripterrlog("FFCore.create_user_bitmap_ex() returned: (%d).\n", id);
+	}
 	return id;
 }
 
+//Returns the pointer to a user-created bitmap in the struct.
 BITMAP* FFScript::get_user_bitmap(int id)
 {
 	return scb.script_created_bitmaps[id].u_bmp;
@@ -15977,11 +21524,11 @@ BITMAP* FFScript::get_user_bitmap(int id)
 BITMAP* FFScript::GetScriptBitmap(int id)
 {
 	
-    if ( id < MIN_OLD_RENDERTARGETS || id > highest_valid_user_bitmap() ) 
-    {
-	    Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
-	    return NULL;
-    }
+    //if ( id < MIN_OLD_RENDERTARGETS || id > highest_valid_user_bitmap() ) 
+    // {
+//	    Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
+//	    return NULL;
+ //   }
     switch(id)
     {
         case rtSCREEN:
@@ -15995,22 +21542,29 @@ BITMAP* FFScript::GetScriptBitmap(int id)
         {
             return zscriptDrawingRenderTarget->GetBitmapPtr(id);
         }
-        default: return  get_user_bitmap(id);
+        default: 
+	{
+		if ( id > highest_valid_user_bitmap() )
+		{
+			Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
+			return NULL;
+		}
+		else return  get_user_bitmap(id);
+	}
     }
 }
 
 int FFScript::get_free_bitmap()
 {
-        int num_free = scb.num_active;
-        if ( num_free < ( MAX_USER_BITMAPS-1 ) )
-        {
-		//num_free = scb.num_active; 
-            ++scb.num_active;
-		Z_scripterrlog("get_free_bitmap() found a valid free bitmap with an ID of: %d\n",num_free);
-            return scb.num_active;
-        }
+		int num_free = scb.num_active;
+		if ( num_free < ( MAX_USER_BITMAPS-1 ) )
+		{
+			++scb.num_active;
+			//Z_scripterrlog("get_free_bitmap() found a valid free bitmap with an ID of: %d\n",num_free);
+			return scb.num_active;
+		}
 	Z_scripterrlog("get_free_bitmap() could not find a valid free bitmap!%s\n"," ");
-        return 0;
+		return 0;
 }
 
 bool FFScript::cleanup_user_bitmaps()
@@ -16286,12 +21840,14 @@ int FFScript::do_getpixel()
 	int xoff = 0; int yoff = 0; //IDR where these are normally read off-hand. 
 	//Sticking this here to do initial tests. Will fix later. 
 	//They're for the subscreen offsets. 
-	const bool brokenOffset=get_bit(extra_rules, er_BITMAPOFFSET)!=0;
+	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+    
 	//bool isTargetOffScreenBmp = false;
 	//al_trace("Getpixel: The current bitmap ID is: %d /n",ri->bitmapref);
 	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);
 	//BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->bitmapref);
-	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref);
+	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref-10);
+	Z_scripterrlog("Getpixel pointer is: %d\n", ri->bitmapref-10);
         //bmp = targetBitmap;
         if(!bitty)
         {
@@ -16300,7 +21856,7 @@ int FFScript::do_getpixel()
 		//return -10000;
 	}
 	// draw to screen with subscreen offset
-	if(!brokenOffset && ri->bitmapref == -1 )
+	if(!brokenOffset && ri->bitmapref == 10-1 )
 	{
                 xoffset = xoff;
                 yoffset = 56; //should this be -56?
@@ -16370,7 +21926,7 @@ void FFScript::deallocateZScriptArray(const long ptrval)
         Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
     else
     {
-        arrayOwner[ptrval] = 255;
+        arrayOwner[ptrval].clear();
         
         if(localRAM[ptrval].Size() == 0)
             Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
@@ -16422,12 +21978,12 @@ int FFScript::whichlayer(long scr)
 
 void FFScript::clear_ffc_stack(const byte i)
 {
-    memset(ffc_stack[i], 0, 256 * sizeof(long));
+    memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
-void FFScript::clear_global_stack()
+void FFScript::clear_global_stack(const byte i)
 {
-    memset(global_stack, 0, 256 * sizeof(long));
+    memset(global_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void FFScript::do_zapout()
@@ -16438,6 +21994,27 @@ void FFScript::do_zapout()
 void FFScript::do_zapin(){ zapin(); }
 
 void FFScript::do_openscreen() { openscreen(); }
+void FFScript::do_closescreen() { closescreen(); }
+void FFScript::do_openscreenshape()
+{
+	int shape = get_register(sarg1) / 10000;
+	if(shape < 0 || shape >= bosMAX)
+	{
+		Z_scripterrlog("Invalid shape passed to %s! Valid range %d to %d. Using 'Circle' shape.\n", "Screen->OpeningWipe(int)", 0, bosMAX-1);
+		shape = bosCIRCLE;
+	}
+	openscreen(shape);
+}
+void FFScript::do_closescreenshape()
+{
+	int shape = get_register(sarg1) / 10000;
+	if(shape < 0 || shape >= bosMAX)
+	{
+		Z_scripterrlog("Invalid shape passed to %s! Valid range %d to %d. Using 'Circle' shape.\n", "Screen->ClosingWipe(int)", 0, bosMAX-1);
+		shape = bosCIRCLE;
+	}
+	closescreen(shape);
+}
 void FFScript::do_wavyin() { wavyin(); }
 void FFScript::do_wavyout() { wavyout(false); }
 
@@ -17438,11 +23015,27 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
+	for ( int q = 0; q < wexLast; q++ ) warpex[q] = 0;
+	print_ZASM = zasm_debugger;
+	if ( zasm_debugger ) ZASMPrint(true);
+	
+	temp_no_stepforward = 0;
+	nostepforward = 0;
+	
+	numscriptdraws = 0;
+	max_ff_rules = qr_MAX;
 	coreflags = 0;
+	skip_ending_credits = 0;
+	//quest_format : is this properly initialised?
+	for ( int q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 
-	long usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
+	long usr_midi_volume = midi_volume;
+	usr_digi_volume = digi_volume;
+	usr_sfx_volume = sfx_volume;
+	usr_music_volume = emusic_volume;
+	usr_panstyle = pan_style;
 	FF_link_tile = 0; FF_link_action = 0;
 	for ( int q = 0; q < 4; q++ ) 
 	{
@@ -17466,7 +23059,10 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
-	
+	memset(emulation,0,sizeof(emulation));
+	initIncludePaths();
+	initRunString();
+	//clearRunningItemScripts();
 }
 
 
@@ -17559,4 +23155,9714 @@ void FFScript::init()
 long FFScript::getQuestHeaderInfo(int type)
 {
     return quest_format[type];
+}
+
+bool FFScript::checkPath(const char* path, const bool is_dir)
+{
+    struct stat info;
+
+    if(stat( path, &info ) != 0)
+        return false;
+    else return is_dir ? (info.st_mode & S_IFDIR)!=0 : (info.st_mode & S_IFDIR)==0;
+}
+
+void FFScript::do_checkdir(const bool is_dir)
+{
+	int strptr = get_register(sarg1)/10000;
+	string the_string;
+	ArrayH::getString(strptr, the_string, 512);
+	the_string = the_string.substr(the_string.find_first_not_of('/'),string::npos); //Kill leading '/'
+	size_t last = the_string.find_last_not_of('/');
+	if(last!=string::npos)++last;
+	the_string = the_string.substr(0,last); //Kill trailing '/'
+	set_register(sarg1, checkPath(the_string.c_str(), is_dir) ? 10000 : 0);
+}
+
+//Modules
+//Putting this here, for now.
+
+const char * select_screen_tile_cats[sels_tile_LAST] =
+{
+	"sels_tile_frame", "sels_tile_questicon_1A", "sels_tile_questicon_1B", "sels_tile_questicon_2A",
+	"sels_tile_questicon_2B", "sels_tile_questicon_3A", "sels_tile_questicon_3B", "sels_tile_questicon_4A",
+	"sels_tile_questicon_4B", "sels_tile_questicon_5A", "sels_tile_questicon_5B", "sels_tile_questicon_6A",
+	"sels_tile_questicon_6B", "sels_tile_questicon_7A", "sels_tile_questicon_7B", "sels_tile_questicon_8A",
+	"sels_tile_questicon_8B", "sels_tile_questicon_9A", "sels_tile_questicon_9B", "sels_tile_questicon_10A",
+	"sels_tile_questicon_10B",
+	    //x positions
+	"sels_tile_questicon_1A_X", "sels_tile_questicon_1B_X", "sels_tile_questicon_2A_X", "sels_tile_questicon_2B_X",
+	"sels_tile_questicon_3A_X", "sels_tile_questicon_3B_X", "sels_tile_questicon_4A_X", "sels_tile_questicon_4B_X",
+	"sels_tile_questicon_5A_X", "sels_tile_questicon_5B_X", "sels_tile_questicon_6A_X", "sels_tile_questicon_6B_X",
+	"sels_tile_questicon_7A_X", "sels_tile_questicon_7B_X", "sels_tile_questicon_8A_X", "sels_tile_questicon_8B_X",
+	"sels_tile_questicon_9A_X", "sels_tile_questicon_9B_X", "sels_tile_questicon_10A_X", "sels_tile_questicon_10B_X",
+	"sels_cursor_tile", "sels_heart_tile", "sels_linktile", "draw_link_first"
+	
+};
+
+const char * select_screen_tile_cset_cats[sels_tile_LAST] =
+{
+	"sels_tile_frame_cset", "sels_tile_questicon_1A_cset", "sels_tile_questicon_1B_cset", "sels_tile_questicon_2A_cset",
+	"sels_tile_questicon_2B_cset", "sels_tile_questicon_3A_cset", "sels_tile_questicon_3B_cset", "sels_tile_questicon_4A_cset",
+	"sels_tile_questicon_4B_cset", "sels_tile_questicon_5A_cset", "sels_tile_questicon_5B_cset", "sels_tile_questicon_6A_cset",
+	"sels_tile_questicon_6B_cset", "sels_tile_questicon_7A_cset", "sels_tile_questicon_7B_cset", "sels_tile_questicon_8A_cset",
+	"sels_tile_questicon_8B_cset", "sels_tile_questicon_9A_cset", "sels_tile_questicon_9B_cset", "sels_tile_questicon_10A_cset",
+	"sels_tile_questicon_10B_cset", "change_cset_on_quest_3", 
+	"sels_cusror_cset", "sels_heart_tilettile_cset", "sels_link_cset"
+};
+
+
+void ZModule::init(bool d) //bool default
+{
+	
+	
+	memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
+	memset(moduledata.quests, 0, sizeof(moduledata.quests));
+	memset(moduledata.skipnames, 0, sizeof(moduledata.skipnames));
+	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
+	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
+	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
+	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.enem_anim_type_names));
+	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
+	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
+	
+	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
+	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
+	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
+	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
+	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
+	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
+	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
+	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
+	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
+	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
+	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
+	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
+	memset(moduledata.select_screen_tiles, 0, sizeof(moduledata.select_screen_tiles));
+	memset(moduledata.select_screen_tile_csets, 0, sizeof(moduledata.select_screen_tile_csets));
+	moduledata.old_quest_serial_flow = 0;
+	moduledata.max_quest_files = 0;
+	moduledata.animate_NES_title = 0;
+	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
+	moduledata.refresh_title_screen = 0;
+	
+	
+	//strcpy(moduledata.module_name,"default.zmod");
+	//al_trace("Module name set to %s\n",moduledata.module_name);
+	//We load the current module name from zc.cfg or zquest.cfg!
+	//Otherwise, we don't know what file to access to load the module vars! 
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
+	al_trace("The Current ZQuest Player is: %s\n",moduledata.module_name); 
+	set_config_file(moduledata.module_name);
+	if ( d )
+	{
+		
+		//zcm path
+		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
+		//al_trace("Module name set to %s\n",moduledata.module_name);
+		
+		//quests
+		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
+		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",10);
+		moduledata.max_quest_files = vbound(moduledata.max_quest_files,1,10); //Clamp to maximum valid quests and 1.
+		
+		//al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
+		//al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
+		strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
+		//al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
+		strcpy(moduledata.quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
+		//al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
+		strcpy(moduledata.quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
+		//al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
+		strcpy(moduledata.quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
+		//al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
+		strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
+		//al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
+		strcpy(moduledata.quests[5],get_config_string("QUESTS","sixth_qst",""));
+		//al_trace("Module quest 6 set to %s\n",moduledata.quests[5]);
+		strcpy(moduledata.quests[6],get_config_string("QUESTS","seventh_qst",""));
+		//al_trace("Module quest 6 set to %s\n",moduledata.quests[6]);
+		strcpy(moduledata.quests[7],get_config_string("QUESTS","eighth_qst",""));
+		//al_trace("Module quest 8 set to %s\n",moduledata.quests[7]);
+		strcpy(moduledata.quests[8],get_config_string("QUESTS","ninth_qst",""));
+		//al_trace("Module quest 9 set to %s\n",moduledata.quests[8]);
+		strcpy(moduledata.quests[9],get_config_string("QUESTS","tenth_qst",""));
+		//al_trace("Module quest 10 set to %s\n",moduledata.quests[9]);
+		for ( int q = 0; q < 10; q++ )
+		{
+			if ( moduledata.quests[q][0] == '-' ) strcpy(moduledata.quests[q],"");
+		}
+		
+		//quest skip names
+		strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
+		//al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
+		strcpy(moduledata.skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
+		//al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
+		strcpy(moduledata.skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
+		//al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
+		strcpy(moduledata.skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
+		//al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
+		strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
+		//al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
+		strcpy(moduledata.skipnames[5],get_config_string("NAMEENTRY","sixth_qst_skip",""));
+		//al_trace("Module quest skip 6 set to %s\n",moduledata.skipnames[5]);
+		strcpy(moduledata.skipnames[6],get_config_string("NAMEENTRY","seventh_qst_skip",""));
+		//al_trace("Module quest skip 7 set to %s\n",moduledata.skipnames[6]);
+		strcpy(moduledata.skipnames[7],get_config_string("NAMEENTRY","eighth_qst_skip",""));
+		//al_trace("Module quest skip 8 set to %s\n",moduledata.skipnames[7]);
+		strcpy(moduledata.skipnames[8],get_config_string("NAMEENTRY","ninth_qst_skip",""));
+		//al_trace("Module quest skip 9 set to %s\n",moduledata.skipnames[8]);
+		strcpy(moduledata.skipnames[9],get_config_string("NAMEENTRY","tenth_qst_skip",""));
+		//al_trace("Module quest skip 10 set to %s\n",moduledata.skipnames[9]);
+		
+		
+		//name entry icons, tiles, and csets
+		for ( int q = 0; q < sels_tile_LAST; q++ ) 
+		{
+			moduledata.select_screen_tiles[q] = get_config_int("NAMEENTRY",select_screen_tile_cats[q],0);
+		}
+		for ( int q = 0; q < sels_tile_cset_LAST; q++ ) 
+		{
+			
+			moduledata.select_screen_tile_csets[q] = get_config_int("NAMEENTRY",select_screen_tile_cset_cats[q],( ( q == 0 || q == sels_heart_tilettile_cset || q == sels_cusror_cset )  ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
+		}
+		
+		//datafiles
+		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
+		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
+		strcpy(moduledata.datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
+		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
+		strcpy(moduledata.datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
+		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
+		strcpy(moduledata.datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
+		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
+		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
+		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
+		
+		strcpy(moduledata.base_NSF_file,get_config_string("DATAFILES","base_NSF_file","zelda.nsf"));
+		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
+		
+		moduledata.title_track = get_config_int("DATAFILES","title_track",0);
+		moduledata.ending_track = get_config_int("DATAFILES","ending_track",1);
+		moduledata.tf_track = get_config_int("DATAFILES","tf_track",5);
+		moduledata.gameover_track = get_config_int("DATAFILES","gameover_track",0);
+		moduledata.dungeon_track = get_config_int("DATAFILES","dungeon_track",0);
+		moduledata.overworld_track = get_config_int("DATAFILES","overworld_track",0);
+		moduledata.lastlevel_track = get_config_int("DATAFILES","lastlevel_track",0);
+		
+		strcpy(moduledata.copyright_strings[0],get_config_string("DATAFILES","copy_string_0","1986 NINTENDO"));
+		if( moduledata.copyright_strings[0][0] == '-' ) strcpy(moduledata.copyright_strings[0],"");
+		strcpy(moduledata.copyright_strings[1],get_config_string("DATAFILES","copy_string_1"," AG"));
+		if( moduledata.copyright_strings[1][0] == '-' ) strcpy(moduledata.copyright_strings[1],"");
+		//year
+		strcpy(moduledata.copyright_strings[2],get_config_string("DATAFILES","copy_string_year",COPYRIGHT_YEAR));
+		if( moduledata.copyright_strings[2][0] == '-' ) strcpy(moduledata.copyright_strings[1],"");
+		
+		
+		moduledata.copyright_string_vars[titleScreen250+0] = get_config_int("DATAFILES","cpystr_5frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen250+1] = get_config_int("DATAFILES","cpystr_5frame_var_x",80);
+		moduledata.copyright_string_vars[titleScreen250+2] = get_config_int("DATAFILES","cpystr_5frame_var_y",134);
+		moduledata.copyright_string_vars[titleScreen250+3] = get_config_int("DATAFILES","cpystr_5frame_var_col",255);
+		moduledata.copyright_string_vars[titleScreen250+4] = get_config_int("DATAFILES","cpystr_5frame_var_sz",-1);
+		
+		moduledata.copyright_string_vars[titleScreen250+5] = get_config_int("DATAFILES","cpystr_5frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen250+6] = get_config_int("DATAFILES","cpystr_5frame_var_x2",80);
+		moduledata.copyright_string_vars[titleScreen250+7] = get_config_int("DATAFILES","cpystr_5frame_var_y2",142);
+		moduledata.copyright_string_vars[titleScreen250+8] = get_config_int("DATAFILES","cpystr_5frame_var_col2",255);
+		moduledata.copyright_string_vars[titleScreen250+9] = get_config_int("DATAFILES","cpystr_5frame_var_sz2",-1);
+		
+		moduledata.copyright_string_vars[titleScreen210+0] = get_config_int("DATAFILES","cpystr_4frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen210+1] = get_config_int("DATAFILES","cpystr_4frame_var_x",46);
+		moduledata.copyright_string_vars[titleScreen210+2] = get_config_int("DATAFILES","cpystr_4frame_var_y",138);
+		moduledata.copyright_string_vars[titleScreen210+3] = get_config_int("DATAFILES","cpystr_4frame_var_col",255);
+		moduledata.copyright_string_vars[titleScreen210+4] = get_config_int("DATAFILES","cpystr_4frame_var_sz",-1);
+		
+		moduledata.copyright_string_vars[titleScreen210+5] = get_config_int("DATAFILES","cpystr_4frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen210+6] = get_config_int("DATAFILES","cpystr_4frame_var_x2",46);
+		moduledata.copyright_string_vars[titleScreen210+7] = get_config_int("DATAFILES","cpystr_4frame_var_y2",146);
+		moduledata.copyright_string_vars[titleScreen210+8] = get_config_int("DATAFILES","cpystr_4frame_var_col2",255);
+		moduledata.copyright_string_vars[titleScreen210+9] = get_config_int("DATAFILES","cpystr_4frame_var_sz2",-1);
+		
+		moduledata.copyright_string_vars[titleScreenMAIN+0] = get_config_int("DATAFILES","cpystr_1frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreenMAIN+1] = get_config_int("DATAFILES","cpystr_1frame_var_x",86);
+		moduledata.copyright_string_vars[titleScreenMAIN+2] = get_config_int("DATAFILES","cpystr_1frame_var_y",128);
+		moduledata.copyright_string_vars[titleScreenMAIN+3] = get_config_int("DATAFILES","cpystr_1frame_var_col",13);
+		moduledata.copyright_string_vars[titleScreenMAIN+4] = get_config_int("DATAFILES","cpystr_1frame_var_sz",-1);
+		
+		moduledata.copyright_string_vars[titleScreenMAIN+5] = get_config_int("DATAFILES","cpystr_1frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreenMAIN+6] = get_config_int("DATAFILES","cpystr_1frame_var_x2",86);
+		moduledata.copyright_string_vars[titleScreenMAIN+7] = get_config_int("DATAFILES","cpystr_1frame_var_y2",136);
+		moduledata.copyright_string_vars[titleScreenMAIN+8] = get_config_int("DATAFILES","cpystr_1frame_var_col2",13);
+		moduledata.copyright_string_vars[titleScreenMAIN+9] = get_config_int("DATAFILES","cpystr_1frame_var_sz2",-1);
+		
+		moduledata.animate_NES_title =  get_config_int("DATAFILES","disable_title_NES_animation",0);
+		
+		
+		//item families
+		const char default_itype_strings[itype_max][255] = 
+		{ 
+			"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
+			"Bait", "Letters", "Potions", "Wands", "Rings", 
+			"Wallets", "Amulets", "Shields", "Bows", "Rafts",
+			"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
+			"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
+			"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
+			"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
+			"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
+			"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
+			"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items", 
+			"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings", 
+			"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", 
+			"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings", 
+			"Peril Rings", "Non-gameplay Items", "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03",
+			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
+			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
+			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
+			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)", "zz089"
+		};
+						     
+		const char itype_fields[itype_max][255] =
+		{
+			"ic_sword","ic_brang", "ic_arrow","ic_cand","ic_whis",
+			"ic_meat", "ic_rx", "ic_potion", 
+			"ic_wand","ic_armour","ic_wallet","ic_amul","ic_shield",
+			//10
+			"ic_bow","ic_raft","ic_ladder","ic_spellbook","ic_mkey",
+			"ic_glove","ic_flip","ic_boot","ic_grapple","ic_lens",
+			//20
+			"ic_hammer","ic_firespell","ic_exitspell","ic_shieldspell","ic_bomb",
+			"ic_sbomb","ic_fobwatch","ic_key","ic_mcp","ic_mcguf",
+			//30
+			"ic_map","ic_compass","ic_bkey","ic_quiv","ic_lkey",
+			"ic_cane","ic_money","ic_ammow_arrow","ic_faerie","ic_magic",
+			//40
+			"ic_health","ic_hc","ic_hcp","ic_killall","ic_ammo_bomb",
+			"ic_bombbag","ic_feath","ic_hover","ic_spinat","ic_crossbeam",
+			//50
+			"ic_quakeham","ic_ring_whisp","ic_ring_charge","ic_perilbeam","ic_wmedal",
+			"ic_ring_hp","ic_ring_mp","ic_multispin","ic_supquake","ic_dowse",
+			//60
+			"ic_stomp","ic_ring_crit","ic_ring_peril","ic_ngongameplay","ic_cic01",
+			"ic_cic02","ic_cic03","ic_cic04","ic_cic05","ic_cic06",
+			//70
+			"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
+			"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
+			//80
+			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle", "ic_last",
+			"ic_89","ic_90","ic_91","ic_92","ic_93","ic_94","ic_95","ic_96","ic_97","ic_98","ic_99","ic_100","ic_101","ic_102","ic_103","ic_104",
+			"ic_105","ic_106","ic_107","ic_108","ic_109","ic_111","ic_112","ic_113","ic_114","ic_115","ic_116","ic_117","ic_118","ic_119","ic_120","ic_121",
+			"ic_122","ic_123","ic_124","ic_125","ic_126","ic_127","ic_128","ic_129","ic_130","ic_131","ic_132","ic_133","ic_134","ic_135","ic_136","ic_137",
+			"ic_138","ic_139","ic_140","ic_141","ic_142","ic_143","ic_144","ic_145","ic_146","ic_147","ic_148","ic_149","ic_150","ic_151","ic_152","ic_153",
+			"ic_154","ic_155","ic_156","ic_157","ic_158","ic_159","ic_160","ic_161","ic_162","ic_163","ic_164","ic_165","ic_166","ic_167","ic_168","ic_169",
+			"ic_170","ic_171","ic_172","ic_173","ic_174","ic_175","ic_176","ic_177","ic_178","ic_179","ic_180","ic_181","ic_182","ic_183","ic_184","ic_185",
+			"ic_186","ic_187","ic_188","ic_189","ic_190","ic_191","ic_192","ic_193","ic_194","ic_195","ic_196","ic_197","ic_198","ic_199","ic_200","ic_201",
+			"ic_202","ic_203","ic_204","ic_205","ic_206","ic_207","ic_208","ic_209","ic_210","ic_211","ic_212","ic_213","ic_214","ic_215","ic_216","ic_217",
+			"ic_218","ic_219","ic_220","ic_221","ic_222","ic_223","ic_224","ic_225","ic_226","ic_227","ic_228","ic_229","ic_230","ic_231","ic_232","ic_233",
+			"ic_234","ic_235","ic_236","ic_237","ic_238","ic_239","ic_240","ic_241","ic_242","ic_243","ic_244","ic_245","ic_246","ic_247","ic_248","ic_249",
+			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255","ic_256","ic_257","ic_258","ic_259","ic_260","ic_261","ic_262","ic_263","ic_264","ic_265",
+			"ic_266","ic_267","ic_267","ic_269","ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
+			"ic_286","ic_287","ic_288","ic_289","ic_290","ic_291","ic_292","ic_293","ic_294","ic_295","ic_296","ic_297","ic_298","ic_299","ic_300","ic_301","ic_302","ic_303","ic_304",
+			"ic_305","ic_306","ic_307","ic_308","ic_309","ic_311","ic_312","ic_313","ic_314","ic_315","ic_316","ic_317","ic_318","ic_319","ic_320","ic_321",
+			"ic_322","ic_323","ic_324","ic_325","ic_326","ic_327","ic_328","ic_329","ic_330","ic_331","ic_332","ic_333","ic_334","ic_335","ic_336","ic_337",
+			"ic_338","ic_339","ic_340","ic_341","ic_342","ic_343","ic_344","ic_345","ic_346","ic_347","ic_348","ic_349","ic_350","ic_351","ic_352","ic_353",
+			"ic_354","ic_355","ic_356","ic_357","ic_358","ic_359","ic_360","ic_361","ic_362","ic_363","ic_364","ic_365","ic_366","ic_367","ic_368","ic_369",
+			"ic_370","ic_371","ic_372","ic_373","ic_374","ic_375","ic_376","ic_377","ic_378","ic_379","ic_380","ic_381","ic_382","ic_383","ic_384","ic_385",
+			"ic_386","ic_387","ic_388","ic_389","ic_390","ic_391","ic_392","ic_393","ic_394","ic_395","ic_396","ic_397","ic_398","ic_399","ic_400","ic_401","ic_402","ic_403","ic_404",
+			"ic_405","ic_406","ic_407","ic_408","ic_409","ic_411","ic_412","ic_413","ic_414","ic_415","ic_416","ic_417","ic_418","ic_419","ic_420","ic_421",
+			"ic_422","ic_423","ic_424","ic_425","ic_426","ic_427","ic_428","ic_429","ic_430","ic_431","ic_432","ic_433","ic_434","ic_435","ic_436","ic_437",
+			"ic_438","ic_439","ic_440","ic_441","ic_442","ic_443","ic_444","ic_445","ic_446","ic_447","ic_448","ic_449","ic_450","ic_451","ic_452","ic_453",
+			"ic_454","ic_455","ic_456","ic_457","ic_458","ic_459","ic_460","ic_461","ic_462","ic_463","ic_464","ic_465","ic_466","ic_467","ic_468","ic_469",
+			"ic_470","ic_471","ic_472","ic_473","ic_474","ic_475","ic_476","ic_477","ic_478","ic_479","ic_480","ic_481","ic_482","ic_483","ic_484","ic_485",
+			"ic_486","ic_487","ic_488","ic_489","ic_490","ic_491","ic_492","ic_493","ic_494","ic_495","ic_496","ic_497","ic_498","ic_499","ic_500","ic_501","ic_502","ic_503","ic_504",
+			"ic_505","ic_506","ic_507","ic_508","ic_509","ic_511"
+		};
+		for ( int q = 0; q < itype_max; q++ )
+		{
+			strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
+			//al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
+		}
+		
+		const char roomtype_cats[rMAX][256] =
+		{
+			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
+			"rQUESTOBJ","rP_SHOP","rSHOP","rBOMBS","rSWINDLE","r10RUPIES","rWARP","rMAINBOSS","rWINGAME",
+			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE"
+		};
+		const char roomtype_defaults[rMAX][255] =
+		{
+		    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
+		    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+		    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+		};
+		for ( int q = 0; q < rMAX; q++ )
+		{
+			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
+			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
+		}
+		const char lweapon_cats[wIce+1][255]=
+		{
+			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",
+			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
+			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
+			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
+			"lwCane","lwRefBeam", "lwStomp","lwScript1", "lwScript2", "lwScript3", 
+			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
+		};
+		const char lweapon_default_names[wIce+1][255]=
+		{
+			"(None)","Sword","Sword Beam","Boomerang","Bomb","Super Bomb","Lit Bomb",
+			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
+			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshit", "-HSHandle", 
+			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
+			"Cane of Byrna","Reflected Sword Beam", "-Stomp","Script1", "Script2", "Script3", 
+			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
+		};
+		for ( int q = 0; q < wIce+1; q++ )
+		{
+			strcpy(moduledata.player_weapon_names[q],get_config_string("LEAPONS",lweapon_cats[q],lweapon_default_names[q]));
+			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
+		}
+		const char counter_cats[33][255]=
+		{
+			"crNONE","crLIFE","crMONEY","crBOMBS","crARROWS","crMAGIC","crKEYS",
+			"crSBOMBS","crCUSTOM1","crCUSTOM2","crCUSTOM3","crCUSTOM4","crCUSTOM5","crCUSTOM6",
+			"crCUSTOM7","crCUSTOM8","crCUSTOM9","crCUSTOM10","crCUSTOM11","crCUSTOM12","crCUSTOM13",
+			"crCUSTOM14","crCUSTOM15","crCUSTOM16","crCUSTOM17","crCUSTOM18","crCUSTOM19",
+			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
+		};
+
+		const char counter_default_names[33][255]=
+		{
+			"None","Life","Rupees", "Bombs","Arrows","Magic",
+			"Keys","Super Bombs","Custom 1","Custom 2","Custom 3",
+			"Custom 4","Custom 5","Custom 6","Custom 7","Custom 8",
+			"Custom 9","Custom 10","Custom 11","Custom 12",
+			"Custom 13","Custom 14","Custom 15","Custom 16","Custom 17",
+			"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22"
+			"Custom 23","Custom 24","Custom 25"	
+		};
+		for ( int q = 0; q < 33; q++ )
+		{
+			strcpy(moduledata.counter_names[q],get_config_string("COUNTERS",counter_cats[q],counter_default_names[q]));
+			//al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
+		}
+		
+		
+	}
+	set_config_file("zc.cfg"); //shift back to the normal config file, when done
+	
+	//int x = get_config_int("zeldadx","gui_colorset",0);
+	//al_trace("Checking that we have reverted to zc.cfg: %d\n",x);
+	
+}
+
+//Prints out the current Module struct data to allegro.log
+void ZModule::debug()
+{
+	//al_trace("Module field: %s, is: %s\n", "module_name", moduledata.module_name);
+	//al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
+	
+	//quests
+	/*
+	al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
+	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata.quests[0]);
+	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata.quests[1]);
+	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata.quests[2]);
+	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata.quests[3]);
+	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata.quests[4]);
+	
+	//skip codes
+	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata.skipnames[0]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata.skipnames[1]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata.skipnames[2]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata.skipnames[3]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata.skipnames[4]);
+
+	//datafiles
+	al_trace("Module field: %s, is: %s\n", "datafiles[zelda_dat]",moduledata.datafiles[zelda_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[zquest_dat]",moduledata.datafiles[zquest_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[fonts_dat]",moduledata.datafiles[fonts_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[sfx_dat]",moduledata.datafiles[sfx_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[qst_dat]",moduledata.datafiles[qst_dat]);
+	*/
+}
+
+void ZModule::load(bool zquest)
+{
+	set_config_file(moduledata.module_name);
+	//load config settings
+	if ( zquest )
+	{
+		al_trace("ZModule::load() was called by: %s\n","ZQuest");
+		//load ZQuest section data
+		set_config_file("zquest.cfg"); //shift back when done
+	}
+	else
+	{
+		al_trace("ZModule::load() was called by: %s\n","ZC Player");
+		//load ZC section data
+		set_config_file("zc.cfg"); //shift back when done
+	}
+	
+}
+
+
+
+void FFScript::Play_Level_Music()
+{
+    int m=tmpscr->screen_midi;
+    
+    switch(m)
+    {
+    case -2:
+        music_stop();
+        break;
+        
+    case -1:
+        play_DmapMusic();
+        break;
+        
+    case 1:
+        jukebox(ZC_MIDI_OVERWORLD);
+        break;
+        
+    case 2:
+        jukebox(ZC_MIDI_DUNGEON);
+        break;
+        
+    case 3:
+        jukebox(ZC_MIDI_LEVEL9);
+        break;
+        
+    default:
+        if(m>=4 && m<4+MAXCUSTOMMIDIS)
+            jukebox(m+MIDIOFFSET_MAPSCR);
+        else
+            music_stop();
+    }
+}
+
+void FFScript::do_warp_ex(bool v)
+{
+	int zscript_array_ptr = SH::get_arg(sarg1, v) / 10000;
+	int zscript_array_size = FFCore.getSize(zscript_array_ptr);
+	bool success = false;
+	switch(zscript_array_size)
+	{
+		case 8:
+			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
+		{
+			Z_scripterrlog("FFscript.cpp running do_warp_ex with %d args\n", 8);
+			FFCore.warpex[wexActive] = 1; 
+			
+			for ( int q = 0; q < wexDir; q++ )
+			{
+				FFCore.warpex[q] = (getElement(zscript_array_ptr,q)/10000);
+			}
+			
+			FFCore.warpex[wexDir] = -1;
+			
+			break;
+		}
+		case 9:
+			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
+		{
+			Z_scripterrlog("FFscript.cpp running do_warp_ex with %d args\n", 9);
+			FFCore.warpex[wexActive] = 1; 
+			
+			for ( int q = 0; q < wexActive; q++ )
+			{
+				FFCore.warpex[q] = (getElement(zscript_array_ptr,q)/10000);
+			}
+			
+			//for ( int q = 0; q < wexLast; q++ ) 
+			//{
+			//	Z_scripterrlog("FFCore.warpex[%d] is: %d\n", q, FFCore.warpex[q]);
+			//}
+			
+			break;
+			
+		}
+	
+		default: 
+		{
+			Z_scripterrlog("Array supplied to Link->WarpEx() is the wrong size!\n The array size was: &d, and valid sizes are [8] and [9].\n",zscript_array_size);
+			break;
+		}
+		
+		
+		
+	}
+}
+
+
+
+void FFScript::clearRunningItemScripts()
+{
+	//for ( byte q = 0; q < 256; q++ ) runningItemScripts[q] = 0;
+}
+
+
+bool FFScript::newScriptEngine()
+{
+	//itemScriptEngine();
+	//lweaponScriptEngine();
+	advanceframe(true);
+	return false;
+}
+
+void FFScript::runF6Engine()
+{
+	if(!Quit && (GameFlags&GAMEFLAG_TRYQUIT) && !(GameFlags&GAMEFLAG_SCRIPTMENU_ACTIVE))
+	{
+		if(globalscripts[GLOBAL_SCRIPT_F6][0].command != 0xFFFF)
+		{
+			//Incase this was called mid-another script, store ref data
+			long tsarg1 = sarg1;
+			long tsarg2 = sarg2;
+			refInfo *tri = ri;
+			ffscript *tcurscript = curscript;
+			//
+			clear_bitmap(script_menu_buf);
+			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+			initZScriptGlobalScript(GLOBAL_SCRIPT_F6);
+			int openingwipe = black_opening_count;
+			int openingshape = black_opening_shape;
+			black_opening_count = 0; //No opening wipe during F6 menu
+			if(black_opening_shape==bosFADEBLACK) black_fade(0);
+			GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
+			{
+				script_drawing_commands.Clear();
+				load_control_state(); 
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+				if(global_wait & (1<<GLOBAL_SCRIPT_F6))
+				{
+					ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+					global_wait &= ~(1<<GLOBAL_SCRIPT_F6);
+				}
+				//Draw
+				clear_bitmap(framebuf);
+				doScriptMenuDraws();
+				//
+				advanceframe(true,true,false);
+				if(Quit) break; //Something quit, end script running
+			}
+			script_drawing_commands.Clear();
+			GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+			//Restore opening wipe
+			black_opening_count = openingwipe;
+			black_opening_shape = openingshape;
+			if(openingshape == bosFADEBLACK)
+			{
+				refreshTints();
+				memcpy(tempblackpal, RAMpal, PAL_SIZE*sizeof(RGB));
+			}
+			//Restore script refinfo
+			sarg1 = tsarg1;
+			sarg2 = tsarg2;
+			ri = tri;
+			curscript = tcurscript;
+			//
+		}
+		if(!Quit)
+		{
+			if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+		}
+		zc_readkey(KEY_F6);
+		GameFlags &= ~GAMEFLAG_TRYQUIT;
+	}
+}
+void FFScript::runOnDeathEngine()
+{
+	if(linkscripts[SCRIPT_LINK_DEATH][0].command == 0xFFFF) return; //No script to run
+	clear_bitmap(script_menu_buf);
+	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+	initZScriptLinkScripts();
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	while(link_doscript && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
+		if(link_waitdraw)
+		{
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
+			link_waitdraw = false;
+		}
+		//Draw
+		clear_bitmap(framebuf);
+		doScriptMenuDraws();
+		//
+		advanceframe(true,true,false);
+	}
+	script_drawing_commands.Clear();
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+}
+void FFScript::runOnLaunchEngine()
+{
+	if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH][0].command == 0xFFFF) return; //No script to run
+	//Do NOT blit the prior screen to this bitmap; that would be the TITLE SCREEN.
+	clear_to_color(script_menu_buf,BLACK);
+	initZScriptGlobalScript(GLOBAL_SCRIPT_ONLAUNCH);
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	while(g_doscript & (1<<GLOBAL_SCRIPT_ONLAUNCH) && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+		if(global_wait & (1<<GLOBAL_SCRIPT_ONLAUNCH))
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+			global_wait &= ~(1<<GLOBAL_SCRIPT_ONLAUNCH);
+		}
+		//Draw
+		clear_bitmap(framebuf);
+		doScriptMenuDraws();
+		//
+		advanceframe(true,true,false);
+	}
+	script_drawing_commands.Clear();
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+}
+
+void FFScript::doScriptMenuDraws()
+{
+	blit(script_menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
+	//Script draws
+	if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
+	if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 0, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 1, tmpscr, 0, playing_field_offset);
+	if(!(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG )) do_primitives(framebuf, 2, tmpscr, 0, playing_field_offset);
+	if(!(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_primitives(framebuf, 3, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 4, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 5, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 6, tmpscr, 0, playing_field_offset);
+	do_primitives(framebuf, 7, tmpscr, 0, playing_field_offset);
+}
+
+void FFScript::lweaponScriptEngine()
+{
+	if ( FFCore.system_suspend[susptLWEAPONSCRIPTS] ) return;
+	for ( int q = 0; q < Lwpns.Count(); q++ )
+	{
+		//ri->lwpn = Lwpns.spr(q)->getUID();
+		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->lwpn (%d)\n", Lwpns.spr(q)->getUID(), ri->lwpn);
+		//ri->lwpn = Lwpns.spr(q)->getUID();
+		weapon *wp = (weapon*)Lwpns.spr(q);
+		switch(Lwpns.spr(q)->id)
+		{
+		    /* We can't have this, because the same script would run on the sword, and on the swordbeam!
+		    case wSword:
+		    {
+			weapon *wa = (weapon*)Lwpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( w->Dead() )
+				{
+					Lwpns.spr(q)->doscript = 0;
+					Lwpns.spr(q)->weaponscript = 0;
+					//memset(w->stack, 0xFFFF, sizeof(w->stack));
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					ri->lwpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    */
+		    case wBeam:
+		    case wRefBeam:
+		    {
+			weapon *wa = (weapon*)Lwpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( w->Dead() )
+				{
+					Lwpns.spr(q)->doscript = 0;
+					Lwpns.spr(q)->weaponscript = 0;
+					//memset(w->stack, 0xFFFF, sizeof(w->stack));
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					ri->lwpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+			
+		    case wWhistle:
+		    {
+			weapon *wa = (weapon*)Lwpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( w->Dead() )
+				{
+					Lwpns.spr(q)->doscript = 0;
+					Lwpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());	
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);
+					ri->lwpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());
+				}
+			}
+			break;
+		    }
+			
+		    case wWind:
+		    {
+			break;
+		    }
+		    
+		    case wFire:
+		    {
+			weapon *wa = (weapon*)Lwpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( w->Dead() )
+				{
+					Lwpns.spr(q)->doscript = 0;
+					Lwpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());
+					ri->lwpn = w->getUID();
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case wLitBomb:
+		    case wBomb:
+		    case ewLitBomb:
+		    case ewBomb:
+		    case ewLitSBomb:
+		    case ewSBomb:
+		    case wLitSBomb:
+		    case wSBomb:
+		    {
+			break;
+		    }
+		    
+		    case wArrow:
+		    {
+			weapon *wa = (weapon*)Lwpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( w->Dead() )
+				{
+					Lwpns.spr(q)->doscript = 0;
+					Lwpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					ri->lwpn = w->getUID();					
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			
+			break;
+		    }
+		    
+		    case wSSparkle:
+		    {
+			break;
+		    }
+			
+		    case wFSparkle:
+		    {
+			break;
+		    }
+		    case wBait:
+		    {
+			weapon *wa = (weapon*)Lwpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( w->Dead() )
+				{
+					Lwpns.spr(q)->doscript = 0;
+					Lwpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+				    //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+				    ri->lwpn = w->getUID();
+				    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    case wBrang:
+		    {
+			weapon *wa = (weapon*)Lwpns.spr(q);
+			    
+			if ( Lwpns.spr(q)->doscript ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+			}
+		
+			
+			break;
+		    }
+		    
+		    case wHookshot:
+		    {
+			break;
+		    }
+		    case wHSHandle:
+		    {
+			break;
+		    }
+		    case wPhantom:
+		    {
+			break;
+		    }
+		    case wRefMagic:
+		    case wMagic:
+		    {
+			//:Weapon Only
+			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( w->Dead() )
+				{
+					Lwpns.spr(q)->doscript = 0;
+					Lwpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					ri->lwpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case wRefFireball:
+		    {
+			weapon *wa = (weapon*)Lwpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 && wa->ScriptGenerated ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( w->Dead() )
+				{
+					Lwpns.spr(q)->doscript = 0;
+					Lwpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					ri->lwpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    case wScript1:
+		    case wScript2:
+		    case wScript3:
+		    case wScript4:
+		    case wScript5:
+		    case wScript6:
+		    case wScript7:
+		    case wScript8:
+		    case wScript9:
+		    case wScript10:
+		    {
+			weapon *wa = (weapon*)Lwpns.spr(q);
+			//if ( wa->Dead() ) break;
+			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( w->Dead() )
+				{
+					Lwpns.spr(q)->doscript = 0;
+					Lwpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					ri->lwpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    default: break;
+		}
+	}
+}
+
+
+bool FFScript::itemScriptEngine()
+{
+	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
+	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
+	for ( int q = 0; q < 256; q++ )
+	{
+		
+		//Z_scripterrlog("Checking item ID: %d\n",q);
+		if ( itemsbuf[q].script == 0 ) continue;
+		if ( item_doscript[q] < 1 ) continue;
+		//Z_scripterrlog("Running ItemScriptEngine() for item ID: %dn", q);
+		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
+		    After executing RunScript(), item_doscript is set to '1' in Link.cpp.
+		    If the quest allows the item to continue running, the itemScriptEngine() function ignores running the
+		      same item script (again) that frame, and insteads increments item_doscript to '2'.
+		    If item_doscript == 2, then we know we are on the second frame, and we run it perpetually.
+		    If the QR to enable item scripts to run for more than one frame is not enabled, then item_doscript is set to '0'.
+		    If the item flag 'PERPETUAL SCRIPT' is enabled, then we ignore the lack of item_doscript==2.
+		      This allows passive item scripts to function. 
+		*/
+		switch(item_doscript[q])
+		{
+			case 3:
+			{
+				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+				{
+					item_doscript[q] = 2;
+					continue;
+				}
+				else 
+				{
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+					item_doscript[q] = 0;
+				}
+				break;
+			}
+			case 2:
+			{
+				break;
+				
+			}
+			case 1:
+			{
+				
+				if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
+				{
+					item_doscript[q] = 0;
+					itemScriptData[q].Clear();
+					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
+					break;
+				}
+				//else 
+				//{	
+				//	item_doscript[q] = 2;
+					//goto SKIPITEM; //the script ran one time this frame, from Link.cpp.
+				//}
+				break;
+			}
+			case 4: //Item set itself false, kill script and clear data here
+			{
+				item_doscript[q] = 0;
+				itemScriptData[q].Clear();
+				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
+				//fall-through
+			}
+			case 0:
+			{
+				itemscriptInitialised[q] = 0;
+				break;
+			}
+			
+			
+		}
+		
+		if ( (item_doscript[q] > 1) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		{
+			//Z_scripterrlog("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+			continue;
+			
+		}
+		else if ( item_doscript[q] == 1 )
+		{
+			if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+			{
+				item_doscript[q] = 2;
+				//get ready for second frame
+				
+			}
+		}
+		
+		if(item_doscript[q]==4)  //Item set itself false, kill script and clear data here
+		{
+			item_doscript[q] = 0;
+			itemScriptData[q].Clear();
+			itemscriptInitialised[q] = 0;
+		}
+		//SKIPITEM:
+		//if ( ( item_doscript[q] == 3 ) )
+		//{
+		//	if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) item_doscript[q] = 2;
+		//	else 
+		//	{
+		//		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		//		item_doscript[q] = 0;
+		//	}
+		//}
+		//if ( ( item_doscript[q] > 1)  || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		//Is this needed? If the user selects perpetual script, then should that not override the QR? Hmm. IDK. -Z 16th June, 2019 
+		//{
+		//	ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		//}
+		//else if ( item_doscript[q] == 1 )
+		//{
+		//	if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
+		//	{
+		//		item_doscript[q] = 0;
+		//	}
+		//	else item_doscript[q] = 2;
+		//}
+		//if ( runningItemScripts[i] == 1 )
+		//{
+			//Z_scripterrlog("Found a script running on item ID: %d\n",q);
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
+			
+			////if ( runningItemScripts[q] == 1 || ( /*PASSIVE ITEM THAT ALWAYS RUNS*/ ((itemsbuf[q].flags&ITEM_FLAG16) && game->item[q])) )
+			////{
+			////	if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
+			////	{
+			////		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+			////	}
+			////	else //if the QR isn't set, treat Waitframe as Quit()
+			////	{
+			////		runningItemScripts[q] = 0;
+			////	}
+			////}
+		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
+		{
+			Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		}
+		//}
+		    
+	}
+	
+	return false;
+}
+
+bool FFScript::itemScriptEngineOnWaitdraw()
+{
+	if ( FFCore.system_suspend[susptITEMSCRIPTENGINE] ) return false;
+	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
+	for ( int q = 0; q < 256; q++ )
+	{
+		//Z_scripterrlog("Checking item ID: %d\n",q);
+		if ( itemsbuf[q].script == 0 ) continue;
+		if ( !itemScriptsWaitdraw[q] ) continue;
+		if ( item_doscript[q] < 1 ) continue;
+		switch(item_doscript[q])
+		{
+			case 3:
+			{
+				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+				{
+					item_doscript[q] = 2;
+					continue;
+				}
+				else 
+				{
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+					item_doscript[q] = 0;
+				}
+				break;
+			}
+			case 2:
+			{
+				break;
+				
+			}
+			case 1:
+			{
+				
+				if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) ) 
+				{
+					item_doscript[q] = 0;
+					break;
+				}
+				//else 
+				//{	
+				//	item_doscript[q] = 2;
+					//goto SKIPITEM; //the script ran one time this frame, from Link.cpp.
+				//}
+				break;
+			}
+			case 0:
+			{
+				itemscriptInitialised[q] = 0;
+				break;
+			}
+			
+			
+		}
+		
+		if ( (item_doscript[q] > 1) || ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		{
+			//Z_scripterrlog("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+			continue;
+			
+		}
+		else if ( item_doscript[q] == 1 )
+		{
+			if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+			{
+				item_doscript[q] = 2;
+				//get ready for second frame
+				
+			}
+		}
+			
+		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int mode)
+		{
+			Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+		}
+		itemScriptsWaitdraw[q] = 0;
+		
+	}
+	
+	return false;
+}
+
+void FFScript::eweaponScriptEngine()
+{
+	if ( FFCore.system_suspend[susptEWEAPONSCRIPTS] ) return;
+	for ( int q = 0; q < Ewpns.Count(); q++ )
+	{
+		//ri->ewpn = Ewpns.spr(q)->getUID();
+		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
+		//ri->ewpn = Ewpns.spr(q)->getUID();
+		weapon *wp = (weapon*)Ewpns.spr(q);
+		if ( wp->isLWeapon ) continue;
+		//if ( wp->Dead() ) continue;
+		//if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
+		//if ( Ewpns.spr(q)->doscript == 0 ) continue;
+		if ( wp->doscript ) if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, wp->getUID());		
+				
+		/*
+		switch(Ewpns.spr(q)->id)
+		{
+		    case ewSword:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					//memset(w->stack, 0xFFFF, sizeof(w->stack));
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		
+		    
+		    case ewFlame:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					ri->ewpn = w->getUID();
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    
+		    case ewSBomb:
+		    case ewBomb:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					ri->ewpn = w->getUID();
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case ewLitBomb:
+		    case ewLitSBomb:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					ri->ewpn = w->getUID();
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case ewArrow:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();					
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			
+			break;
+		    }
+		    
+		    case ewRock:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+				    //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+				    ri->ewpn = w->getUID();
+				    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    case ewBrang:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+		
+			
+			break;
+		    }
+		    
+		    case ewMagic:
+		    {
+			//:Weapon Only
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case ewFireball:
+		    case ewFireball2:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case ewFireTrail:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    case ewWind:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    } 
+		    case ewFlame2:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    } 
+		    case ewFlame2Trail:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case ewIce:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    case wScript1:
+		    case wScript2:
+		    case wScript3:
+		    case wScript4:
+		    case wScript5:
+		    case wScript6:
+		    case wScript7:
+		    case wScript8:
+		    case wScript9:
+		    case wScript10:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			//if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    default: break;
+		}
+		*/
+	}
+}
+
+void FFScript::eweaponScriptEngineOnWaitdraw()
+{
+	if ( FFCore.system_suspend[susptEWEAPONSCRIPTS] ) return;
+	for ( int q = 0; q < Ewpns.Count(); q++ )
+	{
+		//ri->ewpn = Ewpns.spr(q)->getUID();
+		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
+		//ri->ewpn = Ewpns.spr(q)->getUID();
+		weapon *wp = (weapon*)Ewpns.spr(q);
+		if ( wp->isLWeapon ) continue;
+		//if ( wp->Dead() ) continue;
+		//if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
+		//if ( Ewpns.spr(q)->doscript == 0 ) continue;
+		if ( wp->doscript && wp->waitdraw ) 
+		{
+			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, wp->getUID());		
+			wp->waitdraw = 0;
+		}
+		/*
+		switch(Ewpns.spr(q)->id)
+		{
+		    case ewSword:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					//memset(w->stack, 0xFFFF, sizeof(w->stack));
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		
+		    
+		    case ewFlame:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					ri->ewpn = w->getUID();
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    
+		    case ewSBomb:
+		    case ewBomb:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					ri->ewpn = w->getUID();
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case ewLitBomb:
+		    case ewLitSBomb:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());
+					ri->ewpn = w->getUID();
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case ewArrow:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();					
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			
+			break;
+		    }
+		    
+		    case ewRock:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+				    //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+				    //if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+				    ri->ewpn = w->getUID();
+				    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    case ewBrang:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);		
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+		
+			
+			break;
+		    }
+		    
+		    case ewMagic:
+		    {
+			//:Weapon Only
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case ewFireball:
+		    case ewFireball2:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case ewFireTrail:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    case ewWind:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    } 
+		    case ewFlame2:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    } 
+		    case ewFlame2Trail:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    
+		    case ewIce:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    case wScript1:
+		    case wScript2:
+		    case wScript3:
+		    case wScript4:
+		    case wScript5:
+		    case wScript6:
+		    case wScript7:
+		    case wScript8:
+		    case wScript9:
+		    case wScript10:
+		    {
+			weapon *wa = (weapon*)Ewpns.spr(q);
+			//if ( wa->Dead() ) break;
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Ewpns.spr(q);
+				if ( w->Dead() )
+				{
+					Ewpns.spr(q)->doscript = 0;
+					Ewpns.spr(q)->weaponscript = 0;
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, index);		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, Ewpns.spr(q)->getUID());		
+					//if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, ri->ewpn);	
+					ri->ewpn = w->getUID();
+					if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    default: break;
+		}
+		*/
+	}
+}
+
+void FFScript::itemSpriteScriptEngine()
+{
+	if ( FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) return;
+	for ( int q = 0; q < items.Count(); q++ )
+	{
+		item *wp = (item*)items.spr(q);
+		if ( wp->script == 0 ) continue;
+		if ( wp->doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, items.spr(q)->script, wp->getUID());		
+	}
+}
+
+void FFScript::itemSpriteScriptEngineOnWaitdraw()
+{
+	if ( FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) return;
+	for ( int q = 0; q < items.Count(); q++ )
+	{
+		
+		item *wp = (item*)items.spr(q);
+
+		if ( wp->waitdraw && wp->doscript && wp->script && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		{
+			ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, items.spr(q)->script, wp->getUID());
+			wp->waitdraw = 0;
+		}			
+	}
+}
+
+
+int FFScript::getTime(int type)
+{
+	//struct tm *tm_struct = localtime(time(NULL));
+	struct tm * tm_struct;
+	time_t sysRTC;
+	time (&sysRTC);
+	tm_struct = localtime (&sysRTC);
+	int rval = -1;
+	
+	switch(type)
+	{
+		case curyear:
+		{
+			//Year format starts at 1900, yeat
+			//A raw read of '2018' would be '118', so we add 1900 to it to derive the actual year. 
+			rval = tm_struct->tm_year + 1900; break;
+			
+		}
+		case curmonth:
+		{
+			//Months start at 0, but we want 1->12
+			//al_trace("The current month is: %d\n",month);
+			rval = tm_struct->tm_mon +1; break;
+		}
+		case curday_month:
+		{
+			rval = tm_struct->tm_mday; break;
+		}
+		case curday_week: 
+		{
+			//It seems that weekdays are a value range of 1 to 7.
+			rval = tm_struct->tm_wday; break;
+		}
+		case curhour:
+		{
+			rval = tm_struct->tm_hour; break;
+		}
+		case curminute: 
+		{
+			rval = tm_struct->tm_min; break;
+		}
+		case cursecond:
+		{
+			rval = tm_struct->tm_sec; break;
+		}
+		case curdayyear:
+		{
+			//The day (n/365) out of the entire year. 
+			rval = tm_struct->tm_yday; break;
+		}
+		case curDST:
+		{
+			//Returns if the user is in a Time Zone with Daylight TIme of some sort. 
+			//View the time.h docs for the actual values of this struct element.
+			rval = tm_struct->tm_isdst;; break;
+		}
+		default: 
+		{
+			al_trace("Invalid category passed to GetSystemTime(%d)\n",type);
+			rval = -1;  break;
+		}
+		
+	}
+	return rval;
+}
+
+void FFScript::do_isdeadnpc()
+{
+	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+	if(GuyH::loadNPC(ri->guyref, "npc->isDead") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		//int dead = (int)e->Dead(GuyH::getNPCIndex(ri->guyref));
+		//GuyH::getNPC()->Dead(GuyH::getNPCIndex(ri->guyref));
+		set_register(sarg1, ((GuyH::getNPC()->Dead(GuyH::getNPCIndex(ri->guyref))) ? 10000 : 0));
+	}
+	else set_register(sarg1, -10000);
+}
+
+
+void FFScript::do_canslidenpc()
+{
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->CanSlide") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		//bool candoit = e->can_slide();
+		set_register(sarg1, ((GuyH::getNPC()->can_slide()) ? 10000 : 0));
+	}
+	else set_register(sarg1, -10000);
+}
+
+void FFScript::do_slidenpc()
+{
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->Slide()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		//bool candoit = e->slide();
+		set_register(sarg1, ((GuyH::getNPC()->slide())*10000));
+	}
+	else set_register(sarg1, -10000);
+}
+
+void FFScript::do_npckickbucket()
+{
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		//e->kickbucket();
+		GuyH::getNPC()->kickbucket();
+	}
+	//else Z_scripterrlog
+}
+
+void FFScript::do_npc_stopbgsfx()
+{
+	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+	if(GuyH::loadNPC(ri->guyref, "npc->StopBGSFX()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		//e->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
+		GuyH::getNPC()->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
+	}
+}
+
+void FFScript::updateIncludePaths()
+{
+	memset(includePaths,0,sizeof(includePaths));
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	{
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		{
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
+		}
+		++pos;
+		dest = 0;
+	}
+}
+
+void FFScript::initRunString()
+{
+	memset(scriptRunString,0,sizeof(scriptRunString));
+	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
+}
+
+void FFScript::initIncludePaths()
+{
+	memset(includePaths,0,sizeof(includePaths));
+	memset(includePathString,0,sizeof(includePathString));
+	strcpy(includePathString,get_config_string("Compiler","include_path","include/"));
+	includePathString[((MAX_INCLUDE_PATHS+1)*512)-1] = '\0';
+	al_trace("Full path string is: %s\n",includePathString);
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	{
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		{
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
+		}
+		++pos;
+		dest = 0;
+	}
+
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+		al_trace("Include path %d: %s\n",q,includePaths[q]);
+}
+
+void FFScript::do_npcattack()
+{
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->Attack()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		//e->FireWeapon();
+		//we could just do: 
+		GuyH::getNPC()->FireWeapon();
+	}
+}
+void FFScript::do_npc_newdir()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->NewDir()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz != -1 ) 
+		{
+			if ( sz != 3 ) 
+			{
+				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+				return;
+			}
+			GuyH::getNPC()->newdir((FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000));
+			//e->newdir( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+			//	(FFCore.getElement(arrayptr, 2)/10000) );
+		}
+		//else e->newdir();
+		else GuyH::getNPC()->newdir();
+		
+		
+	}
+}
+
+void FFScript::do_npc_constwalk()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	Z_scripterrlog("Array size passed to do_npc_constwalk: %d\n", sz);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz != -1 ) 
+		{
+			if ( sz != 3 ) 
+			{
+				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+				return;
+			}
+			//Z_scripterrlog("Calling npc->ConstantWalk( %d, %d, %d ).\n", (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
+			//	(getElement(arrayptr, 2)/10000));
+			GuyH::getNPC()->constant_walk( (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
+				(getElement(arrayptr, 2)/10000) );
+		}
+		else GuyH::getNPC()->constant_walk();//e->constant_walk();
+		
+		
+	}
+}
+
+void FFScript::do_npc_varwalk()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 3 ) 
+		{
+			
+			GuyH::getNPC()->variable_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000) );
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+		
+		
+	}
+}
+
+void FFScript::do_npc_varwalk8()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	//void variable_walk_8(int rate,int homing,int newclk,int special);
+	// same as above but with variable enemy size
+	//void variable_walk_8(int rate,int homing,int newclk,int special,int dx1,int dy1,int dx2,int dy2);
+    
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk8()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 4 ) 
+		{
+			GuyH::getNPC()->variable_walk_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000) );
+		}
+		else if ( sz == 8 ) 
+		{
+			GuyH::getNPC()->variable_walk_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000),
+				(FFCore.getElement(arrayptr, 4)/10000), (FFCore.getElement(arrayptr, 5)/10000),
+				(FFCore.getElement(arrayptr, 6)/10000), (FFCore.getElement(arrayptr, 7)/10000)
+			);
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+	}
+}
+
+void FFScript::do_npc_constwalk8()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	//void variable_walk_8(int rate,int homing,int newclk,int special);
+	// same as above but with variable enemy size
+	//void variable_walk_8(int rate,int homing,int newclk,int special,int dx1,int dy1,int dx2,int dy2);
+    
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk8()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 3 ) 
+		{
+			GuyH::getNPC()->constant_walk_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000) );
+		}
+		
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+	}
+}
+
+
+void FFScript::do_npc_haltwalk()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 5 ) 
+		{
+			
+			GuyH::getNPC()->halting_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000),
+				(FFCore.getElement(arrayptr, 4)/10000));
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+		
+		
+	}
+}
+
+void FFScript::do_npc_haltwalk8()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk8()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 6 ) 
+		{
+			
+			GuyH::getNPC()->halting_walk_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000),
+				(FFCore.getElement(arrayptr, 4)/10000),(FFCore.getElement(arrayptr, 5)/10000));
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+		
+		
+	}
+}
+
+
+void FFScript::do_npc_floatwalk()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->FloatingWalk()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 3 ) 
+		{
+			
+			GuyH::getNPC()->floater_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(fix)(FFCore.getElement(arrayptr, 2)/10000));
+		
+		}
+		else if ( sz == 7 ) 
+		{
+			
+			GuyH::getNPC()->floater_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(fix)(FFCore.getElement(arrayptr, 2)/10000), (fix)(FFCore.getElement(arrayptr, 3)/10000),
+				(FFCore.getElement(arrayptr, 4)/10000),(FFCore.getElement(arrayptr, 5)/10000),
+				(FFCore.getElement(arrayptr, 6)/10000));
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+		
+		
+	}
+}
+
+void FFScript::do_npc_breathefire()
+{
+	bool seek = (get_register(sarg2));
+	if(GuyH::loadNPC(ri->guyref, "npc->BreathAttack()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		GuyH::getNPC()->FireBreath(seek);
+		
+	}
+}
+
+
+void FFScript::do_npc_newdir8()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->NewDir8()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 3 ) 
+		{
+			
+			GuyH::getNPC()->newdir_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000));
+		
+		}
+		else if ( sz == 7 ) 
+		{
+			
+			GuyH::getNPC()->newdir_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000),
+				(FFCore.getElement(arrayptr, 4)/10000),(FFCore.getElement(arrayptr, 5)/10000),
+				(FFCore.getElement(arrayptr, 6)/10000));
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+		
+		
+	}
+}
+
+	
+long FFScript::npc_collision()
+{
+	long isColl = 0;
+	if(GuyH::loadNPC(ri->guyref, "npc->Collision()") == SH::_NoError)
+	{
+		long _obj_type = (ri->d[0] / 10000);
+		long _obj_ptr = (ri->d[1]);
+		
+		switch(_obj_type)
+		{
+			case obj_type_lweapon:
+			{
+				Z_scripterrlog("Checking collision on npc (%d) against lweapon (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			case obj_type_eweapon:
+			{
+				Z_scripterrlog("Checking collision on npc (%d) against eweapon (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			case obj_type_npc:
+			{
+				Z_scripterrlog("Checking collision on npc (%d) against npc (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			case obj_type_link:
+			{
+				Z_scripterrlog("Checking collision on npc (%d) against Player\n", ri->guyref);
+				isColl = 0;
+				break;
+			}
+			case obj_type_ffc:
+			{
+				_obj_ptr *= 10000; _obj_ptr -= 1;
+				Z_scripterrlog("Checking collision on npc (%d) against ffc (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			case obj_type_combo_pos:
+			{
+				_obj_ptr *= 10000;
+				Z_scripterrlog("Checking collision on npc (%d) against combo position (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			case obj_type_item:
+			{
+				Z_scripterrlog("Checking collision on npc (%d) against item (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			default: 
+			{
+				Z_scripterrlog("Invalid object type (%d) passed to npc->Collidion(int type, int ptr)\n", _obj_type);
+				isColl = 0;
+				break;
+			}
+		}
+	}
+	
+    return isColl;
+}
+
+
+long FFScript::npc_linedup()
+{
+	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
+	{
+		long range = (ri->d[0] / 10000);
+		//Z_scripterrlog("LinedUp distance is: %d\n", range);
+		bool dir8 = (ri->d[1]);
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		return (long)GuyH::getNPC()->lined_up(range,dir8);
+	}
+	
+    return 0;
+}
+
+
+void FFScript::do_npc_link_in_range(const bool v)
+{
+	int dist = get_register(sarg1) / 10000;
+	//Z_scripterrlog("LinkInrange dist is: %d\n", dist);
+	//bool in_range = false;
+	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
+	{
+		//long range = (ri->d[0] / 10000);
+		//bool dir8 = (ri->d[1]);
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		//in_range = (e->LinkInRange(dist));
+		//Z_scripterrlog("LinkInRange returned: %s\n", (GuyH::getNPC()->LinkInRange(dist) ? "true" : "false"));
+		bool in_range = GuyH::getNPC()->LinkInRange(dist);
+		set_register(sarg1, (in_range ? 10000 : 0)); //This isn't setting the right value, it seems. 
+		//set_register(sarg1, (in_range ? 10000 : 0));
+		//set_register(sarg1, 0);
+	}
+	else set_register(sarg2, 0);
+}
+
+
+
+
+
+
+void FFScript::do_npc_simulate_hit(const bool v)
+{
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	bool ishit = false;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->SimulateHit()") == SH::_NoError)
+	{
+		Z_scripterrlog("Trying to simulate a hit on npc\n");
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		if ( sz == 2 ) //type and pointer
+		{
+			int type = FFCore.getElement(arrayptr, 0)/10000;
+			
+			//switch(type)
+			//{
+			//	case simulate_hit_type_weapon:
+			//	{
+			//		ishit = e->hit(*);
+			//		break;
+			//	}
+			//	case simulate_hit_type_sprite:
+			//	{
+			//		ishit = e->hit(*);
+			//		break;
+			//	}
+			//}
+			ishit = false;
+		}
+		if ( sz == 6 ) //hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
+		{
+			ishit = GuyH::getNPC()->hit( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000), 
+				(FFCore.getElement(arrayptr, 4)/10000), (FFCore.getElement(arrayptr, 5)/10000) );			
+			
+		}
+		else 
+		{
+			Z_scripterrlog("Invalid array size (%d) passed to npc->SimulateHit(). The array size must be [1] or [3].\n", sz);
+			ishit = false;
+		}
+	}
+	set_register(sarg1, ( ishit ? 10000 : 0));
+}
+
+void FFScript::do_npc_knockback(const bool v)
+{
+	long time = SH::get_arg(sarg1, v) / 10000;
+	long dir = SH::get_arg(sarg2, v) / 10000;
+	long spd = vbound(ri->d[0] / 10000, 0, 255);
+	//Z_scripterrlog("Knockback: time %d,dir %d,spd %d\n",time,dir,spd);
+	bool ret = false;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->Knockback()") == SH::_NoError)
+	{
+		ret = GuyH::getNPC()->knockback(time, dir, spd);
+	}
+	set_register(sarg1, ( ret ? 10000 : 0));
+}
+
+void FFScript::do_npc_add(const bool v)
+{
+   
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	
+	int id = 0, nx = 0, ny = 0, clk = -10;
+	
+	if ( sz < 1 ) 
+	{
+		Z_scripterrlog("Invalid array size (%d) passed to npc->Create(). The array size must be [1] or [3].\n", sz);
+		return;
+	}
+	else //size is valid
+	{
+		id = (FFCore.getElement(arrayptr, 0)/10000);
+		
+		if ( sz == 3 ) //x and y
+		{
+			nx = (FFCore.getElement(arrayptr, 1)/10000);
+			ny = (FFCore.getElement(arrayptr, 2)/10000);
+		}
+	}
+	
+    
+	if(BC::checkGuyID(id, "npc->Create()") != SH::_NoError)
+		return;
+        
+	//If we make a segmented enemy there'll be more than one sprite created
+	word numcreated = addenemy(nx, ny, id, -10);
+    
+	if(numcreated == 0)
+	{
+		ri->guyref = LONG_MAX;
+		Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[id]);
+	}
+	else
+	{
+		word index = guys.Count() - numcreated; //Get the main enemy, not a segment
+		ri->guyref = guys.spr(index)->getUID();
+        
+		for(; index<guys.Count(); index++)
+			((enemy*)guys.spr(index))->script_spawned=true;
+            
+		Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", guy_string[id], ri->guyref);
+	}
+}
+
+bool FFScript::checkExtension(std::string &filename, const std::string &extension)
+//inline bool checkExtension(std::string filename, std::string extension)
+{
+    int dot = filename.find_last_of(".");
+    std::string exten = (dot == std::string::npos ? "" : filename.substr(dot, filename.length() - dot));
+    return exten == extension;
+}
+
+
+void FFScript::do_loadgamestructs(const bool v, const bool v2)
+{
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	long section_id = SH::get_arg(sarg2, v2) / 10000;
+	Z_scripterrlog("do_loadgamestructs selected section is: %d\n", section_id);
+	//Bitwise OR sections together
+	string strA;
+	FFCore.getString(arrayptr, strA);
+	int temp_sram_flags = section_id; int sram_version = 0;
+
+	if ( FFCore.checkExtension(strA, ".zcsram") )
+	{
+		PACKFILE *f = pack_fopen_password(strA.c_str(),F_READ, "");
+		if (f)
+		{
+			p_igetl(&sram_version,f,true);
+			p_igetl(&section_id,f,true);
+			Z_scripterrlog("Reading ZCSRAM, Version: %d\n", sram_version);
+			if ( sram_version > SRAM_VERSION ) //file version is greater than programme current version.
+			{
+				Z_scripterrlog("SRAM Version is from a version of ZC newer than the running version and cannot be loaded.\n");
+				return;
+			}
+			if ( section_id != temp_sram_flags )
+			{
+				Z_scripterrlog("Reading an SRAM file with a section flag mismatch!\nThe file section flags are (%d) and the specified flagset is (%d).\nThis may cause errors!\n", section_id, temp_sram_flags);
+			}
+			
+			if ( !section_id || section_id&svGUYS ) FFCore.read_enemies(f,sram_version);
+			if ( !section_id || section_id&svITEMS )FFCore.read_items(f,sram_version);
+			if ( !section_id || section_id&svWEAPONS ) FFCore.read_weaponsprtites(f,sram_version);
+			if ( !section_id || section_id&svCOMBOS ) FFCore.read_combos(f,sram_version);
+			if ( !section_id || section_id&svDMAPS ) FFCore.read_dmaps(f,sram_version);
+			if ( !section_id || section_id&svMAPSCR ) FFCore.read_mapscreens(f,sram_version);
+			pack_fclose(f);
+			Z_scripterrlog("do_savegamestructs COMPLETED READINV %s, with section ID flags %d\n", "ALL", section_id);
+			
+			set_register(sarg1, 10000);
+		}
+		else 
+		{
+			Z_scripterrlog("FFCore.do_loadgamestructs could not read packfile!");
+			set_register(sarg1, -10000);
+		}
+	}
+	else
+	{
+		Z_scripterrlog("Tried to read a .zcsram file, but the file lacked the ..zcsram extension!\n");
+		set_register(sarg1, -20000);
+		
+	}
+}
+
+void FFScript::do_savegamestructs(const bool v, const bool v2)
+{
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	long section_id = SH::get_arg(sarg2, v2) / 10000;
+	Z_scripterrlog("do_loadgamestructs selected section is: %d\n", section_id);
+	//Bitwise OR sections together
+	string strA;
+	FFCore.getString(arrayptr, strA);
+	int cycles = 0;
+
+	if ( FFCore.checkExtension(strA, ".zcsram") )
+	{
+		PACKFILE *f = pack_fopen_password(strA.c_str(),F_WRITE, "");
+		if (f)
+		{
+			p_iputl(SRAM_VERSION,f);
+			p_iputl(section_id,f);
+			
+			if ( !section_id || section_id&svGUYS ) FFCore.write_enemies(f,SRAM_VERSION);
+			if ( !section_id || section_id&svITEMS ) FFCore.write_items(f,SRAM_VERSION);
+			if ( !section_id || section_id&svWEAPONS ) FFCore.write_weaponsprtites(f,SRAM_VERSION);
+			if ( !section_id || section_id&svCOMBOS ) FFCore.write_combos(f,SRAM_VERSION);
+			if ( !section_id || section_id&svDMAPS ) FFCore.write_dmaps(f,SRAM_VERSION);
+			if ( !section_id || section_id&svMAPSCR ) FFCore.write_mapscreens(f,SRAM_VERSION);
+			pack_fclose(f);
+			Z_scripterrlog("do_savegamestructs COMPLETED WRITING %s, with section ID flags %d\n", "ALL", section_id);
+			set_register(sarg1, 10000);
+		}
+		else 
+		{
+			Z_scripterrlog("FFCore.do_loadgamestructs could not read packfile!");
+			set_register(sarg1, -10000);
+		}
+	}
+	else
+	{
+		Z_scripterrlog("Tried to write a .zcsram file, but the file lacked the ..zcsram extension!\n");
+		set_register(sarg1, -20000);
+	}
+}
+
+void FFScript::do_strcmp()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strcmp(strA.c_str(), strB.c_str()) * 10000));
+}
+
+void FFScript::do_LowerToUpper(const bool v)
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1, 0); return;
+	}
+	for ( int q = 0; q < strA.size(); ++q )
+	{
+		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		{
+			if ( strA[q] < 'a' ) { continue; }
+			else strA[q] -= 32;
+			continue;
+		}
+		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		//{
+		//	strA[q] += 32;
+		//	continue;
+		//}
+	}
+	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	else set_register(sarg1, (10000));
+}
+
+void FFScript::do_UpperToLower(const bool v)
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1, 0); return;
+	}
+	for ( int q = 0; q < strA.size(); ++q )
+	{
+		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		{
+			if ( strA[q] < 'a' ) { strA[q] += 32; }
+			else continue;
+			continue;
+		}
+		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		//{
+		//	strA[q] += 32;
+		//	continue;
+		//}
+	}
+	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	else set_register(sarg1, (10000));
+}
+
+void FFScript::do_getnpcscript()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTGUYS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), npcmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getlweaponscript()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTWEAPONS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), lwpnmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_geteweaponscript()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTWEAPONS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), ewpnmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getheroscript()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTLINK; q++)
+	{
+		if(!(strcmp(the_string.c_str(), linkmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getglobalscript()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTGLOBAL; q++)
+	{
+		if(!(strcmp(the_string.c_str(), globalmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getdmapscript()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTSDMAP; q++)
+	{
+		if(!(strcmp(the_string.c_str(), dmapmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getscreenscript()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTSCREEN; q++)
+	{
+		if(!(strcmp(the_string.c_str(), screenmap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getitemspritescript()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < NUMSCRIPTSITEMSPRITE; q++)
+	{
+		if(!(strcmp(the_string.c_str(), itemspritemap[q].second.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
+//Not assigned to slots at present. If they ever are, then this would get the id of any script (any type) by name. -Z
+void FFScript::do_getuntypedscript()
+{
+	set_register(sarg1, 0);
+	//long arrayptr = ri->d[0]/10000;
+	//string the_string;
+	//int script_num = -1;
+	//FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	//for(int q = 0; q < NUMSCRIPTSITEMSPRITE; q++)
+	//{
+	//	if(!(strcmp(the_string.c_str(), itemspritemap[q].second.c_str())))
+	//	{
+	//		script_num = q+1;
+	//		break;
+	//	}
+	//}
+	//set_register(sarg1, (script_num * 10000));
+}
+void FFScript::do_getsubscreenscript()
+{
+	//long arrayptr = ri->d[0]/10000;
+	//string the_string;
+	//int script_num = -1;
+	//FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	//for(int q = 0; q < NUMSCRIPTSUBSCREEN; q++)
+	//{
+	//	if(!(strcmp(the_string.c_str(), subscreenmap[q].second.c_str())))
+	//	{
+	//		script_num = q+1;
+	//		break;
+	//	}
+	//}
+	//set_register(sarg1, (script_num * 10000));
+	set_register(sarg1, 0); //Remove this line, when we add this script type, then un-comment the rest. -Z
+}
+void FFScript::do_getnpcbyname()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXNPCS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), guy_string[q])))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
+}	
+void FFScript::do_getitembyname()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXNPCS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), item_string[q])))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
+}	
+void FFScript::do_getcombobyname()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXCOMBOS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), combobuf[q].label)))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
+}
+void FFScript::do_getdmapbyname()
+{
+	long arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+    
+	for(int q = 0; q < MAXNPCS; q++)
+	{
+		if(!(strcmp(the_string.c_str(), DMaps[q].title)))
+		{
+			num = q;
+			break;
+		}
+	}
+	set_register(sarg1, (num * 10000));
+}
+
+void FFScript::do_ConvertCase(const bool v)
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1, 0); return;
+	}
+	for ( int q = 0; q < strA.size(); ++q )
+	{
+		if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
+		{
+			if ( strA[q] < 'a' ) { strA[q] += 32; }
+			else strA[q] -= 32;
+			continue;
+		}
+		//else if ( strA[q] >= 'A' || strA[q] <= 'Z' )
+		//{
+		//	strA[q] += 32;
+		//	continue;
+		//}
+	}
+	//Z_scripterrlog("Converted string is: %s \n", strA.c_str());
+	if(ArrayH::setArray(arrayptr_a, strA.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	else set_register(sarg1, (10000));
+}
+
+void FFScript::do_xlen(const bool v)
+{
+	//not implemented, xlen not found
+	//Z_scripterrlog("Running: %s\n","strlen()");
+	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	FFCore.getString(arrayptr, str);
+	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	//set_register(sarg1, (xlen(str.c_str()) * 10000));
+}
+void FFScript::do_xtoi(const bool v)
+{
+	//not implemented, xtoi not found
+	//Z_scripterrlog("Running: %s\n","strlen()");
+	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	FFCore.getString(arrayptr, str);
+	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	//set_register(sarg1, (xtoi(str.c_str()) * 10000));
+}
+void FFScript::do_ilen(const bool v)
+{
+	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	FFCore.getString(arrayptr, str);
+	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	set_register(sarg1, (FFCore.ilen((char*)str.c_str()) * 10000));
+}
+void FFScript::do_atoi(const bool v)
+{
+	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	FFCore.getString(arrayptr, str);
+	set_register(sarg1, (atoi(str.c_str()) * 10000));
+}
+
+
+
+void FFScript::do_strstr()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to strstr() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1,-10000);
+		return;
+	}
+	set_register(sarg1, (strA.find(strB) * 10000));
+}
+
+void FFScript::do_strcat()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	//char str_c[2048];
+	//strcpy(str_c, strA.c_str());
+	string strC = strA + strB;
+	//Z_scripterrlog("strcat string: %s\n", strC.c_str());
+	if(ArrayH::setArray(arrayptr_a, strC.c_str()) == SH::_Overflow)
+	{
+		Z_scripterrlog("Dest string supplied to 'strcat()' not large enough\n");
+		set_register(sarg1, 0);
+	}
+	//set_register(sarg1, (strcat((char)strA.c_str(), strB.c_str()) * 10000));
+	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
+}
+void FFScript::do_strspn()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strspn(strA.c_str(), strB.c_str()) * 10000));
+}
+
+void FFScript::do_strcspn()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[1]/10000;
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strcspn(strA.c_str(), strB.c_str()) * 10000));
+}
+
+void FFScript::do_strchr()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	char chr_to_find = (ri->d[1]/10000);
+	string strA; 
+	FFCore.getString(arrayptr_a, strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to strchr() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1,-10000);
+		return;
+	}
+	
+	set_register(sarg1,strA.find_first_of(chr_to_find)*10000);
+}
+void FFScript::do_strrchr()
+{
+	long arrayptr_a = ri->d[0]/10000;
+	char chr_to_find = (ri->d[1]/10000);
+	string strA; 
+	FFCore.getString(arrayptr_a, strA);
+	if ( strA.size() < 1 ) 
+	{
+		Z_scripterrlog("String passed to strrchr() is too small. Size is: %d \n", strA.size());
+		set_register(sarg1,-10000);
+		return;
+	}
+	set_register(sarg1,strA.find_last_of(chr_to_find)*10000);
+}
+void FFScript::do_xtoi2()
+{
+	//Not implemented, xtoi not found
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	//set_register(sarg1, (xtoi(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_remchr2()
+{
+	//Not implemented, remchr not found
+	//not part of any standard library
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	//set_register(sarg1, (remchr(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_atoi2()
+{
+	//not implemented; atoi does not take 2 params
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	//set_register(sarg1, (atoi(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_ilen2()
+{
+	//not implemented, ilen not found
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	//set_register(sarg1, (ilen(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_xlen2()
+{
+	//not implemented, xlen not found
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	//set_register(sarg1, (xlen(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+void FFScript::do_itoa()
+{
+	
+	long arrayptr_a = ri->d[1]/10000;
+	int value = ri->d[0]/10000;
+	char the_string[13];
+	char* chrptr = NULL;
+	chrptr = _itoa(value, the_string, 10);
+	//Returns the number of characters used. 
+	if(ArrayH::setArray(arrayptr_a, the_string) == SH::_Overflow)
+		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
+	set_register(sarg1, (FFCore.zc_strlen(the_string)*10000));
+}
+void FFScript::do_xtoa()
+{
+	//not implemented, xtoa not found
+	long arrayptr_a = ri->d[0]/10000;
+	string strA;
+	FFCore.getString(arrayptr_a, strA);
+	//set_register(sarg1, (xtoa(strA.c_str(), (ri->d[1]/10000)) * 10000));
+}
+
+void FFScript::do_strcpy(const bool a, const bool b)
+{
+	long arrayptr_b = SH::get_arg(sarg1, a) / 10000;
+	long arrayptr_a = SH::get_arg(sarg2, b) / 10000;
+    
+	string strA;
+
+	FFCore.getString(arrayptr_a, strA);
+
+	if(ArrayH::setArray(arrayptr_b, strA.c_str()) == SH::_Overflow)
+		Z_scripterrlog("Dest string supplied to 'strcpy()' not large enough\n");
+}
+void FFScript::do_arraycpy(const bool a, const bool b)
+{
+	long arrayptr_b = SH::get_arg(sarg1, a) / 10000;
+	long arrayptr_a = SH::get_arg(sarg2, b) / 10000;
+	long *P = NULL;
+	FFCore.getValues(arrayptr_a,P, FFCore.getSize(arrayptr_a));
+	//ZScriptArray& a = FFCore.getArray(arrayptr_a);
+	FFCore.setArray(arrayptr_b, FFCore.getSize(arrayptr_a), P);
+
+	//if(ArrayH::setArray(arrayptr_b, a.size(), a) == SH::_Overflow)
+	//	Z_scripterrlog("Dest string supplied to 'ArrayCopy()' not large enough\n");
+}
+void FFScript::do_strlen(const bool v)
+{
+	//Z_scripterrlog("Running: %s\n","strlen()");
+	long arrayptr = (SH::get_arg(sarg2, v) / 10000);
+	string str;
+	FFCore.getString(arrayptr, str);
+	//Z_scripterrlog("strlen string size is: %d\n", str.length());
+	set_register(sarg1, (str.length() * 10000));
+}
+
+void FFScript::do_strncmp()
+{
+	
+	long arrayptr_a = ri->d[0]/10000;
+	long arrayptr_b = ri->d[3]/10000;
+	long len = ri->d[2]/10000;
+	//for ( int q = 0; q < 8; q++ )
+	//{
+	//	Z_scripterrlog("(ri->d[%d]) is %d\n", q, (ri->d[q]/10000));
+	//	
+	//}
+	
+	string strA;
+	string strB;
+	FFCore.getString(arrayptr_a, strA);
+	FFCore.getString(arrayptr_b, strB);
+	set_register(sarg1, (strncmp(strA.c_str(), strB.c_str(), len) * 10000));
+}
+
+void FFScript::do_npc_canmove(const bool v)
+{
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	//bool can_mv = false;
+	if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		if ( sz == 1 ) //bool canmove(int ndir): dir only, uses 'step' IIRC
+		{
+			//Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
+			//can_mv = e->canmove(getElement(arrayptr, 0)/10000);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? 10000 : 0);
+			//Z_scripterrlog("npc->CanMove(dir) returned: %s\n", (GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? "true" : "false");
+			//return;
+		}
+		else if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
+		{
+			//Z_scripterrlog("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000))) ? 10000 : 0);
+			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
+			//set_register(sarg1, ( can_mv ? 10000 : 0));
+			//return;
+		}
+		else if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
+		{
+			//Z_scripterrlog("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
+			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
+			//set_register(sarg1, ( can_mv ? 10000 : 0));
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000))) ? 10000 : 0);
+			//return;
+		}
+		else if ( sz == 7 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
+		{
+			Z_scripterrlog("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000));
+			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
+			//set_register(sarg1, ( can_mv ? 10000 : 0));
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000))) ? 10000 : 0);
+			
+			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), 
+			//(fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000),
+			//(getElement(arrayptr, 3)/10000), (getElement(arrayptr, 4)/10000), 
+			//(getElement(arrayptr, 5)/10000), (getElement(arrayptr, 5)/10000)	);
+			//set_register(sarg1, ( can_mv ? 10000 : 0));
+			//return;
+		}
+		else 
+		{
+			Z_scripterrlog("Invalid array size (%d) passed to npc->CanMove(). The array size must be [1], [2], [3], or [7].\n", sz);
+			//can_mv = false;
+			set_register(sarg1, 0);
+		}
+	}
+	//set_register(sarg1, ( can_mv ? 10000 : 0));
+}
+
+//void do_get_enh_music_filename(const bool v)
+void FFScript::get_npcdata_initd_label(const bool v)
+{
+    long init_d_index = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    
+    if((unsigned)init_d_index > 7)
+    {
+	Z_scripterrlog("Invalid InitD[] index (%d) passed to npcdata->GetInitDLabel().\n", init_d_index);
+	return;
+    }
+        
+    if(ArrayH::setArray(arrayptr, string(guysbuf[ri->npcdataref].initD_label[init_d_index])) == SH::_Overflow)
+        Z_scripterrlog("Array supplied to 'npcdata->GetInitDLabel()' not large enough\n");
+}
+
+script_command ZASMcommands[NUMCOMMANDS+1]=
+{
+    //name                args arg1 arg2 more
+    { "SETV",                2,   0,   1,   0},
+    { "SETR",                2,   0,   0,   0},
+    { "ADDR",                2,   0,   0,   0},
+    { "ADDV",                2,   0,   1,   0},
+    { "SUBR",                2,   0,   0,   0},
+    { "SUBV",                2,   0,   1,   0},
+    { "MULTR",               2,   0,   0,   0},
+    { "MULTV",               2,   0,   1,   0},
+    { "DIVR",                2,   0,   0,   0},
+    { "DIVV",                2,   0,   1,   0},
+    { "WAITFRAME",           0,   0,   0,   0},
+    { "GOTO",                1,   1,   0,   0},
+    { "CHECKTRIG",           0,   0,   0,   0},
+    { "WARP",                2,   1,   1,   0},
+    { "COMPARER",            2,   0,   0,   0},
+    { "COMPAREV",            2,   0,   1,   0},
+    { "GOTOTRUE",            1,   1,   0,   0},
+    { "GOTOFALSE",           1,   1,   0,   0},
+    { "GOTOLESS",            1,   1,   0,   0},
+    { "GOTOMORE",            1,   1,   0,   0},
+    { "LOAD1",               2,   0,   0,   0},
+    { "LOAD2",               2,   0,   0,   0},
+    { "SETA1",               2,   0,   0,   0},
+    { "SETA2",               2,   0,   0,   0},
+    { "QUIT",                0,   0,   0,   0},
+    { "SINR",                2,   0,   0,   0},
+    { "SINV",                2,   0,   1,   0},
+    { "COSR",                2,   0,   0,   0},
+    { "COSV",                2,   0,   1,   0},
+    { "TANR",                2,   0,   0,   0},
+    { "TANV",                2,   0,   1,   0},
+    { "MODR",                2,   0,   0,   0},
+    { "MODV",                2,   0,   1,   0},
+    { "ABS",                 1,   0,   0,   0},
+    { "MINR",                2,   0,   0,   0},
+    { "MINV",                2,   0,   1,   0},
+    { "MAXR",                2,   0,   0,   0},
+    { "MAXV",                2,   0,   1,   0},
+    { "RNDR",                2,   0,   0,   0},
+    { "RNDV",                2,   0,   1,   0},
+    { "FACTORIAL",           1,   0,   0,   0},
+    { "POWERR",              2,   0,   0,   0},
+    { "POWERV",              2,   0,   1,   0},
+    { "IPOWERR",             2,   0,   0,   0},
+    { "IPOWERV",             2,   0,   1,   0},
+    { "ANDR",                2,   0,   0,   0},
+    { "ANDV",                2,   0,   1,   0},
+    { "ORR",                 2,   0,   0,   0},
+    { "ORV",                 2,   0,   1,   0},
+    { "XORR",                2,   0,   0,   0},
+    { "XORV",                2,   0,   1,   0},
+    { "NANDR",               2,   0,   0,   0},
+    { "NANDV",               2,   0,   1,   0},
+    { "NORR",                2,   0,   0,   0},
+    { "NORV",                2,   0,   1,   0},
+    { "XNORR",               2,   0,   0,   0},
+    { "XNORV",               2,   0,   1,   0},
+    { "NOT",                 1,   0,   0,   0},
+    { "LSHIFTR",             2,   0,   0,   0},
+    { "LSHIFTV",             2,   0,   1,   0},
+    { "RSHIFTR",             2,   0,   0,   0},
+    { "RSHIFTV",             2,   0,   1,   0},
+    { "TRACER",              1,   0,   0,   0},
+    { "TRACEV",              1,   1,   0,   0},
+    { "TRACE3",              0,   0,   0,   0},
+    { "LOOP",                2,   1,   0,   0},
+    { "PUSHR",               1,   0,   0,   0},
+    { "PUSHV",               1,   1,   0,   0},
+    { "POP",                 1,   0,   0,   0},
+    { "ENQUEUER",            2,   0,   0,   0},
+    { "ENQUEUEV",            2,   0,   1,   0},
+    { "DEQUEUE",             1,   0,   0,   0},
+    { "PLAYSOUNDR",          1,   0,   0,   0},
+    { "PLAYSOUNDV",          1,   1,   0,   0},
+    { "LOADLWEAPONR",        1,   0,   0,   0},
+    { "LOADLWEAPONV",        1,   1,   0,   0},
+    { "LOADITEMR",           1,   0,   0,   0},
+    { "LOADITEMV",           1,   1,   0,   0},
+    { "LOADNPCR",            1,   0,   0,   0},
+    { "LOADNPCV",            1,   1,   0,   0},
+    { "CREATELWEAPONR",      1,   0,   0,   0},
+    { "CREATELWEAPONV",      1,   1,   0,   0},
+    { "CREATEITEMR",         1,   0,   0,   0},
+    { "CREATEITEMV",         1,   1,   0,   0},
+    { "CREATENPCR",          1,   0,   0,   0},
+    { "CREATENPCV",          1,   1,   0,   0},
+    { "LOADI",               2,   0,   0,   0},
+    { "STOREI",              2,   0,   0,   0},
+    { "GOTOR",               1,   0,   0,   0},
+    { "SQROOTV",             2,   0,   1,   0},
+    { "SQROOTR",             2,   0,   0,   0},
+    { "CREATEEWEAPONR",      1,   0,   0,   0},
+    { "CREATEEWEAPONV",      1,   1,   0,   0},
+    { "PITWARP",             2,   1,   1,   0},
+    { "WARPR",               2,   0,   0,   0},
+    { "PITWARPR",            2,   0,   0,   0},
+    { "CLEARSPRITESR",       1,   0,   0,   0},
+    { "CLEARSPRITESV",       1,   1,   0,   0},
+    { "RECT",                0,   0,   0,   0},
+    { "CIRCLE",              0,   0,   0,   0},
+    { "ARC",                 0,   0,   0,   0},
+    { "ELLIPSE",             0,   0,   0,   0},
+    { "LINE",                0,   0,   0,   0},
+    { "PUTPIXEL",            0,   0,   0,   0},
+    { "DRAWTILE",            0,   0,   0,   0},
+    { "DRAWCOMBO",           0,   0,   0,   0},
+    { "ELLIPSE2",            0,   0,   0,   0},
+    { "SPLINE",              0,   0,   0,   0},
+    { "FLOODFILL",           0,   0,   0,   0},
+    { "COMPOUNDR",           1,   0,   0,   0},
+    { "COMPOUNDV",           1,   1,   0,   0},
+    { "MSGSTRR",             1,   0,   0,   0},
+    { "MSGSTRV",             1,   1,   0,   0},
+    { "ISVALIDITEM",         1,   0,   0,   0},
+    { "ISVALIDNPC",          1,   0,   0,   0},
+    { "PLAYMIDIR",           1,   0,   0,   0},
+    { "PLAYMIDIV",           1,   1,   0,   0},
+    { "COPYTILEVV",          2,   1,   1,   0},
+    { "COPYTILEVR",          2,   1,   0,   0},
+    { "COPYTILERV",          2,   0,   1,   0},
+    { "COPYTILERR",          2,   0,   0,   0},
+    { "SWAPTILEVV",          2,   1,   1,   0},
+    { "SWAPTILEVR",          2,   1,   0,   0},
+    { "SWAPTILERV",          2,   0,   1,   0},
+    { "SWAPTILERR",          2,   0,   0,   0},
+    { "CLEARTILEV",          1,   1,   0,   0},
+    { "CLEARTILER",          1,   0,   0,   0},
+    { "OVERLAYTILEVV",       2,   1,   1,   0},
+    { "OVERLAYTILEVR",       2,   1,   0,   0},
+    { "OVERLAYTILERV",       2,   0,   1,   0},
+    { "OVERLAYTILERR",       2,   0,   0,   0},
+    { "FLIPROTTILEVV",       2,   1,   1,   0},
+    { "FLIPROTTILEVR",       2,   1,   0,   0},
+    { "FLIPROTTILERV",       2,   0,   1,   0},
+    { "FLIPROTTILERR",       2,   0,   0,   0},
+    { "GETTILEPIXELV",       1,   1,   0,   0},
+    { "GETTILEPIXELR",       1,   0,   0,   0},
+    { "SETTILEPIXELV",       1,   1,   0,   0},
+    { "SETTILEPIXELR",       1,   0,   0,   0},
+    { "SHIFTTILEVV",         2,   1,   1,   0},
+    { "SHIFTTILEVR",         2,   1,   0,   0},
+    { "SHIFTTILERV",         2,   0,   1,   0},
+    { "SHIFTTILERR",         2,   0,   0,   0},
+    { "ISVALIDLWPN",         1,   0,   0,   0},
+    { "ISVALIDEWPN",         1,   0,   0,   0},
+    { "LOADEWEAPONR",        1,   0,   0,   0},
+    { "LOADEWEAPONV",        1,   1,   0,   0},
+    { "ALLOCATEMEMR",        2,   0,   0,   0},
+    { "ALLOCATEMEMV",        2,   0,   1,   0},
+    { "ALLOCATEGMEMV",       2,   0,   1,   0},
+    { "DEALLOCATEMEMR",      1,   0,   0,   0},
+    { "DEALLOCATEMEMV",      1,   1,   0,   0},
+    { "WAITDRAW",			   0,   0,   0,   0},
+    { "ARCTANR",		       1,   0,   0,   0},
+    { "LWPNUSESPRITER",      1,   0,   0,   0},
+    { "LWPNUSESPRITEV",      1,   1,   0,   0},
+    { "EWPNUSESPRITER",      1,   0,   0,   0},
+    { "EWPNUSESPRITEV",      1,   1,   0,   0},
+    { "LOADITEMDATAR",       1,   0,   0,   0},
+    { "LOADITEMDATAV",       1,   1,   0,   0},
+    { "BITNOT",              1,   0,   0,   0},
+    { "LOG10",               1,   0,   0,   0},
+    { "LOGE",                1,   0,   0,   0},
+    { "ISSOLID",             1,   0,   0,   0},
+    { "LAYERSCREEN",         2,   0,   0,   0},
+    { "LAYERMAP",            2,   0,   0,   0},
+    { "TRACE2R",             1,   0,   0,   0},
+    { "TRACE2V",             1,   1,   0,   0},
+    { "TRACE4",              0,   0,   0,   0},
+    { "TRACE5",              0,   0,   0,   0},
+    { "SECRETS",			   0,   0,   0,   0},
+    { "DRAWCHAR",            0,   0,   0,   0},
+    { "GETSCREENFLAGS",      1,   0,   0,   0},
+    { "QUAD",                0,   0,   0,   0},
+    { "TRIANGLE",            0,   0,   0,   0},
+    { "ARCSINR",             2,   0,   0,   0},
+    { "ARCSINV",             2,   1,   0,   0},
+    { "ARCCOSR",             2,   0,   0,   0},
+    { "ARCCOSV",             2,   1,   0,   0},
+    { "GAMEEND",             0,   0,   0,   0},
+    { "DRAWINT",             0,   0,   0,   0},
+    { "SETTRUE",             1,   0,   0,   0},
+    { "SETFALSE",            1,   0,   0,   0},
+    { "SETMORE",             1,   0,   0,   0},
+    { "SETLESS",             1,   0,   0,   0},
+    { "FASTTILE",            0,   0,   0,   0},
+    { "FASTCOMBO",           0,   0,   0,   0},
+    { "DRAWSTRING",          0,   0,   0,   0},
+    { "SETSIDEWARP",         0,   0,   0,   0},
+    { "SAVE",                0,   0,   0,   0},
+    { "TRACE6",              0,   0,   0,   0},
+    { "DEPRECATED",	       1,   0,   0,   0},
+    { "QUAD3D",              0,   0,   0,   0},
+    { "TRIANGLE3D",          0,   0,   0,   0},
+    { "SETCOLORB",           0,   0,   0,   0},
+    { "SETDEPTHB",           0,   0,   0,   0},
+    { "GETCOLORB",           0,   0,   0,   0},
+    { "GETDEPTHB",           0,   0,   0,   0},
+    { "COMBOTILE",           2,   0,   0,   0},
+    { "SETTILEWARP",         0,   0,   0,   0},
+    { "GETSCREENEFLAGS",     1,   0,   0,   0},
+    { "GETSAVENAME",         1,   0,   0,   0},
+    { "ARRAYSIZE",           1,   0,   0,   0},
+    { "ITEMNAME",            1,   0,   0,   0},
+    { "SETSAVENAME",         1,   0,   0,   0},
+    { "NPCNAME",             1,   0,   0,   0},
+    { "GETMESSAGE",          2,   0,   0,   0},
+    { "GETDMAPNAME",         2,   0,   0,   0},
+    { "GETDMAPTITLE",        2,   0,   0,   0},
+    { "GETDMAPINTRO",        2,   0,   0,   0},
+    { "ALLOCATEGMEMR",       2,   0,   0,   0},
+    { "DRAWBITMAP",          0,   0,   0,   0},
+    { "SETRENDERTARGET",     0,   0,   0,   0},
+    { "PLAYENHMUSIC",        2,   0,   0,   0},
+    { "GETMUSICFILE",        2,   0,   0,   0},
+    { "GETMUSICTRACK",       1,   0,   0,   0},
+    { "SETDMAPENHMUSIC",     0,   0,   0,   0},
+    { "DRAWLAYER",           0,   0,   0,   0},
+    { "DRAWSCREEN",          0,   0,   0,   0},
+    { "BREAKSHIELD",         1,   0,   0,   0},
+    { "SAVESCREEN",          1,   0,   0,   0},
+    { "SAVEQUITSCREEN",      0,   0,   0,   0},
+    { "SELECTAWPNR",         1,   0,   0,   0},
+    { "SELECTAWPNV",         1,   1,   0,   0},
+    { "SELECTBWPNR",         1,   0,   0,   0},
+    { "SELECTBWPNV",         1,   1,   0,   0},
+    { "GETSIDEWARPDMAP",     1,   0,   0,   0},
+    { "GETSIDEWARPSCR",      1,   0,   0,   0},
+    { "GETSIDEWARPTYPE",     1,   0,   0,   0},
+    { "GETTILEWARPDMAP",     1,   0,   0,   0},
+    { "GETTILEWARPSCR",      1,   0,   0,   0},
+    { "GETTILEWARPTYPE",     1,   0,   0,   0},
+    { "GETFFCSCRIPT",        1,   0,   0,   0},
+    { "BITMAPEXR",          0,   0,   0,   0},
+    { "__RESERVED_FOR_QUAD2R",                0,   0,   0,   0},
+    { "WAVYIN",			   0,   0,   0,   0},
+    { "WAVYOUT",			   0,   0,   0,   0},
+    { "ZAPIN",			   0,   0,   0,   0},
+    { "ZAPOUT",			   0,   0,   0,   0},
+    { "OPENWIPE",			   0,   0,   0,   0},
+    { "FREE0x00F1",			   0,   0,   0, 0  },
+    { "FREE0x00F2",			   0,   0,   0, 0},  
+    { "FREE0x00F3",			   0,   0,   0,0},  
+    { "SETMESSAGE",          2,   0,   0,   0},
+    { "SETDMAPNAME",          2,   0,   0,   0},
+    { "SETDMAPTITLE",          2,   0,   0,   0},
+    { "SETDMAPINTRO",          2,   0,   0,   0},
+    { "GREYSCALEON",			   0,   0,   0,   0},
+    { "GREYSCALEOFF",			   0,   0,   0,   0},
+    { "ENDSOUNDR",          1,   0,   0,   0},
+    { "ENDSOUNDV",          1,   1,   0,   0},
+    { "PAUSESOUNDR",          1,   0,   0,   0},
+    { "PAUSESOUNDV",          1,   1,   0,   0},
+    { "RESUMESOUNDR",          1,   0,   0,   0},
+    { "RESUMESOUNDV",          1,   1,   0,   0},
+    { "PAUSEMUSIC",			   0,   0,   0,   0},
+    { "RESUMEMUSIC",			   0,   0,   0,   0},
+    { "LWPNARRPTR",                1,   0,   0,   0},
+    { "EWPNARRPTR",                1,   0,   0,   0},
+    { "EWPNARRPTR",                1,   0,   0,   0},
+    { "IDATAARRPTR",                1,   0,   0,   0},
+    { "FFCARRPTR",                1,   0,   0,   0},
+    { "BOOLARRPTR",                1,   0,   0,   0},
+    { "BOOLARRPTR",                1,   0,   0,   0},
+    { "LWPNARRPTR2",                1,   0,   0,   0},
+    { "EWPNARRPTR2",                1,   0,   0,   0},
+    { "ITEMARRPTR2",                1,   0,   0,   0},
+    { "IDATAARRPTR2",                1,   0,   0,   0},
+    { "FFCARRPTR2",                1,   0,   0,   0},
+    { "BOOLARRPTR2",                1,   0,   0,   0},
+    { "NPCARRPTR2",                1,   0,   0,   0},
+    { "ARRAYSIZEB",                1,   0,   0,   0},
+    { "ARRAYSIZEF",                1,   0,   0,   0},
+    { "ARRAYSIZEN",                1,   0,   0,   0},
+    { "ARRAYSIZEL",                1,   0,   0,   0},
+    { "ARRAYSIZEE",                1,   0,   0,   0},
+    { "ARRAYSIZEI",                1,   0,   0,   0},
+    { "ARRAYSIZEID",                1,   0,   0,   0},
+    { "POLYGONR",                0,   0,   0,   0},
+    { "__RESERVED_FOR_POLYGON3DR",                0,   0,   0,   0},
+    { "__RESERVED_FOR_SETRENDERSOURCE",                0,   0,   0,   0},
+    { "LINESARRAY",                0,   0,   0,   0},
+    { "PIXELARRAYR",                0,   0,   0,   0},
+    { "TILEARRAYR",                0,   0,   0,   0},
+    { "COMBOARRAYR",                0,   0,   0,   0},
+    { "RES0000",			   0,   0,   0,   0},
+    { "RES0001",			   0,   0,   0,   0},
+    { "RES0002",			   0,   0,   0,   0},
+    { "RES0003",			   0,   0,   0,   0},
+    { "RES0004",			   0,   0,   0,   0},
+    { "RES0005",			   0,   0,   0,   0},
+    { "RES0006",			   0,   0,   0,   0},
+    { "RES0007",			   0,   0,   0,   0},
+    { "RES0008",			   0,   0,   0,   0},
+    { "RES0009",			   0,   0,   0,   0},
+    { "RES000A",			   0,   0,   0,   0},
+    { "RES000B",			   0,   0,   0,   0},
+    { "RES000C",			   0,   0,   0,   0},
+    { "RES000D",			   0,   0,   0,   0},
+    { "RES000E",			   0,   0,   0,   0},
+    { "RES000F",			   0,   0,   0,   0},
+    { "__RESERVED_FOR_CREATELWPN2VV",          2,   1,   1,   0},
+    { "__RESERVED_FOR_CREATELWPN2VR",          2,   1,   0,   0},
+    { "__RESERVED_FOR_CREATELWPN2RV",          2,   0,   1,   0},
+    { "__RESERVED_FOR_CREATELWPN2RR",          2,   0,   0,   0},
+    { "GETSCREENDOOR",      1,   0,   0,   0},
+    { "GETSCREENENEMY",      1,   0,   0,   0},
+    { "PAUSESFX",         1,   0,   0,   0},
+    { "RESUMESFX",         1,   0,   0,   0},
+    { "CONTINUESFX",         1,   0,   0,   0},
+    { "ADJUSTSFX",         3,   0,   0,   0},
+    { "GETITEMSCRIPT",        1,   0,   0,   0},
+    { "GETSCREENLAYOP",      1,   0,   0,   0},
+	{ "GETSCREENSECCMB",      1,   0,   0,   0},
+	{ "GETSCREENSECCST",      1,   0,   0,   0},
+	{ "GETSCREENSECFLG",      1,   0,   0,   0},
+	{ "GETSCREENLAYMAP",      1,   0,   0,   0},
+	{ "GETSCREENLAYSCR",      1,   0,   0,   0},
+	{ "GETSCREENPATH",      1,   0,   0,   0},
+	{ "GETSCREENWARPRX",      1,   0,   0,   0},
+	{ "GETSCREENWARPRY",      1,   0,   0,   0},
+	{ "TRIGGERSECRETR",          1,   0,   0,   0},
+    { "TRIGGERSECRETV",          1,   1,   0,   0},
+    { "CHANGEFFSCRIPTR",          1,   0,   0,   0},
+    { "CHANGEFFSCRIPTV",          1,   1,   0,   0},
+    //NPCData
+    //one input, one return
+	{ "GETNPCDATAFLAGS",           2,   0,   0,   0},
+	{ "GETNPCDATAFLAGS2",           2,   0,   0,   0},
+	{ "GETNPCDATAWIDTH",           2,   0,   0,   0},
+	{ "GETNPCDATAHEIGHT",           2,   0,   0,   0},
+	{ "GETNPCDATASTILE",           2,   0,   0,   0},
+	{ "GETNPCDATASWIDTH",           2,   0,   0,   0},
+	{ "GETNPCDATASHEIGHT",           2,   0,   0,   0},
+	{ "GETNPCDATAETILE",           2,   0,   0,   0},
+	{ "GETNPCDATAEWIDTH",           2,   0,   0,   0},
+	{ "GETNPCDATAHP",           2,   0,   0,   0},
+	{ "GETNPCDATAFAMILY",           2,   0,   0,   0},
+	{ "GETNPCDATACSET",           2,   0,   0,   0},
+	{ "GETNPCDATAANIM",           2,   0,   0,   0},
+	{ "GETNPCDATAEANIM",           2,   0,   0,   0},
+	{ "GETNPCDATAFRAMERATE",           2,   0,   0,   0},
+	{ "GETNPCDATAEFRAMERATE",           2,   0,   0,   0},
+	{ "GETNPCDATATOUCHDMG",           2,   0,   0,   0},
+	{ "GETNPCDATAWPNDAMAGE",           2,   0,   0,   0},
+	{ "GETNPCDATAWEAPON",           2,   0,   0,   0},
+	{ "GETNPCDATARANDOM",           2,   0,   0,   0},
+	{ "GETNPCDATAHALT",           2,   0,   0,   0},
+	{ "GETNPCDATASTEP",           2,   0,   0,   0},
+	{ "GETNPCDATAHOMING",           2,   0,   0,   0},
+	{ "GETNPCDATAHUNGER",           2,   0,   0,   0},
+	{ "GETNPCDATADROPSET",           2,   0,   0,   0},
+	{ "GETNPCDATABGSFX",           2,   0,   0,   0},
+	{ "GETNPCDATADEATHSFX",           2,   0,   0,   0},
+	{ "GETNPCDATAXOFS",           2,   0,   0,   0},
+	{ "GETNPCDATAYOFS",           2,   0,   0,   0},
+	{ "GETNPCDATAZOFS",           2,   0,   0,   0},
+	{ "GETNPCDATAHXOFS",           2,   0,   0,   0},
+	{ "GETNPCDATAHYOFS",           2,   0,   0,   0},
+	{ "GETNPCDATAHITWIDTH",           2,   0,   0,   0},
+	{ "GETNPCDATAHITHEIGHT",           2,   0,   0,   0},
+	{ "GETNPCDATAHITZ",           2,   0,   0,   0},
+	{ "GETNPCDATATILEWIDTH",           2,   0,   0,   0},
+	{ "GETNPCDATATILEHEIGHT",           2,   0,   0,   0},
+	{ "GETNPCDATAWPNSPRITE",           2,   0,   0,   0},
+	//two inputs one return
+	{ "GETNPCDATASCRIPTDEF",             1,   0,   0,   0},
+	{ "GETNPCDATADEFENSE",             1,   0,   0,   0},
+	{ "GETNPCDATASIZEFLAG",             1,   0,   0,   0},
+	{ "GETNPCDATAATTRIBUTE",             1,   0,   0,   0},
+	//two inputs no return
+	{ "SETNPCDATAFLAGS",        2,   0,   0,   0},
+	{ "SETNPCDATAFLAGS2",        2,   0,   0,   0},
+	{ "SETNPCDATAWIDTH",        2,   0,   0,   0},
+	{ "SETNPCDATAHEIGHT",        2,   0,   0,   0},
+	{ "SETNPCDATASTILE",        2,   0,   0,   0},
+	{ "SETNPCDATASWIDTH",        2,   0,   0,   0},
+	{ "SETNPCDATASHEIGHT",        2,   0,   0,   0},
+	{ "SETNPCDATAETILE",        2,   0,   0,   0},
+	{ "SETNPCDATAEWIDTH",        2,   0,   0,   0},
+	{ "SETNPCDATAHP",        2,   0,   0,   0},
+	{ "SETNPCDATAFAMILY",        2,   0,   0,   0},
+	{ "SETNPCDATACSET",        2,   0,   0,   0},
+	{ "SETNPCDATAANIM",        2,   0,   0,   0},
+	{ "SETNPCDATAEANIM",        2,   0,   0,   0},
+	{ "SETNPCDATAFRAMERATE",        2,   0,   0,   0},
+	{ "SETNPCDATAEFRAMERATE",        2,   0,   0,   0},
+	{ "SETNPCDATATOUCHDMG",        2,   0,   0,   0},
+	{ "SETNPCDATAWPNDAMAGE",        2,   0,   0,   0},
+	{ "SETNPCDATAWEAPON",        2,   0,   0,   0},
+	{ "SETNPCDATARANDOM",        2,   0,   0,   0},
+	{ "SETNPCDATAHALT",        2,   0,   0,   0},
+	{ "SETNPCDATASTEP",        2,   0,   0,   0},
+	{ "SETNPCDATAHOMING",        2,   0,   0,   0},
+	{ "SETNPCDATAHUNGER",        2,   0,   0,   0},
+	{ "SETNPCDATADROPSET",        2,   0,   0,   0},
+	{ "SETNPCDATABGSFX",        2,   0,   0,   0},
+	{ "SETNPCDATADEATHSFX",        2,   0,   0,   0},
+	{ "SETNPCDATAXOFS",        2,   0,   0,   0},
+	{ "SETNPCDATAYOFS",        2,   0,   0,   0},
+	{ "SETNPCDATAZOFS",        2,   0,   0,   0},
+	{ "SETNPCDATAHXOFS",        2,   0,   0,   0},
+	{ "SETNPCDATAHYOFS",        2,   0,   0,   0},
+	{ "SETNPCDATAHITWIDTH",        2,   0,   0,   0},
+	{ "SETNPCDATAHITHEIGHT",        2,   0,   0,   0},
+	{ "SETNPCDATAHITZ",        2,   0,   0,   0},
+	{ "SETNPCDATATILEWIDTH",        2,   0,   0,   0},
+	{ "SETNPCDATATILEHEIGHT",        2,   0,   0,   0},
+	{ "SETNPCDATAWPNSPRITE",        2,   0,   0,   0},
+	{ "SETNPCDATAHITSFX",        2,   0,   0,   0},
+	{ "GETNPCDATAHITSFX",        2,   0,   0,   0},
+	//Combodata, one input no return
+	{ "GCDBLOCKENEM",           2,   0,   0,   0},
+	{ "GCDBLOCKHOLE",           2,   0,   0,   0},
+	{ "GCDBLOCKTRIG",           2,   0,   0,   0},
+	{ "GCDCONVEYSPDX",           2,   0,   0,   0},
+	{ "GCDCONVEYSPDY",           2,   0,   0,   0},
+	{ "GCDCREATEENEM",           2,   0,   0,   0},  
+	{ "GCDCREATEENEMWH",           2,   0,   0,   0},  
+	{ "GCDCREATEENEMCH",           2,   0,   0,   0},  
+	{ "GCDDIRCHTYPE",           2,   0,   0,   0},  
+	{ "GCDDISTCHTILES",           2,   0,   0,   0},  
+	{ "GCDDIVEITEM",           2,   0,   0,   0},  
+	{ "GCDDOCK",           2,   0,   0,   0},  
+	{ "GCDFAIRY",           2,   0,   0,   0},  
+	{ "GCDFFCOMBOATTRIB",           2,   0,   0,   0},  
+	{ "GCDFOOTDECOTILE",           2,   0,   0,   0},  
+	{ "GCDFOOTDECOTYPE",           2,   0,   0,   0},  
+	{ "GCDHOOKSHOTGRAB",           2,   0,   0,   0},  
+	{ "GCDLADDERPASS",           2,   0,   0,   0},  
+	{ "GCDLOCKBLOCKTYPE",           2,   0,   0,   0},  
+	{ "GCDLOCKBLOCKCHANGE",           2,   0,   0,   0},  
+	{ "GCDMAGICMIRRORTYPE",           2,   0,   0,   0},  
+	{ "GCDMODIFYHPAMOUNT",           2,   0,   0,   0},  
+	{ "GCDMODIFYHPDELAY",           2,   0,   0,   0},  
+	{ "GCDMODIFYHPTYPE",           2,   0,   0,   0},  
+	{ "GCDMODIFYMPAMOUNT",           2,   0,   0,   0},  
+	{ "GCDMODIFYMPDELAY",           2,   0,   0,   0},  
+	{ "GCDMODIFYMPTYPE",           2,   0,   0,   0},  
+	{ "GCDNOPUSHBLOCKS",           2,   0,   0,   0},  
+	{ "GCDOVERHEAD",           2,   0,   0,   0},  
+	{ "GCDPLACEENEMY",           2,   0,   0,   0},  
+	{ "GCDPUSHDIR",           2,   0,   0,   0},  
+	{ "GCDPUSHWEIGHT",           2,   0,   0,   0},  
+	{ "GCDPUSHWAIT",           2,   0,   0,   0},  
+	{ "GCDPUSHED",           2,   0,   0,   0},  
+	{ "GCDRAFT",           2,   0,   0,   0},  
+	{ "GCDRESETROOM",           2,   0,   0,   0},  
+	{ "GCDSAVEPOINT",           2,   0,   0,   0},  
+	{ "GCDSCREENFREEZE",           2,   0,   0,   0},  
+	{ "GCDSECRETCOMBO",           2,   0,   0,   0},  
+	{ "GCDSINGULAR",           2,   0,   0,   0},  
+	{ "GCDSLOWMOVE",           2,   0,   0,   0},  
+	{ "GCDSTATUE",           2,   0,   0,   0},  
+	{ "GCDSTEPTYPE",           2,   0,   0,   0},  
+	{ "GCDSTEPCHANGETO",           2,   0,   0,   0},  
+	{ "GCDSTRIKEREMNANTS",           2,   0,   0,   0},  
+	{ "GCDSTRIKEREMNANTSTYPE",           2,   0,   0,   0},  
+	{ "GCDSTRIKECHANGE",           2,   0,   0,   0},  
+	{ "GCDSTRIKECHANGEITEM",           2,   0,   0,   0},  
+	{ "GCDTOUCHITEM",           2,   0,   0,   0},  
+	{ "GCDTOUCHSTAIRS",           2,   0,   0,   0},  
+	{ "GCDTRIGGERTYPE",           2,   0,   0,   0},  
+	{ "GCDTRIGGERSENS",           2,   0,   0,   0},  
+	{ "GCDWARPTYPE",           2,   0,   0,   0},  
+	{ "GCDWARPSENS",           2,   0,   0,   0},  
+	{ "GCDWARPDIRECT",           2,   0,   0,   0},  
+	{ "GCDWARPLOCATION",           2,   0,   0,   0},  
+	{ "GCDWATER",           2,   0,   0,   0},  
+	{ "GCDWHISTLE",           2,   0,   0,   0},  
+	{ "GCDWINGAME",           2,   0,   0,   0},  
+	{ "GCDBLOCKWEAPLVL",           2,   0,   0,   0},  
+	{ "GCDTILE",           2,   0,   0,   0},  
+	{ "GCDFLIP",           2,   0,   0,   0},  
+	{ "GCDWALK",           2,   0,   0,   0},  
+	{ "GCDTYPE",           2,   0,   0,   0},  
+	{ "GCDCSETS",           2,   0,   0,   0},  
+	{ "GCDFOO",           2,   0,   0,   0},  
+	{ "GCDFRAMES",           2,   0,   0,   0},  
+	{ "GCDSPEED",           2,   0,   0,   0},  
+	{ "GCDNEXTCOMBO",           2,   0,   0,   0},  
+	{ "GCDNEXTCSET",           2,   0,   0,   0},  
+	{ "GCDFLAG",           2,   0,   0,   0},  
+	{ "GCDSKIPANIM",           2,   0,   0,   0},  
+	{ "GCDNEXTTIMER",           2,   0,   0,   0},  
+	{ "GCDSKIPANIMY",           2,   0,   0,   0},  
+	{ "GCDANIMFLAGS",           2,   0,   0,   0},  
+	//combodata two input, one return
+	{ "GCDBLOCKWEAPON",             1,   0,   0,   0},
+	{ "GCDEXPANSION",             1,   0,   0,   0},
+	{ "GCDSTRIKEWEAPONS",             1,   0,   0,   0},
+	//combodata two input, one return
+	{ "SCDBLOCKENEM",           2,   0,   0,   0},
+	{ "SCDBLOCKHOLE",           2,   0,   0,   0},
+	{ "SCDBLOCKTRIG",           2,   0,   0,   0},
+	{ "SCDCONVEYSPDX",           2,   0,   0,   0},
+	{ "SCDCONVEYSPDY",           2,   0,   0,   0},
+	{ "SCDCREATEENEM",           2,   0,   0,   0},  
+	{ "SCDCREATEENEMWH",           2,   0,   0,   0},  
+	{ "SCDCREATEENEMCH",           2,   0,   0,   0},  
+	{ "SCDDIRCHTYPE",           2,   0,   0,   0},  
+	{ "SCDDISTCHTILES",           2,   0,   0,   0},  
+	{ "SCDDIVEITEM",           2,   0,   0,   0},  
+	{ "SCDDOCK",           2,   0,   0,   0},  
+	{ "SCDFAIRY",           2,   0,   0,   0},  
+	{ "SCDFFCOMBOATTRIB",           2,   0,   0,   0},  
+	{ "SCDFOOTDECOTILE",           2,   0,   0,   0},  
+	{ "SCDFOOTDECOTYPE",           2,   0,   0,   0},  
+	{ "SCDHOOKSHOTGRAB",           2,   0,   0,   0},  
+	{ "SCDLADDERPASS",           2,   0,   0,   0},  
+	{ "SCDLOCKBLOCKTYPE",           2,   0,   0,   0},  
+	{ "SCDLOCKBLOCKCHANGE",           2,   0,   0,   0},  
+	{ "SCDMAGICMIRRORTYPE",           2,   0,   0,   0},  
+	{ "SCDMODIFYHPAMOUNT",           2,   0,   0,   0},  
+	{ "SCDMODIFYHPDELAY",           2,   0,   0,   0},  
+	{ "SCDMODIFYHPTYPE",           2,   0,   0,   0},  
+	{ "SCDMODIFYMPAMOUNT",           2,   0,   0,   0},  
+	{ "SCDMODIFYMPDELAY",           2,   0,   0,   0},  
+	{ "SCDMODIFYMPTYPE",           2,   0,   0,   0},  
+	{ "SCDNOPUSHBLOCKS",           2,   0,   0,   0},  
+	{ "SCDOVERHEAD",           2,   0,   0,   0},  
+	{ "SCDPLACEENEMY",           2,   0,   0,   0},  
+	{ "SCDPUSHDIR",           2,   0,   0,   0},  
+	{ "SCDPUSHWEIGHT",           2,   0,   0,   0},  
+	{ "SCDPUSHWAIT",           2,   0,   0,   0},  
+	{ "SCDPUSHED",           2,   0,   0,   0},  
+	{ "SCDRAFT",           2,   0,   0,   0},  
+	{ "SCDRESETROOM",           2,   0,   0,   0},  
+	{ "SCDSAVEPOINT",           2,   0,   0,   0},  
+	{ "SCDSCREENFREEZE",           2,   0,   0,   0},  
+	{ "SCDSECRETCOMBO",           2,   0,   0,   0},  
+	{ "SCDSINGULAR",           2,   0,   0,   0},  
+	{ "SCDSLOWMOVE",           2,   0,   0,   0},  
+	{ "SCDSTATUE",           2,   0,   0,   0},  
+	{ "SCDSTEPTYPE",           2,   0,   0,   0},  
+	{ "SCDSTEPCHANGETO",           2,   0,   0,   0},  
+	{ "SCDSTRIKEREMNANTS",           2,   0,   0,   0},  
+	{ "SCDSTRIKEREMNANTSTYPE",           2,   0,   0,   0},  
+	{ "SCDSTRIKECHANGE",           2,   0,   0,   0},  
+	{ "SCDSTRIKECHANGEITEM",           2,   0,   0,   0},  
+	{ "SCDTOUCHITEM",           2,   0,   0,   0},  
+	{ "SCDTOUCHSTAIRS",           2,   0,   0,   0},  
+	{ "SCDTRIGGERTYPE",           2,   0,   0,   0},  
+	{ "SCDTRIGGERSENS",           2,   0,   0,   0},  
+	{ "SCDWARPTYPE",           2,   0,   0,   0},  
+	{ "SCDWARPSENS",           2,   0,   0,   0},  
+	{ "SCDWARPDIRECT",           2,   0,   0,   0},  
+	{ "SCDWARPLOCATION",           2,   0,   0,   0},  
+	{ "SCDWATER",           2,   0,   0,   0},  
+	{ "SCDWHISTLE",           2,   0,   0,   0},  
+	{ "SCDWINGAME",           2,   0,   0,   0},  
+	{ "SCDBLOCKWEAPLVL",           2,   0,   0,   0},  
+	{ "SCDTILE",           2,   0,   0,   0},  
+	{ "SCDFLIP",           2,   0,   0,   0},  
+	{ "SCDWALK",           2,   0,   0,   0},  
+	{ "SCDTYPE",           2,   0,   0,   0},  
+	{ "SCDCSETS",           2,   0,   0,   0},  
+	{ "SCDFOO",           2,   0,   0,   0},  
+	{ "SCDFRAMES",           2,   0,   0,   0},  
+	{ "SCDSPEED",           2,   0,   0,   0},  
+	{ "SCDNEXTCOMBO",           2,   0,   0,   0},  
+	{ "SCDNEXTCSET",           2,   0,   0,   0},  
+	{ "SCDFLAG",           2,   0,   0,   0},  
+	{ "SCDSKIPANIM",           2,   0,   0,   0},  
+	{ "SCDNEXTTIMER",           2,   0,   0,   0},  
+	{ "SCDSKIPANIMY",           2,   0,   0,   0},  
+	{ "SCDANIMFLAGS",           2,   0,   0,   0},  
+	{ "GETNPCDATATILE",           2,   0,   0,   0},
+	{ "GETNPCDATAEHEIGHT",           2,   0,   0,   0},
+	{ "SETNPCDATATILE",        2,   0,   0,   0},
+	{ "SETNPCDATAEHEIGHT",        2,   0,   0,   0},
+	{ "GETSPRITEDATASTRING",        2,   0,   0,   0},
+	//SpriteData
+	{ "GETSPRITEDATATILE",           2,   0,   0,   0},  
+	{ "GETSPRITEDATAMISC",           2,   0,   0,   0},  
+	{ "GETSPRITEDATACGETS",           2,   0,   0,   0},  
+	{ "GETSPRITEDATAFRAMES",           2,   0,   0,   0},  
+	{ "GETSPRITEDATASPEED",           2,   0,   0,   0},  
+	{ "GETSPRITEDATATYPE",           2,   0,   0,   0},  
+	{ "SETSPRITEDATASTRING",           2,   0,   0,   0},  
+	{ "SETSPRITEDATATILE",           2,   0,   0,   0},  
+	{ "SETSPRITEDATAMISC",           2,   0,   0,   0},  
+	{ "SETSPRITEDATACSETS",           2,   0,   0,   0},  
+	{ "SETSPRITEDATAFRAMES",           2,   0,   0,   0},  
+	{ "SETSPRITEDATASPEED",           2,   0,   0,   0},  
+	{ "SETSPRITEDATATYPE",           2,   0,   0,   0},  
+	//Game->SetContinueScreenSetting
+	{ "SETCONTINUESCREEN",           2,   0,   0,   0}, 
+	//Game->SetContinueScreenString
+	{ "SETCONTINUESTRING",           2,   0,   0,   0}, 
+	
+	{ "LOADNPCDATAR",       1,   0,   0,   0},
+    { "LOADNPCDATAV",       1,   1,   0,   0},
+    
+    { "LOADCOMBODATAR",       1,   0,   0,   0},
+    { "LOADCOMBODATAV",       1,   1,   0,   0},
+    
+    { "LOADMAPDATAR",       1,   0,   0,   0},
+    { "LOADMAPDATAV",       1,   1,   0,   0},
+    
+    { "LOADSPRITEDATAR",       1,   0,   0,   0},
+    { "LOADSPRITEDATAV",       1,   1,   0,   0},
+   
+    { "LOADSCREENDATAR",       1,   0,   0,   0},
+    { "LOADSCREENDATAV",       1,   1,   0,   0},
+
+    { "LOADBITMAPDATAR",       1,   0,   0,   0},
+    { "LOADBITMAPDATAV",       1,   1,   0,   0},
+    
+    { "LOADSHOPR",       1,   0,   0,   0},
+    { "LOADSHOPV",       1,   1,   0,   0},
+
+    { "LOADINFOSHOPR",       1,   0,   0,   0},
+    { "LOADINFOSHOPV",       1,   1,   0,   0},
+    
+    { "LOADMESSAGEDATAR",       1,   0,   0,   0},
+    { "LOADMESSAGEDATAV",       1,   1,   0,   0},
+    { "MESSAGEDATASETSTRINGR",       1,   0,   0,   0},
+    { "MESSAGEDATASETSTRINGV",       1,   1,   0,   0},
+    { "MESSAGEDATAGETSTRINGR",       1,   0,   0,   0},
+    { "MESSAGEDATAGETSTRINGV",       1,   1,   0,   0},
+    
+    { "LOADDMAPDATAR",       1,   0,   0,   0},
+    { "LOADDMAPDATAV",       1,   1,   0,   0},
+    { "DMAPDATAGETNAMER",       1,   0,   0,   0},
+    { "DMAPDATAGETNAMEV",       1,   1,   0,   0},
+    { "DMAPDATASETNAMER",       1,   0,   0,   0},
+    { "DMAPDATASETNAMEV",       1,   1,   0,   0},
+    { "DMAPDATAGETTITLER",       1,   0,   0,   0},
+    { "DMAPDATAGETTITLEV",       1,   1,   0,   0},
+    { "DMAPDATASETTITLER",       1,   0,   0,   0},
+    { "DMAPDATASETTITLEV",       1,   1,   0,   0},
+    
+    { "DMAPDATAGETINTROR",       1,   0,   0,   0},
+    { "DMAPDATAGETINTROV",       1,   1,   0,   0},
+    { "DMAPDATANSETITROR",       1,   0,   0,   0},
+    { "DMAPDATASETINTROV",       1,   1,   0,   0},
+    { "DMAPDATAGETMUSICR",       1,   0,   0,   0},
+    { "DMAPDATAGETMUSICV",       1,   1,   0,   0},
+    { "DMAPDATASETMUSICR",       1,   0,   0,   0},
+    { "DMAPDATASETMUSICV",       1,   1,   0,   0},
+    
+    { "ADJUSTSFXVOLUMER",          1,   0,   0,   0},
+    { "ADJUSTSFXVOLUMEV",          1,   1,   0,   0},
+    
+    { "ADJUSTVOLUMER",          1,   0,   0,   0},
+    { "ADJUSTVOLUMEV",          1,   1,   0,   0},
+    
+    { "FXWAVYR",             1,   0,   0,   0},
+    { "FXWAVYV",             1,   1,   0,   0},
+    
+    { "FXZAPR",             1,   0,   0,   0},
+    { "FXZAPV",             1,   1,   0,   0},
+    
+    { "GREYSCALER",             1,   0,   0,   0},
+    { "GREYSCALEV",             1,   1,   0,   0},
+    { "RETURN",			0,	0,	0,	0},
+    { "MONOCHROMER",             1,   0,   0,   0},
+    { "MONOCHROMEV",             1,   1,   0,   0},
+    { "CLEARTINT",              0,   0,   0,   0},
+    { "TINT",         0,   0,   0,   0},
+    { "MONOHUE",         0,   0,   0,   0},
+    
+     { "BMPRECTR",                0,   0,   0,   0},
+     { "BMPCIRCLER",                0,   0,   0,   0},
+     { "BMPARCR",                0,   0,   0,   0},
+     { "BMPELLIPSER",                0,   0,   0,   0},
+     { "BMPLINER",                0,   0,   0,   0},
+     { "BMPSPLINER",                0,   0,   0,   0},
+     { "BMPPUTPIXELR",                0,   0,   0,   0},
+     { "BMPDRAWTILER",                0,   0,   0,   0},
+     { "BMPDRAWCOMBOR",                0,   0,   0,   0},
+     { "BMPFASTTILER",                0,   0,   0,   0},
+     { "BMPFASTCOMBOR",                0,   0,   0,   0},
+     { "BMPDRAWCHARR",                0,   0,   0,   0},
+     { "BMPDRAWINTR",                0,   0,   0,   0},
+     { "BMPDRAWSTRINGR",                0,   0,   0,   0},
+     { "BMPQUADR",                0,   0,   0,   0},
+     { "BMPQUAD3DR",                0,   0,   0,   0},
+     { "BMPTRIANGLER",                0,   0,   0,   0},
+     { "BMPTRIANGLE3DR",                0,   0,   0,   0},
+     { "BMPPOLYGONR",                0,   0,   0,   0},
+     { "BMPDRAWLAYERR",                0,   0,   0,   0},
+     { "BMPDRAWSCREENR",                0,   0,   0,   0},
+     { "BMPBLIT",                0,   0,   0,   0},
+     
+     { "LINKWARPEXR",             1,   0,   0,   0},
+     { "LINKWARPEXV",             1,   1,   0,   0},
+     { "LINKEXPLODER",             1,   0,   0,   0},
+     { "LINKEXPLODEV",             1,   1,   0,   0},
+     { "NPCEXPLODER",             1,   0,   0,   0},
+     { "NPCEXPLODEV",             1,   1,   0,   0},
+     
+     { "ITEMEXPLODER",             1,   0,   0,   0},
+     { "ITEMEXPLODEV",             1,   1,   0,   0},
+     { "LWEAPONEXPLODER",             1,   0,   0,   0},
+     { "LWEAPONEXPLODEV",             1,   1,   0,   0},
+     { "EWEAPONEXPLODER",             1,   0,   0,   0},
+     { "EWEAPONEXPLODEV",             1,   1,   0,   0},
+     { "RUNITEMSCRIPT",			   0,   0,   0,   0},
+     { "GETRTCTIMER",             1,   0,   0,   0},
+     { "GETRTCTIMEV",             1,   1,   0,   0},
+     
+     //new npc functions for npc scripts
+      { "NPCDEAD",                1,   0,   0,   0},
+      { "NPCKICKBUCKET",                0,   0,   0,   0},
+      { "NPCSTOPBGSFX",                0,   0,   0,   0},
+      { "NPCCANMOVE",                1,   0,   0,   0},
+      { "NPCNEWDIR8",                0,   0,   0,   0},
+      { "NPCNEWDIR",                0,   0,   0,   0},
+      { "NPCCONSTWALK",                0,   0,   0,   0},
+      { "NPCCONSTWALK8",                0,   0,   0,   0},
+      { "NPCVARWALK",                0,   0,   0,   0},
+      { "NPCVARWALK8",                0,   0,   0,   0},
+      { "NPCHALTWALK",                0,   0,   0,   0},
+      { "NPCHALTWALK8",                0,   0,   0,   0},
+      { "NPCFLOATWALK",                0,   0,   0,   0},
+      // moved to a var: { "NPCLINEDUP",                0,   0,   0,   0},
+      { "NPCLINKINRANGE",                1,   0,   0,   0},
+      { "NPCATTACK",                0,   0,   0,   0},
+      { "NPCPLACEONAXIS",                0,   0,   0,   0},
+      { "NPCADD",                1,   0,   0,   0},
+      { "NPCFIREBREATH",                0,   0,   0,   0},
+      { "NPCCANSLIDE",                1,   0,   0,   0},
+      { "NPCSLIDE",                1,   0,   0,   0},
+      { "NPCHITWITH",                1,   0,   0,   0},
+      { "NPCGETINITDLABEL",                0,   0,   0,   0},
+      // moved to a var: { "NPCCOLLISION",                0,   0,   0,   0}, //how to implement this?
+      { "GAMECONTINUE",             0,   0,   0,   0},
+      { "MAPDATAISSOLID",             1,   0,   0,   0},
+      { "SHOWF6SCREEN",             0,   0,   0,   0},
+      { "NPCDATAGETNAME",             1,   0,   0,   0},
+      { "PLAYENHMUSICEX",        2,   0,   0,   0},
+      { "GETENHMUSICPOS",          1,   0,   0,   0},
+      { "SETENHMUSICPOS",        1,   0,   0,   0},
+      { "SETENHMUSICSPEED",        1,   0,   0,   0},
+      { "ISVALIDBITMAP",         1,   0,   0,   0},
+      { "READBITMAP",        0,   0,   0,   0},
+      { "WRITEBITMAP",        0,   0,   0,   0},
+      { "ALLOCATEBITMAP",        1,   0,   0,   0},
+      { "CLEARBITMAP",        0,   0,   0,   0},
+      { "REGENERATEBITMAP",        0,   0,   0,   0},
+      { "BMPBLITTO",                0,   0,   0,   0},
+      
+      { "BMPDRAWSCREENSOLIDR",                0,   0,   0,   0},
+      { "BMPDRAWSCREENCOMBOFR",                0,   0,   0,   0},
+      { "BMPDRAWSCREENCOMBOIR",                0,   0,   0,   0},
+      { "BMPDRAWSCREENCOMBOTR",                0,   0,   0,   0},
+      { "BMPDRAWSCREENSOLID2R",                0,   0,   0,   0},
+      { "GRAPHICSGETPIXEL",     1,   0,   0,   0},
+      
+      { "BMPDRAWLAYERSOLIDR",     0,   0,   0,   0},
+      { "BMPDRAWLAYERCFLAGR",     0,   0,   0,   0},
+      { "BMPDRAWLAYERCTYPER",     0,   0,   0,   0},
+      { "BMPDRAWLAYERCIFLAGR",     0,   0,   0,   0},
+      { "BMPDRAWLAYERSOLIDITYR",     0,   0,   0,   0},
+      { "BMPMODE7",     0,   0,   0,   0},
+      { "BITMAPGETPIXEL",     0,   0,   0,   0},
+      { "NOP",                 0,   0,   0,   0},
+      { "STRINGCOMPARE",		       1,   0,   0,   0},
+      { "STRINGNCOMPARE",		       1,   0,   0,   0},
+      { "STRINGLENGTH",                2,   0,   0,   0},
+      { "STRINGCOPY",          2,   0,   0,   0},
+      { "CASTBOOLI",          1,   0,   0,   0},
+      { "CASTBOOLF",          1,   0,   0,   0},
+    { "SETTRUEI",             1,   0,   0,   0},
+    { "SETFALSEI",            1,   0,   0,   0},
+    { "SETMOREI",             1,   0,   0,   0},
+    { "SETLESSI",             1,   0,   0,   0},
+    
+    { "ARRAYCOPY",          2,   0,   0,   0},
+    { "ARRAYNCOPY",		       1,   0,   0,   0},
+    
+    //1 INPUT, NO RETURN 
+     { "REMCHR",                2,   0,   0,   0},
+     { "STRINGUPPERLOWER",                2,   0,   0,   0},
+     { "STRINGLOWERUPPER",                2,   0,   0,   0},
+     { "STRINGCONVERTCASE",                2,   0,   0,   0},
+     
+    //1 input, 1 ret
+    { "XLEN",                2,   0,   0,   0},
+    { "XTOI",                2,   0,   0,   0},
+    { "ILEN",                2,   0,   0,   0},
+    { "ATOI",                2,   0,   0,   0},
+   
+    //2 INPUT, 1 RET, based on strcmp
+    { "STRCSPN",                1,   0,   0,   0},
+    { "STRSTR",                1,   0,   0,   0},
+    { "XTOA",                1,   0,   0,   0},
+    { "ITOA",                1,   0,   0,   0},
+    { "STRCAT",                1,   0,   0,   0},
+    { "STRSPN",                1,   0,   0,   0},
+    { "STRCHR",                1,   0,   0,   0},
+    { "STRRCHR",                1,   0,   0,   0},
+    //2 INP, 1 RET OVERLOADS
+    { "XLEN2",                1,   0,   0,   0},
+    { "XTOI2",                1,   0,   0,   0},
+    { "ILEN2",                1,   0,   0,   0},
+    { "ATOI2",                1,   0,   0,   0},
+    { "REMCHR2",                1,   0,   0,   0},
+    
+    //3 INPUT 1 RET 
+    { "XTOA3",		       1,   0,   0,   0},
+    { "STRCATF",		       1,   0,   0,   0},
+    { "ITOA3",		       1,   0,   0,   0},
+    { "STRSTR3",		       1,   0,   0,   0},
+    { "REMNCHR3",		       1,   0,   0,   0},
+    { "STRCAT3",		       1,   0,   0,   0},
+    { "STRNCAT3",		       1,   0,   0,   0},
+    { "STRCHR3",		       1,   0,   0,   0},
+    { "STRRCHR3",		       1,   0,   0,   0},
+    { "STRSPN3",		       1,   0,   0,   0},
+    { "STRCSPN3",		       1,   0,   0,   0},
+    
+    
+    { "UPPERTOLOWER",                2,   0,   0,   0},
+    { "LOWERTOUPPER",                2,   0,   0,   0},
+    { "CONVERTCASE",                2,   0,   0,   0},
+    //Game->Get
+    { "GETNPCSCRIPT",                1,   0,   0,   0},
+    { "GETLWEAPONSCRIPT",                1,   0,   0,   0},
+    { "GETEWEAPONSCRIPT",                1,   0,   0,   0},
+    { "GETHEROSCRIPT",                1,   0,   0,   0},
+    { "GETGLOBALSCRIPT",                1,   0,   0,   0},
+    { "GETDMAPSCRIPT",                1,   0,   0,   0},
+    { "GETSCREENSCRIPT",                1,   0,   0,   0},
+    { "GETSPRITESCRIPT",                1,   0,   0,   0},
+    { "GETUNTYPEDSCRIPT",                1,   0,   0,   0},
+    { "GETSUBSCREENSCRIPT",                1,   0,   0,   0},
+    { "GETNPCBYNAME",                1,  0,   0,   0},
+    { "GETITEMBYNAME",                1,   0,   0,   0},
+    { "GETCOMBOBYNAME",                1,   0,   0,   0},
+    { "GETDMAPBYNAME",                1,   0,   0,   0},
+	
+    { "SRNDR",                1,   0,   0,   0},
+    { "SRNDV",                1,   1,   0,   0},
+    { "SRNDRND",              1,   0,   0,   0},
+	{ "SAVEGAMESTRUCTS",                2,   0,   0,   0},
+	{ "READGAMESTRUCTS",                2,   0,   0,   0},
+    { "ANDR32",                2,   0,   0,   0},
+    { "ANDV32",                2,   0,   1,   0},
+    { "ORR32",                 2,   0,   0,   0},
+    { "ORV32",                 2,   0,   1,   0},
+    { "XORR32",                2,   0,   0,   0},
+    { "XORV32",                2,   0,   1,   0},
+    { "BITNOT32",                 1,   0,   0,   0},
+    { "LSHIFTR32",             2,   0,   0,   0},
+    { "LSHIFTV32",             2,   0,   1,   0},
+    { "RSHIFTR32",             2,   0,   0,   0},
+    { "RSHIFTV32",             2,   0,   1,   0},
+    { "ISALLOCATEDBITMAP",         1,   0,   0,   0},
+    { "FONTHEIGHTR",            1,   0,   0,   0},
+    { "STRINGWIDTHR",           2,   0,   0,   0},
+    { "CHARWIDTHR",             2,   0,   0,   0},
+    { "MESSAGEWIDTHR",          1,   0,   0,   0},
+    { "MESSAGEHEIGHTR",         1,   0,   0,   0},
+    { "ISVALIDARRAY",         1,   0,   0,   0},
+    { "DIREXISTS",         1,   0,   0,   0},
+    { "GAMESAVEQUIT",         0,   0,   0,   0},
+    { "GAMESAVECONTINUE",         0,   0,   0,   0},
+    { "DRAWTILECLOAKEDR",                0,   0,   0,   0},
+    { "BMPDRAWTILECLOAKEDR",                0,   0,   0,   0},
+    { "DRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+    { "BMPDRAWCOMBOCLOAKEDR",                0,   0,   0,   0},
+    { "NPCKNOCKBACK",                2,   0,   0,   0},
+    { "CLOSEWIPE",                0,   0,   0,   0},
+    { "OPENWIPESHAPE",                1,   0,   0,   0},
+    { "CLOSEWIPESHAPE",                1,   0,   0,   0},
+    { "FILEEXISTS",                1,   0,   0,   0},
+    { "BITMAPCLEARTOCOLOR",                0,   0,   0,   0},
+    { "",                    0,   0,   0,   0}
+};
+
+
+script_variable ZASMVars[]=
+{
+    //name                id                maxcount       multiple
+    { "D",                 D(0),                 8,             0 },
+    { "A",                 A(0),                 2,             0 },
+    { "DATA",              DATA,                 0,             0 },
+    { "CSET",              FCSET,                0,             0 },
+    { "DELAY",             DELAY,                0,             0 },
+    { "X",                 FX,                   0,             0 },
+    { "Y",                 FY,                   0,             0 },
+    { "XD",                XD,                   0,             0 },
+    { "YD",                YD,                   0,             0 },
+    { "XD2",               XD2,                  0,             0 },
+    { "YD2",               YD2,                  0,             0 },
+    { "FLAG",              FLAG,                 0,             0 },
+    { "WIDTH",             WIDTH,                0,             0 },
+    { "HEIGHT",            HEIGHT,               0,             0 },
+    { "LINK",              LINK,                 0,             0 },
+    { "FFFLAGSD",          FFFLAGSD,             0,             0 },
+    { "FFCWIDTH",          FFCWIDTH,             0,             0 },
+    { "FFCHEIGHT",         FFCHEIGHT,            0,             0 },
+    { "FFTWIDTH",          FFTWIDTH,             0,             0 },
+    { "FFTHEIGHT",         FFTHEIGHT,            0,             0 },
+    { "FFLINK",            FFLINK,               0,             0 },
+    //{ "COMBOD",            COMBOD(0),          176,             3 },
+    //{ "COMBOC",            COMBOC(0),          176,             3 },
+    //{ "COMBOF",            COMBOF(0),          176,             3 },
+    { "INPUTSTART",        INPUTSTART,           0,             0 },
+    { "INPUTUP",           INPUTUP,              0,             0 },
+    { "INPUTDOWN",         INPUTDOWN,            0,             0 },
+    { "INPUTLEFT",         INPUTLEFT,            0,             0 },
+    { "INPUTRIGHT",        INPUTRIGHT,           0,             0 },
+    { "INPUTA",            INPUTA,               0,             0 },
+    { "INPUTB",            INPUTB,               0,             0 },
+    { "INPUTL",            INPUTL,               0,             0 },
+    { "INPUTR",            INPUTR,               0,             0 },
+    { "INPUTMOUSEX",       INPUTMOUSEX,          0,             0 },
+    { "INPUTMOUSEY",       INPUTMOUSEY,          0,             0 },
+    { "LINKX",             LINKX,                0,             0 },
+    { "LINKY",             LINKY,                0,             0 },
+    { "LINKZ",             LINKZ,                0,             0 },
+    { "LINKJUMP",          LINKJUMP,             0,             0 },
+    { "LINKDIR",           LINKDIR,              0,             0 },
+    { "LINKHITDIR",        LINKHITDIR,           0,             0 },
+    { "LINKHP",            LINKHP,               0,             0 },
+    { "LINKMP",            LINKMP,               0,             0 },
+    { "LINKMAXHP",         LINKMAXHP,            0,             0 },
+    { "LINKMAXMP",         LINKMAXMP,            0,             0 },
+    { "LINKACTION",        LINKACTION,           0,             0 },
+    { "LINKHELD",          LINKHELD,             0,             0 },
+    { "LINKITEMD",         LINKITEMD,            0,             0 },
+    { "LINKSWORDJINX",     LINKSWORDJINX,        0,             0 },
+    { "LINKITEMJINX",      LINKITEMJINX,         0,             0 },
+    { "LINKDRUNK",         LINKDRUNK,            0,             0 },
+    { "ITEMX",             ITEMX,                0,             0 },
+    { "ITEMY",             ITEMY,                0,             0 },
+    { "ITEMZ",             ITEMZ,                0,             0 },
+    { "ITEMJUMP",          ITEMJUMP,             0,             0 },
+    { "ITEMDRAWTYPE",      ITEMDRAWTYPE,         0,             0 },
+    { "ITEMID",            ITEMID,               0,             0 },
+    { "ITEMTILE",          ITEMTILE,             0,             0 },
+    { "ITEMOTILE",         ITEMOTILE,            0,             0 },
+    { "ITEMCSET",          ITEMCSET,             0,             0 },
+    { "ITEMFLASHCSET",     ITEMFLASHCSET,        0,             0 },
+    { "ITEMFRAMES",        ITEMFRAMES,           0,             0 },
+    { "ITEMFRAME",         ITEMFRAME,            0,             0 },
+    { "ITEMASPEED",        ITEMASPEED,           0,             0 },
+    { "ITEMDELAY",         ITEMDELAY,            0,             0 },
+    { "ITEMFLASH",         ITEMFLASH,            0,             0 },
+    { "ITEMFLIP",          ITEMFLIP,             0,             0 },
+    { "ITEMCOUNT",         ITEMCOUNT,            0,             0 },
+    { "IDATAFAMILY",       IDATAFAMILY,          0,             0 },
+    { "IDATALEVEL",        IDATALEVEL,           0,             0 },
+    { "IDATAKEEP",         IDATAKEEP,            0,             0 },
+    { "IDATAAMOUNT",       IDATAAMOUNT,          0,             0 },
+    { "IDATASETMAX",       IDATASETMAX,          0,             0 },
+    { "IDATAMAX",          IDATAMAX,             0,             0 },
+    { "IDATACOUNTER",      IDATACOUNTER,         0,             0 },
+    { "ITEMEXTEND",        ITEMEXTEND,           0,             0 },
+    { "NPCX",              NPCX,                 0,             0 },
+    { "NPCY",              NPCY,                 0,             0 },
+    { "NPCZ",              NPCZ,                 0,             0 },
+    { "NPCJUMP",           NPCJUMP,              0,             0 },
+    { "NPCDIR",            NPCDIR,               0,             0 },
+    { "NPCRATE",           NPCRATE,              0,             0 },
+    { "NPCSTEP",           NPCSTEP,              0,             0 },
+    { "NPCFRAMERATE",      NPCFRAMERATE,         0,             0 },
+    { "NPCHALTRATE",       NPCHALTRATE,          0,             0 },
+    { "NPCDRAWTYPE",       NPCDRAWTYPE,          0,             0 },
+    { "NPCHP",             NPCHP,                0,             0 },
+    { "NPCID",             NPCID,                0,             0 },
+    { "NPCDP",             NPCDP,                0,             0 },
+    { "NPCWDP",            NPCWDP,               0,             0 },
+    { "NPCOTILE",          NPCOTILE,             0,             0 },
+    { "NPCENEMY",          NPCENEMY,             0,             0 },
+    { "NPCWEAPON",         NPCWEAPON,            0,             0 },
+    { "NPCITEMSET",        NPCITEMSET,           0,             0 },
+    { "NPCCSET",           NPCCSET,              0,             0 },
+    { "NPCBOSSPAL",        NPCBOSSPAL,           0,             0 },
+    { "NPCBGSFX",          NPCBGSFX,             0,             0 },
+    { "NPCCOUNT",          NPCCOUNT,             0,             0 },
+    { "GD",                GD(0),              1024,             0 },
+    { "SDD",               SDD,                  0,             0 },
+    { "GDD",               GDD,                  0,             0 },
+    { "SDDD",              SDDD,                 0,             0 },
+    { "SCRDOORD",          SCRDOORD,             0,             0 },
+    { "GAMEDEATHS",        GAMEDEATHS,           0,             0 },
+    { "GAMECHEAT",         GAMECHEAT,            0,             0 },
+    { "GAMETIME",          GAMETIME,             0,             0 },
+    { "GAMEHASPLAYED",     GAMEHASPLAYED,        0,             0 },
+    { "GAMETIMEVALID",     GAMETIMEVALID,        0,             0 },
+    { "GAMEGUYCOUNT",      GAMEGUYCOUNT,         0,             0 },
+    { "GAMECONTSCR",       GAMECONTSCR,          0,             0 },
+    { "GAMECONTDMAP",      GAMECONTDMAP,         0,             0 },
+    { "GAMECOUNTERD",      GAMECOUNTERD,         0,             0 },
+    { "GAMEMCOUNTERD",     GAMEMCOUNTERD,        0,             0 },
+    { "GAMEDCOUNTERD",     GAMEDCOUNTERD,        0,             0 },
+    { "GAMEGENERICD",      GAMEGENERICD,         0,             0 },
+    { "GAMEMISC",      GAMEMISC,         0,             0 },
+    { "GAMEITEMSD",        GAMEITEMSD,           0,             0 },
+    { "GAMELITEMSD",       GAMELITEMSD,          0,             0 },
+    { "GAMELKEYSD",        GAMELKEYSD,           0,             0 },
+    { "SCREENSTATED",      SCREENSTATED,         0,             0 },
+    { "SCREENSTATEDD",     SCREENSTATEDD,        0,             0 },
+    { "GAMEGUYCOUNTD",     GAMEGUYCOUNTD,        0,             0 },
+    { "CURMAP",            CURMAP,               0,             0 },
+    { "CURSCR",            CURSCR,               0,             0 },
+    { "CURDSCR",           CURDSCR,              0,             0 },
+    { "CURDMAP",           CURDMAP,              0,             0 },
+    { "COMBODD",           COMBODD,              0,             0 },
+    { "COMBOCD",           COMBOCD,              0,             0 },
+    { "COMBOFD",           COMBOFD,              0,             0 },
+    { "COMBOTD",           COMBOTD,              0,             0 },
+    { "COMBOID",           COMBOID,              0,             0 },
+    { "COMBOSD",           COMBOSD,              0,             0 },
+    { "REFITEMCLASS",      REFITEMCLASS,         0,             0 },
+    { "REFITEM",           REFITEM,              0,             0 },
+    { "REFFFC",            REFFFC,               0,             0 },
+    { "REFLWPN",           REFLWPN,              0,             0 },
+    { "REFEWPN",           REFEWPN,              0,             0 },
+    { "REFLWPNCLASS",      REFLWPNCLASS,         0,             0 },
+    { "REFEWPNCLASS",      REFEWPNCLASS,         0,             0 },
+    { "REFNPC",            REFNPC,               0,             0 },
+    { "REFNPCCLASS",       REFNPCCLASS,          0,             0 },
+    { "LWPNX",             LWPNX,                0,             0 },
+    { "LWPNY",             LWPNY,                0,             0 },
+    { "LWPNZ",             LWPNZ,                0,             0 },
+    { "LWPNJUMP",          LWPNJUMP,             0,             0 },
+    { "LWPNDIR",           LWPNDIR,              0,             0 },
+    { "LWPNSTEP",          LWPNSTEP,             0,             0 },
+    { "LWPNANGULAR",       LWPNANGULAR,          0,             0 },
+    { "LWPNANGLE",         LWPNANGLE,            0,             0 },
+    { "LWPNDRAWTYPE",      LWPNDRAWTYPE,         0,             0 },
+    { "LWPNPOWER",         LWPNPOWER,            0,             0 },
+    { "LWPNDEAD",          LWPNDEAD,             0,             0 },
+    { "LWPNID",            LWPNID,               0,             0 },
+    { "LWPNTILE",          LWPNTILE,             0,             0 },
+    { "LWPNCSET",          LWPNCSET,             0,             0 },
+    { "LWPNFLASHCSET",     LWPNFLASHCSET,        0,             0 },
+    { "LWPNFRAMES",        LWPNFRAMES,           0,             0 },
+    { "LWPNFRAME",         LWPNFRAME,            0,             0 },
+    { "LWPNASPEED",        LWPNASPEED,           0,             0 },
+    { "LWPNFLASH",         LWPNFLASH,            0,             0 },
+    { "LWPNFLIP",          LWPNFLIP,             0,             0 },
+    { "LWPNCOUNT",         LWPNCOUNT,            0,             0 },
+    { "LWPNEXTEND",        LWPNEXTEND,           0,             0 },
+    { "LWPNOTILE",         LWPNOTILE,            0,             0 },
+    { "LWPNOCSET",         LWPNOCSET,            0,             0 },
+    { "EWPNX",             EWPNX,                0,             0 },
+    { "EWPNY",             EWPNY,                0,             0 },
+    { "EWPNZ",             EWPNZ,                0,             0 },
+    { "EWPNJUMP",          EWPNJUMP,             0,             0 },
+    { "EWPNDIR",           EWPNDIR,              0,             0 },
+    { "EWPNSTEP",          EWPNSTEP,             0,             0 },
+    { "EWPNANGULAR",       EWPNANGULAR,          0,             0 },
+    { "EWPNANGLE",         EWPNANGLE,            0,             0 },
+    { "EWPNDRAWTYPE",      EWPNDRAWTYPE,         0,             0 },
+    { "EWPNPOWER",         EWPNPOWER,            0,             0 },
+    { "EWPNDEAD",          EWPNDEAD,             0,             0 },
+    { "EWPNID",            EWPNID,               0,             0 },
+    { "EWPNTILE",          EWPNTILE,             0,             0 },
+    { "EWPNCSET",          EWPNCSET,             0,             0 },
+    { "EWPNFLASHCSET",     EWPNFLASHCSET,        0,             0 },
+    { "EWPNFRAMES",        EWPNFRAMES,           0,             0 },
+    { "EWPNFRAME",         EWPNFRAME,            0,             0 },
+    { "EWPNASPEED",        EWPNASPEED,           0,             0 },
+    { "EWPNFLASH",         EWPNFLASH,            0,             0 },
+    { "EWPNFLIP",          EWPNFLIP,             0,             0 },
+    { "EWPNCOUNT",         EWPNCOUNT,            0,             0 },
+    { "EWPNEXTEND",        EWPNEXTEND,           0,             0 },
+    { "EWPNOTILE",         EWPNOTILE,            0,             0 },
+    { "EWPNOCSET",         EWPNOCSET,            0,             0 },
+    { "NPCEXTEND",         NPCEXTEND,            0,             0 },
+    { "SP",                SP,                   0,             0 },
+    { "SP",                SP,                   0,             0 },
+    { "WAVY",              WAVY,                 0,             0 },
+    { "QUAKE",             QUAKE,                0,             0 },
+    { "IDATAUSESOUND",     IDATAUSESOUND,        0,             0 },
+    { "INPUTMOUSEZ",       INPUTMOUSEZ,          0,             0 },
+    { "INPUTMOUSEB",       INPUTMOUSEB,          0,             0 },
+    { "COMBODDM",          COMBODDM,             0,             0 },
+    { "COMBOCDM",           COMBOCDM,            0,             0 },
+    { "COMBOFDM",           COMBOFDM,            0,             0 },
+    { "COMBOTDM",           COMBOTDM,            0,             0 },
+    { "COMBOIDM",           COMBOIDM,            0,             0 },
+    { "COMBOSDM",           COMBOSDM,            0,             0 },
+    { "SCRIPTRAM",          SCRIPTRAM,           0,             0 },
+    { "GLOBALRAM",          GLOBALRAM,           0,             0 },
+    { "SCRIPTRAMD",         SCRIPTRAMD,          0,             0 },
+    { "GLOBALRAMD",         GLOBALRAMD,          0,             0 },
+    { "LWPNHXOFS",          LWPNHXOFS,           0,             0 },
+    { "LWPNHYOFS",          LWPNHYOFS,           0,             0 },
+    { "LWPNXOFS",           LWPNXOFS,            0,             0 },
+    { "LWPNYOFS",           LWPNYOFS,            0,             0 },
+    { "LWPNZOFS",           LWPNZOFS,            0,             0 },
+    { "LWPNHXSZ",           LWPNHXSZ,            0,             0 },
+    { "LWPNHYSZ",           LWPNHYSZ,            0,             0 },
+    { "LWPNHZSZ",           LWPNHZSZ,            0,             0 },
+    { "EWPNHXOFS",          EWPNHXOFS,           0,             0 },
+    { "EWPNHYOFS",          EWPNHYOFS,           0,             0 },
+    { "EWPNXOFS",           EWPNXOFS,            0,             0 },
+    { "EWPNYOFS",           EWPNYOFS,            0,             0 },
+    { "EWPNZOFS",           EWPNZOFS,            0,             0 },
+    { "EWPNHXSZ",           EWPNHXSZ,            0,             0 },
+    { "EWPNHYSZ",           EWPNHYSZ,            0,             0 },
+    { "EWPNHZSZ",           EWPNHZSZ,            0,             0 },
+    { "NPCHXOFS",           NPCHXOFS,            0,             0 },
+    { "NPCHYOFS",           NPCHYOFS,            0,             0 },
+    { "NPCXOFS",            NPCXOFS,             0,             0 },
+    { "NPCYOFS",            NPCYOFS,             0,             0 },
+    { "NPCZOFS",            NPCZOFS,             0,             0 },
+    { "NPCHXSZ",            NPCHXSZ,             0,             0 },
+    { "NPCHYSZ",            NPCHYSZ,             0,             0 },
+    { "NPCHZSZ",            NPCHZSZ,             0,             0 },
+    { "ITEMHXOFS",          ITEMHXOFS,           0,             0 },
+    { "ITEMHYOFS",          ITEMHYOFS,           0,             0 },
+    { "ITEMXOFS",           ITEMXOFS,            0,             0 },
+    { "ITEMYOFS",           ITEMYOFS,            0,             0 },
+    { "ITEMZOFS",           ITEMZOFS,            0,             0 },
+    { "ITEMHXSZ",           ITEMHXSZ,            0,             0 },
+    { "ITEMHYSZ",           ITEMHYSZ,            0,             0 },
+    { "ITEMHZSZ",           ITEMHZSZ,            0,             0 },
+    { "LWPNTXSZ",           LWPNTXSZ,            0,             0 },
+    { "LWPNTYSZ",           LWPNTYSZ,            0,             0 },
+    { "EWPNTXSZ",           EWPNTXSZ,            0,             0 },
+    { "EWPNTYSZ",           EWPNTYSZ,            0,             0 },
+    { "NPCTXSZ",            NPCTXSZ,             0,             0 },
+    { "NPCTYSZ",            NPCTYSZ,             0,             0 },
+    { "ITEMTXSZ",           ITEMTXSZ,            0,             0 },
+    { "ITEMTYSZ",           ITEMTYSZ,            0,             0 },
+    { "LINKHXOFS",          LINKHXOFS,           0,             0 },
+    { "LINKHYOFS",          LINKHYOFS,           0,             0 },
+    { "LINKXOFS",           LINKXOFS,            0,             0 },
+    { "LINKYOFS",           LINKYOFS,            0,             0 },
+    { "LINKZOFS",           LINKZOFS,            0,             0 },
+    { "LINKHXSZ",           LINKHXSZ,            0,             0 },
+    { "LINKHYSZ",           LINKHYSZ,            0,             0 },
+    { "LINKHZSZ",           LINKHZSZ,            0,             0 },
+    { "LINKTXSZ",           LINKTXSZ,            0,             0 },
+    { "LINKTYSZ",           LINKTYSZ,            0,             0 },
+    { "NPCTILE",            NPCTILE,             0,             0 },
+    { "LWPNBEHIND",         LWPNBEHIND,          0,             0 },
+    { "EWPNBEHIND",         EWPNBEHIND,          0,             0 },
+    { "SDDDD",              SDDDD,               0,             0 },
+    { "CURLEVEL",           CURLEVEL,            0,             0 },
+    { "ITEMPICKUP",         ITEMPICKUP,          0,             0 },
+    { "INPUTMAP",           INPUTMAP,            0,             0 },
+    { "LIT",                LIT,                 0,             0 },
+    { "INPUTEX1",           INPUTEX1,            0,             0 },
+    { "INPUTEX2",           INPUTEX2,            0,             0 },
+    { "INPUTEX3",           INPUTEX3,            0,             0 },
+    { "INPUTEX4",           INPUTEX4,            0,             0 },
+    { "INPUTPRESSSTART",    INPUTPRESSSTART,     0,             0 },
+    { "INPUTPRESSUP",       INPUTPRESSUP,        0,             0 },
+    { "INPUTPRESSDOWN",     INPUTPRESSDOWN,      0,             0 },
+    { "INPUTPRESSLEFT",     INPUTPRESSLEFT,      0,             0 },
+    { "INPUTPRESSRIGHT",    INPUTPRESSRIGHT,     0,             0 },
+    { "INPUTPRESSA",        INPUTPRESSA,         0,             0 },
+    { "INPUTPRESSB",        INPUTPRESSB,         0,             0 },
+    { "INPUTPRESSL",        INPUTPRESSL,         0,             0 },
+    { "INPUTPRESSR",        INPUTPRESSR,         0,             0 },
+    { "INPUTPRESSEX1",      INPUTPRESSEX1,       0,             0 },
+    { "INPUTPRESSEX2",      INPUTPRESSEX2,       0,             0 },
+    { "INPUTPRESSEX3",      INPUTPRESSEX3,       0,             0 },
+    { "INPUTPRESSEX4",      INPUTPRESSEX4,       0,             0 },
+    { "LWPNMISCD",          LWPNMISCD,           0,             0 },
+    { "EWPNMISCD",          EWPNMISCD,           0,             0 },
+    { "NPCMISCD",           NPCMISCD,            0,             0 },
+    { "ITEMMISCD",          ITEMMISCD,           0,             0 },
+    { "FFMISCD",            FFMISCD,             0,             0 },
+    { "GETMIDI",            GETMIDI,             0,             0 },
+    { "NPCHOMING",          NPCHOMING,           0,             0 },
+    { "NPCDD",			  NPCDD,			   0,             0 },
+    { "LINKEQUIP",		  LINKEQUIP,		   0,             0 },
+    { "INPUTAXISUP",        INPUTAXISUP,         0,             0 },
+    { "INPUTAXISDOWN",      INPUTAXISDOWN,       0,             0 },
+    { "INPUTAXISLEFT",      INPUTAXISLEFT,       0,             0 },
+    { "INPUTAXISRIGHT",     INPUTAXISRIGHT,      0,             0 },
+    { "PRESSAXISUP",        INPUTPRESSAXISUP,    0,             0 },
+    { "PRESSAXISDOWN",      INPUTPRESSAXISDOWN,  0,             0 },
+    { "PRESSAXISLEFT",      INPUTPRESSAXISLEFT,  0,             0 },
+    { "PRESSAXISRIGHT",     INPUTPRESSAXISRIGHT, 0,             0 },
+    { "NPCTYPE",			  NPCTYPE,             0,             0 },
+    { "FFSCRIPT",			  FFSCRIPT,            0,             0 },
+    { "SCREENFLAGSD",       SCREENFLAGSD,        0,             0 },
+    { "LINKINVIS",          LINKINVIS,           0,             0 },
+    { "LINKINVINC",         LINKINVINC,          0,             0 },
+    { "SCREENEFLAGSD",      SCREENEFLAGSD,       0,             0 },
+    { "NPCMFLAGS",          NPCMFLAGS,           0,             0 },
+    { "FFINITDD",           FFINITDD,            0,             0 },
+    { "LINKMISCD",          LINKMISCD,           0,             0 },
+    { "DMAPFLAGSD",         DMAPFLAGSD,          0,             0 },
+    { "LWPNCOLLDET",        LWPNCOLLDET,         0,             0 },
+    { "EWPNCOLLDET",        EWPNCOLLDET,         0,             0 },
+    { "NPCCOLLDET",         NPCCOLLDET,          0,             0 },
+    { "LINKLADDERX",        LINKLADDERX,         0,             0 },
+    { "LINKLADDERY",        LINKLADDERY,         0,             0 },
+    { "NPCSTUN",            NPCSTUN,             0,             0 },
+    { "NPCDEFENSED",        NPCDEFENSED,         0,             0 },
+    { "IDATAPOWER",         IDATAPOWER,          0,             0 },
+    { "DMAPLEVELD",         DMAPLEVELD,          0,             0 },
+    { "DMAPCOMPASSD",       DMAPCOMPASSD,        0,             0 },
+    { "DMAPCONTINUED",      DMAPCONTINUED,       0,             0 },
+    { "DMAPMIDID",          DMAPMIDID,           0,             0 },
+    { "IDATAINITDD",        IDATAINITDD,         0,             0 },
+    { "ROOMTYPE",           ROOMTYPE,            0,             0 },
+    { "ROOMDATA",           ROOMDATA,            0,             0 },
+    { "LINKTILE",           LINKTILE,            0,             0 },
+    { "LINKFLIP",           LINKFLIP,            0,             0 },
+    { "INPUTPRESSMAP",      INPUTPRESSMAP,       0,             0 },
+    { "NPCHUNGER",          NPCHUNGER,           0,             0 },
+    { "GAMESTANDALONE",     GAMESTANDALONE,      0,             0 },
+    { "GAMEENTRSCR",        GAMEENTRSCR,         0,             0 },
+    { "GAMEENTRDMAP",       GAMEENTRDMAP,        0,             0 },
+    { "GAMECLICKFREEZE",    GAMECLICKFREEZE,     0,             0 },
+    { "PUSHBLOCKX",         PUSHBLOCKX,          0,             0 },
+    { "PUSHBLOCKY",         PUSHBLOCKY,          0,             0 },
+    { "PUSHBLOCKCOMBO",     PUSHBLOCKCOMBO,      0,             0 },
+    { "PUSHBLOCKCSET",      PUSHBLOCKCSET,       0,             0 },
+    { "UNDERCOMBO",         UNDERCOMBO,          0,             0 },
+    { "UNDERCSET",          UNDERCSET,           0,             0 },
+    { "DMAPOFFSET",         DMAPOFFSET,          0,             0 },
+    { "DMAPMAP",            DMAPMAP,             0,             0 },
+    { "__RESERVED_FOR_GAMETHROTTLE",         __RESERVED_FOR_GAMETHROTTLE,            0,             0 },
+	{ "REFMAPDATA",       REFMAPDATA,          0,             0 },
+	{ "REFSCREENDATA",       REFSCREENDATA,          0,             0 },
+	{ "REFCOMBODATA",       REFCOMBODATA,          0,             0 },
+	{ "REFSPRITEDATA",       REFSPRITEDATA,          0,             0 },
+	{ "REFBITMAP",       REFBITMAP,          0,             0 },
+	{ "REFDMAPDATA",         REFDMAPDATA,            0,             0 },
+	{ "REFSHOPDATA",         REFSHOPDATA,            0,             0 },
+	{ "REFMSGDATA",         REFMSGDATA,            0,             0 },
+	{ "REFUNTYPED",         REFUNTYPED,            0,             0 },
+	{ "REFDROPS",         REFDROPS,            0,             0 },
+	{ "REFPONDS",         REFPONDS,            0,             0 },
+	{ "REFWARPRINGS",         REFWARPRINGS,            0,             0 },
+	{ "REFDOORS",         REFDOORS,            0,             0 },
+	{ "REFUICOLOURS",         REFUICOLOURS,            0,             0 },
+	{ "REFRGB",         REFRGB,            0,             0 },
+	{ "REFPALETTE",         REFPALETTE,            0,             0 },
+	{ "REFTUNES",         REFTUNES,            0,             0 },
+	{ "REFPALCYCLE",         REFPALCYCLE,            0,             0 },
+	{ "REFGAMEDATA",         REFGAMEDATA,            0,             0 },
+	{ "REFCHEATS",         REFCHEATS,            0,             0 },
+	{ "IDATAMAGICTIMER",         IDATAMAGICTIMER,            0,             0 },
+	{ "IDATALTM",         IDATALTM,            0,             0 },
+	{ "IDATASCRIPT",         IDATASCRIPT,            0,             0 },
+	{ "IDATAPSCRIPT",         IDATAPSCRIPT,            0,             0 },
+	{ "IDATAMAGCOST",         IDATAMAGCOST,            0,             0 },
+	{ "IDATAMINHEARTS",         IDATAMINHEARTS,            0,             0 },
+	{ "IDATATILE",         IDATATILE,            0,             0 },
+	{ "IDATAMISC",         IDATAMISC,            0,             0 },
+	{ "IDATACSET",         IDATACSET,            0,             0 },
+	{ "IDATAFRAMES",         IDATAFRAMES,            0,             0 },
+	{ "IDATAASPEED",         IDATAASPEED,            0,             0 },
+	{ "IDATADELAY",         IDATADELAY,            0,             0 },
+	{ "IDATACOMBINE",         IDATACOMBINE,            0,             0 },
+	{ "IDATADOWNGRADE",         IDATADOWNGRADE,            0,             0 },
+	{ "IDATAPSTRING",         IDATAPSTRING,            0,             0 },
+	{ "RESVD0023",         RESVD023,            0,             0 },
+	{ "IDATAKEEPOLD",         IDATAKEEPOLD,            0,             0 },
+	{ "IDATARUPEECOST",         IDATARUPEECOST,            0,             0 },
+	{ "IDATAEDIBLE",         IDATAEDIBLE,            0,             0 },
+	{ "IDATAFLAGUNUSED",         IDATAFLAGUNUSED,            0,             0 },
+	{ "IDATAGAINLOWER",         IDATAGAINLOWER,            0,             0 },
+	{ "RESVD0024",         RESVD024,            0,             0 },
+	{ "RESVD0025",         RESVD025,            0,             0 },
+	{ "RESVD0026",         RESVD026,            0,             0 },
+	{ "IDATAID",         IDATAID,            0,             0 },
+    { "__RESERVED_FOR_LINKEXTEND",         __RESERVED_FOR_LINKEXTEND,            0,             0 },
+	{ "NPCSCRDEFENSED",        NPCSCRDEFENSED,         0,             0 },
+	{ "__RESERVED_FOR_SETLINKTILE",              __RESERVED_FOR_SETLINKTILE,                 0,             0 },
+	{ "__RESERVED_FOR_SETLINKEXTEND",           __RESERVED_FOR_SETLINKEXTEND,            0,             0 },
+	{ "__RESERVED_FOR_SIDEWARPSFX",           __RESERVED_FOR_SIDEWARPSFX,            0,             0 },
+	{ "__RESERVED_FOR_PITWARPSFX",           __RESERVED_FOR_PITWARPSFX,            0,             0 },
+	{ "__RESERVED_FOR_SIDEWARPVISUAL",           __RESERVED_FOR_SIDEWARPVISUAL,            0,             0 },
+	{ "__RESERVED_FOR_PITWARPVISUAL",           __RESERVED_FOR_PITWARPVISUAL,            0,             0 },
+	{ "GAMESETA",           GAMESETA,            0,             0 },
+	{ "GAMESETB",           GAMESETB,            0,             0 },
+	{ "SETITEMSLOT",           SETITEMSLOT,            0,             0 },
+	{ "LINKITEMB",           LINKITEMB,            0,             0 },
+	{ "LINKITEMA",           LINKITEMA,            0,             0 },
+	{ "__RESERVED_FOR_LINKWALKTILE",           __RESERVED_FOR_LINKWALKTILE,            0,             0 }, //Walk sprite
+	{ "__RESERVED_FOR_LINKFLOATTILE",           __RESERVED_FOR_LINKFLOATTILE,            0,             0 }, //float sprite
+	{ "__RESERVED_FOR_LINKSWIMTILE",           __RESERVED_FOR_LINKSWIMTILE,            0,             0 }, //swim sprite
+	{ "__RESERVED_FOR_LINKDIVETILE",           __RESERVED_FOR_LINKDIVETILE,            0,             0 }, //dive sprite
+	{ "__RESERVED_FOR_LINKSLASHTILE",           __RESERVED_FOR_LINKSLASHTILE,            0,             0 }, //slash sprite
+	{ "__RESERVED_FOR_LINKJUMPTILE",           __RESERVED_FOR_LINKJUMPTILE,            0,             0 }, //jump sprite
+	{ "__RESERVED_FOR_LINKCHARGETILE",           __RESERVED_FOR_LINKCHARGETILE,            0,             0 }, //charge sprite
+	{ "__RESERVED_FOR_LINKSTABTILE",           __RESERVED_FOR_LINKSTABTILE,            0,             0 }, //stab sprite
+	{ "__RESERVED_FOR_LINKCASTTILE",           __RESERVED_FOR_LINKCASTTILE,            0,             0 }, //casting sprite
+	{ "__RESERVED_FOR_LINKHOLD1LTILE",           __RESERVED_FOR_LINKHOLD1LTILE,            0,             0 }, //hold1land sprite
+	{ "__RESERVED_FOR_LINKHOLD2LTILE",           __RESERVED_FOR_LINKHOLD2LTILE,            0,             0 }, //hold2land sprite
+	{ "__RESERVED_FOR_LINKHOLD1WTILE",           __RESERVED_FOR_LINKHOLD1WTILE,            0,             0 }, //hold1water sprite
+	{ "__RESERVED_FOR_LINKHOLD2WTILE",           __RESERVED_FOR_LINKHOLD2WTILE,            0,             0 }, //hold2water sprite
+	{ "__RESERVED_FOR_LINKPOUNDTILE",           __RESERVED_FOR_LINKPOUNDTILE,            0,             0 }, //hammer pound sprite
+	{ "__RESERVED_FOR_LINKSWIMSPD",           __RESERVED_FOR_LINKSWIMSPD,            0,             0 },
+	{ "__RESERVED_FOR_LINKWALKANMSPD",           __RESERVED_FOR_LINKWALKANMSPD,            0,             0 },
+	{ "__RESERVED_FOR_LINKANIMTYPE",           __RESERVED_FOR_LINKANIMTYPE,            0,             0 },
+	{ "LINKINVFRAME",           LINKINVFRAME,            0,             0 },
+	{ "LINKCANFLICKER",           LINKCANFLICKER,            0,             0 },
+	{ "LINKHURTSFX",           LINKHURTSFX,            0,             0 },
+	{ "NOACTIVESUBSC",           NOACTIVESUBSC,            0,             0 },
+	{ "LWPNRANGE",         LWPNRANGE,            0,             0 },
+	{ "ZELDAVERSION",         ZELDAVERSION,            0,             0 },
+	{ "ZELDABUILD",         ZELDABUILD,            0,             0 },
+	{ "ZELDABETA",         ZELDABETA,            0,             0 },
+	{ "NPCINVINC",         NPCINVINC,            0,             0 },
+	{ "NPCSUPERMAN",         NPCSUPERMAN,            0,             0 },
+	{ "NPCHASITEM",         NPCHASITEM,            0,             0 },
+	{ "NPCRINGLEAD",         NPCRINGLEAD,            0,             0 },
+	{ "IDATAFRAME",         IDATAFRAME,            0,             0 },
+	{ "ITEMACLK",         ITEMACLK,            0,             0 },
+	{ "FFCID",         FFCID,            0,             0 },
+	{ "IDATAATTRIB",         IDATAATTRIB,            0,             0 },
+	{ "IDATASPRITE",         IDATASPRITE,            0,             0 },
+	{ "IDATAFLAGS",         IDATAFLAGS,            0,             0 },
+	{ "DMAPLEVELPAL",	DMAPLEVELPAL,          0,             0 },
+	{ "__RESERVED_FOR_ITEMPTR",         __RESERVED_FOR_ITEMPTR,          0,             0 },
+	{ "__RESERVED_FOR_NPCPTR",         __RESERVED_FOR_NPCPTR,          0,             0 },
+	{ "__RESERVED_FOR_LWPNPTR",         __RESERVED_FOR_LWPNPTR,          0,             0 },
+	{ "__RESERVED_FOR_EWPNPTR",         __RESERVED_FOR_EWPNPTR,          0,             0 },
+	{ "SETSCREENDOOR",           SETSCREENDOOR,            0,             0 },
+	{ "SETSCREENENEMY",           SETSCREENENEMY,            0,             0 },
+	{ "GAMEMAXMAPS",          GAMEMAXMAPS,              0,             0 },
+	{ "CREATELWPNDX", CREATELWPNDX, 0, 0 },
+	{ "__RESERVED_FOR_SCREENFLAG",     __RESERVED_FOR_SCREENFLAG,        0,             0 },
+	{ "BUTTONPRESS",	BUTTONPRESS,        0,             0 },
+	{ "BUTTONINPUT",	BUTTONINPUT,        0,             0 },
+	{ "BUTTONHELD",		BUTTONHELD,        0,             0 },
+	{ "KEYPRESS",		KEYPRESS,        0,             0 },
+	{ "READKEY",		READKEY,        0,             0 },
+	{ "JOYPADPRESS",	JOYPADPRESS,        0,             0 },
+	{ "DISABLEDITEM",	DISABLEDITEM,            0,             0 },
+	{ "LINKDIAG",           LINKDIAG,            0,             0 },
+	{ "LINKBIGHITBOX",           LINKBIGHITBOX,            0,             0 },
+	{ "LINKEATEN", LINKEATEN, 0, 0 },
+	{ "__RESERVED_FOR_LINKRETSQUARE", __RESERVED_FOR_LINKRETSQUARE, 0, 0 },
+	{ "__RESERVED_FOR_LINKWARPSOUND", __RESERVED_FOR_LINKWARPSOUND, 0, 0 },
+	{ "__RESERVED_FOR_PLAYPITWARPSFX", __RESERVED_FOR_PLAYPITWARPSFX, 0, 0 },
+	{ "__RESERVED_FOR_WARPEFFECT", __RESERVED_FOR_WARPEFFECT, 0, 0 },
+	{ "__RESERVED_FOR_PLAYWARPSOUND", __RESERVED_FOR_PLAYWARPSOUND, 0, 0 },
+	{ "LINKUSINGITEM", LINKUSINGITEM, 0, 0 },
+	{ "LINKUSINGITEMA", LINKUSINGITEMA, 0, 0 },
+	{ "LINKUSINGITEMB", LINKUSINGITEMB, 0, 0 },
+	//    { "DMAPLEVELPAL",         DMAPLEVELPAL,          0,             0 },
+	//{ "LINKZHEIGHT",           LINKZHEIGHT,            0,             0 },
+	    //{ "ITEMINDEX",         ITEMINDEX,          0,             0 },
+	    //{ "LWPNINDEX",         LWPNINDEX,          0,             0 },
+	    //{ "EWPNINDEX",         EWPNINDEX,          0,             0 },
+	    //{ "NPCINDEX",         NPCINDEX,          0,             0 },
+	    //TABLE END
+	{ "IDATAUSEWPN", IDATAUSEWPN, 0, 0 }, //UseWeapon
+	{ "IDATAUSEDEF", IDATAUSEDEF, 0, 0 }, //UseDefense
+	{ "IDATAWRANGE", IDATAWRANGE, 0, 0 }, //Range
+	{ "IDATAUSEMVT", IDATAUSEMVT, 0, 0 }, //Movement[]
+	{ "IDATADURATION", IDATADURATION, 0, 0 }, //Duration
+	
+	{ "IDATADUPLICATES", IDATADUPLICATES, 0, 0 }, //Duplicates
+	  { "IDATADRAWLAYER", IDATADRAWLAYER, 0, 0 }, //DrawLayer
+	  { "IDATACOLLECTFLAGS", IDATACOLLECTFLAGS, 0, 0 }, //CollectFlags
+	  { "IDATAWEAPONSCRIPT", IDATAWEAPONSCRIPT, 0, 0 }, //WeaponScript
+	  { "IDATAMISCD", IDATAMISCD, 0, 0 }, //WeaponMisc[32]
+	  { "IDATAWEAPHXOFS", IDATAWEAPHXOFS, 0, 0 }, //WeaponHitXOffset
+	  { "IDATAWEAPHYOFS", IDATAWEAPHYOFS, 0, 0 }, //WeaponHitYOffset
+	  { "IDATAWEAPHXSZ", IDATAWEAPHYSZ, 0, 0 }, //WeaponHitWidth
+	  { "IDATAWEAPHYSZ", IDATAWEAPHYSZ, 0, 0 }, //WeaponHitHeight
+	  { "IDATAWEAPHZSZ", IDATAWEAPHZSZ, 0, 0 }, //WeaponHitZHeight
+	  { "IDATAWEAPXOFS", IDATAWEAPXOFS, 0, 0 }, //WeaponDrawXOffset
+	  { "IDATAWEAPYOFS", IDATAWEAPYOFS, 0, 0 }, //WeaponDrawYOffset
+	  { "IDATAWEAPZOFS", IDATAWEAPZOFS, 0, 0 }, //WeaponDrawZOffset
+	  { "IDATAWPNINITD", IDATAWPNINITD, 0, 0 }, //WeaponD[8]
+	  
+	  { "NPCWEAPSPRITE", NPCWEAPSPRITE, 0, 0 }, //WeaponSprite
+	  
+	  { "DEBUGREFFFC", DEBUGREFFFC, 0, 0 }, //REFFFC
+	  { "DEBUGREFITEM", DEBUGREFITEM, 0, 0 }, //REFITEM
+	  { "DEBUGREFNPC", DEBUGREFNPC, 0, 0 }, //REFNPC
+	  { "DEBUGREFITEMDATA", DEBUGREFITEMDATA, 0, 0 }, //REFITEMCLASS
+	   { "DEBUGREFLWEAPON", DEBUGREFLWEAPON, 0, 0 }, //REFLWPN
+	    { "DEBUGREFEWEAPON", DEBUGREFEWEAPON, 0, 0 }, //REFEWPN
+	    { "DEBUGSP", DEBUGSP, 0, 0 }, //SP
+	    { "DEBUGGDR", DEBUGGDR, 0, 0 }, //GDR[256]
+	  { "SCREENWIDTH",              SCREENWIDTH,                 0,             0 },
+	{ "SCREENHEIGHT",              SCREENHEIGHT,                 0,             0 },
+	{ "SCREENVIEWX",              SCREENVIEWX,                 0,             0 },
+	{ "SCREENVIEWY",              SCREENVIEWY,                 0,             0 },
+	{ "SCREENGUY",              SCREENGUY,                 0,             0 },
+	{ "SCREENSTRING",              SCREENSTRING,                 0,             0 },
+	{ "SCREENROOM",              SCREENROOM,                 0,             0 },
+	{ "SCREENENTX",              SCREENENTX,                 0,             0 },
+	{ "SCREENENTY",              SCREENENTY,                 0,             0 },
+	{ "SCREENITEM",              SCREENITEM,                 0,             0 },
+	{ "SCREENUNDCMB",              SCREENUNDCMB,                 0,             0 },
+	{ "SCREENUNDCST",              SCREENUNDCST,                 0,             0 },
+	{ "SCREENCATCH",              SCREENCATCH,                 0,             0 },
+	{ "SETSCREENLAYOP",              SETSCREENLAYOP,                 0,             0 },
+	{ "SETSCREENSECCMB",              SETSCREENSECCMB,                 0,             0 },
+	{ "SETSCREENSECCST",              SETSCREENSECCST,                 0,             0 },
+	{ "SETSCREENSECFLG",              SETSCREENSECFLG,                 0,             0 },
+	{ "SETSCREENLAYMAP",              SETSCREENLAYMAP,                 0,             0 },
+	{ "SETSCREENLAYSCR",              SETSCREENLAYSCR,                 0,             0 },
+	{ "SETSCREENPATH",              SETSCREENPATH,                 0,             0 },
+	{ "SETSCREENWARPRX",              SETSCREENWARPRX,                 0,             0 },
+	{ "SETSCREENWARPRY",              SETSCREENWARPRY,                 0,             0 },
+	{"GAMENUMMESSAGES", GAMENUMMESSAGES, 0, 0 },
+	{"GAMESUBSCHEIGHT", GAMESUBSCHEIGHT, 0, 0 },
+	{"GAMEPLAYFIELDOFS", GAMEPLAYFIELDOFS, 0, 0 },
+	{"PASSSUBOFS", PASSSUBOFS, 0, 0 },
+	
+
+	//NPCData
+	{"SETNPCDATASCRIPTDEF", SETNPCDATASCRIPTDEF, 0, 0 },
+	{"SETNPCDATADEFENSE", SETNPCDATADEFENSE, 0, 0 },
+	{"SETNPCDATASIZEFLAG", SETNPCDATASIZEFLAG, 0, 0 },
+	{"SETNPCDATAATTRIBUTE", SETNPCDATAATTRIBUTE, 0, 0 },
+	
+	{"SCDBLOCKWEAPON", SCDBLOCKWEAPON, 0, 0 },
+	{"SCDSTRIKEWEAPONS", SCDSTRIKEWEAPONS, 0, 0 },
+	{"SCDEXPANSION", SCDEXPANSION, 0, 0 },
+	{"SETGAMEOVERELEMENT", SETGAMEOVERELEMENT, 0, 0 },
+	{"SETGAMEOVERSTRING", SETGAMEOVERSTRING, 0, 0 },
+	{"MOUSEARR", MOUSEARR, 0, 0 },
+	
+	{"IDATAOVERRIDEFLWEAP", IDATAOVERRIDEFLWEAP, 0, 0 },
+	{"IDATATILEHWEAP", IDATATILEHWEAP, 0, 0 },
+	{"IDATATILEWWEAP", IDATATILEWWEAP, 0, 0 },
+	{"IDATAHZSZWEAP", IDATAHZSZWEAP, 0, 0 },
+	{"IDATAHYSZWEAP", IDATAHYSZWEAP, 0, 0 },
+	{"IDATAHXSZWEAP", IDATAHXSZWEAP, 0, 0 },
+	{"IDATADYOFSWEAP", IDATADYOFSWEAP, 0, 0 },
+	{"IDATADXOFSWEAP", IDATADXOFSWEAP, 0, 0 },
+	{"IDATAHYOFSWEAP", IDATAHYOFSWEAP, 0, 0 },
+	{"IDATAHXOFSWEAP", IDATAHXOFSWEAP, 0, 0 },
+	{"IDATAOVERRIDEFL", IDATAOVERRIDEFL, 0, 0 },
+	{"IDATAPICKUP", IDATAPICKUP, 0, 0 },
+	{"IDATATILEH", IDATATILEH, 0, 0 },
+	{"IDATATILEW", IDATATILEW, 0, 0 },
+	{"IDATAHZSZ", IDATAHZSZ, 0, 0 },
+	{"IDATAHYSZ", IDATAHYSZ, 0, 0 },
+	{"IDATAHXSZ", IDATAHXSZ, 0, 0 },
+	{"IDATADYOFS", IDATADYOFS, 0, 0 },
+	{"IDATADXOFS", IDATADXOFS, 0, 0 },
+	{"IDATAHYOFS", IDATAHYOFS, 0, 0 },
+	{"IDATAHXOFS", IDATAHXOFS, 0, 0 },
+	//spritedata sd->
+	{"SPRITEDATATILE", SPRITEDATATILE, 0, 0 },
+	{"SPRITEDATAMISC", SPRITEDATAMISC, 0, 0 },
+	{"SPRITEDATACSETS", SPRITEDATACSETS, 0, 0 },
+	{"SPRITEDATAFRAMES", SPRITEDATAFRAMES, 0, 0 },
+	{"SPRITEDATASPEED", SPRITEDATASPEED, 0, 0 },
+	{"SPRITEDATATYPE", SPRITEDATATYPE, 0, 0 },
+	
+	//npcdata nd->
+	{"NPCDATATILE", NPCDATATILE, 0, 0 },
+	{"NPCDATAHEIGHT", NPCDATAHEIGHT, 0, 0 },
+	{"NPCDATAFLAGS", NPCDATAFLAGS, 0, 0 },
+	{"NPCDATAFLAGS2", NPCDATAFLAGS2, 0, 0 },
+	{"NPCDATAWIDTH", NPCDATAWIDTH, 0, 0 },
+	{"NPCDATAHITSFX", NPCDATAHITSFX, 0, 0 },
+	{"NPCDATASTILE", NPCDATASTILE, 0, 0 },
+	{"NPCDATASWIDTH", NPCDATASWIDTH, 0, 0 },
+	{"NPCDATASHEIGHT", NPCDATASHEIGHT, 0, 0 },
+	{"NPCDATAETILE", NPCDATAETILE, 0, 0 },
+	{"NPCDATAEWIDTH", NPCDATAEWIDTH, 0, 0 },
+	{"NPCDATAEHEIGHT", NPCDATAEHEIGHT, 0, 0 },
+	{"NPCDATAHP", NPCDATAHP, 0, 0 },
+	{"NPCDATAFAMILY", NPCDATAFAMILY, 0, 0 },
+	{"NPCDATACSET", NPCDATACSET, 0, 0 },
+	{"NPCDATAANIM", NPCDATAANIM, 0, 0 },
+	{"NPCDATAEANIM", NPCDATAEANIM, 0, 0 },
+	{"NPCDATAFRAMERATE", NPCDATAFRAMERATE, 0, 0 },
+	{"NPCDATAEFRAMERATE", NPCDATAEFRAMERATE, 0, 0 },
+	{"NPCDATATOUCHDAMAGE", NPCDATATOUCHDAMAGE, 0, 0 },
+	{"NPCDATAWEAPONDAMAGE", NPCDATAWEAPONDAMAGE, 0, 0 },
+	{"NPCDATAWEAPON", NPCDATAWEAPON, 0, 0 },
+	{"NPCDATARANDOM", NPCDATARANDOM, 0, 0 },
+	{"NPCDATAHALT", NPCDATAHALT, 0, 0 },
+	{"NPCDATASTEP", NPCDATASTEP, 0, 0 },
+	{"NPCDATAHOMING", NPCDATAHOMING, 0, 0 },
+	{"NPCDATAHUNGER", NPCDATAHUNGER, 0, 0 },
+	{"NPCDATADROPSET", NPCDATADROPSET, 0, 0 },
+	{"NPCDATABGSFX", NPCDATABGSFX, 0, 0 },
+	{"NPCDATADEATHSFX", NPCDATADEATHSFX, 0, 0 },
+	{"NPCDATAXOFS", NPCDATAXOFS, 0, 0 },
+	{"NPCDATAYOFS", NPCDATAYOFS, 0, 0 },
+	{"NPCDATAZOFS", NPCDATAZOFS, 0, 0 },
+	{"NPCDATAHXOFS", NPCDATAHXOFS, 0, 0 },
+	{"NPCDATAHYOFS", NPCDATAHYOFS, 0, 0 },
+	{"NPCDATAHITWIDTH", NPCDATAHITWIDTH, 0, 0 },
+	{"NPCDATAHITHEIGHT", NPCDATAHITHEIGHT, 0, 0 },
+	{"NPCDATAHITZ", NPCDATAHITZ, 0, 0 },
+	{"NPCDATATILEWIDTH", NPCDATATILEWIDTH, 0, 0 },
+	{"NPCDATATILEHEIGHT", NPCDATATILEHEIGHT, 0, 0 },
+	{"NPCDATAWPNSPRITE", NPCDATAWPNSPRITE, 0, 0 },
+	{"NPCDATADEFENSE", NPCDATADEFENSE, 0, 0 },
+	{"NPCDATASIZEFLAG", NPCDATASIZEFLAG, 0, 0 },
+	{"NPCDATAATTRIBUTE", NPCDATAATTRIBUTE, 0, 0 },
+	
+	{"NPCDATAFROZENTILE", NPCDATAFROZENTILE, 0, 0 },
+	{"NPCDATAFROZENCSET", NPCDATAFROZENCSET, 0, 0 },
+	
+	//mapdata md->
+	{"MAPDATAVALID", MAPDATAVALID, 0, 0 },
+	{"MAPDATAGUY", MAPDATAGUY, 0, 0 },
+	{"MAPDATASTRING", MAPDATASTRING, 0, 0 },
+	{"MAPDATAROOM", MAPDATAROOM, 0, 0 },
+	{"MAPDATAITEM", MAPDATAITEM, 0, 0 },
+	{"MAPDATAHASITEM", MAPDATAHASITEM, 0, 0 },
+	{"MAPDATATILEWARPTYPE", MAPDATATILEWARPTYPE, 0, 0 },
+	{"MAPDATATILEWARPOVFLAGS", MAPDATATILEWARPOVFLAGS, 0, 0 },
+	{"MAPDATADOORCOMBOSET", MAPDATADOORCOMBOSET, 0, 0 },
+	{"MAPDATAWARPRETX", MAPDATAWARPRETX, 0, 0 },
+	{"MAPDATAWARPRETY", MAPDATAWARPRETY, 0, 0 },
+	{"MAPDATAWARPRETURNC", MAPDATAWARPRETURNC, 0, 0 },
+	{"MAPDATASTAIRX", MAPDATASTAIRX, 0, 0 },
+	{"MAPDATASTAIRY", MAPDATASTAIRY, 0, 0 },
+	{"MAPDATACOLOUR", MAPDATACOLOUR, 0, 0 },
+	{"MAPDATAENEMYFLAGS", MAPDATAENEMYFLAGS, 0, 0 },
+	{"MAPDATADOOR", MAPDATADOOR, 0, 0 },
+	{"MAPDATATILEWARPDMAP", MAPDATATILEWARPDMAP, 0, 0 },
+	{"MAPDATATILEWARPSCREEN", MAPDATATILEWARPSCREEN, 0, 0 },
+	{"MAPDATAEXITDIR", MAPDATAEXITDIR, 0, 0 },
+	{"MAPDATAENEMY", MAPDATAENEMY, 0, 0 },
+	{"MAPDATAPATTERN", MAPDATAPATTERN, 0, 0 },
+	{"MAPDATASIDEWARPTYPE", MAPDATASIDEWARPTYPE, 0, 0 },
+	{"MAPDATASIDEWARPOVFLAGS", MAPDATASIDEWARPOVFLAGS, 0, 0 },
+	{"MAPDATAWARPARRIVALX", MAPDATAWARPARRIVALX, 0, 0 },
+	{"MAPDATAWARPARRIVALY", MAPDATAWARPARRIVALY, 0, 0 },
+	{"MAPDATAPATH", MAPDATAPATH, 0, 0 },
+	{"MAPDATASIDEWARPSC", MAPDATASIDEWARPSC, 0, 0 },
+	{"MAPDATASIDEWARPDMAP", MAPDATASIDEWARPDMAP, 0, 0 },
+	{"MAPDATASIDEWARPINDEX", MAPDATASIDEWARPINDEX, 0, 0 },
+	{"MAPDATAUNDERCOMBO", MAPDATAUNDERCOMBO, 0, 0 },
+	{"MAPDATAUNDERCSET", MAPDATAUNDERCSET, 0, 0 },
+	{"MAPDATACATCHALL", MAPDATACATCHALL, 0, 0 },
+	{"MAPDATAFLAGS", MAPDATAFLAGS, 0, 0 },
+	{"MAPDATACSENSITIVE", MAPDATACSENSITIVE, 0, 0 },
+	{"MAPDATANORESET", MAPDATANORESET, 0, 0 },
+	{"MAPDATANOCARRY", MAPDATANOCARRY, 0, 0 },
+	{"MAPDATALAYERMAP", MAPDATALAYERMAP, 0, 0 },
+	{"MAPDATALAYERSCREEN", MAPDATALAYERSCREEN, 0, 0 },
+	{"MAPDATALAYEROPACITY", MAPDATALAYEROPACITY, 0, 0 },
+	{"MAPDATATIMEDWARPTICS", MAPDATATIMEDWARPTICS, 0, 0 },
+	{"MAPDATANEXTMAP", MAPDATANEXTMAP, 0, 0 },
+	{"MAPDATANEXTSCREEN", MAPDATANEXTSCREEN, 0, 0 },
+	{"MAPDATASECRETCOMBO", MAPDATASECRETCOMBO, 0, 0 },
+	{"MAPDATASECRETCSET", MAPDATASECRETCSET, 0, 0 },
+	{"MAPDATASECRETFLAG", MAPDATASECRETFLAG, 0, 0 },
+	{"MAPDATAVIEWX", MAPDATAVIEWX, 0, 0 },
+	{"MAPDATAVIEWY", MAPDATAVIEWY, 0, 0 },
+	{"MAPDATASCREENWIDTH", MAPDATASCREENWIDTH, 0, 0 },
+	{"MAPDATASCREENHEIGHT", MAPDATASCREENHEIGHT, 0, 0 },
+	{"MAPDATAENTRYX", MAPDATAENTRYX, 0, 0 },
+	{"MAPDATAENTRYY", MAPDATAENTRYY, 0, 0 },
+	{"MAPDATANUMFF", MAPDATANUMFF, 0, 0 },
+	{"MAPDATAFFDATA", MAPDATAFFDATA, 0, 0 },
+	{"MAPDATAFFCSET", MAPDATAFFCSET, 0, 0 },
+	{"MAPDATAFFDELAY", MAPDATAFFDELAY, 0, 0 },
+	{"MAPDATAFFX", MAPDATAFFX, 0, 0 },
+	{"MAPDATAFFY", MAPDATAFFY, 0, 0 },
+	{"MAPDATAFFXDELTA", MAPDATAFFXDELTA, 0, 0 },
+	{"MAPDATAFFYDELTA", MAPDATAFFYDELTA, 0, 0 },
+	{"MAPDATAFFXDELTA2", MAPDATAFFXDELTA2, 0, 0 },
+	{"MAPDATAFFYDELTA2", MAPDATAFFYDELTA2, 0, 0 },
+	{"MAPDATAFFFLAGS", MAPDATAFFFLAGS, 0, 0 },
+	{"MAPDATAFFWIDTH", MAPDATAFFWIDTH, 0, 0 },
+	{"MAPDATAFFHEIGHT", MAPDATAFFHEIGHT, 0, 0 },
+	{"MAPDATAFFLINK", MAPDATAFFLINK, 0, 0 },
+	{"MAPDATAFFSCRIPT", MAPDATAFFSCRIPT, 0, 0 },
+	{"MAPDATAINTID", MAPDATAINTID, 0, 0 }, //Needs to be a function [32][10]
+	{"MAPDATAINITA", MAPDATAINITA, 0, 0 }, //needs to be a function, [32][2]
+	{"MAPDATAFFINITIALISED", MAPDATAFFINITIALISED, 0, 0 },
+	{"MAPDATASCRIPTENTRY", MAPDATASCRIPTENTRY, 0, 0 },
+	{"MAPDATASCRIPTOCCUPANCY", MAPDATASCRIPTOCCUPANCY, 0, 0 },
+	{"MAPDATASCRIPTEXIT", MAPDATASCRIPTEXIT, 0, 0 },
+	{"MAPDATAOCEANSFX", MAPDATAOCEANSFX, 0, 0 },
+	{"MAPDATABOSSSFX", MAPDATABOSSSFX, 0, 0 },
+	{"MAPDATASECRETSFX", MAPDATASECRETSFX, 0, 0 },
+	{"MAPDATAHOLDUPSFX", MAPDATAHOLDUPSFX, 0, 0 },
+	{"MAPDATASCREENMIDI", MAPDATASCREENMIDI, 0, 0 },
+	{"MAPDATALENSLAYER", MAPDATALENSLAYER, 0, 0 },
+	{"MAPDATAMISCD", MAPDATAMISCD, 0, 0},
+	
+	{"MAPDATASCREENSTATED", MAPDATASCREENSTATED, 0, 0},
+	{"MAPDATASCREENFLAGSD", MAPDATASCREENFLAGSD, 0, 0},
+	{"MAPDATASCREENEFLAGSD", MAPDATASCREENEFLAGSD, 0, 0},
+	
+	
+	
+	{"MAPDATACOMBODD", MAPDATACOMBODD, 0, 0},
+	{"MAPDATACOMBOCD", MAPDATACOMBOCD, 0, 0},
+	{"MAPDATACOMBOFD", MAPDATACOMBOFD, 0, 0},
+	{"MAPDATACOMBOTD", MAPDATACOMBOTD, 0, 0},
+	{"MAPDATACOMBOID", MAPDATACOMBOID, 0, 0},
+	{"MAPDATACOMBOSD", MAPDATACOMBOSD, 0, 0},
+	
+		{"SCREENDATAVALID", SCREENDATAVALID, 0, 0 },
+	{"SCREENDATAGUY", SCREENDATAGUY, 0, 0 },
+	{"SCREENDATASTRING", SCREENDATASTRING, 0, 0 },
+	{"SCREENDATAROOM", SCREENDATAROOM, 0, 0 },
+	{"SCREENDATAITEM", SCREENDATAITEM, 0, 0 },
+	{"SCREENDATAHASITEM", SCREENDATAHASITEM, 0, 0 },
+	{"SCREENDATATILEWARPTYPE", SCREENDATATILEWARPTYPE, 0, 0 },
+	{"SCREENDATATILEWARPOVFLAGS", SCREENDATATILEWARPOVFLAGS, 0, 0 },
+	{"SCREENDATADOORCOMBOSET", SCREENDATADOORCOMBOSET, 0, 0 },
+	{"SCREENDATAWARPRETX", SCREENDATAWARPRETX, 0, 0 },
+	{"SCREENDATAWARPRETY", SCREENDATAWARPRETY, 0, 0 },
+	{"SCREENDATAWARPRETURNC", SCREENDATAWARPRETURNC, 0, 0 },
+	{"SCREENDATASTAIRX", SCREENDATASTAIRX, 0, 0 },
+	{"SCREENDATASTAIRY", SCREENDATASTAIRY, 0, 0 },
+	{"SCREENDATACOLOUR", SCREENDATACOLOUR, 0, 0 },
+	{"SCREENDATAENEMYFLAGS", SCREENDATAENEMYFLAGS, 0, 0 },
+	{"SCREENDATADOOR", SCREENDATADOOR, 0, 0 },
+	{"SCREENDATATILEWARPDMAP", SCREENDATATILEWARPDMAP, 0, 0 },
+	{"SCREENDATATILEWARPSCREEN", SCREENDATATILEWARPSCREEN, 0, 0 },
+	{"SCREENDATAEXITDIR", SCREENDATAEXITDIR, 0, 0 },
+	{"SCREENDATAENEMY", SCREENDATAENEMY, 0, 0 },
+	{"SCREENDATAPATTERN", SCREENDATAPATTERN, 0, 0 },
+	{"SCREENDATASIDEWARPTYPE", SCREENDATASIDEWARPTYPE, 0, 0 },
+	{"SCREENDATASIDEWARPOVFLAGS", SCREENDATASIDEWARPOVFLAGS, 0, 0 },
+	{"SCREENDATAWARPARRIVALX", SCREENDATAWARPARRIVALX, 0, 0 },
+	{"SCREENDATAWARPARRIVALY", SCREENDATAWARPARRIVALY, 0, 0 },
+	{"SCREENDATAPATH", SCREENDATAPATH, 0, 0 },
+	{"SCREENDATASIDEWARPSC", SCREENDATASIDEWARPSC, 0, 0 },
+	{"SCREENDATASIDEWARPDMAP", SCREENDATASIDEWARPDMAP, 0, 0 },
+	{"SCREENDATASIDEWARPINDEX", SCREENDATASIDEWARPINDEX, 0, 0 },
+	{"SCREENDATAUNDERCOMBO", SCREENDATAUNDERCOMBO, 0, 0 },
+	{"SCREENDATAUNDERCSET", SCREENDATAUNDERCSET, 0, 0 },
+	{"SCREENDATACATCHALL", SCREENDATACATCHALL, 0, 0 },
+	{"SCREENDATAFLAGS", SCREENDATAFLAGS, 0, 0 },
+	{"SCREENDATACSENSITIVE", SCREENDATACSENSITIVE, 0, 0 },
+	{"SCREENDATANORESET", SCREENDATANORESET, 0, 0 },
+	{"SCREENDATANOCARRY", SCREENDATANOCARRY, 0, 0 },
+	{"SCREENDATALAYERMAP", SCREENDATALAYERMAP, 0, 0 },
+	{"SCREENDATALAYERSCREEN", SCREENDATALAYERSCREEN, 0, 0 },
+	{"SCREENDATALAYEROPACITY", SCREENDATALAYEROPACITY, 0, 0 },
+	{"SCREENDATATIMEDWARPTICS", SCREENDATATIMEDWARPTICS, 0, 0 },
+	{"SCREENDATANEXTMAP", SCREENDATANEXTMAP, 0, 0 },
+	{"SCREENDATANEXTSCREEN", SCREENDATANEXTSCREEN, 0, 0 },
+	{"SCREENDATASECRETCOMBO", SCREENDATASECRETCOMBO, 0, 0 },
+	{"SCREENDATASECRETCSET", SCREENDATASECRETCSET, 0, 0 },
+	{"SCREENDATASECRETFLAG", SCREENDATASECRETFLAG, 0, 0 },
+	{"SCREENDATAVIEWX", SCREENDATAVIEWX, 0, 0 },
+	{"SCREENDATAVIEWY", SCREENDATAVIEWY, 0, 0 },
+	{"SCREENDATASCREENWIDTH", SCREENDATASCREENWIDTH, 0, 0 },
+	{"SCREENDATASCREENHEIGHT", SCREENDATASCREENHEIGHT, 0, 0 },
+	{"SCREENDATAENTRYX", SCREENDATAENTRYX, 0, 0 },
+	{"SCREENDATAENTRYY", SCREENDATAENTRYY, 0, 0 },
+	{"SCREENDATANUMFF", SCREENDATANUMFF, 0, 0 },
+	{"SCREENDATAFFDATA", SCREENDATAFFDATA, 0, 0 },
+	{"SCREENDATAFFCSET", SCREENDATAFFCSET, 0, 0 },
+	{"SCREENDATAFFDELAY", SCREENDATAFFDELAY, 0, 0 },
+	{"SCREENDATAFFX", SCREENDATAFFX, 0, 0 },
+	{"SCREENDATAFFY", SCREENDATAFFY, 0, 0 },
+	{"SCREENDATAFFXDELTA", SCREENDATAFFXDELTA, 0, 0 },
+	{"SCREENDATAFFYDELTA", SCREENDATAFFYDELTA, 0, 0 },
+	{"SCREENDATAFFXDELTA2", SCREENDATAFFXDELTA2, 0, 0 },
+	{"SCREENDATAFFYDELTA2", SCREENDATAFFYDELTA2, 0, 0 },
+	{"SCREENDATAFFFLAGS", SCREENDATAFFFLAGS, 0, 0 },
+	{"SCREENDATAFFWIDTH", SCREENDATAFFWIDTH, 0, 0 },
+	{"SCREENDATAFFHEIGHT", SCREENDATAFFHEIGHT, 0, 0 },
+	{"SCREENDATAFFLINK", SCREENDATAFFLINK, 0, 0 },
+	{"SCREENDATAFFSCRIPT", SCREENDATAFFSCRIPT, 0, 0 },
+	{"SCREENDATAINTID", SCREENDATAINTID, 0, 0 }, //Needs to be a function [32][10]
+	{"SCREENDATAINITA", SCREENDATAINITA, 0, 0 }, //needs to be a function, [32][2]
+	{"SCREENDATAFFINITIALISED", SCREENDATAFFINITIALISED, 0, 0 },
+	{"SCREENDATASCRIPTENTRY", SCREENDATASCRIPTENTRY, 0, 0 },
+	{"SCREENDATASCRIPTOCCUPANCY", SCREENDATASCRIPTOCCUPANCY, 0, 0 },
+	{"SCREENDATASCRIPTEXIT", SCREENDATASCRIPTEXIT, 0, 0 },
+	{"SCREENDATAOCEANSFX", SCREENDATAOCEANSFX, 0, 0 },
+	{"SCREENDATABOSSSFX", SCREENDATABOSSSFX, 0, 0 },
+	{"SCREENDATASECRETSFX", SCREENDATASECRETSFX, 0, 0 },
+	{"SCREENDATAHOLDUPSFX", SCREENDATAHOLDUPSFX, 0, 0 },
+	{"SCREENDATASCREENMIDI", SCREENDATASCREENMIDI, 0, 0 },
+	{"SCREENDATALENSLAYER", SCREENDATALENSLAYER, 0, 0 },
+	
+	{"LINKSCRIPTTILE", LINKSCRIPTTILE, 0, 0 },
+	{"LINKSCRIPFLIP", LINKSCRIPFLIP, 0, 0 },
+	{"MAPDATAITEMX", MAPDATAITEMX, 0, 0 },
+	{"MAPDATAITEMY", MAPDATAITEMY, 0, 0 },
+	{"SCREENDATAITEMX", SCREENDATAITEMX, 0, 0 },
+	{"SCREENDATAITEMY", SCREENDATAITEMY, 0, 0 },
+	
+	{"MAPDATAFFEFFECTWIDTH", MAPDATAFFEFFECTWIDTH, 0, 0 },
+	{"MAPDATAFFEFFECTHEIGHT", MAPDATAFFEFFECTHEIGHT, 0, 0 },
+	{"SCREENDATAFFEFFECTWIDTH", SCREENDATAFFEFFECTWIDTH, 0, 0 },
+	{"SCREENDATAFFEFFECTHEIGHT", SCREENDATAFFEFFECTHEIGHT, 0, 0 },
+	
+	{"LOADMAPDATA", LOADMAPDATA, 0, 0 },
+	{"LWPNPARENT", LWPNPARENT, 0, 0 },
+	{"LWPNLEVEL", LWPNLEVEL, 0, 0 },
+	{"EWPNPARENT", EWPNPARENT, 0, 0 },
+	
+	
+	{"SHOPDATANAME", SHOPDATANAME, 0, 0 },
+	{"SHOPDATAITEM", SHOPDATAITEM, 0, 0 },
+	{"SHOPDATAHASITEM", SHOPDATAHASITEM, 0, 0 },
+	{"SHOPDATAPRICE", SHOPDATAPRICE, 0, 0 },
+	{"SHOPDATASTRING", SHOPDATASTRING, 0, 0 },
+	
+	{"NPCDATASHIELD", NPCDATASHIELD, 0, 0 },
+	{"NPCSHIELD", NPCSHIELD, 0, 0 },
+	{"AUDIOVOLUME", AUDIOVOLUME, 0, 0 },
+	{"AUDIOPAN", AUDIOPAN, 0, 0 },
+	
+	{"MESSAGEDATANEXT", MESSAGEDATANEXT, 0, 0 },
+	{"MESSAGEDATATILE", MESSAGEDATATILE, 0, 0 },
+	{"MESSAGEDATACSET", MESSAGEDATACSET, 0, 0 },
+	{"MESSAGEDATATRANS", MESSAGEDATATRANS, 0, 0 },
+	{"MESSAGEDATAFONT", MESSAGEDATAFONT, 0, 0 },
+	{"MESSAGEDATAX", MESSAGEDATAX, 0, 0 },
+	{"MESSAGEDATAY", MESSAGEDATAY, 0, 0 },
+	{"MESSAGEDATAW", MESSAGEDATAW, 0, 0 },
+	{"MESSAGEDATAH", MESSAGEDATAH, 0, 0 },
+	{"MESSAGEDATASFX", MESSAGEDATASFX, 0, 0 },
+	{"MESSAGEDATALISTPOS", MESSAGEDATALISTPOS, 0, 0 },
+	{"MESSAGEDATAVSPACE", MESSAGEDATAVSPACE, 0, 0 },
+	{"MESSAGEDATAHSPACE", MESSAGEDATAHSPACE, 0, 0 },
+	{"MESSAGEDATAFLAGS", MESSAGEDATAFLAGS, 0, 0 },
+	
+	{"DMAPDATAMAP", DMAPDATAMAP, 0, 0 },
+	{"DMAPDATALEVEL", DMAPDATALEVEL, 0, 0 },
+	{"DMAPDATAOFFSET", DMAPDATAOFFSET, 0, 0 },
+	{"DMAPDATACOMPASS", DMAPDATACOMPASS, 0, 0 },
+	{"DMAPDATAPALETTE", DMAPDATAPALETTE, 0, 0 },
+	{"DMAPDATAMIDI", DMAPDATAMIDI, 0, 0 },
+	{"DMAPDATACONTINUE", DMAPDATACONTINUE, 0, 0 },
+	{"DMAPDATATYPE", DMAPDATATYPE, 0, 0 },
+	{"DMAPDATAGRID", DMAPDATAGRID, 0, 0 },
+	{"DMAPDATAMINIMAPTILE", DMAPDATAMINIMAPTILE, 0, 0 },
+	{"DMAPDATAMINIMAPCSET", DMAPDATAMINIMAPCSET, 0, 0 },
+	{"DMAPDATALARGEMAPTILE", DMAPDATALARGEMAPTILE, 0, 0 },
+	{"DMAPDATALARGEMAPCSET", DMAPDATALARGEMAPCSET, 0, 0 },
+	{"DMAPDATAMUISCTRACK", DMAPDATAMUISCTRACK, 0, 0 },
+	{"DMAPDATASUBSCRA", DMAPDATASUBSCRA, 0, 0 },
+	{"DMAPDATASUBSCRP", DMAPDATASUBSCRP, 0, 0 },
+	{"DMAPDATADISABLEDITEMS", DMAPDATADISABLEDITEMS, 0, 0 },
+	{"DMAPDATAFLAGS", DMAPDATAFLAGS, 0, 0 },
+	
+	{"NPCFROZEN", NPCFROZEN, 0, 0 },
+	{"NPCFROZENTILE", NPCFROZENTILE, 0, 0 },
+	{"NPCFROZENCSET", NPCFROZENCSET, 0, 0 },
+	
+	{"ITEMPSTRING", ITEMPSTRING, 0, 0 },
+	{"ITEMPSTRINGFLAGS", ITEMPSTRINGFLAGS, 0, 0 },
+	{"ITEMOVERRIDEFLAGS", ITEMOVERRIDEFLAGS, 0, 0 },
+	{"LINKPUSH", LINKPUSH, 0, 0 },
+	{"LINKSTUN", LINKSTUN, 0, 0 },
+	{"IDATACOSTCOUNTER", IDATACOSTCOUNTER, 0, 0 },
+	{"TYPINGMODE", TYPINGMODE, 0, 0 },
+	//{"DMAPDATAGRAVITY", DMAPDATAGRAVITY, 0, 0 },
+	//{"DMAPDATAJUMPLAYER", DMAPDATAJUMPLAYER, 0, 0 },
+	//end ffscript vars
+	//END VARS END OF BYTECODE
+	
+	//newcombo
+	{"COMBODTILE", COMBODTILE, 0, 0 },
+	{"COMBODFLIP", COMBODFLIP, 0, 0 },
+	{"COMBODWALK", COMBODWALK, 0, 0 },
+	{"COMBODTYPE", COMBODTYPE, 0, 0 },
+	{"COMBODCSET", COMBODCSET, 0, 0 },
+	{"COMBODFOO", COMBODFOO, 0, 0 },
+	{"COMBODFRAMES", COMBODFRAMES, 0, 0 },
+	{"COMBODNEXTD", COMBODNEXTD, 0, 0 },
+	{"COMBODNEXTC", COMBODNEXTC, 0, 0 },
+	{"COMBODFLAG", COMBODFLAG, 0, 0 },
+	{"COMBODSKIPANIM", COMBODSKIPANIM, 0, 0 },
+	{"COMBODNEXTTIMER", COMBODNEXTTIMER, 0, 0 },
+	{"COMBODAKIMANIMY", COMBODAKIMANIMY, 0, 0 },
+	{"COMBODANIMFLAGS", COMBODANIMFLAGS, 0, 0 },
+	{"COMBODEXPANSION", COMBODEXPANSION, 0, 0 },
+	{"COMBODATTRIBUTES", COMBODATTRIBUTES, 0, 0 },
+	{"COMBODUSRFLAGS", COMBODUSRFLAGS, 0, 0 },
+	{"COMBODTRIGGERFLAGS", COMBODTRIGGERFLAGS, 0, 0 },
+	{"COMBODTRIGGERLEVEL", COMBODTRIGGERLEVEL, 0, 0 },
+
+	//comboclass
+	{"COMBODNAME", COMBODNAME, 0, 0 },
+	{"COMBODBLOCKNPC", COMBODBLOCKNPC, 0, 0 },
+	{"COMBODBLOCKHOLE", COMBODBLOCKHOLE, 0, 0 },
+	{"COMBODBLOCKTRIG", COMBODBLOCKTRIG, 0, 0 },
+	{"COMBODBLOCKWEAPON", COMBODBLOCKWEAPON, 0, 0 },
+	{"COMBODCONVXSPEED", COMBODCONVXSPEED, 0, 0 },
+	{"COMBODCONVYSPEED", COMBODCONVYSPEED, 0, 0 },
+	{"COMBODSPAWNNPC", COMBODSPAWNNPC, 0, 0 },
+	{"COMBODSPAWNNPCWHEN", COMBODSPAWNNPCWHEN, 0, 0 },
+	{"COMBODSPAWNNPCCHANGE", COMBODSPAWNNPCCHANGE, 0, 0 },
+	{"COMBODDIRCHANGETYPE", COMBODDIRCHANGETYPE, 0, 0 },
+	{"COMBODDISTANCECHANGETILES", COMBODDISTANCECHANGETILES, 0, 0 },
+	{"COMBODDIVEITEM", COMBODDIVEITEM, 0, 0 },
+	{"COMBODDOCK", COMBODDOCK, 0, 0 },
+	{"COMBODFAIRY", COMBODFAIRY, 0, 0 },
+	{"COMBODFFATTRCHANGE", COMBODFFATTRCHANGE, 0, 0 },
+	{"COMBODFOORDECOTILE", COMBODFOORDECOTILE, 0, 0 },
+	{"COMBODFOORDECOTYPE", COMBODFOORDECOTYPE, 0, 0 },
+	{"COMBODHOOKSHOTPOINT", COMBODHOOKSHOTPOINT, 0, 0 },
+	{"COMBODLADDERPASS", COMBODLADDERPASS, 0, 0 },
+	{"COMBODLOCKBLOCK", COMBODLOCKBLOCK, 0, 0 },
+	{"COMBODLOCKBLOCKCHANGE", COMBODLOCKBLOCKCHANGE, 0, 0 },
+	{"COMBODMAGICMIRROR", COMBODMAGICMIRROR, 0, 0 },
+	{"COMBODMODHPAMOUNT", COMBODMODHPAMOUNT, 0, 0 },
+	{"COMBODMODHPDELAY", COMBODMODHPDELAY, 0, 0 },
+	{"COMBODMODHPTYPE", COMBODMODHPTYPE, 0, 0 },
+	{"COMBODNMODMPAMOUNT", COMBODNMODMPAMOUNT, 0, 0 },
+	{"COMBODMODMPDELAY", COMBODMODMPDELAY, 0, 0 },
+	{"COMBODMODMPTYPE", COMBODMODMPTYPE, 0, 0 },
+	{"COMBODNOPUSHBLOCK", COMBODNOPUSHBLOCK, 0, 0 },
+	{"COMBODOVERHEAD", COMBODOVERHEAD, 0, 0 },
+	{"COMBODPLACENPC", COMBODPLACENPC, 0, 0 },
+	{"COMBODPUSHDIR", COMBODPUSHDIR, 0, 0 },
+	{"COMBODPUSHWAIT", COMBODPUSHWAIT, 0, 0 },
+	{"COMBODPUSHHEAVY", COMBODPUSHHEAVY, 0, 0 },
+	{"COMBODPUSHED", COMBODPUSHED, 0, 0 },
+	{"COMBODRAFT", COMBODRAFT, 0, 0 },
+	{"COMBODRESETROOM", COMBODRESETROOM, 0, 0 },
+	{"COMBODSAVEPOINTTYPE", COMBODSAVEPOINTTYPE, 0, 0 },
+	{"COMBODSCREENFREEZETYPE", COMBODSCREENFREEZETYPE, 0, 0 },
+	{"COMBODSECRETCOMBO", COMBODSECRETCOMBO, 0, 0 },
+	{"COMBODSINGULAR", COMBODSINGULAR, 0, 0 },
+	{"COMBODSLOWWALK", COMBODSLOWWALK, 0, 0 },
+	{"COMBODSTATUETYPEs", COMBODSTATUETYPE, 0, 0 },
+	{"COMBODSTEPTYPE", COMBODSTEPTYPE, 0, 0 },
+	{"COMBODSTEPCHANGEINTO", COMBODSTEPCHANGEINTO, 0, 0 },
+	{"COMBODSTRIKEWEAPONS", COMBODSTRIKEWEAPONS, 0, 0 },
+	{"COMBODSTRIKEREMNANTS", COMBODSTRIKEREMNANTS, 0, 0 },
+	{"COMBODSTRIKEREMNANTSTYPE", COMBODSTRIKEREMNANTSTYPE, 0, 0 },
+	{"COMBODSTRIKECHANGE", COMBODSTRIKECHANGE, 0, 0 },
+	{"COMBODSTRIKEITEM", COMBODSTRIKEITEM, 0, 0 },
+	{"COMBODTOUCHITEM", COMBODTOUCHITEM, 0, 0 },
+	{"COMBODTOUCHSTAIRS", COMBODTOUCHSTAIRS, 0, 0 },
+	{"COMBODTRIGGERTYPE", COMBODTRIGGERTYPE, 0, 0 },
+	{"COMBODTRIGGERSENS", COMBODTRIGGERSENS, 0, 0 },
+	{"COMBODWARPTYPE", COMBODWARPTYPE, 0, 0 },
+	{"COMBODWARPSENS", COMBODWARPSENS, 0, 0 },
+	{"COMBODWARPDIRECT", COMBODWARPDIRECT, 0, 0 },
+	{"COMBODWARPLOCATION", COMBODWARPLOCATION, 0, 0 },
+	{"COMBODWATER", COMBODWATER, 0, 0 },
+	{"COMBODWHISTLE", COMBODWHISTLE, 0, 0 },
+	{"COMBODWINGAME", COMBODWINGAME, 0, 0 },
+	{"COMBODBLOCKWPNLEVEL", COMBODBLOCKWPNLEVEL, 0, 0 },
+
+	{"TYPINGMODE", TYPINGMODE, 0, 0 },
+	{"TYPINGMODE", TYPINGMODE, 0, 0 },
+	{"LINKHITBY", LINKHITBY, 0, 0 },
+	{"LINKDEFENCE", LINKDEFENCE, 0, 0 },
+	{"NPCHITBY", NPCHITBY, 0, 0 },
+	{"NPCISCORE", NPCISCORE, 0, 0 },
+	{"NPCSCRIPTUID", NPCSCRIPTUID, 0, 0 },
+	{"LWEAPONSCRIPTUID", LWEAPONSCRIPTUID, 0, 0 },
+	{"EWEAPONSCRIPTUID", EWEAPONSCRIPTUID, 0, 0 },
+	{"ITEMSCRIPTUID", ITEMSCRIPTUID, 0, 0 },
+	
+	{"DMAPDATASIDEVIEW", DMAPDATASIDEVIEW, 0, 0 },
+	
+	{"DONULL", DONULL, 0, 0 },
+	{"DEBUGD", DEBUGD, 0, 0 },
+	{"GETPIXEL", GETPIXEL, 0, 0 },
+	{"DOUNTYPE", DOUNTYPE, 0, 0 },
+	{"NPCBEHAVIOUR", NPCBEHAVIOUR, 0, 0 },
+	{"NPCDATABEHAVIOUR", NPCDATABEHAVIOUR, 0, 0 },
+	{"CREATEBITMAP", CREATEBITMAP, 0, 0 },
+	{"LINKTILEMOD", LINKTILEMOD, 0, 0 },
+	{"NPCINITD", NPCINITD, 0, 0 },
+	{"NPCCOLLISION", NPCCOLLISION, 0, 0 },
+	{"NPCLINEDUP", NPCLINEDUP, 0, 0 },
+	
+	{"NPCDATAINITD", NPCLINEDUP, 0, 0 },
+	{"NPCDATASCRIPT", NPCDATASCRIPT, 0, 0 },
+	{"NPCMATCHINITDLABEL", NPCMATCHINITDLABEL, 0, 0 },
+	//lweapon scripts
+	{"LWPNSCRIPT", LWPNSCRIPT, 0, 0 },
+	{"LWPNINITD", LWPNINITD, 0, 0 },
+	{"ITEMFAMILY", ITEMFAMILY, 0, 0 },
+	{"ITEMLEVEL", ITEMLEVEL, 0, 0 },
+	
+	{"EWPNSCRIPT", EWPNSCRIPT, 0, 0 },
+	{"EWPNINITD", EWPNINITD, 0, 0 },
+	
+	{"NPCSCRIPT", NPCSCRIPT, 0, 0 },
+	
+	{"DMAPSCRIPT", DMAPSCRIPT, 0, 0 },
+	{"DMAPINITD", DMAPINITD, 0, 0 },
+	
+	{"SCREENSCRIPT", SCREENSCRIPT, 0, 0 },
+	{"SCREENINITD", SCREENINITD, 0, 0 },
+	
+	{"LINKINITD", LINKINITD, 0, 0 },
+	{"NPCDATAWEAPONINITD", NPCDATAWEAPONINITD, 0, 0 },
+	{"NPCDATAWEAPONSCRIPT", NPCDATAWEAPONSCRIPT, 0, 0 },
+	
+	{"NPCSCRIPTTILE", NPCSCRIPTTILE, 0, 0 },
+	{"NPCSCRIPTFLIP", NPCSCRIPTFLIP, 0, 0 },
+	{"LWPNSCRIPTTILE", LWPNSCRIPTTILE, 0, 0 },
+	{"LWPNSCRIPTFLIP", LWPNSCRIPTFLIP, 0, 0 },
+	{"EWPNSCRIPTTILE", EWPNSCRIPTTILE, 0, 0 },
+	{"EWPNSCRIPTFLIP", EWPNSCRIPTFLIP, 0, 0 },
+	
+	{"LINKENGINEANIMATE", LINKENGINEANIMATE, 0, 0 },
+	{"NPCENGINEANIMATE", NPCENGINEANIMATE, 0, 0 },
+	{"LWPNENGINEANIMATE", LWPNENGINEANIMATE, 0, 0 },
+	{"EWPNENGINEANIMATE", EWPNENGINEANIMATE, 0, 0 },
+	{"SKIPCREDITS", SKIPCREDITS, 0, 0 },
+	{"SKIPF6", SKIPF6, 0, 0 },
+	{"LWPNUSEWEAPON", LWPNUSEWEAPON, 0, 0 },
+	{"LWPNUSEDEFENCE", LWPNUSEDEFENCE, 0, 0 },
+	{"LWPNROTATION", LWPNROTATION, 0, 0 },	
+	{"EWPNROTATION", EWPNROTATION, 0, 0 },	
+	{"NPCROTATION", NPCROTATION, 0, 0 },	
+	{"ITEMROTATION", ITEMROTATION, 0, 0 },	
+	{"LINKROTATION", LINKROTATION, 0, 0 },
+	{"LWPNSCALE", LWPNSCALE, 0, 0 },
+	{"EWPNSCALE", EWPNSCALE, 0, 0 },
+	{"NPCSCALE", NPCSCALE, 0, 0 },
+	{"ITEMSCALE", ITEMSCALE, 0, 0 },
+	{"LINKSCALE", LINKSCALE, 0, 0 },
+	{"ITEMSPRITESCRIPT", ITEMSPRITESCRIPT, 0, 0 },
+	{"FFRULE", FFRULE, 0, 0 },
+	{"NUMDRAWS", NUMDRAWS, 0, 0 },
+	{"MAXDRAWS", MAXDRAWS, 0, 0 },
+	{"BITMAPWIDTH", BITMAPWIDTH, 0, 0 },
+	{"BITMAPHEIGHT", BITMAPHEIGHT, 0, 0 },
+	{"ALLOCATEBITMAPR", ALLOCATEBITMAPR, 0, 0 },
+	{"KEYMODIFIERS", KEYMODIFIERS, 0, 0 },
+	{"SIMULATEKEYPRESS", SIMULATEKEYPRESS, 0, 0 },
+	{"KEYBINDINGS", KEYBINDINGS, 0, 0 },
+	
+	{"SCREENSCRIPT", SCREENSCRIPT, 0, 0 },
+	{"SCREENINITD", SCREENINITD, 0, 0 },
+	{"MAPDATASCRIPT", MAPDATASCRIPT, 0, 0 },
+	{"MAPDATAINITDARRAY", MAPDATAINITDARRAY, 0, 0 },
+	{"LWPNGRAVITY", LWPNGRAVITY, 0, 0 },
+	{"EWPNGRAVITY", EWPNGRAVITY, 0, 0 },
+	{"NPCGRAVITY", NPCGRAVITY, 0, 0 },
+	{"ITEMGRAVITY", ITEMGRAVITY, 0, 0 },
+	
+	{"MAPDATASIDEWARPID", MAPDATASIDEWARPID, 0, 0 },
+	{"SCREENSIDEWARPID", SCREENSIDEWARPID, 0, 0 },
+	{"SCREENDATALAYERINVIS", SCREENDATALAYERINVIS, 0, 0 },
+	{"SCREENDATASCRIPTDRAWS", SCREENDATASCRIPTDRAWS, 0, 0 },
+	{"MAPDATALAYERINVIS", MAPDATALAYERINVIS, 0, 0 },
+	{"MAPDATASCRIPTDRAWS", MAPDATASCRIPTDRAWS, 0, 0 },
+	
+	{"ITEMSCRIPTTILE", ITEMSCRIPTTILE, 0, 0 },
+	{"ITEMSCRIPTFLIP", ITEMSCRIPTFLIP, 0, 0 },
+	{"MAPDATAMAP", MAPDATAMAP, 0, 0 },
+	{"MAPDATASCREEN", MAPDATASCREEN, 0, 0 },
+	{"IDATAVALIDATE", IDATAVALIDATE, 0, 0 },
+	{ "DISABLEKEY",		DISABLEKEY,        0,             0 },
+	{ "DISABLEBUTTON",		DISABLEBUTTON,        0,             0 },
+	{ "GAMESUSPEND",		GAMESUSPEND,        0,             0 },
+	{ "LINKOTILE",		LINKOTILE,        0,             0 },
+	{ "LINKOFLIP",		LINKOFLIP,        0,             0 },
+	{ "ITEMSPRITEINITD",		ITEMSPRITEINITD,        0,             0 },
+	
+	{ "ZSCRIPTVERSION",		ZSCRIPTVERSION,        0,             0 },
+	{ "REFFILE",		REFFILE,        0,             0 },
+	{ "LINKCLIMBING",		LINKCLIMBING,        0,             0 },
+	{ "NPCIMMORTAL",		NPCIMMORTAL,        0,             0 },
+	{ "NPCNOSLIDE",		NPCNOSLIDE,        0,             0 },
+	{ "NPCKNOCKBACKSPEED",		NPCKNOCKBACKSPEED,        0,             0 },
+	{ "NPCNOSCRIPTKB",		NPCNOSCRIPTKB,        0,             0 },
+	{ "GETRENDERTARGET",		GETRENDERTARGET,        0,             0 },
+	{ "HERONOSTEPFORWARD",		HERONOSTEPFORWARD,        0,             0 },
+	{ "SCREENDATATWARPRETSQR",		SCREENDATATWARPRETSQR,        0,             0 },
+	{ "SCREENDATASWARPRETSQR",		SCREENDATASWARPRETSQR,        0,             0 },
+	{ "MAPDATATWARPRETSQR",		MAPDATATWARPRETSQR,        0,             0 },
+	{ "MAPDATASWARPRETSQR",		MAPDATASWARPRETSQR,        0,             0 },
+	{ " ",                       -1,             0,             0 }
+};
+
+
+
+///----------------------------------------------------------------------------------------------------//
+//Debugger and Logging Consoles
+
+
+void FFScript::ZScriptConsole(bool open)
+{
+	al_trace("Opening ZScript Console");
+	#ifdef _WIN32
+	if ( open )
+	{
+		zscript_coloured_console.Create("ZScript Debug Console", 600, 200);
+		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+		zscript_coloured_console.gotoxy(0,0);
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZScript Debug Console\n");
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
+		//coloured_console.SetAsDefaultOutput();
+		zscript_debugger = 1;
+	}
+	else
+	{
+		//close
+		zscript_coloured_console.Close();
+		zscript_debugger = 0;
+	}
+	#endif	
+}
+
+
+void FFScript::ZScriptConsolePrint(int attributes,const char *format,...)
+{
+	#ifdef _WIN32
+	
+	coloured_console.cprintf( attributes,format);
+	//coloured_console.print();
+	#endif	
+}
+
+void FFScript::ZASMPrint(bool open)
+{
+	Z_scripterrlog("Opening ZASM Console");
+	#ifdef _WIN32
+	if ( open )
+	{
+		coloured_console.Create("ZASM Debugger", 600, 200);
+		coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+		coloured_console.gotoxy(0,0);
+		coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZASM Stack Trace:\n");
+		//coloured_console.SetAsDefaultOutput();
+		zasm_debugger = 1;
+	}
+	else
+	{
+		//close
+		coloured_console.Close();
+		zasm_debugger = 0;
+	}
+	#endif	
+}
+
+
+void FFScript::ZASMPrintCommand(const word scommand)
+{
+	#ifdef _WIN32
+	//if ( !zasm_debugger ) return;
+	
+	script_command s_c = ZASMcommands[scommand];
+	script_variable s_v = ZASMVars[0];
+	
+	if(s_c.args == 2)
+	{
+		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s: ", s_c.name);
+        
+		if(s_c.arg1_type == 0)
+		{
+			s_v = ZASMVars[sarg1];
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
+			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", s_v.name, get_register(sarg1));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t d%d (val = %2d), ", s_v.id-8, get_register(sarg1));
+		}
+		else
+		{
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d), ", "immediate", sarg1);
+		}
+		if(s_c.arg2_type == 0)
+		{
+			s_v = ZASMVars[sarg2];
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg2));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\t d%d (val = %2d)\n", s_v.id-8, get_register(sarg2));
+		}
+		else
+		{
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg2);
+		}
+	}
+	else if(s_c.args == 1)
+	{
+		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s: ", s_c.name);
+        
+		if(s_c.arg1_type == 0)
+		{
+			s_v = ZASMVars[sarg1];
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg1));
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t d%d (val = %2d)\n", s_v.id-8, get_register(sarg1));
+		}
+		else
+		{
+			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY |  
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg1);
+		}
+	}
+	else
+	{
+		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s\n",s_c.name);
+	}
+	//s_c.name is the string with the instruction
+	
+	//coloured_console.print();
+	#endif	
+}
+
+void FFScript::ZASMPrintVarSet(const long arg, long argval)
+{
+	#ifdef _WIN32
+	//if ( !zasm_debugger ) return;
+	script_variable s_v = ZASMVars[arg];
+	//s_v.name is the string with the instruction
+	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",s_v.name);
+	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
+	//coloured_console.print();
+	#endif	
+}
+
+void FFScript::ZASMPrintVarGet(const long arg, long argval)
+{
+	#ifdef _WIN32
+	//if ( !zasm_debugger ) return;
+	script_variable s_v = ZASMVars[arg];
+	//s_v.name is the string with the instruction
+	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",s_v.name);
+	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
+	//coloured_console.print();
+	#endif	
+}
+
+
+
+///----------------------------------------------------------------------------------------------------//
+//Tracing
+
+void FFScript::do_trace(bool v)
+{
+    long temp = SH::get_arg(sarg1, v);
+    
+    char tmp[100];
+    sprintf(tmp, (temp < 0 ? "%06ld" : "%05ld"), temp);
+    string s2(tmp);
+    s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
+    TraceScriptIDs();
+    al_trace("%s\n", s2.c_str());
+    
+    if(zconsole)
+        printf("%s\n", s2.c_str());
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
+		#endif
+	}
+}
+
+void FFScript::do_tracebool(const bool v)
+{
+    long temp = SH::get_arg(sarg1, v);
+    TraceScriptIDs();
+    al_trace("%s\n", temp ? "true": "false");
+    
+    if(zconsole)
+        printf("%s\n", temp ? "true": "false");
+    
+	if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", temp ? "true": "false");
+		#endif
+	}
+}
+
+void FFScript::do_tracestring()
+{
+    long arrayptr = get_register(sarg1) / 10000;
+    string str;
+    ArrayH::getString(arrayptr, str, 512);
+    TraceScriptIDs();
+    al_trace("%s", str.c_str());
+	
+    if(zconsole)
+        printf("%s", str.c_str());
+    
+    if ( zscript_debugger ) 
+    {
+	#ifdef _WIN32
+	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", str.c_str());
+
+	#endif
+    }
+}
+
+void FFScript::do_tracenl()
+{
+    al_trace("\n");
+    
+    if(zconsole)
+        printf("\n");
+        if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
+		#endif
+	}
+}
+
+
+void FFScript::TraceScriptIDs()
+{
+	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLEVEL > 1 )
+	{
+		switch(curScriptType)
+		{
+			case SCRIPT_GLOBAL:
+			    al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): ", 
+					curScriptNum+1, globalmap[curScriptNum].second.c_str()); }
+				#endif
+			    break;
+			
+			case SCRIPT_LINK:
+			    al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str()); }
+				#endif    
+			break;
+			
+			case SCRIPT_LWPN:
+			    al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());}
+				#endif    
+			break;
+			
+			case SCRIPT_EWPN:
+			    al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].second.c_str());}
+				#endif    
+			break;
+			
+			case SCRIPT_NPC:
+			    al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());}
+				#endif    
+			break;
+			    
+			case SCRIPT_FFC:
+			    al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
+			    
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+			    
+			case SCRIPT_ITEM:
+			    al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+			
+			case SCRIPT_DMAP:
+			    al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());
+			    
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+			
+			case SCRIPT_ITEMSPRITE:
+			    al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+			
+			case SCRIPT_SCREEN:
+			    al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+			
+			case SCRIPT_SUBSCREEN:
+			    al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+				#ifdef _WIN32
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());}
+				#endif
+			break;
+		}
+	}
+}
+
+void FFScript::do_cleartrace()
+{
+    zc_trace_clear();
+}
+
+string inttobase(word base, long x, word mindigits)
+{
+    static const char coeff[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    
+    string s2;
+    word digits = zc_max(mindigits - 1, word(floor(log(double(x)) / log(double(base)))));
+    
+    for(int i = digits; i >= 0; i--)
+    {
+        s2 += coeff[word(floor(x / pow(double(base), i))) % base];
+    }
+    
+    return s2;
+}
+
+void FFScript::do_tracetobase()
+{
+    long x = SH::read_stack(ri->sp + 2) / 10000;
+    unsigned long base = vbound(SH::read_stack(ri->sp + 1) / 10000, 2, 36);
+    unsigned long mindigits = zc_max(1, SH::read_stack(ri->sp) / 10000);
+    
+    string s2 = x < 0 ? "-": "";
+    
+    switch(base)
+    {
+    case 8:
+        s2 += '0';
+        break;
+        
+    case 16:
+        s2 += "0x";
+        break;
+    }
+    
+    s2 += inttobase(base, int(fabs(double(x))), mindigits);
+    
+    switch(base)
+    {
+    case 8:
+    case 10:
+    case 16:
+        break;
+        
+    case 2:
+        s2 += 'b';
+        break;
+        
+    default:
+        std::stringstream ss;
+        ss << " (Base " << base << ')';
+        s2 += ss.str();
+        break;
+    }
+    TraceScriptIDs();
+    al_trace("%s\n", s2.c_str());
+    
+    if(zconsole)
+        printf("%s\n", s2.c_str());
+    
+    if ( zscript_debugger ) 
+	{
+		#ifdef _WIN32
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
+		#endif
+	}
+}
+
+//SRAM Functions
+void FFScript::write_dmaps(PACKFILE *f, int vers_id)
+{
+	word dmap_count=count_dmaps();
+  
+        dmap_count=zc_min(dmap_count, 512);
+        dmap_count=zc_min(dmap_count, MAXDMAPS-0);
+        
+        //finally...  section data
+        if(!p_iputw(dmap_count,f))
+        {
+            Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",5);
+        }
+        
+        
+        for(int i=0; i<dmap_count; i++)
+        {
+            if(!p_putc(DMaps[i].map,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",6);
+            }
+            
+            if(!p_iputw(DMaps[i].level,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",7);
+            }
+            
+            if(!p_putc(DMaps[i].xoff,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",8);
+            }
+            
+            if(!p_putc(DMaps[i].compass,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",9);
+            }
+            
+            if(!p_iputw(DMaps[i].color,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",10);
+            }
+            
+            if(!p_putc(DMaps[i].midi,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",11);
+            }
+            
+            if(!p_putc(DMaps[i].cont,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",12);
+            }
+            
+            if(!p_putc(DMaps[i].type,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",13);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_putc(DMaps[i].grid[j],f))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",14);
+                }
+            }
+            
+            //16
+            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",15);
+            }
+            
+            if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",16);
+            }
+            
+            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",17);
+            }
+            
+            if(!p_iputl(DMaps[i].minimap_1_tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",18);
+            }
+            
+            if(!p_putc(DMaps[i].minimap_1_cset,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",19);
+            }
+            
+            if(!p_iputl(DMaps[i].minimap_2_tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",20);
+            }
+            
+            if(!p_putc(DMaps[i].minimap_2_cset,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",21);
+            }
+            
+            if(!p_iputl(DMaps[i].largemap_1_tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",22);
+            }
+            
+            if(!p_putc(DMaps[i].largemap_1_cset,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",23);
+            }
+            
+            if(!p_iputl(DMaps[i].largemap_2_tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",24);
+            }
+            
+            if(!p_putc(DMaps[i].largemap_2_cset,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",25);
+            }
+            
+            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",26);
+            }
+            
+            if(!p_putc(DMaps[i].tmusictrack,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",25);
+            }
+            
+            if(!p_putc(DMaps[i].active_subscreen,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",26);
+            }
+            
+            if(!p_putc(DMaps[i].passive_subscreen,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",27);
+            }
+            
+            byte disabled[32];
+            memset(disabled,0,32);
+            
+            for(int j=0; j<MAXITEMS; j++)
+            {
+                if(DMaps[i].disableditems[j])
+                {
+                    disabled[j/8] |= (1 << (j%8));
+                }
+            }
+            
+            if(!pfwrite(disabled,32,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",28);
+            }
+            
+            if(!p_iputl(DMaps[i].flags,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",29);
+            }
+	    if(!p_putc(DMaps[i].sideview,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",30);
+            }
+	    if(!p_iputw(DMaps[i].script,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",31);
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(DMaps[i].initD[q],f))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",32);
+		}
+		    
+	    }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		    for ( int w = 0; w < 65; w++ )
+		    {
+			if (!p_putc(DMaps[i].initD_label[q][w],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",33);
+			}
+		}
+	    }
+        }
+}
+void FFScript::read_dmaps(PACKFILE *f, int vers_id)
+{
+	word dmap_count=count_dmaps();
+  
+        dmap_count=zc_min(dmap_count, 512);
+        dmap_count=zc_min(dmap_count, MAXDMAPS-0);
+        
+        //finally...  section data
+        if(!p_igetw(&dmap_count,f,true))
+        {
+            Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",5);
+        }
+        
+        
+        for(int i=0; i<dmap_count; i++)
+        {
+            if(!p_getc(&DMaps[i].map,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",6);
+            }
+            
+            if(!p_igetw(&DMaps[i].level,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",7);
+            }
+            
+            if(!p_getc(&DMaps[i].xoff,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",8);
+            }
+            
+            if(!p_getc(&DMaps[i].compass,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",9);
+            }
+            
+            if(!p_igetw(&DMaps[i].color,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",10);
+            }
+            
+            if(!p_getc(&DMaps[i].midi,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",11);
+            }
+            
+            if(!p_getc(&DMaps[i].cont,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",12);
+            }
+            
+            if(!p_getc(&DMaps[i].type,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",13);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_getc(&DMaps[i].grid[j],f,true))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",14);
+                }
+            }
+            
+            //16
+            if(!pfread((&DMaps[i].name),sizeof(DMaps[0].name),f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",15);
+            }
+            
+            if(!pfread((&DMaps[i].title),sizeof(DMaps[0].title),f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",16);
+            }
+            
+            if(!pfread((&DMaps[i].intro),sizeof(DMaps[0].intro),f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",17);
+            }
+            
+            if(!p_igetl(&DMaps[i].minimap_1_tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",18);
+            }
+            
+            if(!p_getc(&DMaps[i].minimap_1_cset,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",19);
+            }
+            
+            if(!p_igetl(&DMaps[i].minimap_2_tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",20);
+            }
+            
+            if(!p_getc(&DMaps[i].minimap_2_cset,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",21);
+            }
+            
+            if(!p_igetl(&DMaps[i].largemap_1_tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",22);
+            }
+            
+            if(!p_getc(&DMaps[i].largemap_1_cset,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",23);
+            }
+            
+            if(!p_igetl(&DMaps[i].largemap_2_tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",24);
+            }
+            
+            if(!p_getc(&DMaps[i].largemap_2_cset,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",25);
+            }
+            
+            if(!pfread((&DMaps[i].tmusic),sizeof(DMaps[0].tmusic),f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",26);
+            }
+            
+            if(!p_getc(&DMaps[i].tmusictrack,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",25);
+            }
+            
+            if(!p_getc(&DMaps[i].active_subscreen,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",26);
+            }
+            
+            if(!p_getc(&DMaps[i].passive_subscreen,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",27);
+            }
+            
+            byte disabled[32];
+            memset(disabled,0,32);
+            
+            for(int j=0; j<MAXITEMS; j++)
+            {
+                if(&DMaps[i].disableditems[j])
+                {
+                    disabled[j/8] |= (1 << (j%8));
+                }
+            }
+            
+            if(!pfread(disabled,32,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",28);
+            }
+            
+            if(!p_igetl(&DMaps[i].flags,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",29);
+            }
+	    if(!p_getc(&DMaps[i].sideview,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",30);
+            }
+	    if(!p_igetw(&DMaps[i].script,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",31);
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_igetl(&DMaps[i].initD[q],f,true))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",32);
+		}
+		    
+	    }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		    for ( int w = 0; w < 65; w++ )
+		    {
+			if (!p_getc(&DMaps[i].initD_label[q][w],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read DMAP NODE: %d",33);
+			}
+		}
+	    }
+        }
+}
+
+
+
+void FFScript::read_combos(PACKFILE *f, int version_id)
+{
+   
+	word combos_used = 0;
+    
+        if(!p_igetw(&combos_used,f,true))
+        {
+            Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",5);
+        }
+        
+        for(int i=0; i<combos_used; i++)
+        {
+            if(!p_igetl(&combobuf[i].tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",6);
+            }
+            
+            if(!p_getc(&combobuf[i].flip,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",7);
+            }
+            
+            if(!p_getc(&combobuf[i].walk,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",8);
+            }
+            
+            if(!p_getc(&combobuf[i].type,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",9);
+            }
+            
+            if(!p_getc(&combobuf[i].csets,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",10);
+            }
+            
+            if(!p_getc(&combobuf[i].frames,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",11);
+            }
+            
+            if(!p_getc(&combobuf[i].speed,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",12);
+            }
+            
+            if(!p_igetw(&combobuf[i].nextcombo,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",13);
+            }
+            
+            if(!p_getc(&combobuf[i].nextcset,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",14);
+            }
+            
+            if(!p_getc(&combobuf[i].flag,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",15);
+            }
+            
+            if(!p_getc(&combobuf[i].skipanim,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",16);
+            }
+            
+            if(!p_igetw(&combobuf[i].nexttimer,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",17);
+            }
+            
+            if(!p_getc(&combobuf[i].skipanimy,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",18);
+            }
+            
+            if(!p_getc(&combobuf[i].animflags,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",19);
+            }
+	    
+	    for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+	    {
+		if(!p_igetl(&combobuf[i].attributes[q],f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",20);
+		}
+	    }
+	    if(!p_igetl(&combobuf[i].usrflags,f,true))
+	    {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",21);
+	    }	 
+	    for ( int q = 0; q < 3; q++ ) 
+	    {
+	        if(!p_igetl(&combobuf[i].triggerflags[q],f,true))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",22);
+	        }
+	    }
+	   
+	    if(!p_igetl(&combobuf[i].triggerlevel,f,true))
+	    {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",23);
+	    }	
+	    for ( int q = 0; q < 11; q++ ) 
+	    {
+	        if(!p_getc(&combobuf[i].label[q],f,true))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",24);
+	        }
+	    }
+		    
+        }
+}
+
+void FFScript::write_combos(PACKFILE *f, int version_id)
+{
+   
+	word combos_used = 0;
+    
+        //finally...  section data
+        combos_used=count_combos()-0;
+        combos_used=zc_min(combos_used, MAXCOMBOS);
+        
+        if(!p_iputw(combos_used,f))
+        {
+            Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",5);
+        }
+        
+        for(int i=0; i<combos_used; i++)
+        {
+            if(!p_iputl(combobuf[i].tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",6);
+            }
+            
+            if(!p_putc(combobuf[i].flip,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",7);
+            }
+            
+            if(!p_putc(combobuf[i].walk,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",8);
+            }
+            
+            if(!p_putc(combobuf[i].type,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",9);
+            }
+            
+            if(!p_putc(combobuf[i].csets,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",10);
+            }
+            
+            if(!p_putc(combobuf[i].frames,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",11);
+            }
+            
+            if(!p_putc(combobuf[i].speed,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",12);
+            }
+            
+            if(!p_iputw(combobuf[i].nextcombo,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",13);
+            }
+            
+            if(!p_putc(combobuf[i].nextcset,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",14);
+            }
+            
+            if(!p_putc(combobuf[i].flag,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",15);
+            }
+            
+            if(!p_putc(combobuf[i].skipanim,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",16);
+            }
+            
+            if(!p_iputw(combobuf[i].nexttimer,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",17);
+            }
+            
+            if(!p_putc(combobuf[i].skipanimy,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",18);
+            }
+            
+            if(!p_putc(combobuf[i].animflags,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",19);
+            }
+	    
+	    for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+	    {
+		if(!p_iputl(combobuf[i].attributes[q],f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",20);
+		}
+	    }
+	    if(!p_iputl(combobuf[i].usrflags,f))
+	    {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",21);
+	    }	 
+	    for ( int q = 0; q < 3; q++ ) 
+	    {
+	        if(!p_iputl(combobuf[i].triggerflags[q],f))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",22);
+	        }
+	    }
+	   
+	    if(!p_iputl(combobuf[i].triggerlevel,f))
+	    {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",23);
+	    }	
+	    for ( int q = 0; q < 11; q++ ) 
+	    {
+	        if(!p_putc(combobuf[i].label[q],f))
+	        {
+			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",24);
+	        }
+	    }
+		    
+        }
+}
+void FFScript::read_weaponsprtites(PACKFILE *f, int vers_id)
+{   
+        for(int i=0; i<wMAX; i++)
+        {
+            if(!p_igetw(&wpnsbuf[i].tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
+            }
+            
+            if(!p_getc(&wpnsbuf[i].misc,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
+            }
+            
+            if(!p_getc(&wpnsbuf[i].csets,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
+            }
+            
+            if(!p_getc(&wpnsbuf[i].frames,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
+            }
+            
+            if(!p_getc(&wpnsbuf[i].speed,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
+            }
+            
+            if(!p_getc(&wpnsbuf[i].type,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
+            }
+	    
+	    if(!p_igetw(&wpnsbuf[i].script,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+            }
+	    
+	    if(!p_igetl(&wpnsbuf[i].newtile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+            }
+        }
+}
+void FFScript::write_weaponsprtites(PACKFILE *f, int vers_id)
+{   
+        for(int i=0; i<wMAX; i++)
+        {
+            if(!p_iputw(wpnsbuf[i].tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
+            }
+            
+            if(!p_putc(wpnsbuf[i].misc,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
+            }
+            
+            if(!p_putc(wpnsbuf[i].csets,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
+            }
+            
+            if(!p_putc(wpnsbuf[i].frames,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
+            }
+            
+            if(!p_putc(wpnsbuf[i].speed,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
+            }
+            
+            if(!p_putc(wpnsbuf[i].type,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
+            }
+	    
+	    if(!p_iputw(wpnsbuf[i].script,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+            }
+	    
+	    if(!p_iputl(wpnsbuf[i].newtile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+            }
+        }
+}
+
+
+void FFScript::read_enemies(PACKFILE *f, int vers_id)
+{
+	if ( !f ) return;
+	for(int i=0; i<MAXGUYS; i++)
+	{
+		    if(!p_igetl(&guysbuf[i].flags,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",6);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].flags2,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",7);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].tile,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",8);
+		    }
+		    
+		    if(!p_getc(&guysbuf[i].width,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",9);
+		    }
+		    
+		    if(!p_getc(&guysbuf[i].height,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",10);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].s_tile,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",11);
+		    }
+		    
+		    if(!p_getc(&guysbuf[i].s_width,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",12);
+		    }
+		    
+		    if(!p_getc(&guysbuf[i].s_height,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",13);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].e_tile,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",14);
+		    }
+		    
+		    if(!p_getc(&guysbuf[i].e_width,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",15);
+		    }
+		    
+		    if(!p_getc(&guysbuf[i].e_height,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",16);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].hp,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",17);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].family,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",18);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].cset,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",19);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].anim,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",20);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].e_anim,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",21);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].frate,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",22);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].e_frate,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",23);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].dp,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",24);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].wdp,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",25);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].weapon,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",26);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].rate,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",27);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].hrate,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",28);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].step,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",29);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].homing,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",30);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].grumble,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",31);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].item_set,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",32);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc1,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",33);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc2,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",34);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc3,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",35);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc4,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",36);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc5,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",37);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc6,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",38);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc7,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",39);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc8,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",40);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc9,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",41);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc10,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",42);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].bgsfx,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",43);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].bosspal,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",44);
+		    }
+		    
+		    if(!p_igetw(&guysbuf[i].extend,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",45);
+		    }
+		    
+		    for(int j=0; j < edefLAST; j++)
+		    {
+			if(!p_getc(&guysbuf[i].defense[j],f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",46);
+			}
+		    }
+		    
+		    if(!p_getc(&guysbuf[i].hitsfx,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",47);
+		    }
+		    
+		    if(!p_getc(&guysbuf[i].deadsfx,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",48);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc11,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",49);
+		    }
+		    
+		    if(!p_igetl(&guysbuf[i].misc12,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",50);
+		    }
+		    
+		    //New 2.6 defences
+		    for(int j=edefLAST; j < edefLAST255; j++)
+		    {
+			if(!p_getc(&guysbuf[i].defense[j],f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",51);
+			}
+		    }
+		    
+		    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+		    if(!p_igetl(&guysbuf[i].txsz,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",52);
+		    }
+		    if(!p_igetl(&guysbuf[i].tysz,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",53);
+		    }
+		    if(!p_igetl(&guysbuf[i].hxsz,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",54);
+		    }
+		    if(!p_igetl(&guysbuf[i].hysz,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",55);
+		    }
+		    if(!p_igetl(&guysbuf[i].hzsz,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",56);
+		    }
+		    // These are not fixed types, but ints, so they are safe to use here. 
+		    if(!p_igetl(&guysbuf[i].hxofs,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",57);
+		    }
+		    if(!p_igetl(&guysbuf[i].hyofs,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",58);
+		    }
+		    if(!p_igetl(&guysbuf[i].xofs,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",59);
+		    }
+		    if(!p_igetl(&guysbuf[i].yofs,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",60);
+		    }
+		    if(!p_igetl(&guysbuf[i].zofs,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",61);
+		    }
+		    if(!p_igetl(&guysbuf[i].wpnsprite,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",62);
+		    }
+		    if(!p_igetl(&guysbuf[i].SIZEflags,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",63);
+		    }
+		    if(!p_igetl(&guysbuf[i].frozentile,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",64);
+		    }
+		    if(!p_igetl(&guysbuf[i].frozencset,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",65);
+		    }
+		    if(!p_igetl(&guysbuf[i].frozenclock,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",66);
+		    }
+		    
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetw(&guysbuf[i].frozenmisc[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",67);
+			}
+		    }
+		    if(!p_igetw(&guysbuf[i].firesfx,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",68);
+		    }
+		    //misc 16->31
+		    if(!p_igetl(&guysbuf[i].misc16,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",69);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc17,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",70);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc18,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",71);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc19,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",72);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc20,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",73);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc21,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",74);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc22,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",75);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc23,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",76);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc24,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",77);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc25,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",78);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc26,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",79);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc27,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",80);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc28,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",81);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc29,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",82);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc30,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",83);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc31,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",84);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc32,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",85);
+		    }
+		    for ( int q = 0; q < 32; q++ )
+		    {
+			    if(!p_igetl(&guysbuf[i].movement[q],f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",86);
+			    }
+		    }
+		    for ( int q = 0; q < 32; q++ )
+		    {
+			    if(!p_igetl(&guysbuf[i].new_weapon[q],f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",87);
+			    }
+		    }
+		    if(!p_igetw(&guysbuf[i].script,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",88);
+		    }
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_igetl(&guysbuf[i].initD[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",89);
+			}
+		    }
+		    for ( int q = 0; q < 2; q++ )
+		    {
+			if(!p_igetl(&guysbuf[i].initA[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",90);
+			}
+		    }
+		    if(!p_igetl(&guysbuf[i].editorflags,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",91);
+		    }
+		    //somehow forgot these in the older builds -Z
+		    if(!p_igetl(&guysbuf[i].misc13,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",92);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc14,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",93);
+		    }
+		    if(!p_igetl(&guysbuf[i].misc15,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",94);
+		    }
+		    
+		    //Enemy Editor InitD[] labels
+		    for ( int q = 0; q < 8; q++ )
+		    {
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&guysbuf[i].initD_label[q][w],f,true))
+					{
+						Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",95);
+					} 
+				}
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&guysbuf[i].weapon_initD_label[q][w],f,true))
+					{
+						Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",96);
+					} 
+				}
+		    }
+		    if(!p_igetw(&guysbuf[i].weaponscript,f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",97);
+		    }
+		    //eweapon initD
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_igetl(&guysbuf[i].weap_initiald[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",98);
+			}
+		    }
+			
+	}
+}
+
+void FFScript::write_enemies(PACKFILE *f, int vers_id)
+{
+	if ( !f ) return;
+	for(int i=0; i<MAXGUYS; i++)
+	{
+	    if(!p_iputl(guysbuf[i].flags,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",6);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].flags2,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",7);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].tile,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",8);
+	    }
+	    
+	    if(!p_putc(guysbuf[i].width,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",9);
+	    }
+	    
+	    if(!p_putc(guysbuf[i].height,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",10);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].s_tile,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",11);
+	    }
+	    
+	    if(!p_putc(guysbuf[i].s_width,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",12);
+	    }
+	    
+	    if(!p_putc(guysbuf[i].s_height,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",13);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].e_tile,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",14);
+	    }
+	    
+	    if(!p_putc(guysbuf[i].e_width,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",15);
+	    }
+	    
+	    if(!p_putc(guysbuf[i].e_height,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",16);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].hp,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",17);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].family,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",18);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].cset,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",19);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].anim,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",20);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].e_anim,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",21);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].frate,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",22);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].e_frate,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",23);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].dp,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",24);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].wdp,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",25);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].weapon,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",26);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].rate,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",27);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].hrate,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",28);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].step,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",29);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].homing,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",30);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].grumble,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",31);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].item_set,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",32);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc1,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",33);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc2,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",34);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc3,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",35);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc4,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",36);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc5,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",37);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc6,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",38);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc7,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",39);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc8,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",40);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc9,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",41);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc10,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",42);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].bgsfx,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",43);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].bosspal,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",44);
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].extend,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",45);
+	    }
+	    
+	    for(int j=0; j < edefLAST; j++)
+	    {
+		if(!p_putc(guysbuf[i].defense[j],f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",46);
+		}
+	    }
+	    
+	    if(!p_putc(guysbuf[i].hitsfx,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",47);
+	    }
+	    
+	    if(!p_putc(guysbuf[i].deadsfx,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",48);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc11,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",49);
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc12,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",50);
+	    }
+	    
+	    //New 2.6 defences
+	    for(int j=edefLAST; j < edefLAST255; j++)
+	    {
+		if(!p_putc(guysbuf[i].defense[j],f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",51);
+		}
+	    }
+	    
+	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+	    if(!p_iputl(guysbuf[i].txsz,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",52);
+	    }
+	    if(!p_iputl(guysbuf[i].tysz,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",53);
+	    }
+	    if(!p_iputl(guysbuf[i].hxsz,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",54);
+	    }
+	    if(!p_iputl(guysbuf[i].hysz,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",55);
+	    }
+	    if(!p_iputl(guysbuf[i].hzsz,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",56);
+	    }
+	    // These are not fixed types, but ints, so they are safe to use here. 
+	    if(!p_iputl(guysbuf[i].hxofs,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",57);
+	    }
+	    if(!p_iputl(guysbuf[i].hyofs,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",58);
+	    }
+	    if(!p_iputl(guysbuf[i].xofs,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",59);
+	    }
+	    if(!p_iputl(guysbuf[i].yofs,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",60);
+	    }
+	    if(!p_iputl(guysbuf[i].zofs,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",61);
+	    }
+	    if(!p_iputl(guysbuf[i].wpnsprite,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",62);
+	    }
+	    if(!p_iputl(guysbuf[i].SIZEflags,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",63);
+	    }
+	    if(!p_iputl(guysbuf[i].frozentile,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",64);
+	    }
+	    if(!p_iputl(guysbuf[i].frozencset,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",65);
+	    }
+	    if(!p_iputl(guysbuf[i].frozenclock,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",66);
+	    }
+	    
+	    for ( int q = 0; q < 10; q++ ) 
+	    {
+		if(!p_iputw(guysbuf[i].frozenmisc[q],f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",67);
+		}
+	    }
+	    if(!p_iputw(guysbuf[i].firesfx,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",68);
+	    }
+	    //misc 16->31
+	    if(!p_iputl(guysbuf[i].misc16,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",69);
+	    }
+	    if(!p_iputl(guysbuf[i].misc17,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",70);
+	    }
+	    if(!p_iputl(guysbuf[i].misc18,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",71);
+	    }
+	    if(!p_iputl(guysbuf[i].misc19,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",72);
+	    }
+	    if(!p_iputl(guysbuf[i].misc20,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",73);
+	    }
+	    if(!p_iputl(guysbuf[i].misc21,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",74);
+	    }
+	    if(!p_iputl(guysbuf[i].misc22,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",75);
+	    }
+	    if(!p_iputl(guysbuf[i].misc23,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",76);
+	    }
+	    if(!p_iputl(guysbuf[i].misc24,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",77);
+	    }
+	    if(!p_iputl(guysbuf[i].misc25,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",78);
+	    }
+	    if(!p_iputl(guysbuf[i].misc26,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",79);
+	    }
+	    if(!p_iputl(guysbuf[i].misc27,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",80);
+	    }
+	    if(!p_iputl(guysbuf[i].misc28,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",81);
+	    }
+	    if(!p_iputl(guysbuf[i].misc29,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",82);
+	    }
+	    if(!p_iputl(guysbuf[i].misc30,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",83);
+	    }
+	    if(!p_iputl(guysbuf[i].misc31,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",84);
+	    }
+	    if(!p_iputl(guysbuf[i].misc32,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",85);
+	    }
+	    for ( int q = 0; q < 32; q++ )
+	    {
+		    if(!p_iputl(guysbuf[i].movement[q],f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",86);
+		    }
+	    }
+	    for ( int q = 0; q < 32; q++ )
+	    {
+		    if(!p_iputl(guysbuf[i].new_weapon[q],f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",87);
+		    }
+	    }
+	    if(!p_iputw(guysbuf[i].script,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",88);
+	    }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].initD[q],f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",89);
+		}
+	    }
+	    for ( int q = 0; q < 2; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].initA[q],f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",90);
+		}
+	    }
+	    if(!p_iputl(guysbuf[i].editorflags,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",91);
+	    }
+	    //somehow forgot these in the older builds -Z
+	    if(!p_iputl(guysbuf[i].misc13,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",92);
+	    }
+	    if(!p_iputl(guysbuf[i].misc14,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",93);
+	    }
+	    if(!p_iputl(guysbuf[i].misc15,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",94);
+	    }
+	    
+	    //Enemy Editor InitD[] labels
+	    for ( int q = 0; q < 8; q++ )
+	    {
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(guysbuf[i].initD_label[q][w],f))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",95);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",96);
+				} 
+			}
+	    }
+	    if(!p_iputw(guysbuf[i].weaponscript,f))
+	    {
+		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",97);
+	    }
+	    //eweapon initD
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].weap_initiald[q],f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",98);
+		}
+	    }
+		
+	}
+}
+
+
+void FFScript::write_items(PACKFILE *f, int vers_id)
+{
+        for(int i=0; i<iMax; i++)
+        {
+            if(!p_iputl(itemsbuf[i].tile,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",6);
+            }
+            
+            if(!p_putc(itemsbuf[i].misc,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",7);
+            }
+            
+            if(!p_putc(itemsbuf[i].csets,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",8);
+            }
+            
+            if(!p_putc(itemsbuf[i].frames,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",9);
+            }
+            
+            if(!p_putc(itemsbuf[i].speed,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",10);
+            }
+            
+            if(!p_putc(itemsbuf[i].delay,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",11);
+            }
+            
+            if(!p_iputl(itemsbuf[i].ltm,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",12);
+            }
+            
+            if(!p_iputl(itemsbuf[i].family,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",13);
+            }
+            
+            if(!p_putc(itemsbuf[i].fam_type,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",14);
+            }
+            
+            if(!p_iputl(itemsbuf[i].power,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",14);
+            }
+            
+            if(!p_iputl(itemsbuf[i].flags,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",15);
+            }
+            
+            if(!p_iputw(itemsbuf[i].script,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",16);
+            }
+            
+            if(!p_putc(itemsbuf[i].count,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",17);
+            }
+            
+            if(!p_iputw(itemsbuf[i].amount,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",18);
+            }
+            
+            if(!p_iputw(itemsbuf[i].collect_script,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",19);
+            }
+            
+            if(!p_iputw(itemsbuf[i].setmax,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",21);
+            }
+            
+            if(!p_iputw(itemsbuf[i].max,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",22);
+            }
+            
+            if(!p_putc(itemsbuf[i].playsound,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",23);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_iputl(itemsbuf[i].initiald[j],f))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",24);
+                }
+            }
+            
+            for(int j=0; j<2; j++)
+            {
+                if(!p_putc(itemsbuf[i].initiala[j],f))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",25);
+                }
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",26);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn2,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",27);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn3,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",28);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn4,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",29);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn5,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",30);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn6,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",31);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn7,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",32);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn8,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",33);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn9,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",34);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn10,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",35);
+            }
+            
+            if(!p_putc(itemsbuf[i].pickup_hearts,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",36);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc1,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",37);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc2,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",38);
+            }
+            
+            if(!p_putc(itemsbuf[i].magic,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",39);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc3,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",40);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc4,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",41);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc5,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",42);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc6,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",43);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc7,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",44);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc8,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",45);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc9,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",46);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc10,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",47);
+            }
+            
+            if(!p_putc(itemsbuf[i].usesound,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",48);
+            }
+	    
+	    //New itemdata vars -Z
+	    //! version 27
+	    
+	    if(!p_putc(itemsbuf[i].useweapon,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",49);
+            }
+	    if(!p_putc(itemsbuf[i].usedefence,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",50);
+            }
+	    if(!p_iputl(itemsbuf[i].weaprange,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",51);
+            }
+	    if(!p_iputl(itemsbuf[i].weapduration,f))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",52);
+            }
+	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+		    if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",53);
+		    }
+	    }
+	    //version 28
+		if(!p_iputl(itemsbuf[i].duplicates,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",54);
+		}
+		for ( int q = 0; q < INITIAL_D; q++ )
+		{
+			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",55);
+			}
+		}
+		for ( int q = 0; q < INITIAL_A; q++ )
+		{
+			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",56);
+			}
+		}
+
+		if(!p_putc(itemsbuf[i].drawlayer,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",57);
+		}
+
+
+		if(!p_iputl(itemsbuf[i].hxofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",58);
+		}
+		if(!p_iputl(itemsbuf[i].hyofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",59);
+		}
+		if(!p_iputl(itemsbuf[i].hxsz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",60);
+		}
+		if(!p_iputl(itemsbuf[i].hysz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",61);
+		}
+		if(!p_iputl(itemsbuf[i].hzsz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",62);
+		}
+		if(!p_iputl(itemsbuf[i].xofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",63);
+		}
+		if(!p_iputl(itemsbuf[i].yofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",64);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hxofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",65);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hyofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",66);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hxsz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",67);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hysz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",68);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hzsz,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",69);
+		}
+		if(!p_iputl(itemsbuf[i].weap_xofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",70);
+		}
+		if(!p_iputl(itemsbuf[i].weap_yofs,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",71);
+		}
+		if(!p_iputw(itemsbuf[i].weaponscript,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",72);
+		}
+		if(!p_iputl(itemsbuf[i].wpnsprite,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",73);
+		}
+		if(!p_iputl(itemsbuf[i].magiccosttimer,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",74);
+		}
+		if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",75);
+		}
+		if(!p_iputl(itemsbuf[i].tilew,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",76);
+		}
+		if(!p_iputl(itemsbuf[i].tileh,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",77);
+		}
+		if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",78);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tilew,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",79);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tileh,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",80);
+		}
+		if(!p_iputl(itemsbuf[i].pickup,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",81);
+		}
+		if(!p_iputw(itemsbuf[i].pstring,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",82);
+		}
+		if(!p_iputw(itemsbuf[i].pickup_string_flags,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",83);
+		}
+		
+		if(!p_putc(itemsbuf[i].cost_counter,f))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",84);
+		}
+		
+		//InitD[] labels
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",85);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",86);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",87);
+				} 
+			}
+			if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",88);
+			} 
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",89);
+			} 
+			
+		}
+		if(!p_iputw(itemsbuf[i].sprite_script,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",90);
+		} 
+		
+	    
+        }
+}
+
+void FFScript::read_items(PACKFILE *f, int vers_id)
+{
+        for(int i=0; i<iMax; i++)
+        {
+            if(!p_igetl(&itemsbuf[i].tile,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",6);
+            }
+            
+            if(!p_getc(&itemsbuf[i].misc,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",7);
+            }
+            
+            if(!p_getc(&itemsbuf[i].csets,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",8);
+            }
+            
+            if(!p_getc(&itemsbuf[i].frames,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",9);
+            }
+            
+            if(!p_getc(&itemsbuf[i].speed,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",10);
+            }
+            
+            if(!p_getc(&itemsbuf[i].delay,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",11);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].ltm,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",12);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].family,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",13);
+            }
+            
+            if(!p_getc(&itemsbuf[i].fam_type,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",14);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].power,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",14);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].flags,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",15);
+            }
+            
+            if(!p_igetw(&itemsbuf[i].script,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",16);
+            }
+            
+            if(!p_getc(&itemsbuf[i].count,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",17);
+            }
+            
+            if(!p_igetw(&itemsbuf[i].amount,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",18);
+            }
+            
+            if(!p_igetw(&itemsbuf[i].collect_script,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",19);
+            }
+            
+            if(!p_igetw(&itemsbuf[i].setmax,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",21);
+            }
+            
+            if(!p_igetw(&itemsbuf[i].max,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",22);
+            }
+            
+            if(!p_getc(&itemsbuf[i].playsound,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",23);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_igetl(&itemsbuf[i].initiald[j],f,true))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",24);
+                }
+            }
+            
+            for(int j=0; j<2; j++)
+            {
+                if(!p_getc(&itemsbuf[i].initiala[j],f,true))
+                {
+                    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",25);
+                }
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",26);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn2,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",27);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn3,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",28);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn4,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",29);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn5,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",30);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn6,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",31);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn7,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",32);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn8,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",33);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn9,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",34);
+            }
+            
+            if(!p_getc(&itemsbuf[i].wpn10,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",35);
+            }
+            
+            if(!p_getc(&itemsbuf[i].pickup_hearts,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",36);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc1,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",37);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc2,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",38);
+            }
+            
+            if(!p_getc(&itemsbuf[i].magic,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",39);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc3,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",40);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc4,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",41);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc5,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",42);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc6,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",43);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc7,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",44);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc8,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",45);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc9,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",46);
+            }
+            
+            if(!p_igetl(&itemsbuf[i].misc10,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",47);
+            }
+            
+            if(!p_getc(&itemsbuf[i].usesound,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",48);
+            }
+	    
+	    //New itemdata vars -Z
+	    //! version 27
+	    
+	    if(!p_getc(&itemsbuf[i].useweapon,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",49);
+            }
+	    if(!p_getc(&itemsbuf[i].usedefence,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",50);
+            }
+	    if(!p_igetl(&itemsbuf[i].weaprange,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",51);
+            }
+	    if(!p_igetl(&itemsbuf[i].weapduration,f,true))
+            {
+                Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",52);
+            }
+	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+		    if(!p_igetl(&itemsbuf[i].weap_pattern[q],f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",53);
+		    }
+	    }
+	    //version 28
+		if(!p_igetl(&itemsbuf[i].duplicates,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",54);
+		}
+		for ( int q = 0; q < INITIAL_D; q++ )
+		{
+			if(!p_igetl(&itemsbuf[i].weap_initiald[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",55);
+			}
+		}
+		for ( int q = 0; q < INITIAL_A; q++ )
+		{
+			if(!p_getc(&itemsbuf[i].weap_initiala[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",56);
+			}
+		}
+
+		if(!p_getc(&itemsbuf[i].drawlayer,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",57);
+		}
+
+
+		if(!p_igetl(&itemsbuf[i].hxofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",58);
+		}
+		if(!p_igetl(&itemsbuf[i].hyofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",59);
+		}
+		if(!p_igetl(&itemsbuf[i].hxsz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",60);
+		}
+		if(!p_igetl(&itemsbuf[i].hysz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",61);
+		}
+		if(!p_igetl(&itemsbuf[i].hzsz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",62);
+		}
+		if(!p_igetl(&itemsbuf[i].xofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",63);
+		}
+		if(!p_igetl(&itemsbuf[i].yofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",64);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_hxofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",65);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_hyofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",66);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_hxsz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",67);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_hysz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",68);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_hzsz,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",69);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_xofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",70);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_yofs,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",71);
+		}
+		if(!p_igetw(&itemsbuf[i].weaponscript,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",72);
+		}
+		if(!p_igetl(&itemsbuf[i].wpnsprite,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",73);
+		}
+		if(!p_igetl(&itemsbuf[i].magiccosttimer,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",74);
+		}
+		if(!p_igetl(&itemsbuf[i].overrideFLAGS,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",75);
+		}
+		if(!p_igetl(&itemsbuf[i].tilew,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",76);
+		}
+		if(!p_igetl(&itemsbuf[i].tileh,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",77);
+		}
+		if(!p_igetl(&itemsbuf[i].weapoverrideFLAGS,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",78);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_tilew,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",79);
+		}
+		if(!p_igetl(&itemsbuf[i].weap_tileh,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",80);
+		}
+		if(!p_igetl(&itemsbuf[i].pickup,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",81);
+		}
+		if(!p_igetw(&itemsbuf[i].pstring,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",82);
+		}
+		if(!p_igetw(&itemsbuf[i].pickup_string_flags,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",83);
+		}
+		
+		if(!p_getc(&itemsbuf[i].cost_counter,f,true))
+		{
+		    Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",84);
+		}
+		
+		//InitD[] labels
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&itemsbuf[i].initD_label[q][w],f,true))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",85);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&itemsbuf[i].weapon_initD_label[q][w],f,true))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",86);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&itemsbuf[i].sprite_initD_label[q][w],f,true))
+				{
+					Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",87);
+				} 
+			}
+			if(!p_igetl(&itemsbuf[i].sprite_initiald[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",88);
+			} 
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_getc(&itemsbuf[i].sprite_initiala[q],f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",89);
+			} 
+			
+		}
+		if(!p_igetw(&itemsbuf[i].sprite_script,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",90);
+		} 
+		
+	    
+        }
+}
+	
+void FFScript::write_mapscreens(PACKFILE *f,int vers_id)
+{
+	for(int i=0; i<map_count && i<MAXMAPS2; i++)
+        {
+		for(int j=0; j<MAPSCRS; j++)
+		{
+		    mapscr *m = &TheMaps[i*MAPSCRS+j];
+		    
+		    if(!p_putc(m->valid,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->guy,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    {
+			if(!p_iputw(m->str,f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_putc(m->room,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->item,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->hasitem, f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->tilewarptype[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_iputw(m->door_combo_set,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->warpreturnx[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->warpreturny[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_iputw(m->warpreturnc,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->stairx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->stairy,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->itemx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->itemy,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputw(m->color,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->enemyflags,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->door[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_iputw(m->tilewarpdmap[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->tilewarpscr[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_putc(m->tilewarpoverlayflags,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->exitdir,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<10; k++)
+		    {
+			{
+			    if(!p_iputw(m->enemy[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+		    }
+		    
+		    if(!p_putc(m->pattern,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->sidewarptype[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_putc(m->sidewarpoverlayflags,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->warparrivalx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->warparrivaly,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->path[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_putc(m->sidewarpscr[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_iputw(m->sidewarpdmap[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_putc(m->sidewarpindex,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputw(m->undercombo,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->undercset,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputw(m->catchall,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags2,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags3,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags4,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags5,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputw(m->noreset,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputw(m->nocarry,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags6,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags7,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags8,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags9,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->flags10,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->csensitive,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->oceansfx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->bosssfx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->secretsfx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->holdupsfx,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_putc(m->layermap[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_putc(m->layerscreen[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_putc(m->layeropacity[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_iputw(m->timedwarptics,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->nextmap,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->nextscr,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_iputw(m->secretcombo[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_putc(m->secretcset[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_putc(m->secretflag[k],f))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_iputw(m->data.at(k),f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_putc(m->sflag.at(k),f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_putc(m->cset.at(k),f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			}
+		    }
+		    
+		    if(!p_iputw(m->screen_midi,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->lens_layer,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_iputl(m->numff,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    for(int k=0; k<32; k++)
+		    {
+			
+			    if(!p_iputw(m->ffdata[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_putc(m->ffcset[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputw(m->ffdelay[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffx[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffy[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffxdelta[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffydelta[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffxdelta2[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffydelta2[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_putc(m->fflink[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_putc(m->ffwidth[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_putc(m->ffheight[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->ffflags[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputw(m->ffscript[k],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][0],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][1],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][2],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][3],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][4],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][5],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][6],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			    
+			    if(!p_iputl(m->initd[k][7],f))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			    }
+			
+		    }
+		    
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_iputl(m->npcstrings[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_iputw(m->new_items[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_iputw(m->new_item_x[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_iputw(m->new_item_y[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+		    }
+		    if(!p_iputw(m->script,f))
+		    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    } 
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_iputl(m->screeninitd[q],f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+			} 
+			    
+		    }
+		    if(!p_putc(m->preloadscript,f))
+		    {
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }
+		    
+		    if(!p_putc(m->hidelayers,f))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }  
+		    if(!p_putc(m->hidescriptlayers,f))
+		    {
+		    	Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+		    }    
+			    
+		    
+		} //end mapscr for loop
+	}
+}
+void FFScript::read_mapscreens(PACKFILE *f,int vers_id)
+{
+	for(int i=0; i<map_count && i<MAXMAPS2; i++)
+        {
+		for(int j=0; j<MAPSCRS; j++)
+		{
+		    mapscr *m = &TheMaps[i*MAPSCRS+j];
+		    
+		    if(!p_getc(&(m->valid),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->guy),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    {
+			if(!p_igetw(&(m->str),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    if(!p_getc(&(m->room),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->item),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->hasitem), f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->tilewarptype[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    if(!p_igetw(&(m->door_combo_set),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->warpreturnx[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->warpreturny[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    if(!p_igetw(&(m->warpreturnc),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->stairx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->stairy),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->itemx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->itemy),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_igetw(&(m->color),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->enemyflags),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->door[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_igetw(&(m->tilewarpdmap[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->tilewarpscr[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    if(!p_getc(&(m->tilewarpoverlayflags),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->exitdir),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    for(int k=0; k<10; k++)
+		    {
+			{
+			    if(!p_igetw(&(m->enemy[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			}
+		    }
+		    
+		    if(!p_getc(&(m->pattern),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->sidewarptype[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    if(!p_getc(&(m->sidewarpoverlayflags),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->warparrivalx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->warparrivaly),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->path[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_getc(&(m->sidewarpscr[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<4; k++)
+		    {
+			if(!p_igetw(&(m->sidewarpdmap[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    if(!p_getc(&(m->sidewarpindex),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_igetw(&(m->undercombo),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->undercset),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_igetw(&(m->catchall),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags2),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags3),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags4),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags5),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_igetw(&(m->noreset),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_igetw(&(m->nocarry),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags6),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags7),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags8),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags9),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->flags10),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->csensitive),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->oceansfx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->bosssfx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->secretsfx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->holdupsfx),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_getc(&(m->layermap[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_getc(&(m->layerscreen[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<6; k++)
+		    {
+			if(!p_getc(&(m->layeropacity[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    if(!p_igetw(&(m->timedwarptics),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->nextmap),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->nextscr),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_igetw(&(m->secretcombo[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_getc(&(m->secretcset[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<128; k++)
+		    {
+			if(!p_getc(&(m->secretflag[k]),f,true))
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_igetw(&(m->data.at(k)),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_getc(&(m->sflag.at(k)),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    for(int k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+		    {
+			try
+			{
+			    if(!p_getc(&(m->cset.at(k)),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			}
+			catch(std::out_of_range& e)
+			{
+			    Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}
+		    }
+		    
+		    if(!p_igetw(&(m->screen_midi),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_getc(&(m->lens_layer),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if(!p_igetl(&(m->numff),f,true))
+		    {
+			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    for(int k=0; k<32; k++)
+		    {
+			
+			    if(!p_igetw(&(m->ffdata[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_getc(&(m->ffcset[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetw(&(m->ffdelay[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffx[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffy[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffxdelta[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffydelta[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffxdelta2[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffydelta2[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_getc(&(m->fflink[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_getc(&(m->ffwidth[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_getc(&(m->ffheight[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->ffflags[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetw(&(m->ffscript[k]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][0]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][1]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][2]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][3]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][4]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][5]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][6]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			    
+			    if(!p_igetl(&(m->initd[k][7]),f,true))
+			    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			    }
+			
+		    }
+		    
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetl(&(m->npcstrings[q]),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetw(&(m->new_items[q]),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetw(&(m->new_item_x[q]),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			} 
+		    }
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetw(&(m->new_item_y[q]),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			} 
+		    }
+		    if(!p_igetw(&(m->script),f,true))
+		    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    } 
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_igetl(&(m->screeninitd[q]),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			} 
+			    
+		    }
+		    if(!p_getc(&(m->preloadscript),f,true))
+		    {
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+		    }
+		    
+		    if ( vers_id >= 2 )
+		    {
+			if(!p_getc(&(m->hidelayers),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}  
+			if(!p_getc(&(m->hidescriptlayers),f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+			}    
+			    
+		    }
+		    
+		    
+		}//end mapscr all for loop
+		
+	}
+}
+/*
+void FFScript::write_maps(PACKFILE *f, int vers_id)
+{
+        for(int i=0; i<map_count && i<MAXMAPS2; i++)
+        {
+		for(int j=0; j<MAPSCRS; j++)
+		{
+			if ( !(FFCore.write_mapscreen(f,i,j,vers_id)) )
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODE: %d",i*j);
+			}
+		}
+        }
+}
+
+void FFScript::read_maps(PACKFILE *f, int vers_id)
+{
+        for(int i=0; i<map_count && i<MAXMAPS2; i++)
+        {
+		for(int j=0; j<MAPSCRS; j++)
+		{
+			if ( !(FFCore.read_mapscreen(f,i,j,vers_id)) )
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE: %d",i*j);
+			}
+		}
+        }
+}
+*/
+
+
+int FFScript::getLinkOTile(long index1, long index2)
+{
+	{
+		linkspritetype lst = (linkspritetype)index1;
+		int dir = index2;
+		int the_ret = 0;
+		switch(lst)
+		{
+			case LSprwalkspr: the_ret = walkspr[dir][0];
+			case LSprstabspr: the_ret = stabspr[dir][0];
+			case LSprslashspr: the_ret = slashspr[dir][0];
+			case LSprfloatspr: the_ret = floatspr[dir][0];
+			case LSprswimspr: the_ret = swimspr[dir][0];
+			case LSprdivespr: the_ret = divespr[dir][0];
+			case LSprpoundspr: the_ret = poundspr[dir][0];
+			case LSprjumpspr: the_ret = jumpspr[dir][0];
+			case LSprchargespr: the_ret = chargespr[dir][0];
+			case LSprcastingspr: the_ret = castingspr[0];
+			case LSprholdspr1: the_ret = holdspr[0][0][0];
+			case LSprholdspr2:  the_ret = holdspr[0][1][0];
+			case LSprholdsprw1: the_ret = holdspr[1][0][0];
+			case LSprholdsprw2: the_ret = holdspr[1][1][0];
+			default: the_ret = 0;
+		}
+	
+	return the_ret*10000;
+	}
 }

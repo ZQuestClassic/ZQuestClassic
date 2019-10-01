@@ -23,6 +23,7 @@ extern "C"
 #define ZCMF_OGG      0x00000002
 #define ZCMF_MP3      0x00000004
 #define ZCMF_GME	  0x00000008
+#define ZCMF_OGGEX	  0x00000010
 
 #define ZCM_PLAYING 1
 #define ZCM_STOPPED 0
@@ -49,12 +50,16 @@ typedef struct ZCMUSICBASE
 } ZCMUSIC;
 
 ZCM_EXTERN ZCMUSIC const * zcmusic_load_file(char *filename);
+ZCM_EXTERN ZCMUSIC const * zcmusic_load_file_ex(char *filename);
 ZCM_EXTERN bool zcmusic_play(ZCMUSIC* zcm, int vol);
 ZCM_EXTERN bool zcmusic_pause(ZCMUSIC* zcm, int pause);
 ZCM_EXTERN bool zcmusic_stop(ZCMUSIC* zcm);
 ZCM_EXTERN void zcmusic_unload_file(ZCMUSIC* &zcm);
 ZCM_EXTERN int zcmusic_get_tracks(ZCMUSIC* zcm);
 ZCM_EXTERN int zcmusic_change_track(ZCMUSIC* zcm, int tracknum);
+ZCM_EXTERN int zcmusic_get_curpos(ZCMUSIC* zcm);
+ZCM_EXTERN void zcmusic_set_curpos(ZCMUSIC* zcm, int value);
+ZCM_EXTERN void zcmusic_set_speed(ZCMUSIC* zcm, int value);
 
 #ifdef __cplusplus
 }                                                           // extern "C"

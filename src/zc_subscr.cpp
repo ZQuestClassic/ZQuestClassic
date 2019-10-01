@@ -22,6 +22,7 @@
 #include "link.h"
 #include "gamedata.h"
 #include "guys.h"
+#include "ffscript.h"
 
 extern LinkClass   Link;
 extern int directItem;
@@ -111,6 +112,7 @@ void dosubscr(miscQdata *misc)
         put_passive_subscr(framebuf,misc,0,176-2-y,showtime,sspSCROLLING);
         //put the active subscreen above the passive subscreen
         put_active_subscr(misc,y,sspSCROLLING);
+        
         advanceframe(false);
         
         if(Quit)
@@ -128,8 +130,34 @@ void dosubscr(miscQdata *misc)
         else if(rDown())  Bpos = selectWpn_new(SEL_DOWN, pos);
         else if(rLeft())  Bpos = selectWpn_new(SEL_LEFT, pos);
         else if(rRight()) Bpos = selectWpn_new(SEL_RIGHT, pos);
-        else if(rLbtn())  Bpos = selectWpn_new(SEL_LEFT, pos);
-        else if(rRbtn())  Bpos = selectWpn_new(SEL_RIGHT, pos);
+        else if(rLbtn())
+	{
+		if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+		{
+			Bpos = selectWpn_new(SEL_LEFT, pos);
+		}
+	}
+        else if(rRbtn() )
+	{
+		if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
+		{
+			Bpos = selectWpn_new(SEL_RIGHT, pos);
+		}
+	}
+        else if(rEx3btn() )
+	{
+		if ( get_bit(quest_rules,qr_SELECTAWPN) && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP) )
+		{
+			selectNextAWpn(SEL_LEFT);
+		}
+	}
+	else if(rEx4btn() )
+	{
+		if ( get_bit(quest_rules,qr_SELECTAWPN) && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP) )
+		{
+			selectNextAWpn(SEL_RIGHT);
+		}
+	}
         
         if(get_bit(quest_rules,qr_SELECTAWPN))
         {
@@ -197,6 +225,7 @@ void dosubscr(miscQdata *misc)
         put_passive_subscr(framebuf,misc,0,176-2-miny,showtime,sspDOWN);
         //put the active subscreen above the passive subscreen
         put_active_subscr(misc,miny,sspDOWN);
+        
         
         advanceframe(false);
         

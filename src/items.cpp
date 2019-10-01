@@ -33,62 +33,110 @@ char *item_string[ITEMCNT];
 extern zinitdata zinit;
 #ifndef IS_ZQUEST
 	extern FFScript FFCore;
+	extern ZModule zcm;
 #endif
 
 int fairy_cnt=0;
 
 item::~item()
 {
-    if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0)
-        killfairy(misc);
+	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0)
+		killfairy(misc);
+	FFCore.deallocateAllArrays(SCRIPT_ITEMSPRITE, getUID());
 }
 
 bool item::animate(int)
 {
     if(!screenIsScrolling()) // Because subscreen items are items, too. :p
     {
+	    
+	/* this is the code used for weapons 
+	    
+		if ( obeys_gravity ) // from above, or if scripted
+		{
+			if(tmpscr->flags7&fSIDEVIEW)
+			{
+			    if(!_walkflag(x,y+16,0))
+			    {
+				y+=fall/100;
+				
+				if(fall <= (int)zinit.terminalv)
+				{
+				    fall += zinit.gravity;
+				}
+			    }
+			    else
+			    {
+				if(fall!=0 && !(step>0 && dir==up))  // Don't fix pos if still moving through solidness
+				    y-=(int)y%8; // Fix position
+				    
+				fall = 0;
+			    }
+			    
+			    if(y>192) dead=0;  // Out of bounds
+			}
+			else
+			{
+			    z-=fall/100;
+			    
+			    if(z<=0)
+			    {
+				z = fall = 0;
+			    }
+			    else if(fall <= (int)zinit.terminalv)
+			    {
+				fall += zinit.gravity;
+			    }
+			}
+		} 
+	    
+	*/
         if(is_side_view())
         {
             if
 	    (
-		(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
-		||
-		(can_drop(x,y) && ipDUMMY && miscellaneous[31] == eeGANON ) //Ganon's dust pile
+		(
+			(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
+			||
+			(can_drop(x,y) && ipDUMMY && linked_parent == eeGANON ) //Ganon's dust pile
+		) 
+		&& 
+		( obeys_gravity ) //if the user set item->Gravity = false, let it float. -Z
 	    )
             {
-                y+=fall/100;
-                
-                if((fall/100)==0 && fall>0)
-                    fall*=(fall>0 ? 2 : 0.5); // That oughta do something about the floatiness.
-                    
-                if(fall <= (int)zinit.terminalv)
-                {
-                    fall += zinit.gravity;
-                }
+				item_fall(x, y, fall);
             }
             else if(!can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
             {
-                fall = -fall/2; // LA key bounce.
+				if(fall!=0)
+				{
+					y-=int(y)%8; //Fix coords
+					fall = 0;
+				}
+                //fall = -fall/2; // LA key bounce. //Is this even working? Doesn't appear to be. -V
             }
         }
         else
         {
-            z-=fall/100;
-            
-            if(z<0)
-            {
-                z = 0;
-                fall = -fall/2;
-            }
-            else if(z <= 1 && abs(fall) < (int)zinit.gravity)
-            {
-                z=0;
-                fall=0;
-            }
-            else if(fall <= (int)zinit.terminalv)
-            {
-                fall += zinit.gravity;
-            }
+	    if ( obeys_gravity ) //if the user set item->Gravity = false, let it float. -Z
+	    {
+		    z-=fall/100;
+		    
+		    if(z<0)
+		    {
+			z = 0;
+			fall = -fall/2;
+		    }
+		    else if(z <= 1 && abs(fall) < (int)zinit.gravity)
+		    {
+			z=0;
+			fall=0;
+		    }
+		    else if(fall <= (int)zinit.terminalv)
+		    {
+			fall += zinit.gravity;
+		    }
+	    }
         }
     }
     
@@ -117,7 +165,7 @@ bool item::animate(int)
         }
     }
     
-    if(anim)
+    if(get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0))
     {
         int spd = o_speed;
         
@@ -174,6 +222,10 @@ void item::draw(BITMAP *dest)
     if(pickup&ipNODRAW || tile==0)
         return;
         
+    if ( z > 0 && get_bit(quest_rules, qr_ITEMSHADOWS) )
+    {
+	sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
+    }
     if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1)
     {
         if(clk2>32 || (clk2&2)==0 || itemsbuf[id].family == itype_fairy)
@@ -215,10 +267,14 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     o_delay = itemsbuf[id].delay;
     frames = itemsbuf[id].frames;
     flip = itemsbuf[id].misc>>2;
-    
+    family = itemsbuf[id].family;
+    lvl = itemsbuf[id].fam_type;
     overrideFLAGS = itemsbuf[id].overrideFLAGS; 
     pstring = itemsbuf[id].pstring;
     pickup_string_flags = itemsbuf[id].pickup_string_flags;
+    linked_parent = 0;
+    obeys_gravity = 1;
+    for ( int q = 0; q < 8; q++ ) initD[q] = itemsbuf[id].initiald[q];
     
     if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;
     
@@ -280,6 +336,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
 	    */
     }
     //if ( itemsbuf[id].flags&itemdataOVERRIDE_DRAW_Z_OFFSET ) zofs = itemsbuf[id].zofs;
+    script = itemsbuf[id].sprite_script;
 }
 
 // easy way to draw an item

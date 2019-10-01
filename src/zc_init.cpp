@@ -81,12 +81,22 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->jump_link_layer_threshold=zinit.jump_link_layer_threshold;
     zinit2->hc = gdata->get_maxlife()/HP_PER_HEART;
     zinit2->bombs = gdata->get_bombs();
+    zinit2->nBombs = gdata->get_bombs();
     zinit2->keys = gdata->get_keys();
     zinit2->max_bombs = gdata->get_maxbombs();
     zinit2->super_bombs = gdata->get_sbombs();
+    zinit2->nSbombs = gdata->get_sbombs();
+    zinit2->nSBombmax = gdata->get_sbombs();
     zinit2->bomb_ratio = zinit.bomb_ratio;
     zinit2->hcp = gdata->get_HCpieces();
     zinit2->rupies = gdata->get_rupies();
+    zinit2->nBombmax = gdata->get_maxbombs();
+    zinit2->nArrows = gdata->get_arrows();
+    zinit2->nArrowmax = gdata->get_maxarrows();
+	
+	
+	
+	
     
     for(int i=0; i<MAXLEVELS; i++)
     {

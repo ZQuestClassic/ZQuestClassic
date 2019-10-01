@@ -4,10 +4,15 @@
 #include <map>
 #include <vector>
 
+//We need access to quest_rules, for option defaults. -V
+#include "../zdefs.h"
+#include "../zsys.h"
+
 using std::map;
 using std::string;
 using namespace ZScript;
 
+extern byte quest_rules[QUESTRULES_NEW_SIZE];
 ////////////////////////////////////////////////////////////////
 // CompileOptionSetting
 
@@ -66,7 +71,7 @@ namespace // file local
 	enum Id
 	{
 		ID_START = -1,
-#		define X(NAME, DEFAULT) \
+#		define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
 		ID_##NAME,
 #		include "CompileOption.xtable"
 #		undef X
@@ -78,8 +83,9 @@ namespace // file local
 	{
 		string name;
 		CompileOptionValue defaultValue;
-		Entry(string name = "", CompileOptionValue defaultValue = 0L)
-			: name(name), defaultValue(defaultValue) {}
+		int defaultqr, type;
+		Entry(string name = "", int defaultQR = 0, int type = 0, long defaultValue = 0L)
+			: name(name), defaultValue(defaultValue), type(type), defaultqr(defaultQR) {}
 	};
 
 	// Table holding option data.
@@ -90,7 +96,7 @@ namespace // file local
 };
 
 // Define static instance for each option.
-#define X(NAME, DEFAULT) \
+#define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
 CompileOption CompileOption::OPT_##NAME(ID_##NAME);
 #include "CompileOption.xtable"
 #undef X
@@ -103,16 +109,39 @@ void CompileOption::initialize()
 	if (!initialized)
 	{
 		// Fill entries table from xtable.
-#		define X(NAME, DEFAULT) \
-		entries[ID_##NAME] = Entry(#NAME, DEFAULT);
+#		define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
+		entries[ID_##NAME] = Entry(#NAME, DEFAULTQR, TYPE, DEFAULTVAL);
 #		include "CompileOption.xtable"
 #		undef X
 
 		// Fill nameMap from entries table.
 		for (int i = 0; i < ID_END; ++i)
+		{
 			nameMap[entries[i].name] = CompileOption(i);
+		}
 		
 		initialized = true;
+	}
+	//Update default values, always:
+	updateDefaults();
+}
+
+void CompileOption::updateDefaults()
+{
+	for (int i = 0; i < ID_END; ++i)
+	{
+		switch(entries[i].type)
+		{
+			case OPTTYPE_QR:
+				if(entries[i].defaultqr)
+					entries[i].defaultValue = get_bit(quest_rules, entries[i].defaultqr) ? 10000L : 0L;
+				break;
+			
+			case OPTTYPE_CONFIG:
+				if(int temp = get_config_int("Compiler", entries[i].name.c_str(), 0))
+					entries[i].defaultValue = temp * 10000L;
+				break;
+		}
 	}
 }
 
@@ -138,4 +167,10 @@ optional<CompileOptionValue> CompileOption::getDefault() const
 {
 	if (!isValid()) return nullopt;
 	return entries[id_].defaultValue;
+}
+
+void CompileOption::setDefault(CompileOptionValue value)
+{
+	if(!isValid()) return;
+	entries[id_].defaultValue = value;
 }

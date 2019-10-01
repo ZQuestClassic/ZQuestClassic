@@ -9,6 +9,7 @@
 #include "zcmusic.h"
 #include "sprite.h"
 #include "gamedata.h"
+#include "parser/parserDefs.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -189,6 +190,8 @@ extern int SnapshotFormat;
 extern int memrequested;
 extern byte Color;
 
+extern byte compile_tune;
+
 extern ZCMUSIC *zcmusic;
 extern volatile int myvsync;
 extern BITMAP *hw_screen;
@@ -211,6 +214,7 @@ void loadlvlpal(int level);
 
 bool get_debug();
 void set_debug(bool d);
+
 
 // quest data
 extern zquestheader        header;
@@ -370,6 +374,8 @@ int playMusic();
 int playTune(int pos);
 int stopMusic();
 
+int onQMiscValues();
+
 int onTemplates();
 
 //  +----------+
@@ -483,8 +489,16 @@ int d_comboalist_proc(int msg,DIALOG *d,int c);
 int onSecretF();
 int onSecretCombo();
 int onUnderCombo();
+int load_zmod_module_file();
 int onImportFFScript();
 int onImportItemScript();
+int onImportNPCScript();
+int onImportSCREENScript();
+int onImportHEROScript();
+int onImportITEMSPRITEScript();
+int onImportDMapScript();
+int onImportLWPNScript();
+int onImportEWPNScript();
 int onImportGScript();
 int onCompileScript();
 
@@ -508,6 +522,42 @@ typedef std::pair<std::string, int> script_struct;
 void build_biitems_list();
 extern script_struct biitems[NUMSCRIPTFFC]; //item script
 extern int biitems_cnt;
+
+
+//npc script list for editors
+void build_binpcs_list();
+extern script_struct binpcs[NUMSCRIPTGUYS]; //item script
+extern int binpcs_cnt;
+
+//lweapon script list for editors
+void build_bilweapons_list();
+extern script_struct bilweapons[NUMSCRIPTWEAPONS]; //item script
+extern int bilweapons_cnt;
+
+//eweapon script list for editors
+void build_bieweapons_list();
+extern script_struct bieweapons[NUMSCRIPTWEAPONS]; //item script
+extern int bieweapons_cnt;
+
+//link script list for editors
+void build_bilinks_list();
+extern script_struct bilinks[NUMSCRIPTLINK]; //item script
+extern int bilinks_cnt;
+
+//screen script list for editors
+void build_biscreens_list();
+extern script_struct biscreens[NUMSCRIPTSCREEN]; //item script
+extern int biscreens_cnt;
+
+//dmap script list for editors
+void build_bidmaps_list();
+extern script_struct bidmaps[NUMSCRIPTSDMAP]; //item script
+extern int bidmaps_cnt;
+
+//dmap script list for editors
+void build_biitemsprites_list();
+extern script_struct biditemsprites[NUMSCRIPTSDMAP]; //item script
+extern int biitemsprites_cnt;
 
 //extern script_struct biffs[NUMSCRIPTFFC];
 
@@ -675,6 +725,7 @@ enum
     cmdIntegrityCheck,
     cmdSaveZQuestSettings,
     cmdOnClearQuestFilepath,
+    cmdOnScriptRules,
     cmdMAX
 };
 
@@ -708,6 +759,7 @@ int d_combo_proc(int msg,DIALOG *d,int c);
 const char *doorcombosetlist(int index, int *list_size);
 int onDoors();
 int onScrData();
+int onScreenScript();
 const char *nslist(int index, int *list_size);
 const char *flaglist(int index, int *list_size);
 const char *roomslist(int index, int *list_size);
@@ -740,6 +792,8 @@ int onGotoMap();
 int onFlags();
 int onUsedCombos();
 int onItem();
+int onZScriptSettings();
+int onZScriptCompilerSettings();
 int onRType();
 int onGuy();
 int onString();
@@ -1106,6 +1160,7 @@ extern sprite_list Sitems;
 int main(int argc,char **argv);
 int d_nbmenu_proc(int msg,DIALOG *d,int c);
 void center_zquest_dialogs();
+void centre_zscript_dialogs();
 void animate_coords();
 void do_animations();
 int onZQVidMode();

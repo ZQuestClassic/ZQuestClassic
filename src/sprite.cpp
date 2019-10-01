@@ -19,15 +19,34 @@
 #include "precompiled.h" //always first
 
 #include "zdefs.h"
+#include "zsys.h"
 #include "sprite.h"
 #include "tiles.h"
-
+#include "particles.h"
+extern sprite_list particles;
+extern byte                quest_rules[QUESTRULES_NEW_SIZE];
 extern bool get_debug();
 extern bool halt;
 extern bool show_sprites;
 extern bool show_hitboxes;
 extern bool is_zquest();
 extern void debugging_box(int x1, int y1, int x2, int y2);
+#include "ffscript.h"
+extern FFScript FFCore;
+
+#define degtoFix(d)     ((d)*0.7111111111111)
+#define radtoFix(d)     ((d)*40.743665431525)
+
+template<class T> inline
+fixed deg_to_fixed(T d)
+{
+    return ftofix(degtoFix(d));
+}
+template<class T> inline
+fixed rad_to_fixed(T d)
+{
+    return ftofix(radtoFix(d));
+}
 
 /**********************************/
 /******* Sprite Base Class ********/
@@ -48,6 +67,8 @@ sprite::sprite()
     drawstyle=0;
     extend=0;
     wpnsprite = 0; //wpnsprite is new for 2.6 -Z
+    //memset(stack,0,sizeof(stack));
+    memset(stack, 0xFFFF, sizeof(stack));
     
     /*ewpnclass=0;
     lwpnclass=0;
@@ -69,21 +90,53 @@ sprite::sprite()
         dummy_bool[i]=false;
     }
     
-    /*for(int i=0;i<8;i++)
-    {
-      if(i<2) a[i]=0;
-      d[i]=0;
-    }
+    //for(int i=0;i<8;i++)
+    //{
+    //  if(i<2) a[i]=0;
+    //  d[i]=0;
+    //}
     scriptflag=0;
-    pc=0;
-    sp=0;
-    itemclass=0;
-    ffcref=0; */
-    //scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
-    //doscript=1;
+    //pc=0;
+    //sp=0;
+    //itemclass=0;
+    //ffcref=0;
+    scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
+    doscript=1;
+    waitdraw = 0;
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
+    initialised = 0;
+    
+    //itemref = 0;
+    //guyref = 0;
+    //lwpnref = 0;
+    //ewpnref = 0;
+    //guyclass = 0; //Not implemented
+    //lwpnclass = 0;
+    //ewpnclass = 0;
+    script = 0;
+    weaponscript = 0;
+    scripttile = -1;
+    scriptflip = -1;
+    do_animation = 1;
+    rotation = 0;
+    scale = 0;
+    obeys_gravity = 0;
+	knockbackflags = 0;
+	knockbackSpeed = 4; //default speed
+	script_knockback_clk = 0;
+	script_knockback_speed = 0;
+    for ( int q = 0; q < 8; q++ )
+    {
+	    initD[q] = 0;
+	    weap_initd[q] = 0;
+    }
+    for ( int q = 0; q < 2; q++ )
+    {
+	    initA[q] = 0;
+	    weap_inita[q] = 0;
+    }
 }
 
 sprite::sprite(sprite const & other):
@@ -117,21 +170,35 @@ sprite::sprite(sprite const & other):
     lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle),
     extend(other.extend),
-    wpnsprite(other.wpnsprite)
-    //scriptData(other.scriptData),
-/*ffcref(other.ffcref),
-itemref(other.itemref),
-guyref(other.guyref),
-lwpnref(other.lwpnref),
-ewpnref(other.ewpnref),
-sp(other.sp),
-pc(other.pc),
+    wpnsprite(other.wpnsprite),
+    scriptData(other.scriptData),
+//ffcref(other.ffcref),
+//itemref(other.itemref),
+//guyref(other.guyref),
+//lwpnref(other.lwpnref),
+//ewpnref(other.ewpnref),
+//sp(other.sp),
+//pc(other.pc),
 scriptflag(other.scriptflag),
 doscript(other.doscript),
-itemclass(other.itemclass)
-guyclass(other.guyclass),
-lwpnclass(other.lwpnclass),
-ewpnclass(other.ewpnclass)*/
+waitdraw(other.waitdraw),
+//itemclass(other.itemclass),
+//guyclass(other.guyclass),
+//lwpnclass(other.lwpnclass),
+//ewpnclass(other.ewpnclass),
+script(other.script),
+weaponscript(other.weaponscript),
+scripttile(other.scripttile),
+scriptflip(other.scriptflip),
+rotation(other.rotation),
+obeys_gravity(other.obeys_gravity),
+knockbackflags(other.knockbackflags),
+knockbackSpeed(other.knockbackSpeed),
+script_knockback_clk(other.script_knockback_clk),
+script_knockback_speed(other.script_knockback_speed),
+scale(other.scale),
+do_animation(other.do_animation)
+
 {
     uid = getNextUID();
     
@@ -143,17 +210,36 @@ ewpnclass(other.ewpnclass)*/
         dummy_bool[i]=other.dummy_bool[i];
     }
     
-    /*for (int i=0; i<8; ++i)
-    {
-      d[i]=other.d[i];
-    }
-    for (int i=0; i<2; ++i)
-    {
-      a[i]=other.a[i];
-    }*/
+    //for (int i=0; i<8; ++i)
+    //{
+    //  d[i]=other.d[i];
+    //}
+    //for (int i=0; i<2; ++i)
+    //{
+    //  a[i]=other.a[i];
+    //}
     for(int i=0; i<32; i++) miscellaneous[i] = other.miscellaneous[i];
     
     scriptcoldet = other.scriptcoldet;
+    initialised = other.initialised;
+    
+    
+    //for ( int q = 0; q < MAX_SCRIPT_REGISTERS; q++ )
+    //{
+//	stack[q] = other.stack[q];
+    //}
+    memset(stack, 0xFFFF, sizeof(stack));
+    for (int i=0; i<8; ++i)
+    {
+      initD[i]=other.initD[i];
+      weap_initd[i]=other.weap_initd[i];
+	   // al_trace("Sprite.cpp: Assigning other.initD[%d] is: %d\n",i, other.initD[i]);
+    }
+    for (int i=0; i<2; ++i)
+    {
+      initA[i]=other.initA[i];
+      weap_inita[i]=other.weap_inita[i];
+    }
 }
 
 sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
@@ -169,29 +255,42 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     angular=canfreeze=false;
     extend=0;
     
-    /*for(int i=0;i<8;i++)
-    {
-      if(i<2) a[i]=0;
-      d[i]=0;
-    }
+    //for(int i=0;i<8;i++)
+    //{
+    //  if(i<2) a[i]=0;
+    //  d[i]=0;
+    //}
     scriptflag=0;
-    pc=0;
-    sp=0;
-    ffcref=0;
-    doscript=1;*/
+    //pc=0;
+    //sp=0;
+    //ffcref=0;
+    doscript=1;
+    waitdraw = 0;
     //itemclass=0;
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
-    
-    //scriptData.Clear();
-    /*ewpnclass=0;
-    lwpnclass=0;
-    guyclass=0;*/ //Not implemented
-    /*ewpnref=0;
-    lwpnref=0;
-    guyref=0;
-    itemref=0;*/
+    initialised = 0;
+    scriptData.Clear();
+    //ewpnclass=0;
+    //lwpnclass=0;
+    //guyclass=0;
+    //ewpnref=0;
+    //lwpnref=0;
+    //guyref=0;
+    //itemref=0;
+    script = 0;
+    weaponscript = 0;
+    scripttile = -1;
+    scriptflip = -1;
+    rotation = 0;
+    obeys_gravity = 0;
+	knockbackflags = 0;
+	knockbackSpeed = 4; //default speed
+	script_knockback_clk = 0;
+	script_knockback_speed = 0;
+    scale = 0;
+    do_animation = 1;
     drawstyle=0;
     lasthitclk=0;
     lasthit=0;
@@ -200,10 +299,22 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     misc=0;
     c_clk=0;
     shadowtile=0;
+    for ( int q = 0; q < 8; q++ ) 
+    {
+        initD[q] = 0;
+        weap_initd[q] = 0;
+    }
+    for ( int q = 0; q < 2; q++ ) 
+    {
+        initA[q] = 0;
+        weap_inita[q] = 0;
+    }
+    memset(stack, 0xFFFF, sizeof(stack));
 }
 
 sprite::~sprite()
 {
+  
 }
 
 long sprite::getNextUID()
@@ -361,7 +472,1346 @@ void sprite::move(fix s)
     }
 }
 
+bool sprite::knockback(int time, int dir, int speed)
+{
+	if(knockbackflags & FLAG_NOSCRIPTKNOCKBACK) return false;
+	script_knockback_clk = (time&0xFF) | ((dir&0xFF)<<8);
+	script_knockback_speed = speed;
+	return true;
+}
+
+bool sprite::runKnockback()
+{
+	return false; //Virtual; must be overridden for each class, for proper collision checking.
+}
+//Drawing with scripttile and scriptflip
+ //sprite::draw() before adding scripttile and scriptflip
+
+ //sprite::draw() before adding scripttile and scriptflip
+//To quote Jeff Goldblum, 'That is one big pile opf shit!'. -Z (5th April, 2019)
 void sprite::draw(BITMAP* dest)
+{
+	if(!show_sprites)
+	{
+		return;
+	}
+	if (FFCore.getQuestHeaderInfo(0) < 0x255 || ( FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42 ))
+	{
+		drawzcboss(dest);
+		return; //don't run the rest, use the old code
+	}
+	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) ) 
+	{
+		drawzcboss(dest);
+		return; //don't run the rest, use the old code
+	}
+	int sx = real_x(x+xofs);
+	int sy = real_y(y+yofs)-real_z(z+zofs);
+	
+    
+	if(id<0)
+	{
+		return;
+        }
+	BITMAP* sprBMP2 = create_bitmap_ex(8,256,256); //run after above failsafe, so that we always destroy it
+	int e = extend>=3 ? 3 : extend;
+	int flip_type = ((scriptflip > -1) ? scriptflip : flip);
+	if(clk>=0)
+	{
+		switch(e)
+		{
+			BITMAP *temp;
+            
+			case 1:
+				temp = create_bitmap_ex(8,16,32);
+				//blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
+				clear_bitmap(temp);
+				if ( sprBMP2 ) clear_bitmap(sprBMP2);
+            
+				//Draw sprite tiles to the temp (scratch) bitmap.
+				if(drawstyle==0 || drawstyle==3)
+				{
+					overtile16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,0,0,cs,((scriptflip > -1) ? scriptflip : flip));
+					overtile16(temp,((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
+				}
+            
+				if(drawstyle==1)
+				{
+					overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,0,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
+					overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+				}
+            
+				if(drawstyle==2)
+				{
+					overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,0,0,((scriptflip > -1) ? scriptflip : flip));
+					overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile),0,16,((scriptflip > -1) ? scriptflip : flip));
+				}
+				//Blit to the screen...
+				if ( rotation )
+				{	
+					//First rotating and scaling as needed to a scratch-bitmap.
+					if ( scale ) 
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
+					}
+					else rotate_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation));
+					draw_sprite(dest, sprBMP2, sx, sy);
+				}
+				else
+				{
+					if ( scale ) 
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0),ftofix(new_scale));
+						draw_sprite(dest, sprBMP2, sx, sy);
+					}
+					else masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+				}
+				//clean-up
+				if ( sprBMP2 ) destroy_bitmap(sprBMP2);
+				destroy_bitmap(temp);
+				break;
+            
+			case 2:
+				temp = create_bitmap_ex(8,48,32);
+				//blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
+				clear_bitmap(temp);
+				clear_bitmap(sprBMP2);
+            
+				if(drawstyle==0 || drawstyle==3)
+				{
+					overtile16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,16,0,cs,((scriptflip > -1) ? scriptflip : flip));
+					overtile16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
+					overtile16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,0,cs,((scriptflip > -1) ? scriptflip : flip));
+					overtile16(temp,((scripttile > -1) ? scripttile : tile),16,16,cs,((scriptflip > -1) ? scriptflip : flip));
+					overtile16(temp,((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
+					overtile16(temp,((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,16,cs,((scriptflip > -1) ? scriptflip : flip));
+				}
+            
+				if(drawstyle==1)
+				{
+					overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,16,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
+					overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
+					overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
+					overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile),16,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+					overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+					overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+				}
+				    
+				if(drawstyle==2)
+				{
+					overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,16,0,((scriptflip > -1) ? scriptflip : flip));
+					overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,0,((scriptflip > -1) ? scriptflip : flip));
+					overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,0,((scriptflip > -1) ? scriptflip : flip));
+					overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile),16,16,((scriptflip > -1) ? scriptflip : flip));
+					overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,16,((scriptflip > -1) ? scriptflip : flip));
+					overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,16,((scriptflip > -1) ? scriptflip : flip));
+				}
+				if ( rotation )
+				{
+			
+					if ( scale ) 
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
+					}
+					else rotate_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation));
+					draw_sprite(dest, sprBMP2, sx, sy);
+					
+				}
+				else
+				{
+					if ( scale ) 
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0),ftofix(new_scale));
+						draw_sprite(dest, sprBMP2, sx, sy);
+					}
+					else masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+				}
+					
+				
+				destroy_bitmap(sprBMP2);
+				destroy_bitmap(temp);
+				break;
+            
+			case 3:
+			{
+				int tileToDraw;
+            
+				switch(flip_type)
+				{
+					case 1:
+					{
+						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
+						//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+						clear_bitmap(sprBMP);
+						clear_bitmap(sprBMP2);
+						for(int i=0; i<tysz; i++)
+						{
+							for(int j=txsz-1; j>=0; j--)
+							{
+								tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
+							
+								if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
+									tileToDraw+=TILES_PER_ROW*(tysz-1);
+							    
+								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==1) overtiletranslucent16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+								else if(drawstyle==2) overtilecloaked16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,((scriptflip > -1) ? scriptflip : flip));
+							}
+						}
+						if ( rotation )
+						{
+							if ( scale ) 
+							{
+								double new_scale = scale / 100.0;
+								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
+							}
+							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+							draw_sprite(dest, sprBMP2, sx, sy);
+							
+						}
+						else
+						{
+							if ( scale ) 
+							{
+								double new_scale = scale / 100.0;
+								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
+								draw_sprite(dest, sprBMP2, sx, sy);
+							}
+							else draw_sprite(dest, sprBMP, sx, sy);
+						}
+							
+						destroy_bitmap(sprBMP);
+						destroy_bitmap(sprBMP2);
+					} //end extend == 3 && flip == 1
+					break;
+                
+					case 2:
+					{
+						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
+						//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+						clear_bitmap(sprBMP);
+						clear_bitmap(sprBMP2);
+						for(int i=tysz-1; i>=0; i--)
+						{
+							for(int j=0; j<txsz; j++)
+							{
+								tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
+							
+								if(tileToDraw%TILES_PER_ROW<j)
+									tileToDraw+=TILES_PER_ROW*(tysz-1);
+							    
+								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==1) overtiletranslucent16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+								else if(drawstyle==2) overtilecloaked16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,((scriptflip > -1) ? scriptflip : flip));
+							}
+						}
+						if ( rotation )
+						{
+							
+							if ( scale ) 
+							{
+								double new_scale = scale / 100.0;
+								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
+							}
+							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+							draw_sprite(dest, sprBMP2, sx, sy);
+							
+						}
+						else
+						{
+							if ( scale ) 
+							{
+								double new_scale = scale / 100.0;
+								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
+								draw_sprite(dest, sprBMP2, sx, sy);
+							}
+							else draw_sprite(dest, sprBMP, sx, sy);
+						}
+							
+						destroy_bitmap(sprBMP);
+						destroy_bitmap(sprBMP2);
+					}//end extend == 3 &7 flip == 2
+					break;
+                
+					case 3:
+					{
+						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
+						//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+						clear_bitmap(sprBMP);
+						clear_bitmap(sprBMP2);
+						for(int i=tysz-1; i>=0; i--)
+						{
+							for(int j=txsz-1; j>=0; j--)
+							{
+								tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
+							
+								if(tileToDraw%TILES_PER_ROW<j)
+									tileToDraw+=TILES_PER_ROW*(tysz-1);
+							    
+								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==1) overtiletranslucent16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+								else if(drawstyle==2) overtilecloaked16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,((scriptflip > -1) ? scriptflip : flip));
+							}
+							    
+						}
+						if ( rotation )
+						{
+							if ( scale ) 
+							{
+								double new_scale = scale / 100.0;
+								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
+							}
+							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+							draw_sprite(dest, sprBMP2, sx, sy);
+							
+						}
+						else
+						{
+							if ( scale ) 
+							{
+								double new_scale = scale / 100.0;
+								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
+								draw_sprite(dest, sprBMP2, sx, sy);
+							}
+							else draw_sprite(dest, sprBMP, sx, sy);
+						}
+							
+						destroy_bitmap(sprBMP);
+						destroy_bitmap(sprBMP2);
+					} //end extend == 3 && flip == 3
+					break;
+                
+					case 0:
+					{
+						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
+						//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+						clear_bitmap(sprBMP);
+						clear_bitmap(sprBMP2);
+					
+						
+						
+						for(int i=0; i<tysz; i++)
+						{
+							for(int j=0; j<txsz; j++)
+							{
+								tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
+
+								if(tileToDraw%TILES_PER_ROW<j)
+									tileToDraw+=TILES_PER_ROW*(tysz-1);
+
+								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								else if(drawstyle==1) overtiletranslucent16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+								else if(drawstyle==2) overtilecloaked16(sprBMP,tileToDraw,0+j*16,0+i*16,((scriptflip > -1) ? scriptflip : flip));
+							}
+						}
+						//rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, 0,ftofix(new_scale));
+						if ( rotation )
+						{
+							
+							if ( scale ) 
+							{
+								double new_scale = scale / 100.0;
+								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
+							}
+							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+							draw_sprite(dest, sprBMP2, sx, sy);
+							
+						}
+						else
+						{
+							if ( scale ) 
+							{
+								double new_scale = scale / 100.0;
+								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
+								draw_sprite(dest, sprBMP2, sx, sy);
+							}
+							else draw_sprite(dest, sprBMP, sx, sy);
+						}
+						
+						destroy_bitmap(sprBMP);
+						destroy_bitmap(sprBMP2);
+                
+						break;
+					} //end extend == 0 && flip == 3
+				}
+				
+				//This was designed to fall-through in some cases. I tried to fix this, and it made a whopping mess.
+				//so, I left it alone anc worked with what he have. -Z ( 5th April, 2019 )
+				case 0:  //extend == 0
+				default:
+				{
+					if(e) break; //Don't draw if the sprite is extended. We already drew it. 
+					//Not doing this causes the UL corner of a larger sprite to draw, on top of an existing sprite. 
+					//IDK why that was done, but it's not going to happen, now. -Z ( 5th April, 2019 )
+					BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
+					//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+					clear_bitmap(sprBMP);
+					if ( sprBMP2 ) clear_bitmap(sprBMP2);
+					if(drawstyle==0 || drawstyle==3)
+						overtile16(sprBMP,(scripttile > -1 ? scripttile : tile),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
+					else if(drawstyle==1)
+						overtiletranslucent16(sprBMP,(scripttile > -1 ? scripttile : tile),0,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
+					else if(drawstyle==2)
+						overtilecloaked16(sprBMP,(scripttile > -1 ? scripttile : tile),0,0,((scriptflip > -1) ? scriptflip : flip));
+					
+					if ( rotation )
+					{
+						
+						if ( scale ) 
+						{
+							double new_scale = scale / 100.0;
+							rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
+						}
+						else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+						draw_sprite(dest, sprBMP2, sx, sy);
+						
+					}
+					else
+					{
+						if ( scale ) 
+						{
+							double new_scale = scale / 100.0;
+							rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
+							draw_sprite(dest, sprBMP2, sx, sy);
+						}
+						else draw_sprite(dest, sprBMP, sx, sy);
+					}
+					if ( sprBMP ) destroy_bitmap(sprBMP);
+					if ( sprBMP2 ) destroy_bitmap(sprBMP2);
+					break;
+				}
+			} //end extend == 3, and also extend == 0. Why? Because someone was more mental, than me. -Z (5th April, 2019)
+			break; //Aye, we break switch(e) here.
+			if ( temp ) 
+			{
+				//if there is still somehow data in the temp bitmap
+				destroy_bitmap(temp);
+			}
+		}
+	} //end if(clk>=0)
+	else //I'm unsure when the clk is < 0 -Z
+	{
+		if(e!=3) //if extend != 3 
+		{
+			int t  = wpnsbuf[iwSpawn].newtile;
+			int cs2 = wpnsbuf[iwSpawn].csets&15;
+            
+			if(BSZ)
+			{
+				if(clk>=-10) ++t;
+                
+				if(clk>=-5) ++t;
+			}
+			else
+			{
+				if(clk>=-12) ++t;
+                
+				if(clk>=-6) ++t;
+			}
+            
+			overtile16(dest,t,sx,sy,cs2,0);
+		}
+		else //extend == 3?
+		{
+			sprite w((fix)sx,(fix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
+			w.xofs = xofs;
+			w.yofs = yofs;
+			w.zofs = zofs;
+			w.txsz = txsz;
+			w.tysz = tysz;
+			w.extend = 3;
+            
+			if ( w.scripttile <= -1 ) 
+			{
+				if(BSZ)
+				{
+					if(clk>=-10)
+					{
+						if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+							w.tile+=txsz;
+						else
+							w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+					}
+				
+					if(clk>=-5)
+					{
+						if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+							w.tile+=txsz;
+						else
+							w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+					}
+				}
+				else
+				{
+					if(clk>=-12)
+					{
+						if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+							w.tile+=txsz;
+						else
+							w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+					}
+			
+					if(clk>=-6)
+					{
+						if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+							w.tile+=txsz;
+						else
+							w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+					}
+				}
+			}
+            
+			w.draw(dest);
+		}
+	}
+    
+	if(show_hitboxes && !is_zquest())
+		rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
+
+	if ( sprBMP2 ) 
+	{
+		//if there is still somehow data in the scaling bitmap
+		destroy_bitmap(sprBMP2);
+	}
+	
+}
+
+
+//Z1 bosses draw tiles from guys.cpp, direct to the 'dest'
+void sprite::drawzcboss(BITMAP* dest)
+{
+    if(!show_sprites)
+    {
+        return;
+    }
+    
+    int sx = real_x(x+xofs);
+    int sy = real_y(y+yofs)-real_z(z+zofs);
+    
+    if(id<0)
+        return;
+        
+    int e = extend>=3 ? 3 : extend;
+    
+    if(clk>=0)
+    {
+        switch(e)
+        {
+            BITMAP *temp;
+            
+        case 1:
+            temp = create_bitmap_ex(8,16,32);
+            blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
+            
+            if(drawstyle==0 || drawstyle==3)
+            {
+                overtile16(temp,tile-TILES_PER_ROW,0,0,cs,flip);
+                overtile16(temp,tile,0,16,cs,flip);
+            }
+            
+            if(drawstyle==1)
+            {
+                overtiletranslucent16(temp,tile-TILES_PER_ROW,0,0,cs,flip,128);
+                overtiletranslucent16(temp,tile,0,16,cs,flip,128);
+            }
+            
+            if(drawstyle==2)
+            {
+                overtilecloaked16(temp,tile-TILES_PER_ROW,0,0,flip);
+                overtilecloaked16(temp,tile,0,16,flip);
+            }
+            
+            masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+            destroy_bitmap(temp);
+            break;
+            
+        case 2:
+            temp = create_bitmap_ex(8,48,32);
+            blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
+            
+            if(drawstyle==0 || drawstyle==3)
+            {
+                overtile16(temp,tile-TILES_PER_ROW,16,0,cs,flip);
+                overtile16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip);
+                overtile16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip);
+                overtile16(temp,tile,16,16,cs,flip);
+                overtile16(temp,tile-(flip?-1:1),0,16,cs,flip);
+                overtile16(temp,tile+(flip?-1:1),32,16,cs,flip);
+            }
+            
+            if(drawstyle==1)
+            {
+                overtiletranslucent16(temp,tile-TILES_PER_ROW,16,0,cs,flip,128);
+                overtiletranslucent16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip,128);
+                overtiletranslucent16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip,128);
+                overtiletranslucent16(temp,tile,16,16,cs,flip,128);
+                overtiletranslucent16(temp,tile-(flip?-1:1),0,16,cs,flip,128);
+                overtiletranslucent16(temp,tile+(flip?-1:1),32,16,cs,flip,128);
+            }
+            
+            if(drawstyle==2)
+            {
+                overtilecloaked16(temp,tile-TILES_PER_ROW,16,0,flip);
+                overtilecloaked16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,flip);
+                overtilecloaked16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,flip);
+                overtilecloaked16(temp,tile,16,16,flip);
+                overtilecloaked16(temp,tile-(flip?-1:1),0,16,flip);
+                overtilecloaked16(temp,tile+(flip?-1:1),32,16,flip);
+            }
+            
+            masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+            destroy_bitmap(temp);
+            break;
+            
+        case 3:
+        {
+            int tileToDraw;
+            
+            switch(flip)
+            {
+            case 1:
+                for(int i=0; i<tysz; i++)
+                {
+                    for(int j=txsz-1; j>=0; j--)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,flip);
+                    }
+                }
+                
+                break;
+                
+            case 2:
+                for(int i=tysz-1; i>=0; i--)
+                {
+                    for(int j=0; j<txsz; j++)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,flip);
+                    }
+                }
+                
+                break;
+                
+            case 3:
+                for(int i=tysz-1; i>=0; i--)
+                {
+                    for(int j=txsz-1; j>=0; j--)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,flip);
+                    }
+                }
+                
+                break;
+                
+            case 0:
+                for(int i=0; i<tysz; i++)
+                {
+                    for(int j=0; j<txsz; j++)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+i*16,flip);
+                    }
+                }
+                
+                break;
+            }
+            
+            case 0:
+            default:
+                if(drawstyle==0 || drawstyle==3)
+                    overtile16(dest,tile,sx,sy,cs,flip);
+                else if(drawstyle==1)
+                    overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
+                else if(drawstyle==2)
+                    overtilecloaked16(dest,tile,sx,sy,flip);
+                    
+                break;
+            }
+            break;
+        }
+    }
+    else
+    {
+        if(e!=3)
+        {
+            int t  = wpnsbuf[iwSpawn].tile;
+            int cs2 = wpnsbuf[iwSpawn].csets&15;
+            
+            if(BSZ)
+            {
+                if(clk>=-10) ++t;
+                
+                if(clk>=-5) ++t;
+            }
+            else
+            {
+                if(clk>=-12) ++t;
+                
+                if(clk>=-6) ++t;
+            }
+            
+            overtile16(dest,t,sx,sy,cs2,0);
+        }
+        else
+        {
+            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+            w.xofs = xofs;
+            w.yofs = yofs;
+            w.zofs = zofs;
+            w.txsz = txsz;
+            w.tysz = tysz;
+            w.extend = 3;
+            
+            if(BSZ)
+            {
+                if(clk>=-10)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+                
+                if(clk>=-5)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+            }
+            else
+            {
+                if(clk>=-12)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+                
+                if(clk>=-6)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+            }
+            
+            w.draw(dest);
+        }
+    }
+    
+    if(show_hitboxes && !is_zquest())
+        rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
+}
+
+
+
+void sprite::old_draw(BITMAP* dest)
+{
+    if(!show_sprites)
+    {
+        return;
+    }
+    
+    int sx = real_x(x+xofs);
+    int sy = real_y(y+yofs)-real_z(z+zofs);
+    
+    if(id<0)
+        return;
+        
+    int e = extend>=3 ? 3 : extend;
+    int flip_type = ((scriptflip > -1) ? scriptflip : flip);
+    if(clk>=0)
+    {
+        switch(e)
+        {
+            BITMAP *temp;
+            
+        case 1:
+            temp = create_bitmap_ex(8,16,32);
+            blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
+            
+            if(drawstyle==0 || drawstyle==3)
+            {
+                overtile16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,0,0,cs,((scriptflip > -1) ? scriptflip : flip));
+                overtile16(temp,((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
+            }
+            
+            if(drawstyle==1)
+            {
+                overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,0,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
+                overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+            }
+            
+            if(drawstyle==2)
+            {
+                overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,0,0,((scriptflip > -1) ? scriptflip : flip));
+                overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile),0,16,((scriptflip > -1) ? scriptflip : flip));
+            }
+            
+            masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+            destroy_bitmap(temp);
+            break;
+            
+        case 2:
+            temp = create_bitmap_ex(8,48,32);
+            blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
+            
+            if(drawstyle==0 || drawstyle==3)
+            {
+                overtile16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,16,0,cs,((scriptflip > -1) ? scriptflip : flip));
+                overtile16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
+                overtile16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,0,cs,((scriptflip > -1) ? scriptflip : flip));
+                overtile16(temp,((scripttile > -1) ? scripttile : tile),16,16,cs,((scriptflip > -1) ? scriptflip : flip));
+                overtile16(temp,((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
+                overtile16(temp,((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,16,cs,((scriptflip > -1) ? scriptflip : flip));
+            }
+            
+            if(drawstyle==1)
+            {
+                overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,16,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
+                overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
+                overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,0,cs,((scriptflip > -1) ? scriptflip : flip),128);
+                overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile),16,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+                overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+                overtiletranslucent16(temp,((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,16,cs,((scriptflip > -1) ? scriptflip : flip),128);
+            }
+            
+            if(drawstyle==2)
+            {
+                overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW,16,0,((scriptflip > -1) ? scriptflip : flip));
+                overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,0,((scriptflip > -1) ? scriptflip : flip));
+                overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,0,((scriptflip > -1) ? scriptflip : flip));
+                overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile),16,16,((scriptflip > -1) ? scriptflip : flip));
+                overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),0,16,((scriptflip > -1) ? scriptflip : flip));
+                overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,16,((scriptflip > -1) ? scriptflip : flip));
+            }
+            
+            masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+            destroy_bitmap(temp);
+            break;
+            
+        case 3:
+        {
+            int tileToDraw;
+            switch(flip_type)
+            {
+            case 1:
+                for(int i=0; i<tysz; i++)
+                {
+                    for(int j=txsz-1; j>=0; j--)
+                    {
+                        tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip_type);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip_type,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,flip_type);
+                    }
+                }
+                
+                break;
+                
+            case 2:
+                for(int i=tysz-1; i>=0; i--)
+                {
+                    for(int j=0; j<txsz; j++)
+                    {
+                        tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip_type);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip_type,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,flip_type);
+                    }
+                }
+                
+                break;
+                
+            case 3:
+                for(int i=tysz-1; i>=0; i--)
+                {
+                    for(int j=txsz-1; j>=0; j--)
+                    {
+                        tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip_type);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip_type,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,flip_type);
+                    }
+                }
+                
+                break;
+                
+            case 0:
+                for(int i=0; i<tysz; i++)
+                {
+                    for(int j=0; j<txsz; j++)
+                    {
+                        tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip_type);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip_type,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+i*16,flip_type);
+                    }
+                }
+                
+                break;
+            }
+            
+            case 0:
+            default:
+                if(drawstyle==0 || drawstyle==3)
+                    overtile16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,cs,flip_type);
+                else if(drawstyle==1)
+                    overtiletranslucent16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,cs,flip_type,128);
+                else if(drawstyle==2)
+                    overtilecloaked16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,flip_type);
+                    
+                break;
+            }
+            break;
+        }
+    }
+    else
+    {
+        if(e!=3)
+        {
+            int t  = wpnsbuf[iwSpawn].newtile;
+            int cs2 = wpnsbuf[iwSpawn].csets&15;
+            
+            if(BSZ)
+            {
+                if(clk>=-10) ++t;
+                
+                if(clk>=-5) ++t;
+            }
+            else
+            {
+                if(clk>=-12) ++t;
+                
+                if(clk>=-6) ++t;
+            }
+            
+            overtile16(dest,t,sx,sy,cs2,0);
+        }
+        else
+        {
+            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
+            w.xofs = xofs;
+            w.yofs = yofs;
+            w.zofs = zofs;
+            w.txsz = txsz;
+            w.tysz = tysz;
+            w.extend = 3;
+            if ( w.scripttile <= -1 ) 
+	    {
+		    if(BSZ)
+		    {
+			if(clk>=-10)
+			{
+			    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+				w.tile+=txsz;
+			    else
+				w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+			}
+			
+			if(clk>=-5)
+			{
+			    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+				w.tile+=txsz;
+			    else
+				w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+			}
+		    }
+		    else
+		    {
+			if(clk>=-12)
+			{
+			    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+				w.tile+=txsz;
+			    else
+				w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+			}
+			
+			if(clk>=-6)
+			{
+			    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+				w.tile+=txsz;
+			    else
+				w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+			}
+		    }
+	    }   
+            w.draw(dest);
+        }
+    }
+    
+    if(show_hitboxes && !is_zquest())
+        rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
+}
+
+void sprite::draw8(BITMAP* dest)
+{
+    int sx = real_x(x+xofs);
+    int sy = real_y(y+yofs)-real_z(z+zofs);
+    
+    if(id<0)
+        return;
+        
+    if(clk>=0)
+    {
+        switch(drawstyle)
+        {
+        case 0:                                               //normal
+            overtile8(dest,((scripttile > -1) ? scripttile : tile),sx,sy,cs,((scriptflip > -1) ? scriptflip : flip));
+            break;
+            
+        case 1:                                               //phantom
+            overtiletranslucent8(dest,((scripttile > -1) ? scripttile : tile),sx,sy,cs,((scriptflip > -1) ? scriptflip : flip),128);
+            break;
+        }
+    }
+}
+
+void sprite::drawcloaked(BITMAP* dest)
+{
+    int sx = real_x(x+xofs);
+    int sy = real_y(y+yofs)-real_z(z+zofs);
+    
+    if(id<0)
+        return;
+        
+    if(clk>=0)
+    {
+        overtilecloaked16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,((scriptflip > -1) ? scriptflip : flip));
+    }
+    else
+    {
+        int t  = wpnsbuf[iwSpawn].newtile;
+        int cs2 = wpnsbuf[iwSpawn].csets&15;
+        
+        if(BSZ)
+        {
+            if(clk>=-10) ++t;
+            
+            if(clk>=-5) ++t;
+        }
+        else
+        {
+            if(clk>=-12) ++t;
+            
+            if(clk>=-6) ++t;
+        }
+        
+        overtile16(dest,t,x,sy,cs2,0);
+    }
+    
+    if(get_debug() && key[KEY_O])
+        rectfill(dest,x+hxofs,sy+hyofs,x+hxofs+hxsz-1,sy+hyofs+hysz-1,vc(id));
+}
+
+
+/* //sprite::draw() before adding scripttile and scriptflip
+void sprite::draw(BITMAP* dest)
+{
+    if(!show_sprites)
+    {
+        return;
+    }
+    
+    int sx = real_x(x+xofs);
+    int sy = real_y(y+yofs)-real_z(z+zofs);
+    
+    if(id<0)
+        return;
+        
+    int e = extend>=3 ? 3 : extend;
+    
+    if(clk>=0)
+    {
+        switch(e)
+        {
+            BITMAP *temp;
+            
+        case 1:
+            temp = create_bitmap_ex(8,16,32);
+            blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
+            
+            if(drawstyle==0 || drawstyle==3)
+            {
+                overtile16(temp,tile-TILES_PER_ROW,0,0,cs,flip);
+                overtile16(temp,tile,0,16,cs,flip);
+            }
+            
+            if(drawstyle==1)
+            {
+                overtiletranslucent16(temp,tile-TILES_PER_ROW,0,0,cs,flip,128);
+                overtiletranslucent16(temp,tile,0,16,cs,flip,128);
+            }
+            
+            if(drawstyle==2)
+            {
+                overtilecloaked16(temp,tile-TILES_PER_ROW,0,0,flip);
+                overtilecloaked16(temp,tile,0,16,flip);
+            }
+            
+            masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+            destroy_bitmap(temp);
+            break;
+            
+        case 2:
+            temp = create_bitmap_ex(8,48,32);
+            blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
+            
+            if(drawstyle==0 || drawstyle==3)
+            {
+                overtile16(temp,tile-TILES_PER_ROW,16,0,cs,flip);
+                overtile16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip);
+                overtile16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip);
+                overtile16(temp,tile,16,16,cs,flip);
+                overtile16(temp,tile-(flip?-1:1),0,16,cs,flip);
+                overtile16(temp,tile+(flip?-1:1),32,16,cs,flip);
+            }
+            
+            if(drawstyle==1)
+            {
+                overtiletranslucent16(temp,tile-TILES_PER_ROW,16,0,cs,flip,128);
+                overtiletranslucent16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip,128);
+                overtiletranslucent16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip,128);
+                overtiletranslucent16(temp,tile,16,16,cs,flip,128);
+                overtiletranslucent16(temp,tile-(flip?-1:1),0,16,cs,flip,128);
+                overtiletranslucent16(temp,tile+(flip?-1:1),32,16,cs,flip,128);
+            }
+            
+            if(drawstyle==2)
+            {
+                overtilecloaked16(temp,tile-TILES_PER_ROW,16,0,flip);
+                overtilecloaked16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,flip);
+                overtilecloaked16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,flip);
+                overtilecloaked16(temp,tile,16,16,flip);
+                overtilecloaked16(temp,tile-(flip?-1:1),0,16,flip);
+                overtilecloaked16(temp,tile+(flip?-1:1),32,16,flip);
+            }
+            
+            masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+            destroy_bitmap(temp);
+            break;
+            
+        case 3:
+        {
+            int tileToDraw;
+            
+            switch(flip)
+            {
+            case 1:
+                for(int i=0; i<tysz; i++)
+                {
+                    for(int j=txsz-1; j>=0; j--)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,flip);
+                    }
+                }
+                
+                break;
+                
+            case 2:
+                for(int i=tysz-1; i>=0; i--)
+                {
+                    for(int j=0; j<txsz; j++)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,flip);
+                    }
+                }
+                
+                break;
+                
+            case 3:
+                for(int i=tysz-1; i>=0; i--)
+                {
+                    for(int j=txsz-1; j>=0; j--)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,flip);
+                    }
+                }
+                
+                break;
+                
+            case 0:
+                for(int i=0; i<tysz; i++)
+                {
+                    for(int j=0; j<txsz; j++)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+i*16,flip);
+                    }
+                }
+                
+                break;
+            }
+            
+            case 0:
+            default:
+                if(drawstyle==0 || drawstyle==3)
+                    overtile16(dest,tile,sx,sy,cs,flip);
+                else if(drawstyle==1)
+                    overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
+                else if(drawstyle==2)
+                    overtilecloaked16(dest,tile,sx,sy,flip);
+                    
+                break;
+            }
+            break;
+        }
+    }
+    else
+    {
+        if(e!=3)
+        {
+            int t  = wpnsbuf[iwSpawn].newtile;
+            int cs2 = wpnsbuf[iwSpawn].csets&15;
+            
+            if(BSZ)
+            {
+                if(clk>=-10) ++t;
+                
+                if(clk>=-5) ++t;
+            }
+            else
+            {
+                if(clk>=-12) ++t;
+                
+                if(clk>=-6) ++t;
+            }
+            
+            overtile16(dest,t,sx,sy,cs2,0);
+        }
+        else
+        {
+            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
+            w.xofs = xofs;
+            w.yofs = yofs;
+            w.zofs = zofs;
+            w.txsz = txsz;
+            w.tysz = tysz;
+            w.extend = 3;
+            
+            if(BSZ)
+            {
+                if(clk>=-10)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+                
+                if(clk>=-5)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+            }
+            else
+            {
+                if(clk>=-12)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+                
+                if(clk>=-6)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+            }
+            
+            w.draw(dest);
+        }
+    }
+    
+    if(show_hitboxes && !is_zquest())
+        rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
+}
+
+void sprite::old_draw(BITMAP* dest)
 {
     if(!show_sprites)
     {
@@ -672,9 +2122,14 @@ void sprite::drawcloaked(BITMAP* dest)
         overtile16(dest,t,x,sy,cs2,0);
     }
     
-    if(get_debug() && key[KEY_O])
+    if(get_debug() && zc_getkey(KEY_O))
         rectfill(dest,x+hxofs,sy+hyofs,x+hxofs+hxsz-1,sy+hyofs+hysz-1,vc(id));
 }
+
+
+
+
+*/
 
 void sprite::drawshadow(BITMAP* dest,bool translucent)
 {
@@ -708,7 +2163,7 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 /********** Sprite List ***********/
 /**********************************/
 
-#define SLMAX 255
+#define SLMAX 255*256
 
 //class enemy;
 
@@ -1078,6 +2533,136 @@ void sprite_list::checkConsistency()
     for(int i=0; i<count; i++)
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
 }
+
+void sprite::explode(int type)
+{
+	al_trace("Trying to explode enemy tile: %d\n",tile);
+	
+	/*
+	tiledata *temptilebuf = NULL;
+	memset(temptilebuf, 0, sizeof(temptilebuf));
+	static int tempx, tempy;
+	static byte linktilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	unpack_tile(temptilebuf, tile, flip, true);
+	//unpack_tile(temptilebuf, tile, flip, true);
+	//unpack_tile(temptilebuf, o_tile, 0, true);
+	memcpy(linktilebuf, temptilebuf, 256);
+	tempx=x;
+	tempy=y;
+	*/
+	
+	byte spritetilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	unpack_tile(newtilebuf, tile, flip, true);
+	memcpy(spritetilebuf, unpackbuf, 256);	
+	
+	for(int i=0; i<16; ++i)
+	{
+                for(int j=0; j<16; ++j)
+                {
+                    if(spritetilebuf[i*16+j])
+                    {
+                        if(type==0)  // Twilight
+                        {
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (rand()%8)+i*4));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=3;
+			    p->cset=cs;
+			    p->color= rand()%4+1;
+                        }
+                        
+			else if(type ==1)  // Sands of Hours
+                        {
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 1, 2, (rand()%16)+i*2));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=4;
+                            
+                            if(rand()%10 < 2)
+                            {
+                                p->color= rand()%4+1;
+                                p->cset=cs;
+                            }
+                        }
+                        else //explode
+                        {
+                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, spritetilebuf[i*16+j], rand()%96));
+                            
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->angular=true;
+                            p->angle=rand();
+                            p->step=(((double)j)/8);
+                            p->yofs=yofs;
+			    p->color= rand()%4+1;
+			    p->cset=cs;
+                        }
+			
+                    }
+                }
+	}
+	
+}
+
+
+
+/*
+void sprite::explode(int type)
+{
+	static int tempx, tempy;
+	static byte linktilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	unpack_tile(newtilebuf, tile, flip, true);
+	memcpy(linktilebuf, unpackbuf, 256);
+	tempx=x;
+	tempy=y;
+	for(int i=0; i<16; ++i)
+	{
+                for(int j=0; j<16; ++j)
+                {
+                    if(linktilebuf[i*16+j])
+                    {
+                        if(type==0)  // Twilight
+                        {
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (rand()%8)+i*4));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=3;
+                        }
+                        else if(type ==1)  // Sands of Hours
+                        {
+                            particles.add(new pTwilight(x+j, y-z()+i, 5, 1, 2, (rand()%16)+i*2));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=4;
+                            
+                            if(rand()%10 < 2)
+                            {
+                                p->color=1;
+                                p->cset=0;
+                            }
+                        }
+                        else
+                        {
+                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+                            
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->angular=true;
+                            p->angle=rand();
+                            p->step=(((double)j)/8);
+                            p->yofs=yofs;
+                        }
+                    }
+                }
+	}
+}
+*/
 
 /**********************************/
 /********** Moving Block **********/

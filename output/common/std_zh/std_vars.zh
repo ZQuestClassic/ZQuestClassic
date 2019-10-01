@@ -1,9 +1,31 @@
 //General-Use Arrays with Getter/Setter functions
-//13th February, 2016, 2016
+///16th September, 2019
 
 //A generic array, pre-included with all quests. 
 //float stdArray[4096]; //This should be called GlobalRAM[]
 int std_zh___GlobalRAM[4096];
+
+const float STD_VERSION = 1.6003;
+const int STD_DATE_YEAR = 2019;
+const int STD_DATE_MONTH = 9;
+const int STD_DATE_DAY = 16;
+const int STD_DATE_HOUR = 2;
+const int STD_DATE_MINUTE = 38;
+
+float __stdzh_getVersion() { return STD_VERSION; }
+float __stdzh_getVersionDate()
+{
+	float dt = STD_DATE_MONTH;
+	dt += STD_DATE_DAY * 100;
+	dt += STD_DATE_YEAR / 10000;
+	return dt;
+}
+float __stdzh_getVersionTime()
+{
+	float tm = STD_DATE_HOUR;
+	tm += STD_DATE_MINUTE / 10000;
+	return tm;
+}
 
 //! Because this is the first global array that will likely be declared, called from the 'import "std.zh"' 
 //! directive in scripts, or from the buffer; as the import directive for std.zh is usually the very first
@@ -23,37 +45,44 @@ int std_zh___GlobalRAM[4096];
 
 //Data Handling Functions
 
-//Get the value of any 'index' in the generic array.
-float GetV(int index){
-	return std_zh___GlobalRAM[index];
+//Get the value of any 'indx' in the generic array.
+float __stdzh_GetV(int indx)
+{
+	return std_zh___GlobalRAM[indx];
 }
 
-//Set the value of any 'index', to a specific amount 'value'.
-void SetV(int index, int value){
-	std_zh___GlobalRAM[index] = value;
+//Set the value of any 'indx', to a specific amount 'value'.
+void __stdzh_SetV(int indx, int value)
+{
+	std_zh___GlobalRAM[indx] = value;
 }
 
-//Increase the value of any 'index' by +1.
-void IncV(int index) {
-	std_zh___GlobalRAM[index]++;
+//Increase the value of any 'indx' by +1.
+void __stdzh_IncV(int indx) 
+{
+	++std_zh___GlobalRAM[indx];
 }
 
-//Increase the value of any 'index' by 'amount'.
-void IncV(int index, int amount){
-	std_zh___GlobalRAM[index] += amount;
+//Increase the value of any 'indx' by 'amount'.
+void __stdzh_IncV(int indx, int amount)
+{
+	std_zh___GlobalRAM[indx] += amount;
 }
 
-//Decrease the value of any 'index' by -1.
-void DecV(int index){
-	std_zh___GlobalRAM[index]--;
+//Decrease the value of any 'indx' by -1.
+void __stdzh_DecV(int indx)
+{
+	--std_zh___GlobalRAM[indx];
 }
 
-//Decrease the value of any 'index' by 'amount'.
-void DecV(int index, int amount){
-	std_zh___GlobalRAM[index] -= amount;
+//Decrease the value of any 'indx' by 'amount'.
+void __stdzh_DecV(int indx, int amount)
+{
+	std_zh___GlobalRAM[indx] -= amount;
 }
 
 //Stores the pointer of any array to an inmdex of GlobalRAM to allow accessing it from any script. 
-void StoreArrayPointer(int arr, int index){
-    std_zh___GlobalRAM[index] = arr;
+void __stdzh_StoreArrayPointer(int arr, int indx)
+{
+    std_zh___GlobalRAM[indx] = arr;
 }

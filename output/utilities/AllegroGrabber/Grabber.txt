@@ -1,0 +1,15 @@
+The ZC DATAFILES (*.dat) are small database files that contain
+a variety of data formats. 
+
+To inspect, edit, or create these, you MUST use the Allegro
+Grabber utility. 
+
+The utility itself is easy enough to understand, however, some
+of the .dat file are encrypted: longtan
+
+Grabber uses Allegro 4.2, so, on newer Windows systems it will
+exhibit the Alt+Tab bug that ZC (prior to 2.53.0) exhibited.
+
+I'm not going to go through the hassle of updating it to
+Allegro 4.4.3, to correct this.  -Z
+-Z

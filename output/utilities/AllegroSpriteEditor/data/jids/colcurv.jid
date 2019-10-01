@@ -1,0 +1,17 @@
+<!-- ASE - Allegro Sprite Editor -->
+<!-- Copyright (C) 2001-2009 by David Capello -->
+<jinete>
+<window text="Color Curve" name="color_curve">
+  <box vertical>
+    <box horizontal expansive>
+      <view expansive name="curve" /><!-- custom widget -->
+      <box vertical>
+        <button text="&OK" name="button_ok" magnetic />
+        <button text="&Cancel" />
+        <box name="target" />
+        <check text="&Preview" name="preview" />
+      </box>
+    </box>
+  </box>
+</window>
+</jinete>

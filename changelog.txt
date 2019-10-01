@@ -1,4 +1,4355 @@
-//2.55 and 2.54 Changes
+//2.55 Changes
+
+//Alpha 31
+Converted int SideWarpOverlayFlags to bool SideWarpOverlay[4]
+	and int TileWarpOverlayFlags to bool TileWarpOverlay[4] for
+	both Screen-> and for mapdata->.
+Changed int Screen->NumFFCa to bool->Screen->NumFFCs[33]
+	and int mapdata->NumFFCs to bool mapdata->NumFFCs[33].
+	* The number of ffcs set up on the current screen.
+	* Index [0] is unused, to match internal ZQ Editor FFC numbering.
+	* Thus, this returns true/false for indices [1] through [32],
+	* which equate to FFC IDs 1 through 32 on the current mapscreen.
+Deprecated Screen->CSet and mapdata->CSet in favour
+	of Screen->Palette and mapdata->Palette.
+Added alts. CarryoverMpa and CarryoverScreen for NextMap
+	and NextScreen on Screen-> and mapdata-> pointers, and documented
+	what they do in ZSA.txt.
+Removed erroneous vbound for ITEMPSTRINGFLAGS and ITEMOVERRIDEFLAGS
+	that were clamping them to (msg_count-1) caused vby a copy/paste error.
+	( ZoriaRPG, 1st September, 2019 )
+
+Added int Screen->SideWarpReturnSquare[4], int Screen->TileWarpReturnSquare[4], 
+	int mapdata->SideWarpReturnSquare[4], and int mapdata->TileWarpReturnSquare[4],
+	to get/set the return square used by tile or side warps as their return point.
+	( Venrob & ZoriaRPG, 31st August, 2019 )
+
+Updated std_constants.zh with the new, and some older, but missing, WARP_FLAG_* constants.
+Added bool Hero->NoStepForward.
+	If set true, the player will not take two steps into NES dungeon rooms.
+	This value is reseto false, every time that the hero sprite is initialised,
+		and thus, should be written ideally in the hero init script.
+	Future versions may change when this is cleared.
+Added warp flag WARP_FLAG_NOSTEPFORWARD to Hero->WarpEx().
+	If set, then for this single warp instance, if the dest screen is a dungeon type, the 
+	player should not take an extra two steps on entering the room.
+	( ZoriaRPG, 30th August, 2019 )
+	
+Update fade out to have slightly more time on black
+	( Venrob, 29th August, 2019 )
+Added Guardian.zs to included npc scripts. 
+Added int Screen->GetRenderTarget();
+	( ZoriaRPG, 29th August, 2019 )
+	
+Updated std_constants enum for fade types.
+Add new wipe type: FadeBlack, which works similarly to tint to create a smooth fade to black.
+Added "Screen->ClosingWipe()", to call a closing wipe
+Added "Screen->OpeningWipe(int shape)" and "Screen->ClosingWipe(int shape)"
+	as overloaded functions which allow you to specify the shape,
+	as opposed to it being picked via which QRs are on.
+Fixed a timing issue with F6 menu scripts and "Screen->OpeningWipe()", which lead to invalid ZASM errors.
+	( Venrob, 28th August, 2019 )
+	
+Docs: Add Version Semantics & Logic Diagrams for future version planning.
+	( ZoriaRPG, 27th August, 2019 )
+
+//Alpha 30
+Refactor: npc->Knockback()
+	Now scripted knockback is entirely separated from engine knockback, no longer
+		tied at all to 'enemy::slide()'. It also can go in 8 dirs,
+		and takes a 'speed' parameter.
+	Changed ZScript access:
+	removed bool NoKnockback;
+	added bool NoSlide; - no engine knockback
+	added bool NoScriptKnockback; - prevent ->Knockback() calls
+	param update: bool Knockback(int time, int dir, int speed);
+	removed int KnockbackSpeed;
+	added int SlideSpeed; - speed for engine knockback
+	return update: bool Slide(); -> int Slide(); (0 for none, 1 for scripted, 2 for engine)
+
+	TODO: Diagonal knockback will dead-halt when hitting a wall,
+		instead of carrying momentum in the other direction.
+	i.e. Up-Right hits right wall, does not continue moving up
+	( Venrob, 25th August, 2019 )
+
+Added 'Utilities' with thtree third-party add-ons. 
+	The following third-party (add-on) utilities are now bundled with ZC 2.55:
+
+	///////////////////////
+	/// Allegro Grabber ///
+	///////////////////////
+	Used to edit Module Datafiles (e.g. qst.dat).
+
+
+	///////////////////////////
+	/// Allegro Font Editor ///
+	///////////////////////////
+	Used to create, or edit Allegro 4 Bitmap Fonts, used in
+	the Module Fonts Datafile (e.g. fonts.dat).
+
+
+	/////////////////////////////
+	/// Allegro Sprite Editor ///
+	/////////////////////////////
+	An enhanced utility for editing sprite sheets used by ZQuest.
+	This allows editing full tile pages with six levels of oom,
+	operating on more than one tile at a time, while preserving
+	the Quest palettes of the image, in a variety of formats.
+	( ZoriaRPG, 24th August, 2019 )
+	
+	
+Feat+Fix: 'npc->KnockbackSpeed', knockback collision checks 
+	Added 'npc->KnockbackSpeed', representing the number of pixels per frame
+		an enemy being knocked back will move. Range 0-255 (byte)
+	Fixed some collision issues with knockback; most notably being unable to knock enemies
+		into the upper row or leftmost column (regardless of qr_NOBORDER).
+	-This is revertable via 'qr_OLD_ENEMY_KNOCKBACK_COLLISION'
+		-> "Old Enemy Knockback Collision", a compat rule
+	Modified a section of how knockback words based on 'KnockbackSpeed';
+		an enemy will perform a solidity check for every 8 pixels it moves,
+		to prevent clipping into/through walls at high speeds.
+	-Perhaps something similar could be adapted to prevent high step enemies from
+		walking through walls?
+Feat: 'npc->NoKnockback' and 'npc->Knockback()' 
+	'bool npc->NoKnockback', if set true, prevents knockback.
+	'npc->Knockback(int time, int dir)' will knock an enemy back.
+	Both have some sanity checks for keeping enemies on-grid.
+	( Venrob, 24th August 2019 )
+
+It also has many other sprite animation/creation features.
+
+Fixed two polymorphism oversights:
+	Added ePatra::defendNew() and ePatraBS::DefendNew()
+	as virtual class functions.
+	Patras weren't using the newe defend system, and were instead
+	calling the old ::defend() function, and getting improper ret
+	values. This caused the core to be vulnerable prior to killing 1
+	the orbiting rings, and this should fix that issue.
+
+	Fixed Dodongo showing rubbish tiles on death.
+	Fixed Gleeok body not flashing on hit,
+	Fixed Gohma leaving legs behind on death,
+	Probably fixed Ganon flash issue.
+	( ZoriaRPG, 23rd August, 2019 )
+	
+Parser: Allow pointer types to be used in conditionals
+	if(), unless(), while(), until(), for()'s test, and Ternary's condition,
+	now all accept Untyped input, so that pointers can be read to check
+	if they have been initialized (similar to how '!' already does this)
+Fix: Items ignore script frame-change 
+	Items with 0 frames set in their itemdata when they were created would
+	ignore all further changes to their frame number.
+	Compat QR
+Fix: Hardcoded black UI Elements
+	"Preview Text", from pressing "X"
+	Small mode bottom-panel text
+Fix: 'npc->ScriptFlip' missing '/10000'
+	( Venrob, 23rd August, 2019 )
+	
+Feat: Weapons live 1 frame longer (qr) 
+	qr_WEAPONS_EXTRA_FRAME -> "Weapons Live One Extra Frame With WDS_DEAD"
+	With this rule on, weapons get their own "last_hurrah" style life extension.
+	This means that scripts can read '->DeadState==WDS_DEAD' as true for one frame,
+		instead of it never being true.
+	This allows for weapon death effects to occur easily from their scripts.
+Feat: npc->Immortal 
+	An NPC with this script-only flag set true will NOT die when it's HP falls below 0.
+	This can allow scripts to revive it, or run death effects, as they wish.
+	( Venrob, 22nd August, 2019 )
+	
+Fix: Spells on Sideview Ladders 
+	Whoops, spells wouldn't cast while climbing!
+	Also cleaned up the 'CANFORCEFACEUP' macro
+Fix: 'Always Face Up' on ladders, conflict with weapons 
+	Only swords were apparently working with my fix. This new fix should allow ALL weapons
+	to be fired in ANY dir, despite you being facing up, so long as you have the dir held
+	when you press the weapon button.
+Fix: Bumping head uses bigHitbox with 4-way movement 	
+	For some reason, 4-way movement treats Hero as if BigHitbox=true in sideview,
+	regardless of if it is or not. This makes this consistent, and can be fixed
+	with a SINGLE compat-rule later, in both locations, instead of needing 2.
+Fix: Hitbox size for sideview ladders 
+	Slightly altered the calculations for grabbing ladders, and accounted for
+	bigHitbox. Now, Hero can hold onto a ladder with any part of him that would
+	be applicable for solidity checks, and ONLY those parts.
+	This fixes some minor weirdness with certain combo arrangements.
+Feat/Fix: Sideview Platforms Down+Jump falling, Ceiling Collision
+	QR: "Press 'Down+Jump' to Fall Through Sideview Platforms"
+This enables falling through platforms by using the Roc's Feather
+	while holding "Down".
+
+Fix sideview ceiling collision. There were ALL SORTS of issues,
+	including clipping slightly into the ceiling,
+	and bumping your head too early.
+	-Use compat rule "Old Sideview Ceiling Collision" to disable this fix.
+	Auto-enabled for old quests.
+Chore: Mark Off-Grid flag "(WIP)" 
+	( Venrob, 21st August, 2919 )
+	
+Update refInfo + Timestamps, adding comboidref to refInfo for combo script functions
+	such as X(), Y(), Layer(), Position(), and ID().
+	( ZoriaRPG, 21st August, 2019 )
+	
+//Alpha 29
+Fix: Incorrect flag in Classic and Default Module for Scripted Hookshot
+	to bundle with final A29 build.
+	( Venrob, and ZoriaRPG )
+Feat: Hero->Climbing
+	ZScript access to 'Link.(s/g)etOnSideviewLadder()'
+	Also, the docs to go with.
+Feat: Sideview Ladders and Platforms
+Feat: Sideview Platforms, some QRs for Platforms/Ladders 
+	Added rules:
+	qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS - As it says, items fall through ladders and platforms
+	qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS - Pressing down will make you fall through platforms
+	qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK - The above rule will respect Drunk when checking for Down
+	qr_DOWN_DOESNT_GRAB_LADDERS - Down will only grab ladders if you are not in mid-air
+	Enemy BFlag - Ignore Sideview Ladders/Platforms - As it says, enemies fall through ladders and platforms
+
+	Fixed Always Face Up on Sideview Ladders rule:
+	Can swing sword/etc in any direction regardless of rule, as in LA.
+
+Feat: QR for Always Face Up on Sideview Ladders 
+	If enabled, 'Hero->Dir' will be forced to 'Up' while grabbed onto a sideview ladder.
+Added Sideview Ladders
+	Flag 161 is now 'mfSIDEVIEWLADDER', GUI name '161 Sideview Ladder'
+	This flag, placed or inherent, on layers 0, 1, or 2, will function as a sideview ladder.
+	Enemies, Items, and Hero can walk atop the top ladder.
+	-If multiple ladders are stacked vertically, only the TOP one can be walked on.
+	-The combos used for this should be NON-SOLID.
+	Additionally, Hero can CLIMB the ladder. Pressing down while standing on top of one,
+		or pressing up/down anywhere on the ladder, will grab it. While climbing on the ladder, you
+		can go in any direction, though if you walk off of the flag, you will stop holding on.
+	Using the Roc's Feather, or script-setting 'Hero->Jump', will detach you from the ladder, and perform a jump.
+	Also, fixed a minor issue with large sideview enemies, so that they properly can walk.
+	( Venrob, 20th August, 2019 )
+
+Feat: Add 'Clear Directory Cache' menu option to ZC Player
+Fix: ZQuest, Clear Quest Path
+Change menu label: 'Screen>>>Room' to 'Screen>>>Room Data'
+Fix room type text change occurring on wrong menu entry (enemies, not catchall).
+	( ZoriaRPG, 16th August, 2019 )
+
+The following changes were made over a period of several weeks in independent branches, and merged together on 14th August, 2019:
+
+Merge: 2.55-largeEnemy-Solidity 
+	Attempt fix: Large enemy solidity checks
+	Attempt fix: Large enemy solidity checks (ef2d352)
+	Merge pull request #433 from ArmageddonGames/2.55 8780f30
+	Fix: Normal size enemies use old m_walkflag behavior 18c1c3b
+	Merge branch '2.55-largeEnemy-Solidity' 3fd8483
+	Revert: Some new walkflag stuff 60977ff
+	Merge pull request #434 from ArmageddonGames/2.55 8df0884
+	Fix: Broken top-half solidity, large enemy stuff 8486308
+Fix: Handle diagonal movement checks for large enemies	
+	( Venrob, 6th->14th August, 2019; merged 14th August, 2019 )
+	
+Merge: venrob/2.55-tint-getter
+	Add getTint(int color) function to get the tint sum from the array it is stored in
+	Add enum for accessing the indexes of the array
+	Commit: 93f5fbe
+	(Found this branch from a while ago.... not totally complete, but, draft PR'ing so it isn't forgotten forever.)
+	( Venrob, Merged 14th August, 2019 )
+	
+Merge: 2.55-typedefScoperes 
+	Parser: Allow scoperes of types
+	Commit: a0ae879
+	Array literal change: (int[5]){} -> <int[5]>{}
+	Types can be scoperes accessed now.
+	Script Types have NOT yet been changed!
+	Known minor error- will use local type automatically even if there are conflicting types in 'using'd namespaces. Fix priority: Very Minor
+	( Venrob, 2nd August ->14 thAugust, 2019; Merged 14th August, 2019 )
+	
+Merge: 2.55-allowRaftingAction
+	Feat: Allow `Hero->Action = LA_RAFTING`
+	Commit: 6431d52
+	Only allowed if there is a raft flag ahead
+Add new script and data types:
+	Datatypes: 'file', 'subscreendata'
+	Scripttypes: 'combodata', 'subscreendata'
+	Types do nothing yet, but are implemented. Script types have their `this` set to the datatype of the same name.
+	( Venrob, Merged 13th August 2019 )
+	
+Fix: Add compat QR for allowing rafting to preserve old behavior; commit: 4b2de97
+Fix: Handle diagonal movement checks for large enemies
+	( Venrob, 12th August 2019 )
+
+Pruned `Quest->Rules->Scripts`, and associated data, as it is unused/hidden anyway.
+Added a TABPANEL to `Quest->Rules->Backwards Compatibility`
+Added `qr_BROKEN_ASKIP_Y_FRAMES` ("Broken ASkipY Animation Frames") to compat rules, now that there is space
+Added a TABPANEL to `ZScript->Quest Script Settings`; sorted into 5 tabs, by type of rule.
+Fixed typo: "IetmSprite" -> "ItemSprite", for ASM import option
+	( Venrob, 9th August, 2019 )
+	
+Fixed screenshot colours when taking a screenshot in ZC Player, via the menus.
+	( ZoriaRPG, 9th August, 2019 )
+	
+Fixed Combo Animations with SkipY
+	The formula for calculating when to reset a combo animation to the start did not properly account for ASkipY, causing it to use the wrong number of frames.
+	This has been fixed, though 'qr_BROKEN_ASKIP_Y_FRAMES' being enabled will cause it to use the old behavior.
+	This QR is NOT yet in the GUI, and needs to be added to the second tab of 'Quest->Rules->Backwards Compatibility', when that gets it's tabpanel.
+	( Venrob, 8th August, 2019 )
+	
+In < 2.55a27, if you had an A+B subscreen, L and R didn't shift
+through inventory.
+	Now they **do**, unless you disable that behaviour.
+	For the sake of compatibility, old quests with the A+B subscreen rule enabed
+	now enable the disable L/R item swap on load.
+	( ZoriaRPG, 7th August, 2019 )
+	
+Added to 'Screen->' and 'bitmap->' 2 new functions:
+	'->DrawTileCloaked(int layer, int x, int y, int tile, int blockw, int blockh, int flip);'
+	'->DrawComboCloaked(int layer, int x, int y, int combo, int tilewidth, int tileheight, int flip);'
+	These will draw the appropriate tile using 'overtilecloaked16()'; a distortion effect.
+	Distortion effects have issues with sub-bitmaps, so features such as scale, rotate, and transparency are incompatible with cloaked drawing.
+	Distortion effects also ignore CSet, thus why that argument is not present.
+	( Venrob, 7th August, 2019 )
+	
+Remove shadow vars from enemy::m_walkflag params	
+Added sanity check if ( ((unsigned)id) < MAXGUYS ) to reads into guys structs.
+Add more clipping prevention to large enemies, ...and diagonals. 
+	This seems to work far better but enemies can still occasionally clip
+	through solid combos, and they seem to be bound too close in toward the middle of the screen
+	from the left edge of the screen.
+Try to add multi-pixel solidity checks to bool enemy::canmove
+Fix: More checks for large enemies.
+	Added some bounding to m_walkflag based on dir, but we need
+	a routine for can_walk stuff that checks between points of the corners.
+	Large enemies can still clip through solid stuff, quite easily.
+Move m_walkflag into enemy class. 
+	This gives it access to the current enemy internal vars, so that
+	we can check txsz and tysz or hxsz / hysz for being on screen
+	or touching solid combos.
+	( ZoriaRPG, 6th August, 2019 )
+	
+Fix: Centre EWeapons for Large Enemies
+Feat: Add H/V Flip Context Menu Entries to Tile Editor
+Feat: Add options to Tile Editor Context Menu 
+	Added 'Overlay' and 'Create Combos' to the Tile Editor
+	right-click (contextual) menu.
+	These perform OverlatTile, and Mass Combo creation, respectively.
+Fix: Crash on ZQ Context Menu>>>Screen Submenu
+Fix: Set Whistle Pols Voice Defence to OKHO 
+	Force defense[edefWhistle] = OKHO for Whistle Pols Voice
+	npc in versions < 2.55 Build 47, on quest load.
+Condense and Rearrange ZQ Menus to fit Small Mode
+Used Smaller Context Menu in Small ZQ Mode
+Marked where config ints can be used to modify the Contextual Menu
+Condense ZQuest Contextual Menu
+	( ZoriaRPG, 5th August, 2019 )
+	
+The arrays that held combo animation tile data were sized to word,
+	not int, and thus, combo animations would not work properly if the tile was
+	> 16b.
+
+	I've resized all of these arrays to int, and thus, they can now hold tile values
+	large-enough to work properly from the extended pages.
+Fixed Mass Combo Creation. 
+	The bug was cased by edit_combo()
+	returning the incorrect value, after old modifications to its DIALOGUE
+	array, when we added Combo Attributes..
+Fixed Give/Take Item SCCs failing to trigger passive item scripts, or disabling them.
+Fixed array[9] passed to Link->WarpEx ignoring the last index value.
+Feat: Add refInfo object fileref, and REFFILE for file datatype.
+Parser: Added token 'equals' as alt for '=='
+Docs: Added ffrules.txt v1.0
+Chore: Correct typos in Item Rules
+std: Update std_constants with new ffrules enum.
+	( ZoriaRPG, 4th August, 2019 )
+	
+Change std::Blink() to std::blink()
+std.zh - Add namespace std, and bool Blink.
+	( ZoriaRPG, 3rd August, 2019 )
+	
+Fix lexical error in std_constants
+Added the following to std_constants.zh:
+	//Default array sizes
+	const int INIT_D_SIZE			= 8;
+	const int INIT_A_SIZE			= 2;
+	const int MISC_SIZE			= 32;
+	const int NPC_ATTRIBUTES_SIZE		= 32;
+	const int ITEM_ATTRIBUTES_SIZE`		= 10;
+	const int GAMEMISC_SIZE 		= 32;
+Fix syntax err in typedef docs (ZSA.txt)
+Parser: Add Pascal Style ASSIGN token (:=)
+Parser: Added '..' as alt token for '::' (namespace scoperes)
+Try to fix the pointer used by EditScreenScript(), that may have been causing Screen Script
+	data to vanish at random.
+	( ZoriaRPG, 1st August, 2019 )
+	
+Feat: `global_wait` for each slot, multiframe onLaunch 
+	`global_wait` is now bitwise, matching `g_doscript`
+	`onLaunch` scripts now can run for multiple frames, in the same style as onF6Menu and onDeath scripts. 
+	As a side effect, F6 cannot be used during them.
+	This script slot is now set up perfectly for use for quest Title Screens.
+	Removed a trace that was left behind during F6 slot dev.
+	( Venrob, 1st August, 2019 )
+	
+Fix: FFRules[] setter broken 
+	When reading a bool, do NOT use `value/10000`, 
+	as this will break completely with `true==0.0001` compiler option on, as `1/10000`, 
+	integer division, is `0`.
+Feat: Add 'Game->SaveAndQuit()' and 'Game->SaveAndContinue()' 
+	These do as their names say. They benefit over doing 'Game->Save(); Game->End();' 
+	(or 'Game->Save(); Game->Continue();' respectively) in that they will save the game AFTER 
+	the execution of the global script onExit.
+	If an onExit script is important to the quest, these may be neccesary over the prior options 
+	for scripts to function as expected.
+Feat: Hero OnDeath matches Global onF6Menu 
+	These script types now run with similar functionality to each other, 
+	for consistency in menu scripts.
+Also added `qr_ONDEATH_RUNS_AFTER_DEATH_ANIM`, which does as the name says. 
+	With the correct toggling of this rule via script, it is possible to cause onDeath to run twice in a row.
+Fixed 'Game->Continue' skipping exiting code, including passive item script cleanup (could cause CRASHES), and skipping the global script onExit's execution.
+Moved Hero script onDeath's execution from 'link.cpp' to 'ffscript.cpp', runOnDeathEngine().
+Fixed 'doScriptMenuDraws()' not applying the playing_field_offset to layers other than 7.
+Moved `initZScriptLinkScripts()` into FFCore.
+Fix/Feat: Fix, and FINISH, F6 scripts. 
+	Also fix:
+	`SKIPF6` now refs `qr_NOCONTINUE`, instead of separate thing
+	`LinkClass::gameover()` now named `LinkClass::heroDeathAnimation()`, 
+	because `gameover()` + `game_over()` is not good identifier names.
+	Remove several duplicate `put_passive_subscr()` calls; `draw_screen()` already calls this!!!!
+	`Game>>>End Game...` now calls F6 script.
+	( Venrob, 31st July, 2019 )
+	
+Fix Bounding Error on itemdata 
+	'0' is a valid writable value, but VBound was 1-255. 
+	This prevented making an item NOT have a script(either pickup or action).
+Fix: Delayed F6
+	FFCore.runF6Engine is now called from advanceframe(), unless the third parameter is passed as 'false'.
+	This should be false for Link OnWin/OnDeath, as well as the F6 script itself.
+	This is ALSO false for LinkClass::scrollscr(), as that needs custom F6 handling to draw the scrolling screen properly. This is handled via 'FFCore.runF6EngineScrolling()'.
+	This still needs testing.
+	( Venrob, 30th July, 2019 )
+	
+Fix: Cannot F9 during Hero OnDeath
+Implement F6 script via unsigned long GameFlags, add QR 
+	qr_OLD_F6, automatic for quests <0x255 build 47; reverts all F6 behavior, 
+	including prevent F6 script from running.
+	F6 running moved to `FFCore.runF6Engine()`, callable from wherever we want.
+	Add check to prevent wasting a frame running an empty F6 script
+	Allow F6 from main menu to run script (but NOT `File->End Game`... should this as well?)
+Feat/Refactor: Global Scripts 
+	Each global script slot now has it's own stack/refinfo/doscript (bit)
+	Added Global Script onF6Menu, runs when F6 is pressed, or 'Game->ShowContinueScreen()' is called via script.
+	During this script, other action is halted. This script will run for multiple frames similarly to Link OnDeath and Link OnWin. If you cancel out of the menu (exit, with qr_NOCONTINUE==true,without setting Quit) then the game_loop and global active will resume right where they left off.
+	Todo: Global InitD[], further testing of F6 scripts
+	( Venrob, 29th July, 2019 )
+
+Feat: New Global Slots
+	Renamed `onContinue` to `onSaveLoad`, for clarity
+	Added `onLaunch`; runs after onContinue, regardless of `firstplay`
+	Added `onContGame`; runs after `Continue`, after Link Init, just before opening 
+	wipe (qCONT; Game->Continue(), F6->Continue, Game Over->Continue)
+Fix: Link Init runs in Link.init() 
+	Now runs on F6->Continue
+Fix: Mapdata->Layer*[] throw errors on valid index 
+	mapdata->Layer*[6] represents layer 6's data, but, throws errors when attempting to access.
+	Fixed the index bounder on these getters.
+Fix: Large Enemy Tiles 
+	There should be parentheses there. Order of operations, ya know?
+Fix: Itemsprite InitD[] should NOT * or / 10000 
+	InitD is direct value, there should be no conversion. 
+	This would truncate any decimal, as well as cause the parameter variables to be /10000 what they should be.
+	( Venrob, 28th July, 2019 )
+
+Fix: Crash when writing negative combos 
+	When writing a combo via script, now VBound between `0` and `MAXCOMBOS`.
+	Previously, `Screen->ComboD[foo] = -1;` would crash ZC.
+	( Venrob, 26th July, 2019 )
+	
+Fix: Bounds check for mapdata->D[] 
+	Corrected the bounds check for mapdata->D[8].
+	The BC was checking < 9, not 8.
+	I also simplified it with an unsigned cast.#
+	**We need to go through ffscript.cpp and convert all if > 0 && < n
+	checks to 'if ( (unsigned)v) < n )' to reduce overhead.
+Fix: mapdata->D[] 
+	Fixed offsets for mapdata->D[8] to account for it
+	only working on normap mapscreens.
+	Based on how SCREENSTATED works.
+	( ZoriaRPG, 26th July, 2019 )
+	
+Update file date on std_constants and ensure consistency.
+Added int Game->ZScriptVersion to ZScript. I made this r/w, with 
+	the ZASM instruction ZSCRIPTVERSION so that it is possible to 
+	modify ZASM scripts to get the current version, write a version to 
+	use for the script, and set back the correct version when the
+	script exits.
+
+Versions of Zscript prior to 13 are now shown, rather than -1.
+	NOTE however, that this merely reflects the constant V_FFSCRIPT used
+	by ZQ when that quest was saved, and it does not reflect when it was truly
+	last compiled (13+ do), but it is better than a generic '-1' and
+	may prove useful.
+
+	Linked all checks for this through 'FFCore.quest_format[vLastCompile]'.
+
+Game->Beta now returns a negative value if the build is an ALPHA
+	**and** the current compiled ZScript version is >= 13.
+
+The internal ID of the ZScript version is stored when compiling scripts,
+	during compilation. The value is stored in the QMisc struct.
+
+	The 'Compile Script' dialogue displays the last language version used in a quest.
+	Versions prior to 13 read as -1 at present.
+
+	This feature should be used with GREAT CARE as individual scripts do not
+	have this metadata and obviously, there is no way to determine in
+	what build an ASM script was compiled.
+
+	Build is now 47. Updated build date.
+	( ZoriaRPG, 25th July, 2019 )
+
+Fix: NO_ERROR_HALT crash with array accessing
+	`arr[NONEXISTANT_CONSTANT]` now no longer crashes.
+	( Venrob, 24th July, 2019 )
+	
+Corrected the behaviour of Audio->AdjustMusicVolume
+	and ensure proper reset to user defaults on quest exit.
+	( ZoriaRPG, 23rd July, 2019 )
+	
+ZCL: Segregated ZC Player and ZQ Editor GFX Drivers.
+	Version is noe 2.7.0
+Added confirmation/warning dialogues when shifting between
+	fullscreen and windowed modes in both ZQ Editor and ZC Player.
+Corrected label for 'Ex3/Ex4' shifts A-button items.
+	( ZoriaRPG, 23rd ]commit may show 18th] July, 2019 )
+
+std_zh: Update QR enum
+	Number of QRs have been added since last update; need to be available for `FFRules[]` access.
+	( Venrob, 23rd July, 2019 )
+	
+Fix: Crash on invalid script type
+	That needs to call `program.addScript`, as that's where the error is handled!
+	( Venrob, 22nd July, 2019 )
+	
+Fix: Port 'linkedItem' from 2.53, to fix wand crash
+	Book ID is now stored on this new var, instead of miscellaneous[31]
+	( Venrob, 19th July, 2019 )
+	
+Feat: Add item->InitD[8] to ZScriptl which is this->InitD in itemsprite scripts.
+Added linked_parent to item sprite subclass, init to 0 in its
+	constructor, and moved the == eeGANON check to use the new var, instead of
+	Misc31; as the latter can be overwritten by scripts.
+Fix setter for MAPDATASCREENSTATED
+This commit completes a series as follows:
+	Fixed itemsprite script initD being populated with '0' by ensuring that
+	the sprite initD was read by the item::item constructor from itemdata.
+
+	Fixed screen script initD by ensuring that tmpscr->initialised was not set to 1 by
+	loadscr() in maps.cpp; it should always be set to 0 by loadscr().
+Fix screen script initD init points.
+Deallocate screen script arrays and only set initD on loadscr()
+Fix Game->MapCount offset by 1.
+Fix getter for MAPDATASCREENSTATED
+Fix: Set items.sprite->initD in constructor.
+	( ZoriaRPG, 18th July, 2019 )
+	
+//Alpha 28
+sts.zh: Vers now 1.6002; Added constants and enums.
+
+Changelog: Added font height constants.
+Added mapdata->FFCFlags[32] constant for Invisible to Lens
+Added Link Sprite Type enum for Link->GetOriginalTile(linkspritetype,int dir)
+Added enum for Game->Suspend indices.
+	Note: Indices higher than susptSUBSCREENSCRIPTS aren't officially supported and
+	exist purely for testing purposes.
+	( Venrob, ZoriaRPG, 14th->18th July, 2019 )
+	
+Fix Missing checks in isValidArray()
+	Was not validating global arrays.
+	( ZoriaRPG, 17th July, 2019 )
+	
+Active scripts were not being deallocated in time for Link's OnDeath script. Added 2 deallocation calls to handle this.
+Link->OriginalTile was broken in GlobalSymbols.cpp, causing crash on every zscript compilation.
+Added IsValidArray: Returns true (10000) if the passed array is valid, false (0) otherwise. Global function table.
+Fix: Add qr_ALWAYS_DEALLOCATE_ARRAYS, handle link/global script deallocation
+	Link and Global scripts SHOULD now deallocate arrays properly
+	ALL arrays are now deallocated upon exit.
+	If the qr_ALWAYS_DEALLOCATE_ARRAYS is unchecked, only the array deallocations of FFCs on screen transition from 2.50.2 will remain active.
+Added deallocation calls to immediately after running collect scripts, as well as to the case that sets item_doscript to 0 if multi-frame QR is off.
+	Also, changed my debug messages to `Z_eventlog`, as they are not always running from a script, thus `Z_scripterrlog` prints invalid metadata.
+Set array ownership to be a struct, instead of byte, and allow any script type to own arrays, instead of just FFC scripts.
+Add `FFCore.deallocateAllArrays()`, given arguments `scriptType, UID` will clear all array ownership from that script owner. Given no arguments, will clear ALL array ownership.
+	Set up to call this from various places, including sprite destructors, and warping.
+	Also, call this on `Quit()`/end of scope for ALL script types.
+	This ensures that arrays are not leaked at runtime.
+	!!Note: Still need to do more for Global, Link, and item scripts!!
+	Added more params to weapon constructors in Link.cpp; so that their isLWeapon byte is set true, which is required to deallocate scripts in weapon::~weapon().
+	( Venrob, 17th July, 2019 )
+	
+
+//Alpha 27
+Add Link->OriginalTile(linkspritetype spriteid, int dir).
+Added a QR to prevent uncapping.
+Added a QR to prevent swapping B button items on L/R button presses.
+Added a QR to enable swapping A button items on Ex3/Ex4 button presses.
+	( ZoriaRPG, 14th July, 2019 )
+
+
+//Alpha 26
+Fix: Spamming Item Scripts 
+	Spamming a button item with a multi-frame item script will no longer
+	cause the script to restart before it completes.
+Add sanity guard on idata->RunScript(2)
+Fix crashes with itemdata->RunScript
+Fix: Start/Resume Passive Item Scripts on Link->Item = true
+Updated qst.dat files for classic and default module with QRs appropriate to Alpha 26.
+Fix some QR defaults when reading quests < 2.66 Build 46
+Modules: Updated default quest with appropriate rules.
+std.zh: Update version data, and file dates.
+	Version is now 1.6001
+Fix: Another change to the MOUSEY logic.
+Should fix mouse cursor position reading incorrectly during quake.
+	( ZoriaRPG, 14th July, 2019 )
+
+Fix: Item scripts quitting improperly on Link->Item[]
+	when they set themselves false, it cleared their stack. Stack clearing needs to wait a bit.
+	Also fixed stack not being properly chosen for collect/non-collect scripts. (from Zoria)
+Added MIDIOFFSET_ macros to zdefs.h, and applied them where useful.
+	Fixed offset on r/w of Screen->MIDI, dmapdata->MIDI, and mapdata->MIDI
+	Added MIDI_ constants to std_zh, for use with these
+	...Perhaps the offsets could be cleaner, but, the values are just a mess in the first place. Why such odd offsets?
+Removed extraneous error messages during bitmap blitting.
+	Attempting to blit to `-1` or `-2` (screen and current render target respectively), was going to the `default` case, for user bitmaps, and thus printing extraneous error messages.
+	The `-1` and `-2` handling has been moved inside the switch, now with their own cases.
+	( Venrob, 13th July, 2019 )
+
+Change bit priority for if !FFCore.system_suspend[script] to 1st boolean param.
+Add checks to see if script types are suspended.
+	( ZoriaRPG, 13th July, 2019 )
+	
+Remove ZASM instruction GAMERESUME. We didn't use it.
+Add check to see if npc scripts are suspended.
+Add check to see if LWpn Scripts are Suspended
+Rearranged the category values for Game->Suspend ton better
+	organise them, and to put those that we may not include in a public build
+	at the end of the list.
+	Added the missing script types to the list.
+Feat: Added bool Game->Suspend[36]
+Add check for doscript on Screen Script Waitdraw
+	( ZoriaRPG, 12th July, 2019 )
+	
+Feat: Epilepsy Reduction reduces lens flash rate 
+	That blinking is WAY too fast... but is this new setting good enough? Not totally sure...
+std_zh: Add `CF_LENSMARKER`. This never existed?
+Fix: npc->ScriptTile broken
+	Should not boundcheck the tile to `checkTile`, as `-1` is a valid scripttile value (clearing the scripttile).
+	Changed to work just like the other scripttile setters.
+	( Venrob, 12th July, 2019 )
+	
+Fix: Allow KEY_ESC to be disabled (and update docs) 
+	This allows it to be disabled both with Input->DisableKey[], as well as Game->TypingMode
+	Updated ZScript_Additionz.txt to reflect this.
+Fix: Missed compile option QR in qst.cpp
+std_zh: Add `enum EnemyPattern`, `PATTERN_` constants
+Feat: Enemy pattern "No Spawning" 
+	Does not spawn the enemies on the screen.
+	Writing the pattern to a valid pattern via `Screen->Pattern` should instantly spawn the enemies via the new pattern (via standard spawning rules)
+Feat: Rocs feather flag "Jump is Power*100" 
+	This makes a feather power of 500 equivalent to writing Hero->Jump=5; allowing better precise control over the power of the feather.
+	Implemented as ITEM_FLAG1.
+	( Venrob 11th July, 2019 )
+
+Added doscript to mapscr.
+Added sanity checks on screen scripts.
+Add notes on screen scripts for debugging.
+Fix: Inverted flags for Link->WarpEx
+	( ZoriaRPG, 11th July, 2019; repo commit date is wrong due to system clock sync)
+
+Fix: Script draws during scrolling 
+	Renamed `qr_SCRIPTDRAWSWHENSCROLLING` to `qr_FIXSCRIPTSDURINGSCROLLING` (better description of actual issue)
+	Set up new timings for script running during scrolling, during frames that previously skipped running scripts entirely.
+	Update `LinkClass::run_scrolling_scripts` with `bool waitdraw`, so that it handles both pre and post waitdraw depending on the param. This fixes some potential issues, since previously it was only called for waitdraw if `global_waitdraw` is true, even though it also handled `link`, `dmap`, and `screendata` script waitdraws. Now, each waitdraw condition is checked individually.
+	Moved `action = scrolling` from `scrollscr` to `run_scrolling_scripts`, so it doesn't need to be duplicated repeatedly.
+	Re-tabbed a couple blocks, because OCD.
+	( Venrob, 10th July, 2019 )
+	
+Create FUNDING.yml in the GH repo, for future dev support fundraising.
+	( ZoriaRPG, 9th July, 2019 )
+
+Parser: Fix lexer error 
+	Error carryover when finding unknown character, now fixed.
+	( Venrob, 8th July, 2019 )
+
+std_zh fix: atof disrespects negatives 
+	For strings not containing a decimal point, atof returns early. This early return lacked the negative status of the output. This has been rectified.
+Parser: Refactor function matching 
+	Move typechecking into lookupFunctions, fixing errors with using.
+	Only functions whos params match will be returned to `caseExprCall`, though best cast checking still occurs there.
+Fix: Bad function lookup with using 
+	If a local function is found, then using namespace functions should NOT be checked.
+	They should only be checked if the only found functions are filescope or higher.
+	Fixed, by adding check for local functions found.
+	( Venrob, 7th July, 2019 )
+	
+Docs: Major update ZScript_Additions.txt
+Feat: Add `bitmap->isAllocated()`
+	This checks if a bitmap has been allocated. It will always return true for system bitmap values.
+	This differs from `isValid()`, in that it will return true even if the bitmap is uninitialized; i.e. cannot be drawn to.
+	A bitmap which is not valid but has been allocated can be used with `bitmap->Create()` or `bitmap->Read()`
+	A bitmap which has not been allocated should not be used, and should be reassigned with `Game->AllocateBitmap()` first.
+Fix: Convert bitmap->GetPixel() to work as Graphics->GetPixel() does
+	Uses the same ZASM as Graphics->GetPixel(), save for not needing to pop the extra pointer to NUL. Should function perfectly identically in every situation, considering it's basically the same ZASM.
+	No interpreter changes were made.
+Fix: Update size of `ffc->Flags[]`
+	( Venrob, 6th July, 2019 )
+
+std.zh: Add new FFCF_LENSINVIS constant 
+Feat: FFC flag `Invis to Lens` 
+	If this is checked, using the lens will not show the FFC
+	If this and `only visible to lens` are checked, the FFC will be always invisible.
+Changes to itemdata access by script
+	Add accessor `itemdata->Validate` for new `only validate cost` flag
+	Fix setters for `itemdata->` `Combine`,`Downgrade`,`KeepOld`,`RupeeCost`,`Edible`,`Unused`, and `GainLower`.
+	These flags could be set true, but could not be set false; as it did an `|=`, but no `&=~`.
+Feat: Validate Only item flag
+	If checked, will only validate the cost, not actually pay it.
+	It just does `return` in `paymagiccost`.
+	Still needs script access!
+Feat: mapdata->Map, mapdata->Screen
+	These are read-only.
+GlobalSymbols: Fix mapdata pointer 
+	THIS SHOULD NEVER POP TO `NUL`. EVER. WHY IS IT POPPING TO NUL?
+	THE POINTER SHOULD ALWAYS BE POPPED TO THE REFVAR.
+	...Uhg.
+	If this is not popped to `refVar`, then `ri->mapsref` will never be updated, and will not point to the correct mapdata.
+	This pop is what updates `ri->*ref`, so, popping to `NUL` means not updating the ref. This should only be done in the case of global pointers. But, `refVar==NUL` for global pointers, so popping to `refVar` should always be safe.
+Add item->ScriptTile
+	( Venrob, 5th July, 2019 )
+
+Parser: Allow blank scoperes, fix wrong error msg 
+	Fixed returning -1 when finding too many matches for using, as it should return 2 (or greater).
+	Blank Scoperes Example:
+	when `using namespace foo`, and `foo` contains `void bar()`, and there is a global function `void bar()`, calling `bar()` gives an error. Calling `foo::bar()` will call the function within foo. Now, you can call `::bar()` to call the global function. This is implemented as per C++.
+std_zh: Fix NoAction() 
+	It previously killed both `Input*` and `Press*`, but now it only kills `Input[]`?
+	Restored it to killing both. Not doing so breaks existing scripts.
+	( Venrob, 3rd July, 2019 )
+	
+Fix: Diving in land? 	
+	Reversion: Accidentally removed an `action==swimming` check! Diving in land is bad!
+Abstract button input
+	Now calls to `Up()`, `Down()`, etc all call `getInput()`, which can handle any of the buttons, as well as being a press check, and drunk; also can ignore a button being disabled.
+	`enum controls` added to zdefs, with all button indeces.
+
+	Several calls in title.cpp to `rSbtn()`, `rUp()`, and `rDown()` have been replaced with calls to `getInput()`, so that they ignore buttons being disabled (namely, save/continue menus)
+	Actual title screen and such should have no disabled buttons to worry about, as that is cleared on quest exit.
+	2 calls to `rSbtn()` in `ending.cpp` have also been given immunity to disable.
+	The `rSbtn()` call to exit the fullscreen map has been given immunity to disable.
+	( Venrob, 3rd July, 2019 )
+
+//Some commit dates here are incorrect, but I am placing them in the order of commits, not the datestamps in the repo. -z
+Fix: Item script crashes 
+	Collect scripts cannot use `item_doscript`. They will need their own array added. For now, commented out it's usage.
+	Action scripts need to set `item_doscript` BEFORE they run, as it is set to 0 on quit, and setting it directly back to 1 causes errors.
+std_zh: Optimizations 
+	Force `#option SHORT_CIRCUIT on` for std_zh; nothing has func calls that matter non-first in a bool operation, so this is safe.
+	Replace all calls to `Cond()` with ternary expressions
+	Replace a number of `if(!`'s with `unless(`'s.
+std_zh: string and char32 update 
+	Update many instances of `int` to `char32`
+	Change `string` to `ptr` (identifier change)
+	Switch many `int buf[] = ""; TraceS(buf);` to `TraceS("")` (now using string literals)
+	( Venrob, 8th July, 2019 )s
+
+Refactor: Input, ReadKey, key[] access
+	Change `ReadKey()` to `zc_readkey()`
+	Add `zc_getkey()` as a wrapper for `key[]` access
+	Both of these now have `bool ignoreDisabled` defaulting to `false`
+	Added `Input->DisableKey[]` and `Input->DisableButton[]`, referencing `disable_control[18]` and `disabledKeys[127]`
+		If an index of disabledKeys is true, then `zc_getkey/readkey` will return false for the key, regardless of state, except for some reserved keys.
+		If an index of disable_control is true, then the corresponding function (`Up()`,`Down()`,`cAbtn()`, etc) will return false regardless of control_state
+			If qr_FIXDRUNKINPUTS is true, this will also disable the ability for drunk to toggle this key.
+	( Venrob, 7th July, 2019 )
+
+CompileOption: Binary 32-bit operations/literals 
+	With this compile option on, binary literals and operators will be direct (skipping `/10000` and `*10000`)
+	This allows the use of 32 bits per variable.
+	This option is forced to OFF in `std.zh`.
+	This option defaults to OFF.
+	( Venrob, Merged on 1st July, 2019; committed 30th June, 2019 )
+
+Copy fixes from itemScriptEngine to itemScriptEngineOnWaitdraw.
+Experimental fixes to item scripts.
+Fix placement of item_doscript.
+Added item_collect_doscript.
+Added a constant for using collect scripts on item 0 and corrected the code for it.
+Added timestamp to build date.
+Fixed compile, and added fine-tuning for sprite carryover warpflags:
+	#define warpFlagCLEARITEMS 0x200
+	#define warpFlagCLEARGUYS 0x400
+	#define warpFlagCLEARLWEAPONS 0x800
+	#define warpFlagCLEAREWEAPONS 0x1000
+	#define warpFlagCLEARHOOKSHOT 0x2000
+	#define warpFlagCLEARDECORATIONS 0x4000
+	#define warpFlagCLEARPARTICLES 0x8000
+Added a new warp plag to WarpEx:
+	warpFlagDONTCLEARSPRITES 0x100
+	This should emulate Sprites Carry Over
+	If we need segregated flags, we can add those later.
+Allow setting doors and templates on higher MAPSCRs
+	This fix should allow setting doors and other templates on
+	MAPSCRs up to 0x87.
+Copied rule-based call to drunk_toggle_state[] in ffscript.cpp
+	to BUTTONPRESS, and added clamp to restrict it to buttons 0 through 10 in all places.
+Display Build Date in ZQ Editor Info/About Dialogue
+Fix compiler warning.
+Console: Add new mapdata commands to ZASM Logging
+Fixed the accidental removal of reading 'preloadscript' in readmapscreen().
+	( ZoriaRPG, 1st July, 2019 )
+	
+APPLIED PARSER REGISTRATION PHASE TO BUILDS on 30th June, 2019.
+
+Registration: Handle change in SemanticAnalyzer from other commit
+	caseExprNegate was modified in another branch, and that change needed to be handled for RegistrationVisitor.
+	This handling is required for constant `-214748.3648` to work.
+Feat: qr_SMARTDROPS 
+	Makes it so that if you have no counter max for a counter, items that refill that counter will not drop, and will be rerolled instead.
+Parser: `MAX_INT_ONE_LARGER` now `TRUE_INT_SIZE` 
+	This allows `214748.3647`/`-214748.3648`
+	All appropriate constants in std_constants have been updated.
+	Also, `ftoa` has been patched to not bug out on constants of `MIN_CONSTANT`. A variable of MIN_CONSTANT will potentially still have issues, but those were also present before this commit.
+	( Venrob, 30th June, 2019 )
+	
+Fix: Invalid *10000 when casting Link's coords 
+	*10000 must be AFTER the cast.
+	Doing it inside is doing something wrong, likely simply overflowing max fix (only has 16-bits for the integer portion)
+	( Venrob, 29th June, 2019 )
+	
+Parser: Move `logDebugMessage()`, fix some issues 
+	`logDebugMessage()` moved to `CompileError`, so it is callable from files such as `AST.cpp` as easily as `RecursiveVisitor.cpp`
+	Fix: Require errorHandler/scope parameter for all `getCompileTimeValue`.
+	Fix: `ASTExprVarInitializer::getCompileTimeValue()` now handles local constants
+	( Venrob, 28th June, 2019 )
+
+Parser: Handle global variable initializers 
+	Added ASTExprVarInitializer, as a wrapper node.
+	ASTDataDecl->setInitializer() still takes ASTExpr, but will now construct an ASTExprVarInitializer from it.
+	Datum can now give a compiletimevalue for non-constants, but takes a bool for if it should or not- defaults false.
+	New error, thrown when trying to initailize a global variable to an array.
+	New error code letter: `R`, for Registration errors.
+	`Scope* scope` moved from RecusiveVisitor to ASTVisitor, so LValBOHelper can inherit it (which is required for things not to crash)
+
+	Now `int a = b; int b = 5;` will work again. In any order.
+	`int a = 5; const int b = a;` also works, since the initializer is considered compile-time constant.
+Parser: Add debug definition, debug message logging
+
+Moved the `ASTImportDecl` checked calls inside `checkImport`, rather than having them in every place outside of it.
+Moved the node disabling in the same way.
+	This should change nothing functionally, it's just cleaner/faster code.
+
+Registration: Fix HEADER_GUARD and Using issues 
+	Using was finding duplicates due to rootscope duplication, when using `always using`. Fixed with `!isRoot()` check.
+
+	HEADER_GUARD was checking the same node multiple times, thus disabling entire imports. I don't know how this was causing as few issues as it was.
+	Fixed this by adding `bool checked` to `ASTImportDecl`. If a decl passes check once, it is marked checked, and will not be checked on subsequent checks.
+Registration: Handle strings
+Fix crash: always using 
+	At some point I missed that `always using` will deref null here. Whoops.
+	Added sanity check.	
+Files: Remove Zoria's CMakeCache.txt 
+	Shouldn't be in the repo, dammit.
+Registration: Fix crash, ZScript Compile 
+	ZScript couldn't compile global arrays with initializers!
+	Also, after adding that, realized I had a major crash issue.
+	Also, returned early on some instances in SemanticAnalyzer.
+	All 3 fixed now.
+	( Venrob, 27th June, 2019 )
+	
+Registration: Fix errors
+Registration: Fix Compile
+CMake: Add RegistrationVisitor.cpp
+Registration: Finish up cases
+	Got the last few cases done. Now to actually start testing this thing.
+Registration: More cases handled, fix using issue 
+	Handled remaining expressions, except Call and Arrow
+	Handled File, Namespace, Script, Using, SetOption, ImportDecl
+	`using` a non-existant namespace previously would not error (it could not do so reliably due to a timing issue).
+	Now, it will error (in SemanticAnalyzer), if it finds no match.
+Feat: Add `bool Screen->ScriptDraws[8];` 
+	These default to all true, setting false hides script draws for the respecive layer, 0-7.
+	( Venrob, 26th June, 2019 )
+
+Added bool mapdata->LayerInvisible[7]
+Added bool mapdata->ScriptDraws[7]
+Added hidelayers and hidelayers to quest save/load format, and
+	to SRAM script save data.
+	V_MAPS is now 22.
+	V_SRAM is now 2.
+Fix Y Position of new Script Rule Tickbox
+Fix: Some Init Data Issues 
+	Fixed Uninitialised value in zinit, and zinit2 (ZC Player, Cheat Link Data) struct.
+	Fixed use of wrong value in setting bomb item true.
+	This fixes superbomb count being set to random values.
+Add script rule 'Script write to INPUT overrides Drunk State'
+	( ZoriaRPG, 26th June, 2019 )
+
+Registration: Handle most basic expression types
+Registration: RegistrationVisitor.h Setup 
+	Add files `RegistrationVisitor`(.h and .cpp)
+	Lay out the groundwork for the new system in RegistrationVisitor.h
+	Add registration members to class AST
+	Move some members from SemanticAnalyzer to RecursiveVisitor, for inheritance purposes
+	Set up `caseRoot`, for handling the main looping through the script. This is unique, and not an override of an existing function like most other cases.
+	( Venrob, 26th June, 2019 )
+	
+Parser: Fix enums 
+	Now, referencing an earlier constant in the same enum no longer has continuity issues.
+	Also fixed a precision-loss issue, involving integer division.
+Parser refactor: Remove `using namespace std;` from `ByteCode.h` 
+	`.h` files should not `using`. This broke the ability to include `zdefs.h`.
+Feat: Add `bool Screen->LayerInvisible[7];`
+	Internally, `byte hidelayers`, where the flag for each layer is (1<<layer)	
+	If true, that layer will not be drawn (except for script draws)
+Fix: Didn't handle scripts writing LA_DIVING 
+	Use the length and cooldown of current flippers, same as pressing A while swimming, on writing LA_DIVING
+Feat: New flippers options 
+	Attribute 1: Flipper dive time
+	Attribute 2: Flipper cooldown time
+	Flag 2: Cancellable dive
+	Updated V_ITEMS to 45
+	Replaced various `diveclk>30` calls with `isDiving()` calls, which previously just returned `diveclk>30`, but now handles the new options.
+	Included sanity checks for this at several points.
+	If no flippers are had, the default values of 50 (dive) and 30 (cooldown) will be used.
+	( Venrob, 25th June, 2019 )
+	
+Added an error message for wrong extension (e.g. '.sram' instead of '.zcsram')
+	when saving or loading SRAM files. 
+Added a sanity check on SRAM flagset mismatches.
+Added a flagset param to SaveSRAM and to LoadSRAM. The functions are now:
+	void SaveSRAM("filename.zcsram", int flags);
+	void LoadSRAM("filename.zcsram", int flags);
+	If the user passes '0' to int flags, then the packfile will contain/is expected to contain
+		every section.
+	Otherwise, the user can OR together the section types that
+		they want to use, by using the SRAM_* constants in std.zh.
+SRAM now saves the following datatypes:
+	npcdata, itemdata, spritedata, combodata, dmapdata, mapdata.
+Renamed SRAM functions to SaveSRAM("filename.zcsram") and LoadSRAM("filename.zcsram").
+Added version control to SRAM functions.
+	SRAM files store the SRAM version in the first 4 bytes of the file.
+	( ZoriaRPG, 25th June, 2019 )
+	
+Begin adding the ability to save struct data toi .zcsram files, and to load those files
+	back into ZC using LoadGameData("filename") and ReadGameData("filename").
+	These support npcdata right now, at SRAM_VERSION 1.
+Fixed mapdata->InitD[] using the InitD for the current screen, and fixed
+	it mult/div by 10000.
+Ensured that dmap scripts have their InitD set up correctly
+	both when they first run, and after warping.
+
+	Added a flag to WarpEx as 0x80 to prevent reloading the DMap script.
+
+	Fixed dmapdata->InitD[] not compiling.
+	Fixed Screen->InitD[] not returning the appropriate value.
+	Fixed maodata->InitD returning * 10000.
+	( ZoriaRPG, 24th June, 2019 )
+
+Corrected the behaviour of Link->GetX, Y, Z with qr_LINKXY_IS_FLOAT.
+	Note: All operations using the rule Sprite Coordinates are Float
+		suffer from precision loss due to double typecasting during
+		the / 10000.0.
+
+Fix: Add `Constant Script' flag label to CustomXX itemclass items.
+Added a QR that disables using enemy family Custom* and enemy
+	family Friendly*.
+Fixed script names when logging from dmap, eweapon, and screen scripts.
+
+Added a variable to all script types to use to check if
+	the initD for the current script was initialised, or not.
+
+	Only set the ri->d if the script isn't initialised.
+
+Fixed UI text of item/enemy metadata overlapping UI buttons
+	in the SCREEN place item / SCREEN set enemies dialogues.
+Refactored Link->WarpEx() to try to prevent crashes if non-constant
+	scripts (e.g. ffc, npc, screen) try to execute the instruction.
+	It still works as before from constant script types (e.g. global, hero).
+This change is to the interpreter-side, not the ZASM-side.
+Added Link->Gravity to ZScript (implemented fully).
+Add proper constructors and subclasses for eScript/eeSCRIPT and
+	for eFriendly/eeFRIENDLY class enemies.
+	Friendly enemies have their hitbox offset by -32768.
+Fix Enemy Gravity for type 'Other' and for type 'Leever' to match 2.50 defaults.
+	( ZoriaRPG, 23rd June, 2019 )
+	
+Console: Add variable console_on_top and load/save configs for it.
+Moved the new ZConsole configs into their own section of zc.cfg ([CONSOLE]).
+Renamed 'ConsoleLoggerHelper.exe' to 'ZConsole.exe' and made a version
+	that always floats on top of other windows as 'ZConsole_OnTop.exe'.
+Added an option (console_on_top) to zc.cfg to call one of two versions of
+	ZConsole.exe, with one version floating on top of all other windows at all times.
+	
+Added obeys_gravity checks to npcs and guys.
+	1. Initialise obeys_gravity for each enemy subclass, with its
+		most-appropriate value (needs verification in playtests).
+	2. Add enemy::enemycanfall(int id).
+		This is used in places where the old canfall() check needs access to
+		the enemy class member variables.
+		The old, global canfall(int id) remains, and is still used in a few places
+			where the enemy pointer would be unknown.
+
+Fixed itemsprite script number metadata reading from itemmap,
+instead of itemspritemap.		
+	
+Timing: Run itemsprite scripts before their animation. 
+	I moved itemScriptEngine() immediately prior to items.animate().
+
+Implemented bool Gravity for items. It is set to true for
+	all items by default, and the user can disable item gravity by script.
+
+	Perhaps we will add a flag to the item editor 'Obeys Gravity' in the future,.
+	to establish a user-defined default, without scripting.
+Fix: Inverted version check (itemsprite scripts).
+	( ZoriaRPG, 21st June, 2019 )
+
+Added char32 datatye to ZScript.
+	This is still a float type, but it allows ensuring a string-specific function signature.
+	String literals are now char32 typed.
+	Two-way casts between char32 and float. If a type if char32, the AST will match it to
+		char32 sigs first, and float/int second.
+std_zh: Add `SIDEWARP_NONE`
+Fill in interpreter blocks for the ->SideWarpID[] instructions, 
+	so they actually do stuff.
+Parser: More detailed ambiguity error; List namespace names of each function candidate.
+Parser: Fix `using` errors:
+	Rootscope Duplication in BasicScope::useNamespace:
+		-Add `assert`, to make sure that any future errors here won't be silent
+		-Add `!isFile()` check to prevent RootScope duplication.
+	Using search logic error:
+		-Was only searching local using, instead of local and parent using! Fixed with `lookupUsingNamespaces` call.
+	Also added some comments.
+	( Venrob, 21st June, 2019 )
+
+Add new ZASM tommands to debugger array (updated with missing/new instructions).
+Fixed ffc->Flags[2]; it is now [13].
+	How the heck did this go un-noticed for all these years?!
+std.zh: Add constants for new ffc flags.
+
+Added byte obeys_gravity to sprites, and cause weapons to use this.
+	Old hardcoded falling now instead sets this to 1.
+	Added ZScript SETTER and GETTER vars as bool T->Gravity to lweapon, eweapon,
+	npc, and item. The latter two have no effect at this time.
+
+	Added int SideWarpID[int direction] to Screen-> and mapdata-> pointers.
+	The interpreter only has an empty block for Venrob to complete, but the supporting
+	code for the parser and the interpreter is in place.
+
+	(You can issue the instruction, but it always returns 0, and writing to it has
+	no effect.)
+
+	Rob, you wanted to figure out that madness with bits using multiple screen vars,
+	so, have at you!
+
+Added the following new ffc flags:
+	Ignore Changers: If enabled, this ffc ignores changers.
+	Imprecision: If enabled, this ffc will react to a changer as long as it aligns
+		within ONE FULL PIXEL of the changer, rather than needing to precisely align
+		to a SUBPIXEL.
+	Made the 'Soilid' flag visible in the GUI. The user can now set this in the UI,
+		however, at this time, the internal handling for ffc solidity is unfinished.
+Fix: Missing break stmt for combodata->ID.
+	( ZoriaRPG, 21st June, 2019 )
+	
+Fix: y-offset being added to x-values for Polygon 
+	( Venrob, 20th June, 2019 )
+
+Fixed the Y offset drawing position for Screen->Polygon() and for
+	bitmap->Polygon().
+Fixed a place where Link Data for cheats in ZC Player is not properly
+	initialised.
+	( ZoriaRPG, 20th June 2019 )
+
+Added combodata->ID
+Added Link.setXdbl(double), setYdbl(double), setZdbl(double).
+	This function is used if the QR LINKXYISFLOAT is enabled when using GETTER
+	functions for Link->X, Y and Z.
+Overlap on some ZScript rules in the GUI.
+Don't force qr_LINKXY_IS_FLOAT off.
+Script types npc, lweapon, eweapon and itemsprite should refuse to
+	run Link->WarpEx for now. (It crashes if they run it, but it works from all other script types AFAIK.)
+
+	The function needs a rewrite so that it runs fromt he main engine like the normal warp
+	function, so I will need to add byte dowarpex and int warpexargs[9] to class
+	FFScript.
+
+	The script command will need to set those values, and if ( FFCore.dowarpex ), the
+	ZC engine will need to run it as it does Link.do_warp(), then reset the values.
+
+	This should prevent the crashes and allow the function to work in all script types,
+	but it will change the timing.
+
+	I also added const char scripttypenames[11][40] to ffscript.cpp, so that errors can
+	log script name types more easily.
+I missed a spot where npc scripts were reported as lweapon scripts in the
+	console/allegro.log. This fixes the error logging of the script type for npc
+	scripts in both places that it exists.
+Halt sprite scripts on warping Link by script from Link->WarpEx().
+
+Console: Make window open on top, but do not force as always topmost.
+
+If the QR qr_LINKXY_IS_FLOAT is enabled, the sprite getter
+	return value for lweapon, eweapon, npc, or item members:
+		x, y, z
+	is first typecast to double.
+	Example:
+
+	if ( get_bit(quest_rules,qr_LINKXY_IS_FLOAT) )
+			{
+				ret=((double)((weapon*)(s))->z)*10000;
+			}
+			else
+				ret=((int)((weapon*)(s))->z)*10000;
+
+	This is intended to prevent truncation when trying to work with fix values that have decimal places.
+
+Corrected ZASM for LINKWARPEXR (Link->WarpEx(int[])) and
+	for LINKEXPLODER (Link->Explode(int)).
+	This should fix the issues with ZASM stack overflows. It does not however,
+	make Link->WarpEx actually WORK, as there seems to be a fault in the FFCore.warp_link() function.
+Corrected the script type reported by script errors for
+	npc scripts in the console and allegro.log.
+	( ZoriaRPG, 19th June, 2019 )
+
+FFC Clipboard no longer carries over across opening another quest, and is set to
+	-1 on ZQ init.
+You can now copy an ffc, and repeatedly paste it. It is not cleared
+	from the 'clipboard' after a single paste.
+Display Enemy Tile data (tile, stile, etile), HP, Dmg,
+	Family, Dropset, Script, and Weapon Script metadata in the 'Select Enemy'
+	dialogue/lister.
+Show tile, power, level, family, cset, and script details
+	in the 'Select Item' dialogue.
+Fix issues with the Tile Grabber refusing to place tiles on
+	tile pages > page 252.
+	( ZoriaRPG, 18th June, 2019 )
+	
+	
+Console: Make TOPMOST again on startup.
+Console: Make new console windows smaller, and less annoying on startup.
+	Added a window handle, and used it to make the dimensions of
+	the console window smaller, WITHOUT reducing its BUFFER SIZE.
+	Positioned window at 0,0, and set it to a NONTOPMOST flag.
+Added the code for rule Sprite Coordinates are Float, to
+	setters for LWeapon, Item, NPC, and EWeapon X, Y, and X.
+	This is for Rob, to test.
+Fixed ZASM issues (PC and stack corruption) when writing Link->Item[n] = false
+	while that item is running a script. 
+	( ZoriaRPG, 17th June, 2019 )
+
+Fixed itemdata->RunScript(), and changed param 1 from bool perpetual
+	to int mode, where:
+
+	 * Mode Settings:
+	 * 0 : SCRIPT_MODE_END 
+	 * 	THIS TERMINATES THE RUNNING SCRIPT.
+	 * 1: SCRIPT_MODE_NORMAL
+	 * 	Runs the script either once, or perpetually, based on the ZScript Rule.
+	 * 2: SCRIPT_MODE_PERPETUAL
+	 * 	Runs the script perpetually, even if the QR if off. 
+
+Fixed corruption of the system palette caused by forgetting to
+	set the allegro drawing mode back to Opaque after drawing a polygon.
+Fix: Error message for Polygon() functions.
+
+REFACTOR ITEM SCRIPTS (Pt. 2)
+	Fix: Clear correct refInfo and stacks for item collect scripts.
+	Fixed 'Passive Item Scripts' ignoring if the QR 'Item Scripts Keep Running'
+		was on or off.
+		Added some docs on just what the heck is happening with itemScriptEngine.
+	Added separate stacks and refinfo for collect scripts, as they were
+		interferimg with normal item scripts that now can run perpetually.
+
+		Lots of work on refInfo and stack handling for item scripts.
+
+		Solved a number of conflicts. The function itemdata->RunScript() may now be
+		broken and need revision.
+	( ZoriaRPG, 16th June, 2019 )
+
+Clear item refInfo and stacks on game restart.
+REFACTOR ITEM SCRIPTS (Pt. 1)
+Various fixes to item script mechanics.
+Fixed PC/SP issues when setting Link->Item[] true
+	or false, with a passive item script on that item ID.
+	( ZoriaRPG, 15th June, 2019 )
+	
+ZScript and ZASM Debugger Windows are now large, and support massive amounts
+	of data that you can scroll-through for post-mortem, rather than quickly truncating it.
+	( ZoriaRPG, 14th June, 2019 )
+
+Fix: `scriptile` unused if `extend == 0`
+	( Venrob, 13th June, 2019 )
+	
+Chrore: Shifted about some code.
+Fix: Missed some FFCore.setAction() in Warp Functions
+Update build date, build ID is now Alpha 26
+Also added notes re: DEVLEVEL
+Fix Crashes in Sprite::Draw()
+	Add early returns to sprite::draw redirect to old draw function.
+	Move BITMAP* creation after failsafe return.
+	Added minimal sanity checks to prevent possible segfaults.
+	
+Fix: Set basic weapon properties on Create*Weapon.
+Fix: Even more instances of RunScript needed a VC
+Fix: More scripts that should only run in >= 2.55
+Fix: Run Link's Init and OnWin Scripts only on v2.55 and Above
+Fix: Add more weapon setup to Create*Weapon()
+Dev: Autologging if DEVLEVEL > 1
+Set DEVEVEL 2 and add notes on what each value does.
+Fix: Flipped one wrong != to == in FFINITD array BC
+Flip != to == on ffc BoundsCheck
+Fix: 2.50.x quests won't try to run the Link onDeath script.
+Added a Bounds Check to all FFC member variables.
+	Don't allow trying to write to ffc(0)->X, or ffc(33)->X.
+	This is to prevent RAm corruption possible by trying to do this.
+Fix: Add version check to all new script types RunScript() 
+	We still need to flush all instructions held in these script types
+	if a quest is < 0x255, as this will break if the quest is re-saved.
+	( ZoriaRPG, 14th June, 2019 )
+	
+Feat: Log quest header metadata on ZScript Debugger Init
+Feat: Add Event Logging to new console (in amber text).
+Possible Fixes to ZScript Debug Console, Running Illegal Script Types 
+The ZScript Debug Console process now properly opens on startup.
+	Also, if DEVLEVEL > 1, then we will always print the script type and name for script traces.
+
+	I also added a possible way to revent 2.55 from trying to run corrupted slot data
+	in script types not used by 2.50.x, that were still present in 2.50.x.
+Add note on event console, try to launch script console on init.
+	( ZoriaRPG, 13th June, 2019 )
+	
+Add the ability to print script metadata in traces.
+Change ZScript Debugger intro text colour to intense blue (CYAN).
+Feat: Finish Adding New ZScript Debug Console
+
+Added a new ZScript Debug Console. This is attached to another
+	process, so closing it will not terminate ZC, nor will it terminate the parent process.
+
+	It is based on CConsoleLogger / CConsoleLoggerEx.
+
+	Traces will be in white. Script IDs green, errors in red.
+
+	You can open or close the debugger from the menus, and a config int allows opening
+	it with the ZC process. You can also manually close the ZScript Debugger without fear.
+Feat: Begin Adding Improved ZScript Debugging Console
+Feat: Add ZASM Debugger Menu Option 
+	Moved the ZASM Debugger init from a hotkey to a menu option.
+	It is also now a config int, 'print_ZASM'.
+Include: Added include file ConsoleLogger.h
+Formatting fixes to ZASM Debugger
+ZASM Debugger: A few changes. 
+	Migrated some stuff from the old ffdebug and open on quest init.
+Fix: CreateEWeapon() uses LOADGFX(0).
+File: Required helper file for the improved console.
+	Added new required file to the ZC Package: Consolehelper.exe
+	Place it in the same path as the zc.exe file that you are running.
+Feat: Add better console base and ZASM Stack printing.
+Fix: Never try to read the parent->weaponscript for script-generated eweapons.
+Do not run check_slash_block on eweapons or on
+	non-script-generated wScript types. If the weapon is script-generated,
+	only check if it has its isLWeapon flag enabled.
+	( ZoriaRPG, 12th June, 2019 )
+
+Prevent hangs caused by misplased ZASM (brace or no brace blocks)
+	( Venrob, changed by ZoriaRPG, 10th June, 2019 )
+	
+Add additional type of OUTOFBOUNDS
+Re-configure #define OUTOFBOUNDS
+Change order of npc OoB check.
+Set Sprite Coords are ZFloat off by default
+Compat QRs Set By Default: In versions < 0x255 and 2.55 versiosn with a build ID < 46,
+	I now set these off by default:
+
+	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
+	    {
+		set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 0);
+		set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 0);
+		set_bit(quest_rules, qr_SCRIPTDRAWSWHENSCROLLING, 0);
+		set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 0);
+		set_bit(quest_rules, qr_DYINGENEMYESDONTHURTLINK, 0);
+		set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);
+	    }
+Bounds check update on npc->Attributes 
+	npc->Attributes BC is 0 to 15 is vZelds < 0x255.
+std_functions.zh: Cleanup tabs and note new vers date.
+Added int longrand(int max) to std.zh
+	This allows creating a random integer between 0, and 199,999.
+	( ZoriaRPG, 10th June, 2019 )
+
+Fix: Engine counter underflow for Item Editor UseCounter/Amount.
+	Setting something to `-n` is not the same as subtracting `n`.
+	( Venrob, 8th June, 2019 )
+
+Add `void SRand(int seed)` and `int SRand()` as internal functions.
+	void SRand(int seed);
+		//Sets the current random seed to a given value, input from script. (DOES NOT /10000)
+	int SRand(); 
+		//Generates a random seed, sets it, and returns it.
+	( Venrob, 7th June, 2019 )
+	
+	
+//Alpha 25
+Ensure that the internal call to _itoa() in ffscript.cpp has a pointer to 
+	which it can return a value.
+Calls to the internal itoa() were causing memory corruption.
+	For the present, I moved itoa back into the base of string.zh, out of std::string,
+	and I renamed the internal itoa() to itoa_c().
+Prevent possible mapscreen corruption when initialising mapscreens in qst.cpp. (Paranoia patch.)
+	( ZoriaRPG, 5th June, 2019 )
+
+
+//Alpha 24
+Screen scripts now have a flag 'Run on Screen Init', that
+	behaves in an identical manner to ffcs.
+	If enabled, the script runs as soon as scrolling 
+	begins; otherwise, the script runs after the screen 
+	scrolling ends and the screen is fully-loaded.
+Allow using the NOT (!) token on any type.
+	e.g. !bitmap or !FFC will be true if the bitmap pointer
+	is UNINITIALISED.
+Fix timing of Screen (screndata) scripts.
+	Screen scripts now run immediately prior to ffcs, as if they were ffc 0.
+	They execute from ffcscriptengine, as part of the same function invocation,
+		but they run before FFC ID 1. 
+Updated to build Alpha 24.
+	( ZoriaRPG, 2nd June, 2019 )
+	
+
+//Alpha 23
+Waitdraw now works on passive item scripts.
+	Further, if the script calls Quit(), then itemdata[id].script is set to 0,
+	so the script STOPS running.
+Added 'Constant Script' as item Flag16.;
+	If this is enabled on the item, and the item is in inventory (Link->Item == true),
+	then the script will run constantly.
+		***This is for passive item scripts.
+Added Gleeok's old experimental files, including ZPP as refs to repo.
+	( ZoriaRPG, 29th May, 2019 )
+
+Added epilepsyFlashReductionto bomb palette flashes.
+Added an Epilepsy Flash Protection option to the Settings menu,
+	and to zc.cfg.
+	( ZoriaRPG, 26th May, 2019 )
+	
+Fix call to #include "std_keyboard.zh" in std.zh.
+Move New GetByString functions to Game->, to match GetFFCScript() and GetItemScript().
+Added Label field to the Combo Editor:
+	The user can now supply a label (10 char string) to every combo.
+	They can use the function GetCombo("string") to get the first ID of a combo with that label.
+Add Waitdraw to itemsprite, item, and eweapon scripts.
+Added Waitdraw (with a QR to disable it; disabled by default for
+	quests < 2.55), and began adding it for all sprite scripts.
+Added a QR (ZScript Rule 'No FFC Waitdraw'), and enabled it  by
+	default for quests made < 2.55:
+	This is a QUEST RULE to disable Waitdraw() on ffcs. 
+	It is enabled by default for 2.50 quests,
+		preserving the old behaviour for the old quest format. 
+Fixed Waitdraw not working in ffc/screen scripts:
+	I forgot to call the waitdraw routine in zelda.cpp.
+	Waitdraw now works from screen and ffc scripts
+Change long ffcswaitdraw to unsigned long.
+Correct behaviour for get_bitl(), and set_bitl() in zsys.cpp.
+	( ZoriaRPG, 23rd May, 2019 )
+
+Fix crash when compiling ZScript (pass 3):
+	Missing sanity check in syncDisable, missed comment-out
+	( Venrob, 23rd May, 2019 )
+
+Update error message for Waitdraw() unsupported script types.
+Add set_bitl() and get_bitl() (to zsys.cpp) for longs.
+Added Waitdraw() support to ffcs. 
+Add ffcswaitdraw long to TheMaps.
+Screen scripts now run more like global/DMap scripts, than like ffcs.
+	They also support Waitdraw.
+	( ZoriaRPG, 22nd May, 2019 )
+
+Added a series of getters to get script IDs and other object IDs:
+	int GetNPCScript("name");
+	int GetLWeaponScript("name");
+	int GetEWeaponScript("name");
+	int GetDMapScript("name");
+	int GetScreenScript("name");
+	int GetHeroScript("name");
+	int GetLinkScript("name");
+	int GetPlayerScript("name");
+	int GetSubscreenScript("name");
+	int GetUntypedScript("name");
+	int GetNPC("name");
+	int GetItem("name");
+	int GetDMap("name");
+	int GetCombo("label");
+	( ZoriaRPG, 21st May, 2019 )
+
+Fix many crashes when using NO_ERROR_HALT:
+	Added `syncDisable()` calls for all caseExpr* functions in RecursiveVisitor
+	Added `syncDisable()` calls to analyzer functions in SemanticAnalyzer
+	( Venrob, 20th May, 2019 )
+
+Add utol(string[]), ltou(string[]), and convcase(string[]):
+	int utol(string[]) converts all uppercase characters in a string to lowercase characters.
+	int ltou(string[]) converts all lowercase characters in a string to uppercase characters.
+	int convcase(string[]) converts all uppercase characters in a string to lowercase characters, 
+		and all lowercase characters in that string to uppercase characters, inverting the case of 
+		all characters in a given string.
+		All three of these return the pointer to the string.
+Move old ZASM ilen and itoa into std::string namespace. 
+Fix ilen(), itoa(). These are now internal.
+	( ZoriaRPG, 20th May, 2019 )
+
+`import` will now check include paths if it cannot find the file in the ZC dir/absolute path.
+	( Venrob, 19th May, 2019 )
+	
+Optimise strchr and strnchr
+New ZScript internal functions on the global pointer are:
+	int atoi("string");
+	int strcat(string[], string[]);
+	int strchr(string[], int chr);
+	int strrchr(string[], int chr);
+	int strspn(string[], keys[]);
+	int strcspn(string[], keys[]);
+	int strstr(string[], "substring");
+	Note: While not technically illegal, using literals for these functions is probably pointless in most
+	cases, as the changed string is deleted before it can then be used.
+	Literals can only be safely used when the above functions show them.
+	You can ALWAYS USE A NORMNAL STRING POINTER, WHERE THESE SHOW LITERALS. 
+Moved old ZASM-based string.zh functions, that are now internal, to 
+	a new namespace in string.zh.
+	The namespace is std::string.
+Added some string functions internally, including:
+	strchr(), strrchr(), strstr().
+Update std_constants for new max/min float/int/const.
+	( ZoriaRPG, 19th May, 2019 )
+
+Begin porting string.zh functions to internal functions.
+	( ZoriaRPG, 18th May, 2019 )
+
+Corrected some errors in std_keyboard.zh
+Convert key modifier functions to use Input->ModifierKeys&flag in std_keyboard.zh.
+	The old functions used Input->Key[modifier], which did not give authentic status indication
+		on if the modifier was applied to another keypress.
+
+	Added bool AccentShift(int n); where n == 1, 2, 3, or 4.
+	Added bool ScrollLock();
+Optimised std_keyboard.zh
+Made -5 for the Y coordinate act as a pit warp, instead of using a WR destination.
+	( ZoriaRPG, 16th May, 2019 )
+
+Give `namespace` access to parent-scope vars
+	(Removes parent-scope access to namespace-scope vars as a consequence. This is identical to scripts.)
+Fix: OPTION_VALUE is compile-time constant
+Add sanity check on handleError(): Prevent accessing `recursionStack.back()` if `recursionStack` is empty.
+	Fixes crash when array size is > MAX_INT
+Add Opcodes for internal optimization 
+	CASTBOOLI: Sets the value of a register to 1, unless it is currently 0.
+	CASTBOOLF: Sets the value of a register to 0.0001, unless it is currently 0.
+	SETTRUEI: Same as SETTRUE, but uses 1 instead of 0.0001.
+	SETFALSEI: Same as SETFALSE, but uses 1 instead of 0.0001.
+	SETMOREI: Same as SETMORE, but uses 1 instead of 0.0001.
+	SETLESSI: Same as SETLESS, but uses 1 instead of 0.0001.
+
+	Using these opcodes, relational operators have been internally optimized.
+	( Venrob, 16th May, 2019 )
+
+If Link->WarpEx() or Warp SCC X coordinate is < 0 and (unsigned)Y coordinate is 5, 
+	we pit-warp Link. Otherwise, if X is < 0 and (unsigned)Y is < 4, we use that warp return 
+	square.
+	Example: 
+		X == -1, Y == 3 uses Warp Return 3
+		X == -1 and Y == -3, also uses Warp Return 3.
+		X == -1 and Y == 5, pit warps Link.
+
+Added a string control code to set Screen->D[reg] = value for any DMap.
+	\19 \dmap \screen \reg \value
+
+	This requires testing as I may have transposed where the bitshift belongs.
+
+Added a string control code to warp Link, as:
+	\18 \dmap \screen \x \y \effect \sound
+
+	If x/y is negative, it should use a warp return point equal to the absolute
+	value passed (e.g. -1 is warp return 1).
+
+DMap Script InitD labels now save properly.
+Increased V_DMaps and updated quest loader/saver.
+	( ZoriaRPG, 16th May, 2019 )
+
+Parser: Match internal functions w/ numParams, allow overloading
+	( Venrob, 15th May, 2019 )
+	
+Moved old ZScript-based strcpy(), strcmp(), strncmp(), and strlen()
+	into namespace std::string in string_functions.zh.
+Converted strcpy(), strncmp(), and strlen() into internal functions.
+Remove logging from strncmp()
+Fix number of params for strcmp, strncmp.
+Make strcmp and strncmp internal.
+Remove strcmp and strncmp from string.zh
+Add QR qr_CLEARINITDONSCRIPTCHANGE
+std.zh: Add enum ffruletype to std_constants.zh.
+Fix fonts for window title in Screen->Script and Game->Misc[] dialogues.
+Fix Window Title for Screen Script dialogue.
+	( ZoriaRPG, 15th May, 2019 )
+
+//Alpha 22
+Added Screen->Script, Screen->InitD[8], mapdata->Script, and mapdata->InitD[8]
+	to ZScript. Arrays may not be properly deallocated on changing Screen->Script.
+Fully implemented Screen Scripts (screendata script).
+	The scripts are set via the menu Screen->Script.
+	Each screen has 8 InitD values, and one Script value.
+	Scripts run similar to ffcs, but always on screen init. 
+	V_MAPS is now 20.
+	Updated the quest loader, and the quest reader, for the new screen/maps variables.
+	( ZoriaRPG, 15th May, 2019 )
+
+Set saved=false when editing Quest->Misc[32]. 
+	Without this, the SAVE menu option is disabled after editing Game->Misc[].
+	( ZoriaRPG, 14th May, 2019 )
+	
+Disabled `inline` for user-functions, it isn't going to be this easy.
+	Did several optimizations, and an amount of work on the system, regardless.
+Parser: Inline `TraceS()`
+	For internal function inline testing purposes. Works correctly.
+Revert previous commit; incorrect diagnosis 
+	The commit previously reverted was not the cause of the issue, and
+	should not have been reverted. This restores the original commit.
+Revert "Parser: Fix duplicate function ZASM"
+	This caused an unexpected issue, and needs to be reverted until said
+	issue is fixed.
+Parser: Inline internal functions, a start at least.
+	Inlined `Trace()`, saving 5 opcodes.
+	Functions can now be made inline by giving them the flag `FUNCFLAG_INLINE` in their GlobalSymbols.cpp table.
+		Note: The function must actually be edited to work with `inline`. Mostly, `OReturn` must be commented out.
+Parser: Fix duplicate function ZASM 
+	Functions declared at the file scope were having two copies of their ZASM inserted into the quest, due to a duplication issue with RootScope/FileScope. 
+	This has been rectified.
+	( Venrob, 14th May, 2019 )
+
+Flipped the behaviour of qr_OLDQUESTMISC in ffscript.cpp
+Added a ZScript RUle that Game->Misc is not / or * 10000.
+	This is for older 2.55 quest scripts.
+Add Game->Misc Config Panel
+	This is under the Game menu as 'Misc[]', and it allows the user
+	to set up to 32 global constants/vars, each with a label, accessed by
+	scripts as Game->Misc[32].
+	( ZoriaRPG, 13th May, 2019 )
+
+Restructured GlobalSymbols.cpp, assing the number of params for each
+	function, function flags, and general table clean-up.
+	( Venrob, 13th May, 2019 )
+	
+Parser: Some progress debugging `inline`
+	( Venrob, 12th May, 2019 )
+
+Parser: Complete `inline`, option FORCE_INLINE 
+	Option FORCE_INLINE: if on, all functions that can be inline will be made so. Default off.
+	By placing `inline` before a function, the function's assembly will be copied to the locations it is called at. This can help with script speed.
+	( Venrob, 11th May, 2019 )
+	
+Fixed the bounding of npc->Attributes between indicies [0] and [15].
+	It is now [0]and [31], as intended.
+Fixed the display of the QR in Quest->Rules->Enemies->2
+	Added a bit check to a second out of bounds model.
+Add QR to allow npcs to go out of bounds.
+Added logging to bitmap->GetPixel
+	( ZoriaRPG, 11th May, 2019 )
+
+Begin adding rgbdata and palette; revise bitmap->GetPixel
+Rename bitmap->Mode7 to bitmap->DrawPlane
+Revised bitmap->Mode7
+	( ZoriaRPG, 10th May, 2019 )
+	
+Parser: Partially-functional `inline` 
+	`return` is completely nonfunctional. There is still a lot of work left to get this working.
+Preliminary setup of 'inline', add func flags 
+	Function declarations now hold flags. Function objects now hold flags, which are recieved from the function decl object.
+	Added function flag 'invalid' for error checking
+	Added function flag 'inline', for inline functions. Currently does nothing.
+	( Venrob, 10th May, 2019 )
+	
+Fix: Repeat incorrect recursion
+	( Venrob, 9th May, 2019 )
+	
+Fix: Blit to destBMP, not subBMP
+Remove duplicate token entry.
+Changelog: Added bitmap->Mode7(16 args)
+//sdci[1]=layer
+	//sdci[2]=bitmap target
+		//
+		//	-2 is the current Render Target
+		//	-1, this is the screen (framebuf).
+		//	0: Render target 0
+		//	1: Render target 1
+		//	2: Render target 2
+		//	3: Render target 3
+		//	4: Render target 4
+		//	5: Render target 5
+		//	6: Render target 6
+		//	Otherwise: The pointer to a bitmap.
+
+	//sdci[3]=sourcex
+	//sdci[4]=sourcey
+	//sdci[5]=sourcew
+	//sdci[6]=sourceh
+
+	//sdci[7]=destw
+	//sdci[8]=desth
+	//sdci[9]=angle
+	//scdi[10] = pivot cx
+	//sdci[11] = pivot cy
+	//sdci[12] = space Z
+	//sdci[13] = horizon
+	//scdi[14] = scale X
+	//scdi[15] = scale Y
+	//sdci[16] = masked?
+	//sdci[17] Bitmap Pointer
+	( ZoriaRPG, 9th May, 2019 )
+
+Fix: Forgotten field initializers
+Added `repeat(const int){}`
+Parser: Make `syncDisable()` static
+Added `unless`, as opposite of `if` 
+	( Venrob, 8th May, 2019 )
+
+Added bitmap->DrawLayerSolid(), DrawLayerSolidity(), 
+	DrawLayerComboTypes, DrawScreenComboFlags(), and DrawScreenComboIFlags() to ZScript.
+	( ZoriaRPG, 7th May, 2019 )
+
+Fixed crash when trying to load a bitmap file that does not exist.
+Added Scrolling.zh to test_scripts/dmap_scripts
+Corrected bitmap pointer for Graphics->GetPixel.
+Add Graphics->GetPixel(bitmap, x, y) to ZScript
+Add bitmap->DrawScreenSolid()
+	This draws a block in colour 1, if the 8x8 pixel space is solid.
+Added the following bitmap drawing commands:
+	DrawScreenSolidity() : Draws a palette index based on the raw literal value
+	for the solidity of each combo space, by drawing a 16px block to that space
+	in the palette value equal to the solidity mask of that combo.
+
+	DrawScreenComboTypes(), as above, but the palette index is equal to the
+	combo Type ID value.
+
+	DrawScreenComboFlags(), as above, for placed flags.
+
+	DrawScreenComboIFlags(), as above, for inh. flags.
+	( ZoriaRPG, 6th May, 2019 )
+	
+Began adding commands to the bitmap-> pointer, similar to DrawScreen,
+	that when done, should draw blocks to the space on a bitmap that a combo occupies,
+	that the user can utilise in conjunction with GetPixel() to rapidly read values
+	for solidity mask, type, flag, and inh flag.
+
+	This would make it easier to produce large-scale scrolling environments, including
+	with Mode-7 style effects, as the end-user can blit out these masks for an entire map
+	to bitmaps, then read the same absolute position on a set of bitmaps to get
+	the properties of any specific point/node/coordinates.
+std.zh: Begin Optimising std_keyboard.zh
+	( ZoriaRPG, 4th May, 2019 )
+
+Fix Input->ModifierKeys return type, and values.
+	( ZoriaRPG, 3rd May, 2019 )
+
+Refactor: Move checkExtension to class FFScript
+Don't copy strings with checkExtension
+Updated todo.txt
+Fix: Correct Return Type of Input->Keybindings[]
+Make file_exists inline.
+Minor performance adjustments.
+Updated build date.
+Ensured that unused bitmap pointers are initialised to NULL.
+Removed inline specifier from drawing functions.
+Ensure that bitmap->Quad() checks if the bitmap is valid, if the
+	user suppkies a render source, and if not, use the old Screen-> texture cache.
+Ensure that bitmap->DrawScreen() and bitmap->DrawLayer() use the correct y offsets.
+Optimise bitmap->Quad()
+	( ZoriaRPG, 1st May, 2019 )
+
+Docs: Clean up formatting of ZScript_Additions.txt
+Added bitmap->BlitTo().
+	This blits a source bitmap, to the pointer, using the same args
+	as DrawBitmapEx(), when drawing to the screen.
+Add warning if the size of the render_source bitmap, or the h/w
+	args are not a power of 2.
+Try to ensure that ZC Player PNG snapshots follow the identical
+	logic of ZQ Editor snapshots when writing their palette.
+Fixed the type and internal value for the target of Blit.
+	Before, it would not allow passing a bitmap pointer to the blit target, and
+	the value for the pointer would have been wrong, in any case.
+
+	This fixes both of these issues.
+
+Fixed ZC Player palette corruption when calling bitmap->Read()
+
+Fixed a crash and incorrect values when using bitmap->Height and
+	bitmap->Width.
+
+	These now use the .height and .width members of the struct, which are set when
+	a bitmap is created, or loaded from a file.
+Fix implicit casts.
+
+Added Screen->Polygon(int layer, int points, int vertices[], int colour, int opacity)
+	and bitmap->Polygon(int layer, int points, int vertices[], int colour, int opacity) to ZScript.
+Updated build date.
+Ensure that when calling a polytype function on a bitmap pointer,
+	such as bitmap->Quad(), that if the pointer used as 'render_source' is not
+	initialised, that we default to drawing it using a tile.
+
+	This should prevent some possible stack corruption.
+std.zh: NULL is now untyped.
+Docs: Updated ZScript_Additions.txt for bitmap-> draw instructions.
+Fixed crashes when using bitmap draws from/to uninitialised bitmaps
+	with bitmap->Quad(), &c.
+	Now if bitmap->Read() fails to load an image, it will create a blank bitmap at
+	256x176 on the pointer.
+	( ZoriaRPG, 30th April, 2019 )
+	
+Added 'bitmap render_source' to bitmap->Quad3D, Triangle3D	
+Fix rendering bitmap->Quad() with a bitmap render_src.
+	Applied the same fix to bitmap->Triangle
+
+	Removed mandatory power of 2 check for these two functions, when using a
+	bitmap render_src.
+	
+Flipped thew order of int height, int width for Game->CreateBitmap()
+	and for bitmap->Create().
+
+Added a QR to use the old args order, set for quests with a build ID < 44.
+Enabled that QR for older quests on quest load.
+Fixed some sign mismatches.
+	( ZoriaRPG, 29th April, 2019 )
+	
+Some fixes/changes to edTRANSFORM for boss enemies.
+Docs: Updated ZScript_Additions.txt, documenting `bitmap render_source`
+Fix unintentional forced offset in Screen->Triangle3D
+
+I made the FFCore array access functions non-static, and I used calls
+	to them in place of ArrayH:: static member functions, because somehow ptr.Size() was
+	getting corrupted, or there was some kind of internal i386 stack issue when
+	using those functions with script draws.
+
+	Thus, I replaced every call to ArrayH::getValues() with FFCore.getValues(), which
+	seems to have fixed it.
+
+	This commit also fixes an offset issue with Quad3D.
+std.zh: Fix missing line for including keyboard.zh
+	( ZoriaRPG, 28th April, 2019 )
+	
+Fix various typos and logical issues in examples
+	Update some docs, which referenced mechanics which have changed.
+	Add newline to EOF
+	( Venrob, 27th April, 2019 )
+	
+Fix: Add segments to segmented enemies in edREPLACE
+Fix an if/else chain and coordinates of edREPLACE.
+
+The compiler was choosing the wrong function to use for normal weapon
+	generation, where the dummyweapon function was not intended to be called.
+
+	I added extra params (unused) to the dummy weapon function, to ensure proper
+	function matching.
+
+Changed Values for Transform Effect Type 
+ 	 0: None
+	-1: Particle Dissolve (A)
+	-2: Particle Explode
+	-3: Particle Dissolve (B)
+	-4: Harmless Superbomb Blast
+	-5: Harmless Bomb Blast
+	-6: Superbomb Blast (Harms Link, uses enemy weapon damage for its power.)
+	-7: Bomb Blash (Harms Link, uses enemy weapon damage for its power.)
+	 1: Sprite 1
+	 +: Higher Sprites
+ 
+ Added the ability to control the visual effect for edREPLACE
+	(Enemy Editor Defence: Transform), and added the ability to specify an enemy ID.
+
+	Attribute 15 (Attributes[14] in ZScript): The Effect Type
+		-3: Bomb Blast (harmless)
+		-2: Superbomb Blast (harmless)
+		-1: None
+		 0: Dissolve (a)
+		 1: Dissolve (b)
+		 2: Particle Explode
+		 3: Sparkle Weapon using Sprite ID 3
+		 +: Sparkle weapon with sprite 4 or above.
+
+		Attribute 16 (Attributes[15] in ZScript) : The Enemy ID
+		0: Next in Editor
+		1+: A specific enemy ID.
+	( ZoriaRPG, 27th April, 2019 )
+	
+Fix the return value in case edREPLACE so that bouncing weapons
+	do not phase through enemies. Weapons react as if they hit the original enemy
+	normally.
+Try to ensure that enemies aren't knocked back during transformation.
+
+Added a new defence outcome 'Transform(next)'.
+	If this enemy is hit by the weapon with this defence resolution, it will be replaced
+	by the next enemy in the list, with a visual effect of the original enemy dissolving
+	into particles.
+
+Added the following parser tokens:
+	compl: Equivalent to ~
+	bitnot: Equivalent to ~
+	not_equal: alt for not_eq
+	and_equal: alt for and_eq
+	xor_equal: alt for xor_eq
+	or_equal: alt for or_equal
+	( ZoriaRPG, 26th April, 2019 )
+	
+//Alpha 21
+Fix extension handling of bitmap->Write(), and properly support all
+	legal file formats (.png, .gif, .pcx, .tgx, and .bmp).
+	( ZoriaRPG, 26th April, 2019 )
+Re-wrote sprite script refInfo, closing a memory leak, and removing a hack.
+	( ZoriaRPG, 25th April, 2019 )
+Updated std_keyboard.zh, and ZScript_Additions.txt with
+	KB_* constants for modifier key flags.
+Updated internal build to Alpha 21.
+Updated ZScipt_Additions.txt
+Updated todo.txt
+Added Input->KeyBindings[14] (r/w), Input->ModifierKeys,
+	and Input->SimulateKeypress[127]
+Don't use bitmap->Blit() offset fix on Screen->DrawBitmapEx()
+
+The params for bitmap->Write are now:
+	bitmap->Write(int layer, "filename", bool allow_overwrite);
+
+	Behaviour: Overwriting is off by default. If bool allow_overwrite == true,
+		AND the filename extension is .png, then the file can be overwritten.
+
+Add notes to bitmap->Clear
+
+Added bitmap->Clear(int layer).
+Added bitmap->Create(int layer, int h, int w)
+
+	->Create only works on a bitmap pointer that has been initialised, and it
+	destroys any existing bitmap on that pointer, before creating a new one.
+
+Applied the same set of fixes that I used for Screen->PutPixels()
+	to Screen->Lines(), Screen->DrawCombos(), and Screen->DrawTiles()
+	to all other Screen-> pointer, array-drawing functions.
+Screen->PutPixels() should now work in any scope and in any drawing order.
+	(Enqueued drawing needs vector pointers to keep the ZScript array data in scope.)
+
+Added 'bitmap render_source' arg to bitmap->Quad() and to bitmap->Triangle();
+	The new args are:
+	void Quad ( int layer, 
+		int x1, int y1, int x2, int y2, 
+		int x3, int y3, int x4, int y4,
+		int w, int h, int cset, int flip, 
+		int texture, int render_mode, bitmap render_source);
+	void Triangle	( int layer, 
+			int x1, int y1, int x2, 
+			int y2, int x3, int y3,
+			int w, int h, int cset, 
+			int flip, int texture, int render_mode, bitmap render_source);
+		
+	If render_source is not NULL, then the function *should* use that, rather than a tile/combo
+	as its texture. This is wholly UNPROVEN.
+	( ZoriaRPG, 25th April, 2019 )
+
+
+bitmap->Write() will not overwrite an existing file.
+Added bitmap render_src arg to bitmap->Quad() as its 16th param.
+	All bitmap drawing commands now check if the dest is not the
+	screen, and set their yoffset to 0 if it is not the screen.
+
+	They also check if the dest is ! -2, which is the present RENDER TARGET,
+	but they do not also validate that the RT is not RT_SCREEN.
+
+	We may need to do that, too.
+Fixed the yoffset coordinates for bitmap->Blit and bitmap->Rectangle.
+Fix: Read/Write Bitmaps
+	Changed bitmap Game->ReadBitmap("filename") to bitmap Game->AllocateBitmap();
+	Made bitmap->Read("filename") into a drawing command as bitmap->Read(layer,"filename")
+	Made bitmap->Write("filename") into a drawing command as bitmap->Write(layer,"filename")
+	( ZoriaRPG, 24th April, 2019 )
+	
+Cleanup: Remove "Bitmap" BuiltinConstant
+	( Venrob, 23rd April, 2019 )
+	
+Possible fix for WriteBitmap refVar
+Some fixes to writebitmap()
+Begin adding bitmap->Write("filename")
+Added bitmap->Height, bitmap->Width
+Don't use bitmap pointers < 17 for ReadBitmap()
+Fix compile and improve ReadBitmap
+Begin adding bitmap Game->ReadBitmap("filename")
+
+Added the ability to call onPasteAll, onPasteToAll, and onPasteAlltoAll
+	from hotkeys. 
+	All screen paste hotkeys use 'V', as follows:
+		V: 			onPaste
+		Shift+V: 		onPasteAll
+		Control+V: 		onPasteToAll
+		Control+Shift+V: 	onPasteAllToAll
+
+I also added all of the normal copy/paste options to the contextual menu, and I added
+	the ZScript submenu to the contextual menu.
+	( ZoriaRPG, 23rd April, 2019 )
+	
+	
+Parser: change `RELATIONAL_OP_RETURN_DECIMAL` to `BOOL_TRUE_RETURN_DECIMAL
+	Now, instead of just relational operators, it also includes `true` itself.
+	Also, the option previously failed to affect constant expressions; this has been fixed.
+	( Venrob, 22nd April, 2019 )
+
+
+//Alpha 20
+Updated default_qst.dat.
+Updated classic_qst.dat.
+Fixed bitmap pointers and drawing functions to respect the correct
+	bitmap pointer ID.
+Fixed Debug->SP to read/write to the correct data location.
+	( ZoriaRPG, 22nd April, 2019 )
+	
+Fixed missing case for NO_ERROR_HALT:
+	Function calls need to syncDisable with their parameters.
+Fix type issues.
+Function calls need to syncDisable with their parameters.
+Fix: `using` fails to find current-scope namespaces
+Fix: `using` nonfunctional within namespace
+Fix: `==` and `!=` cast two-way 
+	Added two-way checkCast, to see if two types are compatible in EITHER direction.
+Fix: `==` and `!=` casting error failed to report location 
+	This left an error that was extremely difficult to locate!
+	( Venrob, 20th April, 2019 )
+
+//Alpha 19
+Increased Build ID to 43.
+Added a QR that causes eweapon->Parent to be multiplied / divided by 10000, for
+	legacy support in quests made in older versions of 2.55 (or 2.54). 
+Changed int eweapon->Parent to npc eweapon->Parent to ease typecasting,
+	and removed the 10000 shifting. The npc pointer would use
+	the raw value, not value * or / 10000.
+	The setter now accepts npc as its arg. 
+Added BITMAP to Scope.cpp. This had no effect that I can detect.
+	I'm unsure why it was not there.
+Fixed Graphics->NumDraws() to report the correct number of draws
+	on the current frame.
+Corrected (internal) args order for Game->CreateBitmap(h,w).
+Renamed the function identifiers for Dimentio's Enhanced Music Ex
+	chain in ffscript.cpp, and migrated them tot he FFScript class.
+
+	The new functions are:
+		void FFScript::do_playogg_ex(const bool v);
+		void FFScript::do_set_oggex_position(const bool v);
+		void FFScript::go_get_oggex_position();
+		void FFScript::do_set_oggex_speed(const bool v);
+Added bitmap->isValid() to ZScript.
+Changed Graphics->MaxDraws to Graphics->MaxDraws() and changed
+	Graphics->NumDraws to Graphics->NumDraws().
+
+	The change is purely for the purpose of semantics. If these appear to be a variable,
+	then the user may try to write to them. In the form of a function, it is immediately
+	clear that they are read-only.
+
+	The actual GlobalSymbols code still sees both as a GETTER, as a function with a return value
+	and no parameters can be a basic GETTER. The only difference, is whether the table entry
+	precedes the string with "get" or "set".
+
+	i.e.
+		"getMaxDraws" as a type of GETTER creates a variable 'MaxDraws'.
+		By using the string "MaxDraws", the parser knows that this is the FORM of a function,
+		'MaxDraws()', but it needs no params to push/pop, so it can still work as a
+		GETTER type, instead of as a FUNCTION type.
+
+		See 'NumNPCs' for more information.
+Added Graphics->MaxDraws to ZScript:
+	This, like Graphics->NumDraws is read-only, and it returns the maximum number
+	of script drawing commands per frame.
+	The purpose of this is as a utility for the end-user, as this value is a constant
+		that may change on a per-build basis.
+Added Graphics->NumDraws to ZScript:
+	This returns the current count of script draws (CScriptDrawingCommands.Count())
+	so that the user can know how many they have remaining.
+Converted all script draws to inline functions, with the hope that this may
+	make them faster.
+Additional fixes to bitmaps and script-draws.
+	( ZoriaRPG, 18th April, 2019 )
+
+Restored the file 'zstrings.txt', used for the HELP button in the ZQ String Editor.
+Various fixes to the bitmap datatype, bitmap->Blit, 
+	Game->CreateBitmap(). 
+	Bitmap pointers are now offset by +10.
+	When calling bitmap->Blit(), you can specif the destination
+		as the current RenderTarget by passing -2 as the dest.
+		-1 is the screen normally, but draws to the screen with Blit(RT_SCREEN) only
+		work on 'Layer 7'.
+		Draws to the screen, if the current RenderTarget is RT_SCREEN, using
+		Blit(-2) work on all layers. 
+	Don't consider the SCREEN uninitialised. 
+	Fixed some issues with bitmap pointer values being incorrect.
+	Ensured that the sub-bitmap used for (allegro) sprite rotation commands
+		is large-enough, based on the source bitmap size.
+Removed invisible widgets carried over to the 2.50 (big) interface from
+	small mode that allow toggling the cset and layer.
+	( ZoriaRPG, 17th April, 2019 )
+
+//Alpha 18
+Rename EnhancedMusicEx functions to Ogg*
+	Renamed PlayEnhancedMusicEx() to PlayOgg()
+	Renamed SetEnhancedMuiscSpeed() to SetOggSpeed()
+	Renamed SetEnhancedMusicPos to SetOggPos()
+	Renamed GetEnhancedMusicPos to getOggPos()
+Move the EXIT entry from the File menu, to the ZQuest menu, in ZQ.
+	( ZoriaRPG, 15th April, 2019 )
+
+Fix size of IDATAFLAGS
+	( Venrob, 15th April, 2019 )
+	
+Another revision of the fixes to lwpn, ewpn, item, npc->Jump
+	return values. 
+Updated zcsound.lib.
+	( ZoriaRPG, 15th April, 2019 )
+
+Merged OGGEX code (hand-merged by Z). 
+VBounded the values of SetEnhancedMusicSpeed(); 
+	max of 10x speed, min of 0x speed. 
+	This should prevent crashing.
+Added GetEnhancedMusicPos() and SetEnhancedMusicPos() to both
+	Game-> and Audio->.
+Added SetEnhancedMusicSpeed(); 1 is normal speed, 0.5 is half
+	speed, 2 is 2x speed. 
+	Be careful; passing values too high will crash the game!
+Added OGGEX to zcmusic/zc_sys. 
+	( Dimentio, 15th April, 2019 ) 
+	Commits:
+		https://github.com/ArmageddonGames/ZeldaClassic/pull/332/commits/20e7b40cca7999a6257dec623f62670731f82285
+		https://github.com/ArmageddonGames/ZeldaClassic/pull/332/commits/36f0e3b0ee914e3de9b97cd806db6706217b3528
+		https://github.com/ArmageddonGames/ZeldaClassic/pull/332/commits/b96116722610805c4cd3ca4ce250d0f7078931da
+
+Changed the ZQ main menu so that if the user is in small mode,
+they cqan still access every entry.
+Re-added Import ItemSprite ASM Script to the ZScript menu.
+Added a QR to draw dhadows on items/weapons with a Z > 0. 
+Add bool Game->FFRules[] to ZScript
+	( ZoriaRPG, 15th April, 2019 )
+
+Fixed an error that I introduced into the return value of Link->Z.
+Should fix longstanding rubbish return values for npc, lweapon, eweapon, and item->Jump
+	( ZoriaRPG, 14th April, 2019 )
+	
+Fix NO_ERROR_HALT crash
+Fix crash: Sync errorDisabled state up a level in several statements
+	This prevents crashes caused by invalid data.
+	( Venrob, 12th April, 2019 )
+		
+
+
+//Alpha 17
+Added enum value for edSHOWMESSAGE and marked implemented enemy defences.
+Use #include in built-in headers, rather than import.
+Fixed Lut's Easter Egg in both 1st.qst and 2nd.qst in the Classic Module.
+Fixed a bug in the new sprite::draw() where it was not respecting draw offsets.
+	( ZoriaRPG, 9th April, 2019 )
+	
+Modified Classic Module blank quest (.dat) to call `#include std.zh` and `#include Classic.zh`
+Modified Default Module blank quest (.dat) to call `#include std.zh`
+Moved demo-scripts/* to scripts/* 
+Moved base package includes into ./includes and ./headers
+Resized Assign Scripts dialogue to make all tabs fit at one time.
+Fixed the `this` pointer in itemsprite scripts.
+	( ZoriaRPG, 8th April, 2019 )
+	
+Added `until` statement to ZScript.
+	This functions as the opposite to `while` (e.g., as `while(!)`)
+	and the ASM generated by it is more optimal than while(!).
+	( Venrob, 8th April, 2019 )
+
+Completely implement itemsprite script type.
+	Items (on the screen) now have their own sprite script, 
+	`itemsprite script`. 
+	This runs on any item that is placed, created, or spawned on the screen.
+	The script ID is assigned eithe rin the Item Editor, on the Scripts	
+		tab, as the 'Sprite Script', or set by another script via
+		`item->Script`
+	At present, this script type shares its InitD with `item script`, but this
+		is likely to change in the future to a unique InitD type. 
+Added the following Enemy Defence Outcomes:
+	Split: The enemy splits into n copies of enemy m, where n is
+		Death Attribute 2 (misc 4)
+		and m is Death Attribute 1 (misc 3).
+		Does not drop an item.
+	Summon: Summons a random (max n) enemies of type m, at random positions,
+		where n is Death Attribute 2 (misc 4)
+		and m is Death Attribute 1 (misc 3).
+	Bomb Explosion: Enemy instantly dies, creating a bomb blast with damage
+		equal to the weapon damage of the enemy.
+		Does not drop an item.
+	Superbomb Explosion: Enemy instantly dies, creating a superbomb blast with
+		damage equal to the weapon damage of the enemy.
+		Does not drop an item.
+	Harmless Explosion: Enemy dies instantly, creating a harmless superbomb
+		explosion.
+		Drops an item.
+Fixed subscreen item sprites drawn at an offset of +56y.
+	( ZoriaRPG, 8th April, 2019 )
+
+Untyped scripts no longer need a valid run() function to compile.
+	If you give them one, you can call it from another script, as 'normal' in 
+	the ZScript language for alien run() functions.
+	Their local functions, and variables work normally.
+Errors generated by the ZScript parser for run() (e.g. missing run())
+	now use the run string, so they will report (e.g.) 'missing main()'. 
+	( Venrob / ZoriaRPG, 6th April, 2019 )
+
+Added error logging to sprite->Scale and sprite->Rotation.
+	If the QR below is enabled, these will log an error instructing
+	the user that the QR must be enabled to use them.
+Added a quest rule in Quest->Rules->Compatibility as
+	'Old (Faster) Sprite Drawing' to use the old sprite::draw.
+	Quests made in versions < 2.55 b42 enable this by default.
+	The user must manually enable the new version of sprite::draw(),
+	that allows scaling and rotation.
+		This is because sprite draws took a 10% to 15% performnce
+		hit due to the extra blits involved.
+		( ZoriaRPG, 5th April, 2019 )
+
+Added this-> pointer to hero (link) scripts, and to screendata scripts.
+	this-> in hero scripts equates to Hero->
+	this-> in screendata scripts equates to Screen->
+Make all global pointer types constant.
+Add `this` to `screendata script`, properly
+Fix improper offset of script types.
+`this` is now constant, and cannot be assigned to. 
+	(it COULD previously! Why?)
+	`this` will no longer be added if the typeid is `ZVARTYPEID_VOID`
+	Special `this` handling added for `ZVARTYPEID_LINK`, i.e. `link script`
+Chore: Change `Function::thisVar` from `BuiltinVariable*` to `Datum*` 
+Fix crash caused by no-halt on error in ZScript compiler.
+	( Venrob, 5th April, 2019 )
+	
+Added error logging to sprite->Scale and sprite->Rotation.
+	If the QR below is enabled, these will log an error instructing
+	the user that the QR must be enabled to use them.
+Added a quest rule in Quest->Rules->Compatibility as 
+	'Old (Faster) Sprite Drawing' to use the old sprite::draw.
+	Quests made in versions < 2.55 b42 enable this by default.
+	The user must manually enable the new version of sprite::draw(), 
+	that allows scaling and rotation.
+		This is because sprite draws took a 10% to 15% performnce
+		hit due to the extra blits involved.
+	
+Added sprite::drawzcboss() to use for drawing Z1 bosses.
+	Most do not play well as-is with the revised sprite::draw(), and thus they
+	do not at present support scaling or rotation. 
+
+Added a quest rule to Compatibility Rules for pre-2.50.2
+	DrawBitmap() offsets behaviour, and patched quest loader to most-approprately
+	auto-set this bit.
+
+Added a QR bit to allow r/w of Link->X, Y, and Z to be floating
+	point ZScript values. This does not yet work properly.
+	I added the setting to the ZScript Settings dialogue.
+Cleaned up the structure of sprite::draw() and added logic comments to it.
+Partially re-wrote sprite:draw() to ensure that all extend values
+	and all flip types support Rotate and Scale.
+Added Sprite Scaling to all sprite types, in ZScript:
+	float lweapon->Scale;
+	float eweapon->Scale;
+	float npc->Scale;
+	float item->Scale;
+	float hero->Scale;
+	
+	Scale is a multiplier, so, a scale of 1.000 is normal scale.
+	Scale of 0 is also 'normal' scale, as this indicates that scaling is off. 
+	Negative scale values are undefined (and cause sprites not to draw).
+	A scale of 1.5000 draws a sprite 50% larger.
+	
+	Scaling only works at this time if extend == 0. 
+	
+	Scaling a sprite does not offset its coordinates. 
+	( ZoriaRPG, 5th April, 2019 )
+	
+
+Fixed the values for some Combo Types in the module format.
+	The module loader was offsetting the string used for combo types
+	CT_SLASHNEXT and above. This offset CT_SCRIPT1 to show as 'Script 2' in the editor.
+	( ZoriaRPG, 5th April, 2019 )
+	
+Added FFScript::updateIncludePaths(), calling in ZQ.
+	This is used to update the values stored in FFScript::includePathsStrings
+	when the user changes the string in the GUI. 
+	( ZoriaRPG, 4th April, 2019 )
+
+Add `#include`, add `Max Includes` display to compiler settings dialogue
+
+	`#include "path"` - will import the file at that path, relative to the first path in `include_path`, 
+	in `zquest.cfg` (or the compiler settings dialogue)
+	(This is searched at `ScriptParser::preprocess()`)
+
+	Added `ZQincludePaths[][]` as an array to copy `FFCore.includePaths` to, to extern into `ScriptParser.cpp`.
+		This is filled after `FFCore.init()` is called, and when `OK` was pressed in the 
+		compiler settings dialogue.
+
+	Added `Max Includes: %d` display to compiler settings dialogue, displaying the value of
+		`MAX_INCLUDE_PATHS`
+		It sucks not knowing why your 4th include in your test isn't working...
+
+	Increased MAX_INCLUDE_PATHS from 3 to 5, and moved it's definition from `zdefs.h` to `parser/parserDefs.h`.
+		`parser/parserDefs.h` has been added as an include to `zquest.h` and `ffscript.h`
+	( Venrob, 3rd April, 2019 )
+
+Added "Include Paths:" label to the dialogue. 
+Added a config string for include paths to zc.cfg and to zquest.cfg as:
+	[Compiler]
+	include_path
+
+	Added void FFScript::void initIncludePaths(); --called by FFCore.init();
+	Added char FFScript::includePaths[MAX_INCLUDE_PATHS][512];
+	Added char FFScript::includePathString[(MAX_INCLUDE_PATHS+1)*512];
+
+	Include string format is:
+	<path1>;<path2>;<path3>;
+
+	Example:
+		Full path string is: test/;test2/stuff/;test3/morestuff/headers/;
+		Include path 0: test/
+		Include path 1: test2/stuff/
+		Include path 2: test3/morestuff/headers/
+
+	The default for Include Path 0 is 'include/'.
+	If no user-set path exists, the main include path is 'include/'.
+
+	Note: Nothing yet uses these, and there is not yet a way to set them in the ZQ UI.
+Fix compile on aglogo.
+Fixed the Nth bit where Parser Quest Rules start.
+Updated build date and Alpha status to 17.
+GUI: Cleaned Up Cheat Modkey Dialogue
+Added 20th Anniversary banner to AGN Logo
+	( ZoriaRPG, 3rd April, 2019 )
+
+Added an option so that errors do not cause the ZScript compiler to 
+	immediately halt. 
+	Instead, it will report all errors that it encounters, and refuse
+	to compile the scripts, so that the user can review all errors
+	in a single sweep.
+	Option NO_ERROR_HALT added, updated default zquest.cfg
+HEADER_GUARD and NO_ERROR_HALT can now both be set from `zquest.cfg`, using the same token, under `[Compiler]`
+	NO_ERROR_HALT defaults off
+	If on, errors will not halt compilation; compilation will halt just before completion instead, in this case.
+Parser: Various improvments and fixes to `using` and `namespace`
+	Several optimizations and logic fixes.
+Fix: Missing vector.push_back() when declaring `namespace foo::bar{const int C = 5}`
+Parser: Slight recursion optimization in analyzeFunctionInternals
+Don't duplicate namespace registration 
+	Fixes `always using` issue.
+Parser: Add `breakRecursion()` overload without AST& param
+	This allows quickly checking fail/breakNode state without needing an AST node handy.
+	( Venrob, 2nd April, 2019 )
+
+Parser: Relational operator ZASM fix	
+Parser: Add MULTV instruction to rel operators
+	This means `<int>(bool > 0)` will now be 0 or 1 instead of 0 or 0.0001, for all relational operators.
+	This affects only casting and untyped things, functionally.
+	Performance-wise, this is an extra instruction per rel operator.
+	Option RELATIONAL_OP_RETURN_DECIMAL added; set to `on` to remove this MULTV. Default off.
+	( Venrob, 1st April, 2019 )
+	
+Added the ability to rotate sprites by script, implementing
+	npc->Rotation, Link->Rotation, lweapon->Rotation, eweapon->Rotation,
+	and item->Rotation.
+Added rotated draws to sprite::draw(), but only for sprited objects where extend == 0;
+Disable rotated sprite blits in sprite.cpp.
+Feat: Begin adding Sprite->Rotation
+	( ZoriaRPG, 1st April, 2019 )
+
+//Alpha 16
+Revised the Bombchu emulation behaviour, and toggled the QR based on
+	quest header data.
+	2.50.0 and 2.50.1 quests have superbomb enabled by default.
+	2.50.2 and 2.50.3RC1 quests have normal bomb by default.
+	The emulation option is unavailable for quests made 
+	in 2.50.3RC1 or later. 
+	
+Updated std.zh for 2.55 Alpha 16
+	Version is 1.6000
+	Optimise all functions for new ZScript parser.
+	Revised some functions.
+	Moved itemdata functions into idata.zh, inside namespace idata.
+	Added some configs to std.cfg.
+	Updated docs for std.zh and added std_extension.txt
+Added npcdata->GetName(int str[]) to ZScript.
+Corrected Controller Button Constants in std.zh
+Revamped all keyboard key dialogues:
+	Added the ability to clear any keyboard key setting from
+		the GUI using a new 'Clear' button.
+		This button is on all keyboard key dialogues.
+	Ensured that modifier key bindings must be unique against all other keybindings.
+	Ensured that a keybinding of 0 (None) does not need to be unique.
+Added a dialogue to configure cheat modifier keys.
+	( ZoriaRPG, 1st April, 2019 )
+
+Avoid using `GOTOLESS`, because it could cause `0.0001` to == false, depending on QR setting
+Parser: Optimize short-circuit behavior
+	Optimised ASM generated when short-circuiting is enabled.
+Feat: Option dialogue linked to options
+Parser: Improve option value handling
+	( Venrob, 31st March, 2019 )
+
+Added short-circuit logic to the parser.
+	When on, `||` and `&&` will short-circuit. i.e. `(true || foo())` 
+	and `(false && foo())` will not call `foo()`
+	Defaults to off. 
+Changed cast style
+	Now `<type>expr` instead of `cast<type>(expr)`
+	Tokens `cast` and `static_cast` are un-reserved
+Fixed custom const types  / need `const` in name!
+	( Venrob, 30th March, 2019 )
+
+Solid FFC: Added Note on Placement
+Initial Work on Solid FFCs
+	( ZoriaRPG, 30th March, 2019 )
+
+Fix: Re-add sanity check on `const typename`
+Parser: Add custom enum types, fix constant issue from previous commit
+	Usage:
+	`enum day { SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY };`
+	Then, `day d = SUNDAY;` or `const day TGIF = FRIDAY;`
+	`day d = 1;` is NOT valid. (You can use untyped or casting to bypass this, though)
+	These are not just renamed types, they are ACTUAL separate types!
+	They will cast to float/bool, though; `int d = SUNDAY;` would be fine, resulting in `d = 0;`
+	You can use floats in the initializer without issue 
+		(`enum foo { min = -1, zero, one, two, three, max };` won't give you a `cannot cast from float to foo` error)
+Internal: Fixed memory leak in constants. Remember to `clone()`!
+	( Venrob, 30th march, 2019 )
+
+std.zh: Added error codes _ERR_REDEFDATATYPE and _ERR_CONSTALREADYCONSTANT
+`const` is now separate from type keywords :
+	This means that you can now use `const` with typedef'd types.
+		Previously, `typedef int foo;` then `const foo f = 5;` would give an error, `unexpected token const`.
+		This has been rectified, now allowing this as a way to create a constant of type foo.
+		A new error code has been added, because `typedef const int define;` then `const define;` means `const const int`, which is an error.
+
+	Internal: `DataType->getTypeConst()` will now fetch the constant version of a naive type.
+	( Venrob, 29th march, 2019 )
+	
+Weapons with a UseType of Sword can now cut grass/bushes/pots,
+	and trigger sword triggers.
+Added the following to ZScript:
+	lweapon->Defense, lweapon->Defence : Sets the UseDefence property for an lweapon.
+	lweapon->Weapon : Sets the UseWeapon property for an lweapon
+
+Fixed some issues where the default weapon defence type would be
+	wrong, particularly if the weapon UseWeapon type value was not None.
+	Probably fixed some other, related bugs at the same time.
+Fixed some errors in the new weapon system. The weapon type override
+	seems to work fine now; however setting the 'default defence' is still broken.
+	It's giving the wrong value somewhere down the chain.
+Ported the New Weapon Defence System that I wrote for the DD 2.60
+	old master branch, to 2.55.
+
+	This does the following:
+
+	Items/lweapons now have a 'UseDefence' property.
+
+	Effects: If an enemy in the Enemy Editor has its defence category for that
+	weapon type set to 'None', and the weapon has a base defence type, then
+	that defence type (effect) will be applied as if the enemy had it set.
+
+	Items/lweapons now have a 'UseType' property.
+	Effects: When hit with this weapon type, the enemy will use the defence
+	category of the simulated 'UseType' weapon type, rather than the true weapon
+	type of the weapon.
+Ported the 'Weapon Properties' Item Editor tab that I wrote,
+	from the old DD 2.60 master branch, to 2.55.
+	( ZoriaRPG, 29th march, 2019 )
+
+Style: Matched braces in std_vars.zh
+std.zh: Optimise std_vars.zh
+Updated std.txt to cover all cleanup in std.zh, except for
+	std_extension (t/b/a).
+	( ZoriaRPG, 28th March, 2019 )
+	
+Added details on #option HEADER_GUARD to ZScript_Additions.txt,
+	added 'always using', and corrected the docs for 'using' (scope).
+Default for Header Guard is now WARN
+	( ZoriaRPG, 27th March, 2019 )
+
+Allow disabling of any AST node
+	`node->disable();` to disable, `node->isDisabled()` to read. Cannot be re-enabled.
+	Disabled nodes are skipped by RecursiveVisitor::visit() and BuildOpCodes::visit(), 
+		effectively deleting the node, and everything inside it, from the output.
+	HEADER_GUARD now disables duplicate imports in this manner.
+	LOGGING also does, as I built this off of what that option did.
+Added parser #option HEADER_GUARD
+	Values:
+	`off` - nothing new
+	`on` - Ignore duplicate import statements
+	`error` - Throw duplication error on duplicate import statements
+	`warn` - Throw duplication warning on duplicate import statements, and ignore the duplicates.
+
+	Keywords: Reserved `error` and `warn` within HASH environment (#option)
+	`error` has a literal value of 2,
+	`warn` has a literal value of 3.
+Files: Add `parserDefs.h`, as a `zdefs.h` for the parser.
+Fixed src compile error. 
+Fixed accidentally using usingNamespaces from parent file.
+Added 'always using'
+	Usage: `always using namespace NAME;`
+	This can only be declared at the File Scope.
+	This declaration will make ALL code act under `using namespace NAME;`, regardless of being in a different file.
+Fix: Missed some changes in BuildVisitors.cpp/h and Scope.cpp/h
+	( Venrob, 27th March, 2019 )
+
+Added a config line 'logo_volume' to the 'zeldadx' section of zc.cfg to
+	set the sound volume of the AGN fire logo.
+Music.zh: Renamed BossMusic to MusicZH_BossMusic to avoid a conflict with Classic.zh
+Added missing $END token to the enum that Venrob added to
+	std_constants.zh.
+Music.zh: Disable call to LogPrint
+Music.zh: Fix NPC_MIDI and NPC_MUSIC scripts. Bump to 1.3.5.
+Fixed the screen info for 'Layer Used By' not updating properly
+	when changing maps.
+	( ZoriaRPG, 26th March, 2019 )
+
+Parser: Add `itemsprite` and `untyped` script types, parser-side only.
+Changed _ERR constants to an enum.
+Fixed roken flag6 on wands, cbyrna 
+Add `using`, for both FileScope and ScriptScope 
+	Use: `using namespace NAME;` or `using namespace NAME1::NAME2;`
+	( Venrob, 24th March, 2019 )
+	
+Fix Compile: Missing comma in QRs
+Added a QR that causes bombchu explosions on contact with Link
+	to be superbomb sized. This used the absolute last, unused rule bit for 2.53.
+	This should be ported to a behavioural flag, set by qst.cpp on the enemy,
+		in the future.
+Don't terminate the ZQuest process if the user presses the CANCEL
+	button in the Load Module dialogue.
+Allow Setting Doors on Mapscreens > 0x82
+Fixed the state of 'save' not being set when deleting a favourite
+	combo using the contextual menu.
+Added the ability to import LWeapon, EWeapon, DMap, Hero, and
+	Screen ASM scripts to the ZScript menu.
+Prevent changing module while playing a quest.
+Loading a module in ZC player now refreshes the title screen.
+Added a Modules menu, and Load Module to ZC Player.
+	The file select screen does not yet refresh on loading a new module, but
+	it does refresh on selecting a quest.
+Fixed a crash when loading 2.50 quests, caused by trying to initialise
+	zinit.SBombmax with division by 0 in qst.cpp.
+Added a Modules menu to ZQuest, and added Load Module to it.
+It is now possible to load a module at any time.
+	( ZoriaRPG, 24th march, 2019 )
+
+Namespace now registers directly to RootScope, skipping FileScope.
+Added SCOPERES operator ("::"), used exclusively in ASTExprIdentifier for namespace resolution.
+	`namespace::var` is valid. `script.var` is valid.
+	`namespace.var` is invalid. `script::var` is invalid.
+Namespace is now run directly after imports, rather than last. No clue why it was last before.
+Added several bison nonterminals, allowing now `Identifier_List` (containing any list of identifiers) as before, as well as `Scoperes_Identifier_List` which cannot contain `.`, and (commented out as it is currently unused) `Dot_Identifier_List`, which cannot contain `::`.
+Added a way to declare multiple namespaces at once: `namespace name::name2{}`. This declares a namespace `name`, then declares `name2` within it.
+	( Venrob, 22nd March, 2019 )
+
+Added dialogues to the ZScript Menu for 'Quest ZScript Settings',
+	and for ZScript Compiler Options. 
+	These are stored with the quest as rules.
+Removed Scripts rules from QR dialogue. 
+	We now have them in the ZScript dialogue.
+The Assign ASM NPC Script menu option now opens the appropriate dialogue.
+	( ZoriaRPG, 21st march, 2019 )
+
+Added Import NPC ASM Script to ZQuest
+Added a new menu to ZQuest, 'ZScript'.
+Renamed the Link tab in the Compile ZScript dialogue to 'Hero'.
+Updated ZScript_Additions.txt
+	( ZoriaRPG, 20th march, 2019 )
+
+Added `namespace` to ZScript.
+	Use:
+	namespace namespace_name
+	{
+	 ///vars, functions
+	}
+Added the following tokens to ZScript:
+	Pointer Hero->
+	Pointer Player->
+	hero script
+	player script
+	These are synonymous with Link-> and link script, both of which
+		are now deprecated, but still legal for compatibility reasons
+		with older scripts.
+	( Venrob, 20th March, 2019 )
+
+Fixed illegal esc char in menus.
+Fixed copyright year on ending.
+Updated Music.zh to v1.3.4
+Added file mobileBait.zh, with lweapon script MovingBait.
+	Call that script by import in Classic.zh.
+	Classic.zh version is now 2.02.
+The bomb bag (L1) starts Link with 30 bombs. We only want him to
+	have 8, so we set his max_bombs in Init Data. We don't give him this item.
+Added files: lweapon scripts FireRod, replaceOnDeath, lwBombArrow, and lwZigZag
+Added files: eweapon script ewZigZag
+Classic.zh
+	Updated to v2.01
+	Adds calls to import lweapon scripts FireRod, replaceOnDeath, lwBombArrow, and lwZigZag
+	Adds call to import eweapon script ewZigZag
+	( ZoriaRPG, 19th march, 2019 )
+
+Convert the values for Halt Duration, and Accel Factor for
+	Keese, Peahats, and Phantom Ghini enemies in 2.10 and earlier quests on
+	file load.
+Re-added LogPrint() and ScreenPrint() to string_functions.zh.
+	The build package lost these in a file overwrite at some prior point.
+	( ZoriaRPG, 18th March, 2019 )
+
+
+//Alpha 15
+Ported Link.lookaheadraftflag() from 2.53. 
+Maybe Fix New Tile-Based Crashes
+Ported the fix for 1.84 quests starting with 30 MAX Bombs from 2.53.
+Added hotkeys for the following Lv4 Cheats
+	Kill All Enemies (K)
+	Show Overhead (O)
+	Show Push Blocks (P)
+	Show Hitboxes (C; for Collision)
+	Show FFScript Names (F)
+	Ported from 2.53 Gamma 6, including the fix to the K key in the menus.
+Ported the fix for the crash when removing a Cane of Byrna item by script from 2.53.
+Added Developer Status Flag
+	( ZoriaRPG, 17th march, 2019 )
+	
+Added 'Triforce in Cellar Warps Link Out' to Quest Rules->Other->2.
+
+Fixed a crash when writing tiles, and added a rule patch for the 2.10
+	Triforce in Item Cellar Warp Out rule.
+	( ZoriaRPG, 15th March, 2019 )
+
+Attempt to correct new Init Data values being improperly
+	initialised.
+Cap max bombs in <= 1.84 quests at 8.
+	( ZoriaRPG, 14th March, 2019 )
+
+The value for `new_blueframe_tile` is now properly populated
+	for quests made in 2.10 and earlier, by the saving routine in ZQuest.
+
+	This prevents corruption of that tile.
+
+	Any more of these old tile conversions that I've missed? -Z
+
+My prior fix did not cover enough ground.:
+	After reverting the previous change, I fixed the issue now, in:
+		`void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,int h,int /*flip*/,bool overlay,bool trans)`
+		inside `subscr.cpp`.
+
+	I do not know yet, if loading a <= 2.10 quest in 2.55, then saving, will break this
+	again. 
+	
+	It seems that when you loaded an old quest in 2.50, it populated the QMisc tiles somehow.
+
+	I'm not yet sure where, but, because we check section_version in 2.55 to populate QMisc newtiles,
+	if that part of the quest load does not convert to the newtile instead of the (old) tile,
+	then it'll be the same issue all over again with the newly saved 2.55 quest.
+	( ZoriaRPG, 13th March, 2019 )
+
+1.92 and earlier used a completely different tile for the 2x2 frame
+	subscreen object. As this could not be changed, we now read that tile directly
+	if the quest was made in the old version.
+
+We were only checking build ID, which used to be used for the beta ID
+	of builds before 2.50. This now checks vZelda and vBuild, more appropriately,
+	and adds in some weapon patches for weapon `newtile` values for old versions.
+
+It seems that 1.84 quests do not start with a bomb bag, but
+	they should, as the item did not exist in those old versions; and thus,
+	the player cannot pick up bombs in quests made using them.
+
+Set bobomb enemy script in classic_qst.dat.
+	( ZoriaRPG, 12th March, 2019 )
+	
+Restored some module settings, that were being overwritten by the last change
+	and fixed sels_linktile so that setting it affects the default
+	quest icons, but not icons set in the actual (custom) quests.
+Updated to Alpha 15, and added an unused QR to ZDefs.h
+Restored the ability to set a default tile for Link, and a CSet to
+	use on the title screen, for Modules.
+	Note: Changing the CSet, WILL potentially make custom quest icons messy, as
+		it is a global override.
+Rewrote much of static void list_save(int save_num, int ypos)
+	to fix Game Icons not being loaded, and yet preserve module customisation.
+	Let's hope that none of the customisation allowed by the ZMOD format broke here.
+Added QRs to enable draws during screen scrolling, warping, and
+	Link stepping forward on dungeon screens.
+The global init script now runs earlier, populating arrays prior to
+	playing = true.
+		This permits the Link init script to access those arrays, as the array declarations
+	and any variables declared at a global scope, are not created until the
+	global init script runs. (File scope declarations occur from the global init slot!)
+Fixed dmap script InitD truncating decimals in the DMap Editor.
+Fixed npc, npc weapon, and item weapon InitD truncating decimals
+	in their respective editors.
+Fixed population of npc InitD from run() params.
+Fixed DMap scripts not getting their InitD set from the DMap Editor.
+	( ZoriaRPG, 11th March, 2019 )
+
+std.zh: Add `_ERR_` constants, for `EXPECT_ERROR`
+Parser: Change `EXPECT_ERROR` to `#ignore error`/`#ignore warning`
+	( Venrob, 7th march, 2019 )
+
+//Alpha 14
+Fix Fireball eweapon being called FIREVOLT in CLassic Module. 
+Removed Daira ffc script. 
+Added __CLASSIC_ZH_VERSION macro to Classic.zh
+Modified default quest file (classic_qst.dat) to use the npc and eweapon scripts,
+	instead of the Autoghost script.
+Reconfigured Daira L1, and L2 enemies in Classic.qst.
+Added Daira Axe Controller script to Classic.zh
+	The script file is in demo_scripts/eweapon_scripts/daira_axe.zs
+Added Daira npc script to Classic.zh. 
+	The script file is in demo_scripts/npc_scripts/daira.zs
+	( ZoriaRPG, 7th March, 2019 )
+	
+Added enum to ZScript, as follows:
+	enum { A, B, C = 5, D, E = 10, F };
+	...where A == 0, B == 1, C == 5, D == 6, E == 10, and F == 11
+	( Venrob, 7th March, 2019 )
+
+Updated classic_qst.dat, with the improvements/includes from 2.53.
+
+Added bobomb npc as NPC ID 179 to Classic.qst.
+
+Added bobomb npc script , as: demo_scripts/npc_scripts/bobomb.zs
+
+Modified glost_zh/2.8/other.zh, to fix conflict (default as identifier).s
+
+Added test_scripts path, and copied over all old test scripts from Alpha 13.
+Added demo_scripts path.
+Added demo_scripts/npc_scripts path
+Added demo_scripts/lweapon_scripts path
+Added demo_scripts/eweapon_scripts path
+Added demo_scripts/dmap_scripts path
+Added demo_scripts/link_scripts path
+Added demo_scripts/item_scripts path
+Added demo_scripts/ffc_scripts path
+Added demo_scripts/global_scripts path
+
+Merged std.zh from 2.53 and 2.55, hopefully with no loss of content.
+
+Moves modules into their own paths, as:
+	./
+		modules/
+			classic/
+			default/
+			demo/
+			demojer/
+			expo/
+			
+	All of the module (.zmod) files are in ./modules, and all
+	datafiles and quests are called using relative paths.
+	( ZoriaRPG, 7th March, 2019 )
+
+Ported over all Classic.zh, classic.qst (qst.dat), and related includes
+from 2.53. This includes all of the following from the 2.53 changelog (between
+the rows of hashes):
+	( ZoriaRPG, 7th March, 2019 )
+##############################################################################################################
+Updated all default active subscreens in qst.dat, with the new items. 
+Added the following item scripts to Classic.zh, and items
+	to the default quest in qst.dat:
+	
+	MagicBossKey: Acts like the Magical Key, for Boss Locks.
+		Set to item ID: 146
+	MagicalMap: Gives the player the dungeon map to every dungeon.
+		Set to item ID: 147
+	Magical Compass: Gives the player the compass item to every dungeon.
+		Set to item ID: 148
+	
+Classic.zh: Fix BossExplode ffc to work with all segmented bosses. 
+
+Updated qst.dat 
+
+Fixed the SignPost ffc script.
+
+Moved the new functions from Classic.zh to std_functions.zh.
+Added some relativity functions to Classic.zh--should move to std_functions.zh:
+	DistXY(ffc, int), LeftOf(), RightOf(), Above(), Below(), Facing(ffc).
+
+
+Classic.zh Fixes and Improvements:
+	Renamed constants to prevent future conflicts.
+	BossMusic ffc: 
+		Fixed a bug that caused the victory music to re-play when the
+		player revisited the screen.
+		Added InitD variables to allow customisation by the user.
+	BossExplode ffc:
+		Added InitD variables to allow customisation by the user.
+	DropTRIFORCE ffc:
+	DropHEARTCONTAINER ffc:
+		Fixed a bug that caused the TF drop to repeat if the player revisited
+		the screen.
+		Added a dropshadow to the object when falling.
+		Slowed falling descent. 
+		Clamped screen coordinates of drop to ensure that the object does
+		not fall partway off the edges of the screen.
+	( ZoriaRPG, 24th February, 2019 )
+
+
+Added scripts 'DropTRIFORCE' and 'DropHEARTCONTAINER' to Classic.zh.
+	Fixed issue where invalid weapons were loaded by 'BossMusic' ffc script
+	because of a Waitframe in the loop.
+	Removed traces.
+
+
+Updated qst.dat with all of the new goodies. 
+
+Added constants to Classic.zh:
+	const int _classic_zc__TRK_BOSS = 25;
+	const int _classic_zh__MIDI_VICTORY = 1;
+	const int _classic_zh__TILE_FIREWORK = 10140;
+
+Added file Classic.nsf, from klop422 (Legend of Zelda NSF  from the PZC Database). 
+	We use track 25 for boss music here.
+Added a victory jingle MIDI as MIDI ID 1. 
+Add combo to use for Boss Audio FFC to combo page 3 as combo ID 905.
+Added BossMusic ffc to classic.zh. This is compatible with the BossExplosion ffc.
+Added tile for Boss Audio to tile page 61 as tile 16026.
+
+Added overload functions to Collision() that function as LinkCollision(). 
+
+Updated ffc scripts in classic.zh to clear their combo on init. 
+Fixed signpost script. 
+Added default fireworks ffc to copy and paste, on map 1, screen 0x82. 
+Added combo using the Fire Work tile to combo page 3, as combo 904.
+Added tile to use as  marker for fireworks ffc to tile page 61, as tile 16025.
+Modified fireworks script constants. 
+Added fireworks SFX as sound 61. 
+Added fireworks weapon sprite as Sprite 88. 
+Added tiles for fireworks to tile page 39 as tiles 10140, 10141, 10142.
+Fixed daira tiles on page 38. 
+	( ZoriaRPG, 21st February, 2019 )
+	
+Classic.zh:
+	Added item script 'ItemSound'
+	Added FFC script 'BossExplode'
+	Added constants:
+		const int _BOSS_EXPLODE_SPRITE
+		const int _BOSS_EXPLODE_DUR
+		const int _BOSS_EXPLODE_SFX
+		const int _BOSS_EXPLODE_DELAY
+		const int _BOSS_EXPLODE_RANDOM_MIN
+		const int _BOSS_EXPLODE_RANDOM_MAX
+	
+		const int I_HALFMAGIC = 	144;
+		const int I_LEARNSLASH =	143;
+		const int NPC_DAIRA1 = 		177;
+		const int NPC_DAIRA2 = 		178;
+	
+Add item: Message (Example) as item 145.
+Adjusted stats of both Daira enemies, and set their defences. 
+	Note: 1/4 Arrow damage is intentional for L2, to reflect
+	better armour/scales. 
+Add Daira (L2) [blue] as enemy 178, renamed Daira to Daira (L1) [red].
+
+Default quest changes:
+Added ffc scripts:
+	PermBlockSecrets : This triggers normal screen secrets.
+	PermBlockShutter : Block->Shutter secrets in NES Dungeons
+	Daira (autoghost)
+Removed ffc script PermSecret
+Fixed name of 'CanSlash' item script. 
+Added item script 'ItemMessage'
+Added Daira enemy as npc ID: 177
+Added Daira script to classic.zh
+Added Daira tiles to tile page 38 (tiles 9880, through 9959)
+	( ZoriaRPG, 19th February, 2019 )
+Added call to Classic.zh in the buffer.
+	Updated all active subscreens to include the new items. 
+	Added items: 'Scroll: Learn Slash', 'Scroll: Half Magic'
+	Placed default FFCs with scripts attached on map 1, screen 0x82. 
+		These have their icon set, and their Ethereal flag set. 
+	Added the following scripts:
+	Default active script with Tango and Ghost.
+	Half Magic Item (item, pickup)
+	Learn Slash Item (item, pickup)
+	Change Room Guy (ffc)
+	Perm. Secrets (ffc) 
+	Signpost (ffc)
+	
+	Added freezeall and freeze only ffc default combos to combo page 3:
+		
+	Added tiles on page 61 for icons to represent the FFC scripts. 
+	(Tile IDs: 16002, 16003, 16004, 16005, 16023, 16024, 16061, 16062)
+	Added combos for ffc icons to combo page 3:
+		IDs: 892, 893
+		Icons for the above, are combos: 888, 889. 
+	Added tiles for the icon combos for freeze combos to tile page 61 as 
+		tiles: 16000, and 16001. 
+
+Began adding some default scripts to Classic (as Classic.zh), and 
+	corrected some constants in the included scripts, to match.
+
+Updated qst.dat, to strip out some remaining rubbish pal cycle data. 
+
+Re-fix 1st.qst Level 9 Rupee issue. I had set the wrong type. 
+	( NightmareJames, 16th February, 2019 )
+
+Fixed a secret rupee in Lv9 (1st.qst) not being secret.
+	( NightmareJames, 31st January, 2019; file added to Gamma 3, 14th February, 2019 )
+
+Changed the default length of the short hookshot to 8. 
+	At one point, the distance was in pixels, then someone
+	changed it to tiles. We'll make pixels an option again in 2.55. 
+
+
+Fixed the following in std.zh:
+	Added revised behaviour to RotatePointX() and RotatePointY().
+	Added toggle for old/new RotatePointX() and RotatePointY() behaviour.
+	Probably fixed issues with catsizes() in ScreenFlag() and ScreenEFlag().
+	Swap lit bomb and bomb returns in int WeaponTypeToID(int wpnt).
+	Remove extraneous 's' in bool EnemiesAlive().
+	Add float LargeDistance(int x1, int y1, int x2, int y2, int divisor).
+
+	Somehow the file size on disc decreased in the process. Not sure on this one.
+
+Fixed Ganon's HP in 1st/2nd. On the NES, he has 30, not 32.
+	
+	The NES Ganon hurts Link. 
+##############################################################################################################
+
+Added const bitmap, const cheat, const combodata, const doorset, const dropset, const dmapdata, const eweapon, 
+	const ffc, const gamedata, const item, const itemdata, const lweapon, const mapdata,
+	const messagedata, const misccolor, const npc, const npcdata, const palcycle, 
+	const palette, const ponddata, const rgb, const shopdata, const spritedata, 
+	const musicdata, and const warpring to the system.
+Fixed a crash caused by permitting using function returns to initialise constants.
+	( Venrob, 6th March, 2019 )
+
+Port over all fixes applied to 2.53 from 2nd December, 2018; through 6th March, 2019.
+	
+The following log events from the 2.53 changelog have now been committed to 2.55 (between rows of hashes):
+##############################################################################################################
+Renamed all system-wide screenshot files as follows:
+	ZC: 
+		zc_screen#####.png
+	ZQuest:
+		Maps:
+			zq_map#####.png
+		Screen:
+			zq_screen#####.png
+	( ZoriaRPG, 6th March, 2019 )
+
+The Export ZScript now uses the .zs extension by default (no ZLIB conflicts).
+ZCL version is now 2.6.12:
+	Fixed default pane of the ZQuest tab in ZCL.
+	Removed duplicate 'Misaligns' option box in ZCL.
+Cleaned all intermediates, all project files, and all CMake files.
+	Built clean.
+Changed l_down sprites on 8-way enemy shots to face down.
+	( ZoriaRPG, 5th March, 2019 )
+Resize fields for text entry to fit five chars. 
+Fixed Init Data (and cheat data) field sizes for:
+	Heart Containers (was a field size of 2, now 3)
+	Starting HP (in hearts, was 3 now size 5)
+	Starting Magic (was size 3, now 5)
+	Max Magic (was size 3, now 5)
+	Super Bomb Ratio (was size 2, now 3)
+2.50.x quests with a build < 31, or quests with a header 
+	version < 0x250 will now write hitsfx = WAV_EHIT, for all guys where 
+	the hitsfx sound == 0, on saving a quest in 2.53.
+Quests made in 2.53 Gamma 0/1 or earlier (build 31) now load
+	WAV_EHIT into the enemy editor hitsfx field when the editor opens.
+	This prevents corruption of the quest by modifying the value on quest load,
+	and ensures that the value only changes if the user saves the quest in 2.53.
+2.50.2 AND EARLIER play SFX_HIT even if Enemy Editor Hit Sound is 0. 
+	Thus, I added a special case that causes this to happen in guys.cpp, based
+	on header version and build. 
+
+	Arbitrary enemy policy 15610. :P
+	( ZoriaRPG, 25th February, 2019 )
+Fixed Byrna Cleanup Routine killing SFX 30. This was caused by
+	`last_cane_of_byrna_item_id` never being able to be -1 because it was declared
+	as byte, instead of int.
+Added a case for r_down dir on 8-way EW_MAGIC shots. 
+	( ZoriaRPG, 22nd February, 2019 )
+Fixed ZCL 'Skip Logo' selection not saving. 
+	ZCL is now v2.6.11. 
+Commented out some conflicting constants in stdExtra.zh
+Moved stdWeapons and Laser.zh into an 'extras' path.
+Corrected power rating of remote bombs. 
+	This will only affect quests saved in 2.53, and 
+	only if the power of the bomb is > 1. 
+Expanded the Emulation menu toggle to cover builds through 2.50.1. 
+	I'm tired of this one, too. 
+Fixed the selection mark for Bombchu Emulation, and ensured that
+	it is enabled by default for 2.50.0 and 2.50.1 quests. 
+Added an emulation option to restore the large blast radius 
+	(superbomb) if Link is hit by a charging bombchu.
+	This is enabled by default for 2.50.1 and earlier quests, and disabled in 2.53 quests
+Fixed 8-way shots always using WAV_FIRE.
+	Added an emulation memu option to force using WAV_FIRE for all 8-way shots.
+	This is enabled by default in quests < 2.50.
+	This menu option is disabled in 2.53+ quests.
+	( ZoriaRPG, 18th February, 2019 )
+Fixes for Palette Cycle Issues:
+	Palettes above 256 were not set up to have palette cycles in 2.50.
+	The array in QMisc is [256][3], where it should have been [512][3].
+
+	Because of this, palettes above 0xFF had rubbish data associated to their cycle data.
+
+	To remedy this, I have done the following:
+
+		All palettes > 255 have a null palette loaded into them, in the editor and as
+		palette data, to zero out their cycle information.
+
+		This should occur both in ZC, and in ZQuest.
+
+		I disabled clicking the Cycle button in the Level palette editor, and display
+		a jwin-alert that the palette doesn't support cycling.
+
+	Let's hope this doesn't cause crashes in any quests, in ZC.
+Added leading zeros to the 'Select Item' 'Pow: ' field, so that
+items with powers greater than 10 don't carry over digits to items with
+powers < 10.
+	( ZoriaRPG, 17th February, 2019 )
+Updated include 'tango.zh', and its associated demo to current versions of both.
+Pressing the Enter key, or the numpad Enter key, while viewing
+the Quest Header dialogue now EITHER activates the selected element, 
+	or saves the dialogue changes, instead of opening the
+	'Change Quest password' sub-dialogue. 
+	It will auto-save if the selected element is OK, or any TEXT field.
+	Otherwise, it triggers the selected element.
+	This should also work from the numpad Enter key. 
+	I also made the changes as an EXAMPLE chain, for making all
+	JWin DIALOGUES more user-friendly, in the future. 
+		See Commits in branch 2.53: 
+			b479871e9d38d8245874bc6cffc2f72e93f6cd5a
+			c638d67cd856cc09e2e937c5a7da3dc9e0743952
+			93956d00d4bb933236c6625cb778eb6ddd5caba4
+Added a new function, Link.cleanupByrna() and called it in game_loop() (zelda.cpp).
+Added a sfx cleanup for the byrna beam to weapons.cpp.
+Added a new LinkClass variable, byte last_cane_of_byrna, that functions similar to
+	last_lens_id.
+	It inits at -1, then when Link uses a cane, it is set to that cane's ID.
+	It is reset to -1 in Link.cleanupByrna().
+Added kill_sfx() call to three other possible places where the Cane of Byyrna
+	sound should probably be terminated:
+	Whenever we call stopCaneOfByrna()
+	If we can't pay the cost during item / weapon init
+	If the beams aren't created during init, for some reason. 	
+Cleared Link's attackclk before calling saved_Zelda(). 
+	This prevents a charged sword, or other weapon, from carrying
+	over to the ending sequence as a visual artefact. 
+Stop playing byrna beam sfx as soon as the beams die in Link.cpp
+Fix stunned peahats hurting Link in 2.50+ quests.
+	( ZoriaRPG, 14th February, 2019 )
+Hardcoded WAV_FIRE in weapons.cpp with version check.
+Corrected copyright year in zdefs.h. 
+Possibly fix some issues with the hammer.
+Fixed screenshots saving without using modifier keys.
+	This had nothing to do with the cheat system, but rather, was an invalid sprintf
+	format in onNonGUISnapshot.
+Emulation: Restrict Repeating DMap Intros to 2.11.x
+Enabling or disabling the Debug Console (win32 only) now updates and saves
+	the zc.cfg file setting for debug_console under zeldadx.
+Fixed Wealth Medals in Bomb/Arrow upgrade rooms which use percentage zero 
+	out cost (integer division != double division) (guys.cpp)
+	No code was ever in place to give the discount? (link.cpp)
+	( Venrob, 11th February, 2019 )
+Fixed Combo Aliad dialogue not doing copy/swap for aliases
+	greater than 999. Required refactor.
+	( ZoriaRPG, 30th January, 2019 )
+Updated ZCL to 2.6.10:
+	The main in-focus page is once again ZC.
+	Added the new UI Coloursets (Dark, and October).
+Link was not fully cropped during the credits scroll.
+	Pixels of his hat were left behind as artefacts. This fixes the issue,
+	by resizing the call to rectfill().
+	( ZoriaRPG, 29th January, 2019 )
+Fix 'OK' button in joystick button config not saving.
+Fix screenshot numbering format to have a width of 5, not 3.
+	( ZoriaRPG, 28th January, 2019 )
+Added an Emulation toggle to try to permit continuous sword triggers
+	in 2.10 and 2.50 quests.
+	I'm not sure what the latest 2.50 build is, that should permit this, but if LI
+	was saved in a later build, and needs it, then here it is.
+Try to fix tall grash animation during scrolling.
+Try to fix Ganon's Ashes not spawning.
+	( ZoriaRPG, 25th January, 2019 )
+Reposition timing of creation of the hammer smack sprites to try to
+	prevent them from appearing int he wrong spot if the player changes direction abruptly.
+	( ZoriaRPG, 24th January, 2019 )
+Added Emulation menu option 'Don't Flip Firetrails'.
+	If enabled (2.10 or earlier), then firetrails on brang weapomns
+	will not flip on bounce, and may be allowed to hit and harm enemies.
+Add jwin alert messages to all Emulation menu options, to explain what they do.
+Apply 1.90 Swim Sprites to all calls to linktile() in link.cpp
+Increased screenshot numbering cap from 999, to 99999.
+	( ZoriaRPG, 22nd January, 2019 )
+Apply 2.10 windrobe emulation, also to 1.92.
+Final fix of 1.92 vand 2.10 Windrobe mmechanics, removing extra shot.
+Clean up tribble emulation.
+Implemented Emulation Option 'DMap Intros Always Repeat' for 2.55 quests.
+Fix: Try again to fix 2.10 Windrobes.
+Fix: Wizzrobes appearing in dungeon walls in 1.84 quests.
+Fix GEL and KEESE tribbles, in 1.90 (or earlier) quests.
+	This now occurs in readguys.
+Remove Emulation flag for OLD TRIBBLES.
+	( ZoriaRPG, 16th January, 2019 )
+Potentially fixed Triforce Warp-Out in item cellars (2.10 and earlier, no rule, no emulation flag).
+	Added a ternary statement in getTriforcePiece()
+Begin Adding Emulation Menu Options:
+	Restore 2.10 Windrobes
+	DMap Intros Always Repeat
+	--removed this one, because I have a possible in-source fix: Fix Triforce Cellars
+Try to fix wizzrobes in 1.90/1.84 quests.
+	They were spawning in walls, and never should.
+Try to make it possible for Windrobes in 2.10 quests to nbot line up.
+	( ZoriaRPG, 16th January, 2019 )
+Fix some emulation options. 
+	( ZoriaRPG, 14th January, 2019 )
+Fixed emulation (item/segment) appearing in quests older than 1.92. 
+Clear emulation array, except on F6/GameOver->Continue.
+Added the ability to copy Link#s walking sprites over his swimming
+	and diving sprites in 1.90 quests with BS Link Animation.
+Begin adding 1.90 BS Animation Toggle
+Begin adding 1.9x Tribble Emulation.
+Begin adding emulation of half-tile (off-grid) collision.
+Fix emulationm of segmented enemy drops.
+Fix crash when saving screenshots caused by filename buffer overflow. 
+	( ZoriaRPG, 14th January, 2019 )
+Added an Emulation Menu option to enable drop-per-segment
+	for Lanmola, Manhandla, and Moldorm. 
+	This needs testing in older quests, and further verification.
+	neither the menu option, nor the config section option
+	should work in 2.50+ quests.
+	( ZoriaRPG, 8th January, 2019 )
+Re-added the 'Menu' button configuration option to
+	Joystick Button configs.
+	( ZoriaRPG, 8th January, 2019 )
+Renamed entry [0] in Emulation Menu to 'Flip-Flip Cancel and Wave Warps'
+	Disabled this option if the current quest was made in 2.10 or
+	( ZoriaRPG, 22nd December, 2018 )
+Added a new menu to ZC Player: 'Emulation'. 
+	This is used for enabling/disabling certain internal behaviour, when playing some
+	legacy quests where it is desirable to have this option. 
+	( ZoriaRPG, 21st December, 2018 )
+Fixed vires splitting before their slide() ends.
+Fixed MP3s with metadata not playing. 
+	Let's hope that this fix doesn't fuck up 2.50.0 or 2.50.1 quests.
+	( ZoriaRPG, 16th December, 2018 )
+Probably fixed issues that Avataro reported with Vire enemies.
+	( ZoriaRPG, 3rd December, 2018 )
+##############################################################################################################
+	Full commit of ports, to Alpha 14:
+	( ZoriaRPG, 6th March, 2019 )
+
+//Alpha 13
+Don't allow declaration of empty array literalsm (size of 0), or any array with a size < 1; or > 214748. 
+Complete implementation/integration of const bool and const untyped.
+	( Venrob, 6th March, 2019 )
+
+Fixed crashes and other issues when saving screenshots. 
+	( ZoriaRPG, 5th March, 2019 )
+
+The Export ZScript dialogue now saved with a .zs extension by default. 
+
+	Parser Fixes and Improvements ( Venrob, and ZoriaRPG, cumulative through to 5th March, 2019 )
+
+	You can now declare any type globally.
+	You can now declare untyped variables, and arrays.
+	You can now have a function return type of 'untyped'.
+	
+	Typedef now works across multiple files.
+	
+	Added type 'const untyped'. Can only be initialised with a numeric literal, or const float/int, but typecasts to all datatypes.
+	Added type 'const bool' (cannot yet be initialised with true/false). t/b/a
+	
+	Fixed a bug where division of a constant would result in truncation that did not occur in 2.50.x
+	Fixed issues with division by an integer, where values would be truncated.
+	Added #option TRUNCATE_DIVISION_BY_LITERAL_BUG as a compiler flag:
+		This is OFF by default.
+		#option TRUNCATE_DIVISION_BY_LITERAL_BUG on
+			Forces old 2.50 behaviour (truncate division by a literal).
+		#option TRUNCATE_DIVISION_BY_LITERAL_BUG off
+			Use new behaviour (never truncate)
+
+	Added escape character sequences to SINGLECHAR:
+		\a     		Alert (Beep, Bell) (added in C89)[1]
+		\b    		Backspace
+		\f     		Formfeed Page Break
+		\n     		Newline (Line Feed); see notes below
+		\r     		Carriage Return
+		\t     		Horizontal Tab
+		\v     		Vertical Tab
+		\\     		Backslash
+		\'     		Single quotation mark
+		\"     		Double quotation mark
+		\?     		Question mark (used to avoid trigraphs) 
+		\x0 to \xFF   	Normal ANSI characters, as hex value. 
+		
+	Fixed scope resolution for identifiers and variables when used across
+		imported files.
+		Example:
+
+			//buffer
+
+			import "bar.zs"
+			void foo()
+			{
+				scrid.bar();
+			}
+			////////////////////end of buffer
+			
+			//bar.zs
+			
+			ffc script scrid
+			{
+				void run(){}
+				voud bar(){ Trace(1); }
+			}
+		
+		This worked in 2.50.x, but broke at some point in 2.55, and the
+		correct behaviour has been restored. 
+			
+		Scoped identifiers must be read-in, in linear order. Thus, this
+		would not be valid:
+			
+			//buffer
+
+			
+			void foo()
+			{
+				scrid.bar();
+			}
+			
+			import "bar.zs"
+			////////////////////end of buffer
+			
+			//bar.zs
+			
+			ffc script scrid
+			{
+				void run(){}
+				voud bar(){ Trace(1); }
+			}
+			
+		The import directive containing the token that you are resolving must be declared first,
+		or be processed first, before it can be used. 
+			
+	Script errors will now give line and column references prior to the
+		error type.
+			
+		Old:
+			Error S007: Variable X can't have type VOID.
+				@ LINE 4 COLUMNS 1-11
+			
+		New: 
+			LINE 4 @ COLUMNS 1-11 - ERROR S007: Variable X can't have type VOID.
+			
+	Fixed some issues where compiler errors improperly carried over. 
+
+	Fixed import directive pathing with backslashes:
+		Importing in zscript with a path such as scripts\scriptfile.z used to work, in prior versions. 
+		As of 2.55, it reads \ as an escape character, and parses the file path improperly. 
+		This has now been corrected, so that you may use / or \ as a valid path token, however, / is the better option.
+			
+	Added ternary expressions.
+		int x = Rand(6,8);
+		int y = x > 7 ? 1 : 0;
+		
+		Assigns, and operations inside ternary blocks must be in parens:
+			bool V = true;
+			int b;
+			int a = V ? ( b =  5 ) ? ( b = 4 );
+			
+			int c = V ? ( b -= 2 ) ? 0; 
+			
+			int y; int z; 
+			int x = (y += 10) ? (z = 5) : (a -= 2);
+			
+		In all of these cases, parens are mandatory. 
+		
+		Further, compound ternary expressions should be placed in parens:
+			int a = (V ? 1 : 0) ? 5 : 6
+			
+		The default, is to evaluate in a linear sequence.
+				
+		Thus, 
+			bool ? int : int ? bool : int
+		...would evaluate as: 
+			bool ? int : (int ? bool : int)
+		
+		Using parens to define your order of operations and scope, is prudent. 
+
+Fixed issues with division in the parser, and added some compiler flags:
+	Added `isLiteral()` to `ASTExpr`, for the literal int division bug flag
+	Renamed `Trace` to `LOGGING`
+	Renamed `LiteralIntegerDivision` to `TRUNCATE_DIVISION_BY_LITERAL_BUG`
+	Added `scope` to the `BuildOpCodes` class, and everything that comes along with making that work.
+	Passed `scope` to all `getCompileTimeValue()` calls from `BuildVisitors.cpp`
+	( Venrob, 5th March, 2019 )
+	
+Update included version of ZCLaunch to 2.6.12.
+Allow all ZScript data types to be declared globally.
+Add allowing declaration of const untyped and const bool.
+	Const untyped will work if the value is a literal number.
+	Const bool will not yet accept an assign of true/false, but will accept a numeric literal.
+	( ZoriaRPG, 5th March, 2019 )
+	
+Update: Compile error format.
+	Now reads "Line # @ Column # - ERROR # MSG"
+	( Venrob, 1st March, 2019 )
+	
+Docs: Add comments to `putweapon`
+Fixed the lens hints for some items crashign ZC. This was caused by the hint graphic trying to run a script: 
+	This fixes `putweapon` dummy weapons crashing by attempting to run weapon scripts. -Z
+	( Venrob, ZoriaRPG, 28th February, 2019 )
+	
+Fix: More Bombs / More Arrows rooms and Wealth Medals
+	- Wealth Medals which use percentage zero out cost (integer division != double division) (guys.cpp)
+	- No code was ever in place to give the discount? (link.cpp)
+	( Venrob, 12th February, 2019 )
+	
+Must always `BEGIN( INITIAL )` before returning! Added `TERMINATE` macro to handle this.
+	This fixes an issue where you would get an error, because the parser did not exit a mode.
+	( Venrob, 9th February, 2019 )
+	
+Declare `untyped` data, fix `npc->Script` return *10000
+Fix: `npc->Script` return didn't `*10000`
+	( Venrob, 7th February, 2019 )
+	
+Feat: Allow declaration of `untyped` data
+	( Venrob, 2nd February, 2019 )
+	
+Feat: Add `\xFF` hex-insertion escape character for QUOTEDSTRING and SINGLECHAR
+Fix: Invalid escape characters should throw error
+	( Venrob, 31st January, 2019 )
+
+Updated SINGLECHAR escape characters
+	( Venrob, 30th January, 2019 )
+
+Fix scope resolution for local functions and vars in scripts:	
+	Typedefs of both kinds must be processed before imports are processed, or they do not properly work across files.
+	Only check RootScope->descChildren_ if no valid scope has already been found.
+	Scripts were not registered to `RootScope->descChildren_`!
+	( Venrob, 28th January, 2019 )
+
+Feat: SINGLECHAR can now accept escape characters
+	( Venrob, 27th January, 2019 )
+	
+Import tokens now use TOK_IMPORTSTRING instead of TOK_QUOTEDSTRING
+	- TOK_IMPORTSTRING does not parse `\` as an escape, instead parsing it literally. This allows `C:\User\Test\` as a valid path,
+	rather than skipping the backslashes.
+	( Venrob, 25th January, 2019 )
+
+Fix: Slight Order of Operations issue
+Fix: Missed SemanticAnalyzer.cpp/.h sections
+Fix: Add overrides for getReadType() and getWriteType() for ASTTernaryExpr
+	Ternary is now functional. The return type is the type of the middle expression.
+	Slight issues may occur if the middle expression is untyped.
+	( Venrob, 19th January, 2019 )
+	
+Parser: Preliminary layout for Ternary Expressions
+Parser: Add QMark (?) token
+	( KoolAidWannaBe & Venrob, 18th January, 2019 )
+	
+Feat: Ring/PerilRing Flag 2 - "Divisor is Percentage Multiplier"
+	As the name says, the number in the divisor field will be treated as a percentage to multiply if the flag is turned on. This allows things
+	such as '50%' for halving, or '150%' for increases less than double.
+	( Venrob, 14th January, 2019 )
+
+Increased the buffer size for the screenshot name
+	to prevent a crash on overflow.
+	( ZoriaRPG, 14th January, 2019 )
+	
+Fire BRang Flag 8: `Triggers 'Fire(Any)'`
+	( Venrob, 12th January, 2019 )
+	
+Modified `LinkClass::ringpower(int dmg)` to handle percentage multipliers 
+	instead of divisors, if the flag is set. It can also handle both at once 
+	(ring of one mode, peril ring of the other) without issue.
+	( Venrob, 11th January, 2019 )
+	
+Re-added the Menu button to Joypad Config
+	( ZoriaRPG, 8th January, 2019 )
+	
+Added Halt Duration and Acceleration Factor to the
+	Enemy Editor, for Peahata, and for Phantom Ghinis.
+	Fixed the dialogue to use the correct enemy label fields.	
+	( ZoriaRPG, 7th January, 2019 )
+	
+
+You can now set the halt duration, and acceleration
+	factor for flying enemies in the enemy editor, for keese and
+	bats. Perhaps Peahats also need this?
+	( ZoriaRPG, 6th January, 2019 )
+	
+Move item script timing for 2nd frame (and onwards)
+	to take place immediate;y after Link.animate().
+	This preserved the old system timing for item scripts.
+	
+Don't try to load an enemy for weapons with eweapon
+	IDs, but not eweapon signatures. 2.50 allowed stupid stuff, such as
+	Screen->CreateLWeapon(EW_FIREBALL) !!!
+Fix: Eweapon scripts check !isLWeapon and run w/o checking Dead()
+Fix: Z_eventlog will now use the correct script types when logging events, from new script types.
+
+Fixed one issue with array draws, for Lines()
+	where the array iterator was wrong.
+
+	Copied a code block from historical/old-master where Gleeok first
+	tried to set this up.
+
+	The issue is that the array becomes invalid (scope) prior to
+	the enqueued draws taking place, so there is no data for them to use.
+
+	The values need to be pushed into a vector and used, later.
+	( ZoriaRPG, 1st January, 2019 )
+
+Fixed an early return condition in Screen->Lines that
+	would always cause it to abort, and fixed use of the wrong args order.
+POP the correct number of args for array-based draws,
+	such as lines()
+Writing to LW_SCRIPT* o_tile works again.
+
+Fixed a spot where an enemy pointer was being used to try
+	to load graphics to an lweapon (wRefFireball) because it was based
+	on a fallthrough of ewFireball.
+	( ZoriaRPG, 27th December, 2018 )
+	
+WDS_BOUNCE is a write-only condition that calls
+	`onhit(false)` for LW_BRANG weapons. It has a literal value of (1)
+	and the engine never uses it otherwise.
+
+	LWeapon scripts now interact properly with it.
+	( ZoriaRPG, 26th December, 2018 )
+	
+
+//Alpha 12
+Reset combo animations on Game->Continue()
+Call AllOff() prior to running Link's onDeth script.
+
+Fixed new npc functions in ffasm.cpp:
+	The 'args' value in ffasm.cpp was set to 0, for
+	getter functions. these needed to be set to '1' to return the
+	proper value.
+
+Fix new npc functions.
+	Correct their bounds checks, change them to use GuyH::getNPC()
+	and fix some array size checks.
+	
+Probably fix wBrang weapon scripts aborting on WDS_BOUNCE.
+
+Fix Script Type LWeapons not running their scripts. 
+
+Refuse to permit CreateLWeapon() or CreateLWeaponDx() to create 
+	an lweapon if there are 255 or more on the screen.
+
+Fixed DMap Scripts. They now run properly, at the correct time,
+and run when Link warps without massive fiddling. They do not run
+forever if they run out of scope (they certaintly DID!!), and they
+have the correct refinfo pointer (REFDMAPDATA, not LOADMAPDATA!!).
+
+Fixed issues with LoadBitmapID() and GetScriptBitmap() not liking
+the old internal bitmap IDs.
+
+Added the following to ZScript:
+	bool Game->SkipF6 : This skips over display of the save/continue/retry MENU
+		when the player pressed F6, but it still gives them the 'Exit, Confirm (Y/N)' DIALOGUE.
+
+	Game->ShowContinueScreen() : As Game->ShowSaveScreen(), but gives all three
+		choices (SAVE, CONTINUE, RETRY).
+	( ZoriaRPG, 25th December, 2018 )
+	
+Probably fixed a bug in Game->Continue(), where pressing F6 would not show
+the continue screen during play, if you call this.
+Added mapdata->isSolid(x,y)
+Added Game->Continue() to ZScript. This should function
+	in the same way as Game->End(), but it should cause the game to
+	resume as with the Continue option in the normal game over menu.
+
+Added bool Game->SkipCredits to ZScript. This should cause the game
+	to skip over the WIn Game credits, but still advance the quest, normally.
+
+Fixed Link OnDeath and OnWin Clear Script Draws 
+	Script Draws do not remain static during Link's onWin
+	and onDeath scripts, and now clear normally, every frame.
+	This prevents stuff such as DrawTile() from persisting across multiple
+	frames.
+
+Re-enable eweapon scripts after some lweapon script modifications.
+
+Fix uninitialised var in ZASM AUDIOVOLUME
+Disabled an extraneous call to the lweapon script engine.
+
+LWeapon Scripts: Swords Can Run Scripts & Fix Arrows 
+EXPERIMENTAL!!
+	The melee part of a sword item will run a script if the value
+	of Attributes[9] for its parent item == 50. (Misc10 == 50)
+	This also fixes arrows not running scripts.
+
+Fix potentially uninitialised vars in Link.cpp. (Not my fault!!)
+	( ZoriaRPG, 24th December 2018 )
+
+Rename Screenshot Base Filename from zelda%03d.png, to zc_quest_screenshot%03d.png
+Now showfps does textprint_ex when (frame&1), whic increased the
+	running speed of ZC by about 12.5%.
+Moved the calls to run LWeapon Scripts back into Lwpns.animate(),
+	and removed the deadstate restriction.
+	( ZoriaRPG, 23rd December, 2018 )
+
+//Alpha 11
+Setters for Screen->LayerScreen[] and mapdata->LayerScreen[] were not
+	properly vbounded. 
+	^ They needed to be bounded between 0 and MAPSCRS. (Should this be MAPSCRS-1?)
+	I also fixed the order of %s and %d parameters in some macros.
+
+Fixed more mapdata macros issuing an error for map 1, screen 0 when
+	ri->mapsref == 0.
+
+Changed the behaviour of Screen->LayerMap[], LayerScreen[], and LayerOpacity[]
+	so that the array index matches the layer ID used in the editor.
+	^ Thus, Screen->LayerMap[1] is Layer 1, not Layer 2.
+
+	I copied this to mapdata->LayerMap[], LayerScreen[], and LayerOpacity[]
+
+	I also added a version check to the MACRO, so that quests made in 2.54, or older
+		builds of 2.55 (V_FFSCRIPT < 11 ) will work normally, although if the questmaker
+		re-saves them, then they will need to update their scripts!
+
+Fixed a bounds check wrror for mapdata:
+	map 1, Screen 0, is ri->mapsref 0, so we can't check != 0!!!
+Fixed getters for all of the mapdata->Combo[] arrays.
+Fixed issues with npc scripts, causing stack corruption:
+	They use the same *ri mechanic as lweapon acripts, but they run in
+	enemy::animate(), which is itself a sort of proof that weapon scripts
+	could probably also run from animate(), now.
+Added checks for do_animation to guys.cpp.
+	Segmented boss enemies do not obey do_animation. Script your own
+	segmented bosses using the new enemy types.
+Note: Added a note about enemy::drawblock()
+Enable do_animation for weapons.
+
+Add scriptflip and scripttile to sprite::draw():
+	sprite::draw(), sprite::old_draw(), sprite::draw8(), and sprite::drawcloaked()
+	will all check scripttile and scriptflip, and use those values in the place of
+	tile and flip, if those values are > -1.
+
+	I'm trying this for now. I don't think that it will suffice, though, because
+	ZC is still making internal adjustments to those tiles.
+
+	I may add a bool->OverrideEngineTileManagement or something, so that ZScript
+	users can have the benefit of either option.
+
+Reverted weapons.cpp to immediately before the last commit.
+	We'll do this in sprite::draw(), instead.
+
+Added scripttile and scriptflip to all sprites. Both init at -1.
+	Added running code for scripttile to weapons.cpp.
+
+	Added the following instructions to ZScript:
+	dmapdata->Script, dmapdata->InitD[8]
+	lweapon->ScriptFlip, lweapon->ScriptTile
+	eweapon->ScriptFlip, eweapon->ScriptTile
+	npc->ScriptFlip, npc->ScriptTile
+
+	VBounded all ScriptTile (including Link!) setters between -1 and NEWMAXTILES-1.
+	VBounded all ScriptFlip (including Link!) setters between -1 anbd 256.
+
+	VBounded npc->Script, lweapon->Script, and eweapon->Script between 0 and NUMSCRIPT-1.
+	( ZoriaRPG, 23rd December, 2018 )
+	
+//Alpha 10
+Renamed entry [0] in Emulation Menu to 'Flip-Flip Cancel and Wave Warps'
+	Disabled this option if the current quest was made in 2.10 or
+	( ZoriaRPG, 22nd December, 2018 )
+	
+Added a new menu to ZC Player: 'Emulation'. 
+	This is used for enabling/disabling certain internal behaviour, when playing some
+	legacy quests where it is desirable to have this option. 
+	( ZoriaRPG, 21st December, 2018 )
+	
+I forgot to save the weappon InitD[] in guys version 40.
+	V_GUYS is now 41.
+	InitD[] valuesvare saved, and read by the quest loaders.
+	Weapon InitD[] is properly loaded into the weapon, and forwarded
+	to ffscript.
+Some eweapon types were checking if ScriptGenerated, and that check only applies to one lweapon type.
+	I removed the extraneous check.
+	( ZoriaRPG, 21st December, 2018 )
+
+//Alpha 9
+Fixed crashes when creating lweapons, caused by trying to read
+	enemy* for parentID of lweapons (weapon scriot read for eweapon scripts).
+Fixed Link Death and Win scripts to run at the proper times.
+Link's onDeath script, and Link's onWin script, can both run
+	for multiple frames.
+
+//Alpha 8
+Fix when Link's Init script runs.
+	It now runs after Link.init(), but before setting his entry points
+	and before the opening wipe.
+	This ensures that any changes that the init script executes,
+	such as setting Link->Invisible, aren't seen by the player;
+	and that Screen->EntryX, and Screen->EntryY have the correct
+	coordinates at the start of the game, if Link's init script sets these.
+
+If the user clears an initD label to a blank link, it will reset to 
+	the default value of 'InitD[%d]'.
+Added DMap scripts, in entirety.
+
+Added the following variables and arrays to ZScript:
+	npc->Script
+	npc->initD[8]
+	lweapon->Script
+	lweapon->InitD[8]
+	eweapon->Script
+	eweapon->InitD[8]
+	npcdata->Script
+	npcdata->InitD[8]
+	npcdata->WeaponScript
+	npcdata->WeaponInitD[8]
+	itemdata->WeaponScript
+	itemdata->WeaponInitD[8]
+
+	Itemdata was alredy in the system, as were a few of these, but
+	I completed the set. I renamed WeaponD to WeaponInitD to prevent confusion.
+Added EWeapon Scripts to ZQuest and to the ZC Player
+	Added vars to npcs for the weaponscript,m the initD, and for the InitA.
+	Added the Enemy Editor dialogue data to set the script and the script InitD.
+	Added the code to transfer data from the guys struct to the weapon, when the weapon is generated.
+	Added the script control code in ffscript.cpp.
+	
+	EWeapon Scripts: Make them functional. 
+		Added code to transfer the script ID from
+		the guys struct to the weapon.
+	Added the code that causes the script to run.
+	EWeapon Scripts: Add vars to guys.h/cpp and initialise them.
+	EWeapon Scripts: Add eweapon script and related fields to the Enemy Editor.
+	EWeapon Scripts: Add weaponscript, weap_initiald and weap_initiala to guys.
+	( ZoriaRPG, 20th December, 2018 )
+
+Fixed some missing calls to vbound in ffscript.cpp.
+Fixed a memory leak caused by not freeing memory used for tile allocation.
+	( Peter Hull, 19th December, 2018 )
+
+//Alpha 7
+Added the following script types to the 'Compile ZScript' dialogue in ZQuest:
+	eweapon, link, dmapdata (DMap), screendata (Screen)
+	You can compile all of these, and assign them to slots.
+
+Installed Link scripts into ZC, and expanded their number.
+	They work in a similar manner to global scripts, and may call Waitdraw().
+	At present, these are the viable slots:
+		Init (1)
+		Active (2)
+		onDeath (3)
+		onWin (4)
+	Slots 1, 3 and 4 can run for only one frame at this time.
+	Increased V_FFSCRIPT to '11'.
+	( ZoriaRPG, 19th December, 2018 )
+	
+//Alpha 6
+Fixed Ganon's HP in 1st.qst and in 2nd.qst.
+Fix creation and blitting of user bitmaps.
+Fix a number of fallthrough cases in ffscript.cpp.
+Fix fallthrough cases in Screen->DrawBitmapEx() and bitmap->Blit()
+Fix an overflow condition in ffasm.cpp where the command string tempvar
+	char array was too small. (Changed from tempvar[20] to tempvar[80]).
+	( ZoriaRPG, 18th December, 2018 )
+
+//Alpha 5
+
+Vers: Update to Alpha 5
+Remove traces for LWeapon Scripts
+	( ZoriaRPG, 17th December, 2018 )
+	
+LWeapon Scripts: Associate refInfo with each sprite
+	This fixes stability issues with them.
+	( Peter Hull, 17th December, 2018 )
+	
+Skip over ID3 metadata to ensure that most MP3 files play.
+	*Copied from 2.53b27
+Lib: Update csound.lib for MSVC (MP3 fixes)
+Fix where vires create new enemies when they split, and the
+	distances that they can slide.
+	*Copied from 2.53b27.
+	( ZoriaRPG, 16th December, 2018 )
+	
+Try memsetting the sprite stack to 0xFFFF
+Fix: Uninitialised weapon values.
+	( ZoriaRPG, 13th December, 2018 )
+
+Added some traces
+
+Fixed crash, it seems. needs further testing.
+	Sometimes some lweapon types still refuse to run their script, despite
+	everything seeming to be correct. I suspect some cleanup code is running
+	that should not run.
+
+Fixed issues with incorrect or corrupt stacks, but now scripts
+	can crash. it seems as if ri->lwpn and w->getUID() can be mismatched???
+LWeapon Scripts: Try getting data by UID instead of by Index
+	( ZoriaRPG, 11th December, 2018 )
+
+File: Add screenWipe.cpp from 2.50.2
+	( ZoriaRPG, 10th December, 2018 )
+	
+LWeapon Scripts: Split Up Animate and Run Script
+Refactored lweapon scripts.
+
+	Stacks are no longer memset other than on creation.
+	They now use doscript = 1 to help determine if they should run.
+
+	Issues: bait once again doesn't want to run scripts once it times out on
+	a screen.
+
+	Sword beams still cause stack underflows, but magic seems to be fine.
+	( ZoriaRPG, 9th December, 2018 )
+	
+	
+//Alpha 4
+
+Added item->Family and item->Level to ZScript.
+
+Ensured that all classes have ->Family and ->Type. Both do the same thing.
+	Weapons use ->Family, ->Type, and ->ID in the same manner.
+
+Set Labels on New Enemy Types: Skipping this would have caused crashes.
+
+Module: Added Default Strings for New Enemy Types to ZQuest
+Modules: Added new npc family fields to the modules.
+
+Add New NPC Types for Scripts
+	Changelog: Added 20 generic npc types to the system.
+	Added 10 'friendly' npc types for RPG-style guys.
+Updated build details to Alpha 4.
+
+Implement LWeapon Scripts + Editor Improvements
+LWeapon Scripts Fix: Stop Swords from Running Scripts 
+	Prevent swords from running scripts (for the present), and
+	try to forward the script to the beam.
+
+Disabled calls to al_trace() in module loading, lweapon scripts,
+	npc scripts, and date & time code.
+
+LWeapon Scripts: Seem to Have Fixed issues with lweapon script stacks.
+Clear script data in order.
+Try a different saving order.
+FFScript: Add some disassembly information to lweapon scripts. 
+	LW Scripts believe that they have all sorts of invalid commands. Something
+	awful is happening with their memory map!
+
+LWeapon Scripts: Add code to run them.
+LWeapon Scripts: Fix lw->InitD[] in ZScript
+LWeapon Scripts: Add lw->Script and lw->InitD[] to ZScript
+LWeapon Scripts: Add a way to determine if a weapon is an LWeapon, and
+	forward script data to weapons.
+
+You can set the Script, the InitD, and the InitD Labels for
+	LWeapon Scripts in the Item Editor. 
+	ZQuest will save and retain the data.
+
+Began adding lweapon scripts to ZC and to ZQuest.
+
+Added Item Script InitD Labels to the ZQuest Item Editor UI.
+Moved the NPC InitD fields all under the 'Action Script' tab.
+
+	The selection for the script, and all of its InitD values, are now on one tab.
+
+Renamed 'InitD' tab to 'Weapon Script' It is blank at this time.
+
+Started adding the same form of editable fields for Item Script
+	InitD to ZQuest.
+
+	Added vars in preparation for item sprite scripts.
+
+	Bumped V_ITEMS by +1.
+	( ZoriaRPG, 7th December, 2018 )
+	
+Added the following to NPCData:
+	npcdata->GetInitDLabel(int array[], int d_index)
+	npcdata->MatchInitDLabel("label", d_index)
+	npcdata->InitD[8]
+	npcdata->Script
+
+I also inserted a change into the FFScript.cpp engine, for npc scripts, so
+	that when a script exits, it does not set ri->npcref to anything.
+
+	I think that may have been the cause of some earlier, erratic behaviour in npc scripts.
+
+NPC Editor InitD Labels Can Be Changed 
+	You can now set custom labels for the eight InitD args used by
+	npc scripts. These are saved on a per-npc basis, and set in the enemy editor.
+
+	V_GUYS is now 39, and I prepared guydata for npc weapon InitD labels, too.
+	( ZoriaRPG, 6th December, 2018 )
+	
+Added New npc-> Functions for Use by NPC Scripts:
+	bool isDead() //Returns if the NPC is dead, or dying
+	bool CanSlide() //Checks if the npc can be knocked back
+	bool Slide() //Engine knockback
+	void Remove() //Instantly kills an npc
+	void StopBGSFX() //Stops the background sounds that the npc is generating.
+	void Attack() //Causes the npc to attack with its weapon.
+	void NewDir(int arr[]) //The npc chooses a new direction.
+	//Uses an array literal for its args.
+	void NewDir8(int arr[]) //As NewDir(), but 8-directions
+	void ConstantWalk(int arr[]) //Causes the npc to walk.
+	//Uses an array literal for its args.
+	void ConstantWalk8(int arr[]) //As ConstantWalk(), but 8-dir
+	void VariableWalk(int arr[])
+	void VariableWalk8(int arr[])
+	void HaltingWalk(int arr[])
+	void HaltingWalk8(int arr[])
+	void FloatingWalk(int arr[])
+	bool LinkInRange(int dist_in_pixels) //returns true if Link is within
+	//'range' pixels of the enemy
+	bool CanMove(int array[]) //Returns true if the npc can move in a
+	//given direction.
+	//Uses an array literal for varying args.
+	//Overloaded for a number of options.
+	bool SimulateHit(int array[]) //Simulates hitting the npc with a weapon,
+	//another sprite, or an arbitrary set of values passed as an
+	//overloaded array literal.
+	int LinedUp(int range, bool dir8) Checks if enemy is lined up with Link.
+	//If so, returns direction Link is at as compared to enemy.
+	npc Create(int array[]) //Similar to Screen->CreateNPC(), except:
+	// (1) It uses an arry literal for its args, with varying size.
+	// You can either create an npc onnly by its ID, or you can do
+	// that and set its spawn coordinates at the same time.
+	// (2) It works based on an existing pointer, such as:
+	// npc n; n->Create{args});
+	//Returns -1 if not lined up. Range is inclusive.
+	void BreathAttack(bool seeklink) //Fires the breath weapon set to the enemy.
+	bool Collision(int obj_type, untyped obj_pointer)
+	//Returns if either an object is collding with the npc,
+	//or if an arbitrary set of coordinates would collide.
+
+Fixed crash when creating LW_REFMAGIC by script.
+	( ZoriaRPG, 5th December, 2018 )
+	
+Fixed the accidental removal of itemdata->Getname()
+Began to add new npc functions for use by npc scripts.#
+	( ZoriaRPG, 4th December, 2018 )
+
+//Alpha 3
+
+Fix crash on calling any decorations sprite, due to tryint to initialise
+	EIGHT indices of sprite->InitA[2] to 0 !!
+Fix npc scripts mucking up stack pointer:
+	Changed memset(stack,0) to memset(stack,0xFFFF).
+	( ZoriaRPG, 3rd December, 2018 )
+
+** Known Issue: For some reason, the ri->guysref is either improperly
+cleared, or something is reading it improperly:
+
+When you F6->Retry, and there are running npc scripts, they corrupt the ZScript stacks.
+
+Closing ZC and reopening it fixes this, so I must have missed something
+that clears this data. 
+
+**
+
+Added npc->InitD[8] to ZScript
+Set InitD values on script load.
+Removed extraneous vars in sprite class
+
+Update build date.
+
+Added initD[8] to sprites.
+Added npc->InitD[8] to ZScript.
+Populated ri->d with npc->initD[] when the npc script is called.
+
+NPC Scripts: Add Initial D[8] to Enemy Editor
+NPC Scripts: Fix Editor Dialogue
+	Somehow, my commit of this editor fix was lost or corrupted.
+
+	This again fixes the editor dialogue object placement.
+
+NPC script stacks will now clear when their scope ends.
+I also fixed some issues with the 'this' pointer in npc scripts.
+
+NPCs now run scripts assigned to them.
+
+Modules: Update Default and Classic Module files.
+
+Added the following vars to the file select screen (NAMEENTRY)
+	in the mopdule format:
+
+	sels_cursor_tile // The cursor tile. Default is 0
+	sels_heart_tile  //The tile used to draw hearts.
+	sels_linktile // The base tile used to draw Link. Might be wrong.
+
+	sels_heart_tilettile_cset // The default CSet used to draw hearts.
+
+	draw_link_first // If set to non-zero, then Link's tile will be drawn before other
+	decorations (e.g. sword for 2nd quest). Otherwise, if == 0, we use the
+	normal Z1 behaviour.
+
+	//If these values are < 15, then the tile will be drawn in the specificed cset
+	sels_cusror_cset = 16
+	sels_link_cset = 16
+
+Modules: Update Default and Classic ZMOD files.
+Modules: Add Name Entry Graphics to Module Format 
+	The quest icons (all TEN supported quests) are now set by the
+	module, along with their csets and X positions.
+
+	The file select frame tile, and cset is now set by the module.
+
+	The colour shift on quest 3+ is now in the module format, but disabled,
+	pending other tests.
+
+Updated the classic module file with the new vars.
+	( ZoriaRPG, 3rd December, 2018 )
+
+Modules: Marked locations of hardcoded file select elements to move to modules.
+May be a fix for issues with vires.
+	My sanity can only take so much more of this.
+	Why didn't they just keep vire/polsvoice in their own class, as in 2.10?!
+
+Possible fix for Vires
+Added file Vire.cc - 2.10 Vire Code as Reference
+	( ZoriaRPG, 2nd December, 2018 )
+
+Cleaned up code for the NPC Script selection in the Enemy Editor,
+	and removed traces and unused vars.
+
+It is now possible to set the npc script slot in the Enemy Editor,
+	and to properly save your selection in the quest.
+
+Clear script bindings left over from a prior quest. 
+	If you set an npc script, then load any other quest; the second
+	quest thinks that the script is set there, too.
+
+	The inverse was also possible: Open a quest with scripts saved, after having
+	opened (or created) a blank quest, and the blank quest fields would carry over.
+
+	This *should* fix that issue.
+
+Added script bindings for new script types to quest saving/loading.
+
+Increased V_FFSCRIPT to `9`
+
+NPC Scripts: Clean Up Enemy Editor Scripts Pane
+Fix: Errors in ScreenPrint()
+NPC Scripts: Begin Adding to Enemy Editor
+Slight cleanup of FFCore.getTime()
+Add LogPrint() and ScreenPrint to string_functions.zh
+	( ZoriaRPG, 30th November, 2018 )
+
+Add test quest and script for GetSystemClock()
+Removed erroneous +2 from 'month' return.
+Changed RTC to a Unary opcode and corrected its inpur param
+	value, when read from the stack.
+
+Fix Crash on Saving Scripts: I was trying to save to a NULL pointer.
+	The NULL pointer assign (see below) is wrong. I redacted it. 
+
+Add missing constant for RTC_DST
+Update std_constants.zh for Link->WarpEx() and GetSystemTime()
+
+I had a unary opcode constructor for GetSystemTime(), where it
+	needed a binary opcode constructor. This commit fixes that, and it corrects
+	the return value to stack arg 2, by multiplying it by 10,000.
+
+Added GetSystemTIme(int category) to return the current system
+	Real Time Clock (RTC) value for a specific field of the time struct (time.h).
+
+	The parameter options are:
+
+	define RTC_YEAR		= 0;
+	define RTC_MONTH	= 1;
+	define RTC_DAYOFMONTH	= 2;
+	define RTC_DAYOFWEEK	= 3;
+	define RTC_HOUR		= 4;
+	define RTC_MINUTE	= 5;
+	define RTC_SECOND	= 6;
+	define RTC_DAYOFYEAR	= 7;
+	define RTC_LAST		= 8;
+	( ZoriaRPG, 29th November, 2018 )
+
+Changed the stack index from const byte to const long.
+
+	Sprite scripts will need this to use as their pointer value, then somehow
+	associate that with their stack.
+
+	Perhaps as `stack = &(guys.spr(getbyUID(i))->stack);`
+
+	...although `stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);`
+	may suffice. Not sure.
+
+Pre-emptively set new script type pointers to null for older quests.
+Increased V_FFSCRIPT to `8`.
+	Added routines to save, and to load new script types, or to skip
+	loading them based on section version.
+
+	Do the pointers for them need to be memset/NULLified for old quests?!
+
+	Scripts that used to load into %wpnscripts now load into &lwpnscripts.
+	EWeapon scripts load into a new pointer.
+	( ZoriaRPG, 28th November, 2018 )
+
+Added file log.zh to /std_zh
+Changed button text on 'Import' button in 'Compile ZScript' dialogue.
+	The new button text is 'Load', and the new hotkey is 'L'.
+	( ZoriaRPG, 27th November, 2018 )
+
+Added NPC Scripts to the Compile->Assign Script Dialogue.
+	They work, and are compiled properly.
+	What remains:
+		Save the script with the quest.
+		(Increment the save format.)
+		Read NPC scripts in, when loading a quest that is >- save ID.
+		Add the script selection to the enemy editor.
+		Call the code in the game_loop()
+		Hope that it all works as-is. 
+Begin Adding Script Slot Dialogue:
+	I need to look at the case values 6, 9, 12 for script types at the point
+where I left off for the day.
+
+Fix: Conflict with script types and common identifiers, and begin adding Player.
+	Changed screen and dmap script types to screendata and dmapdata
+	scripts, to avoid conflicts with the common script variable identifiers
+	`int screen` and `int dmap`.
+
+Started adding second instances of `Link->` and `link script` as
+	`Player->` and `player script`, respectively.
+
+Started adding new script types to the parser and implementing their slots in ZQuest.
+
+	New types are:
+	npc scriptm (this-> is npc)
+	lweapon script (this-> is lweapon)
+	eweapon script (this-> is eweapon)
+	dmapdata script (this-> is dmapdata)
+	screendata script (no this-> at present)
+	link script (no this-> at present)
+
+Feat: Begin Adding New Script Types to Parser & ZQuest
+Fix: Add missing script types to parser/Types.h
+
+Try to Ensure that Item Scripts Have Better Timing
+	Calling FFCore.itemScriptEngine() after LWpns.animate() AND calling
+	FFCore.newScriptEngine() might do the trick.
+	If I only call the former, then ZASM goes bonkers.
+
+
+//Alpha 2
+
+Updated changelog to current. 
+Update version and date strings.
+Tests: Update test quest files for item scripts.
+Fix: Probably Fix Item Script Stack Corruption 
+	When Link.cpp calls a new item script, it also clears the script
+	stack. This should prevent multiple instances of a script tryint to use the
+	same stack at different stack frames.
+
+	It seems to work now, but obviously, it needs more testing, particularly for
+	collect scripts, and with the QR off.
+	( ZoriaRPG, 27th November, 2018 )
+
+Update version strings and change Necromancer to AEternal
+
+Fix: Don't continue running item scripts after game exit:
+	Stopped perpetual item scripts running from carrying over after
+	F6, or otherwise quitting/winning the game.
+
+Made some modifications to itemdata->RunScript()
+
+I disabled bool perpetual for itemdata->RunScript(bool) for the
+	present. it corrupts the stacks. I cleared the stack for now, and setting	
+	the bool does nothing.
+
+Perhaps clearing the item stack would suffice?
+Added itemdata->RunScript(bool perpetual) to ZScript.
+	If (perpetual == true), then the script will continue running for more than
+	one frame, even if the QR is off. If the QR 'Item Scripts Continue Running'
+	is enabled, then this boolean does nothing.
+Feat: Item Scripts Can Have Infinite Loops:
+	Added a QR (and a new Script Rules category):
+	Item Scripts Continue to Run (until they call Quit)
+	Added stacks for 256 item scripts.
+
+	Added control code under FFCore.newScriptEngine() to control item scripts
+	and all other new script types in the future.
+	-->This may have timing issues at present.
+
+	Set up other stacks and code for future implementation.
+
+	If an item script has a Waitframe loop, then it will set runningItemScripts[id].
+
+	If runningItemScripts[id] == 1, then that script will continue to run until aborted.
+
+	I had to put advance_frame(true) in the FFCore.newScriptEngine() function to prevent
+	the game loop from running infinitely.
+
+	There must be a better way to do this, for proper timing, but it suffices for now.
+	Now the scripts run, as intended, and you can abort them; however if you
+	try to run them a second time, ZC crashes.
+I decided to try to implement item scripts that run perpetually.
+	While I figured out how to make them run, I have yet to fingure out how
+	to properly control the loop so that it releases control back to the player
+	and so that it only occurs when there are item scripts that are properly
+	initialised by the player.
+Split weaponscripts into lweaponscripts and eweaponscripts.
+Added pointers for script types.
+Added set-up code.
+Added cases tol ffscript.cpp for running new types.
+Generally set up for the new types.
+Start setting up for screen, dmap, and Link scripts.
+Increased max ZASm registers from 256 to 1024.
+Increased stack sizes from 256 to 1024.
+Added stacks to sprites.
+Completed the addition of Explode(0 to all sprite classes in ZScript.
+	Untested at this time. I followed the same methods as npc->Explode, however
+	I had to add some functions to the SH classes.
+	( ZoriaRPG, 26th November, 2018 )
+
+//Alpha 1
+
+I had an open if statement in enemy::draw, in the statement:
+	`if (dontdraw()`
+
+	The statement was: `if (family == eeGANON)`, and this needed its own return instruction
+	to prevent drawing enemies that should always be invisible.
+	I also added old_draw(), in the event that we need to reference it in the future.
+
+	Further, we need to update enemy::drawblock() for enemies larger than 1x1.	
+	( ZoriaRPG, 25th November, 2018 )
+
+I increased the sprite cap from 255 to 255*256.
+	This fixed particle issues with npcs, but I don't want particles to end up
+	with stack[256] when we add sprite scripts, or to have such an increase
+	cause other ill side-effects, so we need a better long-term solution.
+Added cset, and colour and other values to sprite::explode.
+	The reason that not all enemies explode if called in a loop, is because
+	each pixel counts as one sprite, and exploding all of them exceeds the
+	per-screen sprite cap!
+Calling npc->Explode() no longer crashes ZC, and it works for
+	some npcs.
+	It seems that explosions only occur for some CSets.
+Began adding explode() functions to create particle explosions
+	on enemies, and in future, all sprites. (Unstable in this commit!)
+	I also renamed the flags for Link->WarpEx(),to clarify their intent, and I
+	added flags to WarpEx() to allow setting continue points and entrance points
+	on all warp types.
+Added Link->Explode(int type) to call the particle explosions
+	used by Farore's Wind, at any time, by script.
+Corrected placement of call to sfx() in Link->WarpEx() to
+	ensure that warp sounds play.
+Fixed setting Entrance/Continue Screen and DMap for calls made with a type
+	of Entrance/Exit.	
+Fixed values in array for Link->WarpEx(int ptr[]) not being
+	divided by 10000, and fixed warp return point selection (mapscreen ID).
+	( ZoriaRPG, 22nd November, 2018 )
+	
+Docs: Added docs for Link->WarpEx() as LinkWarpEx.txt
+Refactor: Link->WarpEx() Coordinates Versus Warp Return Square 
+	I changed the behaviour of selecting either raw coordinates, or
+	selecting a warp return square with Link->WarpEx()
+
+		If 'x' and 'y' are both > -1, then they are raw coordinates as always.
+		If 'x' < 0, THEN 'y' is the warp return square type, using positive integers.
+
+	This allows using the warp return constants in std.zh, and it prevents a
+	possible ID clash from both values trying to establish the square ID.
+Added Link->WarpEx(int ptr[])
+	This takes an array as its args, sized as either 8 or 9!
+
+	Valid array params are:
+	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags})
+	and
+	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags,forcedir}
+
+		If x, or y is < 0, then the function will use the negative value as a warp
+		return square.
+
+		e.g., -1 is Warp Return A, -2 is Warp Return B
+
+		You can either accept the engine's setting for what Link's Dir should be
+		after warping him, or force a dir.
+
+		Warp Flags are:
+		warpFlagKILLSCRIPTDRAWS: Don't kill script drawing during the warp.
+		warpFlagKILLSOUNDS: Don't kill playing sounds during the warp.
+		warpFlagKILLMUSIC: Don't kill playing music during the warp.
+
+		Their values are:
+		warpFlagKILLSCRIPTDRAWS 0x01
+		warpFlagKILLSOUNDS 0x02
+		warpFlagKILLMUSIC 0x04
+
+		Add them together to calculate a flag.
+
+		Warp types are:
+
+		Warp Effects are:
+		warpEffectNONE: No visual effect.
+		warpEffectZap: Zap Effects
+		warpEffectWave: Wave Effects
+		warpEffectInstant: Black screen.
+		warpEffectOpen: Calls the opening wipe.
+
+	You may play a special sound (e.g. Magic Mirror) during the warp.
+Move private vars and functions into public (Link.h)
+	To speed up the process of testing Link->WarpEx(), I moved a
+	large number of private vars and functions into public.
+
+	I'll move them back, and make public accessors, once I'm sure that everything
+	works as I intend.
+	( ZoriaRPG, 21st November, 2018 )
+
+Modules: Allow Suppressing NES Title Screen Animation
+Modules: Add Separate Values for All Three Title Screen Types
+	Added separate fields for all copyright string values, for each
+	of the three title screen types. Further, starting a string with a hyphen
+	will prevent it from being displayed.
+Updated module files, and set up default strings in Default Module.
+	( ZoriaRPG, 20th November, 2018 )
+
+Modules: Add Title Screen Copyright Strings 
+	I added vars for copyright strings on the title screen, but I
+	only tested them on the 2.5 title screen.
+Module Files: Update for new 6th->10th quest fields.
+Modules: Added 6th->10th Quests and Use `num_quest_files`.
+	Quest filename validation, and quest title screen skip names
+	now use `num_quest_files` to determine how many entries exist.
+
+	Added fields for 6th, 7th 8th, 9th, and 10th.
+
+	Clamped valid quest IDs (moduledata.num_quest_files) between 1 and 10.
+Modules: Add Default NSF Tracks to Module
+Corrected behaviour to display 'Misc. Attr. 10' on Data 2 tab
+	of the enemy editor for the enemy types that we added to the EE field name
+	functions in 2.55.
+	We were cloning eeNONE before, which had a yes/no menu that is not valid on
+	these other types.
+Modules: Add base_NSF to Modules.
+	Removed hardcoded 'zelda.nsf' from source. The base NSF used
+	by the title screen, ending sequence, and other game facets is now set
+	by the module file.
+Modules: Added itemclass help strings.
+	All itemclass help strings may now be set by the user.
+Modules Fix: Gohma Family String 
+	Fixed enemy family type token for module file, for Gohma family.
+	( ZoriaRPG, 19th November, 2018 )
+
+Modules Chore: Adjust item class strings.
+	Adjusted default values for item classes 89 through 255.
+	Fixed 'ic_last' not to display as 'last'.
+Module Fixes: Correct Offsets for iclass_script1 and fix crashes.
+	Corrected offsets for script type item classes, and for ice rod
+	item class. I had forgotten to put "iclass_last" in the string arrays. :/
+Fix crash when trying to read item names > 88.
+Modules (Fix): Correct order of Custom Items and Special Combined Items 
+	Corrected the order of the strings (item class help) for the following:
+		Bow & Arrow Class
+		Potion Or Letter Class
+		Custom 01 through Custom 20
+	I previously had Bow/Arrow and Potion/Letter BEFORE custom classes, but they
+	belong AFTER them, and before the strings for undefined weapons.
+Modules: Added Item Class Help Strings to Modules
+	Added help strings for all item classes to the module format.
+	If the module fields are blank, then ZQuest will use the internal defaults.
+
+	Module data for these help strings is an OVERRIDE!
+	( ZoriaRPG, 17th Noivember, 2018 )
+	
+Fix: Inverted porting of qr_NONBUBBLEMEDICINE
+	If the QR is active, the flag should NOT be active; this behavior was inverted previously.
+	( Venrob, 17th November, 2018)
+	
+Add Modules to ZC and to ZQuest in main 2.55 branch. 
+	( ZoriaRPG, 17th November, 2018 )
+
+Modules: Added Counters (in Item Editor) and LWeapon Types (Item Editor, or future)
+Modules: Add EWeapon Names in Enemy Editor to Modules
+Modules: Add Built-In Guy Names to Modules
+Modules: Add Enemy Walk Styles to Modules
+Modules: Added Room Types to Modules
+Modules: Add Map Flags to Modules
+Fix: mcDROPBOSSKEY to mfDROPBOSSKEY
+Fixed type of mcLIFTPOT to mfLIFTPOT
+	Begin adding map flags to modules.
+Modules: Update classic.zmod with Combo Types
+Modules: Add Combo Types
+	( ZoriaRPG, 16th November, 2018 )
+
+Module: Update Classic Module:
+	Added the remainder of the 511 item families to the Classic Module
+Module: Support all 511 Item Families:
+	The user can now set all 511 Item Families in the module file.
+	Families left blank will retain their 'zz' number.
+Modules: Add Item Families to Module:
+	The user can now establish custom item names (excluding the
+	new 'Script' weapon items for the present), in their module files.
+	The string values are for the Item Editor, and Link's Init Item Data.
+Modules: Next set of strings to add.
+Module: Add Enemy Anims to Classic Module
+Modules: Add Enemy Animations 
+	Added enemy animation types to the module format.
+Module: Use Default for Enemy family if Not Set:
+	If the module lacks an entry for an enemy family name, we use
+	the old default.
+Modules: Set Enemy Family from Module File:
+	Added the ability to set enemy family type names from a
+	module file. This seems to work as expected.
+Modules: Begin adding Enemy Family Names
+	( ZoriaRPG, 15th November, 2018 )
+
+Fixed when the module filename is loaded, so that we can change
+	the filename from default.zmod.
+Module: Fix crash on longer `qst.dat` filenames:
+	Increased temp_filename[32] to [64] to allow for longer
+	filenames for `qst.dat` when using modules.
+Modules: Fix crashes with qst.dat
+Module: Fix ZQuest not using module datafiles.
+Removed extra 's' in EnemiesAlive() [std_functions.zh]
+Update build information.
+ZC and ZQuest now properly save the current installed module to
+	their config files, and ZC now properly releases config(module) back to
+	config(zc.cfg) after loading a module.
+The number of serialised quests is now set in the module.x
+Update `default` module file.
+Quest skip names (e.g. ZELDA, JEAN') are now set by the module
+	file, and the behaviour for incrementing the quest after winning the game
+	is also determined by the module file.
+Zelda Classic Player now uses the module data for default quests,
+	and for default datafiles. It does not yet use the skip names, or the quest
+	ordering var.
+Fixed ZC (AGAIN!!) so that fullscreen is NOT the default. 
+Ensure we're using zc.cfg where it belongs.
+Fix a modules crash.
+	( ZoriaRPG, 14th November, 2018 )
+
+Added a byte to determine if we use the old hardcoded behaviour
+	for determining in what border the player plays the quests, or if we run
+	them in a strict linear sequence.
+Added a default module file (default.zmod), and split module file into the following sections:
+	[ZCMODULE] : Basic Settings
+	[QUESTS] : Quest filenames
+	[NAMEENTRY] : Names to enter on the name entry menu to skip quests.
+	[DATAFILES] : The main datafiles used by ZC and ZQuest.
+	[ENEMIES] : Enemy names, and family names; property names.
+	[ITEMS] : Item Family names.
+	[COMBOS] : Combo type, and flag names.
+Added datafiles to the modules structs and class functions.
+Try loading and tracing module data.
+Added a debug routine to trace what is loaded into the zcmodule
+struct fields as ZCModule::debug() 
+Began incorporating modules for ZC and ZQuest in the live code.
+	Set up the struct, the class, and the pointers.
+Begin adding a module system to ZC and ZQuest:
+	This consists of `class ZModule` and `struct module`.
+
+Optimised data loaders to use (unsigned), and fixed BC::checkGuy
+	so that it uses 1 to MAX, not 0 to MAX. You can't create npc ID 0!
+Optimised npcdata macros to use ( unsigned ).
+I also fixed a typo in a screendata macro (that isn't called).
+	It was trying to validate ri->npcdataref, but it uses tempscr!
+Added a sanity check to mapdata->Get/SetFFCInitD() to validate
+	the ri->mapsref value, prior to accessing a map.
+	( ZoriaRPG, 13th November, 2018 )
+
+Merge and update cheat modifier keys. 
+	( ZoriaRPG, 10th November, 2018 )
+
+Fix: Don't offset blits from bitmaps!
+Added Screen->Lines(int layer, int arr[]),
+	Screen->DrawTiles(int layer, int arr[]),
+	Screen->DrawCombos(int layer, int arr[])
+Fixed how user bitmaps work, and fixed bitmap->Blit()
+	The user bitmaps now work, although some offsets may be incorrect.
+When invoking PutPixels(), the drawing mode wasn't being reset to
+	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	This created visual bugs that modified the UI colours and generated other,
+	random colour events.
+	This fixes that issue.
+Added Screen->DrawPixels() to ZScript
+	This is wholly new, and not based on Gleeok's original function PixelArray()
+	in the old master repos.
+	The args are: int layer, int points[]={x,y,colour,opacity}, int rx, int ry, float deg.
+
+	Example:
+
+	int points[16] = { 20,20,3,128, 20,21,4,128, 20,22,0x11,64, 20,23,0x12,128 };
+		Screen->PutPixels(5,points,0,0,0);
+
+Corrected the indices of sdci[] that FastCombo() uses.
+Added a fix for ensuring that DrawScreen(),
+	DrawLayer(), and FastCombo() respect the CSet2 value of combos.
+	It does not yet affect DrawCombo().
+Fixed crashes and visual bugs when editing MIDIs that have
+	filenames longer than 26 characters.
+Clear User Created Bitmap on Creation.
+Changed param 2 in Blit(0 from float to untyped.
+	This allows passing a bitmap pointer, or specifying a value.
+Added all drawing functions to the bitmap type.
+Added bitmap->Blit(). This uses the same format as DrawBitmapEx(), except
+	that instead of a source bitmap, it uses a destination bitmap.
+	( ZoriaRPG, 6th November, 2018 )
+
+Changelog: Added error returns to mapdata->
+   GetFFCInitD(), SetFFCInitD(), GetFFCInitA(), SetFFCInitA()
+   ...if ffc id or index is out of bounds.
+	( ZoriaRPG, 5th November, 2018 )
+
+Allow custom cheat modifier keys: Save/Load config added for cheat mod keys.
+Fixed FFC InitD pulling wrong FFC data,. Properly offset FFC indexes
+	( Venrob, 31st October, 2018 )
+
+Added FFCBF_ constants to std_constants.zh for use with mapdata->FFCFlags[]
+	( Venrob (27th October, 2018 )
+
+
+Changed array sizes for mapdata ffc arrays from size 32 to size 33.
+	Index[0] will now return an error.
+	This is to ensure uniformity between the old ffc namespace and the mapdata namespace:
+	FFC uses a range of 1 to 32, and mapdata  (previously using a range of 0 to 31), is now identical.-Z
+
+Also fixed compiler error in previous commit -V
+
+Corrected behaviour of all mapdata FFC variables and arrays. -Z
+Corrected transposed values for mapdata->FFCEffect*[] and mapdata->FFCTile*[] height 
+and width.
+Further removed erroneous vbounding madness. What was I thinking?! -Z
+	( Venrob, for ZoriaRPG, 27th October, 2018 )
+	
+Added missing case for BITMAPEXR to script_drawing.cpp switch(command) per ZoriaRPG.
+Re-added case for BITMAPEXR that was lost in migration from DD Master. -Z
+	( Venrob, for ZoriaRPG, 26th October, 2018 )
+
+Fix VBound range limit on some tints.
+	( Venrob, 25th october, 2018 )
+
+Fix Link's invisibility state not being properly cleared. 
+	( Venrob, 24th october, 2018 )
+
+Fix: Crash when loading invalid map, dmapdata->Map wrong return:
+	Sanity checks added for map data. dmapdata->Map now adds +1 in the getter, 
+	and -1 in the setter, to offset the values so 
+	that they match Game->LoadMapData's parameter for map.
+Fixed crash when compiling any scripts due to gametable 'Create' and not 'CreateBitmap' 
+	entry in table. The parser could not match the tokens and was getting confused. 
+	* There is no handling for an entry in the arrays with no matching body! -Z
+	( Venrob, 23rd October, 2018 )
+
+Began adding drawing commands to *bitmap.
+Added Bitmap->Create(h,w), and Game->CreateBitmap(h,w)
+Integrated GetPixel with user bitmaps.
+	( ZoriaRPG, 23rd October, 2018 )
+
+Fix Tint Palette leaking into title screen and in dark rooms. Added tempgreypal checks 
+in loadfadepal and moved palette restore from in game_over to just after all quit 
+conditions in main().
+	( Venrob, 23rd October, 2018 )
+
+Fix Tint/Monochrome DMap transition issues. There is still an issue with dark rooms! 
+	Don't know how to fix it, but pretty much everything else seems okay? 
+	I didn't test Ganon/Winning the game/Picking up ganon's triforce from the 
+	dust pile, though.
+	( Venrob, 22nd october, 2018 )
+
+Fixed tokens for dmapdata, and for combodata, mididata, musicdata.
+Added some constants to std.zh.
+	(ZoriaRPG, 21st Oct, 2018 )
 
 //2.55 Alpha 1 (Candidates)
 
@@ -124,7 +4475,7 @@ Ported qr_SLOWCHARGINGWALK to ITEM_FLAG10 of swords
 	Set qr_SLOWCHARGINGWALK's checkbox type to dummy
 	Ported the flag for V_ITEMS<41
 	Marked qr /*DEPRECATED*/ in zq_rules.cpp
-Ported qr_SWORDMIRROR to ITEM_FLAG9 of swords  …
+Ported qr_SWORDMIRROR to ITEM_FLAG9 of swords  ?
 	Renamed QR to reflect its' effect on enemies/scripted sword beams
 	Named flag in zq_custom.cpp
 Renamed "Sword Beams reflect off mirrors" to "Sword Beams Reflect off Prism/Mirror Combos"
@@ -531,7 +4882,7 @@ the declaration type.
 	( grayswandir, 1st September, 2018 )
 	
 Added constants for GetScreenEFlags()
-	( venrob, 31st August, 2018 )
+	( Venrob, 31st August, 2018 )
 	
 
 //2.55 Preliminary 8
@@ -558,7 +4909,7 @@ Added npc->HitBy[LW_PARENTITEM] : This stores the parent Item ID that generated 
 ( ZoriaRPG, 29th August, 2018 )
 
 Fixed values for new combo flag constants, starting with 106. 
- ( VenRob, 29th August, 2018 )
+ ( Venrob, 29th August, 2018 )
 
 //2.55 Preliminary 6
 
@@ -583,6 +4934,7 @@ Parser Fixes:
 	Add back in missing tokens to scanner (lost in refactor)
 	( grayswandir, 22nd August, 2018 )
 
+//2.54 Changes
 //Alpha 35
 
 Changed the enemy editor default for hitsound from 0 (None)

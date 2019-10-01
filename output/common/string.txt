@@ -2,7 +2,7 @@
 --- String.zh: string-handling constants and functions ---
 ==========================================================
 
-//Updated 10th January, 2018
+//Updated 15th May, 2019
 
 ===============
 -- Constants --
@@ -128,7 +128,7 @@ void arrayset(int a[], int a0, int a1, int a2,...)
 ///////////////////
 /// String Copy ///
 ///////////////////
-void strcpy(int dest[], int src[])
+void std::string::strcpy(int dest[], int src[])
  * Copys string 'src' into string 'dest' without checking for overflow in 'dest'
  
 void strcpy(int dest, int dpos, int src, int spos) 
@@ -155,7 +155,7 @@ void remnchr(int string, int pos, int n)
 ////////////////////
 /// String Length///
 ////////////////////
-int strlen(int string[])
+int std::string::strlen(int string[])
  * Returns the length of string 'string'
 
 //////////////////////////
@@ -286,7 +286,7 @@ int strcspn(int str, int pos, int keys)
 //////////////////////
 /// String Compare ///
 //////////////////////
-int strcmp(int str1[], int str2[])
+int std::string::strcmp(int str1[], int str2[])
  * Iterates through str1 and str2 until a character is found which is not the same in
  * both strings, and then returns > 0 if the character is larger in str1, and < 0 if it is
  * larger in str2. Returns 0 if the strings are equal
@@ -294,7 +294,7 @@ int strcmp(int str1[], int str2[])
 int strcmp(int str1, int pos1, int str2, int pos2)
  * As strcmp(), but with a specified starting position for each string.
  
-int strncmp(int str1[], int str2[], int n)
+int std::string::strncmp(int str1[], int str2[], int n)
  * strcmp up to 'n' characters
  
 int strncmp(int str1, int pos1, int str2, int pos2, int n)

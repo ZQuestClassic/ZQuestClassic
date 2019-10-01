@@ -1,0 +1,51 @@
+<!-- ASE - Allegro Sprite Editor -->
+<!-- Copyright (C) 2001-2009 by David Capello -->
+<jinete>
+<window text="New Sprite" name="new_sprite">
+  <box vertical>
+    <box horizontal>
+      <box vertical expansive>
+        <separator text="Size:" left horizontal />
+        <box vertical expansive>
+          <box horizontal>
+            <box vertical homogeneous>
+              <label text="Width:" />
+              <label text="Height:" />
+            </box>
+            <box vertical homogeneous expansive>
+              <entry expansive name="width" maxsize=8 magnetic tooltip="Width of the new sprite (in pixels)" />
+              <entry expansive name="height" maxsize=8 tooltip="Height of the new sprite (in pixels)" />
+            </box>
+          </box>
+        </box>
+      </box>
+      <box vertical>
+        <separator text="Color Mode:" left horizontal />
+        <box vertical homogeneous>
+          <radio name="radio1" text="&RGB Color" group=1 tooltip="RGBA color mode\n(32 bits per pixel)" />
+	  <radio name="radio2" text="&Grayscale" group=1 tooltip="Value and Alpha\n(16 bits per pixel)" />
+	  <radio name="radio3" text="&Indexed" group=1 tooltip="Using a palette of 256 colors\n(8 bits per pixel)" />
+	</box>
+      </box>
+    </box>
+    <separator text="Background:" left horizontal />
+    <view maxsize expansive>
+      <listbox name="bg_box">
+        <listitem text="Transparent" />
+        <listitem text="Black" />
+        <listitem text="White" />
+        <listitem text="Magenta" />
+        <listitem text="Background Color" />
+      </listbox>
+    </view>
+
+    <box horizontal>
+      <box horizontal expansive />
+      <box horizontal homogeneous>
+	<button text="&OK" name="ok_button" magnetic width="60" />
+	<button text="&Cancel" />
+      </box>
+    </box>
+  </box>
+</window>
+</jinete>

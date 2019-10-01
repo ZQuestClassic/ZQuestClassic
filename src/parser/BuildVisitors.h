@@ -4,6 +4,7 @@
 #include "ASTVisitors.h"
 #include "ByteCode.h"
 #include "ZScript.h"
+#include "Scope.h"
 #include <algorithm>
 #include <vector>
 #include <set>
@@ -13,13 +14,16 @@ namespace ZScript
 	class BuildOpcodes : public RecursiveVisitor
 	{
 	public:
-		BuildOpcodes();
+		BuildOpcodes(Scope* curScope);
 
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
+		void literalVisit(AST& node, void* param = NULL);
+		void literalVisit(AST* node, void* param = NULL);
 	
 		virtual void caseDefault(AST& host, void* param);
 		virtual void caseSetOption(ASTSetOption& host, void* param);
+		virtual void caseUsing(ASTUsingDecl& host, void* param = NULL);
 		// Statements
 		virtual void caseBlock(ASTBlock &host, void *param);
 		virtual void caseStmtIf(ASTStmtIf &host, void *param);
@@ -37,6 +41,7 @@ namespace ZScript
 		virtual void caseFuncDecl(ASTFuncDecl &host, void *param);
 		virtual void caseDataDecl(ASTDataDecl& host, void* param);
 		virtual void caseDataTypeDef(ASTDataTypeDef& host, void* param);
+		virtual void caseCustomDataTypeDef(ASTDataTypeDef& host, void* param);
 		// Expressions
 		virtual void caseExprAssign(ASTExprAssign &host, void *param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
@@ -68,8 +73,10 @@ namespace ZScript
 		virtual void caseExprBitXor(ASTExprBitXor &host, void *param);
 		virtual void caseExprLShift(ASTExprLShift &host, void *param);
 		virtual void caseExprRShift(ASTExprRShift &host, void *param);
+		virtual void caseExprTernary(ASTTernaryExpr &host, void *param);
 		// Literals
 		virtual void caseNumberLiteral(ASTNumberLiteral& host, void* param);
+		virtual void caseCharLiteral(ASTCharLiteral& host, void* param);
 		virtual void caseBoolLiteral(ASTBoolLiteral& host, void* param);
 		virtual void caseStringLiteral(ASTStringLiteral& host, void* param);
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);
@@ -77,11 +84,11 @@ namespace ZScript
 		// Types
 		void caseDataType(ASTDataType& host, void* param) {}
 
-		vector<Opcode *> getResult() const {return result;}
+		std::vector<Opcode *> getResult() const {return result;}
 		int getReturnLabelID() const {return returnlabelid;}
-		list<long> *getArrayRefs() {return &arrayRefs;}
-		list<long> const *getArrayRefs() const {return &arrayRefs;}
-		void castFromBool(vector<Opcode *> &result, int reg);
+		std::list<long> *getArrayRefs() {return &arrayRefs;}
+		std::list<long> const *getArrayRefs() const {return &arrayRefs;}
+
 	private:
 		void addOpcode(Opcode* code);
 
@@ -90,17 +97,17 @@ namespace ZScript
 	
 		void deallocateArrayRef(long arrayRef);
 		void deallocateRefsUntilCount(int count);
-
-		vector<Opcode *> result;
+		
+		std::vector<Opcode *> result;
 		int returnlabelid;
 		int returnRefCount;
 		int continuelabelid;
 		int continueRefCount;
 		int breaklabelid;
 		int breakRefCount;
-		list<long> arrayRefs;
+		std::list<long> arrayRefs;
 		// Stack of opcode targets. Only the latest is used.
-		vector<vector<Opcode*>*> opcodeTargets;
+		std::vector<std::vector<Opcode*>*> opcodeTargets;
 
 		// Helper Functions.
 
@@ -125,19 +132,20 @@ namespace ZScript
 	class LValBOHelper : public ASTVisitor
 	{
 	public:
+		LValBOHelper(Scope* scope);
 		virtual void caseDefault(void *param);
 		//virtual void caseDataDecl(ASTDataDecl& host, void* param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
 		virtual void caseExprIndex(ASTExprIndex &host, void *param);
-		vector<Opcode *> getResult() {return result;}
+		std::vector<Opcode *> getResult() {return result;}
 	private:
 		void addOpcode(Opcode* code);
 
 		template <class Container>
 		void addOpcodes(Container const& container);
 	
-		vector<Opcode *> result;
+		std::vector<Opcode *> result;
 	};
 
 
@@ -164,7 +172,7 @@ namespace ZScript
 	public:
 		void caseLabel(LabelArgument &host, void *param)
 		{
-			map<int, int> *labels = (map<int, int> *)param;
+			std::map<int, int> *labels = (std::map<int, int> *)param;
 			int lineno = (*labels)[host.getID()];
         
 			if(lineno==0)
