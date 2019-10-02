@@ -8331,7 +8331,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs<11) ? cs+1:0;
+                    cs = (cs<15) ? cs+1:0;
                     
                 redraw=true;
                 break;
@@ -8353,7 +8353,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                     register_blank_tiles();
                 }
                 else if(edit_cs)
-                    cs = (cs>0)  ? cs-1:11;
+                    cs = (cs>0)  ? cs-1:15;
                     
                 redraw=true;
                 break;

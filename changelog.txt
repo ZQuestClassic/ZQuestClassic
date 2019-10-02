@@ -2,6 +2,9 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Allow viewing CSets 12, 13, 14, and 15 in the tile editor. 
+	( ZoriaRPG, 2nd October, 2019 )
+
 Applied the same changes to writing to MouseY, during Quake
 	that I applied to reading it. 
 Backported the new ZScript Compiler sound effects from 2.55.
@@ -14,7 +17,7 @@ Fixed a bug where reading the mouse Y position during Quake shaking
 	returned the wrong values.
 	( ZoriaRPG, 30th September, 2019 )
 
-You can now save the currnt (single0 palette in the level
+You can now save the currnt (single) palette in the level
 	palette editor, then use the grab function to load it in nother quest
 	or another palette index.
 Updated Classic.zh:
