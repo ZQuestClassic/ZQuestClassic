@@ -1,5 +1,138 @@
 //2.55 Changes
 
+//Alpha 32
+Allow Selecting CSets 12 to 15bin the Tile Editor
+	( ZoriaRPG, 2nd October, 2019 )
+	
+Fixed all instances of Mouse Y positioning (read and write)
+	by script having inappropriate values during Quake screen shaking.
+Fixed copying/pasting mapscreens missing newmapscr data
+ such as script data.
+	( ZoriaRPG, 30th September, 2019 )
+
+You can now save the currnt (single0 palette in the level
+	palette editor, then use the grab function to load it in nother quest
+	or another palette index.
+File: Add Abstract for Combo Script Implementation
+	( ZoriaRPG, 27th September, 2019 )
+
+Fixed screen palette not properly wrappping from,
+	0 to 511 with < and > hotkeys.
+	( ZoriaRPG, 26th September, 2019 )
+
+Updated zscript.txt and fixed datestamp on std_functions.
+std.zh: Added void SetEquipment(int a int b).
+Fix: Writing Link->Equipment now works properly.
+Files: Append Addons to ./output/Addons/ 
+	Addons:
+	DXGL
+	MSVC10 C++ Runtime (for DXGL)
+	AntiMicro
+	ZCL
+Added 'Clear' buttons to Joystick Button and Joystick Direction
+	panels for every JS Button.
+	The user can now clear them to 0 as desired.
+Reducing the quest mapcount now also clamps the mapscreens
+	that the nine panel buttons (map_page[9]) point to, so that you cannot
+	visit an invald map (and thus crash ZQ).
+	( ZoriaRPG, 23rd September, 2019 )
+
+Corrected npc->Attributes[] and ffc->Flags[] in zscript.txt
+Updated ZScript.txt with int Version and notes on GetRenderTarget.
+Docs: Updated ZScript.txt with GetRenderTarget().
+	This function is in 2.53 as of R3.
+Added hotkeys for Save and 'Save As':
+	Control+S : Save
+	Control+Shift+S: Save As
+	S: onString (edit screen string)
+	( ZoriaRPG, 22nd September, 2019 )
+
+std: Added CMB_QUADRANT_* constants for combo solidity/CSet2 mask bits.
+	( ZoriaRPG, 21st September, 2019 )
+
+Scripts: Added Example Keyboard Scripts
+Fix: Compiler audio vars now properly sied to byte.
+Compiler SFX now end as soon as their dialogue exits,
+	which also helps to prevent  a crash if that sfx is playing while
+	ZQ exits.
+Added the following config ints for ZQ Editor Compiler
+	Audio settings (in zquest.cfg):
+
+	compile_success_sample = 20
+	compile_error_sample = 28
+	compile_finish_sample = 34
+	compile_audio_volume = 200
+Add audio alerts to the Compiler in the ZQuest Editor,
+	at the following three prompts: Ha;t onError, Script Copilation Success,
+	Script Assign Success.
+
+	T/B/A, the option to mute them again.
+	( ZoriaRPG, 19th September, 2019 )
+
+Default Module: Add New Assets File (from Binx)
+	( ZoriaRPG, 17th September, 2019 )
+
+Add file information/version/date to Weapon Dir Control Demo Script
+Item Script: Add Passive Weapon Control Demo Script
+Fix: Fixed a typo in exploderang demo script.
+Add extra +2 damage to explosion because brangs are usually power 0.
+LWeapon Script: Add Exploderang Demo LWeapon Script File
+std.zh v1.6003
+	Fixed WeaponTypeToID()
+	Added nstants for version year, month, day, hour, and minute.
+	Added functions: __stdzh_getVersionDate(), __stdzh_getVersionTime().
+	Flipped Superbomb Blast and Unexploded Weapon in WeaponTypeToID.
+	( ZoriaRPG, 16th September, 2019 )
+
+Updated classic.zh to v2.10
+	Moved things into a new namespace, classic_zh
+	Renamed old identifiers to use namespace.
+	Added version, date, and time data.
+	Added Z2 Lantern script.
+	Refactored older scripts for performance.
+Ensure that when reading an SRAM file, we ABORT of the
+	SRAM file header version is GREATER than the SRAM_VERSION of the
+	current running ZC build.
+	( ZoriaRPG, 15th September, 2019 )
+
+Fix: bitmap->FastCombo() param read offset
+	Using the passed CSet for the combo isn't gonna work.
+	( Venrob, 12th September, 2019 )
+	
+Chore: Comment out some logging
+Docs: wording
+	( Venrob, 11th September, 2019 )
+	
+Added 'bitmap->ClearToColor(int layer, int color)' to ZScript
+Fix: Fixes to ItemA and ItemB ZScript instructions
+std_constants: Add MIN/MAX_ITEMDATA
+	( Venrob, 9th September, 2019 )
+
+Further clamp moldorm on overworld screens.
+Hack: Prevent Moldorms from getting stuck on the bottom of the screen and pacing.
+	( ZoriaRPG, 9th September, 2019 )	
+
+Fix: 'for()' scoping
+	Needs to store a scope of its' own, the same way ASTBlock does.
+	( Venrob, 4th September, 2019 )
+
+Added dmapdata->ID
+	his value is read-only and returns the value of the dmapdata pointer;
+	or the current DMap (this) in dmapdata scripts.
+Copied the code to clear dmap script data, refinfo,
+	purge arrays, and clear initialised status from Link::dowarp
+	to FFCore.warp_link()--used by WarpEx() and Warp SCCs.
+Fixed the 8 d args in dmapdata scripts not always veing loaded
+	during normal warps.
+	( ZoriaRPG, 4th September, 2019 )
+
+Added FileSystem->FileExists(char32[] path)
+	As 'FileSystem->DirExists()', but, for files instead of directories.
+	Example: 'FileSystem->FileExists("zscript.txt")'
+Fix: Scoping error in BuildVisitor.cpp
+	This fixes an error causing #option to not fully work properly inside functions.
+	( Venrob, 2nd September, 2019 )
+	
 //Alpha 31
 Converted int SideWarpOverlayFlags to bool SideWarpOverlay[4]
 	and int TileWarpOverlayFlags to bool TileWarpOverlay[4] for
