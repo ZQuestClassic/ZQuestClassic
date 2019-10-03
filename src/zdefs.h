@@ -1110,6 +1110,115 @@ enum
     wMax
 };
 
+enum defWpnSprite
+{
+	//0
+	ws_0,
+	wsBeam = 0,
+	wsRefBeam = 1,
+	wsSword2 = 1,
+	wsSword3,
+	wsSword4,
+	wsBrang,
+	wsBrang2,
+	wsBrang3,
+	wsBomb,
+	wsSBomb,
+	wsBombblast,
+	//10
+	wsArrow,
+	wsArrow2,
+	wsFire,
+	wsWind,
+	wsBait,
+	wsWandHandle,
+	wsMagic,
+	wsRefFireball,
+	wsFireball = 17,
+	wsFireball2 = 17,
+	wsRock,
+	wsEArrow,
+	//20
+	wsEBeam,
+	wsRefMagic,
+	wsEMagic = 21,
+	wsSpawn,
+	wsDeath,
+	wsUnused24,
+	wsHammer,
+	wsHookshotHead,
+	wsHookshotChainH, 
+	wsHookshotHandle,
+	wsFireSparkle, //silver sparkle
+	wsSilverSparkle = 29, //silver sparkle
+	//30
+	wsGoldSparkle,
+	wsBrang2Sparkle,
+	wsBrang3Sparkle,
+	wsHammerSmack,
+	wArrow3,
+	wsEFire,
+	wsEWind,
+	wsMagicGauge,
+	wsDinFalling,
+	wsDinRising,
+	//40
+	wsDinTrailRising,
+	wsDinTrailFalling,
+	wsHookshotChainV,
+	wsMore,
+	wsUnused44,
+	wsUnused45,
+	wsSword1Slash,
+	wsSword2Slash,
+	wsSword3Slash,
+	wsSword4Slash,
+	//50
+	wsShadow,
+	wsShadowLarge,
+	wsBushLeaves,
+	wsFlowerClippings,
+	wsGrassGlippings,
+	wsTallGrass,
+	wsRipples,
+	wsUnused57,
+	wsNayLoveLeft,
+	wsNayLoveLeftReturn,
+	//60
+	wsNayLoveTrailLeft,
+	wsNayLoveTrailLeftReturn,
+	wsNayLoveRight,
+	wsNayLoveRightReturn,
+	wsNayLoveTrailRight,
+	wsNayLoveTrailRightReturn,
+	wsNayLoveShieldFront,
+	wsNayLoveShieldBack,
+	wsSubscreenVine,
+	wsByrnaCane,
+	//70
+	wsByrnaSlash,
+	wsLongshotHead,
+	wsLongshotChainH,
+	wsLongshotHandle,
+	wsLongshotChainV,
+	wsSbombblast,
+	wsEBomb,
+	wsESbomb,
+	wsEBombblast,
+	wsESbombblast,
+	//80
+	wsEFiretrail,
+	wsEFire2,
+	wsEFiretrail2,
+	wsIce,
+	wsHoverboots,
+	wsMagicFire,
+	wsQuarterHeartPieces,
+	wsByrnaBeam,
+	wsFirework,
+	wsLast
+};
+
 // phantom weapon types
 enum
 {

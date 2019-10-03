@@ -1470,6 +1470,87 @@ class LwpnH : public SH
 {
 
 public:
+	
+
+	static defWpnSprite getDefWeaponSprite(weapon *wp)
+	{
+		switch(wp->id)
+		{
+			case wNone: return ws_0;
+			case wSword: return ws_0;
+			case wBeam: return wsBeam;
+			case wBrang : return wsBrang;
+			case wBomb: return wsBomb;
+			case wSBomb: return wsSBomb;
+			case wLitBomb: return wsBombblast;
+			case wLitSBomb: return wsBombblast;
+			case wArrow: return wsArrow;
+			case wFire: return wsFire;
+			case wWhistle: return wsUnused45;
+			case wBait: return wsBait;
+			case wWand: return wsWandHandle;
+			case wMagic: return wsMagic;
+			case wCatching: return wsUnused45;
+			case wWind: return wsWind;
+			case wRefMagic: return wsRefMagic;
+			case wRefFireball: return wsRefFireball;
+			case wRefRock: return wsRock;
+			case wHammer: return wsHammer;
+			case wHookshot: return wsHookshotHead;
+			case wHSHandle: return wsHookshotHandle;
+			case wHSChain: return wsHookshotChainH;
+			case wSSparkle: return wsSilverSparkle;
+			case wFSparkle: return wsGoldSparkle;
+			case wSmack: return wsHammerSmack;
+			case wPhantom: return wsUnused45;
+			case wCByrna: return wsByrnaCane;
+			case wRefBeam: return wsRefBeam;
+			case wStomp: return wsUnused45;
+			case lwMax: return wsUnused45;
+			case wScript1: 
+			case wScript2:
+			case wScript3:
+			case wScript4:
+			case wScript5:
+			case wScript6:
+			case wScript7:
+			case wScript8:
+			case wScript9:
+			case wScript10: return ws_0;
+			case wIce: return wsIce; //new
+			case wFlame: return wsEFire2; //new
+			//not implemented; t/b/a
+			case wSound:
+			case wThrowRock: 
+			case wPot:
+			case wLit:
+			case wBombos:
+			case wEther:
+			case wQuake:
+			case wSword180:
+			case wSwordLA:  return wsUnused45;
+	    
+			case ewFireball: return wsFireball2;
+			case ewArrow: return wsEArrow;
+			case ewBrang: return wsBrang;
+			case ewSword: return wsEBeam;
+			case ewRock: return wsRock;
+			case ewMagic: return wsEMagic;
+			case ewBomb: return wsEBomb;
+			case ewSBomb: return wsESbomb;
+			case ewLitBomb: return wsEBombblast;
+			case ewLitSBomb: return wsESbombblast;
+			case ewFireTrail: return wsEFiretrail;
+			case ewFlame: return wsEFire;
+			case ewWind: return wsEWind;
+			case ewFlame2: return wsEFire2;
+			case ewFlame2Trail: return wsEFiretrail2;
+			case ewIce: return wsIce;
+			case ewFireball2: return wsFireball2;
+			default: return wsUnused45;
+		}
+	};
+	
     static int loadWeapon(const long wid, const char * const funcvar)
     {
         tempweapon = (weapon *) Lwpns.getByUID(wid);
@@ -1521,6 +1602,86 @@ class EwpnH : public SH
 {
 
 public:
+	
+	defWpnSprite getDefWeaponSprite(weapon *wp)
+	{
+		switch(wp->id)
+		{
+			case wNone: return ws_0;
+			case wSword: return ws_0;
+			case wBeam: return wsBeam;
+			case wBrang : return wsBrang;
+			case wBomb: return wsBomb;
+			case wSBomb: return wsSBomb;
+			case wLitBomb: return wsBombblast;
+			case wLitSBomb: return wsBombblast;
+			case wArrow: return wsArrow;
+			case wFire: return wsFire;
+			case wWhistle: return wsUnused45;
+			case wBait: return wsBait;
+			case wWand: return wsWandHandle;
+			case wMagic: return wsMagic;
+			case wCatching: return wsUnused45;
+			case wWind: return wsWind;
+			case wRefMagic: return wsRefMagic;
+			case wRefFireball: return wsRefFireball;
+			case wRefRock: return wsRock;
+			case wHammer: return wsHammer;
+			case wHookshot: return wsHookshotHead;
+			case wHSHandle: return wsHookshotHandle;
+			case wHSChain: return wsHookshotChainH;
+			case wSSparkle: return wsSilverSparkle;
+			case wFSparkle: return wsGoldSparkle;
+			case wSmack: return wsHammerSmack;
+			case wPhantom: return wsUnused45;
+			case wCByrna: return wsByrnaCane;
+			case wRefBeam: return wsRefBeam;
+			case wStomp: return wsUnused45;
+			case lwMax: return wsUnused45;
+			case wScript1: 
+			case wScript2:
+			case wScript3:
+			case wScript4:
+			case wScript5:
+			case wScript6:
+			case wScript7:
+			case wScript8:
+			case wScript9:
+			case wScript10: return ws_0;
+			case wIce: return wsIce; //new
+			case wFlame: return wsEFire2; //new
+			//not implemented; t/b/a
+			case wSound:
+			case wThrowRock: 
+			case wPot:
+			case wLit:
+			case wBombos:
+			case wEther:
+			case wQuake:
+			case wSword180:
+			case wSwordLA:  return wsUnused45;
+	    
+			case ewFireball: return wsFireball2;
+			case ewArrow: return wsEArrow;
+			case ewBrang: return wsBrang;
+			case ewSword: return wsEBeam;
+			case ewRock: return wsRock;
+			case ewMagic: return wsEMagic;
+			case ewBomb: return wsEBomb;
+			case ewSBomb: return wsESbomb;
+			case ewLitBomb: return wsEBombblast;
+			case ewLitSBomb: return wsESbombblast;
+			case ewFireTrail: return wsEFiretrail;
+			case ewFlame: return wsEFire;
+			case ewWind: return wsEWind;
+			case ewFlame2: return wsEFire2;
+			case ewFlame2Trail: return wsEFiretrail2;
+			case ewIce: return wsIce;
+			case ewFireball2: return wsFireball2;
+			default: return wsUnused45;
+		}
+	};
+
     static int loadWeapon(const long wid, const char * const funcvar)
     {
         tempweapon = (weapon *) Ewpns.getByUID(wid);
@@ -5792,6 +5953,8 @@ case SCREENCATCH:
 		{
 			Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,false,1,Link.getUID(),1));
 			ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+			//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+			//w->LOADGFX(FFCore.getDefWeaponSprite(ID)); //not needed here because this has access to wpn->prent
 		}
 		else
 		{
@@ -16603,7 +16766,7 @@ void do_createlweapon(const bool v)
 			//Lwpns.spr(Lwpns.Count() - 1)->ScriptGenerated = 1;
 			//Lwpns.spr(Lwpns.Count() - 1)->isLWeapon = 1;
 			weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-			w->LOADGFX(0);
+			w->LOADGFX(FFCore.getDefWeaponSprite(ID));
 			w->ScriptGenerated = 1;
 			w->isLWeapon = 1;
 			Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
@@ -16643,7 +16806,7 @@ void do_createeweapon(const bool v)
     //Ewpns.spr(Ewpns.Count() - 1)->ScriptGenerated = 1;
     //Ewpns.spr(Ewpns.Count() - 1)->isLWeapon = 0;
     weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-    w->LOADGFX(0);
+    w->LOADGFX(FFCore.getDefWeaponSprite(ID));
     w->ScriptGenerated = 1;
     w->isLWeapon = 0;
     //addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
@@ -32866,3 +33029,83 @@ int FFScript::getLinkOTile(long index1, long index2)
 	return the_ret*10000;
 	}
 }
+
+defWpnSprite FFScript::getDefWeaponSprite(int wpnid)
+{
+	switch(wpnid)
+	{
+		case wNone: return ws_0;
+		case wSword: return ws_0;
+		case wBeam: return wsBeam;
+		case wBrang : return wsBrang;
+		case wBomb: return wsBomb;
+		case wSBomb: return wsSBomb;
+		case wLitBomb: return wsBombblast;
+		case wLitSBomb: return wsBombblast;
+		case wArrow: return wsArrow;
+		case wFire: return wsFire;
+		case wWhistle: return wsUnused45;
+		case wBait: return wsBait;
+		case wWand: return wsWandHandle;
+		case wMagic: return wsMagic;
+		case wCatching: return wsUnused45;
+		case wWind: return wsWind;
+		case wRefMagic: return wsRefMagic;
+		case wRefFireball: return wsRefFireball;
+		case wRefRock: return wsRock;
+		case wHammer: return wsHammer;
+		case wHookshot: return wsHookshotHead;
+		case wHSHandle: return wsHookshotHandle;
+		case wHSChain: return wsHookshotChainH;
+		case wSSparkle: return wsSilverSparkle;
+		case wFSparkle: return wsGoldSparkle;
+		case wSmack: return wsHammerSmack;
+		case wPhantom: return wsUnused45;
+		case wCByrna: return wsByrnaCane;
+		case wRefBeam: return wsRefBeam;
+		case wStomp: return wsUnused45;
+		case lwMax: return wsUnused45;
+		case wScript1: 
+		case wScript2:
+		case wScript3:
+		case wScript4:
+		case wScript5:
+		case wScript6:
+		case wScript7:
+		case wScript8:
+		case wScript9:
+		case wScript10: return ws_0;
+		case wIce: return wsIce; //new
+		case wFlame: return wsEFire2; //new
+		//not implemented; t/b/a
+		case wSound:
+		case wThrowRock: 
+		case wPot:
+		case wLit:
+		case wBombos:
+		case wEther:
+		case wQuake:
+		case wSword180:
+		case wSwordLA:  return wsUnused45;
+    
+		case ewFireball: return wsFireball2;
+		case ewArrow: return wsEArrow;
+		case ewBrang: return wsBrang;
+		case ewSword: return wsEBeam;
+		case ewRock: return wsRock;
+		case ewMagic: return wsEMagic;
+		case ewBomb: return wsEBomb;
+		case ewSBomb: return wsESbomb;
+		case ewLitBomb: return wsEBombblast;
+		case ewLitSBomb: return wsESbombblast;
+		case ewFireTrail: return wsEFiretrail;
+		case ewFlame: return wsEFire;
+		case ewWind: return wsEWind;
+		case ewFlame2: return wsEFire2;
+		case ewFlame2Trail: return wsEFiretrail2;
+		case ewIce: return wsIce;
+		case ewFireball2: return wsFireball2;
+		default: return wsUnused45;
+	}
+};
+
