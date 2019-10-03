@@ -1,6 +1,20 @@
 //2.55 Changes
 
 //Alpha 32
+
+Feat/Fix:efault Weapon Sprites
+
+Changelog: Added enum defWpnSprite for default weapon sprite ID values.
+	Added FFCore.getWeaponSprite(int)
+	Added LWpnH::getWeaponSprite(*weapon)
+	Added EWpnH::getWeaponSprite(*weapon)
+	CreateLWeapon and CreateEWeapon now call getDefWeaponSprite().
+	!!! Blank/Newweaponsat present are coded to use sprite 45.
+	!!! We will need to reserve unique sprites for each, plus add a set of 
+	!!! rules for default sprites for each script weapon type
+	!!! and a rule that created weapons use a BLANK sprite (45) at all times.
+	( ZoriaRPG, 3rd October, 2019 )
+
 Allow Selecting CSets 12 to 15bin the Tile Editor
 	( ZoriaRPG, 2nd October, 2019 )
 	
