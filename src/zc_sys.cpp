@@ -80,6 +80,7 @@ extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for
 //extern int db;
 
 static const char *ZC_str = "Zelda Classic";
+extern char save_file_name[1024];
 #ifdef ALLEGRO_DOS
 static  const char *qst_dir_name = "dos_qst_dir";
 #elif defined(ALLEGRO_WINDOWS)
@@ -492,6 +493,7 @@ void save_game_configs()
     set_config_int(cfg_sect,"load_last",loadlast);
     chop_path(qstdir);
     set_config_string(cfg_sect,qst_dir_name,qstdir);
+    set_config_string("SAVEFILE","save_filename",save_file_name);
     set_config_int(cfg_sect,"ss_enable",ss_enable);
     set_config_int(cfg_sect,"ss_after",ss_after);
     set_config_int(cfg_sect,"ss_speed",ss_speed);
@@ -524,7 +526,6 @@ void save_game_configs()
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
     set_config_int(cfg_sect,"zc_192b163_compatibility",zc_192b163_compatibility);
     //set_config_int(cfg_sect,"zc_segment_drop_emulation",emulation_patches[emuITEMPERSEG]);
-    
     
     flush_config_file();
 }
