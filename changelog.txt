@@ -2,6 +2,9 @@
 
 //Alpha 33
 
+Added a config string for the filename of the SAVE file to zc.cfg.
+	( ZoriaRPG, 3rd October, 2019 )
+
 Added enum defWpnSprite for default weapon sprite ID values.
 	Added FFCore.getWeaponSprite(int)
 	Added LWpnH::getWeaponSprite(*weapon)

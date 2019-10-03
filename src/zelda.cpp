@@ -100,7 +100,9 @@ int strike_hint_counter=0;
 int strike_hint_timer=0;
 int strike_hint;
 int slot_arg, slot_arg2;
-char *SAVE_FILE = (char *)"zc.sav";
+char save_file_name[1024] = "zc.sav";
+//char *SAVE_FILE = (char *)"zc.sav";
+char *SAVE_FILE = NULL;
 int previous_DMap = -1;
 CScriptDrawingCommands script_drawing_commands;
 
@@ -4231,6 +4233,21 @@ int main(int argc, char* argv[])
     int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
     skip_title = used_switch(argc, argv, "-notitle") > 0;
     int save_arg = used_switch(argc,argv,"-savefile");
+    
+    if ( !strcmp(get_config_string("zeldadx","debug",""),"") )
+    {
+	for ( int q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
+        strcpy(save_file_name,"zc.sav");
+	SAVE_FILE = (char *)save_file_name;  
+	    
+    }
+    else if ( strcmp(get_config_string("zeldadx","debug",""),"zc.sav") )
+    {	    
+	for ( int q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
+        strcpy(save_file_name,get_config_string("SAVEFILE","save_filename",""));
+	SAVE_FILE = (char *)save_file_name;
+    }
+    //al_trace("Current save file is: %s\n", save_file_name);
     
     if(save_arg && (argc>(save_arg+1)))
     {

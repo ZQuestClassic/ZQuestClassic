@@ -81,6 +81,7 @@ extern int cheat_modifier_keys[4]; //two options each, default either control an
 //extern int db;
 
 static const char *ZC_str = "Zelda Classic";
+extern char save_file_name[1024];
 #ifdef ALLEGRO_DOS
 static  const char *qst_dir_name = "dos_qst_dir";
 #elif defined(ALLEGRO_WINDOWS)
@@ -429,8 +430,8 @@ void save_game_configs()
     set_config_int(cfg_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
     set_config_int(cfg_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
     set_config_int(cfg_sect,"analog_movement",analog_movement);
-   
-    //cheat modifier keya
+    
+	 //cheat modifier keya
    
     set_config_int(cfg_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
     set_config_int(cfg_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
@@ -504,6 +505,7 @@ void save_game_configs()
     set_config_int(cfg_sect,"load_last",loadlast);
     chop_path(qstdir);
     set_config_string(cfg_sect,qst_dir_name,qstdir);
+    set_config_string("SAVEFILE","save_filename",save_file_name);
     set_config_int(cfg_sect,"ss_enable",ss_enable);
     set_config_int(cfg_sect,"ss_after",ss_after);
     set_config_int(cfg_sect,"ss_speed",ss_speed);
