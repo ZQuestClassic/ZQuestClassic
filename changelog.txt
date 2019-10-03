@@ -1,10 +1,8 @@
 //2.55 Changes
 
-//Alpha 32
+//Alpha 33
 
-Feat/Fix:efault Weapon Sprites
-
-Changelog: Added enum defWpnSprite for default weapon sprite ID values.
+Added enum defWpnSprite for default weapon sprite ID values.
 	Added FFCore.getWeaponSprite(int)
 	Added LWpnH::getWeaponSprite(*weapon)
 	Added EWpnH::getWeaponSprite(*weapon)
@@ -15,6 +13,7 @@ Changelog: Added enum defWpnSprite for default weapon sprite ID values.
 	!!! and a rule that created weapons use a BLANK sprite (45) at all times.
 	( ZoriaRPG, 3rd October, 2019 )
 
+//Alpha 32
 Allow Selecting CSets 12 to 15bin the Tile Editor
 	( ZoriaRPG, 2nd October, 2019 )
 	
