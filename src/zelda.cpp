@@ -3283,14 +3283,14 @@ int main(int argc, char* argv[])
     skip_title = used_switch(argc, argv, "-notitle") > 0;
     int save_arg = used_switch(argc,argv,"-savefile");
     
-    if ( !strcmp(get_config_string("zeldadx","debug",""),"") )
-    {
-	for ( int q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-        strcpy(save_file_name,"zc.sav");
-	SAVE_FILE = (char *)save_file_name;  
+    //if ( !strcmp(get_config_string("zeldadx","debug",""),"") )
+    //{
+	//for ( int q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
+        //strcpy(save_file_name,"zc.sav");
+	//SAVE_FILE = (char *)save_file_name;  
 	    
-    }
-    else if ( strcmp(get_config_string("zeldadx","debug",""),"zc.sav") )
+    //}
+    /*else*/ if ( strcmp(get_config_string("zeldadx","debug",""),"zc.sav") )
     {	    
 	for ( int q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
         strcpy(save_file_name,get_config_string("SAVEFILE","save_filename",""));
