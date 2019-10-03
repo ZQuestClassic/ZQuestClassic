@@ -108,7 +108,7 @@
 #define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 33"                    //version of the program as presented in text
 #define IS_BETA             -33                         //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        33	
-#define DATE_STR            "3rd October, 2019, 13:34GMT"
+#define DATE_STR            "3rd October, 2019, 15:50GMT"
 #define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 33"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
