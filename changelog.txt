@@ -1,8 +1,44 @@
 //2.55 Changes
 
-//Alpha 33
+//Alpha 34
 
-Made all screen guys editable in the ZQ Editor, so that the user can give them SCRIPS!
+Parser: Add Pascal '<>' 'NOT EQUAL' Token.
+npc->Submerged should now also return true if Zora enemies
+	are underwater, and if Wallmaster enemies are inside walls.
+Move sprite->Submerged() to enemy::Submerged()
+Fixes to npc->Submerged()
+Add Sprite->Submerged:
+	Added bool npc->Submerged() to ZScript.
+CMake: Add bool option 'Want ZScript Compiler' (On by Default)
+	( ZoriaRPG, 5th October, 2019 )
+	
+Added QRs to enable/disable new DMap Subscreen Slots for testing. 	
+Parser Optimizations on if(false) and similar:
+	Shortcuts on `if`, `unless`, `if/else`, `if/unless`, `while`, `until`, and `for`
+		These will reduce the total ZASM linecount, as well as cause slight speed optimization,
+			when a compile-time constant is used for a condition.
+		Note: `for` will still run the initializer, even if it's condition is a constant false,
+			as the initializer is run before the condition is checked for the first time.
+	( Venrob, 5th October, 2019 )
+
+Feat: QRs to run DMapActive/PassiveSubscreen slots during active subscreen.
+Feat: Scripted Subscreen slots (in dmapdata) 
+	Slot: Passive Subscreen (dmapdata)
+	-runs constantly while on a dmap
+	Slot: Active Subscreen (dmapdata)
+	-runs continuously, like OnDeath, when you activate the subscreen.
+	-REPLACES the normal subscreen, running INSTEAD of it.
+	-Will still run with `Game->DisableActiveSubscreen==true`. To prevent this,
+		simply add `if(Game->DisableActiveSubscreen) Quit();` at the start.
+	New InitD (dmap->sub_initD[8])
+	-Shared between these 2 new slots	
+	Optimization: Changed `dmapscriptInitialised[512];` to `dmapscriptInitialised;`
+		as it was wasting 511 bytes that it didn't need.
+	( Venrob, 30th September 2019; MERGED 5th October, 2019 )
+
+
+//Alpha 33
+Made all screen guys viewable in the ZQ Editor. Editing the, as yet, does nothing. 
 	( ZoriaRPG, 5th October, 2019 )
 
 Fix: Revert a Check for .SAV File Filenames
