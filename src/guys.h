@@ -397,6 +397,7 @@ public:
     virtual bool animate(int index);
     bool canplace(int d);
     virtual void draw(BITMAP *dest);
+    virtual bool isSubmerged();
 };
 
 class eWallM : public enemy

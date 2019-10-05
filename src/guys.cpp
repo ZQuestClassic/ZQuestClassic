@@ -7678,6 +7678,14 @@ eLeever::eLeever(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     obeys_gravity = 0; //Seems that Leevers STUPIDLY ignored gravity in 2.50. -Z ( 23rd June, 2019 )
     //nets+1460;
     temprule=(get_bit(quest_rules,qr_NEWENEMYTILES)) != 0;
+    submerged = 0;
+}
+
+bool eLeever::isSubmerged()
+{
+	Z_scripterrlog("misc is: %d\n", misc);
+	return misc <= 0;
+	
 }
 
 bool eLeever::animate(int index)
@@ -7701,7 +7709,7 @@ bool eLeever::animate(int index)
             {
             case -1:  //submerged
             {
-		submerged = 1;
+		
                 if((dmisc1==2)&&(rand()&255))
                 {
                     break;
@@ -7726,7 +7734,7 @@ bool eLeever::animate(int index)
             
             case 0:
             {
-		submerged = 0;
+		
                 int s=0;
                 
                 for(int i=0; i<guys.Count(); i++)
@@ -7759,20 +7767,20 @@ bool eLeever::animate(int index)
             break;
             
             case 1:
-		submerged = 0;
+		
                 if(++clk2>16) misc=2;
                 
                 break;
                 
             case 2:
-		submerged = 0;
+		
                 if(++clk2>24) misc=3;
                 
                 break;
                 
 //        case 3: if(stunclk) break; if(scored) dir^=1; if(!canmove(dir)) misc=4; else move((fix)(d->step/100.0)); break;
             case 3:
-		submerged = 0;
+		
                 if(stunclk || frozenclock) break;
                 
                 if(scored) dir^=1;
@@ -7783,7 +7791,7 @@ bool eLeever::animate(int index)
                 break;
                 
             case 4:
-		submerged = 0;
+		
                 if(--clk2==16)
                 {
                     misc=5;
@@ -7793,7 +7801,7 @@ bool eLeever::animate(int index)
                 break;
                 
             case 5:
-		submerged = 0;
+		
                 if(--clk2==0)  misc=((dmisc1==2)?-1:0);
                 
                 break;
@@ -7803,7 +7811,7 @@ bool eLeever::animate(int index)
             
         default:  //random
 //      step=d->misc3/100.0;
-	    submerged = 0;
+	   
             step=dmisc3/100.0;
             ++clk2;
             
