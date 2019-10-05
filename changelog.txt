@@ -4,7 +4,7 @@
 
 Files: Add WinFlex/WinBison to ./other and unco,pressed al-gif to Repo.
 	Added the CORRECT versions of WnFlex and WinBison to the repo so that
-	anyone who wants t compile with MSVC has the files immmediately/
+	anyone who wants t compile with MSVC has the files immmediately.
 	Added ./other/algif_1.3 uncompressed to study the gif anim code. 
 Parser: Add Pascal '<>' 'NOT EQUAL' Token.
 npc->Submerged should now also return true if Zora enemies
