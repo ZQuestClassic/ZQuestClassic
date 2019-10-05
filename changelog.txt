@@ -2,6 +2,9 @@
 
 //Alpha 33
 
+Made all screen guys editable in the ZQ Editor, so that the user can give them SCRIPS!
+	( ZoriaRPG, 5th October, 2019 )
+
 Fix: Revert a Check for .SAV File Filenames
 	Fixed incorrect handling of save file filename checking 
 	that caused a bug where the save file was always loading the hardcode again.

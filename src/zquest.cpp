@@ -16952,8 +16952,9 @@ void build_bie_list(bool hide)
     bie[0].i = 0;
     bie_cnt=1;
     
-    for(int i=eOCTO1S; i<eMAXGUYS; i++)
+    for(int i=1; i<eMAXGUYS; i++)
     {
+	if ( i >= 11 && i <= 19 ) continue; //ignore segment components
         if(i >= OLDMAXGUYS || old_guy_string[i][strlen(old_guy_string[i])-1]!=' ' || !hide)
         {
             bie[bie_cnt].s = (char *)guy_string[i];
