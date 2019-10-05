@@ -8105,6 +8105,11 @@ void eWallM::draw(BITMAP *dest)
     //    tile = clk&8 ? 128:129;
 }
 
+bool eWallM::isSubmerged()
+{
+	return ( !misc );
+}
+
 eTrap::eTrap(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     ox=x;                                                     //original x
@@ -9307,6 +9312,11 @@ void eZora::draw(BITMAP *dest)
         
     update_enemy_frame();
     enemy::draw(dest);
+}
+
+bool eZora::isSubmerged()
+{
+	return ( clk < 3 );
 }
 
 eStalfos::eStalfos(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)

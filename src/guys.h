@@ -409,6 +409,7 @@ public:
     void wallm_crawl();
     void grablink();
     virtual void draw(BITMAP *dest);
+    virtual bool isSubmerged();
 };
 
 class eTrap : public enemy
@@ -502,6 +503,7 @@ public:
     virtual void facelink();
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
+    virtual bool isSubmerged();
 };
 
 class eStalfos : public enemy
