@@ -264,6 +264,7 @@ bool newScriptEngine();
 void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
+bool runActiveSubscreenScriptEngine();
 void doScriptMenuDraws();
 void initIncludePaths();
 void initRunString();
@@ -475,6 +476,7 @@ void clearTint();
 void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
+void initZScriptActiveSubscreenScript();
 void initZScriptLinkScripts();
 void initZScriptItemScripts();
 
@@ -1481,6 +1483,8 @@ void clear_ffc_stack(const byte i);
 void clear_global_stack(const byte i);
 void clear_link_stack();
 void clear_dmap_stack();
+void clear_active_subscreen_stack();
+void clear_passive_subscreen_stack();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
@@ -3668,19 +3672,20 @@ enum ASM_DEFINE
 
 // Script types
 
-
-#define SCRIPT_NONE            -1
-#define SCRIPT_GLOBAL          0
-#define SCRIPT_FFC             1
-#define SCRIPT_SCREEN          2
-#define SCRIPT_LINK            3
-#define SCRIPT_ITEM            4
-#define SCRIPT_LWPN            5
-#define SCRIPT_NPC             6
-#define SCRIPT_SUBSCREEN       7
-#define SCRIPT_EWPN            8
-#define SCRIPT_DMAP            9
-#define SCRIPT_ITEMSPRITE      10
+#define SCRIPT_NONE                      -1
+#define SCRIPT_GLOBAL                    0
+#define SCRIPT_FFC                       1
+#define SCRIPT_SCREEN                    2
+#define SCRIPT_LINK                      3
+#define SCRIPT_ITEM                      4
+#define SCRIPT_LWPN                      5
+#define SCRIPT_NPC                       6
+#define SCRIPT_SUBSCREEN                 7
+#define SCRIPT_EWPN                      8
+#define SCRIPT_DMAP                      9
+#define SCRIPT_ITEMSPRITE                10
+#define SCRIPT_ACTIVESUBSCREEN           11
+#define SCRIPT_PASSIVESUBSCREEN          12
 
 
 

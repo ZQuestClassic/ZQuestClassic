@@ -886,15 +886,23 @@ refInfo globalScriptData[NUMSCRIPTGLOBAL];
 refInfo linkScriptData;
 refInfo screenScriptData;
 refInfo dmapScriptData;
+refInfo activeSubscreenScriptData;
+refInfo passiveSubscreenScriptData;
 word g_doscript = 0xFFFF;
 word link_doscript = 1;
 word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
+word active_subscreen_doscript = 0;
+word passive_subscreen_doscript = 0;
 word global_wait = 0;
 bool link_waitdraw = false;
 bool dmap_waitdraw = false;
+bool passive_subscreen_waitdraw = false;
+bool active_subscreen_waitdraw = false;
 word item_doscript[256] = {0};
 word item_collect_doscript[256] = {0};
-byte dmapscriptInitialised[512] = {0};
+byte dmapscriptInitialised = 0;
+byte activeSubscreenInitialised = 0;
+byte passiveSubscreenInitialised = 0;
 //Sprite script data
 refInfo itemScriptData[256];
 refInfo itemCollectScriptData[256];
@@ -918,6 +926,8 @@ long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 long link_stack[MAX_SCRIPT_REGISTERS];
 long dmap_stack[MAX_SCRIPT_REGISTERS];
+long active_subscreen_stack[MAX_SCRIPT_REGISTERS];
+long passive_subscreen_stack[MAX_SCRIPT_REGISTERS];
 long screen_stack[MAX_SCRIPT_REGISTERS];
 refInfo ffcScriptData[32];
 
@@ -947,12 +957,39 @@ void clear_dmap_stack()
     memset(dmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
+void clear_active_subscreen_stack()
+{
+	memset(active_subscreen_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+}
+
+void clear_passive_subscreen_stack()
+{
+	memset(passive_subscreen_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+}
+
 
 void FFScript::initZScriptDMapScripts()
 {
     dmap_doscript = 1;
+	dmap_waitdraw = false;
     dmapScriptData.Clear();
     clear_dmap_stack();
+	dmapscriptInitialised = 0;
+	//
+	passive_subscreen_doscript = 1;
+	passive_subscreen_waitdraw = false;
+	passiveSubscreenScriptData.Clear();
+	clear_passive_subscreen_stack();
+	passiveSubscreenInitialised = 0;
+}
+
+void FFScript::initZScriptActiveSubscreenScript()
+{
+	active_subscreen_doscript = 1;
+	activeSubscreenScriptData.Clear();
+	clear_active_subscreen_stack();
+	activeSubscreenInitialised = 0;
+	active_subscreen_waitdraw = false;
 }
 
 void FFScript::initZScriptLinkScripts()
@@ -18058,18 +18095,11 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
                         "Insta-Warp");
                         
 	eventlog_mapflags();
-	if ( !(warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) )
+	if ( !(warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) || olddmap != currdmap) //Changed DMaps, or needs to reset the script
 	{
-		dmap_doscript = 1;
 		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
-		dmapScriptData.Clear();
+		initZScriptDMapScripts();
 	}
-	//if ( olddmap != currdmap ) //night be needed if dmapdata scripts call warpex?
-	FFCore.deallocateAllArrays(SCRIPT_DMAP, olddmap);
-	dmapScriptData.Clear();
-	
-	dmapscriptInitialised[olddmap] = 0;
-	dmapscriptInitialised[currdmap] = 0;
 	return true;
 	
 	
@@ -18655,52 +18685,52 @@ void do_combotile(const bool v)
 // Let's do this
 int run_script(const byte type, const word script, const long i)
 {
-    if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
-        return 1;
-    
-    curScriptType=type;
-    curScriptNum=script;
-    numInstructions=0;
+	if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
+		return 1;
+	
+	curScriptType=type;
+	curScriptNum=script;
+	numInstructions=0;
 #ifdef _SCRIPT_COUNTER
-    dword script_timer[NUMCOMMANDS];
-    dword script_execount[NUMCOMMANDS];
-    
-    for(int j = 0; j < NUMCOMMANDS; j++)
-    {
-        script_timer[j]=0;
-        script_execount[j]=0;
-    }
-    
-    dword start_time, end_time;
-    
-    script_counter = 0;
+	dword script_timer[NUMCOMMANDS];
+	dword script_execount[NUMCOMMANDS];
+	
+	for(int j = 0; j < NUMCOMMANDS; j++)
+	{
+		script_timer[j]=0;
+		script_execount[j]=0;
+	}
+	
+	dword start_time, end_time;
+	
+	script_counter = 0;
 #endif
-    
-    switch(type)
-    {
-	    //Z_scripterrlog("The script type is: %d\n", type);
-	    case SCRIPT_FFC:
-	    {
-		ri = &(ffcScriptData[i]);
-		
-		curscript = ffscripts[script];
-		stack = &(ffc_stack[i]);
-		
-		if(!tmpscr->initialized[i])
+	
+	switch(type)
+	{
+		//Z_scripterrlog("The script type is: %d\n", type);
+		case SCRIPT_FFC:
 		{
-		    memcpy(ri->d, tmpscr->initd[i], 8 * sizeof(long));
-		    memcpy(ri->a, tmpscr->inita[i], 2 * sizeof(long));
+			ri = &(ffcScriptData[i]);
+			
+			curscript = ffscripts[script];
+			stack = &(ffc_stack[i]);
+			
+			if(!tmpscr->initialized[i])
+			{
+				memcpy(ri->d, tmpscr->initd[i], 8 * sizeof(long));
+				memcpy(ri->a, tmpscr->inita[i], 2 * sizeof(long));
+			}
+			
+			ri->ffcref = i; //'this' pointer
 		}
-		
-		ri->ffcref = i; //'this' pointer
-	    }
-	    break;
-	    case SCRIPT_NPC:
-	    {
+		break;
+		case SCRIPT_NPC:
+		{
 			int npc_index = GuyH::getNPCIndex(i);
 			enemy *w = (enemy*)guys.spr(npc_index);
 			
-		        ri = &(guys.spr(GuyH::getNPCIndex(i))->scriptData);
+			ri = &(guys.spr(GuyH::getNPCIndex(i))->scriptData);
 			
 			curscript = guyscripts[guys.spr(GuyH::getNPCIndex(i))->script];
 			
@@ -18719,11 +18749,11 @@ int run_script(const byte type, const word script, const long i)
 				}
 				guys.spr(GuyH::getNPCIndex(i))->initialised = 1;
 			}
-	    }
-	    break;
-	    
-	    case SCRIPT_LWPN:
-	    {
+		}
+		break;
+		
+		case SCRIPT_LWPN:
+		{
 			int lwpn_index = LwpnH::getLWeaponIndex(i);
 			weapon *w = (weapon*)Lwpns.spr(lwpn_index);
 			ri = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->scriptData);
@@ -18746,11 +18776,11 @@ int run_script(const byte type, const word script, const long i)
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 1;
 			}
 			
-	    }
-	    break;
-	    
-	    case SCRIPT_EWPN:
-	    {
+		}
+		break;
+		
+		case SCRIPT_EWPN:
+		{
 			int ewpn_index = EwpnH::getEWeaponIndex(i);
 
 			weapon *w = (weapon*)Ewpns.spr(ewpn_index);
@@ -18774,11 +18804,11 @@ int run_script(const byte type, const word script, const long i)
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 1;
 			}
 			
-	    }
-	    break;
-	    
-	    case SCRIPT_ITEMSPRITE:
-	    {
+		}
+		break;
+		
+		case SCRIPT_ITEMSPRITE:
+		{
 			int the_index = ItemH::getItemIndex(i);
 			
 			item *w = (item*)items.spr(the_index);
@@ -18801,106 +18831,134 @@ int run_script(const byte type, const word script, const long i)
 				items.spr(ItemH::getItemIndex(i))->initialised = 1;
 			}
 			
-	    }
-	    break;
-	    
-	    case SCRIPT_ITEM:
-	    {
-		int new_i = 0;
-		bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
-		new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-		
-		ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
-		
-		curscript = itemscripts[script];
-		stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
-		
-		if ( !(itemscriptInitialised[new_i]) )
-		{
-		    al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
-			memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(long));
-			memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(long));
-			itemscriptInitialised[new_i] = 1;
-		}			
-		ri->idata = ( collect ) ? new_i : i; //'this' pointer
-		
-	    }
-	    break;
-	    //Only one global stack? -Z
-	    //No curscript? -Z
-	    //With two extra stacks, we could have dmap and screen scripts. -Z
-	    
-	    case SCRIPT_GLOBAL:
-	    {
-		ri = &globalScriptData[script];
-		
-		curscript = globalscripts[script];
-		stack = &global_stack[script];
-		    //
-	    }
-	    break;
-	    
-	    case SCRIPT_LINK:
-	    {
-		ri = &linkScriptData;
-		
-		curscript = linkscripts[script];
-		stack = &link_stack;
-		    //
-	    }
-	    break;
-	    
-	    case SCRIPT_DMAP:
-	    {
-		ri = &dmapScriptData;
-		curscript = dmapscripts[script];
-		stack = &dmap_stack;
-		ri->dmapsref = i;
-		    //how do we clear initialised on dmap change?
-		if ( !dmapscriptInitialised[i] )
-		{
-			Z_scripterrlog("dmapscriptInitialised[i] is %d\n",dmapscriptInitialised[i]);
-			for ( int q = 0; q < 8; q++ ) 
-			{
-				ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
-			}
-			dmapscriptInitialised[i] = 1;
 		}
-	    }
-	    break;
-	    
-	    case SCRIPT_SCREEN:
-	    {
-		ri = &(screenScriptData);
-		curscript = screenscripts[script];
-		stack = &(screen_stack);
-		if ( !tmpscr->screendatascriptInitialised )
-		    
-		{
-			al_trace("tmpscr->screendatascriptInitialised is %d\n",tmpscr->screendatascriptInitialised);
-			for ( int q = 0; q < 8; q++ ) 
-			{
-				ri->d[q] = tmpscr->screeninitd[q];// * 10000;
-			}
-			tmpscr->screendatascriptInitialised = 1;
-		}
-		 
-	    }
-	    break;
-	    
-	    
-	    default:
-	    {
-		al_trace("No other scripts are currently supported\n");
-		return 1;
 		break;
-	    }
-    }
-    
-    dword pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
-    word scommand = curscript[pc].command;
-    sarg1 = curscript[pc].arg1;
-    sarg2 = curscript[pc].arg2;
+		
+		case SCRIPT_ITEM:
+		{
+			int new_i = 0;
+			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+			
+			ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
+			
+			curscript = itemscripts[script];
+			stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
+			
+			if ( !(itemscriptInitialised[new_i]) )
+			{
+				al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
+				memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(long));
+				memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(long));
+				itemscriptInitialised[new_i] = 1;
+			}			
+			ri->idata = ( collect ) ? new_i : i; //'this' pointer
+			
+		}
+		break;
+		
+		case SCRIPT_GLOBAL:
+		{
+			ri = &globalScriptData[script];
+			
+			curscript = globalscripts[script];
+			stack = &global_stack[script];
+			//
+		}
+		break;
+		
+		case SCRIPT_LINK:
+		{
+			ri = &linkScriptData;
+			
+			curscript = linkscripts[script];
+			stack = &link_stack;
+			//
+		}
+		break;
+		
+		case SCRIPT_DMAP:
+		{
+			ri = &dmapScriptData;
+			curscript = dmapscripts[script];
+			stack = &dmap_stack;
+			ri->dmapsref = i;
+			//how do we clear initialised on dmap change?
+			if ( !dmapscriptInitialised )
+			{
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
+				}
+				dmapscriptInitialised = 1;
+			}
+		}
+		break;
+		
+		case SCRIPT_ACTIVESUBSCREEN:
+		{
+			ri = &activeSubscreenScriptData;
+			curscript = dmapscripts[script];
+			stack = &active_subscreen_stack;
+			ri->dmapsref = i;
+			if ( !activeSubscreenInitialised )
+			{
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
+				}
+				activeSubscreenInitialised = 1;
+			}
+		}
+		break;
+		
+		case SCRIPT_PASSIVESUBSCREEN:
+		{
+			ri = &passiveSubscreenScriptData;
+			curscript = dmapscripts[script];
+			stack = &passive_subscreen_stack;
+			ri->dmapsref = i;
+			if ( !passiveSubscreenInitialised )
+			{
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
+				}
+				passiveSubscreenInitialised = 1;
+			}
+		}
+		break;
+		
+		case SCRIPT_SCREEN:
+		{
+			ri = &(screenScriptData);
+			curscript = screenscripts[script];
+			stack = &(screen_stack);
+			if ( !tmpscr->screendatascriptInitialised )
+			{
+				al_trace("tmpscr->screendatascriptInitialised is %d\n",tmpscr->screendatascriptInitialised);
+				for ( int q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = tmpscr->screeninitd[q];// * 10000;
+				}
+				tmpscr->screendatascriptInitialised = 1;
+			}
+			
+		}
+		break;
+		
+		
+		default:
+		{
+			al_trace("No other scripts are currently supported\n");
+			return 1;
+		}
+	}
+	
+	dword pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
+	word scommand = curscript[pc].command;
+	sarg1 = curscript[pc].arg1;
+	sarg2 = curscript[pc].arg2;
     
     
 #ifdef _FFDISSASSEMBLY
@@ -21206,76 +21264,84 @@ int run_script(const byte type, const word script, const long i)
 	}
     }
     */
-    if(scommand == WAITDRAW)
-    {
-        switch(type)
-        {
-        case SCRIPT_GLOBAL:
-            global_wait |= (1<<i);
-            break;
-            
-	case SCRIPT_LINK:
-		link_waitdraw = true;
-		break;
-	
-	case SCRIPT_DMAP:
-		dmap_waitdraw = true;
-		break;
-	
-	case SCRIPT_SCREEN:
-		tmpscr->screen_waitdraw = 1;
-		break;
-	
-	case SCRIPT_ITEM:
+	if(scommand == WAITDRAW)
 	{
-		if ( !get_bit(quest_rules, qr_NOITEMWAITDRAW) ) { itemScriptsWaitdraw[i] = 1; }
-		break;
-	}
-	
-	/* Not just yet.
-	case SCRIPT_NPC:
-	{
-		guys.spr(GuyH::getNPCIndex(i))->waitdraw = 1;
-		break;
-	}
-	case SCRIPT_LWPN:
-	{
-		Lwpns.spr(LwpnH::getLWeaponIndex(i))->waitdraw = 1;
-		break;
-	}
-	*/
-	case SCRIPT_EWPN:
-	{
-	
-		Ewpns.spr(EwpnH::getEWeaponIndex(i))->waitdraw = 1;
-		break;
-	}
-	case SCRIPT_ITEMSPRITE:
-	{
-		items.spr(ItemH::getItemIndex(i))->waitdraw = 1;
-		break;
-	}
-	
-	case SCRIPT_FFC:
-	{
-		if ( !(get_bit(quest_rules, qr_NOFFCWAITDRAW)) )
+		switch(type)
 		{
-		//Z_scripterrlog("FFScript: FFC (%d) issued WAITDRAW\n", i);
-			tmpscr->ffcswaitdraw |= (1<<i);
-		//set_bitl(tmpscr->ffcswaitdraw, i, 1);
+			case SCRIPT_GLOBAL:
+				global_wait |= (1<<i);
+				break;
+				
+			case SCRIPT_LINK:
+				link_waitdraw = true;
+				break;
+			
+			case SCRIPT_DMAP:
+				dmap_waitdraw = true;
+				break;
+				
+			case SCRIPT_PASSIVESUBSCREEN:
+				passive_subscreen_waitdraw = false;
+				break;
+				
+			case SCRIPT_ACTIVESUBSCREEN:
+				active_subscreen_waitdraw = false;
+				break;
+			
+			case SCRIPT_SCREEN:
+				tmpscr->screen_waitdraw = 1;
+				break;
+			
+			case SCRIPT_ITEM:
+			{
+				if ( !get_bit(quest_rules, qr_NOITEMWAITDRAW) ) { itemScriptsWaitdraw[i] = 1; }
+				break;
+			}
+			
+			/* Not just yet.
+			case SCRIPT_NPC:
+			{
+				guys.spr(GuyH::getNPCIndex(i))->waitdraw = 1;
+				break;
+			}
+			case SCRIPT_LWPN:
+			{
+				Lwpns.spr(LwpnH::getLWeaponIndex(i))->waitdraw = 1;
+				break;
+			}
+			*/
+			case SCRIPT_EWPN:
+			{
+			
+				Ewpns.spr(EwpnH::getEWeaponIndex(i))->waitdraw = 1;
+				break;
+			}
+			case SCRIPT_ITEMSPRITE:
+			{
+				items.spr(ItemH::getItemIndex(i))->waitdraw = 1;
+				break;
+			}
+			
+			case SCRIPT_FFC:
+			{
+				if ( !(get_bit(quest_rules, qr_NOFFCWAITDRAW)) )
+				{
+				//Z_scripterrlog("FFScript: FFC (%d) issued WAITDRAW\n", i);
+					tmpscr->ffcswaitdraw |= (1<<i);
+				//set_bitl(tmpscr->ffcswaitdraw, i, 1);
+				}
+				else
+				{
+					Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", "ffc, with Script Rule 'No FFC Waitdraw() enabled!");
+				}
+				break;
+			}
+		
+			default:
+				Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", script_types[type]);
+				break;
 		}
-		else
-		{
-			Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", "ffc, with Script Rule 'No FFC Waitdraw() enabled!");
-		}
-		break;
 	}
-	
-        default:
-            Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", script_types[type]);
-            break;
-        }
-    }
     
     if(scommand == 0xFFFF) //Quit/command list end reached/bad command
     {
@@ -21299,7 +21365,19 @@ int run_script(const byte type, const word script, const long i)
 		
 		case SCRIPT_DMAP:
 		    dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
-		    dmapscriptInitialised[i] = 0;
+		    dmapscriptInitialised = 0;
+		    FFScript::deallocateAllArrays(type, i);
+		    break;
+		
+		case SCRIPT_ACTIVESUBSCREEN:
+		    active_subscreen_doscript = 0;
+		    activeSubscreenInitialised = 0;
+		    FFScript::deallocateAllArrays(type, i);
+		    break;
+		
+		case SCRIPT_PASSIVESUBSCREEN:
+		    passive_subscreen_doscript = 0;
+		    passiveSubscreenInitialised = 0;
 		    FFScript::deallocateAllArrays(type, i);
 		    break;
 		    
@@ -23987,6 +24065,68 @@ void FFScript::runOnLaunchEngine()
 	}
 	script_drawing_commands.Clear();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+}
+bool FFScript::runActiveSubscreenScriptEngine()
+{
+	word activesubscript = DMaps[currdmap].active_sub_script;
+	if(!activesubscript || dmapscripts[activesubscript][0].command == 0xFFFF) return false; //No script to run
+	word passivesubscript = DMaps[currdmap].passive_sub_script;
+	word dmapactivescript = DMaps[currdmap].script;
+	clear_bitmap(script_menu_buf);
+	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+	initZScriptActiveSubscreenScript();
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	word script_dmap = currdmap;
+	while(active_subscreen_doscript && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		if(get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && dmap_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_DMAP, dmapactivescript, script_dmap);
+		}
+		if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, passivesubscript, script_dmap);
+		}
+		ZScriptVersion::RunScript(SCRIPT_ACTIVESUBSCREEN, activesubscript, script_dmap);
+		if(dmap_waitdraw && (get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && dmap_doscript != 0))
+		{
+			ZScriptVersion::RunScript(SCRIPT_DMAP, dmapactivescript, script_dmap);
+			dmap_waitdraw = false;
+		}
+		if(passive_subscreen_waitdraw && (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && passive_subscreen_doscript != 0))
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, passivesubscript, script_dmap);
+			passive_subscreen_waitdraw = false;
+		}
+		if(active_subscreen_waitdraw && active_subscreen_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_ACTIVESUBSCREEN, activesubscript, script_dmap);
+			active_subscreen_waitdraw = false;
+		}
+		//Draw
+		clear_bitmap(framebuf);
+		doScriptMenuDraws();
+		//
+		advanceframe(true,true,false);
+		//Handle warps; run game_loop once!
+		if(currdmap != script_dmap)
+		{
+			activesubscript = DMaps[currdmap].active_sub_script;
+			if(!activesubscript || dmapscripts[activesubscript][0].command == 0xFFFF) return true; //No script to run
+			passivesubscript = DMaps[currdmap].passive_sub_script;
+			dmapactivescript = DMaps[currdmap].script;
+			script_dmap = currdmap;
+			//Reset the background image
+			game_loop();
+			clear_bitmap(script_menu_buf);
+			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+			//Now loop without advancing frame, so that the subscreen script can draw immediately.
+		}
+	}
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+	return true;
 }
 
 void FFScript::doScriptMenuDraws()

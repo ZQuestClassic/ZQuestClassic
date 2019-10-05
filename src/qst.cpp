@@ -4088,62 +4088,100 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
         }
 	if(s_version < 10) tempDMap.sideview = 0;
         
-	//Dmap Scripts
-	if(s_version >= 12)
-        {
-            if(!p_igetw(&tempDMap.script,f,keepdata))
-            {
-                return qe_invalid;
-            }
-	    for ( int q = 0; q < 8; q++ )
-	    {
-		if(!p_igetl(&tempDMap.initD[q],f,keepdata))
-                {
-                return qe_invalid;
-                }    
-		    
-	    }
-        }
-	if ( s_version < 12 )
-	{
-		tempDMap.script = 0;
-		for ( int q = 0; q < 8; q++ )
+		//Dmap Scripts
+		if(s_version >= 12)
 		{
-			tempDMap.initD[q] = 0;
-		}
-	}
-	
-	if(s_version >= 13)
-        {
-	    for ( int q = 0; q < 8; q++ )
-	    {
-		for ( int w = 0; w < 65; w++ )
-		{
-			if(!p_getc(&tempDMap.initD_label[q][w],f,keepdata))
+			if(!p_igetw(&tempDMap.script,f,keepdata))
 			{
 				return qe_invalid;
-			} 
+			}
+			for ( int q = 0; q < 8; q++ )
+			{
+				if(!p_igetl(&tempDMap.initD[q],f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
 		}
-		    
-	    }
-        }
-	if ( s_version < 13 )
-	{
-		tempDMap.script = 0;
-		for ( int q = 0; q < 8; q++ )
+		if ( s_version < 12 )
 		{
-			for ( int w = 0; w < 65; w++ )
-				tempDMap.initD_label[q][w] = 0;
+			tempDMap.script = 0;
+			for ( int q = 0; q < 8; q++ )
+			{
+				tempDMap.initD[q] = 0;
+			}
+		}
+		
+		if(s_version >= 13)
+		{
+			for ( int q = 0; q < 8; q++ )
+			{
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&tempDMap.initD_label[q][w],f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+			}
+		}
+		if ( s_version < 13 )
+		{
+			tempDMap.script = 0;
+			for ( int q = 0; q < 8; q++ )
+			{
+				for ( int w = 0; w < 65; w++ )
+					tempDMap.initD_label[q][w] = 0;
+			}
+		}
+		if(s_version >= 14)
+		{
+			if(!p_igetw(&tempDMap.active_sub_script,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&tempDMap.passive_sub_script,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			for ( int q = 0; q < 8; ++q )
+			{
+				if(!p_igetl(&tempDMap.sub_initD[q],f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				for ( int w = 0; w < 65; ++w )
+				{
+					if(!p_getc(&tempDMap.sub_initD_label[q][w],f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+			}
+		}
+		else
+		{
+			tempDMap.active_sub_script = 0;
+			tempDMap.passive_sub_script = 0;
+			for(int q = 0; q < 8; ++q)
+			{
+				tempDMap.sub_initD[q] = 0;
+				for(int w = 0; w < 65; ++w)
+					tempDMap.sub_initD_label[q][w] = 0;
+			}
+		}
+	
+	
+		if(keepdata==true)
+		{
+			memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
 		}
 	}
 	
-        if(keepdata==true)
-        {
-            memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
-        }
-    }
-    
-    return 0;
+	return 0;
 }
 
 int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)

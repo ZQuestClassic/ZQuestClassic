@@ -46,7 +46,7 @@ extern long item_stack[256][MAX_SCRIPT_REGISTERS];
 extern long item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 extern refInfo *ri; //= NULL;
 extern long(*stack)[MAX_SCRIPT_REGISTERS];
-extern byte dmapscriptInitialised[512];
+extern byte dmapscriptInitialised;
 extern word item_doscript[256];
 extern word item_collect_doscript[256];
 using std::set;
@@ -59,7 +59,7 @@ extern int draw_screen_clip_rect_y2;
 extern word global_wait;
 extern bool link_waitdraw;
 extern bool dmap_waitdraw;
-extern refInfo dmapScriptData;
+extern bool passive_subscreen_waitdraw;
 
 int link_count = -1;
 int link_animation_speed = 1; //lower is faster animation
@@ -77,6 +77,7 @@ int whistleitem=-1;
 extern word g_doscript;
 extern word link_doscript;
 extern word dmap_doscript;
+extern word passive_subscreen_doscript;
 extern byte epilepsyFlashReduction;
 
 void playLevelMusic();
@@ -5477,13 +5478,19 @@ bool LinkClass::animate(int)
         switch(lsave)
         {
         case 0:
-            if ( !stopSubscreenFalling() ){
-		    conveyclk=3;
-		    dosubscr(&QMisc);
-		    newscr_clk += frame - tmp_subscr_clk;
+		{
+			if( FFCore.runActiveSubscreenScriptEngine() )
+			{
+				break;
+			}
+			else if ( !stopSubscreenFalling() )
+			{
+				conveyclk=3;
+				dosubscr(&QMisc);
+				newscr_clk += frame - tmp_subscr_clk;
+			}
 		    break;
 		}
-		else break;
             
             
         case 1:
@@ -12482,7 +12489,7 @@ bool LinkClass::dowarp(int type, int index)
         
         //else
 	//{
-	//	dmapscriptInitialised[currdmap] = 0; //reinitialise DMap script InitD
+	//	dmapscriptInitialised = 0; //reinitialise DMap script InitD
 	//}
 	if(DMaps[currdmap].color != c)
         {
@@ -12988,11 +12995,7 @@ bool LinkClass::dowarp(int type, int index)
                         "Insta-Warp");
                         
     eventlog_mapflags();
-    dmap_doscript = 1;
-    FFCore.deallocateAllArrays(SCRIPT_DMAP, olddmap);
-    dmapScriptData.Clear();
-    dmapscriptInitialised[olddmap] = 0;
-    dmapscriptInitialised[currdmap] = 0;
+	FFCore.initZScriptDMapScripts();
     return true;
 }
 
@@ -13192,6 +13195,10 @@ void LinkClass::stepforward(int steps, bool adjust)
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+		}
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
@@ -14201,6 +14208,11 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 			dmap_waitdraw = false;
 		}
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+			passive_subscreen_waitdraw = false;
+		}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->screen_waitdraw && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
@@ -14221,6 +14233,10 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+		}
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
@@ -14430,6 +14446,11 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	{
 		ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 		dmap_waitdraw = false;
+	}
+	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	{
+		ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+		passive_subscreen_waitdraw = false;
 	}
 	if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
