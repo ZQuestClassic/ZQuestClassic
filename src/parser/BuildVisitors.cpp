@@ -130,6 +130,14 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 {
+	if(optional<long> val = host.condition->getCompileTimeValue(this, scope))
+	{
+		if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
+		{
+			visit(host.thenStatement.get(), param);
+		} //Either true or false, it's constant, so no checks required.
+		return;
+	}
     //run the test
 	int startRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host.condition.get(), param);
@@ -154,6 +162,19 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 
 void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 {
+	if(optional<long> val = host.condition->getCompileTimeValue(this, scope))
+	{
+		if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
+		{
+			visit(host.thenStatement.get(), param);
+		}
+		else //False, so go straight to the 'else'
+		{
+			visit(host.elseStatement.get(), param);
+		}
+		//Either way, ignore the rest and return.
+		return;
+	}
     //run the test
 	int startRefCount = arrayRefs.size(); //Store ref count
 	literalVisit(host.condition.get(), param);
@@ -274,6 +295,15 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	deallocateRefsUntilCount(setupRefCount);
 	while ((int)arrayRefs.size() > setupRefCount)
 		arrayRefs.pop_back();
+	//Check for a constant FALSE condition
+	if(optional<long> val = host.test->getCompileTimeValue(this, scope))
+	{
+		if(*val == 0) //False, so restore scope and exit
+		{
+			scope = scope->getParent();
+			return;
+		}
+	}
 	//Continue
     int loopstart = ScriptParser::getUniqueLabelID();
     int loopend = ScriptParser::getUniqueLabelID();
@@ -333,6 +363,13 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 {
+	if(optional<long> val = host.test->getCompileTimeValue(this, scope))
+	{
+		if((host.isInverted()) != (*val==0)) //False, so ignore this all.
+		{
+			return;
+		}
+	}
     int startlabel = ScriptParser::getUniqueLabelID();
     int endlabel = ScriptParser::getUniqueLabelID();
     //run the test
