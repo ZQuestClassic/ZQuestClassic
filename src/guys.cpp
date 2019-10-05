@@ -7695,6 +7695,7 @@ bool eLeever::animate(int index)
             {
             case -1:  //submerged
             {
+		submerged = 1;
                 if((dmisc1==2)&&(rand()&255))
                 {
                     break;
@@ -7719,6 +7720,7 @@ bool eLeever::animate(int index)
             
             case 0:
             {
+		submerged = 0;
                 int s=0;
                 
                 for(int i=0; i<guys.Count(); i++)
@@ -7751,17 +7753,20 @@ bool eLeever::animate(int index)
             break;
             
             case 1:
+		submerged = 0;
                 if(++clk2>16) misc=2;
                 
                 break;
                 
             case 2:
+		submerged = 0;
                 if(++clk2>24) misc=3;
                 
                 break;
                 
 //        case 3: if(stunclk) break; if(scored) dir^=1; if(!canmove(dir)) misc=4; else move((fix)(d->step/100.0)); break;
             case 3:
+		submerged = 0;
                 if(stunclk || frozenclock) break;
                 
                 if(scored) dir^=1;
@@ -7772,6 +7777,7 @@ bool eLeever::animate(int index)
                 break;
                 
             case 4:
+		submerged = 0;
                 if(--clk2==16)
                 {
                     misc=5;
@@ -7781,6 +7787,7 @@ bool eLeever::animate(int index)
                 break;
                 
             case 5:
+		submerged = 0;
                 if(--clk2==0)  misc=((dmisc1==2)?-1:0);
                 
                 break;
@@ -7790,6 +7797,7 @@ bool eLeever::animate(int index)
             
         default:  //random
 //      step=d->misc3/100.0;
+	    submerged = 0;
             step=dmisc3/100.0;
             ++clk2;
             

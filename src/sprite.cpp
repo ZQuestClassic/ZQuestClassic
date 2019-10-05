@@ -60,6 +60,7 @@ sprite::sprite()
     tysz=1;
     id=-1;
     hxsz=hysz=16;
+    submerged = 0;
     hzsz=1;
     yofs=playing_field_offset;
     dir=down;

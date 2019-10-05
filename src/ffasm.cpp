@@ -2011,6 +2011,7 @@ script_variable variable_list[]=
 	{ "SCREENDATASWARPRETSQR",		SCREENDATASWARPRETSQR,        0,             0 },
 	{ "MAPDATATWARPRETSQR",		MAPDATATWARPRETSQR,        0,             0 },
 	{ "MAPDATASWARPRETSQR",		MAPDATASWARPRETSQR,        0,             0 },
+	{ "NPCSUBMERGED",		NPCSUBMERGED,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

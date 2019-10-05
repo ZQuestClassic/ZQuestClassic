@@ -3886,6 +3886,21 @@ long get_register(const long arg)
 	
     }
     
+    case NPCSUBMERGED:
+    {
+	if(GuyH::loadNPC(ri->guyref, "Submerged()") != SH::_NoError) 
+	{
+		ret = -10000; 
+	}    
+	else
+	{
+		ret = (long(GuyH::getNPC()->Submerged()) * 10000);
+		
+	}
+	break;
+	    
+	    
+    }
        
         
     case NPCY:

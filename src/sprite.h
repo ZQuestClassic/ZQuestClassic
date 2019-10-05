@@ -51,9 +51,14 @@ public:
         return uid;
     }
     
+    bool isSubmerged()
+    {
+	return submerged;    
+    }
+    
     fix x,y,z,fall;
     int tile,shadowtile,cs,flip,c_clk,clk,misc;
-    
+    byte submerged;
     fix xofs,yofs,zofs;
     // no hzofs - it's always equal to zofs.
     int hxofs,hyofs,hxsz,hysz,hzsz;
