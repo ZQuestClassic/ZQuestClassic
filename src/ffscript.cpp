@@ -23898,8 +23898,10 @@ void FFScript::runOnLaunchEngine()
 }
 bool FFScript::runActiveSubscreenScriptEngine()
 {
-	word script = DMaps[currdmap].active_sub_script;
-	if(!script || dmapscripts[script][0].command == 0xFFFF) return false; //No script to run
+	word activesubscript = DMaps[currdmap].active_sub_script;
+	if(!activesubscript || dmapscripts[activesubscript][0].command == 0xFFFF) return false; //No script to run
+	word passivesubscript = DMaps[currdmap].passive_sub_script;
+	word dmapactivescript = DMaps[currdmap].script;
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 	initZScriptActiveSubscreenScript();
@@ -23909,10 +23911,28 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		ZScriptVersion::RunScript(SCRIPT_ACTIVESUBSCREEN, script, script_dmap);
-		if(active_subscreen_waitdraw)
+		if(get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && dmap_doscript != 0)
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+			ZScriptVersion::RunScript(SCRIPT_DMAP, dmapactivescript, script_dmap);
+		}
+		if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, passivesubscript, script_dmap);
+		}
+		ZScriptVersion::RunScript(SCRIPT_ACTIVESUBSCREEN, activesubscript, script_dmap);
+		if(dmap_waitdraw && (get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && dmap_doscript != 0))
+		{
+			ZScriptVersion::RunScript(SCRIPT_DMAP, dmapactivescript, script_dmap);
+			dmap_waitdraw = false;
+		}
+		if(passive_subscreen_waitdraw && (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && passive_subscreen_doscript != 0))
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, passivesubscript, script_dmap);
+			passive_subscreen_waitdraw = false;
+		}
+		if(active_subscreen_waitdraw && active_subscreen_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_ACTIVESUBSCREEN, activesubscript, script_dmap);
 			active_subscreen_waitdraw = false;
 		}
 		//Draw
@@ -23920,8 +23940,21 @@ bool FFScript::runActiveSubscreenScriptEngine()
 		doScriptMenuDraws();
 		//
 		advanceframe(true,true,false);
+		//Handle warps; run game_loop once!
+		if(currdmap != script_dmap)
+		{
+			activesubscript = DMaps[currdmap].active_sub_script;
+			if(!activesubscript || dmapscripts[activesubscript][0].command == 0xFFFF) return true; //No script to run
+			passivesubscript = DMaps[currdmap].passive_sub_script;
+			dmapactivescript = DMaps[currdmap].script;
+			script_dmap = currdmap;
+			//Reset the background image
+			game_loop();
+			clear_bitmap(script_menu_buf);
+			blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+			//Now loop without advancing frame, so that the subscreen script can draw immediately.
+		}
 	}
-	script_drawing_commands.Clear();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 	return true;
 }
