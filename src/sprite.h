@@ -51,9 +51,10 @@ public:
         return uid;
     }
     
+   
+    
     fix x,y,z,fall;
     int tile,shadowtile,cs,flip,c_clk,clk,misc;
-    
     fix xofs,yofs,zofs;
     // no hzofs - it's always equal to zofs.
     int hxofs,hyofs,hxsz,hysz,hzsz;

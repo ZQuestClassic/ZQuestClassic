@@ -76,6 +76,7 @@ public:
     short bgsfx, bosspal;
     byte defense[edefLAST255];
     byte hitsfx,deadsfx;
+	byte submerged;
     
     long hitby[NUM_HIT_TYPES_USED];
     short firesfx;
@@ -131,6 +132,7 @@ public:
     
     // auomatically kill off enemy (for rooms with ringleaders)
     virtual void kickbucket();
+    virtual bool isSubmerged();
     // Stop BG SFX only if no other enemy is playing it
     void stop_bgsfx(int index);
     bool m_walkflag(int dx,int dy,int special, int dir, int x=-1000,int y=-1000);
@@ -395,6 +397,7 @@ public:
     virtual bool animate(int index);
     bool canplace(int d);
     virtual void draw(BITMAP *dest);
+    virtual bool isSubmerged();
 };
 
 class eWallM : public enemy
@@ -406,6 +409,7 @@ public:
     void wallm_crawl();
     void grablink();
     virtual void draw(BITMAP *dest);
+    virtual bool isSubmerged();
 };
 
 class eTrap : public enemy
@@ -499,6 +503,7 @@ public:
     virtual void facelink();
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
+    virtual bool isSubmerged();
 };
 
 class eStalfos : public enemy

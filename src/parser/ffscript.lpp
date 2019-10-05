@@ -181,6 +181,7 @@ bitnot		TOKEN( BITNOT );
 "equals"	TOKEN( EQ );
 "!="		TOKEN( NE );
 not_eq		TOKEN( NE );
+"<>"		TOKEN( NE );
 not_equal		TOKEN( NE );
 "&"		TOKEN( BITAND );
 bitand		TOKEN( BITAND );
