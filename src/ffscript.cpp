@@ -3894,7 +3894,7 @@ long get_register(const long arg)
 	}    
 	else
 	{
-		ret = (long(GuyH::getNPC()->Submerged()) * 10000);
+		ret = (long(GuyH::getNPC()->isSubmerged()) * 10000);
 		
 	}
 	break;

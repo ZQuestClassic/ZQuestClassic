@@ -343,6 +343,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     }
     
     stickclk = 0;
+    submerged = 0;
     
     dialogue_str = 0; //set by spawn flags. 
     editorflags = d->editorflags; //set by Enemy Editor 
@@ -884,6 +885,11 @@ void enemy::kickbucket()
 {
     if(!superman)
         hp=-1000;                                               // don't call death_sfx()
+}
+
+bool enemy::isSubmerged()
+{
+	return submerged;
 }
 
 void enemy::FireBreath(bool seeklink)
