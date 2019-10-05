@@ -1,4 +1,4 @@
-//--------------------------------------------------------
+	//--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
 //
@@ -150,6 +150,7 @@ void CatchBrang();;
 int LinkAction();
 
 void do_dcounters();
+void game_loop();
 
 void clearmsgnext(int str);
 void donewmsg(int str);
