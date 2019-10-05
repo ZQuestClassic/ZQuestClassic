@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 31
-Document Revision: 8th September, 2019
+Document for: 2.55, Alpha 34
+Document Revision: 5th October, 2019
 
 
 ////////////////////////////////////////////////////
@@ -2640,6 +2640,12 @@ int AClock
 /////////////
 ///  NPC  ///
 /////////////
+
+bool isSubmerged();
+ * Returns if the npc is submerged (in the ground, in the water, or in a wall).
+ * Returns true if the npc is FULLY submerged.
+ * Returns false as soon as the npc is even partly submerged, and
+ * continues to return true until that npc is fully-submerged. 
 
 bool Gravity;
  * Not implemented at this time.
