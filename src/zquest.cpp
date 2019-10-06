@@ -4230,10 +4230,30 @@ void refresh(int flags)
             {
                 if(Map.Scr(i)->valid&mVALID)
                 {
-                    //vc(0)
+                   
+		    /* Level palettes ending in 0 can display in screen grid as pure black*/
+			
+		    if(((Map.Scr(i)->color)&15)>0)
+                    {
                     rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
                              (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-                             
+		    }
+		    else
+		    {
+			
+			rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
+                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+//                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
+		        safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
+			    
+		    }
+			
+		    //vc(0)
+			
+		/*
+                    rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
+                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+                       */      
                     if(((Map.Scr(i)->color)&15)>0)
                     {
                         if(!is_large)
@@ -4264,8 +4284,16 @@ void refresh(int flags)
             
             int s=Map.getCurrScr();
             // The white marker rect
-            safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
-            
+	    if(((Map.Scr(s)->color)&15)>0)
+	    {
+		safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
+            }
+	    else
+	    {
+		safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(8));
+            }
+	    
+	    
             textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
             textprintf_ex(menu1,font,minimap.x+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
             
