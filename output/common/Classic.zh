@@ -17,6 +17,8 @@
 	
 //1.08  //Added Eagle Dungeon Scripts from 1st.qst
 //1.09  //Added screen change tracking and compass beep
+//1.10  //Added ffc script ScreenGuyMusic and fuction: bool __classic_zh_ScreenGuyAlive()
+//1.11  //Added arg for BossExplode ffc for enemy ID override as D7
 import "ffcscript.zh"
 import "stdExtra.zh"
 import "ghost.zh"
@@ -32,12 +34,12 @@ const int __classic_zh_LASTMAP 		= 4;
 const int __classic_zh_LASTSCR 		= 5;
 
 //Version Information; time is in GMT
-const float __classic_zh_VERSION 	= 1.06;
+const float __classic_zh_VERSION 	= 1.11;
 const int __classic_zh_YEAR 		= 2019;
-const int __classic_zh_MONTH 		= 9;
-const int __classic_zh_DAY 		= 14;
-const int __classic_zh_HOUR 		= 7;
-const int __classic_zh_MINUTE 		= 11;
+const int __classic_zh_MONTH 		= 10;
+const int __classic_zh_DAY 		= 8;
+const int __classic_zh_HOUR 		= 0;
+const int __classic_zh_MINUTE 		= 26;
 
 
 const int __classic_zh_ITEM_Z2LANTERN 			= 149;
@@ -174,7 +176,7 @@ ffc script BossMusic
 
 ffc script BossExplode
 {
-	void run(int reg, int spr, int dur, int sfx, int delay, int rmin, int rmax)
+	void run(int reg, int spr, int dur, int sfx, int delay, int rmin, int rmax, int enemy_override)
 	{
 		this->Data = CMB_INVISIBLE;
 		int type;
@@ -189,7 +191,7 @@ ffc script BossExplode
 		for ( int q = Screen->NumNPCs(); q > 0; --q )
 		{
 			npc n = Screen->LoadNPC(q);
-			if ( _classic_zh__isBoss(n) ) 
+			if ( _classic_zh__isBoss(n) || n->ID == enemy_override ) 
 			{
 				boss = n; 
 				width = n->TileWidth;
@@ -852,5 +854,38 @@ void __classic_zh_CompassBeep()
 				}
 			}
 		}
+	}
+}
+
+
+//Returns if there are enemy NPCs alive on the current screen.
+bool __classic_zh_ScreenGuyAlive()
+{
+	bool alive = false; 
+	for ( int q = Screen->NumNPCs(); q > 0; --q )
+	{
+		npc n = Screen->LoadNPC(q); 
+		if ( n->Type == NPCT_GUY )
+		{
+			alive = true;
+		}
+	}
+	return alive;
+}
+
+
+ffc script ScreenGuyMusic
+{
+	void run(int reg, int mid, int trk)
+	{
+		this->Data = CMB_INVISIBLE;
+		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DEAD ) Quit(); //Don't play victory music if we return to the screen.
+		if ( trk < 1 ) trk = _classic_zh__TRK_BOSS;
+		if ( mid < 1 ) mid = _classic_zh__MIDI_VICTORY;
+		int filenm[]="Classic.nsf";
+		Waitframes(5);
+		Game->PlayEnhancedMusic(filenm,trk);
+		while(__classic_zh_ScreenGuyAlive()) Waitframe();
+		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
 	}
 }
