@@ -2,6 +2,20 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Added User Themes
+	Added the ability for the user to define custom GUI themes for
+	ZC Player, and for ZQuest. The GUI set for the user theme is '99'.
+	The values for the theme are set in zc.cfg under [Theme] for ZC Player, and
+	in zquest.cfg under [Theme] for ZQ Editor.
+Updated Classic.zh to v1.11
+	Added ffc script ScreenGuyMusic and fuction: bool __classic_zh_ScreenGuyAlive()
+	Added arg for BossExplode ffc for enemy ID override as D7
+	( ZoriaRPG, 8th October, 2019 )
+	
+Display a grid in the mapscreen selector box in ZQ if the current
+map is an overworld palette rank (0x00, 0x10, 0x20 ...).
+	( ZoriaRPG, 6th October, 2019 )
+	
 Fix: Revert a Check for .SAV File Filenames
 	Fixed incorrect handling of save file filename checking 
 	that caused a bug where the save file was always loading the hardcode again.
