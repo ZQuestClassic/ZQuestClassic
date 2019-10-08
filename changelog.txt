@@ -3,6 +3,7 @@ ChangeLog for 2.53.0
 //Release 3
 
 Theme: Added theme files:
+	MooshMood: themes/mooshmood.ztheme
 	Ice : themes/ice.ztheme
 	Legacy : themes/legacy192.ztheme
 	DarkBlue : themes/darkblue.ztheme
