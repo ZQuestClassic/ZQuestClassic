@@ -22719,6 +22719,76 @@ int main(int argc,char **argv)
     }
     break;
     
+    case 99:  //User Defined
+    {
+	char themefile[2048] = {0};
+	strcpy(themefile,get_config_string("Theme","theme_filename",""));
+	
+	if ( themefile[0] == NULL )
+	{
+		RAMpal[dvc(1)] = _RGB(get_config_int("Theme","dvc1_r",4),get_config_int("Theme","dvc1_g",38),get_config_int("Theme","dvc1_b",46)); //box fg is text
+		RAMpal[dvc(2)] = _RGB(get_config_int("Theme","dvc2_r",(16*63/255)), get_config_int("Theme","dvc2_g",(10*63/255)), get_config_int("Theme","dvc2_b",0));
+		RAMpal[dvc(3)] = _RGB(get_config_int("Theme","dvc3_r",17),get_config_int("Theme","dvc3_g",20),get_config_int("Theme","dvc3_b",20)); //slate
+		RAMpal[dvc(4)] = _RGB(get_config_int("Theme","dvc4_r",13),get_config_int("Theme","dvc4_g",14),get_config_int("Theme","dvc4_b",14)); //menu background
+		RAMpal[dvc(5)] = _RGB(get_config_int("Theme","dvc5_r",0),get_config_int("Theme","dvc5_g",0),get_config_int("Theme","dvc5_b",0));//menu text bg
+		RAMpal[dvc(6)] = _RGB(get_config_int("Theme","dvc6_r",13),get_config_int("Theme","dvc6_g",14),get_config_int("Theme","dvc6_b",14));//menu selected text
+		RAMpal[dvc(7)] = _RGB(get_config_int("Theme","dvc7_r",42),get_config_int("Theme","dvc7_g",60),get_config_int("Theme","dvc7_b",48));
+		RAMpal[dvc(8)] = _RGB(get_config_int("Theme","dvc8_r",6),get_config_int("Theme","dvc8_g",49),get_config_int("Theme","dvc8_b",35));//highlight on selected menu text
+		
+		byte palrstart= 10*63/255, palrend=166*63/255,
+		     palgstart= 36*63/255, palgend=202*63/255,
+		     palbstart=106*63/255, palbend=240*63/255,
+		     paldivs=7;
+	       
+		jwin_pal[jcBOX]    =dvc(get_config_int("Theme","jcbox",4));
+		jwin_pal[jcLIGHT]  =dvc(get_config_int("Theme","jclight",5));
+		jwin_pal[jcMEDLT]  =dvc(get_config_int("Theme","jcmedlt",4));
+		jwin_pal[jcMEDDARK]=dvc(get_config_int("Theme","jcmeddark",3));
+		jwin_pal[jcDARK]   =dvc(get_config_int("Theme","jcdark",2));
+		jwin_pal[jcBOXFG]  =dvc(get_config_int("Theme","jcboxfg",1));
+		jwin_pal[jcTITLEL] =dvc(get_config_int("Theme","jctitlel",3));
+		jwin_pal[jcTITLER] =dvc(get_config_int("Theme","jctitler",5));
+		jwin_pal[jcTITLEFG]=dvc(get_config_int("Theme","jctitlefg",7));
+		jwin_pal[jcTEXTBG] =dvc(get_config_int("Theme","jctextbg",5));
+		jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
+		jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
+		jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
+		
+	}
+	else
+	{
+		set_config_file(themefile);
+		RAMpal[dvc(1)] = _RGB(get_config_int("Theme","dvc1_r",4),get_config_int("Theme","dvc1_g",38),get_config_int("Theme","dvc1_b",46)); //box fg is text
+		RAMpal[dvc(2)] = _RGB(get_config_int("Theme","dvc2_r",(16*63/255)), get_config_int("Theme","dvc2_g",(10*63/255)), get_config_int("Theme","dvc2_b",0));
+		RAMpal[dvc(3)] = _RGB(get_config_int("Theme","dvc3_r",17),get_config_int("Theme","dvc3_g",20),get_config_int("Theme","dvc3_b",20)); //slate
+		RAMpal[dvc(4)] = _RGB(get_config_int("Theme","dvc4_r",13),get_config_int("Theme","dvc4_g",14),get_config_int("Theme","dvc4_b",14)); //menu background
+		RAMpal[dvc(5)] = _RGB(get_config_int("Theme","dvc5_r",0),get_config_int("Theme","dvc5_g",0),get_config_int("Theme","dvc5_b",0));//menu text bg
+		RAMpal[dvc(6)] = _RGB(get_config_int("Theme","dvc6_r",13),get_config_int("Theme","dvc6_g",14),get_config_int("Theme","dvc6_b",14));//menu selected text
+		RAMpal[dvc(7)] = _RGB(get_config_int("Theme","dvc7_r",42),get_config_int("Theme","dvc7_g",60),get_config_int("Theme","dvc7_b",48));
+		RAMpal[dvc(8)] = _RGB(get_config_int("Theme","dvc8_r",6),get_config_int("Theme","dvc8_g",49),get_config_int("Theme","dvc8_b",35));//highlight on selected menu text
+		
+		byte palrstart= 10*63/255, palrend=166*63/255,
+		     palgstart= 36*63/255, palgend=202*63/255,
+		     palbstart=106*63/255, palbend=240*63/255,
+		     paldivs=7;
+	       
+		jwin_pal[jcBOX]    =dvc(get_config_int("Theme","jcbox",4));
+		jwin_pal[jcLIGHT]  =dvc(get_config_int("Theme","jclight",5));
+		jwin_pal[jcMEDLT]  =dvc(get_config_int("Theme","jcmedlt",4));
+		jwin_pal[jcMEDDARK]=dvc(get_config_int("Theme","jcmeddark",3));
+		jwin_pal[jcDARK]   =dvc(get_config_int("Theme","jcdark",2));
+		jwin_pal[jcBOXFG]  =dvc(get_config_int("Theme","jcboxfg",1));
+		jwin_pal[jcTITLEL] =dvc(get_config_int("Theme","jctitlel",3));
+		jwin_pal[jcTITLER] =dvc(get_config_int("Theme","jctitler",5));
+		jwin_pal[jcTITLEFG]=dvc(get_config_int("Theme","jctitlefg",7));
+		jwin_pal[jcTEXTBG] =dvc(get_config_int("Theme","jctextbg",5));
+		jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
+		jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
+		jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
+		set_config_file("zquest.cfg"); //shift back when done
+	}
+    }
+    break;
     
     case 2019:  //2.55 DARK Theme
     {
@@ -22753,38 +22823,7 @@ int main(int argc,char **argv)
     }
     break;
     
-    case 99:  //User Defined
-    {
-	    
-        RAMpal[dvc(1)] = _RGB(get_config_int("Theme","dvc1_r",4),get_config_int("Theme","dvc1_g",38),get_config_int("Theme","dvc1_b",46)); //box fg is text
-        RAMpal[dvc(2)] = _RGB(get_config_int("Theme","dvc2_r",(16*63/255)), get_config_int("Theme","dvc2_g",(10*63/255)), get_config_int("Theme","dvc2_b",0));
-        RAMpal[dvc(3)] = _RGB(get_config_int("Theme","dvc3_r",17),get_config_int("Theme","dvc3_g",20),get_config_int("Theme","dvc3_b",20)); //slate
-        RAMpal[dvc(4)] = _RGB(get_config_int("Theme","dvc4_r",13),get_config_int("Theme","dvc4_g",14),get_config_int("Theme","dvc4_b",14)); //menu background
-        RAMpal[dvc(5)] = _RGB(get_config_int("Theme","dvc5_r",0),get_config_int("Theme","dvc5_g",0),get_config_int("Theme","dvc5_b",0));//menu text bg
-        RAMpal[dvc(6)] = _RGB(get_config_int("Theme","dvc6_r",13),get_config_int("Theme","dvc6_g",14),get_config_int("Theme","dvc6_b",14));//menu selected text
-        RAMpal[dvc(7)] = _RGB(get_config_int("Theme","dvc7_r",42),get_config_int("Theme","dvc7_g",60),get_config_int("Theme","dvc7_b",48));
-        RAMpal[dvc(8)] = _RGB(get_config_int("Theme","dvc8_r",6),get_config_int("Theme","dvc8_g",49),get_config_int("Theme","dvc8_b",35));//highlight on selected menu text
-        
-        byte palrstart= 10*63/255, palrend=166*63/255,
-             palgstart= 36*63/255, palgend=202*63/255,
-             palbstart=106*63/255, palbend=240*63/255,
-             paldivs=7;
-       
-        jwin_pal[jcBOX]    =dvc(get_config_int("Theme","jcbox",4));
-        jwin_pal[jcLIGHT]  =dvc(get_config_int("Theme","jclight",5));
-        jwin_pal[jcMEDLT]  =dvc(get_config_int("Theme","jcmedlt",4));
-        jwin_pal[jcMEDDARK]=dvc(get_config_int("Theme","jcmeddark",3));
-        jwin_pal[jcDARK]   =dvc(get_config_int("Theme","jcdark",2));
-        jwin_pal[jcBOXFG]  =dvc(get_config_int("Theme","jcboxfg",1));
-        jwin_pal[jcTITLEL] =dvc(get_config_int("Theme","jctitlel",3));
-        jwin_pal[jcTITLER] =dvc(get_config_int("Theme","jctitler",5));
-        jwin_pal[jcTITLEFG]=dvc(get_config_int("Theme","jctitlefg",7));
-        jwin_pal[jcTEXTBG] =dvc(get_config_int("Theme","jctextbg",5));
-        jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
-        jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
-        jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
-    }
-    break;
+    
     
     
     case 201018:  //20-oct-2018, PureZC Expo
