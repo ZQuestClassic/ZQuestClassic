@@ -1,0 +1,46 @@
+[Theme]
+dvc1_r = 63
+dvc1_g = 63
+dvc1_b = 63
+
+dvc2_r = 63
+dvc2_g = 63
+dvc2_b = 63
+
+dvc3_r = 20
+dvc3_g = 0
+dvc3_b = 63
+
+//main = bg
+dvc4_r = 10
+dvc4_g = 0
+dvc4_b = 30
+
+dvc5_r = 0
+dvc5_g = 0
+dvc5_b = 63
+
+dvc6_r = 63
+dvc6_g = 63
+dvc6_b = 63
+
+dvc7_r = 42
+dvc7_g = 60
+dvc7_b = 48
+
+dvc8_r = 20
+dvc8_g = 20
+dvc8_b = 0
+jcbox = 4
+jclight = 5
+jcmedlt = 4
+jcmeddark = 3
+jcdark = 2
+jcboxfg = 1
+jctitlel = 3
+jctitler = 5
+jctitlefg = 7
+jctextbg = 5
+jctextfg = 1
+jcselbg = 8
+jcselfg = 6
