@@ -1,7 +1,20 @@
 //2.55 Changes
 
-//Alpha 34
+//Alpha 35
 
+Added User Themes
+	Added the ability for the user to define custom GUI themes for
+	ZC Player, and for ZQuest. The GUI set for the user theme is '99'.
+	The values for the theme are set in zc.cfg under [Theme] for ZC Player, and
+	in zquest.cfg under [Theme] for ZQ Editor.
+Updated Classic.zh to v1.11
+	Added ffc script ScreenGuyMusic and fuction: bool __classic_zh_ScreenGuyAlive()
+	Added arg for BossExplode ffc for enemy ID override as D7
+Display a grid in the mapscreen selector box in ZQ if the current
+	map is an overworld palette rank (0x00, 0x10, 0x20 ...).
+	( ZoriaRPG, 8th October, 2019 )
+
+//Alpha 34
 Files: Add WinFlex/WinBison to ./other and unco,pressed al-gif to Repo.
 	Added the CORRECT versions of WnFlex and WinBison to the repo so that
 	anyone who wants t compile with MSVC has the files immmediately.
