@@ -4564,10 +4564,30 @@ void refresh(int flags)
             {
                 if(Map.Scr(i)->valid&mVALID)
                 {
-                    //vc(0)
+                   
+		    /* Level palettes ending in 0 can display in screen grid as pure black*/
+			
+		    if(((Map.Scr(i)->color)&15)>0)
+                    {
                     rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
                              (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-                             
+		    }
+		    else
+		    {
+			
+			rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
+                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+//                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
+		        safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
+			    
+		    }
+			
+		    //vc(0)
+			
+		/*
+                    rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
+                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+                       */      
                     if(((Map.Scr(i)->color)&15)>0)
                     {
                         if(!is_large)
@@ -4598,8 +4618,16 @@ void refresh(int flags)
             
             int s=Map.getCurrScr();
             // The white marker rect
-            safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
-            
+	    if(((Map.Scr(s)->color)&15)>0)
+	    {
+		safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
+            }
+	    else
+	    {
+		safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(8));
+            }
+	    
+	    
             textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
             textprintf_ex(menu1,font,minimap.x+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
             
@@ -25736,6 +25764,39 @@ int main(int argc,char **argv)
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+    }
+    break;
+    
+    case 99:  //User Defined
+    {
+	    
+        RAMpal[dvc(1)] = _RGB(get_config_int("Theme","dvc1_r",4),get_config_int("Theme","dvc1_g",38),get_config_int("Theme","dvc1_b",46)); //box fg is text
+        RAMpal[dvc(2)] = _RGB(get_config_int("Theme","dvc2_r",(16*63/255)), get_config_int("Theme","dvc2_g",(10*63/255)), get_config_int("Theme","dvc2_b",0));
+        RAMpal[dvc(3)] = _RGB(get_config_int("Theme","dvc3_r",17),get_config_int("Theme","dvc3_g",20),get_config_int("Theme","dvc3_b",20)); //slate
+        RAMpal[dvc(4)] = _RGB(get_config_int("Theme","dvc4_r",13),get_config_int("Theme","dvc4_g",14),get_config_int("Theme","dvc4_b",14)); //menu background
+        RAMpal[dvc(5)] = _RGB(get_config_int("Theme","dvc5_r",0),get_config_int("Theme","dvc5_g",0),get_config_int("Theme","dvc5_b",0));//menu text bg
+        RAMpal[dvc(6)] = _RGB(get_config_int("Theme","dvc6_r",13),get_config_int("Theme","dvc6_g",14),get_config_int("Theme","dvc6_b",14));//menu selected text
+        RAMpal[dvc(7)] = _RGB(get_config_int("Theme","dvc7_r",42),get_config_int("Theme","dvc7_g",60),get_config_int("Theme","dvc7_b",48));
+        RAMpal[dvc(8)] = _RGB(get_config_int("Theme","dvc8_r",6),get_config_int("Theme","dvc8_g",49),get_config_int("Theme","dvc8_b",35));//highlight on selected menu text
+        
+        byte palrstart= 10*63/255, palrend=166*63/255,
+             palgstart= 36*63/255, palgend=202*63/255,
+             palbstart=106*63/255, palbend=240*63/255,
+             paldivs=7;
+       
+        jwin_pal[jcBOX]    =dvc(get_config_int("Theme","jcbox",4));
+        jwin_pal[jcLIGHT]  =dvc(get_config_int("Theme","jclight",5));
+        jwin_pal[jcMEDLT]  =dvc(get_config_int("Theme","jcmedlt",4));
+        jwin_pal[jcMEDDARK]=dvc(get_config_int("Theme","jcmeddark",3));
+        jwin_pal[jcDARK]   =dvc(get_config_int("Theme","jcdark",2));
+        jwin_pal[jcBOXFG]  =dvc(get_config_int("Theme","jcboxfg",1));
+        jwin_pal[jcTITLEL] =dvc(get_config_int("Theme","jctitlel",3));
+        jwin_pal[jcTITLER] =dvc(get_config_int("Theme","jctitler",5));
+        jwin_pal[jcTITLEFG]=dvc(get_config_int("Theme","jctitlefg",7));
+        jwin_pal[jcTEXTBG] =dvc(get_config_int("Theme","jctextbg",5));
+        jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
+        jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
+        jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
     }
     break;
     
