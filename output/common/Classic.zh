@@ -9,12 +9,12 @@
 namespace classic_zh
 {
 	//Version Info:
-	const float VERSION 			= 2.10; 
-	const int DATE_DAY 			= 10;
-	const int DATE_MONTH 			= 9;
+	const float VERSION 			= 2.11; 
+	const int DATE_DAY 			= 8;
+	const int DATE_MONTH 			= 10;
 	const int DATE_YEAR 			= 2019;
-	const int HOUR				= 9;
-	const int MINUTE			= 25;
+	const int HOUR				= 0;
+	const int MINUTE			= 26;
 	
 	//System Limits
 	const int MAX_ITEMS			= 512;
@@ -186,7 +186,7 @@ ffc script BossMusic
 
 ffc script BossExplode
 {
-	void run(int reg, int spr, int dur, int sfx, int delay, int rmin, int rmax)
+	void run(int reg, int spr, int dur, int sfx, int delay, int rmin, int rmax, int enemy_override)
 	{
 		this->Data = classic_zh::CMB_INVISIBLE;
 		int type;
@@ -201,7 +201,7 @@ ffc script BossExplode
 		for ( int q = Screen->NumNPCs(); q > 0; --q )
 		{
 			npc n = Screen->LoadNPC(q);
-			if ( classic_zh::isBoss(n) ) 
+			if ( classic_zh::isBoss(n) || n->ID == enemy_override ) 
 			{
 				boss = n; 
 				width = n->TileWidth;
@@ -528,5 +528,38 @@ item script MagicCompass
 		{
 			Game->LItems[q] |= LI_COMPASS;
 		}
+	}
+}
+
+
+//Returns if there are enemy NPCs alive on the current screen.
+bool __classic_zh_ScreenGuyAlive()
+{
+	bool alive = false; 
+	for ( int q = Screen->NumNPCs(); q > 0; --q )
+	{
+		npc n = Screen->LoadNPC(q); 
+		if ( n->Type == NPCT_GUY )
+		{
+			alive = true;
+		}
+	}
+	return alive;
+}
+
+
+ffc script ScreenGuyMusic
+{
+	void run(int reg, int mid, int trk)
+	{
+		this->Data = CMB_INVISIBLE;
+		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DEAD ) Quit(); //Don't play victory music if we return to the screen.
+		if ( trk < 1 ) trk = _classic_zh__TRK_BOSS;
+		if ( mid < 1 ) mid = _classic_zh__MIDI_VICTORY;
+		int filenm[]="Classic.nsf";
+		Waitframes(5);
+		Game->PlayEnhancedMusic(filenm,trk);
+		while(__classic_zh_ScreenGuyAlive()) Waitframe();
+		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
 	}
 }
