@@ -2,6 +2,16 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Theme: Added theme files:
+	Ice : themes/ice.ztheme
+	Legacy : themes/legacy192.ztheme
+	DarkBlue : themes/darkblue.ztheme
+	Hotdog : themes/hotdog.ztheme
+Feat: Allow .ztheme File to be Separate
+	Added theme_filename string to [Theme] section in zc.cfg and in
+	zquest.cfg. If set to a valid configuration file, the theme configs will 
+	load from the specified file.
+	I'm reserving '.ztheme' and '.zskin' for this file type, ZC Theme skins.
 Added User Themes
 	Added the ability for the user to define custom GUI themes for
 	ZC Player, and for ZQuest. The GUI set for the user theme is '99'.
