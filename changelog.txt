@@ -3,6 +3,7 @@
 //Alpha 35
 
 Theme: Added theme files:
+	MooshMood: themes/mooshmood.ztheme
 	Ice : themes/ice.ztheme
 	Legacy : themes/legacy192.ztheme
 	DarkBlue : themes/darkblue.ztheme
