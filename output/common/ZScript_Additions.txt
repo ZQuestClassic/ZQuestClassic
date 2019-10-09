@@ -43,6 +43,7 @@ The ZScript parser supports the following standard and alternative tokens:
 >=		:	More-Than-or-Equal
 ==		: 	Equal
 !=		:	Not-Equal
+<>		:	Not-Equal
 equals		: 	Equivalent to 	==
 not_equal 	:	Equivalent to 	!=
 
