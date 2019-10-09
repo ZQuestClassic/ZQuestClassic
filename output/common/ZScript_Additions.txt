@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 34
-Document Revision: 5th October, 2019
+Document for: 2.55, Alpha 36
+Document Revision: 9th October, 2019
 
 
 ////////////////////////////////////////////////////
@@ -1236,7 +1236,18 @@ You may now explicitly cast a value, using a type in angle braces.
 	int x = <int>f;
 
 	f = <ffc>2;
+	
+///////////////////////////	
+/// Arrow from Function ///
+///////////////////////////
 
+You may now use the arrow (->) operator on functions of datatypes/pointers.
+	Example:
+	int sfx = Game->LoadItemData(16)->UseSound;
+	
+	Previously, you were required to do his in two stages as:
+	itemdata id = Game->LoadItemData(16);
+		int sfx = id->UseSound;
 
 ////////////////////
 // Comment Blocks //
