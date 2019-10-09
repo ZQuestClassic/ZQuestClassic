@@ -2,6 +2,11 @@
 
 //Alpha 36
 
+ZCL v2.7.4
+Added User Theme Load Button, User Theme lister selection, 
+	and User theme preview image (using Legacy theme, small mode).
+	( ZoriaRPG, 9th October, 2019 )
+
 Added numpad PLUS and numpad MINUS with CONTROL or SHIFT to the last commit.
 The keys used to change the current CSet (- and =, but let's call them MINUS and PLUS)
 	now allow changing the Level Palette by +/-1 or +/-16, in addition
