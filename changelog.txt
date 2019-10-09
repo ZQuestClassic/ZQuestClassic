@@ -2,6 +2,7 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Added numpad PLUS and numpad MINUS with CONTROL or SHIFT to the last commit.
 The keys used to change the current CSet (- and =, but let's call them MINUS and PLUS)
 	now allow changing the Level Palette by +/-1 or +/-16, in addition
 	to working on CSet as before.
