@@ -1244,6 +1244,7 @@ You may now explicitly cast a value, using a type in angle braces.
 You may now use the arrow (->) operator on functions of datatypes/pointers.
 	Example:
 	int sfx = Game->LoadItemData(16)->UseSound;
+	int ilvl = Game->LoadItemData(Screen->LoadLWeapon(1)->Parent)->Level;
 	
 	Previously, you were required to do his in two stages as:
 	itemdata id = Game->LoadItemData(16);
