@@ -3165,7 +3165,7 @@ int main(int argc, char* argv[])
         
         if(!exists("6th.qst") && !exists(path))
         {
-            Z_error("\"6th.qst\" not found.");
+            al_trace("\"6th.qst\" not found.");
             //quit_game();
         }
         
