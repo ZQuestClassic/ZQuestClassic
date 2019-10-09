@@ -2,6 +2,11 @@
 
 //Alpha 36
 
+ZCL 2.7.5
+Split up Theme/Colour settings for ZC Player and ZQuest
+Added / replaced some tab icons (drivers, colours tabs, notes tab).
+	( ZoriaRPG, 9th October, 2019 )
+	
 ZCL v2.7.4
 Added User Theme Load Button, User Theme lister selection, 
 	and User theme preview image (using Legacy theme, small mode).
