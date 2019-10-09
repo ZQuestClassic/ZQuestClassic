@@ -1039,8 +1039,7 @@ static DIALOG dialogs[] =
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
     { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
     
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '-',     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
+    
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '*',     0,       0,              0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_CLOSEBRACE, 0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '/',     0,       0,              0, (void *) onDecreaseFlag, NULL, NULL },
@@ -1112,10 +1111,17 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '%',     0,       0,              0, (void *) on15, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    ',',     0,       0,              0, (void *) onDecMap, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '.',     0,       0,              0, (void *) onIncMap, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '<',     0,       0,              0, (void *) onDecScrPal, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '>',     0,       0,              0, (void *) onIncScrPal, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '_',     0,       0,              0, (void *) onDecScrPal16, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '+',     0,       0,              0, (void *) onIncScrPal16, NULL, NULL },
+    
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_MINUS,          0, (void *) onDecColour, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_EQUALS,          0, (void *) onIncColour, NULL, NULL },
+    
+    //{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
+    //{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '-',     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
+    
+    //{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '<',     0,       0,              0, (void *) onDecScrPal, NULL, NULL },
+    //{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '>',     0,       0,              0, (void *) onIncScrPal, NULL, NULL },
+    //{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '_',     0,       0,              0, (void *) onDecScrPal16, NULL, NULL },
+    //{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '+',     0,       0,              0, (void *) onIncScrPal16, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_TILDE,      0, (void *) onToggleGrid, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    39,      0,       0,              0, (void *) onUsedCombos, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SPACE,      0, (void *) onSpacebar, NULL, NULL },
@@ -1123,6 +1129,45 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ENTER,      0, (void *) onEnter, NULL, NULL },
     { NULL,              0,    0,    0,    0,    0,    0,    0,       0,       0,              0,       NULL, NULL, NULL }
 };
+
+
+int onDecColour()
+{
+	if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] )
+	{
+		return onDecScrPal16();
+	}
+	
+	else if ( key[KEY_LSHIFT] || key[KEY_RSHIFT] )
+	{
+		return onDecScrPal();
+	}
+	
+	else
+	{
+		return onDecreaseCSet();
+	}
+}
+
+int onIncColour()
+{
+	
+	if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] )
+	{
+		return onIncScrPal16();
+	}
+	
+	else if ( key[KEY_LSHIFT] || key[KEY_RSHIFT] )
+	{
+		return onIncScrPal();
+	}
+	
+	else
+	{
+		return onIncreaseCSet();
+	}
+ }
+
 
 static DIALOG getnum_dlg[] =
 {
