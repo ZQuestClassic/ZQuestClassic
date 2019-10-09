@@ -32,6 +32,15 @@
 #include "gamedata.h"
 #include "link.h"
 #include "mem_debug.h"
+#include <fstream>
+
+
+inline bool quest_exists(const char *filename) 
+{
+	std::ifstream ifile(filename);
+	return (bool)ifile;
+}
+
 
 #ifdef _MSC_VER
 #define strupr _strupr
@@ -2535,7 +2544,7 @@ static bool register_name()
         if(!stricmp(buf,"JEAN")) // This is what BigJoe wanted. I have no problem with it.
 			quest=5;
         
-	if(!stricmp(buf,"OMNIUS")) 
+	if(!stricmp(buf,"OMNIUS") && quest_exists("6th.qst")) 
 			quest=6;
         
         saves[s].set_quest(quest);
