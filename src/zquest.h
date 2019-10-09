@@ -311,6 +311,8 @@ int onDeleteMap();
 int onToggleDarkness();
 int onIncMap();
 int onDecMap();
+int onDecColour();
+int onIncColour();
 int onDefault_Pals();
 int onDefault_Combos();
 int onDefault_Items();
