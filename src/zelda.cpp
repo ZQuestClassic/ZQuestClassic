@@ -3160,6 +3160,14 @@ int main(int argc, char* argv[])
             Z_error("\"5th.qst\" not found.");
             quit_game();
         }
+	
+	append_filename(path, qstdir, "6th.qst", 2048);
+        
+        if(!exists("6th.qst") && !exists(path))
+        {
+            Z_error("\"6th.qst\" not found.");
+            //quit_game();
+        }
         
         Z_message("OK\n");
     }

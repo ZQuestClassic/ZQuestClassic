@@ -2,6 +2,7 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Add error on missing 6th.qst, but do not quit ZC.
 Add quest file sanity check to OMNIUS skip.
 Added OMNIUS to skip to 6th.qst.
 Add shield tile 20327 to 6th.qst on title screen (title.cpp).
