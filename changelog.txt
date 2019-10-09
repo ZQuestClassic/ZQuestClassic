@@ -2,6 +2,10 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Added OMNIUS to skip to 6th.qst.
+Add shield tile 20327 to 6th.qst on title screen (title.cpp).
+	We will update this with a shield that has a 6 inside it in 
+	the final build, on tile page 1 of the qst.dat.
 Prepare ZC Player for 6th quest, and add Linear Quest Progression menu option
 	to play quests n the order of 1->2->3->4->5->6.
 	

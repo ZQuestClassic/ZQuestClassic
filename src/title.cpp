@@ -2080,6 +2080,11 @@ static void list_save(int save_num, int ypos)
 			overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
 			overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
 		}
+		
+		if(saves[save_num].get_quest()==6)
+		{
+			overtile16(framebuf,20327,52,ypos+14,9,0);             //shield
+		}
 
         textprintf_ex(framebuf,zfont,72,ypos+16,1,0,"%s",saves[save_num].get_name());
     }
@@ -2529,6 +2534,9 @@ static bool register_name()
            
         if(!stricmp(buf,"JEAN")) // This is what BigJoe wanted. I have no problem with it.
 			quest=5;
+        
+	if(!stricmp(buf,"OMNIUS")) 
+			quest=6;
         
         saves[s].set_quest(quest);
         
