@@ -796,7 +796,7 @@ Waitdraw Support:	Yes
 *		If the player warps while this script is running, then the engine
 *		will load the DMap Active script from the destination DMap (if any).
 *			If using a scripted DMap Active Subscreen script, you have
-*			the option that this script continues to run while the scriped
+*			the option that this script continues to run while the scripted
 *			subscreen is open.
 *	Scripted Subscreen (Active)
 *		This scrip runs, if assigned, when the player presses the
@@ -814,7 +814,7 @@ Waitdraw Support:	Yes
 *		If the player warps while this script is running, then the engine
 *		will load the Scripted Subscreen (Passive) DMap script from the destination DMap (if any).
 *			If using a scripted DMap Active Subscreen script, you have
-*			the option that this script continues to run while the scriped
+*			the option that this script continues to run while the scripted
 *			subscreen is open.
 *
 * DMap scripts run only on DMaps where they are set to run.
