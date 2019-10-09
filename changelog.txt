@@ -2,6 +2,12 @@
 
 //Alpha 36
 
+Added the following hotkeys:
+	_ ( shift and minus ) : Decrease Current Level Palette by 16
+	+ ( shift and equals ) :Increase Current Level Palette by 16.
+	% :Set Current Level palette to 15 (0 to 14 were previously possible). 
+	( ZoriaRPG, 9th October, 2019 )
+
 Fixed lvl colours not pulling an average for palettes enfing in E or F.
 	( Venrob, implemented by ZoriaRPG, 9th October, 2019 )
 
