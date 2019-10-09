@@ -777,8 +777,8 @@ Waitdraw Support:	Yes, based on slot.
  
 TOKEN(s):		dmapdata script
 POINTER: 		dmapdata
-InitD:			Yes, [8]
-InitD Labels:		Yes, [8]
+InitD:			Yes, [8] each (active, scripted subscreen)
+InitD Labels:		Yes, [8] each (active, scripted subscreen)
 InitA:			No
 Multiple Frames:	Yes
 Waitdraw Support:	Yes
@@ -789,19 +789,55 @@ Waitdraw Support:	Yes
 * This script can run for multiple frames, and it runs after the GLOBAL ACTIVE script.
 * You may use Waitdraw() in this script type. 
 *
+* There are three script slots in the DMap Editor:
+*	Active
+*		This script runs whenever the player is on the DMap.
+*		It has eight InitD args and eight InitD strings.
+*		If the player warps while this script is running, then the engine
+*		will load the DMap Active script from the destination DMap (if any).
+*			If using a scripted DMap Active Subscreen script, you have
+*			the option that this script continues to run while the scriped
+*			subscreen is open.
+*	Scripted Subscreen (Active)
+*		This scrip runs, if assigned, when the player presses the
+*		START button, IN PLACE OF THE NORMAL ACTIVE SUBSCREEN for this DMap. 
+*		This script type has eight InitD args and eight InitD strings.
+*		If the player warps while this script is running, then the engine will
+*		load the Scripted Subscreen (Active) DMap script from the destination DMap.
+*		If the destination DMap lacks a Scripted Subscreen (Active) DMap script,
+*		then the virtual subscreen will close/terminate. 
+*	Scripted Subscreen (Passive)
+*		If assigned, this script runs whenever the player is on the DMap.
+*		Its purpose is to permit creating a scripted passive subscreen.
+*		This script shares its InitD args and InitD strings with the Scripted 
+*		Subscreen (Active) script.
+*		If the player warps while this script is running, then the engine
+*		will load the Scripted Subscreen (Passive) DMap script from the destination DMap (if any).
+*			If using a scripted DMap Active Subscreen script, you have
+*			the option that this script continues to run while the scriped
+*			subscreen is open.
+*
 * DMap scripts run only on DMaps where they are set to run.
-* Warping to a DMap with a dmap script will start that script.
+* Warping to a DMap with a dmap (Active, or Subscreen[Passive] type) script set will start that script.
 *
 * You can assign this script to a DMap in the DMAPS EDITOR dialogue. 
 *	To do this, open the DMAPS EDITOR, and select the 'Scripts' tab.
 *
-* You may assign scripts to DMaps from other scripts, via dmapdata->Script
-* 	on an initialised dmapdata pointer.
+* You may assign scripts to DMaps from other scripts on an initialised dmapdata pointer, 
+* via dmapdata->Script, and dmapdata->SubscreenScript[2] where the indices are:
 *
-* DMap Scripts have eight InitD[] args, in the DMAP EDITOR for this script type.
+*	DMD_SUBSCREEN_ACTIVE	 = 0
+*	DMD_SUBSCREEN_PASSIVE	 = 0
+*
+* DMap Active Scripts have eight InitD[] args, in the DMAP EDITOR for this script type.
 * 	You may assign values to these in the DMAP EDITOR, and you may label the fields
 * 	for these InitD values in the DMAP EDITOR.
 * 	You may also read or write to them by script with dmapdata->InitD[] (or this->InitD[])
+*
+* DMap Subscreen Scripts have eight InitD[] args, in the DMAP EDITOR for this script type.
+* 	You may assign values to these in the DMAP EDITOR, and you may label the fields
+* 	for these InitD values in the DMAP EDITOR.
+* 	You may also read or write to them by script with dmapdata->SubscreenInitD[] (or this->SubscreenInitD[])
 *
 * Trying to modify the script while it is running with this->Script, is untested.
 
