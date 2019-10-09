@@ -1,7 +1,11 @@
 //2.55 Changes
 
-//Alpha 35
+//Alpha 36
 
+Fix: Clear RenderTargets set by Previous Quest
+	( ZoriaRPG, 9th October, 2019 )
+
+//Alpha 35
 Theme: Added theme files:
 	MooshMood: themes/mooshmood.ztheme
 	Ice : themes/ice.ztheme
