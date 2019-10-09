@@ -2,6 +2,9 @@
 
 //Alpha 36
 
+Fixed lvl colours not pulling an average for palettes enfing in E or F.
+	( Venrob, implemented by ZoriaRPG, 9th October, 2019 )
+
 Fix: Clear RenderTargets set by Previous Quest
 	( ZoriaRPG, 9th October, 2019 )
 
