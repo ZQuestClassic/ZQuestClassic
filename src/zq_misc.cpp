@@ -293,7 +293,7 @@ void loadfadepal(int dataset)
 
 void setup_lcolors()
 {
-    for(int i=0; i<14; i++)
+    for(int i=0; i<16; i++)
     {
         RAMpal[lc1(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+2)*3);
         RAMpal[lc2(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+16+1)*3);
