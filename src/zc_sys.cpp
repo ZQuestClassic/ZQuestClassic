@@ -54,6 +54,7 @@
 #include "zconsole.h"
 
 #include "ffscript.h"
+byte linear_quest_loading = 0;
 extern FFScript FFCore;
 
 static int sfx_voice[WAV_COUNT];
@@ -328,6 +329,7 @@ void load_game_configs()
     
     scanlines = get_config_int(cfg_sect,"scanlines",0)!=0;
     loadlast = get_config_int(cfg_sect,"load_last",0);
+    linear_quest_loading = get_config_int("zeldadx","linear_quest_progression",1);
     
 // Fullscreen, page flipping may be problematic on newer windows systems.
 #ifdef _WIN32
@@ -491,6 +493,7 @@ void save_game_configs()
     
     set_config_int(cfg_sect,"scanlines",scanlines);
     set_config_int(cfg_sect,"load_last",loadlast);
+    set_config_int(cfg_sect,"linear_quest_progression",linear_quest_loading);
     chop_path(qstdir);
     set_config_string(cfg_sect,qst_dir_name,qstdir);
     set_config_string("SAVEFILE","save_filename",save_file_name);
@@ -7273,6 +7276,8 @@ int onScreenSaver()
     return D_O_K;
 }
 
+
+
 /*****  Menus  *****/
 
 static MENU game_menu[] =
@@ -7280,6 +7285,8 @@ static MENU game_menu[] =
     { (char *)"&Continue\tESC",            onContinue,               NULL,                      0, NULL },
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
     { (char *)"L&oad Quest...",            onCustomGame,             NULL,                      0, NULL },
+    { (char *)"Linear Quest Progression",             onLinearQuestLoad,                NULL,                      0, NULL },
+    
     { (char *)"&End Game\tF6",             onQuit,                   NULL,                      0, NULL },
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
 #ifndef ALLEGRO_MACOSX
@@ -7375,6 +7382,31 @@ int on192b163compatibility()
 	}
     return D_O_K;
 }
+
+int onLinearQuestLoad()
+{
+	if(jwin_alert3(
+			"Linear Classic Quests", 
+			"This action will change whether the classic quests (e.g., 1st, 2nd) run ",
+			"in a strictly linear order, or in an order determined based on your play.  . ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (linear_quest_loading ) linear_quest_loading = 0;
+	    
+	    else linear_quest_loading = 1;	
+		
+	}
+	save_game_configs();
+    return D_O_K;
+}
+
 
 int v250_dmap_intro_repeat()
 {
@@ -8832,7 +8864,8 @@ void System()
     misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
     
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
-    game_menu[3].flags =
+	game_menu[3].flags =(linear_quest_loading)?D_SELECTED:0;
+    game_menu[4].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;
     misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
     

@@ -30,11 +30,20 @@
 #include "init.h"
 #include "gamedata.h"
 
+#include <fstream>
+ 
+extern byte linear_quest_loading; 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 
 //extern bool draw_screen_clip_rect_show_link;
 //extern bool draw_screen_clip_rect_show_guys;
+
+inline bool file_exists(const char *filename) 
+{
+	std::ifstream ifile(filename);
+	return (bool)ifile;
+}
 
 namespace
 {
@@ -608,44 +617,108 @@ void ending()
 
 void inc_quest()
 {
-    char name[9];
-    strcpy(name,game->get_name());
-    // Go to quest 3 if you got some heart containers,
-    // or quest 4 if you got them all.
-    int quest;
+	char name[9];
+	strcpy(name,game->get_name());
+	// Go to quest 3 if you got some heart containers,
+	// or quest 4 if you got them all.
+	int quest = 0; int deaths = game->get_deaths();
+	
+	int linear = get_config_int("zeldadx","linear_quest_progression",1);
+	
+	if ( linear_quest_loading )
+	{
+		int curquest = game->get_quest();
+		switch(curquest)
+		{
+			case 1: quest = 2; break;
+			case 2: quest = 3; break;
+			case 3: quest = 4; break;
+			case 4: quest = 5; break;
+			case 5: 
+			{
+				if ( file_exists("6th.qst") )
+				{
+					quest = 6;
+				}
+				else quest = 5;
+				break;
+			}
+		}
+	}
+	else
+	{
     
-    if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
-        quest = 4;
-    else
-        quest = zc_min(game->get_quest()+1,5);
+		if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
+			quest = 4;
+		else
+			quest = zc_min(game->get_quest()+1,(file_exists("6th.qst")) ? 6 : 5);
+	
+		if(game->get_quest()==3 && game->get_maxlife()>=HP_PER_HEART*16)
+			quest = 4;
 
-	if(game->get_quest()==3 && game->get_maxlife()>=HP_PER_HEART*16)
-		quest = 4;
-        
-    int deaths = game->get_deaths();
+		
+		// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
+		if(game->get_quest()==3 && deaths == 0)
+			quest = 5;
+	
+		// Likewise, if you beat the 5th but died, go back to the 4th or move on to 6th if it exists.
+		if(game->get_quest()==5 && deaths > 0)
+		{
+			if ( file_exists("6th.qst") )
+			{
+				quest = 6;
+			}
+			else quest = 4;
+		}
+	
+		/*
+		// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
+		if(game->get_quest()==3 && deaths == 0)
+			quest = 5;
+	
+		if ( game->get_quest()== 4 && deaths > 0 )
+		{
+			if ( file_exists("6th.qst") )
+			{
+				quest = 6;
+			}
+			else quest = 5;
+		}
+		
 
-	// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
-	if(game->get_quest()==3 && deaths == 0)
-		quest = 5;
 
-	// Likewise, if you beat the 5th but died, go back to the 4th.
-	if(game->get_quest()==5 && deaths > 0)
-		quest = 4;
+		// Likewise, if you beat the 5th but died, go back to the 4th.
+		if(game->get_quest()==5 && deaths > 0)
+		{
+			if ( file_exists("6th.qst") )
+			{
+				quest = 6;
+			}
+			else quest = 4;
+		}
+		
+		else if ( game->get_quest()==5 && deaths == 0 && file_exists("6th.qst") )
+		{
+			quest = 6;
+		}
+		
+		*/
+	
 
-    game->Clear();
-    
-    game->set_name(name);
-    game->set_quest(quest);
-    game->set_deaths(deaths);
-    game->set_maxlife(3*HP_PER_HEART);
-    game->set_life(3*HP_PER_HEART);
-    game->set_maxbombs(8);
-    game->set_hasplayed(true);
-    game->set_continue_dmap(zinit.start_dmap);
-    game->set_continue_scrn(0x77);
-    resetItems(game,&zinit,true);
-    load_quest(game);
-    load_game_icon_to_buffer(false,currgame);
-    load_game_icon(game,false,currgame);
+		game->Clear();
+	}
+	game->set_name(name);
+	game->set_quest(quest);
+	game->set_deaths(deaths);
+	game->set_maxlife(3*HP_PER_HEART);
+	game->set_life(3*HP_PER_HEART);
+	game->set_maxbombs(8);
+	game->set_hasplayed(true);
+	game->set_continue_dmap(zinit.start_dmap);
+	game->set_continue_scrn(0x77);
+	resetItems(game,&zinit,true);
+	load_quest(game);
+	load_game_icon_to_buffer(false,currgame);
+	load_game_icon(game,false,currgame);
 }
 

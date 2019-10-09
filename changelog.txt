@@ -2,6 +2,15 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Prepare ZC Player for 6th quest, and add Linear Quest Progression menu option
+	to play quests n the order of 1->2->3->4->5->6.
+	
+	If that is DISABLED:
+		if you beat the 5th but died, go back to the 4th AS BEFORE, 
+		or move on to 6th NOW, if it exists.
+	I will redact this and use the ZC2.55 modules method if I backport that. 	
+	( ZoriaRPG, 9th October, 2019 )
+
 ZCL 2.7.5
 Split up Theme/Colour settings for ZC Player and ZQuest
 Added / replaced some tab icons (drivers, colours tabs, notes tab).

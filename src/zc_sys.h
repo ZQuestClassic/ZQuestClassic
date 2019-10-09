@@ -30,6 +30,7 @@ void draw_lens_under(BITMAP *dest, bool layer);
 void draw_lens_over();
 void fix_menu();
 int onFullscreenMenu();
+int onLinearQuestLoad();
 void f_Quit(int type);
 void advanceframe(bool allowwavy, bool sfxcleaup = true);
 void updatescr(bool allowwavy);

@@ -2943,7 +2943,8 @@ int main(int argc, char* argv[])
           stricmp(standalone_quest, "2nd.qst")==0 ||
           stricmp(standalone_quest, "3rd.qst")==0 ||
           stricmp(standalone_quest, "4th.qst")==0 ||
-          stricmp(standalone_quest, "5th.qst")==0)
+          stricmp(standalone_quest, "5th.qst")==0 ||
+          stricmp(standalone_quest, "6th.qst")==0)
         {
             Z_error("Standalone mode can only be used with custom quests.");
             exit(1);
