@@ -2,6 +2,9 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Fix: Clear RenderTargets set by Previous Quest
+	( ZoriaRPG, 9th October, 2019 )
+
 Theme: Added theme files:
 	MooshMood: themes/mooshmood.ztheme
 	Ice : themes/ice.ztheme

@@ -1273,6 +1273,8 @@ int init_game()
     add_nl2asparkle=false;
     add_nl2bsparkle=false;
     gofast=false;
+    //al_trace("Clearing old RenderTarget\n");
+    zscriptDrawingRenderTarget->SetCurrentRenderTarget(0); //clear the last set Rendertarget between games
     
     cheat=0;
     wavy=quakeclk=0;
