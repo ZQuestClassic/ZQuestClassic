@@ -1109,10 +1109,13 @@ static DIALOG dialogs[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '@',     0,       0,              0, (void *) on12, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '#',     0,       0,              0, (void *) on13, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '$',     0,       0,              0, (void *) on14, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '%',     0,       0,              0, (void *) on15, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    ',',     0,       0,              0, (void *) onDecMap, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '.',     0,       0,              0, (void *) onIncMap, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '<',     0,       0,              0, (void *) onDecScrPal, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '>',     0,       0,              0, (void *) onIncScrPal, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '_',     0,       0,              0, (void *) onDecScrPal16, NULL, NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '+',     0,       0,              0, (void *) onIncScrPal16, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_TILDE,      0, (void *) onToggleGrid, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    39,      0,       0,              0, (void *) onUsedCombos, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SPACE,      0, (void *) onSpacebar, NULL, NULL },
@@ -2053,6 +2056,14 @@ int on14()
 {
     saved=false;
     Map.setcolor(14);
+    refresh(rSCRMAP);
+    return D_O_K;
+}
+
+int on15()
+{
+    saved=false;
+    Map.setcolor(15);
     refresh(rSCRMAP);
     return D_O_K;
 }
@@ -11503,6 +11514,39 @@ int onIncScrPal()
     int c=Map.getcolor();
     c+=1;
     c=c%512;
+    Map.setcolor(c);
+    refresh(rALL);
+    return D_O_K;
+}
+
+int PalWrap(int kX, int const kLowerBound, int const kUpperBound)
+{
+    int range_size = kUpperBound - kLowerBound + 1;
+
+    if (kX < kLowerBound)
+        kX += range_size * ((kLowerBound - kX) / range_size + 1);
+
+    return kLowerBound + (kX - kLowerBound) % range_size;
+}
+
+int onDecScrPal16()
+{
+    restore_mouse(); 
+    int c=Map.getcolor();
+    al_trace("Wrapping Pal\n");    
+    c = PalWrap( ( c-0x10 ), 0, 511 );
+     
+    Map.setcolor(c);
+    refresh(rALL);
+    return D_O_K;
+}
+
+int onIncScrPal16()
+{
+    restore_mouse();
+    int c=Map.getcolor();
+    al_trace("Wrapping pal\n");   	    
+    c = PalWrap( ( c+0x10 ), 0, 511 );
     Map.setcolor(c);
     refresh(rALL);
     return D_O_K;
