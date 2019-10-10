@@ -2,6 +2,11 @@
 
 //Alpha 36
 
+DEVLEVEL Changes
+Changed the minimum DEVLEVEL required to log Events, Script Errors,
+and Script IDs from > 1 to > 0.
+	( ZoriaRPG, 10th October, 2019 )
+
 ZCL 2.7.7
 Move RomView into a sub-directory and bundle old fonts.dat
 and allegro.lib with it so that it runs in 2,55.
@@ -4586,10 +4591,10 @@ Re-added case for BITMAPEXR that was lost in migration from DD Master. -Z
 	( Venrob, for ZoriaRPG, 26th October, 2018 )
 
 Fix VBound range limit on some tints.
-	( Venrob, 25th october, 2018 )
+	( Venrob, 25th October, 2018 )
 
 Fix Link's invisibility state not being properly cleared. 
-	( Venrob, 24th october, 2018 )
+	( Venrob, 24th October, 2018 )
 
 Fix: Crash when loading invalid map, dmapdata->Map wrong return:
 	Sanity checks added for map data. dmapdata->Map now adds +1 in the getter, 
@@ -4614,7 +4619,7 @@ Fix Tint/Monochrome DMap transition issues. There is still an issue with dark ro
 	Don't know how to fix it, but pretty much everything else seems okay? 
 	I didn't test Ganon/Winning the game/Picking up ganon's triforce from the 
 	dust pile, though.
-	( Venrob, 22nd october, 2018 )
+	( Venrob, 22nd October, 2018 )
 
 Fixed tokens for dmapdata, and for combodata, mididata, musicdata.
 Added some constants to std.zh.
@@ -4629,7 +4634,7 @@ Added code for Graphics->Tint(), Graphics->MonochromeHue() and
 	( Venrob, 21st October, 2018 )
 
 Begin adding user/script-created bitmaps to ZScript.
-	( ZoriaRPG, 21st october, 2018 )
+	( ZoriaRPG, 21st October, 2018 )
 
 Fixed Lens QR/Flag inclusive ORs
 Fix script input setting being overriden by drunk:
@@ -4845,7 +4850,7 @@ Fixed death sound for Dodongos.
 Rewrote the onSaveMapPic() function to fix issues with it causing
 random glitches, including screen drawing glitches while scrolling and other
 issues.
-	( ZoriaRPG, 4th october, 2018 )
+	( ZoriaRPG, 4th October, 2018 )
 
 //2.55 Alpha 1, Preliminary 12
 
@@ -5927,7 +5932,7 @@ npcdata n; int x = n->GetVar();
 int x = NPCData->GetVar.
 Next, I'll need to add LoadData() functions for each class, and variables/indexed variables for them. ( ZoriaRPG, 27th October, 2017 )
 
-Fixed issue with ZQuest crashing when compiled with MSVC. ( Grayswandir, 27th october, 2017 )
+Fixed issue with ZQuest crashing when compiled with MSVC. ( Grayswandir, 27th October, 2017 )
 Added string literals. These work only at script/function scope. Global scope of string literals is forbidden. ( Grayswandir, 27th October, 2017 )
 
 //Alpha 7 
@@ -6109,11 +6114,11 @@ Applied Item Editor fix for InitD values. (They were clamped from -31768 to 3276
 	Applied to 2.54 Alpha 22, and 2.53 Beta 12. 
 	
 VBound ZQuest combo editor fields: Cset to -15/+15, Aframes (0,255), ASpeed (0,255) to prevent rollover from lack
-of sanity bounding. ( ZoriaRPG 16th october, 2017 )
+of sanity bounding. ( ZoriaRPG 16th October, 2017 )
 
 Optimised some functions in std.zh that returned boolean values and were comparing against != 0. 
 VBund ZQuest combo editor fields: Cset to -15/+15, Aframes (0,255), ASpeed (0,255) to prevent rollover from lack
-of sanity bounding. ( ZoriaRPG 16th october, 2017 )
+of sanity bounding. ( ZoriaRPG 16th October, 2017 )
 
 Fixed game ending sequence clipping from carrying over to another quest if ZC is reset during the ending.
 Possible fix for the crash reported by Lut where scrolling through a specific pixel of the lower-left corner
