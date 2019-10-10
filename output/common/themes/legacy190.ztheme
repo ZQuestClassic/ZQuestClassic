@@ -1,0 +1,49 @@
+[Theme]
+//normal = text
+dvc1_r = 63
+dvc1_g = 63
+dvc1_b = 18
+
+dvc2_r = 0
+dvc2_g = 63
+dvc2_b = 59
+
+dvc3_r = 20
+dvc3_g = 32
+dvc3_b = 40
+
+//main = bg
+dvc4_r = 10
+dvc4_g = 0
+dvc4_b = 30
+
+dvc5_r = 0
+dvc5_g = 0
+dvc5_b = 63
+
+dvc6_r = 20
+dvc6_g = 0
+dvc6_b = 63
+
+dvc7_r = 10
+dvc7_g = 10
+dvc7_b = 20
+
+//menu, sel bg
+dvc8_r = 63
+dvc8_g = 63
+dvc8_b = 18
+
+jcbox = 4
+jclight = 3
+jcmedlt = 4
+jcmeddark = 7
+jcdark = 1
+jcboxfg = 1
+jctitlel = 3
+jctitler = 5
+jctitlefg = 7
+jctextbg = 5
+jctextfg = 1
+jcselbg = 8
+jcselfg = 6
