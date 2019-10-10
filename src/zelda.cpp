@@ -724,7 +724,7 @@ void hit_close_button()
 
 void Z_eventlog(const char *format,...)
 {
-    if(get_bit(quest_rules,qr_LOG))
+    if(get_bit(quest_rules,qr_LOG) || DEVLEVEL > 0 )
     {
         char buf[2048];
         
@@ -753,7 +753,7 @@ extern std::map<int, std::pair<std::string, std::string> > itemmap;
 
 void Z_scripterrlog(const char * const format,...)
 {
-    if(get_bit(quest_rules,qr_SCRIPTERRLOG))
+    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
     {
        
         switch(curScriptType)

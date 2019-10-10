@@ -12,6 +12,8 @@
 #ifndef _ZDEFS_H_
 #define _ZDEFS_H_
 
+#define DEVLEVEL 0
+
 //Conditional Debugging Compilation
 //Script related
 #define _FFDEBUG
