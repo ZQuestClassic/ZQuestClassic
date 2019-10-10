@@ -2,6 +2,15 @@
 
 //Alpha 36
 
+Fix: Don't eat preexisting zc.sav if the zc.cfg file line is blank!
+	Sorry all users. :/
+	( ZoriaRPG, 10th October, 2019 )
+	
+ZCL 2.7.6
+Added Load Module (.zmod) butons to both the ZC Player and
+the ZQuest Editor config tabs. 
+	( ZoriaRPG, 9th October, 2019 )
+
 ZCL 2.7.5
 Split up Theme/Colour settings for ZC Player and ZQuest
 Added / replaced some tab icons (drivers, colours tabs, notes tab).
