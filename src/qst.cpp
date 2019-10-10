@@ -1947,7 +1947,7 @@ void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd)
 
 bool check_questpwd(zquestheader *Header, char *pwd)
 {
-    #if DEVLEVEL > 1 
+    #if DEVLEVEL > 3 
 	return true;
     #endif
 	
