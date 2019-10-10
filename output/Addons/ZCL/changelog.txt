@@ -46,6 +46,20 @@ Segregated ZC Player and ZQ GFX Drivers
 
 Version 2.6.x
 
+2.6.12
+Removed extraneous 'Show Misaligns' option from ZQuest Options 2.
+ZQuest tab now defaults on Options 1, as intended.
+	( ZoriaRPG, 5th March, 2019 ) 	
+
+2.6.11
+Fix 'Skip Logo' button and update 2.6.11
+	( ZoriaRPG, 19th February, 2019 ) 
+	
+2.6.10
+Added Dark and October UI Themes
+Fixed initial page selection (was ZQuest, now ZC).
+	( ZoriaRPG, 29th January, 2019 ) 
+
 2.6.9
 Removed extra instance of 'Til;e Protection' box.
 	( ZoriaRPG, 3rd March, 2018 )
