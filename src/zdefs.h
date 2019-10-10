@@ -12,7 +12,7 @@
 #ifndef _ZDEFS_H_
 #define _ZDEFS_H_
 
-#define DEVLEVEL 2
+#define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
 
 //DEVLEVEL 1: Ignore passwd
