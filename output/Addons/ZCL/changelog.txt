@@ -2,6 +2,12 @@ ZCL Changelog
 
 Version 2.7.x
 
+2.7.7
+Move RomView into a sub-directory and bundle old fonts.dat
+and allegro.lib with it so that it runs in 2,55.
+Change code from commandlibe process to exec process.
+	( ZoriaRPG, 910h October, 2019 )
+
 2.7.6
 Added Load Module (.zmod) butons to both the ZC Player and
 the ZQuest Editor config tabs. 

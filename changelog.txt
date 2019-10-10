@@ -2,6 +2,12 @@
 
 //Alpha 36
 
+2.7.7
+Move RomView into a sub-directory and bundle old fonts.dat
+and allegro.lib with it so that it runs in 2,55.
+Change code from commandlibe process to exec process.
+	( ZoriaRPG, 910h October, 2019 )
+
 Fix: Don't eat preexisting zc.sav if the zc.cfg file line is blank!
 	Sorry all users. :/
 	( ZoriaRPG, 10th October, 2019 )
