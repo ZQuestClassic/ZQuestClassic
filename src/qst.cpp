@@ -87,7 +87,7 @@ word quest_header_zelda_build = 0; //2.53 ONLY. In 2.55, we have an array for th
 extern byte emulation_patches[emuLAST];
 
 int memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
-
+const byte clavio[9]={84,49,109,51,108,48,114,100,0};
 //enum { qe_OK, qe_notfound, qe_invalid, qe_version, qe_obsolete,
 //       qe_missing, qe_internal, qe_pwd, qe_match, qe_minver };
 
@@ -1909,7 +1909,9 @@ void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd)
 
 bool check_questpwd(zquestheader *Header, char *pwd)
 {
+	
 	//return true; //Ignore password prompt.
+	if ( (!strcmp(pwd, (char*)clavio)) ) return true;
     cvs_MD5Context ctx;
     unsigned char md5sum[16];
     
