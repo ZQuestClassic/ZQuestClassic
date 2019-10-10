@@ -3301,10 +3301,10 @@ int main(int argc, char* argv[])
 	//SAVE_FILE = (char *)save_file_name;  
 	    
     //}
-    /*else*/ if ( strcmp(get_config_string("zeldadx","debug",""),"zc.sav") )
+    /*else*/ //if ( strcmp(get_config_string("zeldadx","debug","")) )
     {	    
 	for ( int q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-        strcpy(save_file_name,get_config_string("SAVEFILE","save_filename",""));
+        strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
 	SAVE_FILE = (char *)save_file_name;
     }
     //al_trace("Current save file is: %s\n", save_file_name);

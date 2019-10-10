@@ -2,6 +2,15 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Fix: Don't eat preexisting zc.sav if the zc.cfg file line is blank!
+	Sorry all users. :/
+	( ZoriaRPG, 10th October, 2019 )
+	
+ZCL 2.7.6
+Added Load Module (.zmod) butons to both the ZC Player and
+the ZQuest Editor config tabs. 
+	( ZoriaRPG, 9th October, 2019 )
+
 Add error on missing 6th.qst, but do not quit ZC.
 Add quest file sanity check to OMNIUS skip.
 Added OMNIUS to skip to 6th.qst.
