@@ -84,6 +84,7 @@ void load_mice()
 		{
 			mouse_bmp[i][j] = create_bitmap_ex(8,16,16);
 			BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
+			clear_bitmap(tmpbmp);
 			blit((BITMAP*)zcdata[BMP_MOUSE].dat,tmpbmp,i*17+1,j*17+1,0,0,16,16);
 			for(int x = 0; x < 16; ++x)
 			{
@@ -108,6 +109,7 @@ void load_mice()
 					putpixel(mouse_bmp[i][j], x, y, color);
 				}
 			}
+			destroy_bitmap(tmpbmp);
 			//blit((BITMAP*)zcdata[BMP_MOUSE].dat,mouse_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
 		}
 	}
