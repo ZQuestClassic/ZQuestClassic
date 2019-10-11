@@ -41,8 +41,8 @@ bool do_graphics_button(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,
 bool do_graphics_button_reset(int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,bool jwin,bool overlay);
 void draw_layerradio(BITMAP *dest,int x,int y,int bg,int fg, int value);
 void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value);
-void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg, bool value);
-bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value);
+void draw_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg, bool value);
+bool do_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg,int &value);
 
 //*************** tile flood fill stuff **************
 
