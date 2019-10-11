@@ -8086,6 +8086,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8127,6 +8131,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(9);
         jwin_pal[jcSELFG]  =dvc(7);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8166,6 +8174,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8206,6 +8218,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(9);
         jwin_pal[jcSELFG]  =dvc(7);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8245,6 +8261,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(7);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
 
@@ -8279,6 +8299,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8317,6 +8341,10 @@ void system_pal()
 		jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
 		jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
 		jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
+		jwin_pal[jcCURSORMISC] = dvc(get_config_int("Theme","jccursorshadow",1));
+		jwin_pal[jcCURSOROUTLINE] = dvc(get_config_int("Theme","jccursoroutline",2));
+		jwin_pal[jcCURSORLIGHT] = dvc(get_config_int("Theme","jccursormain",3));
+		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursorhighlight",5));
 	}
 	else
 	{
@@ -8348,6 +8376,10 @@ void system_pal()
 		jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
 		jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
 		jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
+		jwin_pal[jcCURSORMISC] = dvc(get_config_int("Theme","jccursorshadow",1));
+		jwin_pal[jcCURSOROUTLINE] = dvc(get_config_int("Theme","jccursoroutline",2));
+		jwin_pal[jcCURSORLIGHT] = dvc(get_config_int("Theme","jccursormain",3));
+		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursorhighlight",5));
 
 		set_config_file("zc.cfg"); //shift back when done
 	}
@@ -8397,6 +8429,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
    
@@ -8437,6 +8473,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     }
