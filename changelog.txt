@@ -2,11 +2,20 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+RomView loads again,but only small mode.
+DAT: Fix mouse cursors for themes.
 Fix a bug where init_game() as cllearing the current rendertarget to
 	0, instead of -1 (screen), that was causing old ghosted
 	enemies to be invisible.
 	( ZoriaRPG, 12th October, 2019 )
 	
+Fix: Misalign arrows hardcoded colors 
+	They now load similarly to cursors.
+Fix: advpaste_dlg always small 
+	Was missing 'is_large' check to upscale the dlg.
+Fix: Forgot to rename .ztheme config names
+	( Venrob, 12th October, 2019 )
+
 Enlarge layer checkboxes.	
 Added the ability to set cursor colours in themes.
 	( Venrob, 11th October, 2019 )
