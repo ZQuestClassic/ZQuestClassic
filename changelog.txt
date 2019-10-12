@@ -2,6 +2,11 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Fix a bug where init_game() as cllearing the current rendertarget to
+	0, instead of -1 (screen), that was causing old ghosted
+	enemies to be invisible.
+	( ZoriaRPG, 12th October, 2019 )
+	
 Implement DEVLEVEL logging.
 If DEVLEVEL > 0 logging is forced on for Events and Script Errors. 
 	( ZoriaRPG, 10th October, 2019 )
