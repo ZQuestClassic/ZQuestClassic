@@ -1631,7 +1631,9 @@ int init_game()
     show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
     cheat_superman=do_cheat_light=do_cheat_goto=show_walkflags=show_ff_scripts=show_hitboxes=false;
     //al_trace("Clearing old RenderTarget\n");
-    zscriptDrawingRenderTarget->SetCurrentRenderTarget(0); //clear the last set Rendertarget between games
+    if ( zscriptDrawingRenderTarget ) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1); //clear the last set Rendertarget between games
+    //zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
+    
 	SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] = QMisc.colors.msgtext; 
 	SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] = QMisc.colors.msgtext; 
 	SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] = QMisc.colors.msgtext; 
