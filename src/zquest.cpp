@@ -237,6 +237,8 @@ int command_buttonheight = 19;
 int layerpanel_buttonwidth = 58;
 int layerpanel_buttonheight = 16;
 
+int layerpanel_checkbox_sz = 13;
+
 int favorite_combos[MAXFAVORITECOMBOS];
 int favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 int favorite_commands[MAXFAVORITECOMMANDS];
@@ -3740,19 +3742,19 @@ void drawpanel(int pnl)
                 
                 textprintf_centre_disabled(menu1,font,panel[6].x+88,panel[6].y+2,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Layers");
                 textprintf_centre_disabled(menu1,font,panel[6].x+13,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"0");
-                draw_checkbox(menu1,panel[6].x+9,panel[6].y+20,vc(1),vc(14), LayerMaskInt[0]!=0);
+                draw_checkbox(menu1,panel[6].x+9-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[0]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+38,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"1");
-                draw_checkbox(menu1,panel[6].x+34,panel[6].y+20,vc(1),vc(14), LayerMaskInt[1]!=0);
+                draw_checkbox(menu1,panel[6].x+34-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[1]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+63,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"2");
-                draw_checkbox(menu1,panel[6].x+59,panel[6].y+20,vc(1),vc(14), LayerMaskInt[2]!=0);
+                draw_checkbox(menu1,panel[6].x+59-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[2]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+88,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"3");
-                draw_checkbox(menu1,panel[6].x+84,panel[6].y+20,vc(1),vc(14), LayerMaskInt[3]!=0);
+                draw_checkbox(menu1,panel[6].x+84-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[3]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+113,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"4");
-                draw_checkbox(menu1,panel[6].x+109,panel[6].y+20,vc(1),vc(14), LayerMaskInt[4]!=0);
+                draw_checkbox(menu1,panel[6].x+109-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[4]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+138,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"5");
-                draw_checkbox(menu1,panel[6].x+134,panel[6].y+20,vc(1),vc(14), LayerMaskInt[5]!=0);
+                draw_checkbox(menu1,panel[6].x+134-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[5]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+163,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"6");
-                draw_checkbox(menu1,panel[6].x+159,panel[6].y+20,vc(1),vc(14), LayerMaskInt[6]!=0);
+                draw_checkbox(menu1,panel[6].x+159-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[6]!=0);
                 draw_layerradio(menu1,panel[6].x+9,panel[6].y+30,vc(1),vc(14), CurrentLayer);
                 
                 textprintf_disabled(menu1,spfont,panel[6].x+panel[6].w-28,panel[6].y+36,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"CSet");
@@ -4763,7 +4765,7 @@ void refresh(int flags)
             int rx = (i * (layerpanel_buttonwidth+23)) + layer_panel.x+6;
             int ry = layer_panel.y+16;
             draw_text_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14), CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0,true);
-            draw_checkbox(menu1,rx+layerpanel_buttonwidth+4,ry+2,vc(1),vc(14), LayerMaskInt[i]!=0);
+            draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+2,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[i]!=0);
             
             // Draw the group divider
             if(i==3 || i==5)
@@ -7622,39 +7624,39 @@ void domouse()
             }
             else if(menutype==m_layers)
             {
-                if(isinRect(x, y, panel[6].x+9,panel[6].y+20,panel[6].x+9+8,panel[6].y+20+8))
+                if(isinRect(x, y, panel[6].x+9,panel[6].y+20,panel[6].x+9+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
                 {
-                    do_checkbox(menu1,panel[6].x+9,panel[6].y+20,vc(1),vc(14), LayerMaskInt[0]);
+                    do_checkbox(menu1,panel[6].x+9-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[0]);
                 }
                 
-                if(isinRect(x, y, panel[6].x+34,panel[6].y+20,panel[6].x+34+8,panel[6].y+20+8))
+                if(isinRect(x, y, panel[6].x+34,panel[6].y+20,panel[6].x+34+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
                 {
-                    do_checkbox(menu1,panel[6].x+34,panel[6].y+20,vc(1),vc(14), LayerMaskInt[1]);
+                    do_checkbox(menu1,panel[6].x+34-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[1]);
                 }
                 
-                if(isinRect(x, y, panel[6].x+59,panel[6].y+20,panel[6].x+59+8,panel[6].y+20+8))
+                if(isinRect(x, y, panel[6].x+59,panel[6].y+20,panel[6].x+59+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
                 {
-                    do_checkbox(menu1,panel[6].x+59,panel[6].y+20,vc(1),vc(14), LayerMaskInt[2]);
+                    do_checkbox(menu1,panel[6].x+59-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[2]);
                 }
                 
-                if(isinRect(x, y, panel[6].x+84,panel[6].y+20,panel[6].x+84+8,panel[6].y+20+8))
+                if(isinRect(x, y, panel[6].x+84,panel[6].y+20,panel[6].x+84+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
                 {
-                    do_checkbox(menu1,panel[6].x+84,panel[6].y+20,vc(1),vc(14), LayerMaskInt[3]);
+                    do_checkbox(menu1,panel[6].x+84-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[3]);
                 }
                 
-                if(isinRect(x, y, panel[6].x+109,panel[6].y+20,panel[6].x+109+8,panel[6].y+20+8))
+                if(isinRect(x, y, panel[6].x+109,panel[6].y+20,panel[6].x+109+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
                 {
-                    do_checkbox(menu1,panel[6].x+109,panel[6].y+20,vc(1),vc(14), LayerMaskInt[4]);
+                    do_checkbox(menu1,panel[6].x+109-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[4]);
                 }
                 
-                if(isinRect(x, y, panel[6].x+134,panel[6].y+20,panel[6].x+134+8,panel[6].y+20+8))
+                if(isinRect(x, y, panel[6].x+134,panel[6].y+20,panel[6].x+134+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
                 {
-                    do_checkbox(menu1,panel[6].x+134,panel[6].y+20,vc(1),vc(14), LayerMaskInt[5]);
+                    do_checkbox(menu1,panel[6].x+134-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[5]);
                 }
                 
-                if(isinRect(x, y, panel[6].x+159,panel[6].y+20,panel[6].x+159+8,panel[6].y+20+8))
+                if(isinRect(x, y, panel[6].x+159,panel[6].y+20,panel[6].x+159+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
                 {
-                    do_checkbox(menu1,panel[6].x+159,panel[6].y+20,vc(1),vc(14), LayerMaskInt[6]);
+                    do_checkbox(menu1,panel[6].x+159-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[6]);
                 }
                 
                 if(isinRect(x, y, panel[6].x+9,panel[6].y+30, panel[6].x+9+(6*25)+8,panel[6].y+30+8))
@@ -7940,8 +7942,8 @@ void domouse()
                     }
                 }
                 
-                if(isinRect(x,y,rx+layerpanel_buttonwidth+4,ry+2,rx+layerpanel_buttonwidth+12,ry+10))
-                    do_checkbox(menu1,rx+layerpanel_buttonwidth+4,ry+2,vc(1),vc(14), LayerMaskInt[i]);
+                if(isinRect(x,y,rx+layerpanel_buttonwidth+1,ry+2,rx+layerpanel_buttonwidth+1+layerpanel_checkbox_sz-1,ry+2+layerpanel_checkbox_sz-1))
+                    do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+2,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[i]);
             }
         }
         
@@ -22648,6 +22650,10 @@ int main(int argc,char **argv)
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -22688,6 +22694,10 @@ int main(int argc,char **argv)
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(9);
         jwin_pal[jcSELFG]  =dvc(7);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -22727,6 +22737,10 @@ int main(int argc,char **argv)
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -22767,6 +22781,10 @@ int main(int argc,char **argv)
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(9);
         jwin_pal[jcSELFG]  =dvc(7);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -22806,6 +22824,10 @@ int main(int argc,char **argv)
         jwin_pal[jcTEXTFG] =dvc(7);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -22843,6 +22865,10 @@ int main(int argc,char **argv)
 		jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
 		jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
 		jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
+		jwin_pal[jcCURSORMISC] = dvc(get_config_int("Theme","jccursormisc",1));
+		jwin_pal[jcCURSOROUTLINE] = dvc(get_config_int("Theme","jccursoroutline",2));
+		jwin_pal[jcCURSORLIGHT] = dvc(get_config_int("Theme","jccursorlight",3));
+		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursordark",5));
 		
 	}
 	else
@@ -22875,6 +22901,10 @@ int main(int argc,char **argv)
 		jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
 		jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
 		jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
+		jwin_pal[jcCURSORMISC] = dvc(get_config_int("Theme","jccursormisc",1));
+		jwin_pal[jcCURSOROUTLINE] = dvc(get_config_int("Theme","jccursoroutline",2));
+		jwin_pal[jcCURSORLIGHT] = dvc(get_config_int("Theme","jccursorlight",3));
+		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursordark",5));
 		set_config_file("zquest.cfg"); //shift back when done
 	}
     }
@@ -22910,6 +22940,10 @@ int main(int argc,char **argv)
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -22959,6 +22993,10 @@ int main(int argc,char **argv)
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -22998,6 +23036,10 @@ int main(int argc,char **argv)
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     }
