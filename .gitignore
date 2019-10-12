@@ -55,6 +55,9 @@ src - Copy (7)/
 src - Copy (8)/
 src - Copy (9)/
 src - Copy (10)/
+Release - Copy/
+
+
 # Debug based files.
 *.dSYM/
 
