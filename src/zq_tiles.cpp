@@ -10242,6 +10242,10 @@ static DIALOG advpaste_dlg[] =
 int advpaste(int tile, int tile2, int copy)
 {
     advpaste_dlg[0].dp2=lfont;
+	
+	if(is_large)
+		large_dialog(advpaste_dlg);
+	
     int ret = zc_popup_dialog(advpaste_dlg,-1);
     
     if(ret!=1) return ret;
