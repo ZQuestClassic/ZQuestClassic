@@ -1,0 +1,23 @@
+<!-- ASE - Allegro Sprite Editor -->
+<!-- Copyright (C) 2001-2009 by David Capello -->
+<jinete>
+<window text="Duplicate Sprite" name="duplicate_sprite">
+  <box vertical>
+    <box horizontal expansive>
+      <box vertical homogeneous>
+        <label text="Duplicate:" />
+        <label text="As:" />
+      </box>
+      <box vertical homogeneous expansive>
+        <label text="" name="src_name" />
+        <entry maxsize="256" name="dst_name" magnetic />
+      </box>
+    </box>
+    <check text="Duplicate merged layers only" name="flatten" />
+    <box horizontal homogeneous>
+      <button text="&OK" name="ok" magnetic />
+      <button text="&Cancel" />
+    </box>
+  </box>
+</window>
+</jinete>

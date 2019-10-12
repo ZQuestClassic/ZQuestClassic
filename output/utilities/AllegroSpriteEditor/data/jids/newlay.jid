@@ -1,0 +1,33 @@
+<!-- ASE - Allegro Sprite Editor -->
+<!-- Copyright (C) 2001-2009 by David Capello -->
+<jinete>
+<window text="New Image Layer" name="new_layer">
+  <box vertical>
+    <box horizontal>
+      <box vertical homogeneous>
+        <label text="Name:" />
+      </box>
+      <box vertical homogeneous>
+        <entry maxsize=256 text="New Layer" name="name" magnetic />
+      </box>
+    </box>
+    <box horizontal homogeneous>
+      <button text="&OK" name="ok" magnetic />
+      <button text="&Cancel" />
+    </box>
+  </box>
+</window>
+<window text="New Layer Set" name="new_layer_set">
+  <box vertical>
+    <box horizontal>
+      <label text="Name:" />
+      <entry maxsize=256 text="New Set" name="name" />
+    </box>
+    <box horizontal homogeneous>
+      <button text="&OK" name="ok" magnetic />
+      <button text="&Cancel" />
+    </box>
+  </box>
+</window>
+</jinete>
+

@@ -1,0 +1,26 @@
+<!-- ASE - Allegro Sprite Editor -->
+<!-- Copyright (C) 2001-2009 by David Capello -->
+<jinete>
+<window text="Configure Screen" name="configure_screen">
+  <box vertical>
+    <box horizontal expansive>
+      <box vertical homogeneous>
+        <label text="Resolution:" />
+        <label text="Color depth:" />
+        <label text="Pixel scaling:" />
+        <check text="Fullscreen" name="fullscreen" />
+      </box>
+      <box vertical homogeneous expansive>
+	<combobox name="resolution" />
+        <combobox name="color_depth" />
+        <combobox name="pixel_scale" />
+        <label text="" />
+      </box>
+    </box>
+    <box horizontal homogeneous>
+      <button text="&OK" name="ok" magnetic />
+      <button text="&Cancel" />
+    </box>
+  </box>
+</window>
+</jinete>

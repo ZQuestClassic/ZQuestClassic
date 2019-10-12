@@ -1,0 +1,22 @@
+<!-- ASE - Allegro Sprite Editor -->
+<!-- Copyright (C) 2001-2009 by David Capello -->
+<jinete>
+<window text="Frame Duration" name="frame_duration">
+  <grid columns="3">
+    <label text="Frame number:" />
+    <label text="" name="frame" />
+    <box cell_align="horizontal" />
+
+    <label text="Duration (milliseconds):" />
+    <entry maxsize="10" name="frlen" magnetic />
+    <box cell_align="horizontal" />
+
+    <separator horizontal cell_hspan="3" />
+
+    <box horizontal homogeneous cell_hspan="3" cell_align="right">
+      <button text="&OK" name="ok" magnetic minwidth="60" />
+      <button text="&Cancel" />
+    </box>
+  </box>
+</window>
+</jinete>

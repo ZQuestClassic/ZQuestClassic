@@ -1,0 +1,7 @@
+==================================
+what:    AllegroFontEditor v1.19b
+who:     Miran Amon
+when:    25. August 2005
+status:  freeware
+contact: miran.amon@gmail.com
+==================================
