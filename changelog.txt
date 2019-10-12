@@ -7,6 +7,10 @@ Fix a bug where init_game() as cllearing the current rendertarget to
 	enemies to be invisible.
 	( ZoriaRPG, 12th October, 2019 )
 	
+Enlarge layer checkboxes.	
+Added the ability to set cursor colours in themes.
+	( Venrob, 11th October, 2019 )
+	
 Implement DEVLEVEL logging.
 If DEVLEVEL > 0 logging is forced on for Events and Script Errors. 
 	( ZoriaRPG, 10th October, 2019 )
