@@ -241,6 +241,7 @@ RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
 BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf;
+BITMAP     *zcmouse[4];
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
            *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont,
@@ -4183,6 +4184,10 @@ int main(int argc, char* argv[])
     msgdisplaybuf = create_bitmap_ex(8,256, 176);
     msgbmpbuf = create_bitmap_ex(8, 512+16, 512+16);
     pricesdisplaybuf = create_bitmap_ex(8,256, 176);
+	zcmouse[0] = create_bitmap_ex(8, 16, 16);
+	zcmouse[1] = create_bitmap_ex(8, 16, 16);
+	zcmouse[2] = create_bitmap_ex(8, 16, 16);
+	zcmouse[3] = create_bitmap_ex(8, 16, 16);
 	script_menu_buf = create_bitmap_ex(8,256,224);
     
     if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
@@ -4198,6 +4203,10 @@ int main(int argc, char* argv[])
     set_clip_state(msgdisplaybuf, 1);
     clear_bitmap(pricesdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
+	clear_bitmap(zcmouse[0]);
+	clear_bitmap(zcmouse[1]);
+	clear_bitmap(zcmouse[2]);
+	clear_bitmap(zcmouse[3]);
     Z_message("OK\n");
     
     
@@ -5038,6 +5047,10 @@ void quit_game()
     destroy_bitmap(msgdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
     destroy_bitmap(pricesdisplaybuf);
+	destroy_bitmap(zcmouse[0]);
+	destroy_bitmap(zcmouse[1]);
+	destroy_bitmap(zcmouse[2]);
+	destroy_bitmap(zcmouse[3]);
 	destroy_bitmap(script_menu_buf);
     
     al_trace("Subscreens... \n");

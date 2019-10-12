@@ -674,6 +674,45 @@ void show_saving(BITMAP *target)
 
 //----------------------------------------------------------------
 
+//Handles converting the mouse sprite from the .dat file
+void load_mouse()
+{
+	system_pal();
+	for(int j = 0; j < 4; ++j)
+	{
+		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
+		clear_bitmap(tmpbmp);
+		blit((BITMAP*)data[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
+		//BITMAP* tmpbmp = (BITMAP*)data[BMP_MOUSE].dat;
+		for(int x = 0; x < 16; ++x)
+		{
+			for(int y = 0; y < 16; ++y)
+			{
+				int color = getpixel(tmpbmp, x, y);
+				switch(color)
+				{
+					case dvc(1):
+						color = jwin_pal[jcCURSORMISC];
+						break;
+					case dvc(2):
+						color = jwin_pal[jcCURSOROUTLINE];
+						break;
+					case dvc(3):
+						color = jwin_pal[jcCURSORLIGHT];
+						break;
+					case dvc(5):
+						color = jwin_pal[jcCURSORDARK];
+						break;
+				}
+				if(color!=0)Z_message("Pixel %d,%d == %d\n",x,y,color);
+				putpixel(zcmouse[j], x, y, color);
+			}
+		}
+		destroy_bitmap(tmpbmp);
+	}
+	game_pal();
+}
+
 // sets the video mode and initializes the palette and mouse sprite
 bool game_vid_mode(int mode,int wait)
 {
@@ -685,7 +724,8 @@ bool game_vid_mode(int mode,int wait)
     scrx = (resx-320)>>1;
     scry = (resy-240)>>1;
     
-    set_mouse_sprite((BITMAP*)data[BMP_MOUSE].dat);
+	load_mouse();
+    set_mouse_sprite(zcmouse[0]);
     
     for(int i=240; i<256; i++)
         RAMpal[i]=((RGB*)data[PAL_GUI].dat)[i];
@@ -8592,6 +8632,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8633,6 +8677,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(9);
         jwin_pal[jcSELFG]  =dvc(7);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8672,6 +8720,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8712,6 +8764,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(9);
         jwin_pal[jcSELFG]  =dvc(7);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8751,6 +8807,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(7);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8784,6 +8844,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     
@@ -8822,6 +8886,10 @@ void system_pal()
 		jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
 		jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
 		jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
+		jwin_pal[jcCURSORMISC] = dvc(get_config_int("Theme","jccursormisc",1));
+		jwin_pal[jcCURSOROUTLINE] = dvc(get_config_int("Theme","jccursoroutline",2));
+		jwin_pal[jcCURSORLIGHT] = dvc(get_config_int("Theme","jccursorlight",3));
+		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursordark",5));
 	}
 	else
 	{
@@ -8853,6 +8921,10 @@ void system_pal()
 		jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
 		jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
 		jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
+		jwin_pal[jcCURSORMISC] = dvc(get_config_int("Theme","jccursormisc",1));
+		jwin_pal[jcCURSOROUTLINE] = dvc(get_config_int("Theme","jccursoroutline",2));
+		jwin_pal[jcCURSORLIGHT] = dvc(get_config_int("Theme","jccursorlight",3));
+		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursordark",5));
 
 		set_config_file("zc.cfg"); //shift back when done
 	}
@@ -8902,6 +8974,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
    
@@ -8941,6 +9017,10 @@ void system_pal()
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
     }
     break;
     }

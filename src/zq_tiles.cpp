@@ -919,7 +919,7 @@ void do_layerradio(BITMAP *dest,int x,int y,int bg,int fg,int &value)
     }
 }
 
-void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg, bool value)
+void draw_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg, bool value)
 {
     //these are here to bypass compiler warnings about unused arguments
     bg=bg;
@@ -929,20 +929,20 @@ void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg, bool value)
     //  line(dest,x+1,y+1,x+7,y+7,value?fg:bg);
     //  line(dest,x+1,y+7,x+7,y+1,value?fg:bg);
     
-    jwin_draw_frame(dest, x, y, 9, 9, FR_DEEP);
-    rectfill(dest, x+2, y+2, x+9-3, y+9-3, jwin_pal[jcTEXTBG]);
+    jwin_draw_frame(dest, x, y, sz, sz, FR_DEEP);
+    rectfill(dest, x+2, y+2, x+sz-3, y+sz-3, jwin_pal[jcTEXTBG]);
     
     if(value)
     {
-        line(dest, x+2, y+2, x+9-3, y+9-3, jwin_pal[jcTEXTFG]);
-        line(dest, x+2, y+9-3, x+9-3, y+2, jwin_pal[jcTEXTFG]);
+        line(dest, x+2, y+2, x+sz-3, y+sz-3, jwin_pal[jcTEXTFG]);
+        line(dest, x+2, y+sz-3, x+sz-3, y+2, jwin_pal[jcTEXTFG]);
     }
     
 }
 
 
 
-bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value)
+bool do_checkbox(BITMAP *dest,int x,int y,int sz,int bg,int fg,int &value)
 {
     bool over=false;
     
@@ -950,13 +950,13 @@ bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value)
     {
         custom_vsync();
         
-        if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+8,y+8))               //if on checkbox
+        if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+sz-1,y+sz-1))               //if on checkbox
         {
             if(!over)                                             //if wasn't here before
             {
                 scare_mouse();
                 value=!value;
-                draw_checkbox(dest,x,y,bg,fg,value!=0);
+                draw_checkbox(dest,x,y,sz,bg,fg,value!=0);
                 refresh(rMENU);
                 unscare_mouse();
                 over=true;
@@ -968,7 +968,7 @@ bool do_checkbox(BITMAP *dest,int x,int y,int bg,int fg,int &value)
             {
                 scare_mouse();
                 value=!value;
-                draw_checkbox(dest,x,y,bg,fg,value!=0);
+                draw_checkbox(dest,x,y,sz,bg,fg,value!=0);
                 refresh(rMENU);
                 unscare_mouse();
                 over=false;
