@@ -531,7 +531,7 @@ bool scanlines;                                             //do scanlines if sb
 bool toogam=false;
 bool ignoreSideview=false;
 
-int cheat=0;                                                // 0 = none; 1,2,3,4 = cheat level
+int cheat = (DEVLEVEL > 1) ? 4 : 0;                         // 0 = none; 1,2,3,4 = cheat level
 
 int mouse_down;                                             // used to hold the last reading of 'gui_mouse_b()' status
 int idle_count, active_count;
