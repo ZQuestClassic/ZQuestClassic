@@ -30,6 +30,7 @@
 
 extern int prv_mode;
 extern void dopreview();
+extern int jwin_pal[jcMAX];
 
 
 const char *imgstr[ftMAX] =
@@ -77,14 +78,41 @@ int filetype(const char *path)
 
 void load_mice()
 {
-    for(int i=0; i<MOUSE_BMP_MAX; i++)
-    {
-        for(int j=0; j<4; j++)
-        {
-            mouse_bmp[i][j] = create_bitmap_ex(8,16,16);
-            blit((BITMAP*)zcdata[BMP_MOUSEZQ].dat,mouse_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
-        }
-    }
+	for(int i=0; i<MOUSE_BMP_MAX; i++)
+	{
+		for(int j=0; j<4; j++)
+		{
+			mouse_bmp[i][j] = create_bitmap_ex(8,16,16);
+			BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
+			clear_bitmap(tmpbmp);
+			blit((BITMAP*)zcdata[BMP_MOUSEZQ].dat,tmpbmp,i*17+1,j*17+1,0,0,16,16);
+			for(int x = 0; x < 16; ++x)
+			{
+				for(int y = 0; y < 16; ++y)
+				{
+					int color = getpixel(tmpbmp, x, y);
+					switch(color)
+					{
+						case dvc(1):
+							color = jwin_pal[jcCURSORMISC];
+							break;
+						case dvc(2):
+							color = jwin_pal[jcCURSOROUTLINE];
+							break;
+						case dvc(3):
+							color = jwin_pal[jcCURSORLIGHT];
+							break;
+						case dvc(5):
+							color = jwin_pal[jcCURSORDARK];
+							break;
+					}
+					putpixel(mouse_bmp[i][j], x, y, color);
+				}
+			}
+			destroy_bitmap(tmpbmp);
+			//blit((BITMAP*)zcdata[BMP_MOUSE].dat,mouse_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
+		}
+	}
 }
 
 void load_icons()
