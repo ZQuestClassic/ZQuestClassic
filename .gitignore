@@ -14,7 +14,7 @@
 *.so
 *.so.*
 *.dylib
-*.dll
+
 
 # Compiled static libraries
 *.lai
