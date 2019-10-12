@@ -1905,7 +1905,7 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
             {
                 if(misaligned(currmap, scr, checkcombo, up))
                 {
-                    masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,0*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                    masked_blit(arrow_bmp[0],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 }
             }
             
@@ -1913,7 +1913,7 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
             {
                 if(misaligned(currmap, scr, checkcombo, down))
                 {
-                    masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,1*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                    masked_blit(arrow_bmp[1],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 }
             }
             
@@ -1921,7 +1921,7 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
             {
                 if(misaligned(currmap, scr, checkcombo, left))
                 {
-                    masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,2*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                    masked_blit(arrow_bmp[2],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 }
             }
             
@@ -1929,7 +1929,7 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
             {
                 if(misaligned(currmap, scr, checkcombo, right))
                 {
-                    masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,3*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                    masked_blit(arrow_bmp[3],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 }
             }
             
@@ -1947,15 +1947,15 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
                 break;
                 
             case 1:                                             //up
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,0*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[0],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
                 
             case 2:                                             //left
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,2*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[2],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
                 
             case 3:                                             //up-left
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,4*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[4],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
             }
             
@@ -1971,15 +1971,15 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
                 break;
                 
             case 1:                                             //up
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,0*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[0],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
                 
             case 2:                                             //right
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,3*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[3],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
                 
             case 3:                                             //up-right
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,5*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[5],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
             }
             
@@ -1995,15 +1995,15 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
                 break;
                 
             case 1:                                             //down
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,1*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[1],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
                 
             case 2:                                             //left
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,2*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[2],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
                 
             case 3:                                             //down-left
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,6*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[6],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
             }
             
@@ -2020,15 +2020,15 @@ void zmap::check_alignments(BITMAP* dest,int x,int y,int scr)
                 break;
                 
             case 1:                                             //down
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,1*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[1],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
                 
             case 2:                                             //right
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,3*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[3],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
                 
             case 3:                                             //down-right
-                masked_blit((BITMAP*)zcdata[BMP_ARROWS].dat,dest,7*17+1,1,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
+                masked_blit(arrow_bmp[7],dest,0,0,((checkcombo&15)<<4)+x,(checkcombo&0xF0)+y,16,16);
                 break;
             }
         }

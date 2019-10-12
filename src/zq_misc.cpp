@@ -76,6 +76,22 @@ int filetype(const char *path)
     return ftBIN;
 }
 
+int cursorColor(int col)
+{
+	switch(col)
+	{
+		case dvc(1):
+			return jwin_pal[jcCURSORMISC];
+		case dvc(2):
+			return jwin_pal[jcCURSOROUTLINE];
+		case dvc(3):
+			return jwin_pal[jcCURSORLIGHT];
+		case dvc(5):
+			return jwin_pal[jcCURSORDARK];
+	}
+	return col;
+}
+
 void load_mice()
 {
 	for(int i=0; i<MOUSE_BMP_MAX; i++)
@@ -90,27 +106,10 @@ void load_mice()
 			{
 				for(int y = 0; y < 16; ++y)
 				{
-					int color = getpixel(tmpbmp, x, y);
-					switch(color)
-					{
-						case dvc(1):
-							color = jwin_pal[jcCURSORMISC];
-							break;
-						case dvc(2):
-							color = jwin_pal[jcCURSOROUTLINE];
-							break;
-						case dvc(3):
-							color = jwin_pal[jcCURSORLIGHT];
-							break;
-						case dvc(5):
-							color = jwin_pal[jcCURSORDARK];
-							break;
-					}
-					putpixel(mouse_bmp[i][j], x, y, color);
+					putpixel(mouse_bmp[i][j], x, y, cursorColor(getpixel(tmpbmp, x, y)));
 				}
 			}
 			destroy_bitmap(tmpbmp);
-			//blit((BITMAP*)zcdata[BMP_MOUSE].dat,mouse_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
 		}
 	}
 }
@@ -142,7 +141,16 @@ void load_arrows()
     for(int i=0; i<MAXARROWS; i++)
     {
         arrow_bmp[i] = create_bitmap_ex(8,16,16);
-        blit((BITMAP*)zcdata[BMP_ARROWS].dat,arrow_bmp[i],i*17+1,1,0,0,16,16);
+		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
+        blit((BITMAP*)zcdata[BMP_ARROWS].dat,tmpbmp,i*17+1,1,0,0,16,16);
+		for(int x = 0; x < 16; ++x)
+		{
+			for(int y = 0; y < 16; ++y)
+			{
+				putpixel(arrow_bmp[i], x, y, cursorColor(getpixel(tmpbmp, x, y)));
+			}
+		}
+		destroy_bitmap(tmpbmp);
     }
 }
 
