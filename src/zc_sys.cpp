@@ -8381,10 +8381,10 @@ void system_pal()
 		jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
 		jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
 		jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
-		jwin_pal[jcCURSORMISC] = dvc(get_config_int("Theme","jccursorshadow",1));
+		jwin_pal[jcCURSORMISC] = dvc(get_config_int("Theme","jccursormisc",1));
 		jwin_pal[jcCURSOROUTLINE] = dvc(get_config_int("Theme","jccursoroutline",2));
-		jwin_pal[jcCURSORLIGHT] = dvc(get_config_int("Theme","jccursormain",3));
-		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursorhighlight",5));
+		jwin_pal[jcCURSORLIGHT] = dvc(get_config_int("Theme","jccursorlight",3));
+		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursordark",5));
 	}
 	else
 	{
@@ -8416,10 +8416,10 @@ void system_pal()
 		jwin_pal[jcTEXTFG] =dvc(get_config_int("Theme","jctextfg",1));
 		jwin_pal[jcSELBG]  =dvc(get_config_int("Theme","jcselbg",8));
 		jwin_pal[jcSELFG]  =dvc(get_config_int("Theme","jcselfg",6));
-		jwin_pal[jcCURSORMISC] = dvc(get_config_int("Theme","jccursorshadow",1));
+		jwin_pal[jcCURSORMISC] = dvc(get_config_int("Theme","jccursormisc",1));
 		jwin_pal[jcCURSOROUTLINE] = dvc(get_config_int("Theme","jccursoroutline",2));
-		jwin_pal[jcCURSORLIGHT] = dvc(get_config_int("Theme","jccursormain",3));
-		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursorhighlight",5));
+		jwin_pal[jcCURSORLIGHT] = dvc(get_config_int("Theme","jccursorlight",3));
+		jwin_pal[jcCURSORDARK] = dvc(get_config_int("Theme","jccursordark",5));
 
 		set_config_file("zc.cfg"); //shift back when done
 	}
