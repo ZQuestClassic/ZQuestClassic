@@ -14,7 +14,7 @@
 *.so
 *.so.*
 *.dylib
-*.dll
+
 
 # Compiled static libraries
 *.lai
@@ -42,7 +42,19 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Bb]uild/
-
+.git/
+.git - Copy/
+src - Copy/
+src - Copy (1)/
+src - Copy (2)/
+src - Copy (3)/
+src - Copy (4)/
+src - Copy (5)/
+src - Copy (6)/
+src - Copy (7)/
+src - Copy (8)/
+src - Copy (9)/
+src - Copy (10)/
 # Debug based files.
 *.dSYM/
 
@@ -65,7 +77,20 @@ bld/
 *.vspx
 *.sap
 
+# Emacs files
+.dir-locals.el
+.#*
+\#*#
+
 # Misc files
 *.gcda
 makefile.inc
 
+# Generated CMake Files.
+/allegro/CMakeCache.txt
+/allegro/CMakeFiles/
+/allegro/Makefile
+/allegro/cmake_install.cmake
+
+# Bison
+/src/parser/y.output
