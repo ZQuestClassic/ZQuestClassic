@@ -5390,7 +5390,7 @@ static DIALOG gamepad_dlg[] =
 	{ jwin_button_proc,    90,   254,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
 	{ jwin_button_proc,    170,  254,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
 	// 6
-	{ jwin_frame_proc,     14,   61,   294,  192,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+	{ d_dummy_proc,     14,   61,   294,  192,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
 	// 7
 	{ jwin_ctext_proc,      92,   92-20,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_a, NULL,  NULL },
 	{ jwin_ctext_proc,      92,   120-20,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_b, NULL,  NULL },
