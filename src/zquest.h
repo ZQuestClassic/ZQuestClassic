@@ -504,6 +504,8 @@ int onImportLWPNScript();
 int onImportEWPNScript();
 int onImportGScript();
 int onCompileScript();
+int onSlotAssign();
+
 
 typedef struct item_struct
 {
