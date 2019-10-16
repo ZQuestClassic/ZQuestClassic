@@ -17,7 +17,7 @@
 #define MIDI_TRACK_BUFFER_SIZE 50
 
 #include "precompiled.h" //always first
-
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
