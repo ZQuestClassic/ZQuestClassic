@@ -2905,7 +2905,7 @@ int main(int argc, char* argv[])
 #ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
     if(!is_only_instance("zc.lck"))
     {
-        if(used_switch(argc, argv, "-multiple"))
+        if(used_switch(argc, argv, "-multiple") || get_config_int("zeldadx","multiple_instances",0))
             onlyInstance=false;
         else
             exit(1);
@@ -3302,7 +3302,7 @@ int main(int argc, char* argv[])
         slot_arg2=1;
     }
     
-    int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
+    int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || get_config_int("zeldadx","skiplogo",0) || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
     skip_title = used_switch(argc, argv, "-notitle") > 0;
     int save_arg = used_switch(argc,argv,"-savefile");
     
