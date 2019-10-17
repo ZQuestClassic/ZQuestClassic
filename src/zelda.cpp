@@ -3824,15 +3824,7 @@ int main(int argc, char* argv[])
     bool onlyInstance=true;
 //	refresh_select_screen = 0;
     memset(modulepath, 0, sizeof(modulepath));
-#ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
-    if(!is_only_instance("zc.lck"))
-    {
-        if(used_switch(argc, argv, "-multiple") || get_config_int("zeldadx","multiple_instances",0))
-            onlyInstance=false;
-        else
-            exit(1);
-    }
-#endif
+
     
     switch(IS_BETA)
     {
@@ -3988,6 +3980,17 @@ int main(int argc, char* argv[])
         load_game_configs();
         save_game_configs();
     }
+    
+    #ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
+    if(!is_only_instance("zc.lck"))
+    {
+        if(used_switch(argc, argv, "-multiple") || get_config_int("zeldadx","multiple_instances",0))
+            onlyInstance=false;
+        else
+            exit(1);
+    }
+#endif
+    
     //Set up MODULES: This must occur before trying to load the default quests, as the 
     //data for quest names and so forth is set by the MODULE file!
     //strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module", moduledata.module_name));
