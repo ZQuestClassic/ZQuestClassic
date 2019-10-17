@@ -694,7 +694,7 @@ void load_mouse()
 						color = jwin_pal[jcCURSORDARK];
 						break;
 				}
-				if(color!=0)Z_message("Pixel %d,%d == %d\n",x,y,color);
+				//if(color!=0)Z_message("Pixel %d,%d == %d\n",x,y,color);
 				putpixel(zcmouse[j], x, y, color);
 			}
 		}
