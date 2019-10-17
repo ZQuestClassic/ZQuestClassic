@@ -1653,6 +1653,8 @@ static MENU ilist_rclick_menu[] =
 {
     { (char *)"Copy",  NULL, NULL, 0, NULL },
     { (char *)"Paste", NULL, NULL, 0, NULL },
+    { (char *)"Save", NULL, NULL, 0, NULL },
+    { (char *)"Load", NULL, NULL, 0, NULL },
     { NULL,            NULL, NULL, 0, NULL }
 };
 
