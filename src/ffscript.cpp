@@ -5727,7 +5727,7 @@ case SCREENDATASIDEWARPOVFLAGS:
 case SCREENDATATWARPRETSQR:
 {
 	int indx = ri->d[0] / 10000;
-	if ( ((unsigned)indx) < 3)
+	if ( ((unsigned)indx) > 3)
 	{
 		ret = -10000;
 		Z_scripterrlog("Invalid Array Index passed to Screen->TileWarpReturnSquare[]: %d\n", indx);
@@ -5744,7 +5744,7 @@ case SCREENDATATWARPRETSQR:
 case SCREENDATASWARPRETSQR:
 {
 	int indx = ri->d[0] / 10000;
-	if ( ((unsigned)indx) < 3)
+	if ( ((unsigned)indx) > 3)
 	{
 		ret = -10000;
 		Z_scripterrlog("Invalid Array Index passed to Screen->SideWarpReturnSquare[]: %d\n", indx);
@@ -6609,7 +6609,7 @@ case MAPDATASIDEWARPOVFLAGS:
 case MAPDATATWARPRETSQR:
 {
 	int indx = ri->d[0] / 10000;
-	if ( ((unsigned)indx) < 3)
+	if ( ((unsigned)indx) > 3)
 	{
 		ret = -10000;
 		Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
@@ -6619,10 +6619,10 @@ case MAPDATATWARPRETSQR:
         {
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
             ret = -10000; 
-        } \
+        }
         else 
         { 
-		mapscr *m = &TheMaps[ri->mapsref]; \
+		mapscr *m = &TheMaps[ri->mapsref];
 		ret = ((m->warpreturnc>>(indx*2))&3) * 10000;
 	}
 	break;
@@ -6631,7 +6631,7 @@ case MAPDATATWARPRETSQR:
 case MAPDATASWARPRETSQR:
 {
 	int indx = ri->d[0] / 10000;
-	if ( ((unsigned)indx) < 3)
+	if ( ((unsigned)indx) > 3)
 	{
 		ret = -10000;
 		Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
@@ -6641,10 +6641,10 @@ case MAPDATASWARPRETSQR:
         {
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
             ret = -10000; 
-        } \
+        }
         else 
         { 
-		mapscr *m = &TheMaps[ri->mapsref]; \
+		mapscr *m = &TheMaps[ri->mapsref];
 		ret = ((m->warpreturnc>>(8+(indx*2)))&3) * 10000;
 	}
 	break;
@@ -12199,7 +12199,7 @@ case SCREENSIDEWARPID:
 case SCREENDATATWARPRETSQR:
 {
 	int indx = ri->d[0] / 10000;
-	if ( ((unsigned)indx) < 3)
+	if ( ((unsigned)indx) > 3)
 	{
 		 Z_scripterrlog("Invalid Array Index passed to Screen->TileWarpReturnSquare[]: %d\n", indx);
 	}
@@ -12216,7 +12216,7 @@ case SCREENDATASWARPRETSQR:
 {
 	
 	int indx = ri->d[0] / 10000;
-	if ( ((unsigned)indx) < 3)
+	if ( ((unsigned)indx) > 3)
 	{
 		 Z_scripterrlog("Invalid Array Index passed to Screen->SideWarpReturnSquare[]: %d\n", indx);
 	}
@@ -13151,7 +13151,7 @@ case MAPDATASIDEWARPID:
 case MAPDATATWARPRETSQR:
 {
 	int indx = ri->d[0] / 10000;
-	if ( ((unsigned)indx) < 3)
+	if ( ((unsigned)indx) > 3)
 	{
 		 Z_scripterrlog("Invalid Array Index passed to mapdata->TileWarpReturnSquare[]: %d\n", indx);
 	}
@@ -13173,7 +13173,7 @@ case MAPDATASWARPRETSQR:
 {
 	
 	int indx = ri->d[0] / 10000;
-	if ( ((unsigned)indx) < 3)
+	if ( ((unsigned)indx) > 3)
 	{
 		 Z_scripterrlog("Invalid Array Index passed to MAPDATA->SideWarpReturnSquare[]: %d\n", indx);
 	}
