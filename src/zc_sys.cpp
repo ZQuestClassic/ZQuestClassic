@@ -678,12 +678,16 @@ void show_saving(BITMAP *target)
 void load_mouse()
 {
 	system_pal();
+	int sz = int(16*(is_large ? get_config_float("zeldadx","cursor_scale_large",1.5) : get_config_float("zeldadx","cursor_scale_small",1)));
 	for(int j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
+		BITMAP* subbmp = create_bitmap_ex(8,16,16);
+		zcmouse[j] = create_bitmap_ex(8,sz,sz);
+		clear_bitmap(zcmouse[j]);
 		clear_bitmap(tmpbmp);
+		clear_bitmap(subbmp);
 		blit((BITMAP*)data[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
-		//BITMAP* tmpbmp = (BITMAP*)data[BMP_MOUSE].dat;
 		for(int x = 0; x < 16; ++x)
 		{
 			for(int y = 0; y < 16; ++y)
@@ -704,11 +708,15 @@ void load_mouse()
 						color = jwin_pal[jcCURSORDARK];
 						break;
 				}
-				//if(color!=0)Z_message("Pixel %d,%d == %d\n",x,y,color);
-				putpixel(zcmouse[j], x, y, color);
+				putpixel(subbmp, x, y, color);
 			}
 		}
+		if(sz!=16)
+			stretch_blit(subbmp, zcmouse[j], 0, 0, 16, 16, 0, 0, sz, sz);
+		else
+			blit(subbmp, zcmouse[j], 0, 0, 0, 0, 16, 16);
 		destroy_bitmap(tmpbmp);
+		destroy_bitmap(subbmp);
 	}
 	game_pal();
 }

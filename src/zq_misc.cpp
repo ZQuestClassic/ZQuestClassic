@@ -94,22 +94,32 @@ int cursorColor(int col)
 
 void load_mice()
 {
+	int sz = int(16*(is_large ? get_config_float("zquest","cursor_scale_large",1.5) : get_config_float("zquest","cursor_scale_small",1)));
 	for(int i=0; i<MOUSE_BMP_MAX; i++)
 	{
 		for(int j=0; j<4; j++)
 		{
-			mouse_bmp[i][j] = create_bitmap_ex(8,16,16);
+			mouse_bmp[i][j] = create_bitmap_ex(8,sz,sz);
+			mouse_bmp_1x[i][j] = create_bitmap_ex(8,16,16);
 			BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
+			BITMAP* subbmp = create_bitmap_ex(8,16,16);
 			clear_bitmap(tmpbmp);
+			clear_bitmap(subbmp);
 			blit((BITMAP*)zcdata[BMP_MOUSEZQ].dat,tmpbmp,i*17+1,j*17+1,0,0,16,16);
 			for(int x = 0; x < 16; ++x)
 			{
 				for(int y = 0; y < 16; ++y)
 				{
-					putpixel(mouse_bmp[i][j], x, y, cursorColor(getpixel(tmpbmp, x, y)));
+					putpixel(subbmp, x, y, cursorColor(getpixel(tmpbmp, x, y)));
 				}
 			}
+			if(sz!=16)
+				stretch_blit(subbmp, mouse_bmp[i][j], 0, 0, 16, 16, 0, 0, sz, sz);
+			else
+				blit(subbmp, mouse_bmp[i][j], 0, 0, 0, 0, 16, 16);
+			blit(subbmp, mouse_bmp_1x[i][j], 0, 0, 0, 0, 16, 16);
 			destroy_bitmap(tmpbmp);
+			destroy_bitmap(subbmp);
 		}
 	}
 }
