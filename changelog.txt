@@ -2,6 +2,7 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Added v_build to ZITEM format.
 The mapscr selection marker rect is now red in InvalidStatic mode,
 	as not to blend in (grey).
 Changing the screen colour with hotkeys now allows F2/Memu to save.

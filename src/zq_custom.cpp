@@ -1663,6 +1663,7 @@ int readoneitem(PACKFILE *f, int index)
 	dword section_version = 0;
 	dword section_cversion = 0;
 	int zversion = 0;
+	int zbuild = 0;
 	itemdata tempitem;
 	memset(&tempitem, 0, sizeof(itemdata));
         //reset_itembuf(&tempitem,i);
@@ -1674,6 +1675,10 @@ int readoneitem(PACKFILE *f, int index)
 	{
 		return 0;
 	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .zitem packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
@@ -1681,7 +1686,7 @@ int readoneitem(PACKFILE *f, int index)
 	}
 	else
 	{
-		al_trace("Reading a .zitem packfile made in ZC Version: %x\n", zversion);
+		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %x\n", zversion, zbuild);
 	}
 	if(!p_igetw(&section_version,f,true))
 	{
@@ -1938,10 +1943,15 @@ int writeoneitem(PACKFILE *f, int i)
     dword section_version=V_ITEMS;
     dword section_cversion=CV_ITEMS;
 	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
     
   
     //section version info
 	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
 	{
 		return 0;
 	}
