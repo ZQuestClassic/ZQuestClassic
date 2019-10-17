@@ -11553,6 +11553,7 @@ int onDecScrPal()
     c=c%512;
     Map.setcolor(c);
     refresh(rALL);
+	saved = false;
     return D_O_K;
 }
 
@@ -11564,6 +11565,7 @@ int onIncScrPal()
     c=c%512;
     Map.setcolor(c);
     refresh(rALL);
+	saved = false;
     return D_O_K;
 }
 
@@ -11586,6 +11588,7 @@ int onDecScrPal16()
      
     Map.setcolor(c);
     refresh(rALL);
+	saved = false;
     return D_O_K;
 }
 
@@ -11597,6 +11600,7 @@ int onIncScrPal16()
     c = PalWrap( ( c+0x10 ), 0, 511 );
     Map.setcolor(c);
     refresh(rALL);
+	saved = false;
     return D_O_K;
 }
 

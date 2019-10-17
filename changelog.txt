@@ -2,6 +2,7 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Changing the screen colour with hotkeys now allows F2/Memu to save.
 Fixed a Crash due to placement of multi-instance code prior to allegro init.
 Add Right Click Load/Save Options to Item Editor
 	You can now save single items in the item editor as .ZITEM files,
