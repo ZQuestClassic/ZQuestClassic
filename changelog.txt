@@ -2,6 +2,7 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Replaced 'new quest' in qst.dat with Classic 1st 2.50 v1.10.
 Added v_build to ZITEM format.
 The mapscr selection marker rect is now red in InvalidStatic mode,
 	as not to blend in (grey).
