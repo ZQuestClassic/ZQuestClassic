@@ -2,6 +2,31 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Add Right Click Load/Save Options to Item Editor
+	You can now save single items in the item editor as .ZITEM files,
+	and load .ZITEM files into the item editor. Uses the contextual menu only,
+	Ported from 2.55.
+	( ZoriaRPG, 17th October, 2019 )
+	
+ZCL 2.8.0
+Convert ZC Player options 'Skip Logo' and 'Multiple Instances'
+to run off of zc.cfg and new ZC Player configs instead of using 
+command line switches.
+	Requires ZC Player builds after 16th October, 2019.
+	( ZoriaRPG, 16th October, 2019 )
+
+You can now set -fast and -multiple CLI flags in zc.cfg:
+	multiple_instances : 0 by default; set to 1 to permit multiple instances.
+	skiplogo: 0 by default; set to 1 to skip the AGN startup banner.
+Update ZQuest.dat with new mouse pointers.
+	( ZoriaRPG, 16th October, 2019 )
+
+Now, instead of 3 separate keyboard control menus, and 2 separate gamepad menus,
+	now there is one menu of each.
+	This makes unique control conflicts less difficult to deal with, and
+	overall makes more sense.
+	( Venrob, 13th October, 2019 )
+
 RomView loads again,but only small mode.
 DAT: Fix mouse cursors for themes.
 Fix a bug where init_game() as cllearing the current rendertarget to
@@ -843,7 +868,7 @@ Fixed 2.10 Dodongo Death Sound:
 Rewrote the onSaveMapPic() function to fix issues with it causing
 random glitches, including screen drawing glitches while scrolling and other
 issues.
-	( ZoriaRPG, 4th october, 2018 )
+	( ZoriaRPG, 4th October, 2018 )
 
 //Beta 21
 Added constants for MIN_COMBO_POS, MAX_COMBO_POS, and NUM_COMBO_POS to std.zh.
@@ -940,11 +965,11 @@ Applied Item Editor fix for InitD values. (They were clamped from -31768 to 3276
 	Applied to 2.54 Alpha 22, and 2.53 Beta 12. 
 	
 VBound ZQuest combo editor fields: Cset to -15/+15, Aframes (0,255), ASpeed (0,255) to prevent rollover from lack
-of sanity bounding. ( ZoriaRPG 16th october, 2017 )
+of sanity bounding. ( ZoriaRPG 16th October, 2017 )
 
 Optimised some functions in std.zh that returned boolean values and were comparing against != 0. 
 VBund ZQuest combo editor fields: Cset to -15/+15, Aframes (0,255), ASpeed (0,255) to prevent rollover from lack
-of sanity bounding. ( ZoriaRPG 16th october, 2017 )
+of sanity bounding. ( ZoriaRPG 16th October, 2017 )
 
 Fixed game ending sequence clipping from carrying over to another quest if ZC is reset during the ending.
 Possible fix for the crash reported by Lut where scrolling through a specific pixel of the lower-left corner
