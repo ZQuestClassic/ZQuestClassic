@@ -2890,8 +2890,929 @@ static MENU ilist_rclick_menu[] =
 {
     { (char *)"Copy",  NULL, NULL, 0, NULL },
     { (char *)"Paste", NULL, NULL, 0, NULL },
+    { (char *)"Save", NULL, NULL, 0, NULL },
+    { (char *)"Load", NULL, NULL, 0, NULL },
     { NULL,            NULL, NULL, 0, NULL }
 };
+
+int readoneitem(PACKFILE *f, int index)
+{
+    
+    
+    dword section_version=0;
+    dword section_cversion=0;
+	itemdata tempitem;
+	memset(&tempitem, 0, sizeof(itemdata));
+        //reset_itembuf(&tempitem,i);
+    
+   
+    char istring[64]={0};
+    //section version info
+    if(!p_igetw(&section_version,f,true))
+    {
+        return 0;
+    }
+    
+    if(!p_igetw(&section_cversion,f,true))
+    {
+        return 0;
+    }
+    al_trace("readoneitem section_version: %d\n", section_version);
+    al_trace("readoneitem section_cversion: %d\n", section_cversion);
+    
+   
+            if(!pfread(&istring, 64, f,true))
+            {
+                return 0;
+            }
+	    
+	    if(!p_igetl(&tempitem.tile,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.misc,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.csets,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.frames,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.speed,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.delay,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.ltm,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.family,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.fam_type,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.power,f,true))
+            {
+                 return 0;
+            }
+            
+            if(!p_igetl(&tempitem.flags,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetw(&tempitem.script,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.count,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetw(&tempitem.amount,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetw(&tempitem.collect_script,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetw(&tempitem.setmax,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetw(&tempitem.max,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.playsound,f,true))
+            {
+                return 0;
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_igetl(&tempitem.initiald[j],f,true))
+                {
+                    return 0;
+                }
+            }
+            
+            for(int j=0; j<2; j++)
+            {
+                if(!p_getc(&tempitem.initiala[j],f,true))
+                {
+                    return 0;
+                }
+            }
+            
+            if(!p_getc(&tempitem.wpn,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.wpn2,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.wpn3,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.wpn4,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.wpn5,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.wpn6,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.wpn7,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.wpn8,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.wpn9,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.wpn10,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.pickup_hearts,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.misc1,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.misc2,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.magic,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.misc3,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.misc4,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.misc5,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.misc6,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.misc7,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.misc8,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.misc9,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempitem.misc10,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempitem.usesound,f,true))
+            {
+                return 0;
+            }
+	    
+	    //New itemdata vars -Z
+	    //! version 27
+	    
+	    if(!p_getc(&tempitem.useweapon,f,true))
+            {
+                return 0;
+            }
+	    if(!p_getc(&tempitem.usedefence,f,true))
+            {
+                return 0;
+            }
+	    if(!p_igetl(&tempitem.weaprange,f,true))
+            {
+                return 0;
+            }
+	    if(!p_igetl(&tempitem.weapduration,f,true))
+            {
+                return 0;
+            }
+	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+		    if(!p_igetl(&tempitem.weap_pattern[q],f,true))
+		    {
+			return 0;
+		    }
+	    }
+	    //version 28
+		if(!p_igetl(&tempitem.duplicates,f,true))
+		{
+		    return 0;
+		}
+		for ( int q = 0; q < INITIAL_D; q++ )
+		{
+			if(!p_igetl(&tempitem.weap_initiald[q],f,true))
+			{
+				return 0;
+			}
+		}
+		for ( int q = 0; q < INITIAL_A; q++ )
+		{
+			if(!p_getc(&tempitem.weap_initiala[q],f,true))
+			{
+				return 0;
+			}
+		}
+
+		if(!p_getc(&tempitem.drawlayer,f,true))
+		{
+		    return 0;
+		}
+
+
+		if(!p_igetl(&tempitem.hxofs,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.hyofs,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.hxsz,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.hysz,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.hzsz,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.xofs,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.yofs,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.weap_hxofs,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.weap_hyofs,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.weap_hxsz,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.weap_hysz,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.weap_hzsz,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.weap_xofs,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.weap_yofs,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetw(&tempitem.weaponscript,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.wpnsprite,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.magiccosttimer,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.overrideFLAGS,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.tilew,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.tileh,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.weapoverrideFLAGS,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.weap_tilew,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.weap_tileh,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetl(&tempitem.pickup,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetw(&tempitem.pstring,f,true))
+		{
+		    return 0;
+		}
+		if(!p_igetw(&tempitem.pickup_string_flags,f,true))
+		{
+		    return 0;
+		}
+		
+		if(!p_getc(&tempitem.cost_counter,f,true))
+		{
+		    return 0;
+		}
+		
+		//InitD[] labels
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&tempitem.initD_label[q][w],f,true))
+				{
+					return 0;
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&tempitem.weapon_initD_label[q][w],f,true))
+				{
+					return 0;
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&tempitem.sprite_initD_label[q][w],f,true))
+				{
+					return 0;
+				} 
+			}
+			if(!p_igetl(&tempitem.sprite_initiald[q],f,true))
+			{
+				return 0;
+			} 
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_getc(&tempitem.sprite_initiala[q],f,true))
+			{
+				return 0;
+			} 
+			
+		}
+		if(!p_igetw(&tempitem.sprite_script,f,true))
+		{
+			return 0;
+		} 
+        //read it into an item
+	
+	memcpy(&itemsbuf[index], &tempitem, sizeof(itemdata));
+		strcpy(item_string[index], istring);
+		itemsbuf[bii[index].i] = tempitem;
+		strcpy(item_string[bii[index].i], istring);
+       
+    return 1;
+}
+
+
+
+int writeoneitem(PACKFILE *f, int i)
+{
+    
+    dword section_version=V_ITEMS;
+    dword section_cversion=CV_ITEMS;
+    
+  
+    //section version info
+    if(!p_iputw(section_version,f))
+    {
+        new_return(2);
+    }
+    
+    if(!p_iputw(section_cversion,f))
+    {
+        new_return(3);
+    }
+    
+   
+        
+       //section data        
+        
+            if(!pfwrite(item_string[i], 64, f))
+            {
+                new_return(5);
+            }
+	    
+	    if(!p_iputl(itemsbuf[i].tile,f))
+            {
+                new_return(6);
+            }
+            
+            if(!p_putc(itemsbuf[i].misc,f))
+            {
+                new_return(7);
+            }
+            
+            if(!p_putc(itemsbuf[i].csets,f))
+            {
+                new_return(8);
+            }
+            
+            if(!p_putc(itemsbuf[i].frames,f))
+            {
+                new_return(9);
+            }
+            
+            if(!p_putc(itemsbuf[i].speed,f))
+            {
+                new_return(10);
+            }
+            
+            if(!p_putc(itemsbuf[i].delay,f))
+            {
+                new_return(11);
+            }
+            
+            if(!p_iputl(itemsbuf[i].ltm,f))
+            {
+                new_return(12);
+            }
+            
+            if(!p_iputl(itemsbuf[i].family,f))
+            {
+                new_return(13);
+            }
+            
+            if(!p_putc(itemsbuf[i].fam_type,f))
+            {
+                new_return(14);
+            }
+            
+            if(!p_iputl(itemsbuf[i].power,f))
+            {
+                new_return(14);
+            }
+            
+            if(!p_iputl(itemsbuf[i].flags,f))
+            {
+                new_return(15);
+            }
+            
+            if(!p_iputw(itemsbuf[i].script,f))
+            {
+                new_return(16);
+            }
+            
+            if(!p_putc(itemsbuf[i].count,f))
+            {
+                new_return(17);
+            }
+            
+            if(!p_iputw(itemsbuf[i].amount,f))
+            {
+                new_return(18);
+            }
+            
+            if(!p_iputw(itemsbuf[i].collect_script,f))
+            {
+                new_return(19);
+            }
+            
+            if(!p_iputw(itemsbuf[i].setmax,f))
+            {
+                new_return(21);
+            }
+            
+            if(!p_iputw(itemsbuf[i].max,f))
+            {
+                new_return(22);
+            }
+            
+            if(!p_putc(itemsbuf[i].playsound,f))
+            {
+                new_return(23);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_iputl(itemsbuf[i].initiald[j],f))
+                {
+                    new_return(24);
+                }
+            }
+            
+            for(int j=0; j<2; j++)
+            {
+                if(!p_putc(itemsbuf[i].initiala[j],f))
+                {
+                    new_return(25);
+                }
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn,f))
+            {
+                new_return(26);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn2,f))
+            {
+                new_return(27);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn3,f))
+            {
+                new_return(28);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn4,f))
+            {
+                new_return(29);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn5,f))
+            {
+                new_return(30);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn6,f))
+            {
+                new_return(31);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn7,f))
+            {
+                new_return(32);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn8,f))
+            {
+                new_return(33);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn9,f))
+            {
+                new_return(34);
+            }
+            
+            if(!p_putc(itemsbuf[i].wpn10,f))
+            {
+                new_return(35);
+            }
+            
+            if(!p_putc(itemsbuf[i].pickup_hearts,f))
+            {
+                new_return(36);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc1,f))
+            {
+                new_return(37);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc2,f))
+            {
+                new_return(38);
+            }
+            
+            if(!p_putc(itemsbuf[i].magic,f))
+            {
+                new_return(39);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc3,f))
+            {
+                new_return(40);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc4,f))
+            {
+                new_return(41);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc5,f))
+            {
+                new_return(42);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc6,f))
+            {
+                new_return(43);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc7,f))
+            {
+                new_return(44);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc8,f))
+            {
+                new_return(45);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc9,f))
+            {
+                new_return(46);
+            }
+            
+            if(!p_iputl(itemsbuf[i].misc10,f))
+            {
+                new_return(47);
+            }
+            
+            if(!p_putc(itemsbuf[i].usesound,f))
+            {
+                new_return(48);
+            }
+	    
+	    //New itemdata vars -Z
+	    //! version 27
+	    
+	    if(!p_putc(itemsbuf[i].useweapon,f))
+            {
+                new_return(49);
+            }
+	    if(!p_putc(itemsbuf[i].usedefence,f))
+            {
+                new_return(50);
+            }
+	    if(!p_iputl(itemsbuf[i].weaprange,f))
+            {
+                new_return(51);
+            }
+	    if(!p_iputl(itemsbuf[i].weapduration,f))
+            {
+                new_return(52);
+            }
+	    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+		    if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
+		    {
+			new_return(53);
+		    }
+	    }
+	    //version 28
+		if(!p_iputl(itemsbuf[i].duplicates,f))
+		{
+		    new_return(54);
+		}
+		for ( int q = 0; q < INITIAL_D; q++ )
+		{
+			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
+			{
+				new_return(55);
+			}
+		}
+		for ( int q = 0; q < INITIAL_A; q++ )
+		{
+			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
+			{
+				new_return(56);
+			}
+		}
+
+		if(!p_putc(itemsbuf[i].drawlayer,f))
+		{
+		    new_return(57);
+		}
+
+
+		if(!p_iputl(itemsbuf[i].hxofs,f))
+		{
+		    new_return(58);
+		}
+		if(!p_iputl(itemsbuf[i].hyofs,f))
+		{
+		    new_return(59);
+		}
+		if(!p_iputl(itemsbuf[i].hxsz,f))
+		{
+		    new_return(60);
+		}
+		if(!p_iputl(itemsbuf[i].hysz,f))
+		{
+		    new_return(61);
+		}
+		if(!p_iputl(itemsbuf[i].hzsz,f))
+		{
+		    new_return(62);
+		}
+		if(!p_iputl(itemsbuf[i].xofs,f))
+		{
+		    new_return(63);
+		}
+		if(!p_iputl(itemsbuf[i].yofs,f))
+		{
+		    new_return(64);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hxofs,f))
+		{
+		    new_return(65);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hyofs,f))
+		{
+		    new_return(66);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hxsz,f))
+		{
+		    new_return(67);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hysz,f))
+		{
+		    new_return(68);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hzsz,f))
+		{
+		    new_return(69);
+		}
+		if(!p_iputl(itemsbuf[i].weap_xofs,f))
+		{
+		    new_return(70);
+		}
+		if(!p_iputl(itemsbuf[i].weap_yofs,f))
+		{
+		    new_return(71);
+		}
+		if(!p_iputw(itemsbuf[i].weaponscript,f))
+		{
+		    new_return(72);
+		}
+		if(!p_iputl(itemsbuf[i].wpnsprite,f))
+		{
+		    new_return(73);
+		}
+		if(!p_iputl(itemsbuf[i].magiccosttimer,f))
+		{
+		    new_return(74);
+		}
+		if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
+		{
+		    new_return(75);
+		}
+		if(!p_iputl(itemsbuf[i].tilew,f))
+		{
+		    new_return(76);
+		}
+		if(!p_iputl(itemsbuf[i].tileh,f))
+		{
+		    new_return(77);
+		}
+		if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
+		{
+		    new_return(78);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tilew,f))
+		{
+		    new_return(79);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tileh,f))
+		{
+		    new_return(80);
+		}
+		if(!p_iputl(itemsbuf[i].pickup,f))
+		{
+		    new_return(81);
+		}
+		if(!p_iputw(itemsbuf[i].pstring,f))
+		{
+		    new_return(82);
+		}
+		if(!p_iputw(itemsbuf[i].pickup_string_flags,f))
+		{
+		    new_return(83);
+		}
+		
+		if(!p_putc(itemsbuf[i].cost_counter,f))
+		{
+		    new_return(84);
+		}
+		
+		//InitD[] labels
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
+				{
+					new_return(85);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
+				{
+					new_return(86);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
+				{
+					new_return(87);
+				} 
+			}
+			if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
+			{
+				new_return(88);
+			} 
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
+			{
+				new_return(89);
+			} 
+			
+		}
+		if(!p_iputw(itemsbuf[i].sprite_script,f))
+		{
+			new_return(90);
+		} 
+		return 1;
+}
 
 void ilist_rclick_func(int index, int x, int y)
 {
@@ -2911,6 +3832,44 @@ void ilist_rclick_func(int index, int x, int y)
     {
         itemsbuf[bii[index].i]=itemsbuf[copiedItem];
         ilist_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+    else if(ret==2) // save
+    {
+	if(!getname("Save Item(.zitem)", "zitem", NULL,datapath,false))
+                return;
+	int iid = bii[index].i; //the item id is not the sajme as the editor index
+	//the editor index is the position in the current LIST. -Z
+	
+	//al_trace("Saving item index: %d\n",index);
+	//al_trace("Saving item id: %d\n",iid);
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	/*if (!writeoneitem(f,iid))
+	{
+		al_trace("Could not write to .zitem packfile %s\n", temppath);
+	}
+	*/
+	writeoneitem(f,iid);
+	pack_fclose(f);
+     
+        
+    }
+    else if(ret==3) // load
+    {
+	if(!getname("Load Item(.zitem)", "zitem", NULL,datapath,false))
+                return;
+	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(!f) return;
+	
+	if (!readoneitem(f,index))
+	{
+		al_trace("Could not read from .zitem packfile %s\n", temppath);
+	}
+	
+	pack_fclose(f);
+        //itemsbuf[bii[index].i]=itemsbuf[copiedItem];
+        ilist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
         saved=false;
     }
 }
