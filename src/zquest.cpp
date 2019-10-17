@@ -4303,7 +4303,8 @@ void refresh(int flags)
 			rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
                              (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
 //                             (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int)(&(misc.colors.text)));
-		        safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
+		        if(InvalidStatic) safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(4));
+		        else safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
 			    
 		    }
 			
@@ -4349,7 +4350,8 @@ void refresh(int flags)
             }
 	    else
 	    {
-		safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(8));
+		if(InvalidStatic) safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(4));
+		else safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(8));
             }
 	    
 	    

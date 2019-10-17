@@ -2,6 +2,8 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+The mapscr selection marker rect is now red in InvalidStatic mode,
+	as not to blend in (grey).
 Changing the screen colour with hotkeys now allows F2/Memu to save.
 Fixed a Crash due to placement of multi-instance code prior to allegro init.
 Add Right Click Load/Save Options to Item Editor
