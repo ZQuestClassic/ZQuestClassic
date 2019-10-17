@@ -1923,7 +1923,7 @@ int readoneitem(PACKFILE *f, int index)
 	}
     
 	memcpy(&itemsbuf[index], &tempitem, sizeof(itemdata));
-	strcpy(item_string[index], istring);
+	//strcpy(item_string[index], istring);
 	itemsbuf[bii[index].i] = tempitem;
 	strcpy(item_string[bii[index].i], istring);
        
@@ -2240,6 +2240,7 @@ void ilist_rclick_func(int index, int x, int y)
 	if (!readoneitem(f,index))
 	{
 		al_trace("Could not read from .zitem packfile %s\n", temppath);
+		jwin_alert("ZITEM File: Error","Could not load the specified item.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 	}
 	
 	pack_fclose(f);
