@@ -3236,10 +3236,6 @@ int main(int argc, char* argv[])
     msgdisplaybuf = create_bitmap_ex(8,256, 176);
     msgbmpbuf = create_bitmap_ex(8, 512+16, 512+16);
     pricesdisplaybuf = create_bitmap_ex(8,256, 176);
-	zcmouse[0] = create_bitmap_ex(8, 16, 16);
-	zcmouse[1] = create_bitmap_ex(8, 16, 16);
-	zcmouse[2] = create_bitmap_ex(8, 16, 16);
-	zcmouse[3] = create_bitmap_ex(8, 16, 16);
     
     if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
             || !screen2 || !msgdisplaybuf || !pricesdisplaybuf)
@@ -3254,10 +3250,6 @@ int main(int argc, char* argv[])
     set_clip_state(msgdisplaybuf, 1);
     clear_bitmap(pricesdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
-	clear_bitmap(zcmouse[0]);
-	clear_bitmap(zcmouse[1]);
-	clear_bitmap(zcmouse[2]);
-	clear_bitmap(zcmouse[3]);
     Z_message("OK\n");
     
     
