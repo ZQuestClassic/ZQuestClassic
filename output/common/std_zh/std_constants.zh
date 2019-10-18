@@ -1491,6 +1491,26 @@ const int SEF_SPAWN				= 0;
 const int SEF_LIST1				= 1; //left-hand list
 const int SEF_LIST2				= 2; //right-hand list
 
+//Screen Enemy Flags: Spawn
+const int SEFSP_ZORA				= 0; //0x0001
+const int SEFSP_CORNERTRAP			= 1; //0x0002
+const int SEFSP_MIDDLETRAP			= 2; //0x0004
+const int SEFSP_ROCK				= 3; //0x0008
+const int SEFSP_SHOOTER				= 4; //0x0010
+
+//Screen Enemy Flags: List1
+const int SEFL1_RINGLEADER			= 0; //0x0001
+const int SEFL1_CARRYITEM			= 1; //0x0002
+const int SEFL1_INVIS				= 2; //0x0004
+const int SEFL1_BOSS				= 3; //0x0008
+const int SEFL1_TRAPS_IGNORE_SOLID	= 4; //0x0010
+
+//Screen Enemy Flags: List2
+const int SEFL2_ALWAYSRET			= 0; //0x0001
+const int SEFL2_ENEMIES_ITEM		= 1; //0x0002
+const int SEFL2_ENEMEIS_SECRET		= 2; //0x0004
+const int SEFL2_ENEMIES_SECRET_PERM	= 3; //0x0008
+
 //Room types (Screen => Room Type)
 //Use with Screen->RoomType
 const int RT_DOORREPAIR         = 5;
