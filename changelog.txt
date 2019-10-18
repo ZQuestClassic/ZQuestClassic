@@ -2,6 +2,16 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Fix default cursor scale. Was 1.5, should be 1.
+Added file VERSION metadata to EXE files via MSVC VERSION resource script.
+	This prevents warnings by Malwarebytes on UPD's binaries.
+	( ZoriaRPG, 18th October, 2019 )
+	
+Added cursor scaling option:
+	Config options 'cursor_scale_large' and 'cursor_scale_small', to scale the cursor
+	added to zquest.cfg and zc.cfg. Range 1 to 5, decimal allowed.
+	( Venrob, 17th October, 2019 )
+	
 Replaced 'new quest' in qst.dat with Classic 1st 2.50 v1.10.
 Added v_build to ZITEM format.
 The mapscr selection marker rect is now red in InvalidStatic mode,

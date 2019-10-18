@@ -94,7 +94,7 @@ int cursorColor(int col)
 
 void load_mice()
 {
-	int sz = vbound(int(16*(is_large ? get_config_float("zquest","cursor_scale_large",1.5) : get_config_float("zquest","cursor_scale_small",1))),16,80);
+	int sz = vbound(int(16*(is_large ? get_config_float("zquest","cursor_scale_large",1) : get_config_float("zquest","cursor_scale_small",1))),16,80);
 	for(int i=0; i<MOUSE_BMP_MAX; i++)
 	{
 		for(int j=0; j<4; j++)
