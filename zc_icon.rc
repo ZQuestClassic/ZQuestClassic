@@ -1,6 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
-#include "resource.h"
+#include "resource."
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -41,10 +41,14 @@ BEGIN
     "resource.\0"
 END
 
-
 3 TEXTINCLUDE 
 BEGIN
     "\r\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -73,11 +77,11 @@ BEGIN
         BLOCK "080904b0"
         BEGIN
             VALUE "CompanyName", "Armageddon Games"
-            VALUE "FileDescription", "zc_icon"
-            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "FileDescription", "ZQuest Classic Player"
+            VALUE "FileVersion", "2.53.1"
             VALUE "InternalName", "zc_icon"
             VALUE "LegalCopyright", "Copyright (C) 2019"
-            VALUE "OriginalFilename", "zc_icon"
+            VALUE "OriginalFilename", "ZQuest Classic Player"
             VALUE "ProductName", "ZQuest Classic Player"
             VALUE "ProductVersion", "2.53.1"
         END
@@ -98,8 +102,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
-
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 
