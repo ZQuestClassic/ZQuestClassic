@@ -405,3 +405,21 @@ address system for those.
 In that case, the pointer would be the starting point of the struct/array/class in a vector.
 
 as v->at(address)
+
+
+Basicslly, vectors that use a virtual address system, where the parser knows the virtual address, reads into
+the vector at that point, reads the next entry for the size of the data, then reads the data from that point.
+
+We would need these to work as 'data nodes', where say, a virtual struct entry would contain something like this:
+
+NUMBER OF ELEMENTS, < INITIAL POINT OF EACH ELEMENT >, < for each element, INITIAL POSITION >, <DATATYPE OF ELEMENT> ,
+SIZE OF ELEMENT> , < ELEMENT LENGTH (size) >, DATA STREAM >
+
+Basically, a lot of calls simialr to how we access GLOBALRAM, but each telling us a different aspect of the data, then finally getting to the correct point in the vector where the data bale exists.
+
+I thik that this is feasible, but IDK if it'd be possible until 2.60, based on wanting to get 2. done in a realistic tiemeframe.
+
+I suspect that I could rewrite GD() to support MAX_LONG variables in 2.55, though. I'd need to reallocate how and where GD() is accessed, so that instead of usig stack registers for GD, the GD call is just vector.at(GD(n)).
+
+Thus, pop d2, GD(0000.1900) would access the vector at point 1900.
+
