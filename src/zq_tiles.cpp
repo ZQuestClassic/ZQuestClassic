@@ -40,6 +40,10 @@ extern zcmodule moduledata;
 #define stricmp _stricmp
 #endif
 
+#define HIDE_USED (show_only_unused_tiles&1)
+#define HIDE_UNUSED (show_only_unused_tiles&2)
+#define HIDE_BLANK (show_only_unused_tiles&4)
+#define HIDE_8BIT_MARKER (show_only_unused_tiles&8)
 
 extern void large_dialog(DIALOG *d);
 static void massRecolorReset4Bit();
@@ -4878,9 +4882,9 @@ void draw_tiles(int first,int cs, int f)
         
         l-=2;
         
-        if(((show_only_unused_tiles&1)&&tile_is_used(first+i)&&!blank_tile_table[first+i])   // 1 bit: hide used
-                || ((show_only_unused_tiles&2)&&!tile_is_used(first+i)&&!blank_tile_table[first+i]) // 2 bit: hide unused
-                || ((show_only_unused_tiles&4)&&blank_tile_table[first+i]))	// 4 bit: hide blank
+        if((HIDE_USED && tile_is_used(first+i) && !blank_tile_table[first+i])   // 1 bit: hide used
+                || (HIDE_UNUSED && !tile_is_used(first+i) && !blank_tile_table[first+i]) // 2 bit: hide unused
+                || (HIDE_BLANK && blank_tile_table[first+i]))	// 4 bit: hide blank
         {
             if(InvalidStatic)
             {
@@ -4905,7 +4909,7 @@ void draw_tiles(int first,int cs, int f)
             stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
         }
         
-        if((f%32)<=16 && is_large && newtilebuf[first+i].format==tf8Bit)
+        if((f%32)<=16 && is_large && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
         {
             textprintf_ex(screen2,z3smallfont,(x)+l-3,(y)+l-3,vc(int((f%32)/6)+10),-1,"8");
         }
@@ -5187,12 +5191,18 @@ int hide_blank()
     show_only_unused_tiles ^= 4;
     return D_O_K;
 }
+int hide_8bit_marker()
+{
+	show_only_unused_tiles ^= 8;
+	return D_O_K;
+}
 
 static MENU select_tile_view_menu[] =
 {
     { (char *)"Hide Used",   hide_used,   NULL, 0, NULL },
     { (char *)"Hide Unused", hide_unused,   NULL, 0, NULL },
     { (char *)"Hide Blank",  hide_blank,   NULL, 0, NULL },
+    { (char *)"Hide 8-bit marker",  hide_8bit_marker,   NULL, 0, NULL },
     { NULL,                  NULL,  NULL, 0, NULL }
 };
 
@@ -8980,7 +8990,8 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
             {
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
-                    show_only_unused_tiles=(show_only_unused_tiles+1)%4;
+					//Only toggle the first 2 bits!
+                    show_only_unused_tiles = (show_only_unused_tiles&~3) | (((show_only_unused_tiles&3)+1)%4);
                 }
                 else
                 {
@@ -8990,6 +9001,11 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 redraw=true;
             }
             break;
+			
+			case KEY_8:
+			case KEY_8_PAD:
+				hide_8bit_marker();
+				break;
             
             case KEY_M:
 		    //al_trace("mass combo key pressed, type == %d\n",type);
@@ -9370,9 +9386,10 @@ REDRAW:
         {
             select_tile_rc_menu[1].flags = (copy==-1) ? D_DISABLED : 0;
             select_tile_rc_menu[2].flags = (copy==-1) ? D_DISABLED : 0;
-            select_tile_view_menu[0].flags = show_only_unused_tiles&1 ? D_SELECTED : 0;
-            select_tile_view_menu[1].flags = show_only_unused_tiles&2 ? D_SELECTED : 0;
-            select_tile_view_menu[2].flags = show_only_unused_tiles&4 ? D_SELECTED : 0;
+            select_tile_view_menu[0].flags = HIDE_USED ? D_SELECTED : 0;
+            select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
+            select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
+            select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
             int m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
             redraw=true;
             
