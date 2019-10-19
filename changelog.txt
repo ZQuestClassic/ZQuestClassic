@@ -4,7 +4,7 @@ ChangeLog for 2.53.0
 
 The user can now save individual npcs from the Enemy Editor 
 	in the format of .ZNPC, identical to how .ZITEM works.
-Updated icon resource scripts for ZC< ZQ, and ZCL. 
+Updated icon resource scripts for ZC, ZQ, and ZCL. 
 	( ZoriaRPG, 19th October, 2019 )
 	
 Add 'Hide 8-bit Marker' to the 'View' menu, with the hotkey '8' to toggle it.
