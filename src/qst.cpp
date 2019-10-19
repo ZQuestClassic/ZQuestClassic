@@ -2454,6 +2454,23 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
 		    return qe_invalid;
 		}
 		
+		if(!pfread(tempheader.new_version_devsig,256,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!pfread(tempheader.new_version_compilername,256,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!pfread(tempheader.new_version_compilerversion,256,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!pfread(tempheader.product_name,256,f,true))
+		{
+		    return qe_invalid;
+		}
+		
 	}
 	else // <4
 	{
@@ -2470,9 +2487,19 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
 		tempheader.new_version_id_date_day = 0;
 		tempheader.new_version_id_date_hour = 0;
 		tempheader.new_version_id_date_minute = 0;
-		tempheader.new_version_devsig = 0;
-		tempheader.new_version_compilersig = 0;
+		
+		memset(tempheader.new_version_devsig, 0, 256);
+		memset(tempheader.new_version_compilername, 0, 256);
+		memset(tempheader.new_version_compilerversion, 0, 256);
+		memset(tempheader.product_name, 0, 1024);
+		strcpy(tempheader.product_name, "ZQuest Creator Suite");
         }
+	
+	al_trace("Developr Signoff by: %s\n", tempheader.new_version_devsig);
+	al_trace("Compiled with: %s\n", tempheader.new_version_compilername);
+	al_trace("Compiler Version: %s\n", tempheader.new_version_compilerversion);
+	al_trace("Project ID: %s\n", tempheader.product_name);
+	al_trace("Built at date and time: %d - %d - %d at %d : %d GMT\n", tempheader.new_version_id_date_day, tempheader.new_version_id_date_month, tempheader.new_version_id_date_year, tempheader.new_version_id_date_hour, tempheader.new_version_id_date_minute);
 	
     }
     

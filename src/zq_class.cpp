@@ -6297,15 +6297,42 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	{
 	    new_return(33);
 	}
-	if(!p_iputl(Header->new_version_devsig,f))
-	{
-	    new_return(34);
-	}
-	if(!p_iputl(Header->new_version_compilersig,f))
-	{
-	    new_return(35);
-	}
-
+	
+	char tempsig[256];
+	memset(tempsig, 0, 256);
+	strcpy(tempsig, DEV_SIGNOFF);
+	
+	if(!pfwrite(&tempsig,256),f))
+        {
+            new_return(34);
+        }
+	
+	char tempcompilersig[256];
+	memset(tempcompilersig, 0, 256);
+	strcpy(tempcompilersig, COMPILER_NAME);
+	
+	if(!pfwrite(&tempcompilersig,256),f))
+        {
+            new_return(35);
+        }
+	
+	char tempcompilerversion[256];
+	memset(tempcompilerversion, 0, 256);
+	strcpy(tempcompilerversion, COMPILER_VERSION);
+	
+	if(!pfwrite(&tempcompilerversion,256),f))
+        {
+            new_return(36);
+        }
+	
+	char tempproductname[256];
+	memset(tempproductname, 0, 256);
+	strcpy(tempproductname, PROJECT_NAME);
+	
+	if(!pfwrite(&tempproductname,1024),f))
+        {
+            new_return(37);
+        }
         
         if(writecycle==0)
         {

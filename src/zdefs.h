@@ -141,6 +141,11 @@
 //      CLANG 3
 //      INTEL 4
 
+#define DEV_SIGNOFF "ZoriaRPG"
+#define COMPILER_NAME "MSVC"
+#define COMPILER_VERSION "v9, 2008"
+#define PROJECT_NAME "ZQuest Creator Suite: Aeternal, v2.55"
+
 
 #define MIN_VERSION         0x0184
 
@@ -2642,8 +2647,11 @@ struct zquestheader
     byte new_version_id_date_day;
     byte new_version_id_date_hour;
     byte new_version_id_date_minute;
-    long new_version_devsig;
-    long new_version_compilersig;
+    char new_version_devsig[256];
+    char new_version_compilername[256];
+    char new_version_compilerversion[256];
+    char product_name[1024];
+    
     //602
 };
 
