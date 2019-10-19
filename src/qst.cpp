@@ -21,6 +21,10 @@
 #include <vector>
 #include <assert.h>
 
+
+#include "metadata/devsig.h.sig"
+#include "metadata/compilersig.h.sig"
+#include "metadata/versionsig.h"
 #include "mem_debug.h"
 #include "zc_alleg.h"
 #include "zdefs.h"

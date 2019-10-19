@@ -113,46 +113,6 @@
 #define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 37"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
-//Header v4
-#define V_ZC_FIRST 2
-#define V_ZC_SECOND 55
-#define V_ZC_THIRD 0
-#define V_ZC_FOURTH 0
-#define V_ZC_ALPHA 48
-#define V_ZC_BETA 0
-#define V_ZC_GAMMA 0
-#define V_ZC_RELEASE 0
-#define V_ZC_YEAR 2019
-#define V_ZC_MONTH 10 
-#define V_ZC_DAY 19   
-#define V_ZC_HOUR 22  
-#define V_ZC_MINUTE 30
-#define V_ZC_DEVSIG  1 
-//DEVSIGS 
-//      ZORIARPG 1
-//      VENROB   2
-//      DIMENTIO 3
-//      GLEEOK   4
-//      JMAN     5
-//      TAKUYA   6
-#define V_ZC_COMPILERSIG 1
-//COMPILER SIGS
-//	MSVC  1
-//	G++   2
-//      CLANG 3
-//      INTEL 4
-
-#define COMPILER_V_FIRST 0
-#define COMPILER_V_SECOND 0
-#define COMPILER_V_THIRD 0
-#define COMPILER_V_FOURTH 0
-
-#define DEV_SIGNOFF "ZoriaRPG"
-#define COMPILER_NAME "MSVC"
-#define COMPILER_VERSION "v9, 2008"
-#define PROJECT_NAME "ZQuest Creator Suite: Aeternal, v2.55"
-
-
 #define MIN_VERSION         0x0184
 
 #define ZELDADAT_VERSION      0x0211                        //version of zelda.dat
