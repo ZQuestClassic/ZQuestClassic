@@ -1,11 +1,11 @@
 // Microsoft Visual C++ generated resource script.
 //
-#include "resource."
+#include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
-// Generated from the TEXTINCLUDE 2 resource.
+// Generated from the TEXTINCLUDE 2 resource.h
 //
 #include "afxres.h"
 
@@ -38,7 +38,7 @@ ALLEGRO_ICON            ICON                    "./zq_icon.ico"
 
 1 TEXTINCLUDE 
 BEGIN
-    "resource.\0"
+    "resource.h\0"
 END
 
 3 TEXTINCLUDE 
@@ -100,7 +100,7 @@ END
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
-// Generated from the TEXTINCLUDE 3 resource.
+// Generated from the TEXTINCLUDE 3 resource.h
 //
 
 /////////////////////////////////////////////////////////////////////////////
