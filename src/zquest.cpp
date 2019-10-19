@@ -10411,12 +10411,13 @@ int writeoneweapon(PACKFILE *f, int index)
                 return 0;
             }
 	    
+	    //2.55 starts here
 	    if(!p_iputl(wpnsbuf[iid].newtile,f))
             {
                 return 0;
             }
 
-	//2.55 starts here
+	
 	return 1;
 }
 
@@ -10526,6 +10527,10 @@ int readoneweapon(PACKFILE *f, int index)
 					return 0;
 				}
 			}
+	    }
+	    if ( zversion < 0x255 ) 
+	    {
+		    tempwpnspr.newtile = tempwpnspr.tile;
 	    }
 	::memcpy( &(wpnsbuf[biw[index].i]),&tempwpnspr, sizeof(wpndata));
 	::memcpy(weapon_string[biw[index].i], tmp_wpn_name, 64);
