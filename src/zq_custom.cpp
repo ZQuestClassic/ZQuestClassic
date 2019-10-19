@@ -3771,8 +3771,566 @@ static MENU elist_rclick_menu[] =
 {
     { (char *)"Copy",  NULL, NULL, 0, NULL },
     { (char *)"Paste", NULL, NULL, 0, NULL },
+    { (char *)"Save", NULL, NULL, 0, NULL },
+    { (char *)"Load", NULL, NULL, 0, NULL },
     { NULL,            NULL, NULL, 0, NULL }
 };
+
+int readonenpc(PACKFILE *f, int index)
+{
+	dword section_version = 0;
+	dword section_cversion = 0;
+	int zversion = 0;
+	int zbuild = 0;
+	guydata tempguy;
+	memset(&tempguy, 0, sizeof(guydata));
+        //reset_itembuf(&tempitem,i);
+    
+   
+	char npcstring[64]={0}; //guy_string[]
+	//section version info
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zitem packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	else
+	{
+		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readonenpc section_version: %d\n", section_version);
+	al_trace("readonenpc section_cversion: %d\n", section_cversion);
+    
+   
+	if(!pfread(&npcstring, 64, f,true))
+	{
+		return 0;
+	}
+    
+	//section data
+	if(!p_igetl(&tempguy.flags,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.flags2,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.width,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.height,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.s_tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.s_width,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.s_height,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.e_tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.e_width,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.e_height,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.hp,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.family,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.cset,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.anim,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.e_anim,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.frate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.e_frate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.dp,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.wdp,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.weapon,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.rate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.hrate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.step,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.homing,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.grumble,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.item_set,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc1,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc2,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc3,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc4,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc5,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc6,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc7,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc8,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc9,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc10,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.bgsfx,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.bosspal,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.extend,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    for(int j=0; j < edefLAST; j++)
+		    {
+			if(!p_getc(&tempguy.defense[j],f,true))
+			{
+			   return 0;
+			}
+		    }
+		    
+		    if(!p_getc(&tempguy.hitsfx,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.deadsfx,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc11,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc12,f,true))
+		    {
+			return 0;
+		    }
+		    
+    
+	memcpy(&guysbuf[index], &tempguy, sizeof(guydata));
+	//strcpy(item_string[index], istring);
+	guysbuf[bie[index].i] = tempguy;
+	strcpy(guy_string[bie[index].i], npcstring);
+       
+	return 1;
+}
+
+int writeonenpc(PACKFILE *f, int i)
+{
+    
+    dword section_version=V_GUYS;
+    dword section_cversion=CV_GUYS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+    
+  
+    //section version info
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+    
+	if(!pfwrite(guy_string[i], 64, f))
+            {
+                new_return(5);
+            }
+        
+       if(!p_iputl(guysbuf[i].flags,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].flags2,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].tile,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].width,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].height,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].s_tile,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].s_width,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].s_height,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].e_tile,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].e_width,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].e_height,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].hp,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].family,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].cset,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].anim,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].e_anim,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].frate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].e_frate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].dp,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].wdp,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].weapon,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].rate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].hrate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].step,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].homing,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].grumble,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].item_set,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc1,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc2,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc3,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc4,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc5,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc6,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc7,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc8,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc9,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc10,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].bgsfx,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].bosspal,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].extend,f))
+	    {
+		return 0;
+	    }
+	    
+	    for(int j=0; j < edefLAST; j++)
+	    {
+		if(!p_putc(guysbuf[i].defense[j],f))
+		{
+		   return 0;
+		}
+	    }
+	    
+	    if(!p_putc(guysbuf[i].hitsfx,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].deadsfx,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc11,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc12,f))
+	    {
+		return 0;
+	    }
+	    
+	return 1;
+}
+
+
+
+
+
+
 
 void elist_rclick_func(int index, int x, int y)
 {
@@ -3792,6 +4350,45 @@ void elist_rclick_func(int index, int x, int y)
     {
         guysbuf[bie[index].i]=guysbuf[copiedGuy];
         elist_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+    else if(ret==2) // save
+    {
+	if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
+                return;
+	int iid = bie[index].i; //the item id is not the sajme as the editor index
+	//the editor index is the position in the current LIST. -Z
+	
+	//al_trace("Saving item index: %d\n",index);
+	//al_trace("Saving item id: %d\n",iid);
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	/*if (!writeoneitem(f,iid))
+	{
+		al_trace("Could not write to .znpc packfile %s\n", temppath);
+	}
+	*/
+	writeonenpc(f,iid);
+	pack_fclose(f);
+     
+        
+    }
+    else if(ret==3) // load
+    {
+	if(!getname("Load NPC(.znpc)", "znpc", NULL,datapath,false))
+                return;
+	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(!f) return;
+	
+	if (!readonenpc(f,index))
+	{
+		al_trace("Could not read from .znpc packfile %s\n", temppath);
+		jwin_alert("znpc File: Error","Could not load the specified npc.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	
+	pack_fclose(f);
+        //itemsbuf[bie[index].i]=itemsbuf[copiedItem];
+        elist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
         saved=false;
     }
 }
