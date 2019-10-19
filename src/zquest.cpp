@@ -10341,6 +10341,45 @@ const char *weaponlist(int index, int *list_size)
     return biw[index].s;
 }
 
+static wpndata copiedSprite;
+static byte spritecopied = 0;
+char temp_weapon_string[64] = {0};
+static MENU wpnsprite_rclick_menu[] =
+{
+    { (char *)"Copy",  NULL, NULL, 0, NULL },
+    { (char *)"Paste", NULL, NULL, 0, NULL },
+    { (char *)"Save", NULL, NULL, 0, NULL },
+    { (char *)"Load", NULL, NULL, 0, NULL },
+    { NULL,            NULL, NULL, 0, NULL }
+};
+
+void wpnsprite_rclick_func(int index, int x, int y)
+{
+    if(((unsigned)index)>255)
+        return;
+    int ret=popup_menu(wpnsprite_rclick_menu, x, y);
+    if(ret==0) // copy
+    {
+	//::memcpy(&copiedSprite, &biw[biw[index].i], sizeof(wpndata));
+	::memcpy(&copiedSprite, &(wpnsbuf[biw[index].i]), sizeof(wpndata));
+	memset(temp_weapon_string,0,64);
+	::memcpy(temp_weapon_string, weapon_string[biw[index].i], 64);
+	al_trace("biw[index].i is: %d\n", biw[index].i);
+	al_trace("biw[index] is: %d\n", biw[index]);
+	spritecopied = 1;
+    }
+    else if(ret==1) // paste
+    {
+	::memcpy( &(wpnsbuf[biw[index].i]),&copiedSprite, sizeof(wpndata));
+	::memcpy(weapon_string[biw[index].i], temp_weapon_string, 64);
+	//build_biw_list(); //Doing this resorts the list too soon
+	//::memcpy(&biw[index], &copiedSprite, sizeof(wpndata));
+        wlist_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+}
+
+
 int select_weapon(const char *prompt,int weapon)
 {
     if(biw_cnt==-1)
@@ -10361,6 +10400,8 @@ int select_weapon(const char *prompt,int weapon)
     wlist_dlg[2].d1=index;
     ListData weapon_list(weaponlist, &font);
     wlist_dlg[2].dp=(void *) &weapon_list;
+    wlist_dlg[2].dp3 = (void *)&wpnsprite_rclick_func;
+    wlist_dlg[2].flags|=(D_USER<<1);
     
     if(is_large)
         large_dialog(wlist_dlg);
