@@ -14069,19 +14069,65 @@ static DIALOG selectdmap_dlg[] =
     { NULL,                0,    0,    0,    0,    0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
+static dmap copiedDMap;
+static byte dmapcopied = 0;
+static MENU dmap_rclick_menu[] =
+{
+    { (char *)"Copy",  NULL, NULL, 0, NULL },
+    { (char *)"Paste", NULL, NULL, 0, NULL },
+    //{ (char *)"Save", NULL, NULL, 0, NULL },
+    //{ (char *)"Load", NULL, NULL, 0, NULL },
+    { NULL,            NULL, NULL, 0, NULL }
+};
+
+void dmap_rclick_func(int index, int x, int y)
+{
+    if(((unsigned)index)>MAXDMAPS)
+        return;
+    
+    if(!dmapcopied)
+        dmap_rclick_menu[1].flags|=D_DISABLED;
+    else
+        dmap_rclick_menu[1].flags&=~D_DISABLED;
+    
+    int ret=popup_menu(dmap_rclick_menu, x, y);
+    
+    if(ret==0) // copy
+    {
+	::memcpy(&copiedDMap, &DMaps[index], sizeof(dmap));
+	dmapcopied = 1;
+    }
+    else if(ret==1) // paste
+    {
+	::memcpy(&DMaps[index], &copiedDMap, sizeof(dmap));
+        //selectdmap_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+    
+    
+}
+
+
 int onDmaps()
 {
     int ret;
     char buf[40];
+    dmapcopied = 0;
     dmap_list_size=MAXDMAPS;
     number_list_zero=true;
     selectdmap_dlg[0].dp2=lfont;
+    selectdmap_dlg[2].dp3 = (void *)&dmap_rclick_func;
+    selectdmap_dlg[2].flags|=(D_USER<<1);
     
     if(is_large)
         large_dialog(selectdmap_dlg);
-        
+    
+    
+    
     ret=zc_popup_dialog(selectdmap_dlg,2);
     dmap* pSelectedDmap = 0;
+    
+    
     
     while(ret!=4&&ret!=0)
     {
