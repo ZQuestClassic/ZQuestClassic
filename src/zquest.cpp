@@ -10340,6 +10340,199 @@ const char *weaponlist(int index, int *list_size)
     
     return biw[index].s;
 }
+int writeoneweapon(PACKFILE *f, int index)
+{
+    
+    dword section_version=V_WEAPONS;
+    dword section_cversion=CV_WEAPONS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+    int iid = biw[index].i;
+	al_trace("Writing Weapon Sprite .zwpnspr file for weapon id: %d\n", iid);
+  
+    //section version info
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+    
+	//weapon string
+	
+	if(!pfwrite((char *)weapon_string[iid], 64, f))
+	{
+                return 0;
+	}
+	//section data
+	if(!p_iputw(wpnsbuf[iid].tile,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(wpnsbuf[iid].misc,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(wpnsbuf[iid].csets,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(wpnsbuf[iid].frames,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(wpnsbuf[iid].speed,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(wpnsbuf[iid].type,f))
+            {
+                return 0;
+            }
+	    
+	    if(!p_iputw(wpnsbuf[iid].script,f))
+            {
+                return 0;
+            }
+	    
+	    if(!p_iputl(wpnsbuf[iid].newtile,f))
+            {
+                return 0;
+            }
+
+	//2.55 starts here
+	return 1;
+}
+
+
+int readoneweapon(PACKFILE *f, int index)
+{
+	dword section_version = 0;
+	dword section_cversion = 0;
+	int zversion = 0;
+	int zbuild = 0;
+	wpndata tempwpnspr;
+	memset(&tempwpnspr, 0, sizeof(wpndata));
+     
+   
+	//char dmapstring[64]={0};
+	//section version info
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zwpnspr packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_WEAPONS ) || ( section_version == V_WEAPONS && section_cversion < CV_WEAPONS ) )
+	{
+		al_trace("Cannot read .zwpnspr packfile made using V_WEAPONS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zwpnspr packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+    
+	
+    
+	char tmp_wpn_name[64];
+	memset(tmp_wpn_name,0,64);
+	if(!pfread(&tmp_wpn_name, 64, f,true))
+	{
+		return 0;
+	}
+	
+	if(!p_igetw(&tempwpnspr.tile,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempwpnspr.misc,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempwpnspr.csets,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempwpnspr.frames,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempwpnspr.speed,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempwpnspr.type,f,true))
+            {
+                return 0;
+            }
+	    
+	    if(!p_igetw(&tempwpnspr.script,f,true))
+            {
+                return 0;
+            }
+	    
+	    
+	    
+	    //2.55 starts here
+	    if ( zversion >= 0x255 )
+	    {
+			if  ( section_version >= 7 )
+			{
+				if(!p_igetl(&tempwpnspr.newtile,f,true))
+				{
+					return 0;
+				}
+			}
+	    }
+	::memcpy( &(wpnsbuf[biw[index].i]),&tempwpnspr, sizeof(wpndata));
+	::memcpy(weapon_string[biw[index].i], tmp_wpn_name, 64);
+       
+	return 1;
+}
+
 
 static wpndata copiedSprite;
 static byte spritecopied = 0;
@@ -10375,6 +10568,41 @@ void wpnsprite_rclick_func(int index, int x, int y)
 	//build_biw_list(); //Doing this resorts the list too soon
 	//::memcpy(&biw[index], &copiedSprite, sizeof(wpndata));
         wlist_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+    else if(ret==2) // save
+    {
+	if(!getname("Save ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
+                return;
+	
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	/*if (!writeoneitem(f,iid))
+	{
+		al_trace("Could not write to .znpc packfile %s\n", temppath);
+	}
+	*/
+	writeoneweapon(f,index);
+	pack_fclose(f);
+     
+        
+    }
+    else if(ret==3) // load
+    {
+	if(!getname("Load ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
+                return;
+	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(!f) return;
+	
+	if (!readoneweapon(f,index))
+	{
+		al_trace("Could not read from .zwpnspr packfile %s\n", temppath);
+		jwin_alert("ZWPNSPR File: Error","Could not load the specified weapon sprite.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	
+	pack_fclose(f);
+        //itemsbuf[bie[index].i]=itemsbuf[copiedItem];
+        wlist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
         saved=false;
     }
 }
@@ -14364,15 +14592,7 @@ int readonedmap(PACKFILE *f, int index)
 	{
 		return 0;
 	}
-	if ( zversion > ZELDA_VERSION )
-	{
-		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
-		return 0;
-	}
-	else
-	{
-		al_trace("Reading a .zdmap packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
-	}
+	
 	if(!p_igetw(&section_version,f,true))
 	{
 		return 0;
@@ -14385,6 +14605,20 @@ int readonedmap(PACKFILE *f, int index)
 	al_trace("readonedmap section_version: %d\n", section_version);
 	al_trace("readonedmap section_cversion: %d\n", section_cversion);
     
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	else if (( section_version > V_DMAPS ) || ( section_version == V_DMAPS && section_cversion > CV_DMAPS ) ) 
+	{
+		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+	}
+	else
+	{
+		al_trace("Reading a .zdmap packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
    
 	//if(!pfread(&dmapstring, 64, f,true))
 	//{
