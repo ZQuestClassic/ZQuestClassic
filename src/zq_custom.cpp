@@ -2923,7 +2923,7 @@ int readoneitem(PACKFILE *f, int index)
 	}
 	else
 	{
-		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %x\n", zversion, zbuild);
+		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	if(!p_igetw(&section_version,f,true))
 	{
@@ -7491,8 +7491,1039 @@ static MENU elist_rclick_menu[] =
 {
     { (char *)"Copy",  NULL, NULL, 0, NULL },
     { (char *)"Paste", NULL, NULL, 0, NULL },
+    { (char *)"Save", NULL, NULL, 0, NULL },
+    { (char *)"Load", NULL, NULL, 0, NULL },
     { NULL,            NULL, NULL, 0, NULL }
 };
+
+int readonenpc(PACKFILE *f, int index)
+{
+	dword section_version = 0;
+	dword section_cversion = 0;
+	int zversion = 0;
+	int zbuild = 0;
+	guydata tempguy;
+	memset(&tempguy, 0, sizeof(guydata));
+        //reset_itembuf(&tempitem,i);
+    
+   
+	char npcstring[64]={0}; //guy_string[]
+	//section version info
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zitem packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	else
+	{
+		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readonenpc section_version: %d\n", section_version);
+	al_trace("readonenpc section_cversion: %d\n", section_cversion);
+    
+   
+	if(!pfread(&npcstring, 64, f,true))
+	{
+		return 0;
+	}
+    
+	//section data
+	if(!p_igetl(&tempguy.flags,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.flags2,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.width,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.height,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.s_tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.s_width,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.s_height,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.e_tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.e_width,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.e_height,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.hp,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.family,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.cset,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.anim,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.e_anim,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.frate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.e_frate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.dp,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.wdp,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.weapon,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.rate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.hrate,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.step,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.homing,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.grumble,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.item_set,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc1,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc2,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc3,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc4,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc5,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc6,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc7,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc8,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc9,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc10,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.bgsfx,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.bosspal,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempguy.extend,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    for(int j=0; j < edefLAST; j++)
+		    {
+			if(!p_getc(&tempguy.defense[j],f,true))
+			{
+			   return 0;
+			}
+		    }
+		    
+		    if(!p_getc(&tempguy.hitsfx,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempguy.deadsfx,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc11,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempguy.misc12,f,true))
+		    {
+			return 0;
+		    }
+		    
+    
+	if ( zversion >= 0x255 )
+	{
+		if  ( section_version >= 41 )
+		{
+		    //New itemdata vars -Z
+		    //! version 27
+		    
+			//2.55 starts here
+		    for(int j=edefLAST; j < edefLAST255; j++)
+		    {
+			if(!p_getc(&tempguy.defense[j],f,true))
+			{
+			    return 0;
+			}
+		    }
+		    
+		    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+		    if(!p_igetl(&tempguy.txsz,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.tysz,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.hxsz,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.hysz,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.hzsz,f,true))
+		    {
+			return 0;
+		    }
+		    // These are not fixed types, but ints, so they are safe to use here. 
+		    if(!p_igetl(&tempguy.hxofs,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.hyofs,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.xofs,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.yofs,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.zofs,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.wpnsprite,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.SIZEflags,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.frozentile,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.frozencset,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.frozenclock,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    for ( int q = 0; q < 10; q++ ) 
+		    {
+			if(!p_igetw(&tempguy.frozenmisc[q],f,true))
+			{
+				return 0;
+			}
+		    }
+		    if(!p_igetw(&tempguy.firesfx,f,true))
+		    {
+			return 0;
+		    }
+		    //misc 16->31
+		    if(!p_igetl(&tempguy.misc16,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc17,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc18,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc19,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc20,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc21,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc22,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc23,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc24,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc25,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc26,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc27,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc28,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc29,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc30,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc31,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc32,f,true))
+		    {
+			return 0;
+		    }
+		    for ( int q = 0; q < 32; q++ )
+		    {
+			if(!p_igetl(&tempguy.movement[q],f,true))
+			{
+				return 0;
+			}
+		    }
+		    for ( int q = 0; q < 32; q++ )
+		    {
+			    if(!p_igetl(&tempguy.new_weapon[q],f,true))
+			    {
+				return 0;
+			    }
+		    }
+		    if(!p_igetw(&tempguy.script,f,true))
+		    {
+			return 0;
+		    }
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_igetl(&tempguy.initD[q],f,true))
+			{
+				return 0;
+			}
+		    }
+		    for ( int q = 0; q < 2; q++ )
+		    {
+			if(!p_igetl(&tempguy.initA[q],f,true))
+			{
+				return 0;
+			}
+		    }
+		    if(!p_igetl(&tempguy.editorflags,f,true))
+		    {
+			return 0;
+		    }
+		    //somehow forgot these in the older builds -Z
+		    if(!p_igetl(&tempguy.misc13,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc14,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetl(&tempguy.misc15,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    //Enemy Editor InitD[] labels
+		    for ( int q = 0; q < 8; q++ )
+		    {
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&tempguy.initD_label[q][w],f,true))
+					{
+						return 0;
+					}
+				}
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&tempguy.weapon_initD_label[q][w],f,true))
+					{
+						return 0;
+					}
+				}
+		    }
+		    if(!p_igetw(&tempguy.weaponscript,f,true))
+		    {
+			return 0;
+		    }
+		    //eweapon initD
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_igetl(&tempguy.weap_initiald[q],f,true))
+			{
+				return 0;
+			}
+		    }
+		}
+	}
+	memcpy(&guysbuf[index], &tempguy, sizeof(guydata));
+	//strcpy(item_string[index], istring);
+	guysbuf[bie[index].i] = tempguy;
+	strcpy(guy_string[bie[index].i], npcstring);
+       
+	return 1;
+}
+
+int writeonenpc(PACKFILE *f, int i)
+{
+    
+    dword section_version=V_GUYS;
+    dword section_cversion=CV_GUYS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+    
+  
+    //section version info
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+    
+	if(!pfwrite(guy_string[i], 64, f))
+            {
+                new_return(5);
+            }
+        
+       if(!p_iputl(guysbuf[i].flags,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].flags2,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].tile,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].width,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].height,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].s_tile,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].s_width,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].s_height,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].e_tile,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].e_width,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].e_height,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].hp,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].family,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].cset,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].anim,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].e_anim,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].frate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].e_frate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].dp,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].wdp,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].weapon,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].rate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].hrate,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].step,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].homing,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].grumble,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].item_set,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc1,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc2,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc3,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc4,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc5,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc6,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc7,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc8,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc9,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc10,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].bgsfx,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].bosspal,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputw(guysbuf[i].extend,f))
+	    {
+		return 0;
+	    }
+	    
+	    for(int j=0; j < edefLAST; j++)
+	    {
+		if(!p_putc(guysbuf[i].defense[j],f))
+		{
+		   return 0;
+		}
+	    }
+	    
+	    if(!p_putc(guysbuf[i].hitsfx,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_putc(guysbuf[i].deadsfx,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc11,f))
+	    {
+		return 0;
+	    }
+	    
+	    if(!p_iputl(guysbuf[i].misc12,f))
+	    {
+		return 0;
+	    }
+	    
+	    //2.55 starts here
+	    for(int j=edefLAST; j < edefLAST255; j++)
+	    {
+		if(!p_putc(guysbuf[i].defense[j],f))
+		{
+		    return 0;
+		}
+	    }
+	    
+	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+	    if(!p_iputl(guysbuf[i].txsz,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].tysz,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].hxsz,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].hysz,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].hzsz,f))
+	    {
+		return 0;
+	    }
+	    // These are not fixed types, but ints, so they are safe to use here. 
+	    if(!p_iputl(guysbuf[i].hxofs,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].hyofs,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].xofs,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].yofs,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].zofs,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].wpnsprite,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].SIZEflags,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].frozentile,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].frozencset,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].frozenclock,f))
+	    {
+		return 0;
+	    }
+	    
+	    for ( int q = 0; q < 10; q++ ) 
+	    {
+		if(!p_iputw(guysbuf[i].frozenmisc[q],f))
+		{
+			return 0;
+		}
+	    }
+	    if(!p_iputw(guysbuf[i].firesfx,f))
+	    {
+		return 0;
+	    }
+	    //misc 16->31
+	    if(!p_iputl(guysbuf[i].misc16,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc17,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc18,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc19,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc20,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc21,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc22,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc23,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc24,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc25,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc26,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc27,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc28,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc29,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc30,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc31,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc32,f))
+	    {
+		return 0;
+	    }
+	    for ( int q = 0; q < 32; q++ )
+	    {
+		    if(!p_iputl(guysbuf[i].movement[q],f))
+		    {
+			return 0;
+		    }
+	    }
+	    for ( int q = 0; q < 32; q++ )
+	    {
+		    if(!p_iputl(guysbuf[i].new_weapon[q],f))
+		    {
+			return 0;
+		    }
+	    }
+	    if(!p_iputw(guysbuf[i].script,f))
+	    {
+		return 0;
+	    }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].initD[q],f))
+		{
+			return 0;
+		}
+	    }
+	    for ( int q = 0; q < 2; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].initA[q],f))
+		{
+			return 0;
+		}
+	    }
+	    if(!p_iputl(guysbuf[i].editorflags,f))
+	    {
+		return 0;
+	    }
+	    //somehow forgot these in the older builds -Z
+	    if(!p_iputl(guysbuf[i].misc13,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc14,f))
+	    {
+		return 0;
+	    }
+	    if(!p_iputl(guysbuf[i].misc15,f))
+	    {
+		return 0;
+	    }
+	    
+	    //Enemy Editor InitD[] labels
+	    for ( int q = 0; q < 8; q++ )
+	    {
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(guysbuf[i].initD_label[q][w],f))
+				{
+					return 0;
+				}
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
+				{
+					return 0;
+				}
+			}
+	    }
+	    if(!p_iputw(guysbuf[i].weaponscript,f))
+	    {
+		return 0;
+	    }
+	    //eweapon initD
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].weap_initiald[q],f))
+		{
+			return 0;
+		}
+	    }
+	return 1;
+}
+
+
+
+
+
+
 
 void elist_rclick_func(int index, int x, int y)
 {
@@ -7512,6 +8543,45 @@ void elist_rclick_func(int index, int x, int y)
     {
         guysbuf[bie[index].i]=guysbuf[copiedGuy];
         elist_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+    else if(ret==2) // save
+    {
+	if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
+                return;
+	int iid = bie[index].i; //the item id is not the sajme as the editor index
+	//the editor index is the position in the current LIST. -Z
+	
+	//al_trace("Saving item index: %d\n",index);
+	//al_trace("Saving item id: %d\n",iid);
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	/*if (!writeoneitem(f,iid))
+	{
+		al_trace("Could not write to .znpc packfile %s\n", temppath);
+	}
+	*/
+	writeonenpc(f,iid);
+	pack_fclose(f);
+     
+        
+    }
+    else if(ret==3) // load
+    {
+	if(!getname("Load NPC(.znpc)", "znpc", NULL,datapath,false))
+                return;
+	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(!f) return;
+	
+	if (!readonenpc(f,index))
+	{
+		al_trace("Could not read from .znpc packfile %s\n", temppath);
+		jwin_alert("znpc File: Error","Could not load the specified npc.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	
+	pack_fclose(f);
+        //itemsbuf[bie[index].i]=itemsbuf[copiedItem];
+        elist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
         saved=false;
     }
 }
