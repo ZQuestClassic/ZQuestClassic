@@ -6240,69 +6240,68 @@ int writeheader(PACKFILE *f, zquestheader *Header)
             new_return(20);
         }
 	
-	
 	//v4
 	
-	//v4
-	
-	if(!p_iputl(Header->new_version_id_main,f))
+	if(!p_iputl(V_ZC_FIRST,f))
 	{
 	    new_return(21);
 	}
-	if(!p_iputl(Header->new_version_id_second,f))
+	if(!p_iputl(V_ZC_SECOND,f))
 	{
 	    new_return(22);
 	}
-	if(!p_iputl(Header->new_version_id_third,f))
+	if(!p_iputl(V_ZC_THIRD,f))
 	{
 	    new_return(23);
 	}
-	if(!p_iputl(Header->new_version_id_fourth,f))
+	if(!p_iputl(V_ZC_FOURTHh,f))
 	{
 	    new_return(24);
 	}
-	if(!p_iputl(Header->new_version_id_alpha,f))
+	if(!p_iputl(V_ZC_ALPHA,f))
 	{
 	    new_return(25);
 	}
-	if(!p_iputl(Header->new_version_id_beta,f))
+	if(!p_iputl(V_ZC_BETA,f))
 	{
 	    new_return(26);
 	}
-	if(!p_iputl(Header->new_version_id_gamma,f))
+	if(!p_iputl(V_ZC_GAMMA,f))
 	{
 	    new_return(27);
 	}
-	if(!p_iputl(Header->new_version_id_release,f))
+	if(!p_iputl(V_ZC_RELEASE,f))
 	{
 	    new_return(28);
 	}
-	if(!p_iputw(Header->new_version_id_date_year,f))
+	if(!p_iputw(V_ZC_YEAR,f))
 	{
 	    new_return(29);
 	}
-	if(!p_putc(Header->new_version_id_date_month,f))
+	if(!p_putc(V_ZC_MONTH,f))
 	{
 	    new_return(30);
 	}
-	if(!p_putc(Header->new_version_id_date_day,f))
+	if(!p_putc(V_ZC_DAY,f))
 	{
 	    new_return(31);
 	}
-	if(!p_putc(Header->new_version_id_date_hour,f))
+	if(!p_putc(V_ZC_HOUR,f))
 	{
 	    new_return(32);
 	}
-	if(!p_putc(Header->new_version_id_date_minute,f))
+	if(!p_putc(V_ZC_MINUTE,f))
 	{
 	    new_return(33);
 	}
+	
+	
 	
 	char tempsig[256];
 	memset(tempsig, 0, 256);
 	strcpy(tempsig, DEV_SIGNOFF);
 	
-	if(!pfwrite(&tempsig,256),f))
+	if(!pfwrite(&tempsig,256,f))
         {
             new_return(34);
         }
@@ -6311,7 +6310,7 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	memset(tempcompilersig, 0, 256);
 	strcpy(tempcompilersig, COMPILER_NAME);
 	
-	if(!pfwrite(&tempcompilersig,256),f))
+	if(!pfwrite(&tempcompilersig,256,f))
         {
             new_return(35);
         }
@@ -6329,11 +6328,36 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	memset(tempproductname, 0, 256);
 	strcpy(tempproductname, PROJECT_NAME);
 	
-	if(!pfwrite(&tempproductname,1024),f))
+	if(!pfwrite(&tempproductname,1024,f))
         {
             new_return(37);
         }
-        
+	
+	if(!p_putc(V_ZC_COMPILERSIG,f))
+	{
+	    new_return(38);
+	}
+	if(!p_iputl(COMPILER_V_FIRST,f))
+	{
+	    new_return(39);
+	}
+	if(!p_iputl(COMPILER_V_SECOND,f))
+	{
+	    new_return(40);
+	}
+	if(!p_iputl(COMPILER_V_THIRD,f))
+	{
+	    new_return(41);
+	}
+	if(!p_iputl(COMPILER_V_FOURTH,f))
+	{
+	    new_return(42);
+	}
+	if(!p_iputw(V_ZC_DEVSIG,f))
+	{
+	    new_return(43);
+	}
+	
         if(writecycle==0)
         {
             section_size=writesize;

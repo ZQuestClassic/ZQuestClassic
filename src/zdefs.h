@@ -141,6 +141,11 @@
 //      CLANG 3
 //      INTEL 4
 
+#define COMPILER_V_FIRST 0
+#define COMPILER_V_SECOND 0
+#define COMPILER_V_THIRD 0
+#define COMPILER_V_FOURTH 0
+
 #define DEV_SIGNOFF "ZoriaRPG"
 #define COMPILER_NAME "MSVC"
 #define COMPILER_VERSION "v9, 2008"
@@ -2651,6 +2656,12 @@ struct zquestheader
     char new_version_compilername[256];
     char new_version_compilerversion[256];
     char product_name[1024];
+    byte compilerid;
+    long compilerversionnumber_first;
+    long compilerversionnumber_second;
+    long compilerversionnumber_third;
+    long compilerversionnumber_fourth;
+    word developerid;
     
     //602
 };
