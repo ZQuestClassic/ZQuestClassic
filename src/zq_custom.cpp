@@ -1679,15 +1679,7 @@ int readoneitem(PACKFILE *f, int index)
 	{
 		return 0;
 	}
-	if ( zversion > ZELDA_VERSION )
-	{
-		al_trace("Cannot read .zitem packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
-		return 0;
-	}
-	else
-	{
-		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %x\n", zversion, zbuild);
-	}
+	
 	if(!p_igetw(&section_version,f,true))
 	{
 		return 0;
@@ -1700,7 +1692,21 @@ int readoneitem(PACKFILE *f, int index)
 	al_trace("readoneitem section_version: %d\n", section_version);
 	al_trace("readoneitem section_cversion: %d\n", section_cversion);
     
-   
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zitem packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	else if ( ( section_version > V_ITEMS ) || ( section_version == V_ITEMS && section_cversion < CV_ITEMS ) )
+	{
+		al_trace("Cannot read .zitem packfile made using V_ITEMS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
 	if(!pfread(&istring, 64, f,true))
 	{
 		return 0;
@@ -3797,15 +3803,7 @@ int readonenpc(PACKFILE *f, int index)
 	{
 		return 0;
 	}
-	if ( zversion > ZELDA_VERSION )
-	{
-		al_trace("Cannot read .zitem packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
-		return 0;
-	}
-	else
-	{
-		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
-	}
+	
 	if(!p_igetw(&section_version,f,true))
 	{
 		return 0;
@@ -3818,6 +3816,21 @@ int readonenpc(PACKFILE *f, int index)
 	al_trace("readonenpc section_version: %d\n", section_version);
 	al_trace("readonenpc section_cversion: %d\n", section_cversion);
     
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .znpc packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	else if ( ( section_version > V_GUYS ) || ( section_version == V_GUYS && section_cversion < CV_GUYS ) )
+	{
+		al_trace("Cannot read .znpc packfile made using V_GUYS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .znpc packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
    
 	if(!pfread(&npcstring, 64, f,true))
 	{
