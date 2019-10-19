@@ -20,4 +20,4 @@
 #define V_ZC_HOUR 22  
 #define V_ZC_MINUTE 30
 
-#define PROJECT_NAME "ZQuest Creator Suite: Aeternal, v2.55"
+#define PROJECT_NAME "ZQuest Creator Suite: AEternal, v2.55"
