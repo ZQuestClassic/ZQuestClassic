@@ -2,6 +2,18 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+The user can now save individual npcs from the Enemy Editor 
+	in the format of .ZNPC, identical to how .ZITEM works.
+Updated icon resource scripts for ZC< ZQ, and ZCL. 
+	( ZoriaRPG, 19th October, 2019 )
+	
+Add 'Hide 8-bit Marker' to the 'View' menu, with the hotkey '8' to toggle it.
+	This hides the small '8' in the corner of 8-bit tiles.
+Fix Ctrl+U long-standing issue: It was meant to cycle through different sets
+	of 'Hide' settings, but, it would always turn off 'Hide Blank', and
+	could not turn it back on. Now, it will NOT modify 'Hide Blank' at all.
+	( Venrob, 19th October, 2019 )
+
 Fix default cursor scale. Was 1.5, should be 1.
 Added file VERSION metadata to EXE files via MSVC VERSION resource script.
 	This prevents warnings by Malwarebytes on UPD's binaries.
