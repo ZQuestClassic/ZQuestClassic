@@ -2,6 +2,12 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Fixed some error messages on modular object file loading.
+Fixed the sanity checks for section_version and section_cversion on modular
+	object file loading.
+Added the ability to save and load weapon sprites as .ZWPNSPR files.
+Added a contextual (right-click) menu to the Weapon Sprites
+dialogue, allowing the user to copy and paste weapon sprites.
 Changed the error message titlebar text a bit for all .Z*struct files.
 Save, Load, Copy, paste DMaps
 	Added a contextual (right-click) menu to the DMap Editor.
