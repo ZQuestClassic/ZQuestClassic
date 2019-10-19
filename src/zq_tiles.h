@@ -87,6 +87,7 @@ bool leech_tiles(tiledata *dest,int start,int cs);
 void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *newformat);
 void grab_tile(int tile,int &cs);
 void draw_tiles(int first,int cs, int f);
+void draw_tiles(BITMAP* dest,int first,int cs, int f,bool large,bool true_empty = false);
 int tile_col(int tile);
 int tile_row(int tile);
 int tile_page(int tile);
