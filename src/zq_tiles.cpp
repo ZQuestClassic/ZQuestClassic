@@ -8431,6 +8431,105 @@ int readtilefile(PACKFILE *f)
 	return 1;
 	
 }
+
+
+int readtilefile_to_location(PACKFILE *f, int start)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	{
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	byte *temp_tile = new byte[tilesize(tf32Bit)];
+	byte format=tf4Bit;
+	memset(temp_tile, 0, tilesize(tf32Bit));
+
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+		memset(temp_tile, 0, tilesize(tf32Bit));
+		if(!p_getc(&format,f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+
+			    
+		if(!pfread(temp_tile,tilesize(format),f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+			    
+		reset_tile(newtilebuf, start+(tilect-1), format);
+		if ( start+(tilect-1) < NEWMAXTILES )
+		{
+			memcpy(newtilebuf[start+(tilect-1)].data,temp_tile,tilesize(newtilebuf[start+(tilect-1)].format));
+		}
+	}
+	delete[] temp_tile;
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+	register_blank_tiles();
+	register_used_tiles();
+            
+	return 1;
+	
+}
 int writetilefile(PACKFILE *f, int index, int count)
 {
 	dword section_version=V_TILES;
@@ -8671,6 +8770,10 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 		{
 			al_trace("Could not read from .ztile packfile %s\n", temppath);
 			jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 		}
 	
 		pack_fclose(f);

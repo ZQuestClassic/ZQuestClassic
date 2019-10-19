@@ -26,6 +26,7 @@ void calc_cset_reduce_table(PALETTE pal, int cs);
 void register_used_tiles();
 int readtilefile(PACKFILE *f);
 int writetilefile(PACKFILE *f, int index, int count);
+int readtilefile_to_location(PACKFILE *f, int start);
 int d_comboframe_proc(int msg, DIALOG *d, int c);
 int d_combo_proc(int msg,DIALOG *d,int c);
 void go_tiles();
