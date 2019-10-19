@@ -6295,8 +6295,6 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	    new_return(33);
 	}
 	
-	
-	
 	char tempsig[256];
 	memset(tempsig, 0, 256);
 	strcpy(tempsig, DEV_SIGNOFF);
@@ -6316,8 +6314,13 @@ int writeheader(PACKFILE *f, zquestheader *Header)
         }
 	
 	char tempcompilerversion[256];
-	memset(tempcompilerversion, 0, 256);
-	strcpy(tempcompilerversion, COMPILER_VERSION);
+	memset(tempcompilerversion, 0, 256); 
+	#ifdef _MSC_VER
+		itoa(_MSC_VER,tempcompilerversion,10);
+	#else
+		strcpy(tempcompilerversion, COMPILER_VERSION);
+	#endif
+	
 	
 	if(!pfwrite(&tempcompilerversion,256,f))
         {
@@ -6364,7 +6367,24 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	
 	if(!pfwrite(&tempmodulename,1024,f))
         {
-            new_return(37);
+            new_return(44);
+        }
+	
+	char tempdate[256];
+	memset(tempdate, 0, 256);
+	strcpy(tempdate, __DATE__);
+	
+	if(!pfwrite(&tempdate,256,f))
+        {
+            new_return(45);
+        }
+	char temptime[256];
+	memset(temptime, 0, 256);
+	strcpy(temptime, __TIME__);
+	
+	if(!pfwrite(&temptime,256,f))
+        {
+            new_return(46);
         }
 	
         if(writecycle==0)

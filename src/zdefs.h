@@ -109,6 +109,7 @@
 #define IS_BETA             -37                       //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        37	
 #define DATE_STR            "19th October, 2019, 12:18GMT"
+//__DATE__ and __TIME__ macros can simplify this, in the future. 
 #define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 37"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
@@ -2663,6 +2664,8 @@ struct zquestheader
     long compilerversionnumber_fourth;
     word developerid;
     char made_in_module_name[1024];
+    char build_datestamp[256];
+    char build_timestamp[256];
     //made in module_name
     
     //602

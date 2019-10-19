@@ -2491,6 +2491,14 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 		    return qe_invalid;
 		}
+		if(!pfread(tempheader.build_datestamp,256,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!pfread(tempheader.build_timestamp,256,f,true))
+		{
+		    return qe_invalid;
+		}
 		
 		
 	}
@@ -2524,14 +2532,23 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
 		tempheader.developerid = 0;
 		
 		memset(tempheader.made_in_module_name, 0, 1024);
+		memset(tempheader.build_datestamp, 0, 256);
+		memset(tempheader.build_timestamp, 0, 256);
 		
         }
-	
+	al_trace("\n");
+	al_trace("Last saved in ZC Editor Version: (%d,%d,%d,%d) ", tempheader.new_version_id_main,tempheader.new_version_id_second,tempheader.new_version_id_third,tempheader.new_version_id_fourth);
+	if ( tempheader.new_version_id_alpha ) { al_trace("Alpha %d\n", tempheader.new_version_id_alpha); }
+	else if ( tempheader.new_version_id_alpha ) { al_trace("Beta %d\n", tempheader.new_version_id_beta); }
+	else if ( tempheader.new_version_id_gamma ) { al_trace("Gamma %d\n", tempheader.new_version_id_gamma); }
+	else { al_trace("Release %d\n\n", tempheader.new_version_id_release); }
+	al_trace("Created with ZC Module: %s\n", tempheader.made_in_module_name);
 	al_trace("Developr Signoff by: %s, (ID: %d)\n", tempheader.new_version_devsig, tempheader.developerid);
 	al_trace("Compiled with: %s, ID (%d)\n", tempheader.new_version_compilername, tempheader.compilerid);
 	al_trace("Compiler Version: %s, (%d,%d,%d,%d)\n", tempheader.new_version_compilerversion,tempheader.compilerversionnumber_first,tempheader.compilerversionnumber_second,tempheader.compilerversionnumber_third,tempheader.compilerversionnumber_fourth);
 	al_trace("Project ID: %s\n", tempheader.product_name);
-	al_trace("Built at date and time: %d - %d - %d at %d : %d GMT\n", tempheader.new_version_id_date_day, tempheader.new_version_id_date_month, tempheader.new_version_id_date_year, tempheader.new_version_id_date_hour, tempheader.new_version_id_date_minute);
+	al_trace("Built at date and time: %d-%d-%d at %d:%d GMT\n\n", tempheader.new_version_id_date_day, tempheader.new_version_id_date_month, tempheader.new_version_id_date_year, tempheader.new_version_id_date_hour, tempheader.new_version_id_date_minute);
+	
 	
     }
     
