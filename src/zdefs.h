@@ -2662,6 +2662,8 @@ struct zquestheader
     long compilerversionnumber_third;
     long compilerversionnumber_fourth;
     word developerid;
+    char made_in_module_name[1024];
+    //made in module_name
     
     //602
 };

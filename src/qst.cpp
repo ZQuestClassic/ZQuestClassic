@@ -2458,36 +2458,39 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 		    return qe_invalid;
 		}
-		if(!pfread(tempheader.product_name,256,f,true))
+		if(!pfread(tempheader.product_name,1024,f,true))
 		{
 		    return qe_invalid;
 		}
 		
-		if(!p_getc(tempheadercompilerid,f,true))
+		if(!p_getc(&tempheader.compilerid,f,true))
 		{
 		    return qe_invalid;
 		}
-		if(!p_igetl(tempheader.compilerversionnumber_first,f,true))
+		if(!p_igetl(&tempheader.compilerversionnumber_first,f,true))
 		{
 		    return qe_invalid;
 		}
-		if(!p_igetl(tempheader.compilerversionnumber_second,f,true))
+		if(!p_igetl(&tempheader.compilerversionnumber_second,f,true))
 		{
 		    return qe_invalid;
 		}
-		if(!p_igetl(tempheader.compilerversionnumber_third,f,true))
+		if(!p_igetl(&tempheader.compilerversionnumber_third,f,true))
 		{
 		    return qe_invalid;
 		}
-		if(!p_igetl(tempheader.compilerversionnumber_fourth,f,true))
+		if(!p_igetl(&tempheader.compilerversionnumber_fourth,f,true))
 		{
 		    return qe_invalid;
 		}
-		if(!p_igetW(tempheader.developerid,f,true))
+		if(!p_igetw(&tempheader.developerid,f,true))
 		{
 		    return qe_invalid;
 		}
-		
+		if(!pfread(tempheader.made_in_module_name,1024,f,true))
+		{
+		    return qe_invalid;
+		}
 		
 		
 	}
@@ -2520,11 +2523,13 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
 		tempheader.compilerversionnumber_fourth = 0;
 		tempheader.developerid = 0;
 		
+		memset(tempheader.made_in_module_name, 0, 1024);
+		
         }
 	
 	al_trace("Developr Signoff by: %s, (ID: %d)\n", tempheader.new_version_devsig, tempheader.developerid);
-	al_trace("Compiled with: %s, ID (%d)\n", tempheader.new_version_compilername, compilerid);
-	al_trace("Compiler Version: %s, (%d,%d,%d,%d)\n", tempheader.new_version_compilerversion,compilerversionnumber_first,compilerversionnumber_second,compilerversionnumber_third,compilerversionnumber_fourth);
+	al_trace("Compiled with: %s, ID (%d)\n", tempheader.new_version_compilername, tempheader.compilerid);
+	al_trace("Compiler Version: %s, (%d,%d,%d,%d)\n", tempheader.new_version_compilerversion,tempheader.compilerversionnumber_first,tempheader.compilerversionnumber_second,tempheader.compilerversionnumber_third,tempheader.compilerversionnumber_fourth);
 	al_trace("Project ID: %s\n", tempheader.product_name);
 	al_trace("Built at date and time: %d - %d - %d at %d : %d GMT\n", tempheader.new_version_id_date_day, tempheader.new_version_id_date_month, tempheader.new_version_id_date_year, tempheader.new_version_id_date_hour, tempheader.new_version_id_date_minute);
 	
