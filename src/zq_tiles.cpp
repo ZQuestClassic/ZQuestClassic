@@ -4849,13 +4849,17 @@ bool tile_is_used(int tile)
 
 void draw_tiles(int first,int cs, int f)
 {
-    clear_bitmap(screen2);
+	draw_tiles(screen2, first, cs, f, is_large);
+}
+void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empty)
+{
+    clear_bitmap(dest);
     BITMAP *buf = create_bitmap_ex(8,16,16);
     
     int w = 16;
     int h = 16;
     
-    if(is_large)
+    if(large)
     {
         w *=2;
         h *=2;
@@ -4867,7 +4871,7 @@ void draw_tiles(int first,int cs, int f)
         int y = (i/TILES_PER_ROW)<<4;
         int l = 16;
         
-        if(is_large)
+        if(large)
         {
             x*=2;
             y*=2;
@@ -4880,32 +4884,35 @@ void draw_tiles(int first,int cs, int f)
                 || (HIDE_UNUSED && !tile_is_used(first+i) && !blank_tile_table[first+i]) // 2 bit: hide unused
                 || (HIDE_BLANK && blank_tile_table[first+i]))	// 4 bit: hide blank
         {
-            if(InvalidStatic)
-            {
-                for(int dy=0; dy<=l+1; dy++)
-                {
-                    for(int dx=0; dx<=l+1; dx++)
-                    {
-                        screen2->line[dy+(y)][dx+(x)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
-                    }
-                }
-            }
-            else
-            {
-                rect(screen2, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
-                line(screen2, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
-                line(screen2, (x)+1,(y)+l, (x)+l, (y)+1,  vc(15));
-            }
+			if(!true_empty)
+			{
+				if(InvalidStatic)
+				{
+					for(int dy=0; dy<=l+1; dy++)
+					{
+						for(int dx=0; dx<=l+1; dx++)
+						{
+							dest->line[dy+(y)][dx+(x)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+						}
+					}
+				}
+				else
+				{
+					rect(dest, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
+					line(dest, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
+					line(dest, (x)+1,(y)+l, (x)+l, (y)+1,  vc(15));
+				}
+			}
         }
         else
         {
             puttile16(buf,first+i,0,0,cs,0);
-            stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
+            stretch_blit(buf,dest,0,0,16,16,x,y,w,h);
         }
         
-        if((f%32)<=16 && is_large && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
+        if((f%32)<=16 && large && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
         {
-            textprintf_ex(screen2,z3smallfont,(x)+l-3,(y)+l-3,vc(int((f%32)/6)+10),-1,"8");
+            textprintf_ex(dest,z3smallfont,(x)+l-3,(y)+l-3,vc(int((f%32)/6)+10),-1,"8");
         }
     }
     
@@ -9676,7 +9683,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                         PALETTE temppal;
                         get_palette(temppal);
                         BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-                        stretch_blit(screen2,tempbmp,0,0,16*(is_large+1)*TILES_PER_ROW,16*(is_large+1)*TILE_ROWS_PER_PAGE,0,0,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
+                        draw_tiles(tempbmp,first,cs,f,false,true);
                         save_bitmap(temppath, tempbmp, temppal);
                         destroy_bitmap(tempbmp);
                     }
