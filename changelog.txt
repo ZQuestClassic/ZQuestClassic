@@ -2,6 +2,11 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Changed the error message titlebar text a bit for all .Z*struct files.
+Save, Load, Copy, paste DMaps
+	Added a contextual (right-click) menu to the DMap Editor.
+	You can now Copy/paste DMaps from this, and you can Save and Load DMaps
+	to and from .ZDMAP files, as .ZITEM and .ZNPC. 
 The user can now save individual npcs from the Enemy Editor 
 	in the format of .ZNPC, identical to how .ZITEM works.
 Updated icon resource scripts for ZC, ZQ, and ZCL. 

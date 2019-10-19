@@ -4383,7 +4383,7 @@ void elist_rclick_func(int index, int x, int y)
 	if (!readonenpc(f,index))
 	{
 		al_trace("Could not read from .znpc packfile %s\n", temppath);
-		jwin_alert("znpc File: Error","Could not load the specified npc.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("ZNPC File: Error","Could not load the specified npc.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 	}
 	
 	pack_fclose(f);
