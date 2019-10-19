@@ -2391,8 +2391,88 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	
-        
+	if(version>=4)
+	{
+		if(!p_igetl(&tempheader.new_version_id_main,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_second,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_third,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_fourth,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_alpha,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_beta,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_gamma,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_release,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetw(&tempheader.new_version_id_date_year,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_getc(&tempheader.new_version_id_date_month,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_getc(&tempheader.new_version_id_date_day,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_getc(&tempheader.new_version_id_date_hour,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_getc(&tempheader.new_version_id_date_minute,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_devsig,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_compilersig,f,true))
+		{
+		    return qe_invalid;
+		}
+		
+	}
+	else // <4
+	{
+		tempheader.new_version_id_main = 0;
+		tempheader.new_version_id_second = 0;
+		tempheader.new_version_id_third = 0;
+		tempheader.new_version_id_fourth = 0;
+		tempheader.new_version_id_alpha = 0;
+		tempheader.new_version_id_beta = 0;
+		tempheader.new_version_id_gamma = 0;
+		tempheader.new_version_id_release = 0;
+		tempheader.new_version_id_date_year = 0;
+		tempheader.new_version_id_date_month = 0;
+		tempheader.new_version_id_date_day = 0;
+		tempheader.new_version_id_date_hour = 0;
+		tempheader.new_version_id_date_minute = 0;
+		tempheader.new_version_devsig = 0;
+		tempheader.new_version_compilersig = 0;
+        }
 	
     }
     

@@ -108,9 +108,39 @@
 #define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
 #define IS_BETA             -37                       //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        37	
-#define DATE_STR            "18th October, 2019, 18:31GMT"
+#define DATE_STR            "19th October, 2019, 12:18GMT"
 #define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 37"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
+
+//Header v4
+#define V_ZC_FIRST 2
+#define V_ZC_SECOND 55
+#define V_ZC_THIRD 0
+#define V_ZC_FOURTH 0
+#define V_ZC_ALPHA 48
+#define V_ZC_BETA 0
+#define V_ZC_GAMMA 0
+#define V_ZC_RELEASE 0
+#define V_ZC_YEAR 2019
+#define V_ZC_MONTH 10 
+#define V_ZC_DAY 19   
+#define V_ZC_HOUR 22  
+#define V_ZC_MINUTE 30
+#define V_ZC_DEVSIG  1 
+//DEVSIGS 
+//      ZORIARPG 1
+//      VENROB   2
+//      DIMENTIO 3
+//      GLEEOK   4
+//      JMAN     5
+//      TAKUYA   6
+#define V_ZC_COMPILERSIG 1
+//COMPILER SIGS
+//	MSVC  1
+//	G++   2
+//      CLANG 3
+//      INTEL 4
+
 
 #define MIN_VERSION         0x0184
 
@@ -181,7 +211,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_SFX            ZC_ID('S','F','X',' ')              //sfx data
 
 //Version number of the different section types
-#define V_HEADER           3
+#define V_HEADER           4
 #define V_RULES           15
 #define V_STRINGS          6
 #define V_MISC             11
@@ -2599,6 +2629,21 @@ struct zquestheader
     //304
     byte  old_foo2[18];
     char  templatepath[2048];
+    long new_version_id_main;
+    long new_version_id_second;
+    long new_version_id_third;
+    long new_version_id_fourth;
+    long new_version_id_alpha;
+    long new_version_id_beta;
+    long new_version_id_gamma;
+    long new_version_id_release;
+    word new_version_id_date_year;
+    byte new_version_id_date_month;
+    byte new_version_id_date_day;
+    byte new_version_id_date_hour;
+    byte new_version_id_date_minute;
+    long new_version_devsig;
+    long new_version_compilersig;
     //602
 };
 

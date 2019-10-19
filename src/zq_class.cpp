@@ -6234,10 +6234,78 @@ int writeheader(PACKFILE *f, zquestheader *Header)
             new_return(19);
         }
         
-        if(!p_putc(0,f)) //why are we doing this?
+        if(!p_putc(0,f)) //why are we doing this? 
+		//this is for map count, it seems. -Z
         {
             new_return(20);
         }
+	
+	
+	//v4
+	
+	//v4
+	
+	if(!p_iputl(Header->new_version_id_main,f))
+	{
+	    new_return(21);
+	}
+	if(!p_iputl(Header->new_version_id_second,f))
+	{
+	    new_return(22);
+	}
+	if(!p_iputl(Header->new_version_id_third,f))
+	{
+	    new_return(23);
+	}
+	if(!p_iputl(Header->new_version_id_fourth,f))
+	{
+	    new_return(24);
+	}
+	if(!p_iputl(Header->new_version_id_alpha,f))
+	{
+	    new_return(25);
+	}
+	if(!p_iputl(Header->new_version_id_beta,f))
+	{
+	    new_return(26);
+	}
+	if(!p_iputl(Header->new_version_id_gamma,f))
+	{
+	    new_return(27);
+	}
+	if(!p_iputl(Header->new_version_id_release,f))
+	{
+	    new_return(28);
+	}
+	if(!p_iputw(Header->new_version_id_date_year,f))
+	{
+	    new_return(29);
+	}
+	if(!p_putc(Header->new_version_id_date_month,f))
+	{
+	    new_return(30);
+	}
+	if(!p_putc(Header->new_version_id_date_day,f))
+	{
+	    new_return(31);
+	}
+	if(!p_putc(Header->new_version_id_date_hour,f))
+	{
+	    new_return(32);
+	}
+	if(!p_putc(Header->new_version_id_date_minute,f))
+	{
+	    new_return(33);
+	}
+	if(!p_iputl(Header->new_version_devsig,f))
+	{
+	    new_return(34);
+	}
+	if(!p_iputl(Header->new_version_compilersig,f))
+	{
+	    new_return(35);
+	}
+
         
         if(writecycle==0)
         {
