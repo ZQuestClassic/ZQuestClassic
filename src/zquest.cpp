@@ -9868,7 +9868,7 @@ void build_bii_list(bool usenone)
         bii[0].s = (char *)"(None)";
         bii[0].i = -2;
         bii_cnt=1;
-        start=0;
+        start=1;
     }
     
     for(int i=start; i<iMax; i++)
@@ -17193,7 +17193,7 @@ void build_bie_list(bool hide)
         }
     }
     
-    for(int i=0; i<bie_cnt-1; i++)
+    for(int i=1; i<bie_cnt-1; i++) //Start at 1 so '(None)' isn't alphabetized!
     {
         for(int j=i+1; j<bie_cnt; j++)
         {
@@ -17221,7 +17221,7 @@ void build_big_list(bool hide)
         }
     }
     
-    for(int i=0; i<big_cnt-1; i++)
+    for(int i=1; i<big_cnt-1; i++) //start at 1, so that the none value is not alphabetized.
     {
         for(int j=i+1; j<big_cnt; j++)
         {
