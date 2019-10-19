@@ -1035,6 +1035,43 @@ int onImport_DMaps()
     return D_O_K;
 }
 
+int onExport_Tilepack()
+{
+	savesometiles("Save Tile Package", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Tilepack_To()
+{
+	writesometiles_to("Load Tile Package to:", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Tilepack()
+{
+		if(getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				if (!readtilefile(f))
+				{
+					al_trace("Could not read from .ztile packfile %s\n", temppath);
+					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+			}
+	
+			pack_fclose(f);
+		}
+		return D_O_K;
+}
+
 int onExport_DMaps()
 {
     if(!getname("Export DMaps (.dmp)","dmp",NULL,datapath,false))

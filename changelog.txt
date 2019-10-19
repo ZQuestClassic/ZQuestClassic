@@ -2,6 +2,11 @@ ChangeLog for 2.53.0
 
 //Release 3
 
+Added Export and Import .ZTILE files.
+	You can save a series of tiles, in mixed format to a .ZTILE file,
+	and load them into any quest, either in the exact position in 
+	which they were located in the source quest, or starting at a 
+	position that you specify.
 Fixed some error messages on modular object file loading.
 Fixed the sanity checks for section_version and section_cversion on modular
 	object file loading.

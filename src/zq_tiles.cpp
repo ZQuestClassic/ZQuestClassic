@@ -8186,6 +8186,7 @@ void do_convert_tile(int tile, int tile2, int cs, bool rect_sel, bool fourbit, b
         tile=tile2=zc_min(tile,tile2);
     }
 }
+/*
 int readtilefile(PACKFILE *f)
 {
 	dword section_version=0;
@@ -8229,11 +8230,6 @@ int readtilefile(PACKFILE *f)
 		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	
-	//format
-	//newtilebuf[tile+t].format
-	//data
-	//tiledata temptile;
-	//memset(&temptile, 0, sizeof(tiledata));
 	int index = 0;
 	int count = 0;
 	
@@ -8251,31 +8247,30 @@ int readtilefile(PACKFILE *f)
 	}
 	al_trace("Reading tile: count(%d)\n", count);
 	
-	//if(!pfread(&temptile,sizeof(tiledata),f,true))
-	//{
-        //        return 0;
-	//}
 	
 	byte *temp_tile = new byte[tilesize(tf32Bit)];
 	byte format=tf4Bit;
 	memset(temp_tile, 0, tilesize(tf32Bit));
 
-	if(!p_getc(&format,f,true))
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
-		delete[] temp_tile;
-		return 0;
-	}
+		memset(temp_tile, 0, tilesize(tf32Bit));
+		if(!p_getc(&format,f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
 
-		    
-	if(!pfread(temp_tile,tilesize(format),f,true))
-	{
-		delete[] temp_tile;
-		return 0;
+			    
+		if(!pfread(temp_tile,tilesize(format),f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+			    
+		reset_tile(newtilebuf, index+(count-1), format);
+		memcpy(newtilebuf[index+(count-1)].data,temp_tile,tilesize(newtilebuf[index+(count-1)].format));
 	}
-		    
-	reset_tile(newtilebuf, index+(count-1), format);
-	memcpy(newtilebuf[index+(count-1)].data,temp_tile,tilesize(newtilebuf[index+(count-1)].format));
-		    
 	delete[] temp_tile;
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
@@ -8322,38 +8317,276 @@ int writetilefile(PACKFILE *f, int index, int count)
 		return 0;
 	}
 	
-	//format
-	//newtilebuf[tile+t].format
-	//data
-	
-	/*
-	tiledata temptile;
-	memset(&temptile, 0, sizeof(tiledata));
-	al_trace("Writing tile index(%d)\n", index);
-	//newtilebuf[j].data
-	::memcpy(&temptile,&(newtilebuf[index]),sizeof(tiledata));
-	
-	if(!pfwrite(&temptile,sizeof(tiledata),f))
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
-                return 0;
-	}
-	*/
 	
-	
-	if(!p_putc(newtilebuf[index+(count-1)].format,f))
-	{
-                return 0;
+		if(!p_putc(newtilebuf[index+(count-1)].format,f))
+		{
+			return 0;
+		}
+		    
+		if(!pfwrite(newtilebuf[index+(count-1)].data,tilesize(newtilebuf[index+(count-1)].format),f))
+		{
+			return 0;
+		}
 	}
-            
-	if(!pfwrite(newtilebuf[index+(count-1)].data,tilesize(newtilebuf[index+(count-1)].format),f))
-	{
-                return 0;
-	}
-	
 	
 	return 1;
 	
 }
+*/
+
+
+int readtilefile(PACKFILE *f)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	{
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	byte *temp_tile = new byte[tilesize(tf32Bit)];
+	byte format=tf4Bit;
+	memset(temp_tile, 0, tilesize(tf32Bit));
+
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+		memset(temp_tile, 0, tilesize(tf32Bit));
+		if(!p_getc(&format,f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+
+			    
+		if(!pfread(temp_tile,tilesize(format),f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+			    
+		reset_tile(newtilebuf, index+(tilect-1), format);
+		memcpy(newtilebuf[index+(tilect-1)].data,temp_tile,tilesize(newtilebuf[index+(tilect-1)].format));
+	}
+	delete[] temp_tile;
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+	register_blank_tiles();
+	register_used_tiles();
+            
+	return 1;
+	
+}
+
+
+int readtilefile_to_location(PACKFILE *f, int start)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	{
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	byte *temp_tile = new byte[tilesize(tf32Bit)];
+	byte format=tf4Bit;
+	memset(temp_tile, 0, tilesize(tf32Bit));
+
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+		memset(temp_tile, 0, tilesize(tf32Bit));
+		if(!p_getc(&format,f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+
+			    
+		if(!pfread(temp_tile,tilesize(format),f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+			    
+		reset_tile(newtilebuf, start+(tilect-1), format);
+		if ( start+(tilect-1) < NEWMAXTILES )
+		{
+			memcpy(newtilebuf[start+(tilect-1)].data,temp_tile,tilesize(newtilebuf[start+(tilect-1)].format));
+		}
+	}
+	delete[] temp_tile;
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+	register_blank_tiles();
+	register_used_tiles();
+            
+	return 1;
+	
+}
+int writetilefile(PACKFILE *f, int index, int count)
+{
+	dword section_version=V_TILES;
+	dword section_cversion=CV_TILES;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	
+	//start tile id
+	if(!p_iputl(index,f))
+	{
+		return 0;
+	}
+	
+	//count
+	if(!p_iputl(count,f))
+	{
+		return 0;
+	}
+	
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+	
+		if(!p_putc(newtilebuf[index+(tilect-1)].format,f))
+		{
+			return 0;
+		}
+		    
+		if(!pfwrite(newtilebuf[index+(tilect-1)].data,tilesize(newtilebuf[index+(tilect-1)].format),f))
+		{
+			return 0;
+		}
+	}
+	
+	return 1;
+	
+}
+
+
+
 
 int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, bool always_use_flip)
 {
@@ -8538,8 +8771,15 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
 			al_trace("Could not read from .ztile packfile %s\n", temppath);
 			jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 		}
+		else
+		{
+			jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
 	
 		pack_fclose(f);
+		//register_blank_tiles();
+		//register_used_tiles();
+		redraw=true;
 		break;
 	    }
             case KEY_MINUS:
