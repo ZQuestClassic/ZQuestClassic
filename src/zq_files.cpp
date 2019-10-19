@@ -1035,6 +1035,13 @@ int onImport_DMaps()
     return D_O_K;
 }
 
+int onExport_Tilepack()
+{
+	savesometiles("Save Tile Package", 0);
+	return D_O_K;
+	
+}
+
 int onExport_DMaps()
 {
     if(!getname("Export DMaps (.dmp)","dmp",NULL,datapath,false))

@@ -260,6 +260,7 @@ int onExport_Pals();
 int onExport_ZGP();
 int onExport_ZQT();
 int onExport_UnencodedQuest();
+int onExport_Tilepack();
 
 int onGotoMap();
 int onMapCount();

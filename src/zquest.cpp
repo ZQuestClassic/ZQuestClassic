@@ -546,6 +546,7 @@ static MENU export_menu[] =
     { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
+    { (char *)"Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1207,6 +1208,62 @@ int getnumber(const char *prompt,int initialval)
         return atoi(buf);
         
     return initialval;
+}
+
+static DIALOG save_tiles_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,      60-12,   40,   200-16,  72,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select Track", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        32,    26,     96,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    150,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        32,    44,     96,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    150,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //7
+    { jwin_button_proc,   70,   87,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   150,  87,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void savesometiles(const char *prompt,int initialval)
+{
+	
+	char firsttile[8], tilecount[8];
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+	sprintf(tilecount,"%d",1);
+	//int ret;
+	if(is_large)
+        large_dialog(save_tiles_dlg);
+	
+	int ret = zc_popup_dialog(save_tiles_dlg,-1);
+	
+	save_tiles_dlg[3].dp = firsttile;
+	save_tiles_dlg[5].dp = tilecount;
+	
+	
+	
+	if(ret == 7)
+	{
+		first_tile_id = vbound(atoi(firsttile), 0, NEWMAXTILES);
+		the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
+		if(getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+			if(f)
+			{
+				al_trace("Saving tiles %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
+				writetilefile(f,first_tile_id,the_tile_count);
+				pack_fclose(f);
+			}
+		}
+	}
 }
 
 int gettilepagenumber(const char *prompt, int initialval)
