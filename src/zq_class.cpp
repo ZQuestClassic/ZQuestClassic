@@ -6340,22 +6340,62 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	{
 	    new_return(38);
 	}
-	if(!p_iputl(COMPILER_V_FIRST,f))
-	{
-	    new_return(39);
-	}
-	if(!p_iputl(COMPILER_V_SECOND,f))
-	{
-	    new_return(40);
-	}
-	if(!p_iputl(COMPILER_V_THIRD,f))
+	#ifdef _MSC_VER
+		if(!p_iputl((_MSC_VER / 100),f))
+		{
+		    new_return(39);
+		}
+	#else
+		if(!p_iputl(COMPILER_V_FIRST,f))
+		{
+		    new_return(39);
+		}
+	#endif
+	
+	
+
+	#ifdef _MSC_VER
+	if(!p_iputl((_MSC_VER % 100),f)) 
 	{
 	    new_return(41);
 	}
+	#else
+	if(!p_iputl(COMPILER_V_SECOND,f)) 
+	{
+	    new_return(41);
+	}
+	#endif
+	
+	#ifdef _MSC_VER
+		# if _MSC_VER >= 1400
+		if(!p_iputl((_MSC_FULL_VER % 100000),f))
+		{
+		    new_return(40);
+		}
+		# else
+		if(!p_iputl((_MSC_FULL_VER % 10000),f))
+		{
+		    new_return(40);
+		}
+		#endif
+	#else	
+	if(!p_iputl(COMPILER_V_THIRD,f))
+	{
+		    new_return(40);
+	}
+	#endif
+	
+	#ifdef _MSC_VER
+	if(!p_iputl((_MSC_BUILD),f))
+	{
+	    new_return(42);
+	}
+	#else
 	if(!p_iputl(COMPILER_V_FOURTH,f))
 	{
 	    new_return(42);
 	}
+	#endif
 	if(!p_iputw(V_ZC_DEVSIG,f))
 	{
 	    new_return(43);
