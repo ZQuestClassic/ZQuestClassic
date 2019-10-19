@@ -1213,20 +1213,22 @@ int getnumber(const char *prompt,int initialval)
 static DIALOG save_tiles_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,      60-12,   40,   200-16,  72,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select Track", NULL, NULL },
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select Track", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //for future tabs
     { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
     { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
     //4
-    {  jwin_text_proc,        32,    26,     96,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
-    { jwin_edit_proc,          55,     26,    150,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
     //6
-    {  jwin_text_proc,        32,    44,     96,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
-    { jwin_edit_proc,          55,     44,    150,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
-    //7
-    { jwin_button_proc,   70,   87,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
-    { jwin_button_proc,   150,  87,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -1239,17 +1241,24 @@ void savesometiles(const char *prompt,int initialval)
 	sprintf(firsttile,"%d",0);
 	sprintf(tilecount,"%d",1);
 	//int ret;
+	
+	
+	
+	save_tiles_dlg[0].dp2 = lfont;
+	
+	sprintf(firsttile,"%d",0);
+	sprintf(tilecount,"%d",1);
+	
+	save_tiles_dlg[5].dp = firsttile;
+	save_tiles_dlg[7].dp = tilecount;
+	
 	if(is_large)
-        large_dialog(save_tiles_dlg);
+		large_dialog(save_tiles_dlg);
 	
 	int ret = zc_popup_dialog(save_tiles_dlg,-1);
+	jwin_center_dialog(save_tiles_dlg);
 	
-	save_tiles_dlg[3].dp = firsttile;
-	save_tiles_dlg[5].dp = tilecount;
-	
-	
-	
-	if(ret == 7)
+	if(ret == 8)
 	{
 		first_tile_id = vbound(atoi(firsttile), 0, NEWMAXTILES);
 		the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);

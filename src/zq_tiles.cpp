@@ -8402,7 +8402,7 @@ int readtilefile(PACKFILE *f)
 	byte format=tf4Bit;
 	memset(temp_tile, 0, tilesize(tf32Bit));
 
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int tilect = 0; tilect <= count; tilect++ )
 	{
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		if(!p_getc(&format,f,true))
@@ -8418,8 +8418,8 @@ int readtilefile(PACKFILE *f)
 			return 0;
 		}
 			    
-		reset_tile(newtilebuf, index+(count-1), format);
-		memcpy(newtilebuf[index+(count-1)].data,temp_tile,tilesize(newtilebuf[index+(count-1)].format));
+		reset_tile(newtilebuf, index+(tilect-1), format);
+		memcpy(newtilebuf[index+(tilect-1)].data,temp_tile,tilesize(newtilebuf[index+(tilect-1)].format));
 	}
 	delete[] temp_tile;
 	
@@ -8468,15 +8468,15 @@ int writetilefile(PACKFILE *f, int index, int count)
 		return 0;
 	}
 	
-	for ( int tilect = 0; tilect < count; tilect++ )
+	for ( int tilect = 0; tilect <= count; tilect++ )
 	{
 	
-		if(!p_putc(newtilebuf[index+(count-1)].format,f))
+		if(!p_putc(newtilebuf[index+(tilect-1)].format,f))
 		{
 			return 0;
 		}
 		    
-		if(!pfwrite(newtilebuf[index+(count-1)].data,tilesize(newtilebuf[index+(count-1)].format),f))
+		if(!pfwrite(newtilebuf[index+(tilect-1)].data,tilesize(newtilebuf[index+(tilect-1)].format),f))
 		{
 			return 0;
 		}
