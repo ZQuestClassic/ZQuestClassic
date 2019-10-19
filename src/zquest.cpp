@@ -9974,8 +9974,8 @@ int writeoneweapon(PACKFILE *f, int index)
                 return 0;
             }
 	    
-	   
 
+	
 	return 1;
 }
 
@@ -10008,7 +10008,6 @@ int readoneweapon(PACKFILE *f, int index)
 	{
 		return 0;
 	}
-	
 	al_trace("readoneweapon section_version: %d\n", section_version);
 	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
 
@@ -10032,7 +10031,6 @@ int readoneweapon(PACKFILE *f, int index)
     
 	
     
-   
 	char tmp_wpn_name[64];
 	memset(tmp_wpn_name,0,64);
 	if(!pfread(&tmp_wpn_name, 64, f,true))
@@ -10075,7 +10073,7 @@ int readoneweapon(PACKFILE *f, int index)
                 return 0;
             }
 	    
-	   
+	    
 	::memcpy( &(wpnsbuf[biw[index].i]),&tempwpnspr, sizeof(wpndata));
 	::memcpy(weapon_string[biw[index].i], tmp_wpn_name, 64);
        
