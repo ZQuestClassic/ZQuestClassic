@@ -37,6 +37,7 @@ extern const char *tileformat_string[tfMax];
 extern comboclass   *combo_class_buf;
 
 void register_blank_tiles();
+
 word count_tiles(tiledata *buf);
 word count_combos();
 void setup_combo_animations();

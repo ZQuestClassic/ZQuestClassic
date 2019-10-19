@@ -381,7 +381,6 @@ void clear_tile(tiledata *buf, word tile)
   memset(buf[tile].data,0,tilesize(buf[tile].format));
 }
 */
-
 void reset_tile(tiledata *buf, int t, int format=1)
 {
     buf[t].format=format;
