@@ -14,3 +14,5 @@
 //      GLEEOK   4
 //      JMAN     5
 //      TAKUYA   6
+
+#define __TIMEZONE__ "GMT"

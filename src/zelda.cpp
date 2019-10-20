@@ -30,6 +30,8 @@
 #include <loadpng.h>
 #include <jpgalleg.h>
 
+#include "metadata/devsig.h.sig"
+
 #include "zc_malloc.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
@@ -3828,7 +3830,7 @@ int main(int argc, char* argv[])
     memset(modulepath, 0, sizeof(modulepath));
 
     memset(zc_builddate,0,400);
-    sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s GMT", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
+    sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
     switch(IS_BETA)
     {
     
