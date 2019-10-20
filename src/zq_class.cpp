@@ -26,6 +26,7 @@
 #include "metadata/devsig.h.sig"
 #include "metadata/compilersig.h.sig"
 #include "metadata/versionsig.h"
+
 #include "gui.h"
 #include "zq_class.h"
 #include "zq_misc.h"
@@ -6277,15 +6278,15 @@ int writeheader(PACKFILE *f, zquestheader *Header)
 	{
 	    new_return(28);
 	}
-	if(!p_iputw(V_ZC_YEAR,f))
+	if(!p_iputw(BUILDTM_YEAR,f))
 	{
 	    new_return(29);
 	}
-	if(!p_putc(V_ZC_MONTH,f))
+	if(!p_putc(BUILDTM_MONTH,f))
 	{
 	    new_return(30);
 	}
-	if(!p_putc(V_ZC_DAY,f))
+	if(!p_putc(BUILDTM_DAY,f))
 	{
 	    new_return(31);
 	}
