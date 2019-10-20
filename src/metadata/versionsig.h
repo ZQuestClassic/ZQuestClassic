@@ -9,7 +9,9 @@
 #define V_ZC_FIRST 2
 #define V_ZC_SECOND 55
 #define V_ZC_THIRD 0
-#define V_ZC_FOURTH 0
+//alpha id
+#define V_ZC_FOURTH 37 
+//build
 #define V_ZC_ALPHA 48
 #define V_ZC_BETA 0
 #define V_ZC_GAMMA 0
@@ -21,3 +23,12 @@
 #define V_ZC_MINUTE 30
 
 #define PROJECT_NAME "ZQuest Creator Suite: AEternal, v2.55"
+#define COMPANY_NAME "Armageddon Games"
+#define ZQ_EDITOR_NAME "ZQuest Creator Editor"
+#define ZQ_EDITOR_V "2.55"
+#define ZQ_EDITOR_COPYRIGHT "Copyright (C) 2019"
+
+#define ZC_PLAYER_NAME "ZQuest Classic Player"
+#define ZC_PLAYER_V "2.55"
+#define ZC_PLAYER_COPYRIGHT "Copyright (C) 2019"
+

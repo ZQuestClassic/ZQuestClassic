@@ -59,9 +59,10 @@ END
 // Version
 //
 
+#include "src/metadata/versionsig.h"
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,55,0,37
- PRODUCTVERSION 2,55,0,37
+ FILEVERSION V_ZC_FIRST,V_ZC_SECOND,V_ZC_THIRD,V_ZC_FOURTH
+ PRODUCTVERSION V_ZC_FIRST,V_ZC_SECOND,V_ZC_THIRD,V_ZC_FOURTH
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -76,14 +77,14 @@ BEGIN
     BEGIN
         BLOCK "080904b0"
         BEGIN
-            VALUE "CompanyName", "Armageddon Games"
-            VALUE "FileDescription", "ZQuest Creator Editor"
-            VALUE "FileVersion", "2.55"
+            VALUE "CompanyName", COMPANY_NAME
+            VALUE "FileDescription", ZQ_EDITOR_NAME
+            VALUE "FileVersion", ZQ_EDITOR_V
             VALUE "InternalName", "zq_icon"
-            VALUE "LegalCopyright", "Copyright (C) 2019"
-            VALUE "OriginalFilename", "ZQuest Creator Editor"
-            VALUE "ProductName", "ZQuest Creator Editor"
-            VALUE "ProductVersion", "2.55"
+            VALUE "LegalCopyright", ZQ_EDITOR_COPYRIGHT
+            VALUE "OriginalFilename", ZQ_EDITOR_NAME
+            VALUE "ProductName", ZQ_EDITOR_NAME
+            VALUE "ProductVersion", ZQ_EDITOR_V
         END
     END
     BLOCK "VarFileInfo"
