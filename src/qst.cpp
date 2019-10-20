@@ -2544,7 +2544,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
 	al_trace("[ZQUEST CREATOR METADATA]\n");
 	al_trace("Last saved in ZC Editor Version: (%d,%d,%d,%d) ", tempheader.new_version_id_main,tempheader.new_version_id_second,tempheader.new_version_id_third,tempheader.new_version_id_fourth);
 	if ( tempheader.new_version_id_alpha ) { al_trace("Alpha %d\n", tempheader.new_version_id_alpha); }
-	else if ( tempheader.new_version_id_alpha ) { al_trace("Beta %d\n", tempheader.new_version_id_beta); }
+	else if ( tempheader.new_version_id_beta ) { al_trace("Beta %d\n", tempheader.new_version_id_beta); }
 	else if ( tempheader.new_version_id_gamma ) { al_trace("Gamma %d\n", tempheader.new_version_id_gamma); }
 	else { al_trace("Release %d\n\n", tempheader.new_version_id_release); }
 	al_trace("Created with ZC Module: %s\n\n", tempheader.made_in_module_name);
