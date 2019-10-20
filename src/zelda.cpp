@@ -3828,7 +3828,7 @@ int main(int argc, char* argv[])
     memset(modulepath, 0, sizeof(modulepath));
 
     memset(zc_builddate,0,400);
-    sprintf(zc_builddate,"%d-%d-%d at @ %s\n\n GMT\n", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
+    sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s GMT", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
     switch(IS_BETA)
     {
     
