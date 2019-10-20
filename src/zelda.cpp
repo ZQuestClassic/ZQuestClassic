@@ -108,6 +108,7 @@ extern int directItemA;
 extern int directItemB;
 extern byte emulation_patches[emuLAST];
 bool is_large=false;
+extern char zc_builddate[400];
 
 bool standalone_mode=false;
 char *standalone_quest=NULL;
@@ -2902,6 +2903,8 @@ int main(int argc, char* argv[])
 {
     bool onlyInstance=true;
 	
+	memset(zc_builddate,0,400);
+	sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s GMT", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
     
     switch(IS_BETA)
     {
