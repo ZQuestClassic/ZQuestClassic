@@ -59,6 +59,7 @@ extern FFScript FFCore;
 
 static int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
+char zc_builddate[400];
 
 extern FONT *lfont;
 extern LinkClass Link;
@@ -5652,7 +5653,7 @@ static DIALOG about_dlg[] =
     { jwin_button_proc,    140,  176,  41,   21,   vc(14),  0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
     { jwin_ctext_proc,        160,  84,   0,    8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) ZELDA_ABOUT_STR, NULL,  NULL },
     { jwin_ctext_proc,        160,  92,   0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0,       str_s, NULL,  NULL },
-    { jwin_ctext_proc,        160,  100,  0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0, (void *) DATE_STR, NULL,  NULL },
+    { jwin_ctext_proc,        160,  100,  0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0, (void *) zc_builddate, NULL,  NULL },
     { jwin_text_proc,         88,   124,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Coded by:", NULL,  NULL },
     { jwin_text_proc,         88,   132,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "  Phantom Menace", NULL,  NULL },
     { jwin_text_proc,         88,   144,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Produced by:", NULL,  NULL },

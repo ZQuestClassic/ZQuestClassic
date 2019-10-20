@@ -1442,35 +1442,36 @@ int onAbout()
         {
 		case -1:
 		{
-			sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-			sprintf(buf3,"Build Date: %s",DATE_STR);
+			//sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf2,"%s Alpha Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
 			break;
 		}
             
 		case 1:
 		{
-			sprintf(buf2,"%s Beta Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+			sprintf(buf2,"%s Beta Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
 			break;
 		}
 		
 		case 0:
 		{
-		    sprintf(buf2,"%s Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-		    sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+		    sprintf(buf2,"%s Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+		    sprintf(buf3,"Build Date: %d-%d-%d at @ %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
 		    break;
 		}
 		default:
 		{
 		    if ( IS_BETA > 0 )
 		    {
-			sprintf(buf2,"%s Beta Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+			sprintf(buf2,"%s Beta Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
 		    }
 		    else
 		    {
-			sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+			sprintf(buf2,"%s Alpha Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
 		    }
 		    break;
 		}
