@@ -63,6 +63,8 @@ extern char modulepath[2048];
 
 extern byte dmapscriptInitialised;
 
+extern char zc_builddate[400];
+
 
 #include "init.h"
 #include <assert.h>
@@ -3825,7 +3827,8 @@ int main(int argc, char* argv[])
 //	refresh_select_screen = 0;
     memset(modulepath, 0, sizeof(modulepath));
 
-    
+    memset(zc_builddate,0,400);
+    sprintf(zc_builddate,"%d-%d-%d at @ %s\n\n GMT\n", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
     switch(IS_BETA)
     {
     

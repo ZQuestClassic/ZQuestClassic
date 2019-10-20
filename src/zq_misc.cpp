@@ -1538,21 +1538,22 @@ int onAbout()
         {
 		case -1:
 		{
-			sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			//sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf2,"%s Alpha Build: %d, Date: %d-%d-%d at @ %s",VerStr(ZELDA_VERSION), VERSION_BUILD, BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
 			sprintf(buf3,"Build Date: %s",DATE_STR);
 			break;
 		}
             
 		case 1:
 		{
-			sprintf(buf2,"%s Beta Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf2,"%s Beta Build: %d, Date:Date: %d-%d-%d at @ %s",VerStr(ZELDA_VERSION), VERSION_BUILD, BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
 			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
 			break;
 		}
 		
 		case 0:
 		{
-		    sprintf(buf2,"%s Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+		    sprintf(buf2,"%s Build: %d, Date: Date: %d-%d-%d at @ %s",VerStr(ZELDA_VERSION), VERSION_BUILD, BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
 		    sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
 		    break;
 		}
@@ -1560,12 +1561,12 @@ int onAbout()
 		{
 		    if ( IS_BETA > 0 )
 		    {
-			sprintf(buf2,"%s Beta Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf2,"%s Beta Build: %d, Date: Date: %d-%d-%d at @ %s",VerStr(ZELDA_VERSION), VERSION_BUILD, BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
 			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
 		    }
 		    else
 		    {
-			sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf2,"%s Alpha Build: %d, Date: Date: %d-%d-%d at @ %s",VerStr(ZELDA_VERSION), VERSION_BUILD, BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
 			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
 		    }
 		    break;
