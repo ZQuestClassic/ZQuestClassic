@@ -62,6 +62,8 @@ extern CConsoleLoggerEx zscript_coloured_console;
 #include "vectorset.h"
 #include "single_instance.h"
 
+#include "metadata/devsig.h.sig"
+
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define stricmp _stricmp
@@ -2904,7 +2906,7 @@ int main(int argc, char* argv[])
     bool onlyInstance=true;
 	
 	memset(zc_builddate,0,400);
-	sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s GMT", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
+	sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
     
     switch(IS_BETA)
     {

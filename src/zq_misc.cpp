@@ -23,6 +23,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "metadata/devsig.h.sig"
+
 #ifdef _MSC_VER
 #define strupr _strupr
 #define stricmp _stricmp
@@ -1444,21 +1446,21 @@ int onAbout()
 		{
 			//sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
 			sprintf(buf2,"%s Alpha Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
-			sprintf(buf3,"Build Date: %d-%d-%d at @ %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 			break;
 		}
             
 		case 1:
 		{
 			sprintf(buf2,"%s Beta Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
-			sprintf(buf3,"Build Date: %d-%d-%d at @ %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 			break;
 		}
 		
 		case 0:
 		{
 		    sprintf(buf2,"%s Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
-		    sprintf(buf3,"Build Date: %d-%d-%d at @ %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
+		    sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 		    break;
 		}
 		default:
@@ -1466,12 +1468,12 @@ int onAbout()
 		    if ( IS_BETA > 0 )
 		    {
 			sprintf(buf2,"%s Beta Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
-			sprintf(buf3,"Build Date: %d-%d-%d at @ %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 		    }
 		    else
 		    {
 			sprintf(buf2,"%s Alpha Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
-			sprintf(buf3,"Build Date: %d-%d-%d at @ %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 		    }
 		    break;
 		}
