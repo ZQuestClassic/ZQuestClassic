@@ -950,24 +950,25 @@ static MENU module_menu[] =
 
 static MENU etc_menu_smallmode[] =
 {
-    { (char *)"&Help",                      onHelp,                    NULL,                     0,            NULL   },
-    { (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
-    { (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
-    { (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
-    { (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
-    { (char *)"Media",        NULL,                      media_menu,               0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-   { (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
-    { (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
-    { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
-     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
-    { (char *)"ZScript",        NULL,                      zscript_menu,               0,            NULL   },
-    
-    { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ (char *)"&Help",                      onHelp,                    NULL,                     0,            NULL   },
+	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
+	{ (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
+	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
+	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
+	{ (char *)"Media",        NULL,                      media_menu,               0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
+	{ (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
+	{ (char *)"&Take ZQ Snapshot",          onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"Take &Screen Snapshot",          onMapscrSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
+	{ (char *)"ZScript",        NULL,                      zscript_menu,               0,            NULL   },
+	
+	{ (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 MENU the_menu_large[] =

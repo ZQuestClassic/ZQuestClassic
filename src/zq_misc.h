@@ -292,6 +292,7 @@ void KeyFileName(char *kfname);
 
 int onSpacebar();
 int onSnapshot();
+int onMapscrSnapshot();
 int onSaveZQuestSettings();
 int onClearQuestFilepath();
 void go();
