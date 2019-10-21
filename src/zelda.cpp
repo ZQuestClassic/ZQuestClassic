@@ -63,6 +63,7 @@ extern CConsoleLoggerEx zscript_coloured_console;
 #include "single_instance.h"
 
 #include "metadata/sigs/devsig.h.sig"
+#include "metadata/versionsig.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -74,6 +75,9 @@ extern CConsoleLoggerEx zscript_coloured_console;
 FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
+
+extern char zc_builddate[80];
+extern char zc_aboutstr[80];
 
 ZCMUSIC *zcmusic = NULL;
 zinitdata zinit;
@@ -110,7 +114,6 @@ extern int directItemA;
 extern int directItemB;
 extern byte emulation_patches[emuLAST];
 bool is_large=false;
-extern char zc_builddate[400];
 
 bool standalone_mode=false;
 char *standalone_quest=NULL;
@@ -2905,8 +2908,11 @@ int main(int argc, char* argv[])
 {
     bool onlyInstance=true;
 	
-	memset(zc_builddate,0,400);
-	sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+    memset(zc_builddate,0,80);
+    memset(zc_aboutstr,0,80);
+
+    sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+    sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
     
     switch(IS_BETA)
     {
