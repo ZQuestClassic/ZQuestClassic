@@ -51,6 +51,9 @@ int onImport_ZQT();
 int onExport_ZQT();
 int onImport_UnencodedQuest();
 int onExport_UnencodedQuest();
+int onExport_Tilepack();
+int onImport_Tilepack();
+int onImport_Tilepack_To();
 void center_zq_files_dialogs();
 #endif
  

@@ -561,7 +561,11 @@ static MENU import_menu[] =
     { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
-   // { (char *)"ZASM to Allegro.log",           onExport_ZASM,   NULL,                     0,            NULL   },
+    { (char *)"Tile Pack",           	    onImport_Tilepack,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Tile Pack to...",           	    onImport_Tilepack_To,   NULL,                     0,            NULL   },
+      
+    // { (char *)"ZASM to Allegro.log",           onExport_ZASM,   NULL,                     0,            NULL   },
    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -581,6 +585,8 @@ static MENU export_menu[] =
     { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
+    { (char *)"Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
+    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1362,6 +1368,143 @@ int getnumber(const char *prompt,int initialval)
         return atoi(buf);
         
     return initialval;
+}
+
+static DIALOG save_tiles_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Tile Pack", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void savesometiles(const char *prompt,int initialval)
+{
+	
+	char firsttile[8], tilecount[8];
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+	sprintf(tilecount,"%d",1);
+	//int ret;
+	
+	
+	
+	save_tiles_dlg[0].dp2 = lfont;
+	
+	sprintf(firsttile,"%d",0);
+	sprintf(tilecount,"%d",1);
+	
+	save_tiles_dlg[5].dp = firsttile;
+	save_tiles_dlg[7].dp = tilecount;
+	
+	if(is_large)
+		large_dialog(save_tiles_dlg);
+	
+	int ret = zc_popup_dialog(save_tiles_dlg,-1);
+	jwin_center_dialog(save_tiles_dlg);
+	
+	if(ret == 8)
+	{
+		first_tile_id = vbound(atoi(firsttile), 0, NEWMAXTILES);
+		the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
+		if(getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+			if(f)
+			{
+				al_trace("Saving tiles %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
+				writetilefile(f,first_tile_id,the_tile_count);
+				pack_fclose(f);
+			}
+		}
+	}
+}
+
+
+static DIALOG read_tiles_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Tilepack To:", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Starting at:",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  d_dummy_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { d_dummy_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void writesometiles_to(const char *prompt,int initialval)
+{
+	
+	char firsttile[8];;
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+		//int ret;
+	
+	
+	
+	read_tiles_dlg[0].dp2 = lfont;
+	
+	sprintf(firsttile,"%d",0);
+	//sprintf(tilecount,"%d",1);
+	
+	read_tiles_dlg[5].dp = firsttile;
+	
+	if(is_large)
+		large_dialog(read_tiles_dlg);
+	
+	int ret = zc_popup_dialog(read_tiles_dlg,-1);
+	jwin_center_dialog(read_tiles_dlg);
+	
+	if(ret == 8)
+	{
+		first_tile_id = vbound(atoi(firsttile), 0, NEWMAXTILES);
+		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
+		if(getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				
+				if (!readtilefile_to_location(f,first_tile_id))
+				{
+					al_trace("Could not read from .ztile packfile %s\n", temppath);
+					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				pack_fclose(f);
+			}
+		}
+	}
 }
 
 int gettilepagenumber(const char *prompt, int initialval)
