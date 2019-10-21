@@ -12620,7 +12620,7 @@ int readcombofile(PACKFILE *f)
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo));
 
-	for ( int tilect = 0; tilect <= count; tilect++ )
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_combo, 0, sizeof(newcombo));
 		if(!p_igetw(&temp_combo.tile,f,true))
@@ -12767,7 +12767,7 @@ int readcombofile_to_location(PACKFILE *f, int start)
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo)); 
 
-	for ( int tilect = 0; tilect <= count; tilect++ )
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_combo, 0, sizeof(newcombo));
 		if(!p_igetw(&temp_combo.tile,f,true))
@@ -12856,8 +12856,8 @@ int readcombofile_to_location(PACKFILE *f, int start)
 }
 int writecombofile(PACKFILE *f, int index, int count)
 {
-	dword section_version=V_TILES;
-	dword section_cversion=CV_TILES;
+	dword section_version=V_COMBOS;
+	dword section_cversion=CV_COMBOS;
 	int zversion = ZELDA_VERSION;
 	int zbuild = VERSION_BUILD;
 	
@@ -12891,7 +12891,7 @@ int writecombofile(PACKFILE *f, int index, int count)
 		return 0;
 	}
 	
-	for ( int tilect = 0; tilect <= count; tilect++ )
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 	
 		if(!p_iputw(combobuf[index+(tilect)].tile,f))
