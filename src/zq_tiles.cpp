@@ -12555,6 +12555,7 @@ void center_zq_tiles_dialogs()
     jwin_center_dialog(recolor_8bit_dlg);
 }
 
+//.ZCOMBO
 
 int readcombofile(PACKFILE *f)
 {
@@ -12963,6 +12964,405 @@ int writecombofile(PACKFILE *f, int index, int count)
 		{
 			return 0;
 		}
+	}
+	
+	return 1;
+	
+}
+
+
+
+
+//.ZALIAS
+
+int readcomboaliasfile(PACKFILE *f)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	word tempword = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
+	{
+		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zalias packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	int count2 = 0;
+	byte tempcset = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: count(%d)\n", count);
+	
+	combo_alias temp_alias;
+	memset(&temp_alias, 0, sizeof(temp_alias));
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		memset(&temp_alias, 0, sizeof(temp_alias));
+	    if(!p_igetw(&temp_alias.combo,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.cset,f,true))
+            {
+                return 0;
+            }
+            
+            
+	    
+	    if(!p_igetl(&count2,f,true))
+            {
+                return 0;
+            }
+	    al_trace("Read, Combo alias count is: %d\n", count2);
+            if(!p_getc(&temp_alias.width,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.height,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.layermask,f,true))
+            {
+                return 0;
+            }
+            //These values are flexible, and may differ in size, so we delete them 
+	    //and recreate them at the correct size on the pointer. 
+	    delete[] temp_alias.combos;
+	    temp_alias.combos = new word[count2];
+	    delete[] temp_alias.csets;
+	    temp_alias.csets = new byte[count2];
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_igetw(&tempword,f,true))
+                {
+		    //al_trace("Could not reas alias.combos[%d]\n",k);
+                    return 0;
+                }
+		else
+		{
+			//al_trace("Read Combo Alias Combo [%d] as: %d\n", k, tempword);
+			
+			
+			//al_trace("tempword is: %d\n", tempword);
+			temp_alias.combos[k] = tempword;
+			//al_trace("Combo Alias Combo [%d] is: %d\n", k, temp_alias.combos[k]);
+		}
+            }
+	    //al_trace("Read alias combos.\n");
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_getc(&tempcset,f,true))
+                //if(!p_getc(&temp_alias.csets[k],f,true))
+		{
+                    return 0;
+                }
+		else
+		{
+			//al_trace("Read Combo Alias CSet [%d] as: %d\n", k, tempcset);
+			
+			temp_alias.csets[k] = tempcset;
+			//al_trace("Combo Alias CSet [%d] is: %d\n", k, temp_alias.csets[k]);
+		}
+            }
+	    //al_trace("Read alias csets.\n");
+	    //al_trace("About to memcpy a combo alias\n");
+		memcpy(&combo_aliases[index+(tilect)],&temp_alias,sizeof(combo_alias));
+	}
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+
+int readcomboaliasfile_to_location(PACKFILE *f, int start)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readcomboaliasfile_to_location section_version: %d\n", section_version);
+	al_trace("readcomboaliasfile_to_location section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
+	{
+		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zalias packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	int count2 = 0;
+	byte tempcset = 0;
+	word tempword = 0;
+	
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	combo_alias temp_alias;
+	memset(&temp_alias, 0, sizeof(temp_alias)); 
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		memset(&temp_alias, 0, sizeof(temp_alias));
+	    if(!p_igetw(&temp_alias.combo,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.cset,f,true))
+            {
+                return 0;
+            }
+            
+            int count2 = 0;
+	    
+	    if(!p_igetl(&count2,f,true))
+            {
+                return 0;
+            }
+	    
+            if(!p_getc(&temp_alias.width,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.height,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.layermask,f,true))
+            {
+                return 0;
+            }
+	    //These values are flexible, and may differ in size, so we delete them 
+	    //and recreate them at the correct size on the pointer. 
+            delete[] temp_alias.combos;
+	    temp_alias.combos = new word[count2];
+	    delete[] temp_alias.csets;
+	    temp_alias.csets = new byte[count2];
+	    
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_igetw(&tempword,f,true))
+                {
+                    return 0;
+                }
+		else
+		{
+			temp_alias.combos[k] = tempword;
+		}
+            }
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_getc(&tempcset,f,true))
+                {
+                    return 0;
+                }
+		else
+		{
+			temp_alias.csets[k] = tempcset;
+		}
+            }
+		
+		
+		if ( start+(tilect) < MAXCOMBOALIASES )
+		{
+			memcpy(&combo_aliases[start+(tilect)],&temp_alias,sizeof(temp_alias));
+		}
+	}
+	
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+int writecomboaliasfile(PACKFILE *f, int index, int count)
+{
+	al_trace("Running writecomboaliasfile\n");
+	dword section_version=V_COMBOALIASES;
+	dword section_cversion=CV_COMBOALIASES;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	
+	//start tile id
+	if(!p_iputl(index,f))
+	{
+		return 0;
+	}
+	
+	//count
+	if(!p_iputl(count,f))
+	{
+		return 0;
+	}
+	
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+	
+	    if(!p_iputw(combo_aliases[index+(tilect)].combo,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(combo_aliases[index+(tilect)].cset,f))
+            {
+                return 0;
+            }
+            
+            int count2 = ((combo_aliases[index+(tilect)].width+1)*(combo_aliases[index+(tilect)].height+1))*(comboa_lmasktotal(combo_aliases[index+(tilect)].layermask)+1);
+            
+	    if(!p_iputl(count2,f))
+            {
+                return 0;
+            }
+	    al_trace("Write`, Combo alias count is: %d\n", count2);
+	    
+            if(!p_putc(combo_aliases[index+(tilect)].width,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(combo_aliases[index+(tilect)].height,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(combo_aliases[index+(tilect)].layermask,f))
+            {
+                return 0;
+            }
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_iputw(combo_aliases[index+(tilect)].combos[k],f))
+                {
+                    return 0;
+                }
+            }
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_putc(combo_aliases[index+(tilect)].csets[k],f))
+                {
+                    return 0;
+                }
+            }
 	}
 	
 	return 1;
