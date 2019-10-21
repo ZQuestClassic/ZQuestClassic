@@ -22,7 +22,7 @@
 #define V_ZC_HOUR 22  
 #define V_ZC_MINUTE 30
 
-#define PROJECT_NAME "ZQuest Creator Suite: Omnius, v2.53.1"
+#define PROJECT_NAME "Omnius"
 #define COMPANY_NAME "Armageddon Games"
 #define ZQ_EDITOR_NAME "ZQuest Creator Editor"
 #define ZQ_EDITOR_V "2.53.1"

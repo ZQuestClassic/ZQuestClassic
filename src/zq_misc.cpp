@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 #include "metadata/sigs/devsig.h.sig"
+#include "metadata/versionsig.h"
 
 #ifdef _MSC_VER
 #define strupr _strupr
@@ -1454,19 +1455,19 @@ int onExit()
 
 int onAbout()
 {
-    char buf1[80];
-    char buf2[80];
-    char buf3[80];
+    char buf1[80]={0};
+    char buf2[80]={0};
+    char buf3[80]={0};
     
     if(get_debug())
     {
 #if IS_BETA
         {
-            sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
         }
 #else
         {
-            sprintf(buf1,"ZQuest %s Build %d - DEBUG",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Build %d - DEBUG",ZQ_EDITOR_V VERSION_BUILD);
         }
 #endif
         sprintf(buf2,"ZQuest Editor: %04X",INTERNAL_VERSION);
@@ -1475,26 +1476,27 @@ int onAbout()
     }
     else
     {
+	sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
         switch(IS_BETA)
         {
 		case -1:
 		{
 			//sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-			sprintf(buf2,"%s Alpha Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			sprintf(buf2,"Alpha %d, Build: %d",V_ZC_ALPHA, VERSION_BUILD);
 			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 			break;
 		}
             
 		case 1:
 		{
-			sprintf(buf2,"%s Beta Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			sprintf(buf2,"Beta %d, Build: %d",V_ZC_BETA, VERSION_BUILD);
 			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 			break;
 		}
 		
 		case 0:
 		{
-		    sprintf(buf2,"%s Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+		    sprintf(buf2,"Release %d, Build: %d",V_ZC_RELEASE, VERSION_BUILD);
 		    sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 		    break;
 		}
@@ -1502,12 +1504,12 @@ int onAbout()
 		{
 		    if ( IS_BETA > 0 )
 		    {
-			sprintf(buf2,"%s Beta Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			sprintf(buf2,"Beta %d Build: %d",V_ZC_BETA, VERSION_BUILD);
 			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 		    }
 		    else
 		    {
-			sprintf(buf2,"%s Alpha Build: %d",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			sprintf(buf2,"Alpha %d Build: %d",V_ZC_ALPHA, VERSION_BUILD);
 			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 		    }
 		    break;
@@ -1515,15 +1517,13 @@ int onAbout()
 		
         }
         
-        sprintf(buf1,"ZQuest " ZELDA_VERSION_STR);
+        
         
         jwin_alert("About ZQuest Editor",buf1,buf2,buf3,"OK", NULL, 13, 27, lfont);
     }
     
     return D_O_K;
 }
-
-
 
 int onShowWalkability()
 {
