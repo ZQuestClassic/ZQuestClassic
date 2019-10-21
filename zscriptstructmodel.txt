@@ -423,3 +423,6 @@ I suspect that I could rewrite GD() to support MAX_LONG variables in 2.55, thoug
 
 Thus, pop d2, GD(0000.1900) would access the vector at point 1900.
 
+//regarding pointers, to include a proper pointer system, all local vars will need 
+to be given a pointer capacitry too, and for that to work, at var decl the variables must
+be *registered* as pointers, then the pointer removed if the var is destroyed in any way.
