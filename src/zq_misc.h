@@ -268,6 +268,10 @@ int onExport_Combopack();
 int onImport_Combopack_To();
 int onImport_Combopack();
 
+int onImport_Comboaliaspack();
+int onImport_Comboaliaspack_To();
+int onExport_Comboaliaspack();
+
 int onGotoMap();
 int onMapCount();
 

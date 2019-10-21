@@ -2,8 +2,13 @@ ChangeLog for 2.53.0
 
 //2.53.1
 
-//Beta 1
+//Beta 2
 
+Added the ability to save and load Combo Alias files in the format
+	of .zalias, with the same GUI options and mechanics as .ZCOMBO and .ZTILE.
+	( ZoriaRPG, 21st October, 2019 )
+
+//Beta 1
 Fix .ZCOMBO Off By One Error and Wrong Version ID
 Fix .ZCOMBO off by 1 error.
 Added .ZCOMBO, identical to .ZTILE
