@@ -23,8 +23,8 @@
 #include <stdexcept>
 #include <map>
 
-#include "metadata/devsig.h.sig"
-#include "metadata/compilersig.h.sig"
+#include "metadata/sigs/devsig.h.sig"
+#include "metadata/sigs/compilersig.h.sig"
 #include "metadata/versionsig.h"
 
 #include "gui.h"
