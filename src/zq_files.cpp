@@ -1063,7 +1063,45 @@ int onImport_Tilepack()
 				}
 				else
 				{
-					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZTILE File: Success!","Loaded the source combos to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+			}
+	
+			pack_fclose(f);
+		}
+		return D_O_K;
+}
+
+int onExport_Combopack()
+{
+	savesomecombos("Save Combo Package", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Combopack_To()
+{
+	writesomecombos_to("Load Combo Package to:", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Combopack()
+{
+		if(getname("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				if (!readcombofile(f))
+				{
+					al_trace("Could not read from .zcombo packfile %s\n", temppath);
+					jwin_alert("ZCOMBO File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
 				}
 			}
 	
