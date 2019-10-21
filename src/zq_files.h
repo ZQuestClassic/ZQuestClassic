@@ -59,6 +59,10 @@ int onExport_Combopack();
 int onImport_Combopack_To();
 int onImport_Combopack();
 
+int onImport_Comboaliaspack();
+int onImport_Comboaliaspack_To();
+int onExport_Comboaliaspack();
+
 void center_zq_files_dialogs();
 #endif
  

@@ -268,10 +268,16 @@ int d_vsync_proc(int msg,DIALOG *d,int c);
 int d_nbmenu_proc(int msg,DIALOG *d,int c);
 int getnumber(const char *prompt,int initialval);
 int gettilepagenumber(const char *prompt, int initialval);
+
 void savesometiles(const char *prompt,int initialval);
 void writesometiles_to(const char *prompt,int initialval);
+
 void savesomecombos(const char *prompt,int initialval);
 void writesomecombos_to(const char *prompt,int initialval);
+
+void savesomecomboaliases(const char *prompt,int initialval);
+void writesomecomboaliases_to(const char *prompt,int initialval);
+
 int gettilepagenumber(const char *prompt, int initialval);
 int gethexnumber(const char *prompt,int initialval);
 

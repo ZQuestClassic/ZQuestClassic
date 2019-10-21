@@ -24,12 +24,19 @@ extern byte cset_reduce_table[PAL_SIZE];
 void calc_cset_reduce_table(PALETTE pal, int cs);
 
 void register_used_tiles();
+
+int readcomboaliasfile(PACKFILE *f);
+int readcomboaliasfile_to_location(PACKFILE *f, int start);
+int writecomboaliasfile(PACKFILE *f, int index, int count);
+
 int readtilefile(PACKFILE *f);
 int writetilefile(PACKFILE *f, int index, int count);
 int readtilefile_to_location(PACKFILE *f, int start);
+
 int readcombofile(PACKFILE *f);
 int readcombofile_to_location(PACKFILE *f, int start);
 int writecombofile(PACKFILE *f, int index, int count);
+
 int d_comboframe_proc(int msg, DIALOG *d, int c);
 int d_combo_proc(int msg,DIALOG *d,int c);
 void go_tiles();

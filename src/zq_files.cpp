@@ -1112,6 +1112,45 @@ int onImport_Combopack()
 		return D_O_K;
 }
 
+
+int onExport_Comboaliaspack()
+{
+	savesomecomboaliases("Save Combo Alias Package", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Comboaliaspack_To()
+{
+	writesomecomboaliases_to("Load Combo Alias Package to:", 0);
+	return D_O_K;
+	
+}
+
+int onImport_Comboaliaspack()
+{
+		if(getname("Load ZALIAS(.zalias)", "zalias", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				if (!readcomboaliasfile(f))
+				{
+					al_trace("Could not read from .zalias packfile %s\n", temppath);
+					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZALIAS File: Success!","Loaded the source combo aliases to your combo alias tables!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+			}
+	
+			pack_fclose(f);
+		}
+		return D_O_K;
+}
+
 int onExport_DMaps()
 {
     if(!getname("Export DMaps (.dmp)","dmp",NULL,datapath,false))
