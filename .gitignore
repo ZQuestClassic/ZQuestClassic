@@ -67,6 +67,7 @@ CMakeFiles/
 *.userosscache
 *.sln.docstates
 .userprefs
+*.h.sig
 
 # Visual Studio based files
 *.aps
