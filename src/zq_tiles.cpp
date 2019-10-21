@@ -12692,7 +12692,7 @@ int readcombofile(PACKFILE *f)
 		{
 			return 0;
 		}
-		memcpy(&combobuf[index+(tilect-1)],&temp_combo,sizeof(newcombo));
+		memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
 	}
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
@@ -12841,9 +12841,9 @@ int readcombofile_to_location(PACKFILE *f, int start)
 		}
 		
 		
-		if ( start+(tilect-1) < MAXCOMBOS )
+		if ( start+(tilect) < MAXCOMBOS )
 		{
-			memcpy(&combobuf[start+(tilect-1)],&temp_combo,sizeof(newcombo));
+			memcpy(&combobuf[start+(tilect)],&temp_combo,sizeof(newcombo));
 		}
 	}
 	
@@ -12894,72 +12894,72 @@ int writecombofile(PACKFILE *f, int index, int count)
 	for ( int tilect = 0; tilect <= count; tilect++ )
 	{
 	
-		if(!p_iputw(combobuf[index+(tilect-1)].tile,f))
+		if(!p_iputw(combobuf[index+(tilect)].tile,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].flip,f))
+		if(!p_putc(combobuf[index+(tilect)].flip,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].walk,f))
+		if(!p_putc(combobuf[index+(tilect)].walk,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].type,f))
+		if(!p_putc(combobuf[index+(tilect)].type,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].csets,f))
+		if(!p_putc(combobuf[index+(tilect)].csets,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].frames,f))
+		if(!p_putc(combobuf[index+(tilect)].frames,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].speed,f))
+		if(!p_putc(combobuf[index+(tilect)].speed,f))
 		{
 			return 0;
 		}
             
-		if(!p_iputw(combobuf[index+(tilect-1)].nextcombo,f))
+		if(!p_iputw(combobuf[index+(tilect)].nextcombo,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].nextcset,f))
+		if(!p_putc(combobuf[index+(tilect)].nextcset,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].flag,f))
+		if(!p_putc(combobuf[index+(tilect)].flag,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].skipanim,f))
+		if(!p_putc(combobuf[index+(tilect)].skipanim,f))
 		{
 			return 0;
 		}
             
-		if(!p_iputw(combobuf[index+(tilect-1)].nexttimer,f))
+		if(!p_iputw(combobuf[index+(tilect)].nexttimer,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].skipanimy,f))
+		if(!p_putc(combobuf[index+(tilect)].skipanimy,f))
 		{
 			return 0;
 		}
             
-		if(!p_putc(combobuf[index+(tilect-1)].animflags,f))
+		if(!p_putc(combobuf[index+(tilect)].animflags,f))
 		{
 			return 0;
 		}
