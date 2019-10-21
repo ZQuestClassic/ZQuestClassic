@@ -1063,7 +1063,7 @@ int onImport_Tilepack()
 				}
 				else
 				{
-					jwin_alert("ZTILE File: Success!","Loaded the source combos to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				}
 			}
 	
