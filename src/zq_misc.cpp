@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "metadata/devsig.h.sig"
+#include "metadata/sigs/devsig.h.sig"
 
 #ifdef _MSC_VER
 #define strupr _strupr
@@ -1328,6 +1328,41 @@ int onSnapshot()
     get_palette(RAMpal2);
     save_bitmap(buf,screen2,RAMpal2);
     return D_O_K;
+}
+
+int onMapscrSnapshot()
+{
+	int x = showedges?16:0;
+	int y = showedges?16:0;
+	
+	PALETTE usepal;
+	get_palette(usepal);
+	
+	char buf[200];
+	int num=0;
+	
+	do
+	{
+		sprintf(buf, "zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+	}
+	while(num<99999 && exists(buf));
+	
+	bool useflags = (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]); //Only use visibility flags (flags, walkability, etc) if CTRL is held
+	int misal = ShowMisalignments; //Store misalignments, so it can be disabled, and restored after.
+	ShowMisalignments = 0;
+	
+	BITMAP *panorama = create_bitmap_ex(8,256,176);
+	Map.setCurrScr(Map.getCurrScr());                                 // to update palette
+	clear_to_color(panorama,vc(0));
+	
+	Map.draw(panorama, 0, 0, useflags?Flags:0, -1, -1);
+	
+	save_bitmap(buf,panorama,usepal);
+	destroy_bitmap(panorama);
+	
+	ShowMisalignments = misal; //Restore misalignments.
+	
+	return D_O_K;
 }
 
 int gocnt=0;
