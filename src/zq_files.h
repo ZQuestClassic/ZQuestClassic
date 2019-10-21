@@ -53,6 +53,11 @@ int onImport_UnencodedQuest();
 int onExport_Tilepack();
 int onImport_Tilepack();
 int onImport_Tilepack_To();
+
+int onExport_Combopack();
+int onImport_Combopack_To();
+int onImport_Combopack();
+
 int onExport_UnencodedQuest();
 void center_zq_files_dialogs();
 #endif

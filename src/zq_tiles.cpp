@@ -12554,3 +12554,419 @@ void center_zq_tiles_dialogs()
     jwin_center_dialog(recolor_4bit_dlg);
     jwin_center_dialog(recolor_8bit_dlg);
 }
+
+
+int readcombofile(PACKFILE *f)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zcombo packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOS ) || ( section_version == V_COMBOS && section_cversion > CV_COMBOS ) )
+	{
+		al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zcombo packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: count(%d)\n", count);
+	
+	
+	newcombo temp_combo;
+	memset(&temp_combo, 0, sizeof(newcombo));
+
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+		memset(&temp_combo, 0, sizeof(newcombo));
+		if(!p_igetw(&temp_combo.tile,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flip,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.walk,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.type,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.csets,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.frames,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.speed,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nextcombo,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.nextcset,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flag,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanim,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nexttimer,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanimy,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.animflags,f,true))
+		{
+			return 0;
+		}
+		memcpy(&combobuf[index+(tilect-1)],&temp_combo,sizeof(newcombo));
+	}
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+
+
+int readcombofile_to_location(PACKFILE *f, int start)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readcombofile_to_location section_version: %d\n", section_version);
+	al_trace("readcombofile_to_location section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zcombo packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOS ) || ( section_version == V_COMBOS && section_cversion > CV_COMBOS ) )
+	{
+		al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zcombo packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	newcombo temp_combo;
+	memset(&temp_combo, 0, sizeof(newcombo)); 
+
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+		memset(&temp_combo, 0, sizeof(newcombo));
+		if(!p_igetw(&temp_combo.tile,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flip,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.walk,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.type,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.csets,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.frames,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.speed,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nextcombo,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.nextcset,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flag,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanim,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nexttimer,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanimy,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.animflags,f,true))
+		{
+			return 0;
+		}
+		
+		
+		if ( start+(tilect-1) < MAXCOMBOS )
+		{
+			memcpy(&combobuf[start+(tilect-1)],&temp_combo,sizeof(newcombo));
+		}
+	}
+	
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+int writecombofile(PACKFILE *f, int index, int count)
+{
+	dword section_version=V_TILES;
+	dword section_cversion=CV_TILES;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	
+	//start tile id
+	if(!p_iputl(index,f))
+	{
+		return 0;
+	}
+	
+	//count
+	if(!p_iputl(count,f))
+	{
+		return 0;
+	}
+	
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+	
+		if(!p_iputw(combobuf[index+(tilect-1)].tile,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].flip,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].walk,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].type,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].csets,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].frames,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].speed,f))
+		{
+			return 0;
+		}
+            
+		if(!p_iputw(combobuf[index+(tilect-1)].nextcombo,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].nextcset,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].flag,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].skipanim,f))
+		{
+			return 0;
+		}
+            
+		if(!p_iputw(combobuf[index+(tilect-1)].nexttimer,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].skipanimy,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect-1)].animflags,f))
+		{
+			return 0;
+		}
+	}
+	
+	return 1;
+	
+}
+
+

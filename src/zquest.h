@@ -254,6 +254,8 @@ int getnumber(const char *prompt,int initialval);
 int gettilepagenumber(const char *prompt, int initialval);
 void savesometiles(const char *prompt,int initialval);
 void writesometiles_to(const char *prompt,int initialval);
+void savesomecombos(const char *prompt,int initialval);
+void writesomecombos_to(const char *prompt,int initialval);
 int gethexnumber(const char *prompt,int initialval);
 
 void update_combo_cycling();
@@ -480,6 +482,7 @@ int onImportFFScript();
 int onImportItemScript();
 int onImportGScript();
 int onCompileScript();
+
 
 typedef struct item_struct
 {
