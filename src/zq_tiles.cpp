@@ -12936,11 +12936,10 @@ int readcombofile(PACKFILE *f)
 	}
 	al_trace("Reading combo: count(%d)\n", count);
 	
-	
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo));
 
-	for ( int tilect = 0; tilect <= count; tilect++ )
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_combo, 0, sizeof(newcombo));
 		if(!p_igetw(&temp_combo.tile,f,true))
@@ -13012,6 +13011,45 @@ int readcombofile(PACKFILE *f)
 		{
 			return 0;
 		}
+		
+		//2.55 starts here
+		if ( zversion >= 0x255 )
+		{
+			if  ( section_version >= 12 )
+			{
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if(!p_igetl(&temp_combo.attributes[q],f,true))
+					{
+						return 0;
+					}
+				}
+				if(!p_igetl(&temp_combo.usrflags,f,true))
+				{
+						return 0;
+				}	 
+				for ( int q = 0; q < 3; q++ ) 
+				{
+					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+					{
+						return 0;
+					}
+				}
+				   
+				if(!p_igetl(&temp_combo.triggerlevel,f,true))
+				{
+						return 0;
+				}	
+				for ( int q = 0; q < 11; q++ ) 
+				{
+					if(!p_getc(&temp_combo.label[q],f,true))
+					{
+						return 0;
+					}
+				}
+			}
+		}
+				
 		memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
 	}
 	
@@ -13086,8 +13124,8 @@ int readcombofile_to_location(PACKFILE *f, int start)
 	
 	newcombo temp_combo;
 	memset(&temp_combo, 0, sizeof(newcombo)); 
-
-	for ( int tilect = 0; tilect <= count; tilect++ )
+	
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_combo, 0, sizeof(newcombo));
 		if(!p_igetw(&temp_combo.tile,f,true))
@@ -13160,6 +13198,43 @@ int readcombofile_to_location(PACKFILE *f, int start)
 			return 0;
 		}
 		
+		//2.55 starts here
+		if ( zversion >= 0x255 )
+		{
+			if  ( section_version >= 12 )
+			{
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if(!p_igetl(&temp_combo.attributes[q],f,true))
+					{
+						return 0;
+					}
+				}
+				if(!p_igetl(&temp_combo.usrflags,f,true))
+				{
+						return 0;
+				}	 
+				for ( int q = 0; q < 3; q++ ) 
+				{
+					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+					{
+						return 0;
+					}
+				}
+				   
+				if(!p_igetl(&temp_combo.triggerlevel,f,true))
+				{
+						return 0;
+				}	
+				for ( int q = 0; q < 11; q++ ) 
+				{
+					if(!p_getc(&temp_combo.label[q],f,true))
+					{
+						return 0;
+					}
+				}
+			}
+		}
 		
 		if ( start+(tilect-1) < MAXCOMBOS )
 		{
@@ -13176,8 +13251,8 @@ int readcombofile_to_location(PACKFILE *f, int start)
 }
 int writecombofile(PACKFILE *f, int index, int count)
 {
-	dword section_version=V_TILES;
-	dword section_cversion=CV_TILES;
+	dword section_version=V_COMBOS;
+	dword section_cversion=CV_COMBOS;
 	int zversion = ZELDA_VERSION;
 	int zbuild = VERSION_BUILD;
 	
@@ -13211,7 +13286,7 @@ int writecombofile(PACKFILE *f, int index, int count)
 		return 0;
 	}
 	
-	for ( int tilect = 0; tilect <= count; tilect++ )
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 	
 		if(!p_iputw(combobuf[index+(tilect)].tile,f))
@@ -13282,6 +13357,38 @@ int writecombofile(PACKFILE *f, int index, int count)
 		if(!p_putc(combobuf[index+(tilect)].animflags,f))
 		{
 			return 0;
+		}
+		
+		//2.55 starts here
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		{
+			if(!p_iputl(combobuf[index+(tilect)].attributes[q],f))
+			{
+				return 0;
+			}
+		}
+		if(!p_iputl(combobuf[index+(tilect)].usrflags,f))
+		{
+				return 0;
+		}	 
+		for ( int q = 0; q < 3; q++ ) 
+		{
+			if(!p_iputl(combobuf[index+(tilect)].triggerflags[q],f))
+			{
+				return 0;
+			}
+		}
+		   
+		if(!p_iputl(combobuf[index+(tilect)].triggerlevel,f))
+		{
+				return 0;
+		}	
+		for ( int q = 0; q < 11; q++ ) 
+		{
+			if(!p_putc(combobuf[index+(tilect)].label[q],f))
+			{
+				return 0;
+			}
 		}
 	}
 	
