@@ -12,8 +12,8 @@
 //alpha id
 #define V_ZC_FOURTH 0
 //build
-#define V_ZC_ALPHA 48
-#define V_ZC_BETA 1
+#define V_ZC_ALPHA 0
+#define V_ZC_BETA 2
 #define V_ZC_GAMMA 0
 #define V_ZC_RELEASE 0
 #define V_ZC_YEAR 2019
