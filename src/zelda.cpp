@@ -37,6 +37,7 @@
 #include "zscriptversion.h"
 #include "zcmusic.h"
 #include "zdefs.h"
+#include "metadata/versionsig.h"
 #include "zelda.h"
 #include "tiles.h"
 #include "colors.h"
@@ -65,8 +66,8 @@ extern char modulepath[2048];
 
 extern byte dmapscriptInitialised;
 
-extern char zc_builddate[400];
-
+extern char zc_builddate[80];
+extern char zc_aboutstr[80];
 
 #include "init.h"
 #include <assert.h>
@@ -3829,8 +3830,12 @@ int main(int argc, char* argv[])
 //	refresh_select_screen = 0;
     memset(modulepath, 0, sizeof(modulepath));
 
-    memset(zc_builddate,0,400);
+    memset(zc_builddate,0,80);
+    memset(zc_aboutstr,0,80);
+
     sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+    sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
+    
     switch(IS_BETA)
     {
     
