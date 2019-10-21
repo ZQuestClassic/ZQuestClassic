@@ -62,7 +62,7 @@ extern CConsoleLoggerEx zscript_coloured_console;
 #include "vectorset.h"
 #include "single_instance.h"
 
-#include "metadata/devsig.h.sig"
+#include "metadata/sigs/devsig.h.sig"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>

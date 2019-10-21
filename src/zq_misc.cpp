@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "metadata/devsig.h.sig"
+#include "metadata/sigs/devsig.h.sig"
 
 #ifdef _MSC_VER
 #define strupr _strupr
