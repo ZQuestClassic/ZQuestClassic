@@ -2,8 +2,12 @@ ChangeLog for 2.53.0
 
 //2.53.1
 
-//Beta 2
+//Beta 3
+The Z Hotkey works again in the tile editor and the visible hitkey in the
+	Etc menu is again there.
+	( ZoriaRPG, 22nd October, 2019 )
 
+//Beta 2
 Added the ability to save and load Combo Alias files in the format
 	of .zalias, with the same GUI options and mechanics as .ZCOMBO and .ZTILE.
 	( ZoriaRPG, 21st October, 2019 )
