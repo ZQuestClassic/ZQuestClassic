@@ -512,18 +512,40 @@ fix LinkModifiedY()
     }
 }
 
+static MENU import_250x_files[]=
+{
+	{ (char *)"&Tiles (2.50.x)",                     onImport_Tiles_old,            NULL,                     0,            NULL   },
+        { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
+    
+	//TO-DO: Move old combo and combo alias here
+	// make new comboset and aliasset functions
+	// make new dmaps function and move old dmaps here
+	
+	//check quest templates 
+	
+	//check unencoded quest
+	
+	//check string table
+	
+	//check palettes
+	
+	//check subscreen
+	
+	//Map is fine, Enemies are fine. Both have header data on r/w.
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU import_menu[] =
 {
     { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
     { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&Tiles",                     onImport_Tiles,            NULL,                     0,            NULL   },
+    { (char *)"&Tileset",                     onImport_Tiles,            NULL,                     0,            NULL   },
     { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
     { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
     { (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
     { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
     { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
-    { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
@@ -534,6 +556,7 @@ static MENU import_menu[] =
     { (char *)"Tile Pack to...",           	    onImport_Tilepack_To,   NULL,                     0,            NULL   },
     { (char *)"Combo Pack to...",           	    onImport_Combopack_To,   NULL,                     0,            NULL   },
     { (char *)"Combo Alias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
+    { (char *)"2.50.x Files",           	    NULL,   import_250x_files,                     0,            NULL   },
       
     // { (char *)"ZASM to Allegro.log",           onExport_ZASM,   NULL,                     0,            NULL   },
    
@@ -542,23 +565,39 @@ static MENU import_menu[] =
 
 static MENU export_menu[] =
 {
+    //known to have be fine in 2.55: Maps
     { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
+    //known to have problems in 2.55: DMaps
     { (char *)"&DMaps",                     onExport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&Tiles",                     onExport_Tiles,            NULL,                     0,            NULL   },
+    //New format for 2.55: Tiles
+    { (char *)"&Tileset",                     onExport_Tiles,            NULL,                     0,            NULL   },
+    //known to have be fine in 2.55: Maps
     { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
+    //Seems future-safe for 2.55 and at present should work (unchanged): Subscreen
     { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
+    //unchecked for 2.55 but at present should work (unchanged): Palettes
+    //Includes palette cycles, so, absolutely not future safe, given that there are half 
+    //as many pal cycles as there are palettes.
+    //At least CV and SV are written, so we will need to depend entirely on those.
     { (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
+    //Seems future-safe, and works in 2.55: Strings
     { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
     { (char *)"Text Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
+    //known to have problems in 2.55: Combos
     { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
+    //known to have problems in 2.55: Combo Alias
     { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
-    { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
+    //No longer supported.
+    //{ (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
+    //Untested for 2.55 and needs validation: QSU
     { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
+    //known to have be fine in 2.55: Everything below here
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
     { (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
     { (char *)"Combo Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
+    //Missing: Itemset, Weaponset
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
