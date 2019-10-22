@@ -549,16 +549,32 @@ fix LinkModifiedY()
 
 static MENU import_250_menu[] =
 {
-	{ (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&Tiles",                     onImport_Tiles,            NULL,                     0,            NULL   },
-    { (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
-    { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
-    { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
+    { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
+    
+    
+    
     { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
-    { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
+    //{ (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU import_graphics[]=
+{
+	{ (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Tileset (&Full)",                     onImport_Tiles,            NULL,                     0,            NULL   },
+	{ (char *)"&Tile Pack",           	    onImport_Tilepack,   NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"&Combo Pack",           	    onImport_Combopack,   NULL,                     0,            NULL   },
+    { (char *)"Combo &Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"T&ile Pack to...",           	    onImport_Tilepack_To,   NULL,                     0,            NULL   },
+    { (char *)"C&ombo Pack to...",           	    onImport_Combopack_To,   NULL,                     0,            NULL   },
+    { (char *)"Combo A&lias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -567,48 +583,59 @@ static MENU import_menu[] =
     
     { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
     { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
-    
+    { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
+    { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
+    //{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    // { (char *)"ZASM Script",           onExport_ZASM,   NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Tile Pack",           	    onImport_Tilepack,   NULL,                     0,            NULL   },
-    { (char *)"Combo Pack",           	    onImport_Combopack,   NULL,                     0,            NULL   },
-    { (char *)"Combo Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
+    { (char *)"&Graphics",                  NULL,                      import_graphics,               0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Tile Pack to...",           	    onImport_Tilepack_To,   NULL,                     0,            NULL   },
-    { (char *)"Combo Pack to...",           	    onImport_Combopack_To,   NULL,                     0,            NULL   },
-    { (char *)"Combo Alias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"2.50 Assets",                  NULL,                      import_250_menu,               0,            NULL   },
-    
-    // { (char *)"ZASM to Allegro.log",           onExport_ZASM,   NULL,                     0,            NULL   },
-   
+    { (char *)"2.50 (Broken)",                  NULL,                      import_250_menu,               0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU export_broken_menu[] =
+static MENU export_250_menu[] =
 {
-    { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
+    
     { (char *)"&DMaps",                     onExport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&Tiles",                     onExport_Tiles,            NULL,                     0,            NULL   },
-    { (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
-    { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
-    { (char *)"Text Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
+   
     { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
     { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU export_graphics[]=
+{
+	{ (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Tileset (&Full)",                     onExport_Tiles,            NULL,                     0,            NULL   },
+	{ (char *)"&Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"&Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
+    { (char *)"Combo &Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU export_menu[] =
 {
     
     { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
+    { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
     { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
-    { (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
-    { (char *)"Combo Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
-    { (char *)"Broken",                  NULL,                      export_broken_menu,               0,            NULL   },
+       
+    { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
+    { (char *)"Text &Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
+    
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&Graphics",                  NULL,                      export_graphics,               0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"2.50 (Broken)",                  NULL,                      export_250_menu,               0,            NULL   },
     
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };

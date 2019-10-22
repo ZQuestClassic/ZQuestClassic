@@ -32,6 +32,7 @@ int writecomboaliasfile(PACKFILE *f, int index, int count);
 int readtilefile(PACKFILE *f);
 int writetilefile(PACKFILE *f, int index, int count);
 int readtilefile_to_location(PACKFILE *f, int start);
+int readtilefile_to_location(PACKFILE *f, int start, int skip);
 
 int readcombofile(PACKFILE *f);
 int readcombofile_to_location(PACKFILE *f, int start);

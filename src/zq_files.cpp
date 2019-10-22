@@ -1343,19 +1343,30 @@ int onImport_Tiles()
     
     bound(ret,0,TILE_PAGES-1);
     
-    if(!getname("Import Tiles (.til)","til",NULL,datapath,false))
+    if(!getname("Import Tiles (.ztileset)","ztileset",NULL,datapath,false))
         return D_O_K;
         
     saved=false;
     
-    // usetiles=true;
-    if(!load_tiles(temppath, ret*TILES_PER_PAGE))
-    {
-        char buf[80],name[13];
-        extract_name(temppath,name,FILENAME8_3);
-        sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-    }
+    PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(f)
+	{
+		if(!readtilefile_to_location(f,0,ret))
+		{
+			char buf[80],name[13];
+			extract_name(temppath,name,FILENAME8_3);
+			sprintf(buf,"Unable to load %s",name);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			char tmpbuf[80]={0};
+			sprintf(tmpbuf,"Saved %s",temppath);
+			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	}
+	pack_fclose(f);
+    
     
     refresh(rALL);
     return D_O_K;
@@ -1363,24 +1374,30 @@ int onImport_Tiles()
 
 int onExport_Tiles()
 {
-    if(!getname("Export Tiles (.til)","til",NULL,datapath,false))
+    if(!getname("Export Tiles (.ztileset)","ztileset",NULL,datapath,false))
         return D_O_K;
         
     char buf[80],buf2[80],name[13];
     extract_name(temppath,name,FILENAME8_3);
     
-    if(save_tiles(temppath))
-    {
-        sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",temppath);
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",temppath);
-    }
+    //writetilefile(f,first_tile_id,the_tile_count);
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(f)
+	{
+		writetilefile(f,0,NEWMAXTILES);
+		pack_fclose(f);
+		
+		char tmpbuf[80]={0};
+		sprintf(tmpbuf,"Saved %s",temppath);
+		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	else
+	{
+		sprintf(buf,"Error");
+		sprintf(buf2,"Error saving %s",temppath);
+	}
+    
     return D_O_K;
 }
 
