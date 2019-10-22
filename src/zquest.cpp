@@ -860,7 +860,7 @@ static MENU etc_menu[] =
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
 	{ (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
-	{ (char *)"&Take ZQ Snapshot",          onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"&Take ZQ Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"Take &Screen Snapshot",          onMapscrSnapshot,                NULL,                     0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
