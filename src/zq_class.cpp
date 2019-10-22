@@ -898,8 +898,10 @@ int zmap::load(const char *path)
         mapscr tmpimportscr;
         
         if(readmapscreen(f,&header,&tmpimportscr,&temp_map,version)==qe_invalid)
+	{
+		al_trace("failed zmap::load\n");
             goto file_error;
-            
+	}
         bool copied = false;
         
         switch(ImportMapBias)
@@ -4916,7 +4918,8 @@ bool load_pals(const char *path, int startcset)
     
     if(section_id==ID_CSETS)
     {
-        if(readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, startcset, newerpdTOTAL-startcset, true)==0)
+        //if(readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, startcset, newerpdTOTAL-startcset, true)==0)
+        if(readcolordata(f, &misc, 0x250, 33, startcset, newerpdTOTAL-startcset, true)==0)
         {
             pack_fclose(f);
             loadlvlpal(Color);
@@ -4968,7 +4971,8 @@ bool load_dmaps(const char *path, int startdmap)
     
     if(section_id==ID_DMAPS)
     {
-        if(readdmaps(f, NULL, ZELDA_VERSION, VERSION_BUILD, startdmap, MAXDMAPS-startdmap, true)==0)
+        //if(readdmaps(f, NULL, ZELDA_VERSION, VERSION_BUILD, startdmap, MAXDMAPS-startdmap, true)==0)
+        if(readdmaps(f, NULL, 0x250, 33, startdmap, MAXDMAPS-startdmap, true)==0)
         {
             pack_fclose(f);
             return true;
@@ -5021,7 +5025,8 @@ bool load_combos(const char *path, int startcombo)
     
     if(section_id==ID_COMBOS)
     {
-        if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, startcombo, MAXCOMBOS-startcombo, true)==0)
+        //if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, startcombo, MAXCOMBOS-startcombo, true)==0)
+        if(readcombos(f, NULL, 0x250, 33, startcombo, MAXCOMBOS-startcombo, true)==0)
         {
             pack_fclose(f);
             return true;
@@ -5074,7 +5079,8 @@ bool load_tiles(const char *path, int starttile)
     
     if(section_id==ID_TILES)
     {
-        if(readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, starttile, NEWMAXTILES-starttile, false, true)==0)
+        //if(readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, starttile, NEWMAXTILES-starttile, false, true)==0)
+        if(readtiles(f, newtilebuf, NULL, 0x250, 33, starttile, NEWMAXTILES-starttile, false, true)==0)
         {
             pack_fclose(f);
             return true;

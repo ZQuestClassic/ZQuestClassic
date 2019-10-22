@@ -11763,11 +11763,12 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 {
     byte tempbyte, padding;
     int extras, secretcombos;
-    
+    al_trace("readmapscreen Header->zelda_version: %x\n",Header->zelda_version);
     if(!p_getc(&(temp_mapscr->valid),f,true))
     {
         return qe_invalid;
     }
+    
     
     if(!p_getc(&(temp_mapscr->guy),f,true))
     {
@@ -13071,7 +13072,8 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         ffcScriptData[m].a[1] = 10000;
     }
     
-    if ( version >= 19 )
+    //2.55 starts here
+    if ( version >= 19 && Header->zelda_version > 0x253 )
     {
 	for ( int q = 0; q < 10; q++ ) 
 	{
@@ -13102,7 +13104,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 		} 
 	}
     }
-    if ( version < 19 )
+    if ( version < 19 && Header->zelda_version > 0x253 )
     {
 	for ( int q = 0; q < 10; q++ ) 
 	{
@@ -13112,7 +13114,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 	    temp_mapscr->new_item_y[q] = 0;
 	}
     }
-    if ( version >= 20 )
+    if ( version >= 20 && Header->zelda_version > 0x253 )
     {
 	if(!p_igetw(&(temp_mapscr->script),f,true))
 	{
@@ -13131,7 +13133,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 	temp_mapscr->script = 0;
 	for ( int q = 0; q < 8; q++) temp_mapscr->screeninitd[q] = 0;
     }
-    if ( version >= 21 )
+    if ( version >= 21 && Header->zelda_version > 0x253 )
     {
 	if(!p_getc(&(temp_mapscr->preloadscript),f,true))
 	{
@@ -13145,7 +13147,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     //all builds with version > 20 need this. -Z
     temp_mapscr->ffcswaitdraw = 0;
     
-    if ( version >= 22 ) //26th June, 2019; Layer Visibility
+    if ( version >= 22 && Header->zelda_version > 0x253 ) //26th June, 2019; Layer Visibility
     {
 	if(!p_getc(&(temp_mapscr->hidelayers ),f,true))
 	{
