@@ -4,6 +4,7 @@ ChangeLog for 2.53.0
 
 //Beta 3
 Added spacer in Export submenus.
+Fixed some wrong dialogue titles for Combo Alias Packs
 Cleaned up old export saving success messages, and added saving success
 	messages to .zalias, .zcombo, and .ztile file saving.
 The Z Hotkey works again in the tile editor and the visible hitkey in the
