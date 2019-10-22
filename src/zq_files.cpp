@@ -669,7 +669,7 @@ int onSave()
     
     if(!ret)
     {
-        sprintf(buf,"Saved %s",name);
+        sprintf(buf,"Saved %s",temppath);
         jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
         saved=true;
         first_save=true;
@@ -677,7 +677,7 @@ int onSave()
     }
     else
     {
-        sprintf(buf,"Error saving %s",name);
+        sprintf(buf,"Error saving %s",temppath);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
     
@@ -719,7 +719,7 @@ int onSaveAs()
         strcpy(filepath,temppath);
         sprintf(buf,"ZQuest - [%s]", get_filename(filepath));
         set_window_title(buf);
-        sprintf(buf,"Saved %s",name);
+        sprintf(buf,"Saved %s",temppath);
         jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
         saved=true;
         first_save=true;
@@ -727,7 +727,7 @@ int onSaveAs()
     }
     else
     {
-        sprintf(buf,"Error saving %s",name);
+        sprintf(buf,"Error saving %s",temppath);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
     
@@ -978,12 +978,12 @@ int onExport_Map()
     if(!ret)
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1162,12 +1162,12 @@ int onExport_DMaps()
     if(save_dmaps(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1203,12 +1203,12 @@ int onExport_Pals()
     if(save_pals(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1244,12 +1244,12 @@ int onExport_Msgs()
     if(save_msgstrs(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1268,12 +1268,12 @@ int onExport_MsgsText()
     if(save_msgstrs_text(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1320,12 +1320,12 @@ int onExport_Combos()
     if(save_combos(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1372,12 +1372,12 @@ int onExport_Tiles()
     if(save_tiles(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1412,12 +1412,12 @@ int onExport_Guys()
     if(save_guys(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1458,12 +1458,12 @@ int onExport_ComboAlias()
     if(save_combo_alias(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1501,12 +1501,12 @@ int onExport_ZGP()
     if(save_zgp(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1547,7 +1547,7 @@ int onExport_Subscreen()
         if(!cancel)
         {
             sprintf(buf,"ZQuest");
-            sprintf(buf2,"Saved %s",name);
+            sprintf(buf2,"Saved %s",temppath);
         }
         else
         {
@@ -1558,7 +1558,7 @@ int onExport_Subscreen()
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1603,12 +1603,12 @@ int onExport_ZQT()
     if(!save_unencoded_quest(temppath, true))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1653,12 +1653,12 @@ int onExport_UnencodedQuest()
     if(!save_unencoded_quest(temppath, false))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
