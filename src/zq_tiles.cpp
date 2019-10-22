@@ -8754,7 +8754,11 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 redraw=true;
                 break;
             }
-            
+            case KEY_Z:
+	    {
+		    onSnapshot();
+		    break;
+	    }
 	    case KEY_S:
 	    {
 		if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
