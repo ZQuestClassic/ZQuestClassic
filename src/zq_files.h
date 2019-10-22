@@ -43,6 +43,10 @@ int onImport_Combos();
 int onExport_Combos();
 int onImport_Tiles();
 int onExport_Tiles();
+
+int onImport_Tiles_old();
+int onExport_Tiles_old();
+
 int onImport_Subscreen();
 int onExport_Subscreen();
 int onImport_ZGP();

@@ -241,6 +241,10 @@ int onImport_DMaps();
 int onImport_Msgs();
 int onImport_Combos();
 int onImport_Tiles();
+
+int onImport_Tiles_old();
+int onExport_Tiles_old();
+
 int onImport_Guys();
 int onImport_Subscreen();
 int onImport_Pals();
