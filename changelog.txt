@@ -2,6 +2,11 @@ ChangeLog for 2.53.0
 
 //2.53.1
 
+//Beta 5
+Pressing F12 now captures screenshots in the Enemy, Item, 
+	and the Weapon Sprite Editors.
+	( ZoriaRPG, 22nd October, 2019 )
+	
 //Beta 4
 Refacrored the old 2.50 tileset import/export from .TIL to .ZTILESET
 	I rewrote the full tileset import/export so that it will be futureproof.
