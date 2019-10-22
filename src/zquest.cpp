@@ -526,6 +526,7 @@ static MENU import_menu[] =
     { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"Tile Pack",           	    onImport_Tilepack,   NULL,                     0,            NULL   },
     { (char *)"Combo Pack",           	    onImport_Combopack,   NULL,                     0,            NULL   },
     { (char *)"Combo Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
@@ -554,6 +555,7 @@ static MENU export_menu[] =
     { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
     { (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
     { (char *)"Combo Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
@@ -1281,6 +1283,10 @@ void savesometiles(const char *prompt,int initialval)
 				al_trace("Saving tiles %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
 				writetilefile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
+				
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",temppath);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
 	}
@@ -1419,6 +1425,9 @@ void savesomecombos(const char *prompt,int initialval)
 				al_trace("Saving combos %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
 				writecombofile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",temppath);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
 	}
@@ -1493,6 +1502,7 @@ void writesomecombos_to(const char *prompt,int initialval)
 				}
 				pack_fclose(f);
 			}
+			
 		}
 	}
 }
@@ -1504,7 +1514,7 @@ static DIALOG save_comboaliasfiles_dlg[] =
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
 
 
-	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Combo Pack", NULL, NULL },
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Combo Alias Pack", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //for future tabs
     { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
@@ -1559,6 +1569,9 @@ void savesomecomboaliases(const char *prompt,int initialval)
 				al_trace("Saving combo aliasess %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
 				writecomboaliasfile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",temppath);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
 	}
@@ -1570,7 +1583,7 @@ static DIALOG read_comboaliaspack_dlg[] =
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
 
 
-	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Combo Pack To:", NULL, NULL },
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Combo Alias Pack To:", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //for future tabs
     { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
