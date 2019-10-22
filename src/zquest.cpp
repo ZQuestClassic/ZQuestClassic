@@ -573,11 +573,14 @@ static MENU export_menu[] =
     { (char *)"&Tileset",                     onExport_Tiles,            NULL,                     0,            NULL   },
     //known to have be fine in 2.55: Maps
     { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
-    //unchecked for 2.55 but at present should work (unchanged): Subscreen
+    //Seems future-safe for 2.55 and at present should work (unchanged): Subscreen
     { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
     //unchecked for 2.55 but at present should work (unchanged): Palettes
+    //Includes palette cycles, so, absolutely not future safe, given that there are half 
+    //as many pal cycles as there are palettes.
+    //At least CV and SV are written, so we will need to depend entirely on those.
     { (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
-    //Untested for 2.55 and needs validation: Strings
+    //Seems future-safe, and works in 2.55: Strings
     { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
     { (char *)"Text Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
     //known to have problems in 2.55: Combos
@@ -594,6 +597,7 @@ static MENU export_menu[] =
     { (char *)"Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
     { (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
     { (char *)"Combo Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
+    //Missing: Itemset, Weaponset
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
