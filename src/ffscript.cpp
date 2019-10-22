@@ -1529,6 +1529,9 @@ const char * const varToString(int ID)
         
     case UNDERCSET:
         return "UNDERCSET";
+    
+    case ZELDAVERSION: return "ZELDAVERSION";
+    case GETRENDERTARGET: return "GETRENDERTARGET";
         
     default:
     {
@@ -1763,6 +1766,7 @@ script_command command_list[NUMCOMMANDS+1]=
     { "GETTILEWARPDMAP",     1,   0,   0,   0},
     { "GETTILEWARPSCR",      1,   0,   0,   0},
     { "GETTILEWARPTYPE",     1,   0,   0,   0},
+    { "GETFFCSCRIPT",        1,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
