@@ -973,7 +973,7 @@ static MENU etc_menu_smallmode[] =
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
 	{ (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
-	{ (char *)"&Take ZQ Snapshot",          onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"&Take ZQ Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"Take &Screen Snapshot",          onMapscrSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
