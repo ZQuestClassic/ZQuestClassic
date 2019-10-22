@@ -2,6 +2,14 @@ ChangeLog for 2.53.0
 
 //2.53.1
 
+//Beta 4
+Refacrored the old 2.50 tileset import/export from .TIL to .ZTILESET
+	I rewrote the full tileset import/export so that it will be futureproof.
+	The user can import the old .til files in this version (but not 2.55!!)
+	using a new submenu: File->Import->2.50.x Files.
+	It is mechanically identical to the user, otherwise.
+	( ZoriaRPG, 22nd October, 2019 )	
+
 //Beta 3
 Added spacer in Export submenus.
 Fixed some wrong dialogue titles for Combo Alias Packs
