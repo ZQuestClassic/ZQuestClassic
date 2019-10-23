@@ -1837,7 +1837,7 @@ bool IsPit(int position)
 //Returns true if Link is on a sideview screen
 bool IsSideview() 
 {
-	return Screen->Flags[SF_ROOMTYPE] & 4;
+	return ((Screen->Flags[SF_ROOMTYPE] & 4) || Game->LoadDMapData(Game->GetCurDMap())->Sideview);
 }
 
 // Returns true if the combo at the given position is water.
