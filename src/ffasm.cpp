@@ -939,9 +939,9 @@ script_variable variable_list[]=
     { "FFTWIDTH",          FFTWIDTH,             0,             0 },
     { "FFTHEIGHT",         FFTHEIGHT,            0,             0 },
     { "FFLINK",            FFLINK,               0,             0 },
-    //{ "COMBOD",            COMBOD(0),          176,             3 },
-    //{ "COMBOC",            COMBOC(0),          176,             3 },
-    //{ "COMBOF",            COMBOF(0),          176,             3 },
+    // { "COMBOD",            COMBOD(0),          176,             3 },
+    // { "COMBOC",            COMBOC(0),          176,             3 },
+    // { "COMBOF",            COMBOF(0),          176,             3 },
     { "INPUTSTART",        INPUTSTART,           0,             0 },
     { "INPUTUP",           INPUTUP,              0,             0 },
     { "INPUTDOWN",         INPUTDOWN,            0,             0 },
@@ -1381,11 +1381,11 @@ script_variable variable_list[]=
 	{ "LINKUSINGITEMA", LINKUSINGITEMA, 0, 0 },
 	{ "LINKUSINGITEMB", LINKUSINGITEMB, 0, 0 },
 	//    { "DMAPLEVELPAL",         DMAPLEVELPAL,          0,             0 },
-	//{ "LINKZHEIGHT",           LINKZHEIGHT,            0,             0 },
-	    //{ "ITEMINDEX",         ITEMINDEX,          0,             0 },
-	    //{ "LWPNINDEX",         LWPNINDEX,          0,             0 },
-	    //{ "EWPNINDEX",         EWPNINDEX,          0,             0 },
-	    //{ "NPCINDEX",         NPCINDEX,          0,             0 },
+	// { "LINKZHEIGHT",           LINKZHEIGHT,            0,             0 },
+	    // { "ITEMINDEX",         ITEMINDEX,          0,             0 },
+	    // { "LWPNINDEX",         LWPNINDEX,          0,             0 },
+	    // { "EWPNINDEX",         EWPNINDEX,          0,             0 },
+	    // { "NPCINDEX",         NPCINDEX,          0,             0 },
 	    //TABLE END
 	{ "IDATAUSEWPN", IDATAUSEWPN, 0, 0 }, //UseWeapon
 	{ "IDATAUSEDEF", IDATAUSEDEF, 0, 0 }, //UseDefense
@@ -1448,8 +1448,8 @@ script_variable variable_list[]=
 	{"COMBODATAID", COMBODATAID, 0, 0 },
 	{"REFFILE", REFFILE, 0, 0 },
 	{"REFSUBSCREEN", REFSUBSCREEN, 0, 0 },
-	//{"MAPDATAID", MAPDATAID, 0, 0 },
-	//{"MAPDATAID", MAPDATAID, 0, 0 },
+	// {"MAPDATAID", MAPDATAID, 0, 0 },
+	// {"MAPDATAID", MAPDATAID, 0, 0 },
 	
 
 	//NPCData
@@ -1793,8 +1793,8 @@ script_variable variable_list[]=
 	{"LINKSTUN", LINKSTUN, 0, 0 },
 	{"IDATACOSTCOUNTER", IDATACOSTCOUNTER, 0, 0 },
 	{"TYPINGMODE", TYPINGMODE, 0, 0 },
-	//{"DMAPDATAGRAVITY", DMAPDATAGRAVITY, 0, 0 },
-	//{"DMAPDATAJUMPLAYER", DMAPDATAJUMPLAYER, 0, 0 },
+	// {"DMAPDATAGRAVITY", DMAPDATAGRAVITY, 0, 0 },
+	// {"DMAPDATAJUMPLAYER", DMAPDATAJUMPLAYER, 0, 0 },
 	//end ffscript vars
 	//END VARS END OF BYTECODE
 	
@@ -2410,7 +2410,7 @@ int parse_script_section(char *combuf, char *arg1buf, char *arg2buf, ffscript **
 {
     (*script)[com].arg1 = 0;
     (*script)[com].arg2 = 0;
-    bool found_command=false;
+    bool found_command=false;	
     
     for(int i=0; i<NUMCOMMANDS&&!found_command; ++i)
     {
