@@ -20601,7 +20601,7 @@ static DIALOG assignscript_dlg[] =
     //13
     { jwin_check_proc,      22,  195,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
     { jwin_text_proc,       22,  158,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked", NULL, NULL },
-    { jwin_text_proc,       22,  168,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with ** were not found in the buffer and will not function.", NULL, NULL },
+    { jwin_text_proc,       22,  168,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with '--' were not found in the buffer and will not function.", NULL, NULL },
     //16
     { jwin_text_proc,       22,  178,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
@@ -21735,84 +21735,121 @@ int onSlotAssign()
 	//Declare new script vector
 	std::map<string, vector<ZScript::Opcode *> > scripts;
 	
-	for(int i = 0; i < NUMSCRIPTGLOBAL-1; ++i)
+	for(int i = 0; i < NUMSCRIPTGLOBAL; ++i)
 	{
-		if(globalmap[i].second != "")
+		switch(i)
 		{
-			scripts[globalmap[i].second] = disassemble_script(globalscripts[i+1]);
-			asffcscripts.push_back(globalmap[i].second);
+			case GLOBAL_SCRIPT_INIT:
+				scripts[globalmap[i].second] = disassemble_script(globalscripts[i]);
+				break;
+			default:
+				if(globalmap[i].second != "")
+				{
+					if(globalscripts[i][0].command!=0xFFFF)
+					{
+						scripts[globalmap[i].second] = disassemble_script(globalscripts[i]);
+						asffcscripts.push_back(globalmap[i].second);
+					}
+				}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTFFC-1; ++i)
 	{
 		if(ffcmap[i].second != "")
 		{
-			scripts[ffcmap[i].second] = disassemble_script(ffscripts[i+1]);
-			asffcscripts.push_back(ffcmap[i].second);
+			if(ffscripts[i+1][0].command!=0xFFFF)
+			{
+				scripts[ffcmap[i].second] = disassemble_script(ffscripts[i+1]);
+				asffcscripts.push_back(ffcmap[i].second);
+			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTITEM-1; ++i)
 	{
 		if(itemmap[i].second != "")
 		{
-			scripts[itemmap[i].second] = disassemble_script(itemscripts[i+1]);
-			asffcscripts.push_back(itemmap[i].second);
+			if(itemscripts[i+1][0].command!=0xFFFF)
+			{
+				scripts[itemmap[i].second] = disassemble_script(itemscripts[i+1]);
+				asffcscripts.push_back(itemmap[i].second);
+			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTGUYS-1; ++i)
 	{
 		if(npcmap[i].second != "")
 		{
-			scripts[npcmap[i].second] = disassemble_script(guyscripts[i+1]);
-			asffcscripts.push_back(npcmap[i].second);
+			if(guyscripts[i+1][0].command!=0xFFFF)
+			{
+				scripts[npcmap[i].second] = disassemble_script(guyscripts[i+1]);
+				asffcscripts.push_back(npcmap[i].second);
+			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
 	{
 		if(lwpnmap[i].second != "")
 		{
-			scripts[lwpnmap[i].second] = disassemble_script(lwpnscripts[i+1]);
-			asffcscripts.push_back(lwpnmap[i].second);
+			if(lwpnscripts[i+1][0].command!=0xFFFF)
+			{
+				scripts[lwpnmap[i].second] = disassemble_script(lwpnscripts[i+1]);
+				asffcscripts.push_back(lwpnmap[i].second);
+			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTWEAPONS-1; ++i)
 	{
 		if(ewpnmap[i].second != "")
 		{
-			scripts[ewpnmap[i].second] = disassemble_script(ewpnscripts[i+1]);
-			asffcscripts.push_back(ewpnmap[i].second);
+			if(ewpnscripts[i+1][0].command!=0xFFFF)
+			{
+				scripts[ewpnmap[i].second] = disassemble_script(ewpnscripts[i+1]);
+				asffcscripts.push_back(ewpnmap[i].second);
+			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTLINK-1; ++i)
 	{
 		if(linkmap[i].second != "")
 		{
-			scripts[linkmap[i].second] = disassemble_script(linkscripts[i+1]);
-			asffcscripts.push_back(linkmap[i].second);
+			if(linkscripts[i+1][0].command!=0xFFFF)
+			{
+				scripts[linkmap[i].second] = disassemble_script(linkscripts[i+1]);
+				asffcscripts.push_back(linkmap[i].second);
+			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTSDMAP-1; ++i)
 	{
 		if(dmapmap[i].second != "")
 		{
-			scripts[dmapmap[i].second] = disassemble_script(dmapscripts[i+1]);
-			asffcscripts.push_back(dmapmap[i].second);
+			if(dmapscripts[i+1][0].command!=0xFFFF)
+			{
+				scripts[dmapmap[i].second] = disassemble_script(dmapscripts[i+1]);
+				asffcscripts.push_back(dmapmap[i].second);
+			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTSCREEN-1; ++i)
 	{
 		if(screenmap[i].second != "")
 		{
-			scripts[screenmap[i].second] = disassemble_script(screenscripts[i+1]);
-			asffcscripts.push_back(screenmap[i].second);
+			if(screenscripts[i+1][0].command!=0xFFFF)
+			{
+				scripts[screenmap[i].second] = disassemble_script(screenscripts[i+1]);
+				asffcscripts.push_back(screenmap[i].second);
+			}
 		}
 	}
 	for(int i = 0; i < NUMSCRIPTSITEMSPRITE-1; ++i)
 	{
 		if(itemspritemap[i].second != "")
 		{
-			scripts[itemspritemap[i].second] = disassemble_script(itemspritescripts[i+1]);
-			asffcscripts.push_back(itemspritemap[i].second);
+			if(itemspritescripts[i+1][0].command!=0xFFFF)
+			{
+				scripts[itemspritemap[i].second] = disassemble_script(itemspritescripts[i+1]);
+				asffcscripts.push_back(itemspritemap[i].second);
+			}
 		}
 	}
 	// TODO: Read all assign scripts back out into this vector, and push their names to the appropriate 'as[TYPE]scripts' vector.
@@ -21834,38 +21871,38 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 			else if(scripts.find(ffcmap[i].second) != scripts.end())
 				sprintf(temp, "Slot %d: %s", i+1, ffcmap[i].second.c_str());
 			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: **%s**", i+1, ffcmap[i].second.c_str());
+				sprintf(temp, "Slot %d: --%s", i+1, ffcmap[i].second.c_str());
 			ffcmap[i].first = temp;
 		}
 		for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
 		{
 			char buffer[64];
 			const char* format;
-			const char* asterisks;
+			const char* emptymark;
 			switch(i)
 			{
 				case GLOBAL_SCRIPT_INIT:
-					format="Initialization: %s%s%s"; break;
+					format="Initialization: %s%s"; break;
 				case GLOBAL_SCRIPT_GAME:
-					format="Active: %s%s%s"; break;
+					format="Active: %s%s"; break;
 				case GLOBAL_SCRIPT_END:
-					format="onExit: %s%s%s"; break;
+					format="onExit: %s%s"; break;
 				case GLOBAL_SCRIPT_ONSAVELOAD:
-					format="onSaveLoad: %s%s%s"; break;
+					format="onSaveLoad: %s%s"; break;
 				case GLOBAL_SCRIPT_ONLAUNCH:
-					format="onLaunch: %s%s%s"; break;
+					format="onLaunch: %s%s"; break;
 				case GLOBAL_SCRIPT_ONCONTGAME:
-					format="onContGame: %s%s%s"; break;
+					format="onContGame: %s%s"; break;
 				case GLOBAL_SCRIPT_F6:
-					format="onF6Menu: %s%s%s"; break;
+					format="onF6Menu: %s%s"; break;
 			}
 			if(globalmap[i].second == "")
-				asterisks="";
+				emptymark="";
 			else if(scripts.find(globalmap[i].second) != scripts.end())
-				asterisks="";
+				emptymark="";
 			else // Unloaded
-				asterisks="**";
-			snprintf(buffer, 50, format, asterisks, globalmap[i].second.c_str(), asterisks);
+				emptymark="--";
+			snprintf(buffer, 50, format, emptymark, globalmap[i].second.c_str());
 			globalmap[i].first=buffer;
 		}
 		for(int i = 0; i < NUMSCRIPTITEM-1; i++)
@@ -21875,7 +21912,7 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 			else if(scripts.find(itemmap[i].second) != scripts.end())
 				sprintf(temp, "Slot %d: %s", i+1, itemmap[i].second.c_str());
 			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: **%s**", i+1, itemmap[i].second.c_str());
+				sprintf(temp, "Slot %d: --%s", i+1, itemmap[i].second.c_str());
 			itemmap[i].first = temp;
 		}
 		for(int i = 0; i < NUMSCRIPTGUYS-1; i++)
@@ -21885,7 +21922,7 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 			else if(scripts.find(npcmap[i].second) != scripts.end())
 				sprintf(temp, "Slot %d: %s", i+1, npcmap[i].second.c_str());
 			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: **%s**", i+1, npcmap[i].second.c_str());
+				sprintf(temp, "Slot %d: --%s", i+1, npcmap[i].second.c_str());
 			npcmap[i].first = temp;
 		} 
 		for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
@@ -21895,7 +21932,7 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 			else if(scripts.find(ewpnmap[i].second) != scripts.end())
 				sprintf(temp, "Slot %d: %s", i+1, ewpnmap[i].second.c_str());
 			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: **%s**", i+1, ewpnmap[i].second.c_str());
+				sprintf(temp, "Slot %d: --%s", i+1, ewpnmap[i].second.c_str());
 			ewpnmap[i].first = temp;
 		}
 		for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
@@ -21905,7 +21942,7 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 			else if(scripts.find(lwpnmap[i].second) != scripts.end())
 				sprintf(temp, "Slot %d: %s", i+1, lwpnmap[i].second.c_str());
 			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: **%s**", i+1, lwpnmap[i].second.c_str());
+				sprintf(temp, "Slot %d: --%s", i+1, lwpnmap[i].second.c_str());
 			lwpnmap[i].first = temp;
 		}
 		for(int i = 0; i < NUMSCRIPTLINK-1; i++)
@@ -21916,26 +21953,26 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 					else if(scripts.find(linkmap[i].second) != scripts.end())
 						sprintf(temp, "Slot %d: %s", i+1, linkmap[i].second.c_str());
 					else // Previously loaded script not found
-						sprintf(temp, "Slot %d: **%s**", i+1, linkmap[i].second.c_str());
+						sprintf(temp, "Slot %d: --%s", i+1, linkmap[i].second.c_str());
 					linkmap[i].first = temp;
 			*/
 			char buffer[64];
 			const char* format;
-			const char* asterisks;
+			const char* emptymark;
 			switch(i)
 			{
-				case 0: format="Init: %s%s%s"; break;
-				case 1: format="Active: %s%s%s"; break;
-				case 2: format="onDeath: %s%s%s"; break;
-				case 3: format="onWin: %s%s%s"; break;
+				case 0: format="Init: %s%s"; break;
+				case 1: format="Active: %s%s"; break;
+				case 2: format="onDeath: %s%s"; break;
+				case 3: format="onWin: %s%s"; break;
 			}
 			if(linkmap[i].second == "")
-				asterisks="";
+				emptymark="";
 			else if(scripts.find(linkmap[i].second) != scripts.end())
-				asterisks="";
+				emptymark="";
 			else // Unloaded
-				asterisks="**";
-			snprintf(buffer, 50, format, asterisks, linkmap[i].second.c_str(), asterisks);
+				emptymark="--";
+			snprintf(buffer, 50, format, emptymark, linkmap[i].second.c_str());
 			linkmap[i].first=buffer;
 		}
 		for(int i = 0; i < NUMSCRIPTSCREEN-1; i++)
@@ -21945,7 +21982,7 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 			else if(scripts.find(screenmap[i].second) != scripts.end())
 				sprintf(temp, "Slot %d: %s", i+1, screenmap[i].second.c_str());
 			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: **%s**", i+1, screenmap[i].second.c_str());
+				sprintf(temp, "Slot %d: --%s", i+1, screenmap[i].second.c_str());
 			screenmap[i].first = temp;
 		}
 		for(int i = 0; i < NUMSCRIPTSDMAP-1; i++)
@@ -21955,7 +21992,7 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 			else if(scripts.find(dmapmap[i].second) != scripts.end())
 				sprintf(temp, "Slot %d: %s", i+1, dmapmap[i].second.c_str());
 			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: **%s**", i+1, dmapmap[i].second.c_str());
+				sprintf(temp, "Slot %d: --%s", i+1, dmapmap[i].second.c_str());
 			dmapmap[i].first = temp;
 		}
 		for(int i = 0; i < NUMSCRIPTSITEMSPRITE-1; i++)
@@ -21965,7 +22002,7 @@ bool do_slots(std::map<string, vector<ZScript::Opcode *> > &scripts)
 			else if(scripts.find(itemspritemap[i].second) != scripts.end())
 				sprintf(temp, "Slot %d: %s", i+1, itemspritemap[i].second.c_str());
 			else // Previously loaded script not found
-				sprintf(temp, "Slot %d: **%s**", i+1, itemspritemap[i].second.c_str());
+				sprintf(temp, "Slot %d: --%s", i+1, itemspritemap[i].second.c_str());
 			itemspritemap[i].first = temp;
 		}
 		//}
