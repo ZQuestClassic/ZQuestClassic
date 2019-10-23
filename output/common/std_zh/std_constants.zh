@@ -2021,7 +2021,7 @@ const int CF_SCRIPT_DIG 	= 144;  //Dig Spot (Scripted)",
 const int CF_SCRIPT_DIG_NEXT  	= 145;  //Dig Spot, Next (Scripted)",
 const int CF_SCRIPT_DIG_ITEM  	= 146;  //Dig Spot, Special Item (Scripted)",
 const int CF_SCRIPT_POT_SLASH  	= 147; // Pot, Slashable (Scripted)",
-const int CF_SCRIPT_POT_SLASH_LIFT = 148; // Pot, Liftable (Scripted)",
+const int CF_SCRIPT_POT_LIFT 	= 148; // Pot, Liftable (Scripted)",
 const int CF_SCRIPT_POT_SLASH_OR_LIFT =  149; // Pot, Slash or Lift (Scripted)",
 const int CF_SCRIPT_LIFT_NORMAL = 150; // Rock, Lift Normal (Scripted)",
 const int CF_SCRIPT_LIFT_HEAVY 	= 151; // Rock, Lift Heavy (Scripted)",
@@ -2034,6 +2034,8 @@ const int CF_SCRIPT_DROP_MAP 	= 157; // Drop Map (Scripted)",
 const int CF_SCRIPT_DROP_BOSS_KEY 	= 158; // Drop Boss Key (Scripted)",
 const int CF_SCRIPT_SPAWN_NPC 	= 159; // Spawn NPC (Scripted)",
 const int CF_SCRIPT_SWITCHHOOK 	= 160; // SwitchHook Spot (Scripted)",
+const int CF_SIDEVIEW_LADDER 	= 161; // Sideview Ladder
+const int CF_SIDEVIEW_PLATFORM 	= 161; // Sideview Platform
 
 //chests  to 16, unlocked, locked, boss; small, big. Probably better as combo types?
 
