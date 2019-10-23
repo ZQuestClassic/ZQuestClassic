@@ -3,6 +3,14 @@ ChangeLog for 2.53.0
 //2.53.1
 
 //Beta 5
+
+Refactor: Replaced .dmp with .zdmapset
+	Deprecated the old Export DMaps format (.dmp).
+	The user can still IMPORT that format via Import->2.50.x->DMaps in
+	THIS VERSION only.
+	Added the new .zdmapset format, to replace this feature, which is future-safe
+	for 2.55 and above.
+	( ZoriaRPG, 23rd October, 2019 )
 Pressing F12 now captures screenshots in the Enemy, Item, 
 	and the Weapon Sprite Editors.
 	( ZoriaRPG, 22nd October, 2019 )

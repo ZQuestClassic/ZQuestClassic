@@ -1007,6 +1007,11 @@ int onInit();
 int onItemProps();
 int onSubscreen();
 
+int writeonedmap(PACKFILE *f, int i);
+int readonedmap(PACKFILE *f, int index);
+int writesomedmaps(PACKFILE *f, int first, int last, int max);
+int readsomedmaps(PACKFILE *f);
+
 void get_cset(int dataset,int row,RGB *pal);
 void draw_edit_dataset_specs(int index,int copy);
 void init_colormixer();

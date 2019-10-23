@@ -34,6 +34,10 @@ int onImport_Map();
 int onExport_Map();
 int onImport_DMaps();
 int onExport_DMaps();
+
+int onImport_DMaps_old();
+int onExport_DMaps_old();
+
 int onImport_Pals();
 int onExport_Pals();
 int onImport_Msgs();

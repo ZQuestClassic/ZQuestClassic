@@ -989,7 +989,7 @@ int onExport_Map()
     return D_O_K;
 }
 
-int onImport_DMaps()
+int onImport_DMaps_old()
 {
     if(!getname("Import DMaps (.dmp)","dmp",NULL,datapath,false))
         return D_O_K;
@@ -1048,6 +1048,101 @@ int onImport_Tilepack_To()
 	return D_O_K;
 	
 }
+
+int onExport_DMaps()
+{
+
+    
+    
+    if(!getname("Export DMaps(.zdmapset)","zdmapset",NULL,datapath,false))
+        return D_O_K;
+        
+    saved=false;
+    
+    PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(f)
+	{
+		if(!writesomedmaps(f,0,511,MAXDMAPS))
+		{
+			char buf[80],name[13];
+			extract_name(temppath,name,FILENAME8_3);
+			sprintf(buf,"Unable to load %s",name);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			char tmpbuf[80]={0};
+			sprintf(tmpbuf,"Saved %s",temppath);
+			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	}
+	pack_fclose(f);
+    
+    return D_O_K;
+}
+
+
+int onImport_DMaps()
+{
+    if(!getname("Import DMaps (.zdmapset)","zdmapset",NULL,datapath,false))
+        return D_O_K;
+    
+    PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(f)
+	{
+		if(!readsomedmaps(f))
+		{
+			char buf[80],name[13];
+			extract_name(temppath,name,FILENAME8_3);
+			sprintf(buf,"Unable to load %s",name);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			char tmpbuf[80]={0};
+			sprintf(tmpbuf,"Loaded %s",temppath);
+			
+			
+			
+			
+			int maxMap=0;
+			for(int i=0; i<MAXDMAPS; i++)
+			{
+			    if(DMaps[i].map>maxMap)
+				maxMap=DMaps[i].map;
+			}
+			
+			if(maxMap>map_count)
+			{
+			    int ret=jwin_alert("Not enough maps",
+					       "The imported DMaps use more maps than are",
+					       " currently available. Do you want to add",
+					       "more maps or change the DMaps' settings?",
+					       "&Add maps","&Modify DMaps",'a','m',lfont);
+			    if(ret==1)
+				setMapCount2(maxMap+1);
+			    else
+			    {
+				for(int i=0; i<MAXDMAPS; i++)
+				{
+				    if(DMaps[i].map>=map_count)
+					DMaps[i].map=0;
+				}
+			    }
+			}
+			
+			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	}
+	pack_fclose(f);
+   
+    saved=false;
+
+    
+    return D_O_K;
+}
+
+
 
 int onImport_Tiles()
 {
@@ -1233,7 +1328,7 @@ int onImport_Comboaliaspack()
 }
 
 
-int onExport_DMaps()
+int onExport_DMaps_old()
 {
     if(!getname("Export DMaps (.dmp)","dmp",NULL,datapath,false))
         return D_O_K;
