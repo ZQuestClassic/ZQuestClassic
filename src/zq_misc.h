@@ -238,6 +238,10 @@ int onColors_Sprites();
 
 int onImport_Map();
 int onImport_DMaps();
+
+int onImport_DMaps_old();
+int onExport_DMaps_old();
+
 int onImport_Msgs();
 int onImport_Combos();
 int onImport_Tiles();
