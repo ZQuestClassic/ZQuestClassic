@@ -11,6 +11,7 @@
 
 #include "precompiled.h" //always first
 
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,11 +30,14 @@
 #include <loadpng.h>
 #include <jpgalleg.h>
 
+#include "metadata/devsig.h.sig"
+
 #include "zc_malloc.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "zcmusic.h"
 #include "zdefs.h"
+#include "metadata/versionsig.h"
 #include "zelda.h"
 #include "tiles.h"
 #include "colors.h"
@@ -62,6 +66,8 @@ extern char modulepath[2048];
 
 extern byte dmapscriptInitialised;
 
+extern char zc_builddate[80];
+extern char zc_aboutstr[80];
 
 #include "init.h"
 #include <assert.h>
@@ -3823,15 +3829,12 @@ int main(int argc, char* argv[])
     bool onlyInstance=true;
 //	refresh_select_screen = 0;
     memset(modulepath, 0, sizeof(modulepath));
-#ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
-    if(!is_only_instance("zc.lck"))
-    {
-        if(used_switch(argc, argv, "-multiple"))
-            onlyInstance=false;
-        else
-            exit(1);
-    }
-#endif
+
+    memset(zc_builddate,0,80);
+    memset(zc_aboutstr,0,80);
+
+    sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+    sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
     
     switch(IS_BETA)
     {
@@ -3987,6 +3990,17 @@ int main(int argc, char* argv[])
         load_game_configs();
         save_game_configs();
     }
+    
+    #ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
+    if(!is_only_instance("zc.lck"))
+    {
+        if(used_switch(argc, argv, "-multiple") || get_config_int("zeldadx","multiple_instances",0))
+            onlyInstance=false;
+        else
+            exit(1);
+    }
+#endif
+    
     //Set up MODULES: This must occur before trying to load the default quests, as the 
     //data for quest names and so forth is set by the MODULE file!
     //strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module", moduledata.module_name));
@@ -4184,10 +4198,6 @@ int main(int argc, char* argv[])
     msgdisplaybuf = create_bitmap_ex(8,256, 176);
     msgbmpbuf = create_bitmap_ex(8, 512+16, 512+16);
     pricesdisplaybuf = create_bitmap_ex(8,256, 176);
-	zcmouse[0] = create_bitmap_ex(8, 16, 16);
-	zcmouse[1] = create_bitmap_ex(8, 16, 16);
-	zcmouse[2] = create_bitmap_ex(8, 16, 16);
-	zcmouse[3] = create_bitmap_ex(8, 16, 16);
 	script_menu_buf = create_bitmap_ex(8,256,224);
     
     if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
@@ -4203,10 +4213,6 @@ int main(int argc, char* argv[])
     set_clip_state(msgdisplaybuf, 1);
     clear_bitmap(pricesdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
-	clear_bitmap(zcmouse[0]);
-	clear_bitmap(zcmouse[1]);
-	clear_bitmap(zcmouse[2]);
-	clear_bitmap(zcmouse[3]);
     Z_message("OK\n");
     
     
@@ -4254,7 +4260,7 @@ int main(int argc, char* argv[])
         slot_arg2=1;
     }
     
-    int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
+    int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || get_config_int("zeldadx","skiplogo",0) || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
     skip_title = used_switch(argc, argv, "-notitle") > 0;
     int save_arg = used_switch(argc,argv,"-savefile");
     

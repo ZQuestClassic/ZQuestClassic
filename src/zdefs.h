@@ -106,9 +106,10 @@
 #define VERSION_BUILD       47                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 #define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
-#define IS_BETA             -37                       //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        37	
-#define DATE_STR            "12th October, 2019, 18:18GMT"
+#define IS_BETA             -38                       //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        38	
+#define DATE_STR            "19th October, 2019, 12:18GMT"
+//__DATE__ and __TIME__ macros can simplify this, in the future. 
 #define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 37"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
@@ -181,7 +182,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_SFX            ZC_ID('S','F','X',' ')              //sfx data
 
 //Version number of the different section types
-#define V_HEADER           3
+#define V_HEADER           4
 #define V_RULES           15
 #define V_STRINGS          6
 #define V_MISC             11
@@ -2615,6 +2616,34 @@ struct zquestheader
     //304
     byte  old_foo2[18];
     char  templatepath[2048];
+    long new_version_id_main;
+    long new_version_id_second;
+    long new_version_id_third;
+    long new_version_id_fourth;
+    long new_version_id_alpha;
+    long new_version_id_beta;
+    long new_version_id_gamma;
+    long new_version_id_release;
+    word new_version_id_date_year;
+    byte new_version_id_date_month;
+    byte new_version_id_date_day;
+    byte new_version_id_date_hour;
+    byte new_version_id_date_minute;
+    char new_version_devsig[256];
+    char new_version_compilername[256];
+    char new_version_compilerversion[256];
+    char product_name[1024];
+    byte compilerid;
+    long compilerversionnumber_first;
+    long compilerversionnumber_second;
+    long compilerversionnumber_third;
+    long compilerversionnumber_fourth;
+    word developerid;
+    char made_in_module_name[1024];
+    char build_datestamp[256];
+    char build_timestamp[256];
+    //made in module_name
+    
     //602
 };
 
@@ -3685,6 +3714,32 @@ struct zcmodule
 #define DCLICK_RELEASE    1
 #define DCLICK_AGAIN      2
 #define DCLICK_NOT        3
+
+#define BUILDTM_YEAR (\
+    __DATE__[7] == '?' ? 1900 \
+    : (((__DATE__[7] - '0') * 1000 ) \
+    + (__DATE__[8] - '0') * 100 \
+    + (__DATE__[9] - '0') * 10 \
+    + __DATE__[10] - '0'))
+
+#define BUILDTM_MONTH (\
+    __DATE__ [2] == '?' ? 1 \
+    : __DATE__ [2] == 'n' ? (__DATE__ [1] == 'a' ? 1 : 6) \
+    : __DATE__ [2] == 'b' ? 2 \
+    : __DATE__ [2] == 'r' ? (__DATE__ [0] == 'M' ? 3 : 4) \
+    : __DATE__ [2] == 'y' ? 5 \
+    : __DATE__ [2] == 'l' ? 7 \
+    : __DATE__ [2] == 'g' ? 8 \
+    : __DATE__ [2] == 'p' ? 9 \
+    : __DATE__ [2] == 't' ? 10 \
+    : __DATE__ [2] == 'v' ? 11 \
+    : 12)
+
+#define BUILDTM_DAY (\
+    __DATE__[4] == '?' ? 1 \
+    : ((__DATE__[4] == ' ' ? 0 : \
+    ((__DATE__[4] - '0') * 10)) + __DATE__[5] - '0'))
+
 
 template <class T>
 INLINE T sign(T a)

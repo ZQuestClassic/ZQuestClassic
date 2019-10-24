@@ -23,6 +23,10 @@
 #include <stdexcept>
 #include <map>
 
+#include "metadata/sigs/devsig.h.sig"
+#include "metadata/sigs/compilersig.h.sig"
+#include "metadata/versionsig.h"
+
 #include "gui.h"
 #include "zq_class.h"
 #include "zq_misc.h"
@@ -894,8 +898,10 @@ int zmap::load(const char *path)
         mapscr tmpimportscr;
         
         if(readmapscreen(f,&header,&tmpimportscr,&temp_map,version)==qe_invalid)
+	{
+		al_trace("failed zmap::load\n");
             goto file_error;
-            
+	}
         bool copied = false;
         
         switch(ImportMapBias)
@@ -4912,7 +4918,8 @@ bool load_pals(const char *path, int startcset)
     
     if(section_id==ID_CSETS)
     {
-        if(readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, startcset, newerpdTOTAL-startcset, true)==0)
+        //if(readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, startcset, newerpdTOTAL-startcset, true)==0)
+        if(readcolordata(f, &misc, 0x250, 33, startcset, newerpdTOTAL-startcset, true)==0)
         {
             pack_fclose(f);
             loadlvlpal(Color);
@@ -4964,7 +4971,8 @@ bool load_dmaps(const char *path, int startdmap)
     
     if(section_id==ID_DMAPS)
     {
-        if(readdmaps(f, NULL, ZELDA_VERSION, VERSION_BUILD, startdmap, MAXDMAPS-startdmap, true)==0)
+        //if(readdmaps(f, NULL, ZELDA_VERSION, VERSION_BUILD, startdmap, MAXDMAPS-startdmap, true)==0)
+        if(readdmaps(f, NULL, 0x250, 33, startdmap, MAXDMAPS-startdmap, true)==0)
         {
             pack_fclose(f);
             return true;
@@ -5017,7 +5025,8 @@ bool load_combos(const char *path, int startcombo)
     
     if(section_id==ID_COMBOS)
     {
-        if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, startcombo, MAXCOMBOS-startcombo, true)==0)
+        //if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, startcombo, MAXCOMBOS-startcombo, true)==0)
+        if(readcombos(f, NULL, 0x250, 33, startcombo, MAXCOMBOS-startcombo, true)==0)
         {
             pack_fclose(f);
             return true;
@@ -5070,7 +5079,8 @@ bool load_tiles(const char *path, int starttile)
     
     if(section_id==ID_TILES)
     {
-        if(readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, starttile, NEWMAXTILES-starttile, false, true)==0)
+        //if(readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, starttile, NEWMAXTILES-starttile, false, true)==0)
+        if(readtiles(f, newtilebuf, NULL, 0x250, 33, starttile, NEWMAXTILES-starttile, false, true)==0)
         {
             pack_fclose(f);
             return true;
@@ -6234,11 +6244,199 @@ int writeheader(PACKFILE *f, zquestheader *Header)
             new_return(19);
         }
         
-        if(!p_putc(0,f)) //why are we doing this?
+        if(!p_putc(0,f)) //why are we doing this? 
+		//this is for map count, it seems. -Z
         {
             new_return(20);
         }
-        
+	
+	//v4
+	
+	if(!p_iputl(V_ZC_FIRST,f))
+	{
+	    new_return(21);
+	}
+	if(!p_iputl(V_ZC_SECOND,f))
+	{
+	    new_return(22);
+	}
+	if(!p_iputl(V_ZC_THIRD,f))
+	{
+	    new_return(23);
+	}
+	if(!p_iputl(V_ZC_FOURTH,f))
+	{
+	    new_return(24);
+	}
+	if(!p_iputl(V_ZC_ALPHA,f))
+	{
+	    new_return(25);
+	}
+	if(!p_iputl(V_ZC_BETA,f))
+	{
+	    new_return(26);
+	}
+	if(!p_iputl(V_ZC_GAMMA,f))
+	{
+	    new_return(27);
+	}
+	if(!p_iputl(V_ZC_RELEASE,f))
+	{
+	    new_return(28);
+	}
+	if(!p_iputw(BUILDTM_YEAR,f))
+	{
+	    new_return(29);
+	}
+	if(!p_putc(BUILDTM_MONTH,f))
+	{
+	    new_return(30);
+	}
+	if(!p_putc(BUILDTM_DAY,f))
+	{
+	    new_return(31);
+	}
+	if(!p_putc(V_ZC_HOUR,f))
+	{
+	    new_return(32);
+	}
+	if(!p_putc(V_ZC_MINUTE,f))
+	{
+	    new_return(33);
+	}
+	
+	char tempsig[256];
+	memset(tempsig, 0, 256);
+	strcpy(tempsig, DEV_SIGNOFF);
+	
+	if(!pfwrite(&tempsig,256,f))
+        {
+            new_return(34);
+        }
+	
+	char tempcompilersig[256];
+	memset(tempcompilersig, 0, 256);
+	strcpy(tempcompilersig, COMPILER_NAME);
+	
+	if(!pfwrite(&tempcompilersig,256,f))
+        {
+            new_return(35);
+        }
+	
+	char tempcompilerversion[256];
+	memset(tempcompilerversion, 0, 256); 
+	#ifdef _MSC_VER
+		itoa(_MSC_VER,tempcompilerversion,10);
+	#else
+		strcpy(tempcompilerversion, COMPILER_VERSION);
+	#endif
+	
+	
+	if(!pfwrite(&tempcompilerversion,256,f))
+        {
+            new_return(36);
+        }
+	
+	char tempproductname[1024];
+	memset(tempproductname, 0, 1024);
+	strcpy(tempproductname, PROJECT_NAME);
+	
+	if(!pfwrite(&tempproductname,1024,f))
+        {
+            new_return(37);
+        }
+	
+	if(!p_putc(V_ZC_COMPILERSIG,f))
+	{
+	    new_return(38);
+	}
+	#ifdef _MSC_VER
+		if(!p_iputl((_MSC_VER / 100),f))
+		{
+		    new_return(39);
+		}
+	#else
+		if(!p_iputl(COMPILER_V_FIRST,f))
+		{
+		    new_return(39);
+		}
+	#endif
+	
+	
+
+	#ifdef _MSC_VER
+	if(!p_iputl((_MSC_VER % 100),f)) 
+	{
+	    new_return(41);
+	}
+	#else
+	if(!p_iputl(COMPILER_V_SECOND,f)) 
+	{
+	    new_return(41);
+	}
+	#endif
+	
+	#ifdef _MSC_VER
+		# if _MSC_VER >= 1400
+		if(!p_iputl((_MSC_FULL_VER % 100000),f))
+		{
+		    new_return(40);
+		}
+		# else
+		if(!p_iputl((_MSC_FULL_VER % 10000),f))
+		{
+		    new_return(40);
+		}
+		#endif
+	#else	
+	if(!p_iputl(COMPILER_V_THIRD,f))
+	{
+		    new_return(40);
+	}
+	#endif
+	
+	#ifdef _MSC_VER
+	if(!p_iputl((_MSC_BUILD),f))
+	{
+	    new_return(42);
+	}
+	#else
+	if(!p_iputl(COMPILER_V_FOURTH,f))
+	{
+	    new_return(42);
+	}
+	#endif
+	if(!p_iputw(V_ZC_DEVSIG,f))
+	{
+	    new_return(43);
+	}
+	
+	char tempmodulename[1024];
+	memset(tempmodulename, 0, 1024);
+	strcpy(tempmodulename, moduledata.module_name);
+	
+	if(!pfwrite(&tempmodulename,1024,f))
+        {
+            new_return(44);
+        }
+	
+	char tempdate[256];
+	memset(tempdate, 0, 256);
+	strcpy(tempdate, __DATE__);
+	
+	if(!pfwrite(&tempdate,256,f))
+        {
+            new_return(45);
+        }
+	char temptime[256];
+	memset(temptime, 0, 256);
+	strcpy(temptime, __TIME__);
+	
+	if(!pfwrite(&temptime,256,f))
+        {
+            new_return(46);
+        }
+	
         if(writecycle==0)
         {
             section_size=writesize;

@@ -131,7 +131,7 @@ extern FONT *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *
 		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont
 	    //#endif
 	   ;
-extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
+extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
@@ -267,6 +267,17 @@ int onResetTransparency();
 int d_vsync_proc(int msg,DIALOG *d,int c);
 int d_nbmenu_proc(int msg,DIALOG *d,int c);
 int getnumber(const char *prompt,int initialval);
+int gettilepagenumber(const char *prompt, int initialval);
+
+void savesometiles(const char *prompt,int initialval);
+void writesometiles_to(const char *prompt,int initialval);
+
+void savesomecombos(const char *prompt,int initialval);
+void writesomecombos_to(const char *prompt,int initialval);
+
+void savesomecomboaliases(const char *prompt,int initialval);
+void writesomecomboaliases_to(const char *prompt,int initialval);
+
 int gettilepagenumber(const char *prompt, int initialval);
 int gethexnumber(const char *prompt,int initialval);
 

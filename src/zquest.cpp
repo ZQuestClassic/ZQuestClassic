@@ -17,7 +17,7 @@
 #define MIDI_TRACK_BUFFER_SIZE 50
 
 #include "precompiled.h" //always first
-
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -313,7 +313,7 @@ FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *p
 		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont
 	    //#endif
 	   ;
-BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
+BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp;//*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
 itemdata *itemsbuf;
@@ -550,40 +550,96 @@ fix LinkModifiedY()
     }
 }
 
-static MENU import_menu[] =
+static MENU import_250_menu[] =
 {
-    { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
     { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&Tiles",                     onImport_Tiles,            NULL,                     0,            NULL   },
-    { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
-    { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
-    { (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
-    { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
+    
+    
+    
     { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
-    { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
+    //{ (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
-   // { (char *)"ZASM to Allegro.log",           onExport_ZASM,   NULL,                     0,            NULL   },
-   
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU export_menu[] =
+static MENU import_graphics[]=
 {
-    { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
+	{ (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Tileset (&Full)",                     onImport_Tiles,            NULL,                     0,            NULL   },
+	{ (char *)"&Tile Pack",           	    onImport_Tilepack,   NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"&Combo Pack",           	    onImport_Combopack,   NULL,                     0,            NULL   },
+    { (char *)"Combo &Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"T&ile Pack to...",           	    onImport_Tilepack_To,   NULL,                     0,            NULL   },
+    { (char *)"C&ombo Pack to...",           	    onImport_Combopack_To,   NULL,                     0,            NULL   },
+    { (char *)"Combo A&lias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU import_menu[] =
+{
+    
+    { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
+    { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
+    { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
+    { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
+    //{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    // { (char *)"ZASM Script",           onExport_ZASM,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&Graphics",                  NULL,                      import_graphics,               0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"2.50 (Broken)",                  NULL,                      import_250_menu,               0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU export_250_menu[] =
+{
+    
     { (char *)"&DMaps",                     onExport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&Tiles",                     onExport_Tiles,            NULL,                     0,            NULL   },
-    { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
-    { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
-    { (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
-    { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
-    { (char *)"Text Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
+   
     { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
     { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU export_graphics[]=
+{
+	{ (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Tileset (&Full)",                     onExport_Tiles,            NULL,                     0,            NULL   },
+	{ (char *)"&Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"&Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
+    { (char *)"Combo &Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+static MENU export_menu[] =
+{
+    
+    { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
+    { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
+    { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+       
+    { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
+    { (char *)"Text &Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
+    
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&Graphics",                  NULL,                      export_graphics,               0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
+    { (char *)"2.50 (Broken)",                  NULL,                      export_250_menu,               0,            NULL   },
+    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -953,24 +1009,25 @@ static MENU module_menu[] =
 
 static MENU etc_menu_smallmode[] =
 {
-    { (char *)"&Help",                      onHelp,                    NULL,                     0,            NULL   },
-    { (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
-    { (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
-    { (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
-    { (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
-    { (char *)"Media",        NULL,                      media_menu,               0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-   { (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
-    { (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
-    { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
-     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
-    { (char *)"ZScript",        NULL,                      zscript_menu,               0,            NULL   },
-    
-    { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ (char *)"&Help",                      onHelp,                    NULL,                     0,            NULL   },
+	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
+	{ (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
+	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
+	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
+	{ (char *)"Media",        NULL,                      media_menu,               0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
+	{ (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
+	{ (char *)"&Take ZQ Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"Take &Screen Snapshot",          onMapscrSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
+	{ (char *)"ZScript",        NULL,                      zscript_menu,               0,            NULL   },
+	
+	{ (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 MENU the_menu_large[] =
@@ -1365,6 +1422,432 @@ int getnumber(const char *prompt,int initialval)
         
     return initialval;
 }
+
+static DIALOG save_tiles_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Tile Pack", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void savesometiles(const char *prompt,int initialval)
+{
+	
+	char firsttile[8], tilecount[8];
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+	sprintf(tilecount,"%d",1);
+	//int ret;
+	
+	
+	
+	save_tiles_dlg[0].dp2 = lfont;
+	
+	sprintf(firsttile,"%d",0);
+	sprintf(tilecount,"%d",1);
+	
+	save_tiles_dlg[5].dp = firsttile;
+	save_tiles_dlg[7].dp = tilecount;
+	
+	if(is_large)
+		large_dialog(save_tiles_dlg);
+	
+	int ret = zc_popup_dialog(save_tiles_dlg,-1);
+	jwin_center_dialog(save_tiles_dlg);
+	
+	if(ret == 8)
+	{
+		first_tile_id = vbound(atoi(firsttile), 0, NEWMAXTILES);
+		the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
+		if(getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+			if(f)
+			{
+				al_trace("Saving tiles %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
+				writetilefile(f,first_tile_id,the_tile_count);
+				pack_fclose(f);
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",temppath);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+		}
+	}
+}
+
+
+static DIALOG read_tiles_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Tilepack To:", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Starting at:",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  d_dummy_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { d_dummy_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void writesometiles_to(const char *prompt,int initialval)
+{
+	
+	char firsttile[8];;
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+		//int ret;
+	
+	
+	
+	read_tiles_dlg[0].dp2 = lfont;
+	
+	sprintf(firsttile,"%d",0);
+	//sprintf(tilecount,"%d",1);
+	
+	read_tiles_dlg[5].dp = firsttile;
+	
+	if(is_large)
+		large_dialog(read_tiles_dlg);
+	
+	int ret = zc_popup_dialog(read_tiles_dlg,-1);
+	jwin_center_dialog(read_tiles_dlg);
+	
+	if(ret == 8)
+	{
+		first_tile_id = vbound(atoi(firsttile), 0, NEWMAXTILES);
+		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
+		if(getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				
+				if (!readtilefile_to_location(f,first_tile_id))
+				{
+					al_trace("Could not read from .ztile packfile %s\n", temppath);
+					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				pack_fclose(f);
+			}
+		}
+	}
+}
+
+
+static DIALOG save_combofiles_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Combo Pack", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void savesomecombos(const char *prompt,int initialval)
+{
+	
+	char firsttile[8], tilecount[8];
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+	sprintf(tilecount,"%d",1);
+	//int ret;
+	
+	
+	
+	save_combofiles_dlg[0].dp2 = lfont;
+	
+	sprintf(firsttile,"%d",0);
+	sprintf(tilecount,"%d",1);
+	
+	save_combofiles_dlg[5].dp = firsttile;
+	save_combofiles_dlg[7].dp = tilecount;
+	
+	if(is_large)
+		large_dialog(save_combofiles_dlg);
+	
+	int ret = zc_popup_dialog(save_combofiles_dlg,-1);
+	jwin_center_dialog(save_combofiles_dlg);
+	
+	if(ret == 8)
+	{
+		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOS-1));
+		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOS-1)-first_tile_id);
+		if(getname("Save ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+			if(f)
+			{
+				al_trace("Saving combos %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
+				writecombofile(f,first_tile_id,the_tile_count);
+				pack_fclose(f);
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",temppath);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+		}
+	}
+}
+
+
+static DIALOG read_combopack_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Combo Alias Pack To:", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Starting at:",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  d_dummy_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { d_dummy_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void writesomecombos_to(const char *prompt,int initialval)
+{
+	
+	char firsttile[8];;
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+		//int ret;
+	
+	
+	
+	read_combopack_dlg[0].dp2 = lfont;
+	
+	sprintf(firsttile,"%d",0);
+	//sprintf(tilecount,"%d",1);
+	
+	read_combopack_dlg[5].dp = firsttile;
+	
+	if(is_large)
+		large_dialog(read_combopack_dlg);
+	
+	int ret = zc_popup_dialog(read_combopack_dlg,-1);
+	jwin_center_dialog(read_combopack_dlg);
+	
+	if(ret == 8)
+	{
+		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOS-1));
+		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
+		if(getname("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				
+				if (!readcombofile_to_location(f,first_tile_id))
+				{
+					al_trace("Could not read from .zcombo packfile %s\n", temppath);
+					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+				pack_fclose(f);
+			}
+		}
+	}
+}
+
+
+
+static DIALOG save_comboaliasfiles_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Combo Alias Pack", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void savesomecomboaliases(const char *prompt,int initialval)
+{
+	
+	char firsttile[8], tilecount[8];
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+	sprintf(tilecount,"%d",1);
+	//int ret;
+	
+	
+	
+	save_comboaliasfiles_dlg[0].dp2 = lfont;
+	
+	sprintf(firsttile,"%d",0);
+	sprintf(tilecount,"%d",1);
+	
+	save_comboaliasfiles_dlg[5].dp = firsttile;
+	save_comboaliasfiles_dlg[7].dp = tilecount;
+	
+	if(is_large)
+		large_dialog(save_comboaliasfiles_dlg);
+	
+	int ret = zc_popup_dialog(save_comboaliasfiles_dlg,-1);
+	jwin_center_dialog(save_comboaliasfiles_dlg);
+	
+	if(ret == 8)
+	{
+		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOALIASES-1));
+		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOALIASES-1)-first_tile_id);
+		if(getname("Save ZALIAS(.zalias)", "zalias", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+			if(f)
+			{
+				al_trace("Saving combo aliasess %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
+				writecomboaliasfile(f,first_tile_id,the_tile_count);
+				pack_fclose(f);
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",temppath);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+		}
+	}
+}
+
+
+static DIALOG read_comboaliaspack_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Combo Pack To:", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Starting at:",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  d_dummy_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Count",               NULL,   NULL  },
+    { d_dummy_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void writesomecomboaliases_to(const char *prompt,int initialval)
+{
+	
+	char firsttile[8];;
+	int first_tile_id = 0; int the_tile_count = 1;
+	sprintf(firsttile,"%d",0);
+		//int ret;
+	
+	
+	
+	read_comboaliaspack_dlg[0].dp2 = lfont;
+	
+	sprintf(firsttile,"%d",0);
+	//sprintf(tilecount,"%d",1);
+	
+	read_comboaliaspack_dlg[5].dp = firsttile;
+	
+	if(is_large)
+		large_dialog(read_comboaliaspack_dlg);
+	
+	int ret = zc_popup_dialog(read_comboaliaspack_dlg,-1);
+	jwin_center_dialog(read_comboaliaspack_dlg);
+	
+	if(ret == 8)
+	{
+		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOALIASES-1));
+		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
+		if(getname("Load ZALIAS(.zalias)", "zalias", NULL,datapath,false))
+		{  
+			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+			if(f)
+			{
+				
+				if (!readcomboaliasfile_to_location(f,first_tile_id))
+				{
+					al_trace("Could not read from .zcombo packfile %s\n", temppath);
+					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZALIAS File: Success!","Loaded the source combos to your combo alias table!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					saved=false;
+				}
+				pack_fclose(f);
+			}
+		}
+	}
+}
+
 
 int gettilepagenumber(const char *prompt, int initialval)
 {
@@ -4686,7 +5169,8 @@ void refresh(int flags)
             }
 	    else
 	    {
-		safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(8));
+		if(InvalidStatic) safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(4));
+		else safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(8));
             }
 	    
 	    
@@ -10166,7 +10650,7 @@ void build_bii_list(bool usenone)
         bii[0].s = (char *)"(None)";
         bii[0].i = -2;
         bii_cnt=1;
-        start=0;
+        start=1;
     }
     
     for(int i=start; i<iMax; i++)
@@ -10342,6 +10826,278 @@ const char *weaponlist(int index, int *list_size)
     
     return biw[index].s;
 }
+int writeoneweapon(PACKFILE *f, int index)
+{
+    
+    dword section_version=V_WEAPONS;
+    dword section_cversion=CV_WEAPONS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+    int iid = biw[index].i;
+	al_trace("Writing Weapon Sprite .zwpnspr file for weapon id: %d\n", iid);
+  
+    //section version info
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+    
+	//weapon string
+	
+	if(!pfwrite((char *)weapon_string[iid], 64, f))
+	{
+                return 0;
+	}
+	//section data
+	if(!p_iputw(wpnsbuf[iid].tile,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(wpnsbuf[iid].misc,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(wpnsbuf[iid].csets,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(wpnsbuf[iid].frames,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(wpnsbuf[iid].speed,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(wpnsbuf[iid].type,f))
+            {
+                return 0;
+            }
+	    
+	    if(!p_iputw(wpnsbuf[iid].script,f))
+            {
+                return 0;
+            }
+	    
+	    //2.55 starts here
+	    if(!p_iputl(wpnsbuf[iid].newtile,f))
+            {
+                return 0;
+            }
+
+	
+	return 1;
+}
+
+
+int readoneweapon(PACKFILE *f, int index)
+{
+	dword section_version = 0;
+	dword section_cversion = 0;
+	int zversion = 0;
+	int zbuild = 0;
+	wpndata tempwpnspr;
+	memset(&tempwpnspr, 0, sizeof(wpndata));
+     
+   
+	//char dmapstring[64]={0};
+	//section version info
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zwpnspr packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_WEAPONS ) || ( section_version == V_WEAPONS && section_cversion < CV_WEAPONS ) )
+	{
+		al_trace("Cannot read .zwpnspr packfile made using V_WEAPONS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zwpnspr packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+    
+	
+    
+	char tmp_wpn_name[64];
+	memset(tmp_wpn_name,0,64);
+	if(!pfread(&tmp_wpn_name, 64, f,true))
+	{
+		return 0;
+	}
+	
+	if(!p_igetw(&tempwpnspr.tile,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempwpnspr.misc,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempwpnspr.csets,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempwpnspr.frames,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempwpnspr.speed,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempwpnspr.type,f,true))
+            {
+                return 0;
+            }
+	    
+	    if(!p_igetw(&tempwpnspr.script,f,true))
+            {
+                return 0;
+            }
+	    
+	    
+	    
+	    //2.55 starts here
+	    if ( zversion >= 0x255 )
+	    {
+			if  ( section_version >= 7 )
+			{
+				if(!p_igetl(&tempwpnspr.newtile,f,true))
+				{
+					return 0;
+				}
+			}
+	    }
+	    if ( zversion < 0x255 ) 
+	    {
+		    tempwpnspr.newtile = tempwpnspr.tile;
+	    }
+	::memcpy( &(wpnsbuf[biw[index].i]),&tempwpnspr, sizeof(wpndata));
+	::memcpy(weapon_string[biw[index].i], tmp_wpn_name, 64);
+       
+	return 1;
+}
+
+
+static wpndata copiedSprite;
+static byte spritecopied = 0;
+char temp_weapon_string[64] = {0};
+static MENU wpnsprite_rclick_menu[] =
+{
+    { (char *)"Copy",  NULL, NULL, 0, NULL },
+    { (char *)"Paste", NULL, NULL, 0, NULL },
+    { (char *)"Save", NULL, NULL, 0, NULL },
+    { (char *)"Load", NULL, NULL, 0, NULL },
+    { NULL,            NULL, NULL, 0, NULL }
+};
+
+void wpnsprite_rclick_func(int index, int x, int y)
+{
+    if(((unsigned)index)>255)
+        return;
+    int ret=popup_menu(wpnsprite_rclick_menu, x, y);
+    if(ret==0) // copy
+    {
+	//::memcpy(&copiedSprite, &biw[biw[index].i], sizeof(wpndata));
+	::memcpy(&copiedSprite, &(wpnsbuf[biw[index].i]), sizeof(wpndata));
+	memset(temp_weapon_string,0,64);
+	::memcpy(temp_weapon_string, weapon_string[biw[index].i], 64);
+	al_trace("biw[index].i is: %d\n", biw[index].i);
+	al_trace("biw[index] is: %d\n", biw[index]);
+	spritecopied = 1;
+    }
+    else if(ret==1) // paste
+    {
+	::memcpy( &(wpnsbuf[biw[index].i]),&copiedSprite, sizeof(wpndata));
+	::memcpy(weapon_string[biw[index].i], temp_weapon_string, 64);
+	//build_biw_list(); //Doing this resorts the list too soon
+	//::memcpy(&biw[index], &copiedSprite, sizeof(wpndata));
+        wlist_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+    else if(ret==2) // save
+    {
+	if(!getname("Save ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
+                return;
+	
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	/*if (!writeoneitem(f,iid))
+	{
+		al_trace("Could not write to .znpc packfile %s\n", temppath);
+	}
+	*/
+	writeoneweapon(f,index);
+	pack_fclose(f);
+     
+        
+    }
+    else if(ret==3) // load
+    {
+	if(!getname("Load ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
+                return;
+	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(!f) return;
+	
+	if (!readoneweapon(f,index))
+	{
+		al_trace("Could not read from .zwpnspr packfile %s\n", temppath);
+		jwin_alert("ZWPNSPR File: Error","Could not load the specified weapon sprite.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	
+	pack_fclose(f);
+        //itemsbuf[bie[index].i]=itemsbuf[copiedItem];
+        wlist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
+        saved=false;
+    }
+}
+
 
 int select_weapon(const char *prompt,int weapon)
 {
@@ -10363,6 +11119,8 @@ int select_weapon(const char *prompt,int weapon)
     wlist_dlg[2].d1=index;
     ListData weapon_list(weaponlist, &font);
     wlist_dlg[2].dp=(void *) &weapon_list;
+    wlist_dlg[2].dp3 = (void *)&wpnsprite_rclick_func;
+    wlist_dlg[2].flags|=(D_USER<<1);
     
     if(is_large)
         large_dialog(wlist_dlg);
@@ -12120,6 +12878,7 @@ int onDecScrPal()
     c=c%512;
     Map.setcolor(c);
     refresh(rALL);
+	saved = false;
     return D_O_K;
 }
 
@@ -12131,6 +12890,7 @@ int onIncScrPal()
     c=c%512;
     Map.setcolor(c);
     refresh(rALL);
+	saved = false;
     return D_O_K;
 }
 
@@ -12153,6 +12913,7 @@ int onDecScrPal16()
      
     Map.setcolor(c);
     refresh(rALL);
+	saved = false;
     return D_O_K;
 }
 
@@ -12164,6 +12925,7 @@ int onIncScrPal16()
     c = PalWrap( ( c+0x10 ), 0, 511 );
     Map.setcolor(c);
     refresh(rALL);
+	saved = false;
     return D_O_K;
 }
 
@@ -14031,7 +14793,7 @@ void editdmap(int index)
 	DMaps[index].passive_sub_script = bidmaps[editdmap_dlg[167].d1].second + 1;
 	
 	//for ( int q = 0; q < 8; ++q )
-	// {
+	//{
 	//	strcpy(initd_labels[q], editdmap_dlg[130+q].dp);
 	//}
 	
@@ -14067,19 +14829,594 @@ static DIALOG selectdmap_dlg[] =
     { NULL,                0,    0,    0,    0,    0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
+static dmap copiedDMap;
+static byte dmapcopied = 0;
+
+int writeonedmap(PACKFILE *f, int i)
+{
+    
+    dword section_version=V_DMAPS;
+    dword section_cversion=CV_DMAPS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+    
+  
+    //section version info
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+    
+   
+        
+            if(!p_putc(DMaps[i].map,f))
+            {
+                new_return(6);
+            }
+            
+            if(!p_iputw(DMaps[i].level,f))
+            {
+                new_return(7);
+            }
+            
+            if(!p_putc(DMaps[i].xoff,f))
+            {
+                new_return(8);
+            }
+            
+            if(!p_putc(DMaps[i].compass,f))
+            {
+                new_return(9);
+            }
+            
+            if(!p_iputw(DMaps[i].color,f))
+            {
+                new_return(10);
+            }
+            
+            if(!p_putc(DMaps[i].midi,f))
+            {
+                new_return(11);
+            }
+            
+            if(!p_putc(DMaps[i].cont,f))
+            {
+                new_return(12);
+            }
+            
+            if(!p_putc(DMaps[i].type,f))
+            {
+                new_return(13);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_putc(DMaps[i].grid[j],f))
+                {
+                    new_return(14);
+                }
+            }
+            
+            //16
+            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
+            {
+                new_return(15);
+            }
+            
+            if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
+            {
+                new_return(16);
+            }
+            
+            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
+            {
+                new_return(17);
+            }
+            
+            if(!p_iputl(DMaps[i].minimap_1_tile,f))
+            {
+                new_return(18);
+            }
+            
+            if(!p_putc(DMaps[i].minimap_1_cset,f))
+            {
+                new_return(19);
+            }
+            
+            if(!p_iputl(DMaps[i].minimap_2_tile,f))
+            {
+                new_return(20);
+            }
+            
+            if(!p_putc(DMaps[i].minimap_2_cset,f))
+            {
+                new_return(21);
+            }
+            
+            if(!p_iputl(DMaps[i].largemap_1_tile,f))
+            {
+                new_return(22);
+            }
+            
+            if(!p_putc(DMaps[i].largemap_1_cset,f))
+            {
+                new_return(23);
+            }
+            
+            if(!p_iputl(DMaps[i].largemap_2_tile,f))
+            {
+                new_return(24);
+            }
+            
+            if(!p_putc(DMaps[i].largemap_2_cset,f))
+            {
+                new_return(25);
+            }
+            
+            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
+            {
+                new_return(26);
+            }
+            
+            if(!p_putc(DMaps[i].tmusictrack,f))
+            {
+                new_return(25);
+            }
+            
+            if(!p_putc(DMaps[i].active_subscreen,f))
+            {
+                new_return(26);
+            }
+            
+            if(!p_putc(DMaps[i].passive_subscreen,f))
+            {
+                new_return(27);
+            }
+            
+            byte disabled[32];
+            memset(disabled,0,32);
+            
+            for(int j=0; j<MAXITEMS; j++)
+            {
+                if(DMaps[i].disableditems[j])
+                {
+                    disabled[j/8] |= (1 << (j%8));
+                }
+            }
+            
+            if(!pfwrite(disabled,32,f))
+            {
+                new_return(28);
+            }
+            
+            if(!p_iputl(DMaps[i].flags,f))
+            {
+                new_return(29);
+            }
+	    if(!p_putc(DMaps[i].sideview,f))
+            {
+                new_return(30);
+            }
+	    if(!p_iputw(DMaps[i].script,f))
+            {
+                new_return(31);
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(DMaps[i].initD[q],f))
+	        {
+			new_return(32);
+		}
+		    
+	    }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		    for ( int w = 0; w < 65; w++ )
+		    {
+			if (!p_putc(DMaps[i].initD_label[q][w],f))
+			{
+				new_return(33);
+			}
+		}
+	    }
+		if(!p_iputw(DMaps[i].active_sub_script,f))
+		{
+			new_return(34);
+		}
+		if(!p_iputw(DMaps[i].passive_sub_script,f))
+		{
+			new_return(35);
+		}
+		for(int q = 0; q < 8; ++q)
+		{
+			if(!p_iputl(DMaps[i].sub_initD[q],f))
+			{
+				new_return(36);
+			}
+		}
+		for(int q = 0; q < 8; ++q)
+		{
+			for(int w = 0; w < 65; ++w)
+			{
+				if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
+				{
+					new_return(37);
+				}
+			}
+		}
+
+
+
+	return 1;
+}
+
+int readonedmap(PACKFILE *f, int index)
+{
+	dword section_version = 0;
+	dword section_cversion = 0;
+	int zversion = 0;
+	int zbuild = 0;
+	dmap tempdmap;
+	memset(&tempdmap, 0, sizeof(dmap));
+     
+   
+	//char dmapstring[64]={0};
+	//section version info
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readonedmap section_version: %d\n", section_version);
+	al_trace("readonedmap section_cversion: %d\n", section_cversion);
+    
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	else if (( section_version > V_DMAPS ) || ( section_version == V_DMAPS && section_cversion > CV_DMAPS ) ) 
+	{
+		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+	}
+	else
+	{
+		al_trace("Reading a .zdmap packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+   
+	//if(!pfread(&dmapstring, 64, f,true))
+	//{
+	//	return 0;
+	//}
+    
+    
+   
+        
+            if(!p_getc(&tempdmap.map,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetw(&tempdmap.level,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.xoff,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.compass,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetw(&tempdmap.color,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.midi,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.cont,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.type,f,true))
+            {
+                return 0;
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_getc(&tempdmap.grid[j],f,true))
+                {
+                    return 0;
+		}
+            }
+            
+            //16
+            if(!pfread(&tempdmap.name,sizeof(DMaps[0].name),f,true))
+            {
+                return 0;
+            }
+            
+            if(!pfread(&tempdmap.title,sizeof(DMaps[0].title),f,true))
+            {
+                return 0;
+            }
+            
+            if(!pfread(&tempdmap.intro,sizeof(DMaps[0].intro),f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempdmap.minimap_1_tile,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.minimap_1_cset,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempdmap.minimap_2_tile,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.minimap_2_cset,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempdmap.largemap_1_tile,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.largemap_1_cset,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_igetl(&tempdmap.largemap_2_tile,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.largemap_2_cset,f,true))
+            {
+                return 0;
+            }
+            
+            if(!pfread(&tempdmap.tmusic,sizeof(DMaps[0].tmusic),f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.tmusictrack,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.active_subscreen,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&tempdmap.passive_subscreen,f,true))
+            {
+                return 0;
+            }
+            
+            byte disabled[32];
+	    memset(disabled,0,32);
+            
+            if(!pfread(&disabled, 32, f, true)) return 0;
+            
+            for(int j=0; j<MAXITEMS; j++)
+            {
+                if(disabled[j/8] & (1 << (j%8))) tempdmap.disableditems[j]=1;
+                else tempdmap.disableditems[j]=0;
+            }
+	    
+            
+            if(!p_igetl(&tempdmap.flags,f,true))
+            {
+                return 0;
+            }
+	if ( zversion >= 0x255 )
+	{
+		if  ( section_version >= 14 )
+		{
+		    //2.55 starts here
+		    if(!p_getc(&tempdmap.sideview,f,true))
+		    {
+			return 0;
+		    }
+		    if(!p_igetw(&tempdmap.script,f,true))
+		    {
+			return 0;
+		    }
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			if(!p_igetl(&tempdmap.initD[q],f,true))
+			{
+				return 0;
+		    }
+			    
+		    }
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			    for ( int w = 0; w < 65; w++ )
+			    {
+				if (!p_getc(&tempdmap.initD_label[q][w],f,true))
+				{
+					return 0;
+				}
+			}
+		    }
+			if(!p_igetw(&tempdmap.active_sub_script,f,true))
+			{
+				return 0;
+			}
+			if(!p_igetw(&tempdmap.passive_sub_script,f,true))
+			{
+				return 0;
+			}
+			for(int q = 0; q < 8; ++q)
+			{
+				if(!p_igetl(&tempdmap.sub_initD[q],f,true))
+				{
+					return 0;
+				}
+			}	
+			for(int q = 0; q < 8; ++q)
+			{
+				for(int w = 0; w < 65; ++w)
+				{
+					if(!p_getc(&tempdmap.sub_initD_label[q][w],f,true))
+					{
+						return 0;
+					}
+				}
+			}
+		}
+	}
+	::memcpy(&DMaps[index], &tempdmap, sizeof(dmap));
+       
+	return 1;
+}
+
+
+
+
+
+static MENU dmap_rclick_menu[] =
+{
+    { (char *)"Copy",  NULL, NULL, 0, NULL },
+    { (char *)"Paste", NULL, NULL, 0, NULL },
+    { (char *)"Save", NULL, NULL, 0, NULL },
+    { (char *)"Load", NULL, NULL, 0, NULL },
+    { NULL,            NULL, NULL, 0, NULL }
+};
+
+void dmap_rclick_func(int index, int x, int y)
+{
+    if(((unsigned)index)>MAXDMAPS)
+        return;
+    
+    if(!dmapcopied)
+        dmap_rclick_menu[1].flags|=D_DISABLED;
+    else
+        dmap_rclick_menu[1].flags&=~D_DISABLED;
+    
+    int ret=popup_menu(dmap_rclick_menu, x, y);
+    
+    if(ret==0) // copy
+    {
+	::memcpy(&copiedDMap, &DMaps[index], sizeof(dmap));
+	dmapcopied = 1;
+    }
+    else if(ret==1) // paste
+    {
+	::memcpy(&DMaps[index], &copiedDMap, sizeof(dmap));
+        selectdmap_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+    else if(ret==2) // save
+    {
+	if(!getname("Save DMAP(.zdmap)", "zdmap", NULL,datapath,false))
+                return;
+	
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	/*if (!writeoneitem(f,iid))
+	{
+		al_trace("Could not write to .znpc packfile %s\n", temppath);
+	}
+	*/
+	writeonedmap(f,index);
+	pack_fclose(f);
+     
+        
+    }
+	else if(ret==3) // load
+	{
+
+		if(!getname("Load DMAP(.zdmap)", "zdmap", NULL,datapath,false))
+					return;
+		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+		if(!f) return;
+		
+		if (!readonedmap(f,index))
+		{
+			al_trace("Could not read from .zdmap packfile %s\n", temppath);
+			jwin_alert("ZDMAP File: Error","Could not load the specified DMap.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		
+		pack_fclose(f);
+		//itemsbuf[bie[index].i]=itemsbuf[copiedItem];
+		selectdmap_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
+		saved=false;
+	}
+}
+
+
 int onDmaps()
 {
     int ret;
     char buf[40];
+    dmapcopied = 0;
     dmap_list_size=MAXDMAPS;
     number_list_zero=true;
     selectdmap_dlg[0].dp2=lfont;
+    selectdmap_dlg[2].dp3 = (void *)&dmap_rclick_func;
+    selectdmap_dlg[2].flags|=(D_USER<<1);
     
     if(is_large)
         large_dialog(selectdmap_dlg);
-        
+    
+    
+    
     ret=zc_popup_dialog(selectdmap_dlg,2);
     dmap* pSelectedDmap = 0;
+    
+    
     
     while(ret!=4&&ret!=0)
     {
@@ -17136,7 +18473,7 @@ void build_bie_list(bool hide)
         }
     }
     
-    for(int i=0; i<bie_cnt-1; i++)
+    for(int i=1; i<bie_cnt-1; i++) //Start at 1 so '(None)' isn't alphabetized!
     {
         for(int j=i+1; j<bie_cnt; j++)
         {
@@ -17164,7 +18501,7 @@ void build_big_list(bool hide)
         }
     }
     
-    for(int i=0; i<big_cnt-1; i++)
+    for(int i=1; i<big_cnt-1; i++) //start at 1, so that the none value is not alphabetized.
     {
         for(int j=i+1; j<big_cnt; j++)
         {
@@ -26681,7 +28018,10 @@ void destroy_bitmaps_on_exit()
     show_mouse(NULL);
     
     for(int i=0; i<MOUSE_BMP_MAX*4; i++)
+	{
         destroy_bitmap(mouse_bmp[i/4][i%4]);
+        destroy_bitmap(mouse_bmp_1x[i/4][i%4]);
+	}
         
     for(int i=0; i<ICON_BMP_MAX*4; i++)
         destroy_bitmap(icon_bmp[i/4][i%4]);

@@ -40,6 +40,10 @@ extern zcmodule moduledata;
 #define stricmp _stricmp
 #endif
 
+#define HIDE_USED (show_only_unused_tiles&1)
+#define HIDE_UNUSED (show_only_unused_tiles&2)
+#define HIDE_BLANK (show_only_unused_tiles&4)
+#define HIDE_8BIT_MARKER (show_only_unused_tiles&8)
 
 extern void large_dialog(DIALOG *d);
 static void massRecolorReset4Bit();
@@ -1314,7 +1318,7 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
         int rows=(MOUSE_BMP_BLANK-MOUSE_BMP_SWORD+2)/tool_buttons_columns;
         int row=(i-MOUSE_BMP_SWORD)-(column*rows);
         jwin_draw_button(screen2,tool_buttons_left+(column*23),tool_buttons_top+(row*23),22,22,tool==(i-MOUSE_BMP_SWORD)?2:0,0);
-        masked_blit(mouse_bmp[i][0],screen2,0,0,tool_buttons_left+(column*23)+3+(tool==(i-MOUSE_BMP_SWORD)?1:0),tool_buttons_top+3+(row*23)+(tool==(i-MOUSE_BMP_SWORD)?1:0),16,16);
+        masked_blit(mouse_bmp_1x[i][0],screen2,0,0,tool_buttons_left+(column*23)+3+(tool==(i-MOUSE_BMP_SWORD)?1:0),tool_buttons_top+3+(row*23)+(tool==(i-MOUSE_BMP_SWORD)?1:0),16,16);
     }
     
     //coordinates
@@ -4848,16 +4852,19 @@ bool tile_is_used(int tile)
 {
     return used_tile_table[tile];
 }
-
 void draw_tiles(int first,int cs, int f)
 {
-    clear_bitmap(screen2);
+	draw_tiles(screen2, first, cs, f, is_large);
+}
+void draw_tiles(BITMAP* dest,int first,int cs, int f, bool large, bool true_empty)
+{
+    clear_bitmap(dest);
     BITMAP *buf = create_bitmap_ex(8,16,16);
     
     int w = 16;
     int h = 16;
     
-    if(is_large)
+    if(large)
     {
         w *=2;
         h *=2;
@@ -4869,7 +4876,7 @@ void draw_tiles(int first,int cs, int f)
         int y = (i/TILES_PER_ROW)<<4;
         int l = 16;
         
-        if(is_large)
+        if(large)
         {
             x*=2;
             y*=2;
@@ -4878,36 +4885,39 @@ void draw_tiles(int first,int cs, int f)
         
         l-=2;
         
-        if(((show_only_unused_tiles&1)&&tile_is_used(first+i)&&!blank_tile_table[first+i])   // 1 bit: hide used
-                || ((show_only_unused_tiles&2)&&!tile_is_used(first+i)&&!blank_tile_table[first+i]) // 2 bit: hide unused
-                || ((show_only_unused_tiles&4)&&blank_tile_table[first+i]))	// 4 bit: hide blank
+        if((HIDE_USED && tile_is_used(first+i) && !blank_tile_table[first+i])   // 1 bit: hide used
+                || (HIDE_UNUSED && !tile_is_used(first+i) && !blank_tile_table[first+i]) // 2 bit: hide unused
+                || (HIDE_BLANK && blank_tile_table[first+i]))	// 4 bit: hide blank
         {
-            if(InvalidStatic)
-            {
-                for(int dy=0; dy<=l+1; dy++)
-                {
-                    for(int dx=0; dx<=l+1; dx++)
-                    {
-                        screen2->line[dy+(y)][dx+(x)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
-                    }
-                }
-            }
-            else
-            {
-                rect(screen2, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
-                line(screen2, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
-                line(screen2, (x)+1,(y)+l, (x)+l, (y)+1,  vc(15));
-            }
+			if(!true_empty) //Use pure color 0; no effects
+			{
+				if(InvalidStatic)
+				{
+					for(int dy=0; dy<=l+1; dy++)
+					{
+						for(int dx=0; dx<=l+1; dx++)
+						{
+							dest->line[dy+(y)][dx+(x)]=vc((((rand()%100)/50)?0:8)+(((rand()%100)/50)?0:7));
+						}
+					}
+				}
+				else
+				{
+					rect(dest, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
+					line(dest, (x)+1,(y)+1, (x)+l, (y)+l, vc(15));
+					line(dest, (x)+1,(y)+l, (x)+l, (y)+1,  vc(15));
+				}
+			}
         }
         else
         {
             puttile16(buf,first+i,0,0,cs,0);
-            stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
+            stretch_blit(buf,dest,0,0,16,16,x,y,w,h);
         }
         
-        if((f%32)<=16 && is_large && newtilebuf[first+i].format==tf8Bit)
+        if((f%32)<=16 && large && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
         {
-            textprintf_ex(screen2,z3smallfont,(x)+l-3,(y)+l-3,vc(int((f%32)/6)+10),-1,"8");
+            textprintf_ex(dest,z3smallfont,(x)+l-3,(y)+l-3,vc(int((f%32)/6)+10),-1,"8");
         }
     }
     
@@ -5187,12 +5197,18 @@ int hide_blank()
     show_only_unused_tiles ^= 4;
     return D_O_K;
 }
+int hide_8bit_marker()
+{
+	show_only_unused_tiles ^= 8;
+	return D_O_K;
+}
 
 static MENU select_tile_view_menu[] =
 {
     { (char *)"Hide Used",   hide_used,   NULL, 0, NULL },
     { (char *)"Hide Unused", hide_unused,   NULL, 0, NULL },
     { (char *)"Hide Blank",  hide_blank,   NULL, 0, NULL },
+    { (char *)"Hide 8-bit marker",  hide_8bit_marker,   NULL, 0, NULL },
     { NULL,                  NULL,  NULL, 0, NULL }
 };
 
@@ -8187,6 +8203,360 @@ void do_convert_tile(int tile, int tile2, int cs, bool rect_sel, bool fourbit, b
     }
 }
 
+
+int readtilefile(PACKFILE *f)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	{
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	byte *temp_tile = new byte[tilesize(tf32Bit)];
+	byte format=tf4Bit;
+	memset(temp_tile, 0, tilesize(tf32Bit));
+
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+		memset(temp_tile, 0, tilesize(tf32Bit));
+		if(!p_getc(&format,f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+
+			    
+		if(!pfread(temp_tile,tilesize(format),f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+			    
+		reset_tile(newtilebuf, index+(tilect-1), format);
+		memcpy(newtilebuf[index+(tilect-1)].data,temp_tile,tilesize(newtilebuf[index+(tilect-1)].format));
+	}
+	delete[] temp_tile;
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+	register_blank_tiles();
+	register_used_tiles();
+            
+	return 1;
+	
+}
+
+int readtilefile_to_location(PACKFILE *f, int start, int skip)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	{
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	byte *temp_tile = new byte[tilesize(tf32Bit)];
+	byte format=tf4Bit;
+	memset(temp_tile, 0, tilesize(tf32Bit));
+
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+		memset(temp_tile, 0, tilesize(tf32Bit));
+		if(!p_getc(&format,f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+
+			    
+		if(!pfread(temp_tile,tilesize(format),f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+			    
+		reset_tile(newtilebuf, start+(tilect-1), format);
+		if ( skip )
+		{
+			if ( (start+(tilect-1)) < skip ) goto skip_tile_memcpy;
+			
+		}
+		if ( start+(tilect-1) < NEWMAXTILES )
+		{
+			memcpy(newtilebuf[start+(tilect-1)].data,temp_tile,tilesize(newtilebuf[start+(tilect-1)].format));
+		}
+		
+	}
+	skip_tile_memcpy:
+	delete[] temp_tile;
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+	register_blank_tiles();
+	register_used_tiles();
+            
+	return 1;
+	
+}
+
+
+int readtilefile_to_location(PACKFILE *f, int start)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
+	{
+		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	byte *temp_tile = new byte[tilesize(tf32Bit)];
+	byte format=tf4Bit;
+	memset(temp_tile, 0, tilesize(tf32Bit));
+
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+		memset(temp_tile, 0, tilesize(tf32Bit));
+		if(!p_getc(&format,f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+
+			    
+		if(!pfread(temp_tile,tilesize(format),f,true))
+		{
+			delete[] temp_tile;
+			return 0;
+		}
+			    
+		reset_tile(newtilebuf, start+(tilect-1), format);
+		if ( start+(tilect-1) < NEWMAXTILES )
+		{
+			memcpy(newtilebuf[start+(tilect-1)].data,temp_tile,tilesize(newtilebuf[start+(tilect-1)].format));
+		}
+	}
+	delete[] temp_tile;
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+	register_blank_tiles();
+	register_used_tiles();
+            
+	return 1;
+	
+}
+int writetilefile(PACKFILE *f, int index, int count)
+{
+	dword section_version=V_TILES;
+	dword section_cversion=CV_TILES;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	
+	//start tile id
+	if(!p_iputl(index,f))
+	{
+		return 0;
+	}
+	
+	//count
+	if(!p_iputl(count,f))
+	{
+		return 0;
+	}
+	
+	for ( int tilect = 0; tilect <= count; tilect++ )
+	{
+	
+		if(!p_putc(newtilebuf[index+(tilect-1)].format,f))
+		{
+			return 0;
+		}
+		    
+		if(!pfwrite(newtilebuf[index+(tilect-1)].data,tilesize(newtilebuf[index+(tilect-1)].format),f))
+		{
+			return 0;
+		}
+	}
+	
+	return 1;
+	
+}
+
 int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, bool always_use_flip)
 {
     reset_combo_animations();
@@ -8346,7 +8716,45 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 redraw=true;
                 break;
             }
-            
+	    case KEY_Z:
+	    {
+		    onSnapshot();
+		    break;
+	    }
+            case KEY_S:
+	    {
+		if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+			break;   
+		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+		if(!f) break;
+		al_trace("Saving tile: %d\n", tile);
+		writetilefile(f,tile,1);
+		pack_fclose(f);
+		break;
+	    }
+	    case KEY_L:
+	    {
+		if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+			break;   
+		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+		if(!f) break;
+		al_trace("Saving tile: %d\n", tile);
+		if (!readtilefile(f))
+		{
+			al_trace("Could not read from .ztile packfile %s\n", temppath);
+			jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	
+		pack_fclose(f);
+		//register_blank_tiles();
+		//register_used_tiles();
+		redraw=true;
+		break;
+	    }
             case KEY_MINUS:
             case KEY_MINUS_PAD:
             {
@@ -8980,7 +9388,8 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
             {
                 if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                 {
-                    show_only_unused_tiles=(show_only_unused_tiles+1)%4;
+					//Only toggle the first 2 bits!
+                    show_only_unused_tiles = (show_only_unused_tiles&~3) | (((show_only_unused_tiles&3)+1)%4);
                 }
                 else
                 {
@@ -8990,6 +9399,11 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                 redraw=true;
             }
             break;
+			
+			case KEY_8:
+			case KEY_8_PAD:
+				hide_8bit_marker();
+				break;
             
             case KEY_M:
 		    //al_trace("mass combo key pressed, type == %d\n",type);
@@ -9241,8 +9655,8 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                         PALETTE temppal;
                         get_palette(temppal);
                         BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-                        stretch_blit(screen2,tempbmp,0,0,16*(is_large+1)*TILES_PER_ROW,16*(is_large+1)*TILE_ROWS_PER_PAGE,0,0,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-                        save_bitmap(temppath, tempbmp, temppal);
+						draw_tiles(tempbmp,first,cs,f,false,true);
+                        save_bitmap(temppath, tempbmp, RAMpal);
                         destroy_bitmap(tempbmp);
                     }
                 }
@@ -9370,9 +9784,10 @@ REDRAW:
         {
             select_tile_rc_menu[1].flags = (copy==-1) ? D_DISABLED : 0;
             select_tile_rc_menu[2].flags = (copy==-1) ? D_DISABLED : 0;
-            select_tile_view_menu[0].flags = show_only_unused_tiles&1 ? D_SELECTED : 0;
-            select_tile_view_menu[1].flags = show_only_unused_tiles&2 ? D_SELECTED : 0;
-            select_tile_view_menu[2].flags = show_only_unused_tiles&4 ? D_SELECTED : 0;
+            select_tile_view_menu[0].flags = HIDE_USED ? D_SELECTED : 0;
+            select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
+            select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
+            select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
             int m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
             redraw=true;
             
@@ -12570,3 +12985,926 @@ void center_zq_tiles_dialogs()
     jwin_center_dialog(recolor_4bit_dlg);
     jwin_center_dialog(recolor_8bit_dlg);
 }
+
+//.ZCOMBO
+
+int readcombofile(PACKFILE *f)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zcombo packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOS ) || ( section_version == V_COMBOS && section_cversion > CV_COMBOS ) )
+	{
+		al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zcombo packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: count(%d)\n", count);
+	
+	newcombo temp_combo;
+	memset(&temp_combo, 0, sizeof(newcombo));
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		memset(&temp_combo, 0, sizeof(newcombo));
+		if(!p_igetw(&temp_combo.tile,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flip,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.walk,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.type,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.csets,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.frames,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.speed,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nextcombo,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.nextcset,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flag,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanim,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nexttimer,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanimy,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.animflags,f,true))
+		{
+			return 0;
+		}
+		
+		//2.55 starts here
+		if ( zversion >= 0x255 )
+		{
+			if  ( section_version >= 12 )
+			{
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if(!p_igetl(&temp_combo.attributes[q],f,true))
+					{
+						return 0;
+					}
+				}
+				if(!p_igetl(&temp_combo.usrflags,f,true))
+				{
+						return 0;
+				}	 
+				for ( int q = 0; q < 3; q++ ) 
+				{
+					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+					{
+						return 0;
+					}
+				}
+				   
+				if(!p_igetl(&temp_combo.triggerlevel,f,true))
+				{
+						return 0;
+				}	
+				for ( int q = 0; q < 11; q++ ) 
+				{
+					if(!p_getc(&temp_combo.label[q],f,true))
+					{
+						return 0;
+					}
+				}
+			}
+		}
+				
+		memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
+	}
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+
+
+int readcombofile_to_location(PACKFILE *f, int start)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readcombofile_to_location section_version: %d\n", section_version);
+	al_trace("readcombofile_to_location section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zcombo packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOS ) || ( section_version == V_COMBOS && section_cversion > CV_COMBOS ) )
+	{
+		al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zcombo packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	newcombo temp_combo;
+	memset(&temp_combo, 0, sizeof(newcombo)); 
+	
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		memset(&temp_combo, 0, sizeof(newcombo));
+		if(!p_igetw(&temp_combo.tile,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flip,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.walk,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.type,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.csets,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.frames,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.speed,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nextcombo,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.nextcset,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.flag,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanim,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_igetw(&temp_combo.nexttimer,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.skipanimy,f,true))
+		{
+			return 0;
+		}
+            
+		if(!p_getc(&temp_combo.animflags,f,true))
+		{
+			return 0;
+		}
+		
+		//2.55 starts here
+		if ( zversion >= 0x255 )
+		{
+			if  ( section_version >= 12 )
+			{
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if(!p_igetl(&temp_combo.attributes[q],f,true))
+					{
+						return 0;
+					}
+				}
+				if(!p_igetl(&temp_combo.usrflags,f,true))
+				{
+						return 0;
+				}	 
+				for ( int q = 0; q < 3; q++ ) 
+				{
+					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+					{
+						return 0;
+					}
+				}
+				   
+				if(!p_igetl(&temp_combo.triggerlevel,f,true))
+				{
+						return 0;
+				}	
+				for ( int q = 0; q < 11; q++ ) 
+				{
+					if(!p_getc(&temp_combo.label[q],f,true))
+					{
+						return 0;
+					}
+				}
+			}
+		}
+		
+		if ( start+(tilect-1) < MAXCOMBOS )
+		{
+			memcpy(&combobuf[start+(tilect)],&temp_combo,sizeof(newcombo));
+		}
+	}
+	
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+int writecombofile(PACKFILE *f, int index, int count)
+{
+	dword section_version=V_COMBOS;
+	dword section_cversion=CV_COMBOS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	
+	//start tile id
+	if(!p_iputl(index,f))
+	{
+		return 0;
+	}
+	
+	//count
+	if(!p_iputl(count,f))
+	{
+		return 0;
+	}
+	
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+	
+		if(!p_iputw(combobuf[index+(tilect)].tile,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].flip,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].walk,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].type,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].csets,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].frames,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].speed,f))
+		{
+			return 0;
+		}
+            
+		if(!p_iputw(combobuf[index+(tilect)].nextcombo,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].nextcset,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].flag,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].skipanim,f))
+		{
+			return 0;
+		}
+            
+		if(!p_iputw(combobuf[index+(tilect)].nexttimer,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].skipanimy,f))
+		{
+			return 0;
+		}
+            
+		if(!p_putc(combobuf[index+(tilect)].animflags,f))
+		{
+			return 0;
+		}
+		
+		//2.55 starts here
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		{
+			if(!p_iputl(combobuf[index+(tilect)].attributes[q],f))
+			{
+				return 0;
+			}
+		}
+		if(!p_iputl(combobuf[index+(tilect)].usrflags,f))
+		{
+				return 0;
+		}	 
+		for ( int q = 0; q < 3; q++ ) 
+		{
+			if(!p_iputl(combobuf[index+(tilect)].triggerflags[q],f))
+			{
+				return 0;
+			}
+		}
+		   
+		if(!p_iputl(combobuf[index+(tilect)].triggerlevel,f))
+		{
+				return 0;
+		}	
+		for ( int q = 0; q < 11; q++ ) 
+		{
+			if(!p_putc(combobuf[index+(tilect)].label[q],f))
+			{
+				return 0;
+			}
+		}
+	}
+	
+	
+	return 1;
+	
+}
+
+//.ZALIAS
+
+
+//.ZALIAS
+
+int readcomboaliasfile(PACKFILE *f)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	word tempword = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readoneweapon section_version: %d\n", section_version);
+	al_trace("readoneweapon section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
+	{
+		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zalias packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	int count2 = 0;
+	byte tempcset = 0;
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading combo: count(%d)\n", count);
+	
+	combo_alias temp_alias;
+	memset(&temp_alias, 0, sizeof(temp_alias));
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		memset(&temp_alias, 0, sizeof(temp_alias));
+	    if(!p_igetw(&temp_alias.combo,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.cset,f,true))
+            {
+                return 0;
+            }
+            
+            
+	    
+	    if(!p_igetl(&count2,f,true))
+            {
+                return 0;
+            }
+	    al_trace("Read, Combo alias count is: %d\n", count2);
+            if(!p_getc(&temp_alias.width,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.height,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.layermask,f,true))
+            {
+                return 0;
+            }
+            //These values are flexible, and may differ in size, so we delete them 
+	    //and recreate them at the correct size on the pointer. 
+	    delete[] temp_alias.combos;
+	    temp_alias.combos = new word[count2];
+	    delete[] temp_alias.csets;
+	    temp_alias.csets = new byte[count2];
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_igetw(&tempword,f,true))
+                {
+		    //al_trace("Could not reas alias.combos[%d]\n",k);
+                    return 0;
+                }
+		else
+		{
+			//al_trace("Read Combo Alias Combo [%d] as: %d\n", k, tempword);
+			
+			
+			//al_trace("tempword is: %d\n", tempword);
+			temp_alias.combos[k] = tempword;
+			//al_trace("Combo Alias Combo [%d] is: %d\n", k, temp_alias.combos[k]);
+		}
+            }
+	    //al_trace("Read alias combos.\n");
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_getc(&tempcset,f,true))
+                //if(!p_getc(&temp_alias.csets[k],f,true))
+		{
+                    return 0;
+                }
+		else
+		{
+			//al_trace("Read Combo Alias CSet [%d] as: %d\n", k, tempcset);
+			
+			temp_alias.csets[k] = tempcset;
+			//al_trace("Combo Alias CSet [%d] is: %d\n", k, temp_alias.csets[k]);
+		}
+            }
+	    //al_trace("Read alias csets.\n");
+	    //al_trace("About to memcpy a combo alias\n");
+		memcpy(&combo_aliases[index+(tilect)],&temp_alias,sizeof(combo_alias));
+	}
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+
+int readcomboaliasfile_to_location(PACKFILE *f, int start)
+{
+	dword section_version=0;
+	dword section_cversion=0;
+	int zversion = 0;
+	int zbuild = 0;
+	
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	al_trace("readcomboaliasfile_to_location section_version: %d\n", section_version);
+	al_trace("readcomboaliasfile_to_location section_cversion: %d\n", section_cversion);
+
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	
+	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
+	{
+		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+		
+	}
+	else
+	{
+		al_trace("Reading a .zalias packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	
+	int index = 0;
+	int count = 0;
+	int count2 = 0;
+	byte tempcset = 0;
+	word tempword = 0;
+	
+	
+	//tile id
+	if(!p_igetl(&index,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: index(%d)\n", index);
+	
+	//tile count
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	al_trace("Reading tile: count(%d)\n", count);
+	
+	
+	combo_alias temp_alias;
+	memset(&temp_alias, 0, sizeof(temp_alias)); 
+
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+		memset(&temp_alias, 0, sizeof(temp_alias));
+	    if(!p_igetw(&temp_alias.combo,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.cset,f,true))
+            {
+                return 0;
+            }
+            
+            int count2 = 0;
+	    
+	    if(!p_igetl(&count2,f,true))
+            {
+                return 0;
+            }
+	    
+            if(!p_getc(&temp_alias.width,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.height,f,true))
+            {
+                return 0;
+            }
+            
+            if(!p_getc(&temp_alias.layermask,f,true))
+            {
+                return 0;
+            }
+	    //These values are flexible, and may differ in size, so we delete them 
+	    //and recreate them at the correct size on the pointer. 
+            delete[] temp_alias.combos;
+	    temp_alias.combos = new word[count2];
+	    delete[] temp_alias.csets;
+	    temp_alias.csets = new byte[count2];
+	    
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_igetw(&tempword,f,true))
+                {
+                    return 0;
+                }
+		else
+		{
+			temp_alias.combos[k] = tempword;
+		}
+            }
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_getc(&tempcset,f,true))
+                {
+                    return 0;
+                }
+		else
+		{
+			temp_alias.csets[k] = tempcset;
+		}
+            }
+		
+		
+		if ( start+(tilect) < MAXCOMBOALIASES )
+		{
+			memcpy(&combo_aliases[start+(tilect)],&temp_alias,sizeof(temp_alias));
+		}
+	}
+	
+	
+	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
+	
+            
+	return 1;
+	
+}
+int writecomboaliasfile(PACKFILE *f, int index, int count)
+{
+	al_trace("Running writecomboaliasfile\n");
+	dword section_version=V_COMBOALIASES;
+	dword section_cversion=CV_COMBOALIASES;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		return 0;
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		return 0;
+	}
+	
+	//start tile id
+	if(!p_iputl(index,f))
+	{
+		return 0;
+	}
+	
+	//count
+	if(!p_iputl(count,f))
+	{
+		return 0;
+	}
+	
+	for ( int tilect = 0; tilect < count; tilect++ )
+	{
+	
+	    if(!p_iputw(combo_aliases[index+(tilect)].combo,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(combo_aliases[index+(tilect)].cset,f))
+            {
+                return 0;
+            }
+            
+            int count2 = ((combo_aliases[index+(tilect)].width+1)*(combo_aliases[index+(tilect)].height+1))*(comboa_lmasktotal(combo_aliases[index+(tilect)].layermask)+1);
+            
+	    if(!p_iputl(count2,f))
+            {
+                return 0;
+            }
+	    al_trace("Write`, Combo alias count is: %d\n", count2);
+	    
+            if(!p_putc(combo_aliases[index+(tilect)].width,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(combo_aliases[index+(tilect)].height,f))
+            {
+                return 0;
+            }
+            
+            if(!p_putc(combo_aliases[index+(tilect)].layermask,f))
+            {
+                return 0;
+            }
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_iputw(combo_aliases[index+(tilect)].combos[k],f))
+                {
+                    return 0;
+                }
+            }
+            
+            for(int k=0; k<count2; k++)
+            {
+                if(!p_putc(combo_aliases[index+(tilect)].csets[k],f))
+                {
+                    return 0;
+                }
+            }
+	}
+	
+	return 1;
+	
+}
+

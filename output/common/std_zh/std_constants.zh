@@ -1725,6 +1725,26 @@ const int SEF_SPAWN				= 0;
 const int SEF_LIST1				= 1; //left-hand list
 const int SEF_LIST2				= 2; //right-hand list
 
+//Screen Enemy Flags: Spawn
+const int SEFSP_ZORA				= 0; //0x0001
+const int SEFSP_CORNERTRAP			= 1; //0x0002
+const int SEFSP_MIDDLETRAP			= 2; //0x0004
+const int SEFSP_ROCK				= 3; //0x0008
+const int SEFSP_SHOOTER				= 4; //0x0010
+
+//Screen Enemy Flags: List1
+const int SEFL1_RINGLEADER			= 0; //0x0001
+const int SEFL1_CARRYITEM			= 1; //0x0002
+const int SEFL1_INVIS				= 2; //0x0004
+const int SEFL1_BOSS				= 3; //0x0008
+const int SEFL1_TRAPS_IGNORE_SOLID	= 4; //0x0010
+
+//Screen Enemy Flags: List2
+const int SEFL2_ALWAYSRET			= 0; //0x0001
+const int SEFL2_ENEMIES_ITEM		= 1; //0x0002
+const int SEFL2_ENEMEIS_SECRET		= 2; //0x0004
+const int SEFL2_ENEMIES_SECRET_PERM	= 3; //0x0008
+
 //Room types (Screen => Room Type)
 //Use with Screen->RoomType
 const int RT_DOORREPAIR         = 5;
@@ -2001,7 +2021,7 @@ const int CF_SCRIPT_DIG 	= 144;  //Dig Spot (Scripted)",
 const int CF_SCRIPT_DIG_NEXT  	= 145;  //Dig Spot, Next (Scripted)",
 const int CF_SCRIPT_DIG_ITEM  	= 146;  //Dig Spot, Special Item (Scripted)",
 const int CF_SCRIPT_POT_SLASH  	= 147; // Pot, Slashable (Scripted)",
-const int CF_SCRIPT_POT_SLASH_LIFT = 148; // Pot, Liftable (Scripted)",
+const int CF_SCRIPT_POT_LIFT 	= 148; // Pot, Liftable (Scripted)",
 const int CF_SCRIPT_POT_SLASH_OR_LIFT =  149; // Pot, Slash or Lift (Scripted)",
 const int CF_SCRIPT_LIFT_NORMAL = 150; // Rock, Lift Normal (Scripted)",
 const int CF_SCRIPT_LIFT_HEAVY 	= 151; // Rock, Lift Heavy (Scripted)",
@@ -2014,6 +2034,8 @@ const int CF_SCRIPT_DROP_MAP 	= 157; // Drop Map (Scripted)",
 const int CF_SCRIPT_DROP_BOSS_KEY 	= 158; // Drop Boss Key (Scripted)",
 const int CF_SCRIPT_SPAWN_NPC 	= 159; // Spawn NPC (Scripted)",
 const int CF_SCRIPT_SWITCHHOOK 	= 160; // SwitchHook Spot (Scripted)",
+const int CF_SIDEVIEW_LADDER 	= 161; // Sideview Ladder
+const int CF_SIDEVIEW_PLATFORM 	= 161; // Sideview Platform
 
 //chests  to 16, unlocked, locked, boss; small, big. Probably better as combo types?
 
@@ -2828,3 +2850,25 @@ enum openingWipeShape
 	WIPE_CIRCLE, WIPE_OVAL, WIPE_TRIANGLE,
 	WIPE_SMAS, WIPE_FADEBLACK, WIPE_MAX
 };
+
+define NOCARRY_B_SECRET =			0x2000;
+define NOCARRY_B_ITEM =				0x0010;
+define NOCARRY_B_SPECIALITEM =		0x0020;
+define NOCARRY_B_LOCKBLOCK =		0x0100;
+define NOCARRY_B_BOSSLOCKBLOCK =	0x0200;
+define NOCARRY_B_CHEST =			0x0400;
+define NOCARRY_B_LOCKEDCHEST =		0x0800;
+define NOCARRY_B_BOSSCHEST =		0x1000;
+
+define NORESET_B_SECRET =			0x2000;
+define NORESET_B_ITEM =				0x0010;
+define NORESET_B_SPECIALITEM =		0x0020;
+define NORESET_B_LOCKBLOCK =		0x0100;
+define NORESET_B_BOSSLOCKBLOCK =	0x0200;
+define NORESET_B_CHEST =			0x0400;
+define NORESET_B_LOCKEDCHEST =		0x0800;
+define NORESET_B_BOSSCHEST =		0x1000;
+define NORESET_B_DOOR_B_UP =		0x0001;
+define NORESET_B_DOOR_B_DOWN =		0x0002;
+define NORESET_B_DOOR_B_LEFT =		0x0004;
+define NORESET_B_DOOR_B_RIGHT =		0x0008;

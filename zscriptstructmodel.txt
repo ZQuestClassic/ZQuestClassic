@@ -367,3 +367,62 @@ STRUCT
 2D array
 { vectors } == pointer
 { vectors {  { types }, { sizea, sizeb }, { data,data,data... } }
+
+
+
+In ZScript, the logical way to handle a function pointer, would be fpr the pointer to 
+reference the ZASM instruction line on whichn the function begins.
+
+We don't have certain elements such as an address system, just ZASM line IDs.
+
+When we call a function in ZScript, we jump to its line, so, a function pointer would store 
+that line, and when called, we would jump to that line, until we reach OReturn Of course, 
+we'd also need to store the types and number of params used by the function pointer, 
+in addition to its ZASM line address somehow. 
+
+This could probably take a similar form to how array data works. Store the 'size' in index 0, 
+the 'address' of this segment (pointer) in index 1. then for each arg, an index for its type. 
+Thus, the pointer would look like this: 
+
+(*fun)(int,bool,bitmap) {4, &fun, TYPE_FLOAT, TYPE_BOOL, TYPE_BITMAP} 
+
+The first index tells us how far into the vector from this point we are reading. 
+The second is the ZASM line number, and the last tell us how to cast its values. 
+We may need additional space to store them when called. The actual initialisation of a 
+function pointer: void(*foo)(int,bool,bitmap); would push onto the stack, a flag that the 
+next stack value is going to be a function pointer, then the array address in the vector.
+
+It would have been better if our syntax always required pointer tokens for this sort 
+of thing, because the way that we pass arrays by reference is exactly why it is hard to 
+fix some of their problems, and a cause for not being able to ever migrate away from how 
+they now work.
+
+
+Thus, if we ever want real structs, 2D arrays, or classes, we would need some kind of 
+address system for those.
+
+
+In that case, the pointer would be the starting point of the struct/array/class in a vector.
+
+as v->at(address)
+
+
+Basicslly, vectors that use a virtual address system, where the parser knows the virtual address, reads into
+the vector at that point, reads the next entry for the size of the data, then reads the data from that point.
+
+We would need these to work as 'data nodes', where say, a virtual struct entry would contain something like this:
+
+NUMBER OF ELEMENTS, < INITIAL POINT OF EACH ELEMENT >, < for each element, INITIAL POSITION >, <DATATYPE OF ELEMENT> ,
+SIZE OF ELEMENT> , < ELEMENT LENGTH (size) >, DATA STREAM >
+
+Basically, a lot of calls simialr to how we access GLOBALRAM, but each telling us a different aspect of the data, then finally getting to the correct point in the vector where the data bale exists.
+
+I thik that this is feasible, but IDK if it'd be possible until 2.60, based on wanting to get 2. done in a realistic tiemeframe.
+
+I suspect that I could rewrite GD() to support MAX_LONG variables in 2.55, though. I'd need to reallocate how and where GD() is accessed, so that instead of usig stack registers for GD, the GD call is just vector.at(GD(n)).
+
+Thus, pop d2, GD(0000.1900) would access the vector at point 1900.
+
+//regarding pointers, to include a proper pointer system, all local vars will need 
+to be given a pointer capacitry too, and for that to work, at var decl the variables must
+be *registered* as pointers, then the pointer removed if the var is destroyed in any way.

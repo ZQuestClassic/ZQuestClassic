@@ -1,12 +1,26 @@
 //2.55 Changes
 
-//Alpha 36
+//Alpha 37
 
+Replace Allegro Grabber.exe in Utilities with newly built v4.4.1.
+	4.4.3 was corrupting .dat file components.
+DAT: Fix mouse cursors for themes for Default and Classic modules. 	
+	( ZoriaRPG, 12th October, 2019 )
+	
+Fix: Misalign arrows hardcoded colors 
+	They now load similarly to cursors.
+Fix: advpaste_dlg always small 
+	Was missing 'is_large' check to upscale the dlg.
+Fix: Forgot to rename .ztheme config names
+Enlarge layer checkboxes.	
+Added the ability to set cursor colours in themes.
+	( Venrob, 12th October, 2019 )	
+
+//Alpha 36
 Fix a bug where init_game() as cllearing the current rendertarget to
 	0, instead of -1 (screen), that was causing old ghosted
 	enemies to be invisible.
 	( ZoriaRPG, 12th October, 2019 )
-
 
 DEVLEVEL Changes
 Changed the minimum DEVLEVEL required to log Events, Script Errors,

@@ -260,6 +260,17 @@ int onExport_Pals();
 int onExport_ZGP();
 int onExport_ZQT();
 int onExport_UnencodedQuest();
+int onExport_Tilepack();
+int onImport_Tilepack();
+int onImport_Tilepack_To();
+
+int onExport_Combopack();
+int onImport_Combopack_To();
+int onImport_Combopack();
+
+int onImport_Comboaliaspack();
+int onImport_Comboaliaspack_To();
+int onExport_Comboaliaspack();
 
 int onGotoMap();
 int onMapCount();
@@ -292,6 +303,7 @@ void KeyFileName(char *kfname);
 
 int onSpacebar();
 int onSnapshot();
+int onMapscrSnapshot();
 int onSaveZQuestSettings();
 int onClearQuestFilepath();
 void go();

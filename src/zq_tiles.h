@@ -24,6 +24,20 @@ extern byte cset_reduce_table[PAL_SIZE];
 void calc_cset_reduce_table(PALETTE pal, int cs);
 
 void register_used_tiles();
+
+int readcomboaliasfile(PACKFILE *f);
+int readcomboaliasfile_to_location(PACKFILE *f, int start);
+int writecomboaliasfile(PACKFILE *f, int index, int count);
+
+int readtilefile(PACKFILE *f);
+int writetilefile(PACKFILE *f, int index, int count);
+int readtilefile_to_location(PACKFILE *f, int start);
+int readtilefile_to_location(PACKFILE *f, int start, int skip);
+
+int readcombofile(PACKFILE *f);
+int readcombofile_to_location(PACKFILE *f, int start);
+int writecombofile(PACKFILE *f, int index, int count);
+
 int d_comboframe_proc(int msg, DIALOG *d, int c);
 int d_combo_proc(int msg,DIALOG *d,int c);
 void go_tiles();
@@ -87,6 +101,7 @@ bool leech_tiles(tiledata *dest,int start,int cs);
 void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *newformat);
 void grab_tile(int tile,int &cs);
 void draw_tiles(int first,int cs, int f);
+void draw_tiles(BITMAP* dest,int first,int cs, int f,bool large,bool true_empty = false);
 int tile_col(int tile);
 int tile_row(int tile);
 int tile_page(int tile);

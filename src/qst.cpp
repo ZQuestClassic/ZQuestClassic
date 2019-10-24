@@ -21,6 +21,10 @@
 #include <vector>
 #include <assert.h>
 
+
+#include "metadata/sigs/devsig.h.sig"
+#include "metadata/sigs/compilersig.h.sig"
+#include "metadata/versionsig.h"
 #include "mem_debug.h"
 #include "zc_alleg.h"
 #include "zdefs.h"
@@ -2391,8 +2395,165 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	
-        
+	if(version>=4)
+	{
+		if(!p_igetl(&tempheader.new_version_id_main,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_second,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_third,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_fourth,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_alpha,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_beta,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_gamma,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.new_version_id_release,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetw(&tempheader.new_version_id_date_year,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_getc(&tempheader.new_version_id_date_month,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_getc(&tempheader.new_version_id_date_day,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_getc(&tempheader.new_version_id_date_hour,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_getc(&tempheader.new_version_id_date_minute,f,true))
+		{
+		    return qe_invalid;
+		}
+				
+		if(!pfread(tempheader.new_version_devsig,256,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!pfread(tempheader.new_version_compilername,256,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!pfread(tempheader.new_version_compilerversion,256,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!pfread(tempheader.product_name,1024,f,true))
+		{
+		    return qe_invalid;
+		}
+		
+		if(!p_getc(&tempheader.compilerid,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.compilerversionnumber_first,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.compilerversionnumber_second,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.compilerversionnumber_third,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempheader.compilerversionnumber_fourth,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetw(&tempheader.developerid,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!pfread(tempheader.made_in_module_name,1024,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!pfread(tempheader.build_datestamp,256,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!pfread(tempheader.build_timestamp,256,f,true))
+		{
+		    return qe_invalid;
+		}
+		
+		
+	}
+	else // <4
+	{
+		tempheader.new_version_id_main = 0;
+		tempheader.new_version_id_second = 0;
+		tempheader.new_version_id_third = 0;
+		tempheader.new_version_id_fourth = 0;
+		tempheader.new_version_id_alpha = 0;
+		tempheader.new_version_id_beta = 0;
+		tempheader.new_version_id_gamma = 0;
+		tempheader.new_version_id_release = 0;
+		tempheader.new_version_id_date_year = 0;
+		tempheader.new_version_id_date_month = 0;
+		tempheader.new_version_id_date_day = 0;
+		tempheader.new_version_id_date_hour = 0;
+		tempheader.new_version_id_date_minute = 0;
+		
+		memset(tempheader.new_version_devsig, 0, 256);
+		memset(tempheader.new_version_compilername, 0, 256);
+		memset(tempheader.new_version_compilerversion, 0, 256);
+		memset(tempheader.product_name, 0, 1024);
+		strcpy(tempheader.product_name, "ZQuest Creator Suite");
+		
+		tempheader.compilerid = 0;
+		tempheader.compilerversionnumber_first = 0;
+		tempheader.compilerversionnumber_second = 0;
+		tempheader.compilerversionnumber_third = 0;
+		tempheader.compilerversionnumber_fourth = 0;
+		tempheader.developerid = 0;
+		
+		memset(tempheader.made_in_module_name, 0, 1024);
+		memset(tempheader.build_datestamp, 0, 256);
+		memset(tempheader.build_timestamp, 0, 256);
+		
+        }
+	al_trace("\n");
+	al_trace("[ZQUEST CREATOR METADATA]\n");
+	al_trace("Last saved in ZC Editor Version: (%d,%d,%d,%d) ", tempheader.new_version_id_main,tempheader.new_version_id_second,tempheader.new_version_id_third,tempheader.new_version_id_fourth);
+	if ( tempheader.new_version_id_alpha ) { al_trace("Alpha %d\n", tempheader.new_version_id_alpha); }
+	else if ( tempheader.new_version_id_beta ) { al_trace("Beta %d\n", tempheader.new_version_id_beta); }
+	else if ( tempheader.new_version_id_gamma ) { al_trace("Gamma %d\n", tempheader.new_version_id_gamma); }
+	else { al_trace("Release %d\n\n", tempheader.new_version_id_release); }
+	al_trace("Created with ZC Module: %s\n\n", tempheader.made_in_module_name);
+	al_trace("Developr Signoff by: %s, (ID: %d)\n", tempheader.new_version_devsig, tempheader.developerid);
+	al_trace("Compiled with: %s, (ID: %d)\n", tempheader.new_version_compilername, tempheader.compilerid);
+	al_trace("Compiler Version: %s, (%d,%d,%d,%d)\n", tempheader.new_version_compilerversion,tempheader.compilerversionnumber_first,tempheader.compilerversionnumber_second,tempheader.compilerversionnumber_third,tempheader.compilerversionnumber_fourth);
+	al_trace("Project ID: %s\n\n", tempheader.product_name);
+	al_trace("Editor Built at date and time: %d-%d-%d at @ %s %s\n\n", tempheader.new_version_id_date_day, tempheader.new_version_id_date_month, tempheader.new_version_id_date_year, tempheader.build_timestamp, __TIMEZONE__);
+	//al_trace("(Autogenerated) Editor Built at date and time: %s @ %s\n\n", tempheader.build_datestamp, );
 	
     }
     
@@ -11602,11 +11763,12 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 {
     byte tempbyte, padding;
     int extras, secretcombos;
-    
+    al_trace("readmapscreen Header->zelda_version: %x\n",Header->zelda_version);
     if(!p_getc(&(temp_mapscr->valid),f,true))
     {
         return qe_invalid;
     }
+    
     
     if(!p_getc(&(temp_mapscr->guy),f,true))
     {
@@ -12910,7 +13072,8 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         ffcScriptData[m].a[1] = 10000;
     }
     
-    if ( version >= 19 )
+    //2.55 starts here
+    if ( version >= 19 && Header->zelda_version > 0x253 )
     {
 	for ( int q = 0; q < 10; q++ ) 
 	{
@@ -12941,7 +13104,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 		} 
 	}
     }
-    if ( version < 19 )
+    if ( version < 19 && Header->zelda_version > 0x253 )
     {
 	for ( int q = 0; q < 10; q++ ) 
 	{
@@ -12951,7 +13114,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 	    temp_mapscr->new_item_y[q] = 0;
 	}
     }
-    if ( version >= 20 )
+    if ( version >= 20 && Header->zelda_version > 0x253 )
     {
 	if(!p_igetw(&(temp_mapscr->script),f,true))
 	{
@@ -12970,7 +13133,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 	temp_mapscr->script = 0;
 	for ( int q = 0; q < 8; q++) temp_mapscr->screeninitd[q] = 0;
     }
-    if ( version >= 21 )
+    if ( version >= 21 && Header->zelda_version > 0x253 )
     {
 	if(!p_getc(&(temp_mapscr->preloadscript),f,true))
 	{
@@ -12984,7 +13147,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     //all builds with version > 20 need this. -Z
     temp_mapscr->ffcswaitdraw = 0;
     
-    if ( version >= 22 ) //26th June, 2019; Layer Visibility
+    if ( version >= 22 && Header->zelda_version > 0x253 ) //26th June, 2019; Layer Visibility
     {
 	if(!p_getc(&(temp_mapscr->hidelayers ),f,true))
 	{

@@ -23,6 +23,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "metadata/sigs/devsig.h.sig"
+#include "metadata/versionsig.h"
+
 #ifdef _MSC_VER
 #define strupr _strupr
 #define stricmp _stricmp
@@ -94,22 +97,32 @@ int cursorColor(int col)
 
 void load_mice()
 {
+	int sz = vbound(int(16*(is_large ? get_config_float("zquest","cursor_scale_large",1) : get_config_float("zquest","cursor_scale_small",1))),16,80);
 	for(int i=0; i<MOUSE_BMP_MAX; i++)
 	{
 		for(int j=0; j<4; j++)
 		{
-			mouse_bmp[i][j] = create_bitmap_ex(8,16,16);
+			mouse_bmp[i][j] = create_bitmap_ex(8,sz,sz);
+			mouse_bmp_1x[i][j] = create_bitmap_ex(8,16,16);
 			BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
+			BITMAP* subbmp = create_bitmap_ex(8,16,16);
 			clear_bitmap(tmpbmp);
+			clear_bitmap(subbmp);
 			blit((BITMAP*)zcdata[BMP_MOUSEZQ].dat,tmpbmp,i*17+1,j*17+1,0,0,16,16);
 			for(int x = 0; x < 16; ++x)
 			{
 				for(int y = 0; y < 16; ++y)
 				{
-					putpixel(mouse_bmp[i][j], x, y, cursorColor(getpixel(tmpbmp, x, y)));
+					putpixel(subbmp, x, y, cursorColor(getpixel(tmpbmp, x, y)));
 				}
 			}
+			if(sz!=16)
+				stretch_blit(subbmp, mouse_bmp[i][j], 0, 0, 16, 16, 0, 0, sz, sz);
+			else
+				blit(subbmp, mouse_bmp[i][j], 0, 0, 0, 0, 16, 16);
+			blit(subbmp, mouse_bmp_1x[i][j], 0, 0, 0, 0, 16, 16);
 			destroy_bitmap(tmpbmp);
+			destroy_bitmap(subbmp);
 		}
 	}
 }
@@ -1414,6 +1427,42 @@ int onSnapshot()
     return D_O_K;
 }
 
+int onMapscrSnapshot()
+{
+	int x = showedges?16:0;
+	int y = showedges?16:0;
+	
+	PALETTE usepal;
+	get_palette(usepal);
+	
+	char buf[200];
+	int num=0;
+	
+	do
+	{
+		sprintf(buf, "zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+	}
+	while(num<99999 && exists(buf));
+	
+	bool useflags = (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]); //Only use visibility flags (flags, walkability, etc) if CTRL is held
+	int misal = ShowMisalignments; //Store misalignments, so it can be disabled, and restored after.
+	ShowMisalignments = 0;
+	
+	BITMAP *panorama = create_bitmap_ex(8,256,176);
+	Map.setCurrScr(Map.getCurrScr());                                 // to update palette
+	clear_to_color(panorama,vc(0));
+	
+	Map.draw(panorama, 0, 0, useflags?Flags:0, -1, -1);
+	
+	save_bitmap(buf,panorama,usepal);
+	destroy_bitmap(panorama);
+	
+	ShowMisalignments = misal; //Restore misalignments.
+	
+	return D_O_K;
+}
+
+
 int gocnt=0;
 
 void go()
@@ -1503,19 +1552,19 @@ int onExit()
 
 int onAbout()
 {
-    char buf1[80];
-    char buf2[80];
-    char buf3[80];
+    char buf1[80]={0};
+    char buf2[80]={0};
+    char buf3[80]={0};
     
     if(get_debug())
     {
 #if IS_BETA
         {
-            sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
         }
 #else
         {
-            sprintf(buf1,"ZQuest %s Build %d - DEBUG",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Build %d - DEBUG",ZQ_EDITOR_V VERSION_BUILD);
         }
 #endif
         sprintf(buf2,"ZQuest Editor: %04X",INTERNAL_VERSION);
@@ -1524,46 +1573,48 @@ int onAbout()
     }
     else
     {
+	sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
         switch(IS_BETA)
         {
 		case -1:
 		{
-			sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-			sprintf(buf3,"Build Date: %s",DATE_STR);
+			//sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
+			sprintf(buf2,"Alpha %d, Build: %d",V_ZC_ALPHA, VERSION_BUILD);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 			break;
 		}
             
 		case 1:
 		{
-			sprintf(buf2,"%s Beta Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+			sprintf(buf2,"Beta %d, Build: %d",V_ZC_BETA, VERSION_BUILD);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 			break;
 		}
 		
 		case 0:
 		{
-		    sprintf(buf2,"%s Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-		    sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+		    sprintf(buf2,"Release %d, Build: %d",V_ZC_RELEASE, VERSION_BUILD);
+		    sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 		    break;
 		}
 		default:
 		{
 		    if ( IS_BETA > 0 )
 		    {
-			sprintf(buf2,"%s Beta Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+			sprintf(buf2,"Beta %d Build: %d",V_ZC_BETA, VERSION_BUILD);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 		    }
 		    else
 		    {
-			sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
-			sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
+			sprintf(buf2,"Alpha %d Build: %d",V_ZC_ALPHA, VERSION_BUILD);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 		    }
 		    break;
 		}
 		
         }
         
-        sprintf(buf1,"ZQuest " ZELDA_VERSION_STR);
+        
         
         jwin_alert("About ZQuest Editor",buf1,buf2,buf3,"OK", NULL, 13, 27, lfont);
     }

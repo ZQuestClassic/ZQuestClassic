@@ -31,6 +31,7 @@
 #endif
 
 #include "zdefs.h"
+#include "metadata/versionsig.h"
 #include "zelda.h"
 #include "tiles.h"
 #include "colors.h"
@@ -678,12 +679,16 @@ void show_saving(BITMAP *target)
 void load_mouse()
 {
 	system_pal();
+	int sz = vbound(int(16*(is_large ? get_config_float("zeldadx","cursor_scale_large",1) : get_config_float("zeldadx","cursor_scale_small",1))),16,80);
 	for(int j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
+		BITMAP* subbmp = create_bitmap_ex(8,16,16);
+		zcmouse[j] = create_bitmap_ex(8,sz,sz);
+		clear_bitmap(zcmouse[j]);
 		clear_bitmap(tmpbmp);
+		clear_bitmap(subbmp);
 		blit((BITMAP*)data[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
-		//BITMAP* tmpbmp = (BITMAP*)data[BMP_MOUSE].dat;
 		for(int x = 0; x < 16; ++x)
 		{
 			for(int y = 0; y < 16; ++y)
@@ -704,11 +709,15 @@ void load_mouse()
 						color = jwin_pal[jcCURSORDARK];
 						break;
 				}
-				if(color!=0)Z_message("Pixel %d,%d == %d\n",x,y,color);
-				putpixel(zcmouse[j], x, y, color);
+				putpixel(subbmp, x, y, color);
 			}
 		}
+		if(sz!=16)
+			stretch_blit(subbmp, zcmouse[j], 0, 0, 16, 16, 0, 0, sz, sz);
+		else
+			blit(subbmp, zcmouse[j], 0, 0, 0, 0, 16, 16);
 		destroy_bitmap(tmpbmp);
+		destroy_bitmap(subbmp);
 	}
 	game_pal();
 }
@@ -6127,14 +6136,17 @@ static DIALOG sound_dlg[] =
     { NULL,                   0,      0,      0,      0,    0,         0,                   0,    0,            0,             0,  NULL,                           NULL,               NULL     },
 };
 
+char zc_builddate[80];
+char zc_aboutstr[80];
+
 static DIALOG about_dlg[] =
 {
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
     { jwin_win_proc,       68,   52,   184,  154,  0,       0,       0,       D_EXIT,    0,        0, (void *) "About", NULL,  NULL },
     { jwin_button_proc,    140,  176,  41,   21,   vc(14),  0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
-    { jwin_ctext_proc,        160,  84,   0,    8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) ZELDA_ABOUT_STR, NULL,  NULL },
-    { jwin_ctext_proc,        160,  92,   0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0,       str_s, NULL,  NULL },
-    { jwin_ctext_proc,        160,  100,  0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0, (void *) DATE_STR, NULL,  NULL },
+    { jwin_ctext_proc,        160,  84,   0,    8,    vc(0),   vc(11),  0,       0,         0,        0, zc_aboutstr, NULL,  NULL },
+    { jwin_ctext_proc,        160,  92,   0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0, str_s, NULL,  NULL },
+    { jwin_ctext_proc,        160,  100,  0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0, zc_builddate, NULL,  NULL },
     { jwin_text_proc,         88,   124,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Coded by:", NULL,  NULL },
     { jwin_text_proc,         88,   132,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "  Phantom Menace", NULL,  NULL },
     { jwin_text_proc,         88,   144,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Produced by:", NULL,  NULL },
@@ -6781,16 +6793,27 @@ int onAbout()
     switch(IS_BETA)
     {
     case 1:
-        sprintf(str_s,"(%s Beta Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+        sprintf(str_s,"(v.%s, Beta %d, Build %d)",ZC_PLAYER_V,V_ZC_BETA, VERSION_BUILD);
         break;
         
     case -1:
-        sprintf(str_s,"(%s Alpha Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+        sprintf(str_s,"(v.%s, Alpha %d, Build %d)",ZC_PLAYER_V,V_ZC_ALPHA, VERSION_BUILD);
         break;
         
     case 0:
+	sprintf(str_s,"(v.%s, Release %d, Build %d)",ZC_PLAYER_V,V_ZC_RELEASE, VERSION_BUILD);
+	break;
     default:
-        sprintf(str_s,"(%s Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+        if ( IS_BETA > 0 )
+	{
+		sprintf(str_s,"(v.%s, Beta %d, Build %d)",ZC_PLAYER_V,V_ZC_BETA, VERSION_BUILD);
+		break;
+	}
+	else
+	{
+		sprintf(str_s,"(v.%s, Alpha %d, Build %d)",ZC_PLAYER_V,V_ZC_ALPHA, VERSION_BUILD);
+		break;
+	}
         break;
     }
     
