@@ -19,6 +19,8 @@
 
 #include "ending.h"
 #include "zelda.h"
+extern zcmodule moduledata;
+extern ZModule zcm;
 #include "zsys.h"
 #include "sprite.h"
 #include "items.h"
@@ -714,8 +716,13 @@ void inc_quest()
 	game->set_life(3*HP_PER_HEART);
 	game->set_maxbombs(8);
 	game->set_hasplayed(true);
-	game->set_continue_dmap(zinit.start_dmap);
-	game->set_continue_scrn(0x77);
+	
+	//now bound to modules
+	game->set_continue_dmap(moduledata.startingdmap[quest-1]);
+	game->set_continue_scrn(moduledata.startingscreen[quest-1]);
+	
+	//game->set_continue_dmap(zinit.start_dmap);
+	//game->set_continue_scrn(0x77);
 	resetItems(game,&zinit,true);
 	load_quest(game);
 	load_game_icon_to_buffer(false,currgame);

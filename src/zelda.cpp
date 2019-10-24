@@ -2948,12 +2948,8 @@ int main(int argc, char* argv[])
         
         standalone_quest=argv[arg+1];
         
-        if(stricmp(standalone_quest, "1st.qst")==0 ||
-          stricmp(standalone_quest, "2nd.qst")==0 ||
-          stricmp(standalone_quest, "3rd.qst")==0 ||
-          stricmp(standalone_quest, "4th.qst")==0 ||
-          stricmp(standalone_quest, "5th.qst")==0 ||
-          stricmp(standalone_quest, "6th.qst")==0)
+	for ( int q = 0; q < 10; q++ )
+        if(!stricmp(standalone_quest, moduledata.quests[q]))
         {
             Z_error("Standalone mode can only be used with custom quests.");
             exit(1);
@@ -3064,7 +3060,7 @@ int main(int argc, char* argv[])
         load_game_configs();
         save_game_configs();
     }
-    
+    zcm.init();
         
 #ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
     if(!is_only_instance("zc.lck"))
@@ -3142,49 +3138,49 @@ int main(int argc, char* argv[])
         
         char path[2048];
         
-        append_filename(path, qstdir, "1st.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[0], 2048);
         
-        if(!exists("1st.qst") && !exists(path))
+        if(!exists(moduledata.quests[0]) && !exists(path))
         {
             Z_error("\"1st.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "2nd.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[1], 2048);
         
-        if(!exists("2nd.qst") && !exists(path))
+        if(!exists(moduledata.quests[1]) && !exists(path))
         {
             Z_error("\"2nd.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "3rd.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[2], 2048);
         
-        if(!exists("3rd.qst") && !exists(path))
+        if(!exists(moduledata.quests[2]) && !exists(path))
         {
             Z_error("\"3rd.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "4th.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[3], 2048);
         
-        if(!exists("4th.qst") && !exists(path))
+        if(!exists(moduledata.quests[3]) && !exists(path))
         {
             Z_error("\"4th.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "5th.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[4], 2048);
         
-        if(!exists("5th.qst") && !exists(path))
+        if(!exists(moduledata.quests[4]) && !exists(path))
         {
             Z_error("\"5th.qst\" not found.");
             quit_game();
         }
 	
-	append_filename(path, qstdir, "6th.qst", 2048);
+	append_filename(path, qstdir, moduledata.quests[5], 2048);
         
-        if(!exists("6th.qst") && !exists(path))
+        if(!exists(moduledata.quests[5]) && !exists(path))
         {
             al_trace("\"6th.qst\" not found.");
             //quit_game();
@@ -3374,7 +3370,8 @@ int main(int argc, char* argv[])
     packfile_password(NULL); // Temporary measure. -L
     Z_message("Zelda.Dat...");
     
-    if((data=load_datafile("zelda.dat"))==NULL)
+    //if((data=load_datafile("zelda.dat"))==NULL)
+    if((data=load_datafile(moduledata.datafiles[zelda_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -3391,7 +3388,8 @@ int main(int argc, char* argv[])
     
     Z_message("Fonts.Dat...");
     
-    if((fontsdata=load_datafile("fonts.dat"))==NULL)
+    //if((fontsdata=load_datafile("fonts.dat"))==NULL)
+    if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -3410,7 +3408,8 @@ int main(int argc, char* argv[])
     
     Z_message("SFX.Dat...");
     
-    if((sfxdata=load_datafile("sfx.dat"))==NULL)
+    //if((sfxdata=load_datafile("sfx.dat"))==NULL)
+    if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -4233,11 +4232,11 @@ void ZModule::init() //bool default
 	strcpy(moduledata.quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
 	//al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
 	strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
-	strcpy(moduledata.quests[4],get_config_string("QUESTS","sixth_qst","6th.qst"));
-	strcpy(moduledata.quests[4],get_config_string("QUESTS","seventh_qst","7th.qst"));
-	strcpy(moduledata.quests[4],get_config_string("QUESTS","eighth_qst","8th.qst"));
-	strcpy(moduledata.quests[4],get_config_string("QUESTS","ninth_qst","9th.qst"));
-	strcpy(moduledata.quests[4],get_config_string("QUESTS","tenth_qst","10th.qst"));
+	strcpy(moduledata.quests[5],get_config_string("QUESTS","sixth_qst","6th.qst"));
+	strcpy(moduledata.quests[6],get_config_string("QUESTS","seventh_qst","7th.qst"));
+	strcpy(moduledata.quests[7],get_config_string("QUESTS","eighth_qst","8th.qst"));
+	strcpy(moduledata.quests[8],get_config_string("QUESTS","ninth_qst","9th.qst"));
+	strcpy(moduledata.quests[9],get_config_string("QUESTS","tenth_qst","10th.qst"));
 	//al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
 	
 	//quest skip names
@@ -4250,11 +4249,11 @@ void ZModule::init() //bool default
 	strcpy(moduledata.skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
 	//al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
 	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
-	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","sixth_qst_skip","OMNIUS"));
-	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","seventh_qst_skip","MCCOY"));
-	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","eighth_qst_skip","MCGANN"));
-	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","ninth_qst_skip","HURT"));
-	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","tenth_qst_skip","ECCLESTON"));
+	strcpy(moduledata.skipnames[5],get_config_string("NAMEENTRY","sixth_qst_skip","OMNIUS"));
+	strcpy(moduledata.skipnames[6],get_config_string("NAMEENTRY","seventh_qst_skip","MCCOY"));
+	strcpy(moduledata.skipnames[7],get_config_string("NAMEENTRY","eighth_qst_skip","MCGANN"));
+	strcpy(moduledata.skipnames[8],get_config_string("NAMEENTRY","ninth_qst_skip","HURT"));
+	strcpy(moduledata.skipnames[9],get_config_string("NAMEENTRY","tenth_qst_skip","ECCLESTON"));
 	//al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
 	
 	//Quest starting screens and DMaps

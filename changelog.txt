@@ -2,6 +2,8 @@ ChangeLog for 2.53.1
 
 //Beta 5
 
+.zmod: Use moduledats for quests, skipnames, starting dmaps, starting screens,
+	and ZC Player datafiles (not for ZQ Editor datafiles!!)
 .zmod: Add .zmod (light) format to zelda.exe
 	( ZoriaRPG, 24th October, 2019 )
 
