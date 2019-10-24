@@ -669,7 +669,7 @@ int onSave()
     
     if(!ret)
     {
-        sprintf(buf,"Saved %s",name);
+        sprintf(buf,"Saved %s",temppath);
         jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
         saved=true;
         first_save=true;
@@ -677,7 +677,7 @@ int onSave()
     }
     else
     {
-        sprintf(buf,"Error saving %s",name);
+        sprintf(buf,"Error saving %s",temppath);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
     
@@ -719,7 +719,7 @@ int onSaveAs()
         strcpy(filepath,temppath);
         sprintf(buf,"ZQuest - [%s]", get_filename(filepath));
         set_window_title(buf);
-        sprintf(buf,"Saved %s",name);
+        sprintf(buf,"Saved %s",temppath);
         jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
         saved=true;
         first_save=true;
@@ -727,7 +727,7 @@ int onSaveAs()
     }
     else
     {
-        sprintf(buf,"Error saving %s",name);
+        sprintf(buf,"Error saving %s",temppath);
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
     
@@ -977,19 +977,19 @@ int onExport_Map()
     if(!ret)
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
     return D_O_K;
 }
 
-int onImport_DMaps()
+int onImport_DMaps_old()
 {
     if(!getname("Import DMaps (.dmp)","dmp",NULL,datapath,false))
         return D_O_K;
@@ -1047,6 +1047,184 @@ int onImport_Tilepack_To()
 	writesometiles_to("Load Tile Package to:", 0);
 	return D_O_K;
 	
+}
+
+int onExport_DMaps()
+{
+
+    
+    
+    if(!getname("Export DMaps(.zdmapset)","zdmapset",NULL,datapath,false))
+        return D_O_K;
+        
+    saved=false;
+    
+    PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(f)
+	{
+		if(!writesomedmaps(f,0,511,MAXDMAPS))
+		{
+			char buf[80],name[13];
+			extract_name(temppath,name,FILENAME8_3);
+			sprintf(buf,"Unable to load %s",name);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			char tmpbuf[80]={0};
+			sprintf(tmpbuf,"Saved %s",temppath);
+			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	}
+	pack_fclose(f);
+    
+    return D_O_K;
+}
+
+
+int onImport_DMaps()
+{
+    if(!getname("Import DMaps (.zdmapset)","zdmapset",NULL,datapath,false))
+        return D_O_K;
+    
+    PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(f)
+	{
+		if(!readsomedmaps(f))
+		{
+			char buf[80],name[13];
+			extract_name(temppath,name,FILENAME8_3);
+			sprintf(buf,"Unable to load %s",name);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			char tmpbuf[80]={0};
+			sprintf(tmpbuf,"Loaded %s",temppath);
+			
+			
+			
+			
+			int maxMap=0;
+			for(int i=0; i<MAXDMAPS; i++)
+			{
+			    if(DMaps[i].map>maxMap)
+				maxMap=DMaps[i].map;
+			}
+			
+			if(maxMap>map_count)
+			{
+			    int ret=jwin_alert("Not enough maps",
+					       "The imported DMaps use more maps than are",
+					       " currently available. Do you want to add",
+					       "more maps or change the DMaps' settings?",
+					       "&Add maps","&Modify DMaps",'a','m',lfont);
+			    if(ret==1)
+				setMapCount2(maxMap+1);
+			    else
+			    {
+				for(int i=0; i<MAXDMAPS; i++)
+				{
+				    if(DMaps[i].map>=map_count)
+					DMaps[i].map=0;
+				}
+			    }
+			}
+			
+			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	}
+	pack_fclose(f);
+   
+    saved=false;
+
+    
+    return D_O_K;
+}
+
+
+
+int onImport_Tiles()
+{
+    int ret=getnumber("Import Start Page",0);
+    
+    if(cancelgetnum)
+    {
+        return D_O_K;
+    }
+    
+    bound(ret,0,TILE_PAGES-1);
+    
+    if(!getname("Import Tiles (.ztileset)","ztileset",NULL,datapath,false))
+        return D_O_K;
+        
+    saved=false;
+    
+    PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(f)
+	{
+		if(!readtilefile_to_location(f,0,ret))
+		{
+			char buf[80],name[13];
+			extract_name(temppath,name,FILENAME8_3);
+			sprintf(buf,"Unable to load %s",name);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+		else
+		{
+			char tmpbuf[80]={0};
+			sprintf(tmpbuf,"Saved %s",temppath);
+			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		}
+	}
+	pack_fclose(f);
+    
+    
+    refresh(rALL);
+    return D_O_K;
+}
+
+int onExport_Tiles()
+{
+    if(!getname("Export Tiles (.ztileset)","ztileset",NULL,datapath,false))
+        return D_O_K;
+        
+    char buf[80],buf2[80],name[13];
+    extract_name(temppath,name,FILENAME8_3);
+    
+    //writetilefile(f,first_tile_id,the_tile_count);
+    
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(f)
+	{
+		writetilefile(f,0,NEWMAXTILES);
+		pack_fclose(f);
+		
+		char tmpbuf[80]={0};
+		sprintf(tmpbuf,"Saved %s",temppath);
+		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	else
+	{
+		sprintf(buf,"Error");
+		sprintf(buf2,"Error saving %s",temppath);
+	}
+    
+    /*
+    if(save_tiles(temppath))
+    {
+        sprintf(buf,"ZQuest");
+        sprintf(buf2,"Saved %s",temppath);
+    }
+    else
+    {
+        sprintf(buf,"Error");
+        sprintf(buf2,"Error saving %s",temppath);
+    }
+    
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+	*/
+    return D_O_K;
 }
 
 int onImport_Tilepack()
@@ -1150,7 +1328,7 @@ int onImport_Comboaliaspack()
 }
 
 
-int onExport_DMaps()
+int onExport_DMaps_old()
 {
     if(!getname("Export DMaps (.dmp)","dmp",NULL,datapath,false))
         return D_O_K;
@@ -1161,12 +1339,12 @@ int onExport_DMaps()
     if(save_dmaps(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1202,12 +1380,12 @@ int onExport_Pals()
     if(save_pals(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1243,12 +1421,12 @@ int onExport_Msgs()
     if(save_msgstrs(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1267,12 +1445,12 @@ int onExport_MsgsText()
     if(save_msgstrs_text(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1319,19 +1497,19 @@ int onExport_Combos()
     if(save_combos(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
     return D_O_K;
 }
 
-int onImport_Tiles()
+int onImport_Tiles_old()
 {
     int ret=getnumber("Import Start Page",0);
     
@@ -1360,7 +1538,7 @@ int onImport_Tiles()
     return D_O_K;
 }
 
-int onExport_Tiles()
+int onExport_Tiles_old()
 {
     if(!getname("Export Tiles (.til)","til",NULL,datapath,false))
         return D_O_K;
@@ -1371,12 +1549,12 @@ int onExport_Tiles()
     if(save_tiles(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1411,12 +1589,12 @@ int onExport_Guys()
     if(save_guys(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1457,12 +1635,12 @@ int onExport_ComboAlias()
     if(save_combo_alias(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1500,12 +1678,12 @@ int onExport_ZGP()
     if(save_zgp(temppath))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1546,7 +1724,7 @@ int onExport_Subscreen()
         if(!cancel)
         {
             sprintf(buf,"ZQuest");
-            sprintf(buf2,"Saved %s",name);
+            sprintf(buf2,"Saved %s",temppath);
         }
         else
         {
@@ -1557,7 +1735,7 @@ int onExport_Subscreen()
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1602,12 +1780,12 @@ int onExport_ZQT()
     if(!save_unencoded_quest(temppath, true))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -1652,12 +1830,12 @@ int onExport_UnencodedQuest()
     if(!save_unencoded_quest(temppath, false))
     {
         sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
+        sprintf(buf2,"Saved %s",temppath);
     }
     else
     {
         sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
+        sprintf(buf2,"Error saving %s",temppath);
     }
     
     jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);

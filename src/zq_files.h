@@ -34,6 +34,10 @@ int onImport_Map();
 int onExport_Map();
 int onImport_DMaps();
 int onExport_DMaps();
+
+int onImport_DMaps_old();
+int onExport_DMaps_old();
+
 int onImport_Pals();
 int onExport_Pals();
 int onImport_Msgs();
@@ -43,6 +47,10 @@ int onImport_Combos();
 int onExport_Combos();
 int onImport_Tiles();
 int onExport_Tiles();
+
+int onImport_Tiles_old();
+int onExport_Tiles_old();
+
 int onImport_Subscreen();
 int onExport_Subscreen();
 int onImport_ZGP();

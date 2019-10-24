@@ -512,20 +512,44 @@ fix LinkModifiedY()
     }
 }
 
+static MENU import_250x_files[]=
+{
+	{ (char *)"&Tiles (2.50.x)",                     onImport_Tiles_old,            NULL,                     0,            NULL   },
+        { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
+        { (char *)"&DMaps",             onImport_DMaps_old,              NULL,                     0,            NULL   },
+    
+	//TO-DO: Move old combo and combo alias here
+	// make new comboset and aliasset functions
+	// make new dmaps function and move old dmaps here
+	
+	//check quest templates 
+	
+	//check unencoded quest
+	
+	//check string table
+	
+	//check palettes
+	
+	//check subscreen
+	
+	//Map is fine, Enemies are fine. Both have header data on r/w.
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU import_menu[] =
 {
     { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
-    { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&Tiles",                     onImport_Tiles,            NULL,                     0,            NULL   },
+    { (char *)"&DMaps Set",                     onImport_DMaps,            NULL,                     0,            NULL   },
+    { (char *)"&Tileset",                     onImport_Tiles,            NULL,                     0,            NULL   },
     { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
     { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
     { (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
     { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
     { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
-    { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
     { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"Tile Pack",           	    onImport_Tilepack,   NULL,                     0,            NULL   },
     { (char *)"Combo Pack",           	    onImport_Combopack,   NULL,                     0,            NULL   },
     { (char *)"Combo Alias Pack",           	    onImport_Comboaliaspack,   NULL,                     0,            NULL   },
@@ -533,6 +557,7 @@ static MENU import_menu[] =
     { (char *)"Tile Pack to...",           	    onImport_Tilepack_To,   NULL,                     0,            NULL   },
     { (char *)"Combo Pack to...",           	    onImport_Combopack_To,   NULL,                     0,            NULL   },
     { (char *)"Combo Alias Pack to...",           	    onImport_Comboaliaspack_To,   NULL,                     0,            NULL   },
+    { (char *)"2.50.x Files",           	    NULL,   import_250x_files,                     0,            NULL   },
       
     // { (char *)"ZASM to Allegro.log",           onExport_ZASM,   NULL,                     0,            NULL   },
    
@@ -541,22 +566,39 @@ static MENU import_menu[] =
 
 static MENU export_menu[] =
 {
+    //known to have be fine in 2.55: Maps
     { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
+    //known to have problems in 2.55: DMaps
     { (char *)"&DMaps",                     onExport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"&Tiles",                     onExport_Tiles,            NULL,                     0,            NULL   },
+    //New format for 2.55: Tiles
+    { (char *)"&Tileset",                     onExport_Tiles,            NULL,                     0,            NULL   },
+    //known to have be fine in 2.55: Maps
     { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
+    //Seems future-safe for 2.55 and at present should work (unchanged): Subscreen
     { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
+    //unchecked for 2.55 but at present should work (unchanged): Palettes
+    //Includes palette cycles, so, absolutely not future safe, given that there are half 
+    //as many pal cycles as there are palettes.
+    //At least CV and SV are written, so we will need to depend entirely on those.
     { (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
+    //Seems future-safe, and works in 2.55: Strings
     { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
     { (char *)"Text Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
+    //known to have problems in 2.55: Combos
     { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
+    //known to have problems in 2.55: Combo Alias
     { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
-    { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
+    //No longer supported.
+    //{ (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
     { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
+    //Untested for 2.55 and needs validation: QSU
     { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
+    //known to have be fine in 2.55: Everything below here
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
     { (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
     { (char *)"Combo Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
+    //Missing: Itemset, Weaponset
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -860,7 +902,7 @@ static MENU etc_menu[] =
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
 	{ (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
-	{ (char *)"&Take ZQ Snapshot",          onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"&Take ZQ Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"Take &Screen Snapshot",          onMapscrSnapshot,                NULL,                     0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -1281,6 +1323,10 @@ void savesometiles(const char *prompt,int initialval)
 				al_trace("Saving tiles %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
 				writetilefile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
+				
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",temppath);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
 	}
@@ -1419,6 +1465,9 @@ void savesomecombos(const char *prompt,int initialval)
 				al_trace("Saving combos %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
 				writecombofile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",temppath);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
 	}
@@ -1493,6 +1542,7 @@ void writesomecombos_to(const char *prompt,int initialval)
 				}
 				pack_fclose(f);
 			}
+			
 		}
 	}
 }
@@ -1504,7 +1554,7 @@ static DIALOG save_comboaliasfiles_dlg[] =
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
 
 
-	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Combo Pack", NULL, NULL },
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save Combo Alias Pack", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //for future tabs
     { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
@@ -1559,6 +1609,9 @@ void savesomecomboaliases(const char *prompt,int initialval)
 				al_trace("Saving combo aliasess %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
 				writecomboaliasfile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",temppath);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
 	}
@@ -1570,7 +1623,7 @@ static DIALOG read_comboaliaspack_dlg[] =
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
 
 
-	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Combo Pack To:", NULL, NULL },
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Load Combo Alias Pack To:", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     //for future tabs
     { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
@@ -13979,6 +14032,437 @@ static DIALOG selectdmap_dlg[] =
 
 static dmap copiedDMap;
 static byte dmapcopied = 0;
+
+int writesomedmaps(PACKFILE *f, int first, int last, int max)
+{
+    
+    dword section_version=V_DMAPS;
+    dword section_cversion=CV_DMAPS;
+	int zversion = ZELDA_VERSION;
+	int zbuild = VERSION_BUILD;
+	
+    
+  
+    //section version info
+	if(!p_iputl(zversion,f))
+	{
+		return 0;
+	}
+	if(!p_iputl(zbuild,f))
+	{
+		return 0;
+	}
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+    
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+	//max possible at this time
+	if(!p_iputl(max,f))
+	{
+		new_return(4);
+	}
+	//first id written
+	if(!p_iputl(first,f))
+	{
+		new_return(5);
+	}
+	//last id written
+	if(!p_iputl(last,f))
+	{
+		new_return(6);
+	}
+	int count = last-first;
+	//number written
+	if(!p_iputl(count,f))
+	{
+		new_return(7);
+	}
+	
+   
+        for ( int i = first; i <= last; ++i )
+	{
+		if ( i > max ) break;
+	
+            if(!p_putc(DMaps[i].map,f))
+            {
+                new_return(8);
+            }
+            
+            if(!p_iputw(DMaps[i].level,f))
+            {
+                new_return(9);
+            }
+            
+            if(!p_putc(DMaps[i].xoff,f))
+            {
+                new_return(10);
+            }
+            
+            if(!p_putc(DMaps[i].compass,f))
+            {
+                new_return(11);
+            }
+            
+            if(!p_iputw(DMaps[i].color,f))
+            {
+                new_return(12);
+            }
+            
+            if(!p_putc(DMaps[i].midi,f))
+            {
+                new_return(13);
+            }
+            
+            if(!p_putc(DMaps[i].cont,f))
+            {
+                new_return(14);
+            }
+            
+            if(!p_putc(DMaps[i].type,f))
+            {
+                new_return(15);
+            }
+            
+            for(int j=0; j<8; j++)
+            {
+                if(!p_putc(DMaps[i].grid[j],f))
+                {
+                    new_return(16);
+                }
+            }
+            
+            //16
+            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
+            {
+                new_return(17);
+            }
+            
+            if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
+            {
+                new_return(18);
+            }
+            
+            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
+            {
+                new_return(19);
+            }
+            
+            if(!p_iputl(DMaps[i].minimap_1_tile,f))
+            {
+                new_return(20);
+            }
+            
+            if(!p_putc(DMaps[i].minimap_1_cset,f))
+            {
+                new_return(21);
+            }
+            
+            if(!p_iputl(DMaps[i].minimap_2_tile,f))
+            {
+                new_return(22);
+            }
+            
+            if(!p_putc(DMaps[i].minimap_2_cset,f))
+            {
+                new_return(23);
+            }
+            
+            if(!p_iputl(DMaps[i].largemap_1_tile,f))
+            {
+                new_return(24);
+            }
+            
+            if(!p_putc(DMaps[i].largemap_1_cset,f))
+            {
+                new_return(25);
+            }
+            
+            if(!p_iputl(DMaps[i].largemap_2_tile,f))
+            {
+                new_return(26);
+            }
+            
+            if(!p_putc(DMaps[i].largemap_2_cset,f))
+            {
+                new_return(27);
+            }
+            
+            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
+            {
+                new_return(28);
+            }
+            
+            if(!p_putc(DMaps[i].tmusictrack,f))
+            {
+                new_return(29);
+            }
+            
+            if(!p_putc(DMaps[i].active_subscreen,f))
+            {
+                new_return(30);
+            }
+            
+            if(!p_putc(DMaps[i].passive_subscreen,f))
+            {
+                new_return(31);
+            }
+            
+            byte disabled[32];
+            memset(disabled,0,32);
+            
+            for(int j=0; j<MAXITEMS; j++)
+            {
+                if(DMaps[i].disableditems[j])
+                {
+                    disabled[j/8] |= (1 << (j%8));
+                }
+            }
+            
+            if(!pfwrite(disabled,32,f))
+            {
+                new_return(32);
+            }
+            
+            if(!p_iputl(DMaps[i].flags,f))
+            {
+                new_return(33);
+            }
+	}
+
+	return 1;
+}
+
+
+int readsomedmaps(PACKFILE *f)
+{
+	dword section_version = 0;
+	dword section_cversion = 0;
+	int zversion = 0;
+	int zbuild = 0;
+	dmap tempdmap;
+	memset(&tempdmap, 0, sizeof(dmap));
+	
+	int first = 0, last = 0, max = 0, count = 0;
+   
+	//char dmapstring[64]={0};
+	//section version info
+	if(!p_igetl(&zversion,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&zbuild,f,true))
+	{
+		return 0;
+	}
+	
+	if(!p_igetw(&section_version,f,true))
+	{
+		return 0;
+	}
+    
+	if(!p_igetw(&section_cversion,f,true))
+	{
+		return 0;
+	}
+	
+	if(!p_igetl(&max,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&first,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&last,f,true))
+	{
+		return 0;
+	}
+	if(!p_igetl(&count,f,true))
+	{
+		return 0;
+	}
+	
+	
+	
+	
+	al_trace("readsomedmaps section_version: %d\n", section_version);
+	al_trace("readsomedmaps section_cversion: %d\n", section_cversion);
+    
+	if ( zversion > ZELDA_VERSION )
+	{
+		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
+		return 0;
+	}
+	else if (( section_version > V_DMAPS ) || ( section_version == V_DMAPS && section_cversion > CV_DMAPS ) ) 
+	{
+		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d) subversion (%d)\n", section_version, section_cversion);
+		return 0;
+	}
+	else
+	{
+		al_trace("Reading a .zdmap packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
+	}
+	//if(!pfread(&dmapstring, 64, f,true))
+	//{
+	//	return 0;
+	//}
+    
+    
+   
+		for ( int i = first; i <= last; ++i )
+		{
+		    if(!p_getc(&tempdmap.map,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempdmap.level,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.xoff,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.compass,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetw(&tempdmap.color,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.midi,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.cont,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.type,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    for(int j=0; j<8; j++)
+		    {
+			if(!p_getc(&tempdmap.grid[j],f,true))
+			{
+			    return 0;
+			}
+		    }
+		    
+		    //16
+		    if(!pfread(&tempdmap.name,sizeof(DMaps[0].name),f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!pfread(&tempdmap.title,sizeof(DMaps[0].title),f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!pfread(&tempdmap.intro,sizeof(DMaps[0].intro),f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempdmap.minimap_1_tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.minimap_1_cset,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempdmap.minimap_2_tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.minimap_2_cset,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempdmap.largemap_1_tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.largemap_1_cset,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_igetl(&tempdmap.largemap_2_tile,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.largemap_2_cset,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!pfread(&tempdmap.tmusic,sizeof(DMaps[0].tmusic),f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.tmusictrack,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.active_subscreen,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    if(!p_getc(&tempdmap.passive_subscreen,f,true))
+		    {
+			return 0;
+		    }
+		    
+		    byte disabled[32];
+		    memset(disabled,0,32);
+		    
+		    if(!pfread(&disabled, 32, f, true)) return 0;
+		    
+		    for(int j=0; j<MAXITEMS; j++)
+		    {
+			if(disabled[j/8] & (1 << (j%8))) tempdmap.disableditems[j]=1;
+			else tempdmap.disableditems[j]=0;
+		    }
+		    
+		    
+		    if(!p_igetl(&tempdmap.flags,f,true))
+		    {
+			return 0;
+		    }
+		::memcpy(&DMaps[i], &tempdmap, sizeof(dmap));
+	    }
+       
+	return 1;
+}
+
+
 
 int writeonedmap(PACKFILE *f, int i)
 {

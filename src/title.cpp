@@ -18,6 +18,8 @@
 
 #include "zdefs.h"
 #include "zelda.h"
+extern zcmodule moduledata;
+extern ZModule zcm;
 #include "zsys.h"
 #include "qst.h"
 #include "tiles.h"
@@ -2532,19 +2534,19 @@ static bool register_name()
         strcpy(buf,name);
         strupr(buf);
         
-        if(!stricmp(buf,"ZELDA"))
+        if(!stricmp(buf,moduledata.skipnames[1]))
             quest=2;
             
-        if(!stricmp(buf,"ALPHA"))
+        if(!stricmp(buf,moduledata.skipnames[2]))
             quest=3;
             
-        if(!stricmp(buf,"GANON"))
+        if(!stricmp(buf,moduledata.skipnames[3]))
             quest=4;
            
-        if(!stricmp(buf,"JEAN")) // This is what BigJoe wanted. I have no problem with it.
+        if(!stricmp(buf,moduledata.skipnames[4])) // This is what BigJoe wanted. I have no problem with it.
 			quest=5;
         
-	if(!stricmp(buf,"OMNIUS") && quest_exists("6th.qst")) 
+	if(!stricmp(buf,moduledata.skipnames[5]) && quest_exists(moduledata.quests[5])) 
 			quest=6;
         
         saves[s].set_quest(quest);
