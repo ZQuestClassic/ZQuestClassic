@@ -35,6 +35,9 @@
 #include "zcmusic.h"
 #include "zdefs.h"
 #include "zelda.h"
+
+zcmodule moduledata;
+ZModule zcm;
 #include "tiles.h"
 #include "colors.h"
 #include "pal.h"
@@ -4182,6 +4185,117 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
         allegro_message("%s", buf);
         //exit(-1); //flashing lights are probably enough.
     }
+}
+
+
+/***************************/
+/******  .zmod Light  ******/
+/***************************/
+
+void ZModule::init() //bool default
+{
+	
+	
+	memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
+	memset(moduledata.quests, 0, sizeof(moduledata.quests));
+	memset(moduledata.skipnames, 0, sizeof(moduledata.skipnames));
+	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
+	
+	memset(moduledata.startingdmap, 0, sizeof(moduledata.startingdmap));
+	memset(moduledata.startingscreen, 0, sizeof(moduledata.startingscreen));
+	
+	moduledata.max_quest_files = 0;
+	moduledata.old_quest_serial_flow = 0;
+	
+	//strcpy(moduledata.module_name,"default.zmod");
+	//al_trace("Module name set to %s\n",moduledata.module_name);
+	//We load the current module name from zc.cfg or zquest.cfg!
+	//Otherwise, we don't know what file to access to load the module vars! 
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
+	al_trace("The Current ZQuest Editor Module is: %s\n",moduledata.module_name); 
+		
+	//zcm path
+	set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
+	//al_trace("Module name set to %s\n",moduledata.module_name);
+	
+	//quests
+	moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
+	
+	moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",5);
+	//al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
+	//al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
+	strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
+	//al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
+	strcpy(moduledata.quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
+	//al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
+	strcpy(moduledata.quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
+	//al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
+	strcpy(moduledata.quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
+	//al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
+	strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
+	strcpy(moduledata.quests[4],get_config_string("QUESTS","sixth_qst","6th.qst"));
+	strcpy(moduledata.quests[4],get_config_string("QUESTS","seventh_qst","7th.qst"));
+	strcpy(moduledata.quests[4],get_config_string("QUESTS","eighth_qst","8th.qst"));
+	strcpy(moduledata.quests[4],get_config_string("QUESTS","ninth_qst","9th.qst"));
+	strcpy(moduledata.quests[4],get_config_string("QUESTS","tenth_qst","10th.qst"));
+	//al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
+	
+	//quest skip names
+	strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
+	//al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
+	strcpy(moduledata.skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
+	//al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
+	strcpy(moduledata.skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
+	//al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
+	strcpy(moduledata.skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
+	//al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
+	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
+	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","sixth_qst_skip","OMNIUS"));
+	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","seventh_qst_skip","MCCOY"));
+	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","eighth_qst_skip","MCGANN"));
+	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","ninth_qst_skip","HURT"));
+	strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","tenth_qst_skip","ECCLESTON"));
+	//al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
+	
+	//Quest starting screens and DMaps
+	
+	//dmaps
+	moduledata.startingdmap[0] = get_config_int("QUESTS","first_startdmap",0);
+	moduledata.startingdmap[1] = get_config_int("QUESTS","second_startdmap",0);
+	moduledata.startingdmap[2] = get_config_int("QUESTS","third_startdmap",0);
+	moduledata.startingdmap[3] = get_config_int("QUESTS","fourth_startdmap",0);
+	moduledata.startingdmap[4] = get_config_int("QUESTS","fifth_startdmap",0);
+	moduledata.startingdmap[5] = get_config_int("QUESTS","sixth_startdmap",0);
+	moduledata.startingdmap[6] = get_config_int("QUESTS","seventh_startdmap",0);
+	moduledata.startingdmap[7] = get_config_int("QUESTS","eighth_startdmap",0);
+	moduledata.startingdmap[8] = get_config_int("QUESTS","ninth_startdmap",0);
+	moduledata.startingdmap[9] = get_config_int("QUESTS","tenthy_startdmap",0);
+	//screens
+	moduledata.startingscreen[0] = get_config_int("QUESTS","first_startscreen",0x77);
+	moduledata.startingscreen[1] = get_config_int("QUESTS","second_startscreen",0x77);
+	moduledata.startingscreen[2] = get_config_int("QUESTS","third_startscreen",0x77);
+	moduledata.startingscreen[3] = get_config_int("QUESTS","fourth_startscreen",0x77);
+	moduledata.startingscreen[4] = get_config_int("QUESTS","fifth_startscreen",0x77);
+	moduledata.startingscreen[5] = get_config_int("QUESTS","sixth_startscreen",0x77);
+	moduledata.startingscreen[6] = get_config_int("QUESTS","seventh_startscreen",0x77);
+	moduledata.startingscreen[7] = get_config_int("QUESTS","eighth_startscreen",0x77);
+	moduledata.startingscreen[8] = get_config_int("QUESTS","ninth_startscreen",0x77);
+	moduledata.startingscreen[9] = get_config_int("QUESTS","tenthy_startscreen",0x77);
+	
+	//datafiles
+	strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
+	al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
+	strcpy(moduledata.datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
+	al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
+	strcpy(moduledata.datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
+	al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
+	strcpy(moduledata.datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
+	al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
+	strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
+	al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
+	
+	set_config_file("zc.cfg"); //shift back to the normal config file, when done
+	
 }
 
 

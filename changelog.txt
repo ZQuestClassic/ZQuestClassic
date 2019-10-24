@@ -1,8 +1,9 @@
-ChangeLog for 2.53.0 
-
-//2.53.1
+ChangeLog for 2.53.1
 
 //Beta 5
+
+.zmod: Add .zmod (light) format to zelda.exe
+	( ZoriaRPG, 24th October, 2019 )
 
 Refactor: Replaced .dmp with .zdmapset
 	Deprecated the old Export DMaps format (.dmp).
@@ -67,6 +68,8 @@ Remove Lunaria Brick from 2.53. -Z
 Vers: Update to 2.53.1 Beta 1
 	( ZoriaRPG, 19th October, 2019 )
 	
+	
+//2.53.0
 
 //Release 3
 Better tile image export 
