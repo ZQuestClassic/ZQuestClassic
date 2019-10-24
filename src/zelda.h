@@ -403,6 +403,32 @@ extern const byte ten_rupies_y[10];
 extern zctune tunes[MAXMIDIS];
 //extern zcmidi_ tunes[MAXMIDIS];
 //extern emusic enhancedMusic[MAXMUSIC];
+
+/***************************/
+/******  .zmod Light  ******/
+/***************************/
+
+enum { zelda_dat, zquest_dat, fonts_dat, sfx_dat, qst_dat };
+
+struct zcmodule
+{
+	char module_name[2048]; //filepath for current zcmodule file
+	char quests[10][255]; //first five quests, filenames
+	char skipnames[10][255]; //name entry passwords
+	char datafiles[5][255]; //qst.dat, zquest.dat, fonts.dat, sfx.dat, zelda.dat
+	char max_quest_files;
+	word startingdmap[10];
+	word startingscreen[10];
+	byte old_quest_serial_flow;
+	
+}; //zcmodule
+
+class ZModule
+{
+	public:
+		void init(); //bool default
+};
+
 #endif
 
 /*** end of zelda.h ***/
