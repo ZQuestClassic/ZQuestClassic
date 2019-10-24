@@ -4210,8 +4210,8 @@ void ZModule::init() //bool default
 	//al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
 	//Otherwise, we don't know what file to access to load the module vars! 
-	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
-	al_trace("The Current ZQuest Editor Module is: %s\n",moduledata.module_name); 
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","classic.zmod"));
+	al_trace("\n\nThe Current ZC Player Module is: %s\n\n",moduledata.module_name); 
 		
 	//zcm path
 	set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
@@ -4268,7 +4268,7 @@ void ZModule::init() //bool default
 	moduledata.startingdmap[6] = get_config_int("QUESTS","seventh_startdmap",0);
 	moduledata.startingdmap[7] = get_config_int("QUESTS","eighth_startdmap",0);
 	moduledata.startingdmap[8] = get_config_int("QUESTS","ninth_startdmap",0);
-	moduledata.startingdmap[9] = get_config_int("QUESTS","tenthy_startdmap",0);
+	moduledata.startingdmap[9] = get_config_int("QUESTS","tenth_startdmap",0);
 	//screens
 	moduledata.startingscreen[0] = get_config_int("QUESTS","first_startscreen",0x77);
 	moduledata.startingscreen[1] = get_config_int("QUESTS","second_startscreen",0x77);
@@ -4279,7 +4279,8 @@ void ZModule::init() //bool default
 	moduledata.startingscreen[6] = get_config_int("QUESTS","seventh_startscreen",0x77);
 	moduledata.startingscreen[7] = get_config_int("QUESTS","eighth_startscreen",0x77);
 	moduledata.startingscreen[8] = get_config_int("QUESTS","ninth_startscreen",0x77);
-	moduledata.startingscreen[9] = get_config_int("QUESTS","tenthy_startscreen",0x77);
+	moduledata.startingscreen[9] = get_config_int("QUESTS","tenth_startscreen",0x77);
+	//al_trace("startscreen base is: %x\n", moduledata.startingscreen[0]);
 	
 	//datafiles
 	strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));

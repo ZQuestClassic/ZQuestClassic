@@ -2,6 +2,9 @@ ChangeLog for 2.53.1
 
 //Beta 5
 
+.zmod: Add classic.zmod to 2.53.1 and update zc.cfg to use it.
+.zmod: Minor fixes.
+.zmod: Fix the default module file from default.zmod to classic.zmod
 .zmod: Use moduledats for quests, skipnames, starting dmaps, starting screens,
 	and ZC Player datafiles (not for ZQ Editor datafiles!!)
 .zmod: Add .zmod (light) format to zelda.exe
