@@ -2123,6 +2123,22 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
         break;
         
+//	case wScript1:
+//	case wScript2:
+//	case wScript3:
+//	case wScript4:
+//	case wScript5:
+//	case wScript6:
+//	case wScript7:
+//	case wScript8:
+//	case wScript9:
+//	case wScript10:
+//	{
+		//LOADGFX(0);
+		//if ( do_animation ) update_weapon_frame(((frames>1)?frames:1),o_tile);
+		//break;
+//	}
+	
     default:
         LOADGFX(0);
         break;
@@ -7854,12 +7870,26 @@ void weapon::draw(BITMAP *dest)
 	case wScript9:
 	case wScript10:
 	{
-		if ( do_animation && ScriptGenerated ) 
+		if ( do_animation )
 		{
-			if (script_wrote_otile) 
+			//Bugfix script weapons not animating:
+			//Let's see if this works, and failstobreakanything. -Z
+			//This also will need a QR, if it works!
+			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 /* && get_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS) */ )
 			{
-				tile = o_tile;
-				script_wrote_otile = 0;
+				if(frames>1 && ++aframe >= frames)
+				{
+				    aframe = 0;
+				}
+				update_weapon_frame(aframe,o_tile);
+			}
+			if ( ScriptGenerated ) 
+			{
+				if (script_wrote_otile) 
+				{
+					tile = o_tile;
+					script_wrote_otile = 0;
+				}
 			}
 		}
 		//Z_scripterrlog("weapon::draw() o_tile is: %d\n", o_tile);
