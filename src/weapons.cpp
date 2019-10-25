@@ -7322,6 +7322,8 @@ reflect:
     }
     
 offscreenCheck:
+    
+    if ( get_bit(quest_rules,qr_WEAPONSMOVEOFFSCREEN) || (screenedge&SPRITE_MOVESOFFSCREEN) ) goto skip_offscreenCheck;
     switch(id)
     {
     case wSword:
@@ -7506,8 +7508,28 @@ offscreenCheck:
         
         break;
         
+	case wScript1:
+	case wScript2:
+	case wScript3:
+	case wScript4:
+	case wScript5:
+	case wScript6:
+	case wScript7:
+	case wScript8:
+	case wScript9:
+	case wScript10:
+	{
+		
+		if(!clipped || !get_bit(quest_rules,qr_CHECKSCRIPTWEAPONOFFSCREENCLIP) ) dead=1;
+		break;
+	}
     default:
         dead=1;
+    }
+    skip_offscreenCheck:
+    
+    {
+	//do not remove these braces!
     }
 }
 

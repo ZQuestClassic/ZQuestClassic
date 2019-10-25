@@ -127,6 +127,9 @@ sprite::sprite()
 	knockbackSpeed = 4; //default speed
 	script_knockback_clk = 0;
 	script_knockback_speed = 0;
+	screenedge = 0;
+	shadowsprite = 0;
+	scriptshadowtile = -1;
     for ( int q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
@@ -197,6 +200,9 @@ knockbackSpeed(other.knockbackSpeed),
 script_knockback_clk(other.script_knockback_clk),
 script_knockback_speed(other.script_knockback_speed),
 scale(other.scale),
+screenedge(other.screenedge),
+shadowsprite(other.shadowsprite),
+scriptshadowtile(other.scriptshadowtile),
 do_animation(other.do_animation)
 
 {
@@ -299,6 +305,9 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     misc=0;
     c_clk=0;
     shadowtile=0;
+    shadowsprite = 0;
+    screenedge = 0;
+    scriptshadowtile = -1;
     for ( int q = 0; q < 8; q++ ) 
     {
         initD[q] = 0;

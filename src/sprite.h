@@ -34,6 +34,10 @@ extern int conveyclk;
 /**********************************/
 /******* Sprite Base Class ********/
 /**********************************/
+
+//Sprite Offscreen Bits
+#define SPRITE_MOVESOFFSCREEN 0x01
+
 // Forward reference
 class refInfo;
 
@@ -113,6 +117,9 @@ public:
     int scale; 
     byte obeys_gravity;
 	byte knockbackflags;
+	byte screenedge;
+	byte shadowsprite;
+	int scriptshadowtile;
 #define FLAG_NOSLIDE 0x01
 #define FLAG_NOSCRIPTKNOCKBACK 0x02
 	byte knockbackSpeed;

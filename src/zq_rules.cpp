@@ -73,7 +73,7 @@ static DIALOG animationrules_dlg[] =
     { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Items Held Above Link's Head Continue To Animate", NULL, NULL },
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Bomb Explosions Don't Flash Palette", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Layers 1 and 2 Are Drawn Under Caves", NULL, NULL },
-    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Animate Custom/Script Type Weapons", NULL, NULL },
+    { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Animate Custom / Script Type Weapons", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -378,7 +378,7 @@ static DIALOG enemyrules_dlg[] =
     // rules 2 //22
     { jwin_check_proc,      10, 33+10, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Statue Minimum Range Or Double Fireballs", NULL, NULL },
     { jwin_check_proc,      10, 33+20, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use Super Bomb Explosions for Explode on Contact", NULL, NULL },
-    { jwin_check_proc,      10, 33+30, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Can Go Out of Bounds", NULL, NULL },
+    { jwin_check_proc,      10, 33+30, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Can Go Out of Bounds (Offscreen)", NULL, NULL },
     { jwin_check_proc,      10, 33+40, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Spawning Custom and Friendly Enemy Types", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -621,7 +621,7 @@ static int compatrules1_list[] =
 
 static int compatrules2_list[] =
 {
-	22, 23, 24, 25, 26, 27, 28, -1
+	22, 23, 24, 25, 26, 27, 28, 29, 30, -1
 };
 
 static TABPANEL compatrules_tabs[] =
@@ -639,7 +639,7 @@ static int compatrules[] =
    qr_PEAHATCLOCKVULN, qr_OFFSCREENWEAPONS, qr_ITEMPICKUPSETSBELOW, qr_OLDSIDEVIEWSPIKES,
    qr_OLDINFMAGIC, qr_BITMAPOFFSETFIX, qr_OLDSPRITEDRAWS, qr_OLD_F6, qr_BROKEN_ASKIP_Y_FRAMES,
    qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, qr_OLD_SIDEVIEW_CEILING_COLLISON, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
-   qr_OLD_ENEMY_KNOCKBACK_COLLISION,
+   qr_OLD_ENEMY_KNOCKBACK_COLLISION, qr_WEAPONSMOVEOFFSCREEN, qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
    -1 
 };
 
@@ -684,6 +684,8 @@ static DIALOG compatrules_dlg[] =
 	{ jwin_check_proc,      10, 13+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Sideview Ceiling Collision", NULL, NULL },
 	{ jwin_check_proc,      10, 13+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Items set to 0 AFrames ignore AFrame changes", NULL, NULL },
 	{ jwin_check_proc,      10, 13+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Enemy Knockback Collision", NULL, NULL },
+	{ jwin_check_proc,      10, 13+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Weapons Can Go Out of Bounds (Offscreen)", NULL, NULL },
+	{ jwin_check_proc,      10, 13+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Check Clip for Custom / Script Type Weapons on Screen Edge", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };
 
