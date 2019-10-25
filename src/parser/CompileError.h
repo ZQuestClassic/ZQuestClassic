@@ -44,6 +44,7 @@ namespace ZScript
 		// argument list properly.
 #		define EXPAND(X) X
 #		define TYPE_VOID /* ignore void types */
+#		define TYPE_void /* ignore void types */
 #		define TYPE_INT ,int
 #		define TYPE_STR ,std::string const&
 		// Split on USED field.
@@ -54,6 +55,7 @@ namespace ZScript
 #		include "CompileError.xtable"
 #		undef EXPAND
 #		undef TYPE_VOID
+#		undef TYPE_void
 #		undef TYPE_INT
 #		undef TYPE_STR
 #		undef X

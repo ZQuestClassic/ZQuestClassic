@@ -14211,6 +14211,10 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 			global_wait&= ~(1<<GLOBAL_SCRIPT_GAME);
 		}
+		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
+		{
+			FFCore.itemScriptEngineOnWaitdraw();
+		}
 		if ( (!( FFCore.system_suspend[susptLINKACTIVE] )) && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
@@ -14238,6 +14242,10 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+		}
+		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
+		{
+			FFCore.itemScriptEngine();
 		}
 		if ((!( FFCore.system_suspend[susptLINKACTIVE] )) && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{

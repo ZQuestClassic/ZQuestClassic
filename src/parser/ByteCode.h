@@ -1227,6 +1227,8 @@ namespace ZScript
 		long value;
 	};
 
+	std::string VarToString(long ID);
+
 	class VarArgument : public Argument
 	{
 	public:

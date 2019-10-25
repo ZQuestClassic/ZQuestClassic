@@ -12195,7 +12195,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	{
 		curr_combo.usrflags &= ~0x04;
 	}
-	if(combo_dlg[49].flags & D_SELECTED) 
+	if(combo_dlg[50].flags & D_SELECTED) 
 	{
 		curr_combo.usrflags |= 0x08;
 	}
@@ -12203,7 +12203,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	{
 		curr_combo.usrflags &= ~0x08;
 	}
-	if(combo_dlg[50].flags & D_SELECTED) 
+	if(combo_dlg[51].flags & D_SELECTED) 
 	{
 		curr_combo.usrflags |= 0x10;
 	}
@@ -12211,7 +12211,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	{
 		curr_combo.usrflags &= ~0x10;
 	}
-	if(combo_dlg[51].flags & D_SELECTED) 
+	if(combo_dlg[52].flags & D_SELECTED) 
 	{
 		curr_combo.usrflags |= 0x20;
 	}
@@ -12219,7 +12219,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	{
 		curr_combo.usrflags &= ~0x20;
 	}
-	if(combo_dlg[52].flags & D_SELECTED) 
+	if(combo_dlg[53].flags & D_SELECTED) 
 	{
 		curr_combo.usrflags |= 0x40;
 	}
@@ -12227,7 +12227,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	{
 		curr_combo.usrflags &= ~0x40;
 	}
-	if(combo_dlg[53].flags & D_SELECTED) 
+	if(combo_dlg[54].flags & D_SELECTED) 
 	{
 		curr_combo.usrflags |= 0x80;
 	}

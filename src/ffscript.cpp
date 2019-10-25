@@ -1015,6 +1015,7 @@ void FFScript::initZScriptItemScripts()
 		item_collect_doscript[q] = 0;
 		itemScriptData[q].Clear();
 		itemCollectScriptData[q].Clear();
+		itemscriptInitialised[q] = 0;
 		clear_item_stack(q);
 	}
 }

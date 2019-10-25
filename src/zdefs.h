@@ -2328,6 +2328,22 @@ struct ffscript
     char *ptr;
 };
 
+struct script_command
+{
+    char name[64];
+    byte args;
+    byte arg1_type; //0=reg, 1=val;
+    byte arg2_type; //0=reg, 1=val;
+    bool more_stuff;
+};
+
+struct script_variable
+{
+    char name[64];
+    long id;
+    word maxcount;
+    byte multiple;
+};
 
 // The version of the ZASM engine a script was compiled for
 // NOT the same as V_FFSCRIPT, which is the version of the packfile format
