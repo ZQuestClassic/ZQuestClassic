@@ -3838,30 +3838,49 @@ int main(int argc, char* argv[])
     sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
     sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
     
-    switch(IS_BETA)
-    {
-    
-    case -1:
-    {
-        Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-        //Print the current time to allegro.log as a test.
-        
-        //for (int q = 0; q < curTimeLAST; q++) 
-        //{
-        //    int t_time_v = FFCore.getTime(q);
-        //}
+
+	if ( V_ZC_ALPHA )
+	{
+		Z_title("%s, v.%s Alpha %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_ALPHA);
+	}
+		
+	else if ( V_ZC_BETA )
+	{
+		Z_title("%s, v.%s Beta %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_BETA);
+	}
+	else if ( V_ZC_GAMMA )
+	{
+		Z_title("%s, v.%s Gamma %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_GAMMA);
+	}
+	else /*( V_ZC_RELEASE )*/
+	{
+		Z_title("%s, v.%s Release %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_RELEASE);
+	}
+	/*
+	    switch(IS_BETA)
+	    {
 	    
-        break;
-    }
-        
-    case 1:
-        Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-        break;
-        
-    case 0:
-        Z_title("Zelda Classic %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-    }
-    
+	    case -1:
+	    {
+		Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+		//Print the current time to allegro.log as a test.
+		
+		//for (int q = 0; q < curTimeLAST; q++) 
+		//{
+		//    int t_time_v = FFCore.getTime(q);
+		//}
+		    
+		break;
+	    }
+		
+	    case 1:
+		Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+		break;
+		
+	    case 0:
+		Z_title("Zelda Classic %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+	    }
+	*/
     if(used_switch(argc, argv, "-standalone"))
     {
         standalone_mode=true;

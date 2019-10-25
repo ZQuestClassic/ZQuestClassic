@@ -31,6 +31,7 @@
 #include "zc_alleg.h"
 #include "mem_debug.h"
 #include "particles.h"
+#include "metadata/versionsig.h"
 sprite_list particles;
 void setZScriptVersion(int) { } //bleh...
 
@@ -26092,22 +26093,44 @@ sprite_list Sitems, Lwpns;
 
 int main(int argc,char **argv)
 {
-    switch(IS_BETA)
-    {
-    case -1:
-    {
-        Z_title("ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-        //Print the current time to allegro.log as a test.
-        
-        break;
-    }
-    case 1:
-        Z_title("ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-        break;
-        
-    case 0:
-        Z_title("ZQuest %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-    }
+    
+	
+	if ( V_ZC_ALPHA )
+	{
+		Z_title("%s, v.%s Alpha %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_ALPHA);
+	}
+		
+	else if ( V_ZC_BETA )
+	{
+		Z_title("%s, v.%s Beta %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_BETA);
+	}
+	else if ( V_ZC_GAMMA )
+	{
+		Z_title("%s, v.%s Gamma %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_GAMMA);
+	}
+	else /*( V_ZC_RELEASE )*/
+	{
+		Z_title("%s, v.%s Release %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_RELEASE);
+	}
+	
+	/*
+		    switch(IS_BETA)
+		    {
+		    case -1:
+		    {
+			Z_title("ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			//Print the current time to allegro.log as a test.
+			
+			break;
+		    }
+		    case 1:
+			Z_title("ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+			break;
+			
+		    case 0:
+			Z_title("ZQuest %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+		    }
+	*/
     
     scrtmp = NULL;
     
@@ -27663,7 +27686,17 @@ int main(int argc,char **argv)
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
     show_mouse(screen);
     //Display annoying beta warning message
-#if IS_BETA
+#if V_ZC_ALPHA
+    char *curcontrol = getBetaControlString();
+    const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
+    
+    if(strcmp(curcontrol, oldcontrol))
+    {
+        jwin_alert("       !!WARNING - This is ALPHA!!", "This version of ZQuest might corrupt your quest or crash.", "Features might change or disappear with no warning.", "Build quests at your OWN RISK!", "OK", NULL, 0, 0, lfont);
+    }
+    
+    delete[] curcontrol;
+#elif V_ZC_BETA
     char *curcontrol = getBetaControlString();
     const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
     

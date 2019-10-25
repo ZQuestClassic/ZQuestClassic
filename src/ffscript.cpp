@@ -3,6 +3,7 @@
 #endif                            //prevent indirectly including windows.h
 
 #include "precompiled.h" //always first
+#include "metadata/versionsig.h"
 
 #include <deque>
 //#include <algorithm>
@@ -5038,14 +5039,25 @@ case NPCBEHAVIOUR: {
     
     case ZELDABETA:
     {
-	if ( (FFCore.quest_format[vLastCompile]) < 13 )
+	if ( (FFCore.quest_format[vLastCompile]) < 13 ) //I don't remember why I did this. 
+		//It used to return IS_BETA*10000 here
 	{
-		
-		ret = VERSION_BETA*10000;
+		int statusvers = 0;
+		if ( V_ZC_ALPHA ) statusvers = V_ZC_ALPHA;
+		else if ( V_ZC_BETA ) statusvers = V_ZC_BETA;
+		else if ( V_ZC_GAMMA ) statusvers = V_ZC_GAMMA;
+		else if ( V_ZC_RELEASE ) statusvers = V_ZC_RELEASE;
+		ret = statusvers*10000;
 	}
 	else 
 	{
-		ret = (int)IS_BETA*10000;
+		//and it used to return (int)IS_BETA*10000 here. -Z
+		int statusvers = 0;
+		if ( V_ZC_ALPHA ) statusvers = V_ZC_ALPHA;
+		else if ( V_ZC_BETA ) statusvers = V_ZC_BETA;
+		else if ( V_ZC_GAMMA ) statusvers = V_ZC_GAMMA;
+		else if ( V_ZC_RELEASE ) statusvers = V_ZC_RELEASE;
+		ret = (int)statusvers*10000;
 	}
 	break;
     }
