@@ -11190,7 +11190,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         if(GuyH::loadNPC(ri->guyref, "npc->Defense") == SH::_NoError &&
                 BC::checkBounds(a, 0, (edefLAST255), "npc->Defense") == SH::_NoError)
 	{
-		if ( ( FFCore.getQuestHeaderInfo(vZelda) < 0x254 || get_bit(quest_rules, qr_250WRITEEDEFSCRIPT) ) && a == edefSCRIPT ) 
+		if ( ( get_bit(quest_rules, qr_250WRITEEDEFSCRIPT) ) && a == edefSCRIPT ) 
 		{
 			for ( int sd = edefSCRIPT01; sd <= edefSCRIPT10; sd++ )
 			{

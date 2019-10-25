@@ -2940,6 +2940,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	  set_bit(quest_rules, qr_NOITEMWAITDRAW, 1);  
 	  
     }
+    if ( tempheader.zelda_version < 0x254 )
+    {
+	    set_bit(quest_rules, qr_250WRITEEDEFSCRIPT, 1);  
+    }
     //Sideview spikes in 2.50.0
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
     {
