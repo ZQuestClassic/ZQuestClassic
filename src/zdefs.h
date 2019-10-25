@@ -3672,6 +3672,10 @@ struct zcmodule
         int select_screen_tiles[sels_tile_LAST];
         char select_screen_tile_csets[sels_tile_cset_LAST];
 	byte refresh_title_screen;
+	
+	//to add, and init
+	//word startingdmap, startingscreen;
+	//char enemy_script_weapon_names[10][255];
         
 
 }; //zcmodule
