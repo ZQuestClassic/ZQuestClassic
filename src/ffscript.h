@@ -1537,29 +1537,6 @@ void do_getscreendoor();
 long get_screennpc(mapscr *m, int index);
 void do_getscreennpc();
 
-
-    
-
-
-
-struct script_command
-{
-    char name[64];
-    byte args;
-    byte arg1_type; //0=reg, 1=val;
-    byte arg2_type; //0=reg, 1=val;
-    bool more_stuff;
-};
-
-struct script_variable
-{
-    char name[64];
-    long id;
-    word maxcount;
-    byte multiple;
-};
-
-
 // Defines for script flags
 #define TRUEFLAG          0x0001
 #define MOREFLAG          0x0002

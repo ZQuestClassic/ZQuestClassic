@@ -70,6 +70,21 @@ namespace ZScript
 		int label;
 	};
 
+	class ArbitraryOpcode : public Opcode
+	{
+	public:
+		ArbitraryOpcode(std::string data) : str(data) {}
+		std::string str;
+		std::string toString()
+		{
+			return str;
+		}
+		Opcode *clone()
+		{
+			return new ArbitraryOpcode(str);
+		}
+	};
+
 	class ScriptsData
 	{
 	public:
