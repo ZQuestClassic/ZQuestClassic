@@ -2014,6 +2014,7 @@ script_variable variable_list[]=
 	{ "MAPDATATWARPRETSQR",		MAPDATATWARPRETSQR,        0,             0 },
 	{ "MAPDATASWARPRETSQR",		MAPDATASWARPRETSQR,        0,             0 },
 	{ "NPCSUBMERGED",		NPCSUBMERGED,        0,             0 },
+	{ "EWPNPARENTUID",		EWPNPARENTUID,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
