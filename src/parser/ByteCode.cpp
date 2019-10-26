@@ -1777,6 +1777,7 @@ string ZScript::VarToString(long ID)
 	case MAPDATASWARPRETSQR: return "MAPDATASWARPRETSQR";
 	case NPCSUBMERGED: return "NPCSUBMERGED";
 	case EWPNPARENTUID: return "EWPNPARENTUID";
+	case GAMEGRAVITY: return "GAMEGRAVITY";
 	
 	
 	default:

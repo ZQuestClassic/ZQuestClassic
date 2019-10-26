@@ -28,6 +28,9 @@ extern byte use_dwm_flush;
 #include <time.h>
 //#include "zc_sys.h"
 #include "script_drawing.h"
+
+extern zinitdata zinit;
+
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
 zquestheader ZCheader;
@@ -5175,6 +5178,32 @@ case NPCBEHAVIOUR: {
     case GAMELKEYSD:
         ret=game->lvlkeys[(ri->d[0])/10000]*10000;
         break;
+		
+	case GAMEGRAVITY:
+	{
+		int indx = ri->d[0]/10000;
+		if(indx < 0 || indx > 2)
+		{
+			ret = -10000;
+			Z_scripterrlog("Invalid index used to access Game->Gravity[]: %d\n", indx);
+		}
+		else
+		{
+			switch(indx)
+			{
+				case 0: //Gravity Strength
+					ret = zinit.gravity * 100;
+					break;
+				case 1: //Terminal Velocity
+					ret = zinit.terminalv * 100;
+					break;
+				case 2: //Sprite Layer Threshold
+					ret = zinit.jump_link_layer_threshold * 10000;
+					break;
+			}
+		}
+		break;
+	}
         
     case SCREENSTATED:
     {
@@ -11646,6 +11675,31 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case GAMELKEYSD:
         game->lvlkeys[(ri->d[0])/10000]=value/10000;
         break;
+		
+	case GAMEGRAVITY:
+	{
+		int indx = ri->d[0]/10000;
+		if(indx < 0 || indx > 2)
+		{
+			Z_scripterrlog("Invalid index used to access Game->Gravity[]: %d\n", indx);
+		}
+		else
+		{
+			switch(indx)
+			{
+				case 0: //Gravity Strength
+					zinit.gravity = value / 100;
+					break;
+				case 1: //Terminal Velocity
+					zinit.terminalv = value / 100;
+					break;
+				case 2: //Sprite Layer Threshold
+					zinit.jump_link_layer_threshold = value / 10000;
+					break;
+			}
+		}
+		break;
+	}
         
     case SCREENSTATED:
     {
@@ -29035,6 +29089,8 @@ script_variable ZASMVars[]=
 	{ "SCREENDATASWARPRETSQR",		SCREENDATASWARPRETSQR,        0,             0 },
 	{ "MAPDATATWARPRETSQR",		MAPDATATWARPRETSQR,        0,             0 },
 	{ "MAPDATASWARPRETSQR",		MAPDATASWARPRETSQR,        0,             0 },
+	{ "NPCSUBMERGED",		NPCSUBMERGED,        0,             0 },
+	{ "GAMEGRAVITY",		GAMEGRAVITY,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

@@ -3650,11 +3650,12 @@ enum ASM_DEFINE
 #define DMAPDATAID		0x1379
 #define NPCSUBMERGED		0x137A
 #define EWPNPARENTUID		0x137B
+#define GAMEGRAVITY			0x137C
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x137C
+#define NUMVARIABLES         	0x137D
 
 // Script types
 

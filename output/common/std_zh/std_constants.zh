@@ -2872,3 +2872,10 @@ define NORESET_B_DOOR_B_UP =		0x0001;
 define NORESET_B_DOOR_B_DOWN =		0x0002;
 define NORESET_B_DOOR_B_LEFT =		0x0004;
 define NORESET_B_DOOR_B_RIGHT =		0x0008;
+
+enum //Indexes for Game->Gravity[]
+{
+	GR_STRENGTH,
+	GR_TERMINALV,
+	GR_SPRLAYER
+};
