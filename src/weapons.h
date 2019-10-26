@@ -82,8 +82,11 @@ public:
     //! End weapon editor. -Z
     
     int script_UID;
+    int parent_script_UID;
     int getScriptUID();
+    int getParentScriptUID();
     void setScriptUID(int new_id);
+    void setParentScriptUID(int new_id);
     bool isLinkWeapon();
     bool isLinkMelee();
     //2.6 ZScript -Z

@@ -2569,6 +2569,12 @@ static AccessorTable ScreenTable[] =
 	{ "getInitD[]",            	  ZVARTYPEID_UNTYPED,       GETTER,       SCREENINITD,                       8,           0,                                    2,           {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setInitD[]",            	  ZVARTYPEID_VOID,          SETTER,       SCREENINITD,                       8,           0,                                    3,           {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_UNTYPED,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
+	{ "LoadNPCByUID",                      ZVARTYPEID_NPC,           FUNCTION,     0,                                1,            0,                                    2,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadLWeaponByUID",                      ZVARTYPEID_LWPN,           FUNCTION,     0,                                1,            0,                                    2,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadEWeaponByUID",                      ZVARTYPEID_EWPN,           FUNCTION,     0,                                1,            0,                                    2,           {  ZVARTYPEID_SCREEN,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+	
+	
 	{ "",                             -1,                       -1,           -1,                               -1,           0,                                    0,           { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
@@ -2734,6 +2740,57 @@ void ScreenSymbols::generateCode()
         //convert from 1-index to 0-index
         code.push_back(new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
         code.push_back(new OLoadEWpnRegister(new VarArgument(EXP1)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFEWPN)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //npc LoadNPCByUID(screen, int)
+    {
+	    Function* function = getFunction("LoadNPCByUID", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        
+        code.push_back(new OLoadNPCBySUIDRegister(new VarArgument(EXP1)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFNPC)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
+     //npc LoadLWeaponByUID(screen, int)
+    {
+	    Function* function = getFunction("LoadLWeaponByUID", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLoadLWeaponBySUIDRegister(new VarArgument(EXP1)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFLWPN)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
+    //ewpn LoadEWeaponByUID(screen, int)
+    {
+	    Function* function = getFunction("LoadEWeaponByUID", 2);
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLoadEWeaponBySUIDRegister(new VarArgument(EXP1)));
         code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFEWPN)));
         code.push_back(new OReturn());
         function->giveCode(code);
@@ -7203,6 +7260,7 @@ static AccessorTable ewpnTable[] =
 	{ "getAnimation",           ZVARTYPEID_FLOAT,         GETTER,       EWPNENGINEANIMATE,    1,             0,                                    1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setAnimation",           ZVARTYPEID_VOID,          SETTER,       EWPNENGINEANIMATE,    1,             0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_BOOL,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getUID",                 ZVARTYPEID_FLOAT,         GETTER,       EWEAPONSCRIPTUID,     1,             0,                                    1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getParentUID",                 ZVARTYPEID_FLOAT,         GETTER,       EWPNPARENTUID,     1,             0,                                    1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getScript",              ZVARTYPEID_FLOAT,         GETTER,       EWPNSCRIPT,           1,             0,                                    1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setScript",              ZVARTYPEID_VOID,          SETTER,       EWPNSCRIPT,           1,             0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getInitD[]",             ZVARTYPEID_UNTYPED,       GETTER,       EWPNINITD,            8,             0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },

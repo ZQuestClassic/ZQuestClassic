@@ -908,7 +908,9 @@ script_command command_list[NUMCOMMANDS+1]=
     { "CLOSEWIPESHAPE",                1,   0,   0,   0},
     { "FILEEXISTS",                1,   0,   0,   0},
     { "BITMAPCLEARTOCOLOR",                0,   0,   0,   0},
-	
+	{ "LOADNPCBYSUID",        1,   0,   0,   0},
+	{ "LOADLWEAPONBYSUID",        1,   0,   0,   0},
+	{ "LOADWEAPONCBYSUID",        1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}

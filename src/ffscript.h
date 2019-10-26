@@ -506,6 +506,10 @@ void do_loaditem_by_script_uid(const bool v);
 void do_loadlweapon_by_script_uid(const bool v);
 void do_loadeweapon_by_script_uid(const bool v);
 
+int getEnemyByScriptUID(int sUID);
+int getLWeaponByScriptUID(int sUID);
+int getEWeaponByScriptUID(int sUID);
+
 //new npc functions for npc scripts
 void do_isdeadnpc();
 void do_canslidenpc();
@@ -2400,6 +2404,9 @@ enum ASM_DEFINE
 	CLOSEWIPESHAPE,
 	FILEEXISTS,
 	BITMAPCLEARTOCOLOR,
+	LOADNPCBYSUID,
+	LOADLWEAPONBYSUID,
+	LOADWEAPONCBYSUID,
 
 
 	NUMCOMMANDS           //0x0168
@@ -3642,11 +3649,12 @@ enum ASM_DEFINE
 #define MAPDATASWARPRETSQR		0x1378
 #define DMAPDATAID		0x1379
 #define NPCSUBMERGED		0x137A
+#define EWPNPARENTUID		0x137B
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x137B
+#define NUMVARIABLES         	0x137C
 
 // Script types
 

@@ -1159,6 +1159,7 @@
 #define MAPDATASWARPRETSQR		1088
 #define DMAPDATAID		1089
 #define NPCSUBMERGED		1090
+#define EWPNPARENTUID		1091
 
 #define LAST_BYTECODE 		1091
 
@@ -8404,6 +8405,39 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OGETDMAPBYNAME(a->clone());
+		}
+	};
+	
+	class OLoadNPCBySUIDRegister : public UnaryOpcode
+	{
+	public:
+		OLoadNPCBySUIDRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadNPCBySUIDRegister(a->clone());
+		}
+	};
+	
+	class OLoadLWeaponBySUIDRegister : public UnaryOpcode
+	{
+	public:
+		OLoadLWeaponBySUIDRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadLWeaponBySUIDRegister(a->clone());
+		}
+	};
+	
+	class OLoadEWeaponBySUIDRegister : public UnaryOpcode
+	{
+	public:
+		OLoadEWeaponBySUIDRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadEWeaponBySUIDRegister(a->clone());
 		}
 	};
 	

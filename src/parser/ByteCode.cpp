@@ -1776,6 +1776,7 @@ string ZScript::VarToString(long ID)
 	case MAPDATATWARPRETSQR: return "MAPDATATWARPRETSQR";
 	case MAPDATASWARPRETSQR: return "MAPDATASWARPRETSQR";
 	case NPCSUBMERGED: return "NPCSUBMERGED";
+	case EWPNPARENTUID: return "EWPNPARENTUID";
 	
 	
 	default:
@@ -2486,6 +2487,7 @@ string OLoadNPCRegister::toString()
 {
     return "LOADNPCR " + getArgument()->toString();
 }
+
 
 string OLoadLWpnRegister::toString()
 {
@@ -4932,7 +4934,18 @@ string OGETDMAPBYNAME::toString()
     return "GETDMAPBYNAME " + getArgument()->toString();
 }
 
-
+string OLoadNPCBySUIDRegister::toString()
+{
+    return "LOADNPCBYSUID " + getArgument()->toString();
+}
+string OLoadLWeaponBySUIDRegister::toString()
+{
+    return "LOADLWEAPONBYSUID " + getArgument()->toString();
+}
+string OLoadEWeaponBySUIDRegister::toString()
+{
+    return "LOADWEAPONCBYSUID " + getArgument()->toString();
+}
 
 string OReturn::toString()
 {
