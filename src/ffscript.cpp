@@ -4973,6 +4973,12 @@ case NPCBEHAVIOUR: {
             
         break;
 	
+	case EWPNPARENTUID:
+        if(0!=(s=checkEWpn(ri->ewpn, "ScriptUID")))
+            ret=(((weapon*)(s))->parent_script_UID); //literal, not *10000
+            
+        break;
+	
 	case EWPNSCRIPT:
         if(0!=(s=checkEWpn(ri->ewpn,"Script")))
             ret=(((weapon*)(s))->weaponscript)*10000;
@@ -20091,6 +20097,18 @@ int run_script(const byte type, const word script, const long i)
 		    do_loaditemdata(true);
 		    break;
 		    
+		case LOADNPCBYSUID:
+		    FFCore.do_loadnpc_by_script_uid(false);
+		    break;
+		
+		case LOADLWEAPONBYSUID:
+		    FFCore.do_loadlweapon_by_script_uid(false);
+		    break;
+		
+		case LOADWEAPONCBYSUID:
+		    FFCore.do_loadeweapon_by_script_uid(false);
+		    break;
+		
 		case LOADNPCR:
 		    do_loadnpc(false);
 		    break;
@@ -33301,3 +33319,73 @@ defWpnSprite FFScript::getDefWeaponSprite(int wpnid)
 	}
 };
 
+
+int FFScript::getEnemyByScriptUID(int sUID)
+{
+	
+	for(word i = 0; i < guys.Count(); i++)
+        {
+            enemy *w = (enemy*)guys.spr(i);
+            if ( w ->script_UID == sUID ) return i;
+        }
+	return -1;
+}
+
+int FFScript::getLWeaponByScriptUID(int sUID)
+{
+	
+	for(word i = 0; i < guys.Count(); i++)
+        {
+            weapon *w = (weapon*)Lwpns.spr(i);
+            if ( w ->script_UID == sUID ) return i;
+        }
+	return -1;
+}
+
+int FFScript::getEWeaponByScriptUID(int sUID)
+{
+	
+	for(word i = 0; i < guys.Count(); i++)
+        {
+            weapon *w = (weapon*)Ewpns.spr(i);
+            if ( w ->script_UID == sUID ) return i;
+        }
+	return -1;
+}
+
+
+void FFScript::do_loadlweapon_by_script_uid(const bool v)
+{
+	long sUID = SH::get_arg(sarg1, v) / 10000;
+
+	int indx = FFCore.getLWeaponByScriptUID(sUID);
+	if ( indx > -1 ) 
+		ri->lwpn = Lwpns.spr(indx)->getUID();
+	else
+		Z_scripterrlog("There is no valid LWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+}
+
+void FFScript::do_loadeweapon_by_script_uid(const bool v)
+{
+	
+	long sUID = SH::get_arg(sarg1, v) / 10000;
+
+	int indx = FFCore.getEWeaponByScriptUID(sUID);
+	if ( indx > -1 ) 
+		ri->ewpn = Lwpns.spr(indx)->getUID();
+	else
+		Z_scripterrlog("There is no valid EWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+}
+
+
+void FFScript::do_loadnpc_by_script_uid(const bool v)
+{
+	
+	long sUID = SH::get_arg(sarg1, v) / 10000;
+
+	int indx = FFCore.getEnemyByScriptUID(sUID);
+	if ( indx > -1 ) 
+		ri->guyref = guys.spr(indx)->getUID();
+	else
+		Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
+}

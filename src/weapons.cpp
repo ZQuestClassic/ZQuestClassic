@@ -267,6 +267,7 @@ weapon::weapon(weapon const & other):
 		enemy *s = (enemy *)guys.getByUID(parentid);
 	
 		weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
+		parent_script_UID = s->script_UID;
 		for ( int q = 0; q < INITIAL_D; q++ ) 
 		{
 			//Z_scripterrlog("(weapon::weapon(weapon const & other)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
@@ -470,6 +471,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	//Z_scripterrlog("The enemy ID that created it was: %d\n",s->id & 0xFFF);
 	//weaponscript = guysbuf[prntid].weaponscript;
 	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
+	parent_script_UID = s->script_UID;
 	for ( int q = 0; q < 8; q++ )
 	{
 		//load InitD
@@ -501,6 +503,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     isLit = false;
 	linkedItem = 0;
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
+        parent_script_UID = 0;
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
 		//This will need an input in the params! -Z
 		
@@ -2154,6 +2157,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 
 int weapon::getScriptUID() { return script_UID; }
 void weapon::setScriptUID(int new_id) { script_UID = new_id; }
+
+int weapon::getParentScriptUID() { return parent_script_UID; }
+void weapon::setParentScriptUID(int new_id) { parent_script_UID = new_id; }
+
+
 bool weapon::isLinkWeapon()
 {
 	if ( isLWeapon > 0 ) return true;
