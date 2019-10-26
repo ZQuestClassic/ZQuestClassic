@@ -1888,57 +1888,57 @@ bool FileExists(char32[] "filepath");
 
 Adds ZScript:
 
-Game->GetNPCScript("name");
+int Game->GetNPCScript("name");
  * Returns the slot ID of the npc script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetLWeaponScript("name");
+int Game->GetLWeaponScript("name");
  * Returns the slot ID of the lweapon script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetEWeaponScript("name");
+int Game->GetEWeaponScript("name");
  * Returns the slot ID of the eweapon script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetHeroScript("name");
-Game->GetLinkScript("name");
-Game->GetPlayerScript("name");
+int Game->GetHeroScript("name");
+int Game->GetLinkScript("name");
+int Game->GetPlayerScript("name");
  * Returns the slot ID of the hero script 'name'.
  * Returns -1 if there is no match.
 
-Game->GetDMapScript("name");
+int Game->GetDMapScript("name");
  * Returns the slot ID of the dmapdata script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetScreenScript("name");
+int Game->GetScreenScript("name");
  * Returns the slot ID of the screendata script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetSubscreenScript("name");
+int Game->GetSubscreenScript("name");
  * Returns the slot ID of the subscreen script 'name'.
  * Returns -1 if there is no match.
  * Thos script type is not implemented at this time.
  
-Game->GetUntypedScript("name");
+int Game->GetUntypedScript("name");
  * Returns 0; not implemented as this script type has no slot assignment at this time.
  
-Game->GetItemSpriteScript("name");
+int Game->GetItemSpriteScript("name");
  * Returns the slot ID of the itemsprite script 'name'.
  * Returns -1 if there is no match.
  
-Game->GetNPC("name");
+int Game->GetNPC("name");
  * Returns the ID of the npc 'name'.
  * Returns -1 if there is no match.
  
-Game->GetItem("name");
+int Game->GetItem("name");
  * Returns the ID of the item 'name'.
  * Returns -1 if there is no match.
  
-Game->GetDMap("name");
+int Game->GetDMap("name");
  * Returns the ID of the DMap 'name'.
  * Returns -1 if there is no match.
  
-Game->GetCombo("name");
+int Game->GetCombo("name");
  * Returns the ID of the first combo with label 'name'.
  * Returns -1 if there is no match.
  
@@ -1975,6 +1975,10 @@ bitmap AllocateBitmap();
  * Initialises a bitmap pointer from the pool of unused bitmap IDs in the system.
  * The current maximum number of user bitmaps is 249. 
  * Returns 0 to the pointer on failure. 
+
+float Gravity[3];
+ * Allows access to gravity-related variables
+ * Use the 'GR_' constants to access this array
 
 int LItems[512];
  * The size of this array has been corrected to 512, from the prior size of 256.
