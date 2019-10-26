@@ -7314,7 +7314,7 @@ case DMAPDATATYPE:	//byte
 }
 case DMAPDATASIDEVIEW:	//byte
 {
-	ret = (((byte)DMaps[ri->dmapsref].sideview)!=0) ? 10000 : 0; break;
+	ret = ((DMaps[ri->dmapsref].sideview) ? 10000 : 0); break;
 }
 case DMAPDATAGRID:	//byte[8] --array
 {
@@ -13738,7 +13738,7 @@ case DMAPSCRIPT:	//byte
 }
 case DMAPDATASIDEVIEW:	//byte, treat as bool
 {
-	DMaps[ri->dmapsref].type = ((byte)((value / 10000)!=0 ? 1 : 0)); break;
+	DMaps[ri->dmapsref].type = ((value) ? 1 : 0); break;
 }
 case DMAPDATAGRID:	//byte[8] --array
 {
