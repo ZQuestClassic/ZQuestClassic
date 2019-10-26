@@ -10410,6 +10410,9 @@ void set_register(const long arg, const long value)
 	//Z_scripterrlog("LWPNOTILE before write: %d\n", ((weapon*)s)->o_tile);
             ((weapon*)s)->o_tile=(value/10000);
             //((weapon*)s)->script_wrote_otile=1; //Removing this as of 26th October, 2019 -Z
+		//if at some future point we WANT writing ->Tile to also overwrite ->OriginalTile,
+		//then either the user will need to manually write tile, or we can add a QR and 
+		// write ->tile here. 'script_wrote_otile' is out.
 	//Z_scripterrlog("LWPNOTILE after write: %d\n", ((weapon*)s)->o_tile);
 	}
         break;
