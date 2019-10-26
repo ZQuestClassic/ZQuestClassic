@@ -257,6 +257,7 @@ weapon::weapon(weapon const & other):
 	//End Weapon editor non-arrays. 
 
 {
+	script_wrote_otile = 0;
 	if ( isLWeapon ) goto skip_eweapon_script_init;
 	//eweapons
 	if ( parentid > -1 && parentid != Link.getUID() 
@@ -546,7 +547,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	if(parentitem >-1)
 	{
 		
-		
+		Z_scripterrlog("LW_SCRIPT parent item is: %d\n",parentitem);
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
@@ -7905,16 +7906,27 @@ void weapon::draw(BITMAP *dest)
 				{
 				    aframe = 0;
 				}
+				//update_weapon_frame(aframe,o_tile);
 				update_weapon_frame(aframe,o_tile);
 			}
-			if ( ScriptGenerated ) 
-			{
-				if (script_wrote_otile) 
-				{
-					tile = o_tile;
-					script_wrote_otile = 0;
-				}
-			}
+			//al_trace("script_wrote_otile = %d\n",script_wrote_otile);
+			//if ( ScriptGenerated && script_wrote_otile && aframe > 0 ) 
+			//{ 
+			//	script_wrote_otile = 0; // NOTES and ISSUES
+							// I honestly do not recall when or why I added this. I think that it was
+							// in an attempt to fix Tile not being reset when writing to OTile. 
+							// 
+							// PROBLEM
+							// Doing any of this on the first frame of a weapon will overwrite a script-set
+							// tile with the original tile if the scripter does this in a script:
+							//
+							// this->OriginalTile = 6;
+							// this->Tile = 12345; 	// will be overwritten by o_tile because of the 
+							//			// script_wrote_otile FLAG being checked by the engine
+							//			// after the script writes to tile! -Z 26th October, 2019
+				
+				//tile = o_tile; //This will overwrite the tile on the calls above, so we can't do it. Fuck it. 
+			//}
 		}
 		//Z_scripterrlog("weapon::draw() o_tile is: %d\n", o_tile);
 	}
