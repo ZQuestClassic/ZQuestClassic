@@ -33356,7 +33356,7 @@ int FFScript::getEWeaponByScriptUID(int sUID)
 
 void FFScript::do_loadlweapon_by_script_uid(const bool v)
 {
-	long sUID = SH::get_arg(sarg1, v) / 10000;
+	long sUID = SH::get_arg(sarg1, v); //literal, not div by 10000
 
 	int indx = FFCore.getLWeaponByScriptUID(sUID);
 	if ( indx > -1 ) 
@@ -33368,7 +33368,7 @@ void FFScript::do_loadlweapon_by_script_uid(const bool v)
 void FFScript::do_loadeweapon_by_script_uid(const bool v)
 {
 	
-	long sUID = SH::get_arg(sarg1, v) / 10000;
+	long sUID = SH::get_arg(sarg1, v); //literal, not div by 10000
 
 	int indx = FFCore.getEWeaponByScriptUID(sUID);
 	if ( indx > -1 ) 
@@ -33381,7 +33381,7 @@ void FFScript::do_loadeweapon_by_script_uid(const bool v)
 void FFScript::do_loadnpc_by_script_uid(const bool v)
 {
 	
-	long sUID = SH::get_arg(sarg1, v) / 10000;
+	long sUID = SH::get_arg(sarg1, v); //literal, not div by 10000
 
 	int indx = FFCore.getEnemyByScriptUID(sUID);
 	if ( indx > -1 ) 
