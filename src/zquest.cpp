@@ -30384,6 +30384,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
 	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
 	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
+	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_scriptweaponweapon_names)); 
 	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
 	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
 	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
@@ -30830,6 +30831,19 @@ void ZModule::init(bool d) //bool default
 			strcpy(moduledata.enemy_weapon_names[q],get_config_string("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
 			//al_trace("EWeapon ID %d is: %s\n", q, moduledata.enemy_weapon_names[q]);
 		}
+		
+		
+		strcpy(moduledata.enemy_scriptweaponweapon_names[0],get_config_string("EWEAPONS","Custom_1","Custom 01"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[1],get_config_string("EWEAPONS","Custom_2","Custom 02"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[2],get_config_string("EWEAPONS","Custom_3","Custom 03"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[3],get_config_string("EWEAPONS","Custom_4","Custom 04"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[4],get_config_string("EWEAPONS","Custom_5","Custom 05"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[5],get_config_string("EWEAPONS","Custom_6","Custom 06"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[6],get_config_string("EWEAPONS","Custom_7","Custom 07"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[7],get_config_string("EWEAPONS","Custom_8","Custom 08"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[8],get_config_string("EWEAPONS","Custom_9","Custom 09"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[9],get_config_string("EWEAPONS","Custom_10","Custom 10"));
+		
 		const char lweapon_cats[wIce+1][255]=
 		{
 			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",

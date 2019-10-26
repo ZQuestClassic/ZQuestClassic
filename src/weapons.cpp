@@ -588,7 +588,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	{
 		if ( !o_tile )
 		{
-		LOADGFX(0);
+			LOADGFX(0);
+			o_tile = tile;
 		}
 	}
 	break;
@@ -5095,6 +5096,7 @@ mirrors:
     
     // update clocks
     ++clk;
+    //if ( id >= wScript1 && id <= wScript10 ) Z_scripterrlog("Updated Script Weapon Clock\n");
     
     if(dead>0)
     {

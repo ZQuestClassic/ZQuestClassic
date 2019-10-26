@@ -4518,7 +4518,7 @@ const char *itemsetlist(int index, int *list_size)
     return NULL;
 }
 
-list_data_struct biew[wMax-wEnemyWeapons];
+list_data_struct biew[wMAX];
 int biew_cnt=-1;
 
 char temp_custom_ew_strings[10][40];
@@ -4526,7 +4526,7 @@ char temp_custom_ew_strings[10][40];
 void build_biew_list()
 {
     biew_cnt=0;
-    int cus = 1;
+    int cus = 1; int n;
     memset(temp_custom_ew_strings, 0, sizeof(temp_custom_ew_strings));
     for(int i=0; i<wMax-wEnemyWeapons; i++)
     {
@@ -4538,7 +4538,9 @@ void build_biew_list()
             biew[biew_cnt].i = i;
             ++biew_cnt;
         }
+	n = i;
     }
+    ++n;
     for(int i = wScript1;  i <= wScript10; i++)
     {
         //if(eweapon_string[i][0]!='-')
@@ -4552,12 +4554,19 @@ void build_biew_list()
 	//if(moduledata.enemy_weapon_names[i][0]!='-')
         {
             //biew[biew_cnt].s = (char *)eweapon_string[i];
-	    char buf[30]={0};
-	    sprintf(temp_custom_ew_strings[cus-1], "Custom %d", cus);
-	    biew[biew_cnt].s = (char *)temp_custom_ew_strings[cus-1];
-            biew[biew_cnt].i = i;
+	    //char buf[30]={0};
+	    //sprintf(temp_custom_ew_strings[cus-1], "Custom %d", cus);
+	    //char enemy_scriptweaponweapon_names[10][255];
+	    
+	    //biew[biew_cnt].s = (char *)temp_custom_ew_strings[cus-1];
+		
+	    biew[biew_cnt].s = (char *)moduledata.enemy_scriptweaponweapon_names[cus-1];
+            biew[biew_cnt].i = n;
             ++biew_cnt;
+		//al_trace("%s\n",moduledata.enemy_scriptweaponweapon_names[cus-1]);
 	    ++cus;
+	    ++n;
+		
         }
     }
 }
