@@ -2452,7 +2452,7 @@ void do_magic_casting()
             for(int flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
                 Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
-                                     (tmpscr->flags7&fSIDEVIEW) ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID()));
+                                     isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID()));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
                 w->step=(itemsbuf[magicitem].misc2/100.0);
                 w->angular=true;
@@ -5202,9 +5202,12 @@ void quit_game()
 
 bool isSideViewGravity(int t)
 {
-	
-	return ((tmpscr[t].flags7 & fSIDEVIEW)!=0 || (DMaps[currdmap].sideview));
-	
+	return (((tmpscr[t].flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
+}
+
+bool isSideViewLink(int t)
+{
+	return !ignoreSideview && isSideViewGravity(t);
 }
 
 

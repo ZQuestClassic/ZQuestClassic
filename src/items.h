@@ -29,7 +29,6 @@ bool addfairy(fix x, fix y, int misc3, int id);
 bool can_drop(fix x, fix y);
 void item_fall(fix& x, fix& y, fix& fall);
 int select_dropitem(int item_set, int x, int y);
-bool is_side_view();
 
 class item : public sprite
 {

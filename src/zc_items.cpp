@@ -168,10 +168,5 @@ int select_dropitem(int item_set, int x, int y)
     
     return drop_item;
 }
-
-bool is_side_view()
-{
-    return (tmpscr->flags7&fSIDEVIEW)!=0;
-}
 /*** end of sprite.cc ***/
 

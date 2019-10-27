@@ -5723,7 +5723,7 @@ void refresh(int flags)
             continuescreen = true;
         }
         
-        if(Map.CurrScr()->flags7&fSIDEVIEW)
+        if(isSideViewGravity())
         {
             sprintf(buf,"Sideview Gravity");
             show_screen_error(buf,i++,vc(15));
@@ -30993,3 +30993,8 @@ void FFScript::user_bitmaps_init()
 void FFScript::deallocateAllArrays(const byte scriptType, const long UID, bool requireAlways){}
 
 void FFScript::deallocateAllArrays(){}
+
+bool isSideViewGravity(int t)
+{
+    return (Map.CurrScr()->flags7&fSIDEVIEW) != 0;
+}

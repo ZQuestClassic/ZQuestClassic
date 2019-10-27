@@ -54,7 +54,7 @@ bool item::animate(int)
 	    
 		if ( obeys_gravity ) // from above, or if scripted
 		{
-			if(tmpscr->flags7&fSIDEVIEW)
+			if(isSideViewGravity())
 			{
 			    if(!_walkflag(x,y+16,0))
 			    {
@@ -91,7 +91,7 @@ bool item::animate(int)
 		} 
 	    
 	*/
-        if(is_side_view())
+        if(isSideViewGravity())
         {
             if
 	    (

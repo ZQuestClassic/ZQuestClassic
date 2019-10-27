@@ -2627,7 +2627,7 @@ bool weapon::animate(int index)
     
 	if ( obeys_gravity ) // from above, or if scripted
 	{
-		if(tmpscr->flags7&fSIDEVIEW)
+		if(isSideViewGravity())
 		{
 		    if(!_walkflag(x,y+16,0))
 		    {
@@ -3298,14 +3298,14 @@ bool weapon::animate(int index)
                         
                     for(int ty=-f2; ty<=f2; ty+=32)
                     {
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfBOMB,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
                         
                         if(id==wSBomb || id==wLitSBomb)
                         {
-                            findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSBOMB,true);
+                            findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
                         }
                         
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSTRIKE,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
                     }
                 }
             }
@@ -3438,14 +3438,14 @@ bool weapon::animate(int index)
                         
                     for(int ty=-f2; ty<=f2; ty+=32)
                     {
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfBOMB,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
                         
                         if(id==wSBomb || id==wLitSBomb)
                         {
-                            findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSBOMB,true);
+                            findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
                         }
                         
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSTRIKE,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
                     }
                 }
             }
@@ -5146,7 +5146,7 @@ bool weapon::animateandrunscript(int ii)
     case wBait:
     case ewFlame:
     case ewFireTrail:
-        if(tmpscr->flags7&fSIDEVIEW)
+        if(isSideViewGravity())
         {
             if(!_walkflag(x,y+16,0))
             {
@@ -5797,14 +5797,14 @@ bool weapon::animateandrunscript(int ii)
                         
                     for(int ty=-f2; ty<=f2; ty+=32)
                     {
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfBOMB,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
                         
                         if(id==wSBomb || id==wLitSBomb)
                         {
-                            findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSBOMB,true);
+                            findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
                         }
                         
-                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSTRIKE,true);
+                        findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
                     }
                 }
             }

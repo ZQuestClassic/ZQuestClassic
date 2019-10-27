@@ -2895,10 +2895,11 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     //0: Sideview Grvity from DMaps.
     
-    if ( DMaps[currdmap].sideview != 0 ) 
+    /* DON'T MODIFY THE SCREEN DIRECTLY!
+	if ( DMaps[currdmap].sideview != 0 ) 
     {
 		this_screen->flags7 |= fSIDEVIEW;
-    }
+    }*/
     //1. Draw some layers onto temp_buf
     clear_bitmap(scrollbuf);
     
