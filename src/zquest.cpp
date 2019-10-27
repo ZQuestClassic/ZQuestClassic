@@ -1317,6 +1317,8 @@ void savesometiles(const char *prompt,int initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
@@ -1325,7 +1327,7 @@ void savesometiles(const char *prompt,int initialval)
 				pack_fclose(f);
 				
 				char tmpbuf[80]={0};
-				sprintf(tmpbuf,"Saved %s",temppath);
+				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
@@ -1385,13 +1387,15 @@ void writesometiles_to(const char *prompt,int initialval)
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 			if(f)
 			{
 				
 				if (!readtilefile_to_location(f,first_tile_id))
 				{
-					al_trace("Could not read from .ztile packfile %s\n", temppath);
+					al_trace("Could not read from .ztile packfile %s\n", name);
 					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				}
 				else
@@ -1459,6 +1463,8 @@ void savesomecombos(const char *prompt,int initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOS-1)-first_tile_id);
 		if(getname("Save ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
@@ -1466,7 +1472,7 @@ void savesomecombos(const char *prompt,int initialval)
 				writecombofile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
 				char tmpbuf[80]={0};
-				sprintf(tmpbuf,"Saved %s",temppath);
+				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
@@ -1526,13 +1532,15 @@ void writesomecombos_to(const char *prompt,int initialval)
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 			if(f)
 			{
 				
 				if (!readcombofile_to_location(f,first_tile_id))
 				{
-					al_trace("Could not read from .zcombo packfile %s\n", temppath);
+					al_trace("Could not read from .zcombo packfile %s\n", name);
 					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				}
 				else
@@ -1603,6 +1611,8 @@ void savesomecomboaliases(const char *prompt,int initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOALIASES-1)-first_tile_id);
 		if(getname("Save ZALIAS(.zalias)", "zalias", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
@@ -1610,7 +1620,7 @@ void savesomecomboaliases(const char *prompt,int initialval)
 				writecomboaliasfile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
 				char tmpbuf[80]={0};
-				sprintf(tmpbuf,"Saved %s",temppath);
+				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
@@ -1670,13 +1680,15 @@ void writesomecomboaliases_to(const char *prompt,int initialval)
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Load ZALIAS(.zalias)", "zalias", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 			if(f)
 			{
 				
 				if (!readcomboaliasfile_to_location(f,first_tile_id))
 				{
-					al_trace("Could not read from .zcombo packfile %s\n", temppath);
+					al_trace("Could not read from .zcombo packfile %s\n", name);
 					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				}
 				else
