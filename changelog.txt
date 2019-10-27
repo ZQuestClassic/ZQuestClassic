@@ -1,6 +1,8 @@
 //2.55 Changes
 
 //Alpha 39
+Updated ZScript_Additions.txt.
+Fixed errors in zscript.txt, now v0.7.6.
 Fixed crashes saving files with very long paths.
 Fixed npcs firing weapon 0.
 Removed some logging.
