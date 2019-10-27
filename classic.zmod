@@ -1,0 +1,53 @@
+[QUESTS]
+first_qst = 1st.qst
+second_qst = 2nd.qst
+third_qst = 3rd.qst
+fourth_qst = 4th.qst
+fifth_qst = 5th.qst
+sixth_qst = 6th.qst
+seventh_qst = 7th.qst
+eighth_qst = 8th.qst
+ninth_qst = 9th.qst
+tenth_qst = 10th.qst
+
+first_startdmap = 0
+second_startdmap = 0
+third_startdmap = 0
+fourth_startdmap = 0
+fifth_startdmap = 0
+sixth_startdmap = 0
+seventh_startdmap = 0
+eighth_startdmap = 0
+ninth_startdmap = 0
+tenth_startdmap = 0
+
+first_startscreen = 119
+second_startscreen = 119
+third_startscreen = 119
+fourth_startscreen = 119
+fifth_startscreen = 119
+sixth_startscreen = 119
+seventh_startscreen = 119
+eighth_startscreen = 119
+ninth_startscreen = 119
+tenth_startscreen = 119
+
+quest_flow = 0
+num_quest_files = 6
+
+[NAMEENTRY]
+first_qst_skip =
+second_qst_skip = ZELDA
+third_qst_skip = ALPHA
+fourth_qst_skip = GANON
+fifth_qst_skip = JEAN
+sixth_qst_skip = OMNIUS
+seventh_qst_skip = MCCOY));
+eighth_qst_skip = MCGANN
+ninth_qst_skip = HURT
+tenth_qst_skip = ECCLESTON
+
+[DATAFILES]
+zcplayer_datafile = zelda.dat
+fonts_datafile = fonts.dat
+sounds_datafile = sfx.dat
