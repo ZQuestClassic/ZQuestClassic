@@ -12,6 +12,28 @@ eighth_qst =
 ninth_qst = 
 tenth_qst = 
 
+first_startdmap = 0
+second_startdmap = 0
+third_startdmap = 0
+fourth_startdmap = 0
+fifth_startdmap = 0
+sixth_startdmap = 
+seventh_startdmap = 
+eighth_startdmap = 
+ninth_startdmap = 
+tenth_startdmap = 
+
+first_startscreen = 119
+second_startscreen = 119
+third_startscreen = 119
+fourth_startscreen = 119
+fifth_startscreen = 119
+sixth_startscreen = 
+seventh_startscreen = 
+eighth_startscreen = 
+ninth_startscreen = 
+tenth_startscreen = 
+
 [NAMEENTRY]
 first_qst_skip = 
 second_qst_skip = ZELDA
@@ -97,7 +119,7 @@ sels_cursor_tile = 0
 //	[2][3] [6][7]
 
 sels_heart_tile = 4
-sels_linktile = 31261
+sels_linktile = 0
 
 sels_heart_tilettile_cset = 9
 
@@ -1139,9 +1161,9 @@ mfDROPCOMPASS = 156 Drop Compass (Scripted)
 mfDROPMAP = 157 Drop Map (Scripted)
 mfDROPBOSSKEY = 158 Drop Bosskey (Scripted)
 mfSPAWNNPC = 159 Spawn NPC (Scripted)
-mfSWITCHHOOK = 160 SwitchHook Spot (Scripted)
-mfSIDEVIEWLADDER = 161 Sideview Ladder
-mfSIDEVIEWPLATFORM = 162 Sideview Platform
+mfSWITCHHOOK = 160 Swithhook (Scripted)
+mf161 = -Unused
+mf162 = -Unused
 mf163 = -Unused
 mf164 = -Unused
 mf165 = -Unused
@@ -1293,6 +1315,16 @@ ewFlame2 = Flame 2
 ewFlame2Trail = -Flame 2 Trail <unused>
 ewIce = -Ice <unused>
 ewFireball2 = Fireball (Rising)
+Custom_1 = Script 01
+Custom_2 = Script 02
+Custom_3 = Script 03
+Custom_4 = Script 04
+Custom_5 = Script 05
+Custom_6 = Script 06
+Custom_7 = Script 07
+Custom_8 = Script 08
+Custom_9 = Script 09
+Custom_10 = Script 10
 
 [LWEAPONS]
 lwNone = (None)
