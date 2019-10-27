@@ -1194,6 +1194,30 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 		addOpcode(new OSetFalseI(new VarArgument(EXP1)));
 }
 
+void BuildOpcodes::caseExprXOR(ASTExprXOR& host, void* param)
+{
+	if (host.getCompileTimeValue(NULL, scope))
+	{
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
+		return;
+	}
+	
+	// Compute both sides.
+	visit(host.left.get(), param);
+	addOpcode(new OPushRegister(new VarArgument(EXP1)));
+	visit(host.right.get(), param);
+	addOpcode(new OPopRegister(new VarArgument(EXP2)));
+	
+	addOpcode(new OCastBoolF(new VarArgument(EXP1)));
+	addOpcode(new OCastBoolF(new VarArgument(EXP2)));
+	
+	addOpcode(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+	if(*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL))
+		addOpcode(new OSetFalse(new VarArgument(EXP1)));
+	else
+		addOpcode(new OSetFalseI(new VarArgument(EXP1)));
+}
+
 void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 {
     if (host.getCompileTimeValue(NULL, scope))

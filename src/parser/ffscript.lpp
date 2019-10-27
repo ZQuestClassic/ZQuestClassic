@@ -213,6 +213,7 @@ or_eq		TOKEN( BITORASSIGN );
 or_equal		TOKEN( BITORASSIGN );
 "&&="		TOKEN( ANDASSIGN );
 "||="		TOKEN( ORASSIGN );
+"^^"		TOKEN( XOR );
  /*	cast		TOKEN( CAST );	*/
  /*	static_cast		TOKEN( CAST );	*/
 
