@@ -9,12 +9,12 @@
 namespace classic_zh
 {
 	//Version Info:
-	const float VERSION 			= 2.11; 
-	const int DATE_DAY 			= 8;
+	const float VERSION 			= 2.12; 
+	const int DATE_DAY 			= 27;
 	const int DATE_MONTH 			= 10;
 	const int DATE_YEAR 			= 2019;
-	const int HOUR				= 0;
-	const int MINUTE			= 26;
+	const int HOUR				= 22;
+	const int MINUTE			= 16;
 	
 	//System Limits
 	const int MAX_ITEMS			= 512;
@@ -53,9 +53,9 @@ namespace classic_zh
 	//Returns the datestamp of the current version of Classic.zh as a compound float in format DDMM.YYYY
 	float getDate() 
 	{
-		int date = MONTH;
-		date += YEAR/10000;
-		date += ( DAY * 100 );
+		int date = DATE_MONTH;
+		date += DATE_YEAR/10000;
+		date += ( DATE_DAY * 100 );
 		return date;
 	}
 	//Returns the timestamp of classic.zh as a compound float in the format of HH.MM
@@ -82,6 +82,21 @@ namespace classic_zh
 			default: return false;
 		}
 	}
+	//Returns if there are enemy NPCs alive on the current screen.
+	bool ScreenGuyAlive()
+	{
+		bool alive = false; 
+		for ( int q = Screen->NumNPCs(); q > 0; --q )
+		{
+			npc n = Screen->LoadNPC(q); 
+			if ( n->Type == NPCT_GUY )
+			{
+				alive = true;
+			}
+		}
+		return alive;
+	}
+
 }
 
 //Global Constants
@@ -194,7 +209,7 @@ ffc script BossExplode
 		dur = ( dur > 0 ) ? dur : classic_zh::BOSS_EXPLODE_DUR;
 		sfx = ( sfx > 0 ) ? sfx : classic_zh::BOSS_EXPLODE_SFX;
 		delay = ( delay > 0 ) ? delay :  classic_zh::BOSS_EXPLODE_DELAY;
-		rmin = ( min > 0 ) ? rmin : classic_zh::BOSS_EXPLODE_RANDOM_MIN;
+		rmin = ( rmin > 0 ) ? rmin : classic_zh::BOSS_EXPLODE_RANDOM_MIN;
 		rmax = ( rmax > 0 ) ? rmax : classic_zh::BOSS_EXPLODE_RANDOM_MAX;
 		Waitframes(5);
 		npc boss; int x; int y; int width; int height; bool alive = true;
@@ -532,34 +547,18 @@ item script MagicCompass
 }
 
 
-//Returns if there are enemy NPCs alive on the current screen.
-bool __classic_zh_ScreenGuyAlive()
-{
-	bool alive = false; 
-	for ( int q = Screen->NumNPCs(); q > 0; --q )
-	{
-		npc n = Screen->LoadNPC(q); 
-		if ( n->Type == NPCT_GUY )
-		{
-			alive = true;
-		}
-	}
-	return alive;
-}
-
-
 ffc script ScreenGuyMusic
 {
 	void run(int reg, int mid, int trk)
 	{
-		this->Data = CMB_INVISIBLE;
-		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DEAD ) Quit(); //Don't play victory music if we return to the screen.
-		if ( trk < 1 ) trk = _classic_zh__TRK_BOSS;
-		if ( mid < 1 ) mid = _classic_zh__MIDI_VICTORY;
+		this->Data = classic_zh::CMB_INVISIBLE;
+		if ( Screen->D[reg] >= classic_zh::REG_BOSS_DEAD ) Quit(); //Don't play victory music if we return to the screen.
+		if ( trk < 1 ) trk = classic_zh::TRK_BOSS;
+		if ( mid < 1 ) mid = classic_zh::MIDI_VICTORY;
 		int filenm[]="Classic.nsf";
 		Waitframes(5);
 		Game->PlayEnhancedMusic(filenm,trk);
-		while(__classic_zh_ScreenGuyAlive()) Waitframe();
+		while(classic_zh::ScreenGuyAlive()) Waitframe();
 		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
 	}
 }
