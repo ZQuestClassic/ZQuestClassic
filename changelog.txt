@@ -1,6 +1,7 @@
 ChangeLog for 2.53.1
 
 //Beta 6
+Fixed errors in zscript.txt, now v0.7.6.
 Fixed crashes when saving files with very long paths.
 Fixed an off-by-one error in .ztile and in .ztileset load/write. 
 	( ZoriaRPG, 27th October. 2019 )

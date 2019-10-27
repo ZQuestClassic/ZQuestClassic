@@ -1,5 +1,5 @@
-//Docs for 2.53.0
-//Rev. 0.7.5; 23rd September, 2019
+//Docs for 2.53.1, 2.55.0
+//Rev. 0.7.6; 27th October, 2019
 
 Search for !#! to find areas that require completion. 
 
@@ -3264,7 +3264,8 @@ bool CollDetection;		ZASM Instruction:
 				LINKINVINC
 				
 /**
-* If true, Link's collision detection with npcs and eweapons is currently turned off.
+* If true, Link's collision detection with npcs and eweapons is currently turned on.
+* If false, engine collision is disabled.
 * This variable works on a different system to clocks and the level 4 cheat, so it will not
 * necessarily return true if they are set.
 *
@@ -3411,12 +3412,12 @@ int HeldItem;				ZASM Instruction:
 					LINKHELD<>
 				
 /**
-* Link's current action. Use the LA_ constants in std.zh to set or
-* The item that Link is currently holding up; reading or setting this
-* field is undefined if Link's action is not current a hold action.
-* Use the I_ constants in std.zh to specify the item, or -1 to show
-* no item. Setting HeldItem to values other than -1 or a valid item
-* ID is undefined.
+* The item that Link will hold over his head if an item's Pickup flags 
+* are IP_PICKUP or if Link->Action == LA_HOLD*.
+* Reading or setting this value is undefined if Link is not holding 
+* up an item.
+* Use the I_ constants in std.zh to specify the item, or -1 to show no item.
+* Setting HeldItem to an invalid item ID is undefined.
 *
 */ Example Use: !#!
 
@@ -3985,6 +3986,8 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	/**
 	* Whether the NPC will use the system's code to work out collisions with Link
 	* Initialised as 'true'.
+	* If true, the npcs collision with Link and lweapons is currently turned on.
+	* If false, engine collision is disable
 	*/
 
 /************************************************************************************************************/
@@ -4514,6 +4517,8 @@ SelectBWeapon(int dir);			ZASM Instruction:
 	/**
 	* Whether the weapon will use the system's code to work out collisions with
 	* Link and/or enemies (depending on weapon type). Initialised as 'true'.
+	* If true, the weapon collision with Link and npcs is enabled.
+	* If false, engine collision is disabled.
 	*/ Example Use: !#!
 	
 /************************************************************************************************************/
