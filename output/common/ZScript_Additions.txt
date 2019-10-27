@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 36
-Document Revision: 9th October, 2019
+Document for: 2.55, Alpha 40
+Document Revision: 27th October, 2019
 
 
 ////////////////////////////////////////////////////
@@ -43,7 +43,6 @@ The ZScript parser supports the following standard and alternative tokens:
 >=		:	More-Than-or-Equal
 ==		: 	Equal
 !=		:	Not-Equal
-<>		:	Not-Equal
 equals		: 	Equivalent to 	==
 not_equal 	:	Equivalent to 	!=
 
@@ -789,46 +788,50 @@ Waitdraw Support:	Yes
 *
 * This script can run for multiple frames, and it runs after the GLOBAL ACTIVE script.
 * You may use Waitdraw() in this script type. 
-*
+* 
 * There are three script slots in the DMap Editor:
 *	Active
 *		This script runs whenever the player is on the DMap.
-*		It has eight InitD args and eight InitD strings.
-*		If the player warps while this script is running, then the engine
+*		It has eight InitD args, and eight InitD strings.
+*		If the player warps while this script is running, then the engine 
 *		will load the DMap Active script from the destination DMap (if any).
 *			If using a scripted DMap Active Subscreen script, you have
 *			the option that this script continues to run while the scripted
 *			subscreen is open.
 *	Scripted Subscreen (Active)
-*		This scrip runs, if assigned, when the player presses the
-*		START button, IN PLACE OF THE NORMAL ACTIVE SUBSCREEN for this DMap. 
-*		This script type has eight InitD args and eight InitD strings.
-*		If the player warps while this script is running, then the engine will
-*		load the Scripted Subscreen (Active) DMap script from the destination DMap.
+*		This script runs, if assigned, when the player presses the
+*		START button, IN PLACE OF THE NORMAL ACTIVE SUBSCREEN for this DMap.
+*		This script type hasd eight InitD args and eight InitD strings.
+*		InitD with this script type is shared with the DMap Passive Subscreen Script Slot.
+*		If the player warps while this is running, then the engie will
+*		load the Scripted Subscreen (Active) DMap script from the destination DMap (if any).
 *		If the destination DMap lacks a Scripted Subscreen (Active) DMap script,
-*		then the virtual subscreen will close/terminate. 
+*		then the virtual subscreen will terminate.
 *	Scripted Subscreen (Passive)
 *		If assigned, this script runs whenever the player is on the DMap.
 *		Its purpose is to permit creating a scripted passive subscreen.
-*		This script shares its InitD args and InitD strings with the Scripted 
-*		Subscreen (Active) script.
+*		This script shares its InitD args and its InitD strings with the Scripted
+*		Subscreen (Active) DMap slot script.
 *		If the player warps while this script is running, then the engine
-*		will load the Scripted Subscreen (Passive) DMap script from the destination DMap (if any).
-*			If using a scripted DMap Active Subscreen script, you have
-*			the option that this script continues to run while the scripted
-*			subscreen is open.
+*		will load the Scripted Subscreen (Passive) script from the destination
+*		DMap (if any).
+*			If using a scripted DMap Subscreen (Active) script, then you
+*			further have the option that this script continues to run while
+*			the scripted active subscreen is open.
+*
+*
 *
 * DMap scripts run only on DMaps where they are set to run.
-* Warping to a DMap with a dmap (Active, or Subscreen[Passive] type) script set will start that script.
+* Warping to a DMap with a dmap script will start that script.
 *
 * You can assign this script to a DMap in the DMAPS EDITOR dialogue. 
 *	To do this, open the DMAPS EDITOR, and select the 'Scripts' tab.
 *
-* You may assign scripts to DMaps from other scripts on an initialised dmapdata pointer, 
-* via dmapdata->Script, and dmapdata->SubscreenScript[2] where the indices are:
+* You may assign scripts to DMaps from other scripts, on an initialised dmapdata pointer,
+* via dmapdata->Script and dmapdata->SubscreenScript[2], where the indices are:
 *
-*	DMD_SUBSCREEN_ACTIVE	 = 0
-*	DMD_SUBSCREEN_PASSIVE	 = 0
+*	DMD_SUBSCREEN_ACTIVE 	= 0;
+*	DMD_SUBSCREEN_PASSIVE 	= 1;
 *
 * DMap Active Scripts have eight InitD[] args, in the DMAP EDITOR for this script type.
 * 	You may assign values to these in the DMAP EDITOR, and you may label the fields
@@ -836,10 +839,11 @@ Waitdraw Support:	Yes
 * 	You may also read or write to them by script with dmapdata->InitD[] (or this->InitD[])
 *
 * DMap Subscreen Scripts have eight InitD[] args, in the DMAP EDITOR for this script type.
-* 	You may assign values to these in the DMAP EDITOR, and you may label the fields
+*	You may assign values to these in the DMAP EDITOR, and you may label the fields
 * 	for these InitD values in the DMAP EDITOR.
-* 	You may also read or write to them by script with dmapdata->SubscreenInitD[] (or this->SubscreenInitD[])
-*
+* 	Both subscreen script types shjare the InitD values and labels, per DMap.
+* 	You may also read from, or write to them by script with dmapdata->SubscreenInitD[].
+* 
 * Trying to modify the script while it is running with this->Script, is untested.
 
 
@@ -1274,19 +1278,33 @@ You may now explicitly cast a value, using a type in angle braces.
 
 	f = <ffc>2;
 
-///////////////////////////	
+///////////////////////////
 /// Arrow from Function ///
 ///////////////////////////
 
-You may now use the arrow (->) operator on functions of datatypes/pointers.
-	Example:
+You may now use the arrow (->) operator on functions of datatypes/pointers, including
+cases where you are not using the base function in an assign.
+	Examples:
+	int x = Screen->LoadNPCByUID(this->ParentUID)->X;
 	int sfx = Game->LoadItemData(16)->UseSound;
 	int ilvl = Game->LoadItemData(Screen->LoadLWeapon(1)->Parent)->Level;
 	
-	Previously, you were required to do his in two stages as:
-	itemdata id = Game->LoadItemData(16);
-		int sfx = id->UseSound;
-
+	Previously, you were required to declare a variable and make an assign
+		in multiple stages.#
+		e.g., this: 
+		int ilvl = Game->LoadItemData(Screen->LoadLWeapon(1)->Parent)->Level;
+	
+		...used to require:
+		
+		lweapon l = Screen->LoadLWeapon(1);
+		itemdata id = Game->LoadItemData(l->Parent);
+		int lvl = id->Level;
+		
+		You can now skip these useless declarations, unless you have a 
+		reason or desire to cache the data in a variable. This saves stack space, 
+		and, in some circumstances, may improve performance; however repeated
+		use of the same variables may benefit from caching the values in a register.
+		
 ////////////////////
 // Comment Blocks //
 ////////////////////
@@ -1888,57 +1906,57 @@ bool FileExists(char32[] "filepath");
 
 Adds ZScript:
 
-int Game->GetNPCScript("name");
+Game->GetNPCScript("name");
  * Returns the slot ID of the npc script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetLWeaponScript("name");
+Game->GetLWeaponScript("name");
  * Returns the slot ID of the lweapon script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetEWeaponScript("name");
+Game->GetEWeaponScript("name");
  * Returns the slot ID of the eweapon script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetHeroScript("name");
-int Game->GetLinkScript("name");
-int Game->GetPlayerScript("name");
+Game->GetHeroScript("name");
+Game->GetLinkScript("name");
+Game->GetPlayerScript("name");
  * Returns the slot ID of the hero script 'name'.
  * Returns -1 if there is no match.
 
-int Game->GetDMapScript("name");
+Game->GetDMapScript("name");
  * Returns the slot ID of the dmapdata script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetScreenScript("name");
+Game->GetScreenScript("name");
  * Returns the slot ID of the screendata script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetSubscreenScript("name");
+Game->GetSubscreenScript("name");
  * Returns the slot ID of the subscreen script 'name'.
  * Returns -1 if there is no match.
  * Thos script type is not implemented at this time.
  
-int Game->GetUntypedScript("name");
+Game->GetUntypedScript("name");
  * Returns 0; not implemented as this script type has no slot assignment at this time.
  
-int Game->GetItemSpriteScript("name");
+Game->GetItemSpriteScript("name");
  * Returns the slot ID of the itemsprite script 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetNPC("name");
+Game->GetNPC("name");
  * Returns the ID of the npc 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetItem("name");
+Game->GetItem("name");
  * Returns the ID of the item 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetDMap("name");
+Game->GetDMap("name");
  * Returns the ID of the DMap 'name'.
  * Returns -1 if there is no match.
  
-int Game->GetCombo("name");
+Game->GetCombo("name");
  * Returns the ID of the first combo with label 'name'.
  * Returns -1 if there is no match.
  
@@ -1975,10 +1993,6 @@ bitmap AllocateBitmap();
  * Initialises a bitmap pointer from the pool of unused bitmap IDs in the system.
  * The current maximum number of user bitmaps is 249. 
  * Returns 0 to the pointer on failure. 
-
-float Gravity[3];
- * Allows access to gravity-related variables
- * Use the 'GR_' constants to access this array
 
 int LItems[512];
  * The size of this array has been corrected to 512, from the prior size of 256.
@@ -2127,6 +2141,27 @@ int GetPointer(bool *ptr[]);
 ///  Screen  ///
 ////////////////
 
+npc LoadNPCByUID(int uid);
+ * Returns an npc pointer to an npc on the screen if its UID matches
+ * the input 'uid'.
+ * Returns -1 on no match. 
+ * If you load npcs by UID, remember to always run an isValid() check on their
+ * pointer, prior to performing any actions with it, as UIDs can become stale.
+ 
+ lweapon LoadLWeaponByUID(int uid);
+ * Returns an lweapon pointer to an lweapon on the screen if its UID matches
+ * the input 'uid'.
+ * Returns -1 on no match. 
+ * If you load lweapon by UID, remember to always run an isValid() check on their
+ * pointer, prior to performing any actions with it, as UIDs can become stale.
+ 
+ eweapon LoadEWeaponByUID(int uid);
+ * Returns an eweapon pointer to an eweapon on the screen if its UID matches
+ * the input 'uid'.
+ * Returns -1 on no match. 
+ * If you load lweapon by UID, remember to always run an isValid() check on their
+ * pointer, prior to performing any actions with it, as UIDs can become stale.
+ 
 int Script;
  * The screendata script used for the current screen.
 
@@ -2655,6 +2690,16 @@ float UID;
 untyped Misc[32];		
  * Expanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
+
+///////////////////////////
+///  EWeapon  Specific  ///
+///////////////////////////
+
+int ParentUID;
+ * Returns the UID of the NPC that controls this eweapon.
+ * Useful in weapon scripts, using Screen->LoadNPCBYUID(this->ParentUID).
+ * Returns 0 is there is no npc controlling the weapon.
+ * Remember that UIDs become stale if the npc is destroyed!
 
 ///////////////////////////
 ///  LWeapon  Specific  ///
