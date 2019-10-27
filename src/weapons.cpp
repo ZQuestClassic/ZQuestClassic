@@ -449,6 +449,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     weaprange = weapduration = 0;
     script_wrote_otile = 0;
 	weapon_dying_frame = false;
+	parent_script_UID = 0;
     if ( Parentitem > -1 )
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
@@ -464,6 +465,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     if ( isLW ) goto skip_eweapon_script;
     if ( prntid > -1 && prntid != Link.getUID()  ) //eweapon scripts
     {
+	    
 	//Z_scripterrlog("Eweapon created with a prntid of: %d\n",prntid);
 	enemy *s = (enemy *)guys.getByUID(prntid);
 	//int parent_enemy_id = 0;
@@ -472,6 +474,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	//weaponscript = guysbuf[prntid].weaponscript;
 	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
 	parent_script_UID = s->script_UID;
+	    //Z_scripterrlog("parentUID %d\n", parent_script_UID);
 	for ( int q = 0; q < 8; q++ )
 	{
 		//load InitD
@@ -503,7 +506,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     isLit = false;
 	linkedItem = 0;
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
-        parent_script_UID = 0;
+        
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
 		//This will need an input in the params! -Z
 		
