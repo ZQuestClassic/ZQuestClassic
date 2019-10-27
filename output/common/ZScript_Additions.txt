@@ -49,8 +49,10 @@ not_equal 	:	Equivalent to 	!=
 //Logical
 !		: 	Not
 ||		:	Logical OR
-&&		:	Logical XOR
+&&		:	Logical AND
+^^		:	Logical XOR
 and 		: 	Equivalent to 	&&
+logicalxor	: 	Equivalent to 	^^
 or 		: 	Equivalent to 	||
 not 		: 	Equivalent to 	!
 not_eq 		:	Equivalent to 	!=
@@ -281,7 +283,27 @@ the values in the enumerated list.
 	}
 	You can only pass legal values in the actiontype enum to the parameter of this function.
 
+///////////////////
+/// Logical Xor ///
+///////////////////
+
+ZScript now supports logical xor operations using the following tokens:
+	^^
+	logicalxor
 	
+	Examples:
+	if ( a ^^ b ) return true;
+	if ( c logicalxor d ) return true;
+	
+If you chain logical xor operations, they are handled in a linear sequence
+for their order of operations.
+	Example:
+	if ( a ^^ b ^^ c ^^ d )
+	becomes
+	if ( ( a ^^ b ) ^^ c ) ^^ d ) )
+	
+	It is prudent therefore, to properly specify order of operations for this operation.
+
 ///////////////////////
 /// Type Specifiers ///
 ///////////////////////
@@ -347,7 +369,7 @@ char32 IDENTIFIER[] = "string"; //Sized implicitely to number of characters +1 f
 //////////////
 // Bugfixes //
 //////////////
-
+{
 	//Alpha 24
 	
 	///////////////
@@ -431,7 +453,7 @@ char32 IDENTIFIER[] = "string"; //Sized implicitely to number of characters +1 f
 		Importing in zscript with a path such as scripts\scriptfile.z used to work, in prior versions. 
 		As of 2.55, it reads \ as an escape character, and parses the file path improperly. 
 		This has now been corrected, so that you may use / or \ as a valid path token, however, / is the better option.
-			
+}
 
 //////////////////
 // Script Types //

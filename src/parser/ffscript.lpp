@@ -214,6 +214,7 @@ or_equal		TOKEN( BITORASSIGN );
 "&&="		TOKEN( ANDASSIGN );
 "||="		TOKEN( ORASSIGN );
 "^^"		TOKEN( XOR );
+"logicalxor"		TOKEN( XOR );
  /*	cast		TOKEN( CAST );	*/
  /*	static_cast		TOKEN( CAST );	*/
 
