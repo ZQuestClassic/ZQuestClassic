@@ -78,7 +78,7 @@ void item_fall(fix& x, fix& y, fix& fall)
 	}
 }
 
-int select_dropitem(int item_set, int x, int y)
+int select_dropitem(int item_set)
 {
     int total_chance=0;
     
@@ -154,6 +154,12 @@ int select_dropitem(int item_set, int x, int y)
         }
     }
     
+    return drop_item;
+}
+int select_dropitem(int item_set, int x, int y)
+{
+	int drop_item = select_dropitem(item_set);
+	
     if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy)
     {
         for(int j=0; j<items.Count(); ++j)
@@ -165,8 +171,8 @@ int select_dropitem(int item_set, int x, int y)
             }
         }
     }
-    
-    return drop_item;
+	
+	return drop_item;
 }
 /*** end of sprite.cc ***/
 

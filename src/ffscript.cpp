@@ -8227,7 +8227,72 @@ case NPCMATCHINITDLABEL: 	 //Same form as SetScreenD()
 	break;
 }	
     
-    
+///----------------------------------------------------------------------------------------------------//
+//Dropset Variables
+
+	case DROPSETITEMS:
+	{
+		if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+		{
+			Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
+			ret = -10000;
+			break;
+		}
+		int indx = ri->d[0]/10000;
+		if(indx < 0 || indx > 9)
+		{
+			Z_scripterrlog("Invalid index passed to dropdata->Items[]: %d\n", indx);
+			ret = -10000;
+		}
+		else
+		{
+			ret = item_drop_sets[ri->dropsetref].item[indx] * 10000;
+		}
+		break;
+	}
+	case DROPSETCHANCES:
+	{
+		if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+		{
+			Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
+			ret = -10000;
+			break;
+		}
+		int indx = ri->d[0]/10000;
+		if(indx < 0 || indx > 9)
+		{
+			Z_scripterrlog("Invalid index passed to dropdata->Chances[]: %d\n", indx);
+			ret = -10000;
+		}
+		else
+		{
+			ret = item_drop_sets[ri->dropsetref].chance[indx+1] * 10000; //+1 is because '0' is 'nothing''s chance
+		}
+		break;
+	}
+	case DROPSETNULLCHANCE:
+	{
+		if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+		{
+			Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
+			ret = -10000;
+			break;
+		}
+		ret = item_drop_sets[ri->dropsetref].chance[0] * 10000;
+		break;
+	}
+	case DROPSETCHOOSE:
+	{
+		if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+		{
+			Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
+			ret = -10000;
+			break;
+		}
+		ret = select_dropitem(ri->dropsetref) * 10000;
+		break;
+	}
+ 
 ///----------------------------------------------------------------------------------------------------//
 //Audio Variables
 
@@ -14642,7 +14707,57 @@ case NPCDATASHIELD:
 	} 
 }
 
-	
+
+///----------------------------------------------------------------------------------------------------//
+//Dropset Variables
+
+	case DROPSETITEMS:
+	{
+		if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+		{
+			Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
+			break;
+		}
+		int indx = ri->d[0]/10000;
+		if(indx < 0 || indx > 9)
+		{
+			Z_scripterrlog("Invalid index passed to dropdata->Items[]: %d\n", indx);
+		}
+		else
+		{
+			item_drop_sets[ri->dropsetref].item[indx] = vbound(value / 10000, 0, MAXITEMS-1);
+		}
+		break;
+	}
+	case DROPSETCHANCES:
+	{
+		if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+		{
+			Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
+			break;
+		}
+		int indx = ri->d[0]/10000;
+		if(indx < 0 || indx > 9)
+		{
+			Z_scripterrlog("Invalid index passed to dropdata->Chances[]: %d\n", indx);
+		}
+		else
+		{
+			item_drop_sets[ri->dropsetref].chance[indx+1] = vbound((value / 10000),0,32767); //+1 is because '0' is 'nothing''s chance
+		}
+		break;
+	}
+	case DROPSETNULLCHANCE:
+	{
+		if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+		{
+			Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
+			break;
+		}
+		item_drop_sets[ri->dropsetref].chance[0] = vbound((value / 10000),0,32767);
+		break;
+	}
+
 ///----------------------------------------------------------------------------------------------------//
 //Audio Variables
 
@@ -16559,6 +16674,19 @@ void FFScript::do_loaddmapdata(const bool v)
         
     else ri->dmapsref = ID;
     //Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
+}
+
+void FFScript::do_loaddropset(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    
+    if ( ID < 0 || ID > MAXITEMDROPSETS )
+    {
+	Z_scripterrlog("Invalid Dropset ID passed to Game->LoadDropset(): %d\n", ID);
+	ri->dropsetref = LONG_MAX;
+    }
+        
+    else ri->dropsetref = ID;
 }
 
 void FFScript::do_getDMapData_dmapname(const bool v)
@@ -20080,6 +20208,8 @@ int run_script(const byte type, const word script, const long i)
 		FFScript::do_loaddmapdata(false); break;
 	case LOADDMAPDATAV: //command
 		FFScript::do_loaddmapdata(true); break;
+	case LOADDROPSETR: //command
+		FFScript::do_loaddropset(false); break;
 
 
 	case DMAPDATAGETNAMER: //command
@@ -29089,6 +29219,10 @@ script_variable ZASMVars[]=
 	{ "NPCSUBMERGED",		NPCSUBMERGED,        0,             0 },
 	{ "GAMEGRAVITY",		GAMEGRAVITY,        0,             0 },
 	{ "COMBODASPEED",		COMBODASPEED,        0,             0 },
+	{ "DROPSETITEMS",		DROPSETITEMS,        0,             0 },
+	{ "DROPSETCHANCES",		DROPSETCHANCES,        0,             0 },
+	{ "DROPSETNULLCHANCE",		DROPSETNULLCHANCE,        0,             0 },
+	{ "DROPSETCHOOSE",		DROPSETCHOOSE,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

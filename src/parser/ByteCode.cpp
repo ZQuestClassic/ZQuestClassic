@@ -1779,6 +1779,10 @@ string ZScript::VarToString(long ID)
 	case EWPNPARENTUID: return "EWPNPARENTUID";
 	case GAMEGRAVITY: return "GAMEGRAVITY";
 	case COMBODASPEED: return "COMBODASPEED";
+	case DROPSETITEMS: return "DROPSETITEMS";
+	case DROPSETCHANCES: return "DROPSETCHANCES";
+	case DROPSETNULLCHANCE: return "DROPSETNULLCHANCE";
+	case DROPSETCHOOSE: return "DROPSETCHOOSE";
 	
 	
 	default:
@@ -2410,6 +2414,11 @@ string OLoadMessageDataRegister::toString()
 string OLoadDMapDataRegister::toString()
 {
     return "LOADDMAPDATAR " + getArgument()->toString();
+}
+
+string OLoadDropsetRegister	::toString()
+{
+    return "LOADDROPSETR " + getArgument()->toString();
 }
 
 string ODMapDataGetNameRegister::toString()

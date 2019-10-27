@@ -1184,6 +1184,7 @@ static void setLinkBigHitbox(bool v);
 	static void do_messagedata_getstring(const bool v);
 	
 	static void do_loaddmapdata(const bool v);
+	static void do_loaddropset(const bool v);
 	static void do_getDMapData_dmapname(const bool v);
 	static void do_setDMapData_dmapname(const bool v);
 	static void do_getDMapData_dmaptitle(const bool v);
@@ -2407,9 +2408,10 @@ enum ASM_DEFINE
 	LOADNPCBYSUID,
 	LOADLWEAPONBYSUID,
 	LOADWEAPONCBYSUID,
+	LOADDROPSETR,
 
 
-	NUMCOMMANDS           //0x0168
+	NUMCOMMANDS           //0x0169
 };
 
 
@@ -3652,11 +3654,15 @@ enum ASM_DEFINE
 #define EWPNPARENTUID		0x137B
 #define GAMEGRAVITY			0x137C
 #define COMBODASPEED		0x137D
+#define DROPSETITEMS		0x137E
+#define DROPSETCHANCES		0x137F
+#define DROPSETNULLCHANCE		0x1380
+#define DROPSETCHOOSE		0x1381
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         	0x137E
+#define NUMVARIABLES         	0x1382
 
 // Script types
 
