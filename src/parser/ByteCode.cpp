@@ -1778,6 +1778,7 @@ string ZScript::VarToString(long ID)
 	case NPCSUBMERGED: return "NPCSUBMERGED";
 	case EWPNPARENTUID: return "EWPNPARENTUID";
 	case GAMEGRAVITY: return "GAMEGRAVITY";
+	case COMBODASPEED: return "COMBODASPEED";
 	
 	
 	default:

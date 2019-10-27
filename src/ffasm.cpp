@@ -2016,6 +2016,7 @@ script_variable variable_list[]=
 	{ "NPCSUBMERGED",		NPCSUBMERGED,        0,             0 },
 	{ "EWPNPARENTUID",		EWPNPARENTUID,        0,             0 },
 	{ "GAMEGRAVITY",		GAMEGRAVITY,        0,             0 },
+	{ "COMBODASPEED",		COMBODASPEED,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 

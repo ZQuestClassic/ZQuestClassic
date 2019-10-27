@@ -7807,6 +7807,7 @@ case MESSAGEDATAFLAGS: //BYTE
 
 //NEWCOMBO STRUCT
 case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
+case COMBODASPEED:		GET_COMBO_VAR_BYTE(speed, "ASpeed"); break;					//char
 case COMBODFLIP:		GET_COMBO_VAR_BYTE(flip, "Flip"); break;					//char
 case COMBODWALK:		GET_COMBO_VAR_BYTE(walk, "Walk"); break;					//char
 case COMBODTYPE:		GET_COMBO_VAR_BYTE(type, "Type"); break;					//char
@@ -14237,6 +14238,7 @@ case MESSAGEDATAFLAGS: //BYTE
 	
 //NEWCOMBO STRUCT
 case COMBODTILE:	SET_COMBO_VAR_DWORD(tile, "Tile"); break;						//word
+case COMBODASPEED:	SET_COMBO_VAR_BYTE(speed, "ASpeed"); break;						//char
 case COMBODFLIP:	SET_COMBO_VAR_BYTE(flip, "Flip"); break;						//char
 case COMBODWALK:	SET_COMBO_VAR_BYTE(walk, "Walk"); break;						//char
 case COMBODTYPE:	SET_COMBO_VAR_BYTE(type, "Type"); break;						//char
@@ -29091,6 +29093,7 @@ script_variable ZASMVars[]=
 	{ "MAPDATASWARPRETSQR",		MAPDATASWARPRETSQR,        0,             0 },
 	{ "NPCSUBMERGED",		NPCSUBMERGED,        0,             0 },
 	{ "GAMEGRAVITY",		GAMEGRAVITY,        0,             0 },
+	{ "COMBODASPEED",		COMBODASPEED,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
