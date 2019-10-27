@@ -1,7 +1,354 @@
 //2.55 Changes
 
+//Alpha 39
+Fixed crashes saving files with very long paths.
+Fixed npcs firing weapon 0.
+Removed some logging.
+Added the alternate token 'logicalxor' for '^^'
+	and added docs for both to ZSA.txt
+Replaced deleted zsa.txt file.
+Deleted zsa.txt to replace with cleaner whole file.
+Fixed off By One Error in .ztile and .ztileset files.
+Updated ZSA.txt
+EWeapon Script: Updated laz demo to use faster octos.
+EWeapon Script: Assed Laser Weapon Demo Script (.zs and .zasm)
+Fix: Don't reset script_parent_uid to 0.
+	( ZoriaRPG, 27th October, 2019 )
+	
+Parser: Added Logical XOR (^^) operator 
+std_zh: Fix IsSideview() 
+	Now match the XOR functionality. Might update later with a proper '^^' operator.
+Abstract all sideview calls in the entire source through a couple functions,
+	so that the checks can be changed in those functions as needed.
+	ZQ function: returns the screen flag for the current screen
+	ZC function (Link): returns '!ignoreSideview' && (the next function)
+	ZC function (general): returns the logical XOR of the screen flag and
+		dmap flag. This makes them a toggle, like other similar flags.
+Added combodata->ASpeed
+	( Venrob, 27th October, 2019 )
+	
+std_zh: Add missing QR constants (again)
+std_zh: Add new QR constants
+Added Game->Gravity[3] 
+	Allow modifying the quest's gravity, terminal velocity,
+	and jump sprite layer threshold via script.
+	( Venrob, 26th October, 2019 )
+	
+Slight change to dmapdata->Sideview in interpreter.
+Fix: Missing EWPNPARENTUID in ffasm.cpp
+Fix: Forgot that script_UID is not Div by 10000.
+Added parent_script_UID to weapons (weapon class)
+	Set this on creation of eweapon.
+	Added accessors for getting an npc, lweapon, or an
+	eweapon by script_UID.
+	Added the following to ZScript:
+	Screen->LoadNPCByUID(int UID);
+	Screen->LoadLWeaponByUID(int UID);
+	Screen->LoadEWeaponByUID(int UID);
+	eweapon->ParentUID
+Changed the new ZScript console to report the current version of
+	ZC Player if it is opened on launch of zelda.exe.
+	If the user opens if AFTER loading a quest, it will still report
+	the version in which the quest was made, but this change prevents it
+	from reporting 'Quest Made in Version 0, Build 0'.
+Fixed an issue where writing to OriginalTile
+	would pre-emptively overwrite a call to write wpn->Tile
+	that occurs AFTER the call to write OriginalTile.
+
+	I don't remember why I originally added script_wrote_otile,
+	nor do I recall what this was trying to address.
+
+	For now, I am just disabling it entirely.
+Refactored build_biew_list and biew[] in general.
+	The script weapons were being created as ids 159 to 169,
+	instead of 31 ro 41. I had to essentially rewrite this
+	function, change the array size, and refactor the
+	enemy editor dialogue to get the correct IDs in use.
+Changed enemy::FireWeapon() to allow firing IDs 31 to 41:
+	The old function returned if the shot type was < wEnemyWeapons
+	UNLESS the enemy was a summoner.
+	Need to find out if this BREAKS summoners, now. ... :(
+Fixed the Enemy Weapon List to show all ten
+	Custom/Script weapon types, and added them to the
+	.zmod format as:
+		Custom_1 = Script 01
+		Custom_2 = Script 02
+		Custom_3 = Script 03
+		Custom_4 = Script 04
+		Custom_5 = Script 05
+		Custom_6 = Script 06
+		Custom_7 = Script 07
+		Custom_8 = Script 08
+		Custom_9 = Script 09
+		Custom_10 = Script 10
+	( ZoriaRPG, 26th October, 2019 )
+
+Rewmoved the remaining dependency on IS_BETA,
+	and removed ZELDA_VERSION_STR, VERSION_BETA, DATE_STR,
+	and ZELDA_ABOUT_STR from zdefs.h.
+Chore: Add qr_250WRITEEDEFSCRIPT to qst.cpp
+Fixed the setter in the ZASM interpreter so that
+	quests made in versions < 2.54 that wrote to npc->Defense[NPCD_SCRIPT]
+	FORWARD those writes to Defense[NPCD_SCRIPT_01] through [NPCD_SCRIPT_10]
+	and added a QR:
+		Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences
+	in the Script Instructions dialogue to enable this
+	behaviour in 2.55 quests.
+	( ZoriaRPG, 25th October, 2019 )
+
+//Alpha 38
+Added QR: Weapons Can Always Move Offscreen
+Added QR: Check clip for script weapons on screen edge.
+Added the following to sprite:
+	byte screenedge -- bitwise only!!
+	byte shadowsprite -- for future, custom shadows.
+	int scriptshadowtile -- for future, scripted shadow overrides.
+Implemented the screenedge value for weapons.
+	If screenedge&1, then weapons can move offscreen.
+	Ignore the ugly jump. The current check to eat weapons
+	was already a skip, so I had to add a skip to empty
+	braces to bypass it.
+Possibly fix item script initD not always being set properly.
+Possibly fixed item shadows.
+Fixed eweapons not having shadows when QR is enabled.
+	Eventually, these rules should be flags per sprite!
+Add QR: Animation->2->Animate Custom/Script Weapons
+Add notes to struct zmodule on needed new vars.
+Fix script type weapons failing to animate.
+	In 2.50.x, wScript had no animation. Now it does.
+	( ZoriaRPG, 25th October, 2019 )
+	
+Fix: Reset itemscriptInitialized 
+	Was not being reset in the init function, thus carrying between quest loads!
+Fix: Item scripts during scrolling 
+	Added itemScriptEngine() calls for scrolling
+Fix: Combo editor flags offset 
+	Writing was off by 1
+Fix: combodata arrays wrong num params
+Fix: ZASM issues 
+	Increment "A" registers, instead of NON-"A" registers
+	Fix negative numbers with decimal portions not working
+		This has been tested in MM2D, so it should be fully functional now.
+	( Venrob, 25th October, 2019 )
+
+Added ewScript1 to ewScript10 to the Enemy Editor
+	'Weapon' droplist.
+	TODO: Add module data for these, to assign user-generated
+	labels for them. At present, they are hardcoded to
+	'Custom 1' through 'Custom 10'.
+	( ZoriaRPG, 24th October, 2019 )
+	
+Merge branch '2.55' into 2.55-assignSlotsGui
+	( Venrob, 24th October, 2019 )
+	
+Fix: Slot assign
+	Global scripts were reading wrongly, as they use a different offset from other types.
+	Changed `**name**` to `--name` for empty slots.
+Feat: Assign slots dialog complete 
+	Now disassembles ZASM, to allow re-assembly through the normal system.
+	This includes a disassembly system which can be used as the basis for
+	exporting scripts from a .qst as ZASM.
+std_functions fix- account for DMap->Sideview 
+	Update 'IsSideview()' to check the sideview status of the current DMap.
+std_constants: fix/add constants
+	Missed sideview ladder/platform constants added
+Renamed `CF_SCRIPT_POT_LIFT_SLASH` (Pot (Liftable)) to `CF_SCRIPT_POT_LIFT`
+	( Venrob, 23rd October, 2019 )
+	
+Feat: F12 Screenshots Weapon, Enemy, and Sprite Editor
+Port .ZTILEPACK and Organise Import/Export Menus
+Moved the old 12.50 file pack export/import into new menus
+	(2.50.x and Broken). The latter to be replaced by
+	new formats.
+Fixed map loading, as this one included the header in 2.50.
+Added spacer in Export submenus.
+Cleaned up old export saving success messages, and added saving success
+	messages to .zalias, .zcombo, and .ztile file saving.
+	Fixed some wrong dialogue titles for Combo Alias Packs.
+The Z Hotkey works snapshots ZQ when in the tile editor.
+Restore display of Z key in ZQuest menu for screenshots.
+	( ZoriaRPG, 22nd October, 2019 )
+	
+Update notes on structs and pointers.
+Added the ability to save and load Combo Alias files in the format
+	of .zalias, with the same GUI options and mechanics as .ZCOMBO and .ZTILE.
+	Alpha is now 38.
+	( ZoriaRPG, 21st October, 2019 )
+	
 //Alpha 37
 
+Fixed a .ZCOMBO off-by-one error, and wrong version ID
+Added 2.55 combo variables.
+Added .zcombo files, identical in function to
+	the .ztile format, with the same options in the
+	Import and the Export menus.
+ZC Player About Dialogue is Now Entirely Based on versionsig.h
+ZQuest 'About' Dialogue Now Pulls Exclusively from versionsig.h
+Added the ability to load tile pack (.ztile) files either to their original
+	locations, as they were located on the tile pages
+	in the source quest from whence they were saved,
+	OR to a specified starting point.
+	Tiles will be written in a contiguous sequence and old tiles in their
+	path will be overwritten.
+	Failure to load or invalid files do not write any data to
+	the tile pages.
+Added the ability to save tile packs as .ztile
+	with a specified starting tile and a number of tiles.
+	This will preserve the format of the tiles (can
+	be mixed 8bbp and 4bbp formats in the same file).
+	The original location of the tiles (from whence they
+	were ripped in the quest tile pages) is encoded into the .ztile file.
+Update .gitignore
+Fix compiler sigs issues.
+	( ZoriaRPG, 21st October, 2019 )
+	
+ZQuest>>Take Screen Snapshot
+Takes a screenshot of JUST the current screen, not including GUI elements.
+	This captures at proper-scale; i.e. 1 combo is 16x16, regardless of gui scaling.
+	If holding CTRL, things such as walkability and flags will appear (if you have them
+	visible); if not holding CTRL these will be hidden as well.
+This allows easy capturing of an entire screen, at 1:1 scale.
+Renamed `Take Snapshot` to `Take ZQ Snapshot` to help prevent confusion.
+	( Venrob, 20th October, 2019 )
+	
+Headers: Add MSVC Compliant stdint.h, inttypes.h to repo, in case we need them.
+Minor reported alpha version ID bugfix.
+Bind .rc files to metadata/versionsig.h
+Timezone for datestamps is now set in ./metadata/devsig.h.sig
+Fix newlines in ZC Player About Dialogue
+Finish automted build timestamps.
+Auto-generate build date and timestamp during compilation.
+Fix typo in versionsig.h
+Metadata: Moved the new v4 Header Metadata into headers. 
+	I moved the v4 Quest Header Metadata out of zdefs, and into
+	individual headers in ./src/metadata.
+	This both allows individual devs to sign off without committing
+	changes to the metadata, and it speeds up compile time by
+	not needing to recompile everything that uses zdefs.h.
+
+	Always commit changes to metadata/versionsig.h.
+	Never commit changes to sevsig.h.sig or compilersig.h.sig
+	unless they are updates to the format (or enhanced automation)!
+Polish ZQ Metadata Reported to allegro.log
+File: Add compilerid.h
+Header V4: Add auto-generated compiler data and some more logging.
+	( ZoriaRPG, 20th October, 2019 )
+	
+Embed Automatic Compile TIme Date/Timestamps in Quest Header
+Add a number of metadata information to the quest header (now version 4)
+Fix: Load 2.53 .zwpnspr 'tile' to 'newtile' var.
+Fixed some error messages on modular object file loading.
+Fixed the sanity checks for section_version and section_cversion on modular
+	object file loading.
+Added the ability to save and load weapon sprites as .ZWPNSPR files.
+Added a contextual (right-click) menu to the Weapon Sprites
+	dialogue, allowing the user to copy and paste weapon sprites.
+Added a contextual (right-click) menu to the DMap Editor.
+	You can now Copy/paste DMaps from this, and you can Save and Load DMaps
+	to and from .ZDMAP files, as .ZITEM and .ZNPC.
+Changed the error message titlebar text a bit for all .Z*struct files.
+Feat: Add Right Click Context Menu to DMap Editor
+Item Scripts with a Passive Item Script Flag now
+	start running as soon as Link acquires the item.
+The user can now save individual npcs
+	from the Enemy Editor in the format of .ZNPC, identical to
+	how .ZITEM works.
+Fix call to resource.h
+Update resource scripts with build version information.
+Add new MSVC Resource Deps
+	( ZoriaRPG, 19th October, 2019 )
+	
+	
+Fix: Don't alphabetize '(None)' in listers.
+Fix: Better tile image export
+	Fixed - selector no longer shows
+	Added - instead of static or X's, it will display color 0 for hidden tiles
+
+	Internal: draw_tiles() has new params, and an overload for default params.
+Add 'Hide 8-bit Marker' to the 'View' menu, with the hotkey '8' to toggle it.
+	This hides the small '8' in the corner of 8-bit tiles.
+Fix Ctrl+U long-standing issue: It was meant to cycle through different sets
+	of 'Hide' settings, but, it would always turn off 'Hide Blank', and
+	could not turn it back on. Now, it will NOT modify 'Hide Blank' at all.
+	( Venrob, 19th October, 2019 )
+	
+Fix default cursor scale. Was 1.5, should be 1.
+Add more VERSION METADATA to MSVC Resource Scripts
+Add VERSION METADATA to Resource Scripts
+More old notes on possibly adding ZASM structs and function pointers
+	( ZoriaRPG, 18th October, 2019 )
+	
+std_zh: Add missing constants 
+	There were category constants for Screen Enemy Flags, but no constants
+	for the individual flags within those categories.
+Fixed vbounding the size of the cursor!
+	( Venrob, 18th October, 2019 )
+	
+Feat: Cursor scaling 
+	Config options 'cursor_scale_large' and 'cursor_scale_small', to scale the cursor
+	added to zquest.cfg and zc.cfg. Range 1 to 5, decimal allowed.
+Fix: Inverted warp return square error condition
+	It was giving an error indexes <3, instead of indexes >3; thus rendering
+	these commands useless. This has been corrected.
+std_zh: NOCARRY and NORESET constants 
+	Added bitwise constants for NOCARRY and NORESET, as
+	NOCARRY_B_* and NORESET_B_*.
+	The B is to signify bitwise, so that later adding a bool[] accessor
+	will be able to have it's constants just be NOCARRY_*
+	and NORESET_*.
+	( Venrob, 17th October, 2019 )
+	
+Added v_build to ZITEM format.
+The mapscr selection marker rect is now red in InvalidStatic mode, as not to blend in (grey).
+Changing the screen colour with hotkeys now allows F2/Memu to save.
+Fixed crash caused by calling get_config_int before allegro init.
+Disable load_mouse pixel logging.
+Fixed the string writing on ZITEM load from file.
+	It was writing to two locations, and one of them was wrong!
+Added an Error message to the GUI if a ZITEM file cannot be loaded.
+ZITEM: Add ZC Version to ZITEM Header, and add VC checks.
+	You can now save single items in the item editor as .ZITEM files,
+	and load .ZITEM files into the item editor. Uses the contextual menu only, for now.
+	( ZoriaRPG, 17th October, 2019 )
+
+Added ZCL 2.8.0.
+You can now set -fast and -multiple CLI flags in zc.cfg:
+	multiple_instances : 0 by default; set to 1 to permit multiple instances.
+	skiplogo: 0 by default; set to 1 to skip the AGN startup banner.
+Found the cause of the parser memory leak: Constants and programme/AST generated by the compiler
+	aren't being deleted. Not sure what to do here, because grayswandir
+	used idiotic C++03 smart pointers, which were deprecated in C++11.
+	Perhaps MSVC > 15 will work properly. Who knows here?!
+	( ZoriaRPG, 16th October, 2019 )
+
+Feat: Assign Slots Dialog (WIP) 
+	Implement the framework for the Assign Slots dialog.
+	( Venrob, 15th October, 2019 )
+	
+Now, instead of 3 separate keyboard control menus, and 2 separate gamepad menus,
+	now there is one menu of each.
+	This makes unique control conflicts less difficult to deal with, and
+	overall makes more sense.
+	( Venrob, 14th October, 2019 )
+	
+RomView built from 2.55 master now runs again, but only in small mode.
+	The public packages include the RomView from DD's old master branch, which DOES scale!
+Docs: Add theoretical ZScript Struct Model notes
+Add CMake Intermediates to .gitignore
+CFG: Add baseline zc.cfg and zquest.cfg
+ZScript Header: Add stdExtra.zh to repo
+ZScript Header: Add Sprites.zh to repo
+Modules: Add Classic_Dreams.qst from Binx to repo
+ZS Header: Add ZVersion.zh to repo
+Addons: Add missing Addon DLLs in repo
+Vers: Add Version Semantics Docs to repo
+Docs: Add Future version logic diagram to repo
+File: Add combo scripts outline to repo
+Flex/Bison: Commit Files for MSVC Win Flex-Bison to Repo 
+	This is the version that you will need to compile using MSVC
+	Eventually, we need to modify cmakeLists to use these for MSVC, so that
+	installing Flex/Bison and adding it to the PATH is not required..
+Update .gitignore -- do not mask out dlls!
 Replace Allegro Grabber.exe in Utilities with newly built v4.4.1.
 	4.4.3 was corrupting .dat file components.
 DAT: Fix mouse cursors for themes for Default and Classic modules. 	
