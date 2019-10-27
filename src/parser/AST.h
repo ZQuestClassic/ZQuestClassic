@@ -111,6 +111,7 @@ namespace ZScript
 	class ASTExprLE;
 	class ASTExprEQ;
 	class ASTExprNE;
+	class ASTExprXOR;
 	class ASTAddExpr; // virtual
 	class ASTExprPlus;
 	class ASTExprMinus;
@@ -1387,6 +1388,21 @@ namespace ZScript
 		          ASTExpr* right = NULL,
 		          LocationData const& location = LocationData::NONE);
 		ASTExprNE* clone() const {return new ASTExprNE(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope)
+				const;
+	};
+
+	class ASTExprXOR : public ASTRelExpr
+	{
+	public:
+		ASTExprXOR(ASTExpr* left = NULL,
+		          ASTExpr* right = NULL,
+		          LocationData const& location = LocationData::NONE);
+		ASTExprXOR* clone() const {return new ASTExprXOR(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 

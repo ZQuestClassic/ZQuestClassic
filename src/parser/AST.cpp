@@ -1426,6 +1426,30 @@ optional<long> ASTExprNE::getCompileTimeValue(
 	return (*leftValue != *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
 }
 
+// ASTExprXOR
+
+ASTExprXOR::ASTExprXOR(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTRelExpr(left, right, location)
+{}
+
+void ASTExprXOR::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprXOR(*this, param);
+}
+
+optional<long> ASTExprXOR::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+		const
+{
+	if (!left || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	if (!leftValue) return nullopt;
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	if (!rightValue) return nullopt;
+	return ((!*leftValue) != (!*rightValue)) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
+}
+
 // ASTAddExpr
 
 ASTAddExpr::ASTAddExpr(
