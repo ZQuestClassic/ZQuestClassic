@@ -13793,7 +13793,7 @@ case DMAPSCRIPT:	//byte
 }
 case DMAPDATASIDEVIEW:	//byte, treat as bool
 {
-	DMaps[ri->dmapsref].type = ((value) ? 1 : 0); break;
+	DMaps[ri->dmapsref].sideview = ((value) ? 1 : 0); break;
 }
 case DMAPDATAGRID:	//byte[8] --array
 {
@@ -17603,11 +17603,6 @@ int FFScript::do_get_internal_uid_eweapon(int index)
 	return ((int)Ewpns.spr(index)->getUID());
 }
 
-static inline bool is_Side_view()
-{
-    return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
-}
-
 void FFScript::AlloffLimited(int flagset)
 {
     clear_bitmap(msgdisplaybuf);
@@ -18119,19 +18114,19 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	loadside=Link.dir^1;
 	whistleclk=-1;
 	    
-	if((int)Link.z>0 && is_Side_view())
+	if((int)Link.z>0 && isSideViewLink())
 	{
 		Link.y-=Link.z;
 		Link.z=0;
 	}
-	else if(!is_Side_view())
+	else if(!isSideViewLink())
 	{
 		Link.fall=0;
 	}
 	    
 	// If warping between top-down and sideview screens,
 	// fix enemies that are carried over by Full Screen Warp
-	const bool tmpscr_is_sideview = is_Side_view();
+	const bool tmpscr_is_sideview = isSideViewGravity();
 	    
 	if(!wasSideview && tmpscr_is_sideview)
 	{

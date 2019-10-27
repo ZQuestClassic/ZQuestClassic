@@ -55,11 +55,6 @@ int select_dropitem(int, int, int)
     return 0;
 }
 
-bool is_side_view()
-{
-    return (Map.CurrScr()->flags7&fSIDEVIEW) != 0;
-}
-
 void getitem(int, bool)
 {
     return;
