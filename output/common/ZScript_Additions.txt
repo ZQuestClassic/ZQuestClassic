@@ -216,7 +216,7 @@ untyped : A special datatype that can be cast to and from any other type.
 		Access to all Item Shop Editor and Info Shop Editor data.
 
 	//Planned/Incomplete
-	dropdata : t/b/a
+	dropset : t/b/a
 		(Planned) Access to all Dropset Editor data.
 	warpring : t/b/a
 		(Planned) Access to all Warpring Editor data.
@@ -2034,6 +2034,12 @@ npcdata LoadNPCData(int id);
 
 mapdata LoadMapData(int map, int screen);
  * Loads a screen data ref for screen ID 'screen', of Map ID 'map', to a 'mapdata' typed pointer.
+
+dmapdata LoadDMapData(int dmap);
+ * Loads a dmapdata ref for dmap ID 'dmap' to a 'dmapdata' typed pointer.
+
+dropset LoadDropset(int ID);
+ * Loads a dropset ref for dropset number 'ID' to a 'dropset' typed pointer.
 
 spritedata LoadSpriteData(int id);
  * Loads an Weapon Sprite Editor table data ref for sprite 'id', to a 'spritedata' typed pointer.
@@ -4675,11 +4681,37 @@ int Type;
 
 //Where are Flash, and Flags?! -Z
 
-//////////////////
-///  dropdata  ///
-//////////////////
+/////////////////
+///  dropset  ///
+/////////////////
 
-t/b/a
+int Choose();
+ * Returns a random item ID from the dropset
+ * Returns -1 if 'nothing' is chosen.
+
+int Items[10];
+ * The item IDs stored in the dropset
+
+int Chances[10];
+ * The chances of each item stored in the dropset
+ * These are not direct percentages, but weights.
+
+int NothingChance;
+ * The chance of nothing being dropped
+ * This is not a percentage, but a weighted value
+
+/* The following are planned, but yet to be implemented
+	item Create(int x, int y);
+	item Create(int x, int y, int z);
+	 * Creates a random item from the dropset at the given coordinates
+	 * Returns NULL if 'nothing' is chosen, as no item is created.
+
+	void GetName(char[] buf);
+	 * Loads the name of the dropset into the buffer
+
+	void SetName(char[] buf);
+	 * Sets the name of the dropset from the buffer
+*/
 
 ////////////////
 ///  bitmap  ///

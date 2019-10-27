@@ -50,6 +50,11 @@ void item_fall(fix&, fix&, fix&)
 	return;
 }
 
+int select_dropitem(int)
+{
+    return 0;
+}
+
 int select_dropitem(int, int, int)
 {
     return 0;

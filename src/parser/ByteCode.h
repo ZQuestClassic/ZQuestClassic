@@ -1162,8 +1162,12 @@
 #define EWPNPARENTUID		1091
 #define GAMEGRAVITY			1092
 #define COMBODASPEED			1093
+#define DROPSETITEMS		1094
+#define DROPSETCHANCES		1095
+#define DROPSETNULLCHANCE		1096
+#define DROPSETCHOOSE		1097
 
-#define LAST_BYTECODE 		1094
+#define LAST_BYTECODE 		1098
 
 //END OF BYTECODE
 
@@ -2581,6 +2585,18 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OLoadDMapDataRegister(a->clone());
+		}
+	};
+
+
+	class OLoadDropsetRegister : public UnaryOpcode
+	{
+	public:
+		OLoadDropsetRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadDropsetRegister(a->clone());
 		}
 	};
 

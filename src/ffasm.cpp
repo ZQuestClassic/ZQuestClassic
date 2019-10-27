@@ -911,6 +911,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "LOADNPCBYSUID",        1,   0,   0,   0},
 	{ "LOADLWEAPONBYSUID",        1,   0,   0,   0},
 	{ "LOADWEAPONCBYSUID",        1,   0,   0,   0},
+    { "LOADDROPSETR",       1,   0,   0,   0},
 //	{ "GETCONFIGINT",                2,   0,   0,   0},
 //	{ "SETCONFIGINT",                2,   0,   0,   0},
     { "",                    0,   0,   0,   0}
@@ -2017,6 +2018,10 @@ script_variable variable_list[]=
 	{ "EWPNPARENTUID",		EWPNPARENTUID,        0,             0 },
 	{ "GAMEGRAVITY",		GAMEGRAVITY,        0,             0 },
 	{ "COMBODASPEED",		COMBODASPEED,        0,             0 },
+	{ "DROPSETITEMS",		DROPSETITEMS,        0,             0 },
+	{ "DROPSETCHANCES",		DROPSETCHANCES,        0,             0 },
+	{ "DROPSETNULLCHANCE",		DROPSETNULLCHANCE,        0,             0 },
+	{ "DROPSETCHOOSE",		DROPSETCHOOSE,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
