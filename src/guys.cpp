@@ -988,6 +988,8 @@ void enemy::FireWeapon()
      * 0x04: Fast projectile
      * 0x00-0x30: If 0x02, slants toward (type>>3)-1
      */
+	
+    if (wpn < 1) return;
     if(wpn<wEnemyWeapons && dmisc1!=9 && dmisc1!=10 && (wpn < wScript1 && wpn > wScript10) )  // Summoning doesn't require weapons
         return;
         
