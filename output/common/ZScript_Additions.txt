@@ -52,7 +52,7 @@ not_equal 	:	Equivalent to 	!=
 &&		:	Logical AND
 ^^		:	Logical XOR
 and 		: 	Equivalent to 	&&
-logicalxor	: 	Equivalent to 	^^
+xor		: 	Equivalent to 	^^
 or 		: 	Equivalent to 	||
 not 		: 	Equivalent to 	!
 not_eq 		:	Equivalent to 	!=
@@ -72,7 +72,7 @@ not_eq 		:	Equivalent to 	!=
 ^=		:	Bitwise XOR-Assign
 bitand 		: 	Equivalent to 	&
 bitor 		: 	Equivalent to 	|
-xor 		: 	Equivalent to 	^
+bitxor 		: 	Equivalent to 	^
 compl		: 	Equivalent to	~
 bitnot		: 	Equivalent to	~
 or_eq 		: 	Equivalent to 	|=
@@ -81,6 +81,24 @@ xor_eq 		: 	Equivalent to 	^=
 xor_equal 	: 	Equivalent to 	^=
 and_eq 		: 	Equivalent to 	&=
 and_equal 	: 	Equivalent to 	&=
+
+Notes: Xor abd Logical Xor alternative Tokens
+	C lacks logical xor (^^), and thus the alternate token 
+	for bitwise xor (^) is 'xor', HOWEVER, all other bitwise 
+	alternative tokens are prefixed with 'bit:
+		e.g., 'bitand', 'bitor'
+		...but the logical operator alternative tokens 
+	for logical AND and logical OR (&&, ||) have no prefix:
+		i.e. 'and', 'or'.
+	Thus, for the sake of **linguistic uniformity**, I changed
+	our alternative tokens for bitwise and logical xor.
+	
+	Now, logical xor (^^) uses 'xor' as an alternative token, and
+	bitwise xor (^) uses 'bitxor'.
+	
+	WHile this differs from C, I feel that this change makes
+	the alternative tokens more uniform, and easier to remember.
+		-ZoriaRPG ( 28th October, 2019 )
 	
 
 ///////////////////////

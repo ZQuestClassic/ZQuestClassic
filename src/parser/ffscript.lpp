@@ -186,7 +186,7 @@ not_equal		TOKEN( NE );
 "&"		TOKEN( BITAND );
 bitand		TOKEN( BITAND );
 "^"		TOKEN( BITXOR );
-xor		TOKEN( BITXOR );
+bitxor		TOKEN( BITXOR );
 "|"		TOKEN( BITOR );
 bitor		TOKEN( BITOR );
 "&&"		TOKEN( AND );
@@ -214,7 +214,7 @@ or_equal		TOKEN( BITORASSIGN );
 "&&="		TOKEN( ANDASSIGN );
 "||="		TOKEN( ORASSIGN );
 "^^"		TOKEN( XOR );
-"logicalxor"		TOKEN( XOR );
+"xor"		TOKEN( XOR );
  /*	cast		TOKEN( CAST );	*/
  /*	static_cast		TOKEN( CAST );	*/
 
