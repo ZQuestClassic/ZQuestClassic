@@ -1,7 +1,17 @@
 ChangeLog for 2.53.1
 
-//Beta 5
+//Beta 7
 
+Fix crash if compiler sounds are set to 0 and vbound them between 0 and 255.
+	( ZoriaRPG, 28th October, 2019 )
+
+//Beta 6
+Fixed errors in zscript.txt, now v0.7.6.
+Fixed crashes when saving files with very long paths.
+Fixed an off-by-one error in .ztile and in .ztileset load/write. 
+	( ZoriaRPG, 27th October. 2019 )
+
+//Beta 5
 .zmod: Add classic.zmod to 2.53.1 and update zc.cfg to use it.
 .zmod: Minor fixes.
 .zmod: Fix the default module file from default.zmod to classic.zmod

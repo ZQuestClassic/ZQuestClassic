@@ -1317,6 +1317,8 @@ void savesometiles(const char *prompt,int initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
@@ -1325,7 +1327,7 @@ void savesometiles(const char *prompt,int initialval)
 				pack_fclose(f);
 				
 				char tmpbuf[80]={0};
-				sprintf(tmpbuf,"Saved %s",temppath);
+				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
@@ -1385,13 +1387,15 @@ void writesometiles_to(const char *prompt,int initialval)
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 			if(f)
 			{
 				
 				if (!readtilefile_to_location(f,first_tile_id))
 				{
-					al_trace("Could not read from .ztile packfile %s\n", temppath);
+					al_trace("Could not read from .ztile packfile %s\n", name);
 					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				}
 				else
@@ -1459,6 +1463,8 @@ void savesomecombos(const char *prompt,int initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOS-1)-first_tile_id);
 		if(getname("Save ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
@@ -1466,7 +1472,7 @@ void savesomecombos(const char *prompt,int initialval)
 				writecombofile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
 				char tmpbuf[80]={0};
-				sprintf(tmpbuf,"Saved %s",temppath);
+				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
@@ -1526,13 +1532,15 @@ void writesomecombos_to(const char *prompt,int initialval)
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 			if(f)
 			{
 				
 				if (!readcombofile_to_location(f,first_tile_id))
 				{
-					al_trace("Could not read from .zcombo packfile %s\n", temppath);
+					al_trace("Could not read from .zcombo packfile %s\n", name);
 					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				}
 				else
@@ -1603,6 +1611,8 @@ void savesomecomboaliases(const char *prompt,int initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOALIASES-1)-first_tile_id);
 		if(getname("Save ZALIAS(.zalias)", "zalias", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
@@ -1610,7 +1620,7 @@ void savesomecomboaliases(const char *prompt,int initialval)
 				writecomboaliasfile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
 				char tmpbuf[80]={0};
-				sprintf(tmpbuf,"Saved %s",temppath);
+				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 		}
@@ -1670,13 +1680,15 @@ void writesomecomboaliases_to(const char *prompt,int initialval)
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Load ZALIAS(.zalias)", "zalias", NULL,datapath,false))
 		{  
+			char name[256];
+			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 			if(f)
 			{
 				
 				if (!readcomboaliasfile_to_location(f,first_tile_id))
 				{
-					al_trace("Could not read from .zcombo packfile %s\n", temppath);
+					al_trace("Could not read from .zcombo packfile %s\n", name);
 					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				}
 				else
@@ -21060,42 +21072,53 @@ int onCompileScript()
 	    
 	    if ( result )
 	    {
-		compile_success_sample = get_config_int("Compiler","compile_success_sample",20);
-		compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
-		if(sfxdat)
-		sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
-		else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
-		voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
-		voice_start(sfx_voice[compile_success_sample]);
+		compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
+		compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+		if(compile_success_sample > 0)
+		{
+			if(sfxdat)
+			sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+			else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
+			voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
+			voice_start(sfx_voice[compile_success_sample]);
+		}
 			
 	    }
 	    else
 	    {
 		//al_trace("Error, play err sfx.\n");
-		    compile_error_sample = get_config_int("Compiler","compile_error_sample",28);
-		    compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
+		    compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",28),0,255);
+		    compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
 		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
-		    if(sfxdat)
-		    sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
-		    else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
-		    voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
-		//set_volume(255,-1);
-		//kill_sfx();
-		    voice_start(sfx_voice[compile_error_sample]);
-		//sfx(28, 128, false,true);  
-		    
+		    if(compile_error_sample > 0)
+		    {
+			    if(sfxdat)
+			    sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+			    else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
+			    voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
+			//set_volume(255,-1);
+			//kill_sfx();
+			    voice_start(sfx_voice[compile_error_sample]);
+			//sfx(28, 128, false,true);  
+		    }
 	    }
 	    
             box_end(true);
-	    if(sfx_voice[compile_success_sample]!=-1)
+	    if(compile_success_sample > 0)
 	    {
-		deallocate_voice(sfx_voice[compile_success_sample]);
-		sfx_voice[compile_success_sample]=-1;
+		    if(sfx_voice[compile_success_sample]!=-1)
+		    {
+			deallocate_voice(sfx_voice[compile_success_sample]);
+			sfx_voice[compile_success_sample]=-1;
+		    }
 	    }
-	    if(sfx_voice[compile_error_sample]!=-1)
+	    if(compile_error_sample > 0)
 	    {
-		deallocate_voice(sfx_voice[compile_error_sample]);
-		sfx_voice[compile_error_sample]=-1;
+		    if(sfx_voice[compile_error_sample]!=-1)
+		    {
+			deallocate_voice(sfx_voice[compile_error_sample]);
+			sfx_voice[compile_error_sample]=-1;
+		    }
 	    }
             refresh(rALL);
             
@@ -21343,20 +21366,26 @@ int onCompileScript()
                     unlink("tmp");
 		  
 		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
-		    compile_finish_sample = get_config_int("Compiler","compile_finish_sample",34);
-		    compile_audio_volume = get_config_int("Compiler","compile_audio_volume",200);
-		    if(sfxdat)
-		    sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
-		    else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
-		    voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
-		//set_volume(255,-1);
-		//kill_sfx();
-		    voice_start(sfx_voice[compile_finish_sample]);
-                    jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
-		    if(sfx_voice[compile_finish_sample]!=-1)
+		    compile_finish_sample = vbound(get_config_int("Compiler","compile_finish_sample",34),0,255);
+		    compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+		    if (compile_finish_sample > 0 )
 		    {
-			deallocate_voice(sfx_voice[compile_finish_sample]);
-			sfx_voice[compile_finish_sample]=-1;
+			    if(sfxdat)
+			    sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
+			    else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
+			    voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
+			//set_volume(255,-1);
+			//kill_sfx();
+			    voice_start(sfx_voice[compile_finish_sample]);
+		    }
+		    jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		    if (compile_finish_sample > 0 )
+		    {
+			if(sfx_voice[compile_finish_sample]!=-1)
+			    {
+				deallocate_voice(sfx_voice[compile_finish_sample]);
+				sfx_voice[compile_finish_sample]=-1;
+			    }
 		    }
                     build_biffs_list();
                     build_biitems_list();

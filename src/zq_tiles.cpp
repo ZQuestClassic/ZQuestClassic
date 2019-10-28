@@ -8409,7 +8409,7 @@ int readtilefile(PACKFILE *f)
 	byte format=tf4Bit;
 	memset(temp_tile, 0, tilesize(tf32Bit));
 
-	for ( int tilect = 0; tilect <= count; tilect++ )
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		if(!p_getc(&format,f,true))
@@ -8504,7 +8504,7 @@ int readtilefile_to_location(PACKFILE *f, int start, int skip)
 	byte format=tf4Bit;
 	memset(temp_tile, 0, tilesize(tf32Bit));
 
-	for ( int tilect = 0; tilect <= count; tilect++ )
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		if(!p_getc(&format,f,true))
@@ -8609,7 +8609,7 @@ int readtilefile_to_location(PACKFILE *f, int start)
 	byte format=tf4Bit;
 	memset(temp_tile, 0, tilesize(tf32Bit));
 
-	for ( int tilect = 0; tilect <= count; tilect++ )
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		if(!p_getc(&format,f,true))
@@ -8678,7 +8678,7 @@ int writetilefile(PACKFILE *f, int index, int count)
 		return 0;
 	}
 	
-	for ( int tilect = 0; tilect <= count; tilect++ )
+	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 	
 		if(!p_putc(newtilebuf[index+(tilect-1)].format,f))
