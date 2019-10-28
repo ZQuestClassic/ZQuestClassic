@@ -2,6 +2,7 @@ ChangeLog for 2.53.1
 
 //Beta 7
 
+Allow block comments and some alternative tokens. 
 Fix crash if compiler sounds are set to 0 and vbound them between 0 and 255.
 	( ZoriaRPG, 28th October, 2019 )
 
