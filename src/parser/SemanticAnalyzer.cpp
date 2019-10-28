@@ -869,7 +869,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	for(vector<ASTExpr*>::iterator it = host.parameters.begin();
 		it != host.parameters.end(); ++it)
 	{
-		syncDisable(host, *it);
+		syncDisable(host, **it);
 	}
 	if (breakRecursion(host)) return;
 
