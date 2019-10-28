@@ -7,6 +7,7 @@ command: flex -B -olex.yy.cpp ffscript.lpp
 %option noyywrap
 %option never-interactive
 WS	[ \t\n\r]
+%x COMMENT
 
 %{
 #include <stdlib.h>
@@ -44,6 +45,25 @@ npc					{doLines(); return NPC;}
 lweapon					{doLines(); return LWEAPON;}
 eweapon					{doLines(); return EWEAPON;}
 
+not		{ doLines(); return  NOT;}
+compl		{ doLines(); return  BITNOT;}
+bitnot		{ doLines(); return  BITNOT;}
+"equals"	{ doLines(); return  EQ;}
+not_eq		{ doLines(); return  NE;}
+"<>"		{ doLines(); return  NE;}
+bitand		{ doLines(); return  BITAND;}
+bitxor		{ doLines(); return  BITXOR;}
+bitor		{ doLines(); return  BITOR;}
+and		{ doLines(); return  AND;}
+or		{ doLines(); return  OR;}
+":="		{ doLines(); return  ASSIGN;}
+and_eq		{ doLines(); return  BITANDASSIGN;}
+and_equal		{ doLines(); return  BITANDASSIGN;}
+xor_eq		{ doLines(); return  BITXORASSIGN;}
+xor_equal		{ doLines(); return  BITXORASSIGN;}
+or_eq		{ doLines(); return  BITORASSIGN;}
+or_equal		{ doLines(); return  BITORASSIGN; }
+
 \-\>		{ doLines(); return ARROW;}
 \<\<=		{ doLines(); return LSHIFTASSIGN; }
 \>\>=		{ doLines(); return RSHIFTASSIGN; }
@@ -78,7 +98,6 @@ eweapon					{doLines(); return EWEAPON;}
 \+			{ doLines();return PLUS; }
 \-                { doLines();return MINUS; }
 \*			{ doLines();return TIMES; }
-\/\/.*            { ; }
 \/                { doLines();return DIVIDE; }
 \{                { doLines();return LBRACE; }
 \}                { doLines();return RBRACE; }
@@ -90,6 +109,17 @@ eweapon					{doLines(); return EWEAPON;}
 \^				{ doLines(); return BITXOR; }
 \!			{ doLines();return NOT; }
 \%			{ doLines(); return MODULO; }
+"//".*            		 { ; }
+"/*"                     { doLines(); BEGIN(COMMENT); }
+<COMMENT>"*/"            { doLines(); BEGIN(INITIAL); }
+<COMMENT>([^*]|\n)+|.    { ; }
+<COMMENT><<EOF>>         {
+				char temp[512];
+				sprintf(temp, "Scanner: Unterminated comment.\n");
+				box_out(temp);
+				box_eol();
+				return 0;
+			}
 
 
 [_a-zA-Z]([_a-zA-Z]|[0-9])*	{
