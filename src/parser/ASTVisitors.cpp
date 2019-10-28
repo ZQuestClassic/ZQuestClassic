@@ -228,6 +228,7 @@ void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)
 void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
 {
 	visit(host.value.get(), param);
+	syncDisable(host, *host.value);
 }
 
 // Declarations
