@@ -45,6 +45,25 @@ npc					{doLines(); return NPC;}
 lweapon					{doLines(); return LWEAPON;}
 eweapon					{doLines(); return EWEAPON;}
 
+not		{ doLines(); return  NOT;}
+compl		{ doLines(); return  BITNOT;}
+bitnot		{ doLines(); return  BITNOT;}
+"equals"	{ doLines(); return  EQ;}
+not_eq		{ doLines(); return  NE;}
+"<>"		{ doLines(); return  NE;}
+bitand		{ doLines(); return  BITAND;}
+bitxor		{ doLines(); return  BITXOR;}
+bitor		{ doLines(); return  BITOR;}
+and		{ doLines(); return  AND;}
+or		{ doLines(); return  OR;}
+":="		{ doLines(); return  ASSIGN;}
+and_eq		{ doLines(); return  BITANDASSIGN;}
+and_equal		{ doLines(); return  BITANDASSIGN;}
+xor_eq		{ doLines(); return  BITXORASSIGN;}
+xor_equal		{ doLines(); return  BITXORASSIGN;}
+or_eq		{ doLines(); return  BITORASSIGN;}
+or_equal		{ doLines(); return  BITORASSIGN; }
+
 \-\>		{ doLines(); return ARROW;}
 \<\<=		{ doLines(); return LSHIFTASSIGN; }
 \>\>=		{ doLines(); return RSHIFTASSIGN; }
