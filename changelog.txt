@@ -1,6 +1,7 @@
 ChangeLog for 2.53.1
 
 //Beta 9
+Made the default cursor size for ZQ large mode match 2.50, again.
 Added '#include# as an alternate to 'import' in the parser
 	so that simple scripts (ffc, global, item) can be more-easily shared 
 	shared between 2.53.1 and 2.55.
