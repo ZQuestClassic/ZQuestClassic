@@ -195,13 +195,14 @@ untyped : A special datatype that can be cast to and from any other type.
 		directed at a single object in memory.
 		Use this to access lweapon and eweaopon varibles, arrays, and functions. 
 		
-	item: 
-		Used to create a pointer to an item object. 
-		You may either load a current (valid) item on the current screen to the pointer, or create
-		a new item on the screen using this pointer.
-		The maximum number of item objects is defined in std.zh, but you may have multiple pointers
+	itemsprite: 
+		Used to create a pointer to an itemsprite object. 
+		You may either load a current (valid) itemsprite on the current screen to the pointer, or create
+		a new itemsprite on the screen using this pointer.
+		The maximum number of itemsprite objects is defined in std.zh, but you may have multiple pointers
 		directed at a single object in memory.
-		Use this to access item varibles, arrays, and functions. 
+		Use this to access itemsprite varibles, arrays, and functions.
+		NOTE: In previous versions, this type was simply called "item".
 	
 	bitmap:
 		Used to create user bitmaps, similar to the old 2.50 Render Target bitmaps,
@@ -485,9 +486,9 @@ The Waitdraw() instruction defers further execution of a script (pausing it) unt
 	draws to the screen have been rendered for the present frame.
 	
 The following script types now support Waitdraw():
-ffc, screendata, eweapon, itemsprite, item.
+ffc, screendata, eweapon, itemsprite, itemdata.
 You may disable Waitdraw support (for compatibility reasons) for ffc scripts, 
-	and item scripts in the ZScript Quest Settings Dialogue.
+	and itemdata scripts in the ZScript Quest Settings Dialogue.
 	
 Waitdraw support for npc, and lweapon scripts remains t/b/a.
 
@@ -1016,7 +1017,7 @@ Waitdraw Support:	No
 //////////////////////////
 
 TOKEN(s):		itemsprite script
-POINTER: 		item
+POINTER: 		itemsprite
 InitD:			Yes, [8]
 InitD Labels:		Yes, [8]
 InitA:			No
@@ -1024,9 +1025,9 @@ Multiple Frames:	Yes
 Waitdraw Support:	Yes
 
 * You can now compile and assign scripts to items that appear on the screen.
-* The 'this' pointer for itemsprite scripts is item (ri->itemsref).
+* The 'this' pointer for itemsprite scripts is itemsprite (ri->itemsref).
 *
-* This script can run for multiple frames. It automatically ends if the item becomes invalid.
+* This script can run for multiple frames. It automatically ends if the itemsprite becomes invalid.
 *
 * You can assign this script to an item in the ITEM EDITOR dialogue. 
 *	To do this, open the ITEM EDITOR, and select the 'Scripts' tab.
@@ -1035,19 +1036,19 @@ Waitdraw Support:	Yes
 * itemsprite Scripts have eight InitD[] args, in the ITEM EDITOR for this script type.
 * 	You may assign values to these in the ITEM EDITOR, and you may label the fields
 * 	for these InitD values in the ITEM EDITOR.
-* 	You may also read or write to them by script with item->InitD[] (or this->InitD[])
+* 	You may also read or write to them by script with itemsprite->InitD[] (or this->InitD[])
 *
 * Trying to modify the script while it is running with this->Script, is untested.
 
 t/b/a
-Item Script, FFC Script
+Itemdata Script, FFC Script
 
 
-////////////////////
-/// Item Scripts ///
-////////////////////
+////////////////////////
+/// Itemdata Scripts ///
+////////////////////////
 
-TOKEN(s):		item script
+TOKEN(s):		itemdata script
 POINTER: 		itemdata
 InitD:			Yes, [8]
 InitD Labels:		Yes, [8]
@@ -1055,12 +1056,14 @@ InitA:			Yes, [2]
 Multiple Frames:	Yes, depends on QR or item flag
 Waitdraw Support:	Yes, depends on QR
 
-It is now possible to permit item scripts to run for more than one frame.
+It is now possible to permit itemdata scripts to run for more than one frame.
 	To do this, you must enable the Quest Rule, 'Item Scripts Continue to Run', 
 	in Quest->Rules->Scripts.
 	
 	This rule is disabled by default, and disabled for all legacy quests, for compatibility
 	reasons.
+
+NOTE: In previous versions, this type was simply called "item script".
 
 
 /////////////////////////
@@ -2611,17 +2614,17 @@ bool Flags[14];
 
 /************************************************************************************************************/
 
-//////////////
-///  Item  ///
-//////////////
+////////////////////
+///  Itemsprite  ///
+////////////////////
 
 untyped InitD[8];
- * The 8 D args for the item.
+ * The 8 D args for the itemsprite.
  * Used as this->InitD[] for itemsprite scripts.
 
 bool Gravity;
- * If set true, the npc would item in sideview gravity.
- * Items have gravity set true by default.
+ * If set true, the itemsprite will fall in sideview gravity.
+ * Itemsprites have gravity set true by default.
 `
 int Scale;
  * The scale factor for this sprited object. 
@@ -2637,20 +2640,20 @@ int Rotation;
  *  'Old (Faster) Sprite Drawing.
 
 int Script;
- * The itemsprite script attached to this item.
+ * The itemsprite script attached to this itemsprite.
 
 int Family;
 int Type;
- * The Family (Item Class) of the item.
+ * The Family (Item Class) of the itemsprite.
 
 untyped Misc[32];
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
 
 int Pickup;
- * The pick-up type for this item.
+ * The pick-up type for this itemsprite.
 	
 int PickupString;
- * If this is > 0, then when Link touches the item, ZC will display a ZQ String Editor message string
+ * If this is > 0, then when Link touches the itemsprite, ZC will display a ZQ String Editor message string
  * equal to its value.
  * The precise behaviour of this is affected by PickupFlags.
 
@@ -2669,20 +2672,20 @@ int SizeFlags;
 
 
 float UID;	
- * Each item created by ZC in in a given session is assigned a unique ID (UID).
- * Returns the UID of an item.
+ * Each itemsprite created by ZC in in a given session is assigned a unique ID (UID).
+ * Returns the UID of an itemsprite.
  * UIDs begin at 00000.0001 and overflow at 217478.3648. 
  *	Note: This allows for 2,147,483,647 unique items, per-session.
 
 int AClock 
- * The clock used for the item's animation cycle. 
+ * The clock used for the itemsprite's animation cycle. 
 
 int ScriptTile;
- * If set to 0 or higher, then the item will be drawn with this tile.
+ * If set to 0 or higher, then the itemsprite will be drawn with this tile.
  * The default value for this is -1.
 
 int ScriptFlip;
- * If set to 0, or higher, then the engine will use this Flip state to draw the item.
+ * If set to 0, or higher, then the engine will use this Flip state to draw the itemsprite.
  * The default value for this is -1. 
 
 /************************************************************************************************************/	
@@ -2781,7 +2784,7 @@ int Range;
  * The range of boomerang and hookshot lweapons in pixels; and arrow lweapons in frames.
 
 int AClock 
- * The clock used for the item's animation cycle. 
+ * The clock used for the itemsprite's animation cycle. 
 
 /************************************************************************************************************/		
 
@@ -2796,7 +2799,7 @@ bool isSubmerged();
  * continues to return true until that npc is fully-submerged. 
 
 bool Gravity;
- * Not implemented at this time.
+ * If set true, the npc will fall in sideview gravity.
  * Some npcs have this set true by default, others are false by default,
  * based on the npc family.
 
@@ -4719,8 +4722,8 @@ int NothingChance;
  * This is not a percentage, but a weighted value
 
 /* The following are planned, but yet to be implemented
-	item Create(int x, int y);
-	item Create(int x, int y, int z);
+	itemsprite Create(int x, int y);
+	itemsprite Create(int x, int y, int z);
 	 * Creates a random item from the dropset at the given coordinates
 	 * Returns NULL if 'nothing' is chosen, as no item is created.
 
