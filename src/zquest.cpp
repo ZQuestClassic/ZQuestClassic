@@ -23112,7 +23112,7 @@ int onSlotAssign()
 					if(globalscripts[i][0].command!=0xFFFF)
 					{
 						scripts[globalmap[i].second] = disassemble_script(globalscripts[i]);
-						asffcscripts.push_back(globalmap[i].second);
+						asglobalscripts.push_back(globalmap[i].second);
 					}
 				}
 		}
@@ -23135,7 +23135,7 @@ int onSlotAssign()
 			if(itemscripts[i+1][0].command!=0xFFFF)
 			{
 				scripts[itemmap[i].second] = disassemble_script(itemscripts[i+1]);
-				asffcscripts.push_back(itemmap[i].second);
+				asitemscripts.push_back(itemmap[i].second);
 			}
 		}
 	}
@@ -23146,7 +23146,7 @@ int onSlotAssign()
 			if(guyscripts[i+1][0].command!=0xFFFF)
 			{
 				scripts[npcmap[i].second] = disassemble_script(guyscripts[i+1]);
-				asffcscripts.push_back(npcmap[i].second);
+				asnpcscripts.push_back(npcmap[i].second);
 			}
 		}
 	}
@@ -23157,7 +23157,7 @@ int onSlotAssign()
 			if(lwpnscripts[i+1][0].command!=0xFFFF)
 			{
 				scripts[lwpnmap[i].second] = disassemble_script(lwpnscripts[i+1]);
-				asffcscripts.push_back(lwpnmap[i].second);
+				aslweaponscripts.push_back(lwpnmap[i].second);
 			}
 		}
 	}
@@ -23168,7 +23168,7 @@ int onSlotAssign()
 			if(ewpnscripts[i+1][0].command!=0xFFFF)
 			{
 				scripts[ewpnmap[i].second] = disassemble_script(ewpnscripts[i+1]);
-				asffcscripts.push_back(ewpnmap[i].second);
+				aseweaponscripts.push_back(ewpnmap[i].second);
 			}
 		}
 	}
@@ -23179,7 +23179,7 @@ int onSlotAssign()
 			if(linkscripts[i+1][0].command!=0xFFFF)
 			{
 				scripts[linkmap[i].second] = disassemble_script(linkscripts[i+1]);
-				asffcscripts.push_back(linkmap[i].second);
+				aslinkscripts.push_back(linkmap[i].second);
 			}
 		}
 	}
@@ -23190,7 +23190,7 @@ int onSlotAssign()
 			if(dmapscripts[i+1][0].command!=0xFFFF)
 			{
 				scripts[dmapmap[i].second] = disassemble_script(dmapscripts[i+1]);
-				asffcscripts.push_back(dmapmap[i].second);
+				asdmapscripts.push_back(dmapmap[i].second);
 			}
 		}
 	}
@@ -23201,7 +23201,7 @@ int onSlotAssign()
 			if(screenscripts[i+1][0].command!=0xFFFF)
 			{
 				scripts[screenmap[i].second] = disassemble_script(screenscripts[i+1]);
-				asffcscripts.push_back(screenmap[i].second);
+				asscreenscripts.push_back(screenmap[i].second);
 			}
 		}
 	}
@@ -23212,7 +23212,7 @@ int onSlotAssign()
 			if(itemspritescripts[i+1][0].command!=0xFFFF)
 			{
 				scripts[itemspritemap[i].second] = disassemble_script(itemspritescripts[i+1]);
-				asffcscripts.push_back(itemspritemap[i].second);
+				asitemspritescripts.push_back(itemspritemap[i].second);
 			}
 		}
 	}
