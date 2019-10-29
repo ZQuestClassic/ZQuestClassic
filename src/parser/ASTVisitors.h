@@ -318,6 +318,7 @@ namespace ZScript
 		
 		// Call this when a node relies on a child node. If the child is disabled, the parent must also be disabled, or else it can crash.
 		static void syncDisable(AST& parent, AST const& child);
+		static void syncDisable(AST& parent, AST const* child);
 
 		// Current stack of visited nodes.
 		std::vector<AST*> recursionStack;

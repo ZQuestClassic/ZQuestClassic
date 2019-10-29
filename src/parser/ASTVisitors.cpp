@@ -37,6 +37,13 @@ void RecursiveVisitor::syncDisable(AST& parent, AST const& child)
 	if(child.isDisabled()) parent.disable();
 }
 
+void RecursiveVisitor::syncDisable(AST& parent, AST const* child)
+{
+	if(!child) return;
+	if(child->errorDisabled) parent.errorDisabled = true;
+	if(child->isDisabled()) parent.disable();
+}
+
 void RecursiveVisitor::handleError(CompileError const& error)
 {
 	bool skipError = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) != 0);
@@ -302,11 +309,11 @@ void RecursiveVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	for(vector<ASTDataDeclExtraArray*>::iterator it = host.extraArrays.begin();
 		it != host.extraArrays.end(); ++it)
 	{
-		syncDisable(host, **it);
+		syncDisable(host, *it);
 	}
 	if (breakRecursion(host, param)) return;
 	visit(host.getInitializer(), param);
-	syncDisable(host, *host.getInitializer());
+	syncDisable(host, host.getInitializer());
 }
 
 void RecursiveVisitor::caseDataDeclExtraArray(
@@ -375,7 +382,7 @@ void RecursiveVisitor::caseExprCall(ASTExprCall& host, void* param)
 	for(vector<ASTExpr*>::iterator it = host.parameters.begin();
 		it != host.parameters.end(); ++it)
 	{
-		syncDisable(host, **it);
+		syncDisable(host, *it);
 	}
 }
 
