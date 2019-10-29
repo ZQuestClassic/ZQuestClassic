@@ -1,9 +1,18 @@
 ChangeLog for 2.53.1
 
+//Beta 9
+Added '#include# as an alternate to 'import' in the parser
+	so that simple scripts (ffc, global, item) can be more-easily shared 
+	shared between 2.53.1 and 2.55.
+	2.53.1 uses the standard import behaviour for this token,
+	not the improved behaviour from 2.55. 
+	This is purely a semantical addition.
+	( ZoriaRPG, 29th October, 2019 )
+
 //Beta 8
-
 Allow block comments and some alternative tokens. 
-
+	( ZoriaRPG, 28th October, 2019 )
+	
 //Beta 7
 Fix crash if compiler sounds are set to 0 and vbound them between 0 and 255.
 	( ZoriaRPG, 28th October, 2019 )

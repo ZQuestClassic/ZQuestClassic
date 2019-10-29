@@ -30,6 +30,7 @@ if				  { doLines();return IF; }
 else				  { doLines();return ELSE; }
 return			  { doLines();return RETURN; }
 import			  { doLines();return IMPORT; }
+"#include"			  { doLines();return IMPORT; }
 true				  { doLines();return ZTRUE; }
 false				  { doLines();return ZFALSE; }
 while				{doLines(); return WHILE;}
