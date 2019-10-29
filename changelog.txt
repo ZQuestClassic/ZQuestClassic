@@ -1,6 +1,9 @@
 ChangeLog for 2.53.1
 
 //Beta 9
+Updated std.zh, tango.zh, and ghost.zh to call '#include', not 'import'.
+Updated ZScript_Changes.txt
+Updated all .ztheme files, and added dark.ztheme, and ruby.ztheme by Shadowblitz.
 Made the default cursor size for ZQ large mode match 2.50, again.
 Added '#include# as an alternate to 'import' in the parser
 	so that simple scripts (ffc, global, item) can be more-easily shared 
