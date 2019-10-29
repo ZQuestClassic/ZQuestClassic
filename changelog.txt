@@ -1,6 +1,9 @@
 ChangeLog for 2.53.1
 
 //Beta 9
+The parser now errors, and reports that the user must use ZSxript v14/2.55
+	if the user tries to code with datatypes, pointers, tokens, or
+	directives that require 2.55+.
 Updated std.zh, tango.zh, and ghost.zh to call '#include', not 'import'.
 Updated ZScript_Changes.txt
 Updated all .ztheme files, and added dark.ztheme, and ruby.ztheme by Shadowblitz.
