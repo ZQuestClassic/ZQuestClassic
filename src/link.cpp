@@ -61,6 +61,7 @@ extern word global_wait;
 extern bool link_waitdraw;
 extern bool dmap_waitdraw;
 extern bool passive_subscreen_waitdraw;
+extern bool active_subscreen_waitdraw;
 
 int link_count = -1;
 int link_animation_speed = 1; //lower is faster animation
@@ -13012,7 +13013,8 @@ bool LinkClass::dowarp(int type, int index)
                         "Insta-Warp");
                         
     eventlog_mapflags();
-	FFCore.initZScriptDMapScripts();
+    FFCore.initZScriptDMapScripts();
+    FFCore.initZScriptActiveSubscreenScript();
     return true;
 }
 
@@ -14234,6 +14236,11 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
 			passive_subscreen_waitdraw = false;
 		}
+		//if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && active_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		//{
+		//	ZScriptVersion::RunScript(SCRIPT_SUBSCREEN, DMaps[currdmap].activesubscript,currdmap);
+		//	passive_subscreen_waitdraw = false;
+		//}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->screen_waitdraw && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
