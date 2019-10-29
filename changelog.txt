@@ -1,6 +1,7 @@
 ChangeLog for 2.53.1
 
 //Beta 9
+Updated ghost/other.zh and tango/1.2/user.zh to remove 'default' and 'bitmap' identifiers
 Added error for logical xor.
 The parser now errors, and reports that the user must use ZSxript v14/2.55
 	if the user tries to code with datatypes, pointers, tokens, or
