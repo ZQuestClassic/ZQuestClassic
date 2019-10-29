@@ -715,6 +715,7 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 		handleError(
 			CompileError::NoWriteType(
 				host.left.get(), host.left->asString()));
+		syncDisable(host, *host.left);
 		return;
 	}
 	
@@ -862,6 +863,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	if (!identifier)
 	{
 		visit(host.left.get(), paramNone);
+		syncDisable(host, *host.left);
 		if (breakRecursion(host)) return;
 	}
 

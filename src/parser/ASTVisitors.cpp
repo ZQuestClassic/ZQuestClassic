@@ -39,7 +39,11 @@ void RecursiveVisitor::syncDisable(AST& parent, AST const& child)
 
 void RecursiveVisitor::syncDisable(AST& parent, AST const* child)
 {
-	if(!child) return;
+	if(!child)
+	{
+		parent.errorDisabled = true; //Assume error on null param!
+		return;
+	}
 	if(child->errorDisabled) parent.errorDisabled = true;
 	if(child->isDisabled()) parent.disable();
 }
@@ -313,7 +317,8 @@ void RecursiveVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	}
 	if (breakRecursion(host, param)) return;
 	visit(host.getInitializer(), param);
-	syncDisable(host, host.getInitializer());
+	if(host.getInitializer())
+		syncDisable(host, *host.getInitializer());
 }
 
 void RecursiveVisitor::caseDataDeclExtraArray(
