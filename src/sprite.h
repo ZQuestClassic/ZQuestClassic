@@ -169,6 +169,7 @@ class sprite_list
 {
     sprite *sprites[SLMAX];
     int count;
+	int active_iterator;
     map<long, int> containedUIDs;
     // Cache requests from scripts
     mutable long lastUIDRequested;

@@ -18912,7 +18912,7 @@ void do_combotile(const bool v)
 int run_script(const byte type, const word script, const long i)
 {
 	if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
-		return 1;
+		return RUNSCRIPT_ERROR;
 	
 	curScriptType=type;
 	curScriptNum=script;
@@ -19177,7 +19177,7 @@ int run_script(const byte type, const word script, const long i)
 		default:
 		{
 			al_trace("No other scripts are currently supported\n");
-			return 1;
+			return RUNSCRIPT_ERROR;
 		}
 	}
 	
@@ -20474,7 +20474,7 @@ int run_script(const byte type, const word script, const long i)
 				if(BC::checkMapID(map, "Game->SetScreenEnemy(...map...)") != SH::_NoError ||
 					BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEnemy(...screen...)") != SH::_NoError ||
 					BC::checkBounds(index, 0, 9, "Game->SetScreenEnemy(...index...)") != SH::_NoError)
-					return -10000;
+					return RUNSCRIPT_ERROR;
 				
 			//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
 			//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
@@ -20496,7 +20496,7 @@ int run_script(const byte type, const word script, const long i)
 					BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenDoor(...screen...)") != SH::_NoError ||
 					BC::checkBounds(index, 0, 3, "Game->SetScreenDoor(...doorindex...)") != SH::_NoError)
 				{
-					return -10000; break;
+					return RUNSCRIPT_ERROR; break;
 				}
 				else
 				{
@@ -21332,8 +21332,13 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case NPCKICKBUCKET:
-		    FFCore.do_npckickbucket();
-		    break;
+			if(type == SCRIPT_NPC && ri->guyref == i)
+			{
+				FFCore.do_npckickbucket();
+				return RUNSCRIPT_SELFDELETE;
+			}
+			FFCore.do_npckickbucket();
+			break;
 		
 		case NPCSTOPBGSFX:
 		    FFCore.do_npc_stopbgsfx();
@@ -21699,7 +21704,7 @@ int run_script(const byte type, const word script, const long i)
         pc++;
         
     ri->pc = pc; //Put it back where we got it from
-    
+	
 #ifdef _SCRIPT_COUNTER
     
     for(int j = 0; j < NUMCOMMANDS; j++)
@@ -21713,7 +21718,7 @@ int run_script(const byte type, const word script, const long i)
 #endif
     
     
-    return 0;
+    return RUNSCRIPT_OK;
 }
 
 //This keeps ffc scripts running beyond the first frame. 
@@ -25926,7 +25931,8 @@ void FFScript::do_npckickbucket()
 	{
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		//e->kickbucket();
-		GuyH::getNPC()->kickbucket();
+		//GuyH::getNPC()->kickbucket();
+		guys.del(GuyH::getNPCIndex(ri->guyref));
 	}
 	//else Z_scripterrlog
 }

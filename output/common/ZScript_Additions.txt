@@ -2854,7 +2854,9 @@ bool Knockback(int time, int dir, int speed);
  *     'bool npc->NoKnockback;' was set true for this enemy
 
 void Remove(); 
- * Instantly kills an npc
+ * Instantly DELETES an npc. No items will be dropped, no sound will play; the npc is simply DELETED OUTRIGHT.
+ * This will immediately invalidate the npc pointer, as well as update 'Screen->NumNPCs()', and change the indexes for 'Screen->LoadNPC()'
+ * If called from an NPC script on the NPC running the script, immediately terminates the script.
 
 void StopBGSFX();
  * Stops the background sounds that the npc is generating.
