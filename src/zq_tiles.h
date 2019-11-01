@@ -48,6 +48,7 @@ void comeback_combos();
 void little_x(BITMAP *dest, int x, int y, int c, int s);
 void zoomtile16(BITMAP *dest,int tile,int x,int y,int cset,int flip,int m);
 void draw_text_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int bg,int fg,int flags,bool jwin);
+void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int flags);
 bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin);
 bool do_text_button_reset(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin);
 void draw_graphics_button(BITMAP *dest,int x,int y,int w,int h,BITMAP *bmp,BITMAP *bmp2,int bg,int fg,int flags,bool jwin,bool overlay);
