@@ -453,7 +453,7 @@ DataType : ZCONST DataType {
 	| EWEAPON	{$$ = new ASTDataType(DataType::EWPN, @$);}
 	| FFC {$$ = new ASTDataType(DataType::FFC, @$);}
 	| GAMEDATA	{$$ = new ASTDataType(DataType::GAMEDATA, @$);}
-	| ITEM {$$ = new ASTDataType(DataType::ITEM, @$);}
+	| ITEMSPRITE {$$ = new ASTDataType(DataType::ITEM, @$);}
 	| ITEMCLASS {$$ = new ASTDataType(DataType::ITEMCLASS, @$);}
 	| LWEAPON {$$ = new ASTDataType(DataType::LWPN, @$);}
 	| MAP {$$ = new ASTDataType(DataType::MAPDATA, @$);}
@@ -637,7 +637,7 @@ Script : Script_Type SCRIPT IDENTIFIER Script_Block {
 Script_Type :
 	GLOBAL {$$ = new ASTScriptType(ScriptType::global, @$);}
 	| FFC {$$ = new ASTScriptType(ScriptType::ffc, @$);}
-	| ITEM {$$ = new ASTScriptType(ScriptType::item, @$);}
+	| ITEMCLASS {$$ = new ASTScriptType(ScriptType::item, @$);}
 	| EWEAPON {$$ = new ASTScriptType(ScriptType::eweapon, @$);}
 	| LWEAPON {$$ = new ASTScriptType(ScriptType::lweapon, @$);}
 	| NPC {$$ = new ASTScriptType(ScriptType::npc, @$);}

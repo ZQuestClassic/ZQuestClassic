@@ -118,7 +118,6 @@ dmapdata	TOKEN( DMAP );
 eweapon		TOKEN( EWEAPON );
 ffc		TOKEN( FFC );
 gamedata	TOKEN( GAMEDATA );
-item		TOKEN( ITEM );
 itemdata	TOKEN( ITEMCLASS );
 lweapon		TOKEN( LWEAPON );
 mapdata		TOKEN( MAP );
