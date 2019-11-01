@@ -21332,6 +21332,7 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case NPCKICKBUCKET:
+			FFScript::deallocateAllArrays(SCRIPT_NPC, ri->guyref);
 			if(type == SCRIPT_NPC && ri->guyref == i)
 			{
 				FFCore.do_npckickbucket();

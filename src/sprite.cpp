@@ -2176,7 +2176,7 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 
 //class enemy;
 
-sprite_list::sprite_list() : count(0) {}
+sprite_list::sprite_list() : count(0), active_iterator(0) {}
 void sprite_list::clear()
 {
     while(count>0) del(0);
