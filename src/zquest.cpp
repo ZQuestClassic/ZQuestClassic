@@ -10224,7 +10224,7 @@ void build_bii_list(bool usenone)
         start=1;
     }
     
-    for(int i=start; i<iMax; i++)
+    for(int i=0; i<iMax; i++)
     {
         bii[bii_cnt].s = item_string[i];
         bii[bii_cnt].i = i;
