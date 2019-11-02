@@ -8163,7 +8163,8 @@ void domouse()
                 redraw|=rMENU;
             }
         }
-        
+        //little arrows that scroll combos
+	//Up and Down Arrows for Combo Banks
         if(draw_mode!=dm_alias)
         {
             for(int temp_counter=0; temp_counter<3; ++temp_counter)
@@ -8193,6 +8194,7 @@ void domouse()
                 
                 if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && First[temp_counter]>0 && !mouse_down)
                 {
+			al_trace("Arrow\n");
                     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                     {
                         First[temp_counter]-=zc_min(First[temp_counter],256);
@@ -8206,6 +8208,7 @@ void domouse()
                 }
                 else if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && First[temp_counter]<(MAXCOMBOS-(combolist[0].w*combolist[0].h)) && !mouse_down)
                 {
+			al_trace("Arrow\n");
                     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
                     {
                         First[temp_counter]+=zc_min((MAXCOMBOS-256)-First[temp_counter],256);
@@ -8260,9 +8263,47 @@ void domouse()
                 }
             }
         }
-        else
+	//Up and Down Arrows for Combo Alias Banks
+        else if(draw_mode==dm_alias)
         {
-            for(int j=0; j<3; ++j)
+            for(int temp_counter=0; temp_counter<3; ++temp_counter)
+            {
+                int temp_x1=combolistscrollers[temp_counter].x;
+                int temp_y1=combolistscrollers[temp_counter].y;
+                int temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
+                int temp_y2=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-2;
+                
+                int temp_x3=combolistscrollers[temp_counter].x;
+                int temp_y3=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-1;
+                int temp_x4=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
+                int temp_y4=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h*2-3;
+                
+                if(is_large)
+                {
+                    temp_x1=combolistscrollers[temp_counter].x;
+                    temp_y1=combolistscrollers[temp_counter].y;
+                    temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
+                    temp_y2=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-1;
+                    
+                    temp_x3=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w;
+                    temp_y3=combolistscrollers[temp_counter].y;
+                    temp_x4=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w*2-1;
+                    temp_y4=combolistscrollers[temp_counter].y+combolistscrollers[temp_counter].h-1;
+                }
+                
+                if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && (combo_alistpos[temp_counter]<(MAXCOMBOALIASES-(comboaliaslist[0].w*comboaliaslist[0].h))) && !mouse_down)
+                {
+			combo_alistpos[temp_counter]=zc_min((MAXCOMBOALIASES-(comboaliaslist[0].w*comboaliaslist[0].h)),combo_alistpos[temp_counter]+(comboaliaslist[0].w*comboaliaslist[0].h));
+			refresh(rCOMBOS);
+                }
+                else if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && (combo_alistpos[temp_counter]>0) && !mouse_down)
+                {
+			combo_alistpos[temp_counter]-=zc_min(combo_alistpos[temp_counter],(comboaliaslist[0].w*comboaliaslist[0].h));
+			refresh(rCOMBOS);
+                }
+            }
+	    
+	    for(int j=0; j<3; ++j)
             {
                 if(j==0||is_large)
                 {
@@ -8272,7 +8313,9 @@ void domouse()
                     }
                 }
             }
-        }
+            
+	}
+	
         
         //on the favorites list
         if(isinRect(x,y,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*16)-1,favorites_list.y+(favorites_list.h*16)-1))
@@ -8445,7 +8488,7 @@ void domouse()
         
         mouse_down = true;
     }
-    else if(gui_mouse_b()&2)
+    else if(gui_mouse_b()&2) //right click
     {
         if(isinRect(x,y,startxint,startyint, int(startx+(256*mapscreensize)-1), int(starty+(176*mapscreensize)-1)))
         {
@@ -8902,7 +8945,7 @@ void domouse()
     {
     }
     
-    if(mouse_z!=0)
+    if(mouse_z!=0) //scroll wheel
     {
         int z=0;
         
