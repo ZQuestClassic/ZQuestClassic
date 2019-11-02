@@ -2176,7 +2176,7 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 
 //class enemy;
 
-sprite_list::sprite_list() : count(0) {}
+sprite_list::sprite_list() : count(0), active_iterator(0) {}
 void sprite_list::clear()
 {
     while(count>0) del(0);
@@ -2320,6 +2320,7 @@ bool sprite_list::del(int j)
     }
     
     --count;
+	if(j<=active_iterator) --active_iterator;
     //checkConsistency();
     return true;
 }
@@ -2403,21 +2404,21 @@ void sprite_list::drawcloaked2(BITMAP* dest,bool lowfirst)
 
 void sprite_list::animate()
 {
-    int i=0;
+    active_iterator = 0;
     
-    while(i<count)
+    while(active_iterator<count)
     {
-        if(!(freeze_guys && sprites[i]->canfreeze))
+        if(!(freeze_guys && sprites[active_iterator]->canfreeze))
         {
-            if(sprites[i]->animate(i))
+            if(sprites[active_iterator]->animate(active_iterator))
             {
-                del(i);
-                --i;
+                del(active_iterator);
             }
         }
         
-        ++i;
+        ++active_iterator;
     }
+	active_iterator = -1;
 }
 
 void sprite_list::check_conveyor()

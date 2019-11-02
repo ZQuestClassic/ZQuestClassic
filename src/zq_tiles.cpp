@@ -684,6 +684,29 @@ void draw_text_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int 
     }
 }
 
+void draw_layer_button(BITMAP *dest,int x,int y,int w,int h,const char *text,int flags)
+{
+	if(flags&D_SELECTED)
+	{
+		rect(dest, x, y, x+w-1, y+h-1, jwin_pal[jcDARK]);
+		++x;
+		++y;
+		--w;
+		--h;
+	}
+	//rect(dest,x+1,y+1,x+w-1,y+h-1,jwin_pal[jcDARK]);
+	rectfill(dest,x+1,y+1,x+w-3,y+h-3,jwin_pal[(flags&D_SELECTED ? jcMEDDARK : jcBOX)]);
+	//rect(dest,x,y,x+w-2,y+h-2,jwin_pal[jcDARK]);
+	jwin_draw_frame(dest, x, y, w, h, (flags&D_SELECTED ? FR_DARK : FR_BOX));
+	if(flags&D_DISABLED)
+	{
+		textout_centre_ex(dest,font,text,((x+x+w)>>1) +1,((y+y+h)>>1)-4 +1,jwin_pal[jcLIGHT],-1);
+		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcMEDDARK],-1);
+	}
+	else
+		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
+}
+
 bool do_text_button(int x,int y,int w,int h,const char *text,int bg,int fg,bool jwin)
 {
     bool over=false;

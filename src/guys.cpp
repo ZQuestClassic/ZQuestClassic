@@ -655,11 +655,17 @@ bool enemy::animate(int index)
     
     ++c_clk;
     
-    //Run its script
-    if ( script > 0 && doscript ) 
-    {
-	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !(FFCore.system_suspend[susptNPCSCRIPTS])  ) ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
-    }
+	//Run its script
+	if ( script > 0 && doscript ) 
+	{
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !(FFCore.system_suspend[susptNPCSCRIPTS])  )
+		{
+			if(ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID())==RUNSCRIPT_SELFDELETE)
+			{
+				return 0; //Avoid NULLPO if this object deleted itself
+			}
+		}
+	}
     
     // returns true when enemy is defeated
     return Dead(index);

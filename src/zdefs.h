@@ -4284,4 +4284,8 @@ extern void removeFromItemCache(int itemid);
 #define LF_PAID_WAND_COST		0x02
 #define LF_PAID_CBYRNA_COST		0x04
 
+#define RUNSCRIPT_OK			0
+#define RUNSCRIPT_ERROR			1
+#define RUNSCRIPT_SELFDELETE	2
+
 #endif                                                      //_ZDEFS_H_
