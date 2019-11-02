@@ -15071,7 +15071,7 @@ bool LinkClass::refill()
             if(game->get_life()>=refill_heart_stop)
             {
                 game->set_life(refill_heart_stop);
-                kill_sfx();
+                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;
@@ -15085,7 +15085,7 @@ bool LinkClass::refill()
             if(game->get_magic()>=refill_magic_stop)
             {
                 game->set_magic(refill_magic_stop);
-                kill_sfx();
+                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;
@@ -15101,7 +15101,7 @@ bool LinkClass::refill()
             {
                 game->set_life(refill_heart_stop);
                 game->set_magic(refill_magic_stop);
-                kill_sfx();
+                kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;
