@@ -12150,7 +12150,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
     {
         removearmos(x,y);
     }
-    
+   
     switch(misc)
     {
     case -1:
@@ -12235,9 +12235,18 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
             }
             
             sfx(WAV_CLEARED);
-	    al_trace("Trying to add the Triforce Drop from a Ganon battle!\n");
-            items.add(new item(x+8,y+8,(fix)0,iBigTri,ipBIGTRI,0));
-            setmapflag();
+		//Add the big TF over the ashes!
+		for(word q = 0; q < items.Count(); q++)
+		{
+			item *ashes = (item*)items.spr(q);
+			if ( ashes->linked_parent == eeGANON )
+			{
+				Z_scripterrlog("Found correct dustpile!\n");
+				items.add(new item(ashes->x,ashes->y,(fix)0,iBigTri,ipBIGTRI,0));
+			}
+		}
+		setmapflag();
+		//game->lvlitems[dlevel]|=liBOSS; // if we had more rule bits, we could mark him dead so that he does not respawn. -Z
         }
         
         break;
