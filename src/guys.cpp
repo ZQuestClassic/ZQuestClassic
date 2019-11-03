@@ -12150,7 +12150,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
     {
         removearmos(x,y);
     }
-    item *dustpile = NULL;
+   
     switch(misc)
     {
     case -1:
@@ -12212,7 +12212,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
             //item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
 	    //dustpile->miscellaneous[31] = eeGANON;
 	    items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
-		
+		item *dustpile = NULL;
 		//dustpile = (item *)items.spr(items.Count() - 1)->getUID();
 		dustpile = (item *)items.spr(items.Count() - 1);
 		dustpile->linked_parent = eeGANON; //was miscellaneous[31]
@@ -12235,9 +12235,17 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
             }
             
             sfx(WAV_CLEARED);
-	    al_trace("Trying to add the Triforce Drop from a Ganon battle!\n");
-            items.add(new item((dustpile!=NULL)?dustpile->x:x+8,(dustpile!=NULL)?dustpile->y:y+8,(fix)0,iBigTri,ipBIGTRI,0));
-            setmapflag();
+		//Add the big TF over the ashes!
+		for(word q = 0; q < items.Count(); q++)
+		{
+			item *ashes = (item*)items.spr(q);
+			if ( ashes->linked_parent == eeGANON )
+			{
+				Z_scripterrlog("Found correct dustpile!\n");
+				items.add(new item(ashes->x,ashes->y,(fix)0,iBigTri,ipBIGTRI,0));
+			}
+		}
+		setmapflag();
         }
         
         break;
