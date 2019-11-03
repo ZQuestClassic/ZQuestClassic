@@ -8813,7 +8813,7 @@ bool eGanon::animate(int index)
             
             if(getmapflag())
             {
-                game->lvlitems[dlevel]|=liBOSS;
+                if ( !(game->lvlitems[dlevel]&liBOSS) ) game->lvlitems[dlevel]|=liBOSS;
                 //play_DmapMusic();
                 playLevelMusic();
                 return true;
@@ -8831,8 +8831,9 @@ bool eGanon::animate(int index)
 				items.add(new item(ashes->x,ashes->y,(fix)0,iBigTri,ipBIGTRI,0));
 			}
 		}
-		
+		if ( !(game->lvlitems[dlevel]&liBOSS) ) game->lvlitems[dlevel]|=liBOSS; // if we had more rule bits, we could mark him dead so that he does not respawn. -Z
             setmapflag();
+		
         }
         
         break;
