@@ -12246,6 +12246,7 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
 			}
 		}
 		setmapflag();
+		//game->lvlitems[dlevel]|=liBOSS; // if we had more rule bits, we could mark him dead so that he does not respawn. -Z
         }
         
         break;
