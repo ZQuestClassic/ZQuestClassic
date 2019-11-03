@@ -48,7 +48,7 @@ bool item::animate(int)
 	    (
 		(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
 		||
-		(can_drop(x,y) && ipDUMMY && miscellaneous[15] == eeGANON ) //big triforce dropped by Ganon fight, in sideview. 
+		(can_drop(x,y) && ipDUMMY && linked_parent == eeGANON ) //big triforce dropped by Ganon fight, in sideview. 
 	    )
             {
                 y+=fall/100;
@@ -202,6 +202,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     o_delay = itemsbuf[id].delay;
     frames = itemsbuf[id].frames;
     flip = itemsbuf[id].misc>>2;
+    linked_parent = 0;
     
     if(itemsbuf[id].misc&1)
         flash=true;
