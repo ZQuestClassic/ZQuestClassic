@@ -2978,8 +2978,17 @@ int onGotoPage()
     
     if(!cancelgetnum)
     {
-        int page=(zc_min(choosepage,COMBO_PAGES-1));
-        First[current_combolist]=page<<8;
+	if (draw_mode==dm_alias) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
+	{
+		int page=(vbound(choosepage,0,((MAXCOMBOALIASES/96))));
+		//First[current_comboalist]=page<<8;
+		combo_alistpos[current_comboalist] = vbound(page*96, 0, MAXCOMBOALIASES-97);
+	}
+	else
+	{
+		int page=(zc_min(choosepage,COMBO_PAGES-1));
+		First[current_combolist]=page<<8;
+	}
     }
     
     return D_O_K;
