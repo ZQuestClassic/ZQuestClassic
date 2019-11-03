@@ -2182,6 +2182,11 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
         return;
     }
     
+    if(LayerMaskInt[0]==0)
+    {
+        rectfill(dest,x,y,x+255,y+175,0);
+    }
+	
     resize_mouse_pos=true;
     
     for(int k=1; k<3; k++)
@@ -2259,10 +2264,6 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
                 overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset);
             else put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,antiflags,cmbflag);
         }
-    }
-    else
-    {
-        rectfill(dest,x,y,x+255,y+175,0);
     }
     
     // int cs=2;
@@ -2711,17 +2712,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     
     resize_mouse_pos=true;
     
-    if(LayerMaskInt[0]!=0)
-    {
-        for(int i=c; i<(c&0xF0)+16; i++)
-        {
-            word cmbdat = (i < (int)layer->data.size() ? layer->data[i] : 0);
-            byte cmbcset = (i < (int)layer->data.size() ? layer->cset[i] : 0);
-            int cmbflag = (i < (int)layer->data.size() ? layer->sflag[i] : 0);
-            put_combo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,flags|dark,cmbflag);
-        }
-    }
-    else
+    if(LayerMaskInt[0]==0)
     {
         rectfill(dest,x,y,x+255,y+15,0);
     }
@@ -2750,6 +2741,19 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
                     }
                 }
             }
+        }
+    }
+	
+	if(LayerMaskInt[0]!=0)
+    {
+        for(int i=c; i<(c&0xF0)+16; i++)
+        {
+            word cmbdat = (i < (int)layer->data.size() ? layer->data[i] : 0);
+            byte cmbcset = (i < (int)layer->data.size() ? layer->cset[i] : 0);
+            int cmbflag = (i < (int)layer->data.size() ? layer->sflag[i] : 0);
+			if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
+				overcombo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset);
+			else put_combo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,flags|dark,cmbflag);
         }
     }
     
@@ -3011,17 +3015,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     resize_mouse_pos=true;
     
     
-    if(LayerMaskInt[0]!=0)
-    {
-        for(int i=c; i<176; i+=16)
-        {
-            word cmbdat = layer->data[i];
-            byte cmbcset = layer->cset[i];
-            int cmbflag = layer->sflag[i];
-            put_combo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,flags|dark,cmbflag);
-        }
-    }
-    else
+    if(LayerMaskInt[0]==0)
     {
         rectfill(dest,x,y,x+15,y+175,0);
     }
@@ -3053,6 +3047,18 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
+    if(LayerMaskInt[0]!=0)
+    {
+        for(int i=c; i<176; i+=16)
+        {
+            word cmbdat = layer->data[i];
+            byte cmbcset = layer->cset[i];
+            int cmbflag = layer->sflag[i];
+			if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
+				overcombo(dest,x,(i&0xF0)+y,cmbdat,cmbcset);
+            else put_combo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,flags|dark,cmbflag);
+        }
+    }
     
     for(int k=0; k<2; k++)
     {
@@ -3309,13 +3315,6 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
     
     if(LayerMaskInt[0]!=0)
     {
-        word cmbdat = layer->data[c];
-        byte cmbcset = layer->cset[c];
-        int cmbflag = layer->sflag[c];
-        put_combo(dest,x,y,cmbdat,cmbcset,flags|dark,cmbflag);
-    }
-    else
-    {
         rectfill(dest,x,y,x+15,y+15,0);
     }
     
@@ -3343,6 +3342,16 @@ void zmap::drawblock(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
         }
     }
     
+    if(LayerMaskInt[0]!=0)
+    {
+        word cmbdat = layer->data[c];
+        byte cmbcset = layer->cset[c];
+        int cmbflag = layer->sflag[c];
+        if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
+			overcombo(dest,x,y,cmbdat,cmbcset);
+		else put_combo(dest,x,y,cmbdat,cmbcset,flags|dark,cmbflag);
+    }
+	
     for(int k=2; k<4; k++)
     {
         if(LayerMaskInt[k+1]!=0)
