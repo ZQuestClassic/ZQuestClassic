@@ -24986,7 +24986,10 @@ int load_zmod_module_file()
 	    set_config_string("ZCMODULE","current_module",moduledata.module_name);
 	    //save_game_configs();
 	    zcm.init(true); //Load the module values.
-		
+	    build_biic_list();
+	    build_bief_list();
+	    build_biea_list();
+	    build_biew_list();
 	    return D_O_K;
 }
 
