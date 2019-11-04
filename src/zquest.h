@@ -280,6 +280,13 @@ void loadcombopack(const char *prompt,int initialval);
 void savesomecomboaliases(const char *prompt,int initialval);
 void writesomecomboaliases_to(const char *prompt,int initialval);
 
+int writeonedmap(PACKFILE *f, int i);
+int readonedmap(PACKFILE *f, int index);
+int writesomedmaps(PACKFILE *f, int first, int last, int max);
+int readsomedmaps(PACKFILE *f);
+//need readsomedmaps_to, with a starting index, in the future
+void savesomedmaps(const char *prompt,int initialval);
+
 int gettilepagenumber(const char *prompt, int initialval);
 int gethexnumber(const char *prompt,int initialval);
 

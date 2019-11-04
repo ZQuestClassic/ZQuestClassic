@@ -590,6 +590,7 @@ static MENU import_menu[] =
     
     { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
     { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
+    { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
     { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
     { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
     //{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
@@ -635,6 +636,7 @@ static MENU export_menu[] =
     
     { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
     { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
+    { (char *)"&DMaps",                       onExport_DMaps,              NULL,                     0,            NULL   },
     { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
        
@@ -1909,6 +1911,94 @@ void writesomecombos_to(const char *prompt,int initialval)
 	}
 }
 
+
+
+static DIALOG save_dmaps_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save DMaps (.zdmap)", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Last",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void savesomedmaps(const char *prompt,int initialval)
+{
+	
+	char firstdmap[8], lastdmap[8];
+	int first_dmap_id = 0; int last_dmap_id = 0;
+	sprintf(firstdmap,"%d",0);
+	sprintf(lastdmap,"%d",1);
+	//int ret;
+	
+	
+	
+	save_dmaps_dlg[0].dp2 = lfont;
+	
+	sprintf(firstdmap,"%d",0);
+	sprintf(lastdmap,"%d",0);
+	
+	save_dmaps_dlg[5].dp = firstdmap;
+	save_dmaps_dlg[7].dp = lastdmap;
+	
+	if(is_large)
+		large_dialog(save_dmaps_dlg);
+	
+	int ret = zc_popup_dialog(save_dmaps_dlg,-1);
+	jwin_center_dialog(save_dmaps_dlg);
+	
+	if(ret == 8)
+	{
+		first_dmap_id = vbound(atoi(firstdmap), 0, MAXDMAPS-1);
+		last_dmap_id = vbound(atoi(lastdmap), 0,  MAXDMAPS-1);
+		
+		if ( last_dmap_id < first_dmap_id )
+		{
+			int swap = last_dmap_id;
+			last_dmap_id = first_dmap_id;
+			first_dmap_id = swap;			
+		}
+		if(!getname("Export DMaps(.zdmapzq)_)","zdmap",NULL,datapath,false))
+		
+		
+		saved=false;
+	    
+		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+		if(f)
+		{
+			if(!writesomedmaps(f,first_dmap_id,last_dmap_id,MAXDMAPS))
+			{
+				char buf[80],name[256];
+				extract_name(temppath,name,FILENAMEALL);
+				sprintf(buf,"Unable to load %s",name);
+				jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+			else
+			{
+				char name[256];
+				extract_name(temppath,name,FILENAMEALL);
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",name);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+		}
+		pack_fclose(f);
+	}
+}
 
 static DIALOG save_comboaliasfiles_dlg[] =
 {
@@ -15292,6 +15382,57 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
             {
                 new_return(33);
             }
+	    if(!p_putc(DMaps[i].sideview,f))
+            {
+                new_return(30);
+            }
+	    if(!p_iputw(DMaps[i].script,f))
+            {
+                new_return(31);
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(DMaps[i].initD[q],f))
+	        {
+			new_return(32);
+		}
+		    
+	    }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		    for ( int w = 0; w < 65; w++ )
+		    {
+			if (!p_putc(DMaps[i].initD_label[q][w],f))
+			{
+				new_return(33);
+			}
+		}
+	    }
+		if(!p_iputw(DMaps[i].active_sub_script,f))
+		{
+			new_return(34);
+		}
+		if(!p_iputw(DMaps[i].passive_sub_script,f))
+		{
+			new_return(35);
+		}
+		for(int q = 0; q < 8; ++q)
+		{
+			if(!p_iputl(DMaps[i].sub_initD[q],f))
+			{
+				new_return(36);
+			}
+		}
+		for(int q = 0; q < 8; ++q)
+		{
+			for(int w = 0; w < 65; ++w)
+			{
+				if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
+				{
+					new_return(37);
+				}
+			}
+		}
 	}
 
 	return 1;
@@ -15341,22 +15482,31 @@ int readsomedmaps(PACKFILE *f)
 	{
 		return 0;
 	}
-	
-	if(!p_igetl(&max,f,true))
+	if ( datatype_version < 0 )
 	{
-		return 0;
+		if(!p_igetl(&max,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&first,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&last,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&count,f,true))
+		{
+			return 0;
+		} 
 	}
-	if(!p_igetl(&first,f,true))
+	else
 	{
-		return 0;
-	}
-	if(!p_igetl(&last,f,true))
-	{
-		return 0;
-	}
-	if(!p_igetl(&count,f,true))
-	{
-		return 0;
+		first = 0;
+		last = 0;
+		count = 1;
+		max = 255;
 	}
 	
 	
@@ -15528,6 +15678,64 @@ int readsomedmaps(PACKFILE *f)
 		    {
 			return 0;
 		    }
+			if ( zversion >= 0x255 )
+			{
+				if  ( section_version >= 14 )
+				{
+				    //2.55 starts here
+				    if(!p_getc(&tempdmap.sideview,f,true))
+				    {
+					return 0;
+				    }
+				    if(!p_igetw(&tempdmap.script,f,true))
+				    {
+					return 0;
+				    }
+				    for ( int q = 0; q < 8; q++ )
+				    {
+					if(!p_igetl(&tempdmap.initD[q],f,true))
+					{
+						return 0;
+				    }
+					    
+				    }
+				    for ( int q = 0; q < 8; q++ )
+				    {
+					    for ( int w = 0; w < 65; w++ )
+					    {
+						if (!p_getc(&tempdmap.initD_label[q][w],f,true))
+						{
+							return 0;
+						}
+					}
+				    }
+					if(!p_igetw(&tempdmap.active_sub_script,f,true))
+					{
+						return 0;
+					}
+					if(!p_igetw(&tempdmap.passive_sub_script,f,true))
+					{
+						return 0;
+					}
+					for(int q = 0; q < 8; ++q)
+					{
+						if(!p_igetl(&tempdmap.sub_initD[q],f,true))
+						{
+							return 0;
+						}
+					}	
+					for(int q = 0; q < 8; ++q)
+					{
+						for(int w = 0; w < 65; ++w)
+						{
+							if(!p_getc(&tempdmap.sub_initD_label[q][w],f,true))
+							{
+								return 0;
+							}
+						}
+					}
+				}
+			}
 		::memcpy(&DMaps[i], &tempdmap, sizeof(dmap));
 	    }
        
@@ -15714,7 +15922,6 @@ int writeonedmap(PACKFILE *f, int i)
             {
                 new_return(29);
             }
-	    
 	    if(!p_putc(DMaps[i].sideview,f))
             {
                 new_return(30);
@@ -15781,6 +15988,10 @@ int readonedmap(PACKFILE *f, int index)
 	dmap tempdmap;
 	memset(&tempdmap, 0, sizeof(dmap));
 	int datatype_version = 0;
+	int first = 0;
+	int last = 0;
+	int max = 0;
+	int count = 0;
    
 	//char dmapstring[64]={0};
 	//section version info
@@ -15816,6 +16027,26 @@ int readonedmap(PACKFILE *f, int index)
 	al_trace("readonedmap section_version: %d\n", section_version);
 	al_trace("readonedmap section_cversion: %d\n", section_cversion);
     
+	
+	if ( datatype_version < 0 )
+	{
+		if(!p_igetl(&max,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&first,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&last,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&count,f,true))
+		{
+			return 0;
+		}
+	}
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
@@ -15978,7 +16209,6 @@ int readonedmap(PACKFILE *f, int index)
             {
                 return 0;
             }
-	    
 		if ( zversion >= 0x255 )
 		{
 			if  ( section_version >= 14 )
@@ -16042,500 +16272,6 @@ int readonedmap(PACKFILE *f, int index)
 	return 1;
 }
 
-int writeonedmap(PACKFILE *f, int i)
-{
-    
-    dword section_version=V_DMAPS;
-    dword section_cversion=CV_DMAPS;
-	int zversion = ZELDA_VERSION;
-	int zbuild = VERSION_BUILD;
-    
-  
-    //section version info
-	if(!p_iputl(zversion,f))
-	{
-		return 0;
-	}
-	if(!p_iputl(zbuild,f))
-	{
-		return 0;
-	}
-	if(!p_iputw(section_version,f))
-	{
-		new_return(2);
-	}
-    
-	if(!p_iputw(section_cversion,f))
-	{
-		new_return(3);
-	}
-    
-   
-        
-            if(!p_putc(DMaps[i].map,f))
-            {
-                new_return(6);
-            }
-            
-            if(!p_iputw(DMaps[i].level,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_putc(DMaps[i].xoff,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_putc(DMaps[i].compass,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_iputw(DMaps[i].color,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_putc(DMaps[i].midi,f))
-            {
-                new_return(11);
-            }
-            
-            if(!p_putc(DMaps[i].cont,f))
-            {
-                new_return(12);
-            }
-            
-            if(!p_putc(DMaps[i].type,f))
-            {
-                new_return(13);
-            }
-            
-            for(int j=0; j<8; j++)
-            {
-                if(!p_putc(DMaps[i].grid[j],f))
-                {
-                    new_return(14);
-                }
-            }
-            
-            //16
-            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
-            {
-                new_return(15);
-            }
-            
-            if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
-            {
-                new_return(16);
-            }
-            
-            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
-            {
-                new_return(17);
-            }
-            
-            if(!p_iputl(DMaps[i].minimap_1_tile,f))
-            {
-                new_return(18);
-            }
-            
-            if(!p_putc(DMaps[i].minimap_1_cset,f))
-            {
-                new_return(19);
-            }
-            
-            if(!p_iputl(DMaps[i].minimap_2_tile,f))
-            {
-                new_return(20);
-            }
-            
-            if(!p_putc(DMaps[i].minimap_2_cset,f))
-            {
-                new_return(21);
-            }
-            
-            if(!p_iputl(DMaps[i].largemap_1_tile,f))
-            {
-                new_return(22);
-            }
-            
-            if(!p_putc(DMaps[i].largemap_1_cset,f))
-            {
-                new_return(23);
-            }
-            
-            if(!p_iputl(DMaps[i].largemap_2_tile,f))
-            {
-                new_return(24);
-            }
-            
-            if(!p_putc(DMaps[i].largemap_2_cset,f))
-            {
-                new_return(25);
-            }
-            
-            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
-            {
-                new_return(26);
-            }
-            
-            if(!p_putc(DMaps[i].tmusictrack,f))
-            {
-                new_return(25);
-            }
-            
-            if(!p_putc(DMaps[i].active_subscreen,f))
-            {
-                new_return(26);
-            }
-            
-            if(!p_putc(DMaps[i].passive_subscreen,f))
-            {
-                new_return(27);
-            }
-            
-            byte disabled[32];
-            memset(disabled,0,32);
-            
-            for(int j=0; j<MAXITEMS; j++)
-            {
-                if(DMaps[i].disableditems[j])
-                {
-                    disabled[j/8] |= (1 << (j%8));
-                }
-            }
-            
-            if(!pfwrite(disabled,32,f))
-            {
-                new_return(28);
-            }
-            
-            if(!p_iputl(DMaps[i].flags,f))
-            {
-                new_return(29);
-            }
-	    if(!p_putc(DMaps[i].sideview,f))
-            {
-                new_return(30);
-            }
-	    if(!p_iputw(DMaps[i].script,f))
-            {
-                new_return(31);
-            }
-	    for ( int q = 0; q < 8; q++ )
-	    {
-		if(!p_iputl(DMaps[i].initD[q],f))
-	        {
-			new_return(32);
-		}
-		    
-	    }
-	    for ( int q = 0; q < 8; q++ )
-	    {
-		    for ( int w = 0; w < 65; w++ )
-		    {
-			if (!p_putc(DMaps[i].initD_label[q][w],f))
-			{
-				new_return(33);
-			}
-		}
-	    }
-		if(!p_iputw(DMaps[i].active_sub_script,f))
-		{
-			new_return(34);
-		}
-		if(!p_iputw(DMaps[i].passive_sub_script,f))
-		{
-			new_return(35);
-		}
-		for(int q = 0; q < 8; ++q)
-		{
-			if(!p_iputl(DMaps[i].sub_initD[q],f))
-			{
-				new_return(36);
-			}
-		}
-		for(int q = 0; q < 8; ++q)
-		{
-			for(int w = 0; w < 65; ++w)
-			{
-				if(!p_putc(DMaps[i].sub_initD_label[q][w],f))
-				{
-					new_return(37);
-				}
-			}
-		}
-
-
-
-	return 1;
-}
-
-int readonedmap(PACKFILE *f, int index)
-{
-	dword section_version = 0;
-	dword section_cversion = 0;
-	int zversion = 0;
-	int zbuild = 0;
-	dmap tempdmap;
-	memset(&tempdmap, 0, sizeof(dmap));
-     
-   
-	//char dmapstring[64]={0};
-	//section version info
-	if(!p_igetl(&zversion,f,true))
-	{
-		return 0;
-	}
-	if(!p_igetl(&zbuild,f,true))
-	{
-		return 0;
-	}
-	
-	if(!p_igetw(&section_version,f,true))
-	{
-		return 0;
-	}
-    
-	if(!p_igetw(&section_cversion,f,true))
-	{
-		return 0;
-	}
-	al_trace("readonedmap section_version: %d\n", section_version);
-	al_trace("readonedmap section_cversion: %d\n", section_cversion);
-    
-	if ( zversion > ZELDA_VERSION )
-	{
-		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
-		return 0;
-	}
-	else if (( section_version > V_DMAPS ) || ( section_version == V_DMAPS && section_cversion > CV_DMAPS ) ) 
-	{
-		al_trace("Cannot read .zdmap packfile made using V_DMAPS (%d) subversion (%d)\n", section_version, section_cversion);
-		return 0;
-	}
-	else
-	{
-		al_trace("Reading a .zdmap packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
-	}
-   
-	//if(!pfread(&dmapstring, 64, f,true))
-	//{
-	//	return 0;
-	//}
-    
-    
-   
-        
-            if(!p_getc(&tempdmap.map,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_igetw(&tempdmap.level,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.xoff,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.compass,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_igetw(&tempdmap.color,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.midi,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.cont,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.type,f,true))
-            {
-                return 0;
-            }
-            
-            for(int j=0; j<8; j++)
-            {
-                if(!p_getc(&tempdmap.grid[j],f,true))
-                {
-                    return 0;
-		}
-            }
-            
-            //16
-            if(!pfread(&tempdmap.name,sizeof(DMaps[0].name),f,true))
-            {
-                return 0;
-            }
-            
-            if(!pfread(&tempdmap.title,sizeof(DMaps[0].title),f,true))
-            {
-                return 0;
-            }
-            
-            if(!pfread(&tempdmap.intro,sizeof(DMaps[0].intro),f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_igetl(&tempdmap.minimap_1_tile,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.minimap_1_cset,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_igetl(&tempdmap.minimap_2_tile,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.minimap_2_cset,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_igetl(&tempdmap.largemap_1_tile,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.largemap_1_cset,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_igetl(&tempdmap.largemap_2_tile,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.largemap_2_cset,f,true))
-            {
-                return 0;
-            }
-            
-            if(!pfread(&tempdmap.tmusic,sizeof(DMaps[0].tmusic),f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.tmusictrack,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.active_subscreen,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempdmap.passive_subscreen,f,true))
-            {
-                return 0;
-            }
-            
-            byte disabled[32];
-	    memset(disabled,0,32);
-            
-            if(!pfread(&disabled, 32, f, true)) return 0;
-            
-            for(int j=0; j<MAXITEMS; j++)
-            {
-                if(disabled[j/8] & (1 << (j%8))) tempdmap.disableditems[j]=1;
-                else tempdmap.disableditems[j]=0;
-            }
-	    
-            
-            if(!p_igetl(&tempdmap.flags,f,true))
-            {
-                return 0;
-            }
-	if ( zversion >= 0x255 )
-	{
-		if  ( section_version >= 14 )
-		{
-		    //2.55 starts here
-		    if(!p_getc(&tempdmap.sideview,f,true))
-		    {
-			return 0;
-		    }
-		    if(!p_igetw(&tempdmap.script,f,true))
-		    {
-			return 0;
-		    }
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			if(!p_igetl(&tempdmap.initD[q],f,true))
-			{
-				return 0;
-		    }
-			    
-		    }
-		    for ( int q = 0; q < 8; q++ )
-		    {
-			    for ( int w = 0; w < 65; w++ )
-			    {
-				if (!p_getc(&tempdmap.initD_label[q][w],f,true))
-				{
-					return 0;
-				}
-			}
-		    }
-			if(!p_igetw(&tempdmap.active_sub_script,f,true))
-			{
-				return 0;
-			}
-			if(!p_igetw(&tempdmap.passive_sub_script,f,true))
-			{
-				return 0;
-			}
-			for(int q = 0; q < 8; ++q)
-			{
-				if(!p_igetl(&tempdmap.sub_initD[q],f,true))
-				{
-					return 0;
-				}
-			}	
-			for(int q = 0; q < 8; ++q)
-			{
-				for(int w = 0; w < 65; ++w)
-				{
-					if(!p_getc(&tempdmap.sub_initD_label[q][w],f,true))
-					{
-						return 0;
-					}
-				}
-			}
-		}
-	}
-	::memcpy(&DMaps[index], &tempdmap, sizeof(dmap));
-       
-	return 1;
-}
-
-
-
-
-
 static MENU dmap_rclick_menu[] =
 {
     { (char *)"Copy",  NULL, NULL, 0, NULL },
@@ -16580,7 +16316,7 @@ void dmap_rclick_func(int index, int x, int y)
 		al_trace("Could not write to .znpc packfile %s\n", temppath);
 	}
 	*/
-	writeonedmap(f,index);
+	writesomedmaps(f,index, index, MAXDMAPS);
 	pack_fclose(f);
      
         
