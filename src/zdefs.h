@@ -248,6 +248,24 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_SFX             5
 #define CV_FAVORITES       1
 
+
+// Loose Object Version Metadata
+// If the version is 0, it is ther original.
+// 'Higher Versions' use negative numbers, so -1 is newer than 0, -2 is newer than -1.
+// Sorry for the ugly hack, but it maintains full compatibility through
+// Packfile magic. -Z
+#define V_ZCOMBO -1
+#define V_ZMOD -1
+#define V_ZTHEME -1
+#define V_ZASM -1
+#define V_ZTILE -1
+#define V_ZTILESET -1
+#define V_ZDMAP -1
+#define V_ZALIAS -1
+#define V_ZNPC -1
+#define V_ZITEM -1
+#define V_ZWPNSPR -1
+
 extern int curr_tb_page;
 extern bool triplebuffer_not_available;
 extern int original_playing_field_offset;
