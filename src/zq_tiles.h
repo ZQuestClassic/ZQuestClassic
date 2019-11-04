@@ -33,9 +33,11 @@ int readtilefile(PACKFILE *f);
 int writetilefile(PACKFILE *f, int index, int count);
 int readtilefile_to_location(PACKFILE *f, int start, int skip);
 int readtilefile_to_location(PACKFILE *f, int start);
-int readcombofile(PACKFILE *f);
-int readcombofile_to_location(PACKFILE *f, int start);
+
+int readcombofile(PACKFILE *f, int skip, byte nooverwrite);
+int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip);
 int writecombofile(PACKFILE *f, int index, int count);
+
 int d_comboframe_proc(int msg, DIALOG *d, int c);
 int d_combo_proc(int msg,DIALOG *d,int c);
 void go_tiles();
