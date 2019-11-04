@@ -274,6 +274,8 @@ void writesometiles_to(const char *prompt,int initialval);
 
 void savesomecombos(const char *prompt,int initialval);
 void writesomecombos_to(const char *prompt,int initialval);
+void writesomecombos(const char *prompt,int initialval);
+void loadcombopack(const char *prompt,int initialval);
 
 void savesomecomboaliases(const char *prompt,int initialval);
 void writesomecomboaliases_to(const char *prompt,int initialval);

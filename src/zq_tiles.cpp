@@ -13011,7 +13011,7 @@ void center_zq_tiles_dialogs()
 
 //.ZCOMBO
 
-int readcombofile(PACKFILE *f)
+int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 {
 	dword section_version=0;
 	dword section_cversion=0;
@@ -13185,7 +13185,65 @@ int readcombofile(PACKFILE *f)
 			}
 		}
 				
-		memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
+		if ( skip )
+		{
+			if ( (index+(tilect-1)) < skip ) goto skip_combo_copy;
+			
+		}
+		
+		if ( nooverwrite )
+		{
+			
+			if ( combobuf[index+(tilect)].tile ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].flip ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].walk ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].type ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].csets ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].foo ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].frames ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].speed ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].nextcombo ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].nextcset ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].flag ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].skipanim ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].nexttimer ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].skipanimy ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].animflags ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[0] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[1] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[2] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[3] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[4] ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].expansion[5] ) goto skip_combo_copy;
+			
+			for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			{
+				if ( combobuf[index+(tilect)].attributes[q] ) goto skip_combo_copy;
+			}
+			if ( 	combobuf[index+(tilect)].usrflags ) goto skip_combo_copy;
+			for ( int q = 0; q < 3; q++ )
+			{
+				if ( combobuf[index+(tilect)].triggerflags[q] ) goto skip_combo_copy;
+			}
+			if ( 	combobuf[index+(tilect)].triggerlevel ) goto skip_combo_copy;
+			for ( int q = 0; q < 11; q++ )
+			{
+				if ( combobuf[index+(tilect)].label[q] ) goto skip_combo_copy;
+			}
+			
+			{
+				memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
+			}
+			
+			
+		}
+		else
+		{
+			memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
+		}
+		skip_combo_copy:
+		{
+		}
 	}
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
@@ -13196,7 +13254,7 @@ int readcombofile(PACKFILE *f)
 }
 
 
-int readcombofile_to_location(PACKFILE *f, int start)
+int readcombofile_to_location(PACKFILE *f, int start, byte nooverwrite, int skip)
 {
 	dword section_version=0;
 	dword section_cversion=0;
@@ -13371,9 +13429,69 @@ int readcombofile_to_location(PACKFILE *f, int start)
 			}
 		}
 		
-		if ( start+(tilect-1) < MAXCOMBOS )
+		if ( skip )
 		{
-			memcpy(&combobuf[start+(tilect)],&temp_combo,sizeof(newcombo));
+			if ( (tilect) < skip ) 
+			{
+				continue;
+			}
+			
+		}
+		
+		if ( start+(tilect) < MAXCOMBOS )
+		{
+			if ( nooverwrite )
+			{
+				
+				if ( combobuf[start+(tilect)-skip].tile ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].flip ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].walk ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].type ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].csets ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].foo ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].frames ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].speed ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].nextcombo ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].nextcset ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].flag ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].skipanim ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].nexttimer ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].skipanimy ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].animflags ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[0] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[1] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[2] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[3] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[4] ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].expansion[5] ) goto skip_combo_copy2;
+				
+				for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+				{
+					if ( combobuf[start+(tilect)-skip].attributes[q] ) goto skip_combo_copy2;
+				}
+				if ( 	combobuf[start+(tilect)-skip].usrflags ) goto skip_combo_copy2;
+				for ( int q = 0; q < 3; q++ )
+				{
+					if ( combobuf[start+(tilect)-skip].triggerflags[q] ) goto skip_combo_copy2;
+				}
+				if ( 	combobuf[start+(tilect)-skip].triggerlevel ) goto skip_combo_copy2;
+				for ( int q = 0; q < 11; q++ )
+				{
+					if ( combobuf[start+(tilect)-skip].label[q] ) goto skip_combo_copy2;
+				}
+				
+				{
+					memcpy(&combobuf[start+(tilect)-skip],&temp_combo,sizeof(newcombo));
+				}
+					
+					
+			}
+			else
+			{
+				memcpy(&combobuf[start+(tilect)-skip],&temp_combo,sizeof(newcombo));
+			}
+			skip_combo_copy2:
+			{}
 		}
 	}
 	
