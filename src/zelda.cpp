@@ -2907,6 +2907,43 @@ int onFullscreen()
     return D_REDRAW;
 }
 
+static const char months[13][13] =
+{ 
+	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+};
+
+static std::string dayextension(int dy)
+{ 
+	char temp[6]; 
+	switch(dy)
+	{
+		
+		
+		//st
+		case 1:
+		case 21:
+		case 31:
+			sprintf(temp,"%d%s",dy,"st"); 
+			break;
+		//nd
+		case 2:
+		case 22:
+			sprintf(temp,"%d%s",dy,"nd"); 
+			break;
+		//rd
+		case 3:
+		case 23:
+			sprintf(temp,"%d%s",dy,"rd"); 
+			break;
+		//th
+		default:
+			sprintf(temp,"%d%s",dy,"th");
+			break;
+	}
+	
+	return std::string(temp); 
+} 
+
 int main(int argc, char* argv[])
 {
     bool onlyInstance=true;
@@ -2914,9 +2951,10 @@ int main(int argc, char* argv[])
     memset(zc_builddate,0,80);
     memset(zc_aboutstr,0,80);
 
-    sprintf(zc_builddate,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+    sprintf(zc_builddate,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
     sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
     
+	
     if ( V_ZC_ALPHA )
 	{
 		Z_title("%s, v.%s Alpha %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_ALPHA);
