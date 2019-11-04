@@ -575,7 +575,7 @@ static MENU import_graphics[]=
     
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     
-    { (char *)"Combo Set (Range)",               onImport_Combos,           NULL,                     0,            NULL   },
+    { (char *)"&Combo Set (Range)",               onImport_Combos,           NULL,                     0,            NULL   },
     { (char *)"Combo Pack (Full, 1:1)",           	    onImport_Combopack,   NULL,                     0,            NULL   },
     { (char *)"Combo Pack to... (Dest)",           	    onImport_Combopack_To,   NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
@@ -621,8 +621,11 @@ static MENU export_graphics[]=
 	{ (char *)"Tileset (&Full)",                     onExport_Tiles,            NULL,                     0,            NULL   },
 	{ (char *)"&Tile Pack",           	    onExport_Tilepack,   NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&Combo Set",               onExport_Combos,           NULL,                     0,            NULL   },
     
-    { (char *)"&Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
+    { (char *)"Combo Pack",           	    onExport_Combopack,   NULL,                     0,            NULL   },
+    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    
     { (char *)"Combo &Alias Pack",           	    onExport_Comboaliaspack,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };

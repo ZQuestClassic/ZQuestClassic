@@ -1305,7 +1305,7 @@ int onImport_Combos_old()
 
 int onExport_Combos()
 {
-    if(!getname("Export Tiles (.combos)","zcombos",NULL,datapath,false))
+    if(!getname("Export Combos (.zcombo)","zcombo",NULL,datapath,false))
         return D_O_K;
         
     char buf[80],buf2[80],name[256];
