@@ -1,6 +1,78 @@
 ChangeLog for 2.53.1
 
+//Beta 10
+
+The build date in ZC Player/ZQ About strings is now in a
+	format of: 0th Month, 9999
+	Thus, 4th November, 2019, not 4-11-2019.
+	This avoids day/month transposition, and is for clarity.
+	The datestamp remains auto-generated.
+If you load a ZDMAP file made in this build, in the Import Dialogue containing a single, or
+	a small number of DMaps, they will load into the slots that they
+	occupied in the quest from whence they were exported.
+	ONLY the DMap Editor selects a specific slot, but DMaps are NOT
+	LOADED into slot 0 from the Import menu, as the previous commit stated!
+Refactored .zdmap, removing .zdmapset and merging both types
+	into one file.
+	You can now import from the dmap editor (single dmap) or from the
+	Import menu (multiple dmaps.)
+	If a file contains a single dmap, the import menu will load it to
+	index 0.
+	If a file contains multiple dmaps, the DMap Editor will load the
+	FIRST dmap in the file, into the selected slot.
+Begin Adding Datatype Versioning
+Moved all graphical Import options to new Graphics submenu.
+	Added a new All Combo Table Import and added overwrite protection
+	to all import combo options.
+	Moved old Import Combos to the 2.50.x memnu subsection.
+	Moved old Combo export to 2.50 subsection along with some
+	other broken types.
+		We need to fix the others with new versions soon.
+Vers: All files now rely only on metadata/versionsig.h
+	( ZoriaRPG, 4th November, 2019 )
+
+Fix: BG Layer stuff in ZQ 
+	Hiding layer 0 no longer hides BG layers
+	Next-screen previews now draw BG layers properly
+	( Venrob, 3rd November, 2019 )
+	
+Fixed the Goto Page Hotkey (P) in the ZQ main editor view to
+	jump to the specified page for combo aliases. Each page is 256
+	alias swatches tall (one full bank), and the last quarter page
+	cannot be jumped into without overflow, but that tiny limitation
+	is, IMO better than not being able to do this, at all, at all.
+Temp: A possible fix for Ganon reappearing in deongeons after death.
+	his SHOULD fix Ganon respawning after collecting the big TF
+	in dungeons or screens set with a boss flag, but if quests rely on
+	the bugged behaviour, it needs an enemy flag.
+	**UNVERIFIED FIX**
+Ported item->linked_parent from 2.55, to 2.53.1, moving the
+	check for eeGANON off of Misc15 and using the new var to determine
+	if a dustpile item was created by Ganon.
+	Fixed the drop of the large TF (relly, and trully), to spawn over
+	the ASHES if they have moved.
+	( ZoriaRPG, 3rd November, 2019 )
+	
+The little arrows above the combo alias banks now work as intended.
+Added Notes on fixing bug where potions kill sfx.
+	( ZoriaRPG, 2nd November, 2019 )	
+	
 //Beta 9
+Fix: Item 0 issue 
+	(None) in listers was not sorting properly for items.
+	( Venrob, 2nd November, 2019 )
+	
+Feat: Active layer button is highlighted
+	( Venrob, 1st November, 2019 )
+
+Parser: Added a few more guards against reserved tokens.
+	( ZoriaRPG, 1st November, 2019 )
+	
+std_zh: Fix GetHighestLevelItemOwned 
+	Now no longer has a critical bug, and is much faster.
+	Now works the same way 'current_item_id()' does internally.
+	( Venrob, 31st October, 2019 )
+	
 Updated ghost/other.zh and tango/1.2/user.zh to remove 'default' and 'bitmap' identifiers
 Added error for logical xor.
 The parser now errors, and reports that the user must use ZSxript v14/2.55
