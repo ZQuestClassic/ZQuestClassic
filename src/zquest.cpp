@@ -14341,7 +14341,10 @@ int writesomedmaps(PACKFILE *f, int first, int last, int max)
 	int zversion = ZELDA_VERSION;
 	int zbuild = VERSION_BUILD;
 	
-    
+	if(!p_iputl(V_ZDMAP,f))
+	{
+		return 0;
+	}
   
     //section version info
 	if(!p_iputl(zversion,f))
@@ -14548,12 +14551,24 @@ int readsomedmaps(PACKFILE *f)
 	memset(&tempdmap, 0, sizeof(dmap));
 	
 	int first = 0, last = 0, max = 0, count = 0;
+	int datatype_version = 0;
    
 	//char dmapstring[64]={0};
 	//section version info
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&datatype_version,f,true))
 	{
 		return 0;
+	}
+	if ( datatype_version < 0 )
+	{
+		if(!p_igetl(&zversion,f,true))
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		zversion = datatype_version;
 	}
 	if(!p_igetl(&zbuild,f,true))
 	{
@@ -14771,9 +14786,13 @@ int writeonedmap(PACKFILE *f, int i)
     dword section_cversion=CV_DMAPS;
 	int zversion = ZELDA_VERSION;
 	int zbuild = VERSION_BUILD;
-    
+	
   
     //section version info
+	if(!p_iputl(V_ZDMAP,f))
+	{
+		return 0;
+	}
 	if(!p_iputl(zversion,f))
 	{
 		return 0;
@@ -14952,13 +14971,24 @@ int readonedmap(PACKFILE *f, int index)
 	int zbuild = 0;
 	dmap tempdmap;
 	memset(&tempdmap, 0, sizeof(dmap));
-     
+	int datatype_version = 0;
    
 	//char dmapstring[64]={0};
 	//section version info
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&datatype_version,f,true))
 	{
 		return 0;
+	}
+	if ( datatype_version < 0 )
+	{
+		if(!p_igetl(&zversion,f,true))
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		zversion = datatype_version;
 	}
 	if(!p_igetl(&zbuild,f,true))
 	{
