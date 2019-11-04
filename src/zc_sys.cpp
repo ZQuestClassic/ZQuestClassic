@@ -6216,32 +6216,25 @@ int onMIDICredits()
 
 int onAbout()
 {
-    switch(IS_BETA)
-    {
-    case 1:
-        sprintf(str_s,"(v.%s, Beta %d, Build %d)",ZC_PLAYER_V,V_ZC_BETA, VERSION_BUILD);
-        break;
-        
-    case -1:
-        sprintf(str_s,"(v.%s, Alpha %d, Build %d)",ZC_PLAYER_V,V_ZC_ALPHA, VERSION_BUILD);
-        break;
-        
-    case 0:
-	sprintf(str_s,"(v.%s, Release %d, Build %d)",ZC_PLAYER_V,V_ZC_RELEASE, VERSION_BUILD);
-	break;
-    default:
-        if ( IS_BETA > 0 )
-	{
-		sprintf(str_s,"(v.%s, Beta %d, Build %d)",ZC_PLAYER_V,V_ZC_BETA, VERSION_BUILD);
-		break;
-	}
-	else
+	if ( V_ZC_ALPHA )
 	{
 		sprintf(str_s,"(v.%s, Alpha %d, Build %d)",ZC_PLAYER_V,V_ZC_ALPHA, VERSION_BUILD);
-		break;
 	}
-        break;
-    }
+		
+	else if ( V_ZC_BETA )
+	{
+		sprintf(str_s,"(v.%s, Beta %d, Build %d)",ZC_PLAYER_V,V_ZC_BETA, VERSION_BUILD);
+	}
+	else if ( V_ZC_GAMMA )
+	{
+		sprintf(str_s,"(v.%s, Gamma %d, Build %d)",ZC_PLAYER_V,V_ZC_GAMMA, VERSION_BUILD);
+	}
+	else /*( V_ZC_RELEASE )*/
+	{
+		sprintf(str_s,"(v.%s, Release %d, Build %d)",ZC_PLAYER_V,V_ZC_RELEASE, VERSION_BUILD);
+	}
+		
+	
     
     //  sprintf(str_s,"%s",VerStr(ZELDA_VERSION));
     about_dlg[0].dp2=lfont;

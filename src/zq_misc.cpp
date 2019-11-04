@@ -1461,7 +1461,11 @@ int onAbout()
     
     if(get_debug())
     {
-#if IS_BETA
+#if V_ZC_ALPHA
+        {
+            sprintf(buf1,"ZQuest %s Alpha Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
+        }
+#elif V_ZC_BETA
         {
             sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
         }
@@ -1477,29 +1481,40 @@ int onAbout()
     else
     {
 	sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
-        switch(IS_BETA)
-        {
-		case -1:
+        //switch(IS_BETA)
+        //{
+		//case -1:
+		if ( V_ZC_ALPHA )
 		{
 			//sprintf(buf2,"%s Alpha Build: %d, Date: %s",VerStr(ZELDA_VERSION), VERSION_BUILD, DATE_STR);
 			sprintf(buf2,"Alpha %d, Build: %d",V_ZC_ALPHA, VERSION_BUILD);
 			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			break;
+			//break;
 		}
             
-		case 1:
+		//case 1:
+		else if ( V_ZC_BETA )
 		{
 			sprintf(buf2,"Beta %d, Build: %d",V_ZC_BETA, VERSION_BUILD);
 			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			break;
+			//break;
 		}
 		
-		case 0:
+		else if ( V_ZC_GAMMA )
+		{
+			sprintf(buf2,"Gamma %d, Build: %d",V_ZC_GAMMA, VERSION_BUILD);
+			sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+			//break;
+		}
+		
+		//case 0:
+		else
 		{
 		    sprintf(buf2,"Release %d, Build: %d",V_ZC_RELEASE, VERSION_BUILD);
 		    sprintf(buf3,"Build Date: %d-%d-%d at @ %s %s", BUILDTM_DAY, BUILDTM_MONTH, BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-		    break;
+		    //break;
 		}
+		/*
 		default:
 		{
 		    if ( IS_BETA > 0 )
@@ -1514,8 +1529,9 @@ int onAbout()
 		    }
 		    break;
 		}
+		*/
 		
-        }
+        //}
         
         
         
