@@ -1,7 +1,8 @@
 ChangeLog for 2.53.1
 
-//Beta 10
+//Beta 11
 
+//Beta 10
 The build date in ZC Player/ZQ About strings is now in a
 	format of: 0th Month, 9999
 	Thus, 4th November, 2019, not 4-11-2019.
