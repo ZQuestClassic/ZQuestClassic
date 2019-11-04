@@ -561,7 +561,7 @@ static MENU import_graphics[]=
 static MENU import_menu[] =
 {
     { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
-    { (char *)"&DMaps Set",                     onImport_DMaps,            NULL,                     0,            NULL   },
+    { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
     { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
     { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
     { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
@@ -609,6 +609,7 @@ static MENU export_menu[] =
     //Seems future-safe for 2.55 and at present should work (unchanged): Subscreen
     //known to have be fine in 2.55: Maps
     { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
+    { (char *)"&DMaps",                       onExport_DMaps,              NULL,                     0,            NULL   },
     { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
     //unchecked for 2.55 but at present should work (unchanged): Palettes
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
@@ -1790,6 +1791,92 @@ void writesomecombos_to(const char *prompt,int initialval)
 	}
 }
 
+static DIALOG save_dmaps_dlg[] =
+{
+    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+
+
+	{ jwin_win_proc,      0,   0,   120,  100,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Save DMaps (.zdmap)", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //for future tabs
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         120,  128,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
+    //4
+    {  jwin_text_proc,        10,    28,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "First",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     26,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //6
+    {  jwin_text_proc,        10,    46,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Last",               NULL,   NULL  },
+    { jwin_edit_proc,          55,     44,    40,     16,    vc(12),                 vc(1),                   0,       0,          63,    0,  NULL,                                           NULL,   NULL                  },
+    //8
+    { jwin_button_proc,   15,   72,  36,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
+    { jwin_button_proc,   69,  72,  36,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+void savesomedmaps(const char *prompt,int initialval)
+{
+	
+	char firstdmap[8], lastdmap[8];
+	int first_dmap_id = 0; int last_dmap_id = 0;
+	sprintf(firstdmap,"%d",0);
+	sprintf(lastdmap,"%d",1);
+	//int ret;
+	
+	
+	
+	save_dmaps_dlg[0].dp2 = lfont;
+	
+	sprintf(firstdmap,"%d",0);
+	sprintf(lastdmap,"%d",0);
+	
+	save_dmaps_dlg[5].dp = firstdmap;
+	save_dmaps_dlg[7].dp = lastdmap;
+	
+	if(is_large)
+		large_dialog(save_dmaps_dlg);
+	
+	int ret = zc_popup_dialog(save_dmaps_dlg,-1);
+	jwin_center_dialog(save_dmaps_dlg);
+	
+	if(ret == 8)
+	{
+		first_dmap_id = vbound(atoi(firstdmap), 0, MAXDMAPS-1);
+		last_dmap_id = vbound(atoi(lastdmap), 0,  MAXDMAPS-1);
+		
+		if ( last_dmap_id < first_dmap_id )
+		{
+			int swap = last_dmap_id;
+			last_dmap_id = first_dmap_id;
+			first_dmap_id = swap;			
+		}
+		if(!getname("Export DMaps(.zdmapzq)_)","zdmap",NULL,datapath,false))
+		
+		
+		saved=false;
+	    
+		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+		if(f)
+		{
+			if(!writesomedmaps(f,first_dmap_id,last_dmap_id,MAXDMAPS))
+			{
+				char buf[80],name[256];
+				extract_name(temppath,name,FILENAMEALL);
+				sprintf(buf,"Unable to load %s",name);
+				jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+			else
+			{
+				char name[256];
+				extract_name(temppath,name,FILENAMEALL);
+				char tmpbuf[80]={0};
+				sprintf(tmpbuf,"Saved %s",name);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			}
+		}
+		pack_fclose(f);
+	}
+}
 
 
 static DIALOG save_comboaliasfiles_dlg[] =
@@ -14584,22 +14671,31 @@ int readsomedmaps(PACKFILE *f)
 	{
 		return 0;
 	}
-	
-	if(!p_igetl(&max,f,true))
+	if ( datatype_version < 0 )
 	{
-		return 0;
+		if(!p_igetl(&max,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&first,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&last,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&count,f,true))
+		{
+			return 0;
+		} 
 	}
-	if(!p_igetl(&first,f,true))
+	else
 	{
-		return 0;
-	}
-	if(!p_igetl(&last,f,true))
-	{
-		return 0;
-	}
-	if(!p_igetl(&count,f,true))
-	{
-		return 0;
+		first = 0;
+		last = 0;
+		count = 1;
+		max = 255;
 	}
 	
 	
@@ -14972,6 +15068,10 @@ int readonedmap(PACKFILE *f, int index)
 	dmap tempdmap;
 	memset(&tempdmap, 0, sizeof(dmap));
 	int datatype_version = 0;
+	int first = 0;
+	int last = 0;
+	int max = 0;
+	int count = 0;
    
 	//char dmapstring[64]={0};
 	//section version info
@@ -15007,6 +15107,26 @@ int readonedmap(PACKFILE *f, int index)
 	al_trace("readonedmap section_version: %d\n", section_version);
 	al_trace("readonedmap section_cversion: %d\n", section_cversion);
     
+	
+	if ( datatype_version < 0 )
+	{
+		if(!p_igetl(&max,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&first,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&last,f,true))
+		{
+			return 0;
+		}
+		if(!p_igetl(&count,f,true))
+		{
+			return 0;
+		}
+	}
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .zdmap packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
@@ -15218,7 +15338,7 @@ void dmap_rclick_func(int index, int x, int y)
 		al_trace("Could not write to .znpc packfile %s\n", temppath);
 	}
 	*/
-	writeonedmap(f,index);
+	writesomedmaps(f,index, index, MAXDMAPS);
 	pack_fclose(f);
      
         

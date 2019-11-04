@@ -1053,32 +1053,7 @@ int onExport_DMaps()
 {
 
     
-    
-    if(!getname("Export DMaps(.zdmapset)","zdmapset",NULL,datapath,false))
-        return D_O_K;
-        
-    saved=false;
-    
-    PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-	if(f)
-	{
-		if(!writesomedmaps(f,0,511,MAXDMAPS))
-		{
-			char buf[80],name[256];
-			extract_name(temppath,name,FILENAMEALL);
-			sprintf(buf,"Unable to load %s",name);
-			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-		}
-		else
-		{
-			char name[256];
-			extract_name(temppath,name,FILENAMEALL);
-			char tmpbuf[80]={0};
-			sprintf(tmpbuf,"Saved %s",name);
-			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-		}
-	}
-	pack_fclose(f);
+    savesomedmaps("Read DMaps",0);
     
     return D_O_K;
 }
@@ -1086,7 +1061,7 @@ int onExport_DMaps()
 
 int onImport_DMaps()
 {
-    if(!getname("Import DMaps (.zdmapset)","zdmapset",NULL,datapath,false))
+    if(!getname("Import DMaps (.zdmap)","zdmap",NULL,datapath,false))
         return D_O_K;
     
     PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
