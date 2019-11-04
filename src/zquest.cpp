@@ -15340,8 +15340,6 @@ void dmap_rclick_func(int index, int x, int y)
 	*/
 	writesomedmaps(f,index, index, MAXDMAPS);
 	pack_fclose(f);
-     
-        
     }
     else if(ret==3) // load
     {
