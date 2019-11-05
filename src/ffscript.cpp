@@ -8753,6 +8753,11 @@ void set_register(const long arg, const long value)
 		if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
 		    
 	    }
+	    else if ( value && item_doscript[itemID] == 4 ) 
+	    {
+		    // Arbitrary event number 49326: Writing the item false, then true, in the same frame. -Z
+		    if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
+	    }
             
             bool settrue = ( value != 0 );
 		    
