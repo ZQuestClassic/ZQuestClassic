@@ -548,6 +548,7 @@ int PickRuleset()
         set_bit(quest_rules, qr_RINGAFFECTDAMAGE, 1);
         //Script errors on by default
         set_bit(quest_rules, qr_SCRIPTERRLOG, 1);
+        set_bit(quest_rules, qr_LOG, 1);
         
         switch(ruleset)
         {
