@@ -3,8 +3,8 @@ ChangeLog for 2.53.1
 //Beta 11
 
 //Beta 10
-Updated qst.dat so that both script errors AND game events are 
-	logged by default.
+Fixed quest templates so that when creating a new quest, qr_LOG is on by default,
+	and needlessly updated qst.dat.
 	( ZoriaRPG, 5th November, 2019 )
 	
 The build date in ZC Player/ZQ About strings is now in a
