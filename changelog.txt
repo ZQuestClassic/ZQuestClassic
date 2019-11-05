@@ -3,6 +3,10 @@ ChangeLog for 2.53.1
 //Beta 11
 
 //Beta 10
+Updated qst.dat so that both script errors AND game events are 
+	logged by default.
+	( ZoriaRPG, 5th November, 2019 )
+	
 The build date in ZC Player/ZQ About strings is now in a
 	format of: 0th Month, 9999
 	Thus, 4th November, 2019, not 4-11-2019.
