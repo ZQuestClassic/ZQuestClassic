@@ -24864,8 +24864,9 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 	{
 		//Z_scripterrlog("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script == 0 ) continue;
-		if ( !itemScriptsWaitdraw[q] ) continue;
 		if ( item_doscript[q] < 1 ) continue;
+		if ( !itemScriptsWaitdraw[q] ) continue;
+		else itemScriptsWaitdraw[q] = 0;
 		switch(item_doscript[q])
 		{
 			case 3:
