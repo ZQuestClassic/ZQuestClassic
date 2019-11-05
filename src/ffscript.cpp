@@ -24939,7 +24939,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
 		}
-		itemScriptsWaitdraw[q] = 0;
+		//itemScriptsWaitdraw[q] = 0; THis is the wrong place, so I moved it into an else stmt at the top of this function's body. -Z
 		
 	}
 	
