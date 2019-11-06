@@ -1,5 +1,5 @@
 //std_functions.zh
-//23rd September, 2019 for ZC 2.53.0 R3
+//6th November, 2019 for ZC 2.53.1
 
 //A
 
@@ -1177,7 +1177,7 @@ int GetHighestLevelItemOwned(int itemclass)
 	for(int i=0; i<=MAX_HIGHEST_LEVEL_ITEM_CHECK; ++i)
 	{
 		itemdata id = Game->LoadItemData(i);
-		if(id->Family == class && Link->Item[i])
+		if(id->Family == itemclass && Link->Item[i])
 		{
 			if(id->Level >= highestlevel)
 			{
