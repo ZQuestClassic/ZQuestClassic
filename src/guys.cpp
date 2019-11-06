@@ -51,9 +51,22 @@ void playLevelMusic();
 
 // If an enemy is this far out of the playing field, just remove it.
 #define OUTOFBOUNDS ((int)y>((isSideViewGravity() && canfall(id))?192:352) || y<-176 || x<-256 || x > 512)
-#define NEWOUTOFBOUNDS ((int)y>32767 || y<-32767 || x<-32767 || x > 32767)
+//#define NEWOUTOFBOUNDS ((int)y>32767 || y<-32767 || x<-32767 || x > 32767)
 #define IGNORE_SIDEVIEW_PLATFORMS (editorflags & ENEMY_FLAG14)
 #define OFFGRID_ENEMY (editorflags & ENEMY_FLAG15)
+
+bool NEWOUTOFBOUNDS(fix x, fix y, fix z)
+{
+	return 
+	(
+		(((int)y) > FFCore.enemy_removal_point[spriteremovalY2]) 
+		|| (((int)y) < FFCore.enemy_removal_point[spriteremovalY1]) 
+		|| (((int)x) < FFCore.enemy_removal_point[spriteremovalX1]) 
+		|| (((int)x) > FFCore.enemy_removal_point[spriteremovalX2]) 
+		|| (((int)z) < FFCore.enemy_removal_point[spriteremovalZ1]) 
+		|| (((int)z) > FFCore.enemy_removal_point[spriteremovalZ2])
+	);
+}
 
 namespace
 {
@@ -552,7 +565,7 @@ bool enemy::animate(int index)
     {
 	//skip, as it can go out of bounds, from immortality
     }
-    else if (   ( (get_bit(quest_rules, qr_OUTOFBOUNDSENEMIES)) != (editorflags&ENEMY_FLAG11) ) && !NEWOUTOFBOUNDS   )
+    else if (   ( (get_bit(quest_rules, qr_OUTOFBOUNDSENEMIES)) != (editorflags&ENEMY_FLAG11) ) && !NEWOUTOFBOUNDS(x,y,z)   )
     {
 	//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
     }

@@ -23529,6 +23529,12 @@ void FFScript::init()
 	usr_music_volume = emusic_volume;
 	usr_panstyle = pan_style;
 	FF_link_tile = 0; FF_link_action = 0;
+	enemy_removal_point[spriteremovalY1] = -32767;
+	enemy_removal_point[spriteremovalY2] = 32767;
+	enemy_removal_point[spriteremovalX1] = -32767;
+	enemy_removal_point[spriteremovalX2] = 32767;
+	enemy_removal_point[spriteremovalZ1] = -32767;
+	enemy_removal_point[spriteremovalZ2] = 32767;
 	for ( int q = 0; q < 4; q++ ) 
 	{
 		FF_screenbounds[q] = 0;

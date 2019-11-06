@@ -453,6 +453,9 @@ byte FF_transition_type; // Can't edit, yet.
 byte FF_jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 byte FF_link_swim_speed;
 
+//Enemy removal bounds
+int enemy_removal_point[6];
+
 //Disable stepforward on dungeon dmaps
 byte nostepforward;
 byte temp_no_stepforward; 

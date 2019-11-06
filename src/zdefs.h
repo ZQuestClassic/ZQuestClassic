@@ -2390,6 +2390,11 @@ struct script_variable
 #define SCRIPT_ACTIVESUBSCREEN           11
 #define SCRIPT_PASSIVESUBSCREEN          12
 
+//Sprite boundary array indices
+enum
+{
+	spriteremovalY1, spriteremovalY2, spriteremovalX1, spriteremovalX2, spriteremovalZ1, spriteremovalZ2
+};
 
 
 enum

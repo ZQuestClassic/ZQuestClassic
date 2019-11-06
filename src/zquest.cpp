@@ -23002,7 +23002,7 @@ static DIALOG zscript_settings_dlg[] =
 	// 25
 	{ jwin_check_proc,      10, 33+40,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Passive Subscreen Script runs during Active Subscreen", NULL, NULL },
 	{ jwin_check_proc,      10, 33+50,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "DMap Active Script runs during Active Subscreen", NULL, NULL },
-	{ jwin_check_proc,      10, 33+60,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", NULL, NULL },
+	{ jwin_check_proc,      10, 33+80,   185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", NULL, NULL },
 	
 	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -30553,6 +30553,13 @@ void FFScript::init()
 	setFFRules(); //copy the quest rules over. 
 	long usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
 	FF_link_tile = 0; FF_link_action = 0;
+	enemy_removal_point[spriteremovalY1] = -32767;
+	enemy_removal_point[spriteremovalY2] = 32767;
+	enemy_removal_point[spriteremovalX1] = -32767;
+	enemy_removal_point[spriteremovalX2] = 32767;
+	enemy_removal_point[spriteremovalZ1] = -32767;
+	enemy_removal_point[spriteremovalZ2] = 32767;
+	
 	for ( int q = 0; q < 4; q++ ) 
 	{
 		FF_screenbounds[q] = 0;
