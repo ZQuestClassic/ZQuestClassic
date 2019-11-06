@@ -1,6 +1,187 @@
 //2.55 Changes
 
+//Alpha 40
+
+Converted the hardcoded removal bounds macro
+	NEWOUTOFBOUNDS into a function that pulls
+	variable values from FFCore.
+Fixed the placement of a dialogue element
+	in the ZScript Instructions dialogue.
+The QR and the Enemy Editor bits that allow
+	enemies to move offscreen, are now logically
+	xor'd, so that you can deselect enemies that
+	are allowed to move offscreen.
+	Both are destroyed if they are not immortal
+	and their coordinates are outside -/+32768
+	of the visible screen, on any axis.
+	We'll need to make this new removal bound
+	into a variable.
+Added behavioural flag 'Fast Draw' to the
+	Enemy Editor. If set, the sprite will always
+	use old/fast draws. All sprites have this bit,
+	not only enemies; but at this time, only the
+	Enemy Editor can write it.
+	This bit disables scale and rotation for the sprite
+	and we need to give ZScript access to it.
+Added a behavioural flag to the Enemy Editor that
+	allows the user to set *specific* npcs to move
+	offscreen. This does not conflict with the quest
+	rule -- I suppose we could xor it? -- nor
+	does it replace it.
+	( ZoriaRPG, 6th November, 2019 )
+
+Fix: New Quest Should Have qr_LOG On By Default
+Updated std.zh to Version 1.6004
+	Added names[ace std, and sub-namespace std::version
+	Moved GlobalRAM into namespace std, along with accessors
+	for it, and for date and time,
+	Added file std_legacy.zh, where legacy functions
+	will go, once ported into namespace std.
+	Added file std_user_defs.zh for user typedefs
+	and moved those out of std_constants.
+
+If an item is running a passive script, and the
+	user writes ->Item[]=false, then Item[]=true
+	in the same frame, reset the running state of
+	that script back from '4' (exit next frame),
+	back to '1' (running).
+	This fixes scripts magically aborting, but it means
+	that if you want to start a script completely
+	fresh, that you need to wait one frame to restart
+	it after setting the item false; so item[]=false,
+	then Waitframe, then Item[]=true.
+Un-set waitdraw on item scripts, and comment out the old, wrongly timed waitdraw removal.
+	( ZoriaRPG, 5th November, 2019 )
+
+Fixed the 'Load Module' function in both
+	ZQ Editor and in ZC Player.
+	It now refreshes the lists, such as item family
+	name, npc family name, and so forth instantly
+	on loading a .zmod file.
+The build date in ZC Player/ZQ About strings is now in a
+	format of: 0th Month, 9999
+	Thus, 4th November, 2019, not 4-11-2019.
+	This avoids day/month transposition, and is for clarity.
+	The datestamp remains auto-generated.
+Refactored .zdmap, removing .zdmapset and merging both types
+	into one file.
+	You can now import from the dmap editor (single dmap) or from the
+	Import menu (single, or multiple dmaps).
+	If you load a .zdmap file from the import menu,
+	then ZQ will load the DMaps into the slots that they
+	occupied in the quest from whence the .zdmap
+	file originated on export.
+	If a file contains multiple dmaps, the *DMap Editor* will load the
+	FIRST dmap in the file, into the selected slot.
+Begin Adding Loose File Versioning; add multidmap r/w functions
+Fix: Export Combos (all) File Type; Minor Menu Changes
+Feat: Add Combo Don't Overwrite on Import
+	( ZoriaRPG, 4th November, 2019 )
+	
+Fix: Background Layer stuff in ZQ 	
+	Hiding layer 0 no longer hides BG layers
+	Next-screen previews now draw BG layers properly
+	( Venrob, 3rd November, 2019 )
+
+Fixed the Goto Page Hotkey (P) in the ZQ main editor view to
+	jump to the specified page for combo aliases. Each page is 256
+	alias swatches tall (one full bank), and the last quarter page
+	cannot be jumped into without overflow, but that tiny limitation
+	is, IMO better than not being able to do this, at all, at all.
+Notes on ganon revival bug (#ganon-comes-back-once)
+Fixed the drop of the large TF (relly, and trully), to spawn over
+	the ASHES if they have moved.
+	( ZoriaRPG, 3rd November, 2019 )
+	
+The little arrows above the combo alias banks now work as intended.
+	( ZoriaRPG, 2nd November, 2019 )
+	
+Fixed Item 0 not being sorted properly, due to changes to sorting (none) in lists.
+Fix: Overlapping QR
+	( Venrob, 2nd November, 2019 )
+	
+Feat: Active layer button is highlighted
+Fix: Small memory hole, local array leak 
+	Forgot to initialize 'active_iterator'
+	Forgot to deallocate arrays allocated to the object being deleted
+	( Venrob, 1st November, 2019 )
+
+Because Grayswandir's variable name / pointer or datatype
+	identifier stuff had to be removed, I am reverting
+	the *data identifiers that he shortened back to how
+	I originally named them.
+	Typedef removes the need for internally short identifiers, and
+	these are likely to have conflicts with variable identifiers
+	somewhere.
+	I als reserved "try" as a token and it gives an errr message
+	in the output window. May need NO_ERROR_HALY stuff or
+	something to convert it into a warming.
+	( ZoriaRPG, 1st November, 2019 )
+
+Feat: 'npc->Remove()' instantly deletes
+	Standardized runscript return values via defines
+	Added 'active_iterator' as a member of sprite_list
+		This is automatically modified by del() if it is called while the list is
+		being animated, used instead of a local 'i' variable
+	Added handling for a script object deleting itself, via returning
+		RUNSCRIPT_SELFDELETE; this handles returning to avoid NULLPOs
+	Updated ZScript_Additions.txt
+std_zh: Fix GetHighestLevelItemOwned 
+	Now no longer has a critical bug, and is much faster.
+	Now works the same way 'current_item_id()' does internally.
+	( Venrob, 31st October, 2019 )
+	
+Fix: NO_ERROR_HALT crashes
+Revert "Parser: Slight optimization"
+	This reverts commit 5f36fe9.
+	Was causing crashes.
+Change: Identifiers for item-related types
+	"item it;" -> "itemsprite it;"
+	"item script" -> "itemdata script"
+	Added typedefs to "std_constants" for old scripts
+	( Venrob, 29th October, 2019 )
+	
+Scripts: Added Subscreen Demo v9 Script and Files	
+Possibly fix some memory holes for DMap Subscr Active Script
+Themes: Asdd Ruby.ztheme and Dark.ztheme; update all other files.
+Changed default cursor size in config files for large mode to 1.0
+	( ZoriaRPG, 29th October, 2019 )
+	
+Because C lacks logical xor (^^), the alternate
+	token for bitwise xor (^) is 'xor', HOWEVER, sll
+	other witwise alt tokens are prefixed with 'bit:
+		bitand, bitor
+	...but the logical operator alternative tokens for logical
+	AND and logical OR (&&, ||) are simply 'and', 'or'.
+	Thus, for the sake of linguistic uniformity, I changed
+	our alternative tokens for bitwise and logical xor.
+	Now, logical xor (^^) uses 'xor' as an alternative token, and
+	bitwise xor (^) uses 'bitxor'.
+	WHile this differs from C, I feel that this change makes
+	the alternative tokens more uniform, and easier to remember.
+Fix crash if compiler sounds are set to 0 and vbound them between 0 and 255
+	( ZoriaRPG, 28th October, 2019 )
+	
+Parser: Slight optimization
+	Remove overload of syncDisable, really no reason to allow pass by pointer
+	and pass by ref. Now only pass by ref is allowed.
+Fix: NO_ERR_HALT crash on 'return undecl_var;'
+	( Venrob, 28th October, 2019 )
+	
+Classic.zh: Push v 2.12, fixing compile issues.
+	( ZoriaRPG, 27th October, 2019 )
+	
+Implement `dropset` type, with:
+	'int Choose();'
+	'int Items[10];'
+	'int Chances[10];'
+	'int NothingChance;'
+	Documented in ZScript_Additions.txt
+Vers: Now at Alpha 40
+	( Venrob, 27th October, 2019 )
+	
 //Alpha 39
+Re-update .cfgs
 Updated ZScript_Additions.txt.
 Fixed errors in zscript.txt, now v0.7.6.
 Fixed crashes saving files with very long paths.
