@@ -490,6 +490,9 @@ extern bool fake_pack_writing;
 #define llLENSHIDES     8
 #define llLENSSHOWS     16
 
+// sprite drawing flag bits
+#define sprdrawflagALWAYSOLDDRAWS 1
+
 // enemy flags
 #define efZORA          1
 #define efTRAP4         2

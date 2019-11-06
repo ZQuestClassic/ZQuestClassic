@@ -123,6 +123,7 @@ sprite::sprite()
     rotation = 0;
     scale = 0;
     obeys_gravity = 0;
+    drawflags = 0;
 	knockbackflags = 0;
 	knockbackSpeed = 4; //default speed
 	script_knockback_clk = 0;
@@ -195,6 +196,7 @@ scripttile(other.scripttile),
 scriptflip(other.scriptflip),
 rotation(other.rotation),
 obeys_gravity(other.obeys_gravity),
+drawflags(other.drawflags),
 knockbackflags(other.knockbackflags),
 knockbackSpeed(other.knockbackSpeed),
 script_knockback_clk(other.script_knockback_clk),
@@ -509,7 +511,7 @@ void sprite::draw(BITMAP* dest)
 		drawzcboss(dest);
 		return; //don't run the rest, use the old code
 	}
-	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) ) 
+	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) || (drawflags&sprdrawflagALWAYSOLDDRAWS) ) 
 	{
 		drawzcboss(dest);
 		return; //don't run the rest, use the old code

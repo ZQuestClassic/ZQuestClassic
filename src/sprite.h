@@ -116,6 +116,7 @@ public:
     int rotation;
     int scale; 
     byte obeys_gravity;
+    byte drawflags;
 	byte knockbackflags;
 	byte screenedge;
 	byte shadowsprite;
