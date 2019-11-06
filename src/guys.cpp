@@ -548,19 +548,15 @@ bool enemy::animate(int index)
     // Maybe they fell off the bottom in sideview, or were moved by a script.
     
     //Check offscreen settings. I wrote it this way for clarity and to simplify testing. -Z
-    if ( (get_bit(quest_rules, qr_OUTOFBOUNDSENEMIES) && !NEWOUTOFBOUNDS ) )
-    {
-	//skip, it can go out of bounds, from a quest rule
-    }
-    else if ( (editorflags&ENEMY_FLAG11) )
-    {
-	//skip, it can go out of bounds, from the enemy editor
-    }
-    else if ( immortal )
+    if ( immortal )
     {
 	//skip, as it can go out of bounds, from immortality
     }
-    else if ( (OUTOFBOUNDS) || (get_bit(quest_rules, qr_OUTOFBOUNDSENEMIES) && NEWOUTOFBOUNDS) )
+    else if (   ( (get_bit(quest_rules, qr_OUTOFBOUNDSENEMIES)) != (editorflags&ENEMY_FLAG11) ) && !NEWOUTOFBOUNDS   )
+    {
+	//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
+    }
+    else if ( (OUTOFBOUNDS) )
     {
         hp=-1000; //kill it, as it is not immortal, and no quest bit or rule is enabled
     }
