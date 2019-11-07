@@ -57,6 +57,7 @@ int  onTryQuit(bool inMenu = false);
 int  onReset();
 int  onExit();
 void fix_dialogs();
+int onMIDIPatch();
 
 int onCheatBombs();
 int onCheatArrows();

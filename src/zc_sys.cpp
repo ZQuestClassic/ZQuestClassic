@@ -59,6 +59,8 @@ extern bool Playing;
 int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
 
+byte monochrome_console = 0;
+
 extern FONT *lfont;
 extern LinkClass Link;
 extern FFScript FFCore;
@@ -377,6 +379,7 @@ void load_game_configs()
    
     // And this one fixes patches unloading on some MIDI setups
     midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",1);
+	monochrome_console = (byte) get_config_int("zeldadx","monochrome_debuggers",0);
 #endif
    
 #ifdef ALLEGRO_MACOSX
@@ -531,7 +534,8 @@ void save_game_configs()
     set_config_int("graphics","disable_direct_updating",disable_direct_updating);
     set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
     set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
-    set_config_int("zeldadx","debug_console",zconsole);
+    set_config_int("zeldadx","monochrome_debuggers",monochrome_console);
+	set_config_int("zeldadx","debug_console",zconsole);
 #endif
    
 #ifdef ALLEGRO_LINUX
@@ -7826,6 +7830,9 @@ int v250_dmap_intro_repeat()
     return D_O_K;
 }
 
+
+
+
 int v210_segment_drops()
 {
 	if(jwin_alert3(
@@ -8189,6 +8196,12 @@ static MENU cheat_menu[] =
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
+static MENU fixes_menu[] =
+{
+    { (char *)"Windows MIDI Patch",           onMIDIPatch,                    NULL,      0, NULL },
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+};
+
 
 MENU the_menu[] =
 {
@@ -8197,9 +8210,35 @@ MENU the_menu[] =
     { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
     { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
     { (char *)"M&odules",                      NULL,                    zcmodule_menu,                 0, NULL },
+    { (char *)"&Fixes",                      NULL,                    fixes_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
+
+int onMIDIPatch()
+{
+	if(jwin_alert3(
+			"Toggle Windows MIDI Fix", 
+			"This action will change whether ZC Player auto-restarts a MIDI at its",
+			"last index if you move ZC Player out of focus, then back into focus.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (midi_patch_fix) midi_patch_fix = 0;
+	    
+	    else midi_patch_fix = 1;	
+		
+	}
+	fixes_menu[0].flags =(midi_patch_fix)?D_SELECTED:0;
+	save_game_configs();
+    return D_O_K;
+}
 
 MENU the_menu2[] =
 {
@@ -8207,6 +8246,7 @@ MENU the_menu2[] =
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
     { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
     { (char *)"M&odules",                      NULL,                    zcmodule_menu,                 0, NULL },
+    { (char *)"&Fixes",                      NULL,                    fixes_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -9222,7 +9262,7 @@ void System()
     game_menu[3].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;
     misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
-    
+    fixes_menu[0].flags = (midi_patch_fix)?D_SELECTED:0;
     clear_keybuf();
     show_mouse(screen);
     

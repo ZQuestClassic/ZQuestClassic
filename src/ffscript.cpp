@@ -31,6 +31,8 @@ extern byte use_dwm_flush;
 
 extern zinitdata zinit;
 
+extern byte monochrome_console;
+
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
 zquestheader ZCheader;
@@ -549,7 +551,8 @@ int CConsoleLoggerEx::cprintf(int attributes,const char *format,...)
 	va_end(argList);
 
 
-	return _cprint(attributes,tmp,ret);
+	if ( monochrome_console ) return _cprint(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK | CConsoleLoggerEx::COLOR_WHITE,tmp,ret);
+	else	return _cprint(attributes,tmp,ret);
 
 }
 
@@ -578,7 +581,8 @@ int CConsoleLoggerEx::cprintf(const char *format,...)
 	va_end(argList);
 
 
-	return _cprint(m_dwCurrentAttributes,tmp,ret);
+	if ( monochrome_console ) return _cprint(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK | CConsoleLoggerEx::COLOR_WHITE,tmp,ret);
+	else return _cprint(m_dwCurrentAttributes,tmp,ret);
 
 }
 
