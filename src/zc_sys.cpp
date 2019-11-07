@@ -379,7 +379,7 @@ void load_game_configs()
    
     // And this one fixes patches unloading on some MIDI setups
     midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",1);
-	monochrome_console = (byte) get_config_int("zeldadx","monochrome_debuggers",0);
+	monochrome_console = (byte) get_config_int("CONSOLE","monochrome_debuggers",0);
 #endif
    
 #ifdef ALLEGRO_MACOSX
@@ -534,7 +534,7 @@ void save_game_configs()
     set_config_int("graphics","disable_direct_updating",disable_direct_updating);
     set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
     set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
-    set_config_int("zeldadx","monochrome_debuggers",monochrome_console);
+    set_config_int("CONSOLE","monochrome_debuggers",monochrome_console);
 	set_config_int("zeldadx","debug_console",zconsole);
 #endif
    
