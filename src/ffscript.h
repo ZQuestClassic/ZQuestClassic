@@ -17,6 +17,10 @@ void clear_global_stack();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
+enum { ccNone, ccWhite, ccWhiteIntense, ccRed, ccGreen, ccBlue, ccRedIntense, ccGreenIntense, ccBlueIntense,
+	ccRedGreen, ccRedBlue, ccGreenBlue, ccRedGreenIntense, ccRedBlueIntense, ccGreenBlueIntense };
+
+
 
 class FFScript
 {
