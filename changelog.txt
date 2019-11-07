@@ -1,6 +1,18 @@
 ChangeLog for 2.53.1
 
 //Beta 11
+Added additional include paths:
+	./include
+	./headers
+	./scripts
+	When #including or importing a file, the parser
+	will not scan root first, then scan (in order) include, headers, and scripts.
+	It will error only if the file is not in any of these
+	paths, and it will select the first instance of the file 
+	that it finds.
+	Thus, if you have foo.zh in both ./include and in ./headers,
+	the parser will select the file in ./include.
+	( ZoriaRPG, 7th November, 2019 )
 
 //Beta 10
 Fixed quest templates so that when creating a new quest, qr_LOG is on by default,

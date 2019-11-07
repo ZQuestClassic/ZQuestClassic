@@ -276,8 +276,26 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
     
     for(vector<ASTImportDecl *>::iterator it = imports.begin(); it != imports.end(); it++)
     {
+	    //the filename
+	    //Plan:
+	    /*
+		Add an iterator for number of imports
+		If iterator < 1:
+			Store it in a vector of strings
+			Incr iterator
+		else
+		scan vector for a match
+		if it matches, issue a warning in box_out
+			AND skip it
+			else incr iterator and try to import the file
+
+		if importing, scan include paths
+		this needs to be done in go()?
+	    
+	    
+	    */
         string fn = trimQuotes((*it)->getFilename());
-        
+        //this handles correcting the path for the host OS
         for(int i=0; fn[i]; i++)
         {
 #ifdef _ALLEGRO_WINDOWS
