@@ -292,6 +292,28 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
 		if importing, scan include paths
 		this needs to be done in go()?
 	    
+		No
+		before callong go(fn)
+		std::str tmpfn = "@@" +fn;
+		//if registerednames has no substring matching tempfn
+		    registerednames += tempfn;
+		//else, warn and skip
+		
+		We need a string that is global to the parser
+		As the parser INVOKES, clear it, and start tacking on delim+filename
+		string.find("substr")
+			if that returns string::npos, then we add it
+			if it returns anything else, then we warn and skip
+			    
+				if(string::npos == foundImports.find(name))
+				{
+				    foundImports += "@@" + name;
+				    //GO
+				}
+				else
+				{
+				    //WARN
+				}
 	    
 	    */
         string fn = trimQuotes((*it)->getFilename());
