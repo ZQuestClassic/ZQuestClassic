@@ -7094,6 +7094,7 @@ static MENU game_menu[] =
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
     { (char *)"L&oad Quest...",            onCustomGame,             NULL,                      0, NULL },
     { (char *)"Linear Quest Progression",             onLinearQuestLoad,                NULL,                      0, NULL },
+    { (char *)"Windows MIDI Patch",           onMIDIPatch,                    NULL,      0, NULL },
     
     { (char *)"&End Game\tF6",             onQuit,                   NULL,                      0, NULL },
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
@@ -7206,8 +7207,34 @@ int onLinearQuestLoad()
 	    if (linear_quest_loading ) linear_quest_loading = 0;
 	    
 	    else linear_quest_loading = 1;	
+		game_menu[3].flags =(linear_quest_loading)?D_SELECTED:0;
 		
 	}
+	save_game_configs();
+    return D_O_K;
+}
+
+int onMIDIPatch()
+{
+	if(jwin_alert3(
+			"Toggle Windows MIDI Fix", 
+			"This action will change whether ZC Player auto-restarts a MIDI at its",
+			"last index if you move ZC Player out of focus, then back into focus.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (midi_patch_fix) midi_patch_fix = 0;
+	    
+	    else midi_patch_fix = 1;	
+		
+	}
+	game_menu[4].flags =(midi_patch_fix)?D_SELECTED:0;
 	save_game_configs();
     return D_O_K;
 }
@@ -8710,7 +8737,8 @@ void System()
     
     game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
 	game_menu[3].flags =(linear_quest_loading)?D_SELECTED:0;
-    game_menu[4].flags =
+	game_menu[4].flags =(midi_patch_fix)?D_SELECTED:0;
+    game_menu[5].flags =
         misc_menu[5].flags = Playing ? 0 : D_DISABLED;
     misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
     
@@ -8828,6 +8856,7 @@ void System()
         settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
         //Epilepsy Prevention
 	settings_menu[13].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+	
 	reset_snapshot_format_menu();
         snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;
         
