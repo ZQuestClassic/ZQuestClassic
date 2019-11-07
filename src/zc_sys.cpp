@@ -369,7 +369,7 @@ void load_game_configs()
     use_dwm_flush = (byte) get_config_int("zeldadx","use_dwm_flush",0);
 	
 	// And this one fixes patches unloading on some MIDI setups
-	midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",0);
+	midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",1);
 #endif
     
 #ifdef ALLEGRO_MACOSX
