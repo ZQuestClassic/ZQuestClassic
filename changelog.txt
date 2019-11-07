@@ -1,8 +1,8 @@
 ChangeLog for 2.53.1
 
 //Beta 11
-Fixed the .cfg file to read monochrome_console under [CONSOLE]
-Add zc.cfg value monochrome_console to display the new 
+Fixed the .cfg file to read monochrome_debuggers = 1 under [CONSOLE]
+Add zc.cfg value monochrome_debuggers = 1 to display the new 
 	ZScript Debugger in monochrome (white).
 Added a menu option in ZC Player under Game to toggle the 
 	Windows MIDI patch.
