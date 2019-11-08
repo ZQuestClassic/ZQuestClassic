@@ -1783,6 +1783,7 @@ string ZScript::VarToString(long ID)
 	case DROPSETCHANCES: return "DROPSETCHANCES";
 	case DROPSETNULLCHANCE: return "DROPSETNULLCHANCE";
 	case DROPSETCHOOSE: return "DROPSETCHOOSE";
+	case NPCPARENTUID: return "NPCPARENTUID";
 	
 	
 	default:

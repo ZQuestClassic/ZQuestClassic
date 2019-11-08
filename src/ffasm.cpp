@@ -1737,6 +1737,7 @@ script_variable variable_list[]=
 	{"LWPNPARENT", LWPNPARENT, 0, 0 },
 	{"LWPNLEVEL", LWPNLEVEL, 0, 0 },
 	{"EWPNPARENT", EWPNPARENT, 0, 0 },
+	{"NPCPARENTUID", NPCPARENTUID, 0, 0 },
 	
 	
 	{"SHOPDATANAME", SHOPDATANAME, 0, 0 },

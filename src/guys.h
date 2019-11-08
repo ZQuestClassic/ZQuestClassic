@@ -102,6 +102,7 @@ public:
     long weap_initiald[8];
     long weap_initiala[2];
     byte stickclk;
+    int parent_script_UID;
    
     long dialogue_str; //WIll be set in spawn flags. 
     long editorflags; //Enemy editor flags 1 to 16

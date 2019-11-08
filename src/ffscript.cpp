@@ -4057,6 +4057,19 @@ long get_register(const long arg)
             ret = ((GuyH::getNPC()->getScriptUID())); //literal, not *10000
             
         break;
+	
+	case NPCPARENTUID:
+        if(GuyH::loadNPC(ri->guyref, "npc->ParentUID") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = ((GuyH::getNPC()->parent_script_UID)); //literal, not *10000
+            
+        break;
+	
+	//case EWPNPARENTUID:
+        //if(0!=(s=checkEWpn(ri->ewpn, "ScriptUID")))
+        //    ret=(((weapon*)(s))->parent_script_UID); //literal, not *10000
+            
         
     case NPCMFLAGS:
         if(GuyH::loadNPC(ri->guyref, "npc->MiscFlags") != SH::_NoError)

@@ -2544,7 +2544,7 @@ enum ASM_DEFINE
 #define UNUSED68             0x0287
 #define UNUSED69             0x0288
 #define UNUSED70             0x0289
-#define UNUSED71             0x028A
+#define NPCPARENTUID             0x028A
 #define EWPNPARENT             0x028B
 
 #define ITEMX                0x028C
