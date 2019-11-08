@@ -319,7 +319,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     hitsfx=d->hitsfx;
     deadsfx=d->deadsfx;
     bosspal=d->bosspal;
-    
+    parent_script_UID = 0;
     
     frozentile = d->frozentile;
     
@@ -12562,7 +12562,7 @@ bool eMoldorm::animate(int index)
             
             segment->o_tile=tile; //I refuse to fuck with adding scripttile to segmented enemies. -Z
 	    //Script your own blasted segmented bosses!! -Z
-            
+            segment->parent_script_UID = this->script_UID;
             if((i==index+segcnt)&&(i!=index+1))                   //tail
             {
                 segment->dummy_int[1]=2;
@@ -12811,7 +12811,7 @@ bool eLanmola::animate(int index)
         }
         
         segment->o_tile=o_tile;
-        
+        segment->parent_script_UID = this->script_UID;
         if((i==index+segcnt)&&(i!=index+1))
         {
             segment->dummy_int[1]=1;                //tail
@@ -13009,10 +13009,14 @@ bool eManhandla::animate(int index)
             if(!dmisc2)
             {
                 ((enemy*)guys.spr(index+i+1))->o_tile=o_tile+40;
+		enemy *s = ((enemy*)guys.spr(index+i+1));
+		s->parent_script_UID = this->script_UID;
             }
             else
             {
                 ((enemy*)guys.spr(index+i+1))->o_tile=o_tile+160;
+		enemy *s = ((enemy*)guys.spr(index+i+1));
+		s->parent_script_UID = this->script_UID;
             }
         }
         
@@ -13516,6 +13520,7 @@ bool eGleeok::animate(int index)
     {
         enemy *head = ((enemy*)guys.spr(index+i+1));
         head->dummy_int[1]=necktile;
+        head->parent_script_UID = this->script_UID;
         
         if(get_bit(quest_rules,qr_NEWENEMYTILES))
         {
@@ -14033,10 +14038,14 @@ bool ePatra::animate(int index)
             if(get_bit(quest_rules,qr_NEWENEMYTILES))
             {
                 ((enemy*)guys.spr(i))->o_tile=o_tile+dmisc8;
+		enemy *s = ((enemy*)guys.spr(i));
+		s->parent_script_UID = this->script_UID;
             }
             else
             {
                 ((enemy*)guys.spr(i))->o_tile=o_tile+1;
+		enemy *s = ((enemy*)guys.spr(i));
+		s->parent_script_UID = this->script_UID;
             }
             
             ((enemy*)guys.spr(i))->cs=dmisc9;

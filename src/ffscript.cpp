@@ -4084,6 +4084,19 @@ long get_register(const long arg)
             ret = ((GuyH::getNPC()->getScriptUID())); //literal, not *10000
             
         break;
+	
+	case NPCPARENTUID:
+        if(GuyH::loadNPC(ri->guyref, "npc->ParentUID") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = ((GuyH::getNPC()->parent_script_UID)); //literal, not *10000
+            
+        break;
+	
+	//case EWPNPARENTUID:
+        //if(0!=(s=checkEWpn(ri->ewpn, "ScriptUID")))
+        //    ret=(((weapon*)(s))->parent_script_UID); //literal, not *10000
+            
         
     case NPCMFLAGS:
         if(GuyH::loadNPC(ri->guyref, "npc->MiscFlags") != SH::_NoError)
@@ -5008,7 +5021,7 @@ case NPCBEHAVIOUR: {
         break;
 	
 	case EWPNPARENTUID:
-        if(0!=(s=checkEWpn(ri->ewpn, "ScriptUID")))
+        if(0!=(s=checkEWpn(ri->ewpn, "ParentUID")))
             ret=(((weapon*)(s))->parent_script_UID); //literal, not *10000
             
         break;
@@ -10961,6 +10974,12 @@ void set_register(const long arg, const long value)
             
         break;
 	
+	
+    case EWPNPARENTUID:
+        if(0!=(s=checkEWpn(ri->ewpn, "ParentUID")))
+        (((weapon*)(s))->parent_script_UID) = value; //literal, not *10000
+	break;
+	
    case EWPNPARENT:
         if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
             (((weapon*)(s))->parentid)= ( (get_bit(quest_rules,qr_OLDEWPNPARENT)) ? value / 10000 : value );
@@ -11354,6 +11373,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	}
     }
     break;
+    
+    case NPCPARENTUID:
+        if(GuyH::loadNPC(ri->guyref, "npc->ParentUID") == SH::_NoError)
+	{
+            GuyH::getNPC()->parent_script_UID = value; //literal, not *10000
+	}
+        break;
     
     case NPCHITBY:
     {
@@ -29372,6 +29398,7 @@ script_variable ZASMVars[]=
 	{ "DROPSETCHANCES",		DROPSETCHANCES,        0,             0 },
 	{ "DROPSETNULLCHANCE",		DROPSETNULLCHANCE,        0,             0 },
 	{ "DROPSETCHOOSE",		DROPSETCHOOSE,        0,             0 },
+	{ "NPCPARENTUID",		NPCPARENTUID,        0,             0 },
 	{ " ",                       -1,             0,             0 }
 };
 
