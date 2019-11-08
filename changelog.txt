@@ -1,6 +1,9 @@
 ChangeLog for 2.53.1
 
 //Beta 11
+Fixed instability and improper offsets from Import/Export tiles. 
+	( ZoriaRPG, 8th November, 2019 )
+
 Fixed the .cfg file to read monochrome_debuggers = 1 under [CONSOLE]
 Add zc.cfg value monochrome_debuggers = 1 to display the new 
 	ZScript Debugger in monochrome (white).

@@ -8428,12 +8428,12 @@ int readtilefile(PACKFILE *f)
 	al_trace("Reading tile: count(%d)\n", count);
 	
 	
-	byte *temp_tile = new byte[tilesize(tf32Bit)];
-	byte format=tf4Bit;
-	memset(temp_tile, 0, tilesize(tf32Bit));
+	
 
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
+		byte *temp_tile = new byte[tilesize(tf32Bit)];
+		byte format=tf4Bit;
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		if(!p_getc(&format,f,true))
 		{
@@ -8448,10 +8448,11 @@ int readtilefile(PACKFILE *f)
 			return 0;
 		}
 			    
-		reset_tile(newtilebuf, index+(tilect-1), format);
-		memcpy(newtilebuf[index+(tilect-1)].data,temp_tile,tilesize(newtilebuf[index+(tilect-1)].format));
+		reset_tile(newtilebuf, index+(tilect), format);
+		memcpy(newtilebuf[index+(tilect)].data,temp_tile,tilesize(newtilebuf[index+(tilect)].format));
+		delete[] temp_tile;
 	}
-	delete[] temp_tile;
+	
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
 	
@@ -8523,12 +8524,12 @@ int readtilefile_to_location(PACKFILE *f, int start, int skip)
 	al_trace("Reading tile: count(%d)\n", count);
 	
 	
-	byte *temp_tile = new byte[tilesize(tf32Bit)];
-	byte format=tf4Bit;
-	memset(temp_tile, 0, tilesize(tf32Bit));
+	
 
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
+		byte *temp_tile = new byte[tilesize(tf32Bit)];
+		byte format=tf4Bit;
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		if(!p_getc(&format,f,true))
 		{
@@ -8543,20 +8544,24 @@ int readtilefile_to_location(PACKFILE *f, int start, int skip)
 			return 0;
 		}
 			    
-		reset_tile(newtilebuf, start+(tilect-1), format);
+		reset_tile(newtilebuf, start+(tilect), format);
 		if ( skip )
 		{
-			if ( (start+(tilect-1)) < skip ) goto skip_tile_memcpy;
+			if ( (start+(tilect)) < skip ) 
+			{
+				delete[] temp_tile;
+				continue;
+			}
 			
 		}
-		if ( start+(tilect-1) < NEWMAXTILES )
+		if ( start+(tilect) < NEWMAXTILES )
 		{
-			memcpy(newtilebuf[start+(tilect-1)].data,temp_tile,tilesize(newtilebuf[start+(tilect-1)].format));
+			memcpy(newtilebuf[start+(tilect)].data,temp_tile,tilesize(newtilebuf[start+(tilect)].format));
 		}
+		delete[] temp_tile;
 		
 	}
-	skip_tile_memcpy:
-	delete[] temp_tile;
+	
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
 	
@@ -8628,12 +8633,12 @@ int readtilefile_to_location(PACKFILE *f, int start)
 	al_trace("Reading tile: count(%d)\n", count);
 	
 	
-	byte *temp_tile = new byte[tilesize(tf32Bit)];
-	byte format=tf4Bit;
-	memset(temp_tile, 0, tilesize(tf32Bit));
+	
 
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
+		byte *temp_tile = new byte[tilesize(tf32Bit)];
+		byte format=tf4Bit;
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		if(!p_getc(&format,f,true))
 		{
@@ -8648,13 +8653,14 @@ int readtilefile_to_location(PACKFILE *f, int start)
 			return 0;
 		}
 			    
-		reset_tile(newtilebuf, start+(tilect-1), format);
-		if ( start+(tilect-1) < NEWMAXTILES )
+		reset_tile(newtilebuf, start+(tilect), format);
+		if ( start+(tilect) < NEWMAXTILES )
 		{
-			memcpy(newtilebuf[start+(tilect-1)].data,temp_tile,tilesize(newtilebuf[start+(tilect-1)].format));
+			memcpy(newtilebuf[start+(tilect)].data,temp_tile,tilesize(newtilebuf[start+(tilect)].format));
 		}
+		delete[] temp_tile;
 	}
-	delete[] temp_tile;
+	
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
 	
@@ -8704,12 +8710,12 @@ int writetilefile(PACKFILE *f, int index, int count)
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
 	
-		if(!p_putc(newtilebuf[index+(tilect-1)].format,f))
+		if(!p_putc(newtilebuf[index+(tilect)].format,f))
 		{
 			return 0;
 		}
 		    
-		if(!pfwrite(newtilebuf[index+(tilect-1)].data,tilesize(newtilebuf[index+(tilect-1)].format),f))
+		if(!pfwrite(newtilebuf[index+(tilect)].data,tilesize(newtilebuf[index+(tilect)].format),f))
 		{
 			return 0;
 		}
@@ -12826,7 +12832,7 @@ int readcombofile(PACKFILE *f, int skip, byte nooverwrite)
 		
 		if ( skip )
 		{
-			if ( (index+(tilect-1)) < skip ) goto skip_combo_copy;
+			if ( (index+(tilect-1)) < skip ) goto skip_combo_copy; //is -1 here an error?
 			
 		}
 		
