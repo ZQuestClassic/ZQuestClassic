@@ -8569,7 +8569,7 @@ int writetilefile(PACKFILE *f, int index, int count)
 	
 	for ( int tilect = 0; tilect < count; tilect++ )
 	{
-		al_trace("Tile id: %d\n",index+(tilect));
+		//al_trace("Tile id: %d\n",index+(tilect));
 		if(!p_putc(newtilebuf[index+(tilect)].format,f))
 		{
 			return 0;
